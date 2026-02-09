@@ -29,43 +29,6 @@ function show_mirror_status() {
   fi
 }
 
-function mirror_to_registry_help_header() {
-  [[ -n "$1" ]] && echo_warning "$1"
-  reset_colors
-  cat << EOM
-Usage:
-  mas mirror-images [options]
-Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
-When no options are specified on the command line, interactive-mode will be enabled by default.
-
-Mirror Mode (Required):
-  -m, --mode ${COLOR_YELLOW}MIRROR_MODE${TEXT_RESET}                         Operation mode (direct, to-filesystem, from-filesystem)
-  -d, --dir ${COLOR_YELLOW}MIRROR_WORKING_DIR${TEXT_RESET}                   Working directory for the mirror process
-
-Registry Details (Required):
-  -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
-  -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
-  -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
-  -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
-
-Registry Prefix (Optional):
-  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}                    Prefix for the mirror image
-
-AWS Elastic Container Registry (Optional):
-  -r, --aws-ecr-region ${COLOR_YELLOW}REGISTRY_ECR_AWS_REGION${TEXT_RESET}    The AWS region if the target registry is Elastic Container Registry
-  -e, --target-is-ecr                                                         Indicate that the target registry is Elastic Container Registry
-
-Source Registry Entitlements (Required based on what content you choose to mirror):
-      --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
-      --artifactory-username ${COLOR_YELLOW}ARTIFACTORY_USERNAME${TEXT_RESET} Artifactory Username
-      --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}       Artifactory Token
-
-Maximo Operator Catalog Selection (Optional):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)
-  -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 9.1.x)
-EOM
-}
-
 function mirror_to_registry_interactive_common() {
   load_config
   echo
@@ -148,6 +111,8 @@ function mirror_to_registry_common() {
   export ARTIFACTORY_USERNAME
   export ARTIFACTORY_TOKEN
 
+  set_target_arch
+
   echo
   reset_colors
   echo_h2 "Review Settings"
@@ -171,6 +136,7 @@ function mirror_to_registry_common() {
   echo_h4 "IBM Operator Catalog" "    "
   echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
   echo_reset_dim "MAS Update Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
+  echo_reset_dim "Target Architecture ................. ${COLOR_MAGENTA}${MIRROR_SINGLE_ARCH}"
 }
 
 function confirm_mirror() {
@@ -190,4 +156,17 @@ function confirm_mirror() {
 
   export ARTIFACTORY_USERNAME=""
   export ARTIFACTORY_TOKEN=""
+}
+
+function set_target_arch() {
+  if [[ "$MAS_CATALOG_VERSION" == *"amd64"* ]]; then
+    export MIRROR_SINGLE_ARCH="amd64"
+  elif [[ "$MAS_CATALOG_VERSION" == *"ppc64le"* ]]; then
+    export MIRROR_SINGLE_ARCH="ppc64le"
+  elif [[ "$MAS_CATALOG_VERSION" == *"s390x"* ]]; then
+    export MIRROR_SINGLE_ARCH="s390x"
+  else
+    echo -e "${COLOR_RED}Usage Error: Could not determine target architecture from catalog version: $MAS_CATALOG_VERSION${TEXT_RESET}\n"
+    exit 1
+  fi
 }

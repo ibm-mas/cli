@@ -12,17 +12,15 @@ nav:
       - "Image Mirroring": guides/image-mirroring.md
       - "Image Validation": guides/image-validation.md
       - "Install": guides/install.md
+      - "AI Service Standalone Install": guides/aiservice-install.md
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
       - "Uninstall": guides/uninstall.md
-      - "MRE&F External DB Setup": guides/facilities-external-db.md
   - "Examples":
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md
       - "Minimal RBAC": examples/minimal-rbac.md
   - "Command Reference":
-      - "update": commands/update.md
-      - "upgrade": commands/upgrade.md
       - "uninstall": commands/uninstall.md
       - "must-gather": commands/must-gather.md
       - "configure-airgap": commands/configure-airgap.md
@@ -35,10 +33,10 @@ nav:
       - "configtool-oidc": commands/configtool-oidc.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
-      - "Dec 24 2025": catalogs/v9-251224-amd64.md
+      - "Jan 29 2026": catalogs/v9-260129-amd64.md
+      - "Dec 31 2025": catalogs/v9-251231-amd64.md
       - "Nov 27 2025": catalogs/v9-251127-amd64.md
       - "Oct 30 2025": catalogs/v9-251030-amd64.md
-      - "Oct 10 2025": catalogs/v9-251010-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
@@ -63,7 +61,7 @@ extra_css:
 
 markdown_extensions:
   - toc:
-      permalink: "¤"
+      permalink: true
   - admonition
     # https://squidfunk.github.io/mkdocs-material/extensions/admonition/
     # Note
@@ -81,6 +79,8 @@ markdown_extensions:
 
 plugins:
   - search: {}
+  - mas_catalogs
+  - mas_cli
   - redirects:
       redirect_maps:
         "guides/architecture/core.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-core-services"
@@ -88,6 +88,8 @@ plugins:
         "guides/choosing-the-right-catalog.md": "catalogs/index.md"
         "commands/mirror-images.md": "guides/image-mirroring.md"
         "commands/install.md": "guides/install.md"
+        "commands/update.md": "guides/update.md"
+        "commands/upgrade.md": "guides/upgrade.md"
   - glightbox:
       shadow: true
       caption_position: bottom

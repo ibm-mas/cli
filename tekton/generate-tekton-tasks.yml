@@ -52,6 +52,7 @@
         - minio
         - aiservice
         - odh
+        - rhoai
         - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
@@ -72,6 +73,7 @@
         - mas-fvt-deprovision-cos
         - mas-fvt-deprovision-kafka
         - mas-fvt-finalize
+        - mas-fvt-pipeline-finish-and-deprovision
         - mas-fvt-iot
         - mas-fvt-manage
         - mas-fvt-mobile-testng
@@ -104,6 +106,7 @@
         - mas-launchfvt-finally
         - mas-launchfvt-iot
         - mas-launchfvt-manage
+        - mas-launchfvt-manage-ai
         - mas-launchfvt-manage-is
         - mas-launchfvt-mobile
         - mas-launchfvt-monitor
@@ -250,14 +253,18 @@
         - gitops-suite
         - gitops-odh
         - gitops-deprovision-odh
-
         - gitops-aiservice
         - gitops-aiservice-tenant
         - gitops-deprovision-aiservice-tenant
         - gitops-deprovision-aiservice
+        - gitops-app-config
+        - gitops-delete-app-config
         - gitops-iac-create-branch
         - gitops-iac-generate-common-files
         - gitops-iac-manage-pr
         - gitops-iac-provision-efs
         - gitops-iac-provision-s3
+        - gitops-iac-provision-msk
+        - gitops-rds-db2-database
+        - gitops-iac-provision-rdsdb2
 

@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+from typing import TYPE_CHECKING, Dict, List
 from prompt_toolkit.completion import WordCompleter
 from mas.cli.validators import LanguageValidator
 from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
@@ -19,32 +20,74 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+if TYPE_CHECKING:
+    from openshift.dynamic import DynamicClient
+    from prompt_toolkit.validation import Validator
+
+
 class ManageSettingsMixin():
+    if TYPE_CHECKING:
+        # Attributes from BaseApp and other mixins
+        params: Dict[str, str]
+        manageAppName: str
+        showAdvancedOptions: bool
+        isManageFoundation: bool
+        installManage: bool
+        installAIService: bool
+        supportedLanguages: List[str]
+        dynamicClient: DynamicClient
 
-    def arcgisSettings(self) -> None:
-        # If Spatial is selected, then prompt to choose to add IBM Maximo Location Services for Esri, and prompt license
-        if "spatial=" in self.getParam("mas_appws_components") and self.getParam("mas_app_channel_manage").startswith("9."):
-            self.printDescription([
-                "",
-                "Maximo Spatial requires a map server provider in order to enable geospatial capabilities",
-                "You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now",
-                f"This includes ArcGIS Enterprise as part of the {self.manageAppName} and Maximo Spatial bundle (Additional AppPoints required)."
-            ])
+        # Methods from BaseApp
+        def setParam(self, param: str, value: str) -> None:
+            ...
 
-            if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
-                self.setParam("install_arcgis", "true")
-                self.setParam("mas_arcgis_channel", self.getParam("mas_app_channel_manage"))
+        def getParam(self, param: str) -> str:
+            ...
 
-                self.printDescription([
-                    "",
-                    "IBM Maximo Location Services for Esri License Terms",
-                    "For information about your IBM Maximo Location Services for Esri License visit: ",
-                    " - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>",
-                    "To continue with the installation, you must accept these additional license terms"
-                ])
+        def isSNO(self) -> bool:
+            ...
 
-                if not self.yesOrNo("Do you accept the license terms"):
-                    exit(1)
+        def fatalError(self, message: str, exception: Exception | None = None) -> None:
+            ...
+
+        # Methods from PrintMixin
+        def printH1(self, message: str) -> None:
+            ...
+
+        def printH2(self, message: str) -> None:
+            ...
+
+        def printDescription(self, content: List[str]) -> None:
+            ...
+
+        # Methods from PromptMixin
+        def yesOrNo(self, message: str, param: str | None = None) -> bool:
+            ...
+
+        def promptForString(
+            self,
+            message: str,
+            param: str | None = None,
+            default: str = "",
+            isPassword: bool = False,
+            validator: Validator | None = None,
+            completer: WordCompleter | None = None
+        ) -> str:
+            ...
+
+        def promptForInt(
+            self,
+            message: str,
+            param: str | None = None,
+            default: int | None = None,
+            min: int | None = None,
+            max: int | None = None
+        ) -> int:
+            ...
+
+        # Methods from other mixins
+        def configCP4D(self) -> None:
+            ...
 
     def manageSettings(self) -> None:
         if self.installManage:
@@ -52,7 +95,6 @@ class ManageSettingsMixin():
             self.printDescription([f"Customize your {self.manageAppName} installation, refer to the product documentation for more information"])
 
             self.manageSettingsComponents()
-            self.arcgisSettings()
 
             self.manageSettingsServerBundleConfig()
             self.manageSettingsJMS()
@@ -263,24 +305,24 @@ class ManageSettingsMixin():
         self.printH2(f"Maximo {self.manageAppName} Settings - Other")
         self.supportedLanguages = ["AR", "CS", "DA", "DE", "EN", "ES", "FI", "FR", "HE", "HR", "HU", "IT", "JA", "KO", "NL", "NO", "PL", "PT-BR", "RU", "SK", "SL", "SV", "TR", "UK", "ZH-CN", "ZH-TW"]
         if self.isManageFoundation:
-            self.printDescription([
-                "Configure additional settings:",
-                "  - Base and additional languages",
-                "  - Server timezone"
-            ])
-            if self.yesOrNo("Configure Additional Settings"):
+            if self.showAdvancedOptions:
+                self.printDescription([
+                    "Configure additional settings:",
+                    "  - Base and additional languages",
+                    "  - Server timezone"
+                ])
                 self.manageSettingsTimezone()
                 self.manageSettingsLanguages()
         else:
-            self.printDescription([
-                "Configure additional settings:",
-                "  - Demo data",
-                "  - Base and additional languages",
-                "  - Server timezone",
-                "  - Cognos integration (install Cloud Pak for Data)",
-                "  - Watson Studio Local integration (install Cloud Pak for Data)"
-            ])
-            if self.yesOrNo("Configure Additional Settings"):
+            if self.showAdvancedOptions:
+                self.printDescription([
+                    "Configure additional settings:",
+                    "  - Demo data",
+                    "  - Base and additional languages",
+                    "  - Server timezone",
+                    "  - Cognos integration (install Cloud Pak for Data)",
+                    "  - Watson Studio Local integration (install Cloud Pak for Data)"
+                ])
                 self.manageSettingsDemodata()
                 self.manageSettingsTimezone()
                 self.manageSettingsLanguages()

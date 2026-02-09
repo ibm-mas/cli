@@ -9,24 +9,87 @@
 # *****************************************************************************
 
 from os import path
+from typing import TYPE_CHECKING, Dict, List, Any
 from prompt_toolkit import print_formatted_text
 
 
+if TYPE_CHECKING:
+    # Type hints for methods and attributes provided by other mixins
+    # These are only used during type checking and have no runtime cost
+    from prompt_toolkit.completion import WordCompleter
+    from prompt_toolkit.validation import Validator
+
+
 class Db2SettingsMixin():
+    if TYPE_CHECKING:
+        # Attributes from BaseApp and other mixins
+        params: Dict[str, str]
+        devMode: bool
+        installIoT: bool
+        installManage: bool
+        installFacilities: bool
+        manageAppName: str
+        showAdvancedOptions: bool
+        localConfigDir: str | None
+
+        # Methods from BaseApp
+        def setParam(self, param: str, value: str) -> None:
+            ...
+
+        def getParam(self, param: str) -> str:
+            ...
+
+        def isSNO(self) -> bool:
+            ...
+
+        # Methods from PrintMixin
+        def printH1(self, message: str) -> None:
+            ...
+
+        def printH2(self, message: str) -> None:
+            ...
+
+        def printDescription(self, content: List[str]) -> None:
+            ...
+
+        # Methods from PromptMixin
+        def yesOrNo(self, message: str, param: str | None = None) -> bool:
+            ...
+
+        def promptForString(
+            self,
+            message: str,
+            param: str | None = None,
+            default: str = "",
+            isPassword: bool = False,
+            validator: Validator | None = None,
+            completer: WordCompleter | None = None
+        ) -> str:
+            ...
+
+        def promptForListSelect(
+            self,
+            message: str,
+            options: List[str],
+            param: str | None = None,
+            default: int | None = None
+        ) -> str:
+            ...
+
+        # Methods from ConfigGeneratorMixin or InstallSettingsMixin
+        def selectLocalConfigDir(self) -> None:
+            ...
+
+        def generateJDBCCfg(self, **kwargs: Any) -> None:
+            ...
+
     # In silentMode, no prompts will show up for "happy path" DB2 configuration scenarios. Prompts will still show up when an input is absolutely required
     # Settings under showAdvancedOptions are always prompted
     def configDb2(self, silentMode=False) -> None:
         if not silentMode:
             self.printH1("Configure Databases")
 
-        # Set the default db2-Channel
-        default_db2_channel = "v110509.0"
-        # Get user-specified value
-        user_channel = self.getParam("db2_channel")
-
-        # Only allow custom db2_channel in devMode with a non-empty value
-        db2_channel = user_channel if (self.devMode and user_channel) else default_db2_channel
-        self.params["db2_channel"] = db2_channel
+        self.setDB2DefaultChannel()  # Set default channel for Db2 if not already set
 
         # If neither Iot, Manage or Facilities is being installed, we have nothing to do
         if not self.installIoT and not self.installManage and not self.installFacilities:
@@ -65,6 +128,7 @@ class Db2SettingsMixin():
                 self.selectLocalConfigDir()
 
                 # Check if a configuration already exists before creating a new one
+                assert self.localConfigDir is not None, "localConfigDir must be set"
                 jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-system.yaml")
                 print_formatted_text(f"Searching for system database configuration file in {jdbcCfgFile} ...")
                 if path.exists(jdbcCfgFile):
@@ -101,13 +165,13 @@ class Db2SettingsMixin():
                     createSystemDb2UsingUniversalOperator = self.yesOrNo(f"Create {self.manageAppName} dedicated Db2 instance using the IBM Db2 Universal Operator")
                 if createSystemDb2UsingUniversalOperator:
                     self.setParam("db2_action_manage", "install")
-                    if not silentMode:
+                    if self.showAdvancedOptions and not silentMode:
                         self.printDescription([
                             f"Available Db2 instance types for {self.manageAppName}:",
                             "  1. DB2 Warehouse (Default option)",
                             "  2. DB2 Online Transactional Processing (OLTP)"
                         ])
-                        self.promptForListSelect(message=f"Select the {self.manageAppName} dedicated DB2 instance type", options=["db2wh", "db2oltp"], param="db2_type", default="1")
+                        self.promptForListSelect(message=f"Select the {self.manageAppName} dedicated DB2 instance type", options=["db2wh", "db2oltp"], param="db2_type", default=1)
                     else:
                         self.setParam("db2_type", "db2wh")
                 else:
@@ -117,6 +181,7 @@ class Db2SettingsMixin():
                     self.selectLocalConfigDir()
 
                     # Check if a configuration already exists before creating a new one
+                    assert self.localConfigDir is not None, "localConfigDir must be set"
                     jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-manage.yaml")
                     print_formatted_text(f"Searching for {self.manageAppName} database configuration file in {jdbcCfgFile} ...")
                     if path.exists(jdbcCfgFile):
@@ -140,6 +205,7 @@ class Db2SettingsMixin():
                 self.selectLocalConfigDir()
 
                 # Check if a configuration already exists before creating a new one
+                assert self.localConfigDir is not None, "localConfigDir must be set"
                 jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-facilities.yaml")
                 print_formatted_text(f"Searching for Real Estate and Facilities database configuration file in {jdbcCfgFile} ...")
                 if path.exists(jdbcCfgFile):
@@ -205,6 +271,27 @@ class Db2SettingsMixin():
                     self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
             else:
                 self.setParam("db2_namespace", "db2u")
+
+    def setDB2DefaultChannel(self) -> None:
+        # Set the default db2-Channel
+        if hasattr(self, 'catalogDb2Channel'):
+            # Best case: catalogDb2Channel was set by processCatalogChoice()
+            default_db2_channel = self.catalogDb2Channel
+        elif hasattr(self, 'chosenCatalog') and self.chosenCatalog is not None:
+            # Fallback: Get directly from chosenCatalog if available
+            default_db2_channel = self.chosenCatalog.get("db2_channel_default", "v110509.0")
+        else:
+            # Use hardcoded fallback
+            default_db2_channel = "v110509.0"
+
+        if not self.devMode:
+            db2_channel = default_db2_channel
+        else:
+            # In dev mode, allow user override if provided
+            user_channel = self.getParam("db2_channel")
+            db2_channel = user_channel if user_channel else default_db2_channel
+
+        self.params["db2_channel"] = db2_channel
 
     def setDB2DefaultSettings(self) -> None:
 

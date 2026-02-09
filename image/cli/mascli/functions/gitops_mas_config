@@ -17,7 +17,7 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
   -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
-  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
+  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
   --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
 
@@ -48,6 +48,12 @@ DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
   --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
 
+MAF Configuration (required if MAS_CONFIG_TYPE is "appcfg"):
+  --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                       Enable MAF for the application configuration (true|false)
+  --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}    Storage class name to use for MAF persistent storage
+  --maf-size ${COLOR_YELLOW}MAF_SIZE${TEXT_RESET}                             Size of the MAF persistent storage (e.g. 2Gi)
+  --mas-appcfg-pod-template-yaml ${COLOR_YELLOW}MAS_APPCFG_POD_TEMPLATE_YAML${TEXT_RESET}   
+
 IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}       Display name for IDPCfg resource
   --ldap-url ${COLOR_YELLOW}LDAP_URL${TEXT_RESET}                             Url of the LDAP server. In the form protocol://host:port
@@ -60,7 +66,7 @@ IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
 JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
   --jdbc-type ${COLOR_YELLOW}JDBC_TYPE${TEXT_RESET}                           Set to 'incluster-db2' when wanting to use the gitops configured, via gitops-db2u-database, db2u cluster (defaults to incluster-db2)
   --jdbc-instance-name ${COLOR_YELLOW}JDBC_INSTANCE_NAME${TEXT_RESET}         The JDBC instance name to use. Required for all JDBC_TYPE's
-  --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2
+  --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2 and rds-db2
   --jdbc-certificate-file ${COLOR_YELLOW}JDBC_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for JDBC server. Required when JDBC_TYPE is not incluster-db2
   --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                         By default routes are not exposed to public. To expose route, set this to public.
 
@@ -201,7 +207,18 @@ function gitops_mas_config_noninteractive() {
       --mas-bascfg-pod-template-yaml)
         export MAS_BASCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
-
+      --mas-appcfg-pod-template-yaml)
+        export MAS_APPCFG_POD_TEMPLATE_YAML=$1 && shift
+        ;;
+      --maf-enabled)
+        export MAF_ENABLED=$1 && shift
+        ;; 
+      --maf-storageClassName)
+        export MAF_STORAGE_CLASSNAME=$1 && shift
+        ;;
+      --maf-size)
+        export MAF_SIZE=$1 && shift
+        ;;
       # LDAP
       --idpcfg-display-name)
         export IDPCFG_DISPLAY_NAME=$1 && shift
@@ -352,8 +369,8 @@ function gitops_mas_config_noninteractive() {
   fi
 
   [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_CONFIG_TYPE is not set"
-  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
-    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
+  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
+    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
 
   [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_mas_config_help "MAS_CONFIG_SCOPE is not set"
@@ -389,6 +406,11 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$DRO_CA_CERTIFICATE_FILE" ]] && gitops_mas_config_help "DRO_CA_CERTIFICATE_FILE is not set"
     fi
 
+    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+      [[ -z "$MAF_ENABLED" ]] && gitops_mas_config_help "MAF_ENABLED is not set"
+      [[ -z "$MAF_SIZE" ]] && gitops_mas_config_help "MAF_SIZE is not set"
+      [[ -z "$MAF_STORAGE_CLASSNAME" ]] && gitops_mas_config_help "MAF_STORAGE_CLASSNAME is not set"
+    fi
     # if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       # No specific parameters required for sls at present; they are all fetched from SM
     # fi
@@ -410,11 +432,16 @@ function gitops_mas_config_noninteractive() {
       export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
       export JDBC_ROUTE=${JDBC_ROUTE:-default}
 
-      if [[ -z $JDBC_INSTANCE_NAME ]]; then
-        export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+      # Set JDBC instance name based on JDBC_TYPE
+      if [[ -z "$JDBC_INSTANCE_NAME" ]]; then
+        if [[ "$JDBC_TYPE" == "rds-db2" ]]; then
+          export JDBC_INSTANCE_NAME=rds-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+        else
+          export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+        fi
       fi
-      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
-        [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2"
+      if [[ "${JDBC_TYPE}" == "incluster-db2" || "${JDBC_TYPE}" == "rds-db2" ]]; then
+        [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2 or rds-db2"
       else
         [[ -z "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is not set"
         [[ -z "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is not set"
@@ -592,7 +619,14 @@ function gitops_mas_config() {
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_BASCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
-
+    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "MAF Enabled  ................... ${COLOR_MAGENTA}${MAF_ENABLED}"
+      echo_reset_dim "MAF Storage Class Name  ........ ${COLOR_MAGENTA}${MAF_STORAGE_CLASSNAME}"
+      echo_reset_dim "MAF Size  ...................... ${COLOR_MAGENTA}${MAF_SIZE}"
+      echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_APPCFG_POD_TEMPLATE_YAML}"
+      reset_colors
+    fi
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "SLS URL  ....................... ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
@@ -748,6 +782,17 @@ function gitops_mas_config() {
       fi
     fi
 
+    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+
+      # Set pod template yaml
+      # ---------------------------------------------------------------------------
+      if [[ -n "$MAS_APPCFG_POD_TEMPLATE_YAML" && -s "$MAS_APPCFG_POD_TEMPLATE_YAML" ]]; then
+        export MAS_APPCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_APPCFG_POD_TEMPLATE_YAML})
+        echo -e "\n - MAS_APPCFG_POD_TEMPLATE CONTENT .................. ${MAS_APPCFG_POD_TEMPLATE}"
+      fi
+
+    fi
+
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       if [ -z "$STANDALONE_SLS_SERVICE" ]; then
         export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls"
@@ -857,6 +902,9 @@ function gitops_mas_config() {
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
         export SECRET_KEY_DB2_DBNAME=${JDBC_CONFIG_SECRET_ID}#db2_dbname
         export SECRET_KEY_DB2_NAMESPACE=${JDBC_CONFIG_SECRET_ID}#db2_namespace
+      elif [ "${JDBC_TYPE}" == "rds-db2" ]; then
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export JDBC_CERTIFICATE_CONTENT_B64=$(cat $JDBC_CERTIFICATE_FILE | base64 -w0)
       else
         # This secret we are creating here
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
@@ -866,7 +914,6 @@ function gitops_mas_config() {
         echo_reset_dim "JDBC_INSTANCE_NAME ........................ ${COLOR_MAGENTA}$JDBC_INSTANCE_NAME"
         echo_reset_dim "JDBC_CONNECTION_URL ....................... ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
       fi
-
       export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
       export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
       export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_CONFIG_SECRET_ID}#jdbc_instance_name
