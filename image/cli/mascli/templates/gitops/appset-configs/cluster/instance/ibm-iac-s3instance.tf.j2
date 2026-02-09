@@ -1,7 +1,12 @@
-module "s3buckets_instance" {
+module "s3buckets_instance_{{APP_NAME}}" {
   source = "{{ S3_SOURCE }}"
 
-  depends_on = [module.account_policy]
+  depends_on = [module.account_policy_{{APP_NAME}}]
+
+  providers = {
+    aws    = aws
+    aws.dr = aws.dr
+  }
 
   tags                    = var.common_tags
   name_prefix             = var.name_prefix

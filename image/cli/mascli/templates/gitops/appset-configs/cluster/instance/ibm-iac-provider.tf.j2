@@ -1,3 +1,10 @@
 provider "aws" {
   region = "{{REGION_NAME}}"
 }
+
+{%- if (IS_S3 | lower == 'true') -%}
+provider "aws" {
+  alias  = "dr"
+  region = "us-east-1"
+}
+{%- endif %}
