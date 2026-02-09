@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -127,6 +127,15 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_enable_walkme') == "false":
             command += f"  --disable-walkme{newline}"
+
+        if self.getParam('mas_feature_usage') == "false":
+            command += f"  --disable-feature-usage{newline}"
+
+        if self.getParam('mas_usability_metrics') == "false":
+            command += f"  --disable-usability-metrics{newline}"
+
+        if self.getParam('mas_deployment_progression') == "false":
+            command += f"  --disable-deployment-progression{newline}"
 
         if self.getParam('enable_ipv6') is True:
             command += f"  --enable-ipv6{newline}"

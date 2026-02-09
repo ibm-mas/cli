@@ -470,6 +470,30 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
 
     @logMethodCall
+    def configReportAdoptionMetricsFlag(self):
+        if self.showAdvancedOptions and isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")):
+            self.printH1("Adoption Metrics Reporting")
+            self.printDescription([
+                "Adoption Metrics are used by IBM to measure feature adoption, user engagement, and the success of product initiatives.",
+                "You can control three types of metrics:",
+                " - Feature Adoption: Tracks feature usage to understand adoption and improve the product",
+                " - Deployment Progression: Tracks progression of tasks and workflows within the product",
+                " - Usability: Tracks user interface interactions to improve usability",
+                "",
+                "When enabled (y), you permit IBM to capture and analyze these metrics to help improve the Maximo Application Suite experience.",
+                "When disabled (n), you are opting out of sending that specific metric type to IBM."
+            ])
+
+            if not self.yesOrNo("Enable feature adoption metrics"):
+                self.setParam("mas_feature_usage", "false")
+
+            if not self.yesOrNo("Enable deployment progression metrics"):
+                self.setParam("mas_deployment_progression", "false")
+
+            if not self.yesOrNo("Enable usability metrics"):
+                self.setParam("mas_usability_metrics", "false")
+
+    @logMethodCall
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in self.catalogOptions:
             # Note: this will override any version provided by the user (which is intentional!)
@@ -557,6 +581,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configDNSAndCerts()
         self.configSSOProperties()
         self.configSpecialCharacters()
+        self.configReportAdoptionMetricsFlag()
         self.configGuidedTour()
 
     @logMethodCall
