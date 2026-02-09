@@ -1,16 +1,16 @@
-resource "time_sleep" "wait_for_iam_{{APP_NAME}}" {
-  depends_on = [module.account_policy_{{APP_NAME}}]
+resource "time_sleep" "wait_for_iam_{{APP_NAME}}_bucket" {
+  depends_on = [module.account_policy_{{APP_NAME}}_bucket]
   create_duration = "60s"
 }
 
-module "s3buckets_access_point_{{APP_NAME}}" {
+module "s3buckets_access_point_{{APP_NAME}}_bucket" {
   source = "{{ S3_SOURCE_S3ACCESSPOINT }}"
   for_each = {
     for k, v in local.cluster.instance.{{APP_NAME}}_s3buckets :
     k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name)) || can(regex("mvi", v.name))
   }
 
-  depends_on = [module.s3buckets_instance_{{APP_NAME}}, module.account_policy_{{APP_NAME}}, time_sleep.wait_for_iam_{{APP_NAME}}]
+  depends_on = [module.s3buckets_instance_{{APP_NAME}}_bucket, module.account_policy_{{APP_NAME}}_bucket, time_sleep.wait_for_iam_{{APP_NAME}}_bucket]
 
   name_prefix                    = each.value.name_prefix
   s3_access_point_bucket_id      = each.value.id

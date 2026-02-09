@@ -1,7 +1,7 @@
-module "s3buckets_instance_{{APP_NAME}}" {
+module "s3buckets_instance_{{APP_NAME}}_bucket" {
   source = "{{ S3_SOURCE }}"
 
-  depends_on = [module.account_policy_{{APP_NAME}}]
+  depends_on = [module.account_policy_{{APP_NAME}}_bucket]
 
   providers = {
     aws    = aws

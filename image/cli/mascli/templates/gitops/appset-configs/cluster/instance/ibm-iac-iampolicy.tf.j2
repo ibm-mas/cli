@@ -1,4 +1,4 @@
-module "account_policy_{{APP_NAME}}" {
+module "account_policy_{{APP_NAME}}_bucket" {
   source               = "{{ S3_SOURCE_IAMPOLICY }}"
   name_prefix          = var.name_prefix
   create_s3_iam_group  = var.create_s3_iam_group
