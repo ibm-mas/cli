@@ -150,6 +150,9 @@ optionalParams = [
     "artifactory_token",
     # Guided Tour
     "mas_enable_walkme",
+    "mas_feature_usage",
+    "mas_usability_metrics",
+    "mas_deployment_progression",
     # Facilities
     "mas_ws_facilities_size",
     "mas_ws_facilities_routes_timeout",
@@ -168,6 +171,9 @@ optionalParams = [
     "mas_special_characters",
     # ODH
     "aiservice_odh_model_deployment_type",
+    # RHOAI
+    "aiservice_rhoai_model_deployment_type",
+    "rhoai",
     # AI Service
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
