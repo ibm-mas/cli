@@ -397,7 +397,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             except NotFoundError:
                 self.setParam("grafana_action", "none")
 
-            if self.interactiveMode and self.showAdvancedOptions:
+            if self.isInteractiveMode and self.showAdvancedOptions:
                 self.printH1("Configure Grafana")
                 if self.getParam("grafana_action") == "none":
                     print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
@@ -937,10 +937,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.installFacilities = False
 
-        # TODO: May be have to change this condition if Manage 9.0 is not supporting AI Cofig Application
         # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
-
-        if self.devMode or isVersionEqualOrAfter('9.0.0', self.getParam("mas_app_channel_manage")):
+        if isVersionEqualOrAfter('9.0.0', self.getParam("mas_app_channel_manage")):
             self.installAIService = self.yesOrNo("Install AI Service")
             if self.installAIService:
                 self.configAIService()
@@ -1294,7 +1292,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
-        self.interactiveMode = True
+        self.isInteractiveMode = True
 
         if simplified:
             self.showAdvancedOptions = False
@@ -1349,7 +1347,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
-        self.interactiveMode = False
+        self.isInteractiveMode = False
 
         # Set defaults
         # ---------------------------------------------------------------------
@@ -1771,7 +1769,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ])
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
-        if not self.interactiveMode and self.getParam("mas_routing_mode") == "path":
+        if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
             ingressControllerName = None
             if hasattr(self.args, 'mas_ingress_controller_name') and self.args.mas_ingress_controller_name:
                 ingressControllerName = self.args.mas_ingress_controller_name
