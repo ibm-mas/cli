@@ -37,7 +37,8 @@ class InstallTestConfig:
         storage_provider_name: str = 'NFS Client',
         ocp_version: str = '4.18.0',
         timeout_seconds: int = 30,
-        expect_system_exit: bool = False
+        expect_system_exit: bool = False,
+        argv: Optional[list] = None
     ):
         """
         Initialize test configuration.
@@ -54,6 +55,7 @@ class InstallTestConfig:
             ocp_version: OpenShift version
             timeout_seconds: Timeout for watchdog (default 30s)
             expect_system_exit: Whether to expect SystemExit to be raised
+            argv: Command line arguments to pass to app.install() (default: [])
         """
         self.prompt_handlers = prompt_handlers
         self.current_catalog = current_catalog
@@ -66,6 +68,7 @@ class InstallTestConfig:
         self.ocp_version = ocp_version
         self.timeout_seconds = timeout_seconds
         self.expect_system_exit = expect_system_exit
+        self.argv = argv if argv is not None else []
 
 
 class InstallTestHelper:
@@ -124,6 +127,7 @@ class InstallTestHelper:
         namespace_api = MagicMock()
         cluster_role_binding_api = MagicMock()
         pvc_api = MagicMock()
+        configmap_api = MagicMock()
         secret_api = MagicMock()
         storage_class_api = MagicMock()
         license_api = MagicMock()
@@ -141,6 +145,7 @@ class InstallTestHelper:
             'Namespace': namespace_api,
             'ClusterRoleBinding': cluster_role_binding_api,
             'PersistentVolumeClaim': pvc_api,
+            'ConfigMap': configmap_api,
             'Secret': secret_api,
             'StorageClass': storage_class_api,
             'LicenseService': license_api,
@@ -190,7 +195,7 @@ class InstallTestHelper:
         # Create prompt tracker
         self.prompt_tracker, prompt_handler = create_prompt_handler(self.config.prompt_handlers)
 
-        def wrapped_prompt_handler(**kwargs):
+        def wrapped_prompt_handler(*args, **kwargs):
             """Handle prompts and update watchdog timer."""
             # Check if test has timed out
             if self.test_failed['failed']:
@@ -200,7 +205,7 @@ class InstallTestHelper:
             self.last_prompt_time['time'] = time.time()
 
             # Use the prompt tracker to handle the prompt
-            return prompt_handler(**kwargs)
+            return prompt_handler(*args, **kwargs)
 
         # Set the same handler for all prompt mocks
         mixins_prompt.side_effect = wrapped_prompt_handler
@@ -272,7 +277,7 @@ class InstallTestHelper:
 
                 try:
                     app = InstallApp()
-                    app.install(argv=[])
+                    app.install(argv=self.config.argv)
                 except SystemExit as e:
                     system_exit_raised = True
                     exit_code = e.code
