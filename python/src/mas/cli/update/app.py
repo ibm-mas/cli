@@ -19,7 +19,7 @@ from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser
-from mas.devops.data import getCatalog
+from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.aiservice import listAiServiceInstances
@@ -98,7 +98,7 @@ class UpdateApp(BaseApp):
         isMasInstalled = self.reviewMASInstance()
         isAiServiceInstalled = self.reviewAiServiceInstance()
         if not isMasInstalled and not isAiServiceInstalled:
-            self.fatalError(["No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details"])
+            self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
 
         if self.args.mas_catalog_version is None:
             # Interactive mode
@@ -107,6 +107,8 @@ class UpdateApp(BaseApp):
         # Validations
         if not self.devMode:
             self.validateCatalog()
+        else:
+            self.chosenCatalog = getCatalog(getNewestCatalogTag())
 
         self.printH1("Dependency Update Checks")
         with Halo(text='Checking for IBM Watson Discovery', spinner=self.spinner) as h:
@@ -326,11 +328,13 @@ class UpdateApp(BaseApp):
                         "- User accounts set up in the v4 instance will not be migrated"
                     ])
                     self.setParam("grafana_v5_upgrade", "true")
+                    return True
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 is not installed")
-                return
+                    return False
             except (ResourceNotFoundError, NotFoundError):
                 h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 is not installed")
+                return False
 
     def detectMongoDb(self) -> None:
         with Halo(text='Checking for MongoDb CE', spinner=self.spinner) as h:
@@ -342,53 +346,22 @@ class UpdateApp(BaseApp):
             else:
                 self.setParam("mongodb_replicas", "3")
 
-            # Determine the namespace
             try:
                 mongoDbAPI = self.dynamicClient.resources.get(api_version="mongodbcommunity.mongodb.com/v1", kind="MongoDBCommunity")
-                mongoClusters = mongoDbAPI.get().to_dict()["items"]
+
+                if self.getParam("mongodb_namespace") != "":
+                    logger.debug(f"Looking for MongoDBCommunity instances in {self.getParam('mongodb_namespace')}")
+                    mongoClusters = mongoDbAPI.get(namespace=self.getParam("mongodb_namespace")).to_dict()["items"]
+                else:
+                    logger.debug("Looking for MongoDBCommunity instances in all namespaces")
+                    mongoClusters = mongoDbAPI.get().to_dict()["items"]
 
                 if len(mongoClusters) > 0:
                     mongoNamespace = mongoClusters[0]["metadata"]["namespace"]
                     currentMongoVersion = mongoClusters[0]["status"]["version"]
+                    targetMongoVersion = self.chosenCatalog["mongo_extras_version_default"]
 
                     self.setParam("mongodb_namespace", mongoNamespace)
-
-                    # Important:
-                    # This CLI can run independent of the ibm.mas_devops collection, so we cannot reference
-                    # the case bundles in there anymore
-                    # Longer term we will centralise this information inside the mas-devops python collection,
-                    # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "8.0.17"
-                    mongoVersions = {
-                        "v9-240625-amd64": "6.0.12",
-                        "v9-240730-amd64": "6.0.12",
-                        "v9-240827-amd64": "6.0.12",
-                        "v9-241003-amd64": "6.0.12",
-                        "v9-241107-amd64": "7.0.12",
-                        "v9-241205-amd64": "7.0.12",
-                        "v9-250109-amd64": "7.0.12",
-                        "v9-250206-amd64": "7.0.12",
-                        "v9-250306-amd64": "7.0.12",
-                        "v9-250403-amd64": "7.0.12",
-                        "v9-250501-amd64": "7.0.12",
-                        "v9-250624-amd64": "7.0.12",
-                        "v9-250731-amd64": "7.0.22",
-                        "v9-250828-amd64": "7.0.22",
-                        "v9-250902-amd64": "7.0.22",
-                        "v9-250925-amd64": "7.0.23",
-                        "v9-251010-amd64": "7.0.23",
-                        "v9-251030-amd64": "7.0.23",
-                        "v9-251127-amd64": "8.0.13",
-                        "v9-251224-amd64": "8.0.13",
-                        "v9-251231-amd64": "8.0.17",
-                        "v9-260129-amd64": "8.0.17",
-                    }
-                    catalogVersion = self.getParam('mas_catalog_version')
-                    if catalogVersion in mongoVersions:
-                        targetMongoVersion = mongoVersions[self.getParam('mas_catalog_version')]
-                    else:
-                        targetMongoVersion = defaultMongoVersion
-
                     self.setParam("mongodb_version", targetMongoVersion)
 
                     targetMongoVersionMajor = targetMongoVersion.split(".")[0]

@@ -381,12 +381,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("grafana_action", "none")
         else:
             try:
-                packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
-                packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
-                if self.skipGrafanaInstall:
+                # Check if dynamicClient is available and resources.get() returns a valid API
+                if self.dynamicClient is None:
                     self.setParam("grafana_action", "none")
                 else:
-                    self.setParam("grafana_action", "install")
+                    packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
+                    if packagemanifestAPI is None:
+                        self.setParam("grafana_action", "none")
+                    else:
+                        packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
+                        if self.skipGrafanaInstall:
+                            self.setParam("grafana_action", "none")
+                        else:
+                            self.setParam("grafana_action", "install")
             except NotFoundError:
                 self.setParam("grafana_action", "none")
 
@@ -578,9 +585,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
             self.setParam("aiservice_odh_model_deployment_type", "raw")
+            self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+            self.setParam("rhoai", "false")
         else:
             self.setParam("environment_type", "non-production")
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
+            self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+            self.setParam("rhoai", "false")
 
     def _promptForIngressController(self):
         try:
@@ -925,12 +936,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.configAppChannel("facilities")
         else:
             self.installFacilities = False
+
         # TODO: May be have to change this condition if Manage 9.0 is not supporting AI Cofig Application
         # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
-        if not self.getParam("mas_app_channel_manage").startswith("8."):
+
+        if isVersionEqualOrAfter('9.0.0', self.getParam("mas_app_channel_manage")):
             self.installAIService = self.yesOrNo("Install AI Service")
             if self.installAIService:
                 self.configAIService()
+        else:
+            self.installAIService = False
 
     @logMethodCall
     def configAppChannel(self, appId):
