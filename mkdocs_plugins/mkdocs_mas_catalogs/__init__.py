@@ -9,7 +9,7 @@ __version__ = "0.1.0"
 
 # Try to import from installed package first
 try:
-    from mas.devops.data import getCatalog, getOCPLifecycleData, getCatalogEditorial
+    from mas.devops.data import getCatalog, getOCPLifecycleData, getCatalogEditorial, NoSuchCatalogError
 except ImportError:
     # Development fallback: add python-devops to path
     PYTHON_DEVOPS_PATH = (
@@ -17,7 +17,7 @@ except ImportError:
     )
     if PYTHON_DEVOPS_PATH.exists():
         sys.path.insert(0, str(PYTHON_DEVOPS_PATH))
-        from mas.devops.data import getCatalog, getOCPLifecycleData, getCatalogEditorial
+        from mas.devops.data import getCatalog, getOCPLifecycleData, getCatalogEditorial, NoSuchCatalogError
     else:
         raise ImportError(
             "Could not import mas.devops.data. "
@@ -85,9 +85,10 @@ class MASCatalogsPlugin(BasePlugin):
 
     def _get_catalog_data(self, catalog_tag):
         """Get catalog data and handle errors."""
-        catalog = getCatalog(catalog_tag)
-
-        if not catalog:
+        try:
+            catalog = getCatalog(catalog_tag)
+            return catalog, None
+        except NoSuchCatalogError:
             return (
                 None,
                 f"""!!! error
@@ -97,8 +98,6 @@ class MASCatalogsPlugin(BasePlugin):
     `python-devops/src/mas/devops/data/catalogs/{catalog_tag}.yaml`
 """,
             )
-
-        return catalog, None
 
     def _render_details(self, catalog_tag):
         """Render the Details section."""
