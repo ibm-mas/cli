@@ -129,6 +129,10 @@ class aiServiceInstallArgBuilderMixin():
 
         if self.getParam('aiservice_odh_model_deployment_type') != "":
             command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
+        if self.getParam('aiservice_rhoai_model_deployment_type') != "":
+            command += f"  --rhoai-model-deployment-type \"{self.getParam('aiservice_rhoai_model_deployment_type')}\"{newline}"
+        if self.getParam('rhoai') == "true":
+            command += f"  --rhoai{newline}"
 
         if self.getParam('aiservice_watsonxai_apikey') != "":
             command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"

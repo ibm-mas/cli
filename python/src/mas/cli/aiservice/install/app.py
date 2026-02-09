@@ -136,7 +136,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
-        self.interactiveMode = True
+        self.isInteractiveMode = True
 
         if simplified:
             self.showAdvancedOptions = False
@@ -178,7 +178,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
-        self.interactiveMode = False
+        self.isInteractiveMode = False
 
         # Set defaults
         # ---------------------------------------------------------------------
@@ -254,11 +254,15 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
                     self.setParam("aiservice_odh_model_deployment_type", "raw")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+                    self.setParam("rhoai", "false")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
                     self.setParam("aiservice_odh_model_deployment_type", "serverless")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+                    self.setParam("rhoai", "false")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -875,6 +879,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
             self.setParam("aiservice_odh_model_deployment_type", "raw")
+            self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+            self.setParam("rhoai", "false")
         else:
             self.setParam("environment_type", "non-production")
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
+            self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+            self.setParam("rhoai", "false")
