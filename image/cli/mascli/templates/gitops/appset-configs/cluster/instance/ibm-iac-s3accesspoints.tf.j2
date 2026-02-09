@@ -1,5 +1,5 @@
 resource "time_sleep" "wait_for_iam_{{APP_NAME}}" {
-  depends_on = [module.account_policy]
+  depends_on = [module.account_policy_{{APP_NAME}}]
   create_duration = "60s"
 }
 
