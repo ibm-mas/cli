@@ -1007,7 +1007,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # TODO: May be have to change this condition if Manage 9.0 is not supporting AI Cofig Application
         # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
 
-        if isVersionEqualOrAfter('9.0.0', self.getParam("mas_app_channel_manage")):
+        if self.devMode or isVersionEqualOrAfter('9.0.0', self.getParam("mas_app_channel_manage")):
             self.installAIService = self.yesOrNo("Install AI Service")
             if self.installAIService:
                 self.configAIService()
