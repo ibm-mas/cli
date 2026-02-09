@@ -593,8 +593,9 @@ class UpdateApp(BaseApp):
                             self.setParam(paramName, list(namespaces)[0])
                         elif self.noConfirm:
                             # If db2u is in multiple namespaces and user has disabled prompts then we must error
+                            namespaceList = ", ".join(list(namespaces))
                             h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kindString} ({apiVersion}) were found in multiple namespaces")
-                            logger.warning(f"There are multiple namespaces containing {kindString} and user has enable --no-confirm without setting --{mode}-namespace: {namespaces.keys()}")
+                            logger.warning(f"There are multiple namespaces containing {kindString} and user has enable --no-confirm without setting --{mode}-namespace: {namespaceList}")
                             self.fatalError(f"{kindString} are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
                         else:
                             # Otherwise, provide user the list of namespaces we found and ask them to pick on
