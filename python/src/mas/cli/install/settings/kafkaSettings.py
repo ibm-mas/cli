@@ -8,11 +8,69 @@
 #
 # *****************************************************************************
 
+from typing import TYPE_CHECKING, Dict, List
 from os import path
 from prompt_toolkit import print_formatted_text
 
 
+if TYPE_CHECKING:
+    from prompt_toolkit.completion import WordCompleter
+    from prompt_toolkit.validation import Validator
+
+
 class KafkaSettingsMixin():
+    if TYPE_CHECKING:
+        # Attributes from BaseApp and other mixins
+        params: Dict[str, str]
+        installIoT: bool
+        showAdvancedOptions: bool
+        localConfigDir: str | None
+
+        # Methods from BaseApp
+        def setParam(self, param: str, value: str) -> None:
+            ...
+
+        def getParam(self, param: str) -> str:
+            ...
+
+        def fatalError(self, message: str, exception: Exception | None = None) -> None:
+            ...
+
+        # Methods from PrintMixin
+        def printH1(self, message: str) -> None:
+            ...
+
+        def printDescription(self, content: List[str]) -> None:
+            ...
+
+        # Methods from PromptMixin
+        def yesOrNo(self, message: str, param: str | None = None) -> bool:
+            ...
+
+        def promptForString(
+            self,
+            message: str,
+            param: str | None = None,
+            default: str = "",
+            isPassword: bool = False,
+            validator: Validator | None = None,
+            completer: WordCompleter | None = None
+        ) -> str:
+            ...
+
+        def promptForListSelect(
+            self,
+            message: str,
+            options: List[str],
+            param: str | None = None,
+            default: int | None = None
+        ) -> str:
+            ...
+
+        # Methods from other mixins
+        def selectLocalConfigDir(self) -> None:
+            ...
+
     def configKafka(self) -> None:
         if self.installIoT:
             self.printH1("Configure Kafka")
@@ -83,7 +141,7 @@ class KafkaSettingsMixin():
                     self.promptForString("MSK Instance Password", "aws_kafka_user_password", isPassword=True)
                     self.promptForString("MSK Instance Type", "aws_msk_instance_type", default="kafka.m5.large")
                     self.promptForString("MSK Total Number of Broker Nodes", "aws_msk_instance_number", default="3")
-                    self.promptForString("MSK Storage Size (in GB)", "aws_msk_volume_size", defauklt="100")
+                    self.promptForString("MSK Storage Size (in GB)", "aws_msk_volume_size", default="100")
                     self.promptForString("Availability Zone 1 CIDR", "aws_msk_cidr_az1")
                     self.promptForString("Availability Zone 2 CIDR", "aws_msk_cidr_az2")
                     self.promptForString("Availability Zone 3 CIDR", "aws_msk_cidr_az3")
@@ -95,6 +153,7 @@ class KafkaSettingsMixin():
                 instanceId = self.getParam('mas_instance_id')
 
                 # Check if a configuration already exists
+                assert self.localConfigDir is not None, "localConfigDir must be set"
                 kafkaCfgFile = path.join(self.localConfigDir, f"kafka-{instanceId}-system.yaml")
                 print_formatted_text(f"Searching for system kafka configuration file in {kafkaCfgFile} ...")
                 if path.exists(kafkaCfgFile):

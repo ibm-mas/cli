@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+from typing import TYPE_CHECKING, Dict, List, Any
 from os import path
 from base64 import b64encode
 from glob import glob
@@ -17,7 +18,79 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+if TYPE_CHECKING:
+    from prompt_toolkit.completion import WordCompleter
+    from prompt_toolkit.validation import Validator
+
+
 class AdditionalConfigsMixin():
+    if TYPE_CHECKING:
+        # Attributes from BaseApp and other mixins
+        params: Dict[str, str]
+        interactiveMode: bool
+        localConfigDir: str | None
+        noConfirm: bool
+        templatesDir: str
+        slsLicenseFileLocal: str | None
+        manualCertsDir: str
+        showAdvancedOptions: bool
+        additionalConfigsSecret: Dict[str, Any] | None
+        podTemplatesSecret: Dict[str, Any] | None
+        slsLicenseFileSecret: Dict[str, Any] | None
+        certsSecret: Dict[str, Any] | None
+
+        # Methods from BaseApp
+        def setParam(self, param: str, value: str) -> None:
+            ...
+
+        def getParam(self, param: str) -> str:
+            ...
+
+        def fatalError(self, message: str, exception: Exception | None = None) -> None:
+            ...
+
+        # Methods from PrintMixin
+        def printH1(self, message: str) -> None:
+            ...
+
+        def printH2(self, message: str) -> None:
+            ...
+
+        def printDescription(self, content: List[str]) -> None:
+            ...
+
+        # Methods from PromptMixin
+        def yesOrNo(self, message: str, param: str | None = None) -> bool:
+            ...
+
+        def promptForString(
+            self,
+            message: str,
+            param: str | None = None,
+            default: str = "",
+            isPassword: bool = False,
+            validator: Validator | None = None,
+            completer: WordCompleter | None = None
+        ) -> str:
+            ...
+
+        def promptForInt(
+            self,
+            message: str,
+            param: str | None = None,
+            default: int | None = None,
+            min: int | None = None,
+            max: int | None = None
+        ) -> int:
+            ...
+
+        def promptForDir(self, message: str, mustExist: bool = True, default: str = "") -> str:
+            ...
+
+        # Methods from other mixins
+        def selectLocalConfigDir(self) -> None:
+            ...
+
     def additionalConfigs(self) -> None:
         if self.interactiveMode:
             self.printH1("Additional Configuration")

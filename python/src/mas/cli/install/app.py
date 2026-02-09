@@ -382,12 +382,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("grafana_action", "none")
         else:
             try:
-                packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
-                packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
-                if self.skipGrafanaInstall:
+                # Check if dynamicClient is available and resources.get() returns a valid API
+                if self.dynamicClient is None:
                     self.setParam("grafana_action", "none")
                 else:
-                    self.setParam("grafana_action", "install")
+                    packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
+                    if packagemanifestAPI is None:
+                        self.setParam("grafana_action", "none")
+                    else:
+                        packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
+                        if self.skipGrafanaInstall:
+                            self.setParam("grafana_action", "none")
+                        else:
+                            self.setParam("grafana_action", "install")
             except NotFoundError:
                 self.setParam("grafana_action", "none")
 
