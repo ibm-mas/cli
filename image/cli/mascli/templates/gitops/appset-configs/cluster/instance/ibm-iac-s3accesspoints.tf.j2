@@ -10,7 +10,7 @@ module "s3buckets_access_point_{{APP_NAME}}" {
     k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name)) || can(regex("mvi", v.name))
   }
 
-  depends_on = [module.s3buckets_instance, module.account_policy_{{APP_NAME}}, time_sleep.wait_for_iam_{{APP_NAME}}]
+  depends_on = [module.s3buckets_instance_{{APP_NAME}}, module.account_policy_{{APP_NAME}}, time_sleep.wait_for_iam_{{APP_NAME}}]
 
   name_prefix                    = each.value.name_prefix
   s3_access_point_bucket_id      = each.value.id
