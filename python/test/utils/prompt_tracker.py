@@ -30,11 +30,12 @@ class PromptTracker:
         self.prompt_handlers = prompt_handlers
         self.match_counts = {pattern: 0 for pattern in prompt_handlers.keys()}
 
-    def handle_prompt(self, **kwargs) -> str:
+    def handle_prompt(self, *args, **kwargs) -> str:
         """
         Handle a prompt by matching it against registered patterns.
 
         Args:
+            *args: Positional arguments (first arg is typically the message/HTML object)
             **kwargs: Keyword arguments containing 'message' and other prompt parameters.
 
         Returns:
@@ -43,7 +44,13 @@ class PromptTracker:
         Raises:
             AssertionError: If no pattern matches the prompt.
         """
-        message = str(kwargs['message'])
+        # Extract message from either positional args or kwargs
+        if args:
+            message = str(args[0])
+        elif 'message' in kwargs:
+            message = str(kwargs['message'])
+        else:
+            raise AssertionError(f"No message found in prompt call. Args: {args}, Kwargs: {kwargs}")
 
         # Try to match against all registered patterns
         for pattern, handler in self.prompt_handlers.items():
@@ -52,7 +59,7 @@ class PromptTracker:
                 return handler(message)
 
         # No pattern matched - fail the test with debug info
-        raise AssertionError(f"Unmatched prompt in test: {message}\nFull kwargs: {kwargs}")
+        raise AssertionError(f"Unmatched prompt in test: {message}\nFull args: {args}, kwargs: {kwargs}")
 
     def verify_all_prompts_matched(self, allow_unmatched: bool = False):
         """

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -58,7 +58,7 @@ from mas.devops.mas import (
 )
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.sls import findSLSByNamespace
-from mas.devops.data import getCatalog, getCatalogEditorial
+from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
@@ -951,7 +951,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
         if len(versions) == 0:
-            self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+            self.params[f"mas_app_channel_{appId}"] = prompt(HTML(f"<Yellow>Custom channel for {appId}</Yellow>"))
         else:
             self.params[f"mas_app_channel_{appId}"] = versions[0]
 
@@ -1111,9 +1111,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
                 # If advanced options is selected, we need to create a file to add props not supported by Tekton
                 self.selectLocalConfigDir()
-                facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
-                self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
-                self.setParam("mas_ws_facilities_config_file", "/workspace/configs/facilities-configs.yaml")
+                if self.localConfigDir is not None:
+                    facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
+                    self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
+                    self.setParam("mas_ws_facilities_config_file", "/workspace/configs/facilities-configs.yaml")
 
     @logMethodCall
     def configAIService(self):
@@ -1643,9 +1644,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
 
         # Load the catalog information
-        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
-        if self.chosenCatalog is not None:
-            self.processCatalogChoice()  # Only process catalog if it was successfully loaded,this will set catalogDb2Channel
+        try:
+            self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+            self.processCatalogChoice()
+        except NoSuchCatalogError:
+            pass
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
