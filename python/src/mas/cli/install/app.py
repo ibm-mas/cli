@@ -471,7 +471,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configReportAdoptionMetricsFlag(self):
-        if self.showAdvancedOptions:
+        if self.showAdvancedOptions and isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")):
             self.printH1("Adoption Metrics Reporting")
             self.printDescription([
                 "Adoption Metrics are used by IBM to measure feature adoption, user engagement, and the success of product initiatives.",
