@@ -327,7 +327,7 @@ class UpdateTestHelper:
             for idx, namespace in enumerate(self.config.db2u_namespaces):
                 resource = self.create_db2u_resource(
                     kind=self.config.db2u_resource_kind,
-                    name=f"db2u-{idx+1}",
+                    name=f"db2u-{idx + 1}",
                     namespace=namespace
                 )
                 resources.append(resource)
@@ -359,7 +359,7 @@ class UpdateTestHelper:
             resources = []
             for idx, namespace in enumerate(self.config.kafka_namespaces):
                 resource = self.create_kafka_resource(
-                    name=f"kafka-{idx+1}",
+                    name=f"kafka-{idx + 1}",
                     namespace=namespace
                 )
                 resources.append(resource)
@@ -394,7 +394,7 @@ class UpdateTestHelper:
             resources = []
             for idx, namespace in enumerate(self.config.mongodb_namespaces):
                 resource = self.create_mongodb_resource(
-                    name=f"mongodb-{idx+1}",
+                    name=f"mongodb-{idx + 1}",
                     namespace=namespace
                 )
                 resources.append(resource)
