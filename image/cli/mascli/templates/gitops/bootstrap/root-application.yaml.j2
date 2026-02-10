@@ -30,6 +30,9 @@ spec:
 
         auto_delete: {{ true if AUTO_DELETE=="true" else false }}
 
+        cluster_admin_role: true
+        application_admin_role: true
+
   syncPolicy:
     automated:
       prune: true
