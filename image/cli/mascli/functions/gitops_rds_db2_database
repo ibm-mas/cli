@@ -310,7 +310,7 @@ function gitops_rds_db2_database() {
   # db2rds params from aws config secrets
   export HOST=${CONFIG_SECRETS_PREFIX}#db2_endpoint
   export PORT=${CONFIG_SECRETS_PREFIX}#db2_port
-  export DB2_NAME=${CONFIG_SECRETS_PREFIX}#db2_name
+  export DB2_DBNAME=${CONFIG_SECRETS_PREFIX}#db2_name
   export JDBC_CONNECTION_URL=${CONFIG_SECRETS_PREFIX}#jdbc_connection_url
   export RDS_ADMIN_DB_NAME=${CONFIG_SECRETS_PREFIX}#db2_admin_db_name
 
