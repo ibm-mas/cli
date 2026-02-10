@@ -12,15 +12,17 @@
 from utils import InstallTestConfig, run_install_test
 import sys
 import os
-import pytest
-from mas.devops.data import NoSuchCatalogError
 
 # Add test directory to path for utils import
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 
 def test_install_master_no_dev_mode(tmpdir):
-    """Test expected NoSuchCatalogError is raised"""
+    """Test that master catalogs automatically resolve to newest catalog.
+
+    Dev catalog resolution is now automatic and unconditional, so master
+    catalogs work without requiring --dev-mode flag.
+    """
 
     # Define prompt handlers with expected patterns and responses
     prompt_handlers = {
@@ -29,7 +31,32 @@ def test_install_master_no_dev_mode(tmpdir):
         # 2. Install flavour (advanced options)
         '.*Show advanced installation options.*': lambda msg: 'n',
         # 3. Catalog selection
-        '.*Select catalog.*': lambda msg: "v9-master-amd64"
+        '.*Select catalog.*': lambda msg: "v9-master-amd64",
+        '.*Select channel.*': lambda msg: '9.1.x-stable',
+        # 4. Storage classes
+        ".*Use the auto-detected storage classes.*": lambda msg: 'y',
+        # 5. SLS configuration
+        '.*SLS channel.*': lambda msg: '1.x-stable',
+        '.*License file.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+        # 6. DRO configuration
+        ".*Contact e-mail address.*": lambda msg: 'maximo@ibm.com',
+        ".*Contact first name.*": lambda msg: 'Test',
+        ".*Contact last name.*": lambda msg: 'Test',
+        # 7. ICR & Artifactory credentials
+        ".*IBM entitlement key.*": lambda msg: 'testEntitlementKey',
+        ".*Artifactory username.*": lambda msg: 'testUsername',
+        ".*Artifactory token.*": lambda msg: 'testToken',
+        # 8. MAS Instance configuration
+        '.*Instance ID.*': lambda msg: 'testinst',
+        '.*Workspace ID.*': lambda msg: 'testws',
+        '.*Workspace.*name.*': lambda msg: 'Test Workspace',
+        # 9. Operational mode
+        '.*Operational Mode.*': lambda msg: '1',
+        # 10. Application selection
+        '.*Install IoT.*': lambda msg: 'n',
+        '.*Install Monitor.*': lambda msg: 'n',
+        '.*Install Manage.*': lambda msg: 'n',
+        '.*Install Predict.*': lambda msg: 'n',
     }
 
     # Create test configuration with no existing catalog
@@ -46,9 +73,8 @@ def test_install_master_no_dev_mode(tmpdir):
         timeout_seconds=30
     )
 
-    # Run the test and expect NoSuchCatalogError to be raised
-    with pytest.raises(NoSuchCatalogError):
-        run_install_test(tmpdir, config)
+    # Run the test - master catalog should now resolve successfully
+    run_install_test(tmpdir, config)
 
 
 def test_install_master_dev_mode(tmpdir):
