@@ -136,7 +136,19 @@ spec:
         - fvt-aiservice-fmea
         - fvt-aiservice-insightsgenerator
 
-    # 7. NL2OSLC Granite test suite
+    # 7. ALMRAG test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-almrag
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: almrag
+      runAfter:
+        - fvt-aiservice-pcc
+        - fvt-aiservice-similarity
+
+    # 8. NL2OSLC Granite test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-nl2oslc-granite
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -145,10 +157,9 @@ spec:
         - name: fvt_test_suite
           value: nl2oslc-granite
       runAfter:
-        - fvt-aiservice-pcc
-        - fvt-aiservice-similarity
+        - fvt-aiservice-almrag
 
-    # 8. NL2OSLC GPT OSS test suite
+    # 9. NL2OSLC GPT OSS test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-nl2oslc-gpt
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -157,8 +168,7 @@ spec:
         - name: fvt_test_suite
           value: nl2oslc-gpt
       runAfter:
-        - fvt-aiservice-pcc
-        - fvt-aiservice-similarity
+        - fvt-aiservice-almrag
 
   # Finally
   # ---------------------------------------------------------------------------
