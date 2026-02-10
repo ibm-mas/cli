@@ -122,7 +122,13 @@ spec:
     - name: mas_wipe_mongo_data
       type: string
       default: "false"
-    - name: mas_report_adoption_metrics
+    - name: mas_feature_use
+      type: string
+      default: "true"
+    - name: mas_deployment_progression
+      type: string
+      default: "true"
+    - name: mas_usability
       type: string
       default: "true"
     - name: suite_spec_additional_properties_yaml
@@ -247,8 +253,12 @@ spec:
         value: $(params.mas_pod_template_yaml)
       - name: MAS_WIPE_MONGO_DATA
         value: $(params.mas_wipe_mongo_data)
-      - name: MAS_REPORT_ADOPTION_METRICS
-        value: $(params.mas_report_adoption_metrics)
+      - name: MAS_FEATURE_USE
+        value: $(params.mas_feature_use)
+      - name: MAS_DEPLOYMENT_PROGRESSION
+        value: $(params.mas_deployment_progression)
+      - name: MAS_USABILITY
+        value: $(params.mas_usability)
       - name: SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML
         value: $(params.suite_spec_additional_properties_yaml)
       - name: SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES_YAML
