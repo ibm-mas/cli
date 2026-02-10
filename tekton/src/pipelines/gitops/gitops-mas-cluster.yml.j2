@@ -427,9 +427,9 @@ spec:
         kind: Task
         name: gitops-efs-csi-driver
       when:
-        - input: "$(params.role_arn)"
-          operator: notin
-          values: [""]
+        - input: "$(params.hypervisor)"
+          operator: in
+          values: ["rosa"]
       workspaces:
         - name: configs
           workspace: configs
