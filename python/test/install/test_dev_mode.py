@@ -32,6 +32,7 @@ def test_install_master_no_dev_mode(tmpdir):
         '.*Show advanced installation options.*': lambda msg: 'n',
         # 3. Catalog selection
         '.*Select catalog.*': lambda msg: "v9-master-amd64",
+        '.*Select release.*': lambda msg: '9.1.0',
         '.*Select channel.*': lambda msg: '9.1.x-stable',
         # 4. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: 'y',
