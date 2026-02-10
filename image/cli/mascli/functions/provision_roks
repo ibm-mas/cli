@@ -26,6 +26,16 @@ GPU Support (Optional):
       --gpu-worker-count ${COLOR_YELLOW}GPU_WORKERS${TEXT_RESET}            Number of GPU worker nodes to provision
       --gpu-workerpool-name ${COLOR_YELLOW}GPU_WORKERPOOL_NAME${TEXT_RESET} Name of the GPU workerpool
 
+Storage Provisioner Configuration:
+      --storage ${COLOR_YELLOW}OCP_STORAGE_PROVIDER${TEXT_RESET}            Choose optional storage provider (longhorn)
+
+Turbonomic Integration:
+      --turbonomic-name ${COLOR_YELLOW}TURBONOMIC_TARGET_NAME${TEXT_RESET}               Target name in Turbonomic
+      --turbonomic-url ${COLOR_YELLOW}TURBONOMIC_SERVER_URL${TEXT_RESET}                 Turbonomic server URL
+      --turbonomic-version ${COLOR_YELLOW}TURBONOMIC_SERVER_VERSION${TEXT_RESET}         Turbonomic server version
+      --turbonomic-username ${COLOR_YELLOW}TURBONOMIC_USERNAME${TEXT_RESET}              Turbonomic username
+      --turbonomic-password ${COLOR_YELLOW}TURBONOMIC_PASSWORD${TEXT_RESET}              Turbonomic password
+
 Other Commands:
       --no-confirm                              Provision the cluster without prompting for confirmation
   -h, --help                                    Show this help message
@@ -68,9 +78,33 @@ function provision_roks_noninteractive() {
         OCP_PROVISION_GPU=true
         GPU_WORKERPOOL_NAME=$1 && shift
         ;;
+
+      # Storage Configuration
+      --storage)
+        OCP_STORAGE_PROVIDER=$1 && shift
+        ;;
       --upgrade-registry-storage)
         UPGRADE_IMAGE_REGISTRY_STORAGE=true
         ;;
+
+      # Turbonomic
+      --turbonomic-name)
+        TURBONOMIC_TARGET_NAME=$1 && shift
+        ;;
+      --turbonomic-url)
+        TURBONOMIC_SERVER_URL=$1 && shift
+        ;;
+      --turbonomic-version)
+        TURBONOMIC_SERVER_VERSION=$1 && shift
+        ;;
+      --turbonomic-username)
+        TURBONOMIC_USERNAME=$1 && shift
+        ;;
+      --turbonomic-password)
+        TURBONOMIC_PASSWORD=$1 && shift
+        ;;
+
+      # Other options
       --no-confirm)
         NO_CONFIRM=true
         ;;
@@ -123,28 +157,24 @@ function provision_roks_interactive() {
 
   echo
   echo "OCP Version:"
-  echo "  1. 4.18 (MAS 8.10-9.1)"
-  echo "  2. 4.17 (MAS 8.10-9.1)"
-  echo "  3. 4.16 (MAS 8.10-9.1)"
-  echo "  4. 4.15 (MAS 8.10-9.1)"
-  echo "  5. 4.14 (MAS 8.10-9.1)"
+  echo "  1. 4.19"
+  echo "  2. 4.18"
+  echo "  3. 4.17"
+  echo "  4. 4.16"
   prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
-    1|4.18)
+    1|4.19)
+      export OCP_VERSION=4.19_openshift
+      ;;
+    2|4.18)
       export OCP_VERSION=4.18_openshift
       ;;
-    2|4.17)
+    3|4.17)
       export OCP_VERSION=4.17_openshift
       ;;
-    3|4.16)
+    4|4.16)
       export OCP_VERSION=4.16_openshift
-      ;;
-    4|4.15)
-      export OCP_VERSION=4.15_openshift
-      ;;
-    5|4.14)
-      export OCP_VERSION=4.14_openshift
       ;;
 
     *)
@@ -161,7 +191,7 @@ function provision_roks_interactive() {
   echo ""
   echo_h2 "Bare Metal GPU Worker Support"
   echo "GPU worker nodes with flavour, mg4c.32x384.2xp100, can be added to the cluster"
-  echo "for applications that require complex mathematical computations.  If you intnd"
+  echo "for applications that require complex mathematical computations.  If you intend"
   echo "to install the IBM Visual Inspection application you should answer 'yes' at"
   echo "the prompt below."
   echo ""
@@ -170,6 +200,29 @@ function provision_roks_interactive() {
   if [[ $OCP_PROVISION_GPU == "true" ]]; then
     prompt_for_input "Number of GPU Nodes" GPU_WORKERS "1" && export GPU_WORKERS
     prompt_for_input "GPU Worker Pool Name" GPU_WORKERPOOL_NAME "gpu" && export GPU_WORKERPOOL_NAME
+  fi
+
+  echo
+  echo_h2 "Storage Provider:"
+  echo "  1. IBMCloud"
+  echo "  2. Longhorn"
+  prompt_for_input "Select the storage provider to setup" OCP_STORAGE_PROVIDER_SELECTION "1"
+
+  if [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "1" ]]; then
+    OCP_STORAGE_PROVIDER=""
+  elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "2" ]]; then
+    OCP_STORAGE_PROVIDER="longhorn"
+  fi
+
+  echo
+  echo_h2 "Turbonomic Integration:"
+  echo "Leave name empty if you do not want to enable Turbonomic integration in this cluster"
+  prompt_for_input "Turbonomic Name" TURBONOMIC_TARGET_NAME
+  if [[ "$TURBONOMIC_TARGET_NAME" != "" ]]; then
+    prompt_for_input "Server URL" TURBONOMIC_SERVER_URL
+    prompt_for_input "Server Version" TURBONOMIC_SERVER_VERSION
+    prompt_for_input "Username" TURBONOMIC_USERNAME
+    prompt_for_secret "Password" TURBONOMIC_PASSWORD
   fi
 
   export UPGRADE_IMAGE_REGISTRY_STORAGE=false
@@ -207,19 +260,29 @@ function provision_roks() {
   export GPU_WORKERPOOL_NAME
   export UPGRADE_IMAGE_REGISTRY_STORAGE
 
+  export OCP_STORAGE_PROVIDER
+
+  export TURBONOMIC_TARGET_NAME
+  export TURBONOMIC_SERVER_URL
+  export TURBONOMIC_SERVER_VERSION
+  export TURBONOMIC_USERNAME
+  export TURBONOMIC_PASSWORD
+
 
   echo ""
   echo_h2 "Review Settings"
+
   echo "${TEXT_DIM}"
   echo_h2 "IBMCloud Authentication" "    "
-  echo_reset_dim "IBMCloud API Key .......... ${IBMCLOUD_APIKEY:0:8}..."
   echo_reset_dim "IBMCloud Resource Group ... $IBMCLOUD_RESOURCEGROUP"
+
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Configuration" "    "
   echo_reset_dim "Cluster Name .............. $CLUSTER_NAME"
   echo_reset_dim "OCP Version ............... $OCP_VERSION"
   echo_reset_dim "Upgrade Registry Storage .. ${UPGRADE_IMAGE_REGISTRY_STORAGE:-false}"
+
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Worker Configuration" "    "
@@ -232,16 +295,45 @@ function provision_roks() {
     echo_reset_dim "GPU Worker Pool Name ...... $GPU_WORKERPOOL_NAME"
   fi
 
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Storage" "    "
+  if [[ "${OCP_STORAGE_PROVIDER}" == "" ]]; then
+    echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}IBMCloud"
+  else
+    echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}${OCP_STORAGE_PROVIDER}"
+  fi
+
+  if [[ "${TURBONOMIC_TARGET_NAME}" != "" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "Turbonomic Integration" "    "
+    echo_reset_dim "Target Name ................. ${COLOR_MAGENTA}${TURBONOMIC_TARGET_NAME}"
+    echo_reset_dim "Server URL .................. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_URL}"
+    echo_reset_dim "Server Version .............. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_VERSION}"
+  fi
+
   echo
   reset_colors
   if [[ "$NO_CONFIRM" != "true" ]]; then
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi
 
-  ansible-playbook ibm.mas_devops.ocp_roks_provision || exit 1
+  ansible-playbook ibm.mas_devops.ocp_roks_provision
+  result=$?
 
-  echo ""
-  echo "IBM Cloud ROKS cluster is ready to use"
-  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+  if [[ "$result" == "0" ]]; then
+    echo ""
+    echo "IBM Cloud ROKS cluster is ready to use"
+    export OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+    export OCP_CONSOLE_URL="https://$OCP_CONSOLE_ROUTE"
+  fi
+  if [[ -n "$NOTIFY_SLACK_MSG" ]]; then
+    mas-devops-notify-slack --action ocp-provision-roks --rc $result --msg "$NOTIFY_SLACK_MSG"
+  else
+    mas-devops-notify-slack --action ocp-provision-roks --rc $result
+  fi
+
+  exit $result
 }

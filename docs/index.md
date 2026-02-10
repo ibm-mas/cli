@@ -19,7 +19,7 @@ docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli mas install 
 The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see [cli-base](https://github.com/ibm-mas/cli-base) for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directly the CLI image can be a useful tool:
 
 ```bash
-docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.oneclick_core
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.mas_install_core
 ```
 
 
@@ -47,8 +47,9 @@ Not all functions supported in the container image are available in the standalo
 | CLI Function                                               | Image    | Binary   |
 | ---------------------------------------------------------- | :------: | :------: |
 | [install](guides/install.md)                               | &#10003; | &#10003; |
-| [update](commands/update.md)                               | &#10003; | &#10003; |
-| [upgrade](commands/upgrade.md)                             | &#10003; | &#10003; |
+| [aiservice-install](guides/aiservice-install.md)           | &#10003; | &#10003; |
+| [update](guides/update.md)                                 | &#10003; | &#10003; |
+| [upgrade](guides/upgrade.md)                               | &#10003; | &#10003; |
 | [uninstall](commands/uninstall.md)                         | &#10003; | &#10003; |
 | [must-gather](commands/must-gather.md)                     | &#10003; | &#10005; |
 | [configure-airgap](commands/configure-airgap.md)           | &#10003; | &#10005; |
@@ -60,4 +61,3 @@ Not all functions supported in the container image are available in the standalo
 | [provision-roks](commands/provision-roks.md)               | &#10003; | &#10005; |
 | [provision-rosa](commands/provision-rosa.md)               | &#10003; | &#10005; |
 | [configtool-oidc](commands/configtool-oidc.md)             | &#10003; | &#10005; |
-| [facilities-external-db](guides/facilities-external-db.md) | &#10003; | &#10005; |

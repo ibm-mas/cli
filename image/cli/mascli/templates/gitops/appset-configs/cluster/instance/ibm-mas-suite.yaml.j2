@@ -96,3 +96,9 @@ ibm_mas_suite:
 {% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
   internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
 {% endif %}
+
+
+{% if WELCOME_MESSAGE is defined and WELCOME_MESSAGE != '' %}
+  welcome_message: |
+    {{ WELCOME_MESSAGE | indent(4) }}
+{% endif %}

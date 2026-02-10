@@ -5,32 +5,37 @@ Usage
 -------------------------------------------------------------------------------
 `mas debug [command] [options]`
 
-### commands
+### Commands
 - `coredump` generate and collect a javacore and a system dump from a mas or manage pod running liberty server
 - `threaddump` generate and collect one or more threaddump / javacore from a mas or manage pod running liberty server
+- `haproxy-logging` enable or disable ocp haproxy logging and collects corresponding logs.
 
 
 ### Destination
 - `-d|--dir` Directory where the collected files will be saved, defaults to `/tmp`
 
-### pod selection
-define Liberty pod(s) where the files are generated:
+### Pod selection (define Liberty pod(s) where the files are generated)
 - `--namespace` Specify namespace where the liberty server is running
 - `-s|--pod-selector` Pod-selector can be serverBundle, <bundle name>, coreidp
 - `-p|--pod-name` Gives the pod where the java dump needs to be created, this overwrites -s if specified.
 
-### coredump specific actions
-One of those three actions needs to be specified when using the coredump command
+### Coredump specific actions (One of those three actions needs to be specified when using the coredump command)
 - `-g|--generate` Generate a coredump for the liberty server according to the pod selector then copies it to the local machine where the script is running
 - `-c|--collect` Copy all the coredump files from the node to where the liberty server specified is running to the local machine where the script is running
 - `-r|--rm` Remove all the coredump files from the node where the liberty server specified is running
                            This command will remove the content of /var/lib/systemd/coredump/ on the node  
 
 
-### threaddump specific parameters
+### Threaddump specific parameters
 - `-t` Time between collection of javacore (default is 10 seconds)
 - `-n` How many javacores will be collected (default is 1)
 - `-r|--rm` Remove all the javacores files present in the targeted pod
+
+### haproxy-logging specific parameters
+- `--enable` Enables haproxy logging on the cluster
+- `--disable` Removes haproxy logging configuration from the ingresscontroller resource
+- `-c, --collect` Collects the logs from the logs container in the router pods
+
 
 ### Other Options
 - `-h|--help`    Show this help message
@@ -39,7 +44,7 @@ One of those three actions needs to be specified when using the coredump command
 
 Usage
 -------------------------------------------------------------------------------
-As with other CLI functions, the debug commands will run against the currently connected cluster, use `oc login` to connect to a cluster before running `mas must-gather`.
+As with other CLI functions, the debug commands will run against the currently connected cluster, use `oc login` to connect to a cluster before running `mas debug <commmand> <options>`.
 
 ```bash
 # Start the container in docker
@@ -89,4 +94,19 @@ mas debug threaddump  --namespace mas-test-manage -p test-testws-foundation-5495
 **Javacore creation for server bundle:** Generate a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:
 ```bash
 mas debug threaddump --namespace mas-test-manage -s ui -d /mnt/home -t 10 -n 5
+```
+
+**enable haproxy logging:** 
+```bash
+mas debug haproxy-logging --enable
+```
+
+**disable haproxy logging:** 
+```bash
+mas debug haproxy-logging --disable
+```
+
+**collect haproxy logging:** 
+```bash
+mas debug haproxy-logging --collect -d /mnt/home
 ```

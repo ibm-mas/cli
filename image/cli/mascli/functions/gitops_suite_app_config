@@ -235,12 +235,8 @@ function gitops_suite_app_config_noninteractive() {
     exit 1
   fi
 
-  if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
-    [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
-  fi
-
   if [[ -z "${MAS_APPWS_SPEC_YAML}" ]]; then
-    if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
+    if [[ "${MAS_APP_ID}" == "facilities" ]]; then
       [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
     fi
   fi
@@ -572,6 +568,36 @@ function gitops_suite_app_config() {
     fi
   fi
 
+
+
+
+  # Look for generated(<type>) directives on storage class names
+  # These are specified in different places in appws spec yaml, so we need a special case for each
+  # ---------------------------------------------------------------------------
+  export STORAGE_CLASS_DEFINITIONS
+  if [[ "${MAS_APP_ID}" == "manage" ]]; then
+      if [[ -n "$MAS_APPWS_SPEC" ]]; then
+          i=0
+          for MANAGE_STORAGE_CLASS_NAME in $(echo "${MAS_APPWS_SPEC}" | yq '.mas_appws_spec.settings.deployment.persistentVolumes[].storageClassName // ""'); do 
+              STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MANAGE_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+              MANAGE_STORAGE_CLASS=$(generate_storage_class_name "${MANAGE_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main")
+              MAS_APPWS_SPEC=$(echo "${MAS_APPWS_SPEC}" | yq '.mas_appws_spec.settings.deployment.persistentVolumes['$i'].storageClassName = "'${MANAGE_STORAGE_CLASS}'"')
+              i=$((i+1))
+          done
+      fi
+  fi
+
+  if [[ "${MAS_APP_ID}" == "facilities" ]]; then
+      if [[ -n "$MAS_APPWS_SPEC" ]]; then
+          for FACILITIES_STORAGE_KEY in $(echo "${MAS_APPWS_SPEC}" | yq '.mas_appws_spec.settings.storage | keys[] // ""'); do 
+              FACILITIES_STORAGE_CLASS_PATH='.mas_appws_spec.settings.storage.'${FACILITIES_STORAGE_KEY}'.class'
+              FACILITIES_STORAGE_CLASS_NAME=$(echo "${MAS_APPWS_SPEC}" | yq "${FACILITIES_STORAGE_CLASS_PATH}")
+              STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${FACILITIES_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+              FACILITIES_STORAGE_CLASS=$(generate_storage_class_name "${FACILITIES_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main")
+              MAS_APPWS_SPEC=$(echo "${MAS_APPWS_SPEC}" | yq ${FACILITIES_STORAGE_CLASS_PATH}' = "'${FACILITIES_STORAGE_CLASS}'"')
+          done
+      fi
+  fi
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------

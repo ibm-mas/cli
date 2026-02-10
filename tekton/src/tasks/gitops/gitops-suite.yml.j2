@@ -142,9 +142,18 @@ spec:
     - name: additional_vpn
       type: string
       default: ""
+    - name: additional_resources_instances
+      type: string
+      default: ""
     - name: extensions
       type: string
       default: "false"
+    - name: application_configuration
+      type: string
+      default: "true"
+    - name: sls_service
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -254,10 +263,16 @@ spec:
         value: $(params.enhanced_dr)
       - name: ADDITIONAL_VPN
         value: $(params.additional_vpn)
+      - name: ADDITIONAL_RESOURCES_INSTANCES
+        value: $(params.additional_resources_instances)
       - name: IS_NON_SHARED_CLUSTER
         value: $(params.is_non_shared_cluster)
       - name: EXTENSIONS
         value: $(params.extensions)
+      - name: APPLICATION_CONFIGURATION
+        value: $(params.application_configuration)
+      - name: STANDALONE_SLS_SERVICE
+        value: $(params.sls_service)
 
     envFrom:
       - configMapRef:

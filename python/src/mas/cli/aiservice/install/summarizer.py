@@ -47,6 +47,9 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("Instance ID", "aiservice_instance_id")
         self.printParamSummary("Environment Type", "environment_type")
 
+        if "aiservice_certificate_issuer" in self.params:
+            self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
+
         self.printH2("AI Service Tenant Entitlement")
         self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
         self.printParamSummary("Start Date", "tenant_entitlement_start_date")
@@ -81,9 +84,9 @@ class aiServiceInstallSummarizerMixin():
 
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")
-        self.printParamSummary("Contact e-mail", "uds_contact_email")
-        self.printParamSummary("First name", "uds_contact_firstname")
-        self.printParamSummary("Last name", "uds_contact_lastname")
+        self.printParamSummary("Contact e-mail", "dro_contact_email")
+        self.printParamSummary("First name", "dro_contact_firstname")
+        self.printParamSummary("Last name", "dro_contact_lastname")
         self.printParamSummary("Install Namespace", "dro_namespace")
 
     def slsSummary(self) -> None:

@@ -1,151 +1,16 @@
-# Cluster config
-# -----------------------------------------------------------------------------
-- name: ocp_ingress_tls_secret_name
-  type: string
-  default: ""
-
-# IBM Cloud
-# -----------------------------------------------------------------------------
-- name: ibmcloud_apikey
-  type: string
-  default: ""
-- name: ibmcloud_resourcegroup
-  type: string
-  default: ""
-
-# MAS (shouldn't really need these in AI service install pipeline)
-# -----------------------------------------------------------------------------
-- name: mas_icr_cp
-  type: string
-  default: ""
-- name: mas_icr_cpopen
-  type: string
-  default: ""
-- name: mas_workspace_id
-  type: string
-  description: Workspace ID used to configure all applications
-  default: ""
-
-# Certificate Manager
-# -----------------------------------------------------------------------------
-- name: cert_manager_provider
-  type: string
-  default: ""
-- name: cert_manager_action
-  type: string
-  default: ""
-
-# Dependencies - DB2
-# -----------------------------------------------------------------------------
-{{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') }}
-- name: db2_action_aiservice
-  type: string
-  description: Set to 'install' to set up a Db2 instance for AI Service
-  default: "none"
-
-# Dependencies - UDS
-# -----------------------------------------------------------------------------
-- name: uds_contact_email
-  type: string
-  default: ""
-- name: uds_contact_firstname
-  type: string
-  default: ""
-- name: uds_contact_lastname
-  type: string
-  default: ""
-- name: uds_event_scheduler_frequency
-  type: string
-  default: ""
-- name: uds_action
-  type: string
-  default: ""
-- name: dro_namespace
-  type: string
-  default: ""
-- name: mas_segment_key
-  type: string
-  default: ""
-
-# Dependencies - SLS
-# -----------------------------------------------------------------------------
-- name: sls_namespace
-  type: string
-  default: ""
-- name: sls_entitlement_file
-  type: string
-  default: ""
-- name: sls_mongodb_cfg_file
-  type: string
-  # The default value works for the default in-cluster install, it will need
-  # to be modified if the mongodb namespace is changed, or if using BYO MongoDb
-  default: "/workspace/configs/mongo-mongoce.yml"
-- name: sls_catalog_source
-  type: string
-  default: ""
-- name: sls_channel
-  type: string
-  default: ""
-- name: sls_icr_cpopen
-  type: string
-  default: ""
-- name: sls_action
-  type: string
-  default: ""
-
-# Dependencies - MongoDb
-# -----------------------------------------------------------------------------
-- name: mongodb_namespace
-  type: string
-  default: ""
-- name: mongodb_storage_class
-  type: string
-  default: ""
-- name: mongodb_replicas
-  type: string
-  description: Optional configuration for mongodb replicas
-  default: ""
-- name: mongodb_cpu_requests
-  type: string
-  description: Optional configuration for mongodb cpu requests
-  default: ""
-- name: mongodb_provider
-  type: string
-  description: MongoDb provider
-  default: ""
-- name: mongodb_version
-  type: string
-  description: MongoDb version
-  default: ""
-- name: mongodb_action
-  type: string
-  description: MongoDb action
-  default: ""
-
-# Dependencies - IBM Cloud MongoDb
-# -------------------------------------------------------------------------
-- name: ibm_mongo_name
-  type: string
-  description: IBM Cloud MongoDb instance name
-  default: ""
-- name: ibm_mongo_resourcegroup
-  type: string
-  description: IBM Cloud MongoDb resource group
-  default: ""
-- name: ibm_mongo_region
-  type: string
-  description: IBM Cloud MongoDb instance region
-  default: ""
-- name: ibm_mongo_admin_password
-  type: string
-  description: IBM Cloud MongoDb admin password
-  default: ""
-
 # MAS Application Configuration - IBM Maximo AI Service
 # -----------------------------------------------------------------------------
 - name: aiservice_instance_id
   type: string
   description: AI Service instance id
+  default: ""
+- name: manage_bind_aiservice_instance_id
+  type: string
+  description: AI Service Instance ID to bind with Manage
+  default: ""
+- name: manage_bind_aiservice_tenant_id
+  type: string
+  description: AI Service Tenant ID to bind with Manage
   default: ""
 - name: aiservice_channel
   type: string
@@ -199,6 +64,14 @@
   type: string
   description: Model deployment type for ODH. Must be one of; [raw, serverless]
   default: "raw"
+- name: aiservice_rhoai_model_deployment_type
+  type: string
+  description: Model deployment type for Redhat Openshift AI. Must be one of; [raw, serverless]
+  default: "raw"
+- name: rhoai
+  type: string
+  description: flag to install rhoai
+  default: ""
 
 - name: minio_root_user
   type: string
@@ -254,6 +127,26 @@
   type: string
   description: WatsonX CA certificate for IBM Maximo AI Service
   default: ""
+- name: aiservice_watsonxai_instance_id
+  type: string
+  description: WatsonX instance ID for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonxai_username
+  type: string
+  description: WatsonX username for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonxai_version
+  type: string
+  description: WatsonX version for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonxai_on_prem
+  type: string
+  description: WatsonX deployed on prem for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonxai_verify
+  type: string
+  description: WatsonX verify if CA cert provided for IBM Maximo AI Service
+  default: ""
 
 # MAS Application Configuration - IBM Maximo AI Service - RSL
 # -----------------------------------------------------------------------------
@@ -268,4 +161,11 @@
 - name: rsl_token
   type: string
   description: token for RSL
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - Certificate Issuer
+# -----------------------------------------------------------------------------
+- name: aiservice_certificate_issuer
+  type: string
+  description: Name of the Issuer to configure AI Service to issue certificates
   default: ""

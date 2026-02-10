@@ -148,11 +148,10 @@ function mirror_redhat_interactive() {
   echo "${TEXT_DIM}Select the release to mirror content for:"
 
   echo "Supported OCP Releases:"
-  echo "  1) 4.18"
-  echo "  2) 4.17"
-  echo "  3) 4.16"
-  echo "  4) 4.15"
-  echo "  5) 4.14"
+  echo "  1) 4.19"
+  echo "  2) 4.18"
+  echo "  3) 4.17"
+  echo "  4) 4.16"
   reset_colors
 
   echo
@@ -160,19 +159,16 @@ function mirror_redhat_interactive() {
 
   case $OCP_RELEASE_SELECTION in
     1)
-      OCP_RELEASE=4.18
+      OCP_RELEASE=4.19
       ;;
     2)
-      OCP_RELEASE=4.17
+      OCP_RELEASE=4.18
       ;;
     3)
-      OCP_RELEASE=4.16
+      OCP_RELEASE=4.17
       ;;
     4)
-      OCP_RELEASE=4.15
-      ;;
-    5)
-      OCP_RELEASE=4.14
+      OCP_RELEASE=4.16
       ;;
     *)
       echo_warning "Invalid selection"

@@ -17,9 +17,9 @@ requiredParams = [
     # Entitlement
     "ibm_entitlement_key",
     # DRO
-    "uds_contact_email",
-    "uds_contact_firstname",
-    "uds_contact_lastname"
+    "dro_contact_email",
+    "dro_contact_firstname",
+    "dro_contact_lastname"
 ]
 
 optionalParams = [
@@ -59,6 +59,9 @@ optionalParams = [
     "artifactory_token",
     # ODH
     "aiservice_odh_model_deployment_type",
+    # RHOAI
+    "aiservice_rhoai_model_deployment_type",
+    "rhoai",
     # AI Service
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
@@ -77,8 +80,13 @@ optionalParams = [
     "aiservice_watsonxai_ca_crt",
     "aiservice_watsonxai_deployment_id",
     "aiservice_watsonxai_space_id",
-
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_username",
+    "aiservice_watsonxai_version",
+    "aiservice_watsonxai_on_prem",
     "aiservice_instance_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_verify",
 
     "minio_root_user",
     "minio_root_password",
@@ -92,4 +100,7 @@ optionalParams = [
     "rsl_token",
     "rsl_ca_crt",
     "environment_type",
+
+    # Certificate Issuer
+    "aiservice_certificate_issuer",
 ]

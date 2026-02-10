@@ -1,0 +1,100 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-dro
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: dro_action
+      type: string
+      description: What action to take (install, uninstall)
+      default: "install"
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: aiservice_instance_id 
+      type: string
+      default: ""
+    - name: custom_labels
+      type: string
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
+    - name: ocp_ingress_tls_secret_name
+      type: string
+      default: ""
+
+    - name: ibm_entitlement_key
+      type: string
+      default: ""
+    - name: dro_namespace
+      type: string
+      default: "redhat-marketplace"
+    - name: dro_contact_email
+      type: string
+      default: ""
+    - name: dro_contact_firstname
+      type: string
+      default: ""
+    - name: dro_contact_lastname
+      type: string
+      default: ""
+    - name: dro_storage_class
+      type: string
+      default: ""
+
+  steps:
+    - name: dro
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+      script: |
+        #!/bin/bash
+        
+        # During a standalone AI Service installation, a dro-config(fake) must be created by using the AISERVICE_INSTANCE_ID as the MAS_INSTANCE_ID
+        if [[ "$MAS_INSTANCE_ID" == "" ]] && [[ "$AISERVICE_INSTANCE_ID" != "" ]]; then
+            echo "Setting MAS_INSTANCE_ID based on AISERVICE_INSTANCE_ID for standalone AI Service install"
+            MAS_INSTANCE_ID=$AISERVICE_INSTANCE_ID
+        fi
+        /opt/app-root/src/run-role.sh dro
+
+      env:
+        {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(8) }}
+        - name: DEVOPS_SUITE_NAME
+          value: dependencies-dro-$(params.dro_action)
+
+        # What action to take
+        - name: DRO_ACTION
+          value: $(params.dro_action)
+
+        # Properties for generating a MAS configuration
+        - name: MAS_CONFIG_DIR
+          value: /workspace/configs
+        - name: MAS_INSTANCE_ID
+          value: $(params.mas_instance_id)
+        - name: AISERVICE_INSTANCE_ID
+          value: $(params.aiservice_instance_id)    
+        - name: OCP_INGRESS_TLS_SECRET_NAME
+          value: $(params.ocp_ingress_tls_secret_name)
+        - name: MAS_POD_TEMPLATES_DIR
+          value: /workspace/pod-templates
+        - name: CUSTOM_LABELS
+          value: $(params.custom_labels)
+        - name: IBM_ENTITLEMENT_KEY
+          value: $(params.ibm_entitlement_key)
+        - name: DRO_CONTACT_EMAIL
+          value: $(params.dro_contact_email)
+        - name: DRO_CONTACT_FIRSTNAME
+          value: $(params.dro_contact_firstname)
+        - name: DRO_CONTACT_LASTNAME
+          value: $(params.dro_contact_lastname)
+        - name: DRO_STORAGE_CLASS
+          value: $(params.dro_storage_class)
+        - name: DRO_NAMESPACE
+          value: $(params.dro_namespace)
+  workspaces:
+    - name: configs
+      optional: true
+    - name: pod-templates
+      optional: true

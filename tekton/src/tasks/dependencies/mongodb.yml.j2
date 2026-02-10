@@ -11,6 +11,10 @@ spec:
       type: string
       description: Instance ID
       default: "" # By default, no config will be generated
+    - name: aiservice_instance_id
+      type: string
+      description: AI Service Instance ID
+      default: "" 
     - name: custom_labels
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
@@ -58,6 +62,10 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 7 if needed
       default: ""
+    - name: mongodb_v8_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 8 if needed
+      default: ""
 
     # Dependencies - IBM Cloud MongoDb
     # -------------------------------------------------------------------------
@@ -95,6 +103,8 @@ spec:
         value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
@@ -121,6 +131,8 @@ spec:
         value: $(params.mongodb_v6_upgrade)
       - name: MONGODB_V7_UPGRADE
         value: $(params.mongodb_v7_upgrade)
+      - name: MONGODB_V8_UPGRADE
+        value: $(params.mongodb_v8_upgrade)
 
       # Dependencies - IBM Cloud MongoDb
       - name: IBM_MONGO_NAME
@@ -138,9 +150,16 @@ spec:
 
   steps:
     - name: mongodb
-      command:
-        - /opt/app-root/src/run-role.sh
-        - mongodb
+      script: |
+        #!/bin/bash
+        
+        # During a standalone AI Service installation, a mongo-config(fake) must be created by using the AISERVICE_INSTANCE_ID as the MAS_INSTANCE_ID
+        if [[ "$MAS_INSTANCE_ID" == "" ]] && [[ "$AISERVICE_INSTANCE_ID" != "" ]]; then
+            echo "Setting MAS_INSTANCE_ID based on AISERVICE_INSTANCE_ID for standalone AI Service install"
+            MAS_INSTANCE_ID=$AISERVICE_INSTANCE_ID
+        fi
+        /opt/app-root/src/run-role.sh mongodb
+
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs

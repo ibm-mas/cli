@@ -332,6 +332,12 @@ spec:
               name: mas-fvt-mobile
               key: FVT_DIGEST_MOBILE_PYTEST
               optional: false
+        - name: FVT_DIGEST_MOBILE_TESTNG
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: FVT_DIGEST_MOBILE_TESTNG
+              optional: false
     
     - name: wait-for-requests-pipelinerun
       image: quay.io/ibmmas/cli:latest

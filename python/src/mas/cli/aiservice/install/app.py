@@ -60,7 +60,7 @@ from mas.devops.tekton import (
     prepareAiServicePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
-    launchAiServiceInstallPipeline
+    launchInstallPipeline
 )
 
 logger = logging.getLogger(__name__)
@@ -125,13 +125,28 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configOperationMode()
 
     @logMethodCall
+    def chooseInstallFlavour(self) -> None:
+        self.printH1("Choose Install Mode")
+        self.printDescription([
+            "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
+            " - Configure certificate issuer",
+        ])
+        self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
+
+    @logMethodCall
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
-        self.interactiveMode = True
+        self.isInteractiveMode = True
+
+        if simplified:
+            self.showAdvancedOptions = False
+        elif advanced:
+            self.showAdvancedOptions = True
+        else:
+            self.chooseInstallFlavour()
 
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
-        self.showAdvancedOptions = True
 
         # Catalog
         self.configCatalog()
@@ -150,7 +165,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configCertManager()
         self.configAibroker()
         if self.devMode:
-            self.configAppChannel("aibroker")
+            self.configAppChannel()
 
         self.aiServiceSettings()
         self.aiServiceTenantSettings()
@@ -158,11 +173,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Dependencies
         self.configMongoDb()
+        self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
-        self.interactiveMode = False
+        self.isInteractiveMode = False
 
         # Set defaults
         # ---------------------------------------------------------------------
@@ -176,6 +192,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "approval_aiservice": {"id": "aiservice"},
         }
 
+        self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
@@ -237,11 +254,15 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
                     self.setParam("aiservice_odh_model_deployment_type", "raw")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+                    self.setParam("rhoai", "false")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
                     self.setParam("aiservice_odh_model_deployment_type", "serverless")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+                    self.setParam("rhoai", "false")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -306,7 +327,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help", "advanced", "simplified"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified"]:
                 pass
 
             elif key == "manual_certificates":
@@ -347,10 +368,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not
         instanceId = args.aiservice_instance_id
-
         # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
-        self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
 
@@ -408,8 +427,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configICR()
         self.deployCP4D = False
 
-        # UDS install has not been supported since the January 2024 catalog update
-        self.setParam("uds_action", "install-dro")
+        self.setParam("dro_action", "install")
 
         # Install Db2 for AI Service
         self.setParam("db2_action_aiservice", "install")
@@ -447,14 +465,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printH1("Launch Install")
             pipelinesNamespace = f"aiservice-{self.getParam('aiservice_instance_id')}-pipelines"
 
-            if not self.noConfirm:
-                self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
-                wait = self.yesOrNo("Wait for PVCs to bind")
-            else:
-                wait = False
-
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                if installOpenShiftPipelines(self.dynamicClient):
+                if installOpenShiftPipelines(self.dynamicClient, self.getParam("storage_class_rwx")):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
@@ -467,7 +479,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     instanceId=self.getParam("aiservice_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=wait,
                     configureRBAC=(self.getParam("service_account_name") == "")
                 )
                 prepareInstallSecrets(
@@ -492,7 +503,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text=f"Submitting PipelineRun for {self.getParam('aiservice_instance_id')} install", spinner=self.spinner) as h:
-                pipelineURL = launchAiServiceInstallPipeline(dynClient=self.dynamicClient, params=self.params)
+                pipelineURL = launchInstallPipeline(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aiservice_instance_id')} install submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
@@ -513,6 +524,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})")
                 self.initializeApprovalConfigMap(namespace, approval['id'], True, approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
 
+    @logMethodCall
     def aiServiceSettings(self) -> None:
         self.printH1("AI Service Settings")
 
@@ -545,6 +557,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
+        # Configure Certificate Issuer
+        self.configCertIssuer()
+
+    @logMethodCall
+    def configCertIssuer(self):
+        if self.showAdvancedOptions:
+            self.printH1("Configure Certificate Issuer")
+            configureCertIssuer = self.yesOrNo('Configure certificate issuer')
+            if configureCertIssuer:
+                self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
+
+    @logMethodCall
     def aiServiceTenantSettings(self) -> None:
         self.printH1("AI Service Tenant Settings")
         self.printDescription([
@@ -600,13 +624,16 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "",
         ])
         self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
-        self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
+        watsonxUrl = self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
         self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
-        if self.yesOrNo("Does the Watsonxai AI use a self-signed certificate?"):
+        if self.yesOrNo("Does the Watsonxai AI use a self-signed certificate"):
             self.promptForString("Watsonxai CA certificate (PEM format)", "aiservice_watsonxai_ca_crt")
         self.promptForString("Watsonxai Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
         self.promptForString("Watsonxai Space ID (optional)", "aiservice_watsonxai_space_id")
-
+        if ".ibm.com" not in watsonxUrl:
+            self.promptForString("Watsonxai Instance ID (optional)", "aiservice_watsonxai_instance_id")
+            self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
+            self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
         self.printH1("RSL Integration")
         self.printDescription([
             "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
@@ -826,15 +853,15 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def configDRO(self) -> None:
-        self.promptForString("Contact e-mail address", "uds_contact_email")
-        self.promptForString("Contact first name", "uds_contact_firstname")
-        self.promptForString("Contact last name", "uds_contact_lastname")
+        self.promptForString("Contact e-mail address", "dro_contact_email")
+        self.promptForString("Contact first name", "dro_contact_firstname")
+        self.promptForString("Contact last name", "dro_contact_lastname")
 
         if self.showAdvancedOptions:
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     @logMethodCall
-    def configAppChannel(self, appId):
+    def configAppChannel(self):
         self.params["aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
 
     @logMethodCall
@@ -852,6 +879,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
             self.setParam("aiservice_odh_model_deployment_type", "raw")
+            self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+            self.setParam("rhoai", "false")
         else:
             self.setParam("environment_type", "non-production")
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
+            self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+            self.setParam("rhoai", "false")

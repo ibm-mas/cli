@@ -129,20 +129,23 @@ slsArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 droArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
 droArgGroup.add_argument(
+    "--contact-email",
     "--uds-email",
-    dest="uds_contact_email",
+    dest="dro_contact_email",
     required=False,
     help="Contact e-mail address"
 )
 droArgGroup.add_argument(
+    "--contact-firstname",
     "--uds-firstname",
-    dest="uds_contact_firstname",
+    dest="dro_contact_firstname",
     required=False,
     help="Contact first name"
 )
 droArgGroup.add_argument(
+    "--contact-lastname",
     "--uds-lastname",
-    dest="uds_contact_lastname",
+    dest="dro_contact_lastname",
     required=False,
     help="Contact last name"
 )
@@ -181,6 +184,27 @@ odhArgGroup.add_argument(
     required=False,
     default="raw",
     help="Model deployment type for ODH"
+)
+
+# Red Hat Openshift AI
+# -----------------------------------------------------------------------------
+rhoaiArgGroup = aiServiceinstallArgParser.add_argument_group("RedHat Openshift AI")
+
+rhoaiArgGroup.add_argument(
+    "--rhoai-model-deployment-type",
+    dest="aiservice_rhoai_model_deployment_type",
+    required=False,
+    default="raw",
+    help="Model deployment type for RedHat Openshift AI"
+)
+
+rhoaiArgGroup.add_argument(
+    "--rhoai",
+    dest="rhoai",
+    required=False,
+    help="temporary flag to install Redhat Openshift AI instead of Opendatahub",
+    action="store_const",
+    const="true"
 )
 
 # S3 - General
@@ -319,7 +343,30 @@ watsonxArgGroup.add_argument(
     required=False,
     help="WatsonX space ID"
 )
-
+watsonxArgGroup.add_argument(
+    "--watsonxai-instance-id",
+    dest="aiservice_watsonxai_instance_id",
+    required=False,
+    help="WatsonX instance ID"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-username",
+    dest="aiservice_watsonxai_username",
+    required=False,
+    help="WatsonX username"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-version",
+    dest="aiservice_watsonxai_version",
+    required=False,
+    help="WatsonX version"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-onprem",
+    dest="aiservice_watsonxai_on_prem",
+    required=False,
+    help="WatsonX deployed on prem"
+)
 
 # AI Service
 # -----------------------------------------------------------------------------
@@ -374,6 +421,12 @@ aiServiceArgGroup.add_argument(
     required=False,
     default="non-production",
     help="Environment type (default: non-production)"
+)
+aiServiceArgGroup.add_argument(
+    "--aiservice-certificate-issuer",
+    dest="aiservice_certificate_issuer",
+    required=False,
+    help="Provide the name of the Issuer to configure AI Service to issue certificates",
 )
 
 
@@ -443,12 +496,6 @@ otherArgGroup.add_argument(
     action="store_true",
     default=False,
     help="Configure installation for development mode",
-)
-otherArgGroup.add_argument(
-    "--no-wait-for-pvc",
-    required=False,
-    action="store_true",
-    help="Disable the wait for pipeline PVC to bind before starting the pipeline"
 )
 otherArgGroup.add_argument(
     "--skip-pre-check",

@@ -4,9 +4,3 @@ redhat_cert_manager:
    run_sync_hooks: true
    channel: stable-v1
    redhat_cert_manager_install_plan: "{{ REDHAT_CERT_MANAGER_INSTALL_PLAN }}"
-{%- if REDHAT_CERT_MANAGER_CATALOG_SOURCE is defined and REDHAT_CERT_MANAGER_CATALOG_SOURCE !='' %}
-   catalog_source: "{{ REDHAT_CERT_MANAGER_CATALOG_SOURCE }}"
-{%- endif %}
-{%- if REDHAT_CERT_MANAGER_CATALOG_SOURCE_NAMESPACE is defined and REDHAT_CERT_MANAGER_CATALOG_SOURCE_NAMESPACE !='' %}
-   catalog_source_namespace: "{{ REDHAT_CERT_MANAGER_CATALOG_SOURCE_NAMESPACE }}"
-{%- endif %}

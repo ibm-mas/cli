@@ -21,9 +21,9 @@ requiredParams = [
     # Entitlement
     "ibm_entitlement_key",
     # DRO
-    "uds_contact_email",
-    "uds_contact_firstname",
-    "uds_contact_lastname"
+    "dro_contact_email",
+    "dro_contact_firstname",
+    "dro_contact_lastname"
 ]
 
 optionalParams = [
@@ -37,6 +37,8 @@ optionalParams = [
     "mas_superuser_username",
     "mas_superuser_password",
     "mas_trust_default_cas",
+    "mas_routing_mode",
+    "mas_ingress_controller_name",
     "mas_app_settings_server_bundles_size",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
@@ -48,11 +50,11 @@ optionalParams = [
     "mas_app_settings_tablespace",
     "mas_app_settings_indexspace",
     "mas_app_settings_db2_schema",
-    "mas_app_settings_crypto_key",
-    "mas_app_settings_cryptox_key",
-    "mas_app_settings_old_crypto_key",
-    "mas_app_settings_old_cryptox_key",
-    "mas_app_settings_override_encryption_secrets_flag",
+    "mas_manage_encryptionsecret_crypto_key",
+    "mas_manage_encryptionsecret_cryptox_key",
+    "mas_manage_encryptionsecret_old_crypto_key",
+    "mas_manage_encryptionsecret_old_cryptox_key",
+    "mas_manage_ws_db_encryptionsecret",
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
     "mas_appws_components",
@@ -105,7 +107,6 @@ optionalParams = [
     # CP4D
     "cpd_product_version",
     "cpd_install_cognos",
-    "cpd_install_spss",
     "cpd_install_ws",
     "cpd_install_wml",
     "cpd_install_ae",
@@ -138,12 +139,6 @@ optionalParams = [
     "eck_remote_es_hosts",
     "eck_remote_es_username",
     "eck_remote_es_password",
-    # Turbonomic
-    "turbonomic_target_name",
-    "turbonomic_server_url",
-    "turbonomic_server_version",
-    "turbonomic_username",
-    "turbonomic_password",
     # Cloud Providers
     "ibmcloud_apikey",
     "aws_region",
@@ -153,11 +148,11 @@ optionalParams = [
     # Dev Mode
     "artifactory_username",
     "artifactory_token",
-    # TODO: The way arcgis has been implemented needs to be fixed
-    "install_arcgis",
-    "mas_arcgis_channel",
     # Guided Tour
     "mas_enable_walkme",
+    "mas_feature_usage",
+    "mas_usability_metrics",
+    "mas_deployment_progression",
     # Facilities
     "mas_ws_facilities_size",
     "mas_ws_facilities_routes_timeout",
@@ -173,5 +168,51 @@ optionalParams = [
     "mas_ws_facilities_dwfagents",
     "mas_ws_facilities_db_maxconnpoolsize",
     # Special chars
-    "mas_special_characters"
+    "mas_special_characters",
+    # ODH
+    "aiservice_odh_model_deployment_type",
+    # RHOAI
+    "aiservice_rhoai_model_deployment_type",
+    "rhoai",
+    # AI Service
+    "aiservice_s3_accesskey",
+    "aiservice_s3_secretkey",
+    "aiservice_s3_host",
+    "aiservice_s3_port",
+    "aiservice_s3_ssl",
+    "aiservice_s3_region",
+    "aiservice_s3_bucket_prefix",
+    "aiservice_s3_tenants_bucket",
+    "aiservice_s3_templates_bucket",
+
+    "aiservice_watsonxai_apikey",
+    "aiservice_watsonxai_url",
+    "aiservice_watsonxai_project_id",
+    "aiservice_watsonx_action",
+    "aiservice_watsonxai_ca_crt",
+    "aiservice_watsonxai_deployment_id",
+    "aiservice_watsonxai_space_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_username",
+    "aiservice_watsonxai_version",
+    "aiservice_watsonxai_on_prem",
+    "aiservice_instance_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_verify",
+
+    "minio_root_user",
+    "minio_root_password",
+
+    "tenant_entitlement_type",
+    "tenant_entitlement_start_date",
+    "tenant_entitlement_end_date",
+
+    "rsl_url",
+    "rsl_org_id",
+    "rsl_token",
+    "rsl_ca_crt",
+    "environment_type",
+
+    # Certificate Issuer
+    "aiservice_certificate_issuer"
 ]

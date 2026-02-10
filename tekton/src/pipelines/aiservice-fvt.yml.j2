@@ -22,6 +22,9 @@ spec:
     - name: aiservice_instance_id
       type: string
       default: ""
+    - name: aiservice_model_versions
+      type: string
+      default: ""
 
     # FVT Configuration
     - name: fvt_image_registry
@@ -45,7 +48,25 @@ spec:
       default: ""
 
   tasks:
-    # 1. Base test suite
+
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
+    # 2. Aibroker base test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-tenant-entitlement
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -53,6 +74,8 @@ spec:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: tenant_entitlement
+      runAfter:
+        - pipeline-start
 
     # 2. MCC test suite
     # -----------------------------------------------------------------------------
@@ -76,7 +99,18 @@ spec:
       runAfter:
         - fvt-aiservice-tenant-entitlement
 
-    # 4. PCC test suite
+    # 4. INSIGHTSGENERATOR test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-insightsgenerator
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: insightsgenerator
+      runAfter:
+        - fvt-aiservice-tenant-entitlement
+    
+    # 5. PCC test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-pcc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -87,8 +121,9 @@ spec:
       runAfter:
         - fvt-aiservice-mcc
         - fvt-aiservice-fmea
+        - fvt-aiservice-insightsgenerator
 
-    # 5. Similarity test suite
+    # 6. Similarity test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-similarity
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -99,15 +134,50 @@ spec:
       runAfter:
         - fvt-aiservice-mcc
         - fvt-aiservice-fmea
+        - fvt-aiservice-insightsgenerator
 
-    # 6. NL2OSLC test suite
+    # 7. NL2OSLC Granite test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aiservice-nl2oslc
+    - name: fvt-aiservice-nl2oslc-granite
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: nl2oslc
+          value: nl2oslc-granite
       runAfter:
         - fvt-aiservice-pcc
         - fvt-aiservice-similarity
+
+    # 8. NL2OSLC GPT OSS test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-nl2oslc-gpt
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: nl2oslc-gpt
+      runAfter:
+        - fvt-aiservice-pcc
+        - fvt-aiservice-similarity
+
+  # Finally
+  # ---------------------------------------------------------------------------
+  finally:
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)

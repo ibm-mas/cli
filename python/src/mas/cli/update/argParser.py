@@ -9,24 +9,94 @@
 # *****************************************************************************
 
 import argparse
+import sys
 
-from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
 
-updateArgParser = argparse.ArgumentParser(
+
+class UpdateArgumentParser(argparse.ArgumentParser):
+    """Custom argument parser that validates --catalog requirement"""
+
+    def format_usage(self):
+        """Custom usage message showing different modes"""
+        prog = self.prog
+        return (
+            f"Usage (non-interactive mode):\n"
+            f"  {prog} -c MAS_CATALOG_VERSION [--db2-namespace DB2_NAMESPACE]\n"
+            f"                  [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade]\n"
+            f"                  [--mongodb-v6-upgrade] [--mongodb-v7-upgrade] [--mongodb-v8-upgrade]\n"
+            f"                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {{redhat,strimzi}}]\n"
+            f"                  [--artifactory-username ARTIFACTORY_USERNAME]\n"
+            f"                  [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode]\n"
+            f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--no-confirm] [--skip-pre-check]\n"
+            f"\n"
+            f"Usage (interactive mode):\n"
+            f"  {prog}\n"
+            f"\n"
+            f"Usage (help):\n"
+            f"  {prog} -h\n"
+        )
+
+    def format_help(self):
+        """Override format_help to use our custom usage format"""
+        formatter = self._get_formatter()
+
+        # Add description
+        formatter.add_text(self.description)
+
+        # Add custom usage
+        formatter.add_text(self.format_usage())
+
+        # Add argument groups
+        for actionGroup in self._action_groups:
+            formatter.start_section(actionGroup.title)
+            formatter.add_text(actionGroup.description)
+            formatter.add_arguments(actionGroup._group_actions)
+            formatter.end_section()
+
+        # Add epilog
+        formatter.add_text(self.epilog)
+
+        return formatter.format_help()
+
+    def parse_args(self, args=None, namespace=None):  # type: ignore[override]
+        parsedArgs = super().parse_args(args, namespace)
+
+        # Get all arguments that were actually provided by the user
+        providedArgs = []
+        if args is not None:
+            providedArgs = [arg for arg in args if arg.startswith('-')]
+        else:
+            providedArgs = [arg for arg in sys.argv[1:] if arg.startswith('-')]
+
+        # Check if any arguments were provided
+        hasAnyArgs = len(providedArgs) > 0
+
+        # Check if --catalog was provided
+        hasCatalog = parsedArgs.mas_catalog_version is not None
+
+        # Check if only help was requested
+        helpOnly = '--help' in providedArgs or '-h' in providedArgs
+
+        # Validation: If any arguments are provided (except help), --catalog must be present
+        if hasAnyArgs and not hasCatalog and not helpOnly:
+            self.error("non-interactive mode requires --catalog parameter, the interactive mode does not support any flags")
+
+        return parsedArgs
+
+
+updateArgParser = UpdateArgumentParser(
     prog='mas update',
-    description="\n".join([
-        f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Update the IBM Maximo Operator Catalog, and related MAS dependencies by configuring and launching the MAS Update Tekton Pipeline.\n",
-        "Interactive Mode:",
-        "Omitting the --catalog option will trigger an interactive prompt"
-    ]),
+    description="Update the IBM Maximo Operator Catalog, and related MAS dependencies by configuring and launching the MAS Update Tekton Pipeline.",
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
     add_help=False
 )
 
-masArgGroup = updateArgParser.add_argument_group('Catalog Selection')
+masArgGroup = updateArgParser.add_argument_group(
+    'Catalog Selection',
+    'Select the IBM Maximo Operator Catalog version to update to.'
+)
 masArgGroup.add_argument(
     '-c', '--catalog',
     dest='mas_catalog_version',
@@ -34,7 +104,10 @@ masArgGroup.add_argument(
     help="Maximo Operator Catalog Version (e.g. v9-240625-amd64)"
 )
 
-depsArgGroup = updateArgParser.add_argument_group('Update Dependencies')
+depsArgGroup = updateArgParser.add_argument_group(
+    'Update Dependencies',
+    'Configure which MAS dependencies (Db2, MongoDB, Kafka) should be updated and specify their namespaces.'
+)
 depsArgGroup.add_argument(
     '--db2-namespace',
     required=False,
@@ -72,6 +145,14 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
+    '--mongodb-v8-upgrade',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Required to confirm a major version update for MongoDb to version 8",
+)
+
+depsArgGroup.add_argument(
     '--kafka-namespace',
     required=False,
     help="Namespace where Kafka operator and instances will be updated",
@@ -84,43 +165,22 @@ depsArgGroup.add_argument(
     help="The type of Kakfa operator installed in the target namespace for updte",
 )
 
-droArgGroup = updateArgParser.add_argument_group('UDS to DRO Migration')
-
-droArgGroup.add_argument(
-    '--dro-migration',
-    required=False,
-    help="Required to confirm the migration from IBM User Data Services (UDS) to IBM Data Reporter Operator (DRO)",
-)
-
-droArgGroup.add_argument(
-    '--dro-storage-class',
-    required=False,
-    help="Set Custom RWO Storage Class name for DRO as part of the update",
-)
-
-droArgGroup.add_argument(
-    '--dro-namespace',
-    required=False,
-    help="Set Custom Namespace for DRO(Default: redhat-marketplace)",
-)
-
-# Development Mode
+# More Options
 # -----------------------------------------------------------------------------
-devArgGroup = updateArgParser.add_argument_group("Development Mode")
-devArgGroup.add_argument(
+otherArgGroup = updateArgParser.add_argument_group(
+    'More',
+    'Additional options including development mode, Artifactory credentials, CP4D version, confirmation prompts, and pre-check control.'
+)
+otherArgGroup.add_argument(
     "--artifactory-username",
     required=False,
     help="Username for access to development builds on Artifactory"
 )
-devArgGroup.add_argument(
+otherArgGroup.add_argument(
     "--artifactory-token",
     required=False,
     help="API Token for access to development builds on Artifactory"
 )
-
-# More Options
-# -----------------------------------------------------------------------------
-otherArgGroup = updateArgParser.add_argument_group('More')
 otherArgGroup.add_argument(
     "--dev-mode",
     required=False,

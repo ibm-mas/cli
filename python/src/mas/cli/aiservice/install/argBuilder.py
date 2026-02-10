@@ -35,7 +35,7 @@ class aiServiceInstallArgBuilderMixin():
 
         command += f" --ibm-entitlement-key $IBM_ENTITLEMENT_KEY{newline}"
 
-        # Aibroker Instance Id
+        # AI Service Instance Id
         command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
 
         # MAS Advanced Configuration
@@ -65,9 +65,9 @@ class aiServiceInstallArgBuilderMixin():
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
-        command += f"  --uds-email \"{self.getParam('uds_contact_email')}\""
-        command += f" --uds-firstname \"{self.getParam('uds_contact_firstname')}\""
-        command += f" --uds-lastname \"{self.getParam('uds_contact_lastname')}\"{newline}"
+        command += f"  --contact-email \"{self.getParam('dro_contact_email')}\""
+        command += f" --contact-firstname \"{self.getParam('dro_contact_firstname')}\""
+        command += f" --contact-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
         if self.getParam('dro_namespace') != "":
             command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
 
@@ -87,15 +87,13 @@ class aiServiceInstallArgBuilderMixin():
 
         # Approvals
         # -----------------------------------------------------------------------------
-        if self.getParam('approval_aibroker') != "":
-            command += f"  --approval-aibroker \"{self.getParam('approval_aibroker')}\"{newline}"
+        if self.getParam('approval_aiservice') != "":
+            command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------
         if self.devMode:
             command += f"  --dev-mode{newline}"
-        if not self.waitForPVC:
-            command += f"  --no-wait-for-pvc{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
         if self.getParam('image_pull_policy') != "":
@@ -105,6 +103,11 @@ class aiServiceInstallArgBuilderMixin():
 
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
+
+        # Certificate Issuer
+        if self.getParam('aiservice_certificate_issuer') != "":
+            command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
+
         if self.getParam('aiservice_s3_accesskey') != "":
             command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
         if self.getParam('aiservice_s3_secretkey') != "":
@@ -126,6 +129,10 @@ class aiServiceInstallArgBuilderMixin():
 
         if self.getParam('aiservice_odh_model_deployment_type') != "":
             command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
+        if self.getParam('aiservice_rhoai_model_deployment_type') != "":
+            command += f"  --rhoai-model-deployment-type \"{self.getParam('aiservice_rhoai_model_deployment_type')}\"{newline}"
+        if self.getParam('rhoai') == "true":
+            command += f"  --rhoai{newline}"
 
         if self.getParam('aiservice_watsonxai_apikey') != "":
             command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
@@ -137,10 +144,18 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
         if self.getParam('aiservice_watsonxai_ca_crt') != "":
             command += f"  --watsonxai-ca-crt \"{self.getParam('aiservice_watsonxai_ca_crt')}\"{newline}"
-        if self.getParam('aiservice_watsonxai_deployment_id'):
-            command += f" --watsonxai-deployment-id {self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
-        if self.getParam('aiservice_watsonxai_space_id'):
-            command += f" --watsonxai-space-id {self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_deployment_id') != "":
+            command += f"  --watsonxai-deployment-id \"{self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_space_id') != "":
+            command += f"  --watsonxai-space-id \"{self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_instance_id') != "":
+            command += f"  --watsonxai-instance-id \"{self.getParam('aiservice_watsonxai_instance_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_username') != "":
+            command += f"  --watsonxai-username \"{self.getParam('aiservice_watsonxai_username')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_version') != "":
+            command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_on_prem') != "":
+            command += f"  --watsonxai-onprem \"{self.getParam('aiservice_watsonxai_on_prem')}\"{newline}"
 
         if self.getParam('minio_root_user') != "":
             command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
@@ -162,6 +177,9 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
         if self.getParam('rsl_ca_crt') != "":
             command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
+
+        if self.getParam('db2_channel') != "":
+            command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
 
         command += "  --accept-license --no-confirm"
         return command

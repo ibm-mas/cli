@@ -37,12 +37,6 @@ Operator Catalog (Optional):
 Redhat Cert Manager (Optional):
       --install-redhat-cert-manager ${COLOR_YELLOW}INSTALL_REDHAT_CERT_MANAGER${TEXT_RESET}                                      Install RedHat Cert Manager (default to true)  
       --redhat-cert-manager-install-plan ${COLOR_YELLOW}REDHAT_CERT_MANAGER_INSTALL_PLAN${TEXT_RESET}                            Set Redhat Cert manager subscription install plan approval ('Automatic' or 'Manual'. Default is 'Automatic')
-      --redhat-cert-manager-catalog-source ${COLOR_YELLOW}REDHAT_CERT_MANAGER_CATALOG_SOURCE${TEXT_RESET}                        Set Redhat Cert manager catalog source. Only required for mirroring.
-      --redhat_cert_manager_catalog_source_namespace ${COLOR_YELLOW}REDHAT_CERT_MANAGER_CATALOG_SOURCE_NAMESPACE${TEXT_RESET}    Set Redhat Cert manager catalog source namespace.  Only required for mirroring.
-
-Redhat Operators Catalog Mirror (Optional):
-      --redhat_operators_mirror_catalog_version ${COLOR_YELLOW}REDHAT_OPERATORS_MIRROR_CATALOG_VERSION${TEXT_RESET}              Set Redhat Operators Mirror Catalog Version. Only required for mirroring.
-      --redhat-operators-mirror-catalog-image ${COLOR_YELLOW}REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE${TEXT_RESET}                  Set Redhat Operators Mirror Catalog Image. Only required for mirroring.
 
 IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
@@ -203,20 +197,6 @@ function gitops_cluster_noninteractive() {
         ;;
       --redhat-cert-manager-install-plan)
         export REDHAT_CERT_MANAGER_INSTALL_PLAN=$1 && shift
-        ;;
-      --redhat-cert-manager-catalog-source) 
-        export REDHAT_CERT_MANAGER_CATALOG_SOURCE=$1 && shift
-        ;;
-      --redhat-cert-manager-catalog-source-namespace)
-        export REDHAT_CERT_MANAGER_CATALOG_SOURCE_NAMESPACE=$1 && shift
-        ;;
-
-      # Redhat Operators Mirror Catalog
-      --redhat-operators-mirror-catalog-version)
-        export REDHAT_OPERATORS_MIRROR_CATALOG_VERSION=$1 && shift
-        ;;
-      --redhat-operators-mirror-catalog-image)
-        export REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE=$1 && shift
         ;;
 
       # MAS CLI
@@ -527,19 +507,8 @@ function gitops_cluster() {
   echo_reset_dim "Install RedHat Cert Manager .................................................. ${COLOR_MAGENTA}${INSTALL_REDHAT_CERT_MANAGER}"
   if [[ "$INSTALL_REDHAT_CERT_MANAGER" == "true" ]]; then
     echo_reset_dim "Redhat Certificate Manager Subscription Install Plan Approval ................ ${COLOR_MAGENTA}${REDHAT_CERT_MANAGER_INSTALL_PLAN}"
-    echo_reset_dim "Redhat Certificate Manager Catalog Source .................................... ${COLOR_MAGENTA}${REDHAT_CERT_MANAGER_CATALOG_SOURCE}"
-    echo_reset_dim "Redhat Certificate Manager Catalog Source namespace .......................... ${COLOR_MAGENTA}${REDHAT_CERT_MANAGER_CATALOG_SOURCE_NAMESPACE}"
   fi
   reset_colors
-
-  if [[ -n "$REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE" ]]; then
-    echo "${TEXT_DIM}"
-    echo_h2 "RedHat Operators Mirror Catalog" "    "
-    echo_reset_dim "RedHat Operators Mirror Catalog Version ................................. ${COLOR_MAGENTA}${REDHAT_OPERATORS_MIRROR_CATALOG_VERSION}"
-    echo_reset_dim "RedHat Operators Mirror Catalog Image ................................... ${COLOR_MAGENTA}${REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE}"
-    reset_colors
-  fi
-
 
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Promotion" "    "
@@ -787,11 +756,6 @@ function gitops_cluster() {
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
   fi
 
-  if [[ -n "$REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE" ]]; then
-    echo "- RedHat Opertors Mirror Catalog"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-operators-mirror-catalog.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-operators-mirror-catalog.yaml
-  fi
-
   if [[ "$INSTALL_SELENIUM_GRID" == "true" ]]; then
     echo "- Selenium Grid"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/selenium-grid.yaml.j2 ${GITOPS_CLUSTER_DIR}/selenium-grid.yaml
@@ -831,7 +795,7 @@ function gitops_cluster() {
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
   fi
 
-  if [[ -n "$CLUSTER_LOGGING_OPERATOR_INSTALL" ]]; then
+  if [[ "$CLUSTER_LOGGING_OPERATOR_INSTALL" == "true" ]]; then
     echo "- Cluster Logging Operator"
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
     if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
@@ -849,7 +813,7 @@ function gitops_cluster() {
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
 
-  if [[ -n "$INSTANA_AGENT_OPERATOR_INSTALL" ]]; then
+  if [[ "$INSTANA_AGENT_OPERATOR_INSTALL" == "true" ]]; then
     echo "- Instana Agent Operator"
     sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml

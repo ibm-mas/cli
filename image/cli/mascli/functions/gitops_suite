@@ -26,6 +26,7 @@ MongoDb Provider Selection (Required):
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws' or 'yaml')
 
 IBM Suite License Service:
+  -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
       --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}  IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
 
@@ -41,8 +42,11 @@ IBM Maximo Application Suite:
       --mas-pod-template-yaml ${COLOR_YELLOW}MAS_POD_TEMPLATE_YAML${TEXT_RESET}                                           The location of a file containing the POD template
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                                 List of IPs or CIDR range to whitelist
       --additional-vpn ${COLOR_YELLOW}ADDITIONAL_VPN{TEXT_RESET}                                                          Manage additional client VPN
+      --application-configuration ${COLOR_YELLOW}APPLICATION_CONFIGURATION${TEXT_RESET}                                   Application Configuration enable/disable (true/false)
+      --additional-resources-instances ${COLOR_YELLOW}ADDITIONAL_RESOURCES_INSTANCES${TEXT_RESET}                         Enable additional resources addon with instances array (YAML string format)
       --extensions ${COLOR_YELLOW}EXTENSIONS${TEXT_RESET}                                                                 To enable JAVA or 3rd party code extensions
       --enhanced-dr ${COLOR_YELLOW}ENHANCED_DR${TEXT_RESET}                                                               To enable Enhanced Disaster Recovery
+      --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}                                         Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure addon CRs are properly cleaned up by ArgoCD on deletion
       --is-non-shared-cluster ${COLOR_YELLOW}IS_NON_SHARED_CLUSTER${TEXT_RESET}                                           To enable Non shared cluster
       --mas-report-adoption-metrics ${COLOR_YELLOW}MAS_REPORT_ADOPTION_METRICS${TEXT_RESET}                                           To enable adoption metrics reporting (optional, defaults to true)
       --suite-spec-additional-properties-yaml ${COLOR_YELLOW}SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML${TEXT_RESET}           Additional properties to be set in Suite CR spec
@@ -92,6 +96,7 @@ IBM Maximo Application Suite:
       
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  The certificate authority to use for provisoning certificates for MAS services
 
+      --welcome-message ${COLOR_YELLOW}WELCOME_MESSAGE${TEXT_RESET} Default welcome message (displayed on login screen) to be configured (optional). NOTE: only use with MAS 9.1.7 or later.
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
@@ -141,6 +146,28 @@ function gitops_suite_noninteractive() {
   # Enable adoption metrics reporting by default
   export MAS_REPORT_ADOPTION_METRICS=${MAS_REPORT_ADOPTION_METRICS:-"true"}
         
+
+  #GenericAddon default
+  export EXTENSIONS=${EXTENSIONS:-"false"}
+  export ADDITIONAL_VPN=${ADDITIONAL_VPN:-"false"}
+  export ENHANCED_DR=${ENHANCED_DR:-"false"}
+  export USE_POSTDELETE_HOOKS=${USE_POSTDELETE_HOOKS:-"true"}
+
+  if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+      CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+      IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+      if [ ${#PARTS[@]} -lt 6 ]; then
+          echo "Error: Invalid SLS service parameter file Path $STANDALONE_SLS_SERVICE format." >&2
+          exit 1
+      fi
+      ICN="${PARTS[3]}"
+      SAAS_SUB_ID="${PARTS[4]}"
+  fi
+   
+  export ICN=${ICN:-""}
+  export SAAS_SUB_ID=${SAAS_SUB_ID:-""}
+
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -197,6 +224,11 @@ function gitops_suite_noninteractive() {
         export SLS_INSTALL_PLAN=$1 && shift
         ;;
 
+      # Standalone Server configuration
+      -s|--sls-service)
+        export STANDALONE_SLS_SERVICE=$1 && shift
+        ;;
+
       # MAS
       --mas-annotations)
         export MAS_ANNOTATIONS=$1 && shift
@@ -247,6 +279,9 @@ function gitops_suite_noninteractive() {
       --additional-vpn)
         export ADDITIONAL_VPN=$1 && shift
         ;;
+      --application-configuration)
+        export APPLICATION_CONFIGURATION=$1 && shift
+        ;;
       --extensions)
         export EXTENSIONS=$1 && shift
         ;;
@@ -256,7 +291,12 @@ function gitops_suite_noninteractive() {
       --is-non-shared-cluster)
         export IS_NON_SHARED_CLUSTER=$1 && shift
         ;;
-
+      --additional-resources-instances)
+        export ADDITIONAL_RESOURCES_INSTANCES=$1 && shift
+        ;;
+      --disable-postdelete-hooks)
+        export USE_POSTDELETE_HOOKS=false
+        ;;
       # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -361,6 +401,10 @@ function gitops_suite_noninteractive() {
 
       --internal-cert-authority)
         export INTERNAL_CERT_AUTHORITY=$1 && shift
+        ;;
+
+      --welcome-message)
+        export WELCOME_MESSAGE=$1 && shift
         ;;
 
       # Other Commands
@@ -510,6 +554,10 @@ function gitops_suite() {
   echo_h4 "IBM Suite License Service" "    "
   echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${SLS_CHANNEL}"
   echo_reset_dim "Subscription Install Plan ...... ${COLOR_MAGENTA}${SLS_INSTALL_PLAN}"
+  echo_reset_dim "Ibm Customer Number  ........... ${COLOR_MAGENTA}${ICN}"
+  echo_reset_dim "Subscription Id   .............. ${COLOR_MAGENTA}${SAAS_SUB_ID}"
+
+
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
   fi
@@ -532,15 +580,21 @@ function gitops_suite() {
   echo_reset_dim "OIDC Config ................................ ${COLOR_MAGENTA}${OIDC_CONFIG}"
   echo_reset_dim "Allow List ................................. ${COLOR_MAGENTA}${ALLOW_LIST}"
   echo_reset_dim "Additional VPN ............................. ${COLOR_MAGENTA}${ADDITIONAL_VPN}"
+  echo_reset_dim "Application Configuration .................. ${COLOR_MAGENTA}${APPLICATION_CONFIGURATION}"
+  if [[ -n "${ADDITIONAL_RESOURCES_INSTANCES}" ]]; then
+    echo_reset_dim "Additional Resources Instances ........ ${COLOR_MAGENTA}${ADDITIONAL_RESOURCES_INSTANCES}"
+  fi
   echo_reset_dim "Enhanced Disaster Recovery ................. ${COLOR_MAGENTA}${ENHANCED_DR}"
   echo_reset_dim "Non shared cluster ......................... ${COLOR_MAGENTA}${IS_NON_SHARED_CLUSTER}"
   echo_reset_dim "Java or 3rd Party Code Extensions .......... ${COLOR_MAGENTA}${EXTENSIONS}"
   echo_reset_dim "Report adoption metrics .................... ${COLOR_MAGENTA}${MAS_REPORT_ADOPTION_METRICS}"
+  echo_reset_dim "Use PostDelete Hooks? ...................... ${COLOR_MAGENTA}${USE_POSTDELETE_HOOKS}"
   echo_reset_dim "Suite Spec Additional Properties ........... ${COLOR_MAGENTA}${SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML}"
   echo_reset_dim "Suite Spec Settings Additional Properties .. ${COLOR_MAGENTA}${SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES_YAML}"
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     echo_reset_dim "Internal Certificate Authority ............. ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
   fi
+  echo_reset_dim "Default welcome message .................... ${COLOR_MAGENTA}${WELCOME_MESSAGE}"
   reset_colors
 
   if [[ -n "$DNS_PROVIDER" ]]; then

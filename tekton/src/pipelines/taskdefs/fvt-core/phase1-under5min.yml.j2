@@ -19,16 +19,6 @@
   runAfter:
     - catalogapi
 
-# ibmadminissuer ~5m
-# -----------------------------------------------------------------------------
-- name: ibmadminissuer
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: ibmadminissuer
-  runAfter:
-    - grafana
 
 # milestonesapi ~5m
 # -----------------------------------------------------------------------------
@@ -164,7 +154,7 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: coreapi-scimv2
-  runAfter: 
+  runAfter:
     - coreapi-selfreg
 
 # masprovisioner ~5m

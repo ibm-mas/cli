@@ -361,3 +361,158 @@ function jinjanate_commmon() {
   fi
   jinjanate --quiet --undefined $filter_params $template_path $output_opts
 }
+
+#Get value from FILE at given DOTPATH
+function get_tf_value() {
+    local FILE="$1"
+    local DOTPATH="$2"
+
+    if [[ -z "$FILE" || -z "$DOTPATH" ]]; then
+        echo "Usage: get_tf_value <file.tf> '<dot.path>'" >&2
+        return 1
+    fi
+
+    echo "$FILE" >&2
+    echo "$DOTPATH" >&2
+    # Use the same python interpreter everywhere
+    local PYTHON_BIN
+    PYTHON_BIN=$(command -v python3)
+
+    if [[ -z "$PYTHON_BIN" ]]; then
+        echo "Error: python3 not found" >&2
+        return 1
+    fi
+
+    # Install python-hcl2 if missing
+    if ! $PYTHON_BIN -c "import hcl2" 2>/dev/null; then
+        echo "python-hcl2 not found. Installing..." >&2
+        $PYTHON_BIN -m pip install python-hcl2 >/dev/null
+    fi
+
+    # Run Python and print ONLY the value
+    $PYTHON_BIN <<EOF
+import hcl2
+import re
+import sys
+import json
+
+file_path = """$FILE"""
+dot_path = """$DOTPATH"""   # <- triple-quoted to avoid ANY shell quoting issues
+
+def load_hcl(path):
+    with open(path, "r") as f:
+        return hcl2.load(f)
+
+def unwrap_singleton_lists(obj):
+    if isinstance(obj, list) and len(obj) == 1:
+        return unwrap_singleton_lists(obj[0])
+    if isinstance(obj, dict):
+        return {k: unwrap_singleton_lists(v) for k, v in obj.items()}
+    return obj
+
+def resolve_path(obj, path):
+    # tokens: key, [0], ["key-with-dash"]
+    tokens = re.findall(r'\w+|\[\d+\]|\[".*?"\]', path)
+
+    value = obj
+    for t in tokens:
+        # list index
+        if t.startswith("[") and t.endswith("]") and t[1:-1].isdigit():
+            value = value[int(t[1:-1])]
+        # quoted key
+        elif t.startswith('["') and t.endswith('"]'):
+            value = value[t[2:-2]]
+        else:
+            value = value[t]
+    return value
+
+data = unwrap_singleton_lists(load_hcl(file_path))
+
+try:
+    result = resolve_path(data, dot_path)
+    if isinstance(result, (list, dict)):
+        print(json.dumps(result))
+    else:
+        print(result)
+except Exception as e:
+    print(f"Error: {e}", file=sys.stderr)
+    sys.exit(1)
+EOF
+}
+
+# Create Terraform related common files
+function create_common_files() {
+  local cluster_dir=$1
+  
+  if [[ -z "$cluster_dir" ]]; then
+    echo_warning "create_common_files: cluster directory path is required"
+    return 1
+  fi
+  
+  if [[ ! -d "$cluster_dir" ]]; then
+    echo_warning "create_common_files: directory does not exist: $cluster_dir"
+    return 1
+  fi
+  
+  # Handle backend.tf with template
+  if [[ ! -f "$cluster_dir/backend.tf" ]]; then
+    echo "  Creating backend.tf from template"
+    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-backend.tf.j2" "$cluster_dir/backend.tf.json"
+  else
+    echo "  File already exists: backend.tf"
+  fi
+  
+  # Handle provider.tf with template
+  if [[ ! -f "$cluster_dir/provider.tf" ]]; then
+    echo "  Creating provider.tf from template"
+    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-provider.tf.j2" "$cluster_dir/provider.tf"
+  else
+    echo "  File already exists: provider.tf"
+  fi
+  
+  # Create other empty files if they don't exist
+  local empty_tf_files=("terraform.tfvars" "variables.tf" "main.tf")
+  
+  for file in "${empty_tf_files[@]}"; do
+    if [[ ! -f "$cluster_dir/$file" ]]; then
+      echo "  Creating empty file: $file"
+      touch "$cluster_dir/$file"
+    else
+      echo "  File already exists: $file"
+    fi
+  done
+}
+
+# -----------------------------------------------------------------------------
+# Function: get_field
+#
+# Description:
+#   Extracts and returns the Nth field from a given string using a specified
+#   single-character delimiter.
+#
+# Parameters:
+#   $1 - Input string to parse
+#   $2 - Delimiter character (e.g. :, |, ,)
+#   $3 - Field position to extract (1-based index)
+#
+# Returns:
+#   Prints the extracted field to stdout.
+#   Returns exit code 1 if input is invalid.
+#
+# Example:
+#   arn="arn:aws:iam::1234567890:user/abcd"
+#   account_id=$(get_field "$arn" ":" 5)
+#   echo "$account_id"   # Output: 1234567890
+# -----------------------------------------------------------------------------
+get_field() {
+  local input="$1"
+  local delimiter="$2"
+  local position="$3"
+
+  if [[ -z "$input" || -z "$delimiter" || -z "$position" || ! "$position" =~ ^[0-9]+$ ]]; then
+    echo "Usage: get_field <string> <delimiter> <position>" >&2
+    return 1
+  fi
+
+  echo "$input" | cut -d"$delimiter" -f"$position"
+}

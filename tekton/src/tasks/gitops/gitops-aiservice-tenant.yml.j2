@@ -49,13 +49,17 @@ spec:
       type: string
     - name: aiservice_watsonxai_url
       type: string
-    - name: aiservice_watsonx_full
+    - name: aiservice_watsonxai_ca_crt
       type: string
-    - name: aiservice_watsonx_instance_id
+    - name: aiservice_watsonxai_instance_id
       type: string
-    - name: aiservice_watsonx_version
+    - name: aiservice_watsonxai_version
       type: string
-    - name: aiservice_watsonx_username
+    - name: aiservice_watsonxai_username
+      type: string
+    - name: aiservice_watsonxai_on_prem
+      type: string
+    - name: aiservice_watsonxai_verify
       type: string
     - name: aiservice_operator_log_level
       type: string
@@ -77,6 +81,9 @@ spec:
       type: string
     - name: tenant_entitlement_end_date
       type: string
+    - name: sls_service
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-aiservice-tenant
     env:
@@ -125,13 +132,15 @@ spec:
       - name: AISERVICE_WATSONXAI_URL
         value: $(params.aiservice_watsonxai_url)
       - name: AISERVICE_WATSONX_FULL
-        value: $(params.aiservice_watsonx_full)
-      - name: AISERVICE_WATSONX_INSTANCE_ID
-        value: $(params.aiservice_watsonx_instance_id)
-      - name: AISERVICE_WATSONX_VERSION
-        value: $(params.aiservice_watsonx_version)
-      - name: AISERVICE_WATSONX_USERNAME
-        value: $(params.aiservice_watsonx_username)
+        value: $(params.aiservice_watsonxai_on_prem)
+      - name: AISERVICE_WATSONXAI_CA_CRT
+        value: $(params.aiservice_watsonxai_ca_crt)
+      - name: AISERVICE_WATSONXAI_INSTANCE_ID
+        value: $(params.aiservice_watsonxai_instance_id)
+      - name: AISERVICE_WATSONXAI_VERSION
+        value: $(params.aiservice_watsonxai_version)
+      - name: AISERVICE_WATSONXAI_USERNAME
+        value: $(params.aiservice_watsonxai_username)
       - name: AISERVICE_OPERATOR_LOG_LEVEL
         value: $(params.aiservice_operator_log_level)
       - name: AISERVICE_STORAGE_REGION
@@ -152,6 +161,8 @@ spec:
         value: $(params.tenant_entitlement_start_date)
       - name: TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
+      - name: STANDALONE_SLS_SERVICE
+        value: $(params.sls_service)
     envFrom:
       - configMapRef:
           name: environment-properties
