@@ -343,6 +343,12 @@
     <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
+      <cds-select-item value="#details">Details</cds-select-item>
+    
+      <cds-select-item value="#manual-installation">Manual Installation</cds-select-item>
+    
+      <cds-select-item value="#source">Source</cds-select-item>
+    
       <cds-select-item value="#red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support</cds-select-item>
     
       <cds-select-item value="#ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility</cds-select-item>
@@ -360,12 +366,13 @@
           <div class="rst-content">
             
             <h1 id="ibm-maximo-operator-catalog-v8-230217">IBM Maximo Operator Catalog v8 (230217)<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-230217" title="Permanent link">¶</a></h1>
-<div class="admonition error">
-<p class="admonition-title">Error</p>
-<p>Catalog v8-230217-amd64 not found in python-devops.</p>
-<p>Make sure the catalog metadata exists at:
-<code>python-devops/src/mas/devops/data/catalogs/v8-230217-amd64.yaml</code></p>
-</div>
+<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">¶</a></h2>
+<table>
+  <tbody><tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</td></tr>
+  <tr><td>Tag</td><td>v8-230217-amd64</td></tr>
+  <tr><td>Digest</td><td>sha256:c23bd01da3025008d2ed550b6a2ef912179c34922c924eb9448cbb663a46b6b9</td></tr>
+</tbody></table>
+
 <p>Other IBM content curated from <code>icr.io/cpopen/ibm-operator-catalog@sha256:8521ac8527cf723041066e88997a264094d5f8eae20e9ffe30353444768cb3c0</code></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -375,18 +382,22 @@
 <p class="admonition-title">Warning</p>
 <p>This release of the catalog is no longer supported due to the shutdown of IBM User Data Services, the first operator catalog release that supports it's replacement (IBM Data Reporter Operator) is the <a href="../v8-240227-amd64/">February 2024 update</a></p>
 </div>
-<div class="admonition error">
-<p class="admonition-title">Error</p>
-<p>Catalog v8-230217-amd64 not found in python-devops.</p>
-<p>Make sure the catalog metadata exists at:
-<code>python-devops/src/mas/devops/data/catalogs/v8-230217-amd64.yaml</code></p>
-</div>
-<div class="admonition error">
-<p class="admonition-title">Error</p>
-<p>Catalog v8-230217-amd64 not found in python-devops.</p>
-<p>Make sure the catalog metadata exists at:
-<code>python-devops/src/mas/devops/data/catalogs/v8-230217-amd64.yaml</code></p>
-</div>
+<h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¶</a></h2>
+<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-230217-amd64.yaml</code></p>
+<h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link">¶</a></h2>
+<pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Maximo Operators (v8-230217-amd64)
+  publisher: IBM
+  description: Static Catalog Source for IBM Maximo Application Suite
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:c23bd01da3025008d2ed550b6a2ef912179c34922c924eb9448cbb663a46b6b9
+  priority: 90
+</code></pre>
 <h2 id="red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support<a class="headerlink" href="#red-hat-openshift-container-platform-support" title="Permanent link">¶</a></h2>
 <p>IBM Maximo Application Suite will run anywhere that you can run a supported OpenShift release on AMD64 architecture, including:</p>
 <ul>
@@ -1852,6 +1863,21 @@
       <div class="md-toc">
         <div class="md-toc__title">On this page</div>
         <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#details" class="md-toc__link" data-md-level="1">
+                  Details
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#manual-installation" class="md-toc__link" data-md-level="1">
+                  Manual Installation
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#source" class="md-toc__link" data-md-level="1">
+                  Source
+                </a>
+              </li>
               <li class="md-toc__item">
                 <a href="#red-hat-openshift-container-platform-support" class="md-toc__link" data-md-level="1">
                   Red Hat OpenShift Container Platform Support

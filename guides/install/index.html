@@ -549,6 +549,24 @@
       <td>Disable MAS guided tour</td>
     </tr>
     <tr>
+      <td><code>--disable-feature-usage</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Disable feature adoption metrics reporting</td>
+    </tr>
+    <tr>
+      <td><code>--disable-deployment-progression</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Disable deployment progression metrics reporting</td>
+    </tr>
+    <tr>
+      <td><code>--disable-usability-metrics</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Disable usability metrics reporting</td>
+    </tr>
+    <tr>
       <td><code>--dns-provider</code></td>
       <td><code>{cloudflare, cis, route53}</code></td>
       <td>-</td>
@@ -1263,6 +1281,38 @@
       <td><code>string</code></td>
       <td><code>raw</code></td>
       <td>Model deployment type for ODH</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="redhat-openshift-ai">RedHat Openshift AI<a class="headerlink" href="#redhat-openshift-ai" title="Permanent link">¶</a></h3>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--rhoai-model-deployment-type</code></td>
+      <td><code>string</code></td>
+      <td><code>raw</code></td>
+      <td>Model deployment type for RedHat Openshift AI</td>
+    </tr>
+    <tr>
+      <td><code>--rhoai</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>temporary flag to install Redhat Openshift AI instead of Opendatahub</td>
     </tr>
   </tbody>
 </table>
@@ -2366,7 +2416,7 @@
 <li><strong>Standalone Installation</strong>: For standalone AI Service installation, use the dedicated <code>mas aiservice-install</code> command to install AI Service independently of the main MAS installation.</li>
 </ul>
 </div>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.15.1 mas install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.15.2 mas install
 </code></pre>
 <p>The interactive install will guide you through a series of questioned designed to help you arrive at the best configuration for your scenario, it can be broken down as below:</p>
 <div>
@@ -2465,7 +2515,7 @@
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 SUPERUSER_PASSWORD=xxx
 
-docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.15.1  bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.15.2  bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas install \
     --mas-catalog-version v9-260129-amd64 \
@@ -2651,6 +2701,11 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
                       <li class="md-toc__item">
                         <a href="#open-data-hub" class="md-toc__link" data-md-level="2">
                           Open Data Hub
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#redhat-openshift-ai" class="md-toc__link" data-md-level="2">
+                          RedHat Openshift AI
                         </a>
                       </li>
                       <li class="md-toc__item">
