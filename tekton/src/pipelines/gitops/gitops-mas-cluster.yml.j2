@@ -427,8 +427,8 @@ spec:
         kind: Task
         name: gitops-efs-csi-driver
       when:
-        - input: "$(params.hypervisor)"
-          operator: in
+        - input: "$(params.role_arn)"
+          operator: notin
           values: ["rosa"]
       workspaces:
         - name: configs
@@ -437,7 +437,7 @@ spec:
 
     - name: gitops-dro
       runAfter:
-        - gitops-efs-csi-driver
+        - gitops-cluster
       params:
         - name: cluster_name
           value: $(params.cluster_name)
