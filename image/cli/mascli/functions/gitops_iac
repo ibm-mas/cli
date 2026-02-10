@@ -1065,7 +1065,7 @@ function gitops_iac_provision_s3() {
 
   for row in "${APP_PARAMS[@]}"; do
     read -r app is_available <<< "$row"
-    echo "Generating rds-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/rds-db2-$app.tf"
+    echo "Generating s3 related file for $app"
     if [[ "$is_available" == true ]]; then
       export APP_NAME="$app"
       echo "Generating s3-instance.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-$app.tf "
