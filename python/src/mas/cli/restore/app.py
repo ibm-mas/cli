@@ -80,7 +80,16 @@ class RestoreApp(BaseApp):
                 "s3_bucket_name",
                 "s3_region",
                 "artifactory_url",
-                "artifactory_repository"
+                "artifactory_repository",
+                # Manage App Restore
+                "restore_manage_app",
+                "restore_manage_db",
+                "manage_db_override_storageclass",
+                "manage_db_meta_storage_class",
+                "manage_db_data_storage_class",
+                "manage_db_backup_storage_class",
+                "manage_db_logs_storage_class",
+                "manage_db_temp_storage_class"
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -143,6 +152,9 @@ class RestoreApp(BaseApp):
             if self.args.include_drocfg_from_backup is None:
                 self.promptForDROConfiguration()
 
+            # Prompt for Manage app restore
+            self.promptForManageAppRestore()
+
             # Prompt for backup storage size if not provided
             if self.args.backup_storage_size is None:
                 self.promptForBackupStorageSize()
@@ -185,6 +197,11 @@ class RestoreApp(BaseApp):
         self.printSummary("Include Grafana", self.getParam("include_grafana") if self.getParam("include_grafana") else "true")
         self.printSummary("Include SLS", self.getParam("include_sls") if self.getParam("include_sls") else "true")
         self.printSummary("Include DRO", self.getParam("include_dro") if self.getParam("include_dro") else "true")
+
+        if self.getParam("restore_manage_app") == "true":
+            self.printH2("Manage Application Restore")
+            self.printSummary("Restore Manage App", "Yes")
+            self.printSummary("Restore Manage incluster Db2 Database", "Yes" if self.getParam("restore_manage_db") == "true" else "No")
 
         if self.getParam("sls_domain") is not None and self.getParam("sls_domain") != "":
             self.printH2("SLS Configuration")
@@ -440,6 +457,68 @@ class RestoreApp(BaseApp):
                 self.setParam("clean_backup", "false")
         else:
             self.setParam("download_backup", "false")
+
+    def promptForManageAppRestore(self) -> None:
+        """Prompt user for Manage application restore configuration"""
+        self.printH1("Manage Application Restore")
+        self.printDescription([
+            "In addition to restoring the MAS Suite, you can also restore the Manage application.",
+            "This includes DB2, Manage namespace resources and persistent volume data."
+        ])
+
+        restoreManageApp = self.yesOrNo("Do you want to restore the Manage application")
+
+        if restoreManageApp:
+            self.setParam("restore_manage_app", "true")
+
+            overrideAppSC = self.yesOrNo("Do you want to override the storage class for the Manage Application persistent volume")
+
+            if overrideAppSC:
+                self.setParam("manage_app_override_storageclass", "true")
+                useCustomAppSC = self.yesOrNo("Do you want to use the custom storage class, if not default in cluster will be used")
+                if useCustomAppSC:
+                    manage_app_storage_class_rwx = self.promptForString("Manage Application - ReadWriteMany storage class name")
+                    manage_app_storage_class_rwo = self.promptForString("Manage Application - ReadWriteOnce storage class name")
+                    self.setParam("manage_app_storage_class_rwx", manage_app_storage_class_rwx)
+                    self.setParam("manage_app_storage_class_rwo", manage_app_storage_class_rwo)
+            else:
+                self.setParam("manage_app_override_storageclass", "false")
+            # Ask about DB2 restore
+            self.printH2("Manage Database Restore")
+            self.printDescription([
+                "- The Manage application uses a Db2 database that should also be restored.",
+                "- This will restore the incluster Db2 database associated with the Manage workspace."
+                "- Note: This will be offline restore and the Manage application will be unavailable during the restore."
+            ])
+
+            restoreDb2 = self.yesOrNo("Do you want to restore the Manage database (Db2)")
+
+            # Always set to disk for pipeline as s3 download is handled for the whole pipeline
+            self.setParam("manage_db2_restore_vendor", "disk")
+            if restoreDb2:
+                self.setParam("restore_manage_db", "true")
+                overrideStorageClass = self.yesOrNo("Do you want to override the storage class for the Manage database persistent volume")
+                if overrideStorageClass:
+                    self.setParam("manage_db_override_storageclass", "true")
+                    useCustomSC = self.yesOrNo("Do you want to use the custom storage class, if not default in cluster will be used")
+                    if useCustomSC:
+                        manage_db_meta_storage_class = self.promptForString("DB2 Meta storage class name")
+                        manage_db_data_storage_class = self.promptForString("DB2 Data storage class name")
+                        manage_db_backup_storage_class = self.promptForString("DB2 Backup storage class name")
+                        manage_db_logs_storage_class = self.promptForString("DB2 Logs storage class name")
+                        manage_db_temp_storage_class = self.promptForString("Db2 temp storage class name")
+                        self.setParam("manage_db_meta_storage_class", manage_db_meta_storage_class)
+                        self.setParam("manage_db_data_storage_class", manage_db_data_storage_class)
+                        self.setParam("manage_db_backup_storage_class", manage_db_backup_storage_class)
+                        self.setParam("manage_db_logs_storage_class", manage_db_logs_storage_class)
+                        self.setParam("manage_db_temp_storage_class", manage_db_temp_storage_class)
+                else:
+                    self.setParam("manage_db_override_storageclass", "false")
+            else:
+                self.setParam("restore_manage_db", "false")
+        else:
+            self.setParam("restore_manage_app", "false")
+            self.setParam("restore_manage_db", "false")
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str = '', keyPrefix: str = '') -> dict:
         """

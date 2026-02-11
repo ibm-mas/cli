@@ -142,9 +142,10 @@
         - must-gather
         - suite-app-backup
         - suite-app-install
+        - suite-app-restore
+        - suite-app-rollback
         - suite-app-uninstall
         - suite-app-upgrade
-        - suite-app-rollback
         - suite-backup
         - suite-restore
         - suite-certs

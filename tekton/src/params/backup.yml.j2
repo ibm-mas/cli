@@ -221,7 +221,7 @@
   default: ""
   description: Directory for MAS configuration files during restore
 
-# Manage Application Backup Configuration
+# Manage Application Backup/Restore Configuration
 # -----------------------------------------------------------------------------
 - name: backup_manage_app
   type: string
@@ -233,12 +233,38 @@
   description: Whether to backup the Manage database (Db2) (true/false)
   default: "false"
 
+- name: restore_manage_app
+  type: string
+  description: Whether to restore the Manage application (true/false)
+  default: "false"
+
+- name: restore_manage_db
+  type: string
+  description: Whether to restore the Manage database (Db2) (true/false)
+  default: "false"
+
 - name: manage_workspace_id
   type: string
   description: Manage workspace ID for application backup
   default: ""
 
-# Manage Db2 Backup Configuration
+- name: manage_app_override_storageclass
+  type: string
+  description: Whether to override the storage class in Manage App PVC (true/false)
+  default: "false"
+
+- name: manage_app_storage_class_rwx
+  type: string
+  description: Storage class for Manage ReadWriteMany Storage
+  default: ""
+
+- name: manage_app_storage_class_rwo
+  type: string
+  description: Storage class for Manage ReadWriteOnce Storage
+  default: ""
+
+
+# Manage Db2 Backup/Restore Configuration
 # -----------------------------------------------------------------------------
 - name: manage_db2_namespace
   type: string
@@ -259,6 +285,41 @@
   type: string
   description: Storage backend for Manage Db2 backup files (disk or s3)
   default: "disk"
+
+- name: manage_db2_restore_vendor
+  type: string
+  description: Storage backend for Manage Db2 restore files (disk or s3)
+  default: "disk"
+
+- name: manage_db_override_storageclass
+  type: string
+  description: Whether to override the storage class in Manage database (Db2) PVC (true/false)
+  default: "false"
+
+- name: manage_db_meta_storage_class
+  type: string
+  description: Storage class for DB2 Meta storage
+  default: ""
+
+- name: manage_db_data_storage_class
+  type: string
+  description: Storage class for DB2 Data storage
+  default: ""
+
+- name: manage_db_backup_storage_class
+  type: string
+  description: Storage class for DB2 Backup storage
+  default: ""
+
+- name: manage_db_logs_storage_class
+  type: string
+  description: Storage class for DB2 Logs storage
+  default: ""
+
+- name: manage_db_temp_storage_class
+  type: string
+  description: Storage class for DB2 Temp storage
+  default: ""
 
 - name: backup_s3_endpoint
   type: string
