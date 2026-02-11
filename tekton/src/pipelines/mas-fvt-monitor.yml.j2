@@ -42,6 +42,10 @@ spec:
       type: string
       description: FVT Digest - Shared Test Container
       default: ""
+    - name: fvt_digest_monitor
+      type: string
+      description: FVT Digest - Monitor Test Container
+      default: ""
     - name: ivt_digest_core
       type: string
       description: IVT Digest - Core
@@ -138,10 +142,10 @@ spec:
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
         - name: fvt_image_digest
-          value: $(params.fvt_digest_ctf)
+          value: $(params.fvt_digest_monitor)
 
         - name: fvt_test_suite
-          value: $(params.fvt_test_suite) # pytest_marker in Common Test Framework
+          value: $(params.fvt_test_suite) # pytest_marker in Monitor Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_monitor)
       timeout: "0"
@@ -149,7 +153,7 @@ spec:
         kind: Task
         name: mas-fvt-monitor
       when:
-        - input: "$(params.fvt_digest_ctf)"
+        - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
         - input: "$(params.fvt_test_suite)"
