@@ -391,6 +391,8 @@ spec:
           value: $(params.instana_agent_operator_env)
         - name: instana_agent_operator_jks_storage_class
           value: $(params.instana_agent_operator_jks_storage_class)
+        - name: hypervisor
+          value: $(params.hypervisor)
 
       taskRef:
         kind: Task

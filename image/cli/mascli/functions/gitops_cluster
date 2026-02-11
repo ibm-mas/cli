@@ -354,6 +354,9 @@ function gitops_cluster_noninteractive() {
       --image-repo-mirror-prefix)
         export IMAGE_REPO_MIRROR_PREFIX=$1 && shift
         ;;
+      --hypervisor)
+        export HYPERVISOR=$1 && shift
+        ;;
 
       # Other Commands
       -h|--help)
@@ -465,6 +468,7 @@ function gitops_cluster() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "HYPERVISOR ..................... ${COLOR_MAGENTA}${HYPERVISOR}"
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"

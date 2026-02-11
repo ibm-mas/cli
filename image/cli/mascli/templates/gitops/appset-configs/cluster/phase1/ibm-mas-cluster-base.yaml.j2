@@ -2,6 +2,9 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
 account:
   id: {{ ACCOUNT_ID }}
+{% if HYPERVISOR is defined and HYPERVISOR %}
+  hypervisor: {{ HYPERVISOR }}
+{% endif %}
 
 region:
   id: {{ REGION_ID }}

@@ -153,6 +153,9 @@ spec:
     - name: instana_agent_operator_jks_storage_class
       type: string
       default: ''
+    - name: hypervisor
+      type: string
+      default: ''
 
   stepTemplate:
     name: gitops-cluster
@@ -268,6 +271,8 @@ spec:
         value: $(params.instana_agent_operator_env)
       - name: INSTANA_AGENT_OPERATOR_JKS_STORAGE_CLASS
         value: $(params.instana_agent_operator_jks_storage_class)
+      - name: HYPERVISOR
+        type: $(params.hypervisor)
 
     envFrom:
       - configMapRef:
