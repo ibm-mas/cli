@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -53,7 +53,7 @@ from mas.devops.mas import (
     getDefaultStorageClasses
 )
 from mas.devops.sls import findSLSByNamespace
-from mas.devops.data import getCatalog
+from mas.devops.data import getCatalog, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
@@ -354,7 +354,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 self.fatalError(f"Unknown option: {key} {value}")
 
         # Load the catalog information
-        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        try:
+            self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+            catalogSummary = self.processCatalogChoice()
+            self.printDescription(catalogSummary)
+        except NoSuchCatalogError:
+            pass
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
