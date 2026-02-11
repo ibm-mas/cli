@@ -49,10 +49,6 @@ spec:
     - name: fvt_digest_manage_pytest
       type: string
       default: ""
-
-    - name: fvt_digest_ctf
-      type: string
-      default: ""
     - name: fvt_digest_monitor
       type: string
       default: ""
@@ -109,7 +105,7 @@ spec:
         kind: Task
         name: mas-ivt-manage
       when:
-        - input: "$(params.fvt_digest_ctf)"
+        - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
         - input: "$(params.fvt_digest_manage)"
