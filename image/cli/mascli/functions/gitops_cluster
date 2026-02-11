@@ -28,6 +28,7 @@ IBM Container Registry Entitlement (Required):
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+      --hypervisor ${COLOR_YELLOW}HYPERVISOR${TEXT_RESET}         Hypervisor type for the cluster (e.g., 'rosa', 'fyre')
 
 Operator Catalog (Optional):
       --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}   Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')

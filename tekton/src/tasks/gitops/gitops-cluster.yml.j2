@@ -272,7 +272,7 @@ spec:
       - name: INSTANA_AGENT_OPERATOR_JKS_STORAGE_CLASS
         value: $(params.instana_agent_operator_jks_storage_class)
       - name: HYPERVISOR
-        type: $(params.hypervisor)
+        value: $(params.hypervisor)
 
     envFrom:
       - configMapRef:
