@@ -136,7 +136,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
-        self.interactiveMode = True
+        self.isInteractiveMode = True
+
+        if simplified:
+            self.showAdvancedOptions = False
+        elif advanced:
+            self.showAdvancedOptions = True
+        else:
+            self.chooseInstallFlavour()
 
         if simplified:
             self.showAdvancedOptions = False
@@ -178,7 +185,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
-        self.interactiveMode = False
+        self.isInteractiveMode = False
 
         # Set defaults
         # ---------------------------------------------------------------------
