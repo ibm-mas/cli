@@ -34,78 +34,78 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
       </thead>
       <tbody>
       <tr>
-          <td style="font-style: italic">v9-261224<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-261224</td>
+          <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
       <tr>
-          <td style="font-style: italic">v9-261126<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-261126</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-261029<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260924<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-261029</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-260827<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260730<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-260924</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-260625<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260528<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-260827</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-260423<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260326<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-260730</td>
+          <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260226<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-260625</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260528</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260423</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260326</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260226</td>
+          <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
