@@ -205,7 +205,7 @@ class InstallTestHelper:
         ingress_controller.spec.routeAdmission = MagicMock()
         # Set to 'Strict' initially (not configured for path-based routing)
         ingress_controller.spec.routeAdmission.namespaceOwnership = 'Strict'
-        
+
         # Support dict-style access for _checkIngressControllerForPathRouting
         # Initially returns 'Strict' (not configured)
         def ingress_controller_get(key, default=None):
@@ -219,9 +219,9 @@ class InstallTestHelper:
                     'get': lambda self, k, d=None: spec_dict.get(k, d)
                 })()
             return default
-        
+
         ingress_controller.get = ingress_controller_get
-        
+
         # Configure get() to return single controller when queried by name
         # and list when queried without name
         def ingress_controller_api_get(**kwargs):
@@ -233,9 +233,9 @@ class InstallTestHelper:
                 ingress_controller_list = MagicMock()
                 ingress_controller_list.items = [ingress_controller]
                 return ingress_controller_list
-        
+
         ingress_controller_api.get.side_effect = ingress_controller_api_get
-        
+
         # Mock patch operation to succeed
         ingress_controller_api.patch = MagicMock(return_value=ingress_controller)
 
@@ -309,7 +309,7 @@ class InstallTestHelper:
                 get_current_catalog.return_value = self.config.current_catalog
                 launch_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
                 is_sno.return_value = self.config.is_sno
-                configure_ingress.return_value = True  
+                configure_ingress.return_value = True
                 is_version_equal_or_after.return_value = True
 
                 # Configure PromptSession mock

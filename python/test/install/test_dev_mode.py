@@ -209,14 +209,14 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
 
 def test_install_master_dev_mode_with_path_routing(tmpdir):
     """Test interactive installation with 9.2.0 channel including path-based routing mode configuration.
-    
+
     This test verifies the complete routing mode flow including IngressController configuration:
     - Mock IngressController is initially NOT configured (namespaceOwnership='Strict')
     - User selects path-based routing mode
     - CLI detects IngressController needs configuration
     - User agrees to configure it
     - IngressController will be patched during installation
-    
+
     Flow:
     1. User selects path-based routing mode
     2. CLI checks permissions (mocked to succeed)
@@ -425,7 +425,7 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
 
 def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
     """Test non-interactive installation with path-based routing mode using CLI flags.
-    
+
     This test verifies the complete non-interactive flow with path-based routing:
     - Uses --routing flag to specify path mode
     - Uses --ingress-controller-name to specify the controller
@@ -458,9 +458,9 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
             "--superuser-username", "MAS_SUPERUSER_USERNAME",
             "--superuser-password", "MAS_SUPERUSER_PASSWORD",
             "--mas-channel", "9.2.x-dev",
-            "--routing", "path",  
-            "--ingress-controller-name", "default",  
-            "--configure-ingress",  
+            "--routing", "path",
+            "--ingress-controller-name", "default",
+            "--configure-ingress",
             "--iot-channel", "9.2.x-dev",
             "--db2-system", "--kafka-provider", "strimzi",
             "--monitor-channel", "9.2.x-dev",
