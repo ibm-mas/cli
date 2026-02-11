@@ -12,6 +12,9 @@ spec:
       type: string
       description: Version/timestamp for the backup
       default: ""
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
 
     # S3 Upload parameters
     - name: aws_access_key_id
@@ -58,6 +61,8 @@ spec:
         value: /workspace/backups
       - name: BACKUP_VERSION
         value: $(params.backup_version)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
 
       # S3 credentials
       - name: S3_ACCESS_KEY_ID

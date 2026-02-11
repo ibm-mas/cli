@@ -381,7 +381,7 @@ class RestoreApp(BaseApp):
             self.setParam("download_backup", "true")
 
             # Confirm backup archive name.
-            confirmBackupArchiveName = self.yesOrNo(f"Confirm backup archive name - 'mas-backup-{self.getParam('restore_version')}.tar.gz'")
+            confirmBackupArchiveName = self.yesOrNo(f"Confirm backup archive name - 'mas-{self.getParam('mas_instance_id')}-backup-{self.getParam('restore_version')}.tar.gz'")
             if not confirmBackupArchiveName:
                 self.promptForString("Enter Custom backup archive name including tar.gz extension", "backup_archive_name")
             # Determine download destination based on dev_mode
