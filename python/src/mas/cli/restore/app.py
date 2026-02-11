@@ -487,7 +487,7 @@ class RestoreApp(BaseApp):
             self.printH2("Manage Database Restore")
             self.printDescription([
                 "- The Manage application uses a Db2 database that should also be restored.",
-                "- This will restore the incluster Db2 database associated with the Manage workspace."
+                "- This will restore the incluster Db2 database associated with the Manage workspace.",
                 "- Note: This will be offline restore and the Manage application will be unavailable during the restore."
             ])
 

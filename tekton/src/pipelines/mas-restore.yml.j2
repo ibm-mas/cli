@@ -359,7 +359,7 @@ spec:
         - dro
 
     # 11. Post Restore Suite Verification
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2', template_vars={'name': 'post-restore-suite-verify', 'devops_suite_name': 'post-restore-suite-verify'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2', template_vars={'name': 'suite-verify', 'devops_suite_name': 'suite-verify'}) | indent(4) }}
       runAfter:
         - suite-restore
       when:
@@ -447,7 +447,8 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
-        - suite-backup
+        - manage-db2-restore
+        - suite-verify
 
   finally:
     # 1. Clean Backup Workspaces (Optional)
