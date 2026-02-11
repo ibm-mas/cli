@@ -20,7 +20,6 @@ import sys
 import os
 import pytest
 from unittest.mock import MagicMock, patch
-from openshift.dynamic.exceptions import NotFoundError
 from kubernetes.client.rest import ApiException
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -958,6 +957,7 @@ class TestCompleteCliFlow:
 # =============================================================================
 # Parameter Validation Tests
 # =============================================================================
+
 
 class TestParameterValidation:
     """Test parameter validation for routing mode."""
