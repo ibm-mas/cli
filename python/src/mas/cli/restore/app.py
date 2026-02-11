@@ -146,10 +146,10 @@ class RestoreApp(BaseApp):
             if self.args.mas_domain_on_restore is None:
                 self.promptForMASConfiguration()
 
-            if self.args.include_slscfg_from_backup is None:
+            if self.getParam("include_sls") == "true":
                 self.promptForSLSConfiguration()
 
-            if self.args.include_drocfg_from_backup is None:
+            if self.getParam("include_dro") == "true":
                 self.promptForDROConfiguration()
 
             # Prompt for Manage app restore
