@@ -373,6 +373,7 @@ function gitops_cluster_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_cluster_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_cluster_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
+  [[ -z "$HYPERVISOR" ]] && gitops_cluster_help "HYPERVISOR is not set"
   
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_cluster_help "GITHUB_HOST is not set"
