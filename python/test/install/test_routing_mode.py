@@ -15,6 +15,7 @@ Tests cover interactive and non-interactive modes for both path-based and subdom
 """
 
 from mas.cli.install.app import InstallApp
+from mas.cli.install.argParser import installArgParser
 import sys
 import os
 import pytest
@@ -378,12 +379,55 @@ class TestNonInteractivePathRouting:
         assert app.getParam("mas_configure_ingress") == ""
 
     def test_noninteractive_path_mode_with_configure_flag_success(self):
-        """Test non-interactive path mode with --configure-ingress flag."""
+        """Test non-interactive path mode with --configure-ingress flag.
+        
+        This test validates that when CLI arguments are provided:
+        - --routing path
+        - --ingress-controller-name default
+        - --configure-ingress
+        
+        The system properly sets the corresponding parameters:
+        - mas_routing_mode = "path"
+        - mas_ingress_controller_name = "default"
+        - mas_configure_ingress = "true"
+        """
+        # Simulate CLI arguments for non-interactive path mode with configure flag
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "path",
+            "--ingress-controller-name", "default",
+            "--configure-ingress",
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        # Parse arguments
+        args = installArgParser.parse_args(args=argv)
+        
+        # Verify args are parsed correctly
+        assert args.mas_routing_mode == "path", "Routing mode should be 'path'"
+        assert args.mas_ingress_controller_name == "default", "Controller name should be 'default'"
+        assert args.mas_configure_ingress is True, "--configure-ingress flag should be True"
+        
+        # Create app and simulate parameter setting from args
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "path")
-        app.setParam("mas_ingress_controller_name", "default")
-        app.setParam("mas_configure_ingress", "true")
+        app.args = args
+        
+        # Simulate the parameter setting logic from app.py
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
+        app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
+        
+        # Simulate lines 1809-1810 from app.py
+        if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
+            app.setParam("mas_configure_ingress", "true")
+
+        # Verify parameters are set correctly
+        assert app.getParam("mas_routing_mode") == "path", "mas_routing_mode parameter should be 'path'"
+        assert app.getParam("mas_ingress_controller_name") == "default", "mas_ingress_controller_name should be 'default'"
+        assert app.getParam("mas_configure_ingress") == "true", "mas_configure_ingress should be 'true'"
 
         # Mock controller not configured
         controller = create_ingress_controller_mock(namespace_ownership="Strict")
@@ -391,20 +435,36 @@ class TestNonInteractivePathRouting:
         ingress_api.get.return_value = controller
         app.dynamicClient.resources.get.return_value = ingress_api
 
+        # Verify IngressController checks work correctly
         canConfigure = app._checkIngressControllerPermissions("default")
         exists, isConfigured = app._checkIngressControllerForPathRouting("default")
 
-        assert canConfigure is True
-        assert exists is True
-        assert isConfigured is False
-        assert app.getParam("mas_configure_ingress") == "true"
+        assert canConfigure is True, "Should have permissions to configure"
+        assert exists is True, "Controller should exist"
+        assert isConfigured is False, "Controller should not be configured (Strict ownership)"
 
     def test_noninteractive_path_mode_custom_controller_name(self):
         """Test non-interactive path mode with custom IngressController name."""
+        # Simulate CLI arguments with custom controller
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "path",
+            "--ingress-controller-name", "custom-ingress",
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        args = installArgParser.parse_args(args=argv)
+        assert args.mas_routing_mode == "path"
+        assert args.mas_ingress_controller_name == "custom-ingress"
+        
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "path")
-        app.setParam("mas_ingress_controller_name", "custom-ingress")
+        app.args = args
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
+        app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
 
         # Mock custom controller configured
         controller = create_ingress_controller_mock("custom-ingress")
@@ -420,10 +480,25 @@ class TestNonInteractivePathRouting:
 
     def test_noninteractive_path_mode_missing_controller_name_defaults_to_default(self):
         """Test that missing controller name defaults to 'default'."""
+        # Simulate CLI arguments without --ingress-controller-name
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "path",
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        args = installArgParser.parse_args(args=argv)
+        assert args.mas_routing_mode == "path"
+        # ingress_controller_name should be None when not provided
+        assert args.mas_ingress_controller_name is None
+        
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "path")
-        # Don't set mas_ingress_controller_name
+        app.args = args
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
 
         # Simulate the logic from app.py lines 1866-1876
         ingressControllerName = app.getParam("mas_ingress_controller_name")
@@ -435,10 +510,23 @@ class TestNonInteractivePathRouting:
 
     def test_noninteractive_path_mode_no_permissions_fails_gracefully(self):
         """Test non-interactive path mode fails gracefully when user lacks permissions."""
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "path",
+            "--ingress-controller-name", "default",
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        args = installArgParser.parse_args(args=argv)
+        
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "path")
-        app.setParam("mas_ingress_controller_name", "default")
+        app.args = args
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
+        app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
 
         # Mock permission denied
         ingress_api = MagicMock()
@@ -452,11 +540,27 @@ class TestNonInteractivePathRouting:
 
     def test_noninteractive_path_mode_with_configure_flag_no_permissions(self):
         """Test non-interactive path mode with --configure-ingress but no permissions."""
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "path",
+            "--ingress-controller-name", "default",
+            "--configure-ingress",
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        args = installArgParser.parse_args(args=argv)
+        
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "path")
-        app.setParam("mas_ingress_controller_name", "default")
-        app.setParam("mas_configure_ingress", "true")
+        app.args = args
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
+        app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
+        
+        if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
+            app.setParam("mas_configure_ingress", "true")
 
         # Mock permission denied
         ingress_api = MagicMock()
@@ -471,10 +575,24 @@ class TestNonInteractivePathRouting:
 
     def test_noninteractive_path_mode_controller_not_configured_without_flag(self):
         """Test non-interactive path mode when controller not configured and no --configure-ingress flag."""
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "path",
+            "--ingress-controller-name", "default",
+            # Note: --configure-ingress is NOT provided
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        args = installArgParser.parse_args(args=argv)
+        
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "path")
-        app.setParam("mas_ingress_controller_name", "default")
+        app.args = args
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
+        app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
         # Note: mas_configure_ingress is NOT set
 
         # Mock controller not configured
@@ -491,11 +609,27 @@ class TestNonInteractivePathRouting:
 
     def test_noninteractive_path_mode_all_flags_with_permissions(self):
         """Test non-interactive path mode with all flags and proper permissions."""
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "path",
+            "--ingress-controller-name", "custom-controller",
+            "--configure-ingress",
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        args = installArgParser.parse_args(args=argv)
+        
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "path")
-        app.setParam("mas_ingress_controller_name", "custom-controller")
-        app.setParam("mas_configure_ingress", "true")
+        app.args = args
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
+        app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
+        
+        if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
+            app.setParam("mas_configure_ingress", "true")
 
         # Mock controller with permissions
         controller = create_ingress_controller_mock("custom-controller", namespace_ownership="Strict")
@@ -520,10 +654,23 @@ class TestNonInteractivePathRouting:
 
     def test_noninteractive_path_mode_controller_already_configured(self):
         """Test non-interactive path mode when controller is already properly configured."""
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "path",
+            "--ingress-controller-name", "default",
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        args = installArgParser.parse_args(args=argv)
+        
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "path")
-        app.setParam("mas_ingress_controller_name", "default")
+        app.args = args
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
+        app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
 
         # Mock controller already configured
         controller = create_ingress_controller_mock(namespace_ownership="InterNamespaceAllowed")
@@ -549,9 +696,22 @@ class TestNonInteractiveSubdomainRouting:
 
     def test_noninteractive_subdomain_mode_basic(self):
         """Test basic non-interactive subdomain mode."""
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "subdomain",
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        args = installArgParser.parse_args(args=argv)
+        assert args.mas_routing_mode == "subdomain"
+        
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "subdomain")
+        app.args = args
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
 
         assert app.getParam("mas_routing_mode") == "subdomain"
         assert app.getParam("mas_ingress_controller_name") == ""
@@ -559,9 +719,25 @@ class TestNonInteractiveSubdomainRouting:
 
     def test_noninteractive_subdomain_mode_ignores_ingress_flags(self):
         """Test that subdomain mode ignores ingress-related flags."""
+        argv = [
+            "--mas-instance-id", "testinst",
+            "--mas-workspace-id", "testws",
+            "--mas-channel", "9.2.0",
+            "--routing", "subdomain",
+            # Even if these are provided, they should be ignored for subdomain mode
+            "--ingress-controller-name", "default",
+            "--configure-ingress",
+            "--accept-license",
+            "--no-confirm"
+        ]
+        
+        args = installArgParser.parse_args(args=argv)
+        assert args.mas_routing_mode == "subdomain"
+        
         app = create_mock_app()
         app.isInteractiveMode = False
-        app.setParam("mas_routing_mode", "subdomain")
+        app.args = args
+        app.setParam("mas_routing_mode", args.mas_routing_mode)
         # These should be ignored/cleared for subdomain mode
         app.setParam("mas_ingress_controller_name", "")
         app.setParam("mas_configure_ingress", "")
