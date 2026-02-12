@@ -213,6 +213,11 @@ spec:
         - name: mongodb_action
           value: restore
 
+        - name: override_mongodb_storageclass
+          value: $(params.override_mongodb_storageclass)
+        - name: mongodb_storage_class
+          value: $(params.mongodb_storageclass_name)
+
       taskRef:
         kind: Task
         name: mas-devops-mongodb

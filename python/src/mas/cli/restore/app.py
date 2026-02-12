@@ -89,7 +89,10 @@ class RestoreApp(BaseApp):
                 "manage_db_data_storage_class",
                 "manage_db_backup_storage_class",
                 "manage_db_logs_storage_class",
-                "manage_db_temp_storage_class"
+                "manage_db_temp_storage_class",
+                # MongoDB Storage Class Override
+                "override_mongodb_storageclass",
+                "mongodb_storageclass_name"
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -133,6 +136,9 @@ class RestoreApp(BaseApp):
             # Prompt for backup version if not provided
             if self.args.restore_version is None:
                 self.promptForBackupVersion()
+
+            # Prompt for MongoDB storage class override
+            self.promptForMongoDBStorageClass()
 
             # Prompt for Grafana install
             self.promptForIncludeGrafana()
@@ -519,6 +525,25 @@ class RestoreApp(BaseApp):
         else:
             self.setParam("restore_manage_app", "false")
             self.setParam("restore_manage_db", "false")
+
+    def promptForMongoDBStorageClass(self) -> None:
+        """Prompt user for MongoDB storage class override configuration"""
+        self.printH1("MongoDB Storage Class Configuration")
+        self.printDescription([
+            "You can override the storage class for MongoDB during restore.",
+            "This is useful when restoring to a cluster with different storage classes."
+        ])
+
+        overrideMongoDBSC = self.yesOrNo("Do you want to override the storage class for MongoDB")
+
+        if overrideMongoDBSC:
+            self.setParam("override_mongodb_storageclass", "true")
+            useCustomMongoDBSC = self.yesOrNo("Do you want to use a custom storage class, if not default in cluster will be used")
+            if useCustomMongoDBSC:
+                mongodb_storageclass_name = self.promptForString("MongoDB storage class name(ReadWriteOnce)")
+                self.setParam("mongodb_storageclass_name", mongodb_storageclass_name)
+        else:
+            self.setParam("override_mongodb_storageclass", "false")
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str = '', keyPrefix: str = '') -> dict:
         """
