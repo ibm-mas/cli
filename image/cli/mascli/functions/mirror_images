@@ -574,6 +574,7 @@ function mirror_to_registry() {
   export IBM_ENTITLEMENT_KEY
   export ARTIFACTORY_USERNAME
   export ARTIFACTORY_TOKEN
+  echo $ARTIFACTORY_USERNAME $ARTIFACTORY_TOKEN
 
   if [[ "$MIRROR_CATALOG" == true ||
     "$MIRROR_COMMONSERVICES" == true ||
