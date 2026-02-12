@@ -263,4 +263,48 @@ def test_mirror_all_cp4d_packages(tmpdir):
     run_mirror_test(tmpdir, config)
 
 
+def test_mirror_with_all_flag(tmpdir):
+    """
+    Test mirroring with --all flag to enable all packages.
+
+    This scenario tests:
+    - Using --all flag instead of individual package flags
+    - Should mirror all available packages
+    - Mode: m2m
+    """
+    config = MirrorTestConfig(
+        mode='m2m',
+        catalog_version='v9-260129-amd64',
+        release='9.1.x',
+        target_registry='registry.example.com/mas',
+        root_dir=str(tmpdir),
+        packages={},  # No individual packages specified
+        mock_oc_mirror_output=[
+            '2026/02/09 17:00:00  [INFO]   : Hello, welcome to oc-mirror',
+            '2026/02/09 17:00:15  [INFO]   : 100 / 100 additional images mirrored successfully',
+        ],
+        mock_image_count=100,
+        expect_success=True,
+        timeout_seconds=30,
+        env_vars={
+            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
+            'REGISTRY_USERNAME': 'testuser',
+            'REGISTRY_PASSWORD': 'testpass',
+            'HOME': str(tmpdir),
+        },
+        config_exists_locally=True,
+        # Override argv to use --all flag
+        argv=[
+            '--catalog', 'v9-260129-amd64',
+            '--release', '9.1.x',
+            '--mode', 'm2m',
+            '--dir', str(tmpdir),
+            '--target-registry', 'registry.example.com/mas',
+            '--all',
+        ]
+    )
+
+    run_mirror_test(tmpdir, config)
+
+
 # Made with Bob

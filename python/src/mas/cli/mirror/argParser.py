@@ -138,6 +138,12 @@ for groupName, groupItems in groupby(PACKAGE_CONFIGS, key=lambda x: x[0]):
 
 advancedGroup = mirrorArgParser.add_argument_group("Advanced Configuration")
 advancedGroup.add_argument(
+    "--all",
+    required=False,
+    action="store_true",
+    help="Mirror all packages for the chosen release"
+)
+advancedGroup.add_argument(
     "--dest-tls-verify",
     required=False,
     type=lambda x: x.lower() == 'true',

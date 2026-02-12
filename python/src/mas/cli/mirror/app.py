@@ -630,6 +630,7 @@ class MirrorApp(BaseApp):
         rootDir = args.dir
         destTlsVerify = args.dest_tls_verify
         imageTimeout = args.image_timeout
+        mirrorAll = args.all
 
         # Validate that oc-mirror is available on PATH
         if not shutil.which("oc-mirror"):
@@ -719,8 +720,8 @@ class MirrorApp(BaseApp):
                     logger.exception(f"Failed to parse version for {packageName} ({catalogKey}) from catalog: {catalogVersion}")
                     raise
 
-                # Get the flag value from args
-                flag = getattr(args, argName.replace("-", "_"))
+                # Get the flag value from args, or use mirrorAll if --all is set
+                flag = mirrorAll or getattr(args, argName.replace("-", "_"))
 
                 mirrorPackage(
                     package=packageName,
