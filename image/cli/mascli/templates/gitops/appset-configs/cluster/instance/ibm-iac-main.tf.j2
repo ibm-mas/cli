@@ -282,9 +282,9 @@ locals {
           id                   = "${var.s3bucket_name_prefix_mvi}-mvi"
           access_level         = "ro"
           s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_mvi}-mvi"
-          secret_suffix        = "manage_attachments/cos-attachments"
-          cos_secret_format    = false
-          manage_secret_format = true
+          secret_suffix        = "mvi_attachments/cos-attachments"
+          cos_secret_format    = true
+          manage_secret_format = false
           expiration           = null
         }
       }
