@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -58,7 +58,7 @@ from mas.devops.mas import (
 )
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.sls import findSLSByNamespace
-from mas.devops.data import getCatalog, getCatalogEditorial
+from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
@@ -381,16 +381,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("grafana_action", "none")
         else:
             try:
-                packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
-                packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
-                if self.skipGrafanaInstall:
+                # Check if dynamicClient is available and resources.get() returns a valid API
+                if self.dynamicClient is None:
                     self.setParam("grafana_action", "none")
                 else:
-                    self.setParam("grafana_action", "install")
+                    packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
+                    if packagemanifestAPI is None:
+                        self.setParam("grafana_action", "none")
+                    else:
+                        packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
+                        if self.skipGrafanaInstall:
+                            self.setParam("grafana_action", "none")
+                        else:
+                            self.setParam("grafana_action", "install")
             except NotFoundError:
                 self.setParam("grafana_action", "none")
 
-            if self.interactiveMode and self.showAdvancedOptions:
+            if self.isInteractiveMode and self.showAdvancedOptions:
                 self.printH1("Configure Grafana")
                 if self.getParam("grafana_action") == "none":
                     print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
@@ -461,6 +468,30 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "By default Maximo Application Suite will not allow special characters in usernames and userIDs, and this is the recommended setting.  However, legacy Maximo products allowed this, so for maximum compatibilty when migrating from EAM 7 you can choose to enable this support."
             ])
             self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
+
+    @logMethodCall
+    def configReportAdoptionMetricsFlag(self):
+        if self.showAdvancedOptions and isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")):
+            self.printH1("Adoption Metrics Reporting")
+            self.printDescription([
+                "Adoption Metrics are used by IBM to measure feature adoption, user engagement, and the success of product initiatives.",
+                "You can control three types of metrics:",
+                " - Feature Adoption: Tracks feature usage to understand adoption and improve the product",
+                " - Deployment Progression: Tracks progression of tasks and workflows within the product",
+                " - Usability: Tracks user interface interactions to improve usability",
+                "",
+                "When enabled (y), you permit IBM to capture and analyze these metrics to help improve the Maximo Application Suite experience.",
+                "When disabled (n), you are opting out of sending that specific metric type to IBM."
+            ])
+
+            if not self.yesOrNo("Enable feature adoption metrics"):
+                self.setParam("mas_feature_usage", "false")
+
+            if not self.yesOrNo("Enable deployment progression metrics"):
+                self.setParam("mas_deployment_progression", "false")
+
+            if not self.yesOrNo("Enable usability metrics"):
+                self.setParam("mas_usability_metrics", "false")
 
     @logMethodCall
     def configCP4D(self):
@@ -550,6 +581,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configDNSAndCerts()
         self.configSSOProperties()
         self.configSpecialCharacters()
+        self.configReportAdoptionMetricsFlag()
         self.configGuidedTour()
 
     @logMethodCall
@@ -930,9 +962,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.installFacilities = False
 
-        # TODO: May be have to change this condition if Manage 9.0 is not supporting AI Cofig Application
         # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
-
         if isVersionEqualOrAfter('9.0.0', self.getParam("mas_app_channel_manage")):
             self.installAIService = self.yesOrNo("Install AI Service")
             if self.installAIService:
@@ -944,7 +974,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
         if len(versions) == 0:
-            self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+            self.params[f"mas_app_channel_{appId}"] = prompt(HTML(f"<Yellow>Custom channel for {appId}</Yellow>"))
         else:
             self.params[f"mas_app_channel_{appId}"] = versions[0]
 
@@ -1104,9 +1134,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
                 # If advanced options is selected, we need to create a file to add props not supported by Tekton
                 self.selectLocalConfigDir()
-                facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
-                self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
-                self.setParam("mas_ws_facilities_config_file", "/workspace/configs/facilities-configs.yaml")
+                if self.localConfigDir is not None:
+                    facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
+                    self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
+                    self.setParam("mas_ws_facilities_config_file", "/workspace/configs/facilities-configs.yaml")
 
     @logMethodCall
     def configAIService(self):
@@ -1286,7 +1317,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
-        self.interactiveMode = True
+        self.isInteractiveMode = True
 
         if simplified:
             self.showAdvancedOptions = False
@@ -1341,7 +1372,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
-        self.interactiveMode = False
+        self.isInteractiveMode = False
 
         # Set defaults
         # ---------------------------------------------------------------------
@@ -1636,9 +1667,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
 
         # Load the catalog information
-        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
-        if self.chosenCatalog is not None:
-            self.processCatalogChoice()  # Only process catalog if it was successfully loaded,this will set catalogDb2Channel
+        try:
+            self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+            self.processCatalogChoice()
+        except NoSuchCatalogError:
+            pass
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
@@ -1761,7 +1794,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ])
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
-        if not self.interactiveMode and self.getParam("mas_routing_mode") == "path":
+        if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
             ingressControllerName = None
             if hasattr(self.args, 'mas_ingress_controller_name') and self.args.mas_ingress_controller_name:
                 ingressControllerName = self.args.mas_ingress_controller_name
