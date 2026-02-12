@@ -59,6 +59,17 @@ variable "access_level_ro" {
     default     = "ro"
 }
 
+variable "enable_dr" {
+    type   = bool
+    description = "Enable DR"
+    default = false
+}
+variable "dr_region" {
+    type   = string
+    description = "DR Region"
+    default = "us-east-2"
+}
+
 
 {%- if S3_MANAGE | lower == 'true'%}
 variable "s3_iam_users_list_manage" {

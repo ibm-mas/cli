@@ -31,6 +31,7 @@ name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 #S3 related params starts
 allowed_bucket_policy_keys = ["logs", "doclinks", "mvi"]
 allowed_bucket_lifecycle_configuration_keys = ["custfiles", "backup"]
+enable_dr = false
 {%- if S3_MANAGE | lower == 'true'  %}
 #S3 Manage related params starts
 s3bucket_name_prefix_manage    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"

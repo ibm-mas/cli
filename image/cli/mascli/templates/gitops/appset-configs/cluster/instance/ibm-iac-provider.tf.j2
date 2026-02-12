@@ -4,6 +4,6 @@ provider "aws" {
 {% if (IS_S3 | lower == 'true') %}
 provider "aws" {
   alias  = "dr"
-  region = "{{REGION_NAME}}"
+  region = var.enable_dr ? var.dr_region : var.location.region
 }
 {% endif %}
