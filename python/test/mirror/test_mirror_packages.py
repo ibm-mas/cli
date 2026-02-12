@@ -145,4 +145,122 @@ def test_mirror_db2_package_special_handling(tmpdir):
     run_mirror_test(tmpdir, config)
 
 
+def test_mirror_cp4d_platform_packages(tmpdir):
+    """
+    Test mirroring CP4D Platform packages with multiple package names.
+
+    This scenario tests:
+    - CP4D Platform package (cp4d-platform) which includes multiple packages:
+      ibm-cp-common-services, ibm-zen, ibm-cp-datacore, ibm-licensing, ibm-ccs,
+      ibm-cloud-native-postgresql, ibm-datarefinery, ibm-elasticsearch-operator,
+      ibm-opensearch-operator
+    - Mode: m2m
+    - Should generate config with all CP4D platform package images
+    """
+    config = MirrorTestConfig(
+        mode='m2m',
+        catalog_version='v9-260129-amd64',
+        release='9.1.x',
+        target_registry='registry.example.com/mas',
+        root_dir=str(tmpdir),
+        packages={
+            'cp4d-platform': True,
+        },
+        mock_oc_mirror_output=[
+            '2026/02/09 17:00:00  [INFO]   : Hello, welcome to oc-mirror',
+            '2026/02/09 17:00:15  [INFO]   : 30 / 30 additional images mirrored successfully',
+        ],
+        mock_image_count=30,
+        expect_success=True,
+        timeout_seconds=30,
+        env_vars={
+            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
+            'REGISTRY_USERNAME': 'testuser',
+            'REGISTRY_PASSWORD': 'testpass',
+            'HOME': str(tmpdir),
+        },
+        config_exists_locally=True,
+    )
+
+    run_mirror_test(tmpdir, config)
+
+
+def test_mirror_cp4d_wsl_packages(tmpdir):
+    """
+    Test mirroring CP4D WSL packages with multiple package names.
+
+    This scenario tests:
+    - CP4D WSL package (cp4d-wsl) which includes: ibm-wsl, ibm-wsl-runtimes
+    - Mode: m2m
+    - Should generate config with all CP4D WSL package images
+    """
+    config = MirrorTestConfig(
+        mode='m2m',
+        catalog_version='v9-260129-amd64',
+        release='9.1.x',
+        target_registry='registry.example.com/mas',
+        root_dir=str(tmpdir),
+        packages={
+            'cp4d-wsl': True,
+        },
+        mock_oc_mirror_output=[
+            '2026/02/09 17:00:00  [INFO]   : Hello, welcome to oc-mirror',
+            '2026/02/09 17:00:15  [INFO]   : 10 / 10 additional images mirrored successfully',
+        ],
+        mock_image_count=10,
+        expect_success=True,
+        timeout_seconds=30,
+        env_vars={
+            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
+            'REGISTRY_USERNAME': 'testuser',
+            'REGISTRY_PASSWORD': 'testpass',
+            'HOME': str(tmpdir),
+        },
+        config_exists_locally=True,
+    )
+
+    run_mirror_test(tmpdir, config)
+
+
+def test_mirror_all_cp4d_packages(tmpdir):
+    """
+    Test mirroring all CP4D packages together.
+
+    This scenario tests:
+    - All CP4D packages: cp4d-platform, cp4d-wsl, cp4d-wml, cp4d-spark, cp4d-cognos
+    - Mode: m2m
+    - Should generate config with all CP4D package images
+    """
+    config = MirrorTestConfig(
+        mode='m2m',
+        catalog_version='v9-260129-amd64',
+        release='9.1.x',
+        target_registry='registry.example.com/mas',
+        root_dir=str(tmpdir),
+        packages={
+            'cp4d-platform': True,
+            'cp4d-wsl': True,
+            'cp4d-wml': True,
+            'cp4d-spark': True,
+            'cp4d-cognos': True,
+        },
+        mock_oc_mirror_output=[
+            '2026/02/09 17:00:00  [INFO]   : Hello, welcome to oc-mirror',
+            '2026/02/09 17:00:15  [INFO]   : 60 / 60 additional images mirrored successfully',
+        ],
+        mock_image_count=60,
+        expect_success=True,
+        timeout_seconds=30,
+        env_vars={
+            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
+            'REGISTRY_USERNAME': 'testuser',
+            'REGISTRY_PASSWORD': 'testpass',
+            'HOME': str(tmpdir),
+        },
+        config_exists_locally=True,
+    )
+
+    run_mirror_test(tmpdir, config)
+
+
 # Made with Bob

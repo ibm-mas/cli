@@ -687,19 +687,37 @@ class MirrorApp(BaseApp):
 
             # Mirror each package with common parameters using shared configuration
             currentGroup = None
-            for group, argName, packageName, catalogKey, description in PACKAGE_CONFIGS:
+            for group, argName, packageName, catalogKey in PACKAGE_CONFIGS:
                 # Print section header when group changes
                 if group != currentGroup:
                     print_formatted_text(HTML(f"\n<U>{group}</U>"))
                     currentGroup = group
 
                 # Get version from catalog - handle both direct keys and release-specific keys
-                if catalogKey in ["db2u_version"]:
-                    version = catalog[catalogKey].split("+")[0]
-                elif catalogKey in ["sls_version", "tsm_version", "amlen_extras_version", "dd_version", "mongo_extras_version_default"]:
-                    version = catalog[catalogKey]
-                else:
+                perReleaseVersions = [
+                    "aiservice_version",
+                    "mas_core_version",
+                    "mas_assist_version",
+                    "mas_iot_version",
+                    "mas_facilities_version",
+                    "mas_manage_version",
+                    "mas_monitor_version",
+                    "mas_predict_version",
+                    "mas_optimizer_version",
+                    "mas_visualinspection_version"
+                ]
+                if catalogKey in perReleaseVersions:
                     version = catalog[catalogKey][release]
+                else:
+                    version = catalog[catalogKey]
+
+                # Remove any +buildnum properties from the version in the metadata file
+                try:
+                    version = version.split("+")[0]
+                except AttributeError:
+                    # This likely means we have the perReleaseVersions configuration incorrect
+                    logger.exception(f"Failed to parse version for {packageName} ({catalogKey}) from catalog: {catalogVersion}")
+                    raise
 
                 # Get the flag value from args
                 flag = getattr(args, argName.replace("-", "_"))

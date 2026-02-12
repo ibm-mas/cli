@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+from collections import defaultdict
 import argparse
 import re
 from itertools import groupby
@@ -102,15 +103,38 @@ mainGroup.add_argument(
 )
 
 # Add package-specific arguments dynamically, organized by group
+# First, deduplicate by argName and aggregate package names
+
+# Group configs by (groupName, argName) to deduplicate and aggregate packages
+arg_map = defaultdict(list)
+for group, argName, packageName, versionKey in PACKAGE_CONFIGS:
+    arg_map[(group, argName)].append(packageName)
+
+# Now create arguments with deduplicated argNames and aggregated package lists
 for groupName, groupItems in groupby(PACKAGE_CONFIGS, key=lambda x: x[0]):
     argGroup = mirrorArgParser.add_argument_group(groupName)
-    for group, argName, packageName, _, description in groupItems:
-        argGroup.add_argument(
-            f"--{argName}",
-            required=False,
-            help=f"Mirror images for the {packageName} package",
-            action="store_true"
-        )
+    # Track which argNames we've already added to this group
+    added_args = set()
+
+    for group, argName, packageName, _ in groupItems:
+        if argName not in added_args:
+            added_args.add(argName)
+            # Get all package names for this argName
+            packages = arg_map[(group, argName)]
+
+            # Create help text based on number of packages
+            if len(packages) == 1:
+                help_text = f"Mirror images for the {packages[0]} package"
+            else:
+                package_list = ", ".join(packages)
+                help_text = f"Mirror images for packages: {package_list}"
+
+            argGroup.add_argument(
+                f"--{argName}",
+                required=False,
+                help=help_text,
+                action="store_true"
+            )
 
 advancedGroup = mirrorArgParser.add_argument_group("Advanced Configuration")
 advancedGroup.add_argument(
