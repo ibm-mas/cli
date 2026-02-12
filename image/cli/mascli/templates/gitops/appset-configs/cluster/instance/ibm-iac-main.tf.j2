@@ -242,6 +242,7 @@ locals {
           cos_secret_format    = false
           manage_secret_format = true
           expiration           = null
+          dr_replicate         = false
         },
         custfiles = {
           name_prefix          = var.name_prefix
@@ -256,6 +257,7 @@ locals {
           expiration = {
             days = 366 // how long to keep logs
           }
+          dr_replicate         = false
         },
         logs_ro = {
           name_prefix          = var.name_prefix
@@ -268,6 +270,7 @@ locals {
           cos_secret_format    = false
           manage_secret_format = true
           expiration           = null
+          dr_replicate         = false
         }
       }
     #Manage specific S3 buckets ends
@@ -286,6 +289,7 @@ locals {
           cos_secret_format    = true
           manage_secret_format = false
           expiration           = null
+          dr_replicate         = false
         }
       }
     #MVI specific S3 buckets ends
