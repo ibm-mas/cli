@@ -1654,7 +1654,7 @@ function create_single_threaded_pr() {
     exit 1
   fi
 
-  if [[ "$OPEN_PR_COUNT" -gt 10 ]]; then #Test
+  if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
     echo "  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
     echo "Existing PRs:" >&2
     echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
