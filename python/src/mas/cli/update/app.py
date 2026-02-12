@@ -249,13 +249,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Jan 29 2026 Update (MAS 9.1.8, 9.0.19, 8.11.30, &amp; 8.10.33)",
-            "  2) Dec 31 2025 Update (MAS 9.1.7, 9.0.18, 8.11.29, &amp; 8.10.32)",
-            "  3) Nov 27 2025 Update (MAS 9.1.6, 9.0.17, 8.11.28, &amp; 8.10.31)",
+            "  1) Feb 26 2026 Update (MAS 9.1.8, 9.0.19, 8.11.30, &amp; 8.10.33)",
+            "  2) Jan 29 2026 Update (MAS 9.1.8, 9.0.19, 8.11.30, &amp; 8.10.33)",
+            "  3) Dec 31 2025 Update (MAS 9.1.7, 9.0.18, 8.11.29, &amp; 8.10.32)",
         ])
 
         catalogOptions = [
-            "v9-260129-amd64", "v9-251231-amd64", "v9-251127-amd64",
+            "v9-260226-amd64", "v9-260129-amd64", "v9-251231-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
