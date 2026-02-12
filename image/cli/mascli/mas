@@ -80,6 +80,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_dro
 . $CLI_DIR/functions/gitops_db2u
 . $CLI_DIR/functions/gitops_db2u_database
+. $CLI_DIR/functions/gitops_rds_db2_database
 . $CLI_DIR/functions/gitops_process_mongo_user
 . $CLI_DIR/functions/gitops_aws_infrastructure
 . $CLI_DIR/functions/gitops_rosa
@@ -277,9 +278,6 @@ case $1 in
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! update                                                                    !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Update Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     # Take the first parameter off (it will be "update")
     shift
     # Run the new Python-based install
@@ -720,6 +718,14 @@ case $1 in
     gitops_iac_provision_msk_cmd "$@"
     ;;
 
+  gitops-iac-provision-rdsdb2)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Provision RDS DB2 (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_provision_rdsdb2_cmd "$@"
+    ;;
+
   gitops-iac-generate-common-files)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Generate Common Files (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -736,9 +742,9 @@ case $1 in
     gitops_iac_manage_pr_cmd "$@"
     ;;
 
-    
-  gitops-deprovision-aibroker-tenant)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
+
+  gitops-deprovision-aiservice-tenant)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
@@ -775,6 +781,22 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_cp4d_service "$@"
+  ;;
+
+  gitops-rds-db2-database)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_rds_db2_database "$@"
+  ;;
+
+  gitops-suite-license-service)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_license_service "$@"
     ;;
 
   *)

@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,7 @@ from sys import exit
 from subprocess import PIPE, Popen, TimeoutExpired
 import threading
 import json
+from typing import List, Dict, Any, Callable, Type
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from kubernetes import config
@@ -41,7 +42,7 @@ logger = logging.getLogger(__name__)
 urllib3.disable_warnings()
 
 
-def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
+def getHelpFormatter(formatter: Type[RawTextHelpFormatter] = RawTextHelpFormatter, w: int = 160, h: int = 50) -> Callable:
     """
     Return a wider HelpFormatter, if possible.
 
@@ -49,7 +50,7 @@ def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
     """
     try:
         kwargs = {'width': w, 'max_help_position': h}
-        formatter(None, **kwargs)
+        formatter(None, **kwargs)  # type: ignore
         return lambda prog: formatter(prog, **kwargs)
     except TypeError:
         logger.warning("argparse help formatter failed, falling back.")
@@ -57,19 +58,19 @@ def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
 
 
 class RunCmdResult(object):
-    def __init__(self, returnCode, output, error):
-        self.rc = returnCode
-        self.out = output
-        self.err = error
+    def __init__(self, returnCode: int, output: bytes, error: bytes) -> None:
+        self.rc: int = returnCode
+        self.out: bytes = output
+        self.err: bytes = error
 
-    def successful(self):
+    def successful(self) -> bool:
         return self.rc == 0
 
-    def failed(self):
+    def failed(self) -> bool:
         return self.rc != 0
 
 
-def runCmd(cmdArray, timeout=630):
+def runCmd(cmdArray: List[str], timeout: int = 630) -> RunCmdResult:
     """
     Run a command on the local host.  This drives all the helm operations,
     as there is no python Helm client available.
@@ -88,11 +89,11 @@ def runCmd(cmdArray, timeout=630):
             output, error = p.communicate(timeout=timeout)
             return RunCmdResult(p.returncode, output, error)
         except TimeoutExpired as e:
-            return RunCmdResult(127, 'TimeoutExpired', str(e))
+            return RunCmdResult(127, b'TimeoutExpired', str(e).encode())
 
 
-def logMethodCall(func):
-    def wrapper(self, *args, **kwargs):
+def logMethodCall(func: Callable) -> Callable:
+    def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
         logger.debug(f">>> BaseApp.{func.__name__}")
         result = func(self, *args, **kwargs)
         logger.debug(f"<<< BaseApp.{func.__name__}")
@@ -101,7 +102,7 @@ def logMethodCall(func):
 
 
 class BaseApp(PrintMixin, PromptMixin):
-    def __init__(self):
+    def __init__(self) -> None:
         # Set up a log formatter
         chFormatter = logging.Formatter('%(asctime)-25s' + ' %(levelname)-8s %(message)s')
 
@@ -119,34 +120,34 @@ class BaseApp(PrintMixin, PromptMixin):
         logging.getLogger('asyncio').setLevel(logging.INFO)
 
         # Supports extended semver, unlike mas.cli.__version__
-        self.version = "100.0.0-pre.local"
-        self.h1count = 0
-        self.h2count = 0
+        self.version: str = "100.0.0-pre.local"
+        self.h1count: int = 0
+        self.h2count: int = 0
 
-        self.localConfigDir = None
-        self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
-        self.tektonDefsWithoutDigestPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
-        self.tektonDefsWithDigestPath = path.join(self.templatesDir, "ibm-mas-tekton-with-digest.yaml")
+        self.localConfigDir: str | None = None
+        self.templatesDir: str = path.join(path.abspath(path.dirname(__file__)), "templates")
+        self.tektonDefsWithoutDigestPath: str = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
+        self.tektonDefsWithDigestPath: str = path.join(self.templatesDir, "ibm-mas-tekton-with-digest.yaml")
 
         # Default to using the tekton definitions without image digests
-        self.tektonDefsPath = self.tektonDefsWithoutDigestPath
+        self.tektonDefsPath: str = self.tektonDefsWithoutDigestPath
 
         # Initialize the dictionary that will hold the parameters we pass to a PipelineRun
-        self.params = dict()
+        self.params: Dict[str, str] = dict()
 
         # These dicts will hold the additional-configs, pod-templates, sls license file and manual certificates secrets
-        self.additionalConfigsSecret = None
-        self.podTemplatesSecret = None
-        self.slsLicenseFileSecret = None
-        self.certsSecret = None
+        self.additionalConfigsSecret: Dict[str, Any] | None = None
+        self.podTemplatesSecret: Dict[str, Any] | None = None
+        self.slsLicenseFileSecret: Dict[str, Any] | None = None
+        self.certsSecret: Dict[str, Any] | None = None
 
-        self._isSNO = None
-        self._isAirgap = None
+        self._isSNO: bool | None = None
+        self._isAirgap: bool | None = None
 
         # Until we connect to the cluster we don't know what architecture it's worker nodes are
-        self.architecture = None
+        self.architecture: str | None = None
 
-        self.compatibilityMatrix = {
+        self.compatibilityMatrix: Dict[str, Dict[str, List[str]]] = {
             "9.2.x-feature": {
                 "aibroker": ["9.2.x-feature", "9.1.x"],
                 "manage": ["9.2.x-feature", "9.1.x"],
@@ -206,7 +207,7 @@ class BaseApp(PrintMixin, PromptMixin):
             },
         }
 
-        self.licenses = {
+        self.licenses: Dict[str, str] = {
             "8.9.x": " - <u>https://ibm.biz/MAS89-License</u>",
             "8.10.x": " - <u>https://ibm.biz/MAS810-License</u>",
             "8.11.x": " - <u>https://ibm.biz/MAS811-License</u>\n - <u>https://ibm.biz/MAXIT81-License</u>",
@@ -217,7 +218,7 @@ class BaseApp(PrintMixin, PromptMixin):
             "9.2.x-feature": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
         }
 
-        self.upgrade_path = {
+        self.upgrade_path: Dict[str, str] = {
             "9.1.x": "9.2.x-feature",
             "9.1.x-feature": "9.1.x",
             "9.0.x": "9.1.x",
@@ -226,14 +227,15 @@ class BaseApp(PrintMixin, PromptMixin):
             "8.9.x": "8.10.x",
         }
 
-        self.spinner = {
+        self.spinner: Dict[str, Any] = {
             "interval": 80,
             "frames": [" ⠋", " ⠙", " ⠹", " ⠸", " ⠼", " ⠴", " ⠦", " ⠧", " ⠇", " ⠏"]
         }
-        self.successIcon = "✅️"
-        self.failureIcon = "❌"
+        self.successIcon: str = "✅️"
+        self.failureIcon: str = "❌"
 
-        self._dynClient = None
+        self._dynClient: DynamicClient | None = None
+        self._apiClient: ApiClient | None = None
 
         self.printTitle(f"\nIBM Maximo Application Suite Admin CLI v{self.version}")
         print_formatted_text(HTML("Powered by <Orange><u>https://github.com/ibm-mas/ansible-devops/</u></Orange> and <Orange><u>https://tekton.dev/</u></Orange>\n"))
@@ -285,14 +287,14 @@ class BaseApp(PrintMixin, PromptMixin):
             self.tektonDefsPath = self.tektonDefsWithDigestPath
 
     @logMethodCall
-    def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
+    def getCompatibleVersions(self, coreChannel: str, appId: str) -> List[str]:
         if coreChannel in self.compatibilityMatrix:
             return self.compatibilityMatrix[coreChannel][appId]
         else:
             return []
 
     @logMethodCall
-    def fatalError(self, message: str, exception: Exception = None) -> None:
+    def fatalError(self, message: str, exception: Exception | None = None) -> None:
         if exception is not None:
             logger.error(message)
             logger.exception(exception, stack_info=True)
@@ -303,13 +305,13 @@ class BaseApp(PrintMixin, PromptMixin):
         exit(1)
 
     @logMethodCall
-    def isSNO(self):
+    def isSNO(self) -> bool:
         if self._isSNO is None:
             self._isSNO = isSNO(self.dynamicClient)
         return self._isSNO
 
     @logMethodCall
-    def isAirgap(self):
+    def isAirgap(self) -> bool:
         if self._isAirgap is None:
             # First check if the legacy ICSP is installed.  If it is raise an error and instruct the user to re-run configure-airgap to
             # migrate the cluster from ICSP to IDMS
@@ -318,10 +320,10 @@ class BaseApp(PrintMixin, PromptMixin):
             self._isAirgap = isAirgapInstall(self.dynamicClient)
         return self._isAirgap
 
-    def setParam(self, param: str, value: str):
+    def setParam(self, param: str, value: str) -> None:
         self.params[param] = value
 
-    def getParam(self, param: str):
+    def getParam(self, param: str) -> str:
         """
         Returns the value of a parameter, or an empty string is the parameter has not set at all or is set to None
         """
@@ -331,14 +333,14 @@ class BaseApp(PrintMixin, PromptMixin):
             return ""
 
     @property
-    def dynamicClient(self):
+    def dynamicClient(self) -> DynamicClient:
         if self._dynClient is not None:
             return self._dynClient
         else:
             return self.reloadDynamicClient()
 
     @logMethodCall
-    def reloadDynamicClient(self):
+    def reloadDynamicClient(self) -> DynamicClient | None:
         """
         Configure the Kubernetes API Client using the active context in kubeconfig
         """
@@ -360,7 +362,7 @@ class BaseApp(PrintMixin, PromptMixin):
             return None
 
     @logMethodCall
-    def connect(self):
+    def connect(self) -> None:
         promptForNewServer = False
         self.reloadDynamicClient()
         if self._dynClient is not None:
@@ -396,7 +398,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.lookupTargetArchitecture()
 
     @logMethodCall
-    def lookupTargetArchitecture(self, architecture: str = None) -> None:
+    def lookupTargetArchitecture(self, architecture: str | None = None) -> None:
         logger.debug("Looking up worker node architecture")
         if architecture is not None:
             self.architecture = architecture

@@ -1,8 +1,8 @@
-module "account_policy" {
-  source               = "{{ S3_SOURCE_IAMPOLICY }}"
+module "account_policy_{{RDS_S3_APP_NAME}}" {
+  source               = "{{ RDS_IAM_SOURCE }}"
   name_prefix          = var.name_prefix
   create_s3_iam_group  = var.create_s3_iam_group
   create_s3_iam_policy = var.create_s3_iam_policy
   efs_csi_policy       = var.create_efs_policy
-  iam_users_list       = var.s3_iam_users_list_{{APP_NAME}}
+  iam_users_list       = var.s3_iam_users_list_audit_log_{{RDS_S3_APP_NAME}}
 }

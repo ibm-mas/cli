@@ -72,6 +72,10 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the Manage Industry Solutions FVT pipeline after app-cfg-manage completes"
+    - name: launchfvt_manage_ai
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Manage AI FVT pipeline after app-cfg-manage completes"
     - name: launchfvt_mobile
       type: string
       default: "false"
@@ -141,6 +145,9 @@ spec:
       type: string
       default: ""
     - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: aiservice_instance_id
       type: string
       default: ""
 
@@ -473,7 +480,7 @@ spec:
           operator: in
           values: ["true", "True"]
         # All these launchers require manage in place to then run setup, therefore the criteria
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_predict)$(params.launchivt_manage)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_manage_ai)$(params.launchfvt_predict)$(params.launchivt_manage)
           operator: notin
           values: ["falsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
@@ -575,6 +582,29 @@ spec:
         - launchfvt-core-pre92
         - launchfvt-core-post92
 
+    - name: launchfvt-manage-ai
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage-ai"
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-manage-ai
+      when:
+        - input: $(params.launchfvt_manage_ai)
+          operator: in
+          values: ["true", "True"]
+        # Only run if aiservice_instance_id is provided
+        - input: $(params.aiservice_instance_id)
+          operator: notin
+          values: ["", "null"]
+      runAfter:
+        - manage-setup
+
     - name: approval-manage
       timeout: "0"
       taskRef:
@@ -595,6 +625,7 @@ spec:
         - launchfvt-manage-pre92
         - launchfvt-manage-post92
         - launchfvt-manage-is
+        - launchfvt-manage-ai
 
     # 6. Application FVT - Mobile
     # -------------------------------------------------------------------------
