@@ -190,6 +190,92 @@ downloadArgGroup.add_argument(
     help="Custom backup archive name to download from S3 or Artifactory"
 )
 
+manageAppArgGroup = restoreArgParser.add_argument_group(
+    'Manage Application Restore',
+    'Configure restore of the Manage application and its database.'
+)
+manageAppArgGroup.add_argument(
+    '--restore-manage-app',
+    dest='restore_manage_app',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Restore the Manage application"
+)
+manageAppArgGroup.add_argument(
+    '--restore-manage-db',
+    dest='restore_manage_db',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Restore the Manage application database (Db2)"
+)
+
+manageAppArgGroup.add_argument(
+    '--manage-app-override-storageclass',
+    dest='manage_app_override_storageclass',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Override Manage Application PVC storageclass"
+)
+
+manageAppArgGroup.add_argument(
+    '--manage-app-storage-class-rwx',
+    required=False,
+    dest="manage_app_storage_class_rwx",
+    help="ReadWriteMany Storage class for Manage App PVC"
+)
+
+manageAppArgGroup.add_argument(
+    '--manage-app-storage-class-rwo',
+    required=False,
+    dest="manage_app_storage_class_rwo",
+    help="ReadWriteOnce Storage class for Manage App PVC"
+)
+
+manageAppArgGroup.add_argument(
+    '--manage-db-override-storageclass',
+    dest='manage_db_override_storageclass',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Override database (Db2) PVC storageclass"
+)
+
+manageAppArgGroup.add_argument(
+    '--manage-db-meta-storage-class',
+    required=False,
+    dest="manage_db_meta_storage_class",
+    help="Storage class for DB2 Meta storage"
+)
+
+manageAppArgGroup.add_argument(
+    '--manage-db-data-storage-class',
+    required=False,
+    dest="manage_db_data_storage_class",
+    help="Storage class for DB2 Data storage"
+)
+manageAppArgGroup.add_argument(
+    '--manage-db-backup-storage-class',
+    required=False,
+    dest="manage_db_backup_storage_class",
+    help="Storage class for DB2 Backup storage"
+)
+manageAppArgGroup.add_argument(
+    '--manage-db-logs-storage-class',
+    required=False,
+    dest="manage_db_logs_storage_class",
+    help="Storage class for DB2 Logs storage"
+)
+manageAppArgGroup.add_argument(
+    '--manage-db-temp-storage-class',
+    required=False,
+    dest="manage_db_temp_storage_class",
+    help="Storage class for DB2 Temp storage"
+)
+
+
 componentsArgGroup = restoreArgParser.add_argument_group(
     'Components',
     'Configure which components to include in the restore.'

@@ -178,6 +178,10 @@ spec:
       type: string
       description: Type of backup (online or offline)
       default: ""
+    - name: override_storageclass
+      type: string
+      description: Override database (Db2) PVC storageclass during restore
+      default: "false"
     - name: backup_vendor
       type: string
       description: Storage backend for database backup files (disk or s3)
@@ -332,6 +336,8 @@ spec:
         value: $(params.backup_s3_access_key)
       - name: BACKUP_S3_SECRET_KEY
         value: $(params.backup_s3_secret_key)
+      - name: OVERRIDE_STORAGECLASS
+        value: $(params.override_storageclass)
   steps:
     - name: db2
       command:

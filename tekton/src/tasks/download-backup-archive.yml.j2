@@ -16,6 +16,9 @@ spec:
       type: string
       description: name of the backup archive including `.tar.gz` extension.
       default: ""
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
 
     # S3 download parameters
     - name: aws_access_key_id
@@ -60,6 +63,8 @@ spec:
       # Backup specific
       - name: MAS_RESTORE_DIR
         value: /workspace/backups
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
       - name: BACKUP_VERSION
         value: $(params.restore_version)
       - name: BACKUP_ARCHIVE_NAME
