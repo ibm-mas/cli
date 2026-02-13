@@ -17,8 +17,13 @@ usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION] [--b
                    [--include-grafana] [--exclude-grafana] [--include-dro] [--exclude-dro] [--include-sls] [--exclude-sls]
                    [--sls-domain SLS_DOMAIN] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [--contact-email DRO_CONTACT_EMAIL]
                    [--contact-firstname DRO_CONTACT_FIRSTNAME] [--contact-lastname DRO_CONTACT_LASTNAME]
-                   [--dro-namespace DRO_NAMESPACE] [--artifactory-username ARTIFACTORY_USERNAME]
-                   [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm] [--skip-pre-check] [-h]
+                   [--dro-namespace DRO_NAMESPACE] [--override-mongodb-storageclass] [--mongodb-storageclass-name MONGODB_STORAGECLASS_NAME]
+                   [--restore-manage-app] [--restore-manage-db] [--manage-app-override-storageclass]
+                   [--manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX] [--manage-app-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO]
+                   [--manage-db-override-storageclass] [--manage-db-meta-storage-class MANAGE_DB_META_STORAGE_CLASS]
+                   [--manage-db-data-storage-class MANAGE_DB_DATA_STORAGE_CLASS] [--manage-db-backup-storage-class MANAGE_DB_BACKUP_STORAGE_CLASS]
+                   [--manage-db-logs-storage-class MANAGE_DB_LOGS_STORAGE_CLASS] [--manage-db-temp-storage-class MANAGE_DB_TEMP_STORAGE_CLASS]
+                   [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm] [--skip-pre-check] [-h]
 
 IBM Maximo Application Suite Admin CLI v18.10.0
 Restore a MAS instance from backup by configuring and launching the MAS Restore Tekton Pipeline.
@@ -96,6 +101,36 @@ IBM Data Reporting Operator:
                         Contact last name
   --dro-namespace DRO_NAMESPACE
                         Namespace for DRO
+
+MongoDB Storage Class Override:
+  --override-mongodb-storageclass
+                        Override the storage class for MongoDB during restore
+  --mongodb-storageclass-name MONGODB_STORAGECLASS_NAME
+                        MongoDB storage class name (ReadWriteOnce). If not specified, cluster default will be used.
+
+Manage Database Restore:
+  --restore-manage-db   Restore the Manage incluster Db2 database
+  --manage-db-override-storageclass
+                        Override storage class for Manage Db2 database persistent volumes
+  --manage-db-meta-storage-class MANAGE_DB_META_STORAGE_CLASS
+                        Db2 Meta storage class name
+  --manage-db-data-storage-class MANAGE_DB_DATA_STORAGE_CLASS
+                        Db2 Data storage class name
+  --manage-db-backup-storage-class MANAGE_DB_BACKUP_STORAGE_CLASS
+                        Db2 Backup storage class name
+  --manage-db-logs-storage-class MANAGE_DB_LOGS_STORAGE_CLASS
+                        Db2 Logs storage class name
+  --manage-db-temp-storage-class MANAGE_DB_TEMP_STORAGE_CLASS
+                        Db2 Temp storage class name
+
+Manage Application Restore:
+  --restore-manage-app  Restore the Manage application including namespace resources and persistent volume data
+  --manage-app-override-storageclass
+                        Override storage class for Manage application persistent volumes
+  --manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX
+                        Manage Application ReadWriteMany storage class name
+  --manage-app-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO
+                        Manage Application ReadWriteOnce storage class name
 
 More:
   --artifactory-username ARTIFACTORY_USERNAME
@@ -260,6 +295,62 @@ mas restore \
   --no-confirm
 ```
 
+### Restore with MongoDB Storage Class Override
+Override the storage class for MongoDB during restore (useful when restoring to a cluster with different storage classes):
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 2020260117-191701 \
+  --override-mongodb-storageclass \
+  --mongodb-storageclass-name custom-rwo-storage \
+  --no-confirm
+```
+
+### Restore with Manage Application
+Restore the Manage application including namespace resources and persistent volume data:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 2020260117-191701 \
+  --restore-manage-app \
+  --no-confirm
+```
+
+### Restore with Manage Application and Database
+Restore both the Manage application and its incluster Db2 database:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 2020260117-191701 \
+  --restore-manage-app \
+  --restore-manage-db \
+  --no-confirm
+```
+
+### Restore Manage with Custom Storage Classes
+Restore Manage application and database with custom storage class overrides:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 2020260117-191701 \
+  --restore-manage-app \
+  --restore-manage-db \
+  --manage-app-override-storageclass \
+  --manage-app-storage-class-rwx custom-rwx-storage \
+  --manage-app-storage-class-rwo custom-rwo-storage \
+  --manage-db-override-storageclass \
+  --manage-db-meta-storage-class db2-meta-storage \
+  --manage-db-data-storage-class db2-data-storage \
+  --manage-db-backup-storage-class db2-backup-storage \
+  --manage-db-logs-storage-class db2-logs-storage \
+  --manage-db-temp-storage-class db2-temp-storage \
+  --no-confirm
+```
+
 ### Restore Skipping Pre-Check
 Skip the pre-restore validation check (use with caution):
 
@@ -369,18 +460,47 @@ The restore process can optionally install components that are not part of the b
 - **DRO**: Data Reporting Operator (not backed up, can be installed during restore). Use `--include-dro` to install DRO during restore or `--exclude-dro` to skip DRO installation.
 - **SLS**: Suite License Service (backed up, can be restored or skipped if using external SLS). Use `--include-sls` to restore SLS from backup or `--exclude-sls` to skip SLS installation.
 
+### MongoDB Storage Class Override
+When restoring to a cluster with different storage classes than the original backup, you can override the MongoDB storage class:
+
+- Use `--override-mongodb-storageclass` to enable storage class override
+- Optionally specify `--mongodb-storageclass-name` for a custom ReadWriteOnce storage class
+- If no custom storage class is specified, the cluster default will be used
+
+This is particularly useful for:
+- Migrating between different cloud providers
+- Restoring to clusters with different storage infrastructure
+- Testing restores in different environments
+
+### Manage Application Restore
+The restore process can now restore the Manage application in addition to the MAS Suite:
+
+- **Manage Application**: Use `--restore-manage-app` to restore Manage namespace resources and persistent volume data
+- **Manage Database**: Use `--restore-manage-db` to restore the incluster Db2 database associated with the Manage workspace
+- **Storage Class Overrides**:
+  - Use `--manage-app-override-storageclass` to override Manage application storage classes
+  - Use `--manage-db-override-storageclass` to override Db2 database storage classes
+  - Specify custom storage classes for RWX/RWO (app) or meta/data/backup/logs/temp (Db2)
+
+!!! note
+    - Manage database restore is an offline operation - the Manage application will be unavailable during the restore
+    - The restore process handles both the application resources and the database data
+    - Storage class overrides are useful when restoring to clusters with different storage infrastructure
+
 ### Interactive Mode
 When running without `--instance-id`, the command enters interactive mode and will prompt for:
 
 1. Target OpenShift cluster connection
 2. MAS instance ID (must match the backup)
 3. Backup version to restore
-4. Grafana installation preference
-5. SLS installation and configuration
-6. DRO installation and configuration
-7. MAS domain configuration
-8. Backup storage size
-9. Download configuration (optional)
+4. MongoDB storage class override configuration
+5. Grafana installation preference
+6. SLS installation and configuration
+7. DRO installation and configuration
+8. MAS domain configuration
+9. Manage application restore configuration
+10. Backup storage size
+11. Download configuration (optional)
 
 ### Pipeline Monitoring
 After launching the restore, a URL to the Tekton PipelineRun will be displayed. Use this URL to monitor the restore progress in the OpenShift Console.
