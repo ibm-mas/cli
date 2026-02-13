@@ -21,13 +21,13 @@
 - name: SLACK_TOKEN
   valueFrom:
     secretKeyRef:
-      name: mas-devops
+      name: mas-devops-slack
       key: SLACK_TOKEN
       optional: true
 - name: SLACK_CHANNEL
   valueFrom:
     secretKeyRef:
-      name: mas-devops
+      name: mas-devops-slack
       key: SLACK_CHANNEL
       optional: true
 - name: PIPELINE_NAMESPACE
