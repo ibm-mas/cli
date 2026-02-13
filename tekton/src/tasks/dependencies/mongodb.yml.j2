@@ -76,6 +76,10 @@ spec:
       type: string
       description: Optional. MongoDB instance name for backup
       default: ""
+    - name: override_mongodb_storageclass
+      type: string
+      description: Override database PVC storageclass during restore
+      default: "false"
 
     # Dependencies - IBM Cloud MongoDb
     # -------------------------------------------------------------------------
@@ -165,6 +169,8 @@ spec:
         value: $(params.mongodb_backup_version)
       - name: MONGODB_INSTANCE_NAME
         value: $(params.mongodb_instance_name)
+      - name: OVERRIDE_STORAGECLASS
+        value: $(params.override_mongodb_storageclass)
 
   steps:
     - name: mongodb

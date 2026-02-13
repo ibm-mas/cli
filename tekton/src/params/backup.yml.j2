@@ -121,6 +121,16 @@
   description: MongoDB provider (only community is supported for backup)
   default: "community"
 
+- name: override_mongodb_storageclass
+  type: string
+  description: Whether to override the storage class for MongoDB during restore (true/false)
+  default: "false"
+
+- name: mongodb_storageclass_name
+  type: string
+  description: Storage class name for MongoDB when override_mongodb_storageclass is true
+  default: ""
+
 # SLS Configuration
 # -----------------------------------------------------------------------------
 - name: sls_namespace

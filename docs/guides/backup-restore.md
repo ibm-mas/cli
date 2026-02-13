@@ -670,6 +670,8 @@ The restore process handles the following components:
 - **MongoDB** - Restores Mongodb instance with SLS & MAS databases (Community Edition only)
 - **Suite License Service (SLS)** - Restores SLS instance with license server data (optional)
 - **MAS Suite Configuration** - Restores core MAS instance configuration and custom resources
+- **Manage Database** - Optionally restores incluster Db2 database associated with Manage workspace
+- **Manage Application** - Optionally restores Manage application namespace resources and persistent volume data
 - **Grafana** - Optionally installs Grafana for monitoring (not part of backup)
 - **Data Reporter Operator (DRO)** - Optionally installs DRO (not part of backup)
 
@@ -702,13 +704,15 @@ The interactive session will:
 1. Prompt for OpenShift cluster connection
 2. Request MAS instance ID (must match backup)
 3. Request backup version to restore
-4. Configure Grafana installation
-5. Configure SLS restoration
-6. Configure DRO installation
-7. Configure MAS domain settings
-8. Configure SLS and DRO configuration options
-9. Request backup storage size
-10. Offer optional download from S3 or Artifactory
+4. Configure MongoDB storage class override
+5. Configure Grafana installation
+6. Configure SLS restoration
+7. Configure DRO installation
+8. Configure MAS domain settings
+9. Configure SLS and DRO configuration options
+10. Configure Manage application restore
+11. Request backup storage size
+12. Offer optional download from S3 or Artifactory
 
 ### Non-Interactive Mode
 
@@ -740,12 +744,13 @@ When you run `mas restore`, the following occurs:
    - IBM Catalogs restore
    - Certificate Manager restore
    - Grafana installation (if enabled)
-   - MongoDB restore
+   - MongoDB restore (with optional storage class override)
    - SLS restore (if included)
    - DRO installation (if enabled)
 9. **Suite Restore** - Restores MAS core configuration with optional domain/URL overrides
-10. **Post-Restore Verification** - Validates restored MAS instance
-11. **Workspace Cleanup** (optional, default: enabled) - Cleans backup and config workspaces
+10. **Manage Application Restore** (if enabled) - Restores Manage application and database
+11. **Post-Restore Verification** - Validates restored MAS instance
+12. **Workspace Cleanup** (optional, default: enabled) - Cleans backup and config workspaces
 
 ### Monitoring Progress
 
@@ -968,6 +973,108 @@ mas restore \
   --restore-version 2020260117-191701 \
   --skip-pre-check \
   --no-confirm
+### Scenario 11: Restore with MongoDB Storage Class Override
+
+**Environment:**
+- Restoring to a cluster with different storage classes
+- Need to override MongoDB storage class
+
+**Restore Command:**
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 2020260117-191701 \
+  --override-mongodb-storageclass \
+  --mongodb-storageclass-name custom-rwo-storage \
+  --no-confirm
+```
+
+### Scenario 12: Restore with Manage Application
+
+**Environment:**
+- Need to restore Manage application in addition to MAS Suite
+- Restore Manage namespace resources and persistent volume data
+
+**Restore Command:**
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 2020260117-191701 \
+  --restore-manage-app \
+  --no-confirm
+```
+
+### Scenario 13: Restore with Manage Application and Database
+
+**Environment:**
+- Restore both Manage application and its incluster Db2 database
+- Complete Manage workspace restoration
+
+**Restore Command:**
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 2020260117-191701 \
+  --restore-manage-app \
+  --restore-manage-db \
+  --no-confirm
+```
+
+!!! warning
+    Manage database restore is an offline operation. The Manage application will be unavailable during the restore process.
+
+### Scenario 14: Restore Manage with Custom Storage Classes
+
+**Environment:**
+- Restoring to a cluster with different storage infrastructure
+- Need to override storage classes for both Manage app and Db2
+
+**Restore Command:**
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 2020260117-191701 \
+  --restore-manage-app \
+  --restore-manage-db \
+  --override-manage-app-storageclass \
+  --manage-app-storage-class-rwx custom-rwx-storage \
+  --manage-app-storage-class-rwo custom-rwo-storage \
+  --override-manage-db-storageclass \
+  --manage-db-meta-storage-class db2-meta-storage \
+  --manage-db-data-storage-class db2-data-storage \
+  --manage-db-backup-storage-class db2-backup-storage \
+  --manage-db-logs-storage-class db2-logs-storage \
+  --manage-db-temp-storage-class db2-temp-storage \
+  --no-confirm
+```
+
+### Scenario 15: Complete Restore with MongoDB Override and Manage
+
+**Environment:**
+- Comprehensive restore with all new features
+- Override MongoDB storage class
+- Restore Manage application and database
+- Download from S3
+
+**Restore Command:**
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 2020260117-191701 \
+  --backup-storage-size 100Gi \
+  --override-mongodb-storageclass \
+  --mongodb-storageclass-name custom-rwo-storage \
+  --restore-manage-app \
+  --restore-manage-db \
+  --override-manage-db-storageclass \
+  --download-backup \
+  --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
+  --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
+  --s3-bucket-name mas-backups-prod \
+  --s3-region us-east-1 \
+  --no-confirm
+```
+
 ```
 
 !!! warning
@@ -984,7 +1091,9 @@ Restore Best Practices
 3. **Review Target Environment** - Confirm cluster version and configuration compatibility
 4. **Plan Domain Changes** - Determine if domain or URL changes are needed
 5. **Prepare External Services** - Ensure external SLS/DRO are accessible if used
-6. **Document Configuration** - Record any custom configurations or overrides
+6. **Review Storage Classes** - Identify if MongoDB or Manage storage class overrides are needed
+7. **Plan Manage Restore** - Determine if Manage application and database should be restored
+8. **Document Configuration** - Record any custom configurations or overrides
 
 ### During Restore
 
@@ -998,9 +1107,12 @@ Restore Best Practices
 1. **Validate Suite Status** - Confirm MAS Suite CR is ready
 2. **Check Application Access** - Verify MAS applications are accessible
 3. **Test Integrations** - Validate connections to databases and external services
-4. **Review Configurations** - Confirm all configurations are correct
-5. **Update DNS** - Update DNS records if domain changed
-6. **Test Functionality** - Perform smoke tests on critical functions
+4. **Verify MongoDB** - Confirm MongoDB is running with correct storage class if overridden
+5. **Validate Manage Application** - If restored, verify Manage application is accessible and functional
+6. **Check Manage Database** - If restored, confirm Db2 database is running with correct storage classes
+7. **Review Configurations** - Confirm all configurations are correct
+8. **Update DNS** - Update DNS records if domain changed
+9. **Test Functionality** - Perform smoke tests on critical functions
 
 ### Common Restore Scenarios
 
@@ -1008,18 +1120,24 @@ Restore Best Practices
 - Use latest backup from off-site storage
 - May require domain and URL changes
 - Verify all external dependencies are available
+- Consider MongoDB storage class override if infrastructure changed
+- Include Manage application and database restore if needed
 
 #### Cluster Migration
 - Download backup from source cluster storage
 - Change domain to match new cluster
 - Update SLS and DRO URLs if needed
+- Override MongoDB and Manage storage classes for different infrastructure
 - Verify network connectivity and routes
+- Plan for Manage database downtime during restore
 
 #### Environment Cloning
 - Use production backup for dev/test
 - Change domain to avoid conflicts
 - Consider using external SLS to share licenses
 - May exclude DRO for non-production environments
+- Override storage classes to use lower-cost storage in non-production
+- Optionally restore Manage application for testing
 
 
 Restore Troubleshooting
@@ -1045,6 +1163,8 @@ Restore Troubleshooting
 - Verify MongoDB namespace and instance name match backup
 - Ensure sufficient storage for MongoDB data
 - Check MongoDB operator is installed and ready
+- If using storage class override, verify the storage class exists and is accessible
+- Ensure the specified storage class supports ReadWriteOnce access mode
 
 **Issue: "SLS restore failed"**
 
@@ -1072,6 +1192,30 @@ Restore Troubleshooting
 - Ensure IAM permissions allow GetObject operations
 
 **Issue: "Configuration file not found"**
+**Issue: "Manage application restore failed"**
+
+- Verify Manage workspace exists in the backup
+- Ensure sufficient storage for Manage application persistent volumes
+- Check that storage class overrides (if specified) are valid and accessible
+- Verify both ReadWriteMany and ReadWriteOnce storage classes are available if using overrides
+- Review Manage namespace for any conflicting resources
+
+**Issue: "Manage Db2 database restore failed"**
+
+- Verify Db2 instance exists in the backup
+- Ensure sufficient storage for all Db2 persistent volumes (meta, data, backup, logs, temp)
+- Check that all specified storage classes exist and support required access modes
+- Verify Db2 operator is installed and ready
+- Review Db2 pod logs for specific error messages
+- Note: Db2 restore is an offline operation - ensure no active connections during restore
+
+**Issue: "Storage class not found during restore"**
+
+- Verify the specified storage class exists in the target cluster: `oc get storageclass`
+- Check storage class supports the required access mode (RWO or RWX)
+- If using cluster defaults, ensure default storage classes are configured
+- Review storage class provisioner compatibility with the cluster infrastructure
+
 
 - Verify custom config file paths are correct
 - Ensure files are accessible from the CLI container

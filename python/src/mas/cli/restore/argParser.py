@@ -142,6 +142,27 @@ restoreArgGroup.add_argument(
     help="Do not clean backup and config workspaces after completion"
 )
 
+mongoArgGroup = restoreArgParser.add_argument_group(
+    'MongoDB Restore Configuration',
+    'Configure MongoDB for restore.'
+)
+
+mongoArgGroup.add_argument(
+    '--override-mongodb-storageclass',
+    dest='override_mongodb_storageclass',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Override MongoDb PVC storageclass"
+)
+
+mongoArgGroup.add_argument(
+    '--mongodb-storage-class-name',
+    required=False,
+    dest="mongodb_storageclass_name",
+    help="ReadWriteOnce Storage class for MongoDb PVC"
+)
+
 downloadArgGroup = restoreArgParser.add_argument_group(
     'Download Configuration',
     'Configure backup archive download from S3 or Artifactory.'
@@ -212,7 +233,7 @@ manageAppArgGroup.add_argument(
 )
 
 manageAppArgGroup.add_argument(
-    '--manage-app-override-storageclass',
+    '--override-manage-app-storageclass',
     dest='manage_app_override_storageclass',
     required=False,
     action="store_const",
@@ -235,7 +256,7 @@ manageAppArgGroup.add_argument(
 )
 
 manageAppArgGroup.add_argument(
-    '--manage-db-override-storageclass',
+    '--override-manage-db-storageclass',
     dest='manage_db_override_storageclass',
     required=False,
     action="store_const",
