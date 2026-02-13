@@ -211,6 +211,14 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
+      - name: Install latest docker buildx
+        run: |
+          mkdir -p ~/.docker/cli-plugins
+          curl -sSL https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-amd64 \
+            -o ~/.docker/cli-plugins/docker-buildx
+          chmod +x ~/.docker/cli-plugins/docker-buildx
+
+
       # 3. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
