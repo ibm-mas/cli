@@ -1,21 +1,21 @@
-resource "time_sleep" "wait_for_iam" {
-  depends_on = [module.account_policy]
+resource "time_sleep" "wait_for_iam_{{APP_NAME}}_bucket" {
+  depends_on = [module.account_policy_{{APP_NAME}}_bucket]
   create_duration = "60s"
 }
 
-module "s3buckets_access_point" {
+module "s3buckets_access_point_{{APP_NAME}}_bucket" {
   source = "{{ S3_SOURCE_S3ACCESSPOINT }}"
   for_each = {
     for k, v in local.cluster.instance.{{APP_NAME}}_s3buckets :
-    k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name))
+    k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name)) || can(regex("mvi", v.name))
   }
 
-  depends_on = [module.s3buckets_instance, module.account_policy, time_sleep.wait_for_iam]
+  depends_on = [module.s3buckets_instance_{{APP_NAME}}_bucket, module.account_policy_{{APP_NAME}}_bucket, time_sleep.wait_for_iam_{{APP_NAME}}_bucket]
 
   name_prefix                    = each.value.name_prefix
   s3_access_point_bucket_id      = each.value.id
   s3_bucket_arn                  = each.value.s3_bucket_arn
-  s3_access_point_name           = can(regex("log", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-log"]) : can(regex("doclinks", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-doclinks"])  : null
+  s3_access_point_name           = can(regex("log", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-log"]) : can(regex("doclinks", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-doclinks"]) : can(regex("mvi", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"mvi"]) : null
   s3_access_point_policy_actions = local.s3_actions[each.value.access_level]
   configure_antivirus            = false
 
@@ -26,6 +26,7 @@ module "s3buckets_access_point" {
       local.iam_user_arns_{{APP_NAME}}["logs_ro"]
     ) :
     can(regex("doclinks", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["doclinks"] :
+    can(regex("mvi", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["mvi"] :
     null
   )
 
