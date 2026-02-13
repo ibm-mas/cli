@@ -18,9 +18,9 @@ usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION] [--b
                    [--sls-domain SLS_DOMAIN] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [--contact-email DRO_CONTACT_EMAIL]
                    [--contact-firstname DRO_CONTACT_FIRSTNAME] [--contact-lastname DRO_CONTACT_LASTNAME]
                    [--dro-namespace DRO_NAMESPACE] [--override-mongodb-storageclass] [--mongodb-storageclass-name MONGODB_STORAGECLASS_NAME]
-                   [--restore-manage-app] [--restore-manage-db] [--manage-app-override-storageclass]
+                   [--restore-manage-app] [--restore-manage-db] [--override-manage-app-storageclass]
                    [--manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX] [--manage-app-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO]
-                   [--manage-db-override-storageclass] [--manage-db-meta-storage-class MANAGE_DB_META_STORAGE_CLASS]
+                   [--override-manage-db-storageclass] [--manage-db-meta-storage-class MANAGE_DB_META_STORAGE_CLASS]
                    [--manage-db-data-storage-class MANAGE_DB_DATA_STORAGE_CLASS] [--manage-db-backup-storage-class MANAGE_DB_BACKUP_STORAGE_CLASS]
                    [--manage-db-logs-storage-class MANAGE_DB_LOGS_STORAGE_CLASS] [--manage-db-temp-storage-class MANAGE_DB_TEMP_STORAGE_CLASS]
                    [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm] [--skip-pre-check] [-h]
@@ -110,7 +110,7 @@ MongoDB Storage Class Override:
 
 Manage Database Restore:
   --restore-manage-db   Restore the Manage incluster Db2 database
-  --manage-db-override-storageclass
+  --override-manage-db-storageclass
                         Override storage class for Manage Db2 database persistent volumes
   --manage-db-meta-storage-class MANAGE_DB_META_STORAGE_CLASS
                         Db2 Meta storage class name
@@ -125,7 +125,7 @@ Manage Database Restore:
 
 Manage Application Restore:
   --restore-manage-app  Restore the Manage application including namespace resources and persistent volume data
-  --manage-app-override-storageclass
+  --override-manage-app-storageclass
                         Override storage class for Manage application persistent volumes
   --manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX
                         Manage Application ReadWriteMany storage class name
@@ -339,10 +339,10 @@ mas restore \
   --restore-version 2020260117-191701 \
   --restore-manage-app \
   --restore-manage-db \
-  --manage-app-override-storageclass \
+  --override-manage-app-storageclass \
   --manage-app-storage-class-rwx custom-rwx-storage \
   --manage-app-storage-class-rwo custom-rwo-storage \
-  --manage-db-override-storageclass \
+  --override-manage-db-storageclass \
   --manage-db-meta-storage-class db2-meta-storage \
   --manage-db-data-storage-class db2-data-storage \
   --manage-db-backup-storage-class db2-backup-storage \
@@ -478,8 +478,8 @@ The restore process can now restore the Manage application in addition to the MA
 - **Manage Application**: Use `--restore-manage-app` to restore Manage namespace resources and persistent volume data
 - **Manage Database**: Use `--restore-manage-db` to restore the incluster Db2 database associated with the Manage workspace
 - **Storage Class Overrides**:
-  - Use `--manage-app-override-storageclass` to override Manage application storage classes
-  - Use `--manage-db-override-storageclass` to override Db2 database storage classes
+  - Use `--override-manage-app-storageclass` to override Manage application storage classes
+  - Use `--override-manage-db-storageclass` to override Db2 database storage classes
   - Specify custom storage classes for RWX/RWO (app) or meta/data/backup/logs/temp (Db2)
 
 !!! note

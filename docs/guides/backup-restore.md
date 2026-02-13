@@ -1036,10 +1036,10 @@ mas restore \
   --restore-version 2020260117-191701 \
   --restore-manage-app \
   --restore-manage-db \
-  --manage-app-override-storageclass \
+  --override-manage-app-storageclass \
   --manage-app-storage-class-rwx custom-rwx-storage \
   --manage-app-storage-class-rwo custom-rwo-storage \
-  --manage-db-override-storageclass \
+  --override-manage-db-storageclass \
   --manage-db-meta-storage-class db2-meta-storage \
   --manage-db-data-storage-class db2-data-storage \
   --manage-db-backup-storage-class db2-backup-storage \
@@ -1066,7 +1066,7 @@ mas restore \
   --mongodb-storageclass-name custom-rwo-storage \
   --restore-manage-app \
   --restore-manage-db \
-  --manage-db-override-storageclass \
+  --override-manage-db-storageclass \
   --download-backup \
   --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
   --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
