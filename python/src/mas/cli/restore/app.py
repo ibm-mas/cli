@@ -84,6 +84,9 @@ class RestoreApp(BaseApp):
                 # Manage App Restore
                 "restore_manage_app",
                 "restore_manage_db",
+                "manage_app_override_storageclass",
+                "manage_app_storage_class_rwx",
+                "manage_app_storage_class_rwo",
                 "manage_db_override_storageclass",
                 "manage_db_meta_storage_class",
                 "manage_db_data_storage_class",

@@ -233,7 +233,7 @@ manageAppArgGroup.add_argument(
 )
 
 manageAppArgGroup.add_argument(
-    '--manage-app-override-storageclass',
+    '--override-manage-app-storageclass',
     dest='manage_app_override_storageclass',
     required=False,
     action="store_const",
@@ -256,7 +256,7 @@ manageAppArgGroup.add_argument(
 )
 
 manageAppArgGroup.add_argument(
-    '--manage-db-override-storageclass',
+    '--override-manage-db-storageclass',
     dest='manage_db_override_storageclass',
     required=False,
     action="store_const",
