@@ -889,9 +889,6 @@ spec:
           kind: Task
           name: gitops-rds-db2-database
       when:
-        - input: "$(params.db2_action_iot)"
-          operator: notin
-          values: [""]
         - input: "$(params.jdbc_type_iot)"
           operator: in
           values: ["rds-db2"]
@@ -1100,9 +1097,6 @@ spec:
           kind: Task
           name: gitops-rds-db2-database
       when:
-        - input: "$(params.db2_action_manage)"
-          operator: notin
-          values: [""]
         - input: "$(params.jdbc_type_manage)"
           operator: in
           values: ["rds-db2"]
@@ -1448,9 +1442,6 @@ spec:
           kind: Task
           name: gitops-rds-db2-database
       when:
-        - input: "$(params.db2_action_facilities)"
-          operator: notin
-          values: [""]
         - input: "$(params.jdbc_type_facilities)"
           operator: in
           values: ["rds-db2"]
