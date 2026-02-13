@@ -24,7 +24,7 @@ if [ -n "$SLACK_TOKEN" ] && [ -n "$SLACK_CHANNEL" ]; then
   python3 /opt/app-root/bin/mas-devops-notify-slack \
     --action ansible-start \
     --task-name "$PLAYBOOK_NAME" \
-    # --pipeline-name "${PIPELINE_NAME:-unknown}" \
+    --pipeline-name "${PIPELINE_NAME:-unknown}" \
     --instance-id "${DEVOPS_ENVIRONMENT:-}" || true
 fi
 
@@ -37,7 +37,7 @@ if [ -n "$SLACK_TOKEN" ] && [ -n "$SLACK_CHANNEL" ]; then
     --action ansible-complete \
     --rc $rc \
     --task-name "$PLAYBOOK_NAME" \
-    # --pipeline-name "${PIPELINE_NAME:-unknown}" \
+    --pipeline-name "${PIPELINE_NAME:-unknown}" \
     --instance-id "${DEVOPS_ENVIRONMENT:-}" || true
 fi
 
