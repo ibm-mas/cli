@@ -103,7 +103,6 @@ optionalParams = [
 
     # Certificate Issuer
     "aiservice_certificate_issuer",
-    
     # Slack
     "slack_token",
     "slack_channel",
