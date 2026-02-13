@@ -10,43 +10,42 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Basic Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}      Custom Labels definition in dict format
-  -i  --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}          IBM Customer Number
-  -s  --subscription-id ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}      Customer subscription id
-      --domain ${COLOR_YELLOW}SLS_DOMAIN${TEXT_RESET}                Domain for SLS to create route
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                           Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                            Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                            Cluster ID
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}                      Custom Labels definition in dict format
 
 AWS Secrets Manager Configuration (Required):
-      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
-      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
-      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}               Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}           Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}       Your AWS Secret Key
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                        Secrets Manager path
 
 MongoDb Provider Selection (Required):
-      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws' or 'yaml')
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}                  The mongodb provider to install ('aws' or 'yaml')
 
 IBM Suite License Service:
-      --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
-      --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}  IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
-      --domain
+      --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}                          IBM Suite License Service Subscription Channel
+      --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}                IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
+  -i  --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}                          IBM Customer Number
+  -s  --subscription-id ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}                      Customer subscription id
+      --domain ${COLOR_YELLOW}SLS_DOMAIN${TEXT_RESET}                                Domain for SLS to create route
 
 Target Cluster (Optional):
-      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                          Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
 Automatic GitHub Push:
-  -P, --github-push                                                Enable automatic push to GitHub
-  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
-  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
-  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
-  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
-  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
-  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}           Git ssh key path
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                          Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}                          GitHub Hostname for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}                           Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}                          Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}                            Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}                    Git commit message to use when committing to of your GitOps repository
+  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}                             Git ssh key path
 
 Other Commands:
-  -h, --help                                      Show this help message
+  -h, --help                                           Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }

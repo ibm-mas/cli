@@ -10,105 +10,106 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Basic Configuration (Required):
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account ID
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
-      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}    Custom Labels definition in dict format
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                                               Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                                                Account ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                                                Cluster ID
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}                                                                          Custom Labels definition in dict format
+      --cluster-admin-role ${COLOR_YELLOW}CLUSTER_ADMIN_ROLE${TEXT_RESET}                                                                Enable cluster admin role (default: true). When false, only generates base config and updates IBM entitlement secret
 
 AWS Secrets Manager Configuration (Required):
-      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}                Region of the AWS Secrets Manager to use
-      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}            Your AWS Access Key ID
-      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}        Your AWS Secret Key
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                         Secrets Manager path
-      --skip-aws-secret-creation ${COLOR_YELLOW}SKIP_AWS_SECRET_CREATION${TEXT_RESET} If set, cluster AWS secret will be verified but not created. For use when cluster AWS secret is managed by some other configuration mechanism (e.g. Terraform).
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}                                                                   Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}                                                               Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}                                                           Your AWS Secret Key
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                                            Secrets Manager path
+      --skip-aws-secret-creation ${COLOR_YELLOW}SKIP_AWS_SECRET_CREATION${TEXT_RESET}                                                    If set, cluster AWS secret will be verified but not created. For use when cluster AWS secret is managed by some other configuration mechanism (e.g. Terraform).
 
 IBM Container Registry Entitlement (Required):
-      --icr-username ${COLOR_YELLOW}ICR_USERNAME${TEXT_RESET}  Username to authenticate with IBM Container Registry (defaults to 'cp')
-      --icr-password ${COLOR_YELLOW}ICR_PASSWORD${TEXT_RESET}  Provide your IBM entitlement key used for access to the IBM Container Registry
+      --icr-username ${COLOR_YELLOW}ICR_USERNAME${TEXT_RESET}                                                                            Username to authenticate with IBM Container Registry (defaults to 'cp')
+      --icr-password ${COLOR_YELLOW}ICR_PASSWORD${TEXT_RESET}                                                                            Provide your IBM entitlement key used for access to the IBM Container Registry
 
 Target Cluster (Optional):
-      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                                                                              Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
 Operator Catalog (Optional):
-      --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}   Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')
-      --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}       Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
-      --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}     Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
+      --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}                                                                  Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')
+      --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}                                                                      Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
+      --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}                                                                    Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
 
 Redhat Cert Manager (Optional):
-      --install-redhat-cert-manager ${COLOR_YELLOW}INSTALL_REDHAT_CERT_MANAGER${TEXT_RESET}                                      Install RedHat Cert Manager (default to true)  
-      --redhat-cert-manager-install-plan ${COLOR_YELLOW}REDHAT_CERT_MANAGER_INSTALL_PLAN${TEXT_RESET}                            Set Redhat Cert manager subscription install plan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --install-redhat-cert-manager ${COLOR_YELLOW}INSTALL_REDHAT_CERT_MANAGER${TEXT_RESET}                                              Install RedHat Cert Manager (default to true)
+      --redhat-cert-manager-install-plan ${COLOR_YELLOW}REDHAT_CERT_MANAGER_INSTALL_PLAN${TEXT_RESET}                                    Set Redhat Cert manager subscription install plan approval ('Automatic' or 'Manual'. Default is 'Automatic')
 
-IBM CIS Cert Manager:
-      --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
-      --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                   true/false, If true, ingress-controller for cis-proxy will be configured
+IBM CIS Cert Manager (Optional):
+      --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                                                                            DNS Provider, Currently supported CIS (Akamai support inprogress)
+      --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                                                                      true/false, If true, ingress-controller for cis-proxy will be configured
 
 Custom Cluster Service Accounts (Optional):
-      --custom_sa_namespace ${COLOR_YELLOW}CUSTOM_SA_NAMESPACE${TEXT_RESET}   Namespace to create the Service Account(s) in
-      --custom_sa_details ${COLOR_YELLOW}CUSTOM_SA_DETAILS${TEXT_RESET}       Comma delimited list of key:value pairs where the key is the Service Account name and the value is the Cluster Role ('serviceaccount1:cluster-admin,serviceaccount2:cluster-reader')
+      --custom_sa_namespace ${COLOR_YELLOW}CUSTOM_SA_NAMESPACE${TEXT_RESET}                                                              Namespace to create the Service Account(s) in
+      --custom_sa_details ${COLOR_YELLOW}CUSTOM_SA_DETAILS${TEXT_RESET}                                                                  Comma delimited list of key:value pairs where the key is the Service Account name and the value is the Cluster Role ('serviceaccount1:cluster-admin,serviceaccount2:cluster-reader')
 
 Automatic GitHub Push (Optional):
-  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}         Enable automatic push to GitHub
-  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}         GitHub Hostname for your GitOps repository
-  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}           Github org for your GitOps repository
-  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}         Github repo for your GitOps repository
-  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}              Git ssh key path
-  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}           Git branch to commit to of your GitOps repository
-  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}   Git commit message to use when committing to of your GitOps repository
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                                                                              Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}                                                                              GitHub Hostname for your GitOps repository
+  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}                                                                                Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}                                                                              Github repo for your GitOps repository
+  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}                                                                                   Git ssh key path
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}                                                                                Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}                                                                        Git commit message to use when committing to of your GitOps repository
 
 Cluster Promotion (Optional):
-      --cluster-promotion ${COLOR_YELLOW}CLUSTER_PROMOTION${TEXT_RESET}                                         Enable cluster promotion processing
-      --cluster-promotion-target-github-pat ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_PAT${TEXT_RESET}     The github PAT to use when commiting the change to the target promotion repo
-      --cluster-promotion-target-github-host ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_HOST${TEXT_RESET}   The github host to use when commiting the change to the target promotion repo
-      --cluster-promotion-target-github-repo ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_REPO${TEXT_RESET}   The github repo to use when commiting the change to the target promotion repo
-      --cluster-promotion-target-github-org ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_ORG${TEXT_RESET}     The github org to use when commiting the change to the target promotion repo
-      --cluster-promotion-target-github-path ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_PATH${TEXT_RESET}   The path in the github target repo to update under when commiting the change to the target promotion repo
-      --cluster-promotion-target-git-branch ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GIT_BRANCH${TEXT_RESET}     The git branch to use when commiting the change to the target promotion repo
-      --cluster-promotion-create-target-pr ${COLOR_YELLOW}CLUSTER_PROMOTION_CREATE_TARGET_PR${TEXT_RESET}       Create a PR to the CLUSTER_PROMOTION_TARGET_GIT_BRANCH branch instead of commiting directly to it.
-      --cluster-promotion-target-pr-title ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_PR_TITLE${TEXT_RESET}         The title of the PR if a PR is to be created
-      --cluster-promotion-cluster-values ${COLOR_YELLOW}CLUSTER_PROMOTION_CLUSTER_VALUES${TEXT_RESET}           A list of values in json format to update in the target git repo.
+      --cluster-promotion ${COLOR_YELLOW}CLUSTER_PROMOTION${TEXT_RESET}                                                                  Enable cluster promotion processing
+      --cluster-promotion-target-github-pat ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_PAT${TEXT_RESET}                              The github PAT to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-host ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_HOST${TEXT_RESET}                            The github host to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-repo ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_REPO${TEXT_RESET}                            The github repo to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-org ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_ORG${TEXT_RESET}                              The github org to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-path ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_PATH${TEXT_RESET}                            The path in the github target repo to update under when commiting the change to the target promotion repo
+      --cluster-promotion-target-git-branch ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GIT_BRANCH${TEXT_RESET}                              The git branch to use when commiting the change to the target promotion repo
+      --cluster-promotion-create-target-pr ${COLOR_YELLOW}CLUSTER_PROMOTION_CREATE_TARGET_PR${TEXT_RESET}                                Create a PR to the CLUSTER_PROMOTION_TARGET_GIT_BRANCH branch instead of commiting directly to it.
+      --cluster-promotion-target-pr-title ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_PR_TITLE${TEXT_RESET}                                  The title of the PR if a PR is to be created
+      --cluster-promotion-cluster-values ${COLOR_YELLOW}CLUSTER_PROMOTION_CLUSTER_VALUES${TEXT_RESET}                                    A list of values in json format to update in the target git repo.
 
 DevOps Details (Optional):
-      --devops-build-number ${COLOR_YELLOW}DEVOPS_BUILD_NUMBER${TEXT_RESET}                                     The build number to associate with the junitreporter for each argocd app sync
-      --devops-mongo-uri ${COLOR_YELLOW}DEVOPS_MONGO_URI${TEXT_RESET}                                           The Mongo uri used by the junitreporter to store test/run records
+      --devops-build-number ${COLOR_YELLOW}DEVOPS_BUILD_NUMBER${TEXT_RESET}                                                              The build number to associate with the junitreporter for each argocd app sync
+      --devops-mongo-uri ${COLOR_YELLOW}DEVOPS_MONGO_URI${TEXT_RESET}                                                                    The Mongo uri used by the junitreporter to store test/run records
 
 Notifications (Optional):
-      --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET}                                           Slack channel for ArgoCD to notify when an app sync has completed or failed
+      --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET}                                                                    Slack channel for ArgoCD to notify when an app sync has completed or failed
 
 Selenium Grid (Optional):
-      --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}                                 Install Selenium Grid
+      --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}                                                          Install Selenium Grid
 
 Group Sync Operator (Optional):
-      --install-group-sync-operator ${COLOR_YELLOW}INSTALL_GROUP_SYNC_OPERATOR${TEXT_RESET}                     Install the Group Sync Operator
+      --install-group-sync-operator ${COLOR_YELLOW}INSTALL_GROUP_SYNC_OPERATOR${TEXT_RESET}                                              Install the Group Sync Operator
 
 IBM RBAC (Optional):
-      --install-ibm-rbac ${COLOR_YELLOW}INSTALL_IBM_RBAC${TEXT_RESET}                                           Install the IBM RBAC roles and role bindings
+      --install-ibm-rbac ${COLOR_YELLOW}INSTALL_IBM_RBAC${TEXT_RESET}                                                                    Install the IBM RBAC roles and role bindings
 
 CrowdStrike Falcon Operator (Optional):
-      --install-falcon-operator ${COLOR_YELLOW}INSTALL_FALCON_OPERATOR${TEXT_RESET}                             Install the CrowdStrike Falcon Operator
+      --install-falcon-operator ${COLOR_YELLOW}INSTALL_FALCON_OPERATOR${TEXT_RESET}                                                      Install the CrowdStrike Falcon Operator
 
 Cluster Logging Operator (Optional):
-      --install-cluster-logging-operator ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL${TEXT_RESET}                                           Install the Cluster Logging Operator
-      --cluster-logging-operator-use-syslog-forwarder ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER${TEXT_RESET}                 Flag to use syslog forwarder in the ClusterLogForwarder
-      --cluster-logging-operator-install-plan ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN${TEXT_RESET}                                 Install plan for the subscription of the Cluster Logging Operator
-      --cluster-logging-operator-channel ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_CHANNEL${TEXT_RESET}                                           Channel for the subscription of the Cluster Logging Operator
-      --cluster-logging-operator-setup-log-forwarding ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING${TEXT_RESET}                 Flag to setup the deployment for syslog forwarder
-      --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}         The syslog forwarder client url for the DLC
-      --cluster-logging-operator-syslog-forwarder-version ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION${TEXT_RESET}         Syslog forwarder image version
-      --cluster-logging-operator-dlc-ca-bundle-file ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE${TEXT_RESET}                     Location of file containing DLC CA Certificates
+      --install-cluster-logging-operator ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL${TEXT_RESET}                                    Install the Cluster Logging Operator
+      --cluster-logging-operator-use-syslog-forwarder ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER${TEXT_RESET}          Flag to use syslog forwarder in the ClusterLogForwarder
+      --cluster-logging-operator-install-plan ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN${TEXT_RESET}                          Install plan for the subscription of the Cluster Logging Operator
+      --cluster-logging-operator-channel ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_CHANNEL${TEXT_RESET}                                    Channel for the subscription of the Cluster Logging Operator
+      --cluster-logging-operator-setup-log-forwarding ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING${TEXT_RESET}          Flag to setup the deployment for syslog forwarder
+      --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}  The syslog forwarder client url for the DLC
+      --cluster-logging-operator-syslog-forwarder-version ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION${TEXT_RESET}  Syslog forwarder image version
+      --cluster-logging-operator-dlc-ca-bundle-file ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE${TEXT_RESET}              Location of file containing DLC CA Certificates
 
 Instana Agent Operator (Optional):
-      --install-instana-agent-operator ${COLOR_YELLOW}INSTANA_AGENT_OPERATOR_INSTALL${TEXT_RESET}               Install the Instana Agent Operator
+      --install-instana-agent-operator ${COLOR_YELLOW}INSTANA_AGENT_OPERATOR_INSTALL${TEXT_RESET}                                        Install the Instana Agent Operator
 
 MAS CLI Image (Optional):
-      --mas-cli-image-repo ${COLOR_YELLOW}MAS_CLI_IMAGE_REPO{TEXT_RESET}               The repo that holds the MAS CLI image to be pulled in ArgoCD. Only needed if using a mirror registry, and not quay.io
+      --mas-cli-image-repo ${COLOR_YELLOW}MAS_CLI_IMAGE_REPO${TEXT_RESET}                                                                The repo that holds the MAS CLI image to be pulled in ArgoCD. Only needed if using a mirror registry, and not quay.io
 
-Image Repository Mirror
-      --image-repo-mirror          ${COLOR_YELLOW}IMAGE_REPO_MIRROR${TEXT_RESET}                 Setup an image repository mirror. Image pulls by digest from icr.io and cp.icr.io  will be redirected by OCP to a repository of your choosing (via an IDMS).
-      --image-repo-mirror-host     ${COLOR_YELLOW}IMAGE_REPO_MIRROR_HOST${TEXT_RESET}            Host of image repository to direct pulls from icr.io and cp.icr.io to. E.g. ECR 012345678910.dkr.ecr.us-east-1.amazonaws.com
-      --image-repo-mirror-prefix   ${COLOR_YELLOW}IMAGE_REPO_MIRROR_PREFIX${TEXT_RESET}          Prefix that will be added to the paths of any images referenced in the image repository mirror. E.g. "250701" will result in a pull of icr.io/myimage being redirected to IMAGE_REPO_MIRROR_HOST/250701/myimage.
+Image Repository Mirror (Optional):
+      --image-repo-mirror ${COLOR_YELLOW}IMAGE_REPO_MIRROR${TEXT_RESET}                                                                  Setup an image repository mirror. Image pulls by digest from icr.io and cp.icr.io  will be redirected by OCP to a repository of your choosing (via an IDMS).
+      --image-repo-mirror-host ${COLOR_YELLOW}IMAGE_REPO_MIRROR_HOST${TEXT_RESET}                                                        Host of image repository to direct pulls from icr.io and cp.icr.io to. E.g. ECR 012345678910.dkr.ecr.us-east-1.amazonaws.com
+      --image-repo-mirror-prefix ${COLOR_YELLOW}IMAGE_REPO_MIRROR_PREFIX${TEXT_RESET}                                                    Prefix that will be added to the paths of any images referenced in the image repository mirror. E.g. "250701" will result in a pull of icr.io/myimage being redirected to IMAGE_REPO_MIRROR_HOST/250701/myimage.
 
 Other Commands:
-  -h, --help                              Show this help message
+  -h, --help                                                                                                 Show this help message
 EOM
 
   [[ -n "$1" ]] && exit 1 || exit 0
@@ -127,6 +128,7 @@ function gitops_cluster_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
   export REDHAT_CERT_MANAGER_INSTALL_PLAN=${REDHAT_CERT_MANAGER_INSTALL_PLAN:-"Automatic"}
   export INSTALL_REDHAT_CERT_MANAGER=${INSTALL_REDHAT_CERT_MANAGER:-"true"}
+  export CLUSTER_ADMIN_ROLE=${CLUSTER_ADMIN_ROLE:-"true"}
 
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
@@ -149,6 +151,9 @@ function gitops_cluster_noninteractive() {
         ;;
       --custom-labels)
         export CUSTOM_LABELS=$1 && shift
+        ;;
+      --cluster-admin-role)
+        export CLUSTER_ADMIN_ROLE=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
@@ -469,6 +474,7 @@ function gitops_cluster() {
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   echo_reset_dim "Nonshared Cluster .............. ${COLOR_MAGENTA}${CLUSTER_NONSHARED}"
+  echo_reset_dim "Cluster Admin Role ............. ${COLOR_MAGENTA}${CLUSTER_ADMIN_ROLE}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -748,81 +754,83 @@ function gitops_cluster() {
   echo "- Base Config"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-mas-cluster-base.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
 
-  echo "- IBM Operator Catalog"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-operator-catalog.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
+  # Only generate additional YAML files if cluster_admin_role is true
+  if [[ "$CLUSTER_ADMIN_ROLE" == "true" ]]; then
+    echo "- IBM Operator Catalog"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-operator-catalog.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
 
-  if [[ "$INSTALL_REDHAT_CERT_MANAGER" == "true" ]]; then
-    echo "- Redhat Cert Manager"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
-  fi
-
-  if [[ "$INSTALL_SELENIUM_GRID" == "true" ]]; then
-    echo "- Selenium Grid"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/selenium-grid.yaml.j2 ${GITOPS_CLUSTER_DIR}/selenium-grid.yaml
-  fi
-
-  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
-    ESCAPED_CLUSTER_VALUES=${CLUSTER_PROMOTION_CLUSTER_VALUES//\"/\\\"}
-    export ESCAPED_CLUSTER_VALUES=${ESCAPED_CLUSTER_VALUES//$'\n'/\\n}
-    echo "- Cluster Promotion"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-promotion.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
-  fi
-  
-  if [[ -n "$CUSTOM_SA_NAMESPACE" ]]; then
-    echo "- Custom Cluster Service Accounts"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/custom-sa.yaml.j2 ${GITOPS_CLUSTER_DIR}/custom-sa.yaml
-  fi
-
-  if [[ -n "$DNS_PROVIDER" ]]; then
-    echo "- IBM CIS Cert Manager"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
-  fi
-
-  if [[ "$INSTALL_GROUP_SYNC_OPERATOR" == "true" ]]; then
-    echo "- Group Sync Operator"
-    sm_verify_secret_exists $SECRET_NAME_ISV_CLIENT "client_secret,client_id"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/group-sync-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/group-sync-operator.yaml
-  fi
-
-  if [[ "$INSTALL_IBM_RBAC" == "true" ]]; then
-    echo "- IBM RBAC"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-rbac.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-rbac.yaml
-  fi
-
-  if [[ "$INSTALL_FALCON_OPERATOR" == "true" ]]; then
-    echo "- CrowdStrike Falcon Operator"
-    sm_verify_secret_exists $SECRET_NAME_FALCON_CLIENT "client_secret,client_id"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
-  fi
-
-  if [[ "$CLUSTER_LOGGING_OPERATOR_INSTALL" == "true" ]]; then
-    echo "- Cluster Logging Operator"
-    sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
-    if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
-      echo "- Cluster Logging Operator Log Forwarder Setup"
-      [ -s "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ] || { echo_warning "Required value 'CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE' is missing or empty"; exit 1;}
-      export CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE} | base64 -w0)
-
-      if [[ -n "$SYSLOG_PULLSECRET" ]]; then
-        echo "- Update SYSLOG_PULLSECRET secret"
-        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
-        sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
-      fi
-      sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
+    if [[ "$INSTALL_REDHAT_CERT_MANAGER" == "true" ]]; then
+      echo "- Redhat Cert Manager"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
     fi
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
-  fi
 
-  if [[ "$INSTANA_AGENT_OPERATOR_INSTALL" == "true" ]]; then
-    echo "- Instana Agent Operator"
-    sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml
-  fi
+    if [[ "$INSTALL_SELENIUM_GRID" == "true" ]]; then
+      echo "- Selenium Grid"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/selenium-grid.yaml.j2 ${GITOPS_CLUSTER_DIR}/selenium-grid.yaml
+    fi
 
+    if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+      ESCAPED_CLUSTER_VALUES=${CLUSTER_PROMOTION_CLUSTER_VALUES//\"/\\\"}
+      export ESCAPED_CLUSTER_VALUES=${ESCAPED_CLUSTER_VALUES//$'\n'/\\n}
+      echo "- Cluster Promotion"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-promotion.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
+    fi
+    
+    if [[ -n "$CUSTOM_SA_NAMESPACE" ]]; then
+      echo "- Custom Cluster Service Accounts"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/custom-sa.yaml.j2 ${GITOPS_CLUSTER_DIR}/custom-sa.yaml
+    fi
 
-  if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
-    echo "- Image Repository Mirror"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/image-mirroring.yaml.j2 ${GITOPS_CLUSTER_DIR}/image-mirroring.yaml
+    if [[ -n "$DNS_PROVIDER" ]]; then
+      echo "- IBM CIS Cert Manager"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
+    fi
+
+    if [[ "$INSTALL_GROUP_SYNC_OPERATOR" == "true" ]]; then
+      echo "- Group Sync Operator"
+      sm_verify_secret_exists $SECRET_NAME_ISV_CLIENT "client_secret,client_id"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/group-sync-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/group-sync-operator.yaml
+    fi
+
+    if [[ "$INSTALL_IBM_RBAC" == "true" ]]; then
+      echo "- IBM RBAC"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-rbac.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-rbac.yaml
+    fi
+
+    if [[ "$INSTALL_FALCON_OPERATOR" == "true" ]]; then
+      echo "- CrowdStrike Falcon Operator"
+      sm_verify_secret_exists $SECRET_NAME_FALCON_CLIENT "client_secret,client_id"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
+    fi
+
+    if [[ "$CLUSTER_LOGGING_OPERATOR_INSTALL" == "true" ]]; then
+      echo "- Cluster Logging Operator"
+      sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
+      if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
+        echo "- Cluster Logging Operator Log Forwarder Setup"
+        [ -s "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ] || { echo_warning "Required value 'CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE' is missing or empty"; exit 1;}
+        export CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE} | base64 -w0)
+
+        if [[ -n "$SYSLOG_PULLSECRET" ]]; then
+          echo "- Update SYSLOG_PULLSECRET secret"
+          TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
+          sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
+        fi
+        sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
+      fi
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
+    fi
+
+    if [[ "$INSTANA_AGENT_OPERATOR_INSTALL" == "true" ]]; then
+      echo "- Instana Agent Operator"
+      sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml
+    fi
+
+    if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
+      echo "- Image Repository Mirror"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/image-mirroring.yaml.j2 ${GITOPS_CLUSTER_DIR}/image-mirroring.yaml
+    fi
   fi
 
 

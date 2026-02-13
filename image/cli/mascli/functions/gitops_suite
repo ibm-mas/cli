@@ -96,6 +96,7 @@ IBM Maximo Application Suite:
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  The certificate authority to use for provisoning certificates for MAS services
 
       --welcome-message ${COLOR_YELLOW}WELCOME_MESSAGE${TEXT_RESET} Default welcome message (displayed on login screen) to be configured (optional). NOTE: only use with MAS 9.1.7 or later.
+
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 

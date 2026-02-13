@@ -3,6 +3,7 @@
 *.pyc
 
 .env
+.venv
 kubectl.exe
 mas.log
 

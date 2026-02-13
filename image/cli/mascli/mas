@@ -53,6 +53,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/must_gather
 . $CLI_DIR/functions/debug
 # GitOps
+. $CLI_DIR/functions/gitops
 . $CLI_DIR/functions/gitops_utils
 . $CLI_DIR/functions/gitops_bootstrap
 . $CLI_DIR/functions/gitops_cluster
@@ -779,6 +780,14 @@ case $1 in
     echo
     reset_colors
     gitops_suite_license_service "$@"
+    ;;
+
+  gitops)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Functions (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops
     ;;
 
   *)

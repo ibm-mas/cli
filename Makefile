@@ -28,7 +28,17 @@ tekton-test: tekton
 	tekton/test.sh
 
 docker:
-	docker build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
+	@echo "$${ARTIFACTORY_TOKEN:-}" > /tmp/.artifactory_token
+	@echo "$${ARTIFACTORY_GENERIC_RELEASE_URL:-}" > /tmp/.artifactory_url
+	@echo "$${GITHUB_REF_NAME:-local}" > /tmp/.github_ref_name
+	@echo "$${GITHUB_REF_TYPE:-branch}" > /tmp/.github_ref_type
+	DOCKER_BUILDKIT=1 docker build \
+		--secret id=ARTIFACTORY_TOKEN,src=/tmp/.artifactory_token \
+		--secret id=ARTIFACTORY_GENERIC_RELEASE_URL,src=/tmp/.artifactory_url \
+		--secret id=GITHUB_REF_NAME,src=/tmp/.github_ref_name \
+		--secret id=GITHUB_REF_TYPE,src=/tmp/.github_ref_type \
+		-t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
+	@rm -f /tmp/.artifactory_token /tmp/.artifactory_url /tmp/.github_ref_name /tmp/.github_ref_type
 
 all: ansible-devops python tekton docker
 
