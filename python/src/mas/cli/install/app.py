@@ -1648,6 +1648,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if len(value) == 0 or len(value) > 4:
                     self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
 
+            elif key == "slack_token":
+                if value:
+                    self.setParam("slack_token", value)
+
+            elif key == "slack_channel":
+                if value:
+                    self.setParam("slack_channel", value)
+
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")

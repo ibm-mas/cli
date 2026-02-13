@@ -341,6 +341,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             elif key == "enable_ipv6":
                 self.setParam("enable_ipv6", True)
 
+            elif key == "slack_token":
+                if value:
+                    self.setParam("slack_token", value)
+
+            elif key == "slack_channel":
+                if value:
+                    self.setParam("slack_channel", value)
+
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")
