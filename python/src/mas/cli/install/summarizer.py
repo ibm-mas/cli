@@ -405,6 +405,13 @@ class InstallSummarizerMixin():
         self.printH2("Grafana")
         self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
 
+    def slackSummary(self) -> None:
+        self.printH2("Slack Integration")
+        if self.getParam("slack_channel") != "":
+            self.printParamSummary("Slack Channel", "slack_channel")
+        else:
+            self.printSummary("Slack Channel", "Not Configured")
+
     def installSummary(self) -> None:
         pass
         # self.printH2("Install Process")
@@ -444,6 +451,9 @@ class InstallSummarizerMixin():
         self.kafkaSummary()
         self.cp4dSummary()
         self.grafanaSummary()
+
+        # Notification Integration
+        self.slackSummary()
 
         # Install options
         self.installSummary()

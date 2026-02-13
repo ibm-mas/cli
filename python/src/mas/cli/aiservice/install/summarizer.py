@@ -108,6 +108,13 @@ class aiServiceInstallSummarizerMixin():
         else:
             self.fatalError(f"Unexpected value for mongodb_action parameter: {self.getParam('mongodb_action')}")
 
+    def slackSummary(self) -> None:
+        self.printH2("Slack Integration")
+        if self.getParam("slack_channel") != "":
+            self.printParamSummary("Slack Channel", "slack_channel")
+        else:
+            self.printSummary("Slack Channel", "Not Configured")
+
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
@@ -127,3 +134,6 @@ class aiServiceInstallSummarizerMixin():
         self.slsSummary()
         self.mongoSummary()
         self.db2Summary()
+
+        # Notification Integration
+        self.slackSummary()

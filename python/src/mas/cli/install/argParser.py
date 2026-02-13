@@ -1543,11 +1543,13 @@ otherArgGroup.add_argument(
 )
 otherArgGroup.add_argument(
     "--slack-token",
+    dest="slack_token",
     required=False,
     help="Slack bot token for sending pipeline notifications"
 )
 otherArgGroup.add_argument(
     "--slack-channel",
+    dest="slack_channel",
     required=False,
     help="Slack channel(s) for notifications (comma-separated for multiple channels)"
 )
