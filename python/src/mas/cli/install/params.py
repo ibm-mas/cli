@@ -214,7 +214,7 @@ optionalParams = [
     "environment_type",
 
     # Certificate Issuer
-    "aiservice_certificate_issuer"
+    "aiservice_certificate_issuer",
     
     # Slack
     "slack_token",
