@@ -28,6 +28,7 @@ IBM Container Registry Entitlement (Required):
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+      --hypervisor ${COLOR_YELLOW}HYPERVISOR${TEXT_RESET}         Hypervisor type for the cluster (e.g., 'rosa', 'fyre')
 
 Operator Catalog (Optional):
       --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}   Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')
@@ -354,6 +355,9 @@ function gitops_cluster_noninteractive() {
       --image-repo-mirror-prefix)
         export IMAGE_REPO_MIRROR_PREFIX=$1 && shift
         ;;
+      --hypervisor)
+        export HYPERVISOR=$1 && shift
+        ;;
 
       # Other Commands
       -h|--help)
@@ -370,6 +374,7 @@ function gitops_cluster_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_cluster_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_cluster_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
+  [[ -z "$HYPERVISOR" ]] && gitops_cluster_help "HYPERVISOR is not set"
   
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_cluster_help "GITHUB_HOST is not set"
@@ -465,6 +470,7 @@ function gitops_cluster() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "HYPERVISOR ..................... ${COLOR_MAGENTA}${HYPERVISOR}"
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"

@@ -153,6 +153,9 @@ spec:
     - name: instana_agent_operator_jks_storage_class
       type: string
       default: ''
+    - name: hypervisor
+      type: string
+      default: ''
 
   stepTemplate:
     name: gitops-cluster
@@ -268,6 +271,8 @@ spec:
         value: $(params.instana_agent_operator_env)
       - name: INSTANA_AGENT_OPERATOR_JKS_STORAGE_CLASS
         value: $(params.instana_agent_operator_jks_storage_class)
+      - name: HYPERVISOR
+        value: $(params.hypervisor)
 
     envFrom:
       - configMapRef:
@@ -324,7 +329,8 @@ spec:
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH \
-        --secrets-path $SECRET_PATH
+        --secrets-path $SECRET_PATH \
+        --hypervisor $HYPERVISOR
 
         exit $?
       command:
