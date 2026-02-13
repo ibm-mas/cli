@@ -1057,19 +1057,26 @@ function gitops_iac_provision_s3() {
   echo "S3_MVI: ${S3_MVI}"
 
   export APP_NAME=""
-  
-  # Generate S3-specific files only
-  if [[ "$S3_MANAGE"  == "true" ]]; then
-    export APP_NAME="manage"
-    echo "Generating s3-instance.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf
-    
-    echo "Generating iampolicy.tf file ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy.tf.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
-    
-    echo "Generating s3-accesspoints.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf
-  fi
+  APP_PARAMS=(
+  "manage $S3_MANAGE"
+  "mvi $S3_MVI"
+  )
+
+  for row in "${APP_PARAMS[@]}"; do
+    read -r app is_available <<< "$row"
+    echo "Generating s3 related file for $app"
+    if [[ "$is_available" == true ]]; then
+      export APP_NAME="$app"
+      echo "Generating s3-instance.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-$app.tf "
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-$app.tf
+
+      echo "Generating iampolicy.tf file ${GITOPS_CLUSTER_DIR}/iampolicy-$app.tf "
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy.tf.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-$app.tf
+
+      echo "Generating s3-accesspoints.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-$app.tf"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-$app.tf
+    fi
+  done
   
   # Commit changes to working branch
   if [ "$GITHUB_PUSH" == "true" ]; then
