@@ -7,6 +7,7 @@
   runAfter:
     - mobile-pytest-calibration
     - mobile-pytest-civil-defects
+    - mobile-pytest-location
 
 - name: mobile-pytest-ir
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
@@ -17,6 +18,7 @@
   runAfter:
     - mobile-pytest-calibration
     - mobile-pytest-civil-defects
+    - mobile-pytest-location
     
 - name: mobile-pytest-it
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
@@ -27,3 +29,4 @@
   runAfter:
     - mobile-pytest-calibration
     - mobile-pytest-civil-defects
+    - mobile-pytest-location

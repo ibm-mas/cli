@@ -1,0 +1,213 @@
+{%- if (IS_S3 | lower == 'true') or (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true') %}
+variable "instance_name" {
+    type        = string
+    description = "Name of Instance"
+}
+
+variable "cluster_name" {
+    type        = string
+    description = "Name of Cluster"
+}
+variable "vpc_id" {
+    type        = string
+    description = "ID of VPC"
+}
+{%- endif %}
+{%- if IS_MSK | lower == 'true'%}
+
+variable "cluster_prefix" {
+    type        = string
+    description = "Cluster Prefix"
+}
+{%- endif %}
+
+{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true')  or (IS_RDS | lower == 'true')%}
+
+variable "vpc_name" {
+    type        = string
+    description = "Name of VPC"
+}
+{%- endif %}
+
+{%- if (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true')%}
+variable "name_prefix" {
+    type        = string
+    description = "name_prefix"
+}
+{%- endif %}
+
+
+{%- if IS_S3 | lower == 'true'%}
+variable "allowed_bucket_policy_keys" {
+    description = "Allowed bucket keys for bucket policy creations."
+    type        = list(string)
+}
+
+variable "allowed_bucket_lifecycle_configuration_keys" {
+    description = "Allowed bucket keys for bucket lifecycle creation."
+    type        = list(string)
+}
+variable "access_level_rw" {
+    type        = string
+    description = "read and write"
+    default     = "rw"
+}
+
+variable "access_level_ro" {
+    type        = string
+    description = "read and write"
+    default     = "ro"
+}
+
+variable "enable_dr" {
+    type   = bool
+    description = "Enable DR"
+    default = false
+}
+variable "dr_region" {
+    type   = string
+    description = "DR Region"
+    default = "us-east-2"
+}
+
+
+{%- if S3_MANAGE | lower == 'true'%}
+variable "s3_iam_users_list_manage" {
+    description = "s3 user list"
+        type = map(object({
+        iam_user_name = string
+    }))
+}
+variable "s3bucket_name_prefix_manage" {
+    type        = string
+    description = "s3 bucket name prefix"
+}
+variable "iam_user_name_prefix_manage" {
+    type        = string
+    description = "iam user name prefix"
+}
+variable "iam_user_arn_prefix_manage" {
+    type        = string
+    description = "iam user arn"
+}
+{%- endif %}
+{%- if S3_MVI | lower == 'true'%}
+variable "s3_iam_users_list_mvi" {
+    description = "s3 user list"
+        type = map(object({
+        iam_user_name = string
+    }))
+}
+variable "s3bucket_name_prefix_mvi" {
+    type        = string
+    description = "s3 bucket name prefix"
+}
+variable "iam_user_name_prefix_mvi" {
+    type        = string
+    description = "iam user name prefix"
+}
+variable "iam_user_arn_prefix_mvi" {
+    type        = string
+    description = "iam user arn"
+}
+{%- endif %}
+
+{%- endif %}
+{%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true')%}
+variable "s3_encryption_algorithm" {
+    type        = string
+    description = "s3 encryption algorithm"
+}
+variable "create_s3_iam_policy" {
+    type        = bool
+    description = "Whether to create s3 iam group or not"
+}
+variable "create_efs_policy" {
+    type        = bool
+    description = "Whether to create efs policy or not"
+}
+
+variable "account_id" {
+    type        = string
+    description = "account id"
+}
+variable "create_bucket" {
+    type        = bool
+    description = "Enable creation of bucket"
+}
+variable "common_tags" {
+    type        = map(string)
+    description = "Common resource tags"
+}
+variable "create_s3_iam_group" {
+    type        = bool
+    description = "Whether to create s3 iam group or not"
+}
+variable "location" {
+    type = object({
+      region             = string
+      availability_zones = list(string)
+    })
+    description = "location details"
+    default = {
+      region             = "us-east-1"
+      availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+    }
+}
+{%- endif %}
+
+{%- if (IS_RDS | lower == 'true')%}
+variable "s3bucket_name_prefix_db2" {
+    type        = string
+    description = "s3 bucket name prefix for RDS DB2"
+}
+variable "engine_version" {
+  type        = string
+  description = "Db2 engine version"
+}
+
+variable "db2_parameters_apply_type" {
+  type        = string
+  description = "db2 parameters apply type"
+}
+
+variable "access_level_audit_log_rw" {
+  type        = string
+  description = "read and write"
+  default     = "rw"
+}
+
+variable "iam_user_arn_prefix_audit_log" {
+  type        = string
+  description = "iam user arn"
+}
+variable "iam_user_name_prefix_audit_log" {
+  type        = string
+  description = "iam user name prefix"
+}
+{%- if (RDS_MANAGE | lower == 'true')%}
+variable "s3_iam_users_list_audit_log_manage" {
+  description = "s3 user list"
+  type = map(object({
+    iam_user_name = string
+  }))
+}
+{%- endif %}
+{%- if (RDS_IOT | lower == 'true')%}
+variable "s3_iam_users_list_audit_log_iot" {
+  description = "s3 user list"
+  type = map(object({
+    iam_user_name = string
+  }))
+}
+{%- endif %}
+{%- if (RDS_FACILITIES | lower == 'true')%}
+variable "s3_iam_users_list_audit_log_facilities" {
+  description = "s3 user list"
+  type = map(object({
+    iam_user_name = string
+  }))
+}
+{%- endif %}
+{%- endif %}
+

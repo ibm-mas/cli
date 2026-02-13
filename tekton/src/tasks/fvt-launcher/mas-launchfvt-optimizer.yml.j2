@@ -104,6 +104,12 @@ spec:
               name: mas-fvt-optimizer
               key: IVT_DIGEST_CORE
               optional: false
+        - name: FVT_DIGEST_MANAGE_PYTEST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-optimizer
+              key: FVT_DIGEST_MANAGE_PYTEST
+              optional: false
 
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest

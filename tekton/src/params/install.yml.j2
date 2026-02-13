@@ -433,12 +433,32 @@
 - name: mas_icr_cpopen
   type: string
   default: ""
+- name: mas_feature_usage
+  type: string
+  description: Flag to control feature adoption metrics used to understand feature usage and improve the product
+  default: "True"
+- name: mas_usability_metrics
+  type: string
+  description: Flag to control user interface interaction metrics to improve usability
+  default: "True"
+- name: mas_deployment_progression
+  type: string
+  description: Flag to control metrics used to understand progression of tasks and workflows within the product
+  default: "True"
 - name: mas_annotations
   type: string
   default: ""
 - name: mas_routing_mode
   type: string
   default: ""
+- name: mas_ingress_controller_name
+  type: string
+  default: ""
+  description: Name of the IngressController to use for path-based routing
+- name: mas_configure_ingress
+  type: string
+  default: ""
+  description: Set to 'true' to automatically configure IngressController for path-based routing
 - name: mas_trust_default_cas
   type: string
   default: ""

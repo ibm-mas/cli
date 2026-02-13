@@ -12,10 +12,10 @@ nav:
       - "Image Mirroring": guides/image-mirroring.md
       - "Image Validation": guides/image-validation.md
       - "Install": guides/install.md
+      - "AI Service Standalone Install": guides/aiservice-install.md
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
       - "Uninstall": guides/uninstall.md
-      - "MRE&F External DB Setup": guides/facilities-external-db.md
   - "Examples":
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md

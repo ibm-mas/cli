@@ -1,0 +1,34 @@
+db2_namespace: {{ DB2_NAMESPACE }}
+mas_application_id: {{ MAS_APP_ID }}
+db2_instance_name: {{ DB2_INSTANCE_NAME }}
+host: <path:{{ SECRETS_PATH }}:{{ HOST }}>
+port: <path:{{ SECRETS_PATH }}:{{ PORT }}>
+dbname: <path:{{ SECRETS_PATH }}:{{ DBNAME }}>
+rds_admin_db_name: <path:{{ SECRETS_PATH }}:{{ RDS_ADMIN_DB_NAME }}>
+user: <path:{{ SECRETS_PATH }}:{{ USER_NAME }}>
+password: <path:{{ SECRETS_PATH }}:{{ PASSWORD }}> # pragma: allowlist secret
+jdbc_connection_url: <path:{{ SECRETS_PATH }}:{{ JDBC_CONNECTION_URL }}>
+{%- if JDBC_CONNECTION_URL_ADDITIONAL_PARAMS is defined and JDBC_CONNECTION_URL_ADDITIONAL_PARAMS !='' %}
+jdbc_connection_url_additional_params: {{ JDBC_CONNECTION_URL_ADDITIONAL_PARAMS }}
+{%- endif %}
+replica_db: {{ REPLICA_DB }}
+db2_instance_registry:
+  {% filter indent(width=2) -%}
+  {{ DB2_INSTANCE_REGISTRY }}
+  {%- endfilter %}
+db2_database_db_config:
+  {% filter indent(width=2) -%}
+  {{ DB2_DATABASE_DB_CONFIG }}
+  {%- endfilter %}
+{% if DB2_ADDONS_AUDIT_CONFIG %}
+db2_addons_audit_config:
+  {% filter indent(width=2) -%}
+  {{ DB2_ADDONS_AUDIT_CONFIG }}
+  {%- endfilter %}
+{% endif %}
+{% if DB2_INSTANCE_DBM_CONFIG %}
+db2_instance_dbm_config:
+  {% filter indent(width=2) -%}
+  {{ DB2_INSTANCE_DBM_CONFIG }}
+  {%- endfilter %}
+{% endif %}
