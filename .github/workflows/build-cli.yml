@@ -211,10 +211,9 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
+      # ADD THIS STEP - Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
 
       # 3. CLI Container Images
       # -------------------------------------------------------------------------------------------
@@ -280,10 +279,9 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
+      # ADD THIS STEP - Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
 
       # 3. CLI Container Images
       # -------------------------------------------------------------------------------------------
@@ -348,10 +346,9 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
+      # ADD THIS STEP - Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
 
       # 3. CLI Container Images
       # -------------------------------------------------------------------------------------------
@@ -416,10 +413,9 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
+      # ADD THIS STEP - Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
 
       # 3. CLI Container Images
       # -------------------------------------------------------------------------------------------
@@ -466,10 +462,9 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
+      # ADD THIS STEP - Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
 
       - name: Publish the manifest
         run: |
