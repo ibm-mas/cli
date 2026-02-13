@@ -492,7 +492,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
-                    certs=self.certsSecret
+                    certs=self.certsSecret,
+                    slack_token=self.getParam("slack_token"),
+                    slack_channel=self.getParam("slack_channel")
                 )
 
                 self.setupApprovals(pipelinesNamespace)
