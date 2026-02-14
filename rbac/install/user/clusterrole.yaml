@@ -76,6 +76,26 @@ rules:
     verbs:
       - list
 
+  # The CLI needs to inspect and optionally configure IngressController for path-based routing
+  - apiGroups:
+      - operator.openshift.io
+    resources:
+      - ingresscontrollers
+    verbs:
+      - get
+      - list
+      - patch
+  
+  # The CLI needs to read the cluster ingress configuration to determine the domain
+  - apiGroups:
+      - config.openshift.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+    resourceNames:
+      - cluster
+
   # We need to set up the "pipeline" service account that will be used by the pipelines
   - apiGroups:
       - rbac.authorization.k8s.io
