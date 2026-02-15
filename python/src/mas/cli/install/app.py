@@ -829,8 +829,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mas_domain", "")
                     self.setParam("mas_cluster_issuer", "")
                 self.manualCerts = self.yesOrNo("Configure manual certificates")
-                self.setParam("mas_manual_cert_mgmt", str(self.manualCerts))
-                if self.getParam("mas_manual_cert_mgmt"):
+                self.setParam("mas_manual_cert_mgmt", str(self.manualCerts).lower())
+                if self.getParam("mas_manual_cert_mgmt").lower() == "true":
                     self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
                 else:
                     self.manualCertsDir = None

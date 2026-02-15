@@ -196,7 +196,7 @@ class AdditionalConfigsMixin():
 
     def manualCertificates(self) -> None:
 
-        if self.getParam("mas_manual_cert_mgmt"):
+        if self.getParam("mas_manual_cert_mgmt").lower() == "true":
             certsSecret = {
                 "apiVersion": "v1",
                 "kind": "Secret",
