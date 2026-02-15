@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class Db2SettingsMixin():
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
-        params: Dict[str, str | bool]
+        params: Dict[str, str]
         devMode: bool
         installIoT: bool
         installManage: bool

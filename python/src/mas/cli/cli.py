@@ -133,7 +133,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.tektonDefsPath: str = self.tektonDefsWithoutDigestPath
 
         # Initialize the dictionary that will hold the parameters we pass to a PipelineRun
-        self.params: Dict[str, str | bool] = dict()
+        self.params: Dict[str, str] = dict()
 
         # These dicts will hold the additional-configs, pod-templates, sls license file and manual certificates secrets
         self.additionalConfigsSecret: Dict[str, Any] | None = None
