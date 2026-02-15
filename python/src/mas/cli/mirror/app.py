@@ -668,14 +668,22 @@ class MirrorApp(BaseApp):
         else:
             arch = catalogVersion.split("-")[-1]
 
-            logger.info(f"Catalog: {catalogVersion}")
-            logger.info(f"Release: {release}")
-            logger.info(f"Architecture: {arch}")
-            logger.info(f"Mode: {mode}")
+            self.printH2("Mirror Configuration")
+            self.printSummary("Catalog", catalogVersion)
+            self.printSummary("Architecture", arch)
+            self.printSummary("Release", release)
+            self.printSummary("Mode", mode)
+            self.printSummary("Authentication File", authFilePath)
 
-            print_formatted_text(HTML(f"<B>Mirroring Images for {catalogVersion} ({mode})</B>"))
+            self.printH2("Mirror Target")
+            if mode == "m2d":
+                self.printSummary("Destination", rootDir)
+            else:
+                self.printSummary("Destination", targetRegistry)
+                self.printSummary("Verify Registry Certificate", destTlsVerify)
+            self.printSummary("Mirror Image Timeout", imageTimeout)
 
-            print_formatted_text(HTML("\n<U>IBM Maximo Operator Catalog</U>"))
+            self.printH2("IBM Maximo Operator Catalog")
             mirrorCatalog(
                 version=catalogVersion,
                 mode=mode,
@@ -691,7 +699,7 @@ class MirrorApp(BaseApp):
             for group, argName, packageName, catalogKey in PACKAGE_CONFIGS:
                 # Print section header when group changes
                 if group != currentGroup:
-                    print_formatted_text(HTML(f"\n<U>{group}</U>"))
+                    self.printH2(group)
                     currentGroup = group
 
                 # Get version from catalog - handle both direct keys and release-specific keys

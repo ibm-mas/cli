@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class Db2SettingsMixin():
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
-        params: Dict[str, str]
+        params: Dict[str, str | bool]
         devMode: bool
         installIoT: bool
         installManage: bool
@@ -31,6 +31,8 @@ class Db2SettingsMixin():
         manageAppName: str
         showAdvancedOptions: bool
         localConfigDir: str | None
+        catalogDb2Channel: str
+        chosenCatalog: Dict[str, Any] | None
 
         # Methods from BaseApp
         def setParam(self, param: str, value: str) -> None:
@@ -80,7 +82,7 @@ class Db2SettingsMixin():
         def selectLocalConfigDir(self) -> None:
             ...
 
-        def generateJDBCCfg(self, **kwargs: Any) -> None:
+        def generateJDBCCfg(self, instanceId: str, scope: str, destination: str, appId: str = "", workspaceId: str = "") -> None:
             ...
 
     # In silentMode, no prompts will show up for "happy path" DB2 configuration scenarios. Prompts will still show up when an input is absolutely required

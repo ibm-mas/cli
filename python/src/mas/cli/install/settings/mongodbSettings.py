@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -8,7 +8,7 @@
 #
 # *****************************************************************************
 
-from typing import TYPE_CHECKING, Dict, List, Any
+from typing import TYPE_CHECKING, Dict, List
 from os import path
 from prompt_toolkit import print_formatted_text
 
@@ -59,7 +59,7 @@ class MongoDbSettingsMixin():
         def selectLocalConfigDir(self) -> None:
             ...
 
-        def generateMongoCfg(self, **kwargs: Any) -> None:
+        def generateMongoCfg(self, instanceId: str, destination: str) -> None:
             ...
 
     def configMongoDb(self) -> None:

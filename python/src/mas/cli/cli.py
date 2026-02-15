@@ -19,7 +19,7 @@ from sys import exit
 from subprocess import PIPE, Popen, TimeoutExpired
 import threading
 import json
-from typing import List, Dict, Any, Callable, Type
+from typing import List, Dict, Any, Callable, Type, NoReturn
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from kubernetes import config
@@ -133,7 +133,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.tektonDefsPath: str = self.tektonDefsWithoutDigestPath
 
         # Initialize the dictionary that will hold the parameters we pass to a PipelineRun
-        self.params: Dict[str, str] = dict()
+        self.params: Dict[str, str | bool] = dict()
 
         # These dicts will hold the additional-configs, pod-templates, sls license file and manual certificates secrets
         self.additionalConfigsSecret: Dict[str, Any] | None = None
@@ -294,7 +294,7 @@ class BaseApp(PrintMixin, PromptMixin):
             return []
 
     @logMethodCall
-    def fatalError(self, message: str, exception: Exception | None = None) -> None:
+    def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:
         if exception is not None:
             logger.error(message)
             logger.exception(exception, stack_info=True)
