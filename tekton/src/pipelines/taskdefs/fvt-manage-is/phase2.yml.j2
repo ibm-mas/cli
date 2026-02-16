@@ -142,4 +142,24 @@
     - fvt-health-testng-desktop
     - fvt-health-python
 
-
+# AIP
+# -----------------------------------------------------------------------------
+# AIP - UI
+- name: fvt-manage-aip-ui
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: aip-ui-mvt
+    - name: fvt_mas_appws_component
+      value: aip
+    - name: fvt_test_driver
+      value: tpae
+  when:
+    - input: "aip"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-health-testng-desktop
+    - fvt-health-python
