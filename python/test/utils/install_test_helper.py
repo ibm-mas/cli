@@ -341,23 +341,23 @@ class InstallTestHelper:
                 finally:
                     self.stop_watchdog()
 
-            # Check if test timed out
-            if self.test_failed['message']:
-                raise TimeoutError(self.test_failed['message'])
+                # Check if test timed out
+                if self.test_failed['message']:
+                    raise TimeoutError(self.test_failed['message'])
 
-            # Verify SystemExit was raised if expected
-            if self.config.expect_system_exit and not system_exit_raised:
-                raise AssertionError("Expected SystemExit to be raised but it was not")
+                # Verify SystemExit was raised if expected
+                if self.config.expect_system_exit and not system_exit_raised:
+                    raise AssertionError("Expected SystemExit to be raised but it was not")
 
-            # Verify exit code is non-zero if SystemExit was expected
-            if self.config.expect_system_exit and exit_code == 0:
-                raise AssertionError(f"Expected non-zero exit code but got {exit_code}")
+                # Verify exit code is non-zero if SystemExit was expected
+                if self.config.expect_system_exit and exit_code == 0:
+                    raise AssertionError(f"Expected non-zero exit code but got {exit_code}")
 
-            # Always verify all prompts were matched exactly once
-            # This will fail if any prompts weren't reached (e.g., due to early SystemExit)
-            # which is the desired behavior to ensure tests accurately reflect what prompts are shown
-            assert self.prompt_tracker is not None, "prompt_tracker should be initialized"
-            self.prompt_tracker.verify_all_prompts_matched()
+                # Always verify all prompts were matched exactly once
+                # This will fail if any prompts weren't reached (e.g., due to early SystemExit)
+                # which is the desired behavior to ensure tests accurately reflect what prompts are shown
+                assert self.prompt_tracker is not None, "prompt_tracker should be initialized"
+                self.prompt_tracker.verify_all_prompts_matched()
 
 
 def run_install_test(tmpdir, config: InstallTestConfig):
