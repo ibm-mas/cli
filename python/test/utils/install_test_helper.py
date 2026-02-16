@@ -285,7 +285,6 @@ class InstallTestHelper:
                 mock.patch('mas.cli.cli.getNodes') as get_nodes,
                 mock.patch('mas.cli.cli.isAirgapInstall') as is_airgap_install,
                 mock.patch('mas.cli.install.app.getCurrentCatalog') as get_current_catalog,
-                mock.patch('mas.cli.install.app.isVersionEqualOrAfter') as is_version_equal_or_after,
                 mock.patch('mas.cli.install.app.installOpenShiftPipelines'),
                 mock.patch('mas.cli.install.app.updateTektonDefinitions'),
                 mock.patch('mas.cli.install.app.createNamespace'),
@@ -308,7 +307,6 @@ class InstallTestHelper:
                 launch_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
                 is_sno.return_value = self.config.is_sno
                 configure_ingress.return_value = True
-                is_version_equal_or_after.return_value = True
 
                 # Configure PromptSession mock
                 prompt_session_instance = MagicMock()
