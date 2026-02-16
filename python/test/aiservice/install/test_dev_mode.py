@@ -9,6 +9,7 @@
 #
 # *****************************************************************************
 
+from utils import AiServiceInstallTestConfig, run_aiservice_install_test
 import sys
 import os
 import pytest
@@ -16,8 +17,6 @@ from mas.devops.data import NoSuchCatalogError
 
 # Add test directory to path for utils import
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
-
-from utils import AiServiceInstallTestConfig, run_aiservice_install_test
 
 
 def test_aiservice_install_master_no_dev_mode(tmpdir):
@@ -132,7 +131,8 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         '.*Proceed with this cluster?.*': lambda msg: 'y',
         # 2. Install flavour (advanced options)
         '.*Show advanced installation options.*': lambda msg: 'n',
-        # 3. Catalog selection (catalog already exists)
+        # 3. Catalog selection (catalog already exists, so it shows the existing one)
+        '.*Select catalog source.*': lambda msg: 'v9-master-amd64',
         '.*Custom channel for AI Service.*': lambda msg: '9.1.x-dev',
         # 4. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: 'y',
@@ -229,7 +229,7 @@ def test_aiservice_install_master_dev_mode_non_interactive(tmpdir):
             "--contact-lastname", "Test",
             "--dro-namespace", "redhat-marketplace",
             "--mongodb-namespace", "mongoce",
-            "--install-minio", "true",
+            "--install-minio",
             "--minio-root-user", "miniouser",
             "--minio-root-password", "miniopass",
             "--tenant-entitlement-type", "standard",
