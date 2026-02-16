@@ -11,7 +11,6 @@
 
 import time
 import threading
-from contextlib import ExitStack
 from typing import Dict, Callable, Optional
 from unittest import mock
 from unittest.mock import MagicMock
@@ -281,26 +280,25 @@ class InstallTestHelper:
         with mock.patch('mas.cli.cli.config'):
             dynamic_client, resource_apis = self.setup_mocks()
 
-            # Use ExitStack to manage multiple patches (avoids "too many nested blocks" error)
-            with ExitStack() as stack:
-                # Setup all patches
-                dynamic_client_class = stack.enter_context(mock.patch('mas.cli.cli.DynamicClient'))
-                get_nodes = stack.enter_context(mock.patch('mas.cli.cli.getNodes'))
-                is_airgap_install = stack.enter_context(mock.patch('mas.cli.cli.isAirgapInstall'))
-                get_current_catalog = stack.enter_context(mock.patch('mas.cli.install.app.getCurrentCatalog'))
-                is_version_equal_or_after = stack.enter_context(mock.patch('mas.cli.install.app.isVersionEqualOrAfter'))
-                stack.enter_context(mock.patch('mas.cli.install.app.installOpenShiftPipelines'))
-                stack.enter_context(mock.patch('mas.cli.install.app.updateTektonDefinitions'))
-                stack.enter_context(mock.patch('mas.cli.install.app.createNamespace'))
-                stack.enter_context(mock.patch('mas.cli.install.app.preparePipelinesNamespace'))
-                launch_install_pipeline = stack.enter_context(mock.patch('mas.cli.install.app.launchInstallPipeline'))
-                configure_ingress = stack.enter_context(mock.patch('mas.cli.install.app.configureIngressForPathBasedRouting'))
-                is_sno = stack.enter_context(mock.patch('mas.cli.cli.isSNO'))
-                mixins_prompt = stack.enter_context(mock.patch('mas.cli.displayMixins.prompt'))
-                prompt_session_class = stack.enter_context(mock.patch('mas.cli.displayMixins.PromptSession'))
-                app_prompt = stack.enter_context(mock.patch('mas.cli.install.app.prompt'))
-                get_storage_classes = stack.enter_context(mock.patch('mas.cli.install.app.getStorageClasses'))
-                get_default_storage_classes = stack.enter_context(mock.patch('mas.cli.install.app.getDefaultStorageClasses'))
+            with (
+                mock.patch('mas.cli.cli.DynamicClient') as dynamic_client_class,
+                mock.patch('mas.cli.cli.getNodes') as get_nodes,
+                mock.patch('mas.cli.cli.isAirgapInstall') as is_airgap_install,
+                mock.patch('mas.cli.install.app.getCurrentCatalog') as get_current_catalog,
+                mock.patch('mas.cli.install.app.isVersionEqualOrAfter') as is_version_equal_or_after,
+                mock.patch('mas.cli.install.app.installOpenShiftPipelines'),
+                mock.patch('mas.cli.install.app.updateTektonDefinitions'),
+                mock.patch('mas.cli.install.app.createNamespace'),
+                mock.patch('mas.cli.install.app.preparePipelinesNamespace'),
+                mock.patch('mas.cli.install.app.launchInstallPipeline') as launch_install_pipeline,
+                mock.patch('mas.cli.install.app.configureIngressForPathBasedRouting') as configure_ingress,
+                mock.patch('mas.cli.cli.isSNO') as is_sno,
+                mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
+                mock.patch('mas.cli.displayMixins.PromptSession') as prompt_session_class,
+                mock.patch('mas.cli.install.app.prompt') as app_prompt,
+                mock.patch('mas.cli.install.app.getStorageClasses') as get_storage_classes,
+                mock.patch('mas.cli.install.app.getDefaultStorageClasses') as get_default_storage_classes,
+            ):
 
                 # Configure mock return values
                 dynamic_client_class.return_value = dynamic_client
@@ -343,22 +341,23 @@ class InstallTestHelper:
                 finally:
                     self.stop_watchdog()
 
-                # Check if test timed out
-                if self.test_failed['message']:
-                    raise TimeoutError(self.test_failed['message'])
+            # Check if test timed out
+            if self.test_failed['message']:
+                raise TimeoutError(self.test_failed['message'])
 
-                # Verify SystemExit was raised if expected
-                if self.config.expect_system_exit and not system_exit_raised:
-                    raise AssertionError("Expected SystemExit to be raised but it was not")
+            # Verify SystemExit was raised if expected
+            if self.config.expect_system_exit and not system_exit_raised:
+                raise AssertionError("Expected SystemExit to be raised but it was not")
 
-                # Verify exit code is non-zero if SystemExit was expected
-                if self.config.expect_system_exit and exit_code == 0:
-                    raise AssertionError(f"Expected non-zero exit code but got {exit_code}")
+            # Verify exit code is non-zero if SystemExit was expected
+            if self.config.expect_system_exit and exit_code == 0:
+                raise AssertionError(f"Expected non-zero exit code but got {exit_code}")
 
-                # Always verify all prompts were matched exactly once
-                # This will fail if any prompts weren't reached (e.g., due to early SystemExit)
-                # which is the desired behavior to ensure tests accurately reflect what prompts are shown
-                self.prompt_tracker.verify_all_prompts_matched()
+            # Always verify all prompts were matched exactly once
+            # This will fail if any prompts weren't reached (e.g., due to early SystemExit)
+            # which is the desired behavior to ensure tests accurately reflect what prompts are shown
+            assert self.prompt_tracker is not None, "prompt_tracker should be initialized"
+            self.prompt_tracker.verify_all_prompts_matched()
 
 
 def run_install_test(tmpdir, config: InstallTestConfig):
