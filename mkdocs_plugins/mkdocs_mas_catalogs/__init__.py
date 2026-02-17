@@ -233,12 +233,18 @@ spec:
             # New format: list of items with title and details
             lines = []
             for item in whats_new:
-                title = item.get("title", "")
-                details = item.get("details", [])
+                # Handle both string items and dict items
+                if isinstance(item, str):
+                    # Simple string item
+                    lines.append(f"- {item}")
+                elif isinstance(item, dict):
+                    # Structured item with title and details
+                    title = item.get("title", "")
+                    details = item.get("details", [])
 
-                lines.append(f"- {title}")
-                for detail in details:
-                    lines.append(f"    - {detail}")
+                    lines.append(f"- {title}")
+                    for detail in details:
+                        lines.append(f"    - {detail}")
 
             whats_new_text = "\n".join(lines)
 
