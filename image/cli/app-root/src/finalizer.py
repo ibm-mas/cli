@@ -66,6 +66,8 @@ def postMessage(channelName, messageBlocks, threadId=None):
 
 # Get Kafka Provider and Version
 # -------------------------------------------------------------------------
+
+
 def getKafkaVersion(namespace):
     try:
         crs = dynClient.resources.get(api_version="kafka.strimzi.io/v1beta2", kind="Kafka")
@@ -78,8 +80,11 @@ def getKafkaVersion(namespace):
         print(f"Unable to determine kafka version: {e}")
     return "unknown"
 
+
 # Get DataScience Version
 # -------------------------------------------------------------------------
+
+
 def getDscVersion():
     try:
         crs = dynClient.resources.get(api_version="datasciencecluster.opendatahub.io/v1", kind="DataScienceCluster")
