@@ -90,7 +90,6 @@ def getDscVersion():
             print("Unable to determine Data Science version: status.release.version unavailable")
     except Exception as e:
         print(f"Unable to determine Data Science version: {e}")
-    return "unknown"
 
 # Get cp4d components versions
 # -------------------------------------------------------------------------
