@@ -57,6 +57,12 @@ spec:
       default: ''
     - name: mas_domain
       type: string
+    - name: mas_routing_mode
+      type: string
+      default: ""
+    - name: mas_ingress_controller_name
+      type: string
+      default: ""
     - name: avp_aws_secret_region
       type: string
     - name: icr_cp
@@ -182,6 +188,10 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: MAS_DOMAIN
         value: $(params.mas_domain)
+      - name: MAS_ROUTING_MODE
+        value: $(params.mas_routing_mode)
+      - name: MAS_INGRESS_CONTROLLER_NAME
+        value: $(params.mas_ingress_controller_name)
       - name: ICR_CP
         value: $(params.icr_cp)
       - name: ICR_CP_OPEN
