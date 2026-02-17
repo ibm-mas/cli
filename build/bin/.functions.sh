@@ -52,7 +52,7 @@ function echo_highlight() {
 # - https://stackoverflow.com/questions/65365797/docker-buildx-exec-user-process-caused-exec-format-error
 function install_buildx() {
   mkdir -vp ~/.docker/cli-plugins/
-  curl --silent -L "https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
+  curl --silent -L "https://github.com/docker/buildx/releases/download/v0.31.1/buildx-v0.31.1.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
   chmod a+x ~/.docker/cli-plugins/docker-buildx
 
   sudo apt-get update
