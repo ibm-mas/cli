@@ -96,8 +96,11 @@ def getDscVersion():
     except Exception as e:
         print(f"Unable to determine Data Science version: {e}")
 
+
 # Get cp4d components versions
 # -------------------------------------------------------------------------
+
+
 def getcp4dCompsVersions():
 
     # Get Analytics Engine Version
