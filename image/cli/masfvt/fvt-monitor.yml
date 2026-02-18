@@ -13,7 +13,7 @@
     fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
     fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
     fvt_artifactory_token: "{{ lookup('env', 'FVT_ARTIFACTORY_TOKEN') }}"
-    fvt_digest_ctf: "{{ lookup('env', 'FVT_DIGEST_CTF') }}"
+    fvt_digest_monitor: "{{ lookup('env', 'FVT_DIGEST_MONITOR') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
     fvt_digest_data_dictionary: "{{ lookup('env', 'FVT_DIGEST_DATA_DICTIONARY') }}"
     # Control the Monitor suite based on the presence/absence of Manage
@@ -37,7 +37,7 @@
           - "fvt_image_registry .............. {{ fvt_image_registry }}"
           - "fvt_artifactory_username ........ {{ fvt_artifactory_username }}"
           - "fvt_artifactory_token ........... {{ fvt_artifactory_token }}"
-          - "fvt_digest_ctf .................. {{ fvt_digest_ctf }}"
+          - "fvt_digest_monitor .............. {{ fvt_digest_monitor }}"
           - "ivt_digest_core ................. {{ ivt_digest_core }}"
           - "fvt_digest_data_dictionary ...... {{ fvt_digest_data_dictionary }}"
           - ""
