@@ -53,7 +53,7 @@ spec:
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
-      workingDir: /opt/ibm/test/src
+      workingDir: /opt/ibm/test
       env:
         # What are we testing?
         - name: PRODUCT_ID
