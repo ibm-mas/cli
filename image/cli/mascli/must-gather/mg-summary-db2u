@@ -3,6 +3,6 @@
 echo "IBM Db2"
 echo "--------------------------------------------------------------------------------"
 oc -n db2u get db2ucluster -o jsonpath='{range .items[*]}{"Db2uCluster"}/{.metadata.name} = {.status.state}{"\n"}{end}'
-oc -n db2u get db2uinstance -o jsonpath='{range .items[*]}{"Db2uCluster"}/{.metadata.name} = {.status.state}{"\n"}{end}'
+oc -n db2u get db2uinstance -o jsonpath='{range .items[*]}{"Db2uInstance"}/{.metadata.name} = {.status.state}{"\n"}{end}'
 
 exit 0
