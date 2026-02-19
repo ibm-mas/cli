@@ -47,7 +47,15 @@ spec:
 
     - name: role_arn
       type: string
-
+    - name: efs_catalog_source
+      type: string
+    - name: efs_catalog_source_namespace
+      type: string
+    - name: efs_channel
+      type: string
+    - name: efs_subscription_source_namespace
+      type: string
+f
     - name: dro_namespace
       type: string
       default: "ibm-software-central"
@@ -425,6 +433,14 @@ spec:
           value: $(params.role_arn)
         - name: hypervisor
           value: $(params.hypervisor)
+        - name: efs_catalog_source
+          value: $(params.efs_catalog_source)
+        - name: efs_catalog_source_namespace
+          value: $(params.efs_catalog_source_namespace)
+        - name: efs_channel
+          value: $(params.efs_channel)
+        - name: efs_subscription_source_namespace
+          value: $(params.efs_subscription_source_namespace)
       taskRef:
         kind: Task
         name: gitops-efs-csi-driver

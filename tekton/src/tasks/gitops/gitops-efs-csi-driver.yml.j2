@@ -21,6 +21,14 @@ spec:
       type: string
     - name: hypervisor
       type: string
+    - name: efs_catalog_source
+      type: string
+    - name: efs_catalog_source_namespace
+      type: string
+    - name: efs_channel
+      type: string
+    - name: efs_subscription_source_namespace
+      type: string
   stepTemplate:
     name: gitops-efs-csi-driver
     env:
@@ -40,6 +48,14 @@ spec:
         value: $(params.role_arn)
       - name: HYPERVISOR
         value: $(params.hypervisor)
+      - name: EFS_CATALOG_SOURCE
+        value: $(params.efs_catalog_source)
+      - name: EFS_CATALOG_SOURCE_NAMESPACE
+        value: $(params.efs_catalog_source_namespace)
+      - name: EFS_CHANNEL
+        value: $(params.efs_channel)
+      - name: EFS_SUBSCRIPTION_SOURCE_NAMESPACE
+        value: $(params.efs_subscription_source_namespace)
     envFrom:
       - configMapRef:
           name: environment-properties
