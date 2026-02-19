@@ -341,15 +341,6 @@ spec:
         if [[ -z "${DELETE_WILDCARDS}" ]]; then
           DELETE_WILDCARDS="false"
         fi
-        if [[ -z "${MAS_FEATURE_USAGE}" ]]; then
-          MAS_FEATURE_USAGE="false"
-        fi
-        if [[ -z "${MAS_DEPLOYMENT_PROGRESSION}" ]]; then
-          MAS_DEPLOYMENT_PROGRESSION="false"
-        fi
-        if [[ -z "${MAS_USABILITY_METRICS}" ]]; then
-          MAS_USABILITY_METRICS="false"
-        fi
 
         sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
         mkdir -p /tmp/init-suite
