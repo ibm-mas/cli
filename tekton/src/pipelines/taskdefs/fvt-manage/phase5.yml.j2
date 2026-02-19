@@ -5,6 +5,9 @@
 # - fvt-manage-base-ui-directprint (selenium)
 # - fvt-manage-base-ui-adhoc-report (selenium)
 # - fvt-manage-base-ui-userprofile (cypress)
+# - fvt-manage-base-ui-scheduler-scheduling (cypress)
+# - fvt-manage-base-ui-scheduler-dispatching (cypress)
+# - fvt-manage-base-ui-scheduler-planning (cypress)
 # -------------------------------------------------------------
 
 # Manage FVT Security Audit Logging
@@ -27,6 +30,7 @@
     - fvt-manage-base-ui-user-crud
     - fvt-manage-base-ui-user-consumption
     - fvt-manage-base-ui-communication-temp
+    - fvt-manage-base-ui-scheduler-classic
 
 # Manage FVT Work Order Attachments
 - name: fvt-manage-base-ui-wo-doclink
@@ -48,6 +52,7 @@
     - fvt-manage-base-ui-user-crud
     - fvt-manage-base-ui-user-consumption
     - fvt-manage-base-ui-communication-temp
+    - fvt-manage-base-ui-scheduler-classic
 
 # Manage Direct Print Report Tasks
 - name: fvt-manage-base-ui-directprint
@@ -67,6 +72,7 @@
     - fvt-manage-base-ui-user-crud
     - fvt-manage-base-ui-user-consumption
     - fvt-manage-base-ui-communication-temp
+    - fvt-manage-base-ui-scheduler-classic
 
 # Manage FVT Adhoc Reports
 - name: fvt-manage-base-ui-adhoc-report
@@ -86,6 +92,7 @@
     - fvt-manage-base-ui-user-crud
     - fvt-manage-base-ui-user-consumption
     - fvt-manage-base-ui-communication-temp
+    - fvt-manage-base-ui-scheduler-classic
 
 
 # Manage FVT Adhoc Reports
@@ -101,3 +108,62 @@
     - fvt-manage-base-ui-user-crud
     - fvt-manage-base-ui-user-consumption
     - fvt-manage-base-ui-communication-temp
+    - fvt-manage-base-ui-scheduler-classic
+
+
+# Scheduling Dashboard Cypress test
+- name: fvt-manage-base-ui-scheduler-scheduling
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-scheduling
+  when:
+    - input: "scheduler"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp
+    - fvt-manage-base-ui-scheduler-classic
+
+# Dispatching Dashboard Cypress test
+- name: fvt-manage-base-ui-scheduler-dispatching
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-dispatching
+  when:
+    - input: "scheduler"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp
+    - fvt-manage-base-ui-scheduler-classic
+
+# Planning Dashboard Cypress test
+- name: fvt-manage-base-ui-scheduler-planning
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-planning
+  when:
+    - input: "scheduler"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp
+    - fvt-manage-base-ui-scheduler-classic    
