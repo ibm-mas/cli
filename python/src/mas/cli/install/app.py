@@ -50,9 +50,16 @@ from mas.devops.ocp import (
     createNamespace,
     getStorageClasses,
     getClusterVersion,
-    isClusterVersionInRange,
-    configureIngressForPathBasedRouting
+    isClusterVersionInRange
 )
+
+# Import configureIngressForPathBasedRouting if available (newer versions of mas.devops)
+try:
+    from mas.devops.ocp import configureIngressForPathBasedRouting
+    HAS_CONFIGURE_INGRESS = True
+except ImportError:
+    HAS_CONFIGURE_INGRESS = False
+    configureIngressForPathBasedRouting = None
 from mas.devops.mas import (
     getCurrentCatalog,
     getDefaultStorageClasses
@@ -1987,13 +1994,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.fatalError("Installation failed")
 
             if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
-                with Halo(text='Configuring cluster for path-based routing', spinner=self.spinner) as h:
-                    ingressControllerName = self.getParam("mas_ingress_controller_name") if self.getParam("mas_ingress_controller_name") else "default"
-                    if configureIngressForPathBasedRouting(self.dynamicClient, ingressControllerName):
-                        h.stop_and_persist(symbol=self.successIcon, text="Cluster configured for path-based routing")
-                    else:
-                        h.stop_and_persist(symbol=self.failureIcon, text="Failed to configure cluster for path-based routing")
-                        self.fatalError("Installation failed - unable to configure IngressController for path-based routing")
+                if not HAS_CONFIGURE_INGRESS:
+                    logger.warning("configureIngressForPathBasedRouting is not available in this version of mas.devops - skipping ingress configuration")
+                else:
+                    with Halo(text='Configuring cluster for path-based routing', spinner=self.spinner) as h:
+                        ingressControllerName = self.getParam("mas_ingress_controller_name") if self.getParam("mas_ingress_controller_name") else "default"
+                        if configureIngressForPathBasedRouting(self.dynamicClient, ingressControllerName):
+                            h.stop_and_persist(symbol=self.successIcon, text="Cluster configured for path-based routing")
+                        else:
+                            h.stop_and_persist(symbol=self.failureIcon, text="Failed to configure cluster for path-based routing")
+                            self.fatalError("Installation failed - unable to configure IngressController for path-based routing")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
