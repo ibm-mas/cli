@@ -305,7 +305,7 @@ class InstallTestHelper:
                 mock.patch(f'{app_module}.createNamespace'),
                 mock.patch(f'{app_module}.{prepare_namespace_func}'),
                 mock.patch(f'{app_module}.launchInstallPipeline') as launch_install_pipeline,
-                mock.patch(f'{app_module}.configureIngressForPathBasedRouting') as configure_ingress,
+                mock.patch('mas.cli.cli.configureIngressForPathBasedRouting') as configure_ingress,
                 mock.patch('mas.cli.cli.isSNO') as is_sno,
                 mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
                 mock.patch('mas.cli.displayMixins.PromptSession') as prompt_session_class,
