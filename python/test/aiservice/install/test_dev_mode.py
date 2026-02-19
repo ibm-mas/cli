@@ -9,7 +9,7 @@
 #
 # *****************************************************************************
 
-from utils import AiServiceInstallTestConfig, run_aiservice_install_test
+from utils import InstallTestConfig, run_aiservice_install_test
 import sys
 import os
 import pytest
@@ -33,7 +33,7 @@ def test_aiservice_install_master_no_dev_mode(tmpdir):
     }
 
     # Create test configuration with no existing catalog
-    config = AiServiceInstallTestConfig(
+    config = InstallTestConfig(
         prompt_handlers=prompt_handlers,
         current_catalog=None,  # No catalog installed
         architecture='amd64',
@@ -104,7 +104,7 @@ def test_aiservice_install_master_dev_mode(tmpdir):
     }
 
     # Create test configuration with no existing catalog and --dev-mode flag
-    config = AiServiceInstallTestConfig(
+    config = InstallTestConfig(
         prompt_handlers=prompt_handlers,
         current_catalog=None,  # No catalog installed
         architecture='amd64',
@@ -175,7 +175,7 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
     }
 
     # Create test configuration with existing catalog and --dev-mode flag
-    config = AiServiceInstallTestConfig(
+    config = InstallTestConfig(
         prompt_handlers=prompt_handlers,
         current_catalog={'catalogId': "v9-master-amd64"},
         architecture='amd64',
@@ -200,7 +200,7 @@ def test_aiservice_install_master_dev_mode_non_interactive(tmpdir):
     prompt_handlers = {}
 
     # Create test configuration with no existing catalog and --dev-mode flag
-    config = AiServiceInstallTestConfig(
+    config = InstallTestConfig(
         prompt_handlers=prompt_handlers,
         current_catalog=None,  # No catalog installed
         architecture='amd64',

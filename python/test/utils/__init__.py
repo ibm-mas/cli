@@ -14,8 +14,6 @@ from .install_test_helper import (
     InstallTestConfig,
     InstallTestHelper,
     run_install_test,
-    AiServiceInstallTestConfig,
-    AiServiceInstallTestHelper,
     run_aiservice_install_test
 )
 
@@ -25,8 +23,6 @@ __all__ = [
     'InstallTestConfig',
     'InstallTestHelper',
     'run_install_test',
-    'AiServiceInstallTestConfig',
-    'AiServiceInstallTestHelper',
     'run_aiservice_install_test'
 ]
 
