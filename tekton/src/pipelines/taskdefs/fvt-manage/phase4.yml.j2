@@ -139,7 +139,7 @@
     - name: fvt_test_suite
       value: base-ui-scheduler-classic
   when:
-    - input: "scheduler"
+    - input: "base"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
