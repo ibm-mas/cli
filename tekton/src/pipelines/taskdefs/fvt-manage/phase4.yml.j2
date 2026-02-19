@@ -5,6 +5,7 @@
 # - fvt-manage-base-ui-user-crud (selenium)
 # - fvt-manage-base-ui-user-consumption (selenium)
 # - fvt-manage-base-ui-communication-temp (selenium)
+# - fvt-manage-base-ui-scheduler-classic (cypress)
 # -------------------------------------------------------------
 
 # Manage FVT Escalation
@@ -117,6 +118,28 @@
       value: communication-temp
   when:
     - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-ui-classification
+    - fvt-manage-base-ui-helplinks
+    - fvt-manage-base-ui-wo-basic
+    - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling
+
+# Scheduler Classic Apps Cypress tests
+- name: fvt-manage-base-ui-scheduler-planning
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-classic
+  when:
+    - input: "scheduler"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
