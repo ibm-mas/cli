@@ -119,7 +119,7 @@
     - name: fvt_test_suite
       value: base-ui-scheduler-scheduling
   when:
-    - input: "scheduler"
+    - input: "base"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
@@ -138,7 +138,7 @@
     - name: fvt_test_suite
       value: base-ui-scheduler-dispatching
   when:
-    - input: "scheduler"
+    - input: "base"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
@@ -157,7 +157,7 @@
     - name: fvt_test_suite
       value: base-ui-scheduler-planning
   when:
-    - input: "scheduler"
+    - input: "base"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
