@@ -67,7 +67,7 @@ JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
   --jdbc-type ${COLOR_YELLOW}JDBC_TYPE${TEXT_RESET}                           Set to 'incluster-db2' when wanting to use the gitops configured, via gitops-db2u-database, db2u cluster (defaults to incluster-db2)
   --jdbc-instance-name ${COLOR_YELLOW}JDBC_INSTANCE_NAME${TEXT_RESET}         The JDBC instance name to use. Required for all JDBC_TYPE's
   --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2 and rds-db2
-  --jdbc-certificate-file ${COLOR_YELLOW}JDBC_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for JDBC server. Required when JDBC_TYPE is not incluster-db2
+  --jdbc-certificate-file ${COLOR_YELLOW}JDBC_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for JDBC server. Required when JDBC_TYPE is not incluster-db2 and rds-db2
   --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                         By default routes are not exposed to public. To expose route, set this to public.
 
 SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"): 
@@ -903,8 +903,11 @@ function gitops_mas_config() {
         export SECRET_KEY_DB2_DBNAME=${JDBC_CONFIG_SECRET_ID}#db2_dbname
         export SECRET_KEY_DB2_NAMESPACE=${JDBC_CONFIG_SECRET_ID}#db2_namespace
       elif [ "${JDBC_TYPE}" == "rds-db2" ]; then
+        # For rds-db2, the certificate is already stored in AWS Secrets Manager by gitops_rds_db2_database
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
-        export JDBC_CERTIFICATE_CONTENT_B64=$(cat $JDBC_CERTIFICATE_FILE | base64 -w0)
+        export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_INSTANCE_NAME}
+        export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
+        export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
       else
         # This secret we are creating here
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
@@ -913,10 +916,10 @@ function gitops_mas_config() {
         sm_update_secret $JDBC_CONFIG_SECRET_ID "{ \"jdbc_connection_url\": \"${JDBC_CONNECTION_URL}\", \"jdbc_instance_name\": \"${JDBC_INSTANCE_NAME}\", \"ca_b64\": \"${JDBC_CERTIFICATE_CONTENT_B64}\" }" "${TAGS}"
         echo_reset_dim "JDBC_INSTANCE_NAME ........................ ${COLOR_MAGENTA}$JDBC_INSTANCE_NAME"
         echo_reset_dim "JDBC_CONNECTION_URL ....................... ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
+        export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
+        export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
+        export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_CONFIG_SECRET_ID}#jdbc_instance_name
       fi
-      export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
-      export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
-      export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_CONFIG_SECRET_ID}#jdbc_instance_name
     fi
   
     # Source: gitops_suite_smtp_config
