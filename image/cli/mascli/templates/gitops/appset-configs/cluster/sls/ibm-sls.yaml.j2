@@ -17,8 +17,8 @@ ibm_sls_standalone:
   sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
   ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
   sls_domain: {{ SLS_DOMAIN }}
+{%- if DNS_PROVIDER|lower == "cis" %}
   dns_provider: {{ DNS_PROVIDER }}
-{%- if DNS_PROVIDER == "cis" %}
 {%- if CIS_SERVICE_NAME is defined and CIS_SERVICE_NAME != '' and CIS_CRN is defined and CIS_CRN != '' %}
   cis_service_name: {{ CIS_SERVICE_NAME }}
   cis_crn: {{ CIS_CRN }}
