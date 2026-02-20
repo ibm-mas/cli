@@ -265,6 +265,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-260216-amd64/">
+    Feb 16 2026
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-260129-amd64/">
     Jan 29 2026
   </cds-side-nav-menu-item>
@@ -279,12 +285,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-251127-amd64/">
     Nov 27 2025
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-251030-amd64/">
-    Oct 30 2025
   </cds-side-nav-menu-item>
 
     
@@ -2416,7 +2416,7 @@
 <li><strong>Standalone Installation</strong>: For standalone AI Service installation, use the dedicated <code>mas aiservice-install</code> command to install AI Service independently of the main MAS installation.</li>
 </ul>
 </div>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.16.0 mas install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.17.0 mas install
 </code></pre>
 <p>The interactive install will guide you through a series of questioned designed to help you arrive at the best configuration for your scenario, it can be broken down as below:</p>
 <div>
@@ -2515,10 +2515,10 @@
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 SUPERUSER_PASSWORD=xxx
 
-docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.16.0  bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.17.0  bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas install \
-    --mas-catalog-version v9-260129-amd64 \
+    --mas-catalog-version v9-260216-amd64 \
     --mas-instance-id mas1 \
     --mas-workspace-id ws1 \
     --mas-workspace-name "My Workspace"
