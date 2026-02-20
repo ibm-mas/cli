@@ -136,6 +136,7 @@ class InstallTestHelper:
         aiservice_tenant_api = MagicMock()
         aiservice_api = MagicMock()
         aiservice_app_api = MagicMock()
+        ingress_controller_api = MagicMock()
 
         # Map resource kinds to APIs
         resource_apis = {
@@ -153,7 +154,8 @@ class InstallTestHelper:
             'ClusterVersion': cluster_version_api,
             'AIServiceTenant': aiservice_tenant_api,
             'AIService': aiservice_api,
-            'AIServiceApp': aiservice_app_api
+            'AIServiceApp': aiservice_app_api,
+            'IngressController': ingress_controller_api
         }
         resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs['kind'], None)
 
@@ -187,6 +189,54 @@ class InstallTestHelper:
         history_record.version = self.config.ocp_version
         cluster_version.status.history = [history_record]
         cluster_version_api.get.return_value = cluster_version
+
+        # Configure IngressController mock - NOT configured for path-based routing initially
+        # This will trigger the prompt to configure it
+        ingress_controller = MagicMock()
+        ingress_controller.metadata = MagicMock()
+        ingress_controller.metadata.name = 'default'
+        ingress_controller.status = MagicMock()
+        ingress_controller.status.domain = 'apps.cluster.example.com'
+        ingress_controller.status.conditions = [
+            MagicMock(type='Available', status='True')
+        ]
+        ingress_controller.spec = MagicMock()
+        ingress_controller.spec.routeAdmission = MagicMock()
+        # Set to 'Strict' initially (not configured for path-based routing)
+        ingress_controller.spec.routeAdmission.namespaceOwnership = 'Strict'
+
+        # Support dict-style access for _checkIngressControllerForPathRouting
+        # Initially returns 'Strict' (not configured)
+        def ingress_controller_get(key, default=None):
+            if key == 'spec':
+                spec_dict = {
+                    'routeAdmission': {
+                        'namespaceOwnership': 'Strict'  # Not configured for path-based routing
+                    }
+                }
+                return type('obj', (object,), {
+                    'get': lambda self, k, d=None: spec_dict.get(k, d)
+                })()
+            return default
+
+        ingress_controller.get = ingress_controller_get
+
+        # Configure get() to return single controller when queried by name
+        # and list when queried without name
+        def ingress_controller_api_get(**kwargs):
+            if 'name' in kwargs:
+                # Return single controller when queried by name
+                return ingress_controller
+            else:
+                # Return list when querying all controllers
+                ingress_controller_list = MagicMock()
+                ingress_controller_list.items = [ingress_controller]
+                return ingress_controller_list
+
+        ingress_controller_api.get.side_effect = ingress_controller_api_get
+
+        # Mock patch operation to succeed
+        ingress_controller_api.patch = MagicMock(return_value=ingress_controller)
 
         return dynamic_client, resource_apis
 
@@ -240,13 +290,15 @@ class InstallTestHelper:
                 mock.patch('mas.cli.install.app.createNamespace'),
                 mock.patch('mas.cli.install.app.preparePipelinesNamespace'),
                 mock.patch('mas.cli.install.app.launchInstallPipeline') as launch_install_pipeline,
+                mock.patch('mas.cli.install.app.configureIngressForPathBasedRouting') as configure_ingress,
                 mock.patch('mas.cli.cli.isSNO') as is_sno,
                 mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
                 mock.patch('mas.cli.displayMixins.PromptSession') as prompt_session_class,
                 mock.patch('mas.cli.install.app.prompt') as app_prompt,
                 mock.patch('mas.cli.install.app.getStorageClasses') as get_storage_classes,
-                mock.patch('mas.cli.install.app.getDefaultStorageClasses') as get_default_storage_classes
+                mock.patch('mas.cli.install.app.getDefaultStorageClasses') as get_default_storage_classes,
             ):
+
                 # Configure mock return values
                 dynamic_client_class.return_value = dynamic_client
                 get_nodes.return_value = [{'status': {'nodeInfo': {'architecture': self.config.architecture}}}]
@@ -254,6 +306,7 @@ class InstallTestHelper:
                 get_current_catalog.return_value = self.config.current_catalog
                 launch_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
                 is_sno.return_value = self.config.is_sno
+                configure_ingress.return_value = True
 
                 # Configure PromptSession mock
                 prompt_session_instance = MagicMock()
@@ -301,6 +354,7 @@ class InstallTestHelper:
                 # Always verify all prompts were matched exactly once
                 # This will fail if any prompts weren't reached (e.g., due to early SystemExit)
                 # which is the desired behavior to ensure tests accurately reflect what prompts are shown
+                assert self.prompt_tracker is not None, "prompt_tracker should be initialized"
                 self.prompt_tracker.verify_all_prompts_matched()
 
 
