@@ -1247,7 +1247,7 @@ function gitops_iac_provision_rdsdb2(){
     if check_params "$app" "$instance" "$storage" "$allocated"; then
       export RDS_APP="$app"
       export RDS_S3_APP_NAME="$app"
-      export RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS = $(set_ssl_params "$additional_params")
+      export RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$(set_ssl_params "$additional_params")
       echo "Additional params for $app - ${RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS}"
       echo "Generating rds-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/rds-db2-$app.tf"
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.tf.j2 ${GITOPS_CLUSTER_DIR}/db2rds-$app.tf
