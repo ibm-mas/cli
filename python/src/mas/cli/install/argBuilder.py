@@ -473,7 +473,7 @@ class installArgBuilderMixin():
             if self.getParam('db2_temp_storage_size') != "":
                 command += f"  --db2-temp-storage \"{self.getParam('db2_temp_storage_size')}\"{newline}"
             if self.getParam('db2u_kind') != "":
-                command += f"  --db2-kind \"{self.getParam('db2u_kind')}\"{newline}"
+                command += f"  --db2u-kind \"{self.getParam('db2u_kind')}\"{newline}"
 
         # Kafka - Common
         # -----------------------------------------------------------------------------

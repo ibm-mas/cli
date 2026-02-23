@@ -1231,7 +1231,7 @@ db2ArgGroup.add_argument(
     help="Db2 temporary storage capacity"
 )
 db2ArgGroup.add_argument(
-    "--db2-kind",
+    "--db2u-kind",
     dest="db2u_kind",
     required=False,
     help="Db2 resource kind in the cluster"
