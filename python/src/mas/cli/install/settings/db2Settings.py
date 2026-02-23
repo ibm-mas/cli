@@ -269,6 +269,16 @@ class Db2SettingsMixin():
                     self.promptForString(" + Metadata Volume", "db2_meta_storage_size", default=self.getParam("db2_meta_storage_size"))
                     self.promptForString(" + Transaction Logs Volume", "db2_logs_storage_size", default=self.getParam("db2_logs_storage_size"))
                     self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
+
+                if self.yesOrNo("Select Db2 Custom Resource(CR)"):
+                    self.printDescription([
+                        "Db2 Custom Resource",
+                        "  1. Db2uCluster",
+                        "  2. Db2uInstance"
+                    ])
+                    self.promptForListSelect("Select the CR Resource", ["db2ucluster", "db2uinstance"], "db2u_kind")
+                else:
+                    self.setParam("db2u_kind", "db2ucluster")
             else:
                 self.setParam("db2_namespace", "db2u")
 
