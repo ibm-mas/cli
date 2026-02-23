@@ -10,10 +10,14 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Basic Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                            Directory for GitOps repository
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                             Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                             Cluster ID
-  -r, --efs-csi-driver-role-arn ${COLOR_YELLOW}EFS_CSI_DRIVER_ROLE_ARN${TEXT_RESET}   ARN of the IAM Role to assign to the EFS CSI driver
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                        Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                         Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                         Cluster ID
+  -r, --efs-csi-driver-role-arn ${COLOR_YELLOW}EFS_CSI_DRIVER_ROLE_ARN${TEXT_RESET}               ARN of the IAM Role to assign to the EFS CSI driver
+  --efs-catalog-source ${COLOR_YELLOW}EFS_CATALOG_SOURCE${TEXT_RESET}                             EFS catalog source
+  --efs-catalog-source-namespace ${COLOR_YELLOW}EFS_CATALOG_SOURCE_NAMESPACE${TEXT_RESET}         EFS catalog source namespace
+  --efs-channel ${COLOR_YELLOW}EFS_CHANNEL${TEXT_RESET}                                           EFS channel
+  --efs-subscription-source-namespace ${COLOR_YELLOW}EFS_SUBSCRIPTION_SOURCE_NAMESPACE${TEXT_RESET} EFS subscription source namespace
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -51,7 +55,19 @@ function gitops_efs_csi_driver_operator_noninteractive() {
         export CLUSTER_ID=$1 && shift
         ;;
       -r|--efs-csi-driver-role-arn)
-        export export EFS_CSI_DRIVER_ROLE_ARN=$1 && shift
+        export EFS_CSI_DRIVER_ROLE_ARN=$1 && shift
+        ;;
+      --efs-catalog-source)
+        export EFS_CATALOG_SOURCE=$1 && shift
+        ;;
+      --efs-catalog-source-namespace)
+        export EFS_CATALOG_SOURCE_NAMESPACE=$1 && shift
+        ;;
+      --efs-channel)
+        export EFS_CHANNEL=$1 && shift
+        ;;
+      --efs-subscription-source-namespace)
+        export EFS_SUBSCRIPTION_SOURCE_NAMESPACE=$1 && shift
         ;;
 
 
@@ -152,7 +168,11 @@ function gitops_efs_csi_driver_operator() {
 
   echo "${TEXT_DIM}"
   echo_h2 "EFS CSI Driver" "    "
-  echo_reset_dim "EFS_CSI_DRIVER_ROLE_ARN  .......................... ${COLOR_MAGENTA}${EFS_CSI_DRIVER_ROLE_ARN}"
+  echo_reset_dim "Role ARN ............................... ${COLOR_MAGENTA}${EFS_CSI_DRIVER_ROLE_ARN}"
+  echo_reset_dim "Catalog Source ......................... ${COLOR_MAGENTA}${EFS_CATALOG_SOURCE}"
+  echo_reset_dim "Catalog Source Namespace ............... ${COLOR_MAGENTA}${EFS_CATALOG_SOURCE_NAMESPACE}"
+  echo_reset_dim "Channel ................................ ${COLOR_MAGENTA}${EFS_CHANNEL}"
+  echo_reset_dim "Subscription Source Namespace .......... ${COLOR_MAGENTA}${EFS_SUBSCRIPTION_SOURCE_NAMESPACE}"
   reset_colors
 
 
