@@ -98,7 +98,12 @@ uploadArgGroup.add_argument(
 uploadArgGroup.add_argument(
     '--s3-region',
     required=False,
-    help="AWS region for S3 bucket"
+    help="Region for S3 bucket"
+)
+uploadArgGroup.add_argument(
+    '--s3-endpoint-url',
+    required=False,
+    help="Endpoint url for S3 bucket"
 )
 uploadArgGroup.add_argument(
     '--artifactory-url',
