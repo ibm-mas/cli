@@ -46,6 +46,7 @@ module "db2rds-{{RDS_APP}}" {
   db2_preferred_backup_window         = "01:00-02:00"
   db2_port                            = "50000"
   db2_ssl_port                        = "50001"
+  connection_url_additional_params    = "{{RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS}}"
   db2_parameters_file_path            = "./db2_parameters-{{RDS_APP}}.yaml"
   major_engine_version                = "11.5"
   s3_bucket_name_for_audit_log        = join("-", [var.cluster_name, var.instance_name, "rds", "auditlog", "{{RDS_APP}}"])

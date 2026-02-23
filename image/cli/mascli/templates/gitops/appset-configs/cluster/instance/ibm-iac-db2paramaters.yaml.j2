@@ -7,3 +7,5 @@
 {%- if RDS_APP | upper == "FACILITIES" -%}
 {{RDS_DB2_CONFIG_FACILITIES}}
 {%- endif -%}
+db2comm: "SSL"
+ssl_svcename: "50001"
