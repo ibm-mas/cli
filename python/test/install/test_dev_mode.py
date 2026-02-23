@@ -314,6 +314,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Configure node tolerations.*': lambda msg: 'n',  # Skip node tolerations configuration
         '.*Customize CPU and memory request/limit.*': lambda msg: 'n',  # Skip CPU/memory customization
         '.*Customize storage capacity.*': lambda msg: 'n',  # Skip storage capacity customization
+        '.*Select Db2 Custom Resource(CR).*': lambda msg: 'n',  # Skip Db2 CR selection
         '.*Select Kafka provider.*': lambda msg: '1',  # Select default Kafka provider
         '.*Strimzi namespace.*': lambda msg: 'strimzi',  # Strimzi namespace
         '.*Use pod templates.*': lambda msg: 'n',  # Skip pod templates
