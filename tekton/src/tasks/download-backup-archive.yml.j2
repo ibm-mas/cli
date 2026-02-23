@@ -37,6 +37,10 @@ spec:
       type: string
       description: AWS region for S3 bucket
       default: ""
+    - name: s3_endpoint_url
+      type: string
+      description: S3 endpoint url for S3 bucket
+      default: ""
 
     # Artifactory download parameters
     - name: artifactory_username
@@ -79,6 +83,8 @@ spec:
         value: $(params.s3_bucket_name)
       - name: S3_REGION
         value: $(params.s3_region)
+      - name: S3_ENDPOINT_URL
+        value: $(params.s3_endpoint_url)
 
       # Artifactory credentials
       - name: ARTIFACTORY_USERNAME

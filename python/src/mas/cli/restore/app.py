@@ -79,6 +79,7 @@ class RestoreApp(BaseApp):
                 "aws_secret_access_key",
                 "s3_bucket_name",
                 "s3_region",
+                "s3_endpoint_url",
                 "artifactory_url",
                 "artifactory_repository",
                 # Manage App Restore
@@ -427,17 +428,20 @@ class RestoreApp(BaseApp):
             if downloadDestination == "S3":
                 # Prompt for S3 credentials
                 self.printH2("S3 Configuration")
-                awsAccessKeyId = self.promptForString("AWS Access Key ID")
+                awsAccessKeyId = self.promptForString("S3 Access Key ID")
                 self.setParam("aws_access_key_id", awsAccessKeyId)
 
-                awsSecretAccessKey = self.promptForString("AWS Secret Access Key", isPassword=True)
+                awsSecretAccessKey = self.promptForString("S3 Secret Access Key", isPassword=True)
                 self.setParam("aws_secret_access_key", awsSecretAccessKey)
 
                 s3BucketName = self.promptForString("S3 Bucket Name")
                 self.setParam("s3_bucket_name", s3BucketName)
 
-                s3Region = self.promptForString("AWS Region", default="us-east-1")
+                s3Region = self.promptForString("S3 Region", default="us-east-1")
                 self.setParam("s3_region", s3Region)
+
+                s3EndpointUrl = self.promptForString("S3 Endpoint URL(can be empty for AWS)", default="")
+                self.setParam("s3_endpoint_url", s3EndpointUrl)
             else:
                 # Prompt for Artifactory credentials
                 self.printH2("Artifactory Configuration")

@@ -195,6 +195,11 @@ downloadArgGroup.add_argument(
     help="AWS region for S3 bucket"
 )
 downloadArgGroup.add_argument(
+    '--s3-endpoint-url',
+    required=False,
+    help="Endpoint url for S3 bucket"
+)
+downloadArgGroup.add_argument(
     '--artifactory-url',
     required=False,
     help="Artifactory URL for backup download"
