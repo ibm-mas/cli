@@ -11,21 +11,23 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Options:
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                Account ID
-      --app-revision ${COLOR_YELLOW}APP_REVISION${TEXT_RESET}            Revision (branch or tag) of ibm-mas/gitops to use
-      --argoapp-namespace ${COLOR_YELLOW}ARGOAPP_NAMESPACE${TEXT_RESET}  Namespace in the ArgoCD worker cluster to create ArgoCD Application and ApplicationSet resources (defaults to 'openshift-gitops)
-      --auto-delete ${COLOR_YELLOW}AUTO_DELETE${TEXT_RESET}                  If set (or AUTO_DELETE set to exactly "true"), ArgoCD will be permitted to automatically delete resources based on config / helm chart changes. Only recommended for use in development environments.
-      --cli-version ${COLOR_YELLOW}CLI_VERSION${TEXT_RESET}              CLI Version to be used to run avp container
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                          Account ID
+      --app-revision ${COLOR_YELLOW}APP_REVISION${TEXT_RESET}                      Revision (branch or tag) of ibm-mas/gitops to use
+      --argoapp-namespace ${COLOR_YELLOW}ARGOAPP_NAMESPACE${TEXT_RESET}            Namespace in the ArgoCD worker cluster to create ArgoCD Application and ApplicationSet resources (defaults to 'openshift-gitops)
+      --auto-delete ${COLOR_YELLOW}AUTO_DELETE${TEXT_RESET}                        Flag. If set (or AUTO_DELETE set to exactly "true"), ArgoCD will be permitted to automatically delete resources based on config / helm chart changes. Only recommended for use in development environments.
+      --cluster-admin-role ${COLOR_YELLOW}CLUSTER_ADMIN_ROLE${TEXT_RESET}          Enable or disable cluster admin role (defaults to "true")
+      --application-admin-role ${COLOR_YELLOW}APPLICATION_ADMIN_ROLE${TEXT_RESET}  Enable or disable application admin role (defaults to "true")
+      --cli-version ${COLOR_YELLOW}CLI_VERSION${TEXT_RESET}                        CLI Version to be used to run avp container
 
 AWS Secrets Manager Configuration:
-      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
-      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
-      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}             Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}         Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}     Your AWS Secret Key
 
 GitHub Repository Configuration:
-      --github-url ${COLOR_YELLOW}APP_REPO_URL${TEXT_RESET}            URL to the GitHub repository holding your ArgoCD applications
-      --github-revision ${COLOR_YELLOW}APP_REPO_REVISION${TEXT_RESET}  Revision (branch or tag) of your application repository to use
-      --github-pat ${COLOR_YELLOW}APP_REPO_PAT${TEXT_RESET}            Personal Access Token to access your GitHub repository
+      --github-url ${COLOR_YELLOW}APP_REPO_URL${TEXT_RESET}                        URL to the GitHub repository holding your ArgoCD applications
+      --github-revision ${COLOR_YELLOW}APP_REPO_REVISION${TEXT_RESET}              Revision (branch or tag) of your application repository to use
+      --github-pat ${COLOR_YELLOW}APP_REPO_PAT${TEXT_RESET}                        Personal Access Token to access your GitHub repository
 
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
@@ -39,6 +41,8 @@ function gitops_bootstrap_noninteractive() {
 
   export ARGOAPP_NAMESPACE=${ARGOAPP_NAMESPACE:-"openshift-gitops"}
   export CLI_VERSION=${CLI_VERSION:-"latest"}
+  export CLUSTER_ADMIN_ROLE=${CLUSTER_ADMIN_ROLE:-"true"}
+  export APPLICATION_ADMIN_ROLE=${APPLICATION_ADMIN_ROLE:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -58,6 +62,12 @@ function gitops_bootstrap_noninteractive() {
       
       --auto-delete)
         export AUTO_DELETE="true"
+        ;;
+      --cluster-admin-role)
+        export CLUSTER_ADMIN_ROLE=$1 && shift
+        ;;
+      --application-admin-role)
+        export APPLICATION_ADMIN_ROLE=$1 && shift
         ;;
       --cli-version)
         export CLI_VERSION=$1 && shift
@@ -133,6 +143,16 @@ function gitops_bootstrap() {
     echo_reset_dim "Auto Delete .................... ${COLOR_GREEN}enabled"
   else
     echo_reset_dim "Auto Delete .................... ${COLOR_RED}disabled"
+  fi
+  if [[ "${CLUSTER_ADMIN_ROLE}" == "true" ]]; then
+    echo_reset_dim "Cluster Admin Role ............. ${COLOR_GREEN}enabled"
+  else
+    echo_reset_dim "Cluster Admin Role ............. ${COLOR_RED}disabled"
+  fi
+  if [[ "${APPLICATION_ADMIN_ROLE}" == "true" ]]; then
+    echo_reset_dim "Application Admin Role ......... ${COLOR_GREEN}enabled"
+  else
+    echo_reset_dim "Application Admin Role ......... ${COLOR_RED}disabled"
   fi
   echo_reset_dim "CLI Version .................... ${COLOR_MAGENTA}${CLI_VERSION}"
   reset_colors
