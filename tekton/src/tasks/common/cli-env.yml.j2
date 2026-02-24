@@ -13,7 +13,7 @@
 - name: DEVOPS_ENVIRONMENT
   valueFrom:
     secretKeyRef:
-      name: mas-devops
+      name: mas-devops-slack
       key: MAS_INSTANCE_ID
       optional: true
 - name: DEVOPS_SUITE_NAME
