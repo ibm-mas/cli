@@ -133,12 +133,24 @@
 
 # Scheduler Classic Apps Cypress tests
 - name: fvt-manage-base-ui-scheduler-classic
-  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  timeout: "0"
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage-cypress
+  workspaces:
+    - name: configs
+      workspace: shared-configs
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-ui-scheduler-classic
   when:
+    - input: "$(params.fvt_digest_manage_cypress)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
     - input: "base"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
