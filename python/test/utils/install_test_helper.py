@@ -37,7 +37,8 @@ class InstallTestConfig:
         storage_provider_name: str = 'NFS Client',
         ocp_version: str = '4.18.0',
         timeout_seconds: int = 30,
-        expect_system_exit: bool = False
+        expect_system_exit: bool = False,
+        argv: Optional[list] = None
     ):
         """
         Initialize test configuration.
@@ -54,6 +55,7 @@ class InstallTestConfig:
             ocp_version: OpenShift version
             timeout_seconds: Timeout for watchdog (default 30s)
             expect_system_exit: Whether to expect SystemExit to be raised
+            argv: Command line arguments to pass to app.install() (default: [])
         """
         self.prompt_handlers = prompt_handlers
         self.current_catalog = current_catalog
@@ -66,6 +68,7 @@ class InstallTestConfig:
         self.ocp_version = ocp_version
         self.timeout_seconds = timeout_seconds
         self.expect_system_exit = expect_system_exit
+        self.argv = argv if argv is not None else []
 
 
 class InstallTestHelper:
@@ -124,6 +127,7 @@ class InstallTestHelper:
         namespace_api = MagicMock()
         cluster_role_binding_api = MagicMock()
         pvc_api = MagicMock()
+        configmap_api = MagicMock()
         secret_api = MagicMock()
         storage_class_api = MagicMock()
         license_api = MagicMock()
@@ -132,6 +136,7 @@ class InstallTestHelper:
         aiservice_tenant_api = MagicMock()
         aiservice_api = MagicMock()
         aiservice_app_api = MagicMock()
+        ingress_controller_api = MagicMock()
 
         # Map resource kinds to APIs
         resource_apis = {
@@ -141,6 +146,7 @@ class InstallTestHelper:
             'Namespace': namespace_api,
             'ClusterRoleBinding': cluster_role_binding_api,
             'PersistentVolumeClaim': pvc_api,
+            'ConfigMap': configmap_api,
             'Secret': secret_api,
             'StorageClass': storage_class_api,
             'LicenseService': license_api,
@@ -148,7 +154,8 @@ class InstallTestHelper:
             'ClusterVersion': cluster_version_api,
             'AIServiceTenant': aiservice_tenant_api,
             'AIService': aiservice_api,
-            'AIServiceApp': aiservice_app_api
+            'AIServiceApp': aiservice_app_api,
+            'IngressController': ingress_controller_api
         }
         resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs['kind'], None)
 
@@ -183,6 +190,54 @@ class InstallTestHelper:
         cluster_version.status.history = [history_record]
         cluster_version_api.get.return_value = cluster_version
 
+        # Configure IngressController mock - NOT configured for path-based routing initially
+        # This will trigger the prompt to configure it
+        ingress_controller = MagicMock()
+        ingress_controller.metadata = MagicMock()
+        ingress_controller.metadata.name = 'default'
+        ingress_controller.status = MagicMock()
+        ingress_controller.status.domain = 'apps.cluster.example.com'
+        ingress_controller.status.conditions = [
+            MagicMock(type='Available', status='True')
+        ]
+        ingress_controller.spec = MagicMock()
+        ingress_controller.spec.routeAdmission = MagicMock()
+        # Set to 'Strict' initially (not configured for path-based routing)
+        ingress_controller.spec.routeAdmission.namespaceOwnership = 'Strict'
+
+        # Support dict-style access for _checkIngressControllerForPathRouting
+        # Initially returns 'Strict' (not configured)
+        def ingress_controller_get(key, default=None):
+            if key == 'spec':
+                spec_dict = {
+                    'routeAdmission': {
+                        'namespaceOwnership': 'Strict'  # Not configured for path-based routing
+                    }
+                }
+                return type('obj', (object,), {
+                    'get': lambda self, k, d=None: spec_dict.get(k, d)
+                })()
+            return default
+
+        ingress_controller.get = ingress_controller_get
+
+        # Configure get() to return single controller when queried by name
+        # and list when queried without name
+        def ingress_controller_api_get(**kwargs):
+            if 'name' in kwargs:
+                # Return single controller when queried by name
+                return ingress_controller
+            else:
+                # Return list when querying all controllers
+                ingress_controller_list = MagicMock()
+                ingress_controller_list.items = [ingress_controller]
+                return ingress_controller_list
+
+        ingress_controller_api.get.side_effect = ingress_controller_api_get
+
+        # Mock patch operation to succeed
+        ingress_controller_api.patch = MagicMock(return_value=ingress_controller)
+
         return dynamic_client, resource_apis
 
     def setup_prompt_handler(self, mixins_prompt, prompt_session_instance, app_prompt):
@@ -190,7 +245,7 @@ class InstallTestHelper:
         # Create prompt tracker
         self.prompt_tracker, prompt_handler = create_prompt_handler(self.config.prompt_handlers)
 
-        def wrapped_prompt_handler(**kwargs):
+        def wrapped_prompt_handler(*args, **kwargs):
             """Handle prompts and update watchdog timer."""
             # Check if test has timed out
             if self.test_failed['failed']:
@@ -200,7 +255,7 @@ class InstallTestHelper:
             self.last_prompt_time['time'] = time.time()
 
             # Use the prompt tracker to handle the prompt
-            return prompt_handler(**kwargs)
+            return prompt_handler(*args, **kwargs)
 
         # Set the same handler for all prompt mocks
         mixins_prompt.side_effect = wrapped_prompt_handler
@@ -235,13 +290,15 @@ class InstallTestHelper:
                 mock.patch('mas.cli.install.app.createNamespace'),
                 mock.patch('mas.cli.install.app.preparePipelinesNamespace'),
                 mock.patch('mas.cli.install.app.launchInstallPipeline') as launch_install_pipeline,
+                mock.patch('mas.cli.install.app.configureIngressForPathBasedRouting') as configure_ingress,
                 mock.patch('mas.cli.cli.isSNO') as is_sno,
                 mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
                 mock.patch('mas.cli.displayMixins.PromptSession') as prompt_session_class,
                 mock.patch('mas.cli.install.app.prompt') as app_prompt,
                 mock.patch('mas.cli.install.app.getStorageClasses') as get_storage_classes,
-                mock.patch('mas.cli.install.app.getDefaultStorageClasses') as get_default_storage_classes
+                mock.patch('mas.cli.install.app.getDefaultStorageClasses') as get_default_storage_classes,
             ):
+
                 # Configure mock return values
                 dynamic_client_class.return_value = dynamic_client
                 get_nodes.return_value = [{'status': {'nodeInfo': {'architecture': self.config.architecture}}}]
@@ -249,6 +306,7 @@ class InstallTestHelper:
                 get_current_catalog.return_value = self.config.current_catalog
                 launch_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
                 is_sno.return_value = self.config.is_sno
+                configure_ingress.return_value = True
 
                 # Configure PromptSession mock
                 prompt_session_instance = MagicMock()
@@ -272,7 +330,7 @@ class InstallTestHelper:
 
                 try:
                     app = InstallApp()
-                    app.install(argv=[])
+                    app.install(argv=self.config.argv)
                 except SystemExit as e:
                     system_exit_raised = True
                     exit_code = e.code
@@ -296,6 +354,7 @@ class InstallTestHelper:
                 # Always verify all prompts were matched exactly once
                 # This will fail if any prompts weren't reached (e.g., due to early SystemExit)
                 # which is the desired behavior to ensure tests accurately reflect what prompts are shown
+                assert self.prompt_tracker is not None, "prompt_tracker should be initialized"
                 self.prompt_tracker.verify_all_prompts_matched()
 
 
