@@ -13,6 +13,7 @@ source /opt/app-root/src/env.sh
 
 python3 /opt/app-root/src/register-start.py
 
+export ROLE_NAME=$1
 shift
 
 echo "PIPELINE_NAME: $PIPELINE_NAME"

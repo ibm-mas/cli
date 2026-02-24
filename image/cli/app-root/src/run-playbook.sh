@@ -16,6 +16,9 @@ source /opt/app-root/src/env.sh
 
 python3 /opt/app-root/src/register-start.py
 
+# Capture the playbook name for notification
+PLAYBOOK_NAME="$1"
+
 echo "PIPELINE_NAME: $PIPELINE_NAME"
 echo "PIPELINE_STATUS: $PIPELINE_STATUS"
 echo "PIPELINERUN_NAME: $PIPELINERUN_NAME"
