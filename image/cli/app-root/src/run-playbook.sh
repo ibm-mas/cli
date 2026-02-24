@@ -19,15 +19,6 @@ python3 /opt/app-root/src/register-start.py
 # Capture the playbook name for notification
 PLAYBOOK_NAME="$1"
 
-# Send Slack start notification if configured
-if [ -n "$SLACK_TOKEN" ] && [ -n "$SLACK_CHANNEL" ]; then
-  python3 /opt/app-root/bin/mas-devops-notify-slack \
-    --action ansible-start \
-    --task-name "$PLAYBOOK_NAME" \
-    --pipeline-name "${PIPELINE_NAME:-unknown}" \
-    --instance-id "${DEVOPS_ENVIRONMENT:-}" || true
-fi
-
 ansible-playbook ibm.mas_devops."$@"
 rc=$?
 
