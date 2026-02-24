@@ -32,10 +32,13 @@ spec:
       default: "gitops-initiator deploy"
     - name: mas_channel
       type: string
+      default: ""
     - name: mas_operationalmode
       type: string
+      default: ""
     - name: mas_instance_id
       type: string
+      default: ""
     - name: aiservice_instance_id
       type: string
       default: ""
@@ -244,6 +247,14 @@ spec:
           exit 1
         fi
 
+        # Validate that at least one of MAS_INSTANCE_ID or AISERVICE_INSTANCE_ID is provided
+        if [ -z "$MAS_INSTANCE_ID" ] && [ -z "$AISERVICE_INSTANCE_ID" ]; then
+          echo "Error: At least one of MAS_INSTANCE_ID or AISERVICE_INSTANCE_ID must be provided"
+          exit 1
+        fi
+
+        echo "gitops-mas-initiator: Deployment mode - MAS_INSTANCE_ID=${MAS_INSTANCE_ID}, AISERVICE_INSTANCE_ID=${AISERVICE_INSTANCE_ID}"
+
         if [ -n $IBMCLOUD_APIKEY ]; then
 
           export SECRET_NAME=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}cis
@@ -286,12 +297,16 @@ spec:
         echo "copy $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/order-status/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/order-status"
         cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/order-status/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/order-status
 
-        mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID
-        echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
-        cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/
+        # Copy MAS instance files if MAS_INSTANCE_ID is provided
+        if [ -n "$MAS_INSTANCE_ID" ]; then
+          echo "gitops-mas-initiator: Processing MAS instance: $MAS_INSTANCE_ID"
+          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID
+          echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
+          cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/
 
-        # Process any .j2 files
-        process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
+          # Process any .j2 files
+          process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
+        fi
         
         # If AISERVICE_INSTANCE_ID is set, copy the AISERVICE_INSTANCE_ID specific files
         if [ -n "$AISERVICE_INSTANCE_ID" ]; then
@@ -309,150 +324,190 @@ spec:
           process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID"
         fi
         
-        echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
-        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
-
-          mkdir -p $TARGET_LOCAL_DIR/manual-certs
-          cd $TARGET_LOCAL_DIR/manual-certs
-
-          git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/devops-configs.git -b master || exit
-
-          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
-
-          # Copy manual certs of mas_instance 
-          cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
-
-          # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
-
-          chmod +x $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh
-
-          $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh  $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
-
-          # Remove manual-certs folder
-          rm -rf $TARGET_LOCAL_DIR/manual-certs
-
-        fi
-
         cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
 
-        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" != "true" ]]; then
-          yq -i 'del(.dns.manual_certs)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
-          echo "gitops-mas-initiator: removed .dns.manual_certs node"
-        fi
+        # MAS-specific configurations (only if MAS_INSTANCE_ID is provided)
+        if [ -n "$MAS_INSTANCE_ID" ]; then
+          echo "gitops-mas-initiator: Configuring MAS-specific settings for $MAS_INSTANCE_ID"
+          echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
+          
+          if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
 
-        # Update the domain name in the mas-instance-params.yaml.
-        export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
-        export DOMAIN=$(echo -n $OCP_SERVER | sed -n -e 's/^.*api.//p' | cut -d: -f1)
-        export MASDOMAIN=$MAS_INSTANCE_ID.apps.$DOMAIN
-        export APPSDOMAIN=apps.$DOMAIN
+            mkdir -p $TARGET_LOCAL_DIR/manual-certs
+            cd $TARGET_LOCAL_DIR/manual-certs
 
-        yq -i '.mas_instance.domain = env(MASDOMAIN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+            git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/devops-configs.git -b master || exit
 
-        # Update the ocp server url & ingress domain url in the cluster-params.yaml.
-        yq -i '.cluster.url = env(OCP_SERVER)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-        yq -i '.cluster.domain = env(APPSDOMAIN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+            mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
 
-        # Update the provisioner_domain in cluster-params.yaml.
-        yq -i '(. | select(has("mas_provisioner")) |  .mas_provisioner.provisioner_domain) = env(APPSDOMAIN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+            # Copy manual certs of mas_instance
+            cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
 
-        # Update the channel in the mas-instance-params.yaml. 
-        yq -i '.mas_instance.channel = env(MAS_CHANNEL)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+            # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
 
-        # Update the operationalmode in the mas-instance-params.yaml.
-        yq -i '.mas_instance.annotations."mas.ibm.com/operationalMode" = env(MAS_OPERATIONALMODE)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+            chmod +x $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh
 
-        # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
-        if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
-          yq -i 'del(.dns)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
-          yq -i 'del(.cluster.dns)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-          echo "gitops-mas-initiator: removed .dns / .cluster.dns node from $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml & gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
-        fi
+            $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh  $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
 
-        # Deploy fvtsaas with CIS as DNS provider and Manual_certs=True on Mon, Tue, Wed, Thu, Fri
-        # Deploy fvtsaas with CIS as DNS provider and Manual_certs=False on Sun
+            # Remove manual-certs folder
+            rm -rf $TARGET_LOCAL_DIR/manual-certs
 
-        yq -i '.mas_instance.manual_cert_mgmt = env(MANUAL_CERTS_CONTROL_FLAG)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
-        echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
+            cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
+          fi
 
-        if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
-          yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-          echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
-        fi
+          if [[ "${MANUAL_CERTS_CONTROL_FLAG}" != "true" ]]; then
+            yq -i 'del(.dns.manual_certs)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+            echo "gitops-mas-initiator: removed .dns.manual_certs node"
+          fi
 
-        #customizationList customizationArchive credentials
-        if [ -f "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/appws_spec_manage.yaml" ]; then
+          # Update the domain name in the mas-instance-params.yaml.
+          export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
+          export DOMAIN=$(echo -n $OCP_SERVER | sed -n -e 's/^.*api.//p' | cut -d: -f1)
+          export MASDOMAIN=$MAS_INSTANCE_ID.apps.$DOMAIN
+          export APPSDOMAIN=apps.$DOMAIN
 
-          MAS_APPWS_SPEC_YAML=$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/appws_spec_manage.yaml
-          secret_names=$(yq eval '.mas_appws_spec.settings.customizationList | to_entries | .[].value.customizationArchiveCredentials.secretName' ${MAS_APPWS_SPEC_YAML})
-          for customization_archive_secret_name in ${secret_names[@]}; do
+          yq -i '.mas_instance.domain = env(MASDOMAIN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
 
-            export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}$MAS_INSTANCE_ID${SECRETS_KEY_SEPERATOR}
-            export CUSTOMIZATION_ARCHIVE_SECRET_NAME=${CUSTOMIZATION_ARCHIVE_SECRET}${customization_archive_secret_name}
-            echo "gitops-mas-initiator: creating AWS SM with name :: ${CUSTOMIZATION_ARCHIVE_SECRET_NAME}"
+          # Update the channel in the mas-instance-params.yaml.
+          if [ -n "$MAS_CHANNEL" ]; then
+            yq -i '.mas_instance.channel = env(MAS_CHANNEL)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+          fi
 
-            if [[ -n "${ARTIFACTORY_USERNAME}" && -n "${ARTIFACTORY_TOKEN}" ]]; then
-              export SECRET_VALUE="{\"username\":\"${ARTIFACTORY_USERNAME}\",\"password\":\"${ARTIFACTORY_TOKEN}\"}"
-
-              aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
-              aws configure set aws_secret_access_key ${SM_AWS_SECRET_ACCESS_KEY}
-              aws configure set default.region $SM_AWS_REGION
-              export AWS_REGION=$SM_AWS_REGION
-              aws configure list
-              set +e +o pipefail
-              aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
-              aws secretsmanager describe-secret --secret-id ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
-              aws secretsmanager create-secret --name ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --secret-string "${SECRET_VALUE}" || exit 1
-
-              echo "created AWS secret secret ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} with value ${SECRET_VALUE:0:6}<snip> in region $SM_AWS_REGION"
-              set -e -o pipefail
-            else
-              echo "gitops-mas-initiator: ARTIFACTORY_USERNAME and/or ARTIFACTORY_TOKEN not set, exit with error"
-              exit 1
-            fi
-
-          done
-
-        fi
-        # Update the app channels in the mas-apps-params.yaml.
-        if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
-          yq -i '(. | select(has("assist")) |  .assist.app_channel) = env(MAS_APP_CHANNEL_ASSIST)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
-          # Assist not supported in v8 due to no CP4D WD support
-          if [[ "$MAS_APP_CHANNEL_ASSIST" =~ ^8\. ]]; then
-            yq -i 'del(.assist)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
-            echo "gitops-mas-initiator: removed .assist node"
-            yq -i '.launchfvt.assist = false' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
-            echo "gitops-mas-initiator: set .launchfvt.assist to false"
+          # Update the operationalmode in the mas-instance-params.yaml.
+          if [ -n "$MAS_OPERATIONALMODE" ]; then
+            yq -i '.mas_instance.annotations."mas.ibm.com/operationalMode" = env(MAS_OPERATIONALMODE)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
           fi
         fi
-        if [ -n $MAS_APP_CHANNEL_FACILITIES ]; then
-          yq -i '(. | select(has("facilities")) |  .facilities.app_channel) = env(MAS_APP_CHANNEL_FACILITIES)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+
+        # Update cluster-level configurations (common for both MAS and AIService)
+        export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+        if [ -f "$ROSA_CONFIG" ]; then
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
+          export DOMAIN=$(echo -n $OCP_SERVER | sed -n -e 's/^.*api.//p' | cut -d: -f1)
+          export APPSDOMAIN=apps.$DOMAIN
+
+          # Update the ocp server url & ingress domain url in the cluster-params.yaml.
+          yq -i '.cluster.url = env(OCP_SERVER)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+          yq -i '.cluster.domain = env(APPSDOMAIN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+
+          # Update the provisioner_domain in cluster-params.yaml.
+          yq -i '(. | select(has("mas_provisioner")) |  .mas_provisioner.provisioner_domain) = env(APPSDOMAIN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
         fi
-        if [ -n $MAS_APP_CHANNEL_IOT ]; then
-          yq -i '(. | select(has("iot")) |  .iot.app_channel) = env(MAS_APP_CHANNEL_IOT)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+
+        # Additional MAS-specific configurations (only if MAS_INSTANCE_ID is provided)
+        if [ -n "$MAS_INSTANCE_ID" ]; then
+          # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
+          if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
+            yq -i 'del(.dns)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+            yq -i 'del(.cluster.dns)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+            echo "gitops-mas-initiator: removed .dns / .cluster.dns node from $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml & gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
+          fi
+
+          # Deploy fvtsaas with CIS as DNS provider and Manual_certs=True on Mon, Tue, Wed, Thu, Fri
+          # Deploy fvtsaas with CIS as DNS provider and Manual_certs=False on Sun
+
+          yq -i '.mas_instance.manual_cert_mgmt = env(MANUAL_CERTS_CONTROL_FLAG)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+          echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
+
+          if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
+            yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+            echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
+          fi
+
+          #customizationList customizationArchive credentials
+          if [ -f "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/appws_spec_manage.yaml" ]; then
+
+            MAS_APPWS_SPEC_YAML=$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/appws_spec_manage.yaml
+            secret_names=$(yq eval '.mas_appws_spec.settings.customizationList | to_entries | .[].value.customizationArchiveCredentials.secretName' ${MAS_APPWS_SPEC_YAML})
+            for customization_archive_secret_name in ${secret_names[@]}; do
+
+              export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}$MAS_INSTANCE_ID${SECRETS_KEY_SEPERATOR}
+              export CUSTOMIZATION_ARCHIVE_SECRET_NAME=${CUSTOMIZATION_ARCHIVE_SECRET}${customization_archive_secret_name}
+              echo "gitops-mas-initiator: creating AWS SM with name :: ${CUSTOMIZATION_ARCHIVE_SECRET_NAME}"
+
+              if [[ -n "${ARTIFACTORY_USERNAME}" && -n "${ARTIFACTORY_TOKEN}" ]]; then
+                export SECRET_VALUE="{\"username\":\"${ARTIFACTORY_USERNAME}\",\"password\":\"${ARTIFACTORY_TOKEN}\"}"
+
+                aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
+                aws configure set aws_secret_access_key ${SM_AWS_SECRET_ACCESS_KEY}
+                aws configure set default.region $SM_AWS_REGION
+                export AWS_REGION=$SM_AWS_REGION
+                aws configure list
+                set +e +o pipefail
+                aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+                aws secretsmanager describe-secret --secret-id ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+                aws secretsmanager create-secret --name ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --secret-string "${SECRET_VALUE}" || exit 1
+
+                echo "created AWS secret secret ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} with value ${SECRET_VALUE:0:6}<snip> in region $SM_AWS_REGION"
+                set -e -o pipefail
+              else
+                echo "gitops-mas-initiator: ARTIFACTORY_USERNAME and/or ARTIFACTORY_TOKEN not set, exit with error"
+                exit 1
+              fi
+
+            done
+
+          fi
+          # Update the app channels in the mas-apps-params.yaml.
+          if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
+            yq -i '(. | select(has("assist")) |  .assist.app_channel) = env(MAS_APP_CHANNEL_ASSIST)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+            # Assist not supported in v8 due to no CP4D WD support
+            if [[ "$MAS_APP_CHANNEL_ASSIST" =~ ^8\. ]]; then
+              yq -i 'del(.assist)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+              echo "gitops-mas-initiator: removed .assist node"
+              yq -i '.launchfvt.assist = false' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
+              echo "gitops-mas-initiator: set .launchfvt.assist to false"
+            fi
+          fi
+          fi
+          if [ -n $MAS_APP_CHANNEL_FACILITIES ]; then
+            yq -i '(. | select(has("facilities")) |  .facilities.app_channel) = env(MAS_APP_CHANNEL_FACILITIES)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+          fi
+          if [ -n $MAS_APP_CHANNEL_IOT ]; then
+            yq -i '(. | select(has("iot")) |  .iot.app_channel) = env(MAS_APP_CHANNEL_IOT)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+          fi
+          if [ -n $MAS_APP_CHANNEL_MANAGE ]; then
+            yq -i '(. | select(has("manage")) |  .manage.app_channel) = env(MAS_APP_CHANNEL_MANAGE)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+          fi
+          if [ -n $MAS_APP_CHANNEL_MONITOR ]; then
+            yq -i '(. | select(has("monitor")) |  .monitor.app_channel) = env(MAS_APP_CHANNEL_MONITOR)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+          fi
+          if [ -n $MAS_APP_CHANNEL_OPTIMIZER ]; then
+            yq -i '(. | select(has("optimizer")) |  .optimizer.app_channel) = env(MAS_APP_CHANNEL_OPTIMIZER)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+          fi
+          if [ -n $MAS_APP_CHANNEL_PREDICT ]; then
+            yq -i '(. | select(has("predict")) |  .predict.app_channel) = env(MAS_APP_CHANNEL_PREDICT)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+          fi
+          if [ -n $MAS_APP_CHANNEL_VISUALINSPECTION ]; then
+            yq -i '(. | select(has("visualinspection")) |  .visualinspection.app_channel) = env(MAS_APP_CHANNEL_VISUALINSPECTION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
+          fi
+          # Update the cli_version and ansible_fvt ansible version if mas_fvt_params exists
+          if [ -f $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml ]; then
+            yq -i '.fvt.cli_version = env(CLI_VERSION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
+            yq -i '.fvt.ansible_version = env(FVT_ANSIBLE_VERSION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
+          fi
         fi
-        if [ -n $MAS_APP_CHANNEL_MANAGE ]; then
-          yq -i '(. | select(has("manage")) |  .manage.app_channel) = env(MAS_APP_CHANNEL_MANAGE)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
-        fi
-        if [ -n $MAS_APP_CHANNEL_MONITOR ]; then
-          yq -i '(. | select(has("monitor")) |  .monitor.app_channel) = env(MAS_APP_CHANNEL_MONITOR)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
-        fi
-        if [ -n $MAS_APP_CHANNEL_OPTIMIZER ]; then
-          yq -i '(. | select(has("optimizer")) |  .optimizer.app_channel) = env(MAS_APP_CHANNEL_OPTIMIZER)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
-        fi
-        if [ -n $MAS_APP_CHANNEL_PREDICT ]; then
-          yq -i '(. | select(has("predict")) |  .predict.app_channel) = env(MAS_APP_CHANNEL_PREDICT)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
-        fi
-        if [ -n $MAS_APP_CHANNEL_VISUALINSPECTION ]; then
-          yq -i '(. | select(has("visualinspection")) |  .visualinspection.app_channel) = env(MAS_APP_CHANNEL_VISUALINSPECTION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
-        fi
-        if [ -n $MAS_APP_CHANNEL_AISERVICE ]; then
-          yq -i '(. | select(has("aiservice")) |  .aiservice.app_channel) = env(MAS_APP_CHANNEL_AISERVICE)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID/mas-apps-params.yaml
-        fi
-        # Update the cli_version and ansible_fvt ansible version if mas_fvt_params exists
-        if [ -f $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml ]; then
-          yq -i '.fvt.cli_version = env(CLI_VERSION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
-          yq -i '.fvt.ansible_version = env(FVT_ANSIBLE_VERSION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
+
+        # AIService-specific configurations (only if AISERVICE_INSTANCE_ID is provided)
+        if [ -n "$AISERVICE_INSTANCE_ID" ]; then
+          echo "gitops-mas-initiator: Configuring AIService-specific settings for $AISERVICE_INSTANCE_ID"
+          
+          # Update AIService app channel if provided
+          if [ -n "$MAS_APP_CHANNEL_AISERVICE" ] && [ -f "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID/mas-apps-params.yaml" ]; then
+            yq -i '(. | select(has("aiservice")) |  .aiservice.app_channel) = env(MAS_APP_CHANNEL_AISERVICE)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID/mas-apps-params.yaml
+            echo "gitops-mas-initiator: Updated AIService channel to $MAS_APP_CHANNEL_AISERVICE"
+          fi
+
+          # Update the cli_version and ansible_fvt version if mas_fvt_params exists for AIService
+          if [ -f "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID/mas-fvt-params.yaml" ]; then
+            if [ -n "$CLI_VERSION" ]; then
+              yq -i '.fvt.cli_version = env(CLI_VERSION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID/mas-fvt-params.yaml
+            fi
+            if [ -n "$FVT_ANSIBLE_VERSION" ]; then
+              yq -i '.fvt.ansible_version = env(FVT_ANSIBLE_VERSION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID/mas-fvt-params.yaml
+            fi
+          fi
         fi
 
         if [[ ! "$GIT_COMMIT_MSG" =~ ^"[skip deploy]" ]]; then
