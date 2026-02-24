@@ -451,6 +451,7 @@ spec:
           fi
           # Update the app channels in the mas-apps-params.yaml.
           if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
+            echo "MAS_APP_CHANNEL_ASSIST found"
             yq -i '(. | select(has("assist")) |  .assist.app_channel) = env(MAS_APP_CHANNEL_ASSIST)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
             # Assist not supported in v8 due to no CP4D WD support
             if [[ "$MAS_APP_CHANNEL_ASSIST" =~ ^8\. ]]; then
@@ -460,30 +461,38 @@ spec:
               echo "gitops-mas-initiator: set .launchfvt.assist to false"
             fi
           fi
-          fi
+
           if [ -n $MAS_APP_CHANNEL_FACILITIES ]; then
+            echo "MAS_APP_CHANNEL_FACILITIES found"
             yq -i '(. | select(has("facilities")) |  .facilities.app_channel) = env(MAS_APP_CHANNEL_FACILITIES)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
           fi
           if [ -n $MAS_APP_CHANNEL_IOT ]; then
+            echo "MAS_APP_CHANNEL_IOT found"
             yq -i '(. | select(has("iot")) |  .iot.app_channel) = env(MAS_APP_CHANNEL_IOT)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
           fi
           if [ -n $MAS_APP_CHANNEL_MANAGE ]; then
+            echo "MAS_APP_CHANNEL_MANAGE found"
             yq -i '(. | select(has("manage")) |  .manage.app_channel) = env(MAS_APP_CHANNEL_MANAGE)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
           fi
           if [ -n $MAS_APP_CHANNEL_MONITOR ]; then
+            echo "MAS_APP_CHANNEL_MONITOR found"
             yq -i '(. | select(has("monitor")) |  .monitor.app_channel) = env(MAS_APP_CHANNEL_MONITOR)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
           fi
           if [ -n $MAS_APP_CHANNEL_OPTIMIZER ]; then
+            echo "MAS_APP_CHANNEL_OPTIMIZER found"
             yq -i '(. | select(has("optimizer")) |  .optimizer.app_channel) = env(MAS_APP_CHANNEL_OPTIMIZER)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
           fi
           if [ -n $MAS_APP_CHANNEL_PREDICT ]; then
+            echo "MAS_APP_CHANNEL_PREDICT found"
             yq -i '(. | select(has("predict")) |  .predict.app_channel) = env(MAS_APP_CHANNEL_PREDICT)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
           fi
           if [ -n $MAS_APP_CHANNEL_VISUALINSPECTION ]; then
+            echo "MAS_APP_CHANNEL_VISUALINSPECTION found"
             yq -i '(. | select(has("visualinspection")) |  .visualinspection.app_channel) = env(MAS_APP_CHANNEL_VISUALINSPECTION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
           fi
           # Update the cli_version and ansible_fvt ansible version if mas_fvt_params exists
           if [ -f $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml ]; then
+            echo "MAS_INSTANCE_ID mas-fvt-params.yaml found"
             yq -i '.fvt.cli_version = env(CLI_VERSION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
             yq -i '.fvt.ansible_version = env(FVT_ANSIBLE_VERSION)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
           fi
