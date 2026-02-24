@@ -62,3 +62,5 @@ python/README.rst
 /.venv-docs
 /mkdocs_plugins/mkdocs_mas_plugins.egg-info
 rbac-install.yaml
+
+.venv
