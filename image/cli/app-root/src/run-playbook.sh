@@ -16,14 +16,16 @@ source /opt/app-root/src/env.sh
 
 python3 /opt/app-root/src/register-start.py
 
-# Capture the playbook name for notification
-PLAYBOOK_NAME="$1"
+echo "PIPELINE_NAME: $PIPELINE_NAME"
+echo "PIPELINE_STATUS: $PIPELINE_STATUS"
+echo "PIPELINERUN_NAME: $PIPELINERUN_NAME"
+echo "PIPELINERUN_NAMESPACE: $PIPELINERUN_NAMESPACE"
 
 # Send Slack start notification if configured
 if [ -n "$SLACK_TOKEN" ] && [ -n "$SLACK_CHANNEL" ]; then
   python3 /opt/app-root/bin/mas-devops-notify-slack \
     --action ansible-start \
-    --task-name "$PLAYBOOK_NAME" \
+    --task-name "$DEVOPS_SUITE_NAME" \
     --pipeline-name "${PIPELINE_NAME:-unknown}" \
     --instance-id "${DEVOPS_ENVIRONMENT:-}" || true
 fi
@@ -36,7 +38,7 @@ if [ -n "$SLACK_TOKEN" ] && [ -n "$SLACK_CHANNEL" ]; then
   python3 /opt/app-root/bin/mas-devops-notify-slack \
     --action ansible-complete \
     --rc $rc \
-    --task-name "$PLAYBOOK_NAME" \
+    --task-name "$DEVOPS_SUITE_NAME" \
     --pipeline-name "${PIPELINE_NAME:-unknown}" \
     --instance-id "${DEVOPS_ENVIRONMENT:-}" || true
 fi
