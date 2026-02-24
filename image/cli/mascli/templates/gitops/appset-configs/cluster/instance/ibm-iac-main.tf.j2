@@ -178,7 +178,35 @@ locals {
   }
   #Manage related params for S3 ends
 {%- endif %}
-
+{%- if S3_MVI | lower == 'true'  %}
+  #mvi related params for S3 starts
+  iam_user_arns_mvi = {
+    mvi   = "${var.iam_user_arn_prefix_mvi}-mvi-${var.access_level_rw}"
+  }
+  s3_iam_users_list_mvi = {
+    mvi = {
+      bucket_name   = "${var.s3bucket_name_prefix_mvi}-mvi"
+      iam_user_name = "${var.iam_user_name_prefix_mvi}-mvi-${var.access_level_rw}"
+      access_level  = var.access_level_rw
+    }
+  }
+  iam_users_by_bucket_mvi = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_mvi : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_mvi :
+      local.iam_user_arns_mvi[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+  bucket_user_names_mvi = {
+    mvi   = "${var.iam_user_name_prefix_mvi}-mvi-${var.access_level_rw}"
+  }
+  bucket_user_name_map_mvi = {
+    for key, value in local.s3_iam_users_list_mvi :
+    key => lookup(local.bucket_user_names_mvi, key, null)
+  }
+  #mvi related params for S3 ends
+{%- endif %}
   #S3 Actions params starts
   s3_actions = {
     ro = ["s3:GetObject", "s3:ListBucket"]
@@ -214,6 +242,7 @@ locals {
           cos_secret_format    = false
           manage_secret_format = true
           expiration           = null
+          dr_replicate         = var.enable_dr
         },
         custfiles = {
           name_prefix          = var.name_prefix
@@ -228,6 +257,7 @@ locals {
           expiration = {
             days = 366 // how long to keep logs
           }
+          dr_replicate         = var.enable_dr
         },
         logs_ro = {
           name_prefix          = var.name_prefix
@@ -240,10 +270,30 @@ locals {
           cos_secret_format    = false
           manage_secret_format = true
           expiration           = null
+          dr_replicate         = var.enable_dr
         }
       }
     #Manage specific S3 buckets ends
     {%- endif %}
+   {%- if S3_MVI | lower == 'true'  %}
+    #MVI specific S3 buckets starts
+      mvi_s3buckets = {
+        mvi = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3bucket_name_prefix_mvi}-mvi"
+          id                   = "${var.s3bucket_name_prefix_mvi}-mvi"
+          access_level         = "ro"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_mvi}-mvi"
+          secret_suffix        = "cos"
+          cos_secret_format    = true
+          manage_secret_format = false
+          expiration           = null
+          dr_replicate         = var.enable_dr
+        }
+      }
+    #MVI specific S3 buckets ends
+   {%- endif %}
     {%- if (IS_RDS | lower == 'true') %}
     {%- if (RDS_MANAGE | lower == 'true') %}
     #RDS Manage specific S3 bucket start

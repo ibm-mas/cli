@@ -27,7 +27,7 @@ class AdditionalConfigsMixin():
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
-        interactiveMode: bool
+        _interactiveMode: bool
         localConfigDir: str | None
         noConfirm: bool
         templatesDir: str
@@ -92,7 +92,7 @@ class AdditionalConfigsMixin():
             ...
 
     def additionalConfigs(self) -> None:
-        if self.interactiveMode:
+        if self.isInteractiveMode:
             self.printH1("Additional Configuration")
             self.printDescription([
                 "Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step",
@@ -136,7 +136,7 @@ class AdditionalConfigsMixin():
             self.additionalConfigsSecret = additionalConfigsSecret
 
     def podTemplates(self) -> None:
-        if self.interactiveMode and self.showAdvancedOptions:
+        if self.isInteractiveMode and self.showAdvancedOptions:
             self.printH1("Configure Pod Templates")
             self.printDescription([
                 "The CLI supports two pod template profiles out of the box that allow you to reconfigure MAS for either a guaranteed or best effort QoS level",
