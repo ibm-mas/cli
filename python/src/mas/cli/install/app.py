@@ -50,7 +50,8 @@ from mas.devops.ocp import (
     createNamespace,
     getStorageClasses,
     getClusterVersion,
-    isClusterVersionInRange
+    isClusterVersionInRange,
+    configureIngressForPathBasedRouting
 )
 from mas.devops.mas import (
     getCurrentCatalog,
@@ -575,9 +576,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("sls_namespace", f"mas-{self.getParam('mas_instance_id')}-sls")
 
         self.configOperationMode()
-        self.configRoutingMode()
         self.configCATrust()
         self.configDNSAndCerts()
+        self.configRoutingMode()
         self.configSSOProperties()
         self.configSpecialCharacters()
         self.configReportAdoptionMetricsFlag()
@@ -616,6 +617,25 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
             self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
             self.setParam("rhoai", "false")
+
+    def _getMasDomainForDisplay(self):
+        masDomain = self.getParam("mas_domain")
+        if not masDomain:
+            try:
+                ingressAPI = self.dynamicClient.resources.get(
+                    api_version="config.openshift.io/v1",
+                    kind="Ingress"
+                )
+                ingressConfig = ingressAPI.get(name="cluster")
+                masDomain = ingressConfig.spec.get('domain', 'yourdomain.com')
+            except Exception:
+                masDomain = 'yourdomain.com'
+
+        masInstanceId = self.getParam("mas_instance_id")
+        if masInstanceId:
+            masDomain = f"{masInstanceId}.{masDomain}"
+
+        return masDomain
 
     def _promptForIngressController(self):
         try:
@@ -669,11 +689,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.2.x-feature':
             self.printH1("Configure Routing Mode")
 
+            masDomain = self._getMasDomainForDisplay()
+
             self.printDescription([
-                "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
+                "Maximo Application Suite can be configured in one of two ways:",
                 "",
-                "  1. Path (single domain)",
-                "  2. Subdomain (multi domain)"
+                "  1. Single domain with path-based routing across the suite",
+                f"     Example: https://{masDomain}/admin",
+                "",
+                "  2. Multi domain with subdomain-based routing across the suite",
+                f"     Example: https://admin.{masDomain}",
+                "",
+                "Path-based routing requires the IngressController to have the routeAdmission policy",
+                "set to 'InterNamespaceAllowed'. This allows routes to claim the same hostname across",
+                "different namespaces, which is necessary for path-based routing to function correctly.",
+                "",
+                "For more information refer to:",
+                "https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/ingress_and_load_balancing/routes#nw-route-admission-policy_configuring-routes"
             ])
 
             routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
@@ -681,43 +713,58 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             selectedMode = routingModeOptions[routingModeInt - 1]
 
             if selectedMode == "path":
-                selectedController = self._promptForIngressController()
-                self.setParam("mas_ingress_controller_name", selectedController)
-
-                # Check if selected IngressController is configured for path-based routing
-                # Note: In interactive mode, we only check configuration, not existence,
-                # since the user selects from a list of existing controllers
-                _, isConfigured = self._checkIngressControllerForPathRouting(selectedController)
-
-                if isConfigured:
-                    self.setParam("mas_routing_mode", "path")
-                    self.printDescription([f"<Green> IngressController '{selectedController}' is configured for path-based routing.</Green>"])
-                else:
+                canConfigure = self._checkIngressControllerPermissions()
+                if not canConfigure:
                     self.printDescription([
                         "",
-                        f"<Yellow>The IngressController '{selectedController}' requires configuration for path-based routing.</Yellow>",
+                        "<Yellow>Your cluster ingress currently does not support path-based routing</Yellow>",
                         "",
-                        "The following setting needs to be applied:",
+                        "If you wish to configure MAS with path-based routing, contact your OpenShift",
+                        "administrator to apply the following configuration:",
                         "",
                         "  <Cyan>spec:",
                         "    routeAdmission:",
                         "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
                         "",
-                        "Would you like to configure it during installation?"
+                        "MAS will be configured to use subdomain-based routing."
                     ])
+                    self.setParam("mas_routing_mode", "subdomain")
+                    self.setParam("mas_ingress_controller_name", "")
+                else:
+                    selectedController = self._promptForIngressController()
+                    self.setParam("mas_ingress_controller_name", selectedController)
 
-                    if self.yesOrNo("Configure IngressController for path-based routing"):
+                    # Check if selected IngressController is configured for path-based routing
+                    _, isConfigured = self._checkIngressControllerForPathRouting(selectedController)
+
+                    if isConfigured:
                         self.setParam("mas_routing_mode", "path")
-                        self.setParam("mas_configure_ingress", "true")
-                        self.printDescription([f"<Green>IngressController '{selectedController}' will be configured during installation.</Green>"])
+                        self.printDescription([f"<Green>IngressController '{selectedController}' is configured for path-based routing.</Green>"])
                     else:
                         self.printDescription([
                             "",
-                            "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
-                            "Falling back to subdomain mode."
+                            "<Yellow>Your cluster ingress currently does not support path-based routing</Yellow>",
+                            "",
+                            "The following setting needs to be applied to the IngressController:",
+                            "",
+                            "  <Cyan>spec:",
+                            "    routeAdmission:",
+                            "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
+                            ""
                         ])
-                        self.setParam("mas_routing_mode", "subdomain")
-                        self.setParam("mas_ingress_controller_name", "")
+
+                        if self.yesOrNo("Configure ingress namespace ownership policy to enable path-based routing for MAS"):
+                            self.setParam("mas_routing_mode", "path")
+                            self.setParam("mas_configure_ingress", "true")
+                            self.printDescription([f"<Green>IngressController '{selectedController}' will be configured before MAS installation begins.</Green>"])
+                        else:
+                            self.printDescription([
+                                "",
+                                "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
+                                "MAS will be configured to use subdomain-based routing."
+                            ])
+                            self.setParam("mas_routing_mode", "subdomain")
+                            self.setParam("mas_ingress_controller_name", "")
             else:
                 self.setParam("mas_routing_mode", "subdomain")
 
@@ -756,6 +803,26 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         except Exception as e:
             logger.warning(f"Failed to check IngressController '{controllerName}' configuration: {e}")
             return (False, False)
+
+    def _checkIngressControllerPermissions(self, controllerName='default'):
+        try:
+            ingressControllerAPI = self.dynamicClient.resources.get(
+                api_version="operator.openshift.io/v1",
+                kind="IngressController"
+            )
+
+            # Attempt to get the IngressController to verify permissions
+            ingressControllerAPI.get(
+                name=controllerName,
+                namespace="openshift-ingress-operator"
+            )
+
+            logger.info(f"User has permissions to access IngressController '{controllerName}'")
+            return True
+
+        except Exception as e:
+            logger.warning(f"User may not have permissions to configure IngressController '{controllerName}': {e}")
+            return False
 
     @logMethodCall
     def configAnnotations(self):
@@ -1807,6 +1874,29 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             self.setParam("mas_ingress_controller_name", ingressControllerName)
 
+            # Check permissions BEFORE attempting to check the IngressController
+            canConfigure = self._checkIngressControllerPermissions()
+            if not canConfigure:
+
+                self.fatalError(
+                    "\n".join([
+                        "IngressController Configuration Requires Administrator Permissions",
+                        "========================================================================",
+                        "You do not have sufficient permissions to check or configure the",
+                        f"IngressController '{ingressControllerName}'.",
+                        "",
+                        "If you wish to configure MAS with path-based routing, contact your OpenShift",
+                        "administrator to apply the following configuration:",
+                        "",
+                        "  spec:",
+                        "    routeAdmission:",
+                        "      namespaceOwnership: InterNamespaceAllowed",
+                        "",
+                        "Alternatively, you can use subdomain routing mode:",
+                        "   mas install --routing subdomain ..."
+                    ])
+                )
+
             exists, isConfigured = self._checkIngressControllerForPathRouting(ingressControllerName)
 
             if not exists:
@@ -1835,7 +1925,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 )
             elif not isConfigured:
                 if hasattr(self.args, 'mas_configure_ingress') and self.args.mas_configure_ingress:
-                    logger.info(f"IngressController '{ingressControllerName}' will be configured for path-based routing during installation pipeline")
+                    logger.info(f"IngressController '{ingressControllerName}' will be configured for path-based routing before MAS installation")
                     self.setParam("mas_configure_ingress", "true")
                 else:
                     self.fatalError(
@@ -1894,6 +1984,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
+
+            if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
+                with Halo(text='Configuring cluster for path-based routing', spinner=self.spinner) as h:
+                    ingressControllerName = self.getParam("mas_ingress_controller_name") if self.getParam("mas_ingress_controller_name") else "default"
+                    if configureIngressForPathBasedRouting(self.dynamicClient, ingressControllerName):
+                        h.stop_and_persist(symbol=self.successIcon, text="Cluster configured for path-based routing")
+                    else:
+                        h.stop_and_persist(symbol=self.failureIcon, text="Failed to configure cluster for path-based routing")
+                        self.fatalError("Installation failed - unable to configure IngressController for path-based routing")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
