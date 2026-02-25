@@ -15,7 +15,6 @@ from base64 import b64encode
 from glob import glob
 from halo import Halo
 from prompt_toolkit import prompt, print_formatted_text, HTML
-from prompt_toolkit.completion import WordCompleter
 
 from ..cli import BaseApp
 from ..validators import InstanceIDFormatValidator, FileExistsValidator, StorageClassValidator
