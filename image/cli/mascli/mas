@@ -182,7 +182,7 @@ case $1 in
     teardown_mirror_registry "$@"
     ;;
 
-  mirror|mirror-images|mirror-ibm-images)
+  mirror-images|mirror-ibm-images)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! mirror-ibm-images                                                         !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
@@ -241,6 +241,16 @@ case $1 in
     reset_colors
     export PRODUCT_FAMILY="aiservice"
     configure_ocp_for_mirror "$@"
+    ;;
+
+  mirror)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! mirror                                                                    !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "mirror")
+    shift
+    # Run the new Python-based mirror
+    mas-cli mirror "$@"
     ;;
 
   install)
