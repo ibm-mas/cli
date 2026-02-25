@@ -19,6 +19,8 @@ import re
 import calendar
 from openshift.dynamic.exceptions import NotFoundError
 
+from typing import Dict, Any
+
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
@@ -84,11 +86,14 @@ def logMethodCall(func):
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     @logMethodCall
     def validateCatalogSource(self):
-        # Check supported OCP versions
-        ocpVersion = getClusterVersion(self.dynamicClient)
-        supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
-        if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
-            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
+        # Check supported OCP versions - but we can only do this in non-development mode because in development mode
+        # we do not load catalog metadata files
+        if not self.devMode:
+            assert self.chosenCatalog is not None, "validateCatalogSource() called before catalog was chosen"
+            ocpVersion = getClusterVersion(self.dynamicClient)
+            supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
+            if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
+                self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
 
         # Compare with any existing installed catalog
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
@@ -105,6 +110,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 catalogId = "v8-amd64"
             else:
                 self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+                assert False, "fatalError() should have exited"  # Let basepyright know that fatalError() will exit
 
             if catalogId != self.getParam("mas_catalog_version"):
                 self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
@@ -181,6 +187,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def processCatalogChoice(self) -> list:
+        assert self.chosenCatalog is not None, "processCatalogChoice() called before catalog was chosen"
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
         self.catalogDb2Channel = self.chosenCatalog.get("db2_channel_default", "v110509.0")  # Returns fallback "v110509.0" for old catalogs without this field
@@ -499,6 +506,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.getParam("mas_catalog_version") in self.catalogOptions:
             # Note: this will override any version provided by the user (which is intentional!)
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
+            assert self.chosenCatalog is not None, "chosenCatalog should be set in this scenario but was not"
             self.setParam("cpd_product_version", self.chosenCatalog["cpd_product_version_default"])
         elif self.getParam("cpd_product_version") == "":
             if self.noConfirm:
@@ -594,7 +602,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ])
             self.yesOrNo("Trust default CAs", "mas_trust_default_cas")
         else:
-            self.setParam("mas_trust_default_cas", True)
+            self.setParam("mas_trust_default_cas", "true")
 
     @logMethodCall
     def configOperationMode(self):
@@ -888,8 +896,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mas_domain", "")
                     self.setParam("mas_cluster_issuer", "")
                 self.manualCerts = self.yesOrNo("Configure manual certificates")
-                self.setParam("mas_manual_cert_mgmt", self.manualCerts)
-                if self.getParam("mas_manual_cert_mgmt"):
+                self.setParam("mas_manual_cert_mgmt", str(self.manualCerts).lower())
+                if self.getParam("mas_manual_cert_mgmt").lower() == "true":
                     self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
                 else:
                     self.manualCertsDir = None
@@ -1124,7 +1132,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             # We still use the old name for ODF (OCS)
             if self.getParam("cos_type") == "odf":
-                self.setParam("cos_type") == "ocs"
+                self.setParam("cos_type", "ocs")
 
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
@@ -1462,7 +1470,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installAIService = False
         self.slsLicenseFileLocal = None
 
-        self.approvals = {
+        self.approvals: Dict[str, Dict[str, Any]] = {
             "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
             "approval_assist": {"id": "app-cfg-assist"},  # After Assist workspace has been configured
             "approval_iot": {"id": "app-cfg-iot"},  # After IoT workspace has been configured
@@ -1577,7 +1585,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("db2_action_aiservice", "install")
                     self.installAIService = True
                     # Set manage - bind - AI Service params same as provided AI Service's params
-                    self.setParam("manage_bind_aiservice_instance_id", vars(self.args).get("aiservice_instance_id"))
+                    self.setParam("manage_bind_aiservice_instance_id", vars(self.args).get("aiservice_instance_id", ""))
                     self.setParam("manage_bind_aiservice_tenant_id", "user")
             elif key == "manage_bind_aiservice_instance_id":
                 # only set if AI Service not being installed
@@ -1658,14 +1666,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             elif key == "manual_certificates":
                 if value is not None:
-                    self.setParam("mas_manual_cert_mgmt", True)
+                    self.setParam("mas_manual_cert_mgmt", "true")
                     self.manualCertsDir = value
                 else:
-                    self.setParam("mas_manual_cert_mgmt", False)
+                    self.setParam("mas_manual_cert_mgmt", "false")
                     self.manualCertsDir = None
 
             elif key == "enable_ipv6":
-                self.setParam("enable_ipv6", True)
+                self.setParam("enable_ipv6", "true")
 
             elif key == "install_minio_aiservice":
                 if vars(self.args).get("aiservice_instance_id"):
@@ -1729,6 +1737,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # Verifiy if any of the props that needs to be in a file are given
             if self.getParam("mas_ws_facilities_storage_log_size") != "" or self.getParam("mas_ws_facilities_storage_userfiles_size") != "" or self.getParam("mas_ws_facilities_db_maxconnpoolsize") or self.getParam("mas_ws_facilities_dwfagents"):
                 self.selectLocalConfigDir()
+                assert self.localConfigDir is not None, "localConfigDir is None"
                 facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
                 self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
                 self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
@@ -1826,6 +1835,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.isAirgap()
 
         # Configure the installOptions for the appropriate architecture
+        assert self.architecture is not None, "Target architecture is not set"
         self.catalogOptions = supportedCatalogs[self.architecture]
 
         # Basic settings before the user provides any input
@@ -1962,9 +1972,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Based on the parameters set the annotations correctly
         self.configAnnotations()
-
         self.displayInstallSummary()
 
+        continueWithInstall = True
         if not self.noConfirm:
             print()
             self.printDescription([
@@ -1973,7 +1983,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             continueWithInstall = self.yesOrNo("Proceed with these settings")
 
         # Prepare the namespace and launch the installation pipeline
-        if self.noConfirm or continueWithInstall:
+        if continueWithInstall:
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Install")

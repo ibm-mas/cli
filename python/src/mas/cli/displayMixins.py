@@ -54,19 +54,25 @@ class PrintMixin():
         print_formatted_text(HTML(f"<MediumTurquoise>{message.replace(' & ', ' &amp; ')}</MediumTurquoise>"))
 
     def printWarning(self, message: str) -> None:
+        logger.warning(message)
         print_formatted_text(HTML(f"<Red>Warning: {message.replace(' & ', ' &amp; ')}</Red>"))
 
     def printSummary(self, title: str, value: str) -> None:
         titleLength = len(title)
         message = f"{title} {'.' * (40 - titleLength)} {value}"
+
+        logger.debug(f"Summary: {title} = {value}")
         print_formatted_text(HTML(f"  <{SUMMARYCOLOR}>{message.replace(' & ', ' &amp; ')}</{SUMMARYCOLOR}>"))
 
     def printParamSummary(self, message: str, param: str) -> None:
         if self.getParam(param) is None:  # type: ignore
+            logger.debug(f"Parameter Summary: {param} = undefined")
             self.printSummary(message, f"<{UNDEFINEDPARAMCOLOR}>Undefined</{UNDEFINEDPARAMCOLOR}>")
         elif self.getParam(param) == "":  # type: ignore
+            logger.debug(f"Parameter Summary: {param} = \"\"")
             self.printSummary(message, f"<{UNDEFINEDPARAMCOLOR}>Default</{UNDEFINEDPARAMCOLOR}>")
         else:
+            logger.debug(f"Parameter Summary: {param} = {self.getParam(param)}")  # type: ignore
             self.printSummary(message, self.getParam(param))  # type: ignore
 
 
