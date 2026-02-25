@@ -198,6 +198,7 @@ class InstallSummarizerMixin():
                 self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + AIP", "Enabled" if "aip=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Vegetation Management", "Enabled" if "vegm=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Collaborate", "Enabled" if "collaborate=" in self.getParam("mas_appws_components") else "Disabled")
 
                 self.printParamSummary("+ Upgrade Type", "mas_appws_upgrade_type")
 
