@@ -198,6 +198,11 @@ class RestoreApp(BaseApp):
         if self.getParam("backup_archive_name") is not None and self.getParam("backup_archive_name") != "":
             self.printSummary("Backup custom archive name", self.getParam("backup_archive_name"))
 
+        if "storage_class_rwx" in self.params and self.params["storage_class_rwx"] != "":
+            self.printH2("Storage Class Configuration")
+            self.printSummary("Storage Class for RWO", self.getParam("storage_class_rwo"))
+            self.printSummary("Storage Class for RWX", self.getParam("storage_class_rwx"))
+
         self.printH2("Components")
         self.printSummary("Include Grafana", self.getParam("include_grafana") if self.getParam("include_grafana") else "true")
         self.printSummary("Include SLS", self.getParam("include_sls") if self.getParam("include_sls") else "true")
@@ -506,7 +511,6 @@ class RestoreApp(BaseApp):
             " - You can override the storage class for components during restore.",
             " - This is useful when restoring to a cluster with different storage classes."
         ])
-        overrideStorageClasses = False
         overrideStorageClasses = not self.yesOrNo("Do you want to use the storage classes from backup")
 
         if overrideStorageClasses:
@@ -519,10 +523,11 @@ class RestoreApp(BaseApp):
                 self.params["storage_class_rwo"] = defaultStorageClasses.rwo
                 self.params["storage_class_rwx"] = defaultStorageClasses.rwx
 
+            customSC = False
             if "storage_class_rwx" in self.params and self.params["storage_class_rwx"] != "":
-                overrideStorageClasses = not self.yesOrNo("Use the auto-detected storage classes")
+                customSC = not self.yesOrNo("Use the auto-detected storage classes")
 
-            if "storage_class_rwx" not in self.params or self.params["storage_class_rwx"] == "" or overrideStorageClasses:
+            if "storage_class_rwx" not in self.params or self.params["storage_class_rwx"] == "" or customSC:
                 self.storageClassProvider = "custom"
 
                 self.printDescription([
