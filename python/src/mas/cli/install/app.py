@@ -1751,6 +1751,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
+            self.setParam("db2u_kind", "db2ucluster")
 
         self.setDB2DefaultChannel()
 
