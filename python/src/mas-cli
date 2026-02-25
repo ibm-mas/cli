@@ -22,6 +22,7 @@ from mas.cli.upgrade.app import UpgradeApp
 from mas.cli.uninstall.app import UninstallApp
 from mas.cli.backup.app import BackupApp
 from mas.cli.restore.app import RestoreApp
+from mas.cli.mirror.app import MirrorApp
 
 from prompt_toolkit import HTML, print_formatted_text
 from urllib3.exceptions import MaxRetryError
@@ -47,7 +48,7 @@ def usage():
         + " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade to a new MAS release\n"  # noqa: W503
         + " - <ForestGreen>mas-cli backup</ForestGreen>    Backup a MAS instance\n"  # noqa: W503
         + " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"  # noqa: W503
-
+        + " - <ForestGreen>mas-cli mirror</ForestGreen>    Mirror container images \n"  # noqa: W503
     ))
     print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
 
@@ -80,6 +81,9 @@ if __name__ == '__main__':
         elif function == "restore":
             app = RestoreApp()
             app.restore(argv[2:])
+        elif function == "mirror":
+            app = MirrorApp()
+            app.mirror(argv[2:])
         elif function in ["-h", "--help"]:
             usage()
             exit(0)
