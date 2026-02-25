@@ -112,16 +112,10 @@ Manage Database Restore:
   --restore-manage-db   Restore the Manage incluster Db2 database
   --override-manage-db-storageclass
                         Override storage class for Manage Db2 database persistent volumes
-  --manage-db-meta-storage-class MANAGE_DB_META_STORAGE_CLASS
-                        Db2 Meta storage class name
-  --manage-db-data-storage-class MANAGE_DB_DATA_STORAGE_CLASS
-                        Db2 Data storage class name
-  --manage-db-backup-storage-class MANAGE_DB_BACKUP_STORAGE_CLASS
-                        Db2 Backup storage class name
-  --manage-db-logs-storage-class MANAGE_DB_LOGS_STORAGE_CLASS
-                        Db2 Logs storage class name
-  --manage-db-temp-storage-class MANAGE_DB_TEMP_STORAGE_CLASS
-                        Db2 Temp storage class name
+  --manage-db-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO
+                        Db2 ReadWriteOnce storage class name
+  --manage-db-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX
+                        Db2 ReadWriteMany storage class name
 
 Manage Application Restore:
   --restore-manage-app  Restore the Manage application including namespace resources and persistent volume data

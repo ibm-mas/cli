@@ -19,6 +19,20 @@ spec:
     - name: mas_instance_id
       type: string
       description: Instance ID
+    
+    # Archives specific parameters
+    - name: include_sls_archive
+      type: string
+      description: Download SLS archive
+      default: "false"
+    - name: include_manage_db_archive
+      type: string
+      description: Download Manage DB2 archive
+      default: "false"
+    - name: include_manage_app_archive
+      type: string
+      description: Download Manage App archive
+      default: "false"
 
     # S3 download parameters
     - name: aws_access_key_id
@@ -73,6 +87,14 @@ spec:
         value: $(params.restore_version)
       - name: BACKUP_ARCHIVE_NAME
         value: $(params.backup_archive_name)
+      
+      # Archive specific
+      - name: INCLUDE_SLS_ARCHIVE
+        value: $(params.include_sls_archive)
+      - name: INCLUDE_MANAGE_DB_ARCHIVE
+        value: $(params.include_manage_db_archive)
+      - name: INCLUDE_MANAGE_APP_ARCHIVE
+        value: $(params.include_manage_app_archive)
 
       # S3 credentials
       - name: S3_ACCESS_KEY_ID

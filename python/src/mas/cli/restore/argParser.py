@@ -270,37 +270,18 @@ manageAppArgGroup.add_argument(
 )
 
 manageAppArgGroup.add_argument(
-    '--manage-db-meta-storage-class',
+    '--manage-db-storage-class-rwo',
     required=False,
-    dest="manage_db_meta_storage_class",
-    help="Storage class for DB2 Meta storage"
+    dest="manage_db_storage_class_rwo",
+    help="RWO Storage class for DB2 storage"
 )
 
 manageAppArgGroup.add_argument(
-    '--manage-db-data-storage-class',
+    '--manage-db-storage-class-rwx',
     required=False,
-    dest="manage_db_data_storage_class",
-    help="Storage class for DB2 Data storage"
+    dest="manage_db_storage_class_rwx",
+    help="RWX Storage class for DB2 storage"
 )
-manageAppArgGroup.add_argument(
-    '--manage-db-backup-storage-class',
-    required=False,
-    dest="manage_db_backup_storage_class",
-    help="Storage class for DB2 Backup storage"
-)
-manageAppArgGroup.add_argument(
-    '--manage-db-logs-storage-class',
-    required=False,
-    dest="manage_db_logs_storage_class",
-    help="Storage class for DB2 Logs storage"
-)
-manageAppArgGroup.add_argument(
-    '--manage-db-temp-storage-class',
-    required=False,
-    dest="manage_db_temp_storage_class",
-    help="Storage class for DB2 Temp storage"
-)
-
 
 componentsArgGroup = restoreArgParser.add_argument_group(
     'Components',

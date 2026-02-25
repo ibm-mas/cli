@@ -311,29 +311,14 @@
   description: Whether to override the storage class in Manage database (Db2) PVC (true/false)
   default: "false"
 
-- name: manage_db_meta_storage_class
+- name: manage_db_storage_class_rwx
   type: string
-  description: Storage class for DB2 Meta storage
+  description: Storage class for Manage DB2 ReadWriteMany Storage
   default: ""
 
-- name: manage_db_data_storage_class
+- name: manage_db_storage_class_rwo
   type: string
-  description: Storage class for DB2 Data storage
-  default: ""
-
-- name: manage_db_backup_storage_class
-  type: string
-  description: Storage class for DB2 Backup storage
-  default: ""
-
-- name: manage_db_logs_storage_class
-  type: string
-  description: Storage class for DB2 Logs storage
-  default: ""
-
-- name: manage_db_temp_storage_class
-  type: string
-  description: Storage class for DB2 Temp storage
+  description: Storage class for Manage DB2 ReadWriteOnce Storage
   default: ""
 
 - name: backup_s3_endpoint
