@@ -93,8 +93,9 @@ class Db2SettingsMixin():
 
         self.setDB2DefaultChannel()  # Set default channel for Db2 if not already set
 
-        # If neither Iot, Manage or Facilities is being installed, we have nothing to do
-        if not self.installIoT and not self.installManage and not self.installFacilities:
+        # If neither Monitor, Manage or Facilities is being installed, we have nothing to do
+        # Note: For Monitor >= 9.2.0, Monitor requires Db2; for Monitor < 9.2.0, IoT requires Db2
+        if not self.installMonitor and not self.installIoT and not self.installManage and not self.installFacilities:
             print_formatted_text("No applications have been selected that require a Db2 installation")
             self.setParam("db2_action_system", "none")
             self.setParam("db2_action_manage", "none")
@@ -110,15 +111,35 @@ class Db2SettingsMixin():
 
         self.setDB2DefaultSettings()
 
+        
+        # Determine which application requires the system database based on Monitor version
+        # For Monitor >= 9.2.0: Monitor requires system Db2
+        # For Monitor < 9.2.0: IoT requires system Db2 (original behavior)
+        from mas.devops.utils import isVersionEqualOrAfter
+        monitorChannel = self.getParam("mas_app_channel_monitor")
+        useNewDependency = monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel)
         instanceId = self.getParam('mas_instance_id')
-        # Do we need to set up an IoT database?
-        if self.installIoT:
+        # Do we need to set up a system database?
+        if useNewDependency and self.installMonitor:
+            # New behavior: Monitor >= 9.2.0 requires system Db2
+            if not silentMode:
+                self.printH2("Database Configuration for Maximo Monitor")
+                self.printDescription([
+                    "Maximo Monitor requires a shared system-scope Db2 instance because other applications in the suite require access to the same database source",
+                    " - Only IBM Db2 is supported for this database"
+                ])
+        elif self.installIoT:
+            # Original behavior: IoT requires system Db2
             if not silentMode:
                 self.printH2("Database Configuration for Maximo IoT")
                 self.printDescription([
-                    "Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source",
+                    "Maximo IoT requires a shared system-scope Db2 instance because other applications in the suite require access to the same database source",
                     " - Only IBM Db2 is supported for this database"
                 ])
+        else:
+            self.setParam("db2_action_system", "none")
+            
+        if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
             createSystemDb2UsingUniversalOperator = True
             if not silentMode:
                 createSystemDb2UsingUniversalOperator = self.yesOrNo("Create system Db2 instance using the IBM Db2 Universal Operator")
@@ -153,8 +174,9 @@ class Db2SettingsMixin():
                 ])
             # Determine whether to use the system or a dedicated database
             reuseSystemDb2 = False
-            if self.installIoT:
+            if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
                 if not silentMode:
+                    appName = "Monitor" if (useNewDependency and self.installMonitor) else "IoT"
                     reuseSystemDb2 = self.yesOrNo(f"Re-use System Db2 instance for {self.manageAppName} application")
             if reuseSystemDb2:
                 # We are going to bind Manage to the system database, which has already been set up in the previous step

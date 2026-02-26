@@ -162,8 +162,14 @@ The interactive install will guide you through a series of questioned designed t
     <cds-accordion-item title="Application Selection">
       <p>Select the applications that you would like to install. Note that some applications cannot be installed unless an application they depend on is also installed:</p>
       <ul>
-        <li>Monitor is only available for install if IoT is selected</li>
-        <li>Assist and Predict are only available for install if Monitor is selected</li>
+        <li><strong>Version-based dependencies:</strong>
+          <ul>
+            <li><strong>Monitor < 9.2.0:</strong> Monitor depends on IoT (original behavior)</li>
+            <li><strong>Monitor >= 9.2.0:</strong> IoT depends on Monitor (new behavior)</li>
+          </ul>
+        </li>
+        <li>Predict requires IoT + Monitor + Manage</li>
+        <li>Assist is only available for install if Monitor is selected</li>
         <li>From MAS 9.1 onwards, Assist will be rebranded as Collaborate in the MAS UI. It will still appear as Assist in the MAS CLI and within the OpenShift Cluster, but from the MAS UI it will appear as Collaborate.</li>
         <li><strong>NEW UPDATE:</strong> AI Service is now available as an installation option during the application selection step.</li>
       </ul>

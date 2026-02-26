@@ -975,19 +975,44 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def configApps(self):
         self.printH1("Application Selection")
+        
+        # Determine dependency order based on Monitor version
+        # For Monitor >= 9.2.0: IoT depends on Monitor (new behavior)
+        # For Monitor < 9.2.0: Monitor depends on IoT (original behavior)
+        
+        # First, ask about IoT to determine if we need to check Monitor version
         self.installIoT = self.yesOrNo("Install IoT")
-
+        
         if self.installIoT:
             self.configAppChannel("iot")
             self.installMonitor = self.yesOrNo("Install Monitor")
+            
+            if self.installMonitor:
+                self.configAppChannel("monitor")
+                # Check if Monitor channel is >= 9.2.0
+                monitorChannel = self.getParam("mas_app_channel_monitor")
+                if monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel):
+                    # For Monitor >= 9.2.0, IoT depends on Monitor, so we need to inform user
+                    self.printDescription([
+                        "",
+                        "<Yellow>Note: For Monitor 9.2.0 and later, IoT requires Monitor to be installed first.</Yellow>",
+                        "<Yellow>The installation order will be: Monitor → IoT</Yellow>",
+                        ""
+                    ])
         else:
-            self.installMonitor = False
+            # If IoT is not selected, check if user wants Monitor standalone
+            self.installMonitor = self.yesOrNo("Install Monitor")
+            if self.installMonitor:
+                self.configAppChannel("monitor")
+                monitorChannel = self.getParam("mas_app_channel_monitor")
+                if monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel):
+                    # For Monitor >= 9.2.0, offer IoT as it can depend on Monitor
+                    self.installIoT = self.yesOrNo("Install IoT (requires Monitor 9.2.0+)")
+                    if self.installIoT:
+                        self.configAppChannel("iot")
 
         # Initialize ArcGIS flag (will be set to True later in arcgisSettings() if needed)
         self.installArcgis = False
-
-        if self.installMonitor:
-            self.configAppChannel("monitor")
 
         self.manageAppName = "Manage"
         self.isManageFoundation = False
@@ -1006,7 +1031,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installManage:
             self.configAppChannel("manage")
 
-        if self.installIoT and self.installManage:
+        # Predict requires IoT + Monitor + Manage
+        if self.installIoT and self.installMonitor and self.installManage:
             self.installPredict = self.yesOrNo("Install Predict")
         else:
             self.installPredict = False
