@@ -74,16 +74,18 @@ class InstallTestConfig:
 class InstallTestHelper:
     """Helper class to run install tests with minimal code duplication."""
 
-    def __init__(self, tmpdir, config: InstallTestConfig):
+    def __init__(self, tmpdir, config: InstallTestConfig, install_type: str = 'mas'):
         """
         Initialize the test helper.
 
         Args:
             tmpdir: pytest tmpdir fixture
             config: Test configuration
+            install_type: Type of installation - 'mas' or 'aiservice' (default: 'mas')
         """
         self.tmpdir = tmpdir
         self.config = config
+        self.install_type = install_type
         self.test_failed = {'failed': False, 'message': ''}
         self.last_prompt_time = {'time': time.time()}
         self.watchdog_thread = None
@@ -190,53 +192,55 @@ class InstallTestHelper:
         cluster_version.status.history = [history_record]
         cluster_version_api.get.return_value = cluster_version
 
-        # Configure IngressController mock - NOT configured for path-based routing initially
-        # This will trigger the prompt to configure it
-        ingress_controller = MagicMock()
-        ingress_controller.metadata = MagicMock()
-        ingress_controller.metadata.name = 'default'
-        ingress_controller.status = MagicMock()
-        ingress_controller.status.domain = 'apps.cluster.example.com'
-        ingress_controller.status.conditions = [
-            MagicMock(type='Available', status='True')
-        ]
-        ingress_controller.spec = MagicMock()
-        ingress_controller.spec.routeAdmission = MagicMock()
-        # Set to 'Strict' initially (not configured for path-based routing)
-        ingress_controller.spec.routeAdmission.namespaceOwnership = 'Strict'
+        # Configure IngressController mock only for MAS install (not needed for aiservice)
+        if self.install_type == 'mas':
+            # NOT configured for path-based routing initially
+            # This will trigger the prompt to configure it
+            ingress_controller = MagicMock()
+            ingress_controller.metadata = MagicMock()
+            ingress_controller.metadata.name = 'default'
+            ingress_controller.status = MagicMock()
+            ingress_controller.status.domain = 'apps.cluster.example.com'
+            ingress_controller.status.conditions = [
+                MagicMock(type='Available', status='True')
+            ]
+            ingress_controller.spec = MagicMock()
+            ingress_controller.spec.routeAdmission = MagicMock()
+            # Set to 'Strict' initially (not configured for path-based routing)
+            ingress_controller.spec.routeAdmission.namespaceOwnership = 'Strict'
 
-        # Support dict-style access for _checkIngressControllerForPathRouting
-        # Initially returns 'Strict' (not configured)
-        def ingress_controller_get(key, default=None):
-            if key == 'spec':
-                spec_dict = {
-                    'routeAdmission': {
-                        'namespaceOwnership': 'Strict'  # Not configured for path-based routing
+            # Support dict-style access for _checkIngressControllerForPathRouting
+            # Initially returns 'Strict' (not configured)
+            def ingress_controller_get(key, default=None):
+                if key == 'spec':
+                    spec_dict = {
+                        'routeAdmission': {
+                            'namespaceOwnership': 'Strict'  # Not configured for path-based routing
+                        }
                     }
-                }
-                return type('obj', (object,), {
-                    'get': lambda self, k, d=None: spec_dict.get(k, d)
-                })()
-            return default
+                    return type('obj', (object,), {
+                        'get': lambda self, k, d=None: spec_dict.get(k, d)
+                    })()
+                return default
 
-        ingress_controller.get = ingress_controller_get
+            ingress_controller.get = ingress_controller_get
 
-        # Configure get() to return single controller when queried by name
-        # and list when queried without name
-        def ingress_controller_api_get(**kwargs):
-            if 'name' in kwargs:
-                # Return single controller when queried by name
-                return ingress_controller
-            else:
-                # Return list when querying all controllers
-                ingress_controller_list = MagicMock()
-                ingress_controller_list.items = [ingress_controller]
-                return ingress_controller_list
+            # Configure get() to return single controller when queried by name
+            # and list when queried without name
+            def ingress_controller_api_get(**kwargs):
+                if 'name' in kwargs:
+                    # Return single controller when queried by name
+                    return ingress_controller
+                else:
+                    # Return list when querying all controllers
+                    ingress_controller_list = MagicMock()
+                    ingress_controller_list.items = [ingress_controller]
+                    return ingress_controller_list
 
-        ingress_controller_api.get.side_effect = ingress_controller_api_get
+            ingress_controller_api.get.side_effect = ingress_controller_api_get
 
-        # Mock patch operation to succeed
-        ingress_controller_api.patch = MagicMock(return_value=ingress_controller)
+            # Mock patch operation to succeed
+            ingress_controller_api.patch = MagicMock(return_value=ingress_controller)
 
         return dynamic_client, resource_apis
 
@@ -271,6 +275,17 @@ class InstallTestHelper:
             AssertionError: If prompt verification fails
             SystemExit: If expect_system_exit is True and SystemExit is raised
         """
+        # Determine which app class and module to use based on install_type
+        if self.install_type == 'aiservice':
+            from mas.cli.aiservice.install.app import AiServiceInstallApp
+            app_class = AiServiceInstallApp
+            app_module = 'mas.cli.aiservice.install.app'
+            prepare_namespace_func = 'prepareAiServicePipelinesNamespace'
+        else:
+            app_class = InstallApp
+            app_module = 'mas.cli.install.app'
+            prepare_namespace_func = 'preparePipelinesNamespace'
+
         self.setup_test_files()
         self.start_watchdog()
 
@@ -284,19 +299,19 @@ class InstallTestHelper:
                 mock.patch('mas.cli.cli.DynamicClient') as dynamic_client_class,
                 mock.patch('mas.cli.cli.getNodes') as get_nodes,
                 mock.patch('mas.cli.cli.isAirgapInstall') as is_airgap_install,
-                mock.patch('mas.cli.install.app.getCurrentCatalog') as get_current_catalog,
-                mock.patch('mas.cli.install.app.installOpenShiftPipelines'),
-                mock.patch('mas.cli.install.app.updateTektonDefinitions'),
-                mock.patch('mas.cli.install.app.createNamespace'),
-                mock.patch('mas.cli.install.app.preparePipelinesNamespace'),
-                mock.patch('mas.cli.install.app.launchInstallPipeline') as launch_install_pipeline,
+                mock.patch(f'{app_module}.getCurrentCatalog') as get_current_catalog,
+                mock.patch(f'{app_module}.installOpenShiftPipelines'),
+                mock.patch(f'{app_module}.updateTektonDefinitions'),
+                mock.patch(f'{app_module}.createNamespace'),
+                mock.patch(f'{app_module}.{prepare_namespace_func}'),
+                mock.patch(f'{app_module}.launchInstallPipeline') as launch_install_pipeline,
                 mock.patch('mas.cli.install.app.configureIngressForPathBasedRouting') as configure_ingress,
                 mock.patch('mas.cli.cli.isSNO') as is_sno,
                 mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
                 mock.patch('mas.cli.displayMixins.PromptSession') as prompt_session_class,
-                mock.patch('mas.cli.install.app.prompt') as app_prompt,
-                mock.patch('mas.cli.install.app.getStorageClasses') as get_storage_classes,
-                mock.patch('mas.cli.install.app.getDefaultStorageClasses') as get_default_storage_classes,
+                mock.patch(f'{app_module}.prompt') as app_prompt,
+                mock.patch(f'{app_module}.getStorageClasses') as get_storage_classes,
+                mock.patch(f'{app_module}.getDefaultStorageClasses') as get_default_storage_classes,
             ):
 
                 # Configure mock return values
@@ -329,7 +344,7 @@ class InstallTestHelper:
                 get_default_storage_classes.return_value = default_storage_classes
 
                 try:
-                    app = InstallApp()
+                    app = app_class()
                     app.install(argv=self.config.argv)
                 except SystemExit as e:
                     system_exit_raised = True
@@ -358,9 +373,26 @@ class InstallTestHelper:
                 self.prompt_tracker.verify_all_prompts_matched()
 
 
-def run_install_test(tmpdir, config: InstallTestConfig):
+def run_install_test(tmpdir, config: InstallTestConfig, install_type: str = 'mas'):
     """
     Convenience function to run an install test.
+
+    Args:
+        tmpdir: pytest tmpdir fixture
+        config: Test configuration
+        install_type: Type of installation - 'mas' or 'aiservice' (default: 'mas')
+
+    Raises:
+        TimeoutError: If test times out
+        AssertionError: If prompt verification fails
+    """
+    helper = InstallTestHelper(tmpdir, config, install_type)
+    helper.run_install_test()
+
+
+def run_aiservice_install_test(tmpdir, config: InstallTestConfig):
+    """
+    Convenience function to run an aiservice install test.
 
     Args:
         tmpdir: pytest tmpdir fixture
@@ -370,7 +402,7 @@ def run_install_test(tmpdir, config: InstallTestConfig):
         TimeoutError: If test times out
         AssertionError: If prompt verification fails
     """
-    helper = InstallTestHelper(tmpdir, config)
-    helper.run_install_test()
+    run_install_test(tmpdir, config, install_type='aiservice')
+
 
 # Made with Bob

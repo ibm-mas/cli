@@ -104,6 +104,7 @@ optionalParams = [
     "db2_logs_storage_size",
     "db2_meta_storage_size",
     "db2_temp_storage_size",
+    "db2u_kind",
     # CP4D
     "cpd_product_version",
     "cpd_install_cognos",
