@@ -77,7 +77,7 @@ class KafkaSettingsMixin():
         # Check if we should use the new dependency (Monitor >= 9.2.0)
         monitorChannel = self.getParam("mas_app_channel_monitor")
         useNewDependency = monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel)
-        
+
         if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
             appName = "Monitor" if (useNewDependency and self.installMonitor) else "IoT"
             self.printH1("Configure Kafka")

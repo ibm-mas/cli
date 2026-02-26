@@ -975,18 +975,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def configApps(self):
         self.printH1("Application Selection")
-        
+
         # Determine dependency order based on Monitor version
         # For Monitor >= 9.2.0: IoT depends on Monitor (new behavior)
         # For Monitor < 9.2.0: Monitor depends on IoT (original behavior)
-        
+
         # First, ask about IoT to determine if we need to check Monitor version
         self.installIoT = self.yesOrNo("Install IoT")
-        
+
         if self.installIoT:
             self.configAppChannel("iot")
             self.installMonitor = self.yesOrNo("Install Monitor")
-            
+
             if self.installMonitor:
                 self.configAppChannel("monitor")
                 # Check if Monitor channel is >= 9.2.0
