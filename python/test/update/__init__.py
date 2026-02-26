@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # *****************************************************************************
 # Copyright (c) 2026 IBM Corporation and other Contributors.
 #
@@ -8,4 +9,4 @@
 #
 # *****************************************************************************
 
-from ..cli import BaseApp  # noqa: F401
+# Made with Bob

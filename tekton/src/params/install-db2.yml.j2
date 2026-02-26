@@ -36,6 +36,10 @@
   type: string
   description: Customize the way database tables will be organized.  Set to 'ROW' or 'COLUMN'
   default: "ROW"
+- name: db2u_kind
+  type: string
+  description: Db2 Openshift Custom Resource (db2ucluster or db2uinstance). Defaults to db2ucluster if not specified.
+  default: ""
 
 # Dependences - Db2 - Node scheduling
 # -------------------------------------------------------------------------
