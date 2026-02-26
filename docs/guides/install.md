@@ -164,8 +164,8 @@ The interactive install will guide you through a series of questioned designed t
       <ul>
         <li><strong>Version-based dependencies:</strong>
           <ul>
-            <li><strong>Monitor < 9.2.0:</strong> Monitor depends on IoT (original behavior)</li>
-            <li><strong>Monitor >= 9.2.0:</strong> IoT depends on Monitor (new behavior)</li>
+            <li><strong>Monitor < 9.2.0:</strong> Monitor depends on IoT (IoT must be installed first)</li>
+            <li><strong>Monitor >= 9.2.0:</strong> Monitor and IoT are independent (can be installed in any order or standalone)</li>
           </ul>
         </li>
         <li>Assist and Predict are only available for install if Monitor is selected</li>
