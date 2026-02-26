@@ -14,12 +14,12 @@ from os import path
 from base64 import b64encode
 from glob import glob
 from halo import Halo
-from prompt_toolkit import print_formatted_text, HTML
+from prompt_toolkit import prompt, print_formatted_text, HTML
 
 from ..cli import BaseApp
-from ..validators import InstanceIDFormatValidator, FileExistsValidator
+from ..validators import InstanceIDFormatValidator, FileExistsValidator, StorageClassValidator
 from .argParser import restoreArgParser
-from mas.devops.ocp import createNamespace, getConsoleURL
+from mas.devops.ocp import createNamespace, getConsoleURL, getStorageClasses
 from mas.devops.mas import getDefaultStorageClasses
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchRestorePipeline, prepareRestoreSecrets
 
@@ -89,11 +89,8 @@ class RestoreApp(BaseApp):
                 "manage_app_storage_class_rwx",
                 "manage_app_storage_class_rwo",
                 "manage_db_override_storageclass",
-                "manage_db_meta_storage_class",
-                "manage_db_data_storage_class",
-                "manage_db_backup_storage_class",
-                "manage_db_logs_storage_class",
-                "manage_db_temp_storage_class",
+                "manage_db_storage_class_rwx",
+                "manage_db_storage_class_rwo",
                 # MongoDB Storage Class Override
                 "override_mongodb_storageclass",
                 "mongodb_storageclass_name"
@@ -141,8 +138,8 @@ class RestoreApp(BaseApp):
             if self.args.restore_version is None:
                 self.promptForBackupVersion()
 
-            # Prompt for MongoDB storage class override
-            self.promptForMongoDBStorageClass()
+            # Prompt for backup class override
+            self.configStorageClasses()
 
             # Prompt for Grafana install
             self.promptForIncludeGrafana()
@@ -200,6 +197,11 @@ class RestoreApp(BaseApp):
         self.printSummary("Backup Version to restore", self.getParam("restore_version"))
         if self.getParam("backup_archive_name") is not None and self.getParam("backup_archive_name") != "":
             self.printSummary("Backup custom archive name", self.getParam("backup_archive_name"))
+
+        if "storage_class_rwx" in self.params and self.params["storage_class_rwx"] != "":
+            self.printH2("Storage Class Configuration")
+            self.printSummary("Storage Class for RWO", self.getParam("storage_class_rwo"))
+            self.printSummary("Storage Class for RWX", self.getParam("storage_class_rwx"))
 
         self.printH2("Components")
         self.printSummary("Include Grafana", self.getParam("include_grafana") if self.getParam("include_grafana") else "true")
@@ -369,6 +371,11 @@ class RestoreApp(BaseApp):
 
     def promptForBackupStorageSize(self) -> None:
         self.printH1("Backup Storage Configuration")
+        self.printDescription([
+            " - Make sure to have enough storage to download the archive(s) and extract the contents.",
+            " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
+            " - Note: The downloaded archive will be deleted after the contents are extracted."
+        ])
         storageSize = self.promptForString("Enter PVC storage size, must be bigger than backup archive size.", default="20Gi")
         self.setParam("backup_storage_size", storageSize)
 
@@ -405,10 +412,6 @@ class RestoreApp(BaseApp):
         if downloadBackup:
             self.setParam("download_backup", "true")
 
-            # Confirm backup archive name.
-            confirmBackupArchiveName = self.yesOrNo(f"Confirm backup archive name - 'mas-{self.getParam('mas_instance_id')}-backup-{self.getParam('restore_version')}.tar.gz'")
-            if not confirmBackupArchiveName:
-                self.promptForString("Enter Custom backup archive name including tar.gz extension", "backup_archive_name")
             # Determine download destination based on dev_mode
             if self.devMode:
                 self.printDescription([
@@ -482,18 +485,6 @@ class RestoreApp(BaseApp):
         if restoreManageApp:
             self.setParam("restore_manage_app", "true")
 
-            overrideAppSC = self.yesOrNo("Do you want to override the storage class for the Manage Application persistent volume")
-
-            if overrideAppSC:
-                self.setParam("manage_app_override_storageclass", "true")
-                useCustomAppSC = self.yesOrNo("Do you want to use the custom storage class, if not default in cluster will be used")
-                if useCustomAppSC:
-                    manage_app_storage_class_rwx = self.promptForString("Manage Application - ReadWriteMany storage class name")
-                    manage_app_storage_class_rwo = self.promptForString("Manage Application - ReadWriteOnce storage class name")
-                    self.setParam("manage_app_storage_class_rwx", manage_app_storage_class_rwx)
-                    self.setParam("manage_app_storage_class_rwo", manage_app_storage_class_rwo)
-            else:
-                self.setParam("manage_app_override_storageclass", "false")
             # Ask about DB2 restore
             self.printH2("Manage Database Restore")
             self.printDescription([
@@ -508,47 +499,65 @@ class RestoreApp(BaseApp):
             self.setParam("manage_db2_restore_vendor", "disk")
             if restoreDb2:
                 self.setParam("restore_manage_db", "true")
-                overrideStorageClass = self.yesOrNo("Do you want to override the storage class for the Manage database persistent volume")
-                if overrideStorageClass:
-                    self.setParam("manage_db_override_storageclass", "true")
-                    useCustomSC = self.yesOrNo("Do you want to use the custom storage class, if not default in cluster will be used")
-                    if useCustomSC:
-                        manage_db_meta_storage_class = self.promptForString("DB2 Meta storage class name")
-                        manage_db_data_storage_class = self.promptForString("DB2 Data storage class name")
-                        manage_db_backup_storage_class = self.promptForString("DB2 Backup storage class name")
-                        manage_db_logs_storage_class = self.promptForString("DB2 Logs storage class name")
-                        manage_db_temp_storage_class = self.promptForString("Db2 temp storage class name")
-                        self.setParam("manage_db_meta_storage_class", manage_db_meta_storage_class)
-                        self.setParam("manage_db_data_storage_class", manage_db_data_storage_class)
-                        self.setParam("manage_db_backup_storage_class", manage_db_backup_storage_class)
-                        self.setParam("manage_db_logs_storage_class", manage_db_logs_storage_class)
-                        self.setParam("manage_db_temp_storage_class", manage_db_temp_storage_class)
-                else:
-                    self.setParam("manage_db_override_storageclass", "false")
             else:
                 self.setParam("restore_manage_db", "false")
         else:
             self.setParam("restore_manage_app", "false")
             self.setParam("restore_manage_db", "false")
 
-    def promptForMongoDBStorageClass(self) -> None:
-        """Prompt user for MongoDB storage class override configuration"""
-        self.printH1("MongoDB Storage Class Configuration")
+    def configStorageClasses(self):
+        self.printH1("Configure Storage Class during Restore")
         self.printDescription([
-            "You can override the storage class for MongoDB during restore.",
-            "This is useful when restoring to a cluster with different storage classes."
+            " - You can override the storage class for components during restore.",
+            " - This is useful when restoring to a cluster with different storage classes."
         ])
+        overrideStorageClasses = not self.yesOrNo("Do you want to use the storage classes from backup")
 
-        overrideMongoDBSC = self.yesOrNo("Do you want to override the storage class for MongoDB")
+        if overrideStorageClasses:
+            defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+            if defaultStorageClasses.provider is not None:
+                print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
+                self.storageClassProvider = defaultStorageClasses.provider
+                self.params["storage_class_rwo"] = defaultStorageClasses.rwo
+                self.params["storage_class_rwx"] = defaultStorageClasses.rwx
 
-        if overrideMongoDBSC:
-            self.setParam("override_mongodb_storageclass", "true")
-            useCustomMongoDBSC = self.yesOrNo("Do you want to use a custom storage class, if not default in cluster will be used")
-            if useCustomMongoDBSC:
-                mongodb_storageclass_name = self.promptForString("MongoDB storage class name(ReadWriteOnce)")
-                self.setParam("mongodb_storageclass_name", mongodb_storageclass_name)
+            customSC = False
+            if "storage_class_rwx" in self.params and self.params["storage_class_rwx"] != "":
+                customSC = not self.yesOrNo("Use the auto-detected storage classes")
+
+            if "storage_class_rwx" not in self.params or self.params["storage_class_rwx"] == "" or customSC:
+                self.storageClassProvider = "custom"
+
+                self.printDescription([
+                    "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
+                    "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be restored"
+                ])
+                for storageClass in getStorageClasses(self.dynamicClient):
+                    print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+
+                self.params["storage_class_rwo"] = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+                self.params["storage_class_rwx"] = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+
+            # Configure mongodb storage class override, preferable with RWO
+            if self.getParam("storage_class_rwo") is not None and self.getParam("storage_class_rwo") != "":
+                self.setParam("override_mongodb_storageclass", "true")
+                self.setParam("mongodb_storageclass_name", self.getParam("storage_class_rwo"))
+
+            # Configure manage app storage class override
+            if (self.getParam("storage_class_rwo") is not None and self.getParam("storage_class_rwx") != "") and (self.getParam("storage_class_rwx") is not None and self.getParam("storage_class_rwo") != ""):
+                self.setParam("manage_app_override_storageclass", "true")
+                self.setParam("manage_app_storage_class_rwx", self.getParam("storage_class_rwx"))
+                self.setParam("manage_app_storage_class_rwo", self.getParam("storage_class_rwo"))
+                self.setParam("manage_db_override_storageclass", "true")
+                self.setParam("manage_db_storage_class_rwx", self.getParam("storage_class_rwx"))
+                self.setParam("manage_db_storage_class_rwo", self.getParam("storage_class_rwo"))
+
         else:
             self.setParam("override_mongodb_storageclass", "false")
+            self.setParam("manage_app_override_storageclass", "false")
+            self.setParam("manage_db_override_storageclass", "false")
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str = '', keyPrefix: str = '') -> dict:
         """
