@@ -11,9 +11,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 
 ### Catalog Directory
 Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: [https://access.redhat.com/support/policy/updates/openshift](https://access.redhat.com/support/policy/updates/openshift).  Also note that support for the non-EUS releases expires before the extended support for the previous EUS release, for example extended support for OCP 4.18 expires on Feb 25, 2027, while standard support for OCP 4.17 expires on April 1, 2026.
-Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: [https://access.redhat.com/support/policy/updates/openshift](https://access.redhat.com/support/policy/updates/openshift).  Also note that support for the non-EUS releases expires before the extended support for the previous EUS release, for example extended support for OCP 4.18 expires on Feb 25, 2027, while standard support for OCP 4.17 expires on April 1, 2026.
 
-<cds-tabs trigger-content="Select an item" value="2026">
 <cds-tabs trigger-content="Select an item" value="2026">
   <cds-tab id="tab-2026" target="panel-2026" value="2026">2026 Catalogs</cds-tab>
   <cds-tab id="tab-2025" target="panel-2025" value="2025">2025 Catalogs</cds-tab>
@@ -32,94 +30,87 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <th>CPD</th>
           <th>MongoDB</th>
           <th>CLI</th>
-          <th style="min-width: 200px;">Catalog</th>
-          <th>OCP</th>
-          <th>CPD</th>
-          <th>MongoDB</th>
-          <th>CLI</th>
         </tr>
       </thead>
       <tbody>
       <tr>
-          <td style="font-style: italic">v9-261224<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-261224</td>
+          <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
       <tr>
-          <td style="font-style: italic">v9-261126<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-261126</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-261029<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260924<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-261029</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-260827<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260730<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-260924</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-260625<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260528<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-260827</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-260423<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260326<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
+          <td style="font-style: italic">v9-260730</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-260226<br/>amd64 | s390x | ppc64le</td>
-          <td style="font-style: italic">TBD<br/></td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td><span style="font-weight: bold">v9-260129</span><br/><a href="v9-260129-amd64/">amd64</a> | <a href="v9-260129-s390x/">s390x</a> | <a href="v9-260129-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td style="font-style: italic">v9-260625</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260528</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260423</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260326</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260226</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
           <td><span style="font-weight: bold">v9-260129</span><br/><a href="v9-260129-amd64/">amd64</a> | <a href="v9-260129-s390x/">s390x</a> | <a href="v9-260129-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.2.0</td>
@@ -139,19 +130,12 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <th>CPD</th>
           <th>MongoDB</th>
           <th>CLI</th>
-          <th style="min-width: 200px;">Catalog</th>
-          <th>OCP</th>
-          <th>CPD</th>
-          <th>MongoDB</th>
-          <th>CLI</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><span style="font-weight: bold">v9-251231</span><br/><a href="v9-251231-amd64/">amd64</a> | <a href="v9-251231-s390x/">s390x</a> | <a href="v9-251231-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
-          <td><span style="font-weight: bold">v9-251231</span><br/><a href="v9-251231-amd64/">amd64</a> | <a href="v9-251231-s390x/">s390x</a> | <a href="v9-251231-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
           <td>latest</td>
@@ -159,16 +143,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
         <tr>
           <td><span style="font-weight: bold">v9-251224</span><br/><a href="v9-251224-amd64/">amd64</a> | <a href="v9-251224-s390x/">s390x</a> | <a href="v9-251224-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
-          <td><span style="font-weight: bold">v9-251224</span><br/><a href="v9-251224-amd64/">amd64</a> | <a href="v9-251224-s390x/">s390x</a> | <a href="v9-251224-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
           <td>latest</td>
-          <td>latest</td>
         </tr>
         <tr>
-          <td><span style="font-weight: bold">v9-251127</span><br/><a href="v9-251127-amd64/">amd64</a> | <a href="v9-251127-s390x/">s390x</a> | <a href="v9-251127-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td><span style="font-weight: bold">v9-251127</span><br/><a href="v9-251127-amd64/">amd64</a> | <a href="v9-251127-s390x/">s390x</a> | <a href="v9-251127-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
@@ -176,8 +155,6 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td>latest</td>
         </tr>
         <tr>
-          <td><span style="font-weight: bold">v9-251030</span><br/><a href="v9-251030-amd64/">amd64</a> | <a href="v9-251030-s390x/">s390x</a> | <a href="v9-251030-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.14 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td><span style="font-weight: bold">v9-251030</span><br/><a href="v9-251030-amd64/">amd64</a> | <a href="v9-251030-s390x/">s390x</a> | <a href="v9-251030-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.14 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
@@ -187,15 +164,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
         <tr>
           <td><span style="font-weight: bold">v9-251010</span><br/><a href="v9-251010-amd64/">amd64</a> | <a href="v9-251010-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
-          <td><span style="font-weight: bold">v9-251010</span><br/><a href="v9-251010-amd64/">amd64</a> | <a href="v9-251010-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
           <td>15.9.0</td>
         </tr>
         <tr>
-          <td><span style="font-weight: bold">v9-250925</span><br/><a href="v9-250925-amd64/">amd64</a> | <a href="v9-250925-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td><span style="font-weight: bold">v9-250925</span><br/><a href="v9-250925-amd64/">amd64</a> | <a href="v9-250925-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
@@ -205,15 +178,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
         <tr>
           <td><span style="font-weight: bold">v9-250902</span><br/><a href="v9-250902-amd64/">amd64</a> | <a href="v9-250902-s390x/">s390x</a> | <a href="v9-250902-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
-          <td><span style="font-weight: bold">v9-250902</span><br/><a href="v9-250902-amd64/">amd64</a> | <a href="v9-250902-s390x/">s390x</a> | <a href="v9-250902-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
           <td>15.3.0</td>
         </tr>
         <tr>
-          <td><span style="font-weight: bold">v9-250828</span><br/><a href="v9-250828-amd64/">amd64</a> | <a href="v9-250828-s390x/">s390x</a> | <a href="v9-250828-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td><span style="font-weight: bold">v9-250828</span><br/><a href="v9-250828-amd64/">amd64</a> | <a href="v9-250828-s390x/">s390x</a> | <a href="v9-250828-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
@@ -223,15 +192,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
         <tr>
           <td><span style="font-weight: bold">v9-250731</span><br/><a href="v9-250731-amd64/">amd64</a> | <a href="v9-250731-s390x/">s390x</a> | <a href="v9-250731-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
-          <td><span style="font-weight: bold">v9-250731</span><br/><a href="v9-250731-amd64/">amd64</a> | <a href="v9-250731-s390x/">s390x</a> | <a href="v9-250731-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
           <td>15.1.0</td>
         </tr>
         <tr>
-          <td><span style="font-weight: bold">v9-250624</span><br/><a href="v9-250624-amd64/">amd64</a> | <a href="v9-250624-s390x/">s390x</a> | <a href="v9-250624-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td><span style="font-weight: bold">v9-250624</span><br/><a href="v9-250624-amd64/">amd64</a> | <a href="v9-250624-s390x/">s390x</a> | <a href="v9-250624-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
@@ -241,15 +206,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
         <tr>
           <td><span style="font-weight: bold">v9-250501</span><br/><a href="v9-250501-amd64/">amd64</a> | <a href="v9-250501-s390x/">s390x</a> | N/A</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
-          <td><span style="font-weight: bold">v9-250501</span><br/><a href="v9-250501-amd64/">amd64</a> | <a href="v9-250501-s390x/">s390x</a> | N/A</td>
-          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
           <td>13.20.0</td>
         </tr>
         <tr>
-          <td><span style="font-weight: bold">v9-250403</span><br/><a href="v9-250403-amd64/">amd64</a> | <a href="v9-250403-s390x/">s390x</a> | N/A</td>
-          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td><span style="font-weight: bold">v9-250403</span><br/><a href="v9-250403-amd64/">amd64</a> | <a href="v9-250403-s390x/">s390x</a> | N/A</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
@@ -259,8 +220,6 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
         <tr>
           <td><span style="font-weight: bold">v9-250306</span><br/><a href="v9-250306-amd64/">amd64</a> | <a href="v9-250306-s390x/">s390x</a> | N/A</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
-          <td><span style="font-weight: bold">v9-250306</span><br/><a href="v9-250306-amd64/">amd64</a> | <a href="v9-250306-s390x/">s390x</a> | N/A</td>
-          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
           <td>13.10.0</td>
@@ -268,15 +227,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
         <tr>
           <td><span style="font-weight: bold">v9-250206</span><br/><a href="v9-250206-amd64/">amd64</a> | <a href="v9-250206-s390x/">s390x</a> | N/A</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
-          <td><span style="font-weight: bold">v9-250206</span><br/><a href="v9-250206-amd64/">amd64</a> | <a href="v9-250206-s390x/">s390x</a> | N/A</td>
-          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
           <td>13.3.0</td>
         </tr>
         <tr>
-          <td><span style="font-weight: bold">v9-250109</span><br/><a href="v9-250109-amd64/">amd64</a> | <a href="v9-250109-s390x/">s390x</a> | N/A</td>
-          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td><span style="font-weight: bold">v9-250109</span><br/><a href="v9-250109-amd64/">amd64</a> | <a href="v9-250109-s390x/">s390x</a> | N/A</td>
           <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
@@ -295,16 +250,10 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
     <th>CPD</th>
     <th>MongoDB</th>
     <th>CLI</th>
-    <th>OCP</th>
-    <th>CPD</th>
-    <th>MongoDB</th>
-    <th>CLI</th>
     </tr>
     </thead>
     <tbody>
     <tr>
-    <td><span style="font-weight: bold">v9-241205</span><br/><a href="v9-241205-amd64/">amd64</a> | <a href="v9-241205-s390x/">s390x</a></td>
-    <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
     <td><span style="font-weight: bold">v9-241205</span><br/><a href="v9-241205-amd64/">amd64</a> | <a href="v9-241205-s390x/">s390x</a></td>
     <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
     <td>5.0.0</td>
@@ -314,15 +263,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
     <tr>
     <td><span style="font-weight: bold">v9-241107</span><br/><a href="v9-241107-amd64/">amd64</a> | <a href="v9-241107-s390x/">s390x</a></td>
     <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
-    <td><span style="font-weight: bold">v9-241107</span><br/><a href="v9-241107-amd64/">amd64</a> | <a href="v9-241107-s390x/">s390x</a></td>
-    <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>6.0 - 7.0</td>
     <td>11.7.0</td>
     </tr>
     <tr>
-    <td><a href="v9-241003-amd64/"><span style="font-weight: bold">v9-241003-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td><a href="v9-241003-amd64/"><span style="font-weight: bold">v9-241003-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
@@ -332,15 +277,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
     <tr>
     <td><a href="v9-240827-amd64/"><span style="font-weight: bold">v9-240827-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
-    <td><a href="v9-240827-amd64/"><span style="font-weight: bold">v9-240827-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
     <td>11.11.3</td>
     </tr>
     <tr>
-    <td><a href="v9-240730-amd64/"><span style="font-weight: bold">v9-240730-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td><a href="v9-240730-amd64/"><span style="font-weight: bold">v9-240730-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
@@ -350,15 +291,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
     <tr>
     <td><a href="v9-240625-amd64/"><span style="font-weight: bold">v9-240625-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
-    <td><a href="v9-240625-amd64/"><span style="font-weight: bold">v9-240625-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
     <td>10.9.2</td>
     </tr>
     <tr>
-    <td><a href="v8-240528-amd64/"><span style="font-weight: bold">v8-240528-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td><a href="v8-240528-amd64/"><span style="font-weight: bold">v8-240528-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
@@ -368,15 +305,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
     <tr>
     <td><a href="v8-240430-amd64/"><span style="font-weight: bold">v8-240430-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
-    <td><a href="v8-240430-amd64/"><span style="font-weight: bold">v8-240430-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
     <td>9.4.0</td>
     </tr>
     <tr>
-    <td><a href="v8-240405-amd64/"><span style="font-weight: bold">v8-240405-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td><a href="v8-240405-amd64/"><span style="font-weight: bold">v8-240405-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
@@ -386,15 +319,11 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
     <tr>
     <td><a href="v8-240326-amd64/"><span style="font-weight: bold">v8-240326-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
-    <td><a href="v8-240326-amd64/"><span style="font-weight: bold">v8-240326-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
     <td>9.4.0</td>
     </tr>
     <tr>
-    <td><a href="v8-240227-amd64/"><span style="font-weight: bold">v8-240227-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jan 17, 2025 ↗</a></td>
     <td><a href="v8-240227-amd64/"><span style="font-weight: bold">v8-240227-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jan 17, 2025 ↗</a></td>
     <td>4.6.6</td>
@@ -402,8 +331,6 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
     <td>8.2.2</td>
     </tr>
     <tr>
-    <td><a href="v8-240130-amd64/"><span style="font-weight: bold">v8-240130-amd64</span></a></td>
-    <td><span style="font-weight: bold">4.12</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jan 17, 2025 ↗</a></td>
     <td><a href="v8-240130-amd64/"><span style="font-weight: bold">v8-240130-amd64</span></a></td>
     <td><span style="font-weight: bold">4.12</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jan 17, 2025 ↗</a></td>
     <td>4.6.6</td>
@@ -418,8 +345,6 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
     <thead>
     <tr>
     <th>Catalog</th>
-    <th>OCP</th>
-    <th>CLI</th>
     <th>OCP</th>
     <th>CLI</th>
     <th>Support Notes</th>
@@ -530,8 +455,6 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
     <thead>
     <tr>
     <th>Catalog</th>
-    <th>OCP</th>
-    <th>CLI</th>
     <th>OCP</th>
     <th>CLI</th>
     <th>Support Notes</th>
