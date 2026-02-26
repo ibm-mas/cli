@@ -156,6 +156,18 @@ spec:
     - name: hypervisor
       type: string
       default: ''
+    - name: efs_catalog_source
+      type: string
+      default: ''
+    - name: efs_catalog_source_namespace
+      type: string
+      default: ''
+    - name: efs_channel
+      type: string
+      default: ''
+    - name: efs_subscription_source_namespace
+      type: string
+      default: ''
 
   stepTemplate:
     name: gitops-cluster
@@ -273,6 +285,15 @@ spec:
         value: $(params.instana_agent_operator_jks_storage_class)
       - name: HYPERVISOR
         value: $(params.hypervisor)
+
+      - name: EFS_CATALOG_SOURCE
+        value: $(params.efs_catalog_source)
+      - name: EFS_CATALOG_SOURCE_NAMESPACE
+        value: $(params.efs_catalog_source_namespace)
+      - name: EFS_CHANNEL
+        value: $(params.efs_channel)
+      - name: EFS_SUBSCRIPTION_SOURCE_NAMESPACE
+        value: $(params.efs_subscription_source_namespace)
 
     envFrom:
       - configMapRef:
