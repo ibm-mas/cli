@@ -175,7 +175,6 @@ class Db2SettingsMixin():
             reuseSystemDb2 = False
             if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
                 if not silentMode:
-                    appName = "Monitor" if (useNewDependency and self.installMonitor) else "IoT"
                     reuseSystemDb2 = self.yesOrNo(f"Re-use System Db2 instance for {self.manageAppName} application")
             if reuseSystemDb2:
                 # We are going to bind Manage to the system database, which has already been set up in the previous step
