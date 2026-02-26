@@ -125,8 +125,12 @@ db2_backup_bucket_name: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_NAME }}>
 db2_backup_bucket_endpoint: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_ENDPOINT }}>
 db2_backup_bucket_access_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY }}>
 db2_backup_bucket_secret_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY }}>
+
+{% if SKIP_BACKUP_NOTIFICATION != 'true' %}
 db2_backup_notify_slack_url: {{DB2_BACKUP_NOTIFY_SLACK_URL}}
 db2_backup_icd_auth_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY }}>
+{% endif %}
+
 {% endif %}
 
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
