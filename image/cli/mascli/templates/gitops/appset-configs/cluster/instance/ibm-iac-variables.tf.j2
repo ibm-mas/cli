@@ -38,16 +38,15 @@ variable "name_prefix" {
 
 
 {%- if IS_S3 | lower == 'true'%}
-
-
-
-variable "s3_iam_users_list_manage" {
-    description = "s3 user list"
-        type = map(object({
-        iam_user_name = string
-    }))
+variable "allowed_bucket_policy_keys" {
+    description = "Allowed bucket keys for bucket policy creations."
+    type        = list(string)
 }
 
+variable "allowed_bucket_lifecycle_configuration_keys" {
+    description = "Allowed bucket keys for bucket lifecycle creation."
+    type        = list(string)
+}
 variable "access_level_rw" {
     type        = string
     description = "read and write"
@@ -60,8 +59,25 @@ variable "access_level_ro" {
     default     = "ro"
 }
 
+variable "enable_dr" {
+    type   = bool
+    description = "Enable DR"
+    default = false
+}
+variable "dr_region" {
+    type   = string
+    description = "DR Region"
+    default = "us-east-2"
+}
+
 
 {%- if S3_MANAGE | lower == 'true'%}
+variable "s3_iam_users_list_manage" {
+    description = "s3 user list"
+        type = map(object({
+        iam_user_name = string
+    }))
+}
 variable "s3bucket_name_prefix_manage" {
     type        = string
     description = "s3 bucket name prefix"
@@ -75,6 +91,27 @@ variable "iam_user_arn_prefix_manage" {
     description = "iam user arn"
 }
 {%- endif %}
+{%- if S3_MVI | lower == 'true'%}
+variable "s3_iam_users_list_mvi" {
+    description = "s3 user list"
+        type = map(object({
+        iam_user_name = string
+    }))
+}
+variable "s3bucket_name_prefix_mvi" {
+    type        = string
+    description = "s3 bucket name prefix"
+}
+variable "iam_user_name_prefix_mvi" {
+    type        = string
+    description = "iam user name prefix"
+}
+variable "iam_user_arn_prefix_mvi" {
+    type        = string
+    description = "iam user arn"
+}
+{%- endif %}
+
 {%- endif %}
 {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true')%}
 variable "s3_encryption_algorithm" {
