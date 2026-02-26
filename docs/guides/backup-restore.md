@@ -659,7 +659,7 @@ Troubleshooting
 Restore Overview
 -------------------------------------------------------------------------------
 
-The MAS restore process uses Tekton pipelines to orchestrate the restoration of MAS instances from backup archives. The restore operation can recover a complete MAS environment or selectively restore components based on your requirements.
+The MAS restore process uses Tekton pipelines to orchestrate the restoration of MAS instances from backup archives. The restore operation can recover a complete MAS environment or selectively restore components based on your requirements. The restore process provides extensive configuration flexibility, allowing you to modify key settings during restoration such as domain names, SLS/DRO URLs, and storage classes.
 
 ### Restore Components
 
@@ -667,13 +667,36 @@ The restore process handles the following components:
 
 - **IBM Operator Catalogs** - Restores catalog source definitions
 - **Certificate Manager** - Restores certificate configurations (RedHat only)
-- **MongoDB** - Restores Mongodb instance with SLS & MAS databases (Community Edition only)
-- **Suite License Service (SLS)** - Restores SLS instance with license server data (optional)
+- **MongoDB** - Restores MongoDB instance with SLS & MAS databases (Community Edition only)
+- **Suite License Service (SLS)** - Restores SLS instance with license server data (optional, can use external SLS)
 - **MAS Suite Configuration** - Restores core MAS instance configuration and custom resources
+- **Suite-level SLSCfg** - Restores or provides custom Suite-level SLS configuration with optional URL override
+- **Suite-level BASCfg/DROCfg** - Restores or provides custom Suite-level DRO/BAS configuration with optional URL override
 - **Manage Database** - Optionally restores incluster Db2 database associated with Manage workspace
 - **Manage Application** - Optionally restores Manage application namespace resources and persistent volume data
 - **Grafana** - Optionally installs Grafana for monitoring (not part of backup)
 - **Data Reporter Operator (DRO)** - Optionally installs DRO (not part of backup)
+
+### Configuration Flexibility
+
+The restore process supports several configuration overrides to adapt the restored environment to new infrastructure:
+
+- **Domain Configuration** - Change the MAS domain in the Suite CR during restore
+- **SLS Configuration** - Restore Suite-level SLSCfg from backup or provide custom configuration file, with optional SLS URL override
+- **DRO/BAS Configuration** - Restore Suite-level BASCfg from backup or provide custom configuration file, with optional DRO URL override
+- **Storage Class Override** - Override storage classes for all components (MongoDB, Manage app, Manage DB) when restoring to clusters with different storage providers
+- **SLS Domain Override** - Change the SLS domain used in the License Service CR
+- **Backup Download** - Download backup archives from S3 or Artifactory before restore (useful for cross-cluster restores)
+
+### Backup Archive Management
+
+The restore process can work with backup archives in multiple ways:
+
+- **Local Backup** - Restore from backup archives already present in the cluster
+- **S3 Download** - Download backup archives from S3-compatible storage before restore
+- **Artifactory Download** - Download backup archives from Artifactory (development mode only)
+- **Custom Archive Names** - Support for custom backup archive naming conventions
+- **Automatic Cleanup** - Optional cleanup of downloaded archives after successful restore
 
 ### Ansible DevOps Integration
 
@@ -684,6 +707,8 @@ The `mas restore` command launches a Tekton pipeline that executes the following
 - [`ibm.mas_devops.mongodb`](https://ibm-mas.github.io/ansible-devops/roles/mongodb/) - Restores MongoDB Community Edition instance and database
 - [`ibm.mas_devops.sls`](https://ibm-mas.github.io/ansible-devops/roles/sls/) - Restores Suite License Service data
 - [`ibm.mas_devops.suite_restore`](https://ibm-mas.github.io/ansible-devops/roles/suite_restore/) - Restores MAS Core configuration
+- [`ibm.mas_devops.db2`](https://ibm-mas.github.io/ansible-devops/roles/db2/) - Restores Db2u instance and database
+- [`ibm.mas_devops.suite_app_restore`](https://ibm-mas.github.io/ansible-devops/roles/suite_app_restore/) - Restores supported MAS Application configuration
 - [`ibm.mas_devops.grafana`](https://ibm-mas.github.io/ansible-devops/roles/grafana/) - Installs Grafana (optional)
 - [`ibm.mas_devops.dro`](https://ibm-mas.github.io/ansible-devops/roles/dro/) - Installs Data Reporter Operator (optional)
 
@@ -711,8 +736,9 @@ The interactive session will:
 8. Configure MAS domain settings
 9. Configure SLS and DRO configuration options
 10. Configure Manage application restore
-11. Request backup storage size
-12. Offer optional download from S3 or Artifactory
+11. Configure Manage Db2 restore
+12. Request backup storage size
+13. Offer optional download from S3 or Artifactory
 
 ### Non-Interactive Mode
 

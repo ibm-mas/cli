@@ -20,12 +20,11 @@ usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION] [--b
                    [--dro-namespace DRO_NAMESPACE] [--override-mongodb-storageclass] [--mongodb-storageclass-name MONGODB_STORAGECLASS_NAME]
                    [--restore-manage-app] [--restore-manage-db] [--override-manage-app-storageclass]
                    [--manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX] [--manage-app-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO]
-                   [--override-manage-db-storageclass] [--manage-db-meta-storage-class MANAGE_DB_META_STORAGE_CLASS]
-                   [--manage-db-data-storage-class MANAGE_DB_DATA_STORAGE_CLASS] [--manage-db-backup-storage-class MANAGE_DB_BACKUP_STORAGE_CLASS]
-                   [--manage-db-logs-storage-class MANAGE_DB_LOGS_STORAGE_CLASS] [--manage-db-temp-storage-class MANAGE_DB_TEMP_STORAGE_CLASS]
+                   [--override-manage-db-storageclass]
+                   [--manage-db-storage-class-rwx MANAGE_DB_STORAGE_CLASS_RWX] [--manage-db-storage-class-rwo MANAGE_DB_STORAGE_CLASS_RWO]
                    [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm] [--skip-pre-check] [-h]
 
-IBM Maximo Application Suite Admin CLI v18.10.0
+IBM Maximo Application Suite Admin CLI
 Restore a MAS instance from backup by configuring and launching the MAS Restore Tekton Pipeline.
 
 Interactive Mode:
