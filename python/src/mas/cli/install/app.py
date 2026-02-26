@@ -1031,8 +1031,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installManage:
             self.configAppChannel("manage")
 
-        # Predict requires IoT + Monitor + Manage
-        if self.installIoT and self.installMonitor and self.installManage:
+        # Predict requires IoT + Manage (original behavior maintained)
+        if self.installIoT and self.installManage:
             self.installPredict = self.yesOrNo("Install Predict")
         else:
             self.installPredict = False
