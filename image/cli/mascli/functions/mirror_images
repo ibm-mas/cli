@@ -445,6 +445,7 @@ function mirror_to_registry() {
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
   show_mirror_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
+  show_mirror_status "OpenShiftAi ........................." $MIRROR_OPENSHIFTAI
 
   confirm_mirror
 
