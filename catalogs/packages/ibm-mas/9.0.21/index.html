@@ -1,0 +1,1551 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>IBM Maximo Application Suite v9.0.21 - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../../../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../../../search/main.js"></script>
+    
+  <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../../../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/packages/ibm-mas/9.0.21.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="Guides">
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/image-mirroring/">
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/aiservice-install/">
+    AI Service Standalone Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Command Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/uninstall/">
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/must-gather/">
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/configure-airgap/">
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/mirror-redhat-images/">
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/setup-registry/">
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/teardown-registry/">
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/provision-fyre/">
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/provision-roks/">
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/provision-rosa/">
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/configtool-oidc/">
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../../">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-260226-amd64/">
+    Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-260129-amd64/">
+    Jan 29 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-251231-amd64/">
+    Dec 31 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-251127-amd64/">
+    Nov 27 2025
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../../../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+      Operator Catalog
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+      <cds-breadcrumb-link href="../../../">IBM Maximo Operator Catalog</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#ibm-maximo-application-suite-v9021">IBM Maximo Application Suite v9.0.21</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#release-notes">Release Notes</cds-select-item>
+    
+      <cds-select-item value="#install-modes">Install Modes</cds-select-item>
+    
+      <cds-select-item value="#service-accounts">Service Accounts</cds-select-item>
+    
+      <cds-select-item value="#cluster-permissions">Cluster Permissions</cds-select-item>
+    
+      <cds-select-item value="#namespace-permissions">Namespace Permissions</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="ibm-maximo-application-suite-v9021">IBM Maximo Application Suite v9.0.21<a class="headerlink" href="#ibm-maximo-application-suite-v9021" title="Permanent link">¶</a></h1>
+<h2 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">¶</a></h2>
+<h3 id="bug-fixes-and-security-updates">Bug Fixes and Security Updates<a class="headerlink" href="#bug-fixes-and-security-updates" title="Permanent link">¶</a></h3>
+<ul>
+<li>mobileapi update to update navigator and it's graphite version to v2.13.654 (#4599)</li>
+<li>mobileapi update to update navigator and it's graphite version to v2.13.656 (#4623)</li>
+<li>mobileapi update to update navigator and it's graphite version to v2.13.657 (#4625)</li>
+<li>update ansible and internal packages (#4669)</li>
+</ul>
+<h2 id="install-modes">Install Modes<a class="headerlink" href="#install-modes" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Supported</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">OwnNamespace</td>
+<td style="text-align: left;">True</td>
+</tr>
+<tr>
+<td style="text-align: left;">SingleNamespace</td>
+<td style="text-align: left;">True</td>
+</tr>
+<tr>
+<td style="text-align: left;">MultiNamespace</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">AllNamespaces</td>
+<td style="text-align: left;">False</td>
+</tr>
+</tbody>
+</table>
+<h2 id="service-accounts">Service Accounts<a class="headerlink" href="#service-accounts" title="Permanent link">¶</a></h2>
+<ul>
+<li>ibm-mas-config-editor</li>
+<li>ibm-mas-config-reader</li>
+<li>ibm-mas-coreapi</li>
+<li>ibm-mas-coreidp</li>
+<li>ibm-mas-entitymgr-addons</li>
+<li>ibm-mas-entitymgr-bascfg</li>
+<li>ibm-mas-entitymgr-coreidp</li>
+<li>ibm-mas-entitymgr-idpcfg</li>
+<li>ibm-mas-entitymgr-jdbccfg</li>
+<li>ibm-mas-entitymgr-kafkacfg</li>
+<li>ibm-mas-entitymgr-mongocfg</li>
+<li>ibm-mas-entitymgr-objectstoragecfg</li>
+<li>ibm-mas-entitymgr-pushcfg</li>
+<li>ibm-mas-entitymgr-scimcfg</li>
+<li>ibm-mas-entitymgr-slscfg</li>
+<li>ibm-mas-entitymgr-smtpcfg</li>
+<li>ibm-mas-entitymgr-watsonstudiocfg</li>
+<li>ibm-mas-entitymgr-ws</li>
+<li>ibm-mas-internalapi</li>
+<li>ibm-mas-licensing-mediator</li>
+<li>ibm-mas-mobileapi</li>
+<li>ibm-mas-monagent-mas</li>
+<li>ibm-mas-nopriv</li>
+<li>ibm-mas-scim-agent</li>
+</ul>
+<h2 id="cluster-permissions">Cluster Permissions<a class="headerlink" href="#cluster-permissions" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Resource</th>
+<th style="text-align: left;">Verbs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">get</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">deploymentconfigs</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">deploymentconfigs/scale</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">persistentvolumes</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">services/proxy</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">certificates</td>
+<td style="text-align: left;">get, list</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">*, create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">clusterrolebindings</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">*, create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">clusterroles</td>
+<td style="text-align: left;">*, create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">clusterroles/finalizers</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">deployments/finalizers</td>
+<td style="text-align: left;">update</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">*, create, get</td>
+</tr>
+<tr>
+<td style="text-align: left;">operators.coreos.com</td>
+<td style="text-align: left;">subscriptions</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">operators.coreos.com</td>
+<td style="text-align: left;">installplans</td>
+<td style="text-align: left;">create, delete, get, list, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">operators.coreos.com</td>
+<td style="text-align: left;">operatorgroups</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">operators.coreos.com</td>
+<td style="text-align: left;">catalogsources</td>
+<td style="text-align: left;">create, delete, get, list, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">operators.coreos.com</td>
+<td style="text-align: left;">clusterserviceversions</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">packages.operators.coreos.com</td>
+<td style="text-align: left;">packagemanifests</td>
+<td style="text-align: left;">get</td>
+</tr>
+<tr>
+<td style="text-align: left;">apiextensions.k8s.io</td>
+<td style="text-align: left;">customresourcedefinitions</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">iot.ibm.com</td>
+<td style="text-align: left;">iots</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">iot.ibm.com</td>
+<td style="text-align: left;">iotworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">iot.ibm.com</td>
+<td style="text-align: left;">*</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">healthapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">healthworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">monitorapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">monitorworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">msoapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">msoworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">predictapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">predictworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">visualinspectionapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">visualinspectionappworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageaccelerators</td>
+<td style="text-align: left;">get, list, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistapps/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistapps/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistworkspaces/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistworkspaces/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistbackups</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistbackups/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistbackups/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistrestores</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistrestores/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">assistrestores/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">hputilitiesapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">hputilitiesapps/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">hputilitiesapps/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">hputilitiesworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">hputilitiesworkspaces/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">hputilitiesworkspaces/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">healthapps/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">healthapps/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">healthworkspaces/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">healthworkspaces/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageapps/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageapps/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageworkspaces/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageworkspaces/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">managebuilds</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">managebuilds/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">managebuilds/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">managedeployments</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">managedeployments/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">managedeployments/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageserverbundles</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageserverbundles/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">manageserverbundles/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">builddatainterpreters</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">builddatainterpreters/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">builddatainterpreters/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">managestatuscheckers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">managestatuscheckers/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">managestatuscheckers/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">monitorapps/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">monitorapps/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">monitorworkspaces/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">monitorworkspaces/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">msoapps/status</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">msoapps/finalizers</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">msoworkspaces/status</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">msoworkspaces/finalizers</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerapps/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerapps/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerworkspaces/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerworkspaces/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">predictapps/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">predictapps/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">predictworkspaces/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">predictworkspaces/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">safetys</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">safetys/status</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">safetys/finalizers</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">safetyworkspaces</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">safetyworkspaces/status</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">safetyworkspaces/finalizers</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">visualinspectionapps/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">visualinspectionapps/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">visualinspectionappworkspaces/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">visualinspectionappworkspaces/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">monitoring.coreos.com</td>
+<td style="text-align: left;">servicemonitors</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">monitoring.coreos.com</td>
+<td style="text-align: left;">prometheusrules</td>
+<td style="text-align: left;">create, delete, get, list, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">mas.ibm.com</td>
+<td style="text-align: left;">*</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">create, delete, deletecollection, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">create, delete, deletecollection, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">create, delete, deletecollection, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">deployments/rollback</td>
+<td style="text-align: left;">create, delete, deletecollection, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">create, delete, deletecollection, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">create, delete, deletecollection, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">create, delete, deletecollection, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">replicasets/scale</td>
+<td style="text-align: left;">create, delete, deletecollection, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">replicationcontrollers/scale</td>
+<td style="text-align: left;">create, delete, deletecollection, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">*, create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.openshift.io</td>
+<td style="text-align: left;">deploymentconfigs</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.openshift.io</td>
+<td style="text-align: left;">deploymentconfigs/scale</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">certificates</td>
+<td style="text-align: left;">*, create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">clusterissuers</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">clusterissuer</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">issuers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">integreatly.org</td>
+<td style="text-align: left;">grafanadashboards</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">monitoringcontroller.cloud.ibm.com</td>
+<td style="text-align: left;">monitoringdashboards</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">clusterroles</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">clusterrolebindings</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">iot.apps.mas.ibm.com</td>
+<td style="text-align: left;">*</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">builds</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">buildconfigs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">buildconfigs/instantiatebinary</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreams</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreamtags</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">builds</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">buildconfigs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">buildconfigs/instantiatebinary</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">imagestreams</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">imagestreamtags</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores</td>
+<td style="text-align: left;">*, create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">admissionregistration.k8s.io</td>
+<td style="text-align: left;">validatingwebhookconfigurations</td>
+<td style="text-align: left;">create, delete, get, list, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update</td>
+</tr>
+<tr>
+<td style="text-align: left;">security.openshift.io</td>
+<td style="text-align: left;">securitycontextconstraints</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">asset-data-dictionary.ibm.com</td>
+<td style="text-align: left;">assetdatadictionaries</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr>
+<td style="text-align: left;">asset-data-dictionary.ibm.com</td>
+<td style="text-align: left;">assetdatadictionaries/status</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr>
+<td style="text-align: left;">asset-data-dictionary.ibm.com</td>
+<td style="text-align: left;">assetdatadictionaries/finalizers</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr>
+<td style="text-align: left;">asset-data-dictionary.ibm.com</td>
+<td style="text-align: left;">datadictionaryworkspaces</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr>
+<td style="text-align: left;">asset-data-dictionary.ibm.com</td>
+<td style="text-align: left;">datadictionaryworkspaces/status</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr>
+<td style="text-align: left;">asset-data-dictionary.ibm.com</td>
+<td style="text-align: left;">datadictionaryworkspaces/finalizers</td>
+<td style="text-align: left;">*</td>
+</tr>
+</tbody>
+</table>
+<h2 id="namespace-permissions">Namespace Permissions<a class="headerlink" href="#namespace-permissions" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Resource</th>
+<th style="text-align: left;">Verbs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">create</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes/status</td>
+<td style="text-align: left;">get, list, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">certificates</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">clusterissuers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">issuers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores/status</td>
+<td style="text-align: left;">get</td>
+</tr>
+<tr>
+<td style="text-align: left;">operator.ibm.com</td>
+<td style="text-align: left;">operandrequests</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">core.mas.ibm.com</td>
+<td style="text-align: left;">suites</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">core.mas.ibm.com</td>
+<td style="text-align: left;">suites/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">core.mas.ibm.com</td>
+<td style="text-align: left;">workspaces</td>
+<td style="text-align: left;">delete, get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">*</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">*</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">addons.mas.ibm.com</td>
+<td style="text-align: left;">*</td>
+<td style="text-align: left;">delete, get, list, watch</td>
+</tr>
+</tbody>
+</table>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#release-notes" class="md-toc__link" data-md-level="1">
+                  Release Notes
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#bug-fixes-and-security-updates" class="md-toc__link" data-md-level="2">
+                          Bug Fixes and Security Updates
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#install-modes" class="md-toc__link" data-md-level="1">
+                  Install Modes
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#service-accounts" class="md-toc__link" data-md-level="1">
+                  Service Accounts
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#cluster-permissions" class="md-toc__link" data-md-level="1">
+                  Cluster Permissions
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#namespace-permissions" class="md-toc__link" data-md-level="1">
+                  Namespace Permissions
+                </a>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>

@@ -2,7 +2,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Feb 16 2026 - Maximo Application Suite CLI</title>
+    <title>IBM Maximo Operator Catalog v9 (260216) - Maximo Application Suite CLI</title>
 
     <!-- Pure CSS (https://pure-css.github.io/) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
@@ -256,7 +256,7 @@
 
                 
                   
-  <cds-side-nav-menu title="Operator Catalogs" active expanded>
+  <cds-side-nav-menu title="Operator Catalogs">
     
       
   <cds-side-nav-menu-item href="../">
@@ -265,8 +265,8 @@
 
     
       
-  <cds-side-nav-menu-item href="./" active expanded>
-    Feb 16 2026
+  <cds-side-nav-menu-item href="../v9-260226-amd64/">
+    Feb 26 2026
   </cds-side-nav-menu-item>
 
     
@@ -329,7 +329,6 @@
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
-      <cds-breadcrumb-item>Operator Catalogs</cds-breadcrumb-item>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#ibm-maximo-operator-catalog-v9-260216">IBM Maximo Operator Catalog v9 (260216)</cds-breadcrumb-link>
   </cds-breadcrumb-item>
@@ -384,6 +383,7 @@
 <ul>
 <li>Customers using <strong>Maximo Assist v8.7 or v8.8</strong> should not update and must instead contact IBM Support for guidance regarding the removal of IBM Watson Discovery and upgrading to Maximo Assist v9.0</li>
 <li>A known issue exists in the January 29, 2026 release affecting HSE and Oil &amp; Gas (9.0.23 / 9.1.64). Customers with HSE installed should avoid upgrading to the January release. Installation of HSE or Oil &amp; Gas on Manage 9.0.x / 9.1.x should be deferred until the February 2026 patch.</li>
+<li>A known issue has been identified in Db2u warehouse operator in this catalog. Customers restoring/upgrading Db2, intermittently get db2 <code>SQL0290N  Table space access is not allowed.  SQLSTATE=55039</code> error causing connectivity issue between MAS and Db2. If you are facing this problem, please refer to the workaround provided in this <a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/5.3.x?topic=SSQNUZ_5.3.x/svc-db2/known-issues-dbs.htm#known-issues-dbs__db2-instance-fails-sql0290n__title__1">documentation</a>.</li>
 </ul>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -4150,28 +4150,6 @@ spec:
           <!-- Navigation footer (prev/next) -->
 <nav class="md-footer-nav" aria-label="Footer navigation">
   <div class="md-footer-nav__inner">
-    <a href="../" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
-      <div class="md-footer-nav__direction">
-        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
-        </svg>
-        <span>Previous</span>
-      </div>
-      <div class="md-footer-nav__title">
-        <span class="md-footer-nav__title-text">Overview</span>
-      </div>
-    </a>
-    <a href="../v9-260129-amd64/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
-      <div class="md-footer-nav__direction">
-        <span>Next</span>
-        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
-        </svg>
-      </div>
-      <div class="md-footer-nav__title">
-        <span class="md-footer-nav__title-text">Jan 29 2026</span>
-      </div>
-    </a>
   </div>
 </nav>
         </article>
