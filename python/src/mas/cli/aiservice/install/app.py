@@ -145,13 +145,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.chooseInstallFlavour()
 
-        if simplified:
-            self.showAdvancedOptions = False
-        elif advanced:
-            self.showAdvancedOptions = True
-        else:
-            self.chooseInstallFlavour()
-
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
 
