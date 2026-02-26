@@ -249,7 +249,7 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Feb 26 2026 Update (MAS 9.1.8, 9.0.19, 8.11.30, &amp; 8.10.33)",
+            "  1) Feb 26 2026 Update (MAS 9.1.10, 9.0.21, 8.11.32, &amp; 8.10.35)",
             "  2) Feb 16 2026 Update (MAS 9.1.8, 9.0.19, 8.11.30, &amp; 8.10.33)",
             "  3) Jan 29 2026 Update (MAS 9.1.8, 9.0.19, 8.11.30, &amp; 8.10.33)",
         ])
