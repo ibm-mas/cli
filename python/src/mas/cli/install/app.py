@@ -997,7 +997,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.printDescription([
                         "",
                         "<Red>Error: Monitor version earlier than 9.2.0 requires IoT to be installed.</Red>",
-                        "<Yellow>Please select IoT first, or use Monitor 9.2.0 or later for standalone installation.</Yellow>",
+                        "<Yellow>Please install IoT first, or choose Monitor 9.2.0+ for standalone installation.</Yellow>",
                         ""
                     ])
                     self.installMonitor = False
