@@ -34,9 +34,9 @@ nav:
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
       - "Feb 26 2026": catalogs/v9-260226-amd64.md
-      - "Feb 16 2026": catalogs/v9-260216-amd64.md
       - "Jan 29 2026": catalogs/v9-260129-amd64.md
       - "Dec 31 2025": catalogs/v9-251231-amd64.md
+      - "Nov 27 2025": catalogs/v9-251127-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
