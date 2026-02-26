@@ -111,7 +111,6 @@ class Db2SettingsMixin():
 
         self.setDB2DefaultSettings()
 
-        
         # Determine which application requires the system database based on Monitor version
         # For Monitor >= 9.2.0: Monitor requires system Db2
         # For Monitor < 9.2.0: IoT requires system Db2 (original behavior)
@@ -138,7 +137,7 @@ class Db2SettingsMixin():
                 ])
         else:
             self.setParam("db2_action_system", "none")
-            
+
         if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
             createSystemDb2UsingUniversalOperator = True
             if not silentMode:
