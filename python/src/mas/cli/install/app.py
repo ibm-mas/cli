@@ -38,6 +38,7 @@ from .params import requiredParams, optionalParams
 from .catalogs import supportedCatalogs
 
 from mas.cli.validators import (
+    ClusterIssuerValidator,
     InstanceIDFormatValidator,
     WorkspaceIDFormatValidator,
     WorkspaceNameFormatValidator,
@@ -53,6 +54,7 @@ from mas.devops.ocp import (
     getStorageClasses,
     getClusterVersion,
     isClusterVersionInRange,
+    getClusterIssuers,
     configureIngressForPathBasedRouting
 )
 from mas.devops.mas import (
@@ -854,7 +856,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this and can leave the response empty"
             ])
             self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
-
             self.printH1("Configure Domain & Certificate Management")
             configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
             if configureDomainAndCertMgmt:
@@ -894,13 +895,34 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     # Use MAS default self-signed cluster issuer with the default domain
                     self.setParam("dns_provider", "")
                     self.setParam("mas_domain", "")
-                    self.setParam("mas_cluster_issuer", "")
                 self.manualCerts = self.yesOrNo("Configure manual certificates")
                 self.setParam("mas_manual_cert_mgmt", str(self.manualCerts).lower())
                 if self.getParam("mas_manual_cert_mgmt").lower() == "true":
                     self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
                 else:
                     self.manualCertsDir = None
+            else:
+                # Configuring domain
+                if self.yesOrNo('Configure custom domain'):
+                    self.promptForString("MAS top-level domain", "mas_domain")
+                else:
+                    self.setParam("mas_domain", "")
+
+                # Configuring DNS
+                if self.yesOrNo("Do you want MAS to set up its own (self-signed) cluster issuer?"):
+                    self.setParam("mas_cluster_issuer", "")
+                else:
+                    self.printDescription([
+                        "Select the ClusterIssuer to use from the list below:",
+                    ])
+                    clusterIssuers = getClusterIssuers(self.dynamicClient)
+                    if clusterIssuers is not None and len(clusterIssuers) > 0:
+                        for clusterIssuer in clusterIssuers:
+                            print_formatted_text(HTML(f"<LightSlateGrey>  - {clusterIssuer.metadata.name}</LightSlateGrey>"))
+                        self.params['mas_cluster_issuer'] = prompt(HTML('<Yellow>MAS Cluster Issuer</Yellow> '), validator=ClusterIssuerValidator(), validate_while_typing=False)
+                    else:
+                        print_formatted_text(HTML("<Red>No ClusterIssuers found on this cluster. MAS will use self-signed certificates.</Red>"))
+                        self.setParam("mas_cluster_issuer", "")
 
     @logMethodCall
     def configDNSAndCertsCloudflare(self):

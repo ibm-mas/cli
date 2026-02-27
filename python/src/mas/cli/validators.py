@@ -21,7 +21,7 @@ from kubernetes.client import api_client
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.document import Document
 
-from mas.devops.ocp import getStorageClass
+from mas.devops.ocp import getStorageClass, getClusterIssuer
 from mas.devops.mas import verifyMasInstance
 from mas.devops.aiservice import verifyAiServiceInstance, verifyAiServiceTenantInstance
 
@@ -241,4 +241,17 @@ class BucketPrefixValidator(Validator):
         if not match(r"^.{1,4}$", bucketPrefix):
             raise ValidationError(message='Bucket prefix does not meet the requirement', cursor_position=len(bucketPrefix))
 
-# Made with Bob
+
+class ClusterIssuerValidator(Validator):
+    def validate(self, document):
+        """
+        Validate that a ClusterIssuer exists on the target cluster
+        """
+        name = document.text
+
+        dynClient = dynamic.DynamicClient(
+            api_client.ApiClient(configuration=config.load_kube_config())
+        )
+
+        if getClusterIssuer(dynClient, name) is None:
+            raise ValidationError(message='Specified cluster issuer is not available on this cluster', cursor_position=len(name))
