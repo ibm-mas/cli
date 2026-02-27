@@ -66,6 +66,12 @@ otherArgGroup.add_argument(
     default=False,
     help="Configure upgrade for development mode",
 )
+masArgGroup.add_argument(
+    '--next-channel',
+    required=False,
+    default="",
+    help="The Target Mas channel to Upgrade on"
+)
 otherArgGroup.add_argument(
     '-h', "--help",
     action='help',

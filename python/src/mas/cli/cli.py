@@ -158,13 +158,12 @@ class BaseApp(PrintMixin, PromptMixin):
                 "facilities": ["9.1.x"],
                 "assist": ["9.1.x", "9.0.x"],
                 "iot": ["9.1.x", "9.0.x"],
-                "manage": ["9.1.x", "9.0.x"],
+                "manage": ["9.1.x", "9.1.x-feature", "9.0.x"],
                 "monitor": ["9.1.x", "9.0.x"],
-                "optimizer": ["9.1.x", "9.0.x"],
+                "optimizer": ["9.1.x", "9.1.x-feature", "9.0.x"],
                 "predict": ["9.1.x", "9.0.x"],
-                "visualinspection": ["9.1.x", "9.0.x"],
+                "visualinspection": ["9.1.x", "9.1.x-feature", "9.0.x"],
                 "aibroker": ["9.1.x", "9.0.x"],
-
             },
             "9.1.x-feature": {
                 "assist": ["9.0.x"],
@@ -219,6 +218,7 @@ class BaseApp(PrintMixin, PromptMixin):
         }
 
         self.upgrade_path: Dict[str, str] = {
+            "9.2.x-feature": "9.2.x-feature", # Change this to 9.2.x it's GA 
             "9.1.x": "9.2.x-feature",
             "9.1.x-feature": "9.1.x",
             "9.0.x": "9.1.x",

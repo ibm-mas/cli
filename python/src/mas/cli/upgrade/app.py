@@ -39,6 +39,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
         self.licenseAccepted = args.accept_license
+        self.nextChannel = args.next_channel
         self.devMode = args.dev_mode
 
         if instanceId is None:
@@ -78,33 +79,41 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             if self.devMode:
                 # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
-                nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+                self.nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
             else:
                 if currentChannel not in self.upgrade_path:
-                    self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
-                nextChannel = self.upgrade_path[currentChannel]
+                    self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")                
+                if self.nextChannel == "":
+                    self.nextChannel = self.upgrade_path[currentChannel]
+                elif self.nextChannel != self.upgrade_path[currentChannel]: # when nextChannel given by user
+                    self.fatalError(f"No upgrade available from {currentChannel} to {self.nextChannel}")
+
+                elif self.nextChannel == currentChannel:
+                    # Might be retry attempt after failure
+                    print_formatted_text(HTML(f"<LightSlateGrey>Next Channel: {self.nextChannel} is Equal to Current Mas Core Channel: {currentChannel}. Retring Upgrade to: {self.nextChannel}</LightSlateGrey>"))
 
                 # For the Feature Channels we do not allow upgrade when an installed app is not onboarded yet
-                if nextChannel in self.compatibilityMatrix:
-                    if "feature" in nextChannel:
-                        unsupportedAppForFC = []
-                        installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
-                        for installedApp in installedAppsChannel:
-                            if installedApp["appId"] not in self.compatibilityMatrix[nextChannel]:
-                                unsupportedAppForFC.append(installedApp["appId"])
-                        if len(unsupportedAppForFC) > 0:
-                            self.fatalError(f"No feature channel available for {unsupportedAppForFC} on the release {nextChannel}. Upgrade cancelled.")
+                if self.nextChannel in self.compatibilityMatrix:
+                    unsupportedAppForUpgrade = []
+                    installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+                    for installedApp in installedAppsChannel:
+                        if installedApp["appId"] not in self.compatibilityMatrix[self.nextChannel]:
+                                unsupportedAppForUpgrade.append(installedApp["appId"])
+                        if len(unsupportedAppForUpgrade) > 0:
+                            self.fatalError(f"No Upgrade channel available for {unsupportedAppForUpgrade} on the release {self.nextChannel}. Upgrade cancelled.")
+                            
+                
         else:
             # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
             # queued up to run after install for instance
             currentChannel = "Unknown"
-            nextChannel = "Unknown"
+            self.nextChannel = "Unknown"
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the upgrade, you must accept the license terms:",
-                self.licenses[nextChannel]
+                self.licenses[self.nextChannel]
             ])
 
             if self.noConfirm:
@@ -115,7 +124,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         # The only scenario where Manage Foundation needs to be installed during an upgrade is from 9.0.x to 9.1.x (if Manage was not already installed in 9.0.x).
         self.setParam("should_install_manage_foundation", "false")
-        if nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
+        if self.nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
             self.manageAppName = "Manage foundation"
             self.showAdvancedOptions = False
             self.installIoT = False
@@ -131,7 +140,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.setParam("should_install_manage_foundation", "true")
             self.setParam("mas_appws_components", "")
             self.setParam("mas_app_settings_aio_flag", "false")
-            self.setParam("mas_app_channel_manage", nextChannel)
+            self.setParam("mas_app_channel_manage", self.nextChannel)
             self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
             # It has been decided that we don't need to ask for any specific Manage Settings
             # self.manageSettings()
@@ -140,7 +149,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {nextChannel}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {self.nextChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
 
         if not self.noConfirm:
