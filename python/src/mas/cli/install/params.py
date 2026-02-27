@@ -215,5 +215,10 @@ optionalParams = [
     "environment_type",
 
     # Certificate Issuer
-    "aiservice_certificate_issuer"
+    "aiservice_certificate_issuer",
+
+    # Grafana
+    "skip_grafana_install",
+    "grafana_v5_namespace",
+    "grafana_instance_storage_size"
 ]

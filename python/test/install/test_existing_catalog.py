@@ -59,6 +59,8 @@ def test_install_interactive_existing_catalog(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
+        # 11a. Grafana configuration
+        '.*Install Grafana.*': lambda msg: 'y',
         # 12. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
         # 13. Db2 configuration

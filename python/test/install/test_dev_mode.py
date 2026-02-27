@@ -96,6 +96,8 @@ def test_install_master_dev_mode(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
+        # 10a. Grafana configuration
+        '.*Install Grafana.*': lambda msg: 'y',
         # 11. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
         # 12. Db2 configuration
@@ -174,6 +176,8 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
+        # 10a. Grafana configuration
+        '.*Install Grafana.*': lambda msg: 'y',
         # 11. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
         # 12. Db2 configuration
@@ -397,6 +401,9 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
             "--cos-instance-name", "Object Storage for MAS - fvtcore",
             "--cos-bucket-name", "fvtcore-masdev-bucket-20260209-0209",
             "--db2-channel", "rotate",
+            "--skip-grafana-install",
+            "--grafana-v5-namespace", "grafana5",
+            "--grafana-instance-storage-size", "10Gi",
             "--additional-configs", f"{tmpdir}",
             "--storage-class-rwx", "ibmc-file-gold-gid",
             "--storage-class-rwo", "ibmc-block-gold",
@@ -484,6 +491,9 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
             "--cos-instance-name", "Object Storage for MAS - fvtcore",
             "--cos-bucket-name", "fvtcore-masdev-bucket-20260209-0209",
             "--db2-channel", "rotate",
+            "--skip-grafana-install",
+            "--grafana-v5-namespace", "grafana5",
+            "--grafana-instance-storage-size", "10Gi",
             "--additional-configs", f"{tmpdir}",
             "--storage-class-rwx", "ibmc-file-gold-gid",
             "--storage-class-rwo", "ibmc-block-gold",
