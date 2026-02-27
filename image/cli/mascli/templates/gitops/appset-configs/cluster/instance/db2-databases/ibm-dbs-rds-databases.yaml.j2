@@ -32,3 +32,23 @@ db2_instance_dbm_config:
   {{ DB2_INSTANCE_DBM_CONFIG }}
   {%- endfilter %}
 {% endif %}
+{% if (RDS_DB2_BACKUP_MANAGE is defined and RDS_DB2_BACKUP_MANAGE == 'true') or (RDS_DB2_BACKUP_IOT is defined and RDS_DB2_BACKUP_IOT == 'true') or (RDS_DB2_BACKUP_FACILITIES is defined and RDS_DB2_BACKUP_FACILITIES == 'true') %}
+backup:
+  enabled: true
+  s3_bucket_name: ""
+  s3_prefix: "db2-backups"
+  
+  compression: "INCLUDE"
+  util_impact_priority: 50
+  num_files: 4
+  parallelism: 4
+  num_buffers: 8
+  
+  full:
+    enabled: true
+    schedule: "0 2 * * 0"
+
+  incremental:
+    enabled: true
+    schedule: "0 2 * * 1-6"
+{% endif %}

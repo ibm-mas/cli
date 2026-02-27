@@ -828,6 +828,13 @@ spec:
     - name: allow_list
       type: string
       default: ""
+    
+    - name: rds_db2_backup_manage
+      type: string
+    - name: rds_db2_backup_iot
+      type: string
+    - name: rds_db2_backup_facilities
+      type: string
 
   tasks:
     # 2. Kafka
@@ -879,7 +886,8 @@ spec:
           value: $(params.db2_database_db_config_yaml_iot)
         - name: db2_addons_audit_config_yaml
           value: $(params.db2_addons_audit_config_yaml_iot)
-
+        - name: rds_db2_backup_iot
+          value: $(params.rds_db2_backup_iot)
       workspaces:
         - name: configs
           workspace: configs
@@ -1091,6 +1099,8 @@ spec:
           value: $(params.db2_database_db_config_yaml_manage)
         - name: db2_addons_audit_config_yaml
           value: $(params.db2_addons_audit_config_yaml_manage)
+        - name: rds_db2_backup_manage
+          value: $(params.rds_db2_backup_iot)
       workspaces:
         - name: configs
           workspace: configs
@@ -1438,7 +1448,8 @@ spec:
           value: $(params.db2_database_db_config_yaml_facilities)
         - name: db2_addons_audit_config_yaml
           value: $(params.db2_addons_audit_config_yaml_facilities)
-
+        - name: rds_db2_backup_facilities
+          value: $(params.rds_db2_backup_facilities)
       workspaces:
         - name: configs
           workspace: configs
