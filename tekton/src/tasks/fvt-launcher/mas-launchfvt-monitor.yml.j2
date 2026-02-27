@@ -86,11 +86,11 @@ spec:
               key: MAS_WORKSPACE_ID
               optional: false
         # Digests
-        - name: FVT_DIGEST_CTF
+        - name: FVT_DIGEST_MONITOR
           valueFrom:
             secretKeyRef:
               name: mas-fvt-monitor
-              key: FVT_DIGEST_CTF
+              key: FVT_DIGEST_MONITOR
               optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:

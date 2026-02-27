@@ -35,8 +35,8 @@ spec:
     - name: fvt_artifactory_token
       value: "{{ fvt_artifactory_token }}"
     # Digests
-    - name: fvt_digest_ctf
-      value: "{{ fvt_digest_ctf }}"
+    - name: fvt_digest_monitor
+      value: "{{ fvt_digest_monitor }}"
     - name: ivt_digest_core
       value: "{{ ivt_digest_core }}"
     - name: fvt_digest_data_dictionary
@@ -44,6 +44,9 @@ spec:
     # Which FVT suite to run ('monitor_fvt' or 'monitor_fvt_with_manage')
     - name: fvt_test_suite
       value: "{{ fvt_test_suite }}"
+    # Product channel for version-specific test suite selection
+    - name: product_channel
+      value: "{{ mas_app_channel_monitor }}"
 
   workspaces:
     # The generated configuration files
