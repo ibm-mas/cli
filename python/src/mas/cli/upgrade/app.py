@@ -81,33 +81,58 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
                 self.nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
             else:
-                if currentChannel not in self.upgrade_path:
-                    self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")                
-                if self.nextChannel == "":
+                if self.nextChannel != "":
+                    # --next-channel was explicitly provided by the user
+                    if self.nextChannel == currentChannel:
+                        # Retry scenario: MAS core already on target channel, but some apps may still be behind
+                        print_formatted_text(HTML(
+                            f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
+                            f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
+                        ))
+                    elif self.nextChannel == self.upgrade_path.get(currentChannel):
+                        # Valid upgrade path: currentChannel -> nextChannel
+                        pass
+                    else:
+                        self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
+                else:
+                    # No --next-channel given: derive from upgrade_path
+                    if currentChannel not in self.upgrade_path:
+                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {currentChannel}")
                     self.nextChannel = self.upgrade_path[currentChannel]
-                elif self.nextChannel != self.upgrade_path[currentChannel]: # when nextChannel given by user
-                    self.fatalError(f"No upgrade available from {currentChannel} to {self.nextChannel}")
 
-                elif self.nextChannel == currentChannel:
-                    # Might be retry attempt after failure
-                    print_formatted_text(HTML(f"<LightSlateGrey>Next Channel: {self.nextChannel} is Equal to Current Mas Core Channel: {currentChannel}. Retring Upgrade to: {self.nextChannel}</LightSlateGrey>"))
-
-                # For the Feature Channels we do not allow upgrade when an installed app is not onboarded yet
+                # Validate installed apps compatibility with the target channel
                 if self.nextChannel in self.compatibilityMatrix:
-                    unsupportedAppForUpgrade = []
                     installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+                    incompatibleApps = []
+                    
                     for installedApp in installedAppsChannel:
-                        if installedApp["appId"] not in self.compatibilityMatrix[self.nextChannel]:
-                                unsupportedAppForUpgrade.append(installedApp["appId"])
-                        if len(unsupportedAppForUpgrade) > 0:
-                            self.fatalError(f"No Upgrade channel available for {unsupportedAppForUpgrade} on the release {self.nextChannel}. Upgrade cancelled.")
-                            
-                
+                        appId = installedApp["appId"]
+                        appChannel = installedApp["channel"]
+                        
+                        # Check if app is supported in the target channel
+                        if appId not in self.compatibilityMatrix[self.nextChannel]:
+                            if "feature" in self.nextChannel:
+                                incompatibleApps.append(f"  - {appId}: Not available in feature channel {self.nextChannel}")
+                            else:
+                                incompatibleApps.append(f"  - {appId}: Not supported in {self.nextChannel}")
+                        else:
+                            # Check if current app channel is compatible with target MAS channel
+                            compatibleAppChannels = self.compatibilityMatrix[self.nextChannel][appId]
+                            if appChannel not in compatibleAppChannels:
+                                incompatibleApps.append(
+                                    f"  - {appId} (currently on {appChannel}): Must be on one of {compatibleAppChannels} to upgrade to MAS {self.nextChannel}"
+                                )
+                    
+                    if len(incompatibleApps) > 0:
+                        errorMsg = f"Cannot upgrade to {self.nextChannel}. The following apps have compatibility issues:\n" + "\n".join(incompatibleApps)
+                        self.fatalError(errorMsg)
+
         else:
             # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
             # queued up to run after install for instance
             currentChannel = "Unknown"
-            self.nextChannel = "Unknown"
+            if self.nextChannel == "":
+                self.nextChannel = "Unknown"
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
@@ -179,7 +204,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, params=self.params)
+                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=self.nextChannel, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
