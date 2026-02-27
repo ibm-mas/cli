@@ -187,6 +187,15 @@ class installArgBuilderMixin():
         if self.getParam('ocp_ingress') != "":
             command += f"  --ocp-ingress \"{self.getParam('ocp_ingress')}\"{newline}"
 
+        # Grafana
+        # -----------------------------------------------------------------------------
+        if self.getParam('skip_grafana_install') is True:
+            command += f"  --skip-grafana-install{newline}"
+        if self.getParam('grafana_v5_namespace') != "":
+            command += f"  --grafana-v5-namespace \"{self.getParam('grafana_v5_namespace')}\"{newline}"
+        if self.getParam('grafana_instance_storage_size') != "":
+            command += f"  --grafana-instance-storage-size \"{self.getParam('grafana_instance_storage_size')}\"{newline}"
+
         # MAS Applications
         # -----------------------------------------------------------------------------
         if self.installAssist:
@@ -573,8 +582,6 @@ class installArgBuilderMixin():
             command += f"  --dev-mode{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
-        if self.getParam('skip_grafana_install') is True:
-            command += f"  --skip-grafana-install{newline}"
         if self.getParam('image_pull_policy') != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam('service_account_name') != "":
