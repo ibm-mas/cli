@@ -301,6 +301,8 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
+        # 20a. Grafana configuration (appears when advanced options are enabled)
+        '.*Install Grafana.*': lambda msg: 'y',
         # 21. MongoDB configuration
         '.*MongoDb namespace.*': lambda msg: 'mongoce',  # Use default MongoDB namespace
         '.*Create MongoDb cluster.*': lambda msg: 'y',
