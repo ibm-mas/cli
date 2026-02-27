@@ -405,8 +405,8 @@ class InstallSummarizerMixin():
         self.printH2("Grafana")
         if self.getParam("grafana_action") == "install":
             self.printSummary("Install Grafana", "Install")
-            self.printParamSummary("Grafana namespace","grafana_v5_namespace")
-            self.printParamSummary("Grafana storage size","grafana_instance_storage_size")
+            self.printParamSummary("Grafana namespace", "grafana_v5_namespace")
+            self.printParamSummary("Grafana storage size", "grafana_instance_storage_size")
         else:
             self.printSummary("Install Grafana", "Do Not Install")
 
