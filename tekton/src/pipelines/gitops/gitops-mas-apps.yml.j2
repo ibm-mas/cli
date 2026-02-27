@@ -831,10 +831,13 @@ spec:
     
     - name: rds_db2_backup_manage
       type: string
+      default: ""
     - name: rds_db2_backup_iot
       type: string
+      default: ""
     - name: rds_db2_backup_facilities
       type: string
+      default: ""
 
   tasks:
     # 2. Kafka
@@ -1100,7 +1103,7 @@ spec:
         - name: db2_addons_audit_config_yaml
           value: $(params.db2_addons_audit_config_yaml_manage)
         - name: rds_db2_backup_manage
-          value: $(params.rds_db2_backup_iot)
+          value: $(params.rds_db2_backup_manage)
       workspaces:
         - name: configs
           workspace: configs
