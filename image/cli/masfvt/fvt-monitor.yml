@@ -16,8 +16,19 @@
     fvt_digest_monitor: "{{ lookup('env', 'FVT_DIGEST_MONITOR') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
     fvt_digest_data_dictionary: "{{ lookup('env', 'FVT_DIGEST_DATA_DICTIONARY') }}"
-    # Control the Monitor suite based on the presence/absence of Manage
-    fvt_test_suite: "{{ (mas_app_channel_manage == '') | ternary('monitor_fvt', 'monitor_fvt_with_manage') }}"
+    # Control the Monitor suite based on Monitor version and presence/absence of Manage
+    # For Monitor 9.1.x and above, use version-specific test suites (fvt_91x, fvt_92x)
+    # For Monitor 8.x and 9.0.x, use legacy suites based on Manage presence
+    fvt_test_suite: >-
+      {%- if '9.1' in mas_app_channel_monitor -%}
+        fvt_91x
+      {%- elif '9.2' in mas_app_channel_monitor -%}
+        fvt_91x
+      {%- elif mas_app_channel_manage == '' -%}
+        monitor_fvt
+      {%- else -%}
+        monitor_fvt_with_manage
+      {%- endif -%}
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-monitor', True) }}-{{ devops_build_number }}"
