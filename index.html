@@ -353,27 +353,27 @@
             
             <h1 id="ibm-maximo-application-suite-cli-utility">IBM Maximo Application Suite CLI Utility<a class="headerlink" href="#ibm-maximo-application-suite-cli-utility" title="Permanent link">¶</a></h1>
 <p>The CLI comes in two flavours; <strong>container image</strong> and <strong>standalone binary</strong>.</p>
-<p>The standalone CLI is available for three platforms, and available from the downloads page on each <a href="https://github.com/ibm-mas/cli/releases/tag/18.18.1">GitHub release</a>.</p>
+<p>The standalone CLI is available for three platforms, and available from the downloads page on each <a href="https://github.com/ibm-mas/cli/releases/tag/18.18.2">GitHub release</a>.</p>
 <h2 id="container-image">Container Image<a class="headerlink" href="#container-image" title="Permanent link">¶</a></h2>
 <p>The best way to use the MAS CLI is to use the container image we publish to quay.io:</p>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli mas install --help
 </code></pre>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: <code>docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.18.1</code></p>
+<p>If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: <code>docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.18.2</code></p>
 </div>
 <p>The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see <a href="https://github.com/ibm-mas/cli-base">cli-base</a> for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directly the CLI image can be a useful tool:</p>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.mas_install_core
 </code></pre>
 <h2 id="standalone-binary">Standalone Binary<a class="headerlink" href="#standalone-binary" title="Permanent link">¶</a></h2>
-<p>Introduced in Summer 2024, the standalone binary is a new way to use the MAS CLI, you can download version 18.18.1 of the CLI for following platforms using the links below:</p>
+<p>Introduced in Summer 2024, the standalone binary is a new way to use the MAS CLI, you can download version 18.18.2 of the CLI for following platforms using the links below:</p>
 <ul>
-<li><a href="https://github.com/ibm-mas/cli/releases/download/18.18.1/mas-cli-windows-amd64">Windows (amd64)</a></li>
-<li><a href="https://github.com/ibm-mas/cli/releases/download/18.18.1/mas-cli-linux-amd64">Linux (amd64)</a></li>
-<li><a href="https://github.com/ibm-mas/cli/releases/download/18.18.1/mas-cli-macos-arm64">MacOS (arm64)</a></li>
+<li><a href="https://github.com/ibm-mas/cli/releases/download/18.18.2/mas-cli-windows-amd64">Windows (amd64)</a></li>
+<li><a href="https://github.com/ibm-mas/cli/releases/download/18.18.2/mas-cli-linux-amd64">Linux (amd64)</a></li>
+<li><a href="https://github.com/ibm-mas/cli/releases/download/18.18.2/mas-cli-macos-arm64">MacOS (arm64)</a></li>
 </ul>
 <p>For example, to install the CLI and launch a MAS install on Linux:</p>
-<pre><code class="language-bash">wget https://github.com/ibm-mas/cli/releases/18.18.1/mas-cli-linux-amd64
+<pre><code class="language-bash">wget https://github.com/ibm-mas/cli/releases/18.18.2/mas-cli-linux-amd64
 cp mas-cli-linux-amd64 /usr/local/bin/mas-cli
 mas-cli install --help
 </code></pre>
