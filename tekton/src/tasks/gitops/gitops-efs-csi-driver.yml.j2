@@ -70,7 +70,7 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         mkdir -p /tmp/init-efs-csi
-        mas gitops-efs-csi-driver-operator -a $ACCOUNT -c $CLUSTER_NAME \
+        mas gitops-efs-csi-driver -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-efs-csi \
         --github-push \
         --github-host $GITHUB_HOST \

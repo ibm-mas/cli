@@ -77,7 +77,6 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_suite_workspace
 . $CLI_DIR/functions/gitops_efs
 . $CLI_DIR/functions/gitops_efs_csi_driver
-. $CLI_DIR/functions/gitops_efs_csi_driver_operator
 . $CLI_DIR/functions/gitops_dro
 . $CLI_DIR/functions/gitops_db2u
 . $CLI_DIR/functions/gitops_db2u_database
@@ -561,14 +560,6 @@ case $1 in
     echo
     reset_colors
     gitops_efs_csi_driver "$@"
-    ;;
-
-  gitops-efs-csi-driver-operator)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_efs_csi_driver_operator "$@"
     ;;
 
   gitops-dro)
