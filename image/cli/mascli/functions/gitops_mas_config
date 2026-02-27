@@ -906,7 +906,6 @@ function gitops_mas_config() {
       elif [ "${JDBC_TYPE}" == "rds-db2" ]; then
         # For rds-db2, the certificate is already stored in AWS Secrets Manager by gitops_rds_db2_database
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
-        export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_INSTANCE_NAME}
         export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
         export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
       else
