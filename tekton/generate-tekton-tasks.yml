@@ -225,6 +225,7 @@
         - gitops-deprovision-suite
         - gitops-dro
         - gitops-efs
+        - gitops-efs-csi-driver
         - gitops-jdbc-config
         - gitops-kafka
         - gitops-kafka-config

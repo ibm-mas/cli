@@ -1,9 +1,11 @@
 {%- if RDS_APP | upper == "MANAGE" -%}
 {{RDS_DB2_CONFIG_MANAGE}}
-{%- endif -%}
+{% endif -%}
 {%- if RDS_APP | upper == "IOT" -%}
 {{RDS_DB2_CONFIG_IOT}}
-{%- endif -%}
+{% endif -%}
 {%- if RDS_APP | upper == "FACILITIES" -%}
 {{RDS_DB2_CONFIG_FACILITIES}}
-{%- endif -%}
+{% endif -%}
+db2comm: "SSL"
+ssl_svcename: "50001"

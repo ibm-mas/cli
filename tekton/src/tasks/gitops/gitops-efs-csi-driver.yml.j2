@@ -1,0 +1,90 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-efs-csi-driver
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: role_arn
+      type: string
+    - name: hypervisor
+      type: string
+    - name: efs_catalog_source
+      type: string
+    - name: efs_catalog_source_namespace
+      type: string
+    - name: efs_channel
+      type: string
+    - name: efs_subscription_source_namespace
+      type: string
+  stepTemplate:
+    name: gitops-efs-csi-driver
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: EFS_CSI_DRIVER_ROLE_ARN
+        value: $(params.role_arn)
+      - name: HYPERVISOR
+        value: $(params.hypervisor)
+      - name: EFS_CATALOG_SOURCE
+        value: $(params.efs_catalog_source)
+      - name: EFS_CATALOG_SOURCE_NAMESPACE
+        value: $(params.efs_catalog_source_namespace)
+      - name: EFS_CHANNEL
+        value: $(params.efs_channel)
+      - name: EFS_SUBSCRIPTION_SOURCE_NAMESPACE
+        value: $(params.efs_subscription_source_namespace)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mkdir -p /tmp/init-efs-csi
+        mas gitops-efs-csi-driver -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/init-efs-csi \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-efs-csi-driver
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+

@@ -1,7 +1,8 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
 efs_csi_driver:
-  catalog_source: redhat-operators
-  catalog_source_namespace: openshift-marketplace
-  channel: stable
+  catalog_source: {{ EFS_CATALOG_SOURCE }}
+  catalog_source_namespace: {{ EFS_CATALOG_SOURCE_NAMESPACE }}
+  channel: {{ EFS_CHANNEL }}
+  subscription_source_namespace: {{ EFS_SUBSCRIPTION_SOURCE_NAMESPACE }}
   role_arn: {{ EFS_CSI_DRIVER_ROLE_ARN }}

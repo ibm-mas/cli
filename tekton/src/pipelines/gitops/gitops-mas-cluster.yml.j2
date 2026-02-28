@@ -45,6 +45,17 @@ spec:
     - name: mas_catalog_image
       type: string
 
+    - name: role_arn
+      type: string
+    - name: efs_catalog_source
+      type: string
+    - name: efs_catalog_source_namespace
+      type: string
+    - name: efs_channel
+      type: string
+    - name: efs_subscription_source_namespace
+      type: string
+
     - name: dro_namespace
       type: string
       default: "ibm-software-central"
@@ -269,6 +280,8 @@ spec:
     - name: provisioner_mas_annotations_repo_url
       type: string
       default: ''
+    - name: hypervisor
+      type: string
   tasks:
     - name: gitops-cluster
       params:
@@ -386,6 +399,8 @@ spec:
           value: $(params.instana_agent_operator_env)
         - name: instana_agent_operator_jks_storage_class
           value: $(params.instana_agent_operator_jks_storage_class)
+        - name: hypervisor
+          value: $(params.hypervisor)
 
       taskRef:
         kind: Task
@@ -395,6 +410,48 @@ spec:
           workspace: configs
         - name: gitops-cluster-configs
           workspace: gitops-cluster-configs
+
+    - name: gitops-efs-csi-driver
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: role_arn
+          value: $(params.role_arn)
+        - name: hypervisor
+          value: $(params.hypervisor)
+        - name: efs_catalog_source
+          value: $(params.efs_catalog_source)
+        - name: efs_catalog_source_namespace
+          value: $(params.efs_catalog_source_namespace)
+        - name: efs_channel
+          value: $(params.efs_channel)
+        - name: efs_subscription_source_namespace
+          value: $(params.efs_subscription_source_namespace)
+      taskRef:
+        kind: Task
+        name: gitops-efs-csi-driver
+      when:
+        - input: "$(params.hypervisor)"
+          operator: in
+          values: ["rosa"]
+      workspaces:
+        - name: configs
+          workspace: configs
+
 
     - name: gitops-dro
       runAfter:
