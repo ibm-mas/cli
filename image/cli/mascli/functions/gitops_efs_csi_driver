@@ -106,6 +106,11 @@ function gitops_efs_csi_driver_noninteractive() {
       esac
   done
 
+  [[ -z "$EFS_CATALOG_SOURCE" ]] && export EFS_CATALOG_SOURCE="redhat-operators"
+  [[ -z "$EFS_CATALOG_SOURCE_NAMESPACE" ]] && export EFS_CATALOG_SOURCE_NAMESPACE="openshift-marketplace"
+  [[ -z "$EFS_CHANNEL" ]] && export EFS_CHANNEL="stable"
+  [[ -z "$EFS_SUBSCRIPTION_SOURCE_NAMESPACE" ]] && export EFS_SUBSCRIPTION_SOURCE_NAMESPACE="openshift-cluster-csi-drivers"
+
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_efs_csi_driver_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_efs_csi_driver_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_efs_csi_driver_help "CLUSTER_ID is not set"
