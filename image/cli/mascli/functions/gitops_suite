@@ -53,6 +53,8 @@ IBM Maximo Application Suite:
       --mas-usability-metrics ${COLOR_YELLOW}MAS_USABILITY_METRICS${TEXT_RESET}                                                           Flag to control user interface interaction metrics to improve usability (optional, defaults to true)
       --suite-spec-additional-properties-yaml ${COLOR_YELLOW}SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML${TEXT_RESET}           Additional properties to be set in Suite CR spec
       --suite-spec-settings-additional-properties-yaml ${COLOR_YELLOW}SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES_YAML${TEXT_RESET}  Additional properties to be set in Suite CR spec.settings
+      --mas-routing-mode ${COLOR_YELLOW}MAS_ROUTING_MODE${TEXT_RESET}                                                              Configure MAS with path or subdomain routing
+      --mas-ingress-controller-name ${COLOR_YELLOW}MAS_INGRESS_CONTROLLER_NAME${TEXT_RESET}                                        (Optional) Name of the IngressController to use for path-based routing (default: 'default')
 
       Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
       where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
@@ -149,6 +151,12 @@ function gitops_suite_noninteractive() {
   export MAS_FEATURE_USAGE=${MAS_FEATURE_USAGE:-"true"}
   export MAS_DEPLOYMENT_PROGRESSION=${MAS_DEPLOYMENT_PROGRESSION:-"true"}
   export MAS_USABILITY_METRICS=${MAS_USABILITY_METRICS:-"true"}
+  
+  # Routing mode configuration
+  export MAS_ROUTING_MODE=${MAS_ROUTING_MODE:-"subdomain"}
+  if [[ "${MAS_ROUTING_MODE}" == "path" ]]; then
+    export MAS_INGRESS_CONTROLLER_NAME=${MAS_INGRESS_CONTROLLER_NAME:-"default"}
+  fi
 
   #GenericAddon default
   export EXTENSIONS=${EXTENSIONS:-"false"}
@@ -279,6 +287,12 @@ function gitops_suite_noninteractive() {
         ;;
       --suite-spec-settings-additional-properties-yaml)
         export SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES_YAML=$1 && shift
+        ;;
+      --mas-routing-mode)
+        export MAS_ROUTING_MODE=$1 && shift
+        ;;
+      --mas-ingress-controller-name)
+        export MAS_INGRESS_CONTROLLER_NAME=$1 && shift
         ;;
 
       # Addons
@@ -583,6 +597,10 @@ function gitops_suite() {
   echo_reset_dim "Labels ..................................... ${COLOR_MAGENTA}${MAS_LABELS}"
   echo_reset_dim "MAS Manual Cert Mgt ........................ ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
   echo_reset_dim "MAS MANUAL CERTS YAML ...................... ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"
+  echo_reset_dim "MAS ROUTING MODE ...................... ${COLOR_MAGENTA}${MAS_ROUTING_MODE}"
+  if [[ -n "${MAS_INGRESS_CONTROLLER_NAME}" ]]; then
+    echo_reset_dim "MAS INGRESS CONTROLLER NAME ........ ${COLOR_MAGENTA}${MAS_INGRESS_CONTROLLER_NAME}"
+  fi
   echo_reset_dim "Cert Manager Namespace ..................... ${COLOR_MAGENTA}${CERT_MANAGER_NAMESPACE}"
   echo_reset_dim "DNS Provider ............................... ${COLOR_MAGENTA}${DNS_PROVIDER}"
   echo_reset_dim "Pod Template YAML File  .................... ${COLOR_MAGENTA}${MAS_POD_TEMPLATE_YAML}"
