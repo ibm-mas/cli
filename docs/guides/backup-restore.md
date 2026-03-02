@@ -28,6 +28,26 @@ The MAS backup process uses Tekton pipelines to orchestrate the backup of multip
 
 The backup creates a compressed archive that can be stored locally or uploaded to cloud storage (S3 or Artifactory).
 
+### Backup Limitations
+
+!!! warning
+    Be aware of the following limitations before performing a backup:
+
+- **MongoDB Community Edition only** - The backup process supports only in-cluster MongoDB Community Edition. External or enterprise MongoDB deployments are not backed up.
+- **Db2 standalone operator only** - The backup process supports only the in-cluster standalone Db2 operator. Other Db2 operator implementations are not included.
+- **Certificate Manager (RedHat only)** - Certificate Manager backup is supported only for RedHat Certificate Manager. Other certificate manager implementations are not included.
+- **No support for most apps** - Only Manage application is supported for now. Other MAS applications (Monitor, IoT, Predict, etc.) are not supported, but will be added in later releases.
+- **No OpenShift cluster state** - The backup does not capture the full OpenShift cluster state, node configurations, or cluster-level resources outside of MAS namespaces.
+- **No CP4D backups** - The backup process does not support backing up CP4D itself.
+- **No incremental backups** - Each backup is a full backup; incremental or differential backups are not supported.
+- **Single MAS instance per backup** - Each backup operation targets a single MAS instance. Multi-instance environments require separate backup runs per instance.
+- **Tekton pipeline dependency** - The backup process requires Tekton pipelines to be available and functional on the cluster.
+- **Storage class dependency** - Backup of Manage application's persistent volumes depends on the storage class supporting volume snapshots or the relevant backup mechanism.
+- **S3/Artifactory upload is optional** - Without configuring cloud storage upload, backups are stored locally in the cluster and may be lost if the cluster is decommissioned.
+
+!!! tip
+    We are working on reducing the limitations of the backup process and will be adding new capabilties and support for other MAS applications in future releases.
+
 ### Ansible DevOps Integration
 
 The `mas backup` command launches a Tekton pipeline that executes the following Ansible roles from the [IBM MAS DevOps Collection](https://ibm-mas.github.io/ansible-devops/):
@@ -676,6 +696,29 @@ The restore process handles the following components:
 - **Manage Application** - Optionally restores Manage application namespace resources and persistent volume data
 - **Grafana** - Optionally installs Grafana for monitoring (not part of backup)
 - **Data Reporter Operator (DRO)** - Optionally installs DRO (not part of backup)
+
+### Restore Limitations
+
+!!! warning
+    Be aware of the following limitations before performing a restore:
+
+- **MongoDB Community Edition only** - Restore supports only in-cluster MongoDB Community Edition. Restoring to an external or enterprise MongoDB deployment is not supported.
+- **Db2 standalone operator only** - The restore process supports only the in-cluster standalone Db2 operator. Other Db2 operator implementations are not included.
+- **Certificate Manager (RedHat only)** - Certificate Manager restore is supported only for RedHat Certificate Manager. Other implementations are not handled during restore.
+- **Same MAS version required** - Restoring a backup to a cluster running a different MAS version may result in incompatibilities. It is strongly recommended to restore to the same MAS version as the backup source.
+- **Same MAS Instance ID required** - It is strongly recommended to restore to the same MAS instance ID as the backup source.
+- **Manage application only for app restore** - Only the Manage application is supported. Other MAS applications will be supported in future releases.
+- **Tekton pipeline dependency** - The restore process requires Tekton pipelines to be available and functional on the target cluster.
+- **Target cluster must be pre-provisioned** - The restore process does not provision a new OpenShift cluster. A running, accessible cluster with sufficient resources must already exist.
+- **Storage class compatibility** - The target cluster must have compatible storage classes. If storage classes differ from the source cluster, overrides must be explicitly configured.
+- **No partial component restore** - Individual components cannot be selectively restored in isolation without running the full pipeline; component selection is configured at pipeline launch time.
+- **Domain changes require DNS updates** - If restoring with a domain change, DNS records and TLS certificates must be updated manually outside of the restore process.
+- **Single MAS instance per restore** - Each restore operation targets a single MAS instance. Restoring multiple instances requires separate restore runs.
+- **Grafana and DRO are not restored from backup** - Grafana and DRO are optionally installed fresh during restore; their previous configurations are not recovered from the backup archive. However, BASCFG CR resources are backed up and restored.
+- **No support for CP4D** - The restore process does not support restoring CP4D environments.
+
+!!! tip
+    We are working on reducing the limitations of the restore process and will be adding new capabilties and support for other MAS applications in future releases.
 
 ### Configuration Flexibility
 
