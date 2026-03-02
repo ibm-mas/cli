@@ -49,12 +49,19 @@ spec:
       type: string
     - name: efs_catalog_source
       type: string
+      default: "redhat-operators"
     - name: efs_catalog_source_namespace
       type: string
+      default: "openshift-marketplace"
     - name: efs_channel
       type: string
+      default: "stable"
     - name: efs_subscription_source_namespace
       type: string
+      default: "openshift-cluster-csi-drivers"
+    - name: efs_install_action
+      type: string
+      default: ""
 
     - name: dro_namespace
       type: string
@@ -280,8 +287,6 @@ spec:
     - name: provisioner_mas_annotations_repo_url
       type: string
       default: ''
-    - name: hypervisor
-      type: string
   tasks:
     - name: gitops-cluster
       params:
@@ -399,8 +404,6 @@ spec:
           value: $(params.instana_agent_operator_env)
         - name: instana_agent_operator_jks_storage_class
           value: $(params.instana_agent_operator_jks_storage_class)
-        - name: hypervisor
-          value: $(params.hypervisor)
 
       taskRef:
         kind: Task
@@ -431,8 +434,6 @@ spec:
           value: $(params.git_commit_msg)
         - name: role_arn
           value: $(params.role_arn)
-        - name: hypervisor
-          value: $(params.hypervisor)
         - name: efs_catalog_source
           value: $(params.efs_catalog_source)
         - name: efs_catalog_source_namespace
@@ -445,9 +446,9 @@ spec:
         kind: Task
         name: gitops-efs-csi-driver
       when:
-        - input: "$(params.hypervisor)"
+        - input: "$(params.efs_install_action)"
           operator: in
-          values: ["rosa"]
+          values: ["install"]
       workspaces:
         - name: configs
           workspace: configs
