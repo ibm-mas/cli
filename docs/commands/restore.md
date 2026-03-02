@@ -107,23 +107,21 @@ MongoDB Storage Class Override:
   --mongodb-storageclass-name MONGODB_STORAGECLASS_NAME
                         MongoDB storage class name (ReadWriteOnce). If not specified, cluster default will be used.
 
-Manage Database Restore:
-  --restore-manage-db   Restore the Manage incluster Db2 database
-  --override-manage-db-storageclass
-                        Override storage class for Manage Db2 database persistent volumes
-  --manage-db-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO
-                        Db2 ReadWriteOnce storage class name
-  --manage-db-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX
-                        Db2 ReadWriteMany storage class name
-
 Manage Application Restore:
   --restore-manage-app  Restore the Manage application including namespace resources and persistent volume data
+  --restore-manage-db   Restore the Manage incluster Db2 database
   --override-manage-app-storageclass
                         Override storage class for Manage application persistent volumes
   --manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX
                         Manage Application ReadWriteMany storage class name
   --manage-app-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO
                         Manage Application ReadWriteOnce storage class name
+  --override-manage-db-storageclass
+                        Override storage class for Manage Db2 database persistent volumes
+  --manage-db-storage-class-rwx MANAGE_DB_STORAGE_CLASS_RWX
+                        Db2 ReadWriteMany storage class name
+  --manage-db-storage-class-rwo MANAGE_DB_STORAGE_CLASS_RWO
+                        Db2 ReadWriteOnce storage class name
 
 More:
   --artifactory-username ARTIFACTORY_USERNAME
@@ -150,14 +148,14 @@ mas restore
 Restore a specific MAS instance from a backup with default settings:
 
 ```bash
-mas restore --instance-id inst1 --restore-version 2020260117-191701 --no-confirm
+mas restore --instance-id inst1 --restore-version 20260117-191701 --no-confirm
 ```
 
 ### Restore with Custom Storage Size
 Specify a custom storage size for the restore PVC:
 
 ```bash
-mas restore --instance-id inst1 --restore-version 2020260117-191701 --backup-storage-size 50Gi --no-confirm
+mas restore --instance-id inst1 --restore-version 20260117-191701 --backup-storage-size 50Gi --no-confirm
 ```
 
 ### Restore with Changed MAS Domain
@@ -166,7 +164,7 @@ Restore a backup and change the MAS domain in the Suite CR:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --mas-domain-restore new.domain.com \
   --no-confirm
 ```
@@ -177,7 +175,7 @@ Download a backup from S3 and restore it:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --download-backup \
   --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
   --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
@@ -192,7 +190,7 @@ Download and restore a backup with a custom archive name:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --download-backup \
   --custom-backup-archive-name custom-backup-name.tar.gz \
   --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
@@ -208,7 +206,7 @@ Restore a backup without including Suite License Service (useful when using exte
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --exclude-sls \
   --no-confirm
 ```
@@ -219,7 +217,7 @@ Restore using a custom SLS configuration file instead of the one from backup:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --exclude-slscfg-from-backup \
   --sls-cfg-file /path/to/sls-config.yaml \
   --no-confirm
@@ -231,7 +229,7 @@ Restore SLS configuration from backup but change the SLS URL:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --include-slscfg-from-backup \
   --sls-url-restore https://new-sls-url.com \
   --no-confirm
@@ -243,7 +241,7 @@ Restore using a custom DRO/BAS configuration file instead of the one from backup
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --exclude-drocfg-from-backup \
   --dro-cfg-file /path/to/dro-config.yaml \
   --no-confirm
@@ -255,7 +253,7 @@ Restore and install a new DRO instance:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --include-dro \
   --ibm-entitlement-key YOUR_ENTITLEMENT_KEY \ #pragma: allowlist secret
   --contact-email admin@example.com \
@@ -271,7 +269,7 @@ Restore SLS instance with a custom domain:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --include-sls \
   --sls-domain custom-sls.domain.com \
   --no-confirm
@@ -283,7 +281,7 @@ Restore without installing Grafana:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --exclude-grafana \
   --no-confirm
 ```
@@ -294,7 +292,7 @@ Override the storage class for MongoDB during restore (useful when restoring to 
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --override-mongodb-storageclass \
   --mongodb-storageclass-name custom-rwo-storage \
   --no-confirm
@@ -306,7 +304,7 @@ Restore the Manage application including namespace resources and persistent volu
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --restore-manage-app \
   --no-confirm
 ```
@@ -317,7 +315,7 @@ Restore both the Manage application and its incluster Db2 database:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --restore-manage-app \
   --restore-manage-db \
   --no-confirm
@@ -329,18 +327,15 @@ Restore Manage application and database with custom storage class overrides:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --restore-manage-app \
   --restore-manage-db \
   --override-manage-app-storageclass \
   --manage-app-storage-class-rwx custom-rwx-storage \
   --manage-app-storage-class-rwo custom-rwo-storage \
   --override-manage-db-storageclass \
-  --manage-db-meta-storage-class db2-meta-storage \
-  --manage-db-data-storage-class db2-data-storage \
-  --manage-db-backup-storage-class db2-backup-storage \
-  --manage-db-logs-storage-class db2-logs-storage \
-  --manage-db-temp-storage-class db2-temp-storage \
+  --manage-db-storage-class-rwx custom-rwx-storage \
+  --manage-db-storage-class-rwo custom-rwo-storage \
   --no-confirm
 ```
 
@@ -348,14 +343,14 @@ mas restore \
 Skip the pre-restore validation check (use with caution):
 
 ```bash
-mas restore --instance-id inst1 --restore-version 2020260117-191701 --skip-pre-check --no-confirm
+mas restore --instance-id inst1 --restore-version 20260117-191701 --skip-pre-check --no-confirm
 ```
 
 ### Restore Without Workspace Cleanup
 Keep backup and config workspace contents after completion (useful for troubleshooting):
 
 ```bash
-mas restore --instance-id inst1 --restore-version 2020260117-191701 --no-clean-backup --no-confirm
+mas restore --instance-id inst1 --restore-version 20260117-191701 --no-clean-backup --no-confirm
 ```
 
 !!! note
@@ -367,7 +362,7 @@ A comprehensive example with all major options configured:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --backup-storage-size 100Gi \
   --mas-domain-restore new.domain.com \
   --include-sls \
@@ -471,14 +466,14 @@ The restore process can now restore the Manage application in addition to the MA
 - **Manage Application**: Use `--restore-manage-app` to restore Manage namespace resources and persistent volume data
 - **Manage Database**: Use `--restore-manage-db` to restore the incluster Db2 database associated with the Manage workspace
 - **Storage Class Overrides**:
-  - Use `--override-manage-app-storageclass` to override Manage application storage classes
-  - Use `--override-manage-db-storageclass` to override Db2 database storage classes
-  - Specify custom storage classes for RWX/RWO (app) or meta/data/backup/logs/temp (Db2)
+  - Use `--override-manage-app-storageclass` to override Manage application storage classes, then specify `--manage-app-storage-class-rwx` and `--manage-app-storage-class-rwo`
+  - Use `--override-manage-db-storageclass` to override Db2 database storage classes, then specify `--manage-db-storage-class-rwx` and `--manage-db-storage-class-rwo`
 
 !!! note
     - Manage database restore is an offline operation - the Manage application will be unavailable during the restore
     - The restore process handles both the application resources and the database data
     - Storage class overrides are useful when restoring to clusters with different storage infrastructure
+    - A single RWX and RWO storage class is applied across all Db2 persistent volumes (meta, data, backup, logs, temp)
 
 ### Interactive Mode
 When running without `--instance-id`, the command enters interactive mode and will prompt for:

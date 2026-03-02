@@ -35,7 +35,7 @@ The MAS backup process uses Tekton pipelines to orchestrate the backup of multip
 - **MAS Applications** - Application-specific resources and persistent volume data (optional)
 - **Db2 Database** - Db2 instance resources and database backups (optional)
 
-The backup creates a compressed archive that can be stored locally or uploaded to cloud storage (S3 or Artifactory).
+The backup creates a compressed archive for each supported component that can be stored locally or uploaded to cloud storage (S3 or Artifactory).
 
 ### Backup Limitations
 
@@ -47,12 +47,13 @@ The backup creates a compressed archive that can be stored locally or uploaded t
 - **Certificate Manager (RedHat only)** - Certificate Manager backup is supported only for RedHat Certificate Manager. Other certificate manager implementations are not included.
 - **No support for most apps** - Only Manage application is supported for now. Other MAS applications (Monitor, IoT, Predict, etc.) are not supported, but will be added in later releases.
 - **No OpenShift cluster state** - The backup does not capture the full OpenShift cluster state, node configurations, or cluster-level resources outside of MAS namespaces.
-- **No CP4D backups** - The backup process does not support backing up CP4D itself.
+- **No IBM Cloud Pak for Data backups** - The backup process does not support backing up CP4D itself.
 - **No incremental backups** - Each backup is a full backup; incremental or differential backups are not supported.
 - **Single MAS instance per backup** - Each backup operation targets a single MAS instance. Multi-instance environments require separate backup runs per instance.
 - **Tekton pipeline dependency** - The backup process requires Tekton pipelines to be available and functional on the cluster.
 - **Storage class dependency** - Backup of Manage application's persistent volumes depends on the storage class supporting volume snapshots or the relevant backup mechanism.
 - **S3/Artifactory upload is optional** - Without configuring cloud storage upload, backups are stored locally in the cluster and may be lost if the cluster is decommissioned.
+- **Download backup archives to local machine manually** - The backup archives are stored in the cluster's pvc or uploaded to S3/Artifactory and must be downloaded to a local machine manually.
 
 !!! tip
     We are working on reducing the limitations of the backup process and will be adding new capabilties and support for other MAS applications in future releases.
@@ -74,6 +75,42 @@ For detailed information about the underlying Ansible automation, see the [Backu
 !!! tip
     Advanced users can use the Ansible roles directly for custom backup workflows. The CLI provides a managed, simplified interface to these roles with additional features like automatic pipeline setup and cloud upload capabilities.
 
+### Backup Artifacts
+
+Backups are stored in the pipeline namespace PVC at:
+
+- **Backup Directory**: `/workspace/backups`
+- **Config Directory**: `/workspace/configs`
+
+When S3/artifactory upload is enabled, the backup archives will be uploaded to the bucket/artifactory repo under `mas-<instanceid>-backups` directory.
+
+**S3 Backup Archive Directory Structure:**
+
+```
+s3://bucket-name/ (or Artfactory - https://na.artifactory.swg-devops.com/artifactory/repo-name/)
+├── mas-<instanceid>-backups/
+    ├── mas-<instanceid>-backup-<backupversion>-catalog.tar.gz
+    ├── mas-<instanceid>-backup-<backupversion>-certmanager.tar.gz
+    ├── mas-<instanceid>-backup-<backupversion>-db2u-manage.tar.gz
+    ├── mas-<instanceid>-backup-<backupversion>-mongoce.tar.gz
+    ├── mas-<instanceid>-backup-<backupversion>-sls.tar.gz
+    └── mas-<instanceid>-backup-<backupversion>-suite.tar.gz
+    ├── mas-<instanceid>-backup-<backupversion>-app-manage.tar.gz
+```
+
+Each backup archive follows the naming convention: `<instance-id>-backup-<timestamp>-<component>.tar.gz`
+
+**Archive Components:**
+
+| Archive | Description |
+|---------|-------------|
+| `catalog.tar.gz` | IBM Operator Catalog configurations |
+| `certmanager.tar.gz` | Certificate Manager configurations |
+| `mongoce.tar.gz` | MongoDB Community Edition database backup |
+| `sls.tar.gz` | Suite License Service data (if included) |
+| `suite.tar.gz` | MAS Core configuration and data |
+| `app-manage.tar.gz` | Manage application configuration (if included) |
+| `db2u-manage.tar.gz` | Manage Db2 database backup (if included) |
 
 When to Backup
 -------------------------------------------------------------------------------
@@ -461,8 +498,8 @@ When you run `mas backup`, the following occurs:
 9. **Application Backup** (optional) - Backs up MAS application resources and persistent volumes:
    - Manage namespace resources backup
    - Manage persistent volume data backup
-10. **Archive Creation** - Compresses backup into tar.gz archive
-11. **Upload** (optional) - Uploads archive to S3 or Artifactory
+10. **Archive Creation** - Compresses backup into tar.gz archives for each component
+11. **Upload** (optional) - Uploads archives to S3 or Artifactory
 12. **Workspace Cleanup** (optional, default: enabled) - Cleans backup and config workspaces to free up storage
 
 ### Monitoring Progress
@@ -480,15 +517,6 @@ Use this URL to:
 - View logs from individual backup tasks
 - Troubleshoot any failures
 - Verify successful completion
-
-### Backup Artifacts
-
-Backups are stored in the pipeline namespace PVC at:
-
-- **Backup Directory**: `/workspace/backups`
-- **Config Directory**: `/workspace/configs`
-
-The final backup archive is named: `mas-backup-{backup-version}.tar.gz`
 
 ### Workspace Cleanup
 
@@ -553,6 +581,7 @@ oc login --token=${OCP_TOKEN} --server=${OCP_SERVER}
 # Run backup with S3 upload
 docker run --rm \
   -v ~/.kube:/root/.kube:z \
+  -v ~:/mnt/home \
   quay.io/ibmmas/cli mas backup \
   --instance-id ${INSTANCE_ID} \
   --backup-version ${BACKUP_VERSION} \
@@ -614,8 +643,6 @@ For detailed information on setting up and using Ansible Automation Platform wit
 
 !!! tip
     AAP is recommended for production environments where you need enterprise features like RBAC, audit logging, and centralized management. For simpler use cases, the MAS CLI with shell scripts may be sufficient.
-
-
 
 
 Troubleshooting
@@ -711,6 +738,7 @@ The restore process handles the following components:
 !!! warning
     Be aware of the following limitations before performing a restore:
 
+- **Restoring from S3 or Artifactory Only** - When using the pipeline, the restore process is limited to restoring from S3 or Artifactory. Restoring from a local backup file is not supported yet.
 - **MongoDB Community Edition only** - Restore supports only in-cluster MongoDB Community Edition. Restoring to an external or enterprise MongoDB deployment is not supported.
 - **Db2 standalone operator only** - The restore process supports only the in-cluster standalone Db2 operator. Other Db2 operator implementations are not included.
 - **Certificate Manager (RedHat only)** - Certificate Manager restore is supported only for RedHat Certificate Manager. Other implementations are not handled during restore.
@@ -749,6 +777,16 @@ The restore process can work with backup archives in multiple ways:
 - **Artifactory Download** - Download backup archives from Artifactory (development mode only)
 - **Custom Archive Names** - Support for custom backup archive naming conventions
 - **Automatic Cleanup** - Optional cleanup of downloaded archives after successful restore
+
+When downloading from S3 or Artifactory, the `download_backup_archive` role selectively downloads only the archives required for the restore operation. The following archive selection parameters control which archives are downloaded:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `include_sls_archive` | `false` | Download the SLS backup archive |
+| `include_manage_db_archive` | `false` | Download the Manage Db2 database backup archive |
+| `include_manage_app_archive` | `false` | Download the Manage application backup archive |
+
+These parameters are automatically set by the restore pipeline based on the restore configuration (e.g. `--restore-manage-app`, `--restore-manage-db`, `--include-sls`), so you do not need to set them manually when using the `mas restore` command.
 
 ### Ansible DevOps Integration
 
@@ -799,7 +837,7 @@ Non-interactive mode is ideal for automation, scheduled restores, and CI/CD pipe
 ```bash
 docker run -ti --rm quay.io/ibmmas/cli mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --no-confirm
 ```
 
@@ -836,7 +874,7 @@ After launching the restore, a URL to the Tekton PipelineRun is displayed:
 
 ```
 View progress:
-  https://console-openshift-console.apps.cluster.example.com/k8s/ns/mas-inst1-pipelines/tekton.dev~v1beta1~PipelineRun/mas-restore-2020260117-191701-YYMMDD-HHMM
+  https://console-openshift-console.apps.cluster.example.com/k8s/ns/mas-inst1-pipelines/tekton.dev~v1beta1~PipelineRun/mas-restore-20260117-191701-YYMMDD-HHMM
 ```
 
 Use this URL to:
@@ -878,7 +916,7 @@ Restore Scenarios - Non-Interactive Mode
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --no-confirm
 ```
 
@@ -892,7 +930,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --download-backup \
   --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
   --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
@@ -911,7 +949,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --mas-domain-restore new-cluster.example.com \
   --no-confirm
 ```
@@ -926,7 +964,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --exclude-sls \
   --exclude-slscfg-from-backup \
   --sls-cfg-file /path/to/custom-sls-config.yaml \
@@ -943,7 +981,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --include-sls \
   --include-slscfg-from-backup \
   --sls-url-restore https://new-sls.example.com \
@@ -960,7 +998,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --include-dro \
   --ibm-entitlement-key YOUR_ENTITLEMENT_KEY \ #pragma: allowlist secret
   --contact-email admin@example.com \
@@ -980,7 +1018,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --exclude-grafana \
   --no-confirm
 ```
@@ -997,7 +1035,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --backup-storage-size 100Gi \
   --mas-domain-restore new-cluster.example.com \
   --include-sls \
@@ -1030,7 +1068,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --no-clean-backup \
   --no-confirm
 ```
@@ -1048,9 +1086,14 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --skip-pre-check \
   --no-confirm
+```
+
+!!! warning
+    Use `--skip-pre-check` only in emergency situations. Pre-restore checks validate cluster readiness and can prevent restore failures.
+
 ### Scenario 11: Restore with MongoDB Storage Class Override
 
 **Environment:**
@@ -1061,7 +1104,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --override-mongodb-storageclass \
   --mongodb-storageclass-name custom-rwo-storage \
   --no-confirm
@@ -1077,7 +1120,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --restore-manage-app \
   --no-confirm
 ```
@@ -1092,7 +1135,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --restore-manage-app \
   --restore-manage-db \
   --no-confirm
@@ -1111,20 +1154,20 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --restore-manage-app \
   --restore-manage-db \
   --override-manage-app-storageclass \
   --manage-app-storage-class-rwx custom-rwx-storage \
   --manage-app-storage-class-rwo custom-rwo-storage \
   --override-manage-db-storageclass \
-  --manage-db-meta-storage-class db2-meta-storage \
-  --manage-db-data-storage-class db2-data-storage \
-  --manage-db-backup-storage-class db2-backup-storage \
-  --manage-db-logs-storage-class db2-logs-storage \
-  --manage-db-temp-storage-class db2-temp-storage \
+  --manage-db-storage-class-rwx custom-rwx-storage \
+  --manage-db-storage-class-rwo custom-rwo-storage \
   --no-confirm
 ```
+
+!!! note
+    The Manage Db2 storage class override now uses a single ReadWriteMany (`--manage-db-storage-class-rwx`) and ReadWriteOnce (`--manage-db-storage-class-rwo`) storage class, applied across all Db2 persistent volumes based on the access modes. The previous per-volume flags (`--manage-db-meta-storage-class`, `--manage-db-data-storage-class`, `--manage-db-backup-storage-class`, `--manage-db-logs-storage-class`, `--manage-db-temp-storage-class`) have been removed.
 
 ### Scenario 15: Complete Restore with MongoDB Override and Manage
 
@@ -1138,13 +1181,15 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 2020260117-191701 \
+  --restore-version 20260117-191701 \
   --backup-storage-size 100Gi \
   --override-mongodb-storageclass \
   --mongodb-storageclass-name custom-rwo-storage \
   --restore-manage-app \
   --restore-manage-db \
   --override-manage-db-storageclass \
+  --manage-db-storage-class-rwx custom-rwx-storage \
+  --manage-db-storage-class-rwo custom-rwo-storage \
   --download-backup \
   --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
   --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
@@ -1153,18 +1198,13 @@ mas restore \
   --no-confirm
 ```
 
-```
-
-!!! warning
-    Use `--skip-pre-check` only in emergency situations. Pre-restore checks validate cluster readiness and can prevent restore failures.
-
 
 Restore Best Practices
 -------------------------------------------------------------------------------
 
 ### Pre-Restore Checklist
 
-1. **Verify Backup Integrity** - Ensure backup archive is complete and accessible
+1. **Verify Backup Integrity** - Ensure backup archives are complete and accessible
 2. **Check Cluster Resources** - Verify sufficient CPU, memory, and storage
 3. **Review Target Environment** - Confirm cluster version and configuration compatibility
 4. **Plan Domain Changes** - Determine if domain or URL changes are needed
