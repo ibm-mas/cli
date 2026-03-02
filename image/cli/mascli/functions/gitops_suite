@@ -606,9 +606,11 @@ function gitops_suite() {
   echo_reset_dim "Labels ..................................... ${COLOR_MAGENTA}${MAS_LABELS}"
   echo_reset_dim "MAS Manual Cert Mgt ........................ ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
   echo_reset_dim "MAS MANUAL CERTS YAML ...................... ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"
-  echo_reset_dim "MAS Routing Mode ........................... ${COLOR_MAGENTA}${MAS_ROUTING_MODE}"
-  if [[ -n "${MAS_INGRESS_CONTROLLER_NAME}" ]]; then
-    echo_reset_dim "MAS Ingress Controller Name ................ ${COLOR_MAGENTA}${MAS_INGRESS_CONTROLLER_NAME}"
+  if [[ -n "${MAS_ROUTING_MODE}" ]]; then
+    echo_reset_dim "MAS Routing Mode ........................... ${COLOR_MAGENTA}${MAS_ROUTING_MODE}"
+    if [[ -n "${MAS_INGRESS_CONTROLLER_NAME}" ]]; then
+      echo_reset_dim "MAS Ingress Controller Name ................ ${COLOR_MAGENTA}${MAS_INGRESS_CONTROLLER_NAME}"
+    fi
   fi
   echo_reset_dim "Cert Manager Namespace ..................... ${COLOR_MAGENTA}${CERT_MANAGER_NAMESPACE}"
   echo_reset_dim "DNS Provider ............................... ${COLOR_MAGENTA}${DNS_PROVIDER}"
