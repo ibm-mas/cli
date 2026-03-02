@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+from typing import TYPE_CHECKING, Dict, List, NoReturn
 from prompt_toolkit.completion import WordCompleter
 from mas.cli.validators import LanguageValidator
 from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
@@ -19,7 +20,77 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+if TYPE_CHECKING:
+    from openshift.dynamic import DynamicClient
+    from prompt_toolkit.validation import Validator
+
+
 class ManageSettingsMixin():
+    if TYPE_CHECKING:
+        # Attributes from BaseApp and other mixins
+        params: Dict[str, str]
+        manageAppName: str
+        showAdvancedOptions: bool
+        isManageFoundation: bool
+        installManage: bool
+        installAIService: bool
+        supportedLanguages: List[str]
+
+        @property
+        def dynamicClient(self) -> DynamicClient:
+            ...
+
+        # Methods from BaseApp
+        def setParam(self, param: str, value: str) -> None:
+            ...
+
+        def getParam(self, param: str) -> str:
+            ...
+
+        def isSNO(self) -> bool:
+            ...
+
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:
+            ...
+
+        # Methods from PrintMixin
+        def printH1(self, message: str) -> None:
+            ...
+
+        def printH2(self, message: str) -> None:
+            ...
+
+        def printDescription(self, content: List[str]) -> None:
+            ...
+
+        # Methods from PromptMixin
+        def yesOrNo(self, message: str, param: str | None = None) -> bool:
+            ...
+
+        def promptForString(
+            self,
+            message: str,
+            param: str | None = None,
+            default: str = "",
+            isPassword: bool = False,
+            validator: Validator | None = None,
+            completer: WordCompleter | None = None
+        ) -> str:
+            ...
+
+        def promptForInt(
+            self,
+            message: str,
+            param: str | None = None,
+            default: int | None = None,
+            min: int | None = None,
+            max: int | None = None
+        ) -> int:
+            ...
+
+        # Methods from other mixins
+        def configCP4D(self) -> None:
+            ...
 
     def manageSettings(self) -> None:
         if self.installManage:
@@ -237,24 +308,24 @@ class ManageSettingsMixin():
         self.printH2(f"Maximo {self.manageAppName} Settings - Other")
         self.supportedLanguages = ["AR", "CS", "DA", "DE", "EN", "ES", "FI", "FR", "HE", "HR", "HU", "IT", "JA", "KO", "NL", "NO", "PL", "PT-BR", "RU", "SK", "SL", "SV", "TR", "UK", "ZH-CN", "ZH-TW"]
         if self.isManageFoundation:
-            self.printDescription([
-                "Configure additional settings:",
-                "  - Base and additional languages",
-                "  - Server timezone"
-            ])
-            if self.yesOrNo("Configure Additional Settings"):
+            if self.showAdvancedOptions:
+                self.printDescription([
+                    "Configure additional settings:",
+                    "  - Base and additional languages",
+                    "  - Server timezone"
+                ])
                 self.manageSettingsTimezone()
                 self.manageSettingsLanguages()
         else:
-            self.printDescription([
-                "Configure additional settings:",
-                "  - Demo data",
-                "  - Base and additional languages",
-                "  - Server timezone",
-                "  - Cognos integration (install Cloud Pak for Data)",
-                "  - Watson Studio Local integration (install Cloud Pak for Data)"
-            ])
-            if self.yesOrNo("Configure Additional Settings"):
+            if self.showAdvancedOptions:
+                self.printDescription([
+                    "Configure additional settings:",
+                    "  - Demo data",
+                    "  - Base and additional languages",
+                    "  - Server timezone",
+                    "  - Cognos integration (install Cloud Pak for Data)",
+                    "  - Watson Studio Local integration (install Cloud Pak for Data)"
+                ])
                 self.manageSettingsDemodata()
                 self.manageSettingsTimezone()
                 self.manageSettingsLanguages()

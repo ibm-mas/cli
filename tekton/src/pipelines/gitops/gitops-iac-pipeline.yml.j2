@@ -126,7 +126,7 @@ spec:
       type: string
       default: ''
 
-    # iac-mskdc  params
+    # iac-msk params
     - name: msk_kafka_version
       type: string
       default: ''
@@ -151,9 +151,107 @@ spec:
       type: string
       default: ''
 
+    # iac-rdsdb2 common params
+    - name: is_rds
+      type: string
+      default: 'false'
+
+    - name: rds_source
+      type: string
+      default: ''
+
+    - name: rds_s3_source
+      type: string
+      default: ''
+
+    - name: rds_iam_source
+      type: string
+      default: ''
+
+    - name: rds_s3accesspoint_source
+      type: string
+      default: ''
+
+    # iac-rdsdb2 manage params
+    - name: rds_manage_db2_instance_class
+      type: string
+      default: ''
+
+    - name: rds_manage_db2_storage_type
+      type: string
+      default: ''
+
+    - name: rds_manage_allocated_storage
+      type: string
+      default: ''
+
+    - name: rds_manage_jdbc_connection_url_additional_params
+      type: string
+      default: ''
+
+    - name: rds_manage_replica_db
+      type: string
+      default: ''
+
+    - name: rds_db2_config_manage_yaml
+      type: string
+      default: ''
+
+    # iac-rdsdb2 iot params
+    - name: rds_iot_db2_instance_class
+      type: string
+      default: ''
+
+    - name: rds_iot_db2_storage_type
+      type: string
+      default: ''
+
+    - name: rds_iot_allocated_storage
+      type: string
+      default: ''
+
+    - name: rds_iot_jdbc_connection_url_additional_params
+      type: string
+      default: ''
+
+    - name: rds_iot_replica_db
+      type: string
+      default: ''
+
+    - name: rds_db2_config_iot_yaml
+      type: string
+      default: ''
+
+    # iac-rdsdb2 facilities params
+    - name: rds_facilities_db2_instance_class
+      type: string
+      default: ''
+
+    - name: rds_facilities_db2_storage_type
+      type: string
+      default: ''
+
+    - name: rds_facilities_allocated_storage
+      type: string
+      default: ''
+
+    - name: rds_facilities_jdbc_connection_url_additional_params
+      type: string
+      default: ''
+
+    - name: rds_facilities_replica_db
+      type: string
+      default: ''
+
+    - name: rds_db2_config_facilities_yaml
+      type: string
+      default: ''
+
+
 
   workspaces:
     - name: configs
+    - name: shared-gitops-configs
 
   tasks:
 
@@ -348,13 +446,103 @@ spec:
         - name: msk_cluster_prefix
           value: $(params.msk_cluster_prefix)
 
-    # Task 4: Generate Common Files (Runs after EFS/S3/MSK tasks complete/skip)
+    # Task 4: Provision RDS-DB2 (Conditional - runs if is_rds=true)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-provision-rdsdb2
+      when:
+        - input: "$(params.is_rds)"
+          operator: in
+          values: ["true"]
+      runAfter:
+        - gitops-iac-config
+      taskRef:
+        name: gitops-iac-provision-rdsdb2
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: region_name
+          value: $(params.region_name)
+
+        - name: rds_source
+          value: $(params.rds_source)
+        - name: rds_s3_source
+          value: $(params.rds_s3_source)
+        - name: rds_iam_source
+          value: $(params.rds_iam_source)
+        - name: rds_s3accesspoint_source
+          value: $(params.rds_s3accesspoint_source)
+
+        # iac-rdsdb2 manage params
+        - name: rds_manage_db2_instance_class
+          value: $(params.rds_manage_db2_instance_class)
+        - name: rds_manage_db2_storage_type
+          value: $(params.rds_manage_db2_storage_type)
+        - name: rds_manage_allocated_storage
+          value: $(params.rds_manage_allocated_storage)
+        - name: rds_manage_jdbc_connection_url_additional_params
+          value: $(params.rds_manage_jdbc_connection_url_additional_params)
+        - name: rds_manage_replica_db
+          value: $(params.rds_manage_replica_db)
+        - name: rds_db2_config_manage_yaml
+          value: $(params.rds_db2_config_manage_yaml)
+
+        # iac-rdsdb2 iot params
+        - name: rds_iot_db2_instance_class
+          value: $(params.rds_iot_db2_instance_class)
+        - name: rds_iot_db2_storage_type
+          value: $(params.rds_iot_db2_storage_type)
+        - name: rds_iot_allocated_storage
+          value: $(params.rds_iot_allocated_storage)
+        - name: rds_iot_jdbc_connection_url_additional_params
+          value: $(params.rds_iot_jdbc_connection_url_additional_params)
+        - name: rds_iot_replica_db
+          value: $(params.rds_iot_replica_db)
+        - name: rds_db2_config_iot_yaml
+          value: $(params.rds_db2_config_iot_yaml)
+
+        # iac-rdsdb2 facilities params
+        - name: rds_facilities_db2_instance_class
+          value: $(params.rds_facilities_db2_instance_class)
+        - name: rds_facilities_db2_storage_type
+          value: $(params.rds_facilities_db2_storage_type)
+        - name: rds_facilities_allocated_storage
+          value: $(params.rds_facilities_allocated_storage)
+        - name: rds_facilities_jdbc_connection_url_additional_params
+          value: $(params.rds_facilities_jdbc_connection_url_additional_params)
+        - name: rds_facilities_replica_db
+          value: $(params.rds_facilities_replica_db)
+        - name: rds_db2_config_facilities_yaml
+          value: $(params.rds_db2_config_facilities_yaml)
+
+
+
+    # Task 5: Generate Common Files (Runs after EFS/S3/MSK/RDS-DB2 tasks complete/skip)
     # -------------------------------------------------------------------------
     - name: gitops-iac-generate-common-files
       runAfter:
         - gitops-iac-provision-efs
         - gitops-iac-provision-s3
         - gitops-iac-provision-msk
+        - gitops-iac-provision-rdsdb2
       taskRef:
         name: gitops-iac-generate-common-files
       workspaces:
@@ -385,6 +573,8 @@ spec:
           value: $(params.is_s3)
         - name: is_msk
           value: $(params.is_msk)
+        - name: is_rds
+          value: $(params.is_rds)
 
       # EFS parameters (needed for variable computation)
         - name: efs_manage_db2_performance_mode
@@ -444,7 +634,39 @@ spec:
         - name: msk_cluster_prefix
           value: $(params.msk_cluster_prefix)
 
-    # Task 5: Manage PR (Always runs last)
+        # iac-rdsdb2 params
+        - name: rds_manage_db2_instance_class
+          value: $(params.rds_manage_db2_instance_class)
+        - name: rds_manage_db2_storage_type
+          value: $(params.rds_manage_db2_storage_type)
+        - name: rds_manage_allocated_storage
+          value: $(params.rds_manage_allocated_storage)
+        - name: rds_manage_jdbc_connection_url_additional_params
+          value: $(params.rds_manage_jdbc_connection_url_additional_params)
+        - name: rds_manage_replica_db
+          value: $(params.rds_manage_replica_db)
+        - name: rds_iot_db2_instance_class
+          value: $(params.rds_iot_db2_instance_class)
+        - name: rds_iot_db2_storage_type
+          value: $(params.rds_iot_db2_storage_type)
+        - name: rds_iot_allocated_storage
+          value: $(params.rds_iot_allocated_storage)
+        - name: rds_iot_jdbc_connection_url_additional_params
+          value: $(params.rds_iot_jdbc_connection_url_additional_params)
+        - name: rds_iot_replica_db
+          value: $(params.rds_iot_replica_db)
+        - name: rds_facilities_db2_instance_class
+          value: $(params.rds_facilities_db2_instance_class)
+        - name: rds_facilities_db2_storage_type
+          value: $(params.rds_facilities_db2_storage_type)
+        - name: rds_facilities_allocated_storage
+          value: $(params.rds_facilities_allocated_storage)
+        - name: rds_facilities_jdbc_connection_url_additional_params
+          value: $(params.rds_facilities_jdbc_connection_url_additional_params)
+        - name: rds_facilities_replica_db
+          value: $(params.rds_facilities_replica_db)
+
+    # Task 6: Manage PR (Always runs last)
     # -------------------------------------------------------------------------
     - name: gitops-iac-manage-pr
       runAfter:
@@ -475,3 +697,5 @@ spec:
           value: $(params.is_s3)
         - name: is_msk
           value: $(params.is_msk)
+        - name: is_rds
+          value: $(params.is_rds)

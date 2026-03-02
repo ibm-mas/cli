@@ -38,3 +38,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: redhat-marketplace
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-pipelines

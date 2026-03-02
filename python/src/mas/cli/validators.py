@@ -11,6 +11,7 @@
 from re import match
 from os import path
 from json import loads, JSONDecodeError
+from typing import List
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from openshift import dynamic
@@ -18,6 +19,7 @@ from kubernetes import config
 from kubernetes.client import api_client
 
 from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit.document import Document
 
 from mas.devops.ocp import getStorageClass
 from mas.devops.mas import verifyMasInstance
@@ -29,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 class InstanceIDFormatValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
@@ -40,7 +42,7 @@ class InstanceIDFormatValidator(Validator):
 
 
 class WorkspaceIDFormatValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
@@ -51,7 +53,7 @@ class WorkspaceIDFormatValidator(Validator):
 
 
 class TimeoutFormatValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
@@ -62,7 +64,7 @@ class TimeoutFormatValidator(Validator):
 
 
 class WorkspaceNameFormatValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
@@ -73,7 +75,7 @@ class WorkspaceNameFormatValidator(Validator):
 
 
 class InstanceIDValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
@@ -87,7 +89,7 @@ class InstanceIDValidator(Validator):
 
 
 class AiserviceInstanceIDValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a AI Service instance ID exists on the target cluster
         """
@@ -101,14 +103,14 @@ class AiserviceInstanceIDValidator(Validator):
 
 
 class AiserviceTeanantIDValidator(Validator):
-    def __init__(self, manage_bind_aiservice_instance_id, install_aiservice=False):
+    def __init__(self, manage_bind_aiservice_instance_id: str, install_aiservice: bool = False) -> None:
         """
         Initialize validator with AI Service instance ID and installation flag
         """
-        self.manage_bind_aiservice_instance_id = manage_bind_aiservice_instance_id
-        self.install_aiservice = install_aiservice
+        self.manage_bind_aiservice_instance_id: str = manage_bind_aiservice_instance_id
+        self.install_aiservice: bool = install_aiservice
 
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a AI Service tenant ID exists on the target cluster
         """
@@ -126,7 +128,7 @@ class AiserviceTeanantIDValidator(Validator):
 
 
 class StorageClassValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a StorageClass exists on the target cluster
         """
@@ -140,7 +142,7 @@ class StorageClassValidator(Validator):
 
 
 class YesNoValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a response is understandable as a yes/no response
         """
@@ -150,11 +152,11 @@ class YesNoValidator(Validator):
 
 
 class IntValidator(Validator):
-    def __init__(self, min, max):
-        self.min = min
-        self.max = max
+    def __init__(self, min: int | None, max: int | None) -> None:
+        self.min: int | None = min
+        self.max: int | None = max
 
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a response is understandable as a yes/no response
         """
@@ -170,7 +172,7 @@ class IntValidator(Validator):
 
 
 class FileExistsValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a file exists on the local system
         """
@@ -180,7 +182,7 @@ class FileExistsValidator(Validator):
 
 
 class DirectoryExistsValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a file exists on the local system
         """
@@ -190,7 +192,7 @@ class DirectoryExistsValidator(Validator):
 
 
 class OptimizerInstallPlanValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a response is a valid install plan for Optimizer
         """
@@ -200,7 +202,7 @@ class OptimizerInstallPlanValidator(Validator):
 
 
 class JsonValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a response is a valid JSON
         """
@@ -212,14 +214,14 @@ class JsonValidator(Validator):
 
 
 class LanguageValidator(Validator):
-    def __init__(self, _language_list):
+    def __init__(self, _language_list: List[str]) -> None:
         """
         This function was created to give context of the array that will
         be validated
         """
-        self._language_list = _language_list
+        self._language_list: List[str] = _language_list
 
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate if an input it's outside of an list
         """
@@ -230,7 +232,7 @@ class LanguageValidator(Validator):
 
 
 class BucketPrefixValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate Bucket prefix length
         """
@@ -238,3 +240,5 @@ class BucketPrefixValidator(Validator):
 
         if not match(r"^.{1,4}$", bucketPrefix):
             raise ValidationError(message='Bucket prefix does not meet the requirement', cursor_position=len(bucketPrefix))
+
+# Made with Bob

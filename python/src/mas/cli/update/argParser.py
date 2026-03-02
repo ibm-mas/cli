@@ -9,18 +9,85 @@
 # *****************************************************************************
 
 import argparse
+import sys
 
-from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
 
-updateArgParser = argparse.ArgumentParser(
+
+class UpdateArgumentParser(argparse.ArgumentParser):
+    """Custom argument parser that validates --catalog requirement"""
+
+    def format_usage(self):
+        """Custom usage message showing different modes"""
+        prog = self.prog
+        return (
+            f"Usage (non-interactive mode):\n"
+            f"  {prog} -c MAS_CATALOG_VERSION [--db2-namespace DB2_NAMESPACE]\n"
+            f"                  [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade]\n"
+            f"                  [--mongodb-v6-upgrade] [--mongodb-v7-upgrade] [--mongodb-v8-upgrade]\n"
+            f"                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {{redhat,strimzi}}]\n"
+            f"                  [--artifactory-username ARTIFACTORY_USERNAME]\n"
+            f"                  [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode]\n"
+            f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--no-confirm] [--skip-pre-check]\n"
+            f"\n"
+            f"Usage (interactive mode):\n"
+            f"  {prog}\n"
+            f"\n"
+            f"Usage (help):\n"
+            f"  {prog} -h\n"
+        )
+
+    def format_help(self):
+        """Override format_help to use our custom usage format"""
+        formatter = self._get_formatter()
+
+        # Add description
+        formatter.add_text(self.description)
+
+        # Add custom usage
+        formatter.add_text(self.format_usage())
+
+        # Add argument groups
+        for actionGroup in self._action_groups:
+            formatter.start_section(actionGroup.title)
+            formatter.add_text(actionGroup.description)
+            formatter.add_arguments(actionGroup._group_actions)
+            formatter.end_section()
+
+        # Add epilog
+        formatter.add_text(self.epilog)
+
+        return formatter.format_help()
+
+    def parse_args(self, args=None, namespace=None):  # type: ignore[override]
+        parsedArgs = super().parse_args(args, namespace)
+
+        # Get all arguments that were actually provided by the user
+        providedArgs = []
+        if args is not None:
+            providedArgs = [arg for arg in args if arg.startswith('-')]
+        else:
+            providedArgs = [arg for arg in sys.argv[1:] if arg.startswith('-')]
+
+        # Check if any arguments were provided
+        hasAnyArgs = len(providedArgs) > 0
+
+        # Check if --catalog was provided
+        hasCatalog = parsedArgs.mas_catalog_version is not None
+
+        # Check if only help was requested
+        helpOnly = '--help' in providedArgs or '-h' in providedArgs
+
+        # Validation: If any arguments are provided (except help), --catalog must be present
+        if hasAnyArgs and not hasCatalog and not helpOnly:
+            self.error("non-interactive mode requires --catalog parameter, the interactive mode does not support any flags")
+
+        return parsedArgs
+
+
+updateArgParser = UpdateArgumentParser(
     prog='mas update',
-    description="\n".join([
-        f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Update the IBM Maximo Operator Catalog, and related MAS dependencies by configuring and launching the MAS Update Tekton Pipeline.\n",
-        "Interactive Mode:",
-        "Omitting the --catalog option will trigger an interactive prompt"
-    ]),
+    description="Update the IBM Maximo Operator Catalog, and related MAS dependencies by configuring and launching the MAS Update Tekton Pipeline.",
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
     add_help=False

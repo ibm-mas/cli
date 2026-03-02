@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+from typing import TYPE_CHECKING, Dict, List, Any, NoReturn
 from os import path
 from base64 import b64encode
 from glob import glob
@@ -17,9 +18,81 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+if TYPE_CHECKING:
+    from prompt_toolkit.completion import WordCompleter
+    from prompt_toolkit.validation import Validator
+
+
 class AdditionalConfigsMixin():
+    if TYPE_CHECKING:
+        # Attributes from BaseApp and other mixins
+        params: Dict[str, str]
+        _interactiveMode: bool
+        localConfigDir: str | None
+        noConfirm: bool
+        templatesDir: str
+        slsLicenseFileLocal: str | None
+        manualCertsDir: str | None
+        showAdvancedOptions: bool
+        additionalConfigsSecret: Dict[str, Any] | None
+        podTemplatesSecret: Dict[str, Any] | None
+        slsLicenseFileSecret: Dict[str, Any] | None
+        certsSecret: Dict[str, Any] | None
+
+        # Methods from BaseApp
+        def setParam(self, param: str, value: str) -> None:
+            ...
+
+        def getParam(self, param: str) -> str:
+            ...
+
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:
+            ...
+
+        # Methods from PrintMixin
+        def printH1(self, message: str) -> None:
+            ...
+
+        def printH2(self, message: str) -> None:
+            ...
+
+        def printDescription(self, content: List[str]) -> None:
+            ...
+
+        # Methods from PromptMixin
+        def yesOrNo(self, message: str, param: str | None = None) -> bool:
+            ...
+
+        def promptForString(
+            self,
+            message: str,
+            param: str | None = None,
+            default: str = "",
+            isPassword: bool = False,
+            validator: Validator | None = None,
+            completer: WordCompleter | None = None
+        ) -> str:
+            ...
+
+        def promptForInt(
+            self,
+            message: str,
+            param: str | None = None,
+            default: int | None = None,
+            min: int | None = None,
+            max: int | None = None
+        ) -> int:
+            ...
+
+        def promptForDir(self, message: str, mustExist: bool = True, default: str = "") -> str:
+            ...
+
+        # Methods from other mixins
+        def selectLocalConfigDir(self) -> None:
+            ...
+
     def additionalConfigs(self) -> None:
-        if self.interactiveMode:
+        if self.isInteractiveMode:
             self.printH1("Additional Configuration")
             self.printDescription([
                 "Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step",
@@ -63,7 +136,7 @@ class AdditionalConfigsMixin():
             self.additionalConfigsSecret = additionalConfigsSecret
 
     def podTemplates(self) -> None:
-        if self.interactiveMode and self.showAdvancedOptions:
+        if self.isInteractiveMode and self.showAdvancedOptions:
             self.printH1("Configure Pod Templates")
             self.printDescription([
                 "The CLI supports two pod template profiles out of the box that allow you to reconfigure MAS for either a guaranteed or best effort QoS level",
@@ -123,7 +196,7 @@ class AdditionalConfigsMixin():
 
     def manualCertificates(self) -> None:
 
-        if self.getParam("mas_manual_cert_mgmt"):
+        if self.getParam("mas_manual_cert_mgmt").lower() == "true":
             certsSecret = {
                 "apiVersion": "v1",
                 "kind": "Secret",

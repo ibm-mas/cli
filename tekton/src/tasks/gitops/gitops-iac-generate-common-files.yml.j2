@@ -30,6 +30,9 @@ spec:
     - name: is_s3
       type: string
       default: 'false'
+    - name: is_rds
+      type: string
+      default: 'false'
     # EFS parameters
     - name: efs_manage_db2_performance_mode
       type: string
@@ -114,6 +117,63 @@ spec:
     - name: msk_cluster_prefix
       type: string
       default: ''
+   # iac-rds-db2  params
+    - name: rds_manage_db2_instance_class
+      type: string
+      default: ""
+    - name: rds_manage_db2_storage_type
+      type: string
+      default: ""
+    - name: rds_manage_allocated_storage
+      type: string
+      default: ""
+    - name: rds_manage_jdbc_connection_url_additional_params
+      type: string
+      default: ""
+    - name: rds_manage_replica_db
+      type: string
+      default: ""
+    - name: rds_manage_db2_combine_properties
+      type: string
+      default: ""
+
+    - name: rds_iot_db2_instance_class
+      type: string
+      default: ""
+    - name: rds_iot_db2_storage_type
+      type: string
+      default: ""
+    - name: rds_iot_allocated_storage
+      type: string
+      default: ""
+    - name: rds_iot_jdbc_connection_url_additional_params
+      type: string
+      default: ""
+    - name: rds_iot_replica_db
+      type: string
+      default: ""
+    - name: rds_iot_db2_combine_properties
+      type: string
+      default: ""
+
+    - name: rds_facilities_db2_instance_class
+      type: string
+      default: ""
+    - name: rds_facilities_db2_storage_type
+      type: string
+      default: ""
+    - name: rds_facilities_allocated_storage
+      type: string
+      default: ""
+    - name: rds_facilities_jdbc_connection_url_additional_params
+      type: string
+      default: ""
+    - name: rds_facilities_replica_db
+      type: string
+      default: ""
+    - name: rds_facilities_db2_combine_properties
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -141,6 +201,8 @@ spec:
         value: $(params.is_s3)
       - name: IS_MSK
         value: $(params.is_msk)
+      - name: IS_RDS
+        value: $(params.is_rds)
       - name: EFS_MANAGE_DB2_PERFORMANCE_MODE
         value: $(params.efs_manage_db2_performance_mode)
       - name: EFS_MANAGE_DB2_MOUNT_COUNT
@@ -194,6 +256,45 @@ spec:
         value: $(params.msk_number_of_broker_nodes)
       - name: MSK_CLUSTER_PREFIX
         value: $(params.msk_cluster_prefix)
+
+      - name: RDS_MANAGE_DB2_INSTANCE_CLASS
+        value: $(params.rds_manage_db2_instance_class)
+      - name: RDS_MANAGE_DB2_STORAGE_TYPE
+        value: $(params.rds_manage_db2_storage_type)
+      - name: RDS_MANAGE_ALLOCATED_STORAGE
+        value: $(params.rds_manage_allocated_storage)
+      - name: RDS_MANAGE_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS
+        value: $(params.rds_manage_jdbc_connection_url_additional_params)
+      - name: RDS_MANAGE_REPLICA_DB
+        value: $(params.rds_manage_replica_db)
+      - name: RDS_MANAGE_DB2_COMBINE_PROPERTIES
+        value: $(params.rds_manage_db2_combine_properties)
+
+      - name: RDS_IOT_DB2_INSTANCE_CLASS
+        value: $(params.rds_iot_db2_instance_class)
+      - name: RDS_IOT_DB2_STORAGE_TYPE
+        value: $(params.rds_iot_db2_storage_type)
+      - name: RDS_IOT_ALLOCATED_STORAGE
+        value: $(params.rds_iot_allocated_storage)
+      - name: RDS_IOT_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS
+        value: $(params.rds_iot_jdbc_connection_url_additional_params)
+      - name: RDS_IOT_REPLICA_DB
+        value: $(params.rds_iot_replica_db)
+      - name: RDS_IOT_DB2_COMBINE_PROPERTIES
+        value: $(params.rds_iot_db2_combine_properties)
+
+      - name: RDS_FACILITIES_DB2_INSTANCE_CLASS
+        value: $(params.rds_facilities_db2_instance_class)
+      - name: RDS_FACILITIES_DB2_STORAGE_TYPE
+        value: $(params.rds_facilities_db2_storage_type)
+      - name: RDS_FACILITIES_ALLOCATED_STORAGE
+        value: $(params.rds_facilities_allocated_storage)
+      - name: RDS_FACILITIES_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS
+        value: $(params.rds_facilities_jdbc_connection_url_additional_params)
+      - name: RDS_FACILITIES_REPLICA_DB
+        value: $(params.rds_facilities_replica_db)
+      - name: RDS_FACILITIES_DB2_COMBINE_PROPERTIES
+        value: $(params.rds_facilities_db2_combine_properties)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -214,6 +315,7 @@ spec:
           CMD="$CMD --is-efs ${IS_EFS:-false}"
           CMD="$CMD --is-s3 ${IS_S3:-false}"
           CMD="$CMD --is-msk ${IS_MSK:-false}"
+          CMD="$CMD --is-rds ${IS_RDS:-false}"
           
           echo "Executing: $CMD"
           eval $CMD

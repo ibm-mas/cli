@@ -59,6 +59,9 @@ optionalParams = [
     "artifactory_token",
     # ODH
     "aiservice_odh_model_deployment_type",
+    # RHOAI
+    "aiservice_rhoai_model_deployment_type",
+    "rhoai",
     # AI Service
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
@@ -97,4 +100,7 @@ optionalParams = [
     "rsl_token",
     "rsl_ca_crt",
     "environment_type",
+
+    # Certificate Issuer
+    "aiservice_certificate_issuer",
 ]

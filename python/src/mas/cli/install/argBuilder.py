@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -92,14 +92,20 @@ class installArgBuilderMixin():
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
-        if self.getParam('mas_trust_default_cas') == "false":
+        if self.getParam('mas_trust_default_cas').lower() == "false":
             command += f"  --disable-ca-trust{newline}"
 
-        if self.getParam('mas_manual_cert_mgmt') is True:
+        if self.getParam('mas_manual_cert_mgmt').lower() == "true":
             command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
 
         if self.getParam('mas_routing_mode') != "":
             command += f"  --routing \"{self.getParam('mas_routing_mode')}\"{newline}"
+
+        if self.getParam('mas_ingress_controller_name') != "":
+            command += f"  --ingress-controller \"{self.getParam('mas_ingress_controller_name')}\"{newline}"
+
+        if self.getParam('mas_configure_ingress').lower() == "true":
+            command += f"  --configure-ingress{newline}"
 
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
@@ -119,10 +125,19 @@ class installArgBuilderMixin():
         if self.getParam('mas_cluster_issuer') != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
 
-        if self.getParam('mas_enable_walkme') == "false":
+        if self.getParam('mas_enable_walkme').lower() == "false":
             command += f"  --disable-walkme{newline}"
 
-        if self.getParam('enable_ipv6') is True:
+        if self.getParam('mas_feature_usage').lower() == "false":
+            command += f"  --disable-feature-usage{newline}"
+
+        if self.getParam('mas_usability_metrics').lower() == "false":
+            command += f"  --disable-usability-metrics{newline}"
+
+        if self.getParam('mas_deployment_progression').lower() == "false":
+            command += f"  --disable-deployment-progression{newline}"
+
+        if self.getParam('enable_ipv6').lower() == "true":
             command += f"  --enable-ipv6{newline}"
 
         # Storage
@@ -312,6 +327,11 @@ class installArgBuilderMixin():
                 command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
             if self.getParam('aiservice_channel') != "":
                 command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
+
+            # Certificate Issuer for AI Service
+            if self.getParam('aiservice_certificate_issuer') != "":
+                command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
+
             if self.getParam('aiservice_s3_accesskey') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
             if self.getParam('aiservice_s3_secretkey') != "" and self.getParam('minio_root_user') == "":
@@ -333,6 +353,13 @@ class installArgBuilderMixin():
 
             if self.getParam('aiservice_odh_model_deployment_type') != "":
                 command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
+            if self.getParam('aiservice_rhoai_model_deployment_type') != "":
+                command += f"  --rhoai-model-deployment-type \"{self.getParam('aiservice_rhoai_model_deployment_type')}\"{newline}"
+            if self.getParam('rhoai') == "true":
+                command += f"  --rhoai{newline}"
+
+            if self.getParam('mas_app_settings_persistent_volumes_flag') == "true":
+                command += f"  --manage-persistent-volumes{newline}"
 
             if self.getParam('aiservice_watsonxai_apikey') != "":
                 command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
@@ -445,6 +472,8 @@ class installArgBuilderMixin():
                 command += f"  --db2-meta-storage \"{self.getParam('db2_meta_storage_size')}\"{newline}"
             if self.getParam('db2_temp_storage_size') != "":
                 command += f"  --db2-temp-storage \"{self.getParam('db2_temp_storage_size')}\"{newline}"
+            if self.getParam('db2u_kind') != "":
+                command += f"  --db2u-kind \"{self.getParam('db2u_kind')}\"{newline}"
 
         # Kafka - Common
         # -----------------------------------------------------------------------------
