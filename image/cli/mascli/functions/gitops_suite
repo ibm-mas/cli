@@ -151,12 +151,6 @@ function gitops_suite_noninteractive() {
   export MAS_FEATURE_USAGE=${MAS_FEATURE_USAGE:-"true"}
   export MAS_DEPLOYMENT_PROGRESSION=${MAS_DEPLOYMENT_PROGRESSION:-"true"}
   export MAS_USABILITY_METRICS=${MAS_USABILITY_METRICS:-"true"}
-  
-  # Routing mode configuration
-  export MAS_ROUTING_MODE=${MAS_ROUTING_MODE:-"subdomain"}
-  if [[ "${MAS_ROUTING_MODE}" == "path" ]]; then
-    export MAS_INGRESS_CONTROLLER_NAME=${MAS_INGRESS_CONTROLLER_NAME:-"default"}
-  fi
 
   #GenericAddon default
   export EXTENSIONS=${EXTENSIONS:-"false"}
@@ -440,6 +434,21 @@ function gitops_suite_noninteractive() {
         ;;
       esac
   done
+
+  # Routing mode only applicable for MAS 9.2 and later
+  if [[ -n "${MAS_CHANNEL}" ]]; then
+    MAS_CHANNEL_MAJOR=$(echo "${MAS_CHANNEL}" | cut -d'.' -f1)
+    MAS_CHANNEL_MINOR=$(echo "${MAS_CHANNEL}" | cut -d'.' -f2)
+    if [[ "${MAS_CHANNEL_MAJOR}" -gt 9 ]] || [[ "${MAS_CHANNEL_MAJOR}" -eq 9 && "${MAS_CHANNEL_MINOR}" -ge 2 ]]; then
+      export MAS_ROUTING_MODE=${MAS_ROUTING_MODE:-"subdomain"}
+      if [[ "${MAS_ROUTING_MODE}" == "path" ]]; then
+        export MAS_INGRESS_CONTROLLER_NAME=${MAS_INGRESS_CONTROLLER_NAME:-"default"}
+      fi
+    else
+      unset MAS_ROUTING_MODE
+      unset MAS_INGRESS_CONTROLLER_NAME
+    fi
+  fi
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_help "CLUSTER_ID is not set"
