@@ -92,10 +92,10 @@ class installArgBuilderMixin():
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
-        if self.getParam('mas_trust_default_cas') == "false":
+        if self.getParam('mas_trust_default_cas').lower() == "false":
             command += f"  --disable-ca-trust{newline}"
 
-        if self.getParam('mas_manual_cert_mgmt') is True:
+        if self.getParam('mas_manual_cert_mgmt').lower() == "true":
             command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
 
         if self.getParam('mas_routing_mode') != "":
@@ -104,7 +104,7 @@ class installArgBuilderMixin():
         if self.getParam('mas_ingress_controller_name') != "":
             command += f"  --ingress-controller \"{self.getParam('mas_ingress_controller_name')}\"{newline}"
 
-        if self.getParam('mas_configure_ingress') is True:
+        if self.getParam('mas_configure_ingress').lower() == "true":
             command += f"  --configure-ingress{newline}"
 
         if self.getParam('mas_domain') != "":
@@ -125,19 +125,19 @@ class installArgBuilderMixin():
         if self.getParam('mas_cluster_issuer') != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
 
-        if self.getParam('mas_enable_walkme') == "false":
+        if self.getParam('mas_enable_walkme').lower() == "false":
             command += f"  --disable-walkme{newline}"
 
-        if self.getParam('mas_feature_usage') == "false":
+        if self.getParam('mas_feature_usage').lower() == "false":
             command += f"  --disable-feature-usage{newline}"
 
-        if self.getParam('mas_usability_metrics') == "false":
+        if self.getParam('mas_usability_metrics').lower() == "false":
             command += f"  --disable-usability-metrics{newline}"
 
-        if self.getParam('mas_deployment_progression') == "false":
+        if self.getParam('mas_deployment_progression').lower() == "false":
             command += f"  --disable-deployment-progression{newline}"
 
-        if self.getParam('enable_ipv6') is True:
+        if self.getParam('enable_ipv6').lower() == "true":
             command += f"  --enable-ipv6{newline}"
 
         # Storage
@@ -472,6 +472,8 @@ class installArgBuilderMixin():
                 command += f"  --db2-meta-storage \"{self.getParam('db2_meta_storage_size')}\"{newline}"
             if self.getParam('db2_temp_storage_size') != "":
                 command += f"  --db2-temp-storage \"{self.getParam('db2_temp_storage_size')}\"{newline}"
+            if self.getParam('db2u_kind') != "":
+                command += f"  --db2u-kind \"{self.getParam('db2u_kind')}\"{newline}"
 
         # Kafka - Common
         # -----------------------------------------------------------------------------
