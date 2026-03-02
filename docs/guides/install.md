@@ -166,6 +166,7 @@ The interactive install will guide you through a series of questioned designed t
         <li><strong>Subdomain Mode (multi domain):</strong> Each application is accessed through its own subdomain (e.g., <code>manage.mas.example.com</code>, <code>admin.mas.example.com</code>)</li>
       </ul>
       <p><strong>Path-Based Routing Requirements:</strong> When using path mode, the OpenShift IngressController must be configured with <code>namespaceOwnership: InterNamespaceAllowed</code>. The CLI will validate the configuration and offer to configure it automatically if needed. <code>--ingress-controller-name</code> and <code>--configure-ingress</code> both applicable only for <code>--routing path</code>. If <code>--configure-ingress</code> not specified and the IngressController is not configured, the installation will fail with instructions.</p>
+      <p><strong>Note:</strong> <code>--ingress-controller-name</code> specifies the name of the OpenShift <code>IngressController</code> resource to use for path-based routing. The <code>IngressController</code> is an OpenShift resource (in the <code>openshift-ingress-operator</code> namespace) that manages how external traffic is routed into the cluster. Defaults to <code>default</code> if not specified.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Application Selection">
       <p>Select the applications that you would like to install. Note that some applications cannot be installed unless an application they depend on is also installed:</p>
