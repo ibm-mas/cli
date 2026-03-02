@@ -352,6 +352,79 @@ spec:
           fi
         }
 
+        enable_subuser() {
+
+          echo "Enabling sendgrid subuser if it is disabled by previous run"
+
+          export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
+          sm_login || exit 1
+
+          # lookup ibm-customer/<ICN>/sendgrid_subuser#username from AWS SM
+          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
+          echo "Getting ${SECRET_NAME_SENDGRID} from AWS SM"
+          export SENDGRID_SUBUSER_USERNAME="$(sm_get_secret_value "${SECRET_NAME_SENDGRID}" "username")" # pragma: allowlist secret
+          echo "Subuser username: ${SENDGRID_SUBUSER_USERNAME}"
+          if [[ -z "${SENDGRID_SUBUSER_USERNAME}" || "${SENDGRID_SUBUSER_USERNAME}" == "null" ]]; then
+            echo "Required AWS SM secret "${SECRET_NAME_SENDGRID}" not found or invalid"
+            exit 1
+          fi
+
+          # Check if subuser is disabled
+          subuser_disabled=`curl -X GET \
+            https://api.sendgrid.com/v3/subusers/${SENDGRID_SUBUSER_USERNAME} \
+            -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
+            -H "Content-Type: application/json" | jq '.disabled'`
+          if [[ "$subuser_disabled" == "true" ]]; then
+            curl -X PATCH \
+              https://api.sendgrid.com/v3/subusers/${SENDGRID_SUBUSER_USERNAME} \
+              --fail \
+              -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
+              -H "Content-Type: application/json" \
+              -d '{"disabled": false}'
+            CURL_RC=$?
+            if [ $CURL_RC -ne 0 ]; then
+              echo "Failed to enable SendGrid subuser, aborting test"
+              echo "WARNING: until the SendGrid subuser is enabled, the suite will fail!"
+              exit 1
+            fi
+            echo "SendGrid subuser ${SENDGRID_SUBUSER_USERNAME} enabled successfully!"
+          fi
+
+        }
+
+        disable_subuser() {
+          echo "Disabling sendgrid subuser to prevent the suite from sending out emails during test execution"
+
+          export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
+          sm_login || exit 1
+
+          # lookup ibm-customer/<ICN>/sendgrid_subuser#username from AWS SM
+          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
+          echo "Getting ${SECRET_NAME_SENDGRID} from AWS SM"
+          export SENDGRID_SUBUSER_USERNAME="$(sm_get_secret_value "${SECRET_NAME_SENDGRID}" "username")" # pragma: allowlist secret
+          echo "Subuser username: ${SENDGRID_SUBUSER_USERNAME}"
+          if [[ -z "${SENDGRID_SUBUSER_USERNAME}" || "${SENDGRID_SUBUSER_USERNAME}" == "null" ]]; then
+            echo "Required AWS SM secret "${SECRET_NAME_SENDGRID}" not found or invalid"
+            exit 1
+          fi
+
+          curl -X PATCH \
+            https://api.sendgrid.com/v3/subusers/${SENDGRID_SUBUSER_USERNAME} \
+            --fail \
+            -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"disabled": true}'
+          CURL_RC=$?
+          if [ $CURL_RC -ne 0 ]; then
+            echo "Failed to disable SendGrid subuser, aborting test"
+            echo "WARNING: until the SendGrid subuser is disabled, the suite will be capable of sending emails for real!"
+            echo "         do not attempt to run any tests against the environment until the subuser is successfully disabled!"
+            exit 1
+          fi
+          echo "SendGrid subuser ${SENDGRID_SUBUSER_USERNAME} disabled successfully!"
+          echo "It is now safe to run tests against the environment; the suite is no longer capable of sending emails for real."
+        }
+
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
         export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${MAS_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
 
@@ -414,6 +487,9 @@ spec:
         export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
         
         argocd_login
+        if [[ "${USE_SENDGRID}" == "true" ]]; then
+          enable_subuser
+        fi
       
         if [[ "$LAUNCHER_ID" == "core" ]]; then
           MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}"
@@ -429,49 +505,6 @@ spec:
           check_argo_app_healthy "${BAS_CONFIG_APP}" 30
           check_argo_app_healthy "${SUITE_APP_NAME}" 30
           check_argo_app_healthy "${WORKSPACE_APP}" 30
-        fi
-
-
-        # If use_sendgrid: true, disable the subuser so we do not accidentally send out real emails when running tests against the instance
-        # NOTE: Many of the FVT suites will fail unless the suite is configured to use Mailhog for SMTP, so we only plan to have smtp.use_sendgrid: true set for fvtsaastran
-        #       We only run the catalogapi FVT suite there at present, and that suite does not depend on Mailhog.
-        # NOTE: we deliberately perform this step *after* checking application health, since disabling the sendgrid subuser will cause the validation step in the
-        #       SMTP entity manager to fail (unfortunately, there is no way to configure a SendGrid subuser to silently drop emails without the client call reporting failure)
-        # NOTE: although we don't check the health of the SMTP app explicitly, this is not necessary since the WORKSPACE_APP (which we do check above) sync will be blocked until the SMTP
-        #       app becomes healthy (if SMTP is configured)
-        if [[ "${USE_SENDGRID}" == "true" ]]; then
-
-          echo "Disabling sendgrid subuser to prevent the suite from sending out emails during test execution"
-
-          export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
-          sm_login || exit 1
-
-          # lookup ibm-customer/<ICN>/sendgrid_subuser#username from AWS SM
-          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
-          echo "Getting ${SECRET_NAME_SENDGRID} from AWS SM"
-          export SENDGRID_SUBUSER_USERNAME="$(sm_get_secret_value "${SECRET_NAME_SENDGRID}" "username")" # pragma: allowlist secret
-          echo "Subuser username: ${SENDGRID_SUBUSER_USERNAME}"
-          if [[ -z "${SENDGRID_SUBUSER_USERNAME}" || "${SENDGRID_SUBUSER_USERNAME}" == "null" ]]; then
-            echo "Required AWS SM secret "${SECRET_NAME_SENDGRID}" not found or invalid"
-            exit 1
-          fi
-
-          curl -X PATCH \
-            https://api.sendgrid.com/v3/subusers/${SENDGRID_SUBUSER_USERNAME} \
-            --fail \
-            -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
-            -H "Content-Type: application/json" \
-            -d '{"disabled": true}'
-          CURL_RC=$?
-          if [ $CURL_RC -ne 0 ]; then
-            echo "Failed to disable SendGrid subuser, aborting test"
-            echo "WARNING: until the SendGrid subuser is disabled, the suite will be capable of sending emails for real!"
-            echo "         do not attempt to run any tests against the environment until the subuser is successfully disabled!"
-            exit 1
-          fi
-          echo "SendGrid subuser ${SENDGRID_SUBUSER_USERNAME} disabled successfully!"
-          echo "It is now safe to run tests against the environment; the suite is no longer capable of sending emails for real."
-
         fi
 
         # NOTE: verified that subuser teardown (including deletion of its API keys, authenticated domains and DNS records) still works as expected against a disabled subuser
@@ -554,6 +587,19 @@ spec:
             check_argo_app_healthy "${MASAPP_APP}" 120
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
           fi
+
+        fi
+
+        # If use_sendgrid: true, disable the subuser so we do not accidentally send out real emails when running tests against the instance
+        # NOTE: Many of the FVT suites will fail unless the suite is configured to use Mailhog for SMTP, so we only plan to have smtp.use_sendgrid: true set for fvtsaastran
+        #       We only run the catalogapi FVT suite there at present, and that suite does not depend on Mailhog.
+        # NOTE: we deliberately perform this step *after* checking application health, since disabling the sendgrid subuser will cause the validation step in the
+        #       SMTP entity manager to fail (unfortunately, there is no way to configure a SendGrid subuser to silently drop emails without the client call reporting failure)
+        # NOTE: although we don't check the health of the SMTP app explicitly, this is not necessary since the WORKSPACE_APP (which we do check above) sync will be blocked until the SMTP
+        #       app becomes healthy (if SMTP is configured)
+        if [[ "${USE_SENDGRID}" == "true" ]]; then
+
+          disable_subuser
 
         fi
 
@@ -702,10 +748,18 @@ spec:
 
           argocd app set ${ACCOUNT_ROOT_APP} --parameter auto_delete=true --grpc-web
 
+          if [[ "${USE_SENDGRID}" == "true" ]]; then
+            enable_subuser
+          fi
+
           # wait for the root apps to sync to make sure the setting has been applied everywhere
           check_argo_app_synced "${ACCOUNT_ROOT_APP}"
           check_argo_app_synced "${CLUSTER_ROOT_APP}"
           check_argo_app_synced "${INSTANCE_ROOT_APP}"
+
+          if [[ "${USE_SENDGRID}" == "true" ]]; then
+            disable_subuser
+          fi
         fi
 
       command:
