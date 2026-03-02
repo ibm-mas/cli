@@ -32,7 +32,7 @@ db2_instance_dbm_config:
   {{ DB2_INSTANCE_DBM_CONFIG }}
   {%- endfilter %}
 {% endif %}
-{% if (RDS_DB2_BACKUP_MANAGE is defined and RDS_DB2_BACKUP_MANAGE == 'true') or (RDS_DB2_BACKUP_IOT is defined and RDS_DB2_BACKUP_IOT == 'true') or (RDS_DB2_BACKUP_FACILITIES is defined and RDS_DB2_BACKUP_FACILITIES == 'true') %}
+{% if (MAS_APP_ID == 'manage' and RDS_DB2_BACKUP_MANAGE is defined and RDS_DB2_BACKUP_MANAGE == 'true') or (MAS_APP_ID == 'iot' and RDS_DB2_BACKUP_IOT is defined and RDS_DB2_BACKUP_IOT == 'true') or (MAS_APP_ID == 'facilities' and RDS_DB2_BACKUP_FACILITIES is defined and RDS_DB2_BACKUP_FACILITIES == 'true') %}
 backup:
   enabled: true
   s3_bucket_name: ""

@@ -280,9 +280,13 @@ function gitops_rds_db2_database() {
   echo_reset_dim "db2-instance-name ............................. ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
   echo_reset_dim "mas-app-id  ................................... ${COLOR_MAGENTA}${MAS_APP_ID}"
   echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
-  echo_reset_dim "RDS_DB2_BACKUP_MANAGE........................... ${COLOR_MAGENTA}${RDS_DB2_BACKUP_MANAGE}"
-  echo_reset_dim "RDS_DB2_BACKUP_IOT........................... ${COLOR_MAGENTA}${RDS_DB2_BACKUP_IOT}"
-  echo_reset_dim "RDS_DB2_BACKUP_FACILITIES...................... ${COLOR_MAGENTA}${RDS_DB2_BACKUP_FACILITIES}"
+  if [[ "$MAS_APP_ID" == "manage" ]]; then
+    echo_reset_dim "RDS_DB2_BACKUP_MANAGE........................... ${COLOR_MAGENTA}${RDS_DB2_BACKUP_MANAGE}"
+  elif [[ "$MAS_APP_ID" == "iot" ]]; then
+    echo_reset_dim "RDS_DB2_BACKUP_IOT........................... ${COLOR_MAGENTA}${RDS_DB2_BACKUP_IOT}"
+  elif [[ "$MAS_APP_ID" == "facilities" ]]; then
+    echo_reset_dim "RDS_DB2_BACKUP_FACILITIES...................... ${COLOR_MAGENTA}${RDS_DB2_BACKUP_FACILITIES}"
+  fi
   echo_reset_dim "db2-instance-registry-yaml .................... ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
   echo_reset_dim "db2-instance-dbm-config-yaml .................. ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
   echo_reset_dim "db2-database-db-config-yaml ................... ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
