@@ -204,7 +204,29 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=self.nextChannel, params=self.params)
+                # Determine masChannel parameter based on scenario:
+                # - Regular upgrade: pass currentChannel so ansible looks up the next channel
+                # - Retry scenario: pass previous channel so ansible upgrades apps to current channel
+                # - No --next-channel: pass empty string to let ansible auto-determine
+                if args.next_channel != "" and currentChannel != "Unknown":
+                    if self.nextChannel == currentChannel:
+                        # Retry scenario: core already on target, apps need upgrading
+                        # Find previous channel: which channel has upgrade_path[X] = currentChannel?
+                        previousChannel = None
+                        for prevCh, nextCh in self.upgrade_path.items():
+                            if nextCh == currentChannel:
+                                previousChannel = prevCh
+                                break
+                        # Pass previous channel so ansible upgrades apps from previous to current
+                        masChannelParam = previousChannel if previousChannel else currentChannel
+                    else:
+                        # Regular upgrade with explicit --next-channel
+                        masChannelParam = currentChannel
+                else:
+                    # No --next-channel provided: let ansible auto-determine
+                    masChannelParam = ""
+                
+                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
