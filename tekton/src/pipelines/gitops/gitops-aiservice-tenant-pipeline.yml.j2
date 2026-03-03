@@ -30,11 +30,11 @@ spec:
       type: string
     - name: aiservice_instance_id
       type: string
-    - name: aiservice_channel
+    - name: aiservice_catalog_channel
       type: string
-    - name: aiservice_tenant_channel
+    - name: aiservice_tenant_catalog_channel
       type: string
-    - name: mas_catalog_source
+    - name: catalog_source
       type: string
     - name: tenantNamespace
       type: string
@@ -132,12 +132,12 @@ spec:
           value: $(params.aiservice_provision_tenant)
         - name: aiservice_instance_id
           value: $(params.aiservice_instance_id)
-        - name: aiservice_channel
-          value: $(params.aiservice_channel)
-        - name: aiservice_tenant_channel
-          value: $(params.aiservice_tenant_channel)
-        - name: mas_catalog_source
-          value: $(params.mas_catalog_source)
+        - name: aiservice_catalog_channel
+          value: $(params.aiservice_catalog_channel)
+        - name: aiservice_tenant_catalog_channel
+          value: $(params.aiservice_tenant_catalog_channel)
+        - name: catalog_source
+          value: $(params.catalog_source)
         - name: tenantNamespace
           value: $(params.tenantNamespace)
         - name: tenant_id
