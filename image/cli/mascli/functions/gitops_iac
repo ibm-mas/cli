@@ -1236,17 +1236,19 @@ function gitops_iac_provision_rdsdb2(){
     echo RDS_DB2_CONFIG_FACILITIES
   fi
   APP_PARAMS=(
-  "manage $RDS_MANAGE_DB2_INSTANCE_CLASS $RDS_MANAGE_DB2_STORAGE_TYPE $RDS_MANAGE_ALLOCATED_STORAGE"
-  "iot $RDS_IOT_DB2_INSTANCE_CLASS $RDS_IOT_DB2_STORAGE_TYPE $RDS_IOT_ALLOCATED_STORAGE"
-  "facilities $RDS_FACILITIES_DB2_INSTANCE_CLASS $RDS_FACILITIES_DB2_STORAGE_TYPE $RDS_FACILITIES_ALLOCATED_STORAGE"
+  "manage $RDS_MANAGE_DB2_INSTANCE_CLASS $RDS_MANAGE_DB2_STORAGE_TYPE $RDS_MANAGE_ALLOCATED_STORAGE $RDS_MANAGE_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS"
+  "iot $RDS_IOT_DB2_INSTANCE_CLASS $RDS_IOT_DB2_STORAGE_TYPE $RDS_IOT_ALLOCATED_STORAGE $RDS_IOT_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS"
+  "facilities $RDS_FACILITIES_DB2_INSTANCE_CLASS $RDS_FACILITIES_DB2_STORAGE_TYPE $RDS_FACILITIES_ALLOCATED_STORAGE $RDS_FACILITIES_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS"
   )
 
   for row in "${APP_PARAMS[@]}"; do
-    read -r app instance storage allocated <<< "$row"
+    read -r app instance storage allocated additional_params<<< "$row"
 
     if check_params "$app" "$instance" "$storage" "$allocated"; then
       export RDS_APP="$app"
       export RDS_S3_APP_NAME="$app"
+      export RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$(set_ssl_params "$additional_params")
+      echo "Additional params for $app - ${RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS}"
       echo "Generating rds-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/rds-db2-$app.tf"
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.tf.j2 ${GITOPS_CLUSTER_DIR}/db2rds-$app.tf
 
@@ -1691,5 +1693,46 @@ function check_params() {
   
   # All parameters are set, return app name
   echo "$app_name"
+  return 0
+}
+
+
+# Function to set or append SSL connection parameters
+# Usage: set_ssl_params "$ADDITIONAL_PARAMS"
+# Returns: SSL connection string with default or appended values
+# Example: set_ssl_params "" returns "sslConnection=true;sslVersion=TLSv1.2"
+#          set_ssl_params "param1=value1" returns "param1=value1;sslConnection=true;sslVersion=TLSv1.2"
+#          set_ssl_params "sslConnection=true" returns "sslConnection=true;sslVersion=TLSv1.2"
+#          set_ssl_params "sslVersion=TLSv1.2" returns "sslVersion=TLSv1.2;sslConnection=true"
+#          set_ssl_params "sslConnection=true;sslVersion=TLSv1.2" returns "sslConnection=true;sslVersion=TLSv1.2"
+function set_ssl_params() {
+  local additional_params="$1"
+  local result="$additional_params"
+  
+  # If additional_params is empty, return default SSL settings
+  if [[ -z "$additional_params" ]]; then
+    echo "sslConnection=true;sslVersion=TLSv1.2"
+    return 0
+  fi
+  
+  # Check if sslConnection is missing and append it
+  if [[ "$additional_params" != *"sslConnection="* ]]; then
+    if [[ -n "$result" ]]; then
+      result="${result};sslConnection=true"
+    else
+      result="sslConnection=true"
+    fi
+  fi
+  
+  # Check if sslVersion is missing and append it
+  if [[ "$additional_params" != *"sslVersion="* ]]; then
+    if [[ -n "$result" ]]; then
+      result="${result};sslVersion=TLSv1.2"
+    else
+      result="sslVersion=TLSv1.2"
+    fi
+  fi
+  
+  echo "$result"
   return 0
 }
