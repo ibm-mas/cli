@@ -190,7 +190,7 @@ spec:
 
         mkdir -p /tmp/init-aiservice-tenant
 
-        if [ -n ${AISERVICE_TENANT_CATALOG_CHANNEL} ]; then
+        if [ -n "${AISERVICE_TENANT_CATALOG_CHANNEL}" ]; then
           export CATALOG_CHANNEL=${AISERVICE_TENANT_CATALOG_CHANNEL}
         else
           export CATALOG_CHANNEL=${AISERVICE_CATALOG_CHANNEL}
