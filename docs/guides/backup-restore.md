@@ -1,7 +1,7 @@
 Backup and Restore
 ===============================================================================
 
-This guide provides comprehensive information on backing up and restoring IBM Maximo Application Suite (MAS) instances. The backup process captures critical configuration data, MongoDB databases, Suite License Service (SLS) data, and certificate manager configurations to enable disaster recovery and migration scenarios.
+This guide provides comprehensive information on backing up and restoring IBM Maximo Application Suite (MAS) instances. The backup process captures critical configuration data, MongoDB databases, Suite License Service (SLS) data, and certificate manager configurations to enable disaster recovery scenarios.
 
 !!! tip
     This guide covers both **backup and restore operations** for IBM Maximo Application Suite instances.
@@ -14,6 +14,10 @@ This guide provides comprehensive information on backing up and restoring IBM Ma
     The MAS backup and restore in CLI release v19.0.0 and later contains process, backup archive file and directory changes that are not backward compatible with earlier backup and restore versions.
 
     Run the backup processes using v19.0.0 or later to ensure that you can successfully run a restore. You cannot run a restore process using v19.0.0 or later from back ups created on an older version.
+
+**Supported MAS versions**
+  - MAS 9.1.x
+  - MAS 9.0.x (testing)
 
 **Quick Navigation:**
   - [Backup Overview](#backup-overview) - Information about backing up MAS instances
