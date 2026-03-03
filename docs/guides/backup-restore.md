@@ -749,6 +749,7 @@ The restore process handles the following components:
 - **Target cluster must be pre-provisioned** - The restore process does not provision a new OpenShift cluster. A running, accessible cluster with sufficient resources must already exist.
 - **Storage class compatibility** - The target cluster must have compatible storage classes. If storage classes differ from the source cluster, overrides must be explicitly configured.
 - **No partial component restore** - Individual components cannot be selectively restored in isolation without running the full pipeline; component selection is configured at pipeline launch time.
+- **Manual Certificate Management Restriction:** Certificates and secrets from backups will be restored. However, changing the domain during the restoration process will cause issues with manual certificates/secrets, and manual updates of certificates and secrets are required.
 - **Domain changes require DNS updates** - If restoring with a domain change, DNS records and TLS certificates must be updated manually outside of the restore process.
 - **Single MAS instance per restore** - Each restore operation targets a single MAS instance. Restoring multiple instances requires separate restore runs.
 - **Grafana and DRO are not restored from backup** - Grafana and DRO are optionally installed fresh during restore; their previous configurations are not recovered from the backup archive. However, BASCFG CR resources are backed up and restored.
