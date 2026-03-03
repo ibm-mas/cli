@@ -55,7 +55,7 @@ spec:
 
     - name: fvt_test_suite
       type: string
-      description: Whether to run the Monitor (Base) [monitor_fvt] or Monitor (with Manage) FVT suite [monitor_fvt_with_manage]
+      description: Which Monitor FVT suite to run [monitor_fvt, monitor_fvt_with_manage, fvt_91x]
       default: ""
 
   tasks:
@@ -154,7 +154,7 @@ spec:
           values: [""]
         - input: "$(params.fvt_test_suite)"
           operator: in
-          values: ["monitor_fvt" , "monitor_fvt_with_manage"]
+          values: ["monitor_fvt", "monitor_fvt_with_manage", "fvt_91x"]
       runAfter:
         - ivtcore-monitor
       workspaces:
