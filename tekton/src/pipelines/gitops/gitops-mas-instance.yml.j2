@@ -170,6 +170,15 @@ spec:
     - name: mas_wipe_mongo_data
       type: string
       default: "false"
+    - name: mas_feature_usage
+      type: string
+      default: "true"
+    - name: mas_deployment_progression
+      type: string
+      default: "true"
+    - name: mas_usability_metrics
+      type: string
+      default: "true"
     - name: mas_pod_template_yaml
       type: string
       default: ""
@@ -252,6 +261,14 @@ spec:
 
    # standalone sls
     - name: sls_service
+      type: string
+      default: ""
+    
+    # routing parameters
+    - name: mas_routing_mode
+      type: string
+      default: ""
+    - name: mas_ingress_controller_name
       type: string
       default: ""
   tasks:
@@ -454,6 +471,12 @@ spec:
           value: $(params.mas_pod_template_yaml)
         - name: mas_wipe_mongo_data
           value: $(params.mas_wipe_mongo_data)
+        - name: mas_feature_usage
+          value: $(params.mas_feature_usage)
+        - name: mas_deployment_progression
+          value: $(params.mas_deployment_progression)
+        - name: mas_usability_metrics
+          value: $(params.mas_usability_metrics)
         - name: suite_spec_additional_properties_yaml
           value: $(params.suite_spec_additional_properties_yaml)
         - name: suite_spec_settings_additional_properties_yaml
@@ -474,6 +497,10 @@ spec:
           value: $(params.extensions)
         - name: sls_service
           value: $(params.sls_service)
+        - name: mas_routing_mode
+          value: $(params.mas_routing_mode)
+        - name: mas_ingress_controller_name
+          value: $(params.mas_ingress_controller_name)
       taskRef:
         kind: Task
         name: gitops-suite

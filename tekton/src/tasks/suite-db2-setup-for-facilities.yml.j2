@@ -56,6 +56,9 @@ spec:
     - name: db2_table_org
       type: string
       default: ""
+    - name: db2u_kind
+      type: string
+      default: ""
 
     # Db2 - Node scheduling
     - name: db2_affinity_key
@@ -203,6 +206,8 @@ spec:
         value: $(params.db2_4k_device_support)
       - name: DB2_TABLE_ORG
         value: $(params.db2_table_org)
+      - name: DB2U_KIND
+        value: $(params.db2u_kind)
 
       # Db2 - Node Scheduling
       - name: DB2_AFFINITY_KEY
