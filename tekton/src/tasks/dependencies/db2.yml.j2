@@ -168,6 +168,12 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    # Other Db2 parameters
+    - name: db2_v12_upgrade
+      type: string
+      description: Approves the Db2 upgrade to version 12 if needed
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -285,6 +291,10 @@ spec:
       # Custom labels support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+      
+      # Other parameters
+      - name: DB2_V12_UPGRADE
+        value: $(params.db2_v12_upgrade)
   steps:
     - name: db2
       command:

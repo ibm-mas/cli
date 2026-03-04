@@ -45,6 +45,7 @@ class UpdateApp(BaseApp):
             requiredParams = ["mas_catalog_version"]
             optionalParams = [
                 "db2_namespace",
+                "db2_v12_upgrade",
                 "mongodb_namespace",
                 "mongodb_v5_upgrade",
                 "mongodb_v6_upgrade",
@@ -134,8 +135,8 @@ class UpdateApp(BaseApp):
 
         self.detectGrafana4()
         self.detectMongoDb()
-        self.detectDb2uOrKafka("db2")
-        self.detectDb2uOrKafka("kafka")
+        self.detectDb2u()
+        self.detectKafka()
         self.detectCP4D()
 
         print()
@@ -556,19 +557,13 @@ class UpdateApp(BaseApp):
             logger.debug(f"{name} is not included in CP4D update: {e}")
             self.setParam(param, "false")
 
-    def detectDb2uOrKafka(self, mode: str) -> bool:
-        if mode == "db2":
-            haloStartingMessage = "Checking for Db2uCluster instances to update"
-            apiVersion = "db2u.databases.ibm.com/v1"
-            kinds = ["Db2uCluster", "Db2uInstance"]
-            paramName = "db2_namespace"
-        elif mode == "kafka":
-            haloStartingMessage = "Checking for Kafka instances to update"
-            apiVersion = "kafka.strimzi.io/v1beta2"
-            kinds = ["Kafka"]
-            paramName = "kafka_namespace"
-        else:
-            self.fatalError("Unexpected error")
+    def detectDb2u(self) -> None:
+        """Detect Db2uCluster and Db2uInstance instances to update."""
+        haloStartingMessage = "Checking for Db2uCluster instances to update"
+        apiVersion = "db2u.databases.ibm.com/v1"
+        kinds = ["Db2uCluster", "Db2uInstance"]
+        paramName = "db2_namespace"
+        mode = "db2"
 
         with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
             try:
@@ -607,6 +602,45 @@ class UpdateApp(BaseApp):
                             for index, ns in enumerate(sorted(namespaces), start=1):
                                 self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
+
+                    # Version comparison logic - check if Db2u needs major version upgrade
+                    if len(instances) > 0:
+                        # Get the current Db2u version from the first instance
+                        currentDb2uVersion = None
+                        if "spec" in instances[0] and "version" in instances[0]["spec"]:
+                            currentDb2uVersion = instances[0]["spec"]["version"]
+
+                        if currentDb2uVersion != "":
+                            # Get target Db2u version from catalog
+                            targetDb2uVersion = self.chosenCatalog["db2_channel_default"]
+
+                            logger.debug(f"Current Db2u version: {currentDb2uVersion}, Target version from catalog: {targetDb2uVersion}")
+
+                            # Extract major version numbers
+                            # Handle version formats like "11.5.8.0", "12.0.0.0", "v11.5", "v12.0"
+                            currentVersionStr = currentDb2uVersion.lstrip('v')
+                            targetVersionStr = targetDb2uVersion.lstrip('v')
+                            try:
+                                currentMajorVersion = int(currentVersionStr.split('.')[0])
+                                targetMajorVersion = int(targetVersionStr.split('.')[0])
+                            except (ValueError):
+                                h.stop_and_persist(symbol=self.failureIcon, text=f"Db2 channel doesn't map to a Db2. Version name {targetMajorVersion}")
+                            # Check if upgrade to version or higher is needed
+                            if targetMajorVersion > currentMajorVersion:
+                                if self.noConfirm and self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
+                                    h.stop_and_persist(symbol=self.failureIcon, text=f"Db2 {currentMajorVersion} needs to be updated to {targetMajorVersion}")
+                                    self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm Db2 update to version {targetMajorVersion}")
+                                elif self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
+                                    h.stop_and_persist(symbol=self.successIcon, text=f"Db2 {currentMajorVersion} needs to be updated to {targetMajorVersion}")
+                                    if not self.yesOrNo(f"Confirm update from Db2 {currentMajorVersion} to {targetMajorVersion}", f"db2_v{targetMajorVersion}_upgrade"):
+                                        exit(1)
+                                    print()
+                                logger.debug(f"Db2u major version upgrade required: {currentMajorVersion} -> {targetMajorVersion}")
+                            else:
+                                self.setParam(f"db2_v{targetMajorVersion}_upgrade", "false")
+                                logger.debug("No Db2u major version upgrade required")
+                        else:
+                            logger.debug("Unable to determine current Db2u version from instance")
                 else:
                     logger.debug(f"Found no instances of {kindString} to update")
                     h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kindString} ({apiVersion}) instances to update")
@@ -615,8 +649,57 @@ class UpdateApp(BaseApp):
                 logger.debug(f"{'[' + kindString + ']'}.{apiVersion} is not available in the cluster")
                 h.stop_and_persist(symbol=self.successIcon, text=f"{kindString}.{apiVersion} is not available in the cluster")
 
+    def detectKafka(self) -> None:
+        """Detect Kafka instances to update and determine the provider."""
+        haloStartingMessage = "Checking for Kafka instances to update"
+        apiVersion = "kafka.strimzi.io/v1beta2"
+        kind = "Kafka"
+        paramName = "kafka_namespace"
+        mode = "kafka"
+
+        with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
+            try:
+                k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
+                instances = k8sAPI.get().to_dict()["items"]
+                logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
+
+                if len(instances) > 0:
+                    # If the user provided the namespace using --kafka-namespace then we don't have any work to do here
+                    if self.getParam(paramName) == "":
+                        namespaces = set()
+                        for instance in instances:
+                            namespaces.add(instance["metadata"]["namespace"])
+
+                        if len(namespaces) == 1:
+                            # If kafka is only in one namespace, we will update that
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated")
+                            logger.debug(f"There is only one namespace containing {kind}s so we will target that one: {namespaces}")
+                            self.setParam(paramName, list(namespaces)[0])
+                        elif self.noConfirm:
+                            # If kafka is in multiple namespaces and user has disabled prompts then we must error
+                            namespaceList = ", ".join(list(namespaces))
+                            h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kind}s ({apiVersion}) were found in multiple namespaces")
+                            logger.warning(f"There are multiple namespaces containing {kind}s and user has enable --no-confirm without setting --{mode}-namespace: {namespaceList}")
+                            self.fatalError(f"{kind}s are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
+                        else:
+                            # Otherwise, provide user the list of namespaces we found and ask them to pick on
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) found in multiple namespaces")
+                            logger.debug(f"There are multiple namespaces containing {kind}s, user must choose: {namespaces}")
+                            self.printDescription([
+                                f"{kind}s were found in multiple namespaces, select the namespace to target from the list below:"
+                            ])
+                            for index, ns in enumerate(sorted(namespaces), start=1):
+                                self.printDescription([f"{index}. {ns}"])
+                            self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
+                else:
+                    logger.debug(f"Found no instances of {kind}s to update")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kind}s ({apiVersion}) instances to update")
+            except (ResourceNotFoundError, NotFoundError):
+                logger.debug(f"{kind}.{apiVersion} is not available in the cluster")
+                h.stop_and_persist(symbol=self.successIcon, text=f"{kind}.{apiVersion} is not available in the cluster")
+
             # With Kafka we also have to determine the provider (strimzi or redhat)
-            if mode == "kafka" and self.getParam("kafka_namespace") != "" and self.getParam("kafka_provider") == "":
+            if self.getParam("kafka_namespace") != "" and self.getParam("kafka_provider") == "":
                 try:
                     subAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
                     subs = subAPI.get().to_dict()["items"]
@@ -628,6 +711,10 @@ class UpdateApp(BaseApp):
                             self.setParam("kafka_provider", "strimzi")
                 except (ResourceNotFoundError, NotFoundError):
                     pass
+
+                # If the param is still undefined then there is a big problem
+                if self.getParam("kafka_provider") == "":
+                    self.fatalError("Unable to determine whether the installed Kafka instance is managed by Strimzi or Red Hat AMQ Streams")
 
                 # If the param is still undefined then there is a big problem
                 if self.getParam("kafka_provider") == "":

@@ -47,6 +47,10 @@ spec:
       type: string
       default: "db2u"
       description: Namespace where db2 instances will be updated
+    - name: db2_v12_upgrade
+      type: string
+      description: Approves the Db2 upgrade to version 12 if needed
+      default: ""
 
     # mongodb update
     # -------------------------------------------------------------------------
@@ -243,6 +247,8 @@ spec:
           value: $(params.db2_action)
         - name: db2_namespace
           value: $(params.db2_namespace)
+        - name: db2_v12_upgrade
+          value: $(params.db2_v12_upgrade)
 
     - name: update-mongodb
       timeout: "0"
