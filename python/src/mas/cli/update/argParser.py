@@ -115,6 +115,14 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
+    '--db2-v12-upgrade',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Required to confirm a major version update for Db2 to version 12",
+)
+
+depsArgGroup.add_argument(
     '--mongodb-namespace',
     required=False,
     help="Namespace where MongoCE operator and instances will be updated",
