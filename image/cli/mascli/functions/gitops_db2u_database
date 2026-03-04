@@ -11,82 +11,82 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                       Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                        Account name that the cluster belongs to
+  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}                                                          Region ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                        Cluster ID
 
 IBM Maximo Application Suite:
-      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}   IBM Suite Maximo Application Suite Instance ID      
-      --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                 IBM Suite Maximo Application Suite App that will use this db2u instance      
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                              IBM Suite Maximo Application Suite Instance ID
+      --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                                                        IBM Suite Maximo Application Suite App that will use this db2u instance
 
 IBM DB2U:
-      --db2-dbname ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}                                                     DB2 DB Name
-      --db2-instance-name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}                                       DB2 Instance Name
-      --db2-version ${COLOR_YELLOW}DB2_VERSION${TEXT_RESET}                                                   DB2 Version
-      --db2-tls-version ${COLOR_YELLOW}DB2_TLS_VERSION${TEXT_RESET}                                           TLS version to use in connection url
-      --db2-table-org ${COLOR_YELLOW}DB2_TABLE_ORG${TEXT_RESET}                                               DB2 table org
-      --db2-4k-device-support ${COLOR_YELLOW}DB2_4K_DEVICE_SUPPORT${TEXT_RESET}                               DB2 4k device support
-      --db2-workload ${COLOR_YELLOW}DB2_WORKLOAD${TEXT_RESET}                                                 DB2 workload
-      --db2-mln-count ${COLOR_YELLOW}DB2_MLN_COUNT${TEXT_RESET}                                               DB2 logical nodes count 
-      --db2-num-pods ${COLOR_YELLOW}DB2_NUM_PODS${TEXT_RESET}                                                 DB2 number of pods
-      --db2-meta-storage-class ${COLOR_YELLOW}DB2_META_STORAGE_CLASS${TEXT_RESET}                             DB2 meta storage class
-      --db2-meta-storage-size ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                               DB2 meta storage size
-      --db2-meta-storage-accessmode ${COLOR_YELLOW}DB2_META_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 meta storage accessmode
-      --db2-data-storage-class ${COLOR_YELLOW}DB2_DATA_STORAGE_CLASS${TEXT_RESET}                             DB2 data storage class
-      --db2-data-storage-size ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                               DB2 data storage size
-      --db2-data-storage-accessmode ${COLOR_YELLOW}DB2_DATA_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 data storage accessmode
-      --db2-backup-storage-class ${COLOR_YELLOW}DB2_BACKUP_STORAGE_CLASS${TEXT_RESET}                         DB2 backup storage class
-      --db2-backup-storage-size ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}                           DB2 backup storage size
-      --db2-backup-storage-accessmode ${COLOR_YELLOW}DB2_BACKUP_STORAGE_ACCESSMODE${TEXT_RESET}               DB2 backup storage accessmode
-      --db2-logs-storage-class ${COLOR_YELLOW}DB2_LOGS_STORAGE_CLASS${TEXT_RESET}                             DB2 logs storage class
-      --db2-logs-storage-size ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                               DB2 logs storage size
-      --db2-logs-storage-accessmode ${COLOR_YELLOW}DB2_LOGS_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 logs storage accessmode
-      --db2-audit-logs-storage-class ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_CLASS${TEXT_RESET}                 DB2 audit logs storage class
-      --db2-audit-logs-storage-size ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_SIZE${TEXT_RESET}                   DB2 audit logs storage size
-      --db2-audit-logs-storage-accessmode ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 audit logs storage accessmode
-      --db2-temp-storage-class ${COLOR_YELLOW}DB2_TEMP_STORAGE_CLASS${TEXT_RESET}                             DB2 temp storage class
-      --db2-temp-storage-size ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                               DB2 temp storage size
-      --db2-temp-storage-accessmode ${COLOR_YELLOW}DB2_TEMP_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 temp storage accessmode
-      --db2-archivelogs-storage-class ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_CLASS${TEXT_RESET}               DB2 archivelogs storage class
-      --db2-archivelogs-storage-size ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_SIZE${TEXT_RESET}                 DB2 archivelogs storage size (default: 100Gi)
-      --db2-archivelogs-storage-accessmode ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_ACCESSMODE${TEXT_RESET}     DB2 archivelogs storage accessmode (default: ReadWriteMany)
-      --db2-cpu-requests ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                                         Define the Kubernetes CPU request for the Db2 pod.
-      --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                             Define the Kubernetes CPU limit for the Db2 pod.
-      --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                                   Define the Kubernetes memory request for the Db2 pod.
-      --db2-memory-limits ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                                       Define the Kubernetes memory limit for the Db2 pod.
-      --db2-instance-registry-yaml ${COLOR_YELLOW}DB2_INSTANCE_REGISTRY_YAML${TEXT_RESET}                     Yaml file containing the db2ucluster instance registry section.
-      --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster instance dbm config section.
-      --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                   Yaml file containing the db2ucluster database db config section.
-      --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
-      --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
+      --db2-dbname ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}                                                        DB2 DB Name
+      --db2-instance-name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}                                          DB2 Instance Name
+      --db2-version ${COLOR_YELLOW}DB2_VERSION${TEXT_RESET}                                                      DB2 Version
+      --db2-tls-version ${COLOR_YELLOW}DB2_TLS_VERSION${TEXT_RESET}                                              TLS version to use in connection url
+      --db2-table-org ${COLOR_YELLOW}DB2_TABLE_ORG${TEXT_RESET}                                                  DB2 table org
+      --db2-4k-device-support ${COLOR_YELLOW}DB2_4K_DEVICE_SUPPORT${TEXT_RESET}                                  DB2 4k device support
+      --db2-workload ${COLOR_YELLOW}DB2_WORKLOAD${TEXT_RESET}                                                    DB2 workload
+      --db2-mln-count ${COLOR_YELLOW}DB2_MLN_COUNT${TEXT_RESET}                                                  DB2 logical nodes count 
+      --db2-num-pods ${COLOR_YELLOW}DB2_NUM_PODS${TEXT_RESET}                                                    DB2 number of pods
+      --db2-meta-storage-class ${COLOR_YELLOW}DB2_META_STORAGE_CLASS${TEXT_RESET}                                DB2 meta storage class
+      --db2-meta-storage-size ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                                  DB2 meta storage size
+      --db2-meta-storage-accessmode ${COLOR_YELLOW}DB2_META_STORAGE_ACCESSMODE${TEXT_RESET}                      DB2 meta storage accessmode
+      --db2-data-storage-class ${COLOR_YELLOW}DB2_DATA_STORAGE_CLASS${TEXT_RESET}                                DB2 data storage class
+      --db2-data-storage-size ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                                  DB2 data storage size
+      --db2-data-storage-accessmode ${COLOR_YELLOW}DB2_DATA_STORAGE_ACCESSMODE${TEXT_RESET}                      DB2 data storage accessmode
+      --db2-backup-storage-class ${COLOR_YELLOW}DB2_BACKUP_STORAGE_CLASS${TEXT_RESET}                            DB2 backup storage class
+      --db2-backup-storage-size ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}                              DB2 backup storage size
+      --db2-backup-storage-accessmode ${COLOR_YELLOW}DB2_BACKUP_STORAGE_ACCESSMODE${TEXT_RESET}                  DB2 backup storage accessmode
+      --db2-logs-storage-class ${COLOR_YELLOW}DB2_LOGS_STORAGE_CLASS${TEXT_RESET}                                DB2 logs storage class
+      --db2-logs-storage-size ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                                  DB2 logs storage size
+      --db2-logs-storage-accessmode ${COLOR_YELLOW}DB2_LOGS_STORAGE_ACCESSMODE${TEXT_RESET}                      DB2 logs storage accessmode
+      --db2-audit-logs-storage-class ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_CLASS${TEXT_RESET}                    DB2 audit logs storage class
+      --db2-audit-logs-storage-size ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_SIZE${TEXT_RESET}                      DB2 audit logs storage size
+      --db2-audit-logs-storage-accessmode ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_ACCESSMODE${TEXT_RESET}          DB2 audit logs storage accessmode
+      --db2-temp-storage-class ${COLOR_YELLOW}DB2_TEMP_STORAGE_CLASS${TEXT_RESET}                                DB2 temp storage class
+      --db2-temp-storage-size ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                                  DB2 temp storage size
+      --db2-temp-storage-accessmode ${COLOR_YELLOW}DB2_TEMP_STORAGE_ACCESSMODE${TEXT_RESET}                      DB2 temp storage accessmode
+      --db2-archivelogs-storage-class ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_CLASS${TEXT_RESET}                  DB2 archivelogs storage class
+      --db2-archivelogs-storage-size ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_SIZE${TEXT_RESET}                    DB2 archivelogs storage size (default: 100Gi)
+      --db2-archivelogs-storage-accessmode ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_ACCESSMODE${TEXT_RESET}        DB2 archivelogs storage accessmode (default: ReadWriteMany)
+      --db2-cpu-requests ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                                            Define the Kubernetes CPU request for the Db2 pod.
+      --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                                Define the Kubernetes CPU limit for the Db2 pod.
+      --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                                      Define the Kubernetes memory request for the Db2 pod.
+      --db2-memory-limits ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                                          Define the Kubernetes memory limit for the Db2 pod.
+      --db2-instance-registry-yaml ${COLOR_YELLOW}DB2_INSTANCE_REGISTRY_YAML${TEXT_RESET}                        Yaml file containing the db2ucluster instance registry section.
+      --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}                    Yaml file containing the db2ucluster instance dbm config section.
+      --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                      Yaml file containing the db2ucluster database db config section.
+      --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                    Yaml file containing the db2ucluster addons audit config section.
+      --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                        By default routes are not exposed to public. To expose route, set this to public.
       --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
-      --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
-      --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
-      --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
-      --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}                                           To check if this is invoked by replica task
-      --skip-backup-notification ${COLOR_YELLOW}SKIP_BACKUP_NOTIFICATION${TEXT_RESET}                         Flag to track if slack and icd backup notifications are needed.
-      --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                                           MAS Annotations
-      --auto-backup ${COLOR_YELLOW}AUTO_BACKUP${TEXT_RESET}                                                   Flag whether to install the Auto DB2 backup feature or not
-      --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                     Flag to indicate whether enhanced HADR was configured manually
-      --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                     List of IPs or CIDR range that will be whitelisted
-      --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                             Cluster domain if any tls route needs to be created. Only needed if redhat cert-manager is not installed.
+      --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                    DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
+      --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                      Slack URL to notify DB2 backup failures
+      --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                       Flag to know that this is ReplicaDB instance
+      --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}                                              To check if this is invoked by replica task
+      --skip-backup-notification ${COLOR_YELLOW}SKIP_BACKUP_NOTIFICATION${TEXT_RESET}                            Flag to track if slack and icd backup notifications are needed.
+      --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                                              MAS Annotations
+      --auto-backup ${COLOR_YELLOW}AUTO_BACKUP${TEXT_RESET}                                                      Flag whether to install the Auto DB2 backup feature or not
+      --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                        Flag to indicate whether enhanced HADR was configured manually
+      --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                        List of IPs or CIDR range that will be whitelisted
+      --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                Cluster domain if any tls route needs to be created. Only needed if redhat cert-manager is not installed.
 
 Secrets Manager:
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}   Secrets Manager key seperator string      
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                    Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                                  Secrets Manager key seperator string
 
 Automatic GitHub Push:
-  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
-  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
-  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
-  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
-  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
-  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
-  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}           Git ssh key path
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                                                      Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}                                                      GitHub Hostname for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}                                                       Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}                                                      Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}                                                        Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}                                                Git commit message to use when committing to of your GitOps repository
+  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}                                                         Git ssh key path
 
 Other Commands:
-  -h, --help                                      Show this help message
+  -h, --help                                                                          Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }

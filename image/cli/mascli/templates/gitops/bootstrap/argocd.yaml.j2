@@ -7,8 +7,8 @@
 apiVersion: argoproj.io/v1beta1
 kind: ArgoCD
 metadata:
-  name: openshift-gitops
-  namespace: openshift-gitops
+  name: {{ ARGOCLUSTER_NAMESPACE }}
+  namespace: {{ ARGOCLUSTER_NAMESPACE }}
 spec:
   resourceTrackingMethod: label
   server:
@@ -1619,7 +1619,7 @@ spec:
       requests:
         cpu: 250m
         memory: 256Mi
-    serviceaccount: openshift-gitops-repo-sa
+    serviceaccount: {{ ARGOCLUSTER_NAMESPACE }}-repo-sa
     sidecarContainers:
       - command:
           - /var/run/argocd/argocd-cmp-server
@@ -1661,7 +1661,7 @@ spec:
         name: cmp-plugin
       - name: vault
         secret:
-          secretName: openshift-gitops-vault
+          secretName: {{ ARGOCLUSTER_NAMESPACE }}-vault
   resourceExclusions: |
     - apiGroups:
       - tekton.dev
@@ -1699,3 +1699,8 @@ spec:
         cpu: 250m
         memory: 1Gi
     sharding: {}
+{% if RESTRICTED_ACCESS == "true" %}
+  defaultClusterScopedRoleDisabled: true
+  sourceNamespaces:
+    - {{ ARGOCLUSTER_NAMESPACE }}
+{% endif %}

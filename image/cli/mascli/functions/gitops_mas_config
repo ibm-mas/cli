@@ -431,6 +431,7 @@ function gitops_mas_config_noninteractive() {
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
       export JDBC_ROUTE=${JDBC_ROUTE:-default}
+      [[ -z "$MAS_APP_ID" ]] && gitops_mas_config_help "MAS_APP_ID must be set when configuring JDBC"
 
       # Set JDBC instance name based on JDBC_TYPE
       if [[ -z "$JDBC_INSTANCE_NAME" ]]; then
