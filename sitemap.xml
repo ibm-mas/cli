@@ -341,6 +341,18 @@
          <lastmod>2026-03-05</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/v9-260305-amd64/</loc>
+         <lastmod>2026-03-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/v9-260305-ppc64le/</loc>
+         <lastmod>2026-03-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/v9-260305-s390x/</loc>
+         <lastmod>2026-03-05</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/analyticsengine-operator/1.0.1/</loc>
          <lastmod>2026-03-05</lastmod>
     </url>
@@ -2669,6 +2681,10 @@
          <lastmod>2026-03-05</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas/9.0.22/</loc>
+         <lastmod>2026-03-05</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas/9.0.3/</loc>
          <lastmod>2026-03-05</lastmod>
     </url>
@@ -4766,6 +4782,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-truststore-mgr/1.7.3/</loc>
+         <lastmod>2026-03-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-truststore-mgr/1.7.4/</loc>
          <lastmod>2026-03-05</lastmod>
     </url>
     <url>
