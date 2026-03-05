@@ -94,6 +94,7 @@ Content Selection (Dependencies):
       --mirror-db2                                Mirror images for IBM Db2
       --mirror-mariadb                            Mirror images for mariadb
       --mirror-opendatahub                        Mirror images for opendatahub
+      --mirror-openshiftai                        Mirror images for openshiftai
       --mirror-odf                                Mirror images for ODF
 
 Content Selection (All images included):
