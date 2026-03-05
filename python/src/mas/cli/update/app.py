@@ -604,42 +604,76 @@ class UpdateApp(BaseApp):
 
                     # Version comparison logic - check if Db2u needs major version upgrade
                     if len(instances) > 0:
-                        # Get the current Db2u version from the first instance
-                        currentDb2uVersion = None
-                        if "spec" in instances[0] and "version" in instances[0]["spec"]:
-                            currentDb2uVersion = instances[0]["spec"]["version"]
+                        # Get target Db2u version from catalog
+                        targetDb2uVersion = self.chosenCatalog["db2_channel_default"]
 
-                        if currentDb2uVersion != "":
-                            # Get target Db2u version from catalog
-                            targetDb2uVersion = self.chosenCatalog["db2_channel_default"]
-
-                            logger.debug(f"Current Db2u version: {currentDb2uVersion}, Target version from catalog: {targetDb2uVersion}")
-
-                            # Extract major version numbers
-                            # Handle version formats like "11.5.8.0", "12.0.0.0", "v11.5", "v12.0"
-                            currentVersionStr = currentDb2uVersion.lstrip('v')
+                        if not targetDb2uVersion:
+                            logger.warning("Unable to determine target Db2u version from catalog")
+                        else:
+                            # Extract target major version
                             targetVersionStr = targetDb2uVersion.lstrip('v')
                             try:
-                                currentMajorVersion = int(currentVersionStr.split('.')[0])
                                 targetMajorVersion = int(targetVersionStr.split('.')[0])
-                            except (ValueError):
-                                h.stop_and_persist(symbol=self.failureIcon, text=f"Db2 channel doesn't map to a Db2. Version name {targetMajorVersion}")
-                            # Check if upgrade to version or higher is needed
-                            if targetMajorVersion > currentMajorVersion:
-                                if self.noConfirm and self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
-                                    h.stop_and_persist(symbol=self.failureIcon, text=f"Db2 {currentMajorVersion} needs to be updated to {targetMajorVersion}")
-                                    self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm Db2 update to version {targetMajorVersion}")
-                                elif self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
-                                    h.stop_and_persist(symbol=self.successIcon, text=f"Db2 {currentMajorVersion} needs to be updated to {targetMajorVersion}")
-                                    if not self.yesOrNo(f"Confirm update from Db2 {currentMajorVersion} to {targetMajorVersion}", f"db2_v{targetMajorVersion}_upgrade"):
-                                        exit(1)
-                                    print()
-                                logger.debug(f"Db2u major version upgrade required: {currentMajorVersion} -> {targetMajorVersion}")
-                            else:
-                                self.setParam(f"db2_v{targetMajorVersion}_upgrade", "false")
-                                logger.debug("No Db2u major version upgrade required")
-                        else:
-                            logger.debug("Unable to determine current Db2u version from instance")
+                            except (ValueError, IndexError):
+                                h.stop_and_persist(symbol=self.failureIcon, text=f"Invalid Db2 channel version format: {targetDb2uVersion}")
+                                logger.error(f"Unable to parse target Db2u version: {targetDb2uVersion}")
+                                targetMajorVersion = None
+
+                            if targetMajorVersion is not None:
+                                # Check all instances to see if any need upgrade
+                                needsUpgrade = False
+                                instanceVersions = []
+
+                                for instance in instances:
+                                    if not isinstance(instance, dict):
+                                        continue
+
+                                    instanceName = instance["metadata"]["name"]
+                                    currentVersion = instance["spec"]["version"]
+
+                                    if not currentVersion:
+                                        logger.warning(f"No version found for Db2u instance: {instanceName}")
+                                        continue
+
+                                    logger.debug(f"Current Db2u version {instanceName}: {currentVersion}")
+
+                                    # Extract major version from current instance
+                                    currentVersionStr = currentVersion.lstrip('v')
+                                    try:
+                                        currentMajorVersion = int(currentVersionStr.split('.')[0])
+                                        instanceVersions.append((instanceName, currentMajorVersion, currentVersion))
+
+                                        # Check if this instance needs upgrade
+                                        if currentMajorVersion < targetMajorVersion:
+                                            needsUpgrade = True
+                                            logger.debug(f"Instance {instanceName} needs upgrade: {currentMajorVersion} -> {targetMajorVersion}")
+                                    except (ValueError, IndexError):
+                                        logger.warning(f"Unable to parse version for instance {instanceName}: {currentVersion}")
+                                        continue
+
+                                if not instanceVersions:
+                                    logger.warning("Unable to determine current Db2u version from any instance")
+                                else:
+                                    logger.debug(f"Target Db2u version from catalog: {targetDb2uVersion} (major: {targetMajorVersion})")
+
+                                    # Check if upgrade to version or higher is needed
+                                    if needsUpgrade:
+                                        # Get the minimum version across all instances for user messaging
+                                        minVersion = min(instanceVersions, key=lambda x: x[1])
+                                        minMajorVersion = minVersion[1]
+
+                                        if self.noConfirm and self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
+                                            h.stop_and_persist(symbol=self.failureIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}")
+                                            self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm Db2 update to version {targetMajorVersion}")
+                                        elif self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
+                                            h.stop_and_persist(symbol=self.successIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}")
+                                            if not self.yesOrNo(f"Confirm update from Db2 {minMajorVersion} to {targetMajorVersion}", f"db2_v{targetMajorVersion}_upgrade"):
+                                                exit(1)
+                                            print()
+                                        logger.debug(f"Db2u major version upgrade required: {minMajorVersion} -> {targetMajorVersion}")
+                                    else:
+                                        self.setParam(f"db2_v{targetMajorVersion}_upgrade", "false")
+                                        logger.debug("No Db2u major version upgrade required")
                 else:
                     logger.debug(f"Found no instances of {kindString} to update")
                     h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kindString} ({apiVersion}) instances to update")
