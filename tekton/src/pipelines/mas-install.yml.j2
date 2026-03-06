@@ -311,17 +311,34 @@ spec:
     # -------------------------------------------------------------------------
     # Note: In the case of manage using the shared Db2 instance only start the
     # IoT install *after* any Manage database preparation has completed
+    # For Monitor >= 9.2.0, IoT runs after Monitor. For Monitor < 9.2.0, IoT runs independently.
+{% set monitor_legacy_versions = ['8.8.', '8.9.', '8.10.', '8.11.', '9.0.', '9.1.'] %}
+{% set is_monitor_legacy = false %}
+{% if mas_app_channel_monitor is defined and mas_app_channel_monitor != '' %}
+{%   for version in monitor_legacy_versions %}
+{%     if mas_app_channel_monitor.startswith(version) %}
+{%       set is_monitor_legacy = true %}
+{%     endif %}
+{%   endfor %}
+{% endif %}
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/iot-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-db2-setup-system
         - suite-config-kafka
+{% if not is_monitor_legacy and mas_app_channel_monitor is defined and mas_app_channel_monitor != '' %}
+        - app-install-monitor
+{% endif %}
 
     # 8. Install & Configure Monitor
     # -------------------------------------------------------------------------
+    # For Monitor >= 9.2.0, Monitor runs after Manage only (not IoT)
+    # For Monitor < 9.2.0, Monitor runs after both Manage and IoT (legacy behavior)
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-app.yml.j2') | indent(4) }}
       runAfter:
         - app-install-manage
+{% if is_monitor_legacy %}
         - app-install-iot
+{% endif %}
 
 
     # 9. Install & Configure Predict
