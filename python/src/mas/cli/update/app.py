@@ -11,6 +11,7 @@
 
 import logging
 import logging.handlers
+import re
 from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
@@ -610,13 +611,17 @@ class UpdateApp(BaseApp):
                         if not targetDb2uVersion:
                             logger.warning("Unable to determine target Db2u version from catalog")
                         else:
-                            # Extract target major version
-                            targetVersionStr = targetDb2uVersion.lstrip('v')
+                            # Extract target major version (first two digits)
+                            # Handle version formats like "11.5.8.0", "12.0.0.0", "v11.5", "v12.0", "s11.5.9.0-cn6"
                             try:
-                                targetMajorVersion = int(targetVersionStr.split('.')[0])
-                            except (ValueError, IndexError):
+                                match = re.match(r'^[vs]?(\d{2})(\d+).*', targetDb2uVersion)
+                                if match:
+                                    targetMajorVersion = int(match.group(1))
+                                else:
+                                    raise ValueError(f"Version format does not match expected pattern: {targetDb2uVersion}")
+                            except (ValueError, AttributeError) as e:
                                 h.stop_and_persist(symbol=self.failureIcon, text=f"Invalid Db2 channel version format: {targetDb2uVersion}")
-                                logger.error(f"Unable to parse target Db2u version: {targetDb2uVersion}")
+                                logger.error(f"Unable to parse target Db2u version: {targetDb2uVersion} - {str(e)}")
                                 targetMajorVersion = None
 
                             if targetMajorVersion is not None:
@@ -638,7 +643,7 @@ class UpdateApp(BaseApp):
                                     logger.debug(f"Current Db2u version {instanceName}: {currentVersion}")
 
                                     # Extract major version from current instance
-                                    currentVersionStr = currentVersion.lstrip('v')
+                                    currentVersionStr = currentVersion.lstrip('s')
                                     try:
                                         currentMajorVersion = int(currentVersionStr.split('.')[0])
                                         instanceVersions.append((instanceName, currentMajorVersion, currentVersion))
