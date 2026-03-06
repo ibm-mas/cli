@@ -70,6 +70,7 @@ def send_slack_notification(action, pipeline_name, pipelinerun_name, pipelinerun
         import traceback
         traceback.print_exc()
 
+
 if __name__ == "__main__":
     # Initialize the properties we need
     # Note: We don't use MAS_INSTANCE_ID to remove the confusion between when a role actually
