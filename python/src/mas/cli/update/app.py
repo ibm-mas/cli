@@ -59,7 +59,10 @@ class UpdateApp(BaseApp):
                 "cpd_product_version",
                 # Dev Mode
                 "artifactory_username",
-                "artifactory_token"
+                "artifactory_token",
+                # Slack Integration
+                "slack_token",
+                "slack_channel"
 
             ]
             for key, value in vars(self.args).items():

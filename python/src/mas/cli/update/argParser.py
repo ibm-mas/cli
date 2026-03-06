@@ -209,6 +209,16 @@ otherArgGroup.add_argument(
     help="Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline",
 )
 otherArgGroup.add_argument(
+    '--slack-token',
+    required=False,
+    help="Slack bot token for sending pipeline status notifications"
+)
+otherArgGroup.add_argument(
+    '--slack-channel',
+    required=False,
+    help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)"
+)
+otherArgGroup.add_argument(
     '-h', "--help",
     action='help',
     default=False,
