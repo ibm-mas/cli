@@ -520,6 +520,74 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
         ]
     )
     # Run the test
+
+
+def test_install_master_dev_mode_non_interactive_with_slack(tmpdir):
+    """Test non-interactive installation with Slack notification parameters.
+    
+    This test verifies that slack_token and slack_channel parameters are properly
+    handled in non-interactive mode and passed through to the pipeline configuration.
+    """
+
+    # Define prompt handlers - should be empty for non-interactive mode
+    prompt_handlers = {}
+
+    # Create test configuration with Slack parameters
+    config = InstallTestConfig(
+        prompt_handlers=prompt_handlers,
+        current_catalog=None,  # No catalog installed
+        architecture='amd64',
+        is_sno=False,
+        is_airgap=False,
+        storage_class_name='nfs-client',
+        storage_provider='nfs',
+        storage_provider_name='NFS Client',
+        ocp_version='4.18.0',
+        timeout_seconds=30,
+        argv=[
+            "--dev-mode",
+            "--artifactory-username", "ARTIFACTORY_USERNAME",
+            "--artifactory-token", "ARTIFACTORY_TOKEN",
+            "--mas-catalog-version", "v9-master-amd64",
+            "--mas-instance-id", "fvtcore",
+            "--mas-workspace-id", "masdev",
+            "--mas-workspace-name", "MAS Development",
+            "--superuser-username", "MAS_SUPERUSER_USERNAME",
+            "--superuser-password", "MAS_SUPERUSER_PASSWORD",
+            "--mas-channel", "9.2.x-dev",
+            "--iot-channel", "9.2.x-dev",
+            "--db2-system", "--kafka-provider", "strimzi",
+            "--manage-channel", "9.2.x-dev",
+            "--manage-components", "",
+            "--db2-manage", "--manage-jdbc", "workspace-application",
+            "--cos", "ibm",
+            "--cos-resourcegroup", "fvt-layer3",
+            "--cos-apikey", "IBMCLOUD_APIKEY",
+            "--cos-instance-name", "Object Storage for MAS - fvtcore",
+            "--cos-bucket-name", "fvtcore-masdev-bucket-20260209-0209",
+            "--db2-channel", "rotate",
+            "--skip-grafana-install",
+            "--additional-configs", f"{tmpdir}",
+            "--storage-class-rwx", "ibmc-file-gold-gid",
+            "--storage-class-rwo", "ibmc-block-gold",
+            "--storage-pipeline", "ibmc-file-gold-gid",
+            "--storage-accessmode", "ReadWriteMany",
+            "--ibm-entitlement-key", "IBM_ENTITLEMENT_KEY",
+            "--license-file", f"{tmpdir}/authorized_entitlement.lic",
+            "--uds-email", "iotf@uk.ibm.com",
+            "--uds-firstname", "First",
+            "--uds-lastname", "Last",
+            "--sls-namespace", "sls-fvtcore",
+            "--sls-channel", "3.x-dev",
+            # Slack notification parameters
+            "--slack-token", "xoxb-test-slack-token-12345",
+            "--slack-channel", "mas-notifications,mas-alerts",
+            "--accept-license",
+            "--no-confirm",
+        ]
+    )
+    # Run the test
+    run_install_test(tmpdir, config)
     run_install_test(tmpdir, config)
 
 # Made with Bob
