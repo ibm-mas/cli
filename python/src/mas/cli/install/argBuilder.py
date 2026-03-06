@@ -296,7 +296,7 @@ class installArgBuilderMixin():
         if self.installFacilities:
             if self.getParam('mas_ws_facilities_size') != "":
                 command += f"  --facilities-size \"{self.getParam('mas_ws_facilities_size')}\"{newline}"
-            
+
             if self.getParam('mas_ws_facilities_appOMUpgradeMode') != "":
                 command += f"  --facilities-appOMUpgradeMode \"{self.getParam('mas_ws_facilities_appOMUpgradeMode')}\"{newline}"
 

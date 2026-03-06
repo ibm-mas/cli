@@ -1162,14 +1162,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "Advanced configurations for Real Estate and Facilities are added through an additional file called facilities-configs.yaml"
                 ])
                 self.printDescription([
-                "Application Object Migration:",
-                "Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades",
-                "  1. Manual",
-                "  2. Load Only",
-                "  3. Automatic (Load and Import)"
+                    "Application Object Migration:",
+                    "Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades",
+                    "  1. Manual",
+                    "  2. Load Only",
+                    "  3. Automatic (Load and Import)"
                 ])
                 self.promptForListSelect("Select the size:", ["manual", "load-only", "automatic"], "mas_ws_facilities_appOMUpgradeMode")
-                
+
                 if self.yesOrNo("Supply extra XML tags for Real Estate and Facilities server.xml"):
                     self.promptForString("Real Estate and Facilities Liberty Extension Secret Name", "mas_ws_facilities_liberty_extension_XML")
                 if self.yesOrNo("Supply custom AES Encryption Password"):
