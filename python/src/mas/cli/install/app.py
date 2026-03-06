@@ -1168,7 +1168,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "  2. Load Only",
                     "  3. Automatic (Load and Import)"
                 ])
-                self.promptForListSelect("Select the size:", ["manual", "load-only", "automatic"], "mas_ws_facilities_appOMUpgradeMode")
+                self.promptForListSelect("Select the Application Object Migration Mode:", ["manual", "load-only", "automatic"], "mas_ws_facilities_appOMUpgradeMode")
 
                 if self.yesOrNo("Supply extra XML tags for Real Estate and Facilities server.xml"):
                     self.promptForString("Real Estate and Facilities Liberty Extension Secret Name", "mas_ws_facilities_liberty_extension_XML")
