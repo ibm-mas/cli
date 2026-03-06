@@ -24,7 +24,7 @@
 
     <!-- HighlightJS code formatting support -->
     <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
-    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -57,7 +57,7 @@
       <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
           <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
-          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
       </cds-header-nav>
 
       <div class="cds--header__global">
@@ -67,7 +67,7 @@
       <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
     </svg>
   </button>
-  <div class="md-theme-toggle__menu" hidden>
+  <div class="md-theme-toggle__menu" hidden="">
     <button class="md-theme-toggle__option" data-theme="white">
       <span class="md-theme-toggle__label">Light</span>
       <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
@@ -86,7 +86,7 @@
     </button>
   </div>
 </div>
-        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
       </div>
       <script>
         var el = document.getElementById("header-search");
@@ -166,10 +166,10 @@
 
                 
                   
-  <cds-side-nav-menu title="Examples" active expanded>
+  <cds-side-nav-menu title="Examples" active="" expanded="">
     
       
-  <cds-side-nav-menu-item href="./" active expanded>
+  <cds-side-nav-menu-item href="./" active="" expanded="">
     EAM Migration
   </cds-side-nav-menu-item>
 
@@ -325,7 +325,7 @@
       <div class="md-content" data-md-component="content">
         <article class="md-content__inner">
           <!-- Breadcrumbs -->
-          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
@@ -335,7 +335,7 @@
   </cds-breadcrumb-item>
 
   <cds-breadcrumb-item aria-current="page">
-    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
     
     
       <cds-select-item value="#prerequisites">Prerequisites</cds-select-item>
@@ -423,7 +423,7 @@ Prepare an EAM 7 System
 <p>We are going to provision the cluster using <strong>Red Hat OpenShift on IBM Cloud</strong> via the MAS CLI container image.  Ensure that you set the <code>IBMCLOUD_APIKEY</code> environment variable to the key you obtained from the <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a>.</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
 
-docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.20.0 \
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.20.1 \
   mas provision-roks -r mas-development -c mas9demo -v 4.14_openshift \
   --worker-count 3 --worker-flavor b3c.8x32 --worker-zone lon02 \
   --no-confirm
@@ -531,7 +531,7 @@ spec:
 export SUPERUSER_PASSWORD=x
 export IBM_ENTITLEMENT_KEY=x
 
-docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.20.0 bash -c "
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.20.1 bash -c "
   CLUSTER_TYPE=roks CLUSTER_NAME=mas9demo ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role &amp;&amp;
   mas install \
   --non-prod \
@@ -573,7 +573,7 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 export SUPERUSER_PASSWORD=x
 export IBM_ENTITLEMENT_KEY=x
 
-docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.20.0 bash -c "
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.20.1 bash -c "
   CLUSTER_TYPE=roks CLUSTER_NAME=mas9demo ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role &amp;&amp;
   mas install \
   --non-prod \

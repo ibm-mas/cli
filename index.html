@@ -24,7 +24,7 @@
 
     <!-- HighlightJS code formatting support -->
     <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
-    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -57,7 +57,7 @@
       <cds-header-name href="." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
           <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
-          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
       </cds-header-nav>
 
       <div class="cds--header__global">
@@ -67,7 +67,7 @@
       <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
     </svg>
   </button>
-  <div class="md-theme-toggle__menu" hidden>
+  <div class="md-theme-toggle__menu" hidden="">
     <button class="md-theme-toggle__option" data-theme="white">
       <span class="md-theme-toggle__label">Light</span>
       <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
@@ -86,7 +86,7 @@
     </button>
   </div>
 </div>
-        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
       </div>
       <script>
         var el = document.getElementById("header-search");
@@ -325,7 +325,7 @@
       <div class="md-content" data-md-component="content">
         <article class="md-content__inner">
           <!-- Breadcrumbs -->
-          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href=".">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
@@ -334,7 +334,7 @@
   </cds-breadcrumb-item>
 
   <cds-breadcrumb-item aria-current="page">
-    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
     
     
       <cds-select-item value="#container-image">Container Image</cds-select-item>
@@ -353,27 +353,27 @@
             
             <h1 id="ibm-maximo-application-suite-cli-utility">IBM Maximo Application Suite CLI Utility<a class="headerlink" href="#ibm-maximo-application-suite-cli-utility" title="Permanent link">¶</a></h1>
 <p>The CLI comes in two flavours; <strong>container image</strong> and <strong>standalone binary</strong>.</p>
-<p>The standalone CLI is available for three platforms, and available from the downloads page on each <a href="https://github.com/ibm-mas/cli/releases/tag/18.20.0">GitHub release</a>.</p>
+<p>The standalone CLI is available for three platforms, and available from the downloads page on each <a href="https://github.com/ibm-mas/cli/releases/tag/18.20.1">GitHub release</a>.</p>
 <h2 id="container-image">Container Image<a class="headerlink" href="#container-image" title="Permanent link">¶</a></h2>
 <p>The best way to use the MAS CLI is to use the container image we publish to quay.io:</p>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli mas install --help
 </code></pre>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: <code>docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.20.0</code></p>
+<p>If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: <code>docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.20.1</code></p>
 </div>
 <p>The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see <a href="https://github.com/ibm-mas/cli-base">cli-base</a> for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directly the CLI image can be a useful tool:</p>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.mas_install_core
 </code></pre>
 <h2 id="standalone-binary">Standalone Binary<a class="headerlink" href="#standalone-binary" title="Permanent link">¶</a></h2>
-<p>Introduced in Summer 2024, the standalone binary is a new way to use the MAS CLI, you can download version 18.20.0 of the CLI for following platforms using the links below:</p>
+<p>Introduced in Summer 2024, the standalone binary is a new way to use the MAS CLI, you can download version 18.20.1 of the CLI for following platforms using the links below:</p>
 <ul>
-<li><a href="https://github.com/ibm-mas/cli/releases/download/18.20.0/mas-cli-windows-amd64">Windows (amd64)</a></li>
-<li><a href="https://github.com/ibm-mas/cli/releases/download/18.20.0/mas-cli-linux-amd64">Linux (amd64)</a></li>
-<li><a href="https://github.com/ibm-mas/cli/releases/download/18.20.0/mas-cli-macos-arm64">MacOS (arm64)</a></li>
+<li><a href="https://github.com/ibm-mas/cli/releases/download/18.20.1/mas-cli-windows-amd64">Windows (amd64)</a></li>
+<li><a href="https://github.com/ibm-mas/cli/releases/download/18.20.1/mas-cli-linux-amd64">Linux (amd64)</a></li>
+<li><a href="https://github.com/ibm-mas/cli/releases/download/18.20.1/mas-cli-macos-arm64">MacOS (arm64)</a></li>
 </ul>
 <p>For example, to install the CLI and launch a MAS install on Linux:</p>
-<pre><code class="language-bash">wget https://github.com/ibm-mas/cli/releases/18.20.0/mas-cli-linux-amd64
+<pre><code class="language-bash">wget https://github.com/ibm-mas/cli/releases/18.20.1/mas-cli-linux-amd64
 cp mas-cli-linux-amd64 /usr/local/bin/mas-cli
 mas-cli install --help
 </code></pre>
