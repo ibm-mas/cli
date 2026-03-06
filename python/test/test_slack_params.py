@@ -16,7 +16,6 @@ in the optionalParams list for the install command, allowing them to be passed
 through to Tekton pipelines for Slack notifications.
 """
 
-import pytest
 from mas.cli.install.params import optionalParams
 
 
