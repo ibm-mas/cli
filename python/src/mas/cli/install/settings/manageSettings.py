@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -8,7 +8,7 @@
 #
 # *****************************************************************************
 
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, List, NoReturn
 from prompt_toolkit.completion import WordCompleter
 from mas.cli.validators import LanguageValidator
 from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
@@ -35,7 +35,10 @@ class ManageSettingsMixin():
         installManage: bool
         installAIService: bool
         supportedLanguages: List[str]
-        dynamicClient: DynamicClient
+
+        @property
+        def dynamicClient(self) -> DynamicClient:
+            ...
 
         # Methods from BaseApp
         def setParam(self, param: str, value: str) -> None:
@@ -47,7 +50,7 @@ class ManageSettingsMixin():
         def isSNO(self) -> bool:
             ...
 
-        def fatalError(self, message: str, exception: Exception | None = None) -> None:
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:
             ...
 
         # Methods from PrintMixin

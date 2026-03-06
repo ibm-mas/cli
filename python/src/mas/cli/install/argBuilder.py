@@ -92,10 +92,10 @@ class installArgBuilderMixin():
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
-        if self.getParam('mas_trust_default_cas') == "false":
+        if self.getParam('mas_trust_default_cas').lower() == "false":
             command += f"  --disable-ca-trust{newline}"
 
-        if self.getParam('mas_manual_cert_mgmt') is True:
+        if self.getParam('mas_manual_cert_mgmt').lower() == "true":
             command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
 
         if self.getParam('mas_routing_mode') != "":
@@ -104,7 +104,7 @@ class installArgBuilderMixin():
         if self.getParam('mas_ingress_controller_name') != "":
             command += f"  --ingress-controller \"{self.getParam('mas_ingress_controller_name')}\"{newline}"
 
-        if self.getParam('mas_configure_ingress') is True:
+        if self.getParam('mas_configure_ingress').lower() == "true":
             command += f"  --configure-ingress{newline}"
 
         if self.getParam('mas_domain') != "":
@@ -125,19 +125,19 @@ class installArgBuilderMixin():
         if self.getParam('mas_cluster_issuer') != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
 
-        if self.getParam('mas_enable_walkme') == "false":
+        if self.getParam('mas_enable_walkme').lower() == "false":
             command += f"  --disable-walkme{newline}"
 
-        if self.getParam('mas_feature_usage') == "false":
+        if self.getParam('mas_feature_usage').lower() == "false":
             command += f"  --disable-feature-usage{newline}"
 
-        if self.getParam('mas_usability_metrics') == "false":
+        if self.getParam('mas_usability_metrics').lower() == "false":
             command += f"  --disable-usability-metrics{newline}"
 
-        if self.getParam('mas_deployment_progression') == "false":
+        if self.getParam('mas_deployment_progression').lower() == "false":
             command += f"  --disable-deployment-progression{newline}"
 
-        if self.getParam('enable_ipv6') is True:
+        if self.getParam('enable_ipv6').lower() == "true":
             command += f"  --enable-ipv6{newline}"
 
         # Storage
@@ -186,6 +186,15 @@ class installArgBuilderMixin():
             command += f"  --ocp-ingress-tls-secret-name \"{self.getParam('ocp_ingress_tls_secret_name')}\"{newline}"
         if self.getParam('ocp_ingress') != "":
             command += f"  --ocp-ingress \"{self.getParam('ocp_ingress')}\"{newline}"
+
+        # Grafana
+        # -----------------------------------------------------------------------------
+        if self.getParam('skip_grafana_install') is True:
+            command += f"  --skip-grafana-install{newline}"
+        if self.getParam('grafana_v5_namespace') != "":
+            command += f"  --grafana-v5-namespace \"{self.getParam('grafana_v5_namespace')}\"{newline}"
+        if self.getParam('grafana_instance_storage_size') != "":
+            command += f"  --grafana-instance-storage-size \"{self.getParam('grafana_instance_storage_size')}\"{newline}"
 
         # MAS Applications
         # -----------------------------------------------------------------------------
@@ -472,6 +481,8 @@ class installArgBuilderMixin():
                 command += f"  --db2-meta-storage \"{self.getParam('db2_meta_storage_size')}\"{newline}"
             if self.getParam('db2_temp_storage_size') != "":
                 command += f"  --db2-temp-storage \"{self.getParam('db2_temp_storage_size')}\"{newline}"
+            if self.getParam('db2u_kind') != "":
+                command += f"  --db2u-kind \"{self.getParam('db2u_kind')}\"{newline}"
 
         # Kafka - Common
         # -----------------------------------------------------------------------------
@@ -571,8 +582,6 @@ class installArgBuilderMixin():
             command += f"  --dev-mode{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
-        if self.getParam('skip_grafana_install') is True:
-            command += f"  --skip-grafana-install{newline}"
         if self.getParam('image_pull_policy') != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam('service_account_name') != "":

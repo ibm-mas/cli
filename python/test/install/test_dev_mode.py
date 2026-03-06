@@ -96,6 +96,8 @@ def test_install_master_dev_mode(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
+        # 10a. Grafana configuration
+        '.*Install Grafana.*': lambda msg: 'y',
         # 11. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
         # 12. Db2 configuration
@@ -174,6 +176,8 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
+        # 10a. Grafana configuration
+        '.*Install Grafana.*': lambda msg: 'y',
         # 11. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
         # 12. Db2 configuration
@@ -301,6 +305,8 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
+        # 20a. Grafana configuration (appears when advanced options are enabled)
+        '.*Install Grafana.*': lambda msg: 'y',
         # 21. MongoDB configuration
         '.*MongoDb namespace.*': lambda msg: 'mongoce',  # Use default MongoDB namespace
         '.*Create MongoDb cluster.*': lambda msg: 'y',
@@ -314,6 +320,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Configure node tolerations.*': lambda msg: 'n',  # Skip node tolerations configuration
         '.*Customize CPU and memory request/limit.*': lambda msg: 'n',  # Skip CPU/memory customization
         '.*Customize storage capacity.*': lambda msg: 'n',  # Skip storage capacity customization
+        r'.*Select Db2 Custom Resource\(CR\).*': lambda msg: 'n',  # Skip Db2 CR selection
         '.*Select Kafka provider.*': lambda msg: '1',  # Select default Kafka provider
         '.*Strimzi namespace.*': lambda msg: 'strimzi',  # Strimzi namespace
         '.*Use pod templates.*': lambda msg: 'n',  # Skip pod templates
@@ -394,6 +401,9 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
             "--cos-instance-name", "Object Storage for MAS - fvtcore",
             "--cos-bucket-name", "fvtcore-masdev-bucket-20260209-0209",
             "--db2-channel", "rotate",
+            "--skip-grafana-install",
+            "--grafana-v5-namespace", "grafana5",
+            "--grafana-instance-storage-size", "10Gi",
             "--additional-configs", f"{tmpdir}",
             "--storage-class-rwx", "ibmc-file-gold-gid",
             "--storage-class-rwo", "ibmc-block-gold",
@@ -481,6 +491,9 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
             "--cos-instance-name", "Object Storage for MAS - fvtcore",
             "--cos-bucket-name", "fvtcore-masdev-bucket-20260209-0209",
             "--db2-channel", "rotate",
+            "--skip-grafana-install",
+            "--grafana-v5-namespace", "grafana5",
+            "--grafana-instance-storage-size", "10Gi",
             "--additional-configs", f"{tmpdir}",
             "--storage-class-rwx", "ibmc-file-gold-gid",
             "--storage-class-rwo", "ibmc-block-gold",
