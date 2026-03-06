@@ -8,67 +8,58 @@
 
 import os
 import sys
+import subprocess
 from datetime import datetime, UTC
 from pymongo import MongoClient
 
-# Import Slack notification functions directly
-try:
-    from mas.devops.slack import notifyPipelineStart, notifyPipelineComplete
-    SLACK_AVAILABLE = True
-except ImportError:
-    print("Warning: mas.devops.slack module not available, Slack notifications will be disabled")
-    SLACK_AVAILABLE = False
 
-
-def send_slack_notification(action, pipeline_name, pipelinerun_name, pipelinerun_namespace, instance_id, rc=0):
+def send_slack_notification(action, pipeline_name, instance_id, rc=0):
     """
-    Send Slack notification for pipeline start or completion using direct function calls.
+    Send Slack notification for pipeline start or completion using CLI command.
 
     Args:
         action: Either 'pipeline-start' or 'pipeline-complete'
         pipeline_name: Name of the pipeline
-        pipelinerun_name: Name of the pipeline run
-        pipelinerun_namespace: Namespace of the pipeline run
         instance_id: MAS instance ID
         rc: Return code (0 for success, non-zero for failure)
     """
-    if not SLACK_AVAILABLE:
-        print("Slack notification skipped: mas.devops.slack module not available")
-        return
-
     slack_token = os.getenv("SLACK_TOKEN", "")
     slack_channel = os.getenv("SLACK_CHANNEL", "")
 
     if not slack_token or not slack_channel:
-        print("Slack notification skipped: SLACK_TOKEN or SLACK_CHANNEL not set")
         return
-
-    # Parse comma-separated channel list
-    channel_list = [ch.strip() for ch in slack_channel.split(",")]
 
     try:
         print(f"Sending Slack notification: action={action}, pipeline={pipeline_name}, instance={instance_id}")
 
         if action == "pipeline-start":
-            result = notifyPipelineStart(channel_list, instance_id, pipeline_name)
-            if result:
-                print("Pipeline start notification sent successfully")
-            else:
-                print("Failed to send pipeline start notification")
-
+            cmd = [
+                "python3", "/opt/app-root/bin/mas-devops-notify-slack",
+                "--action", "pipeline-start",
+                "--instance-id", instance_id,
+                "--pipeline-name", pipeline_name
+            ]
         elif action == "pipeline-complete":
-            result = notifyPipelineComplete(channel_list, rc, instance_id, pipeline_name)
-            if result:
-                print(f"Pipeline complete notification sent successfully (rc={rc})")
-            else:
-                print("Failed to send pipeline complete notification")
+            cmd = [
+                "python3", "/opt/app-root/bin/mas-devops-notify-slack",
+                "--action", "pipeline-complete",
+                "--rc", str(rc),
+                "--instance-id", instance_id,
+                "--pipeline-name", pipeline_name
+            ]
         else:
             print(f"Unknown action: {action}")
+            return
+
+        # Run the command, ignore errors (|| true equivalent)
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            print(f"Slack notification sent successfully")
+        else:
+            print(f"Slack notification command failed (ignored): {result.stderr}")
 
     except Exception as e:
-        print(f"Error sending Slack notification: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"Error sending Slack notification (ignored): {e}")
 
 
 if __name__ == "__main__":
@@ -91,20 +82,20 @@ if __name__ == "__main__":
     if SLACK_TOKEN and SLACK_CHANNEL:
         print("\nSlack integration enabled")
 
-        if "" in [instanceId, pipelineName, pipelineStatus, pipelineRunName, pipelineRunNamespace]:
+        if "" in [instanceId, pipelineName, pipelineStatus]:
             print("Slack notification skipped: one or more required env vars are not set")
         else:
             if pipelineStatus == "Started":
                 print("Sending pipeline start notification to Slack...")
-                send_slack_notification("pipeline-start", pipelineName, pipelineRunName, pipelineRunNamespace, instanceId)
+                send_slack_notification("pipeline-start", pipelineName, instanceId)
 
             elif pipelineStatus in ["Completed", "Succeeded"]:
                 print("Sending pipeline completion (success) notification to Slack...")
-                send_slack_notification("pipeline-complete", pipelineName, pipelineRunName, pipelineRunNamespace, instanceId, rc=0)
+                send_slack_notification("pipeline-complete", pipelineName, instanceId, rc=0)
 
             elif pipelineStatus == "Failed":
                 print("Sending pipeline completion (failure) notification to Slack...")
-                send_slack_notification("pipeline-complete", pipelineName, pipelineRunName, pipelineRunNamespace, instanceId, rc=1)
+                send_slack_notification("pipeline-complete", pipelineName, instanceId, rc=1)
     else:
         print("\nSlack integration disabled (SLACK_TOKEN or SLACK_CHANNEL not set)")
 
