@@ -295,6 +295,10 @@ spec:
       type: string
       description: Size of the Facilities Deployment
       default: ""
+    - name: mas_ws_facilities_appOMUpgradeMode
+      type: string
+      description: Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades.
+      default: ""
     - name: mas_ws_facilities_routes_timeout
       type: string
       description: Optional. Connection timeout of the route.
@@ -540,6 +544,8 @@ spec:
           value: $(params.mas_ws_facilities_storage_userfiles_mode)
         - name: MAS_FACILITIES_CONFIG_MAP_NAME
           value: $(params.mas_ws_facilities_config_map_name)
+        - name: MAS_FACILITIES_APPOMUPGRADEMODE
+          value: $(params.mas_ws_facilities_appOMUpgradeMode)
 
     - name: app-wait-for-approval
       # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
