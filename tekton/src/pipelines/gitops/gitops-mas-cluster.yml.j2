@@ -45,6 +45,24 @@ spec:
     - name: mas_catalog_image
       type: string
 
+    - name: role_arn
+      type: string
+    - name: efs_catalog_source
+      type: string
+      default: "redhat-operators"
+    - name: efs_catalog_source_namespace
+      type: string
+      default: "openshift-marketplace"
+    - name: efs_channel
+      type: string
+      default: "stable"
+    - name: efs_subscription_source_namespace
+      type: string
+      default: "openshift-cluster-csi-drivers"
+    - name: efs_install_action
+      type: string
+      default: ""
+
     - name: dro_namespace
       type: string
       default: "ibm-software-central"
@@ -259,7 +277,7 @@ spec:
       default: 'false'
     - name: provisioner_storage_class
       type: string
-      default: 'ocs-storagecluster-cephfs'
+      default: ''
     - name: provisioner_instana_url_prefix
       type: string
       default: ''
@@ -395,6 +413,46 @@ spec:
           workspace: configs
         - name: gitops-cluster-configs
           workspace: gitops-cluster-configs
+
+    - name: gitops-efs-csi-driver
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: role_arn
+          value: $(params.role_arn)
+        - name: efs_catalog_source
+          value: $(params.efs_catalog_source)
+        - name: efs_catalog_source_namespace
+          value: $(params.efs_catalog_source_namespace)
+        - name: efs_channel
+          value: $(params.efs_channel)
+        - name: efs_subscription_source_namespace
+          value: $(params.efs_subscription_source_namespace)
+      taskRef:
+        kind: Task
+        name: gitops-efs-csi-driver
+      when:
+        - input: "$(params.efs_install_action)"
+          operator: in
+          values: ["install"]
+      workspaces:
+        - name: configs
+          workspace: configs
+
 
     - name: gitops-dro
       runAfter:

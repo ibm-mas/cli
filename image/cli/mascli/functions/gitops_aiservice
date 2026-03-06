@@ -88,7 +88,6 @@ function gitops_aiservice_noninteractive() {
 
   export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
   export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"PRODUCTION"}
-  export SLS_REGISTRATION_KEY_SECRET=${SLS_REGISTRATION_KEY_SECRET:-"sls-registration-key"}
   export DRO_TOKEN_SECRET=${DRO_TOKEN_SECRET:-"dro-token"}
   export DRO_CACERT_SECRET=${DRO_CACERT_SECRET:-"dro-certificates"}
   export AISERVICE_S3_TEMPLATES_BUCKET=${AISERVICE_S3_TEMPLATES_BUCKET:-"km-templates"}
@@ -181,9 +180,6 @@ function gitops_aiservice_noninteractive() {
 
       --aiservice-s3-bucket-prefix)
         export AISERVICE_S3_BUCKET_PREFIX=$1 && shift
-        ;;
-      --sls-registration-key-secret)
-        export SLS_REGISTRATION_KEY_SECRET=$1 && shift
         ;;
       --dro-token-secret)
         export DRO_TOKEN_SECRET=$1 && shift
@@ -367,8 +363,6 @@ function gitops_aiservice() {
   export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}s3#sm_s3_port
   export SECRET_KEY_STORAGE_REGION=${SECRETS_PREFIX}s3#sm_s3_region
 
-  #sls
-  export SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
   #dro
   export DROCFG_CA_B64ENC=${SECRETS_PREFIX}droai#drocfg_ca_b64enc
   export DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}droai#drocfg_registration_key
@@ -384,7 +378,6 @@ function gitops_aiservice() {
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_registration_key,drocfg_url,drocfg_ca_b64enc"
-  sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
   sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca_b64enc"
 
