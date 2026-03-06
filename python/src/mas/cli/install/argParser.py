@@ -434,6 +434,31 @@ ocpArgGroup.add_argument(
     help="Name of the secret holding the cluster's ingress certificates"
 )
 
+# Grafana
+# -----------------------------------------------------------------------------
+grafanaArgGroup = installArgParser.add_argument_group(
+    "Grafana",
+    "Configure Grafana installation, namespace and storage size."
+)
+grafanaArgGroup.add_argument(
+    "--skip-grafana-install",
+    required=False,
+    action="store_true",
+    help="Skip Grafana installation"
+)
+grafanaArgGroup.add_argument(
+    "--grafana-v5-namespace",
+    required=False,
+    help="Customize the Grafana namespace",
+    default="grafana5"
+)
+grafanaArgGroup.add_argument(
+    "--grafana-instance-storage-size",
+    required=False,
+    help="Customize the Grafana storage size",
+    default="10Gi"
+)
+
 # MAS Applications
 # -----------------------------------------------------------------------------
 masAppsArgGroup = installArgParser.add_argument_group(
@@ -1230,6 +1255,12 @@ db2ArgGroup.add_argument(
     required=False,
     help="Db2 temporary storage capacity"
 )
+db2ArgGroup.add_argument(
+    "--db2u-kind",
+    dest="db2u_kind",
+    required=False,
+    help="Db2 resource kind in the cluster"
+)
 
 # ECK Integration
 # -----------------------------------------------------------------------------
@@ -1517,7 +1548,7 @@ approvalsGroup.add_argument(
 # -----------------------------------------------------------------------------
 otherArgGroup = installArgParser.add_argument_group(
     "More",
-    "Additional options including advanced/simplified mode toggles, license acceptance, development mode, Artifactory credentials, PVC wait control, pre-check skip, Grafana installation, confirmation prompts, image pull policy, and custom service account."
+    "Additional options including advanced/simplified mode toggles, license acceptance, development mode, Artifactory credentials, PVC wait control, pre-check skip, confirmation prompts, image pull policy, and custom service account."
 )
 otherArgGroup.add_argument(
     "--artifactory-username",
@@ -1572,12 +1603,6 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     help="Disable the 'pre-install-check' at the start of the install pipeline"
-)
-otherArgGroup.add_argument(
-    "--skip-grafana-install",
-    required=False,
-    action="store_true",
-    help="Skip Grafana installation"
 )
 otherArgGroup.add_argument(
     "--no-confirm",

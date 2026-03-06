@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -8,7 +8,7 @@
 #
 # *****************************************************************************
 
-from typing import TYPE_CHECKING, Dict, List, Any
+from typing import TYPE_CHECKING, Dict, List, Any, NoReturn
 from os import path
 from base64 import b64encode
 from glob import glob
@@ -32,7 +32,7 @@ class AdditionalConfigsMixin():
         noConfirm: bool
         templatesDir: str
         slsLicenseFileLocal: str | None
-        manualCertsDir: str
+        manualCertsDir: str | None
         showAdvancedOptions: bool
         additionalConfigsSecret: Dict[str, Any] | None
         podTemplatesSecret: Dict[str, Any] | None
@@ -46,7 +46,7 @@ class AdditionalConfigsMixin():
         def getParam(self, param: str) -> str:
             ...
 
-        def fatalError(self, message: str, exception: Exception | None = None) -> None:
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:
             ...
 
         # Methods from PrintMixin
@@ -196,7 +196,7 @@ class AdditionalConfigsMixin():
 
     def manualCertificates(self) -> None:
 
-        if self.getParam("mas_manual_cert_mgmt"):
+        if self.getParam("mas_manual_cert_mgmt").lower() == "true":
             certsSecret = {
                 "apiVersion": "v1",
                 "kind": "Secret",
