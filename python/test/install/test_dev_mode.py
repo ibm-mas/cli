@@ -524,7 +524,7 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
 
 def test_install_master_dev_mode_non_interactive_with_slack(tmpdir):
     """Test non-interactive installation with Slack notification parameters.
-    
+
     This test verifies that slack_token and slack_channel parameters are properly
     handled in non-interactive mode and passed through to the pipeline configuration.
     """

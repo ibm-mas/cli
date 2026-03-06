@@ -36,7 +36,7 @@ class TestSlackParameters:
     def test_slack_params_are_optional(self):
         """Verify Slack parameters are optional (not required)"""
         from mas.cli.install.params import requiredParams
-        
+
         assert "slack_token" not in requiredParams, \
             "slack_token should be optional, not required"
         assert "slack_channel" not in requiredParams, \
@@ -49,7 +49,7 @@ class TestSlackParameters:
             "slack_token": "OAuth token for Slack API authentication (optional)",
             "slack_channel": "Comma-separated list of Slack channels for notifications (optional)"
         }
-        
+
         # Verify both parameters exist
         for param, description in slack_params_doc.items():
             assert param in optionalParams, \

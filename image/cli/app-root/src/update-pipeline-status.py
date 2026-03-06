@@ -23,7 +23,7 @@ except ImportError:
 def send_slack_notification(action, pipeline_name, pipelinerun_name, pipelinerun_namespace, instance_id, rc=0):
     """
     Send Slack notification for pipeline start or completion using direct function calls.
-    
+
     Args:
         action: Either 'pipeline-start' or 'pipeline-complete'
         pipeline_name: Name of the pipeline
@@ -35,27 +35,27 @@ def send_slack_notification(action, pipeline_name, pipelinerun_name, pipelinerun
     if not SLACK_AVAILABLE:
         print("Slack notification skipped: mas.devops.slack module not available")
         return
-    
+
     slack_token = os.getenv("SLACK_TOKEN", "")
     slack_channel = os.getenv("SLACK_CHANNEL", "")
-    
+
     if not slack_token or not slack_channel:
         print("Slack notification skipped: SLACK_TOKEN or SLACK_CHANNEL not set")
         return
-    
+
     # Parse comma-separated channel list
     channel_list = [ch.strip() for ch in slack_channel.split(",")]
-    
+
     try:
         print(f"Sending Slack notification: action={action}, pipeline={pipeline_name}, instance={instance_id}")
-        
+
         if action == "pipeline-start":
             result = notifyPipelineStart(channel_list, instance_id, pipeline_name)
             if result:
                 print("Pipeline start notification sent successfully")
             else:
                 print("Failed to send pipeline start notification")
-                
+
         elif action == "pipeline-complete":
             result = notifyPipelineComplete(channel_list, rc, instance_id, pipeline_name)
             if result:
@@ -64,7 +64,7 @@ def send_slack_notification(action, pipeline_name, pipelinerun_name, pipelinerun
                 print("Failed to send pipeline complete notification")
         else:
             print(f"Unknown action: {action}")
-            
+
     except Exception as e:
         print(f"Error sending Slack notification: {e}")
         import traceback
@@ -86,21 +86,21 @@ if __name__ == "__main__":
     # =========================================================================
     SLACK_TOKEN = os.getenv("SLACK_TOKEN", "")
     SLACK_CHANNEL = os.getenv("SLACK_CHANNEL", "")
-    
+
     if SLACK_TOKEN and SLACK_CHANNEL:
         print("\nSlack integration enabled")
-        
+
         if "" in [instanceId, pipelineName, pipelineStatus, pipelineRunName, pipelineRunNamespace]:
             print("Slack notification skipped: one or more required env vars are not set")
         else:
             if pipelineStatus == "Started":
                 print("Sending pipeline start notification to Slack...")
                 send_slack_notification("pipeline-start", pipelineName, pipelineRunName, pipelineRunNamespace, instanceId)
-                
+
             elif pipelineStatus in ["Completed", "Succeeded"]:
                 print("Sending pipeline completion (success) notification to Slack...")
                 send_slack_notification("pipeline-complete", pipelineName, pipelineRunName, pipelineRunNamespace, instanceId, rc=0)
-                
+
             elif pipelineStatus == "Failed":
                 print("Sending pipeline completion (failure) notification to Slack...")
                 send_slack_notification("pipeline-complete", pipelineName, pipelineRunName, pipelineRunNamespace, instanceId, rc=1)
@@ -143,19 +143,19 @@ if __name__ == "__main__":
             f"pipelines.{pipelineName}.status": "Started",
             f"pipelines.{pipelineName}.timestamp": datetime.now(UTC)
         }
-        
+
     elif pipelineStatus in ["Completed", "Succeeded"]:
         updates = {
             f"pipelines.{pipelineName}.status": "Completed",
             f"pipelines.{pipelineName}.timestampFinished": datetime.now(UTC)
         }
-        
+
     elif pipelineStatus == "Failed":
         updates = {
             f"pipelines.{pipelineName}.status": "Failed",
             f"pipelines.{pipelineName}.timestampFinished": datetime.now(UTC)
         }
-        
+
     else:
         print("Unexpected state detected")
         sys.exit(0)
@@ -176,5 +176,5 @@ if __name__ == "__main__":
         },
         upsert=True
     )
-    
+
     print("Pipeline status recorded in MongoDB successfully")
