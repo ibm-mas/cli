@@ -579,7 +579,7 @@ class installArgBuilderMixin():
         # Slack
         # -----------------------------------------------------------------------------
         if self.getParam('slack_channel') != "" and self.getParam('slack_token'):
-            command += f"  --slack-channel \"{self.getParam('slack_channel')}\"  --slack-token $SLACK_TOKEN"{newline}"
+            command += f"  --slack-channel \"{self.getParam('slack_channel')}\"  --slack-token $SLACK_TOKEN{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------
