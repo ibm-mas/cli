@@ -313,7 +313,10 @@ spec:
       when:
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.8.x", "8.9.x", "8.10.x", "8.11.x", "9.0.x", "9.1.x"]
+          values: [""]
+        - input: "$(params.mas_monitor_install_order)"
+          operator: in
+          values: ["before-iot"]
       runAfter:
         - app-install-manage
 
@@ -359,9 +362,9 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.8.x", "8.9.x", "8.10.x", "8.11.x", "9.0.x", "9.1.x"]
+        - input: "$(params.mas_monitor_install_order)"
+          operator: in
+          values: ["before-iot"]
       runAfter:
         - suite-db2-setup-system
         - suite-config-kafka
@@ -374,9 +377,9 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
+        - input: "$(params.mas_monitor_install_order)"
           operator: in
-          values: ["8.8.x", "8.9.x", "8.10.x", "8.11.x", "9.0.x", "9.1.x"]
+          values: ["after-iot"]
       runAfter:
         - suite-db2-setup-system
         - suite-config-kafka
@@ -411,8 +414,11 @@ spec:
           workspace: shared-configs
       when:
         - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_monitor_install_order)"
           operator: in
-          values: ["8.8.x", "8.9.x", "8.10.x", "8.11.x", "9.0.x", "9.1.x"]
+          values: ["after-iot"]
       runAfter:
         - app-install-manage
         - app-install-iot
