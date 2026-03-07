@@ -9,6 +9,7 @@ ansible-devops:
 	mv image/cli/install/ibm-mas_devops-100.0.0.tar.gz image/cli/install/ibm-mas_devops.tar.gz
 
 # Tip: You can install this built collection using:
+#empty commit to build the trigger
 # ansible-galaxy collection install image/cli/install/ibm-mas_devops.tar.gz --force --no-deps
 
 python-cli:
