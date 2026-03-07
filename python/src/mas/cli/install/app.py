@@ -1124,6 +1124,32 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("mas_app_settings_iot_mqttbroker_pvc_storage_class", self.getParam("storage_class_rwo"))
 
     @logMethodCall
+    def setMonitorInstallOrder(self) -> None:
+        """
+        Determine the installation order for Monitor relative to IoT based on Monitor version.
+        Monitor >= 9.2.0 installs before IoT (new behavior)
+        Monitor < 9.2.0 installs after IoT (legacy behavior)
+        """
+        if self.installMonitor and self.installIoT:
+            from mas.devops.utils import isVersionEqualOrAfter
+            monitorChannel = self.getParam("mas_app_channel_monitor")
+
+            if monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel):
+                # Monitor >= 9.2.0: Install Monitor before IoT
+                self.setParam("mas_monitor_install_order", "before-iot")
+                logger.debug(f"Monitor channel {monitorChannel} >= 9.2.0: Monitor will install before IoT")
+            else:
+                # Monitor < 9.2.0: Install Monitor after IoT (legacy)
+                self.setParam("mas_monitor_install_order", "after-iot")
+                logger.debug(f"Monitor channel {monitorChannel} < 9.2.0: Monitor will install after IoT (legacy behavior)")
+        elif self.installMonitor:
+            # Only Monitor, no IoT - order doesn't matter but set default
+            self.setParam("mas_monitor_install_order", "before-iot")
+        else:
+            # No Monitor installed - set default
+            self.setParam("mas_monitor_install_order", "after-iot")
+
+    @logMethodCall
     def optimizerSettings(self) -> None:
         if self.installOptimizer:
             self.printH1("Configure Maximo Optimizer")
@@ -1883,6 +1909,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # After we've configured the basic inputs, we can calculate these ones
         self.setIoTStorageClasses()
+        self.setMonitorInstallOrder()
         if self.deployCP4D:
             self.configCP4D()
 
