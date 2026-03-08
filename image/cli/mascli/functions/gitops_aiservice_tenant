@@ -17,6 +17,8 @@ Basic Configuration:
 
 ibm_aiservice_tenant(required):
       --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                             The AiService instance ID used by AI Service
+      --catalog-source ${TEXT_RESET}CATALOG_SOURCE${TEXT_RESET}                                             The catalog source from which to install the tenant operator
+      --catalog-channel ${TEXT_RESET}CATALOG_CHANNEL${TEXT_RESET}                                           The catalog channel from which to install the tenant operator
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
       --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Service instance
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
@@ -100,6 +102,7 @@ function gitops_aiservice_tenant_noninteractive() {
   #adding default values # -- aiservice Defaults
   export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}
   export AISERVICE_PROVISION_TENANT=${AISERVICE_PROVISION_TENANT:-"provision-tenant"}
+  export CATALOG_SOURCE=${CATALOG_SOURCE:-"ibm-operator-catalog"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"}
@@ -149,6 +152,12 @@ function gitops_aiservice_tenant_noninteractive() {
       # -- aiservice
       --aiservice-namespace)
         export AISERVICE_NAMESPACE=$1 && shift
+        ;;
+      --catalog-channel)
+        export CATALOG_CHANNEL=$1 && shift
+        ;;
+      --catalog-source)
+        export CATALOG_SOURCE=$1 && shift
         ;;
       --aiservice-provision-tenant)
         export AISERVICE_PROVISION_TENANT=$1 && shift
@@ -299,6 +308,8 @@ function gitops_aiservice_tenant_noninteractive() {
   [[ -z "$TENANT_NAMESPACE" ]] && gitops_aiservice_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
   [[ -z "$TENANT_ID" ]] && gitops_aiservice_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
   [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aiservice_tenant_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
+  [[ -z "$CATALOG_CHANNEL" ]] && gitops_aiservice_tenant_help "CATALOG_CHANNEL is not set. Please provide the catalog channel using --catalog-channel."
+  [[ -z "$CATALOG_SOURCE" ]] && gitops_aiservice_tenant_help "CATALOG_SOURCE is not set. Please provide the catalog source using --catalog-source."
   
   # -- DRO
   [[ -z "$DROCFG_URL" ]] && gitops_aiservice_tenant_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
@@ -378,6 +389,8 @@ function gitops_aiservice_tenant() {
 
   # -- aiservice
   echo_reset_dim "Aiservice namespace ........................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
+  echo_reset_dim "Catalog channel ............................... ${COLOR_MAGENTA}${CATALOG_CHANNEL}"
+  echo_reset_dim "Catalog source ................................ ${COLOR_MAGENTA}${CATALOG_SOURCE}"
   echo_reset_dim "AiService provision tenant ................... ${COLOR_MAGENTA}${AISERVICE_PROVISION_TENANT}"
   echo_reset_dim "AiService instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"

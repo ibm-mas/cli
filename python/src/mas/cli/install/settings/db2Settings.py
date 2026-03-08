@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -31,6 +31,8 @@ class Db2SettingsMixin():
         manageAppName: str
         showAdvancedOptions: bool
         localConfigDir: str | None
+        catalogDb2Channel: str
+        chosenCatalog: Dict[str, Any] | None
 
         # Methods from BaseApp
         def setParam(self, param: str, value: str) -> None:
@@ -80,7 +82,7 @@ class Db2SettingsMixin():
         def selectLocalConfigDir(self) -> None:
             ...
 
-        def generateJDBCCfg(self, **kwargs: Any) -> None:
+        def generateJDBCCfg(self, instanceId: str, scope: str, destination: str, appId: str = "", workspaceId: str = "") -> None:
             ...
 
     # In silentMode, no prompts will show up for "happy path" DB2 configuration scenarios. Prompts will still show up when an input is absolutely required
@@ -271,6 +273,17 @@ class Db2SettingsMixin():
                     self.promptForString(" + Metadata Volume", "db2_meta_storage_size", default=self.getParam("db2_meta_storage_size"))
                     self.promptForString(" + Transaction Logs Volume", "db2_logs_storage_size", default=self.getParam("db2_logs_storage_size"))
                     self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
+
+                if self.devMode:
+                    if self.yesOrNo("Select Db2 Custom Resource(CR)"):
+                        self.printDescription([
+                            "Db2 Custom Resource",
+                            "  1. Db2uCluster",
+                            "  2. Db2uInstance"
+                        ])
+                        self.promptForListSelect("Select the CR Resource", ["db2ucluster", "db2uinstance"], "db2u_kind")
+                    else:
+                        self.setParam("db2u_kind", "db2ucluster")
             else:
                 self.setParam("db2_namespace", "db2u")
 

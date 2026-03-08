@@ -45,3 +45,7 @@ delete:
 	oc delete pod $(shell oc get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}")
 exec:
 	oc exec -ti $(shell oc get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}") -- bash
+
+.PHONY: detect-secrets
+detect-secrets:
+	detect-secrets scan --update .secrets.baseline && detect-secrets audit .secrets.baseline
