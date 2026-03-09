@@ -101,6 +101,7 @@ class ConfigGeneratorMixin():
         userfiles_size = self.getParam("mas_ws_facilities_storage_userfiles_size")
         log_size = self.getParam("mas_ws_facilities_storage_log_size")
         cfg = template.render(
+            mas_ws_facilities_app_om_upgrade_mode=self.getParam("mas_ws_facilities_app_om_upgrade_mode"),
             mas_instance_id=self.getParam("mas_instance_id"),
             mas_ws_facilities_storage_log_size=log_size if log_size != "" else 30,
             mas_ws_facilities_storage_userfiles_size=userfiles_size if userfiles_size != "" else 50,
