@@ -749,7 +749,7 @@ function argocd_sync(){
   APP_NAME=$1
   echo
   echo "Force Application $APP_NAME to Sync ..."
-  argocd app sync $APP_NAME --force --timeout 30 --assumeYes --grpc-web
+  argocd app sync $APP_NAME --timeout 30 --assumeYes --grpc-web
   RC=$?
   echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
 }
