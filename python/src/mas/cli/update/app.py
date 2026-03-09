@@ -564,6 +564,8 @@ class UpdateApp(BaseApp):
         kinds = ["Db2uCluster", "Db2uInstance"]
         paramName = "db2_namespace"
         mode = "db2"
+        # Get target Db2u version from catalog
+        targetDb2uVersion = self.chosenCatalog["db2_channel_default"]
 
         with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
             try:
@@ -602,11 +604,10 @@ class UpdateApp(BaseApp):
                             for index, ns in enumerate(sorted(namespaces), start=1):
                                 self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
+                            self.setParam("db2_channel", self.chosenCatalog["db2_channel_default"])
 
                     # Version comparison logic - check if Db2u needs major version upgrade
                     if len(instances) > 0:
-                        # Get target Db2u version from catalog
-                        targetDb2uVersion = self.chosenCatalog["db2_channel_default"]
 
                         if not targetDb2uVersion:
                             logger.warning("Unable to determine target Db2u version from catalog")
@@ -675,6 +676,7 @@ class UpdateApp(BaseApp):
                                             if not self.yesOrNo(f"Confirm update from Db2 {minMajorVersion} to {targetMajorVersion}", f"db2_v{targetMajorVersion}_upgrade"):
                                                 exit(1)
                                             print()
+                                            self.setParam("db2_channel", targetDb2uVersion)
                                         logger.debug(f"Db2u major version upgrade required: {minMajorVersion} -> {targetMajorVersion}")
                                     else:
                                         self.setParam(f"db2_v{targetMajorVersion}_upgrade", "false")
