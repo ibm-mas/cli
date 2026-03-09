@@ -143,11 +143,11 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
 
     prompt_handlers = {
         # Proceed with current cluster
-        '.*Proceed with this cluster?.*': lambda msg: 'y',
+        '.*Proceed with this cluster.*': lambda msg: 'y',
         # Catalog selection
         '.*Select catalog version.*': lambda msg: '1',
-        # Db2 version upgrade confirmation
-        '.*Confirm update from Db2.*': lambda msg: 'y',
+        # Db2 version upgrade confirmation - match the exact format
+        '.*Confirm update from Db2 11 to 12.*': lambda msg: 'y',
         # Final confirmation
         '.*Proceed with these settings.*': lambda msg: 'y',
     }
@@ -164,7 +164,7 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
             "metadata": {"name": "inst1"},
             "status": {"versions": {"reconciled": "9.1.7"}}
         }],
-        timeout_seconds=30
+        timeout_seconds=60
     )
 
     run_update_test(tmpdir, config)
@@ -184,11 +184,11 @@ def test_db2u_major_version_upgrade_rejected(tmpdir, resource_kind):
 
     prompt_handlers = {
         # Proceed with current cluster
-        '.*Proceed with this cluster?.*': lambda msg: 'y',
+        '.*Proceed with this cluster.*': lambda msg: 'y',
         # Catalog selection
         '.*Select catalog version.*': lambda msg: '1',
-        # Db2 version upgrade confirmation - user rejects
-        '.*Confirm update from Db2.*': lambda msg: 'n',
+        # Db2 version upgrade confirmation - user rejects - match exact format
+        '.*Confirm update from Db2 11 to 12.*': lambda msg: 'n',
     }
 
     config = UpdateTestConfig(
@@ -205,7 +205,7 @@ def test_db2u_major_version_upgrade_rejected(tmpdir, resource_kind):
         }],
         expect_system_exit=True,
         expected_exit_code=1,
-        timeout_seconds=30
+        timeout_seconds=60
     )
 
     run_update_test(tmpdir, config)

@@ -615,7 +615,7 @@ class UpdateApp(BaseApp):
                             # Extract target major version (first two digits)
                             # Handle version formats like "11.5.8.0", "12.0.0.0", "v11.5", "v12.0", "s11.5.9.0-cn6"
                             try:
-                                match = re.match(r'^[vs]?(\d{2})(\d+).*', targetDb2uVersion)
+                                match = re.match(r'^[vs]?(\d{2})[\d.]*', targetDb2uVersion)
                                 if match:
                                     targetMajorVersion = int(match.group(1))
                                 else:
@@ -670,13 +670,17 @@ class UpdateApp(BaseApp):
 
                                         if self.noConfirm and self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
                                             h.stop_and_persist(symbol=self.failureIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}")
-                                            self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm Db2 update to version {targetMajorVersion}")
+                                            self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm Db2 update to version {targetMajorVersion} using '--db2-v{targetMajorVersion}-upgrade' when using '--no-confirm'")
                                         elif self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
                                             h.stop_and_persist(symbol=self.successIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}")
                                             if not self.yesOrNo(f"Confirm update from Db2 {minMajorVersion} to {targetMajorVersion}", f"db2_v{targetMajorVersion}_upgrade"):
                                                 exit(1)
                                             print()
-                                            self.setParam("db2_channel", targetDb2uVersion)
+                                        else:
+                                            h.stop_and_persist(symbol=self.successIcon, text=f"Db2 will be updated from {minMajorVersion} to {targetMajorVersion}")
+
+                                        # Set db2_channel when upgrade is confirmed (either via flag or user prompt)
+                                        self.setParam("db2_channel", targetDb2uVersion)
                                         logger.debug(f"Db2u major version upgrade required: {minMajorVersion} -> {targetMajorVersion}")
                                     else:
                                         self.setParam(f"db2_v{targetMajorVersion}_upgrade", "false")
