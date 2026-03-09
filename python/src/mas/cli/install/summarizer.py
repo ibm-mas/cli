@@ -225,7 +225,7 @@ class InstallSummarizerMixin():
             self.printSummary("Facilities", self.params["mas_app_channel_facilities"])
             print_formatted_text(HTML("  <SkyBlue>+ Maximo Real Estate and Facilities Settings</SkyBlue>"))
             self.printParamSummary("  + Size", "mas_ws_facilities_size")
-            self.printParamSummary("  + Application Object Migration", "mas_ws_facilities_appOMUpgradeMode")
+            self.printParamSummary("  + Application Object Migration", "mas_ws_facilities_app_om_upgrade_mode")
             self.printParamSummary("  + Routes Timeout", "mas_ws_facilities_routes_timeout")
             self.printParamSummary("  + XML Extension", "mas_ws_facilities_liberty_extension_XML")
             self.printParamSummary("  + AES vault secret name", "mas_ws_facilities_vault_secret")

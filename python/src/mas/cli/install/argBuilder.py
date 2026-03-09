@@ -297,8 +297,8 @@ class installArgBuilderMixin():
             if self.getParam('mas_ws_facilities_size') != "":
                 command += f"  --facilities-size \"{self.getParam('mas_ws_facilities_size')}\"{newline}"
 
-            if self.getParam('mas_ws_facilities_appOMUpgradeMode') != "":
-                command += f"  --facilities-appOMUpgradeMode \"{self.getParam('mas_ws_facilities_appOMUpgradeMode')}\"{newline}"
+            if self.getParam('mas_ws_facilities_app_om_upgrade_mode') != "":
+                command += f"  --facilities-appOMUpgradeMode \"{self.getParam('mas_ws_facilities_app_om_upgrade_mode')}\"{newline}"
 
             if self.getParam('mas_ws_facilities_pull_policy') != "":
                 command += f"  --facilities-pull-policy \"{self.getParam('mas_ws_facilities_pull_policy')}\"{newline}"

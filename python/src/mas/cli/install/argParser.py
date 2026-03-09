@@ -731,7 +731,7 @@ facilitiesArgGroup = installArgParser.add_argument_group(
 )
 facilitiesArgGroup.add_argument(
     "--facilities-appOMUpgradeMode",
-    dest="mas_ws_facilities_appOMUpgradeMode",
+    dest="mas_ws_facilities_app_om_upgrade_mode",
     required=False,
     help="Sets the Application Object Migration Mode",
     choices=FACILITIES_APPOMUPGRADEMODE,
