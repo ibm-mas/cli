@@ -54,7 +54,7 @@ def send_slack_notification(action, pipeline_name, instance_id, rc=0):
         # Run the command, ignore errors (|| true equivalent)
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
-            print(f"Slack notification sent successfully")
+            print("Slack notification sent successfully")
         else:
             print(f"Slack notification command failed (ignored): {result.stderr}")
 
