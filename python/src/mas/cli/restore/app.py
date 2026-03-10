@@ -320,22 +320,23 @@ class RestoreApp(BaseApp):
             self.promptForString(message="SLS Configuration File, must be provided when not restoring from backup", param="sls_cfg_file", validator=FileExistsValidator())
 
     def promptForDROConfiguration(self) -> None:
-        self.printH1("Suite-level DRO/BAS Configuration")
-        self.printDescription([
-            "You can either choose to use BASCfg from the backup or you can provide the path to the BASCfg file."
-        ])
-        # promt user to include bascfg from backup. if yes, promt for bas_url, if not prompt for dro_cfg_file.
-        includeDROCfg = self.yesOrNo("Would you like to restore Suite-level BASCfg from backup")
-        if includeDROCfg:
-            self.setParam("include_drocfg_from_backup", "true")
-            changeDROUrl = self.yesOrNo("Would you like to change the DRO URL in the Suite's BASCfg CR")
-            if changeDROUrl:
-                self.promptForString(message="BAS URL", param="dro_url_on_restore")
+        if self.getParam("include_dro") != "true":
+            self.printH1("Suite-level DRO/BAS Configuration")
+            self.printDescription([
+                "You can either choose to use BASCfg from the backup or you can provide the path to the BASCfg file."
+            ])
+            # promt user to include bascfg from backup. if yes, promt for bas_url, if not prompt for dro_cfg_file.
+            includeDROCfg = self.yesOrNo("Would you like to restore Suite-level BASCfg from backup")
+            if includeDROCfg:
+                self.setParam("include_drocfg_from_backup", "true")
+                changeDROUrl = self.yesOrNo("Would you like to change the DRO URL in the Suite's BASCfg CR")
+                if changeDROUrl:
+                    self.promptForString(message="BAS URL", param="dro_url_on_restore")
+                else:
+                    self.setParam("dro_url_on_restore", "")
             else:
-                self.setParam("dro_url_on_restore", "")
-        else:
-            self.setParam("include_drocfg_from_backup", "false")
-            self.promptForString(message="DRO/BAS Configuration File, must be provided when not restoring from backup", param="dro_cfg_file", validator=FileExistsValidator())
+                self.setParam("include_drocfg_from_backup", "false")
+                self.promptForString(message="DRO/BAS Configuration File, must be provided when not restoring from backup", param="dro_cfg_file", validator=FileExistsValidator())
 
     def promptForIncludeSLS(self) -> None:
         self.printH1("SLS Configuration")
@@ -359,6 +360,8 @@ class RestoreApp(BaseApp):
         includeDRO: bool = self.yesOrNo("Would you like the pipeline to install DRO instance")
         if includeDRO:
             self.setParam("include_dro", "true")
+            self.setParam("dro_cfg_file", "/workspace/backups/configs/dro.yml")
+            self.setParam("include_drocfg_from_backup", "false")
             self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
             self.promptForString("Contact e-mail address", "dro_contact_email")
             self.promptForString("Contact first name", "dro_contact_firstname")
