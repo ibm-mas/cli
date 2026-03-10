@@ -66,6 +66,8 @@ spec:
           memory: 128Mi
     provider: dex
   applicationSet:
+    sourceNamespaces:
+      - {{ ARGOCLUSTER_NAMESPACE }}
     resources:
       limits:
         cpu: '2'
@@ -1699,8 +1701,8 @@ spec:
         cpu: 250m
         memory: 1Gi
     sharding: {}
-{% if RESTRICTED_ACCESS == "true" %}
+{%- if RESTRICTED_ACCESS == "true" %}
   defaultClusterScopedRoleDisabled: true
+{%- endif %}
   sourceNamespaces:
     - {{ ARGOCLUSTER_NAMESPACE }}
-{% endif %}

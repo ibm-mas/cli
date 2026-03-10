@@ -14,7 +14,7 @@ Basic Configuration (Required):
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                                                Account ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                                                Cluster ID
       --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}                                                                          Custom Labels definition in dict format
-      --cluster-admin-role ${COLOR_YELLOW}CLUSTER_ADMIN_ROLE${TEXT_RESET}                                                                Enable cluster admin role (default: true). When false, only generates base config and updates IBM entitlement secret
+      --application-admin-role ${COLOR_YELLOW}APPLICATION_ADMIN_ROLE${TEXT_RESET}                                                        Flag to enable application admin role. When set, only generates base config and updates IBM entitlement secret
 
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}                                                                   Region of the AWS Secrets Manager to use
@@ -128,7 +128,7 @@ function gitops_cluster_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
   export REDHAT_CERT_MANAGER_INSTALL_PLAN=${REDHAT_CERT_MANAGER_INSTALL_PLAN:-"Automatic"}
   export INSTALL_REDHAT_CERT_MANAGER=${INSTALL_REDHAT_CERT_MANAGER:-"true"}
-  export CLUSTER_ADMIN_ROLE=${CLUSTER_ADMIN_ROLE:-"true"}
+  export APPLICATION_ADMIN_ROLE=${APPLICATION_ADMIN_ROLE:-"false"}
 
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
@@ -152,8 +152,8 @@ function gitops_cluster_noninteractive() {
       --custom-labels)
         export CUSTOM_LABELS=$1 && shift
         ;;
-      --cluster-admin-role)
-        export CLUSTER_ADMIN_ROLE=$1 && shift
+      --application-admin-role)
+        export APPLICATION_ADMIN_ROLE=true
         ;;
 
       # AWS Secrets Manager Configuration
@@ -474,7 +474,7 @@ function gitops_cluster() {
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   echo_reset_dim "Nonshared Cluster .............. ${COLOR_MAGENTA}${CLUSTER_NONSHARED}"
-  echo_reset_dim "Cluster Admin Role ............. ${COLOR_MAGENTA}${CLUSTER_ADMIN_ROLE}"
+  echo_reset_dim "Application Admin Role ......... ${COLOR_MAGENTA}${APPLICATION_ADMIN_ROLE}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -754,8 +754,8 @@ function gitops_cluster() {
   echo "- Base Config"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-mas-cluster-base.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
 
-  # Only generate additional YAML files if cluster_admin_role is true
-  if [[ "$CLUSTER_ADMIN_ROLE" == "true" ]]; then
+  # Only generate additional YAML files if application_admin_role is false
+  if [[ "$APPLICATION_ADMIN_ROLE" == "false" ]]; then
     echo "- IBM Operator Catalog"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-operator-catalog.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
 

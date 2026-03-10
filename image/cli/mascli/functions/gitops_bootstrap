@@ -13,13 +13,14 @@ When no options are specified on the command line, interactive-mode will be enab
 Options:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                          Account ID
       --app-revision ${COLOR_YELLOW}APP_REVISION${TEXT_RESET}                      Revision (branch or tag) of ibm-mas/gitops to use
-      --argoapp-namespace ${COLOR_YELLOW}ARGOAPP_NAMESPACE${TEXT_RESET}            Namespace in the ArgoCD worker cluster to create ArgoCD Application and ApplicationSet resources (defaults to 'openshift-gitops')
-      --argocluster-namespace ${COLOR_YELLOW}ARGOCLUSTER_NAMESPACE${TEXT_RESET}    Namespace in which to install the ArgoCD CR and its supporting resources (defaults to 'openshift-gitops'). Set this to a non-default value to install a separate ArgoCD instance.
-      --restricted-access ${COLOR_YELLOW}RESTRICTED_ACCESS${TEXT_RESET}            Flag. If set (or RESTRICTED_ACCESS set to exactly "true"), the ArgoCD instance will only manage resources in ARGOCLUSTER_NAMESPACE. ARGOCLUSTER_NAMESPACE must equal ARGOAPP_NAMESPACE and neither may be 'openshift-gitops'. defaultClusterScopedRoleDisabled is set to true on the ArgoCD CR and the argocd-application-controller SA will NOT be granted cluster-admin. RBAC must be provided separately.
-      --auto-delete ${COLOR_YELLOW}AUTO_DELETE${TEXT_RESET}                        Flag. If set (or AUTO_DELETE set to exactly "true"), ArgoCD will be permitted to automatically delete resources based on config / helm chart changes. Only recommended for use in development environments.
-      --cluster-admin-role ${COLOR_YELLOW}CLUSTER_ADMIN_ROLE${TEXT_RESET}          Enable or disable cluster admin role (defaults to "true")
-      --application-admin-role ${COLOR_YELLOW}APPLICATION_ADMIN_ROLE${TEXT_RESET}  Enable or disable application admin role (defaults to "true")
-      --cli-version ${COLOR_YELLOW}CLI_VERSION${TEXT_RESET}                        CLI Version to be used to run avp container
+      --argoapp-namespace ${COLOR_YELLOW}ARGOAPP_NAMESPACE${TEXT_RESET}            Namespace in the ArgoCD worker cluster to create ArgoCD Application and ApplicationSet resources (defaults to 'openshift-gitops'). Optional.
+      --argocluster-namespace ${COLOR_YELLOW}ARGOCLUSTER_NAMESPACE${TEXT_RESET}    Namespace in which to install the ArgoCD CR and its supporting resources (defaults to 'openshift-gitops'). Optional. Set this to a non-default value to install a separate ArgoCD instance.
+      --argocluster-instance ${COLOR_YELLOW}ARGOCLUSTER_INSTANCE${TEXT_RESET}      Name of the ArgoCD instance. Optional. Used to set the argocd.argoproj.io/instance label on ArgoCD applications. 
+      --restricted-access ${COLOR_YELLOW}RESTRICTED_ACCESS${TEXT_RESET}            Flag. Optional. If set (or RESTRICTED_ACCESS set to exactly "true"), the ArgoCD instance will only manage resources in ARGOCLUSTER_NAMESPACE. ARGOCLUSTER_NAMESPACE must equal ARGOAPP_NAMESPACE and neither may be 'openshift-gitops'. defaultClusterScopedRoleDisabled is set to true on the ArgoCD CR and the argocd-application-controller SA will NOT be granted cluster-admin. RBAC must be provided separately.
+      --auto-delete ${COLOR_YELLOW}AUTO_DELETE${TEXT_RESET}                        Flag. Optional. If set (or AUTO_DELETE set to exactly "true"), ArgoCD will be permitted to automatically delete resources based on config / helm chart changes. Only recommended for use in development environments.
+      --cluster-admin-role ${COLOR_YELLOW}CLUSTER_ADMIN_ROLE${TEXT_RESET}          Flag. Optional. If set (or CLUSTER_ADMIN_ROLE set to exactly "true"), enables cluster admin role. Default: enabled if neither role flag is provided, disabled if only --application-admin-role is set.
+      --application-admin-role ${COLOR_YELLOW}APPLICATION_ADMIN_ROLE${TEXT_RESET}  Flag. Optional. If set (or APPLICATION_ADMIN_ROLE set to exactly "true"), enables application admin role. Default: enabled if neither role flag is provided, disabled if only --cluster-admin-role is set.
+      --cli-version ${COLOR_YELLOW}CLI_VERSION${TEXT_RESET}                        CLI Version to be used to run avp container. Optional
 
 AWS Secrets Manager Configuration:
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}             Region of the AWS Secrets Manager to use
@@ -43,9 +44,11 @@ function gitops_bootstrap_noninteractive() {
   export ARGOAPP_NAMESPACE=${ARGOAPP_NAMESPACE:-"openshift-gitops"}
   export ARGOCLUSTER_NAMESPACE=${ARGOCLUSTER_NAMESPACE:-"openshift-gitops"}
   export CLI_VERSION=${CLI_VERSION:-"latest"}
-  export CLUSTER_ADMIN_ROLE=${CLUSTER_ADMIN_ROLE:-"true"}
-  export APPLICATION_ADMIN_ROLE=${APPLICATION_ADMIN_ROLE:-"true"}
   export RESTRICTED_ACCESS=${RESTRICTED_ACCESS:-"false"}
+
+  # Track if role flags were explicitly provided
+  CLUSTER_ADMIN_ROLE_PROVIDED=false
+  APPLICATION_ADMIN_ROLE_PROVIDED=false
 
   while [[ $# -gt 0 ]]
   do
@@ -67,6 +70,10 @@ function gitops_bootstrap_noninteractive() {
         export ARGOCLUSTER_NAMESPACE=$1 && shift
         ;;
 
+      --argocluster-instance)
+        export ARGOCLUSTER_INSTANCE=$1 && shift
+        ;;
+
       --restricted-access)
         export RESTRICTED_ACCESS="true"
         ;;
@@ -75,10 +82,12 @@ function gitops_bootstrap_noninteractive() {
         export AUTO_DELETE="true"
         ;;
       --cluster-admin-role)
-        export CLUSTER_ADMIN_ROLE=$1 && shift
+        export CLUSTER_ADMIN_ROLE="true"
+        CLUSTER_ADMIN_ROLE_PROVIDED=true
         ;;
       --application-admin-role)
-        export APPLICATION_ADMIN_ROLE=$1 && shift
+        export APPLICATION_ADMIN_ROLE="true"
+        APPLICATION_ADMIN_ROLE_PROVIDED=true
         ;;
       --cli-version)
         export CLI_VERSION=$1 && shift
@@ -116,6 +125,21 @@ function gitops_bootstrap_noninteractive() {
         ;;
     esac
   done
+
+  # Apply default logic for role flags
+  # If neither flag is provided, both default to true
+  # If one flag is provided, the other defaults to false
+  if [[ "${CLUSTER_ADMIN_ROLE_PROVIDED}" == "false" ]] && [[ "${APPLICATION_ADMIN_ROLE_PROVIDED}" == "false" ]]; then
+    export CLUSTER_ADMIN_ROLE="true"
+    export APPLICATION_ADMIN_ROLE="true"
+  else
+    if [[ "${CLUSTER_ADMIN_ROLE_PROVIDED}" == "false" ]]; then
+      export CLUSTER_ADMIN_ROLE="false"
+    fi
+    if [[ "${APPLICATION_ADMIN_ROLE_PROVIDED}" == "false" ]]; then
+      export APPLICATION_ADMIN_ROLE="false"
+    fi
+  fi
 
   if [ -z $SM_AWS_REGION ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_ACCESS_KEY_ID ]; then
     echo 'Missing required params for AWS secret manager, make sure to provide --sm-aws-secret-region, --sm-aws-secret-key and --sm-aws-access-key'
@@ -170,6 +194,7 @@ function gitops_bootstrap() {
   echo_reset_dim "Applicaton Revision ............ ${COLOR_MAGENTA}${APP_REVISION}"
   echo_reset_dim "Argo Application Namespace ..... ${COLOR_MAGENTA}${ARGOAPP_NAMESPACE}"
   echo_reset_dim "Argo Cluster Namespace ......... ${COLOR_MAGENTA}${ARGOCLUSTER_NAMESPACE}"
+  echo_reset_dim "Argo Cluster Instance .......... ${COLOR_MAGENTA}${ARGOCLUSTER_INSTANCE}"
   if [[ "${RESTRICTED_ACCESS}" == "true" ]]; then
     echo_reset_dim "Restricted Access .............. ${COLOR_GREEN}enabled"
   else
@@ -304,19 +329,6 @@ function gitops_bootstrap() {
     export ARGOCD_USERNAME=admin
     export ARGOCD_PASSWORD=$(oc get secret ${ARGOCD_CR_NAME}-cluster -n ${ARGOCLUSTER_NAMESPACE} -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
   fi
-
-  # 11. Add cluster to ARgoCD
-  # argocd login ${ARGOCD_URL} --username ${ARGOCD_USERNAME} --password ${ARGOCD_PASSWORD} --insecure --skip-test-tls
-  # export K8S_AUTH_CONTEXT=$(oc whoami -c)
-  # argocd cluster add $K8S_AUTH_CONTEXT -y
-  # rc=$?
-  # if [[ $rc != "0" ]]; then
-  #   echo 
-  #   echo "argocd cluster add failed with $rc, try again"
-  #   echo
-  #   sleep 10
-  #   argocd cluster add $K8S_AUTH_CONTEXT -y
-  # fi
 
   echo "${COLOR_GREEN}ArgoCD is now available at https://${ARGOCD_URL} username is: admin and password: ${ARGOCD_PASSWORD} ${COLOR_RESET}"
   echo

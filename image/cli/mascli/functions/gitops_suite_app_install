@@ -27,8 +27,9 @@ Maximo Application Suite:
       --mas-edition ${COLOR_YELLOW}MAS_EDITION${TEXT_RESET}                            MAS Edition
       --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}        YAML file location containing combined MAS Manual Certs of core and all other apps
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}    The certificate authority to use for provisoning certificates for all the apps
+      --cluster-admin-role ${COLOR_YELLOW}CLUSTER_ADMIN_ROLE${TEXT_RESET}              Flag. Indicates this is run for the cluster_admin_role and so will skip storage class validation and app spec yaml processing
 
-  Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
+  Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>)
   where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
   supported app are core, assist, iot, monitor, optimizer, predict,visualinspection
     manual_certs:
@@ -176,6 +177,10 @@ function gitops_suite_app_install_noninteractive() {
         export INTERNAL_CERT_AUTHORITY=$1 && shift
         ;;
 
+      --cluster-admin-role)
+        export CLUSTER_ADMIN_ROLE=true
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_suite_app_install_help
@@ -209,12 +214,14 @@ function gitops_suite_app_install_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_suite_app_install_help "GIT_BRANCH is not set"
   fi
 
-  if [[ -z "$MAS_APP_SPEC_YAML" ]]; then
-    if [[ "${MAS_APP_ID}" == "iot" ]]; then
-      [[ "${DEFAULT_BLOCK_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_BLOCK_STORAGE_CLASS is not set"
-    fi
-    if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
-      [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
+  if [[ "$CLUSTER_ADMIN_ROLE" != "true" ]]; then
+    if [[ -z "$MAS_APP_SPEC_YAML" ]]; then
+      if [[ "${MAS_APP_ID}" == "iot" ]]; then
+        [[ "${DEFAULT_BLOCK_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_BLOCK_STORAGE_CLASS is not set"
+      fi
+      if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
+        [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
+      fi
     fi
   fi
 
@@ -299,6 +306,7 @@ function gitops_suite_app_install() {
   echo_reset_dim "Default Block Storage Class ........... ${COLOR_MAGENTA}${DEFAULT_BLOCK_STORAGE_CLASS}"
   echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
   echo_reset_dim "MAS Manual Certs YAML ................. ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"
+  echo_reset_dim "Cluster Admin Role .................... ${COLOR_MAGENTA}${CLUSTER_ADMIN_ROLE}"
   
   if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
     echo_reset_dim "GPU Request Quota ..................... ${COLOR_MAGENTA}${GPU_REQUEST_QUOTA}"
@@ -361,33 +369,35 @@ function gitops_suite_app_install() {
 
   # Getting app spec, either default or provided
   # ---------------------------------------------------------------------------
-  if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
-    # Resolve the path relative to CURRENT_DIR if it's not absolute
-    if [[ "$MAS_APP_SPEC_YAML" != /* ]]; then
-      MAS_APP_SPEC_YAML_RESOLVED="${CURRENT_DIR}/${MAS_APP_SPEC_YAML}"
+  if [[ "$CLUSTER_ADMIN_ROLE" != "true" ]]; then
+    if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
+      # Resolve the path relative to CURRENT_DIR if it's not absolute
+      if [[ "$MAS_APP_SPEC_YAML" != /* ]]; then
+        MAS_APP_SPEC_YAML_RESOLVED="${CURRENT_DIR}/${MAS_APP_SPEC_YAML}"
+      else
+        MAS_APP_SPEC_YAML_RESOLVED="$MAS_APP_SPEC_YAML"
+      fi
+      
+      if [[ -s "$MAS_APP_SPEC_YAML_RESOLVED" ]]; then
+        echo
+        echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APP_SPEC_YAML"
+        export MAS_APP_SPEC=$(cat ${MAS_APP_SPEC_YAML_RESOLVED} | yq '.' --output-format yaml)
+      else
+        echo
+        echo_h2 "WARNING: Specified app spec file not found or empty: $MAS_APP_SPEC_YAML_RESOLVED"
+        echo_h2 "Using default application spec for $MAS_APP_ID"
+        jinjanate_commmon $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}.yaml.j2 ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
+        export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq '.' --output-format yaml)
+      fi
     else
-      MAS_APP_SPEC_YAML_RESOLVED="$MAS_APP_SPEC_YAML"
-    fi
-    
-    if [[ -s "$MAS_APP_SPEC_YAML_RESOLVED" ]]; then
       echo
-      echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APP_SPEC_YAML"
-      export MAS_APP_SPEC=$(cat ${MAS_APP_SPEC_YAML_RESOLVED} | yq '.' --output-format yaml)
-    else
-      echo
-      echo_h2 "WARNING: Specified app spec file not found or empty: $MAS_APP_SPEC_YAML_RESOLVED"
       echo_h2 "Using default application spec for $MAS_APP_ID"
       jinjanate_commmon $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}.yaml.j2 ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
       export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq '.' --output-format yaml)
     fi
-  else
-    echo
-    echo_h2 "Using default application spec for $MAS_APP_ID"
-    jinjanate_commmon $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}.yaml.j2 ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
-    export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq '.' --output-format yaml)
-  fi
-  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
-    export MAS_APP_SPEC=$(echo "$MAS_APP_SPEC" | yq '.mas_app_spec.internalCertificateAuthority = env(INTERNAL_CERT_AUTHORITY)' --output-format yaml)
+    if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+      export MAS_APP_SPEC=$(echo "$MAS_APP_SPEC" | yq '.mas_app_spec.internalCertificateAuthority = env(INTERNAL_CERT_AUTHORITY)' --output-format yaml)
+    fi
   fi
   echo_reset_dim "MAS_APP_SPEC ............................ ${COLOR_MAGENTA}${MAS_APP_SPEC}"
   reset_colors

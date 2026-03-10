@@ -27,6 +27,9 @@ spec:
         
         argo:
           namespace: "{{ ARGOAPP_NAMESPACE }}"
+{% if ARGOCLUSTER_INSTANCE is defined and ARGOCLUSTER_INSTANCE != "" %}
+          instance: "{{ ARGOCLUSTER_INSTANCE }}"
+{% endif %}
 
         auto_delete: {{ true if AUTO_DELETE=="true" else false }}
 
