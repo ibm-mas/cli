@@ -218,7 +218,7 @@ class BaseApp(PrintMixin, PromptMixin):
         }
 
         self.upgrade_path: Dict[str, str] = {
-            "9.2.x-feature": "9.2.x-feature", # Change this to 9.2.x it's GA 
+            "9.2.x-feature": "9.2.x-feature",  # Change this to 9.2.x it's GA
             "9.1.x": "9.2.x-feature",
             "9.1.x-feature": "9.1.x",
             "9.0.x": "9.1.x",

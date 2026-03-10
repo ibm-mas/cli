@@ -104,11 +104,11 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 if self.nextChannel in self.compatibilityMatrix:
                     installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
                     incompatibleApps = []
-                    
+
                     for installedApp in installedAppsChannel:
                         appId = installedApp["appId"]
                         appChannel = installedApp["channel"]
-                        
+
                         # Check if app is supported in the target channel
                         if appId not in self.compatibilityMatrix[self.nextChannel]:
                             if "feature" in self.nextChannel:
@@ -122,7 +122,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                                 incompatibleApps.append(
                                     f"  - {appId} (currently on {appChannel}): Must be on one of {compatibleAppChannels} to upgrade to MAS {self.nextChannel}"
                                 )
-                    
+
                     if len(incompatibleApps) > 0:
                         errorMsg = f"Cannot upgrade to {self.nextChannel}. The following apps have compatibility issues:\n" + "\n".join(incompatibleApps)
                         self.fatalError(errorMsg)
@@ -225,7 +225,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 else:
                     # No --next-channel provided: let ansible auto-determine
                     masChannelParam = ""
-                
+
                 pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
