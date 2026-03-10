@@ -137,6 +137,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - clean-workspaces
+        - prepare-backup-workspace
         - download-backup-archive
         - gencfg-workspace
         - must-gather
