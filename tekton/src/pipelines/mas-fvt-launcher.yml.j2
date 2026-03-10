@@ -500,6 +500,38 @@ spec:
         - launchfvt-iot
 
 
+    # 4.5. Pre-flight Check - Verify Install Pipeline Status
+    # -------------------------------------------------------------------------
+    # Before waiting for any app installations, check if the install pipeline succeeded
+    # This prevents FVT from waiting indefinitely when installation has already failed
+    - name: check-install-status
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: sync-install
+        - name: configmap_target_value
+          value: "Success"
+        # No escape route for this check - we want to know the install status
+        - name: delay
+          value: "60"
+        - name: max_retries
+          value: "5"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
+
     # 5. Application FVT - Manage
     # -------------------------------------------------------------------------
     - name: waitfor-manage
@@ -535,7 +567,7 @@ spec:
           operator: notin
           values: ["falsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
-        - approval-suite-verify
+        - check-install-status
 
     # Manage Setup (Data Loader)
     # Required by fvt-manage, fvt-manage-is, fvt-optimizer and fvt-predict pipelines
