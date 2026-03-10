@@ -376,7 +376,8 @@ spec:
 
     # 3. Application FVT - IoT
     # -------------------------------------------------------------------------
-    - name: waitfor-iot
+    # When Monitor < 9.2.0 (installs after IoT), we wait for IoT before Monitor
+    - name: waitfor-iot-before-monitor
       timeout: "0"
       taskRef:
         kind: Task
@@ -401,17 +402,65 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
+<<<<<<< Updated upstream
         # Wait for IoT to be installed if we are running the IoT FVT suite
         # OR if we are running Monitor FVT with legacy install order (after-iot)
         # When Monitor >= 9.2.0 (before-iot), Monitor FVT should NOT wait for IoT
         - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)$(params.mas_monitor_install_order)"
           operator: in
           values: ["true", "True", "truetrue", "TrueTrue", "truefalse","TrueFalse", "falsetrueafter-iot", "FalseTrueafter-iot" ]
+=======
+        # Wait for IoT when:
+        # 1. We are running IoT FVT, OR
+        # 2. We are running Monitor FVT with after-iot install order (Monitor < 9.2.0)
+        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)$(params.mas_monitor_install_order)"
+          operator: in
+          values: ["true", "True", "truetrue", "TrueTrue", "truefalse", "TrueFalse", "falsetrueafter-iot", "FalseTrueafter-iot", "truetrueafter-iot", "TrueTrueafter-iot"]
+>>>>>>> Stashed changes
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
       runAfter:
         - approval-suite-verify
+
+    # When Monitor >= 9.2.0 (installs before IoT), we wait for IoT after Monitor
+    - name: waitfor-iot-after-monitor
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-iot
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        # 40 retries at 5 minute intervals = 3 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "40"
+        - name: ignore_failure
+          value: "False"
+      when:
+        # Wait for IoT when we are running IoT FVT with Monitor before-iot install order
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.mas_monitor_install_order)
+          operator: in
+          values: ["before-iot"]
+      runAfter:
+        - approval-monitor
 
     - name: launchfvt-iot
       timeout: "0"
@@ -428,7 +477,8 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-iot
+        - waitfor-iot-before-monitor
+        - waitfor-iot-after-monitor
 
     - name: approval-iot
       timeout: "0"
