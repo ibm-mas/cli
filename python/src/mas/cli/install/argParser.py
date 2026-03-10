@@ -730,7 +730,7 @@ facilitiesArgGroup = installArgParser.add_argument_group(
     "Advanced configuration for Maximo Real Estate and Facilities including deployment size, image pull policy, routes timeout, Liberty extensions, vault secrets, workflow agents, connection pool size, and storage settings."
 )
 facilitiesArgGroup.add_argument(
-    "--facilities-appOMUpgradeMode",
+    "--facilities-app-om-upgrade-mode",
     dest="mas_ws_facilities_app_om_upgrade_mode",
     required=False,
     help="Sets the Application Object Migration Mode",
