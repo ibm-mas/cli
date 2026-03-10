@@ -487,8 +487,12 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
       runAfter:
-        - launchfvt-iot
+        - waitfor-iot-before-monitor
+        - waitfor-iot-after-monitor
 
 
     # 4.5. Pre-flight Check - Verify Install Pipeline Status
