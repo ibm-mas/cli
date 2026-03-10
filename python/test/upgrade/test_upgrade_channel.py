@@ -32,7 +32,6 @@ class TestUpgradeChannelLogic:
             app.devMode = False
             # Mock the underlying _dynClient attribute (dynamicClient is a property)
             mock_client = Mock()
-            
             # Create a function to return different mocks based on the kind parameter
             def mock_resources_get(api_version=None, kind=None):
                 if kind == "Node":
@@ -61,7 +60,6 @@ class TestUpgradeChannelLogic:
                 else:
                     # Default mock
                     return Mock()
-            
             mock_client.resources.get.side_effect = mock_resources_get
             app._dynClient = mock_client
             app.params = {}
@@ -85,14 +83,12 @@ class TestUpgradeChannelLogic:
                                 mock_args.skip_pre_check = False
                                 mock_args.accept_license = True
                                 mock_args.dev_mode = False
-                                mock_args.next_channel = '9.0.x'
-                                
+                                mock_args.next_channel = '9.0.x' 
                                 with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
                                     try:
                                         mock_upgrade_app.upgrade([])
                                     except:
                                         pass  # Ignore other errors, we just want to check the call
-                                
                                 # Verify masChannel parameter
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
@@ -118,13 +114,11 @@ class TestUpgradeChannelLogic:
                                 mock_args.accept_license = True
                                 mock_args.dev_mode = False
                                 mock_args.next_channel = '9.1.x'
-                                
                                 with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
                                     try:
                                         mock_upgrade_app.upgrade([])
                                     except:
                                         pass
-                                
                                 # Verify masChannel parameter - should be previous channel (9.0.x)
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
@@ -150,13 +144,11 @@ class TestUpgradeChannelLogic:
                                 mock_args.accept_license = True
                                 mock_args.dev_mode = False
                                 mock_args.next_channel = ''  # No next channel provided
-                                
                                 with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
                                     try:
                                         mock_upgrade_app.upgrade([])
                                     except:
                                         pass
-                                
                                 # Verify masChannel parameter is empty
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
@@ -179,7 +171,6 @@ class TestUpgradeChannelLogic:
                     mock_args.accept_license = True
                     mock_args.dev_mode = False
                     mock_args.next_channel = '9.1.x'  # Invalid: skips 9.0.x
-                    
                     with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
                         with pytest.raises(SystemExit) as exc_info:
                             mock_upgrade_app.upgrade([])
@@ -205,10 +196,8 @@ class TestUpgradeChannelLogic:
                     mock_args.accept_license = True
                     mock_args.dev_mode = False
                     mock_args.next_channel = '9.1.x'
-                    
                     with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
                         with pytest.raises(SystemExit) as exc_info:
                             mock_upgrade_app.upgrade([])
                         assert exc_info.value.code == 1
-
 # Made with Bob
