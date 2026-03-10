@@ -6,6 +6,7 @@ function mirror_redhat_noninteractive() {
   # Red Hat
   MIRROR_REDHAT_PLATFORM=false
   MIRROR_REDHAT_OPERATORS=false
+  MIRROR_ADDITIONAL_AISERVICE_OPERATORS=false
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -25,6 +26,9 @@ function mirror_redhat_noninteractive() {
         ;;
       --mirror-operators)
         MIRROR_REDHAT_OPERATORS=true
+        ;;
+      --mirror-additional)
+        MIRROR_ADDITIONAL_AISERVICE_OPERATORS=true
         ;;
 
       # Registry
@@ -103,8 +107,8 @@ function mirror_redhat_noninteractive() {
 
   if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "to-filesystem" ]]; then
     [[ -z "$OCP_RELEASE" ]] && mirror_redhat_help "OCP_RELEASE is not set"
-    if [[ "$MIRROR_REDHAT_PLATFORM" == "false" ]] && [[ "$MIRROR_REDHAT_OPERATORS" == "false" ]]; then
-      echo "Nothing to do.  Select what content to mirror using --mirror-product and/or --mirror-operators"
+    if [[ "$MIRROR_REDHAT_PLATFORM" == "false" ]] && [[ "$MIRROR_REDHAT_OPERATORS" == "false" ]] && [[ "$MIRROR_ADDITIONAL_AISERVICE_OPERATORS" == "false" ]]; then
+      echo "Nothing to do.  Select what content to mirror using --mirror-product --mirror-operators or --mirror-additional"
       exit 0
     fi
   fi
@@ -252,6 +256,17 @@ function mirror_redhat_interactive() {
   echo
 
   prompt_for_confirm "Mirror selected content from Red Hat OCP operator catalogs" MIRROR_REDHAT_OPERATORS
+
+  echo_h3 "Additional Operators"
+  echo "${TEXT_DIM}Mirror selected operators required for AI Service, only the following content will be included from each catalog:"
+  echo
+  echo "Red Hat Operators:"
+  echo " - Istio (v2.6.8)"
+  echo
+  echo "Community Operators:"
+  echo " - OpendataHub (v2.32)"
+
+  prompt_for_confirm "Mirror selected additional operators" MIRROR_ADDITIONAL_AISERVICE_OPERATORS
 }
 
 function mirror_redhat() {
@@ -270,6 +285,7 @@ function mirror_redhat() {
   export MIRROR_WORKING_DIR
   export MIRROR_REDHAT_PLATFORM
   export MIRROR_REDHAT_OPERATORS
+  export MIRROR_ADDITIONAL_AISERVICE_OPERATORS
   export REDHAT_PULLSECRET
   export OCP_RELEASE
   export OCP_MIN_VERSION
@@ -315,6 +331,11 @@ function mirror_redhat() {
   if [[ "$MIRROR_REDHAT_OPERATORS" == "true" ]]
   then echo_reset_dim "Mirror Operator Catalogs .............. ${COLOR_GREEN}Yes"
   else echo_reset_dim "Mirror Operator Catalogs .............. ${COLOR_RED}No"
+  fi
+
+  if [[ "$MIRROR_ADDITIONAL_AISERVICE_OPERATORS" == "true" ]]
+  then echo_reset_dim "Mirror Additional AI Service Operators .............. ${COLOR_GREEN}Yes"
+  else echo_reset_dim "Mirror Additional AI Service Operators .............. ${COLOR_RED}No"
   fi
 
   echo
