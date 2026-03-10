@@ -207,7 +207,7 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/rhoai.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
-        - aiservice-odh
+        - cert-manager
 
     # 5. Install & Configure IBM MAS
     # -------------------------------------------------------------------------
