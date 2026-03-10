@@ -10,7 +10,7 @@
 # *****************************************************************************
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from mas.cli.upgrade.app import UpgradeApp
 from prompt_toolkit.application import create_app_session
 from prompt_toolkit.output import DummyOutput
@@ -33,6 +33,7 @@ class TestUpgradeChannelLogic:
             # Mock the underlying _dynClient attribute (dynamicClient is a property)
             mock_client = Mock()
             # Create a function to return different mocks based on the kind parameter
+
             def mock_resources_get(api_version=None, kind=None):
                 if kind == "Node":
                     # Mock for getNodes
@@ -83,11 +84,11 @@ class TestUpgradeChannelLogic:
                                 mock_args.skip_pre_check = False
                                 mock_args.accept_license = True
                                 mock_args.dev_mode = False
-                                mock_args.next_channel = '9.0.x' 
+                                mock_args.next_channel = '9.0.x'
                                 with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
                                     try:
                                         mock_upgrade_app.upgrade([])
-                                    except:
+                                    except Exception:
                                         pass  # Ignore other errors, we just want to check the call
                                 # Verify masChannel parameter
                                 if mock_launch.called:
@@ -117,7 +118,7 @@ class TestUpgradeChannelLogic:
                                 with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
                                     try:
                                         mock_upgrade_app.upgrade([])
-                                    except:
+                                    except Exception:
                                         pass
                                 # Verify masChannel parameter - should be previous channel (9.0.x)
                                 if mock_launch.called:
@@ -147,7 +148,7 @@ class TestUpgradeChannelLogic:
                                 with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
                                     try:
                                         mock_upgrade_app.upgrade([])
-                                    except:
+                                    except Exception:
                                         pass
                                 # Verify masChannel parameter is empty
                                 if mock_launch.called:
