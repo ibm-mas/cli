@@ -401,10 +401,12 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        # Wait for IoT to be installed if we are running the IoT and/or the Monitor FVT suite
-        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
+        # Wait for IoT to be installed if we are running the IoT FVT suite
+        # OR if we are running Monitor FVT with legacy install order (after-iot)
+        # When Monitor >= 9.2.0 (before-iot), Monitor FVT should NOT wait for IoT
+        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)$(params.mas_monitor_install_order)"
           operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse","TrueFalse" ]
+          values: ["true", "True", "truetrue", "TrueTrue", "truefalse","TrueFalse", "falsetrueafter-iot", "FalseTrueafter-iot" ]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -742,10 +744,6 @@ spec:
       taskRef:
         kind: Task
         name: mas-launchfvt-monitor
-      when:
-        - input: $(params.launchfvt_monitor)
-          operator: in
-          values: ["true", "True"]
       when:
         - input: $(params.launchfvt_monitor)
           operator: in
