@@ -302,6 +302,9 @@ class RestoreApp(BaseApp):
 
     def promptForSLSConfiguration(self) -> None:
         self.printH1("Suite-level SLS Configuration")
+        self.printDescription([
+            "You can either choose to use SLSCfg from the backup or you can provide the path to the SLSCfg file."
+        ])
         # promt user to include slscfg from backup. if yes, promt for sls_url, if not prompt for sls_cfg_file.
         includeSLSCfg = self.yesOrNo("Would you like to restore Suite-level SLSCfg from backup")
         if includeSLSCfg:
@@ -317,6 +320,9 @@ class RestoreApp(BaseApp):
 
     def promptForDROConfiguration(self) -> None:
         self.printH1("Suite-level DRO/BAS Configuration")
+        self.printDescription([
+            "You can either choose to use BASCfg from the backup or you can provide the path to the BASCfg file."
+        ])
         # promt user to include bascfg from backup. if yes, promt for bas_url, if not prompt for dro_cfg_file.
         includeDROCfg = self.yesOrNo("Would you like to restore Suite-level BASCfg from backup")
         if includeDROCfg:
