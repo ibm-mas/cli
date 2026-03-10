@@ -148,6 +148,10 @@ spec:
       default: ""
 
     # JDBCCfg
+    - name: mas_config_dir
+      type: string
+      description: config directory path
+      default: "/workspace/configs"
     - name: mas_config_scope
       type: string
       default: ""
@@ -310,7 +314,7 @@ spec:
 
       # MAS - JdbcCfg
       - name: MAS_CONFIG_DIR
-        value: /workspace/configs
+        value: $(params.mas_config_dir)
       - name: MAS_CONFIG_SCOPE
         value: $(params.mas_config_scope)
       - name: MAS_INSTANCE_ID
@@ -350,7 +354,7 @@ spec:
         - db2
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      workingDir: /workspace/configs
+      workingDir: $(params.mas_config_dir)
 
   workspaces:
     - name: configs

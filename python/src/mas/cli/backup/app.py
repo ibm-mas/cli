@@ -161,7 +161,7 @@ class BackupApp(BaseApp):
 
         self.printH2("Backup Configuration")
         self.printSummary("Backup Directory", "/workspace/backups (hardcoded)")
-        self.printSummary("Config Directory", "/workspace/configs (hardcoded)")
+        self.printSummary("Config Directory", "/workspace/backups/configs (hardcoded)")
         self.printSummary("Backup Storage Size", self.getParam("backup_storage_size"))
         self.printSummary("Backup Version", self.getParam("backup_version"))
         self.printSummary("Clean Workspaces After Completion", self.getParam("clean_backup") if self.getParam("clean_backup") else "true")
@@ -221,6 +221,7 @@ class BackupApp(BaseApp):
                     instanceId=instanceId,
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
+                    createConfigPVC=False,
                     createBackupPVC=True,
                     backupStorageSize=backupStorageSize
                 )

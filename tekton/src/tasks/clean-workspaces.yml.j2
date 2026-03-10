@@ -13,8 +13,10 @@ spec:
   workspaces:
     - name: configs
       description: Configuration workspace to clean
+      optional: true
     - name: backups
       description: Backup workspace to clean
+      optional: true
 
   steps:
     - name: clean-workspaces

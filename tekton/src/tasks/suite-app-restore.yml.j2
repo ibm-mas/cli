@@ -71,9 +71,7 @@ spec:
         - suite_app_restore
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      workingDir: /workspace/configs
+      workingDir: /workspace/backups
 
   workspaces:
-    - name: configs
-      optional: true
     - name: backups

@@ -192,7 +192,7 @@ class RestoreApp(BaseApp):
 
         self.printH2("Restore Configuration")
         self.printSummary("Backup Directory", "/workspace/backups (hardcoded)")
-        self.printSummary("Config Directory", "/workspace/configs (hardcoded)")
+        self.printSummary("Config Directory", "/workspace/backups/configs (hardcoded)")
         self.printSummary("Backup Storage Size", self.getParam("backup_storage_size"))
         self.printSummary("Backup Version to restore", self.getParam("restore_version"))
         if self.getParam("backup_archive_name") is not None and self.getParam("backup_archive_name") != "":
@@ -267,6 +267,7 @@ class RestoreApp(BaseApp):
                     instanceId=instanceId,
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
+                    createConfigPVC=False,
                     createBackupPVC=True,
                     backupStorageSize=backupStorageSize
                 )

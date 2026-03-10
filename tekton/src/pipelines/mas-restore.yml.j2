@@ -5,8 +5,6 @@ metadata:
   name: mas-restore
 spec:
   workspaces:
-    # The generated configuration files
-    - name: shared-configs
     # The backup storage
     - name: shared-backups
     # Configs to restore like slscfg and drocfg
@@ -26,17 +24,18 @@ spec:
     # -------
     # 1. Pipeline Start
     # 2. Pre-restore Verification
-    # 3. Download backup archive (if required)
-    # 4. Restore IBM Catalogs
-    # 5. Restore Certificate Manager
-    # 6. Install Grafana (if required)
-    # 7. Restore MongoDB
-    # 8. Restore SLS (if required)
-    # 9. Install DRO (if required)
-    # 10. Restore MAS Suite
-    # 11. Post Restore Suite Verify
-    # 12. Restore DB2 (if required)
-    # 13. Restore Manage (if required)
+    # 3. Prepare backup workspace
+    # 4. Download backup archive (if required)
+    # 5. Restore IBM Catalogs
+    # 6. Restore Certificate Manager
+    # 7. Install Grafana (if required)
+    # 8. Restore MongoDB
+    # 9. Restore SLS (if required)
+    # 10. Install DRO (if required)
+    # 11. Restore MAS Suite
+    # 12. Post Restore Suite Verify
+    # 13. Restore DB2 (if required)
+    # 14. Restore Manage (if required)
 
     # 1. Pipeline Start
     # -------------------------------------------------------------------------
@@ -62,8 +61,24 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-restore-check', 'devops_suite_name': 'pre-restore-check'}) | indent(4) }}
       runAfter:
         - pipeline-start
+    
+    # 3. Prepare backup workspace
+    # -------------------------------------------------------------------------
+    - name: prepare-backup-workspace
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+      taskRef:
+        kind: Task
+        name: mas-devops-prepare-backup-workspace
+      workspaces:
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - pre-restore-check
 
-    # 3. Download backup archive (if required)
+    # 4. Download backup archive (if required)
     # -------------------------------------------------------------------------
     - name: download-backup-archive
       timeout: "0"
@@ -121,9 +136,9 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
-        - pre-restore-check
+        - prepare-backup-workspace
 
-    # 4. Restore IBM Catalogs
+    # 5. Restore IBM Catalogs
     # -------------------------------------------------------------------------
     - name: ibm-catalogs
       timeout: "0"
@@ -147,10 +162,10 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
-        - pre-restore-check
+        - prepare-backup-workspace
         - download-backup-archive
 
-    # 5. Restore Certificate Manager
+    # 6. Restore Certificate Manager
     # -------------------------------------------------------------------------
     - name: cert-manager
       timeout: "0"
@@ -177,7 +192,7 @@ spec:
         - ibm-catalogs
 
 
-    # 6. Install Grafana
+    # 7. Install Grafana
     # -------------------------------------------------------------------------
     - name: grafana
       timeout: "0"
@@ -203,7 +218,7 @@ spec:
       runAfter:
         - cert-manager
 
-    # 7. Restore MongoDB
+    # 8. Restore MongoDB
     # -------------------------------------------------------------------------
     - name: mongodb
       timeout: "0"
@@ -227,20 +242,20 @@ spec:
           value: $(params.override_mongodb_storageclass)
         - name: mongodb_storage_class
           value: $(params.mongodb_storageclass_name)
+        - name: mas_config_dir
+          value: /workspace/backups/configs
 
       taskRef:
         kind: Task
         name: mas-devops-mongodb
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
       runAfter:
         - cert-manager
         - grafana
 
-    # 8. Restore SLS
+    # 9. Restore SLS
     # -------------------------------------------------------------------------
     - name: sls
       timeout: "0"
@@ -261,6 +276,8 @@ spec:
           value: restore
         - name: sls_domain
           value: $(params.sls_domain)
+        - name: mas_config_dir
+          value: /workspace/backups/configs
 
       when:
         - input: "$(params.include_sls)"
@@ -271,14 +288,12 @@ spec:
         kind: Task
         name: mas-devops-sls
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
       runAfter:
         - mongodb
 
-    # 9. Install DRO
+    # 10. Install DRO
     # -------------------------------------------------------------------------
     - name: dro
       timeout: "0"
@@ -292,6 +307,8 @@ spec:
 
         - name: devops_suite_name
           value: restore-dro
+        - name: mas_config_dir
+          value: /workspace/backups/configs
 
         - name: dro_action
           value: install
@@ -317,12 +334,12 @@ spec:
         kind: Task
         name: mas-devops-dro
       workspaces:
-        - name: configs
-          workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
       runAfter:
         - ibm-catalogs
 
-    # 10. Restore MAS Suite
+    # 11. Restore MAS Suite
     # -------------------------------------------------------------------------
     - name: suite-restore
       timeout: "0"
@@ -360,8 +377,6 @@ spec:
         kind: Task
         name: mas-devops-suite-restore
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
         - name: restore
@@ -373,7 +388,7 @@ spec:
         - sls
         - dro
 
-    # 11. Post Restore Suite Verification
+    # 12. Post Restore Suite Verification
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2', template_vars={'name': 'suite-verify', 'devops_suite_name': 'suite-verify'}) | indent(4) }}
       runAfter:
         - suite-restore
@@ -382,7 +397,7 @@ spec:
           operator: notin
           values: [""]
 
-    # 12. Restore Manage Database (Db2) - Optional
+    # 13. Restore Manage Database (Db2) - Optional
     # -------------------------------------------------------------------------
     - name: manage-db2-restore
       timeout: "0"
@@ -397,6 +412,8 @@ spec:
           value: restore
         - name: mas_application_id
           value: manage
+        - name: mas_config_dir
+          value: /workspace/backups/configs
 
         # restore specific parameters
         - name: db2_backup_version
@@ -414,14 +431,12 @@ spec:
         kind: Task
         name: mas-devops-db2
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
       runAfter:
         - cert-manager
 
-    # 13. Restore Manage Application - Optional
+    # 14. Restore Manage Application - Optional
     # -------------------------------------------------------------------------
     - name: manage-app-restore
       timeout: "0"
@@ -453,8 +468,6 @@ spec:
         kind: Task
         name: mas-devops-suite-app-restore
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
       runAfter:
@@ -477,8 +490,6 @@ spec:
         kind: Task
         name: mas-devops-clean-workspaces
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
 

@@ -5,8 +5,6 @@ metadata:
   name: mas-backup
 spec:
   workspaces:
-    # The generated configuration files
-    - name: shared-configs
     # The backup storage
     - name: shared-backups
 
@@ -24,13 +22,14 @@ spec:
     # -------
     # 1. Pipeline Start
     # 2. Pre-backup Verification
-    # 3. Backup IBM Catalogs
-    # 4. Backup Certificate Manager
-    # 5. Backup MongoDB
-    # 6. Backup SLS
-    # 7. Backup MAS Suite
-    # 8. Backup Manage Database (Db2) - Optional
-    # 9. Backup Manage Application - Optional
+    # 3. Prepare backup workspace
+    # 4. Backup IBM Catalogs
+    # 5. Backup Certificate Manager
+    # 6. Backup MongoDB
+    # 7. Backup SLS
+    # 8. Backup MAS Suite
+    # 9. Backup Manage Database (Db2) - Optional
+    # 10. Backup Manage Application - Optional
 
     # 1. Pipeline Start
     # -------------------------------------------------------------------------
@@ -56,8 +55,24 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-backup-check', 'devops_suite_name': 'pre-backup-check'}) | indent(4) }}
       runAfter:
         - pipeline-start
+    
+    # 3. Prepare backup workspace
+    # -------------------------------------------------------------------------
+    - name: prepare-backup-workspace
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+      taskRef:
+        kind: Task
+        name: mas-devops-prepare-backup-workspace
+      workspaces:
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - pre-backup-check
 
-    # 3. Backup IBM Catalogs
+    # 4. Backup IBM Catalogs
     # -------------------------------------------------------------------------
     - name: ibm-catalogs
       timeout: "0"
@@ -84,9 +99,9 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
-        - pre-backup-check
+        - prepare-backup-workspace
 
-    # 4. Backup Certificate Manager
+    # 5. Backup Certificate Manager
     # -------------------------------------------------------------------------
     - name: cert-manager
       timeout: "0"
@@ -111,9 +126,9 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
-        - pre-backup-check
+        - prepare-backup-workspace
 
-    # 5. Backup MongoDB
+    # 6. Backup MongoDB
     # -------------------------------------------------------------------------
     - name: mongodb
       timeout: "0"
@@ -142,14 +157,12 @@ spec:
         kind: Task
         name: mas-devops-mongodb
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
       runAfter:
-        - pre-backup-check
+        - prepare-backup-workspace
 
-    # 6. Backup SLS
+    # 7. Backup SLS
     # -------------------------------------------------------------------------
     - name: sls
       timeout: "0"
@@ -179,14 +192,12 @@ spec:
         kind: Task
         name: mas-devops-sls
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
       runAfter:
-        - pre-backup-check
+        - prepare-backup-workspace
 
-    # 7. Backup MAS Suite
+    # 8. Backup MAS Suite
     # -------------------------------------------------------------------------
     - name: suite-backup
       timeout: "0"
@@ -206,8 +217,6 @@ spec:
         kind: Task
         name: mas-devops-suite-backup
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
       runAfter:
@@ -216,7 +225,7 @@ spec:
         - mongodb
         - sls
 
-    # 8. Backup Manage Database (Db2) - Optional
+    # 9. Backup Manage Database (Db2) - Optional
     # -------------------------------------------------------------------------
     - name: manage-db2-backup
       timeout: "0"
@@ -259,14 +268,12 @@ spec:
         kind: Task
         name: mas-devops-db2
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
       runAfter:
-        - pre-backup-check
+        - prepare-backup-workspace
 
-    # 9. Backup Manage Application - Optional
+    # 10. Backup Manage Application - Optional
     # -------------------------------------------------------------------------
     - name: manage-app-backup
       timeout: "0"
@@ -293,14 +300,12 @@ spec:
         kind: Task
         name: mas-devops-suite-app-backup
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
       runAfter:
         - suite-backup
 
-    # 10. Upload Backup Archive (Optional)
+    # 11. Upload Backup Archive (Optional)
     # -------------------------------------------------------------------------
     - name: upload-backup-archive
       timeout: "0"
@@ -365,8 +370,6 @@ spec:
         kind: Task
         name: mas-devops-clean-workspaces
       workspaces:
-        - name: configs
-          workspace: shared-configs
         - name: backups
           workspace: shared-backups
 

@@ -56,7 +56,7 @@ spec:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
       - name: MAS_CONFIG_DIR
-        value: /workspace/configs
+        value: /workspace/backups/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
 
@@ -87,10 +87,8 @@ spec:
         - suite_restore
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      workingDir: /workspace/configs
+      workingDir: /workspace/backups
 
   workspaces:
-    - name: configs
-      optional: true
     - name: backups
     - name: restore
