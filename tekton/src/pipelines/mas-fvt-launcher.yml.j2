@@ -491,8 +491,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-iot-before-monitor
-        - waitfor-iot-after-monitor
+        - launchfvt-iot
 
 
     # 4.5. Pre-flight Check - Verify Install Pipeline Status
@@ -772,7 +771,7 @@ spec:
       runAfter:
         - approval-manage
 
-    # When Monitor < 9.2.0 (installs after IoT), we wait for both approval-manage and approval-iot
+    # When Monitor < 9.2.0 (installs after IoT), we wait for Monitor installation after IoT
     - name: waitfor-monitor-after-iot
       timeout: "0"
       taskRef:
@@ -809,7 +808,7 @@ spec:
           values: ["after-iot"]
       runAfter:
         - approval-manage
-        - approval-iot
+        - waitfor-iot-before-monitor
 
     - name: launchfvt-monitor
       timeout: "0"
