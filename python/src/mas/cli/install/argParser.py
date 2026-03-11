@@ -422,6 +422,18 @@ mongoArgGroup.add_argument(
     help="Namespace for MongoDB Community Operator"
 )
 
+# Redis Configuration
+# -----------------------------------------------------------------------------
+redisArgGroup = installArgParser.add_argument_group(
+    "Redis",
+    "Configure the namespace for Redis deployment (required for Collaborate addon)."
+)
+redisArgGroup.add_argument(
+    "--redis-namespace",
+    required=False,
+    help="Namespace for Redis deployment (default: redis)"
+)
+
 # OCP Configuration
 # -----------------------------------------------------------------------------
 ocpArgGroup = installArgParser.add_argument_group(

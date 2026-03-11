@@ -846,7 +846,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.isSNO():
             self.setParam("mongodb_replicas", "1")
             self.setParam("mongodb_cpu_requests", "500m")
+            self.setParam("redis_replicas", "1")
             self.setParam("mas_app_settings_aio_flag", "false")
+        else:
+            # Multi-node cluster: use 3 replicas for Redis HA
+            self.setParam("redis_replicas", "3")
 
     @logMethodCall
     def configDNSAndCerts(self):
