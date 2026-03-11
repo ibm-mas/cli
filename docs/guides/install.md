@@ -312,8 +312,6 @@ How It Works
 -------------------------------------------------------------------------------
 The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in [ibm-mas/ansible-devops](https://github.com/ibm-mas/ansible-devops), the collection is also available to install directly from [Ansible Galaxy](https://galaxy.ansible.com/ibm/mas_devops), the install supports the following actions:
 
-<img style="float: right; max-width: 60%" class="hideOnSmallScreen" src="../img/pipeline.png">
-
 - IBM Maximo Operator Catalog installation
 - Required dependency installation:
     - MongoDb (Community Edition)
@@ -332,8 +330,6 @@ The engine that performs all tasks is written in Ansible, you can directly use t
     - Grafana
 - Suite core services installation
 - Suite application installation
-
-<div style="clear: right"></div>
 
 The installation is performed inside your RedHat OpenShift cluster utilizing [Openshift Pipelines](https://cloud.redhat.com/learn/topics/ci-cd)
 
