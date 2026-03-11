@@ -53,6 +53,7 @@ If your organization's policies require extended stability windows (e.g., 6–12
 ##### When to Use Static Versioning
 
 Use this approach if:
+
 - Your organization requires 6-12+ month stability windows between updates
 - You need guaranteed reproducibility for compliance, audit, or regulatory purposes
 - You have strict change control processes that prevent frequent updates
@@ -60,6 +61,7 @@ Use this approach if:
 - You have resources to manage and document version pinning
 
 Do NOT use this approach if:
+
 - You need the latest security patches and bug fixes
 - Your compliance requirements mandate current security updates
 - You lack resources to maintain detailed version documentation
@@ -94,7 +96,7 @@ done
 
 This will produce output similar to the following:
 
-```
+```plaintext
 registry.redhat.io/redhat/community-operator-index@sha256:7e2eca1a...
 registry.redhat.io/redhat/redhat-operator-index@sha256:17e179ef...
 registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
@@ -130,7 +132,7 @@ Create a comprehensive configuration document that includes:
 
 - **Date of pinning**: When the static configuration was implemented
 - **All four pinned versions**:
-  - OpenShift version (e.g., `4.16.3`)
+  - OpenShift version (e.g., `4.18.3`)
   - Red Hat catalog digests (all catalogs with full SHA256)
   - IBM MAS catalog version (e.g., `@@MAS_LATEST_CATALOG@@`)
   - MAS CLI version (e.g., `@@CLI_LATEST_VERSION@@`)
@@ -143,7 +145,7 @@ Store this documentation in your configuration management system and update it w
 
 ##### Important Security and Support Considerations
 
-**Security Exposure Timeline:**
+###### Security Exposure Timeline
 
 | Time Since Pinning | Risk Level | Recommended Action |
 |--------------------|------------|-------------------|
@@ -152,17 +154,20 @@ Store this documentation in your configuration management system and update it w
 | 6-12 months | High | Update strongly recommended |
 | 12+ months | Critical | Update immediately |
 
-**Security Implications:**
+###### Security Implications
+
 - Installing older versions of Maximo Application Suite, or not applying updates for extended periods of time means you are not receiving important security updates.
 - You must maintain your own security scanning and vulnerability monitoring processes.
 - Security patches and fixes released after your pinned versions will not be automatically applied.
 
-**IBM Support Implications:**
+###### IBM Support Implications
+
 - IBM Support may require you to reproduce issues on current versions.
 - IBM cannot accept liability for security incidents that occur in environments that do not have the latest updates.
 - Support for older versions may be limited depending on the age of the pinned components.
 
-**Compliance Considerations:**
+###### Compliance Considerations
+
 - Some compliance frameworks (e.g., PCI-DSS, HIPAA) require current security patches and may not permit extended use of outdated software.
 - Document your risk acceptance decision with your compliance and security teams.
 - Maintain evidence of security monitoring and compensating controls.
