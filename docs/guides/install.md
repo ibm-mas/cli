@@ -32,14 +32,18 @@ The other values can be left at their defaults.  Finally, click **Generate** and
     For more information about how to access the IBM License Key Center review the [getting started documentation](https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf) available from the IBM support website.
 
 ### OpenShift Cluster
-You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.openshift.com/container-platform/4.15/installing/index.html).
+The install is designed to work on any OCP cluster, but has been specifically tested in these environments:
 
-The CLI also supports OpenShift provisioning in many hyperscaler providers:
+- IBMCloud ROKS
+- Microsoft Azure
+- AWS ROSA
+- IBM DevIT FYRE (internal)
+
+You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.openshift.com/container-platform/4.15/installing/index.html).  The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
 - [AWS](../commands/provision-rosa.md)
 - [IBM Cloud](../commands/provision-roks.md)
 - [IBM DevIT FYRE (Internal)](../commands/provision-fyre.md)
-
 
 ### Operator Catalog Selection
 If you have not already determined the catalog version for your installation, refer to the information in the [Operator Catalog](../catalogs/index.md) topic, or contact IBM Support for guidance.
@@ -250,18 +254,65 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
     --accept-license --no-confirm
 ```
 
-More Information
+Best Practices for Maintaining Compatibility and Reproducibility
 -------------------------------------------------------------------------------
-The install is designed to work on any OCP cluster, but has been specifically tested in these environments:
+IBM Maximo Application Suite is designed to run on a continuously evolving OpenShift platform. Red Hat regularly updates its operator catalogs (including the Community Operators catalog that provides components such as Grafana), and these updates can sometimes introduce breaking changes. To ensure stable, reproducible installations, it is essential to align the versions of OpenShift, Red Hat operator catalogs, the IBM Maximo catalog, and the MAS CLI.
 
-- IBMCloud ROKS
-- Microsoft Azure
-- AWS ROSA
-- IBM DevIT FYRE (internal)
+### Understanding the Compatibility Challenge
+When newer Red Hat operator catalogs are used with older MAS releases, incompatibilities can occur. A common example is issues with Grafana (sourced from the Red Hat Community Operators catalog). The Maximo team delivers compatibility fixes and workarounds for these kinds of issues in it's updates; but these fixes can not be made available in older catalogs because they are immutable.
 
+!!! important
+    Customers who wish to maintain an older MAS version for an extended period must apply the same versioning discipline to the entire underlying platform. Mixing an older Maximo operator catalog with newer Red Hat operator catalogs is not supported and will lead to unexpected behavior.
+
+### Recommended Approaches
+You have two sustainable strategies:
+
+#### 1. Follow the regular-update path (strongly recommended)
+Keep OpenShift, Red Hat operator catalogs, the IBM Maximo catalog, and the MAS CLI relatively current. This ensures you automatically receive security updates and compatibility fixes delivered by IBM.
+
+#### 2. Long-term lock-down for strict reproducibility
+If your organization's policies require extended stability windows (e.g., 6–12 months without updates), you must lock **all** components at specific, immutable versions. This approach is supported but carries increased security exposure over time.
+
+### How to Create a Fully Reproducible, Locked-Down Installation
+To guarantee an identical installation months or years later, lock the following four elements:
+- A specific OpenShift Container Platform version (e.g., `4.16.3`)
+- Specific digests of all Red Hat operator catalogs (including Community Operators)
+- A specific IBM Maximo catalog version (e.g., `v9-20251015-amd64`)
+- The exact MAS CLI version use to perform the installation
+
+#### Step-by-step guidance
+1. On successful deployment, note the exact Red Hat catalog images in use (they appear in the `CatalogSource` resources in the `openshift-marketplace` namespace).
+2. Update each `CatalogSource` to reference the catalog by **digest** (SHA256) instead of a tag, and remove the automatic polling interval.
+   **Example – auto-updating catalog (not recommended for lock-down):**
+   ```yaml
+   spec:
+     image: registry.redhat.io/redhat/community-operator-index:v4.18
+     updateStrategy:
+       registryPoll:
+         interval: 10m
+   ```
+   **Example – locked catalog (recommended for long-term stability):**
+   ```yaml
+   spec:
+     image: registry.redhat.io/redhat/community-operator-index@sha256:xxxxxxxx
+     # updateStrategy section removed – no automatic polling
+   ```
+3. Mirror the locked Red Hat catalogs' content locally to ensure future availability.
+4. Document the exact OpenShift version, MAS CLI version, and IBM catalog version alongside the catalog digests.
+
+With all four elements pinned, you can recreate an identical environment at any time.
+
+### Important Security and Support Considerations
+- Version locking operator and operand content means you are not receiving important security updates.
+- IBM cannot accept liability for security incidents that occur in environments that have been deliberately kept static for extended periods.
+- If you choose the lock-down model, you accept full responsibility for the security posture of your environment.
+
+
+How It Works
+-------------------------------------------------------------------------------
 The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in [ibm-mas/ansible-devops](https://github.com/ibm-mas/ansible-devops), the collection is also available to install directly from [Ansible Galaxy](https://galaxy.ansible.com/ibm/mas_devops), the install supports the following actions:
 
-<img style="float: right; max-width: 60%" class="hideOnSmallScreen" src="../../img/pipeline.png">
+<img style="float: right; max-width: 60%" class="hideOnSmallScreen" src="../img/pipeline.png">
 
 - IBM Maximo Operator Catalog installation
 - Required dependency installation:
@@ -271,11 +322,12 @@ The engine that performs all tasks is written in Ansible, you can directly use t
     - Red Hat Certificate Manager
 - Optional dependency installation:
     - Apache Kafka
+    - IBM Maximo AI Service
     - IBM Db2
     - IBM Cloud Pak for Data Platform and Services
-        - [Watson Studio Local](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-studio)
-        - [Watson Machine Learning](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning)
-        - [Analytics Engine (Apache Spark)](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark)
+        - Watson Studio Local
+        - Watson Machine Learning
+        - Analytics Engine (Apache Spark)
         - Cognos Analytics
     - Grafana
 - Suite core services installation
