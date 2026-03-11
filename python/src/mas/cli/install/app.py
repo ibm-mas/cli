@@ -1627,6 +1627,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.setParam(key, value)
                     self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
+            # Redis
+            elif key == "redis_namespace":
+                if value is not None and value != "":
+                    self.setParam(key, value)
+                    self.setParam("redis_cfg_file", f"/workspace/configs/redis-{value}.yml")
+
 
             # SLS
             elif key == "license_file":
