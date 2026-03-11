@@ -374,6 +374,12 @@ class InstallSummarizerMixin():
             self.printSummary("Type", "BYO (mongodb-system.yaml)")
         else:
             self.fatalError(f"Unexpected value for mongodb_action parameter: {self.getParam('mongodb_action')}")
+    def redisSummary(self) -> None:
+        if self.getParam("redis_action") == "install":
+            self.printH2("Redis")
+            self.printSummary("Type", "Redis with Sentinel HA")
+            self.printParamSummary("Install Namespace", "redis_namespace")
+
 
     def kafkaSummary(self) -> None:
         if self.getParam("kafka_action_system") != "":
@@ -445,6 +451,7 @@ class InstallSummarizerMixin():
 
         # Application Dependencies
         self.mongoSummary()
+        self.redisSummary()
         self.db2Summary()
         self.cosSummary()
         self.kafkaSummary()

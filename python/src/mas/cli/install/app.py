@@ -1631,6 +1631,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "redis_namespace":
                 if value is not None and value != "":
                     self.setParam(key, value)
+                    self.setParam("redis_action", "install")
                     self.setParam("redis_cfg_file", f"/workspace/configs/redis-{value}.yml")
 
             # SLS
