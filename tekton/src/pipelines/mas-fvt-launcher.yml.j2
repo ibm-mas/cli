@@ -440,17 +440,18 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        # Wait for IoT when:
-        # 1. We are running IoT FVT with Monitor before-iot install order, OR
-        # 2. We are running Monitor FVT with before-iot install order (Monitor tests depend on IoT)
-        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)$(params.mas_monitor_install_order)"
+        # Wait for IoT when we are running IoT FVT with Monitor before-iot install order
+        - input: $(params.launchfvt_iot)
           operator: in
-          values: ["truebefore-iot", "Truebefore-iot", "truetruebefore-iot", "TrueTruebefore-iot", "falsetruebefore-iot", "FalseTruebefore-iot"]
+          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+        - input: $(params.mas_monitor_install_order)
+          operator: in
+          values: ["before-iot"]
       runAfter:
-        - waitfor-monitor-before-iot
+        - approval-monitor
 
     - name: launchfvt-iot
       timeout: "0"
@@ -469,8 +470,6 @@ spec:
       runAfter:
         - waitfor-iot-before-monitor
         - waitfor-iot-after-monitor
-        - waitfor-monitor-before-iot
-        - waitfor-monitor-after-iot
 
     - name: approval-iot
       timeout: "0"
@@ -792,8 +791,6 @@ spec:
       runAfter:
         - waitfor-monitor-before-iot
         - waitfor-monitor-after-iot
-        - waitfor-iot-before-monitor
-        - waitfor-iot-after-monitor
 
     - name: approval-monitor
       timeout: "0"
