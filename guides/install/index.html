@@ -2645,7 +2645,6 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
 </ul>
 <h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">¶</a></h2>
 <p>The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in <a href="https://github.com/ibm-mas/ansible-devops">ibm-mas/ansible-devops</a>, the collection is also available to install directly from <a href="https://galaxy.ansible.com/ibm/mas_devops">Ansible Galaxy</a>, the install supports the following actions:</p>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../img/pipeline.png" data-desc-position="bottom"><img style="float: right; max-width: 60%" class="hideOnSmallScreen" src="../img/pipeline.png"></a></p>
 <ul>
 <li>IBM Maximo Operator Catalog installation</li>
 <li>Required dependency installation:<ul>
@@ -2672,8 +2671,6 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
 <li>Suite core services installation</li>
 <li>Suite application installation</li>
 </ul>
-<div style="clear: right"></div>
-
 <p>The installation is performed inside your RedHat OpenShift cluster utilizing <a href="https://cloud.redhat.com/learn/topics/ci-cd">Openshift Pipelines</a></p>
 <blockquote>
 <p>OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.</p>
