@@ -348,8 +348,6 @@
     
       <cds-select-item value="#non-interactive-install">Non-Interactive Install</cds-select-item>
     
-      <cds-select-item value="#best-practices-for-maintaining-compatibility-and-reproducibility">Best Practices for Maintaining Compatibility and Reproducibility</cds-select-item>
-    
       <cds-select-item value="#how-it-works">How It Works</cds-select-item>
     
     </cds-select>
@@ -2371,20 +2369,165 @@
 <p class="admonition-title">Note</p>
 <p>For more information about how to access the IBM License Key Center review the <a href="https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf">getting started documentation</a> available from the IBM support website.</p>
 </div>
-<h3 id="openshift-cluster">OpenShift Cluster<a class="headerlink" href="#openshift-cluster" title="Permanent link">¶</a></h3>
-<p>The install is designed to work on any OCP cluster, but has been specifically tested in these environments:</p>
-<ul>
-<li>IBMCloud ROKS</li>
-<li>Microsoft Azure</li>
-<li>AWS ROSA</li>
-<li>IBM DevIT FYRE (internal)</li>
-</ul>
-<p>You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the <a href="https://docs.openshift.com/container-platform/4.15/installing/index.html">OpenShift Container Platform installation overview</a>.  The CLI also supports OpenShift provisioning in many hyperscaler providers:</p>
+<h3 id="openshift-container-platform">OpenShift Container Platform<a class="headerlink" href="#openshift-container-platform" title="Permanent link">¶</a></h3>
+<p>You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the <a href="https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index">OpenShift Container Platform installation overview</a>.  The CLI also supports OpenShift provisioning in many hyperscaler providers:</p>
 <ul>
 <li><a href="../../commands/provision-rosa/">AWS</a></li>
 <li><a href="../../commands/provision-roks/">IBM Cloud</a></li>
 <li><a href="../../commands/provision-fyre/">IBM DevIT FYRE (Internal)</a></li>
 </ul>
+<p>IBM Maximo Application Suite is designed to run on a continuously evolving OpenShift platform. Red Hat regularly updates its operator catalogs (including the Community Operators catalog that provides components such as Grafana), and these updates can sometimes introduce breaking changes. To ensure stable, reproducible installations, it is essential to align the versions of OpenShift, Red Hat operator catalogs, the IBM Maximo operator catalog, and the MAS CLI.</p>
+<h4 id="supporting-older-versions-of-mas">Supporting Older Versions of MAS<a class="headerlink" href="#supporting-older-versions-of-mas" title="Permanent link">¶</a></h4>
+<p>When newer Red Hat operator catalogs are used with older MAS versions, incompatibilities can occur. A common example is issues with Grafana (sourced from the Red Hat Community Operators catalog). The Maximo team deliver compatibility fixes and workarounds for these kinds of issues in the monthly updates; but these fixes can not be made available in older catalogs because they are immutable.</p>
+<h5 id="understanding-the-challenge-an-analogy">Understanding the Challenge: An Analogy<a class="headerlink" href="#understanding-the-challenge-an-analogy" title="Permanent link">¶</a></h5>
+<p>If you want to freeze the version of the apps you are running on your mobile device you would also turn off auto-updates for the operating system. You would not expect year-old versions of those apps to function with modern versions of the operating system. With Red Hat OpenShift and Maximo Application Suite it is the same.</p>
+<p>Customers who wish to maintain an older MAS version for an extended period must apply the same versioning discipline to the entire underlying platform. Mixing an older Maximo operator catalog with newer Red Hat operator catalogs is not supported and will lead to unexpected behavior.</p>
+<p>If your organization's policies require extended stability windows (e.g., 6–12 months without updates), you must lock <strong>all</strong> components at specific, immutable versions. This approach is supported but carries increased security exposure over time.</p>
+<h5 id="when-to-use-static-versioning">When to Use Static Versioning<a class="headerlink" href="#when-to-use-static-versioning" title="Permanent link">¶</a></h5>
+<p>Use this approach if:
+- Your organization requires 6-12+ month stability windows between updates
+- You need guaranteed reproducibility for compliance, audit, or regulatory purposes
+- You have strict change control processes that prevent frequent updates
+- You can accept delayed security updates and increased security risk over time
+- You have resources to manage and document version pinning</p>
+<p>Do NOT use this approach if:
+- You need the latest security patches and bug fixes
+- Your compliance requirements mandate current security updates
+- You lack resources to maintain detailed version documentation
+- You cannot accept increased security exposure</p>
+<h5 id="creating-a-fully-reproducible-static-installation">Creating a Fully Reproducible, Static Installation<a class="headerlink" href="#creating-a-fully-reproducible-static-installation" title="Permanent link">¶</a></h5>
+<p>To guarantee an identical installation months or years later, you must lock all four of the following elements:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Example</th>
+<th>How to Pin</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenShift Version</strong></td>
+<td><code>4.18.3</code></td>
+<td>Disable cluster auto-updates</td>
+<td>Specific patch version required</td>
+</tr>
+<tr>
+<td><strong>Red Hat Catalogs</strong></td>
+<td><code>sha256:xxxxx</code></td>
+<td>Use digest in CatalogSource</td>
+<td>Must pin all Red Hat catalogs</td>
+</tr>
+<tr>
+<td><strong>IBM MAS Catalog</strong></td>
+<td><code>v9-260305-amd64</code></td>
+<td>Specify exact catalog version</td>
+<td>Use immutable catalog version</td>
+</tr>
+<tr>
+<td><strong>MAS CLI Version</strong></td>
+<td><code>18.20.1</code></td>
+<td>Use specific image tag</td>
+<td>Document exact version used</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Critical Requirement</p>
+<p>All four elements must be pinned together. Pinning only some components creates an unstable, unsupported configuration. If any one element is allowed to vary, you do not have a static, reproducible environment.</p>
+</div>
+<h5 id="step-by-step-guidance">Step-by-Step Guidance<a class="headerlink" href="#step-by-step-guidance" title="Permanent link">¶</a></h5>
+<h6 id="step-1-extract-catalog-digests">Step 1: Extract Catalog Digests<a class="headerlink" href="#step-1-extract-catalog-digests" title="Permanent link">¶</a></h6>
+<p>For each Red Hat CatalogSource you want to pin, retrieve the current digest:</p>
+<pre><code class="language-bash">for CATALOG_NAME in "community-operators" "redhat-operators" "certified-operators"; do
+  oc get pods -n openshift-marketplace -l olm.catalogSource=${CATALOG_NAME} \
+    -o jsonpath='{.items[0].status.containerStatuses[0].imageID}' &amp;&amp; echo
+done
+</code></pre>
+<p>This will produce output similar to the following:</p>
+<pre><code>registry.redhat.io/redhat/community-operator-index@sha256:7e2eca1a...
+registry.redhat.io/redhat/redhat-operator-index@sha256:17e179ef...
+registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
+</code></pre>
+<h6 id="step-2-update-catalogsource-resources">Step 2: Update CatalogSource Resources<a class="headerlink" href="#step-2-update-catalogsource-resources" title="Permanent link">¶</a></h6>
+<p>For each CatalogSource, update the resource to use the digest and remove automatic polling.</p>
+<p><strong>Before (Dynamic):</strong></p>
+<pre><code class="language-yaml">spec:
+  image: registry.redhat.io/redhat/community-operator-index:v4.18
+  updateStrategy:
+    registryPoll:
+      interval: 10m
+</code></pre>
+<p><strong>After (Static):</strong></p>
+<pre><code class="language-yaml">spec:
+  image: registry.redhat.io/redhat/community-operator-index@sha256:xxxxxxxx
+  # updateStrategy section completely removed – no automatic polling
+</code></pre>
+<p>You can update the CatalogSource using:</p>
+<pre><code class="language-bash">oc edit catalogsource community-operators -n openshift-marketplace
+</code></pre>
+<h6 id="step-3-document-your-configuration">Step 3: Document Your Configuration<a class="headerlink" href="#step-3-document-your-configuration" title="Permanent link">¶</a></h6>
+<p>Create a comprehensive configuration document that includes:</p>
+<ul>
+<li><strong>Date of pinning</strong>: When the static configuration was implemented</li>
+<li><strong>All four pinned versions</strong>:</li>
+<li>OpenShift version (e.g., <code>4.16.3</code>)</li>
+<li>Red Hat catalog digests (all catalogs with full SHA256)</li>
+<li>IBM MAS catalog version (e.g., <code>v9-260305-amd64</code>)</li>
+<li>MAS CLI version (e.g., <code>18.20.1</code>)</li>
+<li><strong>Reason for pinning</strong>: Business justification and requirements</li>
+<li><strong>Planned review date</strong>: When the configuration will be reviewed for updates</li>
+<li><strong>Responsible contact</strong>: Person or team responsible for maintenance</li>
+<li><strong>Exact installation command</strong>: The complete <code>mas install</code> command used</li>
+</ul>
+<p>Store this documentation in your configuration management system and update it whenever changes are made.</p>
+<h5 id="important-security-and-support-considerations">Important Security and Support Considerations<a class="headerlink" href="#important-security-and-support-considerations" title="Permanent link">¶</a></h5>
+<p><strong>Security Exposure Timeline:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Time Since Pinning</th>
+<th>Risk Level</th>
+<th>Recommended Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0-3 months</td>
+<td>Low</td>
+<td>Monitor security advisories</td>
+</tr>
+<tr>
+<td>3-6 months</td>
+<td>Medium</td>
+<td>Plan update window</td>
+</tr>
+<tr>
+<td>6-12 months</td>
+<td>High</td>
+<td>Update strongly recommended</td>
+</tr>
+<tr>
+<td>12+ months</td>
+<td>Critical</td>
+<td>Update immediately</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Security Implications:</strong>
+- Installing older versions of Maximo Application Suite, or not applying updates for extended periods of time means you are not receiving important security updates.
+- You must maintain your own security scanning and vulnerability monitoring processes.
+- Security patches and fixes released after your pinned versions will not be automatically applied.</p>
+<p><strong>IBM Support Implications:</strong>
+- IBM Support may require you to reproduce issues on current versions.
+- IBM cannot accept liability for security incidents that occur in environments that do not have the latest updates.
+- Support for older versions may be limited depending on the age of the pinned components.</p>
+<p><strong>Compliance Considerations:</strong>
+- Some compliance frameworks (e.g., PCI-DSS, HIPAA) require current security patches and may not permit extended use of outdated software.
+- Document your risk acceptance decision with your compliance and security teams.
+- Maintain evidence of security monitoring and compensating controls.
+- If you choose to adopt low-frequency updates, you accept full responsibility for the security posture of your environment.</p>
 <h3 id="operator-catalog-selection">Operator Catalog Selection<a class="headerlink" href="#operator-catalog-selection" title="Permanent link">¶</a></h3>
 <p>If you have not already determined the catalog version for your installation, refer to the information in the <a href="../../catalogs/">Operator Catalog</a> topic, or contact IBM Support for guidance.</p>
 <h2 id="disconnected-install-preparation">Disconnected Install Preparation<a class="headerlink" href="#disconnected-install-preparation" title="Permanent link">¶</a></h2>
@@ -2597,52 +2740,6 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
     \
     --accept-license --no-confirm
 </code></pre>
-<h2 id="best-practices-for-maintaining-compatibility-and-reproducibility">Best Practices for Maintaining Compatibility and Reproducibility<a class="headerlink" href="#best-practices-for-maintaining-compatibility-and-reproducibility" title="Permanent link">¶</a></h2>
-<p>IBM Maximo Application Suite is designed to run on a continuously evolving OpenShift platform. Red Hat regularly updates its operator catalogs (including the Community Operators catalog that provides components such as Grafana), and these updates can sometimes introduce breaking changes. To ensure stable, reproducible installations, it is essential to align the versions of OpenShift, Red Hat operator catalogs, the IBM Maximo catalog, and the MAS CLI.</p>
-<h3 id="understanding-the-compatibility-challenge">Understanding the Compatibility Challenge<a class="headerlink" href="#understanding-the-compatibility-challenge" title="Permanent link">¶</a></h3>
-<p>When newer Red Hat operator catalogs are used with older MAS releases, incompatibilities can occur. A common example is issues with Grafana (sourced from the Red Hat Community Operators catalog). The Maximo team delivers compatibility fixes and workarounds for these kinds of issues in it's updates; but these fixes can not be made available in older catalogs because they are immutable.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>Customers who wish to maintain an older MAS version for an extended period must apply the same versioning discipline to the entire underlying platform. Mixing an older Maximo operator catalog with newer Red Hat operator catalogs is not supported and will lead to unexpected behavior.</p>
-</div>
-<h3 id="recommended-approaches">Recommended Approaches<a class="headerlink" href="#recommended-approaches" title="Permanent link">¶</a></h3>
-<p>You have two sustainable strategies:</p>
-<h4 id="1-follow-the-regular-update-path-strongly-recommended">1. Follow the regular-update path (strongly recommended)<a class="headerlink" href="#1-follow-the-regular-update-path-strongly-recommended" title="Permanent link">¶</a></h4>
-<p>Keep OpenShift, Red Hat operator catalogs, the IBM Maximo catalog, and the MAS CLI relatively current. This ensures you automatically receive security updates and compatibility fixes delivered by IBM.</p>
-<h4 id="2-long-term-lock-down-for-strict-reproducibility">2. Long-term lock-down for strict reproducibility<a class="headerlink" href="#2-long-term-lock-down-for-strict-reproducibility" title="Permanent link">¶</a></h4>
-<p>If your organization's policies require extended stability windows (e.g., 6–12 months without updates), you must lock <strong>all</strong> components at specific, immutable versions. This approach is supported but carries increased security exposure over time.</p>
-<h3 id="how-to-create-a-fully-reproducible-locked-down-installation">How to Create a Fully Reproducible, Locked-Down Installation<a class="headerlink" href="#how-to-create-a-fully-reproducible-locked-down-installation" title="Permanent link">¶</a></h3>
-<p>To guarantee an identical installation months or years later, lock the following four elements:
-- A specific OpenShift Container Platform version (e.g., <code>4.16.3</code>)
-- Specific digests of all Red Hat operator catalogs (including Community Operators)
-- A specific IBM Maximo catalog version (e.g., <code>v9-20251015-amd64</code>)
-- The exact MAS CLI version use to perform the installation</p>
-<h4 id="step-by-step-guidance">Step-by-step guidance<a class="headerlink" href="#step-by-step-guidance" title="Permanent link">¶</a></h4>
-<ol>
-<li>On successful deployment, note the exact Red Hat catalog images in use (they appear in the <code>CatalogSource</code> resources in the <code>openshift-marketplace</code> namespace).</li>
-<li>Update each <code>CatalogSource</code> to reference the catalog by <strong>digest</strong> (SHA256) instead of a tag, and remove the automatic polling interval.
-   <strong>Example – auto-updating catalog (not recommended for lock-down):</strong>
-   <code>yaml
-   spec:
-     image: registry.redhat.io/redhat/community-operator-index:v4.18
-     updateStrategy:
-       registryPoll:
-         interval: 10m</code>
-   <strong>Example – locked catalog (recommended for long-term stability):</strong>
-   <code>yaml
-   spec:
-     image: registry.redhat.io/redhat/community-operator-index@sha256:xxxxxxxx
-     # updateStrategy section removed – no automatic polling</code></li>
-<li>Mirror the locked Red Hat catalogs' content locally to ensure future availability.</li>
-<li>Document the exact OpenShift version, MAS CLI version, and IBM catalog version alongside the catalog digests.</li>
-</ol>
-<p>With all four elements pinned, you can recreate an identical environment at any time.</p>
-<h3 id="important-security-and-support-considerations">Important Security and Support Considerations<a class="headerlink" href="#important-security-and-support-considerations" title="Permanent link">¶</a></h3>
-<ul>
-<li>Version locking operator and operand content means you are not receiving important security updates.</li>
-<li>IBM cannot accept liability for security incidents that occur in environments that have been deliberately kept static for extended periods.</li>
-<li>If you choose the lock-down model, you accept full responsibility for the security posture of your environment.</li>
-</ul>
 <h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">¶</a></h2>
 <p>The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in <a href="https://github.com/ibm-mas/ansible-devops">ibm-mas/ansible-devops</a>, the collection is also available to install directly from <a href="https://galaxy.ansible.com/ibm/mas_devops">Ansible Galaxy</a>, the install supports the following actions:</p>
 <ul>
@@ -2899,8 +2996,8 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
                         </a>
                       </li>
                       <li class="md-toc__item">
-                        <a href="#openshift-cluster" class="md-toc__link" data-md-level="2">
-                          OpenShift Cluster
+                        <a href="#openshift-container-platform" class="md-toc__link" data-md-level="2">
+                          OpenShift Container Platform
                         </a>
                       </li>
                       <li class="md-toc__item">
@@ -2941,33 +3038,6 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
                 <a href="#non-interactive-install" class="md-toc__link" data-md-level="1">
                   Non-Interactive Install
                 </a>
-              </li>
-              <li class="md-toc__item">
-                <a href="#best-practices-for-maintaining-compatibility-and-reproducibility" class="md-toc__link" data-md-level="1">
-                  Best Practices for Maintaining Compatibility and Reproducibility
-                </a>
-                  <ul class="md-toc__list">
-                      <li class="md-toc__item">
-                        <a href="#understanding-the-compatibility-challenge" class="md-toc__link" data-md-level="2">
-                          Understanding the Compatibility Challenge
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
-                        <a href="#recommended-approaches" class="md-toc__link" data-md-level="2">
-                          Recommended Approaches
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
-                        <a href="#how-to-create-a-fully-reproducible-locked-down-installation" class="md-toc__link" data-md-level="2">
-                          How to Create a Fully Reproducible, Locked-Down Installation
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
-                        <a href="#important-security-and-support-considerations" class="md-toc__link" data-md-level="2">
-                          Important Security and Support Considerations
-                        </a>
-                      </li>
-                  </ul>
               </li>
               <li class="md-toc__item">
                 <a href="#how-it-works" class="md-toc__link" data-md-level="1">
