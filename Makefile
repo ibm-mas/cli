@@ -50,3 +50,7 @@ exec:
 detect-secrets:
 	detect-secrets scan --update .secrets.baseline
 	detect-secrets audit .secrets.baseline
+
+.PHONY: mkdocs-serve
+mkdocs-serve:
+	. .venv-docs/bin/activate && mkdocs serve --livereload --dev-addr localhost:9010
