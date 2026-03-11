@@ -1633,7 +1633,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam(key, value)
                     self.setParam("redis_cfg_file", f"/workspace/configs/redis-{value}.yml")
 
-
             # SLS
             elif key == "license_file":
                 if value is not None and value != "":
