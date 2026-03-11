@@ -678,11 +678,11 @@ spec:
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        # 25 retries at 5 minute intervals = 4 hours
+        # 50 retries at 5 minute intervals = 4.17 hours
         - name: delay
           value: "300"
         - name: max_retries
-          value: "25"
+          value: "50"
         - name: ignore_failure
           value: "False"
       when:
@@ -693,7 +693,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - approval-manage
+        - approval-suite-verify
 
     - name: launchfvt-monitor
       timeout: "0"
