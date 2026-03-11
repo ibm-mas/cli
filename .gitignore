@@ -64,3 +64,4 @@ python/README.rst
 rbac-install.yaml
 
 .venv
+/.bob/notes
