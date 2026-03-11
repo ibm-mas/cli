@@ -2384,17 +2384,21 @@
 <p>Customers who wish to maintain an older MAS version for an extended period must apply the same versioning discipline to the entire underlying platform. Mixing an older Maximo operator catalog with newer Red Hat operator catalogs is not supported and will lead to unexpected behavior.</p>
 <p>If your organization's policies require extended stability windows (e.g., 6–12 months without updates), you must lock <strong>all</strong> components at specific, immutable versions. This approach is supported but carries increased security exposure over time.</p>
 <h5 id="when-to-use-static-versioning">When to Use Static Versioning<a class="headerlink" href="#when-to-use-static-versioning" title="Permanent link">¶</a></h5>
-<p>Use this approach if:
-- Your organization requires 6-12+ month stability windows between updates
-- You need guaranteed reproducibility for compliance, audit, or regulatory purposes
-- You have strict change control processes that prevent frequent updates
-- You can accept delayed security updates and increased security risk over time
-- You have resources to manage and document version pinning</p>
-<p>Do NOT use this approach if:
-- You need the latest security patches and bug fixes
-- Your compliance requirements mandate current security updates
-- You lack resources to maintain detailed version documentation
-- You cannot accept increased security exposure</p>
+<p>Use this approach if:</p>
+<ul>
+<li>Your organization requires 6-12+ month stability windows between updates</li>
+<li>You need guaranteed reproducibility for compliance, audit, or regulatory purposes</li>
+<li>You have strict change control processes that prevent frequent updates</li>
+<li>You can accept delayed security updates and increased security risk over time</li>
+<li>You have resources to manage and document version pinning</li>
+</ul>
+<p>Do NOT use this approach if:</p>
+<ul>
+<li>You need the latest security patches and bug fixes</li>
+<li>Your compliance requirements mandate current security updates</li>
+<li>You lack resources to maintain detailed version documentation</li>
+<li>You cannot accept increased security exposure</li>
+</ul>
 <h5 id="creating-a-fully-reproducible-static-installation">Creating a Fully Reproducible, Static Installation<a class="headerlink" href="#creating-a-fully-reproducible-static-installation" title="Permanent link">¶</a></h5>
 <p>To guarantee an identical installation months or years later, you must lock all four of the following elements:</p>
 <table>
@@ -2446,7 +2450,7 @@
 done
 </code></pre>
 <p>This will produce output similar to the following:</p>
-<pre><code>registry.redhat.io/redhat/community-operator-index@sha256:7e2eca1a...
+<pre><code class="language-plaintext">registry.redhat.io/redhat/community-operator-index@sha256:7e2eca1a...
 registry.redhat.io/redhat/redhat-operator-index@sha256:17e179ef...
 registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 </code></pre>
@@ -2472,7 +2476,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <ul>
 <li><strong>Date of pinning</strong>: When the static configuration was implemented</li>
 <li><strong>All four pinned versions</strong>:</li>
-<li>OpenShift version (e.g., <code>4.16.3</code>)</li>
+<li>OpenShift version (e.g., <code>4.18.3</code>)</li>
 <li>Red Hat catalog digests (all catalogs with full SHA256)</li>
 <li>IBM MAS catalog version (e.g., <code>v9-260305-amd64</code>)</li>
 <li>MAS CLI version (e.g., <code>18.20.1</code>)</li>
@@ -2483,7 +2487,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 </ul>
 <p>Store this documentation in your configuration management system and update it whenever changes are made.</p>
 <h5 id="important-security-and-support-considerations">Important Security and Support Considerations<a class="headerlink" href="#important-security-and-support-considerations" title="Permanent link">¶</a></h5>
-<p><strong>Security Exposure Timeline:</strong></p>
+<h6 id="security-exposure-timeline">Security Exposure Timeline<a class="headerlink" href="#security-exposure-timeline" title="Permanent link">¶</a></h6>
 <table>
 <thead>
 <tr>
@@ -2515,19 +2519,25 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 </tr>
 </tbody>
 </table>
-<p><strong>Security Implications:</strong>
-- Installing older versions of Maximo Application Suite, or not applying updates for extended periods of time means you are not receiving important security updates.
-- You must maintain your own security scanning and vulnerability monitoring processes.
-- Security patches and fixes released after your pinned versions will not be automatically applied.</p>
-<p><strong>IBM Support Implications:</strong>
-- IBM Support may require you to reproduce issues on current versions.
-- IBM cannot accept liability for security incidents that occur in environments that do not have the latest updates.
-- Support for older versions may be limited depending on the age of the pinned components.</p>
-<p><strong>Compliance Considerations:</strong>
-- Some compliance frameworks (e.g., PCI-DSS, HIPAA) require current security patches and may not permit extended use of outdated software.
-- Document your risk acceptance decision with your compliance and security teams.
-- Maintain evidence of security monitoring and compensating controls.
-- If you choose to adopt low-frequency updates, you accept full responsibility for the security posture of your environment.</p>
+<h6 id="security-implications">Security Implications<a class="headerlink" href="#security-implications" title="Permanent link">¶</a></h6>
+<ul>
+<li>Installing older versions of Maximo Application Suite, or not applying updates for extended periods of time means you are not receiving important security updates.</li>
+<li>You must maintain your own security scanning and vulnerability monitoring processes.</li>
+<li>Security patches and fixes released after your pinned versions will not be automatically applied.</li>
+</ul>
+<h6 id="ibm-support-implications">IBM Support Implications<a class="headerlink" href="#ibm-support-implications" title="Permanent link">¶</a></h6>
+<ul>
+<li>IBM Support may require you to reproduce issues on current versions.</li>
+<li>IBM cannot accept liability for security incidents that occur in environments that do not have the latest updates.</li>
+<li>Support for older versions may be limited depending on the age of the pinned components.</li>
+</ul>
+<h6 id="compliance-considerations">Compliance Considerations<a class="headerlink" href="#compliance-considerations" title="Permanent link">¶</a></h6>
+<ul>
+<li>Some compliance frameworks (e.g., PCI-DSS, HIPAA) require current security patches and may not permit extended use of outdated software.</li>
+<li>Document your risk acceptance decision with your compliance and security teams.</li>
+<li>Maintain evidence of security monitoring and compensating controls.</li>
+<li>If you choose to adopt low-frequency updates, you accept full responsibility for the security posture of your environment.</li>
+</ul>
 <h3 id="operator-catalog-selection">Operator Catalog Selection<a class="headerlink" href="#operator-catalog-selection" title="Permanent link">¶</a></h3>
 <p>If you have not already determined the catalog version for your installation, refer to the information in the <a href="../../catalogs/">Operator Catalog</a> topic, or contact IBM Support for guidance.</p>
 <h2 id="disconnected-install-preparation">Disconnected Install Preparation<a class="headerlink" href="#disconnected-install-preparation" title="Permanent link">¶</a></h2>
