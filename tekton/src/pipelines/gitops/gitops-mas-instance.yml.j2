@@ -74,6 +74,12 @@ spec:
     - name: dro_ca_certificate_file
       type: string
       default: ""
+    - name: dro_api_token
+      type: string
+      default: ""
+    - name: dro_url
+      type: string
+      default: ""
 
     - name: smtp_host
       type: string
@@ -522,6 +528,10 @@ spec:
           value: $(params.dro_contact_lastname)
         - name: dro_ca_certificate_file
           value: $(params.dro_ca_certificate_file)
+        - name: dro_api_token
+          value: $(params.dro_api_token)
+        - name: dro_url
+          value: $(params.dro_url)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: mas_bascfg_pod_template_yaml
