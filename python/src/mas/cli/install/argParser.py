@@ -24,6 +24,7 @@ UPGRADE_TYPES = ["regularUpgrade", "onlineUpgrade"]
 ATTACHMENT_PROVIDERS = ["filestorage", "ibm", "aws"]
 ATTACHMENT_MODES = ["cr", "db"]
 FACILITIES_SIZES = ["small", "medium", "large"]
+FACILITIES_APPOMUPGRADEMODE = ["manual", "load-only", "automatic"]
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
 
 
@@ -739,6 +740,14 @@ manageArgGroup.add_argument(
 facilitiesArgGroup = installArgParser.add_argument_group(
     "Advanced Settings - Facilities",
     "Advanced configuration for Maximo Real Estate and Facilities including deployment size, image pull policy, routes timeout, Liberty extensions, vault secrets, workflow agents, connection pool size, and storage settings."
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-app-om-upgrade-mode",
+    dest="mas_ws_facilities_app_om_upgrade_mode",
+    required=False,
+    help="Sets the Application Object Migration Mode",
+    choices=FACILITIES_APPOMUPGRADEMODE,
+    metavar="{manual,load-only,automatic}"
 )
 facilitiesArgGroup.add_argument(
     "--facilities-size",
