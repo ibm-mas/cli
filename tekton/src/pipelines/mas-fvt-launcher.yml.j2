@@ -488,7 +488,8 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - launchfvt-iot
+        - waitfor-iot-before-monitor
+        - waitfor-iot-after-monitor
 
 
     # 5. Application FVT - Manage
@@ -809,7 +810,8 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - launchfvt-monitor
+        - waitfor-monitor-before-iot
+        - waitfor-monitor-after-iot
 
 
     # 8. Application FVT - Optimizer
