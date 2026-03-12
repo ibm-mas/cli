@@ -388,30 +388,33 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # We are not supporting Grafana on s390x /ppc64le at the moment
             self.setParam("grafana_action", "none")
         else:
-            try:
-                # Check if dynamicClient is available and resources.get() returns a valid API
-                if self.dynamicClient is None:
-                    self.setParam("grafana_action", "none")
-                else:
-                    packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
-                    if packagemanifestAPI is None:
+            if self.isInteractiveMode and not self.yesOrNo("Install Grafana"):
+                self.setParam("grafana_action", "none")
+            else:
+                try:
+                    # Check if dynamicClient is available and resources.get() returns a valid API
+                    if self.dynamicClient is None:
                         self.setParam("grafana_action", "none")
                     else:
-                        packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
-                        if self.skipGrafanaInstall:
+                        packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
+                        if packagemanifestAPI is None:
                             self.setParam("grafana_action", "none")
                         else:
-                            self.setParam("grafana_action", "install")
-            except NotFoundError:
-                self.setParam("grafana_action", "none")
+                            packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
+                            if self.skipGrafanaInstall:
+                                self.setParam("grafana_action", "none")
+                            else:
+                                self.setParam("grafana_action", "install")
+                except NotFoundError:
+                    self.setParam("grafana_action", "none")
 
-            if self.isInteractiveMode and self.showAdvancedOptions:
-                self.printH1("Configure Grafana")
-                if self.getParam("grafana_action") == "none":
-                    print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
-                else:
-                    self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
-                    self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
+                if self.isInteractiveMode and self.showAdvancedOptions:
+                    self.printH1("Configure Grafana")
+                    if self.getParam("grafana_action") == "none":
+                        print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
+                    else:
+                        self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
+                        self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
 
     @logMethodCall
     def arcgisSettings(self) -> None:
@@ -1158,6 +1161,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.printDescription([
                     "Advanced configurations for Real Estate and Facilities are added through an additional file called facilities-configs.yaml"
                 ])
+                self.printDescription([
+                    "Application Object Migration:",
+                    "Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades",
+                    "  1. Manual",
+                    "  2. Load Only",
+                    "  3. Automatic (Load and Import)"
+                ])
+                self.promptForListSelect("Select the Application Object Migration Mode:", ["manual", "load-only", "automatic"], "mas_ws_facilities_app_om_upgrade_mode")
+
                 if self.yesOrNo("Supply extra XML tags for Real Estate and Facilities server.xml"):
                     self.promptForString("Real Estate and Facilities Liberty Extension Secret Name", "mas_ws_facilities_liberty_extension_XML")
                 if self.yesOrNo("Supply custom AES Encryption Password"):
