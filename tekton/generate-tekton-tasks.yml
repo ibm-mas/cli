@@ -38,6 +38,7 @@
         - mongodb
         - nvidia-gpu
         - ocs
+        - redis
         - sls-registry-update
         - sls
         - turbonomic
