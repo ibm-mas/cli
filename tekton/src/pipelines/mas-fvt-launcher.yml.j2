@@ -451,7 +451,8 @@ spec:
           operator: in
           values: ["before-iot"]
       runAfter:
-        - approval-monitor
+        - waitfor-monitor-before-iot
+        - waitfor-monitor-after-iot
 
     - name: launchfvt-iot
       timeout: "0"
@@ -470,6 +471,8 @@ spec:
       runAfter:
         - waitfor-iot-before-monitor
         - waitfor-iot-after-monitor
+        - waitfor-monitor-before-iot
+        - waitfor-monitor-after-iot
 
     - name: approval-iot
       timeout: "0"
@@ -488,8 +491,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-iot-before-monitor
-        - waitfor-iot-after-monitor
+        - launchfvt-iot
 
 
     # 5. Application FVT - Manage
@@ -792,6 +794,8 @@ spec:
       runAfter:
         - waitfor-monitor-before-iot
         - waitfor-monitor-after-iot
+        - waitfor-iot-before-monitor
+        - waitfor-iot-after-monitor
 
     - name: approval-monitor
       timeout: "0"
@@ -810,8 +814,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-monitor-before-iot
-        - waitfor-monitor-after-iot
+        - launchfvt-monitor
 
 
     # 8. Application FVT - Optimizer
