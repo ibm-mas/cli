@@ -1794,6 +1794,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if ((self.getParam("mas_app_channel_predict") is not None and self.getParam("mas_app_channel_predict") != "") and 'health' not in self.getParam("mas_appws_components")):
             self.fatalError("--manage-components must include 'health' component when installing Predict")
 
+        # Configure Redis if Collaborate addon is enabled
+        if self.installManage and "collaborate=" in self.getParam("mas_appws_components"):
+            logger.debug("Collaborate addon detected in mas_appws_components, configuring Redis")
+            self.setParam("redis_action", "install")
+            if self.getParam("redis_namespace") == "":
+                self.setParam("redis_namespace", "redis")
+            self.setParam("redis_cfg_file", f"/workspace/configs/redis-{self.getParam('redis_namespace')}.yml")
+
         # Validate ArcGIS installation requirements in non-interactive mode
         if self.installArcgis:
             hasSpatial = self.installManage and "spatial=" in self.getParam("mas_appws_components")
