@@ -166,6 +166,9 @@ spec:
     - name: sls_service
       type: string
       default: ""
+    - name: production_database_access_type
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -293,6 +296,8 @@ spec:
         value: $(params.application_configuration)
       - name: STANDALONE_SLS_SERVICE
         value: $(params.sls_service)
+      - name: PRODUCTION_DATABASE_ACCESS_TYPE
+        value: $(params.production_database_access_type)
 
     envFrom:
       - configMapRef:

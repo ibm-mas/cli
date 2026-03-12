@@ -101,6 +101,8 @@ IBM Maximo Application Suite:
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  The certificate authority to use for provisoning certificates for MAS services
 
       --welcome-message ${COLOR_YELLOW}WELCOME_MESSAGE${TEXT_RESET} Default welcome message (displayed on login screen) to be configured (optional). NOTE: only use with MAS 9.1.7 or later.
+
+      --production-database-access-type ${COLOR_YELLOW}PRODUCTION_DATABASE_ACCESS_TYPE${TEXT_RESET}  Production database access type (e.g., 'ITIC')
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
@@ -424,6 +426,10 @@ function gitops_suite_noninteractive() {
         export WELCOME_MESSAGE=$1 && shift
         ;;
 
+      --production-database-access-type)
+        export PRODUCTION_DATABASE_ACCESS_TYPE=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_suite_help
@@ -635,6 +641,7 @@ function gitops_suite() {
     echo_reset_dim "Internal Certificate Authority ............. ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
   fi
   echo_reset_dim "Default welcome message .................... ${COLOR_MAGENTA}${WELCOME_MESSAGE}"
+  echo_reset_dim "Production Database Access Type ............ ${COLOR_MAGENTA}${PRODUCTION_DATABASE_ACCESS_TYPE}"
   reset_colors
 
   if [[ -n "$DNS_PROVIDER" ]]; then

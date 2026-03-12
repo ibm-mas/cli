@@ -110,3 +110,8 @@ ibm_mas_suite:
   welcome_message: |
     {{ WELCOME_MESSAGE | indent(4) }}
 {% endif %}
+
+{%- if PRODUCTION_DATABASE_ACCESS_TYPE is defined and PRODUCTION_DATABASE_ACCESS_TYPE != '' %}
+  production_database_access:
+    type: {{ PRODUCTION_DATABASE_ACCESS_TYPE }}
+{%- endif %}

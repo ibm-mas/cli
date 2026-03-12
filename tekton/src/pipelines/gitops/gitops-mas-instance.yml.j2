@@ -271,6 +271,9 @@ spec:
     - name: mas_ingress_controller_name
       type: string
       default: ""
+    - name: production_database_access_type
+      type: string
+      default: ""
   tasks:
 
     # 0. Per-instance DB2U Operator
@@ -501,6 +504,8 @@ spec:
           value: $(params.mas_routing_mode)
         - name: mas_ingress_controller_name
           value: $(params.mas_ingress_controller_name)
+        - name: production_database_access_type
+          value: $(params.production_database_access_type)
       taskRef:
         kind: Task
         name: gitops-suite
