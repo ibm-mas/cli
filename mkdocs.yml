@@ -16,6 +16,7 @@ nav:
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
       - "Uninstall": guides/uninstall.md
+      - "Backup and Restore": guides/backup-restore.md
   - "Examples":
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md
@@ -31,6 +32,8 @@ nav:
       - "provision-roks": commands/provision-roks.md
       - "provision-rosa": commands/provision-rosa.md
       - "configtool-oidc": commands/configtool-oidc.md
+      - "backup": commands/backup.md
+      - "restore": commands/restore.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
       - "Mar 05 2026": catalogs/v9-260305-amd64.md
