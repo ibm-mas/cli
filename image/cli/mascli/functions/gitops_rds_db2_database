@@ -341,6 +341,9 @@ function gitops_rds_db2_database() {
   export REPLICA_DB=${REPLICA_DB}
   export JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=${JDBC_CONNECTION_URL_ADDITIONAL_PARAMS}
 
+  # S3 bucket name for RDS DB2 backups
+  export S3_BUCKET_NAME="${CLUSTER_ID}-${MAS_INSTANCE_ID}-rds-backup-${MAS_APP_ID}"
+
 
   # Clone github target repo
     # ---------------------------------------------------------------------------
