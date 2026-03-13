@@ -17,7 +17,12 @@ This guide provides comprehensive information on backing up and restoring IBM Ma
 
 **Supported MAS versions**
   - MAS 9.1.x
-  - MAS 9.0.x (testing)
+  - MAS 9.0.x (in testing)
+
+**User Permissions Required**
+  - `oc` CLI with cluster admin permissions
+  - `mas` CLI with appropriate permissions
+  - Access to Tekton pipeline resources
 
 **Quick Navigation:**
   - [Backup Overview](#backup-overview) - Information about backing up MAS instances
@@ -49,10 +54,10 @@ The backup creates a compressed archive for each supported component that can be
 - **MongoDB Community Edition only** - The backup process supports only in-cluster MongoDB Community Edition. External or enterprise MongoDB deployments are not backed up.
 - **Db2 standalone operator only** - The backup process supports only the in-cluster standalone Db2 operator. Other Db2 operator implementations are not included.
 - **Certificate Manager (RedHat only)** - Certificate Manager backup is supported only for RedHat Certificate Manager. Other certificate manager implementations are not included.
-- **No support for most apps** - Only Manage application is supported for now. Other MAS applications (Monitor, IoT, Predict, etc.) are not supported, but will be added in later releases.
+- **No support for some apps** - Only Manage application is supported for now. Other MAS applications (Facilities, Monitor, IoT, Predict, etc.) are not supported, but will be added in later releases.
 - **No OpenShift cluster state** - The backup does not capture the full OpenShift cluster state, node configurations, or cluster-level resources outside of MAS namespaces.
 - **No IBM Cloud Pak for Data backups** - The backup process does not support backing up CP4D itself.
-- **No incremental backups** - Each backup is a full backup; incremental or differential backups are not supported.
+- **No Incremental backups** - Each backup is a full backup; incremental or differential backups are not supported.
 - **Single MAS instance per backup** - Each backup operation targets a single MAS instance. Multi-instance environments require separate backup runs per instance.
 - **Tekton pipeline dependency** - The backup process requires Tekton pipelines to be available and functional on the cluster.
 - **Storage class dependency** - Backup of Manage application's persistent volumes depends on the storage class supporting volume snapshots or the relevant backup mechanism.
@@ -71,8 +76,8 @@ The `mas backup` command launches a Tekton pipeline that executes the following 
 - [`ibm.mas_devops.mongodb`](https://ibm-mas.github.io/ansible-devops/roles/mongodb/) - Backs up MongoDB Community Edition instance and database
 - [`ibm.mas_devops.sls`](https://ibm-mas.github.io/ansible-devops/roles/sls/) - Backs up Suite License Service data
 - [`ibm.mas_devops.suite_backup`](https://ibm-mas.github.io/ansible-devops/roles/suite_backup/) - Backs up MAS Core configuration
-- [`ibm.mas_devops.suite_app_backup`](https://ibm-mas.github.io/ansible-devops/roles/suite_app_backup/) - Backs up MAS application resources and persistent volume data
 - [`ibm.mas_devops.db2`](https://ibm-mas.github.io/ansible-devops/roles/db2/) - Backs up DB2 resources and persistent volume data
+- [`ibm.mas_devops.suite_app_backup`](https://ibm-mas.github.io/ansible-devops/roles/suite_app_backup/) - Backs up MAS application resources and persistent volume data
 
 For detailed information about the underlying Ansible automation, see the [Backup and Restore Playbook Documentation](https://ibm-mas.github.io/ansible-devops/playbooks/backup-restore/).
 
@@ -84,7 +89,6 @@ For detailed information about the underlying Ansible automation, see the [Backu
 Backups are stored in the pipeline namespace PVC at:
 
 - **Backup Directory**: `/workspace/backups`
-- **Config Directory**: `/workspace/configs`
 
 When S3/artifactory upload is enabled, the backup archives will be uploaded to the bucket/artifactory repo under `mas-<instanceid>-backups` directory.
 
@@ -113,8 +117,8 @@ Each backup archive follows the naming convention: `<instance-id>-backup-<timest
 | `mongoce.tar.gz` | MongoDB Community Edition database backup |
 | `sls.tar.gz` | Suite License Service data (if included) |
 | `suite.tar.gz` | MAS Core configuration and data |
-| `app-manage.tar.gz` | Manage application configuration (if included) |
 | `db2u-manage.tar.gz` | Manage Db2 database backup (if included) |
+| `app-manage.tar.gz` | Manage application configuration (if included) |
 
 When to Backup
 -------------------------------------------------------------------------------
@@ -163,9 +167,9 @@ Component Selection
 
 The Data Reporter Operator (DRO) is **not included in backup operations** as it is typically configured during restore or installation. DRO configuration is handled separately and can be:
 
-- **Installed during restore** - DRO will be automatically installed when restoring from a backup
+- **Installed during restore** - DRO will be installed when restoring from a backup when `--include-dro` is specified
 - **Configured externally** - If using an external DRO instance, it should be configured independently
-- **Skipped** - DRO installation can be skipped during restore if not required
+- **Skipped** - DRO installation can be skipped during restore if not required, use `--exclude-dro` to skip DRO installation
 
 !!! info
     DRO backup and restore behavior is managed by the underlying [Ansible DevOps roles](https://ibm-mas.github.io/ansible-devops/playbooks/backup-restore/). The CLI backup command focuses on capturing MAS configuration and data, while DRO is handled during the restore process.
@@ -735,7 +739,7 @@ The restore process handles the following components:
 - **Manage Database** - Optionally restores incluster Db2 database associated with Manage workspace
 - **Manage Application** - Optionally restores Manage application namespace resources and persistent volume data
 - **Grafana** - Optionally installs Grafana for monitoring (not part of backup)
-- **Data Reporter Operator (DRO)** - Optionally installs DRO (not part of backup)
+- **Data Reporter Operator (DRO)** - Optionally installs DRO (not part of backup), when DRO is installed, an auto-generated Suite-level BASCfg CR will be applied automatically.
 
 ### Restore Limitations
 
@@ -756,7 +760,7 @@ The restore process handles the following components:
 - **Manual Certificate Management Restriction:** Certificates and secrets from backups will be restored. However, changing the domain during the restoration process will cause issues with manual certificates/secrets, and manual updates of certificates and secrets are required.
 - **Domain changes require DNS updates** - If restoring with a domain change, DNS records and TLS certificates must be updated manually outside of the restore process.
 - **Single MAS instance per restore** - Each restore operation targets a single MAS instance. Restoring multiple instances requires separate restore runs.
-- **Grafana and DRO are not restored from backup** - Grafana and DRO are optionally installed fresh during restore; their previous configurations are not recovered from the backup archive. However, BASCFG CR resources are backed up and restored.
+- **Grafana and DRO are not restored from backup** - Grafana and DRO are optionally installed fresh during restore; their previous configurations are not recovered from the backup archive. However, Suite-level BASCFG CR resource is backed up and can be restored.
 - **No support for CP4D** - The restore process does not support restoring CP4D environments.
 
 !!! tip

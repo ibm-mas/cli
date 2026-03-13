@@ -80,7 +80,7 @@ Download Configuration:
 Components:
   --include-grafana     Include Grafana in restore (default: true)
   --exclude-grafana     Skip installing Grafana.
-  --include-dro         Include DRO in restore (default: true)
+  --include-dro         Include DRO in restore, this will install new DRO instance (default: true)
   --exclude-dro         Skip installing DRO.
   --include-sls         Include SLS in restore (default: true)
   --exclude-sls         Exclude SLS from restore (use if SLS is external)
@@ -369,8 +369,6 @@ mas restore \
   --sls-domain custom-sls.domain.com \
   --include-slscfg-from-backup \
   --sls-url-restore https://new-sls-url.com \
-  --include-drocfg-from-backup \
-  --dro-url-restore https://new-dro-url.com \
   --include-grafana \
   --include-dro \
   --ibm-entitlement-key YOUR_ENTITLEMENT_KEY \ #pragma: allowlist secret
@@ -436,6 +434,7 @@ The restore command provides flexibility in how configurations are restored:
 - **From Backup**: Use `--include-drocfg-from-backup` (default) to restore DRO configuration from the backup
 - **Custom File**: Use `--exclude-drocfg-from-backup` and provide `--dro-cfg-file` to use a custom configuration
 - **Change URL**: Use `--dro-url-restore` to modify the DRO URL while keeping other configuration from backup
+- **READ**: When `include-dro` is enabled to install a new DRO instance, the `--include-drocfg-from-backup` flag is automatically set to `false` to prevent conflicts. Configuration of the new DRO instance will be automatically applied to the Suite.
 
 #### MAS Domain
 - By default, the MAS domain is restored from the backup
