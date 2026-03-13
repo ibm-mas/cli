@@ -749,6 +749,7 @@ The restore process handles the following components:
 - **Restoring from S3 or Artifactory Only** - When using the pipeline, the restore process is limited to restoring from S3 or Artifactory. Restoring from a local backup file is not supported yet.
 - **MongoDB Community Edition only** - Restore supports only in-cluster MongoDB Community Edition. Restoring to an external or enterprise MongoDB deployment is not supported.
 - **Db2 standalone operator only** - The restore process supports only the in-cluster standalone Db2 operator. Other Db2 operator implementations are not included.
+- **Db2uInstance not supported, only Db2uCluster** - The restore process does not support Db2uInstance for now. Will be supported in future release.
 - **Certificate Manager (RedHat only)** - Certificate Manager restore is supported only for RedHat Certificate Manager. Other implementations are not handled during restore.
 - **Same MAS version required** - Restoring a backup to a cluster running a different MAS version may result in incompatibilities. It is strongly recommended to restore to the same MAS version as the backup source.
 - **Same MAS Instance ID required** - It is strongly recommended to restore to the same MAS instance ID as the backup source.
