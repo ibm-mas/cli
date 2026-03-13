@@ -33,6 +33,7 @@ nav:
       - "provision-rosa": commands/provision-rosa.md
       - "configtool-oidc": commands/configtool-oidc.md
       - "backup": commands/backup.md
+      - "restore": commands/restore.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
       - "Mar 05 2026": catalogs/v9-260305-amd64.md
