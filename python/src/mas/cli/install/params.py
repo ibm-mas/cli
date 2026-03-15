@@ -156,6 +156,7 @@ optionalParams = [
     "mas_deployment_progression",
     # Facilities
     "mas_ws_facilities_size",
+    "mas_ws_facilities_app_om_upgrade_mode",
     "mas_ws_facilities_routes_timeout",
     "mas_ws_facilities_liberty_extension_XML",
     "mas_ws_facilities_vault_secret",
