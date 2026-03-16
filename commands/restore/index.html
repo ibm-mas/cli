@@ -1,0 +1,1048 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>restore - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/commands/restore.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="Guides">
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-mirroring/">
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/aiservice-install/">
+    AI Service Standalone Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/backup-restore/">
+    Backup and Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Command Reference" active="" expanded="">
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/">
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../must-gather/">
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/">
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-redhat-images/">
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../setup-registry/">
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../teardown-registry/">
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/">
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/">
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-rosa/">
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configtool-oidc/">
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../backup/">
+    backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="./" active="" expanded="">
+    restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260313-amd64/">
+    Mar 13 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260226-amd64/">
+    Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260129-amd64/">
+    Jan 29 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-251231-amd64/">
+    Dec 31 2025
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Command Reference</cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#restore">Restore</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#usage">Usage</cds-select-item>
+    
+      <cds-select-item value="#examples">Examples</cds-select-item>
+    
+      <cds-select-item value="#notes">Notes</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="restore">Restore<a class="headerlink" href="#restore" title="Permanent link">¶</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
+<p>Usage information can be obtained using <code>mas restore --help</code></p>
+<pre><code>usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION] [--backup-storage-size BACKUP_STORAGE_SIZE]
+                   [--mas-domain-restore MAS_DOMAIN_ON_RESTORE] [--sls-url-restore SLS_URL_ON_RESTORE]
+                   [--dro-url-restore DRO_URL_ON_RESTORE] [--include-slscfg-from-backup] [--exclude-slscfg-from-backup]
+                   [--sls-cfg-file SLS_CFG_FILE] [--dro-cfg-file DRO_CFG_FILE] [--include-drocfg-from-backup]
+                   [--exclude-drocfg-from-backup] [--clean-backup] [--no-clean-backup] [--download-backup]
+                   [--aws-access-key-id AWS_ACCESS_KEY_ID] [--aws-secret-access-key AWS_SECRET_ACCESS_KEY]
+                   [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION] [--artifactory-url ARTIFACTORY_URL]
+                   [--artifactory-repository ARTIFACTORY_REPOSITORY] [--custom-backup-archive-name BACKUP_ARCHIVE_NAME]
+                   [--include-grafana] [--exclude-grafana] [--include-dro] [--exclude-dro] [--include-sls] [--exclude-sls]
+                   [--sls-domain SLS_DOMAIN] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [--contact-email DRO_CONTACT_EMAIL]
+                   [--contact-firstname DRO_CONTACT_FIRSTNAME] [--contact-lastname DRO_CONTACT_LASTNAME]
+                   [--dro-namespace DRO_NAMESPACE] [--override-mongodb-storageclass] [--mongodb-storageclass-name MONGODB_STORAGECLASS_NAME]
+                   [--restore-manage-app] [--restore-manage-db] [--override-manage-app-storageclass]
+                   [--manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX] [--manage-app-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO]
+                   [--override-manage-db-storageclass]
+                   [--manage-db-storage-class-rwx MANAGE_DB_STORAGE_CLASS_RWX] [--manage-db-storage-class-rwo MANAGE_DB_STORAGE_CLASS_RWO]
+                   [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm] [--skip-pre-check] [-h]
+
+IBM Maximo Application Suite Admin CLI
+Restore a MAS instance from backup by configuring and launching the MAS Restore Tekton Pipeline.
+
+Interactive Mode:
+Omitting the --instance-id option will trigger an interactive prompt
+
+MAS Instance:
+  -i, --instance-id MAS_INSTANCE_ID
+                        MAS Instance ID to restore, must match the instance ID of the backup.
+  --mas-domain-restore MAS_DOMAIN_ON_RESTORE
+                        MAS Domain to restore. If not specified, the domain will be taken from the backup.
+  --sls-url-restore SLS_URL_ON_RESTORE
+                        SLS URL to restore in Suite configuration. If not specified, the url will be taken from the backup.
+  --dro-url-restore DRO_URL_ON_RESTORE
+                        DRO URL to restore in Suite configuration. If not specified, the url will be taken from the backup.
+  --include-slscfg-from-backup
+                        Use SLS config from backup during Suite restore.
+  --exclude-slscfg-from-backup
+                        Exclude SLS config from backup during Suite restore.
+  --sls-cfg-file SLS_CFG_FILE
+                        SLS config file path to restore, must be provided if own SLS is used.
+  --dro-cfg-file DRO_CFG_FILE
+                        DRO config file path to restore, must be provided if own DRO is used.
+  --include-drocfg-from-backup
+                        Include DRO config from backup during Suite restore.
+  --exclude-drocfg-from-backup
+                        Exclude DRO config from backup during Suite restore.
+
+Restore Configuration:
+  --restore-version RESTORE_VERSION
+                        Version/timestamp used in backup. Example: YYYYMMDD-HHMMSS
+  --backup-storage-size BACKUP_STORAGE_SIZE
+                        Size of the PVC storage, must be bigger than backup archive size. (default: 20Gi)
+  --clean-backup        Clean backup and config workspaces after completion (default: true)
+  --no-clean-backup     Do not clean backup and config workspaces after completion
+
+Download Configuration:
+  --download-backup     Download the backup archive from S3 or Artifactory
+  --aws-access-key-id AWS_ACCESS_KEY_ID
+                        AWS Access Key ID for S3 download
+  --aws-secret-access-key AWS_SECRET_ACCESS_KEY
+                        AWS Secret Access Key for S3 download
+  --s3-bucket-name S3_BUCKET_NAME
+                        S3 bucket name for backup download
+  --s3-region S3_REGION
+                        AWS region for S3 bucket
+  --artifactory-url ARTIFACTORY_URL
+                        Artifactory URL for backup download
+  --artifactory-repository ARTIFACTORY_REPOSITORY
+                        Artifactory repository for backup download
+  --custom-backup-archive-name BACKUP_ARCHIVE_NAME
+                        Custom backup archive name to download from S3 or Artifactory
+
+Components:
+  --include-grafana     Include Grafana in restore (default: true)
+  --exclude-grafana     Skip installing Grafana.
+  --include-dro         Include DRO in restore, this will install new DRO instance (default: true)
+  --exclude-dro         Skip installing DRO.
+  --include-sls         Include SLS in restore (default: true)
+  --exclude-sls         Exclude SLS from restore (use if SLS is external)
+
+IBM Suite License Service Operator:
+  --sls-domain SLS_DOMAIN
+                        SLS domain to use during SLS instance restore (optional).
+
+IBM Data Reporting Operator:
+  --ibm-entitlement-key IBM_ENTITLEMENT_KEY
+                        IBM entitlement key
+  --contact-email DRO_CONTACT_EMAIL
+                        Contact e-mail address
+  --contact-firstname DRO_CONTACT_FIRSTNAME
+                        Contact first name
+  --contact-lastname DRO_CONTACT_LASTNAME
+                        Contact last name
+  --dro-namespace DRO_NAMESPACE
+                        Namespace for DRO
+
+MongoDB Storage Class Override:
+  --override-mongodb-storageclass
+                        Override the storage class for MongoDB during restore
+  --mongodb-storageclass-name MONGODB_STORAGECLASS_NAME
+                        MongoDB storage class name (ReadWriteOnce). If not specified, cluster default will be used.
+
+Manage Application Restore:
+  --restore-manage-app  Restore the Manage application including namespace resources and persistent volume data
+  --restore-manage-db   Restore the Manage incluster Db2 database
+  --override-manage-app-storageclass
+                        Override storage class for Manage application persistent volumes
+  --manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX
+                        Manage Application ReadWriteMany storage class name
+  --manage-app-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO
+                        Manage Application ReadWriteOnce storage class name
+  --override-manage-db-storageclass
+                        Override storage class for Manage Db2 database persistent volumes
+  --manage-db-storage-class-rwx MANAGE_DB_STORAGE_CLASS_RWX
+                        Db2 ReadWriteMany storage class name
+  --manage-db-storage-class-rwo MANAGE_DB_STORAGE_CLASS_RWO
+                        Db2 ReadWriteOnce storage class name
+
+More:
+  --artifactory-username ARTIFACTORY_USERNAME
+                        Username for access to development builds on Artifactory
+  --artifactory-token ARTIFACTORY_TOKEN
+                        API Token for access to development builds on Artifactory
+  --dev-mode            Configure restore in development mode
+  --no-confirm          Launch the backup without prompting for confirmation
+  --skip-pre-check      Skips the 'pre-restore-check' task in the restore pipeline
+  -h, --help            Show this help message and exit
+</code></pre>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¶</a></h2>
+<h3 id="interactive-restore">Interactive Restore<a class="headerlink" href="#interactive-restore" title="Permanent link">¶</a></h3>
+<p>Launch an interactive restore session that will prompt you for all required configuration:</p>
+<pre><code class="language-bash">mas restore
+</code></pre>
+<h3 id="non-interactive-restore-with-minimal-configuration">Non-Interactive Restore with Minimal Configuration<a class="headerlink" href="#non-interactive-restore-with-minimal-configuration" title="Permanent link">¶</a></h3>
+<p>Restore a specific MAS instance from a backup with default settings:</p>
+<pre><code class="language-bash">mas restore --instance-id inst1 --restore-version 20260117-191701 --no-confirm
+</code></pre>
+<h3 id="restore-with-custom-storage-size">Restore with Custom Storage Size<a class="headerlink" href="#restore-with-custom-storage-size" title="Permanent link">¶</a></h3>
+<p>Specify a custom storage size for the restore PVC:</p>
+<pre><code class="language-bash">mas restore --instance-id inst1 --restore-version 20260117-191701 --backup-storage-size 50Gi --no-confirm
+</code></pre>
+<h3 id="restore-with-changed-mas-domain">Restore with Changed MAS Domain<a class="headerlink" href="#restore-with-changed-mas-domain" title="Permanent link">¶</a></h3>
+<p>Restore a backup and change the MAS domain in the Suite CR:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --mas-domain-restore new.domain.com \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-s3-download">Restore with S3 Download<a class="headerlink" href="#restore-with-s3-download" title="Permanent link">¶</a></h3>
+<p>Download a backup from S3 and restore it:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --download-backup \
+  --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
+  --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
+  --s3-bucket-name my-mas-backups \
+  --s3-region us-east-1 \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-custom-backup-archive-name">Restore with Custom Backup Archive Name<a class="headerlink" href="#restore-with-custom-backup-archive-name" title="Permanent link">¶</a></h3>
+<p>Download and restore a backup with a custom archive name:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --download-backup \
+  --custom-backup-archive-name custom-backup-name.tar.gz \
+  --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
+  --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
+  --s3-bucket-name my-mas-backups \
+  --s3-region us-east-1 \
+  --no-confirm
+</code></pre>
+<h3 id="restore-excluding-sls">Restore Excluding SLS<a class="headerlink" href="#restore-excluding-sls" title="Permanent link">¶</a></h3>
+<p>Restore a backup without including Suite License Service (useful when using external SLS):</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --exclude-sls \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-custom-sls-configuration-file">Restore with Custom SLS Configuration File<a class="headerlink" href="#restore-with-custom-sls-configuration-file" title="Permanent link">¶</a></h3>
+<p>Restore using a custom SLS configuration file instead of the one from backup:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --exclude-slscfg-from-backup \
+  --sls-cfg-file /path/to/sls-config.yaml \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-changed-sls-url">Restore with Changed SLS URL<a class="headerlink" href="#restore-with-changed-sls-url" title="Permanent link">¶</a></h3>
+<p>Restore SLS configuration from backup but change the SLS URL:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --include-slscfg-from-backup \
+  --sls-url-restore https://new-sls-url.com \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-custom-dro-configuration-file">Restore with Custom DRO Configuration File<a class="headerlink" href="#restore-with-custom-dro-configuration-file" title="Permanent link">¶</a></h3>
+<p>Restore using a custom DRO/BAS configuration file instead of the one from backup:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --exclude-drocfg-from-backup \
+  --dro-cfg-file /path/to/dro-config.yaml \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-dro-installation">Restore with DRO Installation<a class="headerlink" href="#restore-with-dro-installation" title="Permanent link">¶</a></h3>
+<p>Restore and install a new DRO instance:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --include-dro \
+  --ibm-entitlement-key YOUR_ENTITLEMENT_KEY \ #pragma: allowlist secret
+  --contact-email admin@example.com \
+  --contact-firstname John \
+  --contact-lastname Doe \
+  --dro-namespace redhat-marketplace \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-custom-sls-domain">Restore with Custom SLS Domain<a class="headerlink" href="#restore-with-custom-sls-domain" title="Permanent link">¶</a></h3>
+<p>Restore SLS instance with a custom domain:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --include-sls \
+  --sls-domain custom-sls.domain.com \
+  --no-confirm
+</code></pre>
+<h3 id="restore-excluding-grafana">Restore Excluding Grafana<a class="headerlink" href="#restore-excluding-grafana" title="Permanent link">¶</a></h3>
+<p>Restore without installing Grafana:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --exclude-grafana \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-mongodb-storage-class-override">Restore with MongoDB Storage Class Override<a class="headerlink" href="#restore-with-mongodb-storage-class-override" title="Permanent link">¶</a></h3>
+<p>Override the storage class for MongoDB during restore (useful when restoring to a cluster with different storage classes):</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --override-mongodb-storageclass \
+  --mongodb-storageclass-name custom-rwo-storage \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-manage-application">Restore with Manage Application<a class="headerlink" href="#restore-with-manage-application" title="Permanent link">¶</a></h3>
+<p>Restore the Manage application including namespace resources and persistent volume data:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-manage-app \
+  --no-confirm
+</code></pre>
+<h3 id="restore-with-manage-application-and-database">Restore with Manage Application and Database<a class="headerlink" href="#restore-with-manage-application-and-database" title="Permanent link">¶</a></h3>
+<p>Restore both the Manage application and its incluster Db2 database:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-manage-app \
+  --restore-manage-db \
+  --no-confirm
+</code></pre>
+<h3 id="restore-manage-with-custom-storage-classes">Restore Manage with Custom Storage Classes<a class="headerlink" href="#restore-manage-with-custom-storage-classes" title="Permanent link">¶</a></h3>
+<p>Restore Manage application and database with custom storage class overrides:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-manage-app \
+  --restore-manage-db \
+  --override-manage-app-storageclass \
+  --manage-app-storage-class-rwx custom-rwx-storage \
+  --manage-app-storage-class-rwo custom-rwo-storage \
+  --override-manage-db-storageclass \
+  --manage-db-storage-class-rwx custom-rwx-storage \
+  --manage-db-storage-class-rwo custom-rwo-storage \
+  --no-confirm
+</code></pre>
+<h3 id="restore-skipping-pre-check">Restore Skipping Pre-Check<a class="headerlink" href="#restore-skipping-pre-check" title="Permanent link">¶</a></h3>
+<p>Skip the pre-restore validation check (use with caution):</p>
+<pre><code class="language-bash">mas restore --instance-id inst1 --restore-version 20260117-191701 --skip-pre-check --no-confirm
+</code></pre>
+<h3 id="restore-without-workspace-cleanup">Restore Without Workspace Cleanup<a class="headerlink" href="#restore-without-workspace-cleanup" title="Permanent link">¶</a></h3>
+<p>Keep backup and config workspace contents after completion (useful for troubleshooting):</p>
+<pre><code class="language-bash">mas restore --instance-id inst1 --restore-version 20260117-191701 --no-clean-backup --no-confirm
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, workspaces are cleaned after restore completion to free up storage. Use <code>--no-clean-backup</code> only when you need to inspect the workspace contents for troubleshooting purposes.</p>
+</div>
+<h3 id="complete-non-interactive-restore-example">Complete Non-Interactive Restore Example<a class="headerlink" href="#complete-non-interactive-restore-example" title="Permanent link">¶</a></h3>
+<p>A comprehensive example with all major options configured:</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --backup-storage-size 100Gi \
+  --mas-domain-restore new.domain.com \
+  --include-sls \
+  --sls-domain custom-sls.domain.com \
+  --include-slscfg-from-backup \
+  --sls-url-restore https://new-sls-url.com \
+  --include-grafana \
+  --include-dro \
+  --ibm-entitlement-key YOUR_ENTITLEMENT_KEY \ #pragma: allowlist secret
+  --contact-email admin@example.com \
+  --contact-firstname John \
+  --contact-lastname Doe \
+  --dro-namespace redhat-marketplace \
+  --download-backup \
+  --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
+  --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
+  --s3-bucket-name my-mas-backups \
+  --s3-region us-east-1 \
+  --no-confirm
+</code></pre>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">¶</a></h2>
+<h3 id="restore-process">Restore Process<a class="headerlink" href="#restore-process" title="Permanent link">¶</a></h3>
+<p>The restore command performs the following operations:</p>
+<ol>
+<li><strong>Validates the target cluster</strong> - Ensures OpenShift cluster connectivity</li>
+<li><strong>Prepares the pipeline namespace</strong> - Creates or updates the <code>mas-{instance-id}-pipelines</code> namespace</li>
+<li><strong>Installs OpenShift Pipelines</strong> - Validates or installs the OpenShift Pipelines Operator</li>
+<li><strong>Creates backup PVC</strong> - Provisions persistent storage for the backup data</li>
+<li><strong>Downloads backup archive</strong> - If configured, downloads the backup from S3 or Artifactory</li>
+<li><strong>Launches the restore pipeline</strong> - Submits a Tekton PipelineRun to perform the restore</li>
+<li><strong>Restores MAS components</strong> - Restores MAS instance, configurations, and selected components</li>
+</ol>
+<h3 id="default-values">Default Values<a class="headerlink" href="#default-values" title="Permanent link">¶</a></h3>
+<p>If not specified, the following defaults are used:</p>
+<ul>
+<li><strong>Backup Storage Size</strong>: <code>20Gi</code></li>
+<li><strong>Clean Workspaces</strong>: <code>true</code> (workspaces are cleaned after completion)</li>
+<li><strong>Include SLS</strong>: <code>true</code></li>
+<li><strong>Include Grafana</strong>: <code>true</code></li>
+<li><strong>Include DRO</strong>: <code>true</code></li>
+<li><strong>Include SLSCfg from Backup</strong>: <code>true</code></li>
+<li><strong>Include DROCfg from Backup</strong>: <code>true</code></li>
+</ul>
+<h3 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">¶</a></h3>
+<p>Ensure sufficient storage is available for the restore PVC. The required size must be larger than the backup archive size and depends on:</p>
+<ul>
+<li>Size of the backup archive</li>
+<li>Temporary extraction space needed during restore</li>
+<li>Any additional workspace requirements</li>
+</ul>
+<h3 id="download-sources">Download Sources<a class="headerlink" href="#download-sources" title="Permanent link">¶</a></h3>
+<p>Two download sources are supported:</p>
+<ul>
+<li><strong>S3</strong>: Standard AWS S3 bucket download (available in all modes)</li>
+<li><strong>Artifactory</strong>: Artifactory repository download (requires <code>--dev-mode</code>)</li>
+</ul>
+<h3 id="configuration-options">Configuration Options<a class="headerlink" href="#configuration-options" title="Permanent link">¶</a></h3>
+<p>The restore command provides flexibility in how configurations are restored:</p>
+<h4 id="sls-configuration">SLS Configuration<a class="headerlink" href="#sls-configuration" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>From Backup</strong>: Use <code>--include-slscfg-from-backup</code> (default) to restore SLS configuration from the backup</li>
+<li><strong>Custom File</strong>: Use <code>--exclude-slscfg-from-backup</code> and provide <code>--sls-cfg-file</code> to use a custom configuration</li>
+<li><strong>Change URL</strong>: Use <code>--sls-url-restore</code> to modify the SLS URL while keeping other configuration from backup</li>
+</ul>
+<h4 id="dro-configuration">DRO Configuration<a class="headerlink" href="#dro-configuration" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>From Backup</strong>: Use <code>--include-drocfg-from-backup</code> (default) to restore DRO configuration from the backup</li>
+<li><strong>Custom File</strong>: Use <code>--exclude-drocfg-from-backup</code> and provide <code>--dro-cfg-file</code> to use a custom configuration</li>
+<li><strong>Change URL</strong>: Use <code>--dro-url-restore</code> to modify the DRO URL while keeping other configuration from backup</li>
+<li><strong>READ</strong>: When <code>include-dro</code> is enabled to install a new DRO instance, the <code>--include-drocfg-from-backup</code> flag is automatically set to <code>false</code> to prevent conflicts. Configuration of the new DRO instance will be automatically applied to the Suite.</li>
+</ul>
+<h4 id="mas-domain">MAS Domain<a class="headerlink" href="#mas-domain" title="Permanent link">¶</a></h4>
+<ul>
+<li>By default, the MAS domain is restored from the backup</li>
+<li>Use <code>--mas-domain-restore</code> to change the domain during restore</li>
+</ul>
+<h3 id="component-installation">Component Installation<a class="headerlink" href="#component-installation" title="Permanent link">¶</a></h3>
+<p>The restore process can optionally install components that are not part of the backup:</p>
+<ul>
+<li><strong>Grafana</strong>: Monitoring and visualization (not backed up, can be installed during restore). Use <code>--include-grafana</code> to install grafana during restore or <code>--exclude-grafana</code> to skip grafana installation.</li>
+<li><strong>DRO</strong>: Data Reporting Operator (not backed up, can be installed during restore). Use <code>--include-dro</code> to install DRO during restore or <code>--exclude-dro</code> to skip DRO installation.</li>
+<li><strong>SLS</strong>: Suite License Service (backed up, can be restored or skipped if using external SLS). Use <code>--include-sls</code> to restore SLS from backup or <code>--exclude-sls</code> to skip SLS installation.</li>
+</ul>
+<h3 id="mongodb-storage-class-override">MongoDB Storage Class Override<a class="headerlink" href="#mongodb-storage-class-override" title="Permanent link">¶</a></h3>
+<p>When restoring to a cluster with different storage classes than the original backup, you can override the MongoDB storage class:</p>
+<ul>
+<li>Use <code>--override-mongodb-storageclass</code> to enable storage class override</li>
+<li>Optionally specify <code>--mongodb-storageclass-name</code> for a custom ReadWriteOnce storage class</li>
+<li>If no custom storage class is specified, the cluster default will be used</li>
+</ul>
+<p>This is particularly useful for:
+- Migrating between different cloud providers
+- Restoring to clusters with different storage infrastructure
+- Testing restores in different environments</p>
+<h3 id="manage-application-restore">Manage Application Restore<a class="headerlink" href="#manage-application-restore" title="Permanent link">¶</a></h3>
+<p>The restore process can now restore the Manage application in addition to the MAS Suite:</p>
+<ul>
+<li><strong>Manage Application</strong>: Use <code>--restore-manage-app</code> to restore Manage namespace resources and persistent volume data</li>
+<li><strong>Manage Database</strong>: Use <code>--restore-manage-db</code> to restore the incluster Db2 database associated with the Manage workspace</li>
+<li><strong>Storage Class Overrides</strong>:</li>
+<li>Use <code>--override-manage-app-storageclass</code> to override Manage application storage classes, then specify <code>--manage-app-storage-class-rwx</code> and <code>--manage-app-storage-class-rwo</code></li>
+<li>Use <code>--override-manage-db-storageclass</code> to override Db2 database storage classes, then specify <code>--manage-db-storage-class-rwx</code> and <code>--manage-db-storage-class-rwo</code></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul>
+<li>Manage database restore is an offline operation - the Manage application will be unavailable during the restore</li>
+<li>The restore process handles both the application resources and the database data</li>
+<li>Storage class overrides are useful when restoring to clusters with different storage infrastructure</li>
+<li>A single RWX and RWO storage class is applied across all Db2 persistent volumes (meta, data, backup, logs, temp)</li>
+</ul>
+</div>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link">¶</a></h3>
+<p>When running without <code>--instance-id</code>, the command enters interactive mode and will prompt for:</p>
+<ol>
+<li>Target OpenShift cluster connection</li>
+<li>MAS instance ID (must match the backup)</li>
+<li>Backup version to restore</li>
+<li>MongoDB storage class override configuration</li>
+<li>Grafana installation preference</li>
+<li>SLS installation and configuration</li>
+<li>DRO installation and configuration</li>
+<li>MAS domain configuration</li>
+<li>Manage application restore configuration</li>
+<li>Backup storage size</li>
+<li>Download configuration (optional)</li>
+</ol>
+<h3 id="pipeline-monitoring">Pipeline Monitoring<a class="headerlink" href="#pipeline-monitoring" title="Permanent link">¶</a></h3>
+<p>After launching the restore, a URL to the Tekton PipelineRun will be displayed. Use this URL to monitor the restore progress in the OpenShift Console.</p>
+<h3 id="important-considerations">Important Considerations<a class="headerlink" href="#important-considerations" title="Permanent link">¶</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<ul>
+<li>The MAS instance ID used for restore must match the instance ID from the backup</li>
+<li>Ensure the target cluster has sufficient resources for the restored instance</li>
+<li>Review and update configuration URLs (SLS, DRO) if the target environment differs from the backup source</li>
+<li>If using external SLS or DRO, provide appropriate configuration files</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<ul>
+<li>Use <code>--skip-pre-check</code> only if you're confident about the cluster state</li>
+<li>Keep <code>--no-clean-backup</code> disabled unless troubleshooting to save storage space</li>
+<li>When changing domains or URLs, ensure DNS and network configurations are updated accordingly</li>
+</ul>
+</div>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../backup/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">backup</span>
+      </div>
+    </a>
+    <a href="../../catalogs/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Overview</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#examples" class="md-toc__link" data-md-level="1">
+                  Examples
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#interactive-restore" class="md-toc__link" data-md-level="2">
+                          Interactive Restore
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-restore-with-minimal-configuration" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Restore with Minimal Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-custom-storage-size" class="md-toc__link" data-md-level="2">
+                          Restore with Custom Storage Size
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-changed-mas-domain" class="md-toc__link" data-md-level="2">
+                          Restore with Changed MAS Domain
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-s3-download" class="md-toc__link" data-md-level="2">
+                          Restore with S3 Download
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-custom-backup-archive-name" class="md-toc__link" data-md-level="2">
+                          Restore with Custom Backup Archive Name
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-excluding-sls" class="md-toc__link" data-md-level="2">
+                          Restore Excluding SLS
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-custom-sls-configuration-file" class="md-toc__link" data-md-level="2">
+                          Restore with Custom SLS Configuration File
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-changed-sls-url" class="md-toc__link" data-md-level="2">
+                          Restore with Changed SLS URL
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-custom-dro-configuration-file" class="md-toc__link" data-md-level="2">
+                          Restore with Custom DRO Configuration File
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-dro-installation" class="md-toc__link" data-md-level="2">
+                          Restore with DRO Installation
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-custom-sls-domain" class="md-toc__link" data-md-level="2">
+                          Restore with Custom SLS Domain
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-excluding-grafana" class="md-toc__link" data-md-level="2">
+                          Restore Excluding Grafana
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-mongodb-storage-class-override" class="md-toc__link" data-md-level="2">
+                          Restore with MongoDB Storage Class Override
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-manage-application" class="md-toc__link" data-md-level="2">
+                          Restore with Manage Application
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-with-manage-application-and-database" class="md-toc__link" data-md-level="2">
+                          Restore with Manage Application and Database
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-manage-with-custom-storage-classes" class="md-toc__link" data-md-level="2">
+                          Restore Manage with Custom Storage Classes
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-skipping-pre-check" class="md-toc__link" data-md-level="2">
+                          Restore Skipping Pre-Check
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-without-workspace-cleanup" class="md-toc__link" data-md-level="2">
+                          Restore Without Workspace Cleanup
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#complete-non-interactive-restore-example" class="md-toc__link" data-md-level="2">
+                          Complete Non-Interactive Restore Example
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#notes" class="md-toc__link" data-md-level="1">
+                  Notes
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#restore-process" class="md-toc__link" data-md-level="2">
+                          Restore Process
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#default-values" class="md-toc__link" data-md-level="2">
+                          Default Values
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#storage-requirements" class="md-toc__link" data-md-level="2">
+                          Storage Requirements
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#download-sources" class="md-toc__link" data-md-level="2">
+                          Download Sources
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#configuration-options" class="md-toc__link" data-md-level="2">
+                          Configuration Options
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#component-installation" class="md-toc__link" data-md-level="2">
+                          Component Installation
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#mongodb-storage-class-override" class="md-toc__link" data-md-level="2">
+                          MongoDB Storage Class Override
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#manage-application-restore" class="md-toc__link" data-md-level="2">
+                          Manage Application Restore
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#interactive-mode" class="md-toc__link" data-md-level="2">
+                          Interactive Mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#pipeline-monitoring" class="md-toc__link" data-md-level="2">
+                          Pipeline Monitoring
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#important-considerations" class="md-toc__link" data-md-level="2">
+                          Important Considerations
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>

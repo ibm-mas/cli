@@ -162,6 +162,12 @@
   </cds-side-nav-menu-item>
 
     
+      
+  <cds-side-nav-menu-item href="../backup-restore/">
+    Backup and Restore
+  </cds-side-nav-menu-item>
+
+    
   </cds-side-nav-menu>
 
                 
@@ -252,6 +258,18 @@
   </cds-side-nav-menu-item>
 
     
+      
+  <cds-side-nav-menu-item href="../../commands/backup/">
+    backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/restore/">
+    restore
+  </cds-side-nav-menu-item>
+
+    
   </cds-side-nav-menu>
 
                 
@@ -265,8 +283,8 @@
 
     
       
-  <cds-side-nav-menu-item href="../../catalogs/v9-260305-amd64/">
-    Mar 05 2026
+  <cds-side-nav-menu-item href="../../catalogs/v9-260313-amd64/">
+    Mar 13 2026
   </cds-side-nav-menu-item>
 
     
@@ -457,7 +475,7 @@
 <p>This command can also be run non-interactively. For full details refer to the <a href="../image-mirroring/">image mirroring</a> guide.</p>
 <pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-260305-amd64 -C 9.1.x \
+  -c v9-260313-amd64 -C 9.1.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \

@@ -1,0 +1,797 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>backup - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/commands/backup.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="Guides">
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-mirroring/">
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/aiservice-install/">
+    AI Service Standalone Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/backup-restore/">
+    Backup and Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Command Reference" active="" expanded="">
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/">
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../must-gather/">
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/">
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-redhat-images/">
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../setup-registry/">
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../teardown-registry/">
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/">
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/">
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-rosa/">
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configtool-oidc/">
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="./" active="" expanded="">
+    backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../restore/">
+    restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260313-amd64/">
+    Mar 13 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260226-amd64/">
+    Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260129-amd64/">
+    Jan 29 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-251231-amd64/">
+    Dec 31 2025
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Command Reference</cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#backup">Backup</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#usage">Usage</cds-select-item>
+    
+      <cds-select-item value="#examples">Examples</cds-select-item>
+    
+      <cds-select-item value="#notes">Notes</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="backup">Backup<a class="headerlink" href="#backup" title="Permanent link">¶</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
+<p>Usage information can be obtained using <code>mas backup --help</code></p>
+<pre><code>usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION] [--backup-storage-size BACKUP_STORAGE_SIZE]
+                  [--clean-backup] [--no-clean-backup] [--upload-backup] [--aws-access-key-id AWS_ACCESS_KEY_ID]
+                  [--aws-secret-access-key AWS_SECRET_ACCESS_KEY] [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION]
+                  [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY]
+                  [--backup-manage-app] [--manage-workspace-id MANAGE_WORKSPACE_ID] [--backup-manage-db]
+                  [--manage-db2-namespace MANAGE_DB2_NAMESPACE] [--manage-db2-instance-name MANAGE_DB2_INSTANCE_NAME]
+                  [--manage-db2-backup-type {offline,online}] [--include-sls] [--exclude-sls]
+                  [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-instance-name MONGODB_INSTANCE_NAME]
+                  [--mongodb-provider {community}] [--sls-namespace SLS_NAMESPACE] [--cert-manager-provider {redhat,ibm}]
+                  [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm]
+                  [--skip-pre-check] [-h]
+
+IBM Maximo Application Suite Admin CLI v18.10.0
+Backup a MAS instance by configuring and launching the MAS Backup Tekton Pipeline.
+
+Interactive Mode:
+Omitting the --instance-id option will trigger an interactive prompt
+
+MAS Instance:
+  -i, --instance-id MAS_INSTANCE_ID
+                        MAS Instance ID to backup
+
+Backup Configuration:
+  --backup-version BACKUP_VERSION
+                        Version/timestamp for the backup (auto-generated if not provided)
+  --backup-storage-size BACKUP_STORAGE_SIZE
+                        Size of the backup PVC storage (default: 20Gi)
+  --clean-backup        Clean backup and config workspaces after completion (default: true)
+  --no-clean-backup     Do not clean backup and config workspaces after completion
+
+Upload Configuration:
+  --upload-backup       Upload the backup archive after completion
+  --aws-access-key-id AWS_ACCESS_KEY_ID
+                        AWS Access Key ID for S3 upload
+  --aws-secret-access-key AWS_SECRET_ACCESS_KEY
+                        AWS Secret Access Key for S3 upload
+  --s3-bucket-name S3_BUCKET_NAME
+                        S3 bucket name for backup upload
+  --s3-region S3_REGION
+                        AWS region for S3 bucket
+  --artifactory-url ARTIFACTORY_URL
+                        Artifactory URL for backup upload (dev-mode only)
+  --artifactory-repository ARTIFACTORY_REPOSITORY
+                        Artifactory repository for backup upload (dev-mode only)
+
+Manage Application Backup:
+  --backup-manage-app   Backup the Manage application
+  --manage-workspace-id MANAGE_WORKSPACE_ID
+                        Manage workspace ID
+  --backup-manage-db    Backup the Manage application database (Db2)
+  --manage-db2-namespace MANAGE_DB2_NAMESPACE
+                        Manage Db2 namespace (default: db2u)
+  --manage-db2-instance-name MANAGE_DB2_INSTANCE_NAME
+                        Manage Db2 instance name
+  --manage-db2-backup-type {offline,online}
+                        Manage Db2 backup type: offline (database unavailable) or online (database remains available)
+
+Components:
+  --include-sls         Include SLS in backup (default: true)
+  --exclude-sls         Exclude SLS from backup (use if SLS is external)
+
+Dependencies Configuration:
+  --mongodb-namespace MONGODB_NAMESPACE
+                        MongoDB namespace (default: mongoce)
+  --mongodb-instance-name MONGODB_INSTANCE_NAME
+                        MongoDB instance name to backup (default: mas-mongo-ce)
+  --mongodb-provider {community}
+                        MongoDB provider (only community is supported for backup)
+  --sls-namespace SLS_NAMESPACE
+                        SLS namespace (default: ibm-sls)
+  --cert-manager-provider {redhat}
+                        Certificate manager provider (default: redhat)
+
+More:
+  --artifactory-username ARTIFACTORY_USERNAME
+                        Username for access to development builds on Artifactory (dev-mode only)
+  --artifactory-token ARTIFACTORY_TOKEN
+                        API Token for access to development builds on Artifactory (dev-mode only)
+  --dev-mode            Configure backup for development mode
+  --no-confirm          Launch the backup without prompting for confirmation
+  --skip-pre-check      Skips the 'pre-backup-check' task in the backup pipeline
+  -h, --help            Show this help message and exit
+</code></pre>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¶</a></h2>
+<h3 id="interactive-backup">Interactive Backup<a class="headerlink" href="#interactive-backup" title="Permanent link">¶</a></h3>
+<p>Launch an interactive backup session that will prompt you for all required configuration:</p>
+<pre><code class="language-bash">mas backup
+</code></pre>
+<h3 id="non-interactive-backup-with-minimal-configuration">Non-Interactive Backup with Minimal Configuration<a class="headerlink" href="#non-interactive-backup-with-minimal-configuration" title="Permanent link">¶</a></h3>
+<p>Backup a specific MAS instance with default settings:</p>
+<pre><code class="language-bash">mas backup --instance-id inst1 --no-confirm
+</code></pre>
+<h3 id="backup-with-custom-storage-size">Backup with Custom Storage Size<a class="headerlink" href="#backup-with-custom-storage-size" title="Permanent link">¶</a></h3>
+<p>Specify a custom storage size for the backup PVC:</p>
+<pre><code class="language-bash">mas backup --instance-id inst1 --backup-storage-size 50Gi --no-confirm
+</code></pre>
+<h3 id="backup-with-custom-version">Backup with Custom Version<a class="headerlink" href="#backup-with-custom-version" title="Permanent link">¶</a></h3>
+<p>Set a custom backup version identifier:</p>
+<pre><code class="language-bash">mas backup --instance-id inst1 --backup-version 1.0.0 --no-confirm
+</code></pre>
+<h3 id="backup-with-s3-upload">Backup with S3 Upload<a class="headerlink" href="#backup-with-s3-upload" title="Permanent link">¶</a></h3>
+<p>Create a backup and automatically upload it to an S3 bucket:</p>
+<pre><code class="language-bash">mas backup \
+  --instance-id inst1 \
+  --upload-backup \
+  --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
+  --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
+  --s3-bucket-name my-mas-backups \
+  --s3-region us-east-1 \
+  --no-confirm
+</code></pre>
+<h3 id="backup-excluding-sls">Backup Excluding SLS<a class="headerlink" href="#backup-excluding-sls" title="Permanent link">¶</a></h3>
+<p>Create a backup without including Suite License Service (useful when SLS is external):</p>
+<pre><code class="language-bash">mas backup --instance-id inst1 --exclude-sls --no-confirm
+</code></pre>
+<h3 id="backup-with-custom-mongodb-configuration">Backup with Custom MongoDB Configuration<a class="headerlink" href="#backup-with-custom-mongodb-configuration" title="Permanent link">¶</a></h3>
+<p>Specify custom MongoDB settings:</p>
+<pre><code class="language-bash">mas backup \
+  --instance-id inst1 \
+  --mongodb-namespace my-mongo \
+  --mongodb-instance-name my-mongo-instance \
+  --mongodb-provider community \
+  --no-confirm
+</code></pre>
+<h3 id="backup-with-custom-sls-configuration">Backup with Custom SLS Configuration<a class="headerlink" href="#backup-with-custom-sls-configuration" title="Permanent link">¶</a></h3>
+<p>Specify a custom SLS namespace:</p>
+<pre><code class="language-bash">mas backup \
+  --instance-id inst1 \
+  --sls-namespace my-sls \
+  --no-confirm
+</code></pre>
+<h3 id="backup-skipping-pre-check">Backup Skipping Pre-Check<a class="headerlink" href="#backup-skipping-pre-check" title="Permanent link">¶</a></h3>
+<p>Skip the pre-backup validation check (use with caution):</p>
+<pre><code class="language-bash">mas backup --instance-id inst1 --skip-pre-check --no-confirm
+</code></pre>
+<h3 id="backup-without-workspace-cleanup">Backup Without Workspace Cleanup<a class="headerlink" href="#backup-without-workspace-cleanup" title="Permanent link">¶</a></h3>
+<p>Keep backup and config workspace contents after completion (useful for troubleshooting):</p>
+<pre><code class="language-bash">mas backup --instance-id inst1 --no-clean-backup --no-confirm
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, workspaces are cleaned after backup completion to free up storage. Use <code>--no-clean-backup</code> only when you need to inspect the workspace contents for troubleshooting purposes.</p>
+</div>
+<h3 id="complete-non-interactive-backup-example">Complete Non-Interactive Backup Example<a class="headerlink" href="#complete-non-interactive-backup-example" title="Permanent link">¶</a></h3>
+<p>A comprehensive example with all major options configured:</p>
+<pre><code class="language-bash">mas backup \
+  --instance-id inst1 \
+  --backup-version 20240315-prod \
+  --backup-storage-size 100Gi \
+  --include-sls \
+  --mongodb-namespace mongoce \
+  --mongodb-instance-name mas-mongo-ce \
+  --mongodb-provider community \
+  --sls-namespace ibm-sls \
+  --cert-manager-provider redhat \
+  --upload-backup \
+  --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
+  --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
+  --s3-bucket-name my-mas-backups \
+  --s3-region us-east-1 \
+  --no-confirm
+</code></pre>
+<h3 id="backup-with-manage-application">Backup with Manage Application<a class="headerlink" href="#backup-with-manage-application" title="Permanent link">¶</a></h3>
+<p>Backup MAS instance including the Manage application and its database:</p>
+<pre><code class="language-bash">mas backup \
+  --instance-id inst1 \
+  --backup-manage-app \
+  --manage-workspace-id masdev \
+  --backup-manage-db \
+  --manage-db2-namespace db2u \
+  --manage-db2-instance-name mas-inst1-masdev-manage \
+  --manage-db2-backup-type offline \
+  --no-confirm
+</code></pre>
+<h3 id="backup-with-manage-application-only-no-database">Backup with Manage Application Only (No Database)<a class="headerlink" href="#backup-with-manage-application-only-no-database" title="Permanent link">¶</a></h3>
+<p>Backup the Manage application without backing up its database:</p>
+<pre><code class="language-bash">mas backup \
+  --instance-id inst1 \
+  --backup-manage-app \
+  --manage-workspace-id masdev \
+  --no-confirm
+</code></pre>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">¶</a></h2>
+<h3 id="backup-process">Backup Process<a class="headerlink" href="#backup-process" title="Permanent link">¶</a></h3>
+<p>The backup command performs the following operations:</p>
+<ol>
+<li><strong>Validates the target cluster</strong> - Ensures OpenShift cluster connectivity and checks for MAS instances</li>
+<li><strong>Prepares the pipeline namespace</strong> - Creates or updates the <code>mas-{instance-id}-pipelines</code> namespace</li>
+<li><strong>Installs OpenShift Pipelines</strong> - Validates or installs the OpenShift Pipelines Operator</li>
+<li><strong>Creates backup PVC</strong> - Provisions persistent storage for the backup data</li>
+<li><strong>Launches the backup pipeline</strong> - Submits a Tekton PipelineRun to perform the backup</li>
+<li><strong>Optionally uploads the backup</strong> - If configured, uploads the backup archive to S3 or Artifactory</li>
+</ol>
+<h3 id="default-values">Default Values<a class="headerlink" href="#default-values" title="Permanent link">¶</a></h3>
+<p>If not specified, the following defaults are used:</p>
+<ul>
+<li><strong>Backup Storage Size</strong>: <code>20Gi</code></li>
+<li><strong>Backup Version</strong>: Auto-generated timestamp in format <code>YYYYMMDD-HHMMSS</code></li>
+<li><strong>Clean Workspaces</strong>: <code>true</code> (workspaces are cleaned after completion)</li>
+<li><strong>MongoDB Namespace</strong>: <code>mongoce</code></li>
+<li><strong>MongoDB Instance Name</strong>: <code>mas-mongo-ce</code></li>
+<li><strong>MongoDB Provider</strong>: <code>community</code></li>
+<li><strong>SLS Namespace</strong>: <code>ibm-sls</code></li>
+<li><strong>Certificate Manager Provider</strong>: <code>redhat</code></li>
+<li><strong>Include SLS</strong>: <code>true</code></li>
+</ul>
+<h3 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">¶</a></h3>
+<p>Ensure sufficient storage is available for the backup PVC. The required size depends on:</p>
+<ul>
+<li>Size of MAS configuration data</li>
+<li>Size of MongoDB database</li>
+<li>Size of SLS data (if included)</li>
+<li>Any additional application data</li>
+</ul>
+<h3 id="upload-destinations">Upload Destinations<a class="headerlink" href="#upload-destinations" title="Permanent link">¶</a></h3>
+<p>Two upload destinations are supported:</p>
+<ul>
+<li><strong>S3</strong>: Standard AWS S3 bucket upload (available in all modes)</li>
+<li><strong>Artifactory</strong>: Artifactory repository upload (requires <code>--dev-mode</code>)</li>
+</ul>
+<h3 id="manage-application-backup">Manage Application Backup<a class="headerlink" href="#manage-application-backup" title="Permanent link">¶</a></h3>
+<p>The backup command can optionally include the Manage application and its Db2 database:</p>
+<ul>
+<li><strong>Manage Application</strong>: Backs up the Manage namespace resources and persistent volume data</li>
+<li><strong>Manage Database</strong>: Backs up the Db2 database associated with the Manage workspace</li>
+<li><strong>Offline backup</strong>: Database is unavailable during backup (required for circular logging)</li>
+<li><strong>Online backup</strong>: Database remains available during backup (requires archive logging)</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If your Db2 instance uses circular logging (default), you must use offline backup type.</p>
+</div>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link">¶</a></h3>
+<p>When running without <code>--instance-id</code>, the command enters interactive mode and will prompt for:</p>
+<ol>
+<li>Target OpenShift cluster connection</li>
+<li>MAS instance selection (if multiple instances exist)</li>
+<li>Backup storage size</li>
+<li>Backup version (or auto-generate)</li>
+<li>Workspace cleanup preference</li>
+<li>Manage application backup configuration (optional)</li>
+<li>Upload configuration (optional)</li>
+</ol>
+<h4 id="example-interactive-mode-output">Example Interactive Mode Output<a class="headerlink" href="#example-interactive-mode-output" title="Permanent link">¶</a></h4>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../../img/backup-cmd.png" data-title="backup-cmd" data-desc-position="bottom"><img alt="backup-cmd" src="../../img/backup-cmd.png"></a></p>
+<h3 id="pipeline-monitoring">Pipeline Monitoring<a class="headerlink" href="#pipeline-monitoring" title="Permanent link">¶</a></h3>
+<p>After launching the backup, a URL to the Tekton PipelineRun will be displayed. Use this URL to monitor the backup progress in the OpenShift Console.</p>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../configtool-oidc/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">configtool-oidc</span>
+      </div>
+    </a>
+    <a href="../restore/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">restore</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#examples" class="md-toc__link" data-md-level="1">
+                  Examples
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#interactive-backup" class="md-toc__link" data-md-level="2">
+                          Interactive Backup
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-backup-with-minimal-configuration" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Backup with Minimal Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-with-custom-storage-size" class="md-toc__link" data-md-level="2">
+                          Backup with Custom Storage Size
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-with-custom-version" class="md-toc__link" data-md-level="2">
+                          Backup with Custom Version
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-with-s3-upload" class="md-toc__link" data-md-level="2">
+                          Backup with S3 Upload
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-excluding-sls" class="md-toc__link" data-md-level="2">
+                          Backup Excluding SLS
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-with-custom-mongodb-configuration" class="md-toc__link" data-md-level="2">
+                          Backup with Custom MongoDB Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-with-custom-sls-configuration" class="md-toc__link" data-md-level="2">
+                          Backup with Custom SLS Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-skipping-pre-check" class="md-toc__link" data-md-level="2">
+                          Backup Skipping Pre-Check
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-without-workspace-cleanup" class="md-toc__link" data-md-level="2">
+                          Backup Without Workspace Cleanup
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#complete-non-interactive-backup-example" class="md-toc__link" data-md-level="2">
+                          Complete Non-Interactive Backup Example
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-with-manage-application" class="md-toc__link" data-md-level="2">
+                          Backup with Manage Application
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-with-manage-application-only-no-database" class="md-toc__link" data-md-level="2">
+                          Backup with Manage Application Only (No Database)
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#notes" class="md-toc__link" data-md-level="1">
+                  Notes
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#backup-process" class="md-toc__link" data-md-level="2">
+                          Backup Process
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#default-values" class="md-toc__link" data-md-level="2">
+                          Default Values
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#storage-requirements" class="md-toc__link" data-md-level="2">
+                          Storage Requirements
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#upload-destinations" class="md-toc__link" data-md-level="2">
+                          Upload Destinations
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#manage-application-backup" class="md-toc__link" data-md-level="2">
+                          Manage Application Backup
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#interactive-mode" class="md-toc__link" data-md-level="2">
+                          Interactive Mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#pipeline-monitoring" class="md-toc__link" data-md-level="2">
+                          Pipeline Monitoring
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>

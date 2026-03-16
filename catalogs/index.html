@@ -162,6 +162,12 @@
   </cds-side-nav-menu-item>
 
     
+      
+  <cds-side-nav-menu-item href="../guides/backup-restore/">
+    Backup and Restore
+  </cds-side-nav-menu-item>
+
+    
   </cds-side-nav-menu>
 
                 
@@ -252,6 +258,18 @@
   </cds-side-nav-menu-item>
 
     
+      
+  <cds-side-nav-menu-item href="../commands/backup/">
+    backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/restore/">
+    restore
+  </cds-side-nav-menu-item>
+
+    
   </cds-side-nav-menu>
 
                 
@@ -265,8 +283,8 @@
 
     
       
-  <cds-side-nav-menu-item href="v9-260305-amd64/">
-    Mar 05 2026
+  <cds-side-nav-menu-item href="v9-260313-amd64/">
+    Mar 13 2026
   </cds-side-nav-menu-item>
 
     
@@ -865,7 +883,7 @@
 <blockquote>
 <p>I want to control when updates are introduced into my cluster</p>
 </blockquote>
-<p>The packages available in the Maximo Operator Catalog are fixed. Multiple installations at different times will always result in exactly the same version of all IBM-provided operators being installed.  To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.  When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. <code>v9-260226-amd64</code> to <code>v9-260305-amd64</code>.</p>
+<p>The packages available in the Maximo Operator Catalog are fixed. Multiple installations at different times will always result in exactly the same version of all IBM-provided operators being installed.  To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.  When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. <code>v9-260305-amd64</code> to <code>v9-260313-amd64</code>.</p>
 <p>We <strong>strongly discourage the use of manual update approval strategy for operator subscriptions</strong> and all IBM-provided automation is designed to work with the automatic update approval strategy only.  In our experience the use of manual subscription approvals leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. We promote a model of <strong>controling when updates are introduced to a cluster at the catalog level</strong>.</p>
 <p>Updating the operators is only one aspect of keeping a system up to date, when using the MAS CLI <a href="../guides/update/">update</a> function many other additional actions will be performed autoamtically, if you are not using the MAS CLI to drive updates then you should implement your own processes for the non-operator update actions that are part of the MAS update pipeline.</p>
 <h4 id="repeatable-install">Repeatable Install<a class="headerlink" href="#repeatable-install" title="Permanent link">¶</a></h4>
@@ -902,7 +920,7 @@ spec:
           <!-- Navigation footer (prev/next) -->
 <nav class="md-footer-nav" aria-label="Footer navigation">
   <div class="md-footer-nav__inner">
-    <a href="../commands/configtool-oidc/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+    <a href="../commands/restore/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
       <div class="md-footer-nav__direction">
         <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
@@ -910,10 +928,10 @@ spec:
         <span>Previous</span>
       </div>
       <div class="md-footer-nav__title">
-        <span class="md-footer-nav__title-text">configtool-oidc</span>
+        <span class="md-footer-nav__title-text">restore</span>
       </div>
     </a>
-    <a href="v9-260305-amd64/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+    <a href="v9-260313-amd64/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
       <div class="md-footer-nav__direction">
         <span>Next</span>
         <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -921,7 +939,7 @@ spec:
         </svg>
       </div>
       <div class="md-footer-nav__title">
-        <span class="md-footer-nav__title-text">Mar 05 2026</span>
+        <span class="md-footer-nav__title-text">Mar 13 2026</span>
       </div>
     </a>
   </div>
