@@ -11,6 +11,11 @@ spec:
     - name: shared-pod-templates
 
   params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
     - name: mas_instance_id
       type: string
       default: ""
@@ -27,6 +32,23 @@ spec:
       default: ""
 
   tasks:
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
     # 1. SLS FVT
     # -------------------------------------------------------------------------
     - name: fvt-sls-operatormaturity
@@ -53,6 +75,8 @@ spec:
           workspace: shared-configs
         - name: pod-templates
           workspace: shared-pod-templates
+      runAfter:
+        - pipeline-start
 
     - name: kyverno
       taskRef:
@@ -78,5 +102,27 @@ spec:
           workspace: shared-configs
         - name: pod-templates
           workspace: shared-pod-templates
+
+  # Finally
+  # ---------------------------------------------------------------------------
+  finally:
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
 
 

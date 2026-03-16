@@ -60,6 +60,23 @@ spec:
       default: "monitor_fvt_with_manage"
 
   tasks:
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+          
     # Manage x Monitor - Data Dictionary
     # -------------------------------------------------------------------------
     # - Requires in the same pipeline:
@@ -104,6 +121,8 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - pipeline-start
 
     # Manage Last Phase
     # -------------------------------------------------------------------------
@@ -119,3 +138,25 @@ spec:
         {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(8) }}
       runAfter:
         - ivt-manage
+    
+  # Finally
+  # ---------------------------------------------------------------------------
+  finally:
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)

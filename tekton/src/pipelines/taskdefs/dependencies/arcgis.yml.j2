@@ -15,21 +15,21 @@
       value: $(params.artifactory_token)
     - name: mas_app_channel
       value: "$(params.mas_app_channel_manage)"
+    - name: mas_app_channel_facilities
+      value: "$(params.mas_app_channel_facilities)"
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
     - name: mas_arcgis_channel
       value: $(params.mas_arcgis_channel)
-    - name: install_arcgis
-      value: $(params.install_arcgis)
   taskRef:
     name: mas-devops-arcgis
     kind: Task
   when:
-    - input: "$(params.mas_app_channel_manage)"
+    - input: "$(params.mas_arcgis_channel)"
       operator: notin
       values: [""]
-    - input: "$(params.install_arcgis)"
-      operator: in
-      values: ["true", "True"]
+    - input: "$(params.mas_app_channel_manage)$(params.mas_app_channel_facilities)"
+      operator: notin
+      values: [""]

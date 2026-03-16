@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -77,6 +77,9 @@ class InstallSummarizerMixin():
 
         print()
         self.printParamSummary("Network Routing Mode", "mas_routing_mode")
+        if self.getParam("mas_routing_mode") == "path":
+            self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
+            self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
         print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
@@ -101,6 +104,15 @@ class InstallSummarizerMixin():
         print()
         self.printParamSummary("IBM Entitled Registry", "mas_icr_cp")
         self.printParamSummary("IBM Open Registry", "mas_icr_cpopen")
+
+        print()
+        self.printParamSummary("Enable feature adoption metrics", "mas_feature_usage")
+
+        print()
+        self.printParamSummary("Enable deployment progression metrics", "mas_deployment_progression")
+
+        print()
+        self.printParamSummary("Enable usability metrics", "mas_usability_metrics")
 
         print()
         self.printParamSummary("Trust Default Cert Authorities", "mas_trust_default_cas")
@@ -130,7 +142,7 @@ class InstallSummarizerMixin():
             self.printSummary("Monitor", "Do Not Install")
 
     def arcgisSummary(self) -> None:
-        if self.getParam("install_arcgis") != "":
+        if self.installArcgis:
             self.printSummary("Loc Srv Esri (arcgis)", self.params["mas_arcgis_channel"])
         else:
             self.printSummary("Loc Srv Esri (arcgis)", "Do Not Install")
@@ -164,7 +176,7 @@ class InstallSummarizerMixin():
     def manageSummary(self) -> None:
         if self.installManage:
             self.printSummary(f"{'Manage foundation' if self.getParam('mas_appws_components') == '' else 'Manage'}", self.params["mas_app_channel_manage"])
-            if self.getParam("mas_appws_components") == "":
+            if self.getParam("mas_appws_components") != "":
                 print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
                 self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
@@ -199,6 +211,11 @@ class InstallSummarizerMixin():
                 self.printParamSummary("  + Schema", "mas_app_settings_db2_schema")
                 self.printParamSummary("  + Tablespace", "mas_app_settings_tablespace")
                 self.printParamSummary("  + Indexspace", "mas_app_settings_indexspace")
+
+            if self.getParam("manage_bind_aiservice_tenant_id") != "":
+                print_formatted_text(HTML("  <SkyBlue>+ AI Service Binding (for Manage)</SkyBlue>"))
+                self.printParamSummary("  + Bound AI Service Instance ID", "manage_bind_aiservice_instance_id")
+                self.printParamSummary("  + Bound AI Service Tenant ID", "manage_bind_aiservice_tenant_id")
         else:
             self.printSummary("Manage", "Do Not Install")
 
@@ -208,6 +225,7 @@ class InstallSummarizerMixin():
             self.printSummary("Facilities", self.params["mas_app_channel_facilities"])
             print_formatted_text(HTML("  <SkyBlue>+ Maximo Real Estate and Facilities Settings</SkyBlue>"))
             self.printParamSummary("  + Size", "mas_ws_facilities_size")
+            self.printParamSummary("  + Application Object Migration", "mas_ws_facilities_app_om_upgrade_mode")
             self.printParamSummary("  + Routes Timeout", "mas_ws_facilities_routes_timeout")
             self.printParamSummary("  + XML Extension", "mas_ws_facilities_liberty_extension_XML")
             self.printParamSummary("  + AES vault secret name", "mas_ws_facilities_vault_secret")
@@ -225,6 +243,42 @@ class InstallSummarizerMixin():
                 self.printParamSummary("  + Dedicated DB2 Database", "db2_action_facilities")
         else:
             self.printSummary("Facilities", "Do Not Install")
+
+    def aiServiceSummary(self) -> None:
+        if self.installAIService:
+            self.printH2("AI Service")
+            self.printParamSummary("Release", "aiservice_channel")
+            self.printParamSummary("Instance ID", "aiservice_instance_id")
+            self.printParamSummary("Environment Type", "environment_type")
+
+            if "aiservice_certificate_issuer" in self.params:
+                self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
+
+            self.printH2("AI Service Tenant Entitlement")
+            self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
+            self.printParamSummary("Start Date", "tenant_entitlement_start_date")
+            self.printParamSummary("End Date", "tenant_entitlement_end_date")
+
+            self.printH2("S3 Configuration")
+            # self.printParamSummary("Storage provider", "aiservice_s3_provider")
+            if self.getParam("minio_root_user") is not None and self.getParam("minio_root_user") != "":
+                self.printParamSummary("Minio Root Username", "minio_root_user")
+            print()
+            self.printParamSummary("Host", "aiservice_s3_host")
+            self.printParamSummary("Port", "aiservice_s3_port")
+            self.printParamSummary("SSL Enabled", "aiservice_s3_ssl")
+            self.printParamSummary("Region", "aiservice_s3_region")
+            self.printParamSummary("Bucket Prefix", "aiservice_s3_bucket_prefix")
+            self.printParamSummary("Templates Bucket Name", "aiservice_s3_templates_bucket")
+            self.printParamSummary("Tenants Bucket Name", "aiservice_s3_tenants_bucket")
+
+            self.printH2("IBM WatsonX")
+            self.printParamSummary("URL", "aiservice_watsonxai_url")
+            self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
+
+            self.printH2("RSL")
+            self.printParamSummary("URL", "rsl_url")
+            self.printParamSummary("Organization ID", "rsl_org_id")
 
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
@@ -284,7 +338,10 @@ class InstallSummarizerMixin():
         self.printH2("IBM Suite License Service")
         self.printParamSummary("Namespace", "sls_namespace")
         if self.getParam("sls_action") == "install":
-            self.printSummary("Subscription Channel", "3.x")
+            if self.getParam("sls_channel") != "":
+                self.printSummary("Subscription Channel", self.getParam("sls_channel"))
+            else:
+                self.printSummary("Subscription Channel", "3.x")
             self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
             if self.slsLicenseFileLocal:
                 self.printSummary("License File", self.slsLicenseFileLocal)
@@ -347,11 +404,16 @@ class InstallSummarizerMixin():
 
     def grafanaSummary(self) -> None:
         self.printH2("Grafana")
-        self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
+        if self.getParam("grafana_action") == "install":
+            self.printSummary("Install Grafana", "Install")
+            self.printParamSummary("Grafana namespace", "grafana_v5_namespace")
+            self.printParamSummary("Grafana storage size", "grafana_instance_storage_size")
+        else:
+            self.printSummary("Install Grafana", "Do Not Install")
 
     def installSummary(self) -> None:
-        self.printH2("Install Process")
-        self.printSummary("Wait for PVCs to bind", "No" if self.getParam("no_wait_for_pvc") else "Yes")
+        pass
+        # self.printH2("Install Process")
 
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
@@ -379,6 +441,7 @@ class InstallSummarizerMixin():
         self.assistSummary()
         self.inspectionSummary()
         self.facilitiesSummary()
+        self.aiServiceSummary()
 
         # Application Dependencies
         self.mongoSummary()

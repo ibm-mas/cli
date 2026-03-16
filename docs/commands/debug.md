@@ -8,6 +8,7 @@ Usage
 ### Commands
 - `coredump` generate and collect a javacore and a system dump from a mas or manage pod running liberty server
 - `threaddump` generate and collect one or more threaddump / javacore from a mas or manage pod running liberty server
+- `haproxy-logging` enable or disable ocp haproxy logging and collects corresponding logs.
 
 
 ### Destination
@@ -29,6 +30,12 @@ Usage
 - `-t` Time between collection of javacore (default is 10 seconds)
 - `-n` How many javacores will be collected (default is 1)
 - `-r|--rm` Remove all the javacores files present in the targeted pod
+
+### haproxy-logging specific parameters
+- `--enable` Enables haproxy logging on the cluster
+- `--disable` Removes haproxy logging configuration from the ingresscontroller resource
+- `-c, --collect` Collects the logs from the logs container in the router pods
+
 
 ### Other Options
 - `-h|--help`    Show this help message
@@ -87,4 +94,19 @@ mas debug threaddump  --namespace mas-test-manage -p test-testws-foundation-5495
 **Javacore creation for server bundle:** Generate a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:
 ```bash
 mas debug threaddump --namespace mas-test-manage -s ui -d /mnt/home -t 10 -n 5
+```
+
+**enable haproxy logging:** 
+```bash
+mas debug haproxy-logging --enable
+```
+
+**disable haproxy logging:** 
+```bash
+mas debug haproxy-logging --disable
+```
+
+**collect haproxy logging:** 
+```bash
+mas debug haproxy-logging --collect -d /mnt/home
 ```

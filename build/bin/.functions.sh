@@ -52,7 +52,7 @@ function echo_highlight() {
 # - https://stackoverflow.com/questions/65365797/docker-buildx-exec-user-process-caused-exec-format-error
 function install_buildx() {
   mkdir -vp ~/.docker/cli-plugins/
-  curl --silent -L "https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
+  curl --silent -L "https://github.com/docker/buildx/releases/download/v0.31.1/buildx-v0.31.1.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
   chmod a+x ~/.docker/cli-plugins/docker-buildx
 
   sudo apt-get update
@@ -91,7 +91,7 @@ function artifactory_upload() {
   sha1Value="${sha1Value:0:40}"
 
   echo "Uploading $1 to $2"
-  curl -H "Authorization:Bearer $ARTIFACTORY_TOKEN"  -H "X-Checksum-Md5: $md5Value" -H "X-Checksum-Sha1: $sha1Value" -T $1 $2 || exit 1
+  curl --fail -H "Authorization:Bearer $ARTIFACTORY_TOKEN"  -H "X-Checksum-Md5: $md5Value" -H "X-Checksum-Sha1: $sha1Value" -T $1 $2 || exit 1
 }
 
 # install oscap tools

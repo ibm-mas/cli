@@ -30,6 +30,12 @@ spec:
       type: string
     - name: aiservice_instance_id
       type: string
+    - name: aiservice_catalog_channel
+      type: string
+    - name: aiservice_tenant_catalog_channel
+      type: string
+    - name: catalog_source
+      type: string
     - name: tenantNamespace
       type: string
     - name: tenant_id
@@ -85,6 +91,11 @@ spec:
     - name: tenant_entitlement_end_date
       type: string
 
+    # standalone sls
+    - name: sls_service
+      type: string
+      default: ""
+
   workspaces:
     - name: configs
   tasks:
@@ -121,6 +132,12 @@ spec:
           value: $(params.aiservice_provision_tenant)
         - name: aiservice_instance_id
           value: $(params.aiservice_instance_id)
+        - name: aiservice_catalog_channel
+          value: $(params.aiservice_catalog_channel)
+        - name: aiservice_tenant_catalog_channel
+          value: $(params.aiservice_tenant_catalog_channel)
+        - name: catalog_source
+          value: $(params.catalog_source)
         - name: tenantNamespace
           value: $(params.tenantNamespace)
         - name: tenant_id
@@ -173,4 +190,5 @@ spec:
           value: $(params.tenant_entitlement_start_date)
         - name: tenant_entitlement_end_date
           value: $(params.tenant_entitlement_end_date)
-        
+        - name: sls_service
+          value: $(params.sls_service)

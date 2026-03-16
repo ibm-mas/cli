@@ -1,6 +1,7 @@
 # Why are these suites disruptive?
 # - smtp: only test_smtpcfg is disruptive - deletes and recreates SMTPCfg multiple times
 # - trustcas: changes Suite config and verifies using SCIM whether defult CAs are included (or not) in the truststore
+# - pathbasedrouting: changes the suite routingMode, recreates routes and causes a number of pods to restart.
 # - adoptionusagemetering: I can't see anything disruptive happening in this suite at all !?
 # - coreidp-ldap: reconfigures MAS IDP multiple times
 # - coreidp-saml: reconfigures MAS IDP multiple times
@@ -41,7 +42,7 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter: {{ runAfter }}
 
-# authservice ~3m
+# 4. authservice ~3m
 # -----------------------------------------------------------------------------
 - name: authservice
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -54,7 +55,18 @@
     - core-trustcas
     - adoptionusagemetering
 
-# 4. coreidp-ldap
+# 5. pathbasedrouting
+# -------------------------------------------------------------------------
+- name: pathbasedrouting
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: pathbasedrouting
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: 
+    - authservice
+
+# 6. coreidp-ldap
 # -------------------------------------------------------------------------
 - name: coreidp-ldap
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -63,9 +75,9 @@
       value: coreidp-ldap
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - authservice
+    - pathbasedrouting
 
-# 5. coreidp-saml
+# 7. coreidp-saml
 # -------------------------------------------------------------------------
 - name: coreidp-saml
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -76,7 +88,7 @@
   runAfter:
     - coreidp-ldap
 
-# 6. coreidp-saml-ui
+# 8. coreidp-saml-ui
 # -------------------------------------------------------------------------
 - name: coreidp-saml-ui
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -87,7 +99,7 @@
   runAfter:
     - coreidp-saml
 
-# 7. coreidp-ssoconfig
+# 9. coreidp-ssoconfig
 # -------------------------------------------------------------------------
 - name: coreidp-ssoconfig
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -98,7 +110,7 @@
   runAfter:
     - coreidp-saml-ui
 
-# 8. licensingapi
+# 10. licensingapi
 # -------------------------------------------------------------------------
 - name: licensingapi
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -109,7 +121,7 @@
   runAfter:
     - coreidp-ssoconfig
 
-# 9. usagebilling
+# 11. usagebilling
 # -------------------------------------------------------------------------
 - name: usagebilling
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -125,7 +137,7 @@
     - name: pod-templates
       workspace: shared-pod-templates
 
-# 10. operatormaturity
+# 12. operatormaturity
 # -------------------------------------------------------------------------
 - name: operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}

@@ -1,0 +1,109 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-provision-msk
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: msk_source
+      type: string
+
+   # iac-msk iot params
+    - name: msk_kafka_version
+      type: string
+    - name: msk_instance_type
+      type: string
+    - name: msk_cluster_username
+      type: string
+    - name: msk_broker_volume_size
+      type: string
+    - name: msk_number_of_broker_nodes
+      type: string
+    - name: msk_cluster_prefix
+      type: string
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MSK_SOURCE
+        value: $(params.msk_source)
+
+      # iac-msk params
+      - name: MSK_KAFKA_VERSION
+        value: $(params.msk_kafka_version)
+      - name: MSK_INSTANCE_TYPE
+        value: $(params.msk_instance_type)
+      - name: MSK_CLUSTER_USERNAME
+        value: $(params.msk_cluster_username)
+      - name: MSK_BROKER_VOLUME_SIZE
+        value: $(params.msk_broker_volume_size)
+      - name: MSK_NUMBER_OF_BROKER_NODES
+        value: $(params.msk_number_of_broker_nodes)
+      - name: MSK_CLUSTER_PREFIX
+        value: $(params.msk_cluster_prefix)
+
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: provision-msk
+      args:
+        - |-
+          git config --global user.name "MAS Automation"
+          git config --global user.email "you@example.com"
+          git config --global user.password $GITHUB_PAT
+
+          CMD="mas gitops-iac-provision-msk -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
+
+          echo "Executing: $CMD"
+          eval $CMD
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-iac

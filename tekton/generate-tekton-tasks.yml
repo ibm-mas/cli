@@ -52,6 +52,7 @@
         - minio
         - aiservice
         - odh
+        - rhoai
         - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
@@ -72,6 +73,7 @@
         - mas-fvt-deprovision-cos
         - mas-fvt-deprovision-kafka
         - mas-fvt-finalize
+        - mas-fvt-pipeline-finish-and-deprovision
         - mas-fvt-iot
         - mas-fvt-manage
         - mas-fvt-mobile-testng
@@ -104,6 +106,7 @@
         - mas-launchfvt-finally
         - mas-launchfvt-iot
         - mas-launchfvt-manage
+        - mas-launchfvt-manage-ai
         - mas-launchfvt-manage-is
         - mas-launchfvt-mobile
         - mas-launchfvt-monitor
@@ -133,12 +136,19 @@
         src: "{{ task_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - clean-workspaces
+        - prepare-backup-workspace
+        - download-backup-archive
         - gencfg-workspace
         - must-gather
+        - suite-app-backup
         - suite-app-install
+        - suite-app-restore
+        - suite-app-rollback
         - suite-app-uninstall
         - suite-app-upgrade
-        - suite-app-rollback
+        - suite-backup
+        - suite-restore
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
@@ -149,10 +159,11 @@
         - suite-uninstall
         - suite-upgrade
         - suite-verify
+        - upload-backup-archive
 
     # 7. Generate Tasks (OCP)
     # -------------------------------------------------------------------------
-    - name: Generate Tasks (Suite)
+    - name: Generate Tasks (OCP)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/ocp/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
@@ -168,6 +179,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - update-configmap
+        - update-pipeline-status
         - wait-for-configmap
         - wait-for-configmap-v2
         - wait-for-tekton
@@ -221,6 +233,7 @@
         - gitops-deprovision-suite
         - gitops-dro
         - gitops-efs
+        - gitops-efs-csi-driver
         - gitops-jdbc-config
         - gitops-kafka
         - gitops-kafka-config
@@ -248,14 +261,18 @@
         - gitops-suite
         - gitops-odh
         - gitops-deprovision-odh
-
         - gitops-aiservice
         - gitops-aiservice-tenant
         - gitops-deprovision-aiservice-tenant
         - gitops-deprovision-aiservice
+        - gitops-app-config
+        - gitops-delete-app-config
         - gitops-iac-create-branch
         - gitops-iac-generate-common-files
         - gitops-iac-manage-pr
         - gitops-iac-provision-efs
         - gitops-iac-provision-s3
+        - gitops-iac-provision-msk
+        - gitops-rds-db2-database
+        - gitops-iac-provision-rdsdb2
 

@@ -27,6 +27,8 @@ echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas update${TEXT_RESET} to apply a new catal
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas upgrade${TEXT_RESET} to upgrade an existing MAS install to a new release"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas must-gather${TEXT_RESET} to perform must-gather against the target cluster"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas uninstall${TEXT_RESET} to uninstall a MAS instance"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas backup${TEXT_RESET} to backup a MAS instance"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas restore${TEXT_RESET} to restore a MAS instance"
 
 # None of these functions are tested/supported on s390x /ppc64le yet
 if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
@@ -44,5 +46,7 @@ if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
     echo "AI Service (Standalone) Management:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-install${TEXT_RESET} to install a new AI Service instance"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-upgrade${TEXT_RESET} to upgrade a existing AI Service instance"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-mirror-images${TEXT_RESET} to mirror container images required by AIService to a private registry"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-configure-airgap${TEXT_RESET} to configure a cluster to use a private registry as a mirror for AIService"
     echo
 fi

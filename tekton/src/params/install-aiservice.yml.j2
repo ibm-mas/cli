@@ -4,6 +4,14 @@
   type: string
   description: AI Service instance id
   default: ""
+- name: manage_bind_aiservice_instance_id
+  type: string
+  description: AI Service Instance ID to bind with Manage
+  default: ""
+- name: manage_bind_aiservice_tenant_id
+  type: string
+  description: AI Service Tenant ID to bind with Manage
+  default: ""
 - name: aiservice_channel
   type: string
   description: Default channel for IBM Maximo AI Service
@@ -56,6 +64,14 @@
   type: string
   description: Model deployment type for ODH. Must be one of; [raw, serverless]
   default: "raw"
+- name: aiservice_rhoai_model_deployment_type
+  type: string
+  description: Model deployment type for Redhat Openshift AI. Must be one of; [raw, serverless]
+  default: "raw"
+- name: rhoai
+  type: string
+  description: flag to install rhoai
+  default: ""
 
 - name: minio_root_user
   type: string
@@ -145,4 +161,11 @@
 - name: rsl_token
   type: string
   description: token for RSL
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - Certificate Issuer
+# -----------------------------------------------------------------------------
+- name: aiservice_certificate_issuer
+  type: string
+  description: Name of the Issuer to configure AI Service to issue certificates
   default: ""

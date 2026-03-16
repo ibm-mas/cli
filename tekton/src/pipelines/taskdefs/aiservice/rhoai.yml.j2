@@ -1,0 +1,37 @@
+- name: aiservice-rhoai
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: aiservice-rhoai
+
+    - name: mas_instance_id
+{% if application is defined and application == "aiservice" %}
+      value: $(params.aiservice_instance_id)
+{% else %}
+      value: $(params.mas_instance_id)
+{% endif %}
+    - name: artifactory_username
+      value: $(params.artifactory_username)
+    - name: artifactory_token
+      value: $(params.artifactory_token)
+    - name: aiservice_channel
+      value: "$(params.aiservice_channel)"
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
+    - name: custom_labels
+      value: $(params.custom_labels)
+    - name: aiservice_rhoai_model_deployment_type
+      value: $(params.aiservice_rhoai_model_deployment_type)
+    - name: rhoai
+      value: $(params.rhoai)
+
+  taskRef:
+    name: mas-devops-aiservice-rhoai
+    kind: Task
+  when:
+    - input: "$(params.aiservice_channel)"
+      operator: notin
+      values: [""]
+    - input: "$(params.rhoai)"
+      operator: in
+      values: ["true"]

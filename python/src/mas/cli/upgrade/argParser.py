@@ -26,13 +26,19 @@ upgradeArgParser = argparse.ArgumentParser(
     add_help=False
 )
 
-masArgGroup = upgradeArgParser.add_argument_group('MAS Instance Selection')
+masArgGroup = upgradeArgParser.add_argument_group(
+    'MAS Instance Selection',
+    'Select the MAS instance to upgrade to the next available release.'
+)
 masArgGroup.add_argument(
     '--mas-instance-id',
     required=False,
     help="The MAS instance ID to be upgraded"
 )
-otherArgGroup = upgradeArgParser.add_argument_group('More')
+otherArgGroup = upgradeArgParser.add_argument_group(
+    'More',
+    'Additional options including pre-check control, confirmation prompts, license acceptance, and development mode.'
+)
 otherArgGroup.add_argument(
     '--skip-pre-check',
     required=False,

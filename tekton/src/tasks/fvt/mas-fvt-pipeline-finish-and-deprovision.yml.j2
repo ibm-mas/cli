@@ -1,0 +1,207 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-fvt-pipeline-finish-and-deprovision
+spec:
+  params:
+    # Common CLI parameters (required by cli-env.yml.j2)
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+    
+    # Pipeline status parameters
+    - name: pipeline_status
+      type: string
+      description: "tasks.status value: Succeeded, Failed, Completed, or None"
+    - name: pipeline_name
+      type: string
+      description: "Provide the name of the pipeline"
+    - name: pipelinerun_name
+      type: string
+      description: "Provide the name of the pipelinerun"
+    - name: pipelinerun_namespace
+      type: string
+      description: "Provide the namespace of the pipelinerun"
+    
+    # Deprovision control parameter
+    - name: deprovision
+      type: string
+      default: "true"
+      description: "Enable deprovision of the target cluster (only runs if pipeline_status=Succeeded)"
+
+  steps:
+    # Step 1: Update pipeline status (always runs)
+    - name: pipeline-finish
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/update-pipeline-status.py
+      env:
+        - name: DEVOPS_MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_MONGO_URI
+              optional: true
+        - name: DEVOPS_BUILD_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: DEVOPS_ENVIRONMENT
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MAS_INSTANCE_ID
+              optional: true
+        - name: PIPELINE_STATUS
+          value: $(params.pipeline_status)
+        - name: PIPELINE_NAME
+          value: $(params.pipeline_name)
+        - name: PIPELINERUN_NAME
+          value: $(params.pipelinerun_name)
+        - name: PIPELINERUN_NAMESPACE
+          value: $(params.pipelinerun_namespace)
+
+    # Step 2: Deprovision cluster (conditional - only on success)
+    - name: deprovision-cluster
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/bash
+          set -e
+          
+          echo "=========================================="
+          echo "Cluster Deprovision - Conditional Check"
+          echo "=========================================="
+          echo "Deprovision parameter: $(params.deprovision)"
+          echo "Pipeline status: $(params.pipeline_status)"
+          echo ""
+          
+          # Check if deprovision is disabled
+          if [[ "$(params.deprovision)" != "true" && "$(params.deprovision)" != "True" ]]; then
+            echo "Deprovision is disabled (deprovision=$(params.deprovision))"
+            echo "Skipping cluster deprovision"
+            exit 0
+          fi
+          
+          # Check if pipeline succeeded
+          if [[ "$(params.pipeline_status)" != "Succeeded" ]]; then
+            echo "Pipeline status is '$(params.pipeline_status)' (not 'Succeeded')"
+            echo "Preserving cluster for debugging - skipping deprovision"
+            echo ""
+            echo "Cluster will remain available for investigation"
+            exit 0
+          fi
+          
+          echo "Pipeline succeeded and deprovision enabled - proceeding with cluster deprovision"
+          echo ""
+          
+          # Run the deprovision role
+          /opt/app-root/src/run-role.sh ocp_deprovision
+      env:
+        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
+
+        # Cluster Details
+        - name: CLUSTER_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: CLUSTER_NAME
+              optional: true
+        - name: CLUSTER_TYPE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: CLUSTER_TYPE
+              optional: true
+
+        # ROKS Support
+        - name: IBMCLOUD_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IBMCLOUD_APIKEY
+              optional: true
+
+        # FYRE Support
+        - name: FYRE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FYRE_USERNAME
+              optional: true
+        
+        - name: FYRE_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FYRE_APIKEY
+              optional: true
+
+        - name: FYRE_SITE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FYRE_SITE
+              optional: true
+
+        # AWS (IPI) Support
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: AWS_ACCESS_KEY_ID
+              optional: true
+        
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: AWS_SECRET_ACCESS_KEY
+              optional: true
+
+        - name: IPI_DIR
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IPI_DIR
+              optional: true
+
+        - name: IPI_CONFIG_DIR
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IPI_CONFIG_DIR
+              optional: true
+
+        - name: IPI_PLATFORM
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IPI_PLATFORM
+              optional: true
+
+        - name: OCP_VERSION
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: OCP_VERSION
+              optional: true
+
+        - name: FVT_ARTIFACTORY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_USERNAME
+              optional: true
+                    
+        - name: FVT_ARTIFACTORY_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_TOKEN
+              optional: true

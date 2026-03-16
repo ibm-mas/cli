@@ -2,10 +2,15 @@
 
 function configure_ocp_for_mirror_help() {
   [[ -n "$1" ]] && echo_warning "$1"
+  if [[ -n "$PRODUCT_FAMILY" && "${PRODUCT_FAMILY^^}" = "AISERVICE" ]]; then
+      COMMAND="aiservice-configure-airgap"
+  else
+      COMMAND="configure-airgap"
+  fi
   reset_colors
   cat << EOM
 Usage:
-  mas configure-airgap [options]
+  mas ${COMMAND} [options]
 
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
@@ -21,7 +26,8 @@ Private Registry Prefix (Optional):
   -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}            Prefix for the mirror image
 
 Setup Red Hat Operator Catalogs (Optional):
-  --setup-redhat-catalogs                 Set up Red Hat Operator, Community, and Certified catalogs with ICSP
+  --setup-redhat-catalogs                 Set up Red Hat Operator, Community, and Certified catalogs with IDMS
+  --setup-redhat-release                  Set up Red Hat release with IDMS
 
 Other Commands:
       --no-confirm                        Provision the cluster without prompting for confirmation
@@ -64,6 +70,10 @@ function configure_ocp_for_mirror_noninteractive() {
       --setup-redhat-catalogs)
         SETUP_REDHAT_CATALOGS=true
         OCP_OPERATORHUB_DISABLE_REDHAT_SOURCES=true
+        ;;
+
+      --setup-redhat-release)
+        SETUP_REDHAT_RELEASE=true
         ;;
 
       --no-confirm)
@@ -137,6 +147,7 @@ function configure_ocp_for_mirror_interactive() {
   reset_colors
 
   prompt_for_confirm "Enable IBM managed Red Hat catalogs?" SETUP_REDHAT_CATALOGS
+  prompt_for_confirm "Enable IBM managed Red Hat Release?" SETUP_REDHAT_RELEASE
 
 }
 
@@ -159,6 +170,7 @@ function configure_ocp_for_mirror() {
   export REGISTRY_PASSWORD
 
   export SETUP_REDHAT_CATALOGS
+  export SETUP_REDHAT_RELEASE
   export OCP_OPERATORHUB_DISABLE_REDHAT_SOURCES
   export OCP_RELEASE
 
@@ -180,6 +192,8 @@ function configure_ocp_for_mirror() {
   else
     echo_reset_dim "Management Mode ........... ${COLOR_MAGENTA}User Managed/Configured"
   fi
+
+  echo_reset_dim "Redhat Release ........... ${COLOR_MAGENTA}${SETUP_REDHAT_RELEASE}"
   reset_colors
 
   echo

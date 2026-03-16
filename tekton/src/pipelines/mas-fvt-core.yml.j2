@@ -48,6 +48,23 @@ spec:
       default: ""
 
   tasks:
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
     - name: kyverno
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -62,6 +79,8 @@ spec:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
+      runAfter:
+        - pipeline-start
 
     # Core FVT 1.0 coreidp-auth ~20m - Refresh token and authentication patterns
     # We are running this test first since it happens to set the Suite accessTokenTimeout from the default of 30m to 12h
@@ -86,7 +105,7 @@ spec:
     # Phase 2
     # -------------------------------------------------------------------------
     # Suites that take less than 25 minutes
-    {{ lookup('template', 'taskdefs/fvt-core/phase2-under30min.yml.j2', template_vars={'runAfter': [ 'ibmadminissuer', 'adoptionusageapi', 'coreapi-apikeymgmt', 'coreapi-mobileapi', 'coreapi-messages', 'coreapi-graphiteconfigtool', 'coreapi-scimv2', 'coreapi-uicustomizations']}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-core/phase2-under30min.yml.j2', template_vars={'runAfter': [ 'adoptionusageapi', 'coreapi-apikeymgmt', 'coreapi-mobileapi', 'coreapi-messages', 'coreapi-graphiteconfigtool', 'coreapi-scimv2', 'coreapi-uicustomizations']}) | indent(4) }}
 
     # Phase 3
     # -------------------------------------------------------------------------
@@ -114,3 +133,22 @@ spec:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
+
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)

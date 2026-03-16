@@ -28,6 +28,8 @@
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
         # MAS Pipelines
+        - mas-backup
+        - mas-restore
         - mas-install
         - mas-update
         - mas-upgrade
@@ -40,6 +42,7 @@
         - mas-fvt-iot
         - mas-fvt-finally
         - mas-fvt-manage
+        - mas-fvt-manage-ai
         - mas-fvt-manage-is
         - mas-fvt-manage-regr
         - mas-fvt-mobile-pytest

@@ -457,7 +457,7 @@ function create_common_files() {
   # Handle backend.tf with template
   if [[ ! -f "$cluster_dir/backend.tf" ]]; then
     echo "  Creating backend.tf from template"
-    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-backend.yaml.j2" "$cluster_dir/backend.tf.json"
+    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-backend.tf.j2" "$cluster_dir/backend.tf.json"
   else
     echo "  File already exists: backend.tf"
   fi
@@ -465,7 +465,7 @@ function create_common_files() {
   # Handle provider.tf with template
   if [[ ! -f "$cluster_dir/provider.tf" ]]; then
     echo "  Creating provider.tf from template"
-    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-provider.yaml.j2" "$cluster_dir/provider.tf"
+    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-provider.tf.j2" "$cluster_dir/provider.tf"
   else
     echo "  File already exists: provider.tf"
   fi

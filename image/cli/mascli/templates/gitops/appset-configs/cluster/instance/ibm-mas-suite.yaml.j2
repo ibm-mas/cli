@@ -4,6 +4,9 @@ ibm_mas_suite:
   cert_manager_namespace: "{{ CERT_MANAGER_NAMESPACE }}"
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
   domain: "{{ DOMAIN }}"
+  mas_feature_usage: "{{ MAS_FEATURE_USAGE }}"
+  mas_deployment_progression: "{{ MAS_DEPLOYMENT_PROGRESSION }}"
+  mas_usability_metrics: "{{ MAS_USABILITY_METRICS }}"
 
 {%- if DNS_PROVIDER is defined and DNS_PROVIDER !='' %}
   # suite dns
@@ -40,6 +43,12 @@ ibm_mas_suite:
 {% else %}
   mas_manual_cert_mgmt: false
 {% endif %}
+{%- if MAS_ROUTING_MODE is defined and MAS_ROUTING_MODE !='' %}
+  routing_mode: "{{ MAS_ROUTING_MODE }}"
+{%- endif %}
+{%- if MAS_INGRESS_CONTROLLER_NAME is defined and MAS_INGRESS_CONTROLLER_NAME !='' %}
+  ingress_controller_name: "{{ MAS_INGRESS_CONTROLLER_NAME }}"
+{%- endif %}
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
   mas_annotations:
     {{ MAS_ANNOTATIONS | indent(4) }}

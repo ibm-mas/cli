@@ -433,12 +433,28 @@
 - name: mas_icr_cpopen
   type: string
   default: ""
+- name: mas_feature_usage
+  type: string
+  description: Flag to control feature adoption metrics used to understand feature usage and improve the product
+  default: "True"
+- name: mas_usability_metrics
+  type: string
+  description: Flag to control user interface interaction metrics to improve usability
+  default: "True"
+- name: mas_deployment_progression
+  type: string
+  description: Flag to control metrics used to understand progression of tasks and workflows within the product
+  default: "True"
 - name: mas_annotations
   type: string
   default: ""
 - name: mas_routing_mode
   type: string
   default: ""
+- name: mas_ingress_controller_name
+  type: string
+  default: ""
+  description: Name of the IngressController to use for path-based routing
 - name: mas_trust_default_cas
   type: string
   default: ""
@@ -619,25 +635,25 @@
   type: string
   description: Password to authenticate into Manage custom archive url (if required)
   default: ""
-- name: mas_app_settings_crypto_key
+- name: mas_manage_encryptionsecret_crypto_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_CRYPTO_KEY
   default: ""
-- name: mas_app_settings_cryptox_key
+- name: mas_manage_encryptionsecret_cryptox_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_CRYPTOX_KEY
   default: ""
-- name: mas_app_settings_old_crypto_key
+- name: mas_manage_encryptionsecret_old_crypto_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTO_KEY
   default: ""
-- name: mas_app_settings_old_cryptox_key
+- name: mas_manage_encryptionsecret_old_cryptox_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTOX_KEY
   default: ""
-- name: mas_app_settings_override_encryption_secrets_flag
+- name: mas_manage_ws_db_encryptionsecret
   type: string
-  description: Defines if Manage database encryption secret should be overriden with new values provided
+  description: Name of the Manage database encryption secret
   default: ""
 - name: mas_app_settings_default_jms
   type: string
@@ -662,13 +678,9 @@
 
 # MAS Application Configuration - IBM Maximo Location Services for ESRI
 # -----------------------------------------------------------------------------
-- name: install_arcgis
-  type: string
-  description: Flag to control whether to install IBM Maximo Location Services for ESRI
-  default: ""
 - name: mas_arcgis_channel
   type: string
-  description: Default channel for IBM Maximo Location Services for ESRI
+  description: Subscription channel for IBM Maximo Location Services for ESRI. Setting this will trigger ArcGIS installation.
   default: "" # default is handled by ansible-devops
 
 # MAS Application Configuration - Health Application
@@ -699,6 +711,10 @@
   type: string
   description: Size of the Facilities Deployment
   default: "small"
+- name: mas_ws_facilities_app_om_upgrade_mode
+  type: string
+  description: Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades. 
+  default: ""
 - name: mas_ws_facilities_routes_timeout
   type: string
   description: Optional. Connection timeout of the route.

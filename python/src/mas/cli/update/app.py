@@ -19,7 +19,7 @@ from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser
-from mas.devops.data import getCatalog
+from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.aiservice import listAiServiceInstances
@@ -98,7 +98,7 @@ class UpdateApp(BaseApp):
         isMasInstalled = self.reviewMASInstance()
         isAiServiceInstalled = self.reviewAiServiceInstance()
         if not isMasInstalled and not isAiServiceInstalled:
-            self.fatalError(["No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details"])
+            self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
 
         if self.args.mas_catalog_version is None:
             # Interactive mode
@@ -107,6 +107,8 @@ class UpdateApp(BaseApp):
         # Validations
         if not self.devMode:
             self.validateCatalog()
+        else:
+            self.chosenCatalog = getCatalog(getNewestCatalogTag())
 
         self.printH1("Dependency Update Checks")
         with Halo(text='Checking for IBM Watson Discovery', spinner=self.spinner) as h:
@@ -150,7 +152,7 @@ class UpdateApp(BaseApp):
 
         self.printH2("Supported Dependency Updates")
         if self.getParam("db2_namespace") != "":
-            self.printSummary("IBM Db2", f"All Db2uCluster instances in {self.getParam('db2_namespace')}")
+            self.printSummary("IBM Db2", f"All Db2uCluster and Db2uInstance instances in {self.getParam('db2_namespace')}")
         else:
             self.printSummary("IBM Db2", "No action required")
 
@@ -247,13 +249,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Nov 27 2025 Update (MAS 9.1.6, 9.0.17, 8.11.28, &amp; 8.10.31)",
-            "  2) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
-            "  3) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
+            "  1) Mar 13 2026 Update (MAS 9.1.11, 9.0.22, 8.11.32, &amp; 8.10.35)",
+            "  2) Feb 26 2026 Update (MAS 9.1.10, 9.0.21, 8.11.32, &amp; 8.10.35)",
+            "  3) Jan 29 2026 Update (MAS 9.1.8, 9.0.19, 8.11.30, &amp; 8.10.33)",
         ])
 
         catalogOptions = [
-            "v9-251127-amd64", "v9-251030-amd64", "v9-251010-amd64",
+            "v9-260313-amd64", "v9-260226-amd64", "v9-260129-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -326,11 +328,13 @@ class UpdateApp(BaseApp):
                         "- User accounts set up in the v4 instance will not be migrated"
                     ])
                     self.setParam("grafana_v5_upgrade", "true")
+                    return True
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 is not installed")
-                return
+                    return False
             except (ResourceNotFoundError, NotFoundError):
                 h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 is not installed")
+                return False
 
     def detectMongoDb(self) -> None:
         with Halo(text='Checking for MongoDb CE', spinner=self.spinner) as h:
@@ -342,50 +346,22 @@ class UpdateApp(BaseApp):
             else:
                 self.setParam("mongodb_replicas", "3")
 
-            # Determine the namespace
             try:
                 mongoDbAPI = self.dynamicClient.resources.get(api_version="mongodbcommunity.mongodb.com/v1", kind="MongoDBCommunity")
-                mongoClusters = mongoDbAPI.get().to_dict()["items"]
+
+                if self.getParam("mongodb_namespace") != "":
+                    logger.debug(f"Looking for MongoDBCommunity instances in {self.getParam('mongodb_namespace')}")
+                    mongoClusters = mongoDbAPI.get(namespace=self.getParam("mongodb_namespace")).to_dict()["items"]
+                else:
+                    logger.debug("Looking for MongoDBCommunity instances in all namespaces")
+                    mongoClusters = mongoDbAPI.get().to_dict()["items"]
 
                 if len(mongoClusters) > 0:
                     mongoNamespace = mongoClusters[0]["metadata"]["namespace"]
                     currentMongoVersion = mongoClusters[0]["status"]["version"]
+                    targetMongoVersion = self.chosenCatalog["mongo_extras_version_default"]
 
                     self.setParam("mongodb_namespace", mongoNamespace)
-
-                    # Important:
-                    # This CLI can run independent of the ibm.mas_devops collection, so we cannot reference
-                    # the case bundles in there anymore
-                    # Longer term we will centralise this information inside the mas-devops python collection,
-                    # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "8.0.13"
-                    mongoVersions = {
-                        "v9-240625-amd64": "6.0.12",
-                        "v9-240730-amd64": "6.0.12",
-                        "v9-240827-amd64": "6.0.12",
-                        "v9-241003-amd64": "6.0.12",
-                        "v9-241107-amd64": "7.0.12",
-                        "v9-241205-amd64": "7.0.12",
-                        "v9-250109-amd64": "7.0.12",
-                        "v9-250206-amd64": "7.0.12",
-                        "v9-250306-amd64": "7.0.12",
-                        "v9-250403-amd64": "7.0.12",
-                        "v9-250501-amd64": "7.0.12",
-                        "v9-250624-amd64": "7.0.12",
-                        "v9-250731-amd64": "7.0.22",
-                        "v9-250828-amd64": "7.0.22",
-                        "v9-250902-amd64": "7.0.22",
-                        "v9-250925-amd64": "7.0.23",
-                        "v9-251010-amd64": "7.0.23",
-                        "v9-251030-amd64": "7.0.23",
-                        "v9-251127-amd64": "8.0.13",
-                    }
-                    catalogVersion = self.getParam('mas_catalog_version')
-                    if catalogVersion in mongoVersions:
-                        targetMongoVersion = mongoVersions[self.getParam('mas_catalog_version')]
-                    else:
-                        targetMongoVersion = defaultMongoVersion
-
                     self.setParam("mongodb_version", targetMongoVersion)
 
                     targetMongoVersionMajor = targetMongoVersion.split(".")[0]
@@ -476,6 +452,7 @@ class UpdateApp(BaseApp):
                     return
                 elif len(cpds) == 1:
                     cpdUpgradePath = {
+                        "5.2.0": "5.2.0",
                         "5.1.3": "5.2.0",
                         "5.0.0": "5.1.3",
                     }
@@ -583,22 +560,25 @@ class UpdateApp(BaseApp):
         if mode == "db2":
             haloStartingMessage = "Checking for Db2uCluster instances to update"
             apiVersion = "db2u.databases.ibm.com/v1"
-            kind = "Db2uCluster"
+            kinds = ["Db2uCluster", "Db2uInstance"]
             paramName = "db2_namespace"
         elif mode == "kafka":
             haloStartingMessage = "Checking for Kafka instances to update"
             apiVersion = "kafka.strimzi.io/v1beta2"
-            kind = "Kafka"
+            kinds = ["Kafka"]
             paramName = "kafka_namespace"
         else:
             self.fatalError("Unexpected error")
 
         with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
             try:
-                k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
-                instances = k8sAPI.get().to_dict()["items"]
+                instances = []
+                for kind in kinds:
+                    k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
+                    instances.extend(k8sAPI.get().to_dict()["items"])
+                    logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
 
-                logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
+                kindString = "/".join([kind + "s" for kind in kinds])
                 if len(instances) > 0:
                     # If the user provided the namespace using --db2-namespace then we don't have any work to do here
                     if self.getParam(paramName) == "":
@@ -608,30 +588,32 @@ class UpdateApp(BaseApp):
 
                         if len(namespaces) == 1:
                             # If db2u is only in one namespace, we will update that
-                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated")
-                            logger.debug(f"There is only one namespace containing {kind}s so we will target that one: {namespaces}")
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kindString} ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated")
+                            logger.debug(f"There is only one namespace containing {kindString} so we will target that one: {namespaces}")
                             self.setParam(paramName, list(namespaces)[0])
                         elif self.noConfirm:
                             # If db2u is in multiple namespaces and user has disabled prompts then we must error
-                            h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kind}s ({apiVersion}) were found in multiple namespaces")
-                            logger.warning(f"There are multiple namespaces containing {kind}s and user has enable --no-confirm without setting --{mode}-namespace: {namespaces.keys()}")
-                            self.fatalError(f"{kind}s are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
+                            namespaceList = ", ".join(list(namespaces))
+                            h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kindString} ({apiVersion}) were found in multiple namespaces")
+                            logger.warning(f"There are multiple namespaces containing {kindString} and user has enable --no-confirm without setting --{mode}-namespace: {namespaceList}")
+                            self.fatalError(f"{kindString} are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
                         else:
                             # Otherwise, provide user the list of namespaces we found and ask them to pick on
-                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) found in multiple namespaces")
-                            logger.debug(f"There are multiple namespaces containing {kind}s, user must choose: {namespaces}")
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kindString} ({apiVersion}) found in multiple namespaces")
+                            logger.debug(f"There are multiple namespaces containing {kindString}, user must choose: {namespaces}")
                             self.printDescription([
-                                f"{kind}s were found in multiple namespaces, select the namespace to target from the list below:"
+                                f"{kindString}s were found in multiple namespaces, select the namespace to target from the list below:"
                             ])
                             for index, ns in enumerate(sorted(namespaces), start=1):
                                 self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
                 else:
-                    logger.debug(f"Found no instances of {kind} to update")
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kind} ({apiVersion}) instances to update")
+                    logger.debug(f"Found no instances of {kindString} to update")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kindString} ({apiVersion}) instances to update")
             except (ResourceNotFoundError, NotFoundError):
-                logger.debug(f"{kind}.{apiVersion} is not available in the cluster")
-                h.stop_and_persist(symbol=self.successIcon, text=f"{kind}.{apiVersion} is not available in the cluster")
+                kindString = ", ".join(kinds)
+                logger.debug(f"{'[' + kindString + ']'}.{apiVersion} is not available in the cluster")
+                h.stop_and_persist(symbol=self.successIcon, text=f"{kindString}.{apiVersion} is not available in the cluster")
 
             # With Kafka we also have to determine the provider (strimzi or redhat)
             if mode == "kafka" and self.getParam("kafka_namespace") != "" and self.getParam("kafka_provider") == "":
