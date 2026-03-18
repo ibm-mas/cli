@@ -25,12 +25,6 @@ spec:
     - name: avp_aws_secret_region
       type: string
 
-    - name: db2_instance_registry_yaml
-      type: string
-    - name: db2_instance_dbm_config_yaml
-      type: string
-    - name: db2_addons_audit_config_yaml
-      type: string
     - name: db2_database_db_config_yaml
       type: string
 
@@ -66,12 +60,6 @@ spec:
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
 
-      - name: DB2_INSTANCE_REGISTRY_YAML
-        value: $(params.db2_instance_registry_yaml)
-      - name: DB2_INSTANCE_DBM_CONFIG_YAML
-        value: $(params.db2_instance_dbm_config_yaml)
-      - name: DB2_ADDONS_AUDIT_CONFIG_YAML
-        value: $(params.db2_addons_audit_config_yaml)
       - name: DB2_DATABASE_DB_CONFIG_YAML
         value: $(params.db2_database_db_config_yaml)
 
