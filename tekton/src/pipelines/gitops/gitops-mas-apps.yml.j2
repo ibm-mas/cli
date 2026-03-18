@@ -875,14 +875,8 @@ spec:
           value: iot
         - name: jdbc_connection_url_additional_params
           value: $(params.jdbc_connection_url_additional_params_iot)
-        - name: db2_instance_registry_yaml
-          value: $(params.db2_instance_registry_yaml_iot)
-        - name: db2_instance_dbm_config_yaml
-          value: $(params.db2_instance_dbm_config_yaml_iot)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_iot)
-        - name: db2_addons_audit_config_yaml
-          value: $(params.db2_addons_audit_config_yaml_iot)
 
       workspaces:
         - name: configs
@@ -1084,14 +1078,8 @@ spec:
           value: $(params.replica_db_manage)
         - name: jdbc_connection_url_additional_params
           value: $(params.jdbc_connection_url_additional_params_manage)
-        - name: db2_instance_registry_yaml
-          value: $(params.db2_instance_registry_yaml_manage)
-        - name: db2_instance_dbm_config_yaml
-          value: $(params.db2_instance_dbm_config_yaml_manage)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_manage)
-        - name: db2_addons_audit_config_yaml
-          value: $(params.db2_addons_audit_config_yaml_manage)
       workspaces:
         - name: configs
           workspace: configs
@@ -1430,15 +1418,9 @@ spec:
           value: $(params.replica_db_facilities)
         - name: jdbc_connection_url_additional_params
           value: $(params.jdbc_connection_url_additional_params_facilities)
-        - name: db2_instance_registry_yaml
-          value: $(params.db2_instance_registry_yaml_facilities)
-        - name: db2_instance_dbm_config_yaml
-          value: $(params.db2_instance_dbm_config_yaml_facilities)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_facilities)
-        - name: db2_addons_audit_config_yaml
-          value: $(params.db2_addons_audit_config_yaml_facilities)
-
+      
       workspaces:
         - name: configs
           workspace: configs
