@@ -72,10 +72,20 @@ class KafkaSettingsMixin():
             ...
 
     def configKafka(self) -> None:
-        if self.installIoT:
+        # Check if Civil component is installed
+        hasCivil = "civil=" in self.getParam("mas_appws_components") if self.getParam("mas_appws_components") else False
+        
+        if self.installIoT or hasCivil:
             self.printH1("Configure Kafka")
+            reasons = []
+            if self.installIoT:
+                reasons.append("Maximo IoT")
+            if hasCivil:
+                reasons.append("Maximo Manage Civil Infrastructure")
+            
+            reason_text = " and ".join(reasons)
             self.printDescription([
-                "Maximo IoT requires a shared system-scope Kafka instance",
+                f"{reason_text} requires a shared system-scope Kafka instance",
                 "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
                 "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
             ])
