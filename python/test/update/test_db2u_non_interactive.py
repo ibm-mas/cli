@@ -170,4 +170,153 @@ def test_db2u_no_namespaces(tmpdir, resource_kind, with_arg):
     run_update_test(tmpdir, config)
 
 
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_major_version_upgrade_without_flag(tmpdir, resource_kind):
+    """Test non-interactive update with Db2 major version upgrade but no flag - should fail.
+
+    Expected behavior:
+    - Detects Db2 v11 needs upgrade to v12
+    - No --db2-v12-upgrade flag provided
+    - Raises SystemExit with non-zero exit code
+    - Error message indicates --db2-v12-upgrade flag is required
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",  # Current version
+        db2u_target_version="v12.0",  # Target requires upgrade
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
+        expect_system_exit=True,  # Expect failure
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_major_version_upgrade_with_flag(tmpdir, resource_kind):
+    """Test non-interactive update with Db2 major version upgrade and flag.
+
+    Expected behavior:
+    - Detects Db2 v11 needs upgrade to v12
+    - --db2-v12-upgrade flag provided
+    - Sets db2_v12_upgrade parameter to true
+    - Update proceeds successfully
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",  # Current version
+        db2u_target_version="v12.0",  # Target requires upgrade
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=['--catalog', 'v9-260129-amd64', '--db2-v12-upgrade', '--no-confirm'],
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_minor_version_upgrade_no_flag_needed(tmpdir, resource_kind):
+    """Test non-interactive update with Db2 minor version upgrade - no flag needed.
+
+    Expected behavior:
+    - Detects Db2 v11.5.8.0 needs upgrade to v11.5.9.0
+    - No flag required for minor version upgrade
+    - Update proceeds successfully
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.8.0",  # Current version
+        db2u_target_version="v11.5",  # Same major version
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_same_version_no_upgrade(tmpdir, resource_kind):
+    """Test non-interactive update when Db2 is already at target version.
+
+    Expected behavior:
+    - Detects Db2 is already at target version
+    - No upgrade needed
+    - Update proceeds successfully
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",  # Current version
+        db2u_target_version="v11.5",  # Same version
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_combined_namespace_and_version_upgrade(tmpdir, resource_kind):
+    """Test non-interactive update with both namespace arg and version upgrade flag.
+
+    Expected behavior:
+    - Uses explicit namespace argument
+    - Confirms major version upgrade with flag
+    - Update proceeds successfully
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-ns1", "db2u-ns2"],  # Multiple namespaces
+        db2u_resource_kind=resource_kind,
+        db2u_namespace_arg="db2u-ns1",  # Explicit namespace
+        db2u_version="11.5.9.0",  # Current version
+        db2u_target_version="v12.0",  # Target requires upgrade
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=['--catalog', 'v9-260129-amd64', '--db2-namespace', 'db2u-ns1', '--db2-v12-upgrade', '--no-confirm'],
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
 # Made with Bob
