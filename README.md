@@ -7,7 +7,7 @@ IBM Maximo Application Suite CLI Utility
 
 [![Build CLI](https://github.com/ibm-mas/cli/actions/workflows/build-cli.yml/badge.svg)](https://github.com/ibm-mas/cli/actions/workflows/build-cli.yml)
 [![Build Docs](https://github.com/ibm-mas/cli/actions/workflows/docs.yml/badge.svg)](https://github.com/ibm-mas/cli/actions/workflows/build-cli.yml)
-[![GitHub release](https://img.shields.io/github/v/release/ibm-mas/cli)](https://github.com/ibm-mas/cli/releases/latest)
+[![GitHub release](https://img.shields.io/github/v/release/ibm-mas/cli)](https://github.com/ibm-mas/cli/releases/latest) 
 
 
 Documentation
