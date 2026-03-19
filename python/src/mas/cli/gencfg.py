@@ -60,6 +60,52 @@ class ConfigGeneratorMixin():
             f.write(cfg)
             f.write('\n')
 
+    def generateAiCfg(self, instanceId: str, scope: str, destination: str, workspaceId: str = "") -> None:
+        templateFile = path.join(self.templatesDir, "aicfg.yml.j2")
+        with open(templateFile) as tFile:
+            template = Template(tFile.read())
+
+        if scope == "workspace":
+            assert workspaceId != ""
+
+        name = self.promptForString("Configuration Display Name")
+        url = self.promptForString("AI Service URL")
+        tenantId = self.promptForString("AI Service Tenant ID")
+        apikey = self.promptForString("AI Service API Key", isPassword=True)
+
+        enabled = self.yesOrNo("Enable AI Configuration")
+        metaAgentEnabled = self.yesOrNo("Enable Meta Agent")
+        sslEnabled = self.yesOrNo("Enable SSL Connection")
+
+        if sslEnabled:
+            sslCertFile = self.promptForFile("Path to certificate file")
+            with open(sslCertFile) as cFile:
+                certLocalFileContent = cFile.read()
+        else:
+            certLocalFileContent = ""
+
+        cfg = template.render(
+            scope=scope,
+
+            mas_instance_id=instanceId,
+            mas_workspace_id=workspaceId,
+
+            cfg_display_name=name,
+
+            ai_url=url,
+            ai_tenant_id=tenantId,
+            ai_apikey=apikey,
+            ai_enabled=enabled,
+            meta_agent_enabled=metaAgentEnabled,
+
+            ai_ssl_enabled=sslEnabled,
+            ai_cert_local_file_content=certLocalFileContent
+        )
+
+        with open(destination, 'w') as f:
+            f.write(cfg)
+            f.write('\n')
+
     def generateMongoCfg(self, instanceId: str, destination: str) -> None:
         templateFile = path.join(self.templatesDir, "suite_mongocfg.yml.j2")
 
