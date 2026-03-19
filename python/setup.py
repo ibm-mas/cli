@@ -16,7 +16,6 @@ sys.path.insert(0, 'src')
 
 if not os.path.exists('README.rst'):
     import pypandoc
-    pypandoc.download_pandoc(targetfolder='~/bin/')
     pypandoc.convert_file('README.md', 'rst', outputfile='README.rst')
 
 here = os.path.abspath(os.path.dirname(__file__))

@@ -829,10 +829,48 @@ spec:
       type: string
       default: ""
 
+    # Wait for instance PipelineRun parameters
+    # -------------------------------------------------------------------------
+    - name: wait_for_pipelinerun
+      type: string
+      default: ""
+      description: "Name of the instance PipelineRun to wait for before starting"
+    - name: wait_delay
+      type: string
+      default: "60"
+      description: "Delay in seconds between status checks"
+    - name: wait_max_retries
+      type: string
+      default: "100"
+      description: "Maximum number of retries before giving up"
+
   tasks:
+    # 1. Wait for instance PipelineRun
+    # -------------------------------------------------------------------------
+    - name: wait-for-instance
+      taskRef:
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.wait_for_pipelinerun)
+        - name: delay
+          value: $(params.wait_delay)
+        - name: max_retries
+          value: $(params.wait_max_retries)
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.wait_for_pipelinerun)"
+          operator: notin
+          values: [""]
+
     # 2. Kafka
     # -------------------------------------------------------------------------
     - name: gitops-kafka-config
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -901,6 +939,8 @@ spec:
 
     # 3.1 DB2 for IoT
     - name: gitops-db2u-database-iot
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -1111,6 +1151,8 @@ spec:
           values: [""]
     # 3.2 DB2 for Manage
     - name: gitops-db2u-database-manage
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -1459,6 +1501,8 @@ spec:
           values: [""]
     # 3.3 DB2 for Facilities
     - name: gitops-db2u-database-facilities
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -2215,6 +2259,8 @@ spec:
     # -------------------------------------------------------------------------
     # 1.1 Monitor Config/Workspace
     - name: gitops-deprovision-mas-app-config-monitor
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
@@ -2273,6 +2319,8 @@ spec:
     # -------------------------------------------------------------------------
     # 2.1 Predict Config/Workspace
     - name: gitops-deprovision-mas-app-config-predict
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
@@ -2331,6 +2379,8 @@ spec:
     # -------------------------------------------------------------------------
     # 3.1 Visualinspection Config/Workspace
     - name: gitops-deprovision-mas-app-config-visualinspection
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
@@ -2389,6 +2439,8 @@ spec:
     # -------------------------------------------------------------------------
     # 4.1 Optimizer Config/Workspace
     - name: gitops-deprovision-mas-app-config-optimizer
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
@@ -2447,6 +2499,8 @@ spec:
     # -------------------------------------------------------------------------
     # 5.1 Assist Config/Workspace
     - name: gitops-deprovision-mas-app-config-assist
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
@@ -2875,6 +2929,8 @@ spec:
     # -------------------------------------------------------------------------
     # 11.1 Facilities Config/Workspace
     - name: gitops-deprovision-mas-app-config-facilities
+      runAfter:
+        - wait-for-instance
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}

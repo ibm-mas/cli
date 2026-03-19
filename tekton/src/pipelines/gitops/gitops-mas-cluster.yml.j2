@@ -269,8 +269,48 @@ spec:
     - name: provisioner_mas_annotations_repo_url
       type: string
       default: ''
+
+    # Wait for deps PipelineRun parameters
+    # -------------------------------------------------------------------------
+    - name: wait_for_pipelinerun
+      type: string
+      default: ""
+      description: "Name of the deps PipelineRun to wait for before starting"
+    - name: wait_delay
+      type: string
+      default: "60"
+      description: "Delay in seconds between status checks"
+    - name: wait_max_retries
+      type: string
+      default: "100"
+      description: "Maximum number of retries before giving up"
+
   tasks:
+
+    # 0. Wait for deps PipelineRun
+    # -------------------------------------------------------------------------
+    - name: wait-for-deps
+      taskRef:
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.wait_for_pipelinerun)
+        - name: delay
+          value: $(params.wait_delay)
+        - name: max_retries
+          value: $(params.wait_max_retries)
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.wait_for_pipelinerun)"
+          operator: notin
+          values: [""]
+
     - name: gitops-cluster
+      runAfter:
+        - wait-for-deps
       params:
         - name: cluster_name
           value: $(params.cluster_name)

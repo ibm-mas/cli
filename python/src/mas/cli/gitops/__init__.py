@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -8,6 +8,6 @@
 #
 # *****************************************************************************
 
-from .cli import BaseApp  # noqa: F401
+from ...cli import BaseApp  # noqa: F401
 
-__version__ = "100.0.0"  # Python module compatible semver
+# Made with Bob

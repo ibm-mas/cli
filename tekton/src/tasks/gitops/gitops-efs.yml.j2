@@ -9,10 +9,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
     - name: mas_instance_id
       type: string
     - name: cloud_provider
@@ -30,20 +26,20 @@ spec:
         value: $(params.cluster_url)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: CLOUD_PROVIDER
         value: $(params.cloud_provider)
+    envFrom:
+      - secretRef:
+          # secret needs to contain SM_AWS_SECRET_ACCESS_KEY, SM_AWS_ACCESS_KEY_ID
+          name: secure-properties
   steps:
     - args:
       - |-
         aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
         aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
-        aws configure set default.region $(params.avp_aws_secret_region)
+        aws configure set default.region $SM_AWS_REGION
 
         export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
         if [ -f $ROSA_CONFIG ]; then

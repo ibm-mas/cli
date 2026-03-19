@@ -17,6 +17,7 @@ from mas.cli import __version__ as VERSION
 from mas.cli.install.app import InstallApp
 from mas.cli.aiservice.install.app import AiServiceInstallApp
 from mas.cli.aiservice.upgrade.app import AiServiceUpgradeApp
+from mas.cli.gitops.install.app import GitOpsInstallApp
 from mas.cli.update.app import UpdateApp
 from mas.cli.upgrade.app import UpgradeApp
 from mas.cli.uninstall.app import UninstallApp
@@ -50,6 +51,7 @@ def usage():
 
 
 if __name__ == '__main__':
+    app = None
     try:
         function = argv[1]
 
@@ -62,6 +64,9 @@ if __name__ == '__main__':
         elif function == "aiservice-upgrade":
             app = AiServiceUpgradeApp()
             app.upgrade(argv[2:])
+        elif function == "gitops-install":
+            app = GitOpsInstallApp()
+            app.install(argv[2:])
         elif function == "uninstall":
             app = UninstallApp()
             app.uninstall(argv[2:])
@@ -82,10 +87,27 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     except ApiException as e:
-        app.fatalError(message=f"[{e.status}:{e.reason}] {e.summary()}")
+        error_msg = f"[{e.status}:{e.reason}] {e.body if hasattr(e, 'body') else str(e)}"
+        if app:
+            app.fatalError(message=error_msg)
+        else:
+            logger.error(error_msg)
+            exit(1)
     except MaxRetryError as e:
-        app.fatalError(message="Unable to connect to API server", exception=e)
+        if app:
+            app.fatalError(message="Unable to connect to API server", exception=e)
+        else:
+            logger.error("Unable to connect to API server", exc_info=e)
+            exit(1)
     except TemplateNotFound as e:
-        app.fatalError("Could not find template", exception=e)
+        if app:
+            app.fatalError("Could not find template", exception=e)
+        else:
+            logger.error("Could not find template", exc_info=e)
+            exit(1)
     except KubectlCommandError as e:
-        app.fatalError("Could not execute kubectl command", exception=e)
+        if app:
+            app.fatalError("Could not execute kubectl command", exception=e)
+        else:
+            logger.error("Could not execute kubectl command", exc_info=e)
+            exit(1)

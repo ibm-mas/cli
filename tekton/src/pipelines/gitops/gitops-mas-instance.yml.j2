@@ -260,11 +260,50 @@ spec:
     - name: sls_service
       type: string
       default: ""
+
+    # Wait for cluster PipelineRun parameters
+    # -------------------------------------------------------------------------
+    - name: wait_for_pipelinerun
+      type: string
+      default: ""
+      description: "Name of the cluster PipelineRun to wait for before starting"
+    - name: wait_delay
+      type: string
+      default: "60"
+      description: "Delay in seconds between status checks"
+    - name: wait_max_retries
+      type: string
+      default: "100"
+      description: "Maximum number of retries before giving up"
+
   tasks:
 
-    # 0. Per-instance DB2U Operator
+    # 0. Wait for cluster PipelineRun
+    # -------------------------------------------------------------------------
+    - name: wait-for-cluster
+      taskRef:
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.wait_for_pipelinerun)
+        - name: delay
+          value: $(params.wait_delay)
+        - name: max_retries
+          value: $(params.wait_max_retries)
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.wait_for_pipelinerun)"
+          operator: notin
+          values: [""]
+
+    # 1. Per-instance DB2U Operator
     # -------------------------------------------------------------------------
     - name: gitops-db2u
+      runAfter:
+        - wait-for-cluster
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -410,8 +449,6 @@ spec:
           value: $(params.mas_install_plan)
         - name: sls_install_plan
           value: $(params.sls_install_plan)
-        - name: github_pat
-          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: icr_cp
@@ -516,8 +553,6 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: dro_contact_email
@@ -580,8 +615,6 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: avp_aws_secret_region
@@ -620,8 +653,6 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: smtp_host
@@ -742,8 +773,6 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: ldap_url
@@ -794,8 +823,6 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: cluster_url
