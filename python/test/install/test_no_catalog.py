@@ -71,7 +71,9 @@ def test_install_interactive_no_catalog(tmpdir):
         # 14. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
-        # 15. Final confirmation
+        # 15. AiCfg configuration
+        '.*Do you want to configure AiCfg.*': lambda msg: 'n',
+        # 16. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }

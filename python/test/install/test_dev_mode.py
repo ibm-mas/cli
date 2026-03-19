@@ -107,7 +107,9 @@ def test_install_master_dev_mode(tmpdir):
         # 13. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
-        # 14. Final confirmation
+        # 14. AiCfg configuration
+        '.*Do you want to configure AiCfg.*': lambda msg: 'n',
+        # 15. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }
@@ -187,7 +189,9 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         # 13. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
-        # 14. Final confirmation
+        # 14. AiCfg configuration
+        '.*Do you want to configure AiCfg.*': lambda msg: 'n',
+        # 15. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }
@@ -327,7 +331,9 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 23. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
-        # 24. Final confirmation
+        # 24. AiCfg configuration
+        '.*Do you want to configure AiCfg.*': lambda msg: 'n',
+        # 25. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }

@@ -65,6 +65,8 @@ def test_install_interactive_existing_catalog(tmpdir):
         '.*Create MongoDb cluster.*': lambda msg: 'y',
         # 13. Db2 configuration
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
+        # 14. AiCfg configuration
+        '.*Do you want to configure AiCfg.*': lambda msg: 'n',
         # 15. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
