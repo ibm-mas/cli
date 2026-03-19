@@ -148,6 +148,10 @@ spec:
       default: ""
 
     # JDBCCfg
+    - name: mas_config_dir
+      type: string
+      description: config directory path
+      default: "/workspace/configs"
     - name: mas_config_scope
       type: string
       default: ""
@@ -166,6 +170,44 @@ spec:
     - name: custom_labels
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
+
+    # Backup/Restore specific parameters
+    - name: db2_backup_version
+      type: string
+      description: Optional. Version/timestamp for the backup
+      default: ""
+    - name: mas_backup_dir
+      type: string
+      description: Directory to store backup files
+      default: ""
+    - name: backup_type
+      type: string
+      description: Type of backup (online or offline)
+      default: ""
+    - name: override_storageclass
+      type: string
+      description: Override database (Db2) PVC storageclass during restore
+      default: "false"
+    - name: backup_vendor
+      type: string
+      description: Storage backend for database backup files (disk or s3)
+      default: ""
+    - name: backup_s3_endpoint
+      type: string
+      description: S3 endpoint URL for backups
+      default: ""
+    - name: backup_s3_bucket
+      type: string
+      description: S3 bucket name for backups
+      default: ""
+    - name: backup_s3_access_key
+      type: string
+      description: S3 access key for backups
+      default: ""
+    - name: backup_s3_secret_key
+      type: string
+      description: S3 secret key for backups
       default: ""
 
   stepTemplate:
@@ -272,7 +314,7 @@ spec:
 
       # MAS - JdbcCfg
       - name: MAS_CONFIG_DIR
-        value: /workspace/configs
+        value: $(params.mas_config_dir)
       - name: MAS_CONFIG_SCOPE
         value: $(params.mas_config_scope)
       - name: MAS_INSTANCE_ID
@@ -285,6 +327,26 @@ spec:
       # Custom labels support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+
+      # Backup/Restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: DB2_BACKUP_VERSION
+        value: $(params.db2_backup_version)
+      - name: DB2_BACKUP_TYPE
+        value: $(params.backup_type)
+      - name: BACKUP_VENDOR
+        value: $(params.backup_vendor)
+      - name: BACKUP_S3_ENDPOINT
+        value: $(params.backup_s3_endpoint)
+      - name: BACKUP_S3_BUCKET
+        value: $(params.backup_s3_bucket)
+      - name: BACKUP_S3_ACCESS_KEY
+        value: $(params.backup_s3_access_key)
+      - name: BACKUP_S3_SECRET_KEY
+        value: $(params.backup_s3_secret_key)
+      - name: OVERRIDE_STORAGECLASS
+        value: $(params.override_storageclass)
   steps:
     - name: db2
       command:
@@ -292,8 +354,10 @@ spec:
         - db2
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      workingDir: /workspace/configs
+      workingDir: $(params.mas_config_dir)
 
   workspaces:
     - name: configs
+      optional: true
+    - name: backups
       optional: true
