@@ -18,18 +18,6 @@ db2_database_db_config:
   {{ DB2_DATABASE_DB_CONFIG }}
   {%- endfilter %}
 {% endif %}
-{% if DB2_ADDONS_AUDIT_CONFIG %}
-db2_addons_audit_config:
-  {% filter indent(width=2) -%}
-  {{ DB2_ADDONS_AUDIT_CONFIG }}
-  {%- endfilter %}
-{% endif %}
-{% if DB2_INSTANCE_DBM_CONFIG %}
-db2_instance_dbm_config:
-  {% filter indent(width=2) -%}
-  {{ DB2_INSTANCE_DBM_CONFIG }}
-  {%- endfilter %}
-{% endif %}
 {% if (MAS_APP_ID == 'manage' and RDS_DB2_BACKUP_MANAGE is defined and RDS_DB2_BACKUP_MANAGE == 'true') or (MAS_APP_ID == 'iot' and RDS_DB2_BACKUP_IOT is defined and RDS_DB2_BACKUP_IOT == 'true') or (MAS_APP_ID == 'facilities' and RDS_DB2_BACKUP_FACILITIES is defined and RDS_DB2_BACKUP_FACILITIES == 'true') %}
 backup:
   enabled: true
