@@ -29,6 +29,12 @@ spec:
       type: string
       description: Optional. Used to uninstall IBM Catalogs
       default: ""
+    
+    # AI Service Migration (ODH to RHOAI)
+    - name: odh_to_rhoai_migration
+      type: string
+      description: Optional. Display-only flag indicating ODH to RHOAI migration will occur
+      default: ""
 
   stepTemplate:
     env:
@@ -48,12 +54,24 @@ spec:
       # Optional parameter to uninstall IBM Catalogs
       - name: IBM_CATALOGS_ACTION
         value: $(params.ibm_catalogs_action)
+      
+      # AI Service Migration (ODH to RHOAI)
+      - name: ODH_TO_RHOAI_MIGRATION
+        value: $(params.odh_to_rhoai_migration)
 
   steps:
     - name: ibm-catalogs
       command:
         - /opt/app-root/src/run-role.sh
         - ibm_catalogs
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+    
+    - name: aiservice-ds-migration
+      command:
+        - /opt/app-root/src/run-role.sh
+        - aiservice_ds_migration
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
