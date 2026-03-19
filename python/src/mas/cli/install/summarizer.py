@@ -225,6 +225,7 @@ class InstallSummarizerMixin():
             self.printSummary("Facilities", self.params["mas_app_channel_facilities"])
             print_formatted_text(HTML("  <SkyBlue>+ Maximo Real Estate and Facilities Settings</SkyBlue>"))
             self.printParamSummary("  + Size", "mas_ws_facilities_size")
+            self.printParamSummary("  + Application Object Migration", "mas_ws_facilities_app_om_upgrade_mode")
             self.printParamSummary("  + Routes Timeout", "mas_ws_facilities_routes_timeout")
             self.printParamSummary("  + XML Extension", "mas_ws_facilities_liberty_extension_XML")
             self.printParamSummary("  + AES vault secret name", "mas_ws_facilities_vault_secret")
@@ -403,7 +404,12 @@ class InstallSummarizerMixin():
 
     def grafanaSummary(self) -> None:
         self.printH2("Grafana")
-        self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
+        if self.getParam("grafana_action") == "install":
+            self.printSummary("Install Grafana", "Install")
+            self.printParamSummary("Grafana namespace", "grafana_v5_namespace")
+            self.printParamSummary("Grafana storage size", "grafana_instance_storage_size")
+        else:
+            self.printSummary("Install Grafana", "Do Not Install")
 
     def installSummary(self) -> None:
         pass

@@ -881,10 +881,6 @@ spec:
           value: iot
         - name: jdbc_connection_url_additional_params
           value: $(params.jdbc_connection_url_additional_params_iot)
-        - name: db2_instance_registry_yaml
-          value: $(params.db2_instance_registry_yaml_iot)
-        - name: db2_instance_dbm_config_yaml
-          value: $(params.db2_instance_dbm_config_yaml_iot)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_iot)
         - name: db2_addons_audit_config_yaml
@@ -900,9 +896,6 @@ spec:
           kind: Task
           name: gitops-rds-db2-database
       when:
-        - input: "$(params.db2_action_iot)"
-          operator: notin
-          values: [""]
         - input: "$(params.jdbc_type_iot)"
           operator: in
           values: ["rds-db2"]
@@ -1094,10 +1087,6 @@ spec:
           value: $(params.replica_db_manage)
         - name: jdbc_connection_url_additional_params
           value: $(params.jdbc_connection_url_additional_params_manage)
-        - name: db2_instance_registry_yaml
-          value: $(params.db2_instance_registry_yaml_manage)
-        - name: db2_instance_dbm_config_yaml
-          value: $(params.db2_instance_dbm_config_yaml_manage)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_manage)
         - name: db2_addons_audit_config_yaml
@@ -1113,9 +1102,6 @@ spec:
           kind: Task
           name: gitops-rds-db2-database
       when:
-        - input: "$(params.db2_action_manage)"
-          operator: notin
-          values: [""]
         - input: "$(params.jdbc_type_manage)"
           operator: in
           values: ["rds-db2"]
@@ -1443,10 +1429,6 @@ spec:
           value: $(params.replica_db_facilities)
         - name: jdbc_connection_url_additional_params
           value: $(params.jdbc_connection_url_additional_params_facilities)
-        - name: db2_instance_registry_yaml
-          value: $(params.db2_instance_registry_yaml_facilities)
-        - name: db2_instance_dbm_config_yaml
-          value: $(params.db2_instance_dbm_config_yaml_facilities)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_facilities)
         - name: db2_addons_audit_config_yaml
@@ -1462,9 +1444,6 @@ spec:
           kind: Task
           name: gitops-rds-db2-database
       when:
-        - input: "$(params.db2_action_facilities)"
-          operator: notin
-          values: [""]
         - input: "$(params.jdbc_type_facilities)"
           operator: in
           values: ["rds-db2"]
