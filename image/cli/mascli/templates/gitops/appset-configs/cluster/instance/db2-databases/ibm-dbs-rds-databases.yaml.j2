@@ -36,9 +36,8 @@ db2_instance_dbm_config:
 backup:
   enabled: true
   s3_bucket_name: "{{ S3_BUCKET_NAME }}"
-  s3_prefix: "db2-backups"
-  
-  compression: "INCLUDE"
+  s3_prefix: "db2-backups" 
+  compression: "NONE"
   util_impact_priority: 50
   num_files: 4
   parallelism: 4
@@ -47,8 +46,4 @@ backup:
   full:
     enabled: true
     schedule: "0 2 * * 0"
-
-  incremental:
-    enabled: true
-    schedule: "0 2 * * 1-6"
 {% endif %}
