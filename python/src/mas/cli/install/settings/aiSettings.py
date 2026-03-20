@@ -83,7 +83,7 @@ class AiSettingsMixin():
             self.printDescription([
                 "The installer can configure AiCfg integration for your MAS instance.",
                 "AiCfg provides AI/ML capabilities for MAS applications like Manage, Monitor, and Predict.",
-                "You can configure AiCfg at system scope or workspace scope."
+                "AiCfg is configured at system scope and available to all workspaces."
             ])
 
         # Ask if user wants to configure AiCfg
@@ -98,27 +98,10 @@ class AiSettingsMixin():
 
         instanceId = self.getParam('mas_instance_id')
 
-        # Determine scope
-        if not silentMode:
-            self.printH2("AiCfg Configuration Scope")
-            self.printDescription([
-                "AiCfg can be configured at different scopes:",
-                " - System scope: Available to all workspaces",
-                " - Workspace scope: Available to a specific workspace only"
-            ])
-
-        useSystemScope = True
-        if not silentMode:
-            useSystemScope = self.yesOrNo("Configure AiCfg at system scope (recommended)")
-
-        if useSystemScope:
-            scope = "system"
-            workspaceId = ""
-            self.setParam("ai_scope", "system")
-        else:
-            scope = "workspace"
-            workspaceId = self.getParam("mas_workspace_id")
-            self.setParam("ai_scope", "workspace")
+        # AiCfg is always configured at system scope
+        scope = "system"
+        workspaceId = ""
+        self.setParam("ai_scope", "system")
 
         # Check if user wants to provide existing AiCfg or create configuration
         if not silentMode:
@@ -126,12 +109,16 @@ class AiSettingsMixin():
             self.printDescription([
                 "You can provide connection details for an existing AI Service instance.",
                 "The installer will generate the AiCfg YAML file with your connection details.",
-                "This file will be applied to the cluster during MAS installation."
+                "",
+                "IMPORTANT: The AiCfg file must be applied AFTER the MAS Core operator is installed,",
+                "as the AiCfg CRD is created by the operator (not during initial config phase).",
+                "Do NOT include this file in the initial configuration directory.",
+                "Apply it after the operator creates the CRD."
             ])
 
         createAiConfig = True
         if not silentMode:
-            createAiConfig = self.yesOrNo("Generate AiCfg configuration file")
+            createAiConfig = self.yesOrNo("Generate AiCfg configuration file (apply after operator install)")
 
         if createAiConfig:
             self.setParam("ai_action", "configure")
