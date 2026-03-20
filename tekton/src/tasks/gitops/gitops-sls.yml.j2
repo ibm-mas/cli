@@ -23,6 +23,12 @@ spec:
       type: string
     - name: ocp_cluster_domain
       type: string
+    - name: dns_provider
+      type: string
+    - name: cis_service_name
+      type: string
+    - name: cis_crn
+      type: string
     - name: secrets_path
       type: string
     - name: mongo_provider
@@ -76,6 +82,12 @@ spec:
         value: $(params.sls_install_plan)
       - name: SLS_DOMAIN
         value: $(params.ocp_cluster_domain)
+      - name: DNS_PROVIDER
+        value: $(params.dns_provider)
+      - name: CIS_SERVICE_NAME
+        value: $(params.cis_service_name)
+      - name: CIS_CRN
+        value: $(params.cis_crn)
       - name: SECRETS_PATH
         value: $(params.secrets_path)
       - name: ICR_CP
