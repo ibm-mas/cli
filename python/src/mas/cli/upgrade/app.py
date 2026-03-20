@@ -32,8 +32,9 @@ logger = logging.getLogger(__name__)
 class UpgradeApp(BaseApp, UpgradeSettingsMixin):
     def computeMonitorInstallOrderForUpgrade(self, instanceId):
         """
-        Determine the installation order for Monitor relative to IoT based on Monitor version.
+        Determine the installation order for Monitor relative to IoT based on TARGET Monitor version.
         This is needed for upgrade scenarios where Monitor >= 9.2.0 must upgrade before IoT.
+        For upgrades, we check the TARGET channel (where we're going), not current channel.
         """
         from mas.devops.mas import getAppsSubscriptionChannel
         from mas.devops.utils import isVersionEqualOrAfter
@@ -41,24 +42,24 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         installedApps = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
         hasMonitor = False
         hasIoT = False
-        monitorChannel = None
         
         for app in installedApps:
             if app["appId"] == "monitor":
                 hasMonitor = True
-                monitorChannel = app["channel"]
             elif app["appId"] == "iot":
                 hasIoT = True
         
-        if hasMonitor and hasIoT and monitorChannel:
-            if isVersionEqualOrAfter('9.2.0', monitorChannel):
-                # Monitor >= 9.2.0: Install Monitor before IoT
+        if hasMonitor and hasIoT:
+            # For upgrade, check the TARGET channel (self.nextChannel), not current channel
+            # If upgrading TO 9.2.x or higher, Monitor must upgrade before IoT
+            if self.nextChannel and isVersionEqualOrAfter('9.2.0', self.nextChannel):
+                # Upgrading to Monitor >= 9.2.0: Monitor must upgrade before IoT
                 self.setParam("mas_monitor_install_order", "before-iot")
-                logger.debug(f"Monitor channel {monitorChannel} >= 9.2.0: Monitor will upgrade before IoT")
+                logger.debug(f"Upgrading to MAS {self.nextChannel} (>= 9.2.0): Monitor will upgrade before IoT")
             else:
-                # Monitor < 9.2.0: Install Monitor after IoT (legacy)
+                # Upgrading to Monitor < 9.2.0: Monitor upgrades after IoT (legacy)
                 self.setParam("mas_monitor_install_order", "after-iot")
-                logger.debug(f"Monitor channel {monitorChannel} < 9.2.0: Monitor will upgrade after IoT (legacy behavior)")
+                logger.debug(f"Upgrading to MAS {self.nextChannel} (< 9.2.0): Monitor will upgrade after IoT (legacy behavior)")
         elif hasMonitor:
             # Only Monitor, no IoT - order doesn't matter but set default
             self.setParam("mas_monitor_install_order", "before-iot")
