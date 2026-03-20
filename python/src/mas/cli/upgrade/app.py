@@ -30,6 +30,42 @@ logger = logging.getLogger(__name__)
 
 
 class UpgradeApp(BaseApp, UpgradeSettingsMixin):
+    def computeMonitorInstallOrderForUpgrade(self, instanceId):
+        """
+        Determine the installation order for Monitor relative to IoT based on Monitor version.
+        This is needed for upgrade scenarios where Monitor >= 9.2.0 must upgrade before IoT.
+        """
+        from mas.devops.mas import getAppsSubscriptionChannel
+        from mas.devops.utils import isVersionEqualOrAfter
+        
+        installedApps = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+        hasMonitor = False
+        hasIoT = False
+        monitorChannel = None
+        
+        for app in installedApps:
+            if app["appId"] == "monitor":
+                hasMonitor = True
+                monitorChannel = app["channel"]
+            elif app["appId"] == "iot":
+                hasIoT = True
+        
+        if hasMonitor and hasIoT and monitorChannel:
+            if isVersionEqualOrAfter('9.2.0', monitorChannel):
+                # Monitor >= 9.2.0: Install Monitor before IoT
+                self.setParam("mas_monitor_install_order", "before-iot")
+                logger.debug(f"Monitor channel {monitorChannel} >= 9.2.0: Monitor will upgrade before IoT")
+            else:
+                # Monitor < 9.2.0: Install Monitor after IoT (legacy)
+                self.setParam("mas_monitor_install_order", "after-iot")
+                logger.debug(f"Monitor channel {monitorChannel} < 9.2.0: Monitor will upgrade after IoT (legacy behavior)")
+        elif hasMonitor:
+            # Only Monitor, no IoT - order doesn't matter but set default
+            self.setParam("mas_monitor_install_order", "before-iot")
+        else:
+            # No Monitor installed - set default
+            self.setParam("mas_monitor_install_order", "after-iot")
+
     def upgrade(self, argv):
         """
         Upgrade MAS instance
@@ -170,6 +206,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             # It has been decided that we don't need to ask for any specific Manage Settings
             # self.manageSettings()
             self.configDb2(silentMode=True)
+
+        # Compute Monitor install order for upgrade
+        self.computeMonitorInstallOrderForUpgrade(instanceId)
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
