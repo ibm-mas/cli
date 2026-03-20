@@ -38,13 +38,7 @@ spec:
     - name: replica_db
       type: string
       default: "false"
-    - name: rds_db2_backup_manage
-      type: string
-      default: "false"
-    - name: rds_db2_backup_iot
-      type: string
-      default: "false"
-    - name: rds_db2_backup_facilities
+    - name: rds_db2_backup
       type: string
       default: "false"
 
@@ -81,12 +75,8 @@ spec:
         value: $(params.jdbc_connection_url_additional_params)
       - name: REPLICA_DB
         value: $(params.replica_db)
-      - name: RDS_DB2_BACKUP_MANAGE
-        value: $(params.rds_db2_backup_manage)
-      - name: RDS_DB2_BACKUP_IOT
-        value: $(params.rds_db2_backup_iot)
-      - name: RDS_DB2_BACKUP_FACILITIES
-        value: $(params.rds_db2_backup_facilities)
+      - name: RDS_DB2_BACKUP
+        value: $(params.rds_db2_backup)
     envFrom:
       - configMapRef:
           name: environment-properties

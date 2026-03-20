@@ -18,7 +18,7 @@ db2_database_db_config:
   {{ DB2_DATABASE_DB_CONFIG }}
   {%- endfilter %}
 {% endif %}
-{% if (MAS_APP_ID == 'manage' and RDS_DB2_BACKUP_MANAGE is defined and RDS_DB2_BACKUP_MANAGE == 'true') or (MAS_APP_ID == 'iot' and RDS_DB2_BACKUP_IOT is defined and RDS_DB2_BACKUP_IOT == 'true') or (MAS_APP_ID == 'facilities' and RDS_DB2_BACKUP_FACILITIES is defined and RDS_DB2_BACKUP_FACILITIES == 'true') %}
+{% if RDS_DB2_BACKUP is defined and RDS_DB2_BACKUP == 'true' %}
 backup:
   enabled: true
   s3_bucket_name: "{{ S3_BUCKET_NAME }}"
