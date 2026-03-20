@@ -9,7 +9,7 @@
 # *****************************************************************************
 
 from os import path
-from typing import TYPE_CHECKING, Dict, List, Any
+from typing import TYPE_CHECKING, Dict, List
 from prompt_toolkit import print_formatted_text
 
 
@@ -125,12 +125,13 @@ class AiSettingsMixin():
             self.printH2("AiCfg Configuration")
             self.printDescription([
                 "You can provide connection details for an existing AI Service instance.",
-                "The installer will create the necessary AiCfg custom resource."
+                "The installer will generate the AiCfg YAML file with your connection details.",
+                "This file will be applied to the cluster during MAS installation."
             ])
 
         createAiConfig = True
         if not silentMode:
-            createAiConfig = self.yesOrNo("Create AiCfg configuration")
+            createAiConfig = self.yesOrNo("Generate AiCfg configuration file")
 
         if createAiConfig:
             self.setParam("ai_action", "configure")
@@ -148,7 +149,7 @@ class AiSettingsMixin():
                 print_formatted_text(f"Searching for AiCfg configuration file in {aiCfgFile} ...")
 
             if path.exists(aiCfgFile):
-                if self.yesOrNo(f"AiCfg configuration file already exists. Do you want to generate a new one"):
+                if self.yesOrNo("AiCfg configuration file already exists. Do you want to generate a new one"):
                     self.generateAiCfg(instanceId=instanceId, scope=scope, destination=aiCfgFile, workspaceId=workspaceId)
             else:
                 print_formatted_text(f"Expected file ({aiCfgFile}) was not found, generating a valid AiCfg configuration file now ...")

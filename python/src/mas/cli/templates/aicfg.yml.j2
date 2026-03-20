@@ -24,7 +24,10 @@ metadata:
   labels:
     mas.ibm.com/configScope: {{ scope }}
     mas.ibm.com/instanceId: {{ mas_instance_id }}
-{%- if scope == "workspace" %}
+{%- if scope == "system" %}
+    mas.ibm.com/configId: ai-system
+{%- elif scope == "workspace" %}
+    mas.ibm.com/configId: ai-{{ mas_workspace_id }}
     mas.ibm.com/workspaceId: {{ mas_workspace_id }}
 {%- endif %}
 spec:
@@ -44,7 +47,7 @@ spec:
     enabled: {{ meta_agent_enabled | lower }}
 {%- if ai_ssl_enabled == True %}
   certificates:
-    - alias: "aiservice"
+    - alias: aiservice
       crt: |-
         {{ ai_cert_local_file_content | indent(8) }}
 {%- endif %}

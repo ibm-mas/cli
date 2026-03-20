@@ -68,13 +68,13 @@ class ConfigGeneratorMixin():
         if scope == "workspace":
             assert workspaceId != ""
 
-        name = self.promptForString("Configuration Display Name")
+        name = self.promptForString("Configuration Display Name", default="AI Service Configuration")
         url = self.promptForString("AI Service URL")
         tenantId = self.promptForString("AI Service Tenant ID")
         apikey = self.promptForString("AI Service API Key", isPassword=True)
 
-        enabled = self.yesOrNo("Enable AI Configuration")
-        metaAgentEnabled = self.yesOrNo("Enable Meta Agent")
+        enabled = self.yesOrNo("Enable AI Service (set aiService.enabled to true)")
+        metaAgentEnabled = self.yesOrNo("Enable Meta Agent (AI assistant for MAS)")
         sslEnabled = self.yesOrNo("Enable SSL Connection")
 
         if sslEnabled:
