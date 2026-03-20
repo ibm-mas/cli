@@ -65,6 +65,18 @@ s3_iam_users_list_mvi = {
 }
 #S3 MVI related params ends
 {%- endif %}
+{%- if S3_FACILITIES | lower == 'true'  %}
+#S3 FACILITIES related params starts
+s3bucket_name_prefix_facilities    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
+iam_user_name_prefix_facilities = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
+iam_user_arn_prefix_facilities  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
+s3_iam_users_list_facilities = {
+    facilities = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-facilities-rw"
+    }
+}
+#S3 FACILITIES related params ends
+{%- endif %}
 
 #S3 related params ends
 {%- endif %}

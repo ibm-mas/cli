@@ -39,7 +39,7 @@ spec:
     - name: s3_mvi
       type: string
       default: ""
-    - name: s3_mref
+    - name: s3_facilities
       type: string
       default: ""
 
@@ -73,8 +73,8 @@ spec:
         value: $(params.s3_manage)
       - name: S3_MVI
         value: $(params.s3_mvi)
-      - name: S3_MREF
-        value: $(params.s3_mref)
+      - name: S3_FACILITIES
+        value: $(params.s3_facilities)
     envFrom:
       - configMapRef:
           name: environment-properties

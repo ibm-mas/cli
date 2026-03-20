@@ -302,6 +302,15 @@ function gitops_iac_noninteractive() {
           [[ $# -gt 0 ]] && shift
         fi
         ;;
+      --s3-facilities)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export S3_FACILITIES=$1
+          shift
+        else
+          export S3_FACILITIES=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
 
       --is-msk)
         if [[ -n "$1" && "$1" != --* ]]; then
@@ -758,6 +767,7 @@ function compute_s3_variables() {
   echo "  ACCOUNT_ID: ${ACCOUNT_ID}"
   echo "  S3_MANAGE: ${S3_MANAGE}"
   echo "  S3_MVI: ${S3_MVI}"
+  echo "  S3_FACILITIES: ${S3_FACILITIES}"
   echo "  VPC_ID: ${VPC_ID_VALUE}"
 
   echo " S3 variables computed successfully"
@@ -1053,14 +1063,16 @@ function gitops_iac_provision_s3() {
   echo
   echo_h2 "Generating IAC/S3 Configuration"
   
-  # S3_MANAGE and S3_MVI are already set from command-line parameters
+  # S3_MANAGE, S3_MVI and S3_FACILITIES are already set from command-line parameters
   echo "S3_MANAGE: ${S3_MANAGE}"
   echo "S3_MVI: ${S3_MVI}"
+  echo "S3_FACILITIES: ${S3_FACILITIES}"
 
   export APP_NAME=""
   APP_PARAMS=(
   "manage $S3_MANAGE"
   "mvi $S3_MVI"
+  "facilities $S3_FACILITIES"
   )
 
   for row in "${APP_PARAMS[@]}"; do
