@@ -675,8 +675,6 @@ class MirrorApp(BaseApp):
             self.printSummary("Release", release)
             self.printSummary("Mode", mode)
             self.printSummary("Authentication File", authFilePath)
-            
-
             self.printH2("Mirror Target")
             if mode == "m2d":
                 self.printSummary("Destination", rootDir)
@@ -686,9 +684,8 @@ class MirrorApp(BaseApp):
                     targetRegistry = f"{targetRegistry}/{prefix}"
                 self.printSummary("Destination", targetRegistry)
                 self.printSummary("Verify Registry Certificate", destTlsVerify)
-                
-            self.printSummary("Mirror Image Timeout", imageTimeout)
 
+            self.printSummary("Mirror Image Timeout", imageTimeout)
             self.printH2("IBM Maximo Operator Catalog")
             mirrorCatalog(
                 version=catalogVersion,
