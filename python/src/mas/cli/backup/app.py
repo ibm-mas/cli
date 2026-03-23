@@ -52,6 +52,7 @@ class BackupApp(BaseApp):
                 "backup_storage_size",
                 "clean_backup",
                 "include_sls",
+                "include_mongo",
                 "mongodb_namespace",
                 "mongodb_instance_name",
                 "mongodb_provider",
@@ -168,7 +169,9 @@ class BackupApp(BaseApp):
 
         self.printH2("Components")
         self.printSummary("Include SLS", self.getParam("include_sls") if self.getParam("include_sls") else "true")
-        self.printSummary("MongoDB Namespace", self.getParam("mongodb_namespace") if self.getParam("mongodb_namespace") else "mongoce")
+        self.printSummary("Include MongoDB", self.getParam("include_mongo") if self.getParam("include_mongo") else "true")
+        if self.getParam("include_mongo") != "false":
+            self.printSummary("MongoDB Namespace", self.getParam("mongodb_namespace") if self.getParam("mongodb_namespace") else "mongoce")
         self.printSummary("SLS Namespace", self.getParam("sls_namespace") if self.getParam("sls_namespace") else "ibm-sls")
 
         if self.getParam("backup_manage_app") == "true":
@@ -353,20 +356,29 @@ class BackupApp(BaseApp):
         """Prompt user for MongoDB configuration"""
         self.printH1("MongoDB Configuration")
         self.printDescription([
-            "Configure MongoDB settings for the backup.",
-            "These settings specify where MongoDB is deployed and how to access it."
+            "MongoDB can be included in the backup.",
+            "If included, you will need to specify the MongoDB namespace and instance name."
         ])
 
-        # Prompt for MongoDB namespace
-        mongoNamespace = self.promptForString("MongoDB Namespace", default="mongoce")
-        self.setParam("mongodb_namespace", mongoNamespace)
+        includeMongo = self.yesOrNo("Include MongoDB in backup")
 
-        # Prompt for MongoDB instance name
-        mongoInstanceName = self.promptForString("MongoDB Instance Name", default="mas-mongo-ce")
-        self.setParam("mongodb_instance_name", mongoInstanceName)
+        if includeMongo:
+            self.setParam("include_mongo", "true")
+
+            # Prompt for MongoDB namespace
+            mongoNamespace = self.promptForString("MongoDB Namespace", default="mongoce")
+            self.setParam("mongodb_namespace", mongoNamespace)
+
+            # Prompt for MongoDB instance name
+            mongoInstanceName = self.promptForString("MongoDB Instance Name", default="mas-mongo-ce")
+            self.setParam("mongodb_instance_name", mongoInstanceName)
+        else:
+            self.setParam("include_mongo", "false")
 
     def setDefaultParams(self) -> None:
         """Set default values for optional parameters if not already set"""
+        if not self.getParam("include_mongo"):
+            self.setParam("include_mongo", "true")
         if not self.getParam("mongodb_namespace"):
             self.setParam("mongodb_namespace", "mongoce")
         if not self.getParam("mongodb_instance_name"):

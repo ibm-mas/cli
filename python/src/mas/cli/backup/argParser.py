@@ -182,6 +182,23 @@ componentsArgGroup.add_argument(
     const="false",
     help="Exclude SLS from backup (use if SLS is external)"
 )
+componentsArgGroup.add_argument(
+    '--include-mongo',
+    dest='include_mongo',
+    required=False,
+    action="store_const",
+    const="true",
+    default="true",
+    help="Include MongoDB in backup (default: true)"
+)
+componentsArgGroup.add_argument(
+    '--exclude-mongo',
+    dest='include_mongo',
+    required=False,
+    action="store_const",
+    const="false",
+    help="Exclude MongoDB from backup (use if MongoDB is external)"
+)
 
 depsArgGroup = backupArgParser.add_argument_group(
     'Dependencies Configuration',
