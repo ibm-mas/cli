@@ -26,7 +26,7 @@ data "aws_subnets" "internal_subnets" {
 locals {
 {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
 {%- if (RDS_MANAGE | lower == 'true') %}
-  #RDS Manage specific IAM parameter starts here
+  #RDS Manage specific IAM parameter starts here for Audit log bucket
   iam_user_arns_audit_log_manage = {
     audit_logs   = "${var.iam_user_arn_prefix_audit_log}-auditlog-manage"
   }
@@ -56,10 +56,42 @@ locals {
     for key, value in local.s3_iam_users_list_audit_log_manage :
     key => lookup(local.bucket_user_names_audit_log_manage, key, null)
   }
-  #RDS Manage specific IAM parameter ends here
+  #RDS Manage specific IAM parameter ends here for Audit log bucket
+
+  #RDS Manage specific IAM parameter starts here for Backup bucket
+  iam_user_arns_backup_manage = {
+    backup   = "${var.iam_user_arn_prefix_backup}-backup-manage"
+  }
+
+  s3_iam_users_list_backup_manage = {
+    backup = {
+      bucket_name   = "${var.s3bucket_name_prefix_db2}-backup-manage"
+      iam_user_name = "${var.iam_user_name_prefix_backup}-backup-manage"
+      access_level  = var.access_level_backup_rw
+    }
+  }
+
+  iam_users_by_bucket_backup_manage = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_backup_manage : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_backup_manage :
+      local.iam_user_arns_backup_manage[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names_backup_manage = {
+    backup   = "${var.iam_user_name_prefix_backup}-backup-manage"
+  }
+
+  bucket_user_name_map_backup_manage = {
+    for key, value in local.s3_iam_users_list_backup_manage :
+    key => lookup(local.bucket_user_names_backup_manage, key, null)
+  }
+  #RDS Manage specific IAM parameter ends here for Backup bucket
 {%- endif %}
 {%- if (RDS_IOT | lower == 'true') %}
-  #RDS IOT specific IAM parameter starts here
+  #RDS IOT specific IAM parameter starts here for Audit log bucket
   iam_user_arns_audit_log_iot = {
     audit_logs   = "${var.iam_user_arn_prefix_audit_log}-auditlog-iot"
   }
@@ -89,10 +121,42 @@ locals {
     for key, value in local.s3_iam_users_list_audit_log_iot :
     key => lookup(local.bucket_user_names_audit_log_iot, key, null)
   }
-  #RDS IOT specific IAM parameter ends here
+  #RDS IOT specific IAM parameter ends here for Audit log bucket
+
+  #RDS IOT specific IAM parameter starts here for Backup bucket
+  iam_user_arns_backup_iot = {
+    backup   = "${var.iam_user_arn_prefix_backup}-backup-iot"
+  }
+
+  s3_iam_users_list_backup_iot = {
+    backup = {
+      bucket_name   = "${var.s3bucket_name_prefix_db2}-backup-iot"
+      iam_user_name = "${var.iam_user_name_prefix_backup}-backup-iot"
+      access_level  = var.access_level_backup_rw
+    }
+  }
+
+  iam_users_by_bucket_backup_iot = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_backup_iot : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_backup_iot :
+      local.iam_user_arns_backup_iot[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names_backup_iot = {
+    backup   = "${var.iam_user_name_prefix_backup}-backup-iot"
+  }
+
+  bucket_user_name_map_backup_iot = {
+    for key, value in local.s3_iam_users_list_backup_iot :
+    key => lookup(local.bucket_user_names_backup_iot, key, null)
+  }
+  #RDS IOT specific IAM parameter ends here for Backup bucket
 {%- endif %}
 {%- if (RDS_FACILITIES | lower == 'true') %}
-  #RDS FACILITIES specific IAM parameter starts here
+  #RDS FACILITIES specific IAM parameter starts here for Audit log bucket
   iam_user_arns_audit_log_facilities = {
     audit_logs   = "${var.iam_user_arn_prefix_audit_log}-auditlog-facilities"
   }
@@ -122,7 +186,39 @@ locals {
     for key, value in local.s3_iam_users_list_audit_log_facilities :
     key => lookup(local.bucket_user_names_audit_log_facilities, key, null)
   }
-  #RDS FACILITIES specific IAM parameter ends here
+  #RDS FACILITIES specific IAM parameter ends here for Audit log bucket
+
+  #RDS Facilities specific IAM parameter starts here for Backup bucket
+  iam_user_arns_backup_facilities = {
+    backup   = "${var.iam_user_arn_prefix_backup}-backup-facilities"
+  }
+
+  s3_iam_users_list_backup_facilities = {
+    backup = {
+      bucket_name   = "${var.s3bucket_name_prefix_db2}-backup-facilities"
+      iam_user_name = "${var.iam_user_name_prefix_backup}-backup-facilities"
+      access_level  = var.access_level_backup_rw
+    }
+  }
+
+  iam_users_by_bucket_backup_facilities = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_backup_facilities : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_backup_facilities :
+      local.iam_user_arns_backup_facilities[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names_backup_facilities = {
+    backup   = "${var.iam_user_name_prefix_backup}-backup-facilities"
+  }
+
+  bucket_user_name_map_backup_facilities = {
+    for key, value in local.s3_iam_users_list_backup_facilities :
+    key => lookup(local.bucket_user_names_backup_facilities, key, null)
+  }
+  #RDS Facilities specific IAM parameter ends here for Backup bucket
 {%- endif %}
 {%- if S3_MANAGE | lower == 'true'  %}
   #Manage related params for S3 starts
@@ -220,6 +316,11 @@ locals {
       rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket", "s3:ListMultipartUploadParts", "s3:AbortMultipartUpload"]
   }
   #RDS AUDIT LOG S3 Actions params ends
+  #RDS BACKUP S3 Actions params starts
+  s3_actions_backup = {
+    rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket", "s3:ListMultipartUploadParts", "s3:AbortMultipartUpload"]
+  }
+  #RDS BACKUP S3 Actions params ends
 {%- endif %}
 {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
   location = var.location
@@ -297,7 +398,7 @@ locals {
     {%- if (IS_RDS | lower == 'true') %}
     {%- if (RDS_MANAGE | lower == 'true') %}
     #RDS Manage specific S3 bucket start
-    rds_s3bucket_manage = {
+    rds_s3bucket_audit_log_manage = {
         auditlog-manage = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
@@ -314,10 +415,29 @@ locals {
         }
     }
     #RDS Manage specific S3 bucket end
+
+    #RDS Backup Manage specific S3 bucket start
+    rds_s3bucket_backup_manage = {
+        backup-manage = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3backup_bucket_name_prefix_db2}-manage"
+          id                   = "${var.s3backup_bucket_name_prefix_db2}-manage"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3backup_bucket_name_prefix_db2}-manage"
+          secret_suffix        = "backup-manage"
+          cos_secret_format    = false
+          manage_secret_format = false
+          expiration = {
+            days = 366 // how long to keep backups
+          }
+        }
+    }
+    #RDS Backup Manage specific S3 bucket end
     {%- endif %}
     {%- if (RDS_FACILITIES | lower == 'true') %}
     #RDS FACILITIES specific S3 bucket start
-    rds_s3bucket_facilities = {
+    rds_s3bucket_audit_log_facilities = {
         auditlog-facilities = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
@@ -334,10 +454,29 @@ locals {
         }
     }
     #RDS FACILITIES specific S3 bucket end
+
+    #RDS Backup facilities specific S3 bucket start
+    rds_s3bucket_backup_facilities = {
+        backup-facilities = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3backup_bucket_name_prefix_db2}-facilities"
+          id                   = "${var.s3backup_bucket_name_prefix_db2}-facilities"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3backup_bucket_name_prefix_db2}-facilities"
+          secret_suffix        = "backup-facilities"
+          cos_secret_format    = false
+          facilities_secret_format = false
+          expiration = {
+            days = 366 // how long to keep backups
+          }
+        }
+    }
+    #RDS Backup facilities specific S3 bucket end
     {%- endif %}
     {%- if (RDS_IOT | lower == 'true') %}
     #RDS IOT specific S3 bucket start
-    rds_s3bucket_iot = {
+    rds_s3bucket_audit_log_iot = {
         auditlog-iot = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
@@ -354,6 +493,24 @@ locals {
         }
     }
     #RDS IOT specific S3 bucket end
+    #RDS Backup iot specific S3 bucket start
+    rds_s3bucket_backup_iot = {
+        backup-iot = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3backup_bucket_name_prefix_db2}-iot"
+          id                   = "${var.s3backup_bucket_name_prefix_db2}-iot"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3backup_bucket_name_prefix_db2}-iot"
+          secret_suffix        = "backup-iot"
+          cos_secret_format    = false
+          iot_secret_format = false
+          expiration = {
+            days = 366 // how long to keep backups
+          }
+        }
+    }
+    #RDS Backup iot specific S3 bucket end
    {%- endif %}
    {%- endif %}
     }

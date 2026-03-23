@@ -1255,14 +1255,18 @@ function gitops_iac_provision_rdsdb2(){
       echo "Generating db2_parameters-$app.yaml file ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml "
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-db2paramaters.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml
 
-      echo "Generating s3-instance-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf
+      # Loop through bucket types to generate S3 configurations
+      for BUCKET_TYPE in "audit_log" "backup"; do
+        export BUCKET_TYPE
+        echo "Generating s3-instance-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$BUCKET_TYPE-$app.tf "
+        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$BUCKET_TYPE-$app.tf
 
-      echo "Generating s3-iampolicy-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf
+        echo "Generating s3-iampolicy-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$BUCKET_TYPE-$app.tf "
+        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$BUCKET_TYPE-$app.tf
 
-      echo "Generating s3-accesspoints-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf
+        echo "Generating s3-accesspoints-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$BUCKET_TYPE-$app.tf "
+        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$BUCKET_TYPE-$app.tf
+      done
     fi
   done
 

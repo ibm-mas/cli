@@ -177,6 +177,12 @@ variable "access_level_audit_log_rw" {
   default     = "rw"
 }
 
+variable "access_level_backup_rw" {
+  type        = string
+  description = "read and write for backup"
+  default     = "rw"
+}
+
 variable "iam_user_arn_prefix_audit_log" {
   type        = string
   description = "iam user arn"
@@ -185,9 +191,23 @@ variable "iam_user_name_prefix_audit_log" {
   type        = string
   description = "iam user name prefix"
 }
+variable "iam_user_arn_prefix_backup" {
+  type        = string
+  description = "iam user arn for backup"
+}
+variable "iam_user_name_prefix_backup" {
+  type        = string
+  description = "iam user name prefix for backup"
+}
 {%- if (RDS_MANAGE | lower == 'true')%}
 variable "s3_iam_users_list_audit_log_manage" {
   description = "s3 user list"
+  type = map(object({
+    iam_user_name = string
+  }))
+}
+variable "s3_iam_users_list_backup_manage" {
+  description = "s3 user list for backup"
   type = map(object({
     iam_user_name = string
   }))
@@ -200,10 +220,22 @@ variable "s3_iam_users_list_audit_log_iot" {
     iam_user_name = string
   }))
 }
+variable "s3_iam_users_list_backup_iot" {
+  description = "s3 user list for backup"
+  type = map(object({
+    iam_user_name = string
+  }))
+}
 {%- endif %}
 {%- if (RDS_FACILITIES | lower == 'true')%}
 variable "s3_iam_users_list_audit_log_facilities" {
   description = "s3 user list"
+  type = map(object({
+    iam_user_name = string
+  }))
+}
+variable "s3_iam_users_list_backup_facilities" {
+  description = "s3 user list for backup"
   type = map(object({
     iam_user_name = string
   }))
