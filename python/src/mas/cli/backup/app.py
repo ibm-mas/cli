@@ -12,15 +12,15 @@
 import logging
 from datetime import datetime
 from halo import Halo
-from prompt_toolkit import print_formatted_text, HTML
+from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
 from openshift.dynamic.exceptions import ResourceNotFoundError
 
 from ..cli import BaseApp
-from ..validators import InstanceIDValidator
+from ..validators import InstanceIDValidator, StorageClassValidator
 from .argParser import backupArgParser
-from mas.devops.ocp import createNamespace, getConsoleURL
+from mas.devops.ocp import createNamespace, getConsoleURL, getStorageClasses
 from mas.devops.mas import listMasInstances, getDefaultStorageClasses, getWorkspaceId
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchBackupPipeline
 
@@ -197,15 +197,6 @@ class BackupApp(BaseApp):
             instanceId = self.getParam("mas_instance_id")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
-            # Determine storage class and access mode for pipeline PVCs
-            defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
-            if self.isSNO() or defaultStorageClasses.rwx == "none":
-                self.pipelineStorageClass = defaultStorageClasses.rwo
-                self.pipelineStorageAccessMode = "ReadWriteOnce"
-            else:
-                self.pipelineStorageClass = defaultStorageClasses.rwx
-                self.pipelineStorageAccessMode = "ReadWriteMany"
-
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
@@ -278,6 +269,32 @@ class BackupApp(BaseApp):
 
     def promptForBackupStorageSize(self) -> None:
         self.printH1("Backup Storage Configuration")
+        self.printDescription([
+            "Select ReadWriteMany storage classe to use to create <Yellow>backup-pvc</Yellow> pvc",
+            "to temporarily store the backup archives."
+        ])
+        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+        if defaultStorageClasses.provider is not None:
+            print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
+            self.pipelineStorageClass = defaultStorageClasses.rwx
+            self.pipelineStorageAccessMode = "ReadWriteMany"
+
+        customSC = False
+        if self.pipelineStorageClass is not None and self.pipelineStorageClass != "":
+            customSC = not self.yesOrNo("Use the auto-detected storage classes")
+
+        if self.pipelineStorageClass is None or self.pipelineStorageClass == "" or customSC:
+
+            self.printDescription([
+                "Select ReadWriteMany storage classe to use from the list below:"
+            ])
+            for storageClass in getStorageClasses(self.dynamicClient):
+                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+
+            self.params["storage_class_rwx"] = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+
+        # Get pvc size
         storageSize = self.promptForString("Enter backup PVC storage size", default="20Gi")
         self.setParam("backup_storage_size", storageSize)
 
