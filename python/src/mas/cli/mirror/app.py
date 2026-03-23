@@ -631,6 +631,7 @@ class MirrorApp(BaseApp):
         destTlsVerify = args.dest_tls_verify
         imageTimeout = args.image_timeout
         mirrorAll = args.all
+        prefix = args.prefix
 
         # Validate that oc-mirror is available on PATH
         if not shutil.which("oc-mirror"):
@@ -674,13 +675,18 @@ class MirrorApp(BaseApp):
             self.printSummary("Release", release)
             self.printSummary("Mode", mode)
             self.printSummary("Authentication File", authFilePath)
+            
 
             self.printH2("Mirror Target")
             if mode == "m2d":
                 self.printSummary("Destination", rootDir)
             else:
+                if prefix:
+                    self.printSummary("Prefix", prefix)
+                    targetRegistry = f"{targetRegistry}/{prefix}"
                 self.printSummary("Destination", targetRegistry)
                 self.printSummary("Verify Registry Certificate", destTlsVerify)
+                
             self.printSummary("Mirror Image Timeout", imageTimeout)
 
             self.printH2("IBM Maximo Operator Catalog")
