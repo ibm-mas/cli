@@ -329,17 +329,17 @@ locals {
         custfiles = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
-          name                 = "${var.s3bucket_name_prefix_mvi}-mvi"
-          id                   = "${var.s3bucket_name_prefix_mvi}-mvi"
+          name                 = "${var.s3bucket_name_prefix_facilities}-facilities-custfiles"
+          id                   = "${var.s3bucket_name_prefix_facilities}-facilities-custfiles"
           access_level         = "ro"
-          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_mvi}-mvi"
-          secret_suffix        = "cos"
-          cos_secret_format    = true
-          manage_secret_format = false
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_facilities}-facilities-custfiles"
+          secret_suffix        = "facilities_custfiles/cos-custfiles"
+          cos_secret_format    = false
+          manage_secret_format = true
           expiration = {
             days = 366 // how long to keep logs
           }
-          dr_replicate         = var.enable_dr
+          dr_replicate         = false
         }
       }
     #Facilities specific S3 buckets ends
