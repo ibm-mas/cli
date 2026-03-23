@@ -126,7 +126,7 @@ class BackupApp(BaseApp):
 
             # Prompt for backup storage size if not provided
             if self.args.backup_storage_size is None:
-                self.promptForBackupStorageSize()
+                self.promptForBackupStorage()
 
             # Prompt for backup version if not provided
             if self.args.backup_version is None:
@@ -267,10 +267,10 @@ class BackupApp(BaseApp):
         except ResourceNotFoundError:
             self.fatalError("Unable to list MAS instances")
 
-    def promptForBackupStorageSize(self) -> None:
+    def promptForBackupStorage(self) -> None:
         self.printH1("Backup Storage Configuration")
         self.printDescription([
-            "Select ReadWriteMany storage classe to use to create <Yellow>backup-pvc</Yellow> pvc",
+            "Select ReadWriteMany storage class to use to create <Yellow>backup-pvc</Yellow> pvc",
             "to temporarily store the backup archives."
         ])
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
