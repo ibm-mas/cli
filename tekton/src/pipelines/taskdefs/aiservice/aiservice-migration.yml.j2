@@ -1,0 +1,13 @@
+{% set aiservice_ids = aiservice_instance_ids.split(',') %}
+{% for aiservice_id in aiservice_ids %}
+- name: migrate-aiservice-{{ aiservice_id | trim }}
+  timeout: "0"
+  taskRef:
+    kind: Task
+    name: mas-devops-aiservice-migration
+  runAfter:
+    - post-update-verify
+  params:
+    - name: aiservice_instance_id
+      value: {{ aiservice_id | trim }}
+{% endfor %}

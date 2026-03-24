@@ -11,7 +11,6 @@
 
 import logging
 import logging.handlers
-from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
@@ -228,15 +227,21 @@ class UpdateApp(BaseApp):
             ])
 
     def reviewMASInstance(self) -> bool:
-        return self.reviewInstances(listMasInstances, 'MAS', 'Suite.core.mas.ibm.com/v1')
+        instances = listMasInstances(self.dynamicClient)
+        return self.reviewInstances(instances, 'MAS', 'Suite.core.mas.ibm.com/v1')
 
     def reviewAiServiceInstance(self) -> bool:
-        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1')
+        instances = listAiServiceInstances(self.dynamicClient)
+        param_key = "aiservice_instance_ids"
+        self.setParam(param_key, "")
+        for instance in instances:
+            param = self.getParam(param_key)
+            self.setParam(param_key, f"{param},{instance['metadata']['name']}".lstrip(","))
+        return self.reviewInstances(instances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1')
 
-    def reviewInstances(self, getInstances: Callable, name: str, kind: str) -> bool:
+    def reviewInstances(self, instances: list, name: str, kind: str) -> bool:
         self.printH1(f"Review {name} Instances")
         try:
-            instances = getInstances(self.dynamicClient)
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
                 self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
