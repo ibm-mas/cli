@@ -47,15 +47,21 @@ backupArgGroup.add_argument(
     help="Version/timestamp for the backup (auto-generated if not provided)"
 )
 backupArgGroup.add_argument(
-    '--backup-storage-class-rwx',
-    dest='backup_storage_class_rwx',
+    '--backup-storage-class',
+    dest='backup_storage_class',
     required=False,
-    help="ReadWriteMany Storage class for backup-pvc PVC storage"
+    help="Storage class for backup-pvc PVC storage"
 )
 backupArgGroup.add_argument(
     '--backup-storage-size',
     required=False,
     help="Size of the backup PVC storage (default: 20Gi)"
+)
+backupArgGroup.add_argument(
+    '--backup-storage-access-mode',
+    dest='backup_storage_access_mode',
+    required=False,
+    help="Access mode for backup PVC storage"
 )
 backupArgGroup.add_argument(
     '--clean-backup',

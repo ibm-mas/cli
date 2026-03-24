@@ -7,7 +7,7 @@ Usage information can be obtained using `mas restore --help`
 
 ```
 usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION]
-                   [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class-rwx BACKUP_STORAGE_CLASS_RWX]
+                   [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class BACKUP_STORAGE_CLASS]
                    [--mas-domain-restore MAS_DOMAIN_ON_RESTORE] [--sls-url-restore SLS_URL_ON_RESTORE]
                    [--dro-url-restore DRO_URL_ON_RESTORE] [--include-slscfg-from-backup] [--exclude-slscfg-from-backup]
                    [--sls-cfg-file SLS_CFG_FILE] [--dro-cfg-file DRO_CFG_FILE] [--include-drocfg-from-backup]
@@ -57,7 +57,7 @@ MAS Instance:
 Restore Configuration:
   --restore-version RESTORE_VERSION
                         Version/timestamp used in backup. Example: YYYYMMDD-HHMMSS
-  --backup-storage-class-rwx BACKUP_STORAGE_CLASS_RWX
+  --backup-storage-class BACKUP_STORAGE_CLASS
                         Storage class for backup-pvc workspace.
   --backup-storage-size BACKUP_STORAGE_SIZE
                         Size of the PVC storage, must be bigger than backup archive size. (default: 20Gi)

@@ -120,15 +120,21 @@ restoreArgGroup.add_argument(
     help="Version/timestamp used in backup. Example: YYYYMMDD-HHMMSS"
 )
 restoreArgGroup.add_argument(
-    '--backup-storage-class-rwx',
-    dest='backup_storage_class_rwx',
+    '--backup-storage-class',
+    dest='backup_storage_class',
     required=False,
-    help="ReadWriteMany Storage class for backup-pvc PVC storage"
+    help="Storage class for backup-pvc PVC storage"
 )
 restoreArgGroup.add_argument(
     '--backup-storage-size',
     required=False,
     help="Size of the PVC storage, must be bigger than backup archive size. (default: 20Gi)"
+)
+restoreArgGroup.add_argument(
+    '--backup-storage-access-mode',
+    dest='backup_storage_access_mode',
+    required=False,
+    help="Access mode for backup PVC storage"
 )
 restoreArgGroup.add_argument(
     '--clean-backup',

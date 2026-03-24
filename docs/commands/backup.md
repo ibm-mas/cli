@@ -7,7 +7,7 @@ Usage information can be obtained using `mas backup --help`
 
 ```
 usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION]
-                  [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class-rwx BACKUP_STORAGE_CLASS_RWX]
+                  [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class BACKUP_STORAGE_CLASS]
                   [--clean-backup] [--no-clean-backup] [--upload-backup] [--aws-access-key-id AWS_ACCESS_KEY_ID]
                   [--aws-secret-access-key AWS_SECRET_ACCESS_KEY] [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION]
                   [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY]
