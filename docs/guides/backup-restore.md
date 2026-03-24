@@ -515,7 +515,12 @@ The backup process automatically selects appropriate storage:
 - **Multi-node clusters**: Prefers ReadWriteMany (RWX) storage when available
 - Falls back to RWO if RWX is not available
 
-The storage class is determined from your cluster's default storage classes.
+The storage class is determined from your cluster's storage classes.
+
+You can override the default storage configuration using:
+
+- `--backup-storage-class`: Specify a custom storage class for the backup PVC
+- `--backup-storage-access-mode`: Specify the access mode (e.g., ReadWriteOnce, ReadWriteMany) for the backup PVC
 
 
 Backup Process Details

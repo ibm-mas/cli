@@ -8,6 +8,7 @@ Usage information can be obtained using `mas restore --help`
 ```
 usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION]
                    [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class BACKUP_STORAGE_CLASS]
+                   [--backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE]
                    [--mas-domain-restore MAS_DOMAIN_ON_RESTORE] [--sls-url-restore SLS_URL_ON_RESTORE]
                    [--dro-url-restore DRO_URL_ON_RESTORE] [--include-slscfg-from-backup] [--exclude-slscfg-from-backup]
                    [--sls-cfg-file SLS_CFG_FILE] [--dro-cfg-file DRO_CFG_FILE] [--include-drocfg-from-backup]
@@ -61,6 +62,8 @@ Restore Configuration:
                         Storage class for backup-pvc workspace.
   --backup-storage-size BACKUP_STORAGE_SIZE
                         Size of the PVC storage, must be bigger than backup archive size. (default: 20Gi)
+  --backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE
+                        Access mode for backup PVC storage (ReadWriteOnce or ReadWriteMany)
   --clean-backup        Clean backup and config workspaces after completion (default: true)
   --no-clean-backup     Do not clean backup and config workspaces after completion
 

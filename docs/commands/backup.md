@@ -8,6 +8,7 @@ Usage information can be obtained using `mas backup --help`
 ```
 usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION]
                   [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class BACKUP_STORAGE_CLASS]
+                  [--backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE]
                   [--clean-backup] [--no-clean-backup] [--upload-backup] [--aws-access-key-id AWS_ACCESS_KEY_ID]
                   [--aws-secret-access-key AWS_SECRET_ACCESS_KEY] [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION]
                   [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY]
@@ -32,8 +33,12 @@ MAS Instance:
 Backup Configuration:
   --backup-version BACKUP_VERSION
                         Version/timestamp for the backup (auto-generated if not provided)
+  --backup-storage-class BACKUP_STORAGE_CLASS
+                        Storage class for backup-pvc PVC storage
   --backup-storage-size BACKUP_STORAGE_SIZE
                         Size of the backup PVC storage (default: 20Gi)
+  --backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE
+                        Access mode for backup PVC storage (ReadWriteOnce or ReadWriteMany)
   --clean-backup        Clean backup and config workspaces after completion (default: true)
   --no-clean-backup     Do not clean backup and config workspaces after completion
 

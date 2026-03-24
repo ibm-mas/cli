@@ -142,7 +142,7 @@ class RestoreApp(BaseApp):
                 self.promptForBackupVersion()
 
             # Prompt for backup storage size if not provided
-            if self.args.backup_storage_class is None or self.args.backup_storage_size is None:
+            if self.args.backup_storage_class is None or self.args.backup_storage_access_mode is None or self.args.backup_storage_size is None:
                 self.promptForBackupStorage()
 
             # Prompt for backup class override
@@ -250,7 +250,9 @@ class RestoreApp(BaseApp):
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
             if self.getParam("backup_storage_class") is None or self.getParam("backup_storage_class") == "":
-                self.fatalError("No storage class specified for 'backup-pvc' pvc, please specify a storage class for the backup storage")
+                self.fatalError("No storage class specified for 'backup-pvc' pvc, please specify a storage class for the backup storage using --backup-storage-class")
+            if self.getParam("backup_storage_access_mode") is None or self.getParam("backup_storage_access_mode") == "":
+                self.fatalError("No storage access mode specified for 'backup-pvc' pvc, please specify a storage access mode for the backup storage using --backup-storage-access-mode")
 
             # Determine storage class and access mode for pipeline PVCs
             defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
@@ -438,7 +440,7 @@ class RestoreApp(BaseApp):
         pipelineStorageClass = None
 
         # Set access mode based on SNO detection
-        if isSNO:
+        if isSNO or defaultStorageClasses.rwx is None:
             pipelineStorageAccessMode = "ReadWriteOnce"
             if defaultStorageClasses.provider is not None:
                 print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
@@ -456,7 +458,7 @@ class RestoreApp(BaseApp):
             customSC = not self.yesOrNo("Use the auto-detected storage classes")
 
         if pipelineStorageClass is None or pipelineStorageClass == "" or customSC:
-            if isSNO:
+            if isSNO or defaultStorageClasses.rwx is None:
                 self.printDescription([
                     "Select ReadWriteOnce storage class to use from the list below:"
                 ])
