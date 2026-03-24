@@ -172,13 +172,13 @@ def getISC(configPath: str) -> str:
         return localPath
 
     except urllib.error.HTTPError as e:
-        logger.error(f"Failed to download config file from GitHub: HTTP {e.code} - {e.reason}")
+        print(f"Failed to download config file from GitHub: HTTP {e.code} - {e.reason}")
         raise FileNotFoundError(f"Config file not found locally and could not be downloaded from GitHub: {configPath}") from e
     except urllib.error.URLError as e:
         print(f"Failed to download config file from GitHub: {e.reason}")
         raise FileNotFoundError(f"Config file not found locally and could not be downloaded from GitHub: {configPath}") from e
     except Exception as e:
-        logger.error(f"Unexpected error downloading config file: {e}")
+        print(f"Unexpected error downloading config file: {e}")
         raise FileNotFoundError(f"Config file not found locally and could not be downloaded from GitHub: {configPath}") from e
 
 
