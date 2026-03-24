@@ -153,7 +153,7 @@ def getISC(configPath: str) -> str:
     # Convert blob URL to raw content URL
     githubUrl = f"https://raw.githubusercontent.com/ibm-mas/image-set-configs/master/{configPath}"
 
-    logger.info(f"Attempting to download from: {githubUrl}")
+    print(f"Attempting to download from: {githubUrl}")
 
     try:
         # Create directory if it doesn't exist
@@ -175,7 +175,7 @@ def getISC(configPath: str) -> str:
         logger.error(f"Failed to download config file from GitHub: HTTP {e.code} - {e.reason}")
         raise FileNotFoundError(f"Config file not found locally and could not be downloaded from GitHub: {configPath}") from e
     except urllib.error.URLError as e:
-        logger.error(f"Failed to download config file from GitHub: {e.reason}")
+        print(f"Failed to download config file from GitHub: {e.reason}")
         raise FileNotFoundError(f"Config file not found locally and could not be downloaded from GitHub: {configPath}") from e
     except Exception as e:
         logger.error(f"Unexpected error downloading config file: {e}")
