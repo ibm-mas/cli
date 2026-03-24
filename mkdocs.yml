@@ -36,7 +36,7 @@ nav:
       - "restore": commands/restore.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
-      - "Mar 13 2026": catalogs/v9-260313-amd64.md
+      - "Mar 18 2026": catalogs/v9-260318-amd64.md
       - "Feb 26 2026": catalogs/v9-260226-amd64.md
       - "Jan 29 2026": catalogs/v9-260129-amd64.md
       - "Dec 31 2025": catalogs/v9-251231-amd64.md
