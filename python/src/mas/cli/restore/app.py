@@ -417,38 +417,38 @@ class RestoreApp(BaseApp):
     def promptForBackupStorage(self) -> None:
         self.printH1("Backup Storage Configuration")
 
-        # Check if this is SNO
-        isSNO = self.isSNO()
+        # Check if this is a Single Node OpenShift cluster
+        isSNOCluster = self.isSNO()
 
-        if isSNO:
+        if isSNOCluster:
             self.printDescription([
-                " - <Yellow>Single Node OpenShift (SNO) detected</Yellow>",
-                " - You need ReadWriteOnce storage class to use to create <Yellow>backup-pvc</Yellow> pvc to temporarily store the backup archives.",
-                " - Make sure to have enough storage to download the archive(s) and extract the contents.",
-                " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
-                " - Note: The downloaded archive will be deleted after the contents are extracted."
+                " - <Yellow>Single Node OpenShift detected</Yellow>",
+                " - You can use ReadWriteOnce storage class to create <Yellow>backup-pvc</Yellow> pvc for restore pipeline.",
             ])
         else:
             self.printDescription([
-                " - You need ReadWriteMany storage class to use to create <Yellow>backup-pvc</Yellow> pvc to temporarily store the backup archives.",
-                " - Make sure to have enough storage to download the archive(s) and extract the contents.",
-                " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
-                " - Note: The downloaded archive will be deleted after the contents are extracted."
+                " - Select a storage class to use to create <Yellow>backup-pvc</Yellow> pvc for restore pipeline(Recommended access mode ReadWriteMany).",
             ])
+        self.printDescription([
+            " - Make sure to have enough storage to download the archive(s) and extract the contents.",
+            " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
+            " - Note: The downloaded archive will be deleted after the contents are extracted."
+        ])
 
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         pipelineStorageClass = None
+        pipelineStorageAccessMode = "ReadWriteMany"
 
-        # Set access mode based on SNO detection
-        if isSNO or defaultStorageClasses.rwx is None:
-            pipelineStorageAccessMode = "ReadWriteOnce"
+        # For SNO, use ReadWriteOnce access mode and RWO storage class
+        if isSNOCluster or defaultStorageClasses.rwx is None:
             if defaultStorageClasses.provider is not None:
+                pipelineStorageAccessMode = "ReadWriteOnce"
                 print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
                 print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
                 pipelineStorageClass = defaultStorageClasses.rwo
         else:
-            pipelineStorageAccessMode = "ReadWriteMany"
             if defaultStorageClasses.provider is not None:
+                pipelineStorageAccessMode = "ReadWriteMany"
                 print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
                 print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
                 pipelineStorageClass = defaultStorageClasses.rwx
@@ -458,22 +458,32 @@ class RestoreApp(BaseApp):
             customSC = not self.yesOrNo("Use the auto-detected storage classes")
 
         if pipelineStorageClass is None or pipelineStorageClass == "" or customSC:
-            if isSNO or defaultStorageClasses.rwx is None:
+            if isSNOCluster:
                 self.printDescription([
                     "Select ReadWriteOnce storage class to use from the list below:"
                 ])
                 for storageClass in getStorageClasses(self.dynamicClient):
                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-
+                pipelineStorageAccessMode = "ReadWriteOnce"
                 pipelineStorageClass = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
             else:
                 self.printDescription([
-                    "Select ReadWriteMany storage classe to use from the list below:"
+                    "Choose Storage class access mode:",
+                    " 1. ReadWriteOnce (RWO)",
+                    " 2. ReadWriteMany (RWX)",
+                ])
+                pipelineStorageAccessMode = self.promptForListSelect(
+                    "Select Storage class access mode",
+                    ["ReadWriteOnce", "ReadWriteMany"],
+                    "backup_storage_access_mode",
+                    default=1
+                )
+                self.printDescription([
+                    "Select storage class to use from the list below:"
                 ])
                 for storageClass in getStorageClasses(self.dynamicClient):
                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-
-                pipelineStorageClass = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+                pipelineStorageClass = prompt(HTML(f'<Yellow>Enter {pipelineStorageAccessMode} storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
 
         self.setParam("backup_storage_class", pipelineStorageClass)
         self.setParam("backup_storage_access_mode", pipelineStorageAccessMode)
