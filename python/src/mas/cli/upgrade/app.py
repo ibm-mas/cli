@@ -30,6 +30,43 @@ logger = logging.getLogger(__name__)
 
 
 class UpgradeApp(BaseApp, UpgradeSettingsMixin):
+    def computeMonitorInstallOrderForUpgrade(self, instanceId):
+        """
+        Determine the installation order for Monitor relative to IoT based on TARGET Monitor version.
+        This is needed for upgrade scenarios where Monitor >= 9.2.0 must upgrade before IoT.
+        For upgrades, we check the TARGET channel (where we're going), not current channel.
+        """
+        from mas.devops.mas import getAppsSubscriptionChannel
+        from mas.devops.utils import isVersionEqualOrAfter
+        
+        installedApps = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+        hasMonitor = False
+        hasIoT = False
+        
+        for app in installedApps:
+            if app["appId"] == "monitor":
+                hasMonitor = True
+            elif app["appId"] == "iot":
+                hasIoT = True
+        
+        if hasMonitor and hasIoT:
+            # For upgrade, check the TARGET channel (self.nextChannel), not current channel
+            # If upgrading TO 9.2.x or higher, Monitor must upgrade before IoT
+            if self.nextChannel and isVersionEqualOrAfter('9.2.0', self.nextChannel):
+                # Upgrading to Monitor >= 9.2.0: Monitor must upgrade before IoT
+                self.setParam("mas_monitor_install_order", "before-iot")
+                logger.debug(f"Upgrading to MAS {self.nextChannel} (>= 9.2.0): Monitor will upgrade before IoT")
+            else:
+                # Upgrading to Monitor < 9.2.0: Monitor upgrades after IoT (legacy)
+                self.setParam("mas_monitor_install_order", "after-iot")
+                logger.debug(f"Upgrading to MAS {self.nextChannel} (< 9.2.0): Monitor will upgrade after IoT (legacy behavior)")
+        elif hasMonitor:
+            # Only Monitor, no IoT - order doesn't matter but set default
+            self.setParam("mas_monitor_install_order", "before-iot")
+        else:
+            # No Monitor installed - set default
+            self.setParam("mas_monitor_install_order", "after-iot")
+
     def upgrade(self, argv):
         """
         Upgrade MAS instance
@@ -39,6 +76,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
         self.licenseAccepted = args.accept_license
+        self.nextChannel = args.next_channel
         self.devMode = args.dev_mode
 
         if instanceId is None:
@@ -78,33 +116,66 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             if self.devMode:
                 # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
-                nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+                self.nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
             else:
-                if currentChannel not in self.upgrade_path:
-                    self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
-                nextChannel = self.upgrade_path[currentChannel]
+                if self.nextChannel != "":
+                    # --next-channel was explicitly provided by the user
+                    if self.nextChannel == currentChannel:
+                        # Retry scenario: MAS core already on target channel, but some apps may still be behind
+                        print_formatted_text(HTML(
+                            f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
+                            f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
+                        ))
+                    elif self.nextChannel == self.upgrade_path.get(currentChannel):
+                        # Valid upgrade path: currentChannel -> nextChannel
+                        pass
+                    else:
+                        self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
+                else:
+                    # No --next-channel given: derive from upgrade_path
+                    if currentChannel not in self.upgrade_path:
+                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {currentChannel}")
+                    self.nextChannel = self.upgrade_path[currentChannel]
 
-                # For the Feature Channels we do not allow upgrade when an installed app is not onboarded yet
-                if nextChannel in self.compatibilityMatrix:
-                    if "feature" in nextChannel:
-                        unsupportedAppForFC = []
-                        installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
-                        for installedApp in installedAppsChannel:
-                            if installedApp["appId"] not in self.compatibilityMatrix[nextChannel]:
-                                unsupportedAppForFC.append(installedApp["appId"])
-                        if len(unsupportedAppForFC) > 0:
-                            self.fatalError(f"No feature channel available for {unsupportedAppForFC} on the release {nextChannel}. Upgrade cancelled.")
+                # Validate installed apps compatibility with the target channel
+                if self.nextChannel in self.compatibilityMatrix:
+                    installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+                    incompatibleApps = []
+
+                    for installedApp in installedAppsChannel:
+                        appId = installedApp["appId"]
+                        appChannel = installedApp["channel"]
+
+                        # Check if app is supported in the target channel
+                        if appId not in self.compatibilityMatrix[self.nextChannel]:
+                            if "feature" in self.nextChannel:
+                                incompatibleApps.append(f"  - {appId}: Not available in feature channel {self.nextChannel}")
+                            else:
+                                incompatibleApps.append(f"  - {appId}: Not supported in {self.nextChannel}")
+                        else:
+                            # Check if current app channel is compatible with target MAS channel
+                            compatibleAppChannels = self.compatibilityMatrix[self.nextChannel][appId]
+                            if appChannel not in compatibleAppChannels:
+                                incompatibleApps.append(
+                                    f"  - {appId} (currently on {appChannel}): Must be on one of {compatibleAppChannels} to upgrade to MAS {self.nextChannel}"
+                                )
+
+                    if len(incompatibleApps) > 0:
+                        errorMsg = f"Cannot upgrade to {self.nextChannel}. The following apps have compatibility issues:\n" + "\n".join(incompatibleApps)
+                        self.fatalError(errorMsg)
+
         else:
             # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
             # queued up to run after install for instance
             currentChannel = "Unknown"
-            nextChannel = "Unknown"
+            if self.nextChannel == "":
+                self.nextChannel = "Unknown"
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the upgrade, you must accept the license terms:",
-                self.licenses[nextChannel]
+                self.licenses[self.nextChannel]
             ])
 
             if self.noConfirm:
@@ -115,7 +186,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         # The only scenario where Manage Foundation needs to be installed during an upgrade is from 9.0.x to 9.1.x (if Manage was not already installed in 9.0.x).
         self.setParam("should_install_manage_foundation", "false")
-        if nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
+        if self.nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
             self.manageAppName = "Manage foundation"
             self.showAdvancedOptions = False
             self.installIoT = False
@@ -131,16 +202,19 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.setParam("should_install_manage_foundation", "true")
             self.setParam("mas_appws_components", "")
             self.setParam("mas_app_settings_aio_flag", "false")
-            self.setParam("mas_app_channel_manage", nextChannel)
+            self.setParam("mas_app_channel_manage", self.nextChannel)
             self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
             # It has been decided that we don't need to ask for any specific Manage Settings
             # self.manageSettings()
             self.configDb2(silentMode=True)
 
+        # Compute Monitor install order for upgrade
+        self.computeMonitorInstallOrderForUpgrade(instanceId)
+
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {nextChannel}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {self.nextChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
 
         if not self.noConfirm:
@@ -170,7 +244,29 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, params=self.params)
+                # Determine masChannel parameter based on scenario:
+                # - Regular upgrade: pass currentChannel so ansible looks up the next channel
+                # - Retry scenario: pass previous channel so ansible upgrades apps to current channel
+                # - No --next-channel: pass empty string to let ansible auto-determine
+                if args.next_channel != "" and currentChannel != "Unknown":
+                    if self.nextChannel == currentChannel:
+                        # Retry scenario: core already on target, apps need upgrading
+                        # Find previous channel: which channel has upgrade_path[X] = currentChannel?
+                        previousChannel = None
+                        for prevCh, nextCh in self.upgrade_path.items():
+                            if nextCh == currentChannel:
+                                previousChannel = prevCh
+                                break
+                        # Pass previous channel so ansible upgrades apps from previous to current
+                        masChannelParam = previousChannel if previousChannel else currentChannel
+                    else:
+                        # Regular upgrade with explicit --next-channel
+                        masChannelParam = currentChannel
+                else:
+                    # No --next-channel provided: let ansible auto-determine
+                    masChannelParam = ""
+
+                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
