@@ -792,6 +792,7 @@ When downloading from S3 or Artifactory, the `download_backup_archive` role sele
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
+| `include_mongo_archive` | `false` | Download the Mongo backup archive |
 | `include_sls_archive` | `false` | Download the SLS backup archive |
 | `include_manage_db_archive` | `false` | Download the Manage Db2 database backup archive |
 | `include_manage_app_archive` | `false` | Download the Manage application backup archive |

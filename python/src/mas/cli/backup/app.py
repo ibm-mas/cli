@@ -49,6 +49,7 @@ class BackupApp(BaseApp):
             requiredParams = ["mas_instance_id"]
             optionalParams = [
                 "backup_version",
+                "backup_storage_class_rwx",
                 "backup_storage_size",
                 "clean_backup",
                 "include_sls",
@@ -126,7 +127,7 @@ class BackupApp(BaseApp):
                 self.promptForInstanceId()
 
             # Prompt for backup storage size if not provided
-            if self.args.backup_storage_size is None:
+            if self.args.backup_storage_class_rwx is None or self.args.backup_storage_size is None:
                 self.promptForBackupStorage()
 
             # Prompt for backup version if not provided
@@ -200,6 +201,9 @@ class BackupApp(BaseApp):
             instanceId = self.getParam("mas_instance_id")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
+            if self.getParam("backup_storage_class_rwx") is None or self.getParam("backup_storage_class_rwx") == "":
+                self.fatalError("No storage class specified for 'backup-pvc' pvc, please specify a storage class for the backup storage")
+
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
@@ -213,8 +217,8 @@ class BackupApp(BaseApp):
                 preparePipelinesNamespace(
                     dynClient=self.dynamicClient,
                     instanceId=instanceId,
-                    storageClass=self.pipelineStorageClass,
-                    accessMode=self.pipelineStorageAccessMode,
+                    storageClass=self.getParam("backup_storage_class_rwx"),
+                    accessMode=self.getParam("backup_storage_access_mode"),
                     createConfigPVC=False,
                     createBackupPVC=True,
                     backupStorageSize=backupStorageSize
@@ -273,21 +277,24 @@ class BackupApp(BaseApp):
     def promptForBackupStorage(self) -> None:
         self.printH1("Backup Storage Configuration")
         self.printDescription([
-            "Select ReadWriteMany storage class to use to create <Yellow>backup-pvc</Yellow> pvc",
-            "to temporarily store the backup archives."
+            " - You need ReadWriteMany storage class to use to create <Yellow>backup-pvc</Yellow> pvc to temporarily store the backup archives.",
+            " - Make sure to have enough storage accomodate archives and tar the contents.",
+            " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
+            " - Note: There's option to clean up the archives in the end."
         ])
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+        pipelineStorageClass = None
+        pipelineStorageAccessMode = "ReadWriteMany"
         if defaultStorageClasses.provider is not None:
             print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
             print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
-            self.pipelineStorageClass = defaultStorageClasses.rwx
-            self.pipelineStorageAccessMode = "ReadWriteMany"
+            pipelineStorageClass = defaultStorageClasses.rwx
 
         customSC = False
-        if self.pipelineStorageClass is not None and self.pipelineStorageClass != "":
+        if pipelineStorageClass is not None and pipelineStorageClass != "":
             customSC = not self.yesOrNo("Use the auto-detected storage classes")
 
-        if self.pipelineStorageClass is None or self.pipelineStorageClass == "" or customSC:
+        if pipelineStorageClass is None or pipelineStorageClass == "" or customSC:
 
             self.printDescription([
                 "Select ReadWriteMany storage classe to use from the list below:"
@@ -295,7 +302,9 @@ class BackupApp(BaseApp):
             for storageClass in getStorageClasses(self.dynamicClient):
                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
-            self.params["storage_class_rwx"] = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            pipelineStorageClass = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            self.setParam("backup_storage_class_rwx", pipelineStorageClass)
+            self.setParam("backup_storage_access_mode", pipelineStorageAccessMode)
 
         # Get pvc size
         storageSize = self.promptForString("Enter backup PVC storage size", default="20Gi")
@@ -356,8 +365,8 @@ class BackupApp(BaseApp):
         """Prompt user for MongoDB configuration"""
         self.printH1("MongoDB Configuration")
         self.printDescription([
-            "MongoDB can be included in the backup.",
-            "If included, you will need to specify the MongoDB namespace and instance name."
+            " - You can skip Mongo backup if you have external MongoDB.",
+            " - If included, you will need to specify the MongoDB namespace and instance name used in cluster"
         ])
 
         includeMongo = self.yesOrNo("Include MongoDB in backup")
