@@ -176,14 +176,28 @@ The Data Reporter Operator (DRO) is **not included in backup operations** as it 
 
 ### MongoDB Configuration
 
-The backup process supports **MongoDB Community Edition only**. Ensure you specify the correct MongoDB configuration:
+The backup process supports **MongoDB Community Edition only**. By default, MongoDB is included in the backup. You can configure MongoDB settings or exclude it if using an external MongoDB provider.
+
+**Including MongoDB in Backup (Default)**
+
+When MongoDB is included, ensure you specify the correct MongoDB configuration:
 
 - **Namespace** - Where MongoDB is deployed (default: `mongoce`)
 - **Instance Name** - MongoDB instance identifier (default: `mas-mongo-ce`)
 - **Provider** - Must be `community` (only supported provider for backup)
 
+**Excluding MongoDB from Backup**
+
+If you are using an external MongoDB provider (such as IBM Cloud Databases for MongoDB or other hosted MongoDB services), you should exclude MongoDB from the backup:
+
+- Use `--exclude-mongo` flag in non-interactive mode
+- In interactive mode, answer "No" when prompted to include MongoDB in backup
+
 !!! warning
-    IBM Cloud Databases for MongoDB and other external MongoDB providers are not supported by the backup process. You must use their native backup mechanisms.
+    IBM Cloud Databases for MongoDB and other external MongoDB providers are not supported by the backup process. You must use their native backup mechanisms. When using external MongoDB, always use `--exclude-mongo` to skip MongoDB backup.
+
+!!! tip
+    When excluding MongoDB from backup, you are responsible for backing up your MongoDB database using your provider's native backup tools. Ensure MongoDB backups are coordinated with MAS backups for consistency.
 
 ### Certificate Manager
 
@@ -338,7 +352,29 @@ mas backup \
   --no-confirm
 ```
 
-### Scenario 4: Backup with S3 Upload
+### Scenario 4: External MongoDB Deployment
+
+**Environment:**
+- MAS in OpenShift cluster
+- MongoDB hosted externally (e.g., IBM Cloud Databases for MongoDB, MongoDB Atlas, or other managed service)
+- In-cluster SLS
+- Red Hat Certificate Manager
+
+**Backup Command:**
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-storage-size 30Gi \
+  --exclude-mongo \
+  --no-confirm
+```
+
+Use `--exclude-mongo` to skip backing up MongoDB when it's managed externally. You must use your MongoDB provider's native backup mechanisms to back up the database separately.
+
+!!! important
+    When using external MongoDB, coordinate your MongoDB backups with MAS backups to ensure data consistency. Back up MongoDB before or immediately after the MAS backup completes.
+
+### Scenario 5: Backup with S3 Upload
 
 **Environment:**
 - Standard MAS deployment
@@ -362,7 +398,7 @@ mas backup \
 !!! tip
     Store AWS credentials securely using environment variables or secrets management systems rather than hardcoding them in scripts.
 
-### Scenario 5: Backup with Manage Application and Db2 Database
+### Scenario 6: Backup with Manage Application and Db2 Database
 
 **Environment:**
 - Standard MAS deployment with Manage application
@@ -387,7 +423,7 @@ mas backup \
 !!! tip
     When backing up Manage with Db2, ensure sufficient backup storage (100Gi+ recommended) to accommodate application PV data and database backups. Use offline backup type if your Db2 instance uses the default circular logging configuration.
 
-### Scenario 6: Backup with Manage Application Only (External Db2)
+### Scenario 7: Backup with Manage Application Only (External Db2)
 
 **Environment:**
 - MAS deployment with Manage application
@@ -407,7 +443,7 @@ mas backup \
 !!! note
     When using an external Db2 database, omit the `--backup-manage-db` flag. The database should be backed up separately using your organization's database backup procedures.
 
-### Scenario 7: Backup for Troubleshooting (No Cleanup)
+### Scenario 8: Backup for Troubleshooting (No Cleanup)
 
 **Environment:**
 - Backup for troubleshooting purposes
@@ -428,7 +464,7 @@ mas backup \
 !!! note
     Use `--no-clean-backup` when you need to inspect the backup workspace contents for troubleshooting. Remember to manually clean up the workspaces later to free up storage.
 
-### Scenario 8: Minimal Backup (Skip Pre-Check)
+### Scenario 9: Minimal Backup (Skip Pre-Check)
 
 **Environment:**
 - Emergency backup scenario

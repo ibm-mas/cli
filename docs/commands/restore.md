@@ -6,7 +6,8 @@ Usage
 Usage information can be obtained using `mas restore --help`
 
 ```
-usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION] [--backup-storage-size BACKUP_STORAGE_SIZE]
+usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION]
+                   [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class-rwx BACKUP_STORAGE_CLASS_RWX]
                    [--mas-domain-restore MAS_DOMAIN_ON_RESTORE] [--sls-url-restore SLS_URL_ON_RESTORE]
                    [--dro-url-restore DRO_URL_ON_RESTORE] [--include-slscfg-from-backup] [--exclude-slscfg-from-backup]
                    [--sls-cfg-file SLS_CFG_FILE] [--dro-cfg-file DRO_CFG_FILE] [--include-drocfg-from-backup]
@@ -15,6 +16,7 @@ usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION] [--b
                    [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION] [--artifactory-url ARTIFACTORY_URL]
                    [--artifactory-repository ARTIFACTORY_REPOSITORY] [--custom-backup-archive-name BACKUP_ARCHIVE_NAME]
                    [--include-grafana] [--exclude-grafana] [--include-dro] [--exclude-dro] [--include-sls] [--exclude-sls]
+                   [--include-mongo] [--exclude-mongo]
                    [--sls-domain SLS_DOMAIN] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [--contact-email DRO_CONTACT_EMAIL]
                    [--contact-firstname DRO_CONTACT_FIRSTNAME] [--contact-lastname DRO_CONTACT_LASTNAME]
                    [--dro-namespace DRO_NAMESPACE] [--override-mongodb-storageclass] [--mongodb-storageclass-name MONGODB_STORAGECLASS_NAME]
@@ -55,6 +57,8 @@ MAS Instance:
 Restore Configuration:
   --restore-version RESTORE_VERSION
                         Version/timestamp used in backup. Example: YYYYMMDD-HHMMSS
+  --backup-storage-class-rwx BACKUP_STORAGE_CLASS_RWX
+                        Storage class for backup-pvc workspace.
   --backup-storage-size BACKUP_STORAGE_SIZE
                         Size of the PVC storage, must be bigger than backup archive size. (default: 20Gi)
   --clean-backup        Clean backup and config workspaces after completion (default: true)
@@ -78,6 +82,8 @@ Download Configuration:
                         Custom backup archive name to download from S3 or Artifactory
 
 Components:
+  --include-mongo       Include Mongo in restore (default: true)
+  --exclude-mongo       Exclude Mongo from restore (use if Mongo is external)
   --include-grafana     Include Grafana in restore (default: true)
   --exclude-grafana     Skip installing Grafana.
   --include-dro         Include DRO in restore, this will install new DRO instance (default: true)
@@ -210,6 +216,20 @@ mas restore \
   --exclude-sls \
   --no-confirm
 ```
+
+### Restore Excluding MongoDB
+Restore a backup without restoring MongoDB (useful when using external MongoDB):
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --exclude-mongo \
+  --no-confirm
+```
+
+!!! note
+    Use `--exclude-mongo` when your MongoDB is externally hosted and was not included in the backup. Ensure your external MongoDB database is properly configured and accessible before restoring MAS.
 
 ### Restore with Custom SLS Configuration File
 Restore using a custom SLS configuration file instead of the one from backup:
@@ -403,6 +423,7 @@ If not specified, the following defaults are used:
 
 - **Backup Storage Size**: `20Gi`
 - **Clean Workspaces**: `true` (workspaces are cleaned after completion)
+- **Include MongoDB**: `true`
 - **Include SLS**: `true`
 - **Include Grafana**: `true`
 - **Include DRO**: `true`
@@ -440,9 +461,10 @@ The restore command provides flexibility in how configurations are restored:
 - By default, the MAS domain is restored from the backup
 - Use `--mas-domain-restore` to change the domain during restore
 
-### Component Installation
+### Component Selection
 The restore process can optionally install components that are not part of the backup:
 
+- **Mongo**: MongoDb Community edition (when backed up, can be restored or skipped if using external Mongo). Use `--include-mongo` to restore Mongo from backup or `--exclude-mongo` to skip Mongo restoration.
 - **Grafana**: Monitoring and visualization (not backed up, can be installed during restore). Use `--include-grafana` to install grafana during restore or `--exclude-grafana` to skip grafana installation.
 - **DRO**: Data Reporting Operator (not backed up, can be installed during restore). Use `--include-dro` to install DRO during restore or `--exclude-dro` to skip DRO installation.
 - **SLS**: Suite License Service (backed up, can be restored or skipped if using external SLS). Use `--include-sls` to restore SLS from backup or `--exclude-sls` to skip SLS installation.

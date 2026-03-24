@@ -134,11 +134,11 @@ class BackupApp(BaseApp):
             if self.args.backup_version is None:
                 self.promptForBackupVersion()
 
-            # Prompt for SLS configuration
-            self.promptForSLSConfiguration()
-
             # Prompt for MongoDB configuration
             self.promptForMongoDBConfiguration()
+
+            # Prompt for SLS configuration
+            self.promptForSLSConfiguration()
 
             # Prompt for Manage app backup
             self.promptForManageAppBackup()
@@ -303,9 +303,9 @@ class BackupApp(BaseApp):
                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
             pipelineStorageClass = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-            self.setParam("backup_storage_class_rwx", pipelineStorageClass)
-            self.setParam("backup_storage_access_mode", pipelineStorageAccessMode)
 
+        self.setParam("backup_storage_class_rwx", pipelineStorageClass)
+        self.setParam("backup_storage_access_mode", pipelineStorageAccessMode)
         # Get pvc size
         storageSize = self.promptForString("Enter backup PVC storage size", default="20Gi")
         self.setParam("backup_storage_size", storageSize)
@@ -420,7 +420,7 @@ class BackupApp(BaseApp):
             self.setParam("upload_backup", "true")
 
             self.printDescription([
-                "Development mode is enabled. Choose upload destination:",
+                "Choose upload destination:",
                 " 1. S3",
                 " 2. Artifactory",
             ])

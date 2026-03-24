@@ -140,6 +140,10 @@ class RestoreApp(BaseApp):
             if self.args.restore_version is None:
                 self.promptForBackupVersion()
 
+            # Prompt for backup storage size if not provided
+            if self.args.backup_storage_class_rwx is None or self.args.backup_storage_size is None:
+                self.promptForBackupStorage()
+
             # Prompt for backup class override
             self.configStorageClasses()
 
@@ -163,10 +167,6 @@ class RestoreApp(BaseApp):
 
             # Prompt for Manage app restore
             self.promptForManageAppRestore()
-
-            # Prompt for backup storage size if not provided
-            if self.args.backup_storage_class_rwx is None or self.args.backup_storage_size is None:
-                self.promptForBackupStorage()
 
             self.promptForDownloadConfiguration()
 
@@ -440,9 +440,9 @@ class RestoreApp(BaseApp):
                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
             pipelineStorageClass = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-            self.setParam("backup_storage_class_rwx", pipelineStorageClass)
-            self.setParam("backup_storage_access_mode", pipelineStorageAccessMode)
 
+        self.setParam("backup_storage_class_rwx", pipelineStorageClass)
+        self.setParam("backup_storage_access_mode", pipelineStorageAccessMode)
         # Get pvc size
         storageSize = self.promptForString("Enter PVC storage size, must be bigger than backup archive size.", default="20Gi")
         self.setParam("backup_storage_size", storageSize)
@@ -483,8 +483,11 @@ class RestoreApp(BaseApp):
             self.setParam("download_backup", "true")
 
             self.printDescription([
-                "Development mode is enabled. Choose download location:"
+                "Choose download destination:",
+                " 1. S3",
+                " 2. Artifactory",
             ])
+
             downloadDestination = self.promptForListSelect(
                 "Select download location",
                 ["S3", "Artifactory"],
