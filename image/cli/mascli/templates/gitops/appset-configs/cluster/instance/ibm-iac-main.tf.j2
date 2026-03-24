@@ -210,10 +210,10 @@ locals {
 {%- if S3_FACILITIES | lower == 'true'  %}
   #facilities related params for S3 starts
   iam_user_arns_facilities = {
-    custfiles = "${var.iam_user_arn_prefix_facilities}-facilities-${var.access_level_rw}"
+    facilities = "${var.iam_user_arn_prefix_facilities}-facilities-${var.access_level_rw}"
   }
   s3_iam_users_list_facilities = {
-    custfiles = {
+    facilities = {
       bucket_name   = "${var.s3bucket_name_prefix_facilities}-facilities-custfiles"
       iam_user_name = "${var.iam_user_name_prefix_facilities}-facilities-${var.access_level_rw}"
       access_level  = var.access_level_rw
@@ -228,7 +228,7 @@ locals {
     ]
   }
   bucket_user_names_facilities = {
-    custfiles = "${var.iam_user_name_prefix_facilities}-facilities-${var.access_level_rw}"
+    facilities = "${var.iam_user_name_prefix_facilities}-facilities-${var.access_level_rw}"
   }
   bucket_user_name_map_facilities = {
     for key, value in local.s3_iam_users_list_facilities :
@@ -326,7 +326,7 @@ locals {
     {%- if S3_FACILITIES | lower == 'true'  %}
     #Facilities specific S3 buckets starts
       facilities_s3buckets = {
-        custfiles = {
+        facilities = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix_facilities}-facilities-custfiles"

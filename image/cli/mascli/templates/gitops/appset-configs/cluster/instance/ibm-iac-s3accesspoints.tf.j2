@@ -7,7 +7,7 @@ module "s3buckets_access_point_{{APP_NAME}}_bucket" {
   source = "{{ S3_SOURCE_S3ACCESSPOINT }}"
   for_each = {
     for k, v in local.cluster.instance.{{APP_NAME}}_s3buckets :
-    k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name)) || can(regex("mvi", v.name)) || can(regex("custfiles", v.name))
+    k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name)) || can(regex("mvi", v.name)) || can(regex("facilities", v.name))
   }
 
   depends_on = [module.s3buckets_instance_{{APP_NAME}}_bucket, module.account_policy_{{APP_NAME}}_bucket, time_sleep.wait_for_iam_{{APP_NAME}}_bucket]
@@ -27,7 +27,7 @@ module "s3buckets_access_point_{{APP_NAME}}_bucket" {
     ) :
     can(regex("doclinks", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["doclinks"] :
     can(regex("mvi", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["mvi"] :
-    can(regex("facilities", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["custfiles"] :
+    can(regex("facilities", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["facilities"] :
     null
   )
 

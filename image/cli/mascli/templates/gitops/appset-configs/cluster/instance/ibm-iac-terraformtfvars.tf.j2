@@ -29,8 +29,8 @@ name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 
 {%- if IS_S3 | lower == 'true'  %}
 #S3 related params starts
-allowed_bucket_policy_keys = ["logs", "doclinks", "facilities"]
-allowed_bucket_lifecycle_configuration_keys = ["custfiles"]
+allowed_bucket_policy_keys = ["logs", "doclinks", "mvi", "facilities"]
+allowed_bucket_lifecycle_configuration_keys = ["custfiles", "backup"]
 enable_dr = false
 {%- if S3_MANAGE | lower == 'true'  %}
 #S3 Manage related params starts
