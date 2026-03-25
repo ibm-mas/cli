@@ -382,6 +382,32 @@ function unlock_git_repo() {
     echo "-------------------------------------------------"
     rm -rf "${GITOPS_REPO_DIR}" || exit 1
   fi
+
+# Delete a branch from remote Git repository
+# Parameters:
+#   $1 - BRANCH_NAME: Name of the branch to delete from remote
+#   $2 - GITOPS_REPO_DIR: Local directory path of the Git repository
+function delete_remote_branch() {
+  BRANCH_NAME=$1
+  GITOPS_REPO_DIR=$2
+
+  if [[ -z "${BRANCH_NAME}" ]]; then
+    echo "$(logts) ERROR: Branch name is required"
+    exit 1
+  fi
+
+  if [[ ! -d "${GITOPS_REPO_DIR}" ]]; then
+    echo "$(logts) ERROR: Repository directory does not exist: ${GITOPS_REPO_DIR}"
+    exit 1
+  fi
+
+  echo ""
+  echo "$(logts) git push origin --delete ${BRANCH_NAME}"
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" push origin --delete "${BRANCH_NAME}" || exit 1
+
+  echo "$(logts) Remote branch '${BRANCH_NAME}' deleted successfully"
+}
 }
 
 
