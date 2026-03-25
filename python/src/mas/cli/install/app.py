@@ -979,21 +979,42 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def configApps(self):
         self.printH1("Application Selection")
 
-        # IoT always requires Monitor (all versions)
-        # For Monitor < 9.2.0: Monitor requires IoT
-        # For Monitor >= 9.2.0: Monitor can be standalone
+        # For Monitor >= 9.2.0: Monitor and IoT are independent (no dependency)
+        # For Monitor < 9.2.0: Monitor depends on IoT (original behavior)
+        # For IoT >= 9.2.0: IoT depends on Monitor
 
         self.installIoT = self.yesOrNo("Install IoT")
         if self.installIoT:
             self.configAppChannel("iot")
-            # IoT always requires Monitor to be installed
-            self.printDescription([
-                "",
-                "<Yellow>Note: IoT requires Monitor to be installed.</Yellow>",
-                ""
-            ])
-            self.installMonitor = True
-            self.configAppChannel("monitor")
+            iotChannel = self.getParam("mas_app_channel_iot")
+            
+            # Prompt for Monitor installation
+            self.installMonitor = self.yesOrNo("Install Monitor")
+            if self.installMonitor:
+                self.configAppChannel("monitor")
+                
+                # Validate: IoT >= 9.2.0 requires Monitor >= 9.2.0
+                monitorChannel = self.getParam("mas_app_channel_monitor")
+                if iotChannel and monitorChannel:
+                    if isVersionEqualOrAfter('9.2.0', iotChannel) and not isVersionEqualOrAfter('9.2.0', monitorChannel):
+                        self.printDescription([
+                            "",
+                            "<Red>Error: IoT version 9.2.0 or later requires Monitor version 9.2.0 or later.</Red>",
+                            f"<Yellow>IoT channel: {iotChannel}, Monitor channel: {monitorChannel}</Yellow>",
+                            "<Yellow>Please select compatible versions for both applications.</Yellow>",
+                            ""
+                        ])
+                        self.fatalError("Incompatible IoT and Monitor versions selected")
+            else:
+                # User declined Monitor installation
+                # Validate: IoT always requires Monitor (all versions)
+                self.printDescription([
+                    "",
+                    "<Red>Error: IoT requires Monitor to be installed.</Red>",
+                    "<Yellow>Please install Monitor to proceed with IoT installation.</Yellow>",
+                    ""
+                ])
+                self.fatalError("IoT requires Monitor to be installed")
         else:
             # If IoT not selected, check Monitor version to determine if standalone is allowed
             self.installMonitor = self.yesOrNo("Install Monitor")
