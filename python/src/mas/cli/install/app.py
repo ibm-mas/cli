@@ -1634,11 +1634,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
 
             elif key == "mongo_provider":
-                if value is not None and value != "":
+                if value:
                     if self.devMode:
                         self.setParam(key, value)
-                    else:
-                        print("Error: 'mongo_provider' is only allowed in dev mode.")
 
             # SLS
             elif key == "license_file":
