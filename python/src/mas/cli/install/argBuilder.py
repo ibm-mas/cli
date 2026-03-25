@@ -183,7 +183,6 @@ class installArgBuilderMixin():
         if self.devMode and self.getParam('mongo_provider') != "":
             command += f"  --mongo-provider \"{self.getParam('mongo_provider')}\"{newline}"
 
-
         # OCP Configuration
         # -----------------------------------------------------------------------------
         if self.getParam('ocp_ingress_tls_secret_name') != "":

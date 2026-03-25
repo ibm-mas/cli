@@ -80,10 +80,10 @@ class MongoDbSettingsMixin():
             print_formatted_text("Warning: --mongo-provider is ignored without --dev-mode")
 
         valid_providers = ["community", "mck", "rotate"]
-        
+
         if mongo_provider not in valid_providers:
             raise ValueError(f"Invalid mongo_provider: {mongo_provider}. Allowed: {valid_providers}")
-     
+
         self.setParam("mongo_provider", mongo_provider)
 
         if (self.architecture != "s390x" and self.architecture != "ppc64le") and self.yesOrNo("Create MongoDb cluster using MongoDb Community Edition Operator"):
