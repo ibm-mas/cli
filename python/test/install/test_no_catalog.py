@@ -50,7 +50,7 @@ def test_install_interactive_no_catalog(tmpdir):
         '.*Operational Mode.*': lambda msg: '1',
         # 11. Application selection
         '.*Install IoT.*': lambda msg: 'y',
-        '.*Install Monitor.*': lambda msg: 'n',
+        '.*Install Monitor.*': lambda msg: 'y',
         '.*Install Manage.*': lambda msg: 'y',
         '.*Select components to enable.*': lambda msg: 'n',
         '.*Include customization archive.*': lambda msg: 'n',
