@@ -36,6 +36,12 @@ spec:
       description: Optional. Display-only flag indicating ODH to RHOAI migration will occur
       default: ""
 
+    # Backup/Restore specific parameters
+    - name: ibm_catalogs_backup_version
+      type: string
+      description: Optional. Version/timestamp for the backup
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -59,6 +65,12 @@ spec:
       - name: ODH_TO_RHOAI_MIGRATION
         value: $(params.odh_to_rhoai_migration)
 
+      # Backup/Restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: IBM_CATALOGS_BACKUP_VERSION
+        value: $(params.ibm_catalogs_backup_version)
+
   steps:
     - name: ibm-catalogs
       command:
@@ -75,3 +87,7 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
+
+  workspaces:
+    - name: backups
+      optional: true
