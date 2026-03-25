@@ -79,7 +79,7 @@ class MongoDbSettingsMixin():
         if not self.devMode and self.getParam("mongo_provider"):
             print_formatted_text("Warning: --mongo-provider is ignored without --dev-mode")
 
-        valid_providers = ["community", "mck" , "rotate"]
+        valid_providers = ["community", "mck", "rotate"]
         
         if mongo_provider not in valid_providers:
             raise ValueError(f"Invalid mongo_provider: {mongo_provider}. Allowed: {valid_providers}")
