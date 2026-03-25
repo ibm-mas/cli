@@ -345,8 +345,6 @@ class UpdateApp(BaseApp):
         """
         with Halo(text='Checking for Open Data Hub (ODH)', spinner=self.spinner) as h:
             try:
-                # Simple check: Is ODH subscription present in openshift-operators?
-                # Note: ODH/RHOAI is cluster-wide, not instance-specific
                 subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
                 subscriptions = subscriptionAPI.get(namespace="openshift-operators").to_dict()["items"]
                 
@@ -360,13 +358,12 @@ class UpdateApp(BaseApp):
                     self.printDescription([
                         "<u>Required Migration Notice</u>",
                         "Open Data Hub (ODH) is currently installed and will be migrated to Red Hat OpenShift AI (RHOAI)",
-                        "- This is a cluster-wide migration (affects all AI Service instances)",
                         "- The update process will automatically handle the migration",
                         "- ODH will be replaced with RHOAI",
                         "- This migration is mandatory to continue receiving updates",
                         "",
                         "<u>Expected Downtime</u>",
-                        "- AI Service will be unavailable during migration (~10-15 minutes)",
+                        "- AI Service will be unavailable during migration (~10-12 minutes)",
                         "- Data science workloads will be temporarily interrupted",
                         "- Deployed models will be preserved"
                     ])
