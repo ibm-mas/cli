@@ -430,6 +430,14 @@ mongoArgGroup.add_argument(
     help="Namespace for MongoDB Community Operator"
 )
 
+mongoArgGroup.add_argument(
+    "--mongo-provider",
+    required=False,
+    choices=["community", "mck", "rotate"],  # 👈 add this
+    help="Mongo provider to use (community or mck or rotate). Only valid with --dev-mode",
+    default="community"
+)
+
 # OCP Configuration
 # -----------------------------------------------------------------------------
 ocpArgGroup = installArgParser.add_argument_group(

@@ -68,6 +68,24 @@ class MongoDbSettingsMixin():
             "The installer can setup mongoce in your OpenShift cluster (available only for amd64) or you may choose to configure MAS to use an existing mongodb"
         ])
 
+        default_mongo_provider = "community"
+
+        if not self.devMode:
+            mongo_provider = default_mongo_provider
+        else:
+            user_provider = self.getParam("mongo_provider")
+            mongo_provider = user_provider if user_provider else default_mongo_provider
+
+        if not self.devMode and self.getParam("mongo_provider"):
+            print_formatted_text("Warning: --mongo-provider is ignored without --dev-mode")
+
+        valid_providers = ["community", "mck" , "rotate"]
+        
+        if mongo_provider not in valid_providers:
+            raise ValueError(f"Invalid mongo_provider: {mongo_provider}. Allowed: {valid_providers}")
+     
+        self.setParam("mongo_provider", mongo_provider)
+
         if (self.architecture != "s390x" and self.architecture != "ppc64le") and self.yesOrNo("Create MongoDb cluster using MongoDb Community Edition Operator"):
             if self.showAdvancedOptions:
                 self.promptForString("MongoDb namespace", "mongodb_namespace", default="mongoce")
