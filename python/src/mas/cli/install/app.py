@@ -1022,14 +1022,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         self.fatalError("Incompatible IoT and Monitor versions selected")
             else:
                 # User declined Monitor installation
-                # Validate: IoT always requires Monitor (all versions)
-                self.printDescription([
-                    "",
-                    "<Red>Error: IoT requires Monitor to be installed.</Red>",
-                    "<Yellow>Please install Monitor to proceed with IoT installation.</Yellow>",
-                    ""
-                ])
-                self.fatalError("IoT requires Monitor to be installed")
+                # Validate: IoT >= 9.2.0 requires Monitor
+                if iotChannel and isVersionEqualOrAfter('9.2.0', iotChannel):
+                    self.printDescription([
+                        "",
+                        "<Red>Error: IoT version 9.2.0 or later requires Monitor to be installed.</Red>",
+                        "<Yellow>Please install Monitor to proceed with IoT 9.2.0+ installation.</Yellow>",
+                        ""
+                    ])
+                    self.fatalError("IoT 9.2.0+ requires Monitor to be installed")
+                # For IoT < 9.2.0, Monitor is optional
         else:
             # If IoT not selected, check Monitor version to determine if standalone is allowed
             self.installMonitor = self.yesOrNo("Install Monitor")
