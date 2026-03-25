@@ -979,16 +979,21 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def configApps(self):
         self.printH1("Application Selection")
 
-        # For Monitor >= 9.2.0: Monitor and IoT are independent (no dependency)
-        # For Monitor < 9.2.0: Monitor depends on IoT (original behavior)
+        # IoT always requires Monitor (all versions)
+        # For Monitor < 9.2.0: Monitor requires IoT
+        # For Monitor >= 9.2.0: Monitor can be standalone
 
         self.installIoT = self.yesOrNo("Install IoT")
         if self.installIoT:
             self.configAppChannel("iot")
-            # For Monitor < 9.2.0, only prompt if IoT is selected (original behavior)
-            self.installMonitor = self.yesOrNo("Install Monitor")
-            if self.installMonitor:
-                self.configAppChannel("monitor")
+            # IoT always requires Monitor to be installed
+            self.printDescription([
+                "",
+                "<Yellow>Note: IoT requires Monitor to be installed.</Yellow>",
+                ""
+            ])
+            self.installMonitor = True
+            self.configAppChannel("monitor")
         else:
             # If IoT not selected, check Monitor version to determine if standalone is allowed
             self.installMonitor = self.yesOrNo("Install Monitor")
