@@ -987,18 +987,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installIoT:
             self.configAppChannel("iot")
             iotChannel = self.getParam("mas_app_channel_iot")
-            
+
             # Prompt for Monitor installation
             self.installMonitor = self.yesOrNo("Install Monitor")
             if self.installMonitor:
                 self.configAppChannel("monitor")
-                
+
                 # Validate version compatibility between IoT and Monitor
                 monitorChannel = self.getParam("mas_app_channel_monitor")
                 if iotChannel and monitorChannel:
                     iotIs920OrLater = isVersionEqualOrAfter('9.2.0', iotChannel)
                     monitorIs920OrLater = isVersionEqualOrAfter('9.2.0', monitorChannel)
-                    
+
                     # IoT >= 9.2.0 requires Monitor >= 9.2.0
                     if iotIs920OrLater and not monitorIs920OrLater:
                         self.printDescription([
@@ -1009,7 +1009,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             ""
                         ])
                         self.fatalError("Incompatible IoT and Monitor versions selected")
-                    
+
                     # IoT < 9.2.0 requires Monitor < 9.2.0
                     if not iotIs920OrLater and monitorIs920OrLater:
                         self.printDescription([

@@ -38,17 +38,17 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         """
         from mas.devops.mas import getAppsSubscriptionChannel
         from mas.devops.utils import isVersionEqualOrAfter
-        
+
         installedApps = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
         hasMonitor = False
         hasIoT = False
-        
+
         for app in installedApps:
             if app["appId"] == "monitor":
                 hasMonitor = True
             elif app["appId"] == "iot":
                 hasIoT = True
-        
+
         if hasMonitor and hasIoT:
             # For upgrade, check the TARGET channel (self.nextChannel), not current channel
             # If upgrading TO 9.2.x or higher, Monitor must upgrade before IoT
