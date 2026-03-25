@@ -222,4 +222,7 @@ optionalParams = [
     "skip_grafana_install",
     "grafana_v5_namespace",
     "grafana_instance_storage_size"
+
+    # MongoDB
+    "mongo_provider",
 ]
