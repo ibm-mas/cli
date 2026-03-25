@@ -387,7 +387,7 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
         # Update bar title with status icon after completion
         if exitCode != 0:
             bar.title = f"{barTitleBase} ❌"
-            logger.error(f"Mirror operation failed with exit code {exitCode}")
+            print(f"Mirror operation failed with exit code {exitCode}")
             return MirrorResult(images=0, mirrored=0)
 
         # Create result object from captured data
