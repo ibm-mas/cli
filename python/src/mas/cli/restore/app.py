@@ -53,8 +53,11 @@ class RestoreApp(BaseApp):
                 "sls_cfg_file",
                 "dro_url_on_restore",
                 "dro_cfg_file",
+                "backup_storage_class",
+                "backup_storage_access_mode",
                 "backup_storage_size",
                 "clean_backup",
+                "include_mongo",
                 "include_sls",
                 "include_grafana",
                 "include_dro",
@@ -138,8 +141,14 @@ class RestoreApp(BaseApp):
             if self.args.restore_version is None:
                 self.promptForBackupVersion()
 
+            # Prompt for backup storage size if not provided
+            if self.args.backup_storage_class is None or self.args.backup_storage_access_mode is None or self.args.backup_storage_size is None:
+                self.promptForBackupStorage()
+
             # Prompt for backup class override
             self.configStorageClasses()
+
+            self.promptForMongo()
 
             # Prompt for Grafana install
             self.promptForIncludeGrafana()
@@ -159,10 +168,6 @@ class RestoreApp(BaseApp):
 
             # Prompt for Manage app restore
             self.promptForManageAppRestore()
-
-            # Prompt for backup storage size if not provided
-            if self.args.backup_storage_size is None:
-                self.promptForBackupStorageSize()
 
             self.promptForDownloadConfiguration()
 
@@ -244,6 +249,11 @@ class RestoreApp(BaseApp):
             instanceId = self.getParam("mas_instance_id")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
+            if self.getParam("backup_storage_class") is None or self.getParam("backup_storage_class") == "":
+                self.fatalError("No storage class specified for 'backup-pvc' pvc, please specify a storage class for the backup storage using --backup-storage-class")
+            if self.getParam("backup_storage_access_mode") is None or self.getParam("backup_storage_access_mode") == "":
+                self.fatalError("No storage access mode specified for 'backup-pvc' pvc, please specify a storage access mode for the backup storage using --backup-storage-access-mode")
+
             # Determine storage class and access mode for pipeline PVCs
             defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
             if self.isSNO() or defaultStorageClasses.rwx == "none":
@@ -266,8 +276,8 @@ class RestoreApp(BaseApp):
                 preparePipelinesNamespace(
                     dynClient=self.dynamicClient,
                     instanceId=instanceId,
-                    storageClass=self.pipelineStorageClass,
-                    accessMode=self.pipelineStorageAccessMode,
+                    storageClass=self.getParam("backup_storage_class"),
+                    accessMode=self.getParam("backup_storage_access_mode"),
                     createConfigPVC=False,
                     createBackupPVC=True,
                     backupStorageSize=backupStorageSize
@@ -381,6 +391,20 @@ class RestoreApp(BaseApp):
         else:
             self.setParam("include_dro", "false")
 
+    def promptForMongo(self) -> None:
+        """Prompt user for MongoDB configuration"""
+        self.printH1("MongoDB Configuration")
+        self.printDescription([
+            " - You can skip Mongo restore if you have external MongoDB.",
+        ])
+
+        includeMongo = self.yesOrNo("Include MongoDB in restore")
+
+        if includeMongo:
+            self.setParam("include_mongo", "true")
+        else:
+            self.setParam("include_mongo", "false")
+
     def promptForIncludeGrafana(self) -> None:
         self.printH1("Grafana Configuration")
         self.printDescription([" - Grafana is not part of backup/restore. You can install Grafana instance or skip it."])
@@ -390,13 +414,80 @@ class RestoreApp(BaseApp):
         else:
             self.setParam("include_grafana", "false")
 
-    def promptForBackupStorageSize(self) -> None:
+    def promptForBackupStorage(self) -> None:
         self.printH1("Backup Storage Configuration")
+
+        # Check if this is a Single Node OpenShift cluster
+        isSNOCluster = self.isSNO()
+
+        if isSNOCluster:
+            self.printDescription([
+                " - <Yellow>Single Node OpenShift detected</Yellow>",
+                " - You can use ReadWriteOnce storage class to create <Yellow>backup-pvc</Yellow> pvc for restore pipeline.",
+            ])
+        else:
+            self.printDescription([
+                " - Select a storage class to use to create <Yellow>backup-pvc</Yellow> pvc for restore pipeline(Recommended access mode ReadWriteMany).",
+            ])
         self.printDescription([
             " - Make sure to have enough storage to download the archive(s) and extract the contents.",
             " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
             " - Note: The downloaded archive will be deleted after the contents are extracted."
         ])
+
+        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+        pipelineStorageClass = None
+        pipelineStorageAccessMode = "ReadWriteMany"
+
+        # For SNO, use ReadWriteOnce access mode and RWO storage class
+        if isSNOCluster or defaultStorageClasses.rwx is None:
+            if defaultStorageClasses.provider is not None:
+                pipelineStorageAccessMode = "ReadWriteOnce"
+                print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
+                pipelineStorageClass = defaultStorageClasses.rwo
+        else:
+            if defaultStorageClasses.provider is not None:
+                pipelineStorageAccessMode = "ReadWriteMany"
+                print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
+                pipelineStorageClass = defaultStorageClasses.rwx
+
+        customSC = False
+        if pipelineStorageClass is not None and pipelineStorageClass != "":
+            customSC = not self.yesOrNo("Use the auto-detected storage classes")
+
+        if pipelineStorageClass is None or pipelineStorageClass == "" or customSC:
+            if isSNOCluster:
+                self.printDescription([
+                    "Select ReadWriteOnce storage class to use from the list below:"
+                ])
+                for storageClass in getStorageClasses(self.dynamicClient):
+                    print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+                pipelineStorageAccessMode = "ReadWriteOnce"
+                pipelineStorageClass = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            else:
+                self.printDescription([
+                    "Choose Storage class access mode:",
+                    " 1. ReadWriteOnce (RWO)",
+                    " 2. ReadWriteMany (RWX)",
+                ])
+                pipelineStorageAccessMode = self.promptForListSelect(
+                    "Select Storage class access mode",
+                    ["ReadWriteOnce", "ReadWriteMany"],
+                    "backup_storage_access_mode",
+                    default=1
+                )
+                self.printDescription([
+                    "Select storage class to use from the list below:"
+                ])
+                for storageClass in getStorageClasses(self.dynamicClient):
+                    print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+                pipelineStorageClass = prompt(HTML(f'<Yellow>Enter {pipelineStorageAccessMode} storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+
+        self.setParam("backup_storage_class", pipelineStorageClass)
+        self.setParam("backup_storage_access_mode", pipelineStorageAccessMode)
+        # Get pvc size
         storageSize = self.promptForString("Enter PVC storage size, must be bigger than backup archive size.", default="20Gi")
         self.setParam("backup_storage_size", storageSize)
 
@@ -408,6 +499,8 @@ class RestoreApp(BaseApp):
 
     def setDefaultParams(self) -> None:
         """Set default values for optional parameters if not already set"""
+        if not self.getParam("include_mongo"):
+            self.setParam("include_mongo", "true")
         if not self.getParam("include_sls"):
             self.setParam("include_sls", "true")
         if not self.getParam("include_grafana"):
@@ -434,8 +527,11 @@ class RestoreApp(BaseApp):
             self.setParam("download_backup", "true")
 
             self.printDescription([
-                "Development mode is enabled. Choose download location:"
+                "Choose download destination:",
+                " 1. S3",
+                " 2. Artifactory",
             ])
+
             downloadDestination = self.promptForListSelect(
                 "Select download location",
                 ["S3", "Artifactory"],
@@ -521,9 +617,9 @@ class RestoreApp(BaseApp):
             self.setParam("restore_manage_db", "false")
 
     def configStorageClasses(self):
-        self.printH1("Configure Storage Class during Restore")
+        self.printH1("Configure MAS Component's Storage Class during Restore")
         self.printDescription([
-            " - You can override the storage class for components during restore.",
+            " - You can override the storage class for MAS components during restore.",
             " - This is useful when restoring to a cluster with different storage classes."
         ])
         overrideStorageClasses = not self.yesOrNo("Do you want to use the storage classes from backup")

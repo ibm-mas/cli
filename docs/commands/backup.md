@@ -6,13 +6,15 @@ Usage
 Usage information can be obtained using `mas backup --help`
 
 ```
-usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION] [--backup-storage-size BACKUP_STORAGE_SIZE]
+usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION]
+                  [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class BACKUP_STORAGE_CLASS]
+                  [--backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE]
                   [--clean-backup] [--no-clean-backup] [--upload-backup] [--aws-access-key-id AWS_ACCESS_KEY_ID]
                   [--aws-secret-access-key AWS_SECRET_ACCESS_KEY] [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION]
                   [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY]
                   [--backup-manage-app] [--manage-workspace-id MANAGE_WORKSPACE_ID] [--backup-manage-db]
                   [--manage-db2-namespace MANAGE_DB2_NAMESPACE] [--manage-db2-instance-name MANAGE_DB2_INSTANCE_NAME]
-                  [--manage-db2-backup-type {offline,online}] [--include-sls] [--exclude-sls]
+                  [--manage-db2-backup-type {offline,online}] [--include-sls] [--exclude-sls] [--include-mongo] [--exclude-mongo]
                   [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-instance-name MONGODB_INSTANCE_NAME]
                   [--mongodb-provider {community}] [--sls-namespace SLS_NAMESPACE] [--cert-manager-provider {redhat,ibm}]
                   [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm]
@@ -31,8 +33,12 @@ MAS Instance:
 Backup Configuration:
   --backup-version BACKUP_VERSION
                         Version/timestamp for the backup (auto-generated if not provided)
+  --backup-storage-class BACKUP_STORAGE_CLASS
+                        Storage class for backup-pvc PVC storage
   --backup-storage-size BACKUP_STORAGE_SIZE
                         Size of the backup PVC storage (default: 20Gi)
+  --backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE
+                        Access mode for backup PVC storage (ReadWriteOnce or ReadWriteMany)
   --clean-backup        Clean backup and config workspaces after completion (default: true)
   --no-clean-backup     Do not clean backup and config workspaces after completion
 
@@ -64,6 +70,8 @@ Manage Application Backup:
                         Manage Db2 backup type: offline (database unavailable) or online (database remains available)
 
 Components:
+  --include-mongo       Include Mongo in backup (default: true)
+  --exclude-mongo       Exclude Mongo from backup (use if Mongo is external)
   --include-sls         Include SLS in backup (default: true)
   --exclude-sls         Exclude SLS from backup (use if SLS is external)
 
@@ -141,6 +149,16 @@ Create a backup without including Suite License Service (useful when SLS is exte
 ```bash
 mas backup --instance-id inst1 --exclude-sls --no-confirm
 ```
+
+### Backup Excluding MongoDB
+Create a backup without including MongoDB (useful when MongoDB is externally hosted):
+
+```bash
+mas backup --instance-id inst1 --exclude-mongo --no-confirm
+```
+
+!!! note
+    Use `--exclude-mongo` when using external MongoDB providers such as IBM Cloud Databases for MongoDB, MongoDB Atlas, or other managed MongoDB services. You must back up your MongoDB database separately using your provider's native backup tools.
 
 ### Backup with Custom MongoDB Configuration
 Specify custom MongoDB settings:
@@ -254,6 +272,7 @@ If not specified, the following defaults are used:
 - **MongoDB Provider**: `community`
 - **SLS Namespace**: `ibm-sls`
 - **Certificate Manager Provider**: `redhat`
+- **Include MongoDB**: `true`
 - **Include SLS**: `true`
 
 ### Storage Requirements
