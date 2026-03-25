@@ -373,7 +373,9 @@
             <h1 id="restore">Restore<a class="headerlink" href="#restore" title="Permanent link">¶</a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
 <p>Usage information can be obtained using <code>mas restore --help</code></p>
-<pre><code>usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION] [--backup-storage-size BACKUP_STORAGE_SIZE]
+<pre><code>usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION]
+                   [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class BACKUP_STORAGE_CLASS]
+                   [--backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE]
                    [--mas-domain-restore MAS_DOMAIN_ON_RESTORE] [--sls-url-restore SLS_URL_ON_RESTORE]
                    [--dro-url-restore DRO_URL_ON_RESTORE] [--include-slscfg-from-backup] [--exclude-slscfg-from-backup]
                    [--sls-cfg-file SLS_CFG_FILE] [--dro-cfg-file DRO_CFG_FILE] [--include-drocfg-from-backup]
@@ -382,6 +384,7 @@
                    [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION] [--artifactory-url ARTIFACTORY_URL]
                    [--artifactory-repository ARTIFACTORY_REPOSITORY] [--custom-backup-archive-name BACKUP_ARCHIVE_NAME]
                    [--include-grafana] [--exclude-grafana] [--include-dro] [--exclude-dro] [--include-sls] [--exclude-sls]
+                   [--include-mongo] [--exclude-mongo]
                    [--sls-domain SLS_DOMAIN] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [--contact-email DRO_CONTACT_EMAIL]
                    [--contact-firstname DRO_CONTACT_FIRSTNAME] [--contact-lastname DRO_CONTACT_LASTNAME]
                    [--dro-namespace DRO_NAMESPACE] [--override-mongodb-storageclass] [--mongodb-storageclass-name MONGODB_STORAGECLASS_NAME]
@@ -422,8 +425,12 @@ MAS Instance:
 Restore Configuration:
   --restore-version RESTORE_VERSION
                         Version/timestamp used in backup. Example: YYYYMMDD-HHMMSS
+  --backup-storage-class BACKUP_STORAGE_CLASS
+                        Storage class for backup-pvc workspace.
   --backup-storage-size BACKUP_STORAGE_SIZE
                         Size of the PVC storage, must be bigger than backup archive size. (default: 20Gi)
+  --backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE
+                        Access mode for backup PVC storage (ReadWriteOnce or ReadWriteMany)
   --clean-backup        Clean backup and config workspaces after completion (default: true)
   --no-clean-backup     Do not clean backup and config workspaces after completion
 
@@ -445,6 +452,8 @@ Download Configuration:
                         Custom backup archive name to download from S3 or Artifactory
 
 Components:
+  --include-mongo       Include Mongo in restore (default: true)
+  --exclude-mongo       Exclude Mongo from restore (use if Mongo is external)
   --include-grafana     Include Grafana in restore (default: true)
   --exclude-grafana     Skip installing Grafana.
   --include-dro         Include DRO in restore, this will install new DRO instance (default: true)
@@ -554,6 +563,18 @@ More:
   --exclude-sls \
   --no-confirm
 </code></pre>
+<h3 id="restore-excluding-mongodb">Restore Excluding MongoDB<a class="headerlink" href="#restore-excluding-mongodb" title="Permanent link">¶</a></h3>
+<p>Restore a backup without restoring MongoDB (useful when using external MongoDB):</p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --exclude-mongo \
+  --no-confirm
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code>--exclude-mongo</code> when your MongoDB is externally hosted and was not included in the backup. Ensure your external MongoDB database is properly configured and accessible before restoring MAS.</p>
+</div>
 <h3 id="restore-with-custom-sls-configuration-file">Restore with Custom SLS Configuration File<a class="headerlink" href="#restore-with-custom-sls-configuration-file" title="Permanent link">¶</a></h3>
 <p>Restore using a custom SLS configuration file instead of the one from backup:</p>
 <pre><code class="language-bash">mas restore \
@@ -706,6 +727,7 @@ More:
 <ul>
 <li><strong>Backup Storage Size</strong>: <code>20Gi</code></li>
 <li><strong>Clean Workspaces</strong>: <code>true</code> (workspaces are cleaned after completion)</li>
+<li><strong>Include MongoDB</strong>: <code>true</code></li>
 <li><strong>Include SLS</strong>: <code>true</code></li>
 <li><strong>Include Grafana</strong>: <code>true</code></li>
 <li><strong>Include DRO</strong>: <code>true</code></li>
@@ -745,9 +767,10 @@ More:
 <li>By default, the MAS domain is restored from the backup</li>
 <li>Use <code>--mas-domain-restore</code> to change the domain during restore</li>
 </ul>
-<h3 id="component-installation">Component Installation<a class="headerlink" href="#component-installation" title="Permanent link">¶</a></h3>
+<h3 id="component-selection">Component Selection<a class="headerlink" href="#component-selection" title="Permanent link">¶</a></h3>
 <p>The restore process can optionally install components that are not part of the backup:</p>
 <ul>
+<li><strong>Mongo</strong>: MongoDb Community edition (when backed up, can be restored or skipped if using external Mongo). Use <code>--include-mongo</code> to restore Mongo from backup or <code>--exclude-mongo</code> to skip Mongo restoration.</li>
 <li><strong>Grafana</strong>: Monitoring and visualization (not backed up, can be installed during restore). Use <code>--include-grafana</code> to install grafana during restore or <code>--exclude-grafana</code> to skip grafana installation.</li>
 <li><strong>DRO</strong>: Data Reporting Operator (not backed up, can be installed during restore). Use <code>--include-dro</code> to install DRO during restore or <code>--exclude-dro</code> to skip DRO installation.</li>
 <li><strong>SLS</strong>: Suite License Service (backed up, can be restored or skipped if using external SLS). Use <code>--include-sls</code> to restore SLS from backup or <code>--exclude-sls</code> to skip SLS installation.</li>
@@ -903,6 +926,11 @@ More:
                         </a>
                       </li>
                       <li class="md-toc__item">
+                        <a href="#restore-excluding-mongodb" class="md-toc__link" data-md-level="2">
+                          Restore Excluding MongoDB
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
                         <a href="#restore-with-custom-sls-configuration-file" class="md-toc__link" data-md-level="2">
                           Restore with Custom SLS Configuration File
                         </a>
@@ -1000,8 +1028,8 @@ More:
                         </a>
                       </li>
                       <li class="md-toc__item">
-                        <a href="#component-installation" class="md-toc__link" data-md-level="2">
-                          Component Installation
+                        <a href="#component-selection" class="md-toc__link" data-md-level="2">
+                          Component Selection
                         </a>
                       </li>
                       <li class="md-toc__item">

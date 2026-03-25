@@ -578,15 +578,27 @@
 <p>DRO backup and restore behavior is managed by the underlying <a href="https://ibm-mas.github.io/ansible-devops/playbooks/backup-restore/">Ansible DevOps roles</a>. The CLI backup command focuses on capturing MAS configuration and data, while DRO is handled during the restore process.</p>
 </div>
 <h3 id="mongodb-configuration">MongoDB Configuration<a class="headerlink" href="#mongodb-configuration" title="Permanent link">¶</a></h3>
-<p>The backup process supports <strong>MongoDB Community Edition only</strong>. Ensure you specify the correct MongoDB configuration:</p>
+<p>The backup process supports <strong>MongoDB Community Edition only</strong>. By default, MongoDB is included in the backup. You can configure MongoDB settings or exclude it if using an external MongoDB provider.</p>
+<p><strong>Including MongoDB in Backup (Default)</strong></p>
+<p>When MongoDB is included, ensure you specify the correct MongoDB configuration:</p>
 <ul>
 <li><strong>Namespace</strong> - Where MongoDB is deployed (default: <code>mongoce</code>)</li>
 <li><strong>Instance Name</strong> - MongoDB instance identifier (default: <code>mas-mongo-ce</code>)</li>
 <li><strong>Provider</strong> - Must be <code>community</code> (only supported provider for backup)</li>
 </ul>
+<p><strong>Excluding MongoDB from Backup</strong></p>
+<p>If you are using an external MongoDB provider (such as IBM Cloud Databases for MongoDB or other hosted MongoDB services), you should exclude MongoDB from the backup:</p>
+<ul>
+<li>Use <code>--exclude-mongo</code> flag in non-interactive mode</li>
+<li>In interactive mode, answer "No" when prompted to include MongoDB in backup</li>
+</ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>IBM Cloud Databases for MongoDB and other external MongoDB providers are not supported by the backup process. You must use their native backup mechanisms.</p>
+<p>IBM Cloud Databases for MongoDB and other external MongoDB providers are not supported by the backup process. You must use their native backup mechanisms. When using external MongoDB, always use <code>--exclude-mongo</code> to skip MongoDB backup.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When excluding MongoDB from backup, you are responsible for backing up your MongoDB database using your provider's native backup tools. Ensure MongoDB backups are coordinated with MAS backups for consistency.</p>
 </div>
 <h3 id="certificate-manager">Certificate Manager<a class="headerlink" href="#certificate-manager" title="Permanent link">¶</a></h3>
 <p>Specify the certificate manager provider used in your environment:</p>
@@ -706,7 +718,25 @@
   --mongodb-provider community \
   --no-confirm
 </code></pre>
-<h3 id="scenario-4-backup-with-s3-upload">Scenario 4: Backup with S3 Upload<a class="headerlink" href="#scenario-4-backup-with-s3-upload" title="Permanent link">¶</a></h3>
+<h3 id="scenario-4-external-mongodb-deployment">Scenario 4: External MongoDB Deployment<a class="headerlink" href="#scenario-4-external-mongodb-deployment" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- MAS in OpenShift cluster
+- MongoDB hosted externally (e.g., IBM Cloud Databases for MongoDB, MongoDB Atlas, or other managed service)
+- In-cluster SLS
+- Red Hat Certificate Manager</p>
+<p><strong>Backup Command:</strong></p>
+<pre><code class="language-bash">mas backup \
+  --instance-id inst1 \
+  --backup-storage-size 30Gi \
+  --exclude-mongo \
+  --no-confirm
+</code></pre>
+<p>Use <code>--exclude-mongo</code> to skip backing up MongoDB when it's managed externally. You must use your MongoDB provider's native backup mechanisms to back up the database separately.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When using external MongoDB, coordinate your MongoDB backups with MAS backups to ensure data consistency. Back up MongoDB before or immediately after the MAS backup completes.</p>
+</div>
+<h3 id="scenario-5-backup-with-s3-upload">Scenario 5: Backup with S3 Upload<a class="headerlink" href="#scenario-5-backup-with-s3-upload" title="Permanent link">¶</a></h3>
 <p><strong>Environment:</strong>
 - Standard MAS deployment
 - Custom backup version desired
@@ -727,7 +757,7 @@
 <p class="admonition-title">Tip</p>
 <p>Store AWS credentials securely using environment variables or secrets management systems rather than hardcoding them in scripts.</p>
 </div>
-<h3 id="scenario-5-backup-with-manage-application-and-db2-database">Scenario 5: Backup with Manage Application and Db2 Database<a class="headerlink" href="#scenario-5-backup-with-manage-application-and-db2-database" title="Permanent link">¶</a></h3>
+<h3 id="scenario-6-backup-with-manage-application-and-db2-database">Scenario 6: Backup with Manage Application and Db2 Database<a class="headerlink" href="#scenario-6-backup-with-manage-application-and-db2-database" title="Permanent link">¶</a></h3>
 <p><strong>Environment:</strong>
 - Standard MAS deployment with Manage application
 - Manage workspace with persistent volumes configured
@@ -749,7 +779,7 @@
 <p class="admonition-title">Tip</p>
 <p>When backing up Manage with Db2, ensure sufficient backup storage (100Gi+ recommended) to accommodate application PV data and database backups. Use offline backup type if your Db2 instance uses the default circular logging configuration.</p>
 </div>
-<h3 id="scenario-6-backup-with-manage-application-only-external-db2">Scenario 6: Backup with Manage Application Only (External Db2)<a class="headerlink" href="#scenario-6-backup-with-manage-application-only-external-db2" title="Permanent link">¶</a></h3>
+<h3 id="scenario-7-backup-with-manage-application-only-external-db2">Scenario 7: Backup with Manage Application Only (External Db2)<a class="headerlink" href="#scenario-7-backup-with-manage-application-only-external-db2" title="Permanent link">¶</a></h3>
 <p><strong>Environment:</strong>
 - MAS deployment with Manage application
 - External Db2 database (managed separately)
@@ -766,7 +796,7 @@
 <p class="admonition-title">Note</p>
 <p>When using an external Db2 database, omit the <code>--backup-manage-db</code> flag. The database should be backed up separately using your organization's database backup procedures.</p>
 </div>
-<h3 id="scenario-7-backup-for-troubleshooting-no-cleanup">Scenario 7: Backup for Troubleshooting (No Cleanup)<a class="headerlink" href="#scenario-7-backup-for-troubleshooting-no-cleanup" title="Permanent link">¶</a></h3>
+<h3 id="scenario-8-backup-for-troubleshooting-no-cleanup">Scenario 8: Backup for Troubleshooting (No Cleanup)<a class="headerlink" href="#scenario-8-backup-for-troubleshooting-no-cleanup" title="Permanent link">¶</a></h3>
 <p><strong>Environment:</strong>
 - Backup for troubleshooting purposes
 - Custom backup version desired
@@ -784,7 +814,7 @@
 <p class="admonition-title">Note</p>
 <p>Use <code>--no-clean-backup</code> when you need to inspect the backup workspace contents for troubleshooting. Remember to manually clean up the workspaces later to free up storage.</p>
 </div>
-<h3 id="scenario-8-minimal-backup-skip-pre-check">Scenario 8: Minimal Backup (Skip Pre-Check)<a class="headerlink" href="#scenario-8-minimal-backup-skip-pre-check" title="Permanent link">¶</a></h3>
+<h3 id="scenario-9-minimal-backup-skip-pre-check">Scenario 9: Minimal Backup (Skip Pre-Check)<a class="headerlink" href="#scenario-9-minimal-backup-skip-pre-check" title="Permanent link">¶</a></h3>
 <p><strong>Environment:</strong>
 - Emergency backup scenario
 - Custom backup version desired
@@ -871,7 +901,12 @@
 <li><strong>Multi-node clusters</strong>: Prefers ReadWriteMany (RWX) storage when available</li>
 <li>Falls back to RWO if RWX is not available</li>
 </ul>
-<p>The storage class is determined from your cluster's default storage classes.</p>
+<p>The storage class is determined from your cluster's storage classes.</p>
+<p>You can override the default storage configuration using:</p>
+<ul>
+<li><code>--backup-storage-class</code>: Specify a custom storage class for the backup PVC</li>
+<li><code>--backup-storage-access-mode</code>: Specify the access mode (e.g., ReadWriteOnce, ReadWriteMany) for the backup PVC</li>
+</ul>
 <h2 id="backup-process-details">Backup Process Details<a class="headerlink" href="#backup-process-details" title="Permanent link">¶</a></h2>
 <h3 id="pipeline-execution">Pipeline Execution<a class="headerlink" href="#pipeline-execution" title="Permanent link">¶</a></h3>
 <p>When you run <code>mas backup</code>, the following occurs:</p>
@@ -1157,6 +1192,11 @@ mongodb_namespace: mongoce
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>include_mongo_archive</code></td>
+<td><code>false</code></td>
+<td>Download the Mongo backup archive</td>
+</tr>
 <tr>
 <td><code>include_sls_archive</code></td>
 <td><code>false</code></td>
@@ -1833,28 +1873,33 @@ mongodb_namespace: mongoce
                         </a>
                       </li>
                       <li class="md-toc__item">
-                        <a href="#scenario-4-backup-with-s3-upload" class="md-toc__link" data-md-level="2">
-                          Scenario 4: Backup with S3 Upload
+                        <a href="#scenario-4-external-mongodb-deployment" class="md-toc__link" data-md-level="2">
+                          Scenario 4: External MongoDB Deployment
                         </a>
                       </li>
                       <li class="md-toc__item">
-                        <a href="#scenario-5-backup-with-manage-application-and-db2-database" class="md-toc__link" data-md-level="2">
-                          Scenario 5: Backup with Manage Application and Db2 Database
+                        <a href="#scenario-5-backup-with-s3-upload" class="md-toc__link" data-md-level="2">
+                          Scenario 5: Backup with S3 Upload
                         </a>
                       </li>
                       <li class="md-toc__item">
-                        <a href="#scenario-6-backup-with-manage-application-only-external-db2" class="md-toc__link" data-md-level="2">
-                          Scenario 6: Backup with Manage Application Only (External Db2)
+                        <a href="#scenario-6-backup-with-manage-application-and-db2-database" class="md-toc__link" data-md-level="2">
+                          Scenario 6: Backup with Manage Application and Db2 Database
                         </a>
                       </li>
                       <li class="md-toc__item">
-                        <a href="#scenario-7-backup-for-troubleshooting-no-cleanup" class="md-toc__link" data-md-level="2">
-                          Scenario 7: Backup for Troubleshooting (No Cleanup)
+                        <a href="#scenario-7-backup-with-manage-application-only-external-db2" class="md-toc__link" data-md-level="2">
+                          Scenario 7: Backup with Manage Application Only (External Db2)
                         </a>
                       </li>
                       <li class="md-toc__item">
-                        <a href="#scenario-8-minimal-backup-skip-pre-check" class="md-toc__link" data-md-level="2">
-                          Scenario 8: Minimal Backup (Skip Pre-Check)
+                        <a href="#scenario-8-backup-for-troubleshooting-no-cleanup" class="md-toc__link" data-md-level="2">
+                          Scenario 8: Backup for Troubleshooting (No Cleanup)
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-9-minimal-backup-skip-pre-check" class="md-toc__link" data-md-level="2">
+                          Scenario 9: Minimal Backup (Skip Pre-Check)
                         </a>
                       </li>
                   </ul>

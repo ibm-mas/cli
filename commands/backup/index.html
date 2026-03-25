@@ -373,13 +373,15 @@
             <h1 id="backup">Backup<a class="headerlink" href="#backup" title="Permanent link">¶</a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
 <p>Usage information can be obtained using <code>mas backup --help</code></p>
-<pre><code>usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION] [--backup-storage-size BACKUP_STORAGE_SIZE]
+<pre><code>usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION]
+                  [--backup-storage-size BACKUP_STORAGE_SIZE] [--backup-storage-class BACKUP_STORAGE_CLASS]
+                  [--backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE]
                   [--clean-backup] [--no-clean-backup] [--upload-backup] [--aws-access-key-id AWS_ACCESS_KEY_ID]
                   [--aws-secret-access-key AWS_SECRET_ACCESS_KEY] [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION]
                   [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY]
                   [--backup-manage-app] [--manage-workspace-id MANAGE_WORKSPACE_ID] [--backup-manage-db]
                   [--manage-db2-namespace MANAGE_DB2_NAMESPACE] [--manage-db2-instance-name MANAGE_DB2_INSTANCE_NAME]
-                  [--manage-db2-backup-type {offline,online}] [--include-sls] [--exclude-sls]
+                  [--manage-db2-backup-type {offline,online}] [--include-sls] [--exclude-sls] [--include-mongo] [--exclude-mongo]
                   [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-instance-name MONGODB_INSTANCE_NAME]
                   [--mongodb-provider {community}] [--sls-namespace SLS_NAMESPACE] [--cert-manager-provider {redhat,ibm}]
                   [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm]
@@ -398,8 +400,12 @@ MAS Instance:
 Backup Configuration:
   --backup-version BACKUP_VERSION
                         Version/timestamp for the backup (auto-generated if not provided)
+  --backup-storage-class BACKUP_STORAGE_CLASS
+                        Storage class for backup-pvc PVC storage
   --backup-storage-size BACKUP_STORAGE_SIZE
                         Size of the backup PVC storage (default: 20Gi)
+  --backup-storage-access-mode BACKUP_STORAGE_ACCESS_MODE
+                        Access mode for backup PVC storage (ReadWriteOnce or ReadWriteMany)
   --clean-backup        Clean backup and config workspaces after completion (default: true)
   --no-clean-backup     Do not clean backup and config workspaces after completion
 
@@ -431,6 +437,8 @@ Manage Application Backup:
                         Manage Db2 backup type: offline (database unavailable) or online (database remains available)
 
 Components:
+  --include-mongo       Include Mongo in backup (default: true)
+  --exclude-mongo       Exclude Mongo from backup (use if Mongo is external)
   --include-sls         Include SLS in backup (default: true)
   --exclude-sls         Exclude SLS from backup (use if SLS is external)
 
@@ -488,6 +496,14 @@ More:
 <p>Create a backup without including Suite License Service (useful when SLS is external):</p>
 <pre><code class="language-bash">mas backup --instance-id inst1 --exclude-sls --no-confirm
 </code></pre>
+<h3 id="backup-excluding-mongodb">Backup Excluding MongoDB<a class="headerlink" href="#backup-excluding-mongodb" title="Permanent link">¶</a></h3>
+<p>Create a backup without including MongoDB (useful when MongoDB is externally hosted):</p>
+<pre><code class="language-bash">mas backup --instance-id inst1 --exclude-mongo --no-confirm
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code>--exclude-mongo</code> when using external MongoDB providers such as IBM Cloud Databases for MongoDB, MongoDB Atlas, or other managed MongoDB services. You must back up your MongoDB database separately using your provider's native backup tools.</p>
+</div>
 <h3 id="backup-with-custom-mongodb-configuration">Backup with Custom MongoDB Configuration<a class="headerlink" href="#backup-with-custom-mongodb-configuration" title="Permanent link">¶</a></h3>
 <p>Specify custom MongoDB settings:</p>
 <pre><code class="language-bash">mas backup \
@@ -577,6 +593,7 @@ More:
 <li><strong>MongoDB Provider</strong>: <code>community</code></li>
 <li><strong>SLS Namespace</strong>: <code>ibm-sls</code></li>
 <li><strong>Certificate Manager Provider</strong>: <code>redhat</code></li>
+<li><strong>Include MongoDB</strong>: <code>true</code></li>
 <li><strong>Include SLS</strong>: <code>true</code></li>
 </ul>
 <h3 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">¶</a></h3>
@@ -699,6 +716,11 @@ More:
                       <li class="md-toc__item">
                         <a href="#backup-excluding-sls" class="md-toc__link" data-md-level="2">
                           Backup Excluding SLS
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-excluding-mongodb" class="md-toc__link" data-md-level="2">
+                          Backup Excluding MongoDB
                         </a>
                       </li>
                       <li class="md-toc__item">
