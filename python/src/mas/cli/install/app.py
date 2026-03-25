@@ -993,13 +993,28 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if self.installMonitor:
                 self.configAppChannel("monitor")
                 
-                # Validate: IoT >= 9.2.0 requires Monitor >= 9.2.0
+                # Validate version compatibility between IoT and Monitor
                 monitorChannel = self.getParam("mas_app_channel_monitor")
                 if iotChannel and monitorChannel:
-                    if isVersionEqualOrAfter('9.2.0', iotChannel) and not isVersionEqualOrAfter('9.2.0', monitorChannel):
+                    iotIs920OrLater = isVersionEqualOrAfter('9.2.0', iotChannel)
+                    monitorIs920OrLater = isVersionEqualOrAfter('9.2.0', monitorChannel)
+                    
+                    # IoT >= 9.2.0 requires Monitor >= 9.2.0
+                    if iotIs920OrLater and not monitorIs920OrLater:
                         self.printDescription([
                             "",
                             "<Red>Error: IoT version 9.2.0 or later requires Monitor version 9.2.0 or later.</Red>",
+                            f"<Yellow>IoT channel: {iotChannel}, Monitor channel: {monitorChannel}</Yellow>",
+                            "<Yellow>Please select compatible versions for both applications.</Yellow>",
+                            ""
+                        ])
+                        self.fatalError("Incompatible IoT and Monitor versions selected")
+                    
+                    # IoT < 9.2.0 requires Monitor < 9.2.0
+                    if not iotIs920OrLater and monitorIs920OrLater:
+                        self.printDescription([
+                            "",
+                            "<Red>Error: IoT version earlier than 9.2.0 requires Monitor version earlier than 9.2.0.</Red>",
                             f"<Yellow>IoT channel: {iotChannel}, Monitor channel: {monitorChannel}</Yellow>",
                             "<Yellow>Please select compatible versions for both applications.</Yellow>",
                             ""
