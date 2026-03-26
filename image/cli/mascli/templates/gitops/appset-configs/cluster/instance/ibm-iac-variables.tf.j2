@@ -199,6 +199,10 @@ variable "iam_user_name_prefix_backup" {
   type        = string
   description = "iam user name prefix for backup"
 }
+variable "s3backup_bucket_name_prefix_db2" {
+  type        = string
+  description = "s3 bucket name prefix for RDS DB2"
+}
 {%- if (RDS_MANAGE | lower == 'true')%}
 variable "s3_iam_users_list_audit_log_manage" {
   description = "s3 user list"

@@ -28,11 +28,11 @@ locals {
 {%- if (RDS_MANAGE | lower == 'true') %}
   #RDS Manage specific IAM parameter starts here for Audit log bucket
   iam_user_arns_audit_log_manage = {
-    audit_logs   = "${var.iam_user_arn_prefix_audit_log}-auditlog-manage"
+    audit_log   = "${var.iam_user_arn_prefix_audit_log}-auditlog-manage"
   }
 
   s3_iam_users_list_audit_log_manage = {
-    audit_logs = {
+    audit_log = {
       bucket_name   = "${var.s3bucket_name_prefix_db2}-auditlog-manage"
       iam_user_name = "${var.iam_user_name_prefix_audit_log}-auditlog-manage"
       access_level  = var.access_level_audit_log_rw
@@ -49,7 +49,7 @@ locals {
   }
 
   bucket_user_names_audit_log_manage = {
-    audit_logs   = "${var.iam_user_name_prefix_audit_log}-auditlog-manage"
+    audit_log   = "${var.iam_user_name_prefix_audit_log}-auditlog-manage"
   }
 
   bucket_user_name_map_audit_log_manage = {
@@ -93,11 +93,11 @@ locals {
 {%- if (RDS_IOT | lower == 'true') %}
   #RDS IOT specific IAM parameter starts here for Audit log bucket
   iam_user_arns_audit_log_iot = {
-    audit_logs   = "${var.iam_user_arn_prefix_audit_log}-auditlog-iot"
+    audit_log   = "${var.iam_user_arn_prefix_audit_log}-auditlog-iot"
   }
 
   s3_iam_users_list_audit_log_iot = {
-    audit_logs = {
+    audit_log = {
       bucket_name   = "${var.s3bucket_name_prefix_db2}-auditlog-iot"
       iam_user_name = "${var.iam_user_name_prefix_audit_log}-auditlog-iot"
       access_level  = var.access_level_audit_log_rw
@@ -114,7 +114,7 @@ locals {
   }
 
   bucket_user_names_audit_log_iot = {
-    audit_logs   = "${var.iam_user_name_prefix_audit_log}-auditlog-iot"
+    audit_log   = "${var.iam_user_name_prefix_audit_log}-auditlog-iot"
   }
 
   bucket_user_name_map_audit_log_iot = {
@@ -158,11 +158,11 @@ locals {
 {%- if (RDS_FACILITIES | lower == 'true') %}
   #RDS FACILITIES specific IAM parameter starts here for Audit log bucket
   iam_user_arns_audit_log_facilities = {
-    audit_logs   = "${var.iam_user_arn_prefix_audit_log}-auditlog-facilities"
+    audit_log   = "${var.iam_user_arn_prefix_audit_log}-auditlog-facilities"
   }
 
   s3_iam_users_list_audit_log_facilities = {
-    audit_logs = {
+    audit_log = {
       bucket_name   = "${var.s3bucket_name_prefix_db2}-auditlog-facilities"
       iam_user_name = "${var.iam_user_name_prefix_audit_log}-auditlog-facilities"
       access_level  = var.access_level_audit_log_rw
@@ -179,7 +179,7 @@ locals {
   }
 
   bucket_user_names_audit_log_facilities = {
-    audit_logs   = "${var.iam_user_name_prefix_audit_log}-auditlog-facilities"
+    audit_log   = "${var.iam_user_name_prefix_audit_log}-auditlog-facilities"
   }
 
   bucket_user_name_map_audit_log_facilities = {
@@ -466,7 +466,7 @@ locals {
           s3_bucket_arn        = "arn:aws:s3:::${var.s3backup_bucket_name_prefix_db2}-facilities"
           secret_suffix        = "backup-facilities"
           cos_secret_format    = false
-          facilities_secret_format = false
+          manage_secret_format = false
           expiration = {
             days = 366 // how long to keep backups
           }
@@ -504,7 +504,7 @@ locals {
           s3_bucket_arn        = "arn:aws:s3:::${var.s3backup_bucket_name_prefix_db2}-iot"
           secret_suffix        = "backup-iot"
           cos_secret_format    = false
-          iot_secret_format = false
+          manage_secret_format = false
           expiration = {
             days = 366 // how long to keep backups
           }

@@ -103,7 +103,7 @@ iam_user_arn_prefix_backup  = "arn:aws:iam::{{ACCOUNT_ID}}:user/{{CLUSTER_ID}}-{
 {%- if (RDS_MANAGE | lower == 'true') %}
 #RDS S3 MANAGE AUDIT LOG related params starts
 s3_iam_users_list_audit_log_manage = {
-    audit_logs  = {
+    audit_log  = {
         iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-manage"
     }
 }
@@ -120,7 +120,7 @@ s3_iam_users_list_backup_manage = {
 {%- if (RDS_IOT | lower == 'true') %}
 #RDS S3 IOT AUDIT LOG related params starts
 s3_iam_users_list_audit_log_iot = {
-    audit_logs  = {
+    audit_log  = {
         iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-iot"
     }
 }
@@ -137,7 +137,7 @@ s3_iam_users_list_backup_iot = {
 {%- if (RDS_FACILITIES | lower == 'true') %}
 #RDS S3 FACILITIES AUDIT LOG related params starts
 s3_iam_users_list_audit_log_facilities = {
-    audit_logs  = {
+    audit_log  = {
         iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-facilities"
     }
 }
