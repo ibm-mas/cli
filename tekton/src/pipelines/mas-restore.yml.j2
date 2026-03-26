@@ -95,6 +95,8 @@ spec:
           value: $(params.mas_instance_id)
         
         # Archive specific
+        - name: include_mongo_archive
+          value: $(params.include_mongo)
         - name: include_sls_archive
           value: $(params.include_sls)
         - name: include_manage_db_archive
@@ -244,6 +246,11 @@ spec:
           value: $(params.mongodb_storageclass_name)
         - name: mas_config_dir
           value: /workspace/backups/configs
+      
+      when:
+        - input: "$(params.include_mongo)"
+          operator: in
+          values: ["true", "True"]
 
       taskRef:
         kind: Task
