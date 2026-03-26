@@ -370,7 +370,6 @@ class InstallSummarizerMixin():
         if self.getParam("mongodb_action") == "install":
             self.printSummary("Type", "MongoCE Operator")
             self.printParamSummary("Install Namespace", "mongodb_namespace")
-            self.printParamSummary("Mongo Provider", "mongo_provider")
             # Only print Mongo Provider in dev mode
             if self.getParam("dev_mode"):
                 self.printParamSummary("Mongo Provider", "mongo_provider")
