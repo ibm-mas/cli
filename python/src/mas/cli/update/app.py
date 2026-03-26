@@ -347,12 +347,12 @@ class UpdateApp(BaseApp):
             try:
                 subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
                 subscriptions = subscriptionAPI.get(namespace="openshift-operators").to_dict()["items"]
-                
+
                 odh_installed = any(
                     sub.get("spec", {}).get("name") == "opendatahub-operator"
                     for sub in subscriptions
                 )
-                
+
                 if odh_installed:
                     h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub detected - migration to RHOAI will be evaluated")
                     self.printDescription([
@@ -373,7 +373,7 @@ class UpdateApp(BaseApp):
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
                     return False
-                    
+
             except (ResourceNotFoundError, NotFoundError):
                 h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
                 return False
