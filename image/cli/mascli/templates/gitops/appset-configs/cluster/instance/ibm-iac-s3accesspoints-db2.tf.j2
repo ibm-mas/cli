@@ -7,7 +7,7 @@ module "s3buckets_access_point_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}" {
   source = "{{ RDS_S3ACCESSPOINT_SOURCE }}"
   for_each = {
     for k, v in local.cluster.instance.rds_s3bucket_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}} :
-    k => v if can(regex("{{BUCKET_TYPE_NAME}}-{{RDS_S3_APP_NAME}}", v.name))
+    k => v if can(regex("{% if BUCKET_TYPE == 'audit_log' %}{{BUCKET_TYPE_NAME}}-{% endif %}{{RDS_S3_APP_NAME}}", v.name))
   }
 
   depends_on = [module.s3buckets_instance_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}, module.account_policy_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}, time_sleep.wait_for_iam_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}]
