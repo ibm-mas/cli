@@ -1637,6 +1637,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value:
                     if self.devMode:
                         self.setParam(key, value)
+                    else:
+                        raise ValueError("Mongo provider cannot be used in non-dev mode")
+
 
             # SLS
             elif key == "license_file":
