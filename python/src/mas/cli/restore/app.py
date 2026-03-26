@@ -171,6 +171,9 @@ class RestoreApp(BaseApp):
 
             self.promptForDownloadConfiguration()
 
+            # Prompt for clean backup option if not provided
+            self.promptForCleanBackup()
+
         # Set default values for optional parameters if not provided
         self.setDefaultParams()
         self.setNonInteractiveDROParams()
@@ -575,13 +578,17 @@ class RestoreApp(BaseApp):
                 artifactoryRepository = self.promptForString("Artifactory Repository")
                 self.setParam("artifactory_repository", artifactoryRepository)
 
-            cleanBackup = self.yesOrNo("Clean the downloaded backup files after completion")
-            if cleanBackup:
-                self.setParam("clean_backup", "true")
-            else:
-                self.setParam("clean_backup", "false")
         else:
             self.setParam("download_backup", "false")
+
+    def promptForCleanBackup(self):
+        self.printH1("Workspace Cleanup Configuration")
+        cleanBackup = self.yesOrNo("Clean the workspace(pvc) after completion")
+        if cleanBackup:
+            self.setParam("clean_backup", "true")
+        else:
+            self.setParam("clean_backup", "false")
+
 
     def promptForManageAppRestore(self) -> None:
         """Prompt user for Manage application restore configuration"""
