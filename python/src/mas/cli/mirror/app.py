@@ -719,6 +719,8 @@ class MirrorApp(BaseApp):
                     "mas_visualinspection_version"
                 ]
                 if catalogKey in perReleaseVersions:
+                    print(f'catalogKey: {catalogKey} release: {release}')
+                    print(f'catalog: {catalog[catalogKey]}')
                     version = catalog[catalogKey][release]
                 else:
                     version = catalog[catalogKey]
