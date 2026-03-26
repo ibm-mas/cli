@@ -435,7 +435,6 @@ mongoArgGroup.add_argument(
     required=False,
     choices=["community", "mck", "rotate"],
     help="Mongo provider to use (community or mck or rotate). Only valid with --dev-mode",
-    default="community"
 )
 
 # OCP Configuration
