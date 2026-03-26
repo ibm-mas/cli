@@ -719,9 +719,11 @@ class MirrorApp(BaseApp):
                     "mas_visualinspection_version"
                 ]
                 if catalogKey in perReleaseVersions:
-                    print(f'catalogKey: {catalogKey} release: {release}')
-                    print(f'catalog: {catalog[catalogKey]}')
-                    version = catalog[catalogKey][release]
+                    if release in catalog[catalogKey]:
+                        version = catalog[catalogKey][release]
+                    else:
+                        logger.warning(f'skipping mirror for {catalog[catalogKey]} as there is no release: {release} in catalog: {catalogVersion}')
+                        return
                 else:
                     version = catalog[catalogKey]
 
