@@ -589,7 +589,6 @@ class RestoreApp(BaseApp):
         else:
             self.setParam("clean_backup", "false")
 
-
     def promptForManageAppRestore(self) -> None:
         """Prompt user for Manage application restore configuration"""
         self.printH1("Manage Application Restore")
