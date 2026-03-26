@@ -165,5 +165,3 @@ class PromptMixin():
             return prompt(message=masPromptValue(message), validator=DirectoryExistsValidator(), validate_while_typing=False, default=default)
         else:
             return prompt(message=masPromptValue(message), default=default)
-
-# Made with Bob

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # *****************************************************************************
 # Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
@@ -8,13 +9,4 @@
 #
 # *****************************************************************************
 
-"""
-Settings module for GitOps install configuration.
-
-This module contains mixin classes for managing different aspects of the
-GitOps installation configuration:
-- gitopsSettings: GitOps repository and ArgoCD settings
-- clusterSettings: Cluster-level configuration settings
-- instanceSettings: MAS instance configuration settings
-- appsSettings: MAS application configuration settings
-"""
+# Made with Bob

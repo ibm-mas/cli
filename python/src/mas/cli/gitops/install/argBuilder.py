@@ -8,294 +8,367 @@
 #
 # *****************************************************************************
 
+"""
+Bash Function Argument Extractor
+
+This module provides functionality to dynamically extract command-line arguments
+from bash function help text. It scans gitops_* functions and parses their help
+output to build a comprehensive list of available arguments.
+"""
+
 import logging
+import re
+from typing import List, Dict, Optional
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
 
-class GitOpsInstallArgBuilderMixin():
-    """
-    Mixin class for building non-interactive command-line arguments.
+@dataclass
+class Argument:
+    """Represents a command-line argument extracted from bash function help"""
+    short_option: Optional[str]
+    long_option: str
+    env_var: str
+    description: str
+    required: bool = False
+    function_name: str = ""
 
-    This class provides functionality to generate a complete command-line
-    string that can be used to reproduce the current installation configuration
-    in non-interactive mode. This is useful for:
-    - Saving installation configurations for reuse
-    - Automating installations in CI/CD pipelines
-    - Documenting installation parameters
-    """
 
-    # Type stubs for methods provided by BaseApp (available at runtime through multiple inheritance)
-    def getParam(self, param: str) -> str:
-        ...  # type: ignore
+class BashFunctionArgumentExtractor:
+    """Extract arguments from bash function source code"""
 
-    useTekton: bool  # type: ignore
-    mas_app_ids: list  # type: ignore
-
-    def buildCommand(self) -> str:
+    def __init__(self, functions_dir: Optional[str] = None):
         """
-        Build a complete non-interactive command string from current parameters.
+        Initialize the argument extractor.
 
-        This method constructs a shell command that includes all necessary
-        arguments to reproduce the current installation configuration without
-        requiring interactive prompts.
+        Args:
+            functions_dir: Path to the directory containing bash functions (e.g., '/mascli/functions')
+        """
+        self.functions_dir = functions_dir or "/mascli/functions"
+        self.functions_cache: Dict[str, List[Argument]] = {}
+
+    def get_gitops_functions(self) -> List[str]:
+        """
+        Get list of all gitops_* functions by scanning the functions directory.
 
         Returns:
-            str: A formatted command string with all parameters
-
-        Example:
-            export IBM_ENTITLEMENT_KEY=x
-            mas gitops-install --account-id myaccount \\
-              --cluster-id cluster1 \\
-              --instance-id inst1 \\
-              --accept-license --no-confirm
+            List of function names (with underscores, e.g., 'gitops_suite')
         """
-        newline = " \\\n"
-        command = ""
+        try:
+            import os
+            functions = []
 
-        # Export sensitive environment variables
-        if self.getParam('ibm_entitlement_key'):
-            command += "export IBM_ENTITLEMENT_KEY=x\n"
-        if self.getParam('gitops_repo_token_secret'):
-            command += "export GITOPS_REPO_TOKEN_SECRET=x\n"
-        if self.getParam('sm_aws_access_key_id'):
-            command += "export SM_AWS_ACCESS_KEY_ID=x\n"
-        if self.getParam('sm_aws_secret_access_key'):
-            command += "export SM_AWS_SECRET_ACCESS_KEY=x\n"
+            if not os.path.exists(self.functions_dir):
+                logger.warning(f"Functions directory not found: {self.functions_dir}")
+                return []
 
-        # Start command
-        command += "mas gitops-install"
+            # List all files in the functions directory
+            for filename in os.listdir(self.functions_dir):
+                filepath = os.path.join(self.functions_dir, filename)
 
-        # Execution Mode
-        # Note: --use-tekton is the default, so we only add --direct when not using Tekton
-        if hasattr(self, 'useTekton') and not self.useTekton:
-            command += f" --direct{newline}"
+                # Skip directories and non-gitops files
+                if not os.path.isfile(filepath):
+                    continue
+                if not filename.startswith('gitops_'):
+                    continue
 
-        # GitOps Configuration
-        if self.getParam('github_host'):
-            command += f"  --github-host \"{self.getParam('github_host')}\"{newline}"
-        if self.getParam('github_org'):
-            command += f"  --github-org \"{self.getParam('github_org')}\"{newline}"
-        if self.getParam('github_repo'):
-            command += f"  --github-repo \"{self.getParam('github_repo')}\"{newline}"
-        if self.getParam('git_branch') and self.getParam('git_branch') != 'main':
-            command += f"  --git-branch \"{self.getParam('git_branch')}\"{newline}"
-        if self.getParam('gitops_repo_token_secret'):
-            command += f"  --gitops-repo-token-secret $GITOPS_REPO_TOKEN_SECRET{newline}"
-        if self.getParam('account_id'):
-            command += f"  --account-id \"{self.getParam('account_id')}\"{newline}"
-        if self.getParam('cluster_id'):
-            command += f"  --cluster-id \"{self.getParam('cluster_id')}\"{newline}"
-        if self.getParam('cluster_url'):
-            command += f"  --cluster-url \"{self.getParam('cluster_url')}\"{newline}"
-        if self.getParam('secrets_path'):
-            command += f"  --secrets-path \"{self.getParam('secrets_path')}\"{newline}"
-        if self.getParam('avp_aws_secret_region'):
-            command += f"  --avp-aws-secret-region \"{self.getParam('avp_aws_secret_region')}\"{newline}"
-        if self.getParam('sm_aws_access_key_id'):
-            command += f"  --sm-aws-access-key-id $SM_AWS_ACCESS_KEY_ID{newline}"
-        if self.getParam('sm_aws_secret_access_key'):
-            command += f"  --sm-aws-secret-access-key $SM_AWS_SECRET_ACCESS_KEY{newline}"
+                functions.append(filename)
 
-        # Cluster Configuration
-        if self.getParam('mas_catalog_version'):
-            command += f"  --mas-catalog-version \"{self.getParam('mas_catalog_version')}\"{newline}"
-        if self.getParam('mas_catalog_image'):
-            command += f"  --mas-catalog-image \"{self.getParam('mas_catalog_image')}\"{newline}"
-        if self.getParam('ibm_entitlement_key'):
-            command += f"  --ibm-entitlement-key $IBM_ENTITLEMENT_KEY{newline}"
-        if self.getParam('install_dro'):
-            command += f"  --install-dro \"{self.getParam('install_dro')}\"{newline}"
-        if self.getParam('dro_namespace'):
-            command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
-        if self.getParam('dro_install_plan'):
-            command += f"  --dro-install-plan \"{self.getParam('dro_install_plan')}\"{newline}"
-        if self.getParam('dro_contact_email'):
-            command += f"  --dro-contact-email \"{self.getParam('dro_contact_email')}\"{newline}"
-        if self.getParam('dro_contact_firstname'):
-            command += f"  --dro-contact-firstname \"{self.getParam('dro_contact_firstname')}\"{newline}"
-        if self.getParam('dro_contact_lastname'):
-            command += f"  --dro-contact-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
-        if self.getParam('install_gpu'):
-            command += f"  --install-gpu \"{self.getParam('install_gpu')}\"{newline}"
-        if self.getParam('gpu_namespace'):
-            command += f"  --gpu-namespace \"{self.getParam('gpu_namespace')}\"{newline}"
-        if self.getParam('install_cert_manager'):
-            command += f"  --install-cert-manager \"{self.getParam('install_cert_manager')}\"{newline}"
-        if self.getParam('install_nfd'):
-            command += f"  --install-nfd \"{self.getParam('install_nfd')}\"{newline}"
-        if self.getParam('storage_class_rwo'):
-            command += f"  --storage-class-rwo \"{self.getParam('storage_class_rwo')}\"{newline}"
-        if self.getParam('storage_class_rwx'):
-            command += f"  --storage-class-rwx \"{self.getParam('storage_class_rwx')}\"{newline}"
-        if self.getParam('ocp_domain'):
-            command += f"  --ocp-domain \"{self.getParam('ocp_domain')}\"{newline}"
-        if self.getParam('dns_provider'):
-            command += f"  --dns-provider \"{self.getParam('dns_provider')}\"{newline}"
+            logger.info(f"Found {len(functions)} gitops functions")
+            return sorted(functions)
 
-        # Instance Configuration
-        if self.getParam('mas_instance_id'):
-            command += f"  --mas-instance-id \"{self.getParam('mas_instance_id')}\"{newline}"
-        if self.getParam('mas_channel'):
-            command += f"  --mas-channel \"{self.getParam('mas_channel')}\"{newline}"
-        if self.getParam('mas_domain'):
-            command += f"  --mas-domain \"{self.getParam('mas_domain')}\"{newline}"
-        if self.getParam('mas_workspace_id'):
-            command += f"  --mas-workspace-id \"{self.getParam('mas_workspace_id')}\"{newline}"
-        if self.getParam('mas_workspace_name'):
-            command += f"  --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
-        if self.getParam('operational_mode'):
-            command += f"  --operational-mode \"{self.getParam('operational_mode')}\"{newline}"
-        if self.getParam('sls_channel'):
-            command += f"  --sls-channel \"{self.getParam('sls_channel')}\"{newline}"
-        if self.getParam('sls_instance_name'):
-            command += f"  --sls-instance-name \"{self.getParam('sls_instance_name')}\"{newline}"
-        if self.getParam('mongo_provider'):
-            command += f"  --mongo-provider \"{self.getParam('mongo_provider')}\"{newline}"
-        if self.getParam('mongo_namespace'):
-            command += f"  --mongo-namespace \"{self.getParam('mongo_namespace')}\"{newline}"
-        if self.getParam('mongodb_action'):
-            command += f"  --mongodb-action \"{self.getParam('mongodb_action')}\"{newline}"
-        if self.getParam('mongo_yaml_file'):
-            command += f"  --mongo-yaml-file \"{self.getParam('mongo_yaml_file')}\"{newline}"
-        if self.getParam('mongo_username'):
-            command += f"  --mongo-username \"{self.getParam('mongo_username')}\"{newline}"
-        if self.getParam('mongo_password'):
-            command += f"  --mongo-password \"{self.getParam('mongo_password')}\"{newline}"
+        except Exception as e:
+            logger.error(f"Error listing gitops functions: {e}", exc_info=True)
+            return []
 
-        # Dependencies Configuration (optional)
-        if self.getParam('vpc_ipv4_cidr'):
-            command += f"  --vpc-ipv4-cidr \"{self.getParam('vpc_ipv4_cidr')}\"{newline}"
-        if self.getParam('aws_docdb_instance_number'):
-            command += f"  --aws-docdb-instance-number \"{self.getParam('aws_docdb_instance_number')}\"{newline}"
-        if self.getParam('aws_docdb_engine_version'):
-            command += f"  --aws-docdb-engine-version \"{self.getParam('aws_docdb_engine_version')}\"{newline}"
-        if self.getParam('kafka_provider'):
-            command += f"  --kafka-provider \"{self.getParam('kafka_provider')}\"{newline}"
-        if self.getParam('kafka_version'):
-            command += f"  --kafka-version \"{self.getParam('kafka_version')}\"{newline}"
-        if self.getParam('kafka_action'):
-            command += f"  --kafka-action \"{self.getParam('kafka_action')}\"{newline}"
-        if self.getParam('kafkacfg_file_name'):
-            command += f"  --kafkacfg-file-name \"{self.getParam('kafkacfg_file_name')}\"{newline}"
-        if self.getParam('aws_msk_instance_type'):
-            command += f"  --aws-msk-instance-type \"{self.getParam('aws_msk_instance_type')}\"{newline}"
-        if self.getParam('efs_action'):
-            command += f"  --efs-action \"{self.getParam('efs_action')}\"{newline}"
-        if self.getParam('cloud_provider'):
-            command += f"  --cloud-provider \"{self.getParam('cloud_provider')}\"{newline}"
-        if self.getParam('ibmcloud_resourcegroup'):
-            command += f"  --ibmcloud-resourcegroup \"{self.getParam('ibmcloud_resourcegroup')}\"{newline}"
-        if self.getParam('ibmcloud_apikey'):
-            command += f"  --ibmcloud-apikey \"{self.getParam('ibmcloud_apikey')}\"{newline}"
-        if self.getParam('cos_type'):
-            command += f"  --cos-type \"{self.getParam('cos_type')}\"{newline}"
-        if self.getParam('cos_resourcegroup'):
-            command += f"  --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\"{newline}"
-        if self.getParam('cos_action'):
-            command += f"  --cos-action \"{self.getParam('cos_action')}\"{newline}"
-        if self.getParam('cos_use_hmac'):
-            command += f"  --cos-use-hmac \"{self.getParam('cos_use_hmac')}\"{newline}"
-        if self.getParam('cos_apikey'):
-            command += f"  --cos-apikey \"{self.getParam('cos_apikey')}\"{newline}"
-        if self.getParam('github_pat'):
-            command += f"  --github-pat \"{self.getParam('github_pat')}\"{newline}"
+    def extract_arguments(self, function_name: str) -> List[Argument]:
+        """
+        Parse bash function source code to extract arguments from the case statement.
 
-        # SMTP Configuration (optional)
-        if self.getParam('smtp_host'):
-            command += f"  --smtp-host \"{self.getParam('smtp_host')}\"{newline}"
-        if self.getParam('smtp_port'):
-            command += f"  --smtp-port \"{self.getParam('smtp_port')}\"{newline}"
-        if self.getParam('smtp_username'):
-            command += f"  --smtp-username \"{self.getParam('smtp_username')}\"{newline}"
-        if self.getParam('smtp_password'):
-            command += f"  --smtp-password \"{self.getParam('smtp_password')}\"{newline}"
-        if self.getParam('smtp_from'):
-            command += f"  --smtp-from \"{self.getParam('smtp_from')}\"{newline}"
+        Args:
+            function_name: Name of bash function (e.g., 'gitops_suite')
 
-        # LDAP Configuration (optional)
-        if self.getParam('ldap_url'):
-            command += f"  --ldap-url \"{self.getParam('ldap_url')}\"{newline}"
-        if self.getParam('ldap_bind_dn'):
-            command += f"  --ldap-bind-dn \"{self.getParam('ldap_bind_dn')}\"{newline}"
-        if self.getParam('ldap_bind_password'):
-            command += f"  --ldap-bind-password \"{self.getParam('ldap_bind_password')}\"{newline}"
-        if self.getParam('ldap_user_base_dn'):
-            command += f"  --ldap-user-base-dn \"{self.getParam('ldap_user_base_dn')}\"{newline}"
-        if self.getParam('ldap_group_base_dn'):
-            command += f"  --ldap-group-base-dn \"{self.getParam('ldap_group_base_dn')}\"{newline}"
-        if self.getParam('ldap_certificate_file'):
-            command += f"  --ldap-certificate-file \"{self.getParam('ldap_certificate_file')}\"{newline}"
+        Returns:
+            List of Argument objects with name, env_var, description, required
+        """
+        # Check cache first
+        if function_name in self.functions_cache:
+            return self.functions_cache[function_name]
 
-        # Advanced GitOps Configuration Files
-        if self.getParam('sls_entitlement_file'):
-            command += f"  --sls-entitlement-file \"{self.getParam('sls_entitlement_file')}\"{newline}"
-        if self.getParam('dro_ca_certificate_file'):
-            command += f"  --dro-ca-certificate-file \"{self.getParam('dro_ca_certificate_file')}\"{newline}"
-        if self.getParam('mas_manual_certs_yaml'):
-            command += f"  --mas-manual-certs-yaml \"{self.getParam('mas_manual_certs_yaml')}\"{newline}"
-        if self.getParam('mas_pod_template_file'):
-            command += f"  --mas-pod-template-file \"{self.getParam('mas_pod_template_file')}\"{newline}"
-        if self.getParam('mas_bascfg_pod_template_file'):
-            command += f"  --mas-bascfg-pod-template-file \"{self.getParam('mas_bascfg_pod_template_file')}\"{newline}"
-        if self.getParam('mas_slscfg_pod_template_file'):
-            command += f"  --mas-slscfg-pod-template-file \"{self.getParam('mas_slscfg_pod_template_file')}\"{newline}"
-        if self.getParam('mas_smtpcfg_pod_template_file'):
-            command += f"  --mas-smtpcfg-pod-template-file \"{self.getParam('mas_smtpcfg_pod_template_file')}\"{newline}"
-        if self.getParam('mas_appcfg_pod_template_file'):
-            command += f"  --mas-appcfg-pod-template-file \"{self.getParam('mas_appcfg_pod_template_file')}\"{newline}"
-        if self.getParam('suite_spec_additional_properties_yaml'):
-            command += f"  --suite-spec-additional-properties-yaml \"{self.getParam('suite_spec_additional_properties_yaml')}\"{newline}"
-        if self.getParam('suite_spec_settings_additional_properties_yaml'):
-            command += f"  --suite-spec-settings-additional-properties-yaml \"{self.getParam('suite_spec_settings_additional_properties_yaml')}\"{newline}"
-        if self.getParam('smtp_config_ca_certificate_file'):
-            command += f"  --smtp-config-ca-certificate-file \"{self.getParam('smtp_config_ca_certificate_file')}\"{newline}"
+        try:
+            import os
+            filepath = os.path.join(self.functions_dir, function_name)
 
-        # Applications Configuration
-        if self.getParam('mas_app_ids'):
-            command += f"  --mas-app-ids \"{self.getParam('mas_app_ids')}\"{newline}"
+            if not os.path.exists(filepath):
+                logger.warning(f"Function file not found: {filepath}")
+                return []
 
-            # Per-app configuration
-            if hasattr(self, 'mas_app_ids'):
-                for app_id in self.mas_app_ids:
-                    app_arg = app_id.replace('-', '')
+            # Read the bash function source code
+            with open(filepath, 'r') as f:
+                source_code = f.read()
 
-                    if self.getParam(f'{app_id}_channel'):
-                        command += f"  --{app_arg}-channel \"{self.getParam(f'{app_id}_channel')}\"{newline}"
-                    if self.getParam(f'{app_id}_db_action'):
-                        command += f"  --{app_arg}-db-action \"{self.getParam(f'{app_id}_db_action')}\"{newline}"
-                    if self.getParam(f'{app_id}_db_type'):
-                        command += f"  --{app_arg}-db-type \"{self.getParam(f'{app_id}_db_type')}\"{newline}"
-                    if self.getParam(f'{app_id}_db_host'):
-                        command += f"  --{app_arg}-db-host \"{self.getParam(f'{app_id}_db_host')}\"{newline}"
-                    if self.getParam(f'{app_id}_db_port'):
-                        command += f"  --{app_arg}-db-port \"{self.getParam(f'{app_id}_db_port')}\"{newline}"
-                    if self.getParam(f'{app_id}_db_name'):
-                        command += f"  --{app_arg}-db-name \"{self.getParam(f'{app_id}_db_name')}\"{newline}"
-                    if self.getParam(f'{app_id}_db_username'):
-                        command += f"  --{app_arg}-db-username \"{self.getParam(f'{app_id}_db_username')}\"{newline}"
-                    if self.getParam(f'{app_id}_db_password'):
-                        command += f"  --{app_arg}-db-password \"{self.getParam(f'{app_id}_db_password')}\"{newline}"
+            arguments = self._parse_bash_function(source_code, function_name)
 
-                    # App-specific advanced configuration files
-                    if app_id in ['manage', 'iot', 'facilities']:
-                        if self.getParam(f'db2_{app_id}_config_file'):
-                            command += f"  --db2-{app_arg}-config-file \"{self.getParam(f'db2_{app_id}_config_file')}\"{newline}"
+            # Cache the results
+            self.functions_cache[function_name] = arguments
 
-                    if self.getParam(f'mas_appws_spec_{app_id}_file'):
-                        command += f"  --mas-appws-spec-{app_arg}-file \"{self.getParam(f'mas_appws_spec_{app_id}_file')}\"{newline}"
+            logger.debug(f"Extracted {len(arguments)} arguments from {function_name}")
+            return arguments
 
-                    if self.getParam(f'mas_app_spec_{app_id}_file'):
-                        command += f"  --mas-app-spec-{app_arg}-file \"{self.getParam(f'mas_app_spec_{app_id}_file')}\"{newline}"
+        except Exception as e:
+            logger.error(f"Error extracting arguments from {function_name}: {e}", exc_info=True)
+            return []
 
-                    if self.getParam(f'jdbc_cert_{app_id}_file'):
-                        command += f"  --jdbc-cert-{app_arg}-file \"{self.getParam(f'jdbc_cert_{app_id}_file')}\"{newline}"
+    def _parse_bash_function(self, source_code: str, function_name: str) -> List[Argument]:
+        """
+        Parse bash function source code to extract arguments from the case statement.
 
-                    if app_id == 'manage':
-                        if self.getParam('mas_app_global_secrets_manage_file'):
-                            command += f"  --mas-app-global-secrets-manage-file \"{self.getParam('mas_app_global_secrets_manage_file')}\"{newline}"
+        Args:
+            source_code: The bash function source code
+            function_name: Name of the function being parsed
 
-        # Final flags
-        command += "  --accept-license --no-confirm"
+        Returns:
+            List of Argument objects
+        """
+        arguments = []
 
-        return command
+        # Find the while loop with case statement
+        # Pattern: while [[ $# -gt 0 ]] ... case $key in ... esac ... done
+
+        # Split into lines for processing
+        lines = source_code.split('\n')
+
+        in_while_loop = False
+        in_case_statement = False
+        current_env_var = None
+
+        for i, line in enumerate(lines):
+            # Detect start of while loop
+            if 'while [[ $# -gt 0 ]]' in line or 'while [[ $# -gt 0' in line:
+                in_while_loop = True
+                continue
+
+            # Detect end of while loop
+            if in_while_loop and re.match(r'^\s*done\s*$', line):
+                in_while_loop = False
+                continue
+
+            if not in_while_loop:
+                continue
+
+            # Detect case statement
+            if 'case $key in' in line or 'case "$key" in' in line:
+                in_case_statement = True
+                continue
+
+            # Detect end of case statement
+            if in_case_statement and re.match(r'^\s*esac\s*$', line):
+                in_case_statement = False
+                continue
+
+            if not in_case_statement:
+                continue
+
+            # Match case option lines: -d|--dir) or --some-option)
+            # Pattern 1: Short and long option
+            match = re.match(r'^\s*(-[a-zA-Z])\s*\|\s*(--[a-z0-9-]+)\s*\)', line)
+            if match:
+                short_opt = match.group(1)
+                long_opt = match.group(2)
+
+                # Look ahead for the export statement
+                for j in range(i + 1, min(i + 5, len(lines))):
+                    export_match = re.search(r'export\s+([A-Z_][A-Z0-9_]*)\s*=', lines[j])
+                    if export_match:
+                        current_env_var = export_match.group(1)
+                        arguments.append(Argument(
+                            short_option=short_opt,
+                            long_option=long_opt,
+                            env_var=current_env_var,
+                            description="",
+                            required=False,
+                            function_name=function_name
+                        ))
+                        break
+                    # Stop at next case or end of block
+                    if ';;' in lines[j]:
+                        break
+
+                current_env_var = None
+                continue
+
+            # Pattern 2: Long option only
+            match = re.match(r'^\s*(--[a-z0-9-]+)\s*\)', line)
+            if match:
+                long_opt = match.group(1)
+                # Look ahead for the export statement
+                for j in range(i + 1, min(i + 5, len(lines))):
+                    export_match = re.search(r'export\s+([A-Z_][A-Z0-9_]*)\s*=', lines[j])
+                    if export_match:
+                        current_env_var = export_match.group(1)
+                        arguments.append(Argument(
+                            short_option=None,
+                            long_option=long_opt,
+                            env_var=current_env_var,
+                            description="",
+                            required=False,
+                            function_name=function_name
+                        ))
+                        break
+                    # Stop at next case or end of block
+                    if ';;' in lines[j]:
+                        break
+
+                current_env_var = None
+                continue
+
+        return arguments
+
+    def extract_all_arguments(self) -> Dict[str, List[Argument]]:
+        """
+        Extract arguments from all gitops functions.
+
+        Returns:
+            Dictionary mapping function names to their arguments
+        """
+        all_arguments = {}
+        functions = self.get_gitops_functions()
+
+        for function_name in functions:
+            arguments = self.extract_arguments(function_name)
+            if arguments:
+                all_arguments[function_name] = arguments
+
+        return all_arguments
+
+    def get_unique_arguments(self) -> Dict[str, Argument]:
+        """
+        Get unique arguments across all functions, deduplicated by long_option and short_option.
+
+        When the same argument appears in multiple functions, we keep the first
+        occurrence and merge metadata (required status, description).
+
+        Returns:
+            Dictionary mapping long_option to Argument object
+        """
+        unique_args: Dict[str, Argument] = {}
+        used_short_options: set = set()
+        all_args = self.extract_all_arguments()
+
+        for function_name, arguments in all_args.items():
+            for arg in arguments:
+                # Use long_option as the key for deduplication (this is what argparse cares about)
+                if arg.long_option not in unique_args:
+                    # Check if short option is already used by another argument
+                    if arg.short_option and arg.short_option in used_short_options:
+                        logger.warning(f"Short option {arg.short_option} for {arg.long_option} conflicts with another argument, removing short option")
+                        # Create a new Argument without the short option
+                        arg = Argument(
+                            short_option=None,
+                            long_option=arg.long_option,
+                            env_var=arg.env_var,
+                            description=arg.description,
+                            required=arg.required,
+                            function_name=arg.function_name
+                        )
+
+                    unique_args[arg.long_option] = arg
+                    if arg.short_option:
+                        used_short_options.add(arg.short_option)
+                else:
+                    # If argument already exists, mark as required if any function requires it
+                    if arg.required:
+                        unique_args[arg.long_option].required = True
+                    # Use longer description if available
+                    if len(arg.description) > len(unique_args[arg.long_option].description):
+                        unique_args[arg.long_option].description = arg.description
+
+        logger.info(f"Extracted {len(unique_args)} unique arguments from bash functions")
+        return unique_args
+
+    def get_per_app_arguments(self) -> Dict[str, Argument]:
+        """
+        Generate per-app arguments for MAS applications.
+
+        These arguments are not extracted from bash functions but are dynamically
+        generated to support per-app configuration (e.g., --mas-app-channel-manage).
+
+        Returns:
+            Dictionary mapping long_option to Argument object for per-app parameters
+        """
+        per_app_args: Dict[str, Argument] = {}
+
+        # List of supported MAS applications
+        apps = ['manage', 'iot', 'monitor', 'predict', 'assist', 'optimizer',
+                'visualinspection', 'facilities', 'health']
+
+        # Define per-app parameter templates
+        # Format: (param_suffix, env_var_suffix, description, action_type)
+        param_templates = [
+            # App installation parameters
+            ('id', 'ID', 'Enable installation of {app} application', 'store_true'),
+            ('channel', 'CHANNEL', 'Channel for {app} application', None),
+            ('catalog-source', 'CATALOG_SOURCE', 'Catalog source for {app} application', None),
+            ('api-version', 'API_VERSION', 'API version for {app} application CR', None),
+            ('kind', 'KIND', 'Kind for {app} application CR', None),
+            ('spec-yaml', 'SPEC_YAML', 'Spec YAML file for {app} application', None),
+
+            # App workspace configuration parameters
+            ('appws-api-version', 'APPWS_API_VERSION', 'Workspace API version for {app} application', None),
+            ('appws-kind', 'APPWS_KIND', 'Workspace Kind for {app} application', None),
+            ('appws-spec-yaml', 'APPWS_SPEC_YAML', 'Workspace spec YAML file for {app} application', None),
+        ]
+
+        # DB2/JDBC parameters (only for apps that need them: manage, iot, facilities)
+        db2_apps = ['manage', 'iot', 'facilities']
+        db2_param_templates = [
+            ('db2-channel', 'DB2_CHANNEL', 'DB2 channel for {app} application', None),
+            ('db2-version', 'DB2_VERSION', 'DB2 version for {app} application', None),
+            ('db2-meta-storage-class', 'DB2_META_STORAGE_CLASS', 'DB2 meta storage class for {app}', None),
+            ('db2-data-storage-class', 'DB2_DATA_STORAGE_CLASS', 'DB2 data storage class for {app}', None),
+            ('db2-logs-storage-class', 'DB2_LOGS_STORAGE_CLASS', 'DB2 logs storage class for {app}', None),
+            ('db2-backup-storage-class', 'DB2_BACKUP_STORAGE_CLASS', 'DB2 backup storage class for {app}', None),
+            ('db2-instance-registry-yaml', 'DB2_INSTANCE_REGISTRY_YAML', 'DB2 instance registry YAML for {app}', None),
+            ('db2-instance-dbm-config-yaml', 'DB2_INSTANCE_DBM_CONFIG_YAML', 'DB2 instance DBM config YAML for {app}', None),
+            ('db2-database-db-config-yaml', 'DB2_DATABASE_DB_CONFIG_YAML', 'DB2 database config YAML for {app}', None),
+            ('jdbc-instance-name', 'JDBC_INSTANCE_NAME', 'JDBC instance name for {app}', None),
+        ]
+
+        # Generate arguments for each app
+        for app in apps:
+            app_upper = app.upper().replace('-', '_')
+
+            # Generate standard app parameters
+            for param_suffix, env_suffix, desc_template, action in param_templates:
+                long_option = f'--mas-app-{param_suffix}-{app}'
+                env_var = f'MAS_APP_{env_suffix}_{app_upper}'
+                description = desc_template.format(app=app)
+
+                per_app_args[long_option] = Argument(
+                    short_option=None,
+                    long_option=long_option,
+                    env_var=env_var,
+                    description=description,
+                    required=False,
+                    function_name='gitops_install'
+                )
+
+            # Generate DB2/JDBC parameters for applicable apps
+            if app in db2_apps:
+                for param_suffix, env_suffix, desc_template, action in db2_param_templates:
+                    long_option = f'--{param_suffix}-{app}'
+                    env_var = f'{env_suffix}_{app_upper}'
+                    description = desc_template.format(app=app)
+
+                    per_app_args[long_option] = Argument(
+                        short_option=None,
+                        long_option=long_option,
+                        env_var=env_var,
+                        description=description,
+                        required=False,
+                        function_name='gitops_install'
+                    )
+
+        logger.info(f"Generated {len(per_app_args)} per-app arguments")
+        return per_app_args

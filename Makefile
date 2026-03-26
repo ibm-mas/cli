@@ -20,7 +20,7 @@
 #
 # ==============================================================================
 
-.PHONY: help ansible-devops python python-devops python-cli tekton tekton-ocp tekton-test docker build-and-push-ocp all all-ocp run clean create delete exec
+.PHONY: help ansible-devops python python-devops python-cli python-test tekton tekton-ocp tekton-test docker build-and-push-ocp all all-ocp run clean create delete exec
 
 .DEFAULT_GOAL := help
 
@@ -62,6 +62,9 @@ python-devops: ## Build Python DevOps package from external repository
 	cp ../python-devops/dist/mas_devops-100.0.0.tar.gz image/cli/install/mas_devops.tar.gz
 
 python: python-devops python-cli ## Build all Python packages (devops + cli)
+
+python-test: ## Run Python tests for CLI package
+	cd python && make test
 
 # ==============================================================================
 # Tekton Pipeline Targets

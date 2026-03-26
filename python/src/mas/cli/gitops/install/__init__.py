@@ -8,4 +8,22 @@
 #
 # *****************************************************************************
 
-from ...cli import BaseApp  # noqa: F401
+"""
+GitOps Installation Package
+
+This package provides a standalone command for GitOps-based MAS installations.
+It includes dynamic argument parsing from bash functions and non-interactive
+execution capabilities.
+"""
+
+from .app import GitOpsInstallApp
+from .executor import GitOpsInstallExecutor
+from .argParser import GitOpsArgumentParser
+from .argBuilder import BashFunctionArgumentExtractor
+
+__all__ = [
+    'GitOpsInstallApp',
+    'GitOpsInstallExecutor',
+    'GitOpsArgumentParser',
+    'BashFunctionArgumentExtractor'
+]

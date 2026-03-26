@@ -253,6 +253,16 @@ case $1 in
     mas-cli install "$@"
     ;;
 
+  gitops-install)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! gitops-install                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "gitops-install")
+    shift
+    # Run the new Python-based gitops-install
+    mas-cli gitops-install "$@"
+    ;;
+
   aiservice-install)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! aiservice-install                                                         !!" >> $LOGFILE
@@ -788,16 +798,6 @@ case $1 in
     echo
     reset_colors
     gitops
-    ;;
-
-  gitops-install)
-    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-    echo "!! gitops-install                                                            !!" >> $LOGFILE
-    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-    # Take the first parameter off (it will be "gitops-install")
-    shift
-    # Run the new Python-based gitops-install
-    mas-cli gitops-install "$@"
     ;;
 
   *)

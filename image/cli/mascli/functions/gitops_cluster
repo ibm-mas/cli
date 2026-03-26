@@ -120,7 +120,6 @@ function gitops_cluster_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SM_DELIM="/"
 
-  export GITHUB_PUSH="false"
   export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-cluster commit"}
   export MAS_CATALOG_VERSION=${MAS_CATALOG_VERSION:-"v8-240130-amd64"}
   export MAS_CATALOG_IMAGE=${MAS_CATALOG_IMAGE:-"icr.io/cpopen/ibm-maximo-operator-catalog"}

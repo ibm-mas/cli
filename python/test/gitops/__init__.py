@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # *****************************************************************************
 # Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
@@ -8,17 +9,4 @@
 #
 # *****************************************************************************
 
-"""
-Functions module for GitOps install operations.
-
-This module contains utility functions for different aspects of the
-GitOps installation process, organized by scope:
-- gitops_cluster: Cluster-level configuration functions
-- gitops_instance: Instance-level configuration functions
-- gitops_apps: Application-level configuration functions
-- utils: Shared utility functions
-"""
-
-from .utils import run_mas_command
-
-__all__ = ['run_mas_command']
+# Made with Bob
