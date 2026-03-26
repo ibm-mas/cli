@@ -1263,6 +1263,13 @@ function gitops_iac_provision_rdsdb2(){
 
         echo "Generating s3-iampolicy-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$BUCKET_TYPE-$app.tf "
         jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$BUCKET_TYPE-$app.tf
+        # Set BUCKET_TYPE_NAME based on BUCKET_TYPE value
+        if [ "$BUCKET_TYPE" == "audit_log" ]; then
+          export BUCKET_TYPE_NAME="auditlog"
+        else
+          export BUCKET_TYPE_NAME="$BUCKET_TYPE"
+        fi
+
 
         echo "Generating s3-accesspoints-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$BUCKET_TYPE-$app.tf "
         jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$BUCKET_TYPE-$app.tf

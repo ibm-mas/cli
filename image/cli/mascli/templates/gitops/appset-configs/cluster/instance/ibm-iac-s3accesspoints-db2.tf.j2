@@ -7,7 +7,7 @@ module "s3buckets_access_point_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}" {
   source = "{{ RDS_S3ACCESSPOINT_SOURCE }}"
   for_each = {
     for k, v in local.cluster.instance.rds_s3bucket_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}} :
-    k => v if can(regex("auditlog-{{RDS_S3_APP_NAME}}", v.name))
+    k => v if can(regex("{{BUCKET_TYPE_NAME}}-{{RDS_S3_APP_NAME}}", v.name))
   }
 
   depends_on = [module.s3buckets_instance_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}, module.account_policy_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}, time_sleep.wait_for_iam_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}]
@@ -15,7 +15,7 @@ module "s3buckets_access_point_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}" {
   name_prefix                    = each.value.name_prefix
   s3_access_point_bucket_id      = each.value.id
   s3_bucket_arn                  = each.value.s3_bucket_arn
-  s3_access_point_name           = join("-", [var.cluster_name,var.instance_name,"{{BUCKET_TYPE}}","{{RDS_S3_APP_NAME}}"])
+  s3_access_point_name           = join("-", [var.cluster_name,var.instance_name,"{{BUCKET_TYPE_NAME}}","{{RDS_S3_APP_NAME}}"])
   s3_access_point_policy_actions = local.s3_actions_{{BUCKET_TYPE}}[each.value.access_level]
   configure_antivirus            = false
 
