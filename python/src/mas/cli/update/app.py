@@ -367,7 +367,7 @@ class UpdateApp(BaseApp):
                         "- Data science workloads will be temporarily interrupted",
                         "- Deployed models will be preserved"
                     ])
-                    # Set parameter for CLI display only
+                    # Set parameter to trigger ODH to RHOAI migration
                     self.setParam("odh_to_rhoai_migration", "true")
                     return True
                 else:
