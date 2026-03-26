@@ -81,6 +81,10 @@ spec:
       workingDir: /workspace/configs
     
     - name: aiservice-ds-migration
+      when:
+        - input: "$(params.odh_to_rhoai_migration)"
+          operator: in
+          values: ["true"]
       command:
         - /opt/app-root/src/run-role.sh
         - aiservice_ds_migration
