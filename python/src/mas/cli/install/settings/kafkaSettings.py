@@ -11,6 +11,7 @@
 from typing import TYPE_CHECKING, Dict, List, NoReturn
 from os import path
 from prompt_toolkit import print_formatted_text
+from mas.devops.utils import isVersionEqualOrAfter
 
 
 if TYPE_CHECKING:
@@ -23,6 +24,7 @@ class KafkaSettingsMixin():
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
         installIoT: bool
+        installMonitor: bool
         showAdvancedOptions: bool
         localConfigDir: str | None
 
@@ -72,10 +74,12 @@ class KafkaSettingsMixin():
             ...
 
     def configKafka(self) -> None:
-        # Check if Civil component is installed
-        hasCivil = "civil=" in self.getParam("mas_appws_components") if self.getParam("mas_appws_components") else False
-        
-        if self.installIoT or hasCivil:
+        # Check if we should use the new dependency (Monitor >= 9.2.0)
+        monitorChannel = self.getParam("mas_app_channel_monitor")
+        useNewDependency = monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel)
+
+        if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
+            appName = "Monitor" if (useNewDependency and self.installMonitor) else "IoT"
             self.printH1("Configure Kafka")
             reasons = []
             if self.installIoT:
@@ -85,7 +89,7 @@ class KafkaSettingsMixin():
             
             reason_text = " and ".join(reasons)
             self.printDescription([
-                f"{reason_text} requires a shared system-scope Kafka instance",
+                "Maximo IoT requires a shared system-scope Kafka instance",
                 "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
                 "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
             ])
