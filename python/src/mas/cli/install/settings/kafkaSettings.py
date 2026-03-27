@@ -81,15 +81,8 @@ class KafkaSettingsMixin():
         if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
             appName = "Monitor" if (useNewDependency and self.installMonitor) else "IoT"
             self.printH1("Configure Kafka")
-            reasons = []
-            if self.installIoT:
-                reasons.append("Maximo IoT")
-            if hasCivil:
-                reasons.append("Maximo Manage Civil Infrastructure")
-            
-            reason_text = " and ".join(reasons)
             self.printDescription([
-                "Maximo IoT requires a shared system-scope Kafka instance",
+                f"Maximo {appName} requires a shared system-scope Kafka instance",
                 "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
                 "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
             ])
