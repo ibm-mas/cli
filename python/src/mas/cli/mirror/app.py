@@ -722,8 +722,8 @@ class MirrorApp(BaseApp):
                     if release in catalog[catalogKey]:
                         version = catalog[catalogKey][release]
                     else:
-                        logger.warning(f'skipping mirror for {catalog[catalogKey]} as there is no release: {release} in catalog: {catalogVersion}')
-                        return
+                        logger.warning(f'skipping mirror for {catalogKey} as there is no release: {release} in catalog: {catalogVersion}')
+                        continue
                 else:
                     version = catalog[catalogKey]
 
