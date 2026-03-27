@@ -49,8 +49,9 @@ def test_install_interactive_existing_catalog(tmpdir):
         # 10. Operational mode
         '.*Operational Mode.*': lambda msg: '1',
         # 11. Application selection
-        # Note: because we choose not to install IoT we should not be prompted for Monitor or Predict
+        # Note: With version-based dependencies, Monitor can be installed standalone
         '.*Install IoT.*': lambda msg: 'n',
+        '.*Install Monitor.*': lambda msg: 'n',
         '.*Install Manage.*': lambda msg: 'y',
         '.*Select components to enable.*': lambda msg: 'n',
         '.*Include customization archive.*': lambda msg: 'n',
