@@ -25,6 +25,7 @@ class KafkaSettingsMixin():
         params: Dict[str, str]
         installIoT: bool
         installMonitor: bool
+        installManage: bool
         showAdvancedOptions: bool
         localConfigDir: str | None
 
@@ -78,8 +79,21 @@ class KafkaSettingsMixin():
         monitorChannel = self.getParam("mas_app_channel_monitor")
         useNewDependency = monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel)
 
-        if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
-            appName = "Monitor" if (useNewDependency and self.installMonitor) else "IoT"
+        # Check if Civil component is enabled in Manage
+        # Handle both ",civil=" and "civil=" at start of string
+        components = self.getParam("mas_appws_components")
+        civilEnabled = self.installManage and ("civil=" in components and
+                                                (",civil=" in components or components.startswith("civil=")))
+
+        if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT) or civilEnabled:
+            # Determine which app name to display
+            if useNewDependency and self.installMonitor:
+                appName = "Monitor"
+            elif civilEnabled:
+                appName = "Manage Civil Infrastructure"
+            else:
+                appName = "IoT"
+            
             self.printH1("Configure Kafka")
             self.printDescription([
                 f"Maximo {appName} requires a shared system-scope Kafka instance",
