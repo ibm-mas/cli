@@ -62,6 +62,9 @@ spec:
     - name: efs_install_action
       type: string
       default: ""
+    - name: default_file_storage_class
+      type: string
+      default: "generated(efs)"
 
     - name: dro_namespace
       type: string
@@ -442,6 +445,8 @@ spec:
           value: $(params.efs_channel)
         - name: efs_subscription_source_namespace
           value: $(params.efs_subscription_source_namespace)
+        - name: default_file_storage_class
+          value: $(params.default_file_storage_class)
       taskRef:
         kind: Task
         name: gitops-efs-csi-driver

@@ -27,6 +27,9 @@ spec:
       type: string
     - name: efs_subscription_source_namespace
       type: string
+    - name: default_file_storage_class
+      type: string
+      default: "generated(efs)"
   stepTemplate:
     name: gitops-efs-csi-driver
     env:
@@ -52,6 +55,8 @@ spec:
         value: $(params.efs_channel)
       - name: EFS_SUBSCRIPTION_SOURCE_NAMESPACE
         value: $(params.efs_subscription_source_namespace)
+      - name: DEFAULT_FILE_STORAGE_CLASS
+        value: $(params.default_file_storage_class)
     envFrom:
       - configMapRef:
           name: environment-properties
