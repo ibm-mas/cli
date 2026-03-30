@@ -30,6 +30,8 @@ spec:
     - name: default_file_storage_class
       type: string
       default: "generated(efs)"
+    - name: avp_aws_secret_region
+      type: string
   stepTemplate:
     name: gitops-efs-csi-driver
     env:
@@ -57,6 +59,10 @@ spec:
         value: $(params.efs_subscription_source_namespace)
       - name: DEFAULT_FILE_STORAGE_CLASS
         value: $(params.default_file_storage_class)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: AWS_REGION
+        value: $(params.avp_aws_secret_region)
     envFrom:
       - configMapRef:
           name: environment-properties

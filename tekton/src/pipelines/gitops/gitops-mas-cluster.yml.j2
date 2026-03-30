@@ -447,6 +447,8 @@ spec:
           value: $(params.efs_subscription_source_namespace)
         - name: default_file_storage_class
           value: $(params.default_file_storage_class)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
       taskRef:
         kind: Task
         name: gitops-efs-csi-driver
