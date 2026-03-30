@@ -158,7 +158,7 @@ function gitops_bootstrap_noninteractive() {
       exit 1
     fi
     if [[ "${ARGOAPP_NAMESPACE}" != "${ARGOCLUSTER_NAMESPACE}" ]]; then
-      echo "Error: --restricted-access requires --argoapp-namespace and --argocluster-namespace to be the same value (both set to '${ARGOCLUSTER_NAMESPACE}')."
+      echo "Error: --restricted-access requires --argoapp-namespace (set to '${ARGOAPP_NAMESPACE}') and --argocluster-namespace (set to '${ARGOCLUSTER_NAMESPACE}') to be the same value."
       exit 1
     fi
   fi
