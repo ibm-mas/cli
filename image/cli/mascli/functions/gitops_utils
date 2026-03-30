@@ -1850,3 +1850,118 @@ function close_pr() {
   done
   return 0
 }
+
+# -----------------------------------------------------------------------------
+# Delete a branch from a GitHub repository
+# -----------------------------------------------------------------------------
+# Usage:
+#   delete_branch "github.com" "ibm-mas" "gitops-config" "feature-branch" 3 60
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.ibm.com")
+#   $2 - GITHUB_ORG (e.g., "ibm-mas")
+#   $3 - GITHUB_REPO (e.g., "gitops-config")
+#   $4 - BRANCH_NAME (e.g., "feature-branch")
+#   $5 - MAX_RETRIES (optional, default: 3)
+#   $6 - RETRY_DELAY (optional, default: 60 seconds)
+# Returns:
+#   0 on success or failure (logs errors to stderr)
+# Example:
+#   delete_branch "github.com" "ibm-mas" "gitops-config" "feature-branch" 5 60
+function delete_branch() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local BRANCH_NAME=$4
+  local MAX_RETRIES=${5:-3}
+  local RETRY_DELAY=${6:-60}
+
+  echo "" >&2
+  echo "$(logts) delete_branch" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "Branch: ${BRANCH_NAME}" >&2
+  echo "Max Retries: ${MAX_RETRIES}" >&2
+  echo "Retry Delay: ${RETRY_DELAY} seconds" >&2
+  echo "=================================================" >&2
+
+  if [[ -z "${GITHUB_PAT}" ]]; then
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
+    return 0
+  fi
+
+  # Validate branch name is not a protected branch
+  if [[ "${BRANCH_NAME}" == "main" || "${BRANCH_NAME}" == "master" || "${BRANCH_NAME}" == "develop" ]]; then
+    echo " Error: Cannot delete protected branch '${BRANCH_NAME}'" >&2
+    return 0
+  fi
+
+  # GitHub API URL for deleting the branch
+  local BRANCH_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/git/refs/heads/${BRANCH_NAME}"
+
+  # Retry loop
+  for (( attempt=1; attempt<=${MAX_RETRIES}; attempt++ )); do
+    echo "" >&2
+    echo "$(logts) Attempt ${attempt} of ${MAX_RETRIES}: Deleting branch '${BRANCH_NAME}'..." >&2
+    echo "-------------------------------------------------" >&2
+
+    # Delete the branch
+    set +o pipefail
+    local DELETE_RESPONSE=$(curl -s -X DELETE \
+      -H "Authorization: token ${GITHUB_PAT}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      "${BRANCH_API_URL}")
+    local CURL_RC=$?
+    set -o pipefail
+
+    if [[ $CURL_RC -ne 0 ]]; then
+      echo " Error: curl failed with return code ${CURL_RC}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to delete branch after ${MAX_RETRIES} attempts" >&2
+        return 0
+      fi
+    fi
+
+    # Check if the response is empty (successful deletion) or contains an error
+    if [[ -z "${DELETE_RESPONSE}" ]]; then
+      echo "" >&2
+      echo " Branch '${BRANCH_NAME}' deleted successfully!" >&2
+      echo "=================================================" >&2
+      return 0
+    fi
+
+    # Check for error message in response
+    local ERROR_MESSAGE=$(echo "${DELETE_RESPONSE}" | jq -r '.message' 2>/dev/null)
+    
+    if [[ -n "${ERROR_MESSAGE}" && "${ERROR_MESSAGE}" != "null" ]]; then
+      # Check if branch doesn't exist (already deleted)
+      if [[ "${ERROR_MESSAGE}" == *"Reference does not exist"* || "${ERROR_MESSAGE}" == *"Not Found"* ]]; then
+        echo "" >&2
+        echo " Branch '${BRANCH_NAME}' does not exist (may have been already deleted)" >&2
+        echo "=================================================" >&2
+        return 0
+      fi
+      
+      echo " Error: ${ERROR_MESSAGE}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to delete branch after ${MAX_RETRIES} attempts" >&2
+        return 0
+      fi
+    fi
+
+    # If we get here with a response but no error, consider it successful
+    echo "" >&2
+    echo " Branch '${BRANCH_NAME}' deleted successfully!" >&2
+    echo "=================================================" >&2
+    return 0
+  done
+  return 0
+}

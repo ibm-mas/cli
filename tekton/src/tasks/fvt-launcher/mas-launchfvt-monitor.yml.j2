@@ -92,6 +92,12 @@ spec:
               name: mas-fvt-monitor
               key: FVT_DIGEST_CTF
               optional: false
+        - name: FVT_DIGEST_MONITOR
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: FVT_DIGEST_MONITOR
+              optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:
             secretKeyRef:

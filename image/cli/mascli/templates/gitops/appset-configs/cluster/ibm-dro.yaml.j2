@@ -11,7 +11,7 @@ ibm_dro:
     dro_public_domain: {{ DRO_PUBLIC_DOMAIN }}
     tls_certificate: "<path:{{ SECRETS_PATH }}:{{ SECRET_KET_DRO_TLS_CERT }} | base64decode >"
     tls_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KET_DRO_TLS_KEY }} | base64decode >"
-    cis_crn: {{ CIS_CRN }}
+    cis_crn: {{ DRO_CIS_CRN }}
 {% endif %}
 {% if DRO_CMM_SETUP is defined and DRO_CMM_SETUP %}
     dro_cmm:
