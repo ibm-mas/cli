@@ -1008,9 +1008,15 @@ function generate_storage_class_def() {
   elif [[ "${STORAGE_CLASS_TYPE}" == "efs" ]]; then
 
     CREATION_TOKEN="${STORAGE_CLASS_NAME}"
-    EFS_FILESYSTEM_ID=$(aws efs describe-file-systems --creation-token "${CREATION_TOKEN}"  --query 'FileSystems[0].FileSystemId' --output text)
+    # Use AWS_REGION if set, otherwise fall back to SM_AWS_REGION or AWS_DEFAULT_REGION
+    EFS_AWS_REGION="${AWS_REGION:-${SM_AWS_REGION:-${AWS_DEFAULT_REGION}}}"
+    if [[ -z "${EFS_AWS_REGION}" ]]; then
+      echo "AWS region not set. Please set AWS_REGION, SM_AWS_REGION, or AWS_DEFAULT_REGION environment variable." >&2
+      exit 1
+    fi
+    EFS_FILESYSTEM_ID=$(aws efs describe-file-systems --region "${EFS_AWS_REGION}" --creation-token "${CREATION_TOKEN}" --query 'FileSystems[0].FileSystemId' --output text)
     if [[ -z "${EFS_FILESYSTEM_ID}" || "${EFS_FILESYSTEM_ID}" == "None" ]]; then
-      echo "Unable to find EFS Instance with CreationToken ${CREATION_TOKEN}. Aborting." >&2
+      echo "Unable to find EFS Instance with CreationToken ${CREATION_TOKEN} in region ${EFS_AWS_REGION}. Aborting." >&2
       exit 1
     fi
 
