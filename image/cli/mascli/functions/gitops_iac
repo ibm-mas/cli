@@ -1255,14 +1255,25 @@ function gitops_iac_provision_rdsdb2(){
       echo "Generating db2_parameters-$app.yaml file ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml "
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-db2paramaters.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml
 
-      echo "Generating s3-instance-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf
+      # Loop through bucket types to generate S3 configurations
+      for BUCKET_TYPE in "audit_log" "backup"; do
+        export BUCKET_TYPE
+        echo "Generating s3-instance-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$BUCKET_TYPE-$app.tf "
+        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$BUCKET_TYPE-$app.tf
 
-      echo "Generating s3-iampolicy-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf
+        echo "Generating s3-iampolicy-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$BUCKET_TYPE-$app.tf "
+        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$BUCKET_TYPE-$app.tf
+        # Set BUCKET_TYPE_NAME based on BUCKET_TYPE value
+        if [ "$BUCKET_TYPE" == "audit_log" ]; then
+          export BUCKET_TYPE_NAME="auditlog"
+        else
+          export BUCKET_TYPE_NAME="$BUCKET_TYPE"
+        fi
 
-      echo "Generating s3-accesspoints-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf
+
+        echo "Generating s3-accesspoints-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$BUCKET_TYPE-$app.tf "
+        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$BUCKET_TYPE-$app.tf
+      done
     fi
   done
 
@@ -1535,29 +1546,45 @@ function gitops_iac_manage_pr() {
             if [[ "$MERGE_PR_STATUS" != "true" ]]; then
               echo_h2 "  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
               exit 1
+            else
+              # Delete the branch after successful merge
+              echo_h2 "  Deleting branch '${WORKING_BRANCH}' after successful merge"
+              delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
             fi
           else
             echo_h2 "  Atlantis Apply Failed. Pipeline Failed."
             comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
             close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+            # Delete the branch after closing PR due to apply failure
+            echo_h2 "  Deleting branch '${WORKING_BRANCH}' after closing PR"
+            delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
             exit 1
           fi
         else
           echo_h2 "  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
           comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
           close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+          # Delete the branch after closing PR due to atlantis apply comment failure
+          echo_h2 "  Deleting branch '${WORKING_BRANCH}' after closing PR"
+          delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
           exit 1
         fi
       else
         echo_h2 "  Failed to approve PR. Closing PR. Pipeline Failed."
         comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
         close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+        # Delete the branch after closing PR due to approval failure
+        echo_h2 "  Deleting branch '${WORKING_BRANCH}' after closing PR"
+        delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
         exit 1
       fi
     else
       echo_h2 "  Atlantis Plan Failed. Closing PR. Pipeline Failed."
       comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
       close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+      # Delete the branch after closing PR due to plan failure
+      echo_h2 "  Deleting branch '${WORKING_BRANCH}' after closing PR"
+      delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
       exit 1
     fi
   else
