@@ -8,6 +8,6 @@ efs_csi_driver:
   role_arn: {{ EFS_CSI_DRIVER_ROLE_ARN }}
   storage_class_name: {{ EFS_STORAGE_CLASS }}
 {% if STORAGE_CLASS_DEFINITIONS %}
-  storage_class_definitions: |
+  storage_class_definitions:
 {{ STORAGE_CLASS_DEFINITIONS | indent(4, first=True) }}
 {% endif %}
