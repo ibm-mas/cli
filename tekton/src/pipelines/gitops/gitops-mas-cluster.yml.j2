@@ -33,6 +33,9 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: avp_type
+      type: string
+      default: "aws"
     - name: redhat_cert_manager_install_plan
       type: string
       default: "Automatic"
@@ -449,6 +452,8 @@ spec:
           value: $(params.default_file_storage_class)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: avp_type
+          value: $(params.avp_type)
       taskRef:
         kind: Task
         name: gitops-efs-csi-driver
