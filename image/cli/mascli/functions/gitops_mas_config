@@ -17,7 +17,7 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
   -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
-  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
+  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of aicfg|appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
   --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
 
@@ -47,6 +47,13 @@ DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET} The location of a file containing the DRO CA certificate
   --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
   --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
+
+AI Service Configuration (required if MAS_CONFIG_TYPE is "aicfg"):
+  --aiservice-url ${COLOR_YELLOW}AISERVICE_URL${TEXT_RESET}                     The URL of the AI Service
+  --aiservice-tenant-id ${COLOR_YELLOW}AISERVICE_TENANT_ID${TEXT_RESET}         The tenant ID for AI Service
+  --aiservice-enabled ${COLOR_YELLOW}AISERVICE_ENABLED${TEXT_RESET}             Enable AI Service (true|false)
+  --aiservice-ssl-enabled ${COLOR_YELLOW}AISERVICE_SSL_ENABLED${TEXT_RESET}     Enable SSL for AI Service (true|false)
+  --aiservice-meta-agent-enabled ${COLOR_YELLOW}AISERVICE_META_AGENT_ENABLED${TEXT_RESET} Enable Meta Agent (true|false)
 
 MAF Configuration (required if MAS_CONFIG_TYPE is "appcfg"):
   --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                       Enable MAF for the application configuration (true|false)
@@ -210,6 +217,23 @@ function gitops_mas_config_noninteractive() {
       --mas-appcfg-pod-template-yaml)
         export MAS_APPCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
+
+      # AICFG
+      --aiservice-url)
+        export AISERVICE_URL=$1 && shift
+        ;;
+      --aiservice-tenant-id)
+        export AISERVICE_TENANT_ID=$1 && shift
+        ;;
+      --aiservice-enabled)
+        export AISERVICE_ENABLED=$1 && shift
+        ;;
+      --aiservice-ssl-enabled)
+        export AISERVICE_SSL_ENABLED=$1 && shift
+        ;;
+      --aiservice-meta-agent-enabled)
+        export AISERVICE_META_AGENT_ENABLED=$1 && shift
+        ;;
       --maf-enabled)
         export MAF_ENABLED=$1 && shift
         ;; 
@@ -369,8 +393,8 @@ function gitops_mas_config_noninteractive() {
   fi
 
   [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_CONFIG_TYPE is not set"
-  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
-    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
+  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(aicfg|appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
+    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of aicfg|appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
 
   [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_mas_config_help "MAS_CONFIG_SCOPE is not set"
@@ -404,6 +428,14 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$DRO_CONTACT_FIRSTNAME" ]] && gitops_mas_config_help "DRO_CONTACT_FIRSTNAME is not set"
       [[ -z "$DRO_CONTACT_LASTNAME" ]] && gitops_mas_config_help "DRO_CONTACT_LASTNAME is not set"
       [[ -z "$DRO_CA_CERTIFICATE_FILE" ]] && gitops_mas_config_help "DRO_CA_CERTIFICATE_FILE is not set"
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "aicfg" ]; then
+      [[ -z "$AISERVICE_URL" ]] && gitops_mas_config_help "AISERVICE_URL is not set"
+      [[ -z "$AISERVICE_TENANT_ID" ]] && gitops_mas_config_help "AISERVICE_TENANT_ID is not set"
+      [[ -z "$AISERVICE_ENABLED" ]] && gitops_mas_config_help "AISERVICE_ENABLED is not set"
+      [[ -z "$AISERVICE_SSL_ENABLED" ]] && gitops_mas_config_help "AISERVICE_SSL_ENABLED is not set"
+      [[ -z "$AISERVICE_META_AGENT_ENABLED" ]] && gitops_mas_config_help "AISERVICE_META_AGENT_ENABLED is not set"
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
@@ -619,6 +651,17 @@ function gitops_mas_config() {
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_BASCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "aicfg" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "AI Service URL ................. ${COLOR_MAGENTA}${AISERVICE_URL}"
+      echo_reset_dim "AI Service Tenant ID ........... ${COLOR_MAGENTA}${AISERVICE_TENANT_ID}"
+      echo_reset_dim "AI Service Enabled ............. ${COLOR_MAGENTA}${AISERVICE_ENABLED}"
+      echo_reset_dim "AI Service SSL Enabled ......... ${COLOR_MAGENTA}${AISERVICE_SSL_ENABLED}"
+      echo_reset_dim "AI Service Meta Agent Enabled .. ${COLOR_MAGENTA}${AISERVICE_META_AGENT_ENABLED}"
+      reset_colors
+    fi
+
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "MAF Enabled  ................... ${COLOR_MAGENTA}${MAF_ENABLED}"
@@ -780,6 +823,12 @@ function gitops_mas_config() {
         TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $SECRET_NAME_MAS_SEGMENT_KEY "{\"mas_segment_key\": \"$MAS_SEGMENT_KEY\"}" "${TAGS}"
       fi
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "aicfg" ]; then
+      export SECRET_NAME_AISERVICE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ai-credentials
+      export SECRET_KEY_AISERVICE_API_KEY=${SECRET_NAME_AISERVICE}#apiKey
+      export SECRET_KEY_AISERVICE_CERTIFICATE=${SECRET_NAME_AISERVICE}#certificate
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
