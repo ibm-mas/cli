@@ -382,7 +382,6 @@ function unlock_git_repo() {
     echo "-------------------------------------------------"
     rm -rf "${GITOPS_REPO_DIR}" || exit 1
   fi
-
 }
 
 

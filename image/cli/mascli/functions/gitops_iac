@@ -1520,13 +1520,8 @@ function gitops_iac_manage_pr() {
   
   echo "Created PR #${PR_NUMBER}"
   
-  # Set up automatic cleanup on exit
-  cleanup_gitops_repo() {
-    if [[ -d "$GITOPS_WORKING_DIR/$GITHUB_REPO" ]]; then
-      remove_git_repo_clone "$GITOPS_WORKING_DIR/$GITHUB_REPO"
-    fi
-  }
-  trap cleanup_gitops_repo EXIT
+  # Clean up local clone
+  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   
   # Monitor PR status if PR was created
   if [[ -n "${PR_NUMBER}" && "${PR_NUMBER}" != "null" ]]; then
