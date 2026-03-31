@@ -829,6 +829,16 @@ function gitops_mas_config() {
       export SECRET_NAME_AISERVICE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ai-credentials
       export SECRET_KEY_AISERVICE_API_KEY=${SECRET_NAME_AISERVICE}#apiKey
       export SECRET_KEY_AISERVICE_CERTIFICATE=${SECRET_NAME_AISERVICE}#certificate
+      
+      # Check if MAS version supports AI Service (9.2.0+)
+      MAS_VERSION=$(echo "$MAS_CHANNEL" | sed -E 's/^([0-9]+\.[0-9]+).*/\1/')
+      MAS_MAJOR=$(echo "$MAS_VERSION" | cut -d. -f1)
+      MAS_MINOR=$(echo "$MAS_VERSION" | cut -d. -f2)
+      if [[ "$MAS_MAJOR" -gt 9 ]] || [[ "$MAS_MAJOR" -eq 9 && "$MAS_MINOR" -ge 2 ]]; then
+        export AISERVICE_SUPPORTED="true"
+      else
+        export AISERVICE_SUPPORTED="false"
+      fi
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then

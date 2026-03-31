@@ -87,7 +87,7 @@ ibm_mas_suite:
     {{ OIDC_CONFIG_YAML | indent(4) }}
 {% endif %}
 
-{% if AISERVICE_URL is defined and AISERVICE_URL !='' %}
+{% if AISERVICE_URL is defined and AISERVICE_URL !='' and AISERVICE_SUPPORTED is defined and AISERVICE_SUPPORTED == 'true' %}
   aiservice:
     url: "{{ AISERVICE_URL }}"
     tenantId: "{{ AISERVICE_TENANT_ID }}"
