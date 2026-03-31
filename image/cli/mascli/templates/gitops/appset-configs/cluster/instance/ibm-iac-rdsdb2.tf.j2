@@ -18,6 +18,7 @@ module "db2rds-{{RDS_APP}}" {
   sre_prefix                          = join("-", [var.cluster_name, var.instance_name, "{{RDS_APP}}"])
   secret_prefix                       = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "jdbc",join("-", ["rds", var.instance_name, "{{RDS_APP}}"]) ])
   admin_secret_prefix                 = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "admin",join("-", ["rds", var.instance_name, "{{RDS_APP}}"]) ])
+  ssp_secret_prefix                   = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "rds-ssp"])
   engine                              = "db2-ae"
   vpc_id                              = var.vpc_id
   ibm_customer_id                     = local.ibm_customer_id_{{RDS_APP}}
