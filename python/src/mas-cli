@@ -57,25 +57,25 @@ if __name__ == '__main__':
 
         if function == "install":
             app = InstallApp()
-            app.install(argv[2:])
+            exit(app.install(argv[2:]))
         elif function == "gitops-install":
             app = GitOpsInstallApp()
-            app.install(argv[2:])
+            exit(app.install(argv[2:]))
         elif function == "aiservice-install":
             app = AiServiceInstallApp()
-            app.install(argv[2:])
+            exit(app.install(argv[2:]))
         elif function == "aiservice-upgrade":
             app = AiServiceUpgradeApp()
-            app.upgrade(argv[2:])
+            exit(app.upgrade(argv[2:]))
         elif function == "uninstall":
             app = UninstallApp()
-            app.uninstall(argv[2:])
+            exit(app.uninstall(argv[2:]))
         elif function == "update":
             app = UpdateApp()
-            app.update(argv[2:])
+            exit(app.update(argv[2:]))
         elif function == "upgrade":
             app = UpgradeApp()
-            app.upgrade(argv[2:])
+            exit(app.upgrade(argv[2:]))
         elif function in ["-h", "--help"]:
             usage()
             exit(0)
