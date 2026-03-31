@@ -1515,7 +1515,6 @@ function gitops_iac_manage_pr() {
   
   if [[ $? -ne 0 ]]; then
     echo " Failed to create Pull Request"
-    delete_remote_branch "${WORKING_BRANCH}" "$GITOPS_WORKING_DIR/$GITHUB_REPO"
     exit 1
   fi
   
@@ -1560,34 +1559,29 @@ function gitops_iac_manage_pr() {
             echo_h2 "  Atlantis Apply Failed. Pipeline Failed."
             comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
             close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
-            delete_remote_branch "$WORKING_BRANCH" "$GITOPS_WORKING_DIR/$GITHUB_REPO"
             exit 1
           fi
         else
           echo_h2 "  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
           comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
           close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
-          delete_remote_branch "$WORKING_BRANCH" "$GITOPS_WORKING_DIR/$GITHUB_REPO"
           exit 1
         fi
       else
         echo_h2 "  Failed to approve PR. Closing PR. Pipeline Failed."
         comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
         close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
-        delete_remote_branch "$WORKING_BRANCH" "$GITOPS_WORKING_DIR/$GITHUB_REPO"
         exit 1
       fi
     else
       echo_h2 "  Atlantis Plan Failed. Closing PR. Pipeline Failed."
       comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
       close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
-      delete_remote_branch "$WORKING_BRANCH" "$GITOPS_WORKING_DIR/$GITHUB_REPO"
       exit 1
     fi
   else
     echo
     echo_h2 "  No PR number returned, pipeline failed."
-    delete_remote_branch "$WORKING_BRANCH" "$GITOPS_WORKING_DIR/$GITHUB_REPO"
     exit 1
   fi
   
