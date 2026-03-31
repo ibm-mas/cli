@@ -42,10 +42,6 @@ spec:
       type: string
       description: FVT Digest - Shared Test Container
       default: ""
-    - name: fvt_digest_monitor
-      type: string
-      description: FVT Digest - Monitor Test Container
-      default: ""
     - name: ivt_digest_core
       type: string
       description: IVT Digest - Core
@@ -59,7 +55,7 @@ spec:
 
     - name: fvt_test_suite
       type: string
-      description: Which Monitor FVT suite to run [monitor_fvt, monitor_fvt_with_manage, fvt_91x]
+      description: Whether to run the Monitor (Base) [monitor_fvt] or Monitor (with Manage) FVT suite [monitor_fvt_with_manage]
       default: ""
 
   tasks:
@@ -142,10 +138,10 @@ spec:
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
         - name: fvt_image_digest
-          value: $(params.fvt_digest_monitor)
+          value: $(params.fvt_digest_ctf)
 
         - name: fvt_test_suite
-          value: $(params.fvt_test_suite) # pytest_marker in Monitor Test Framework
+          value: $(params.fvt_test_suite) # pytest_marker in Common Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_monitor)
       timeout: "0"
@@ -153,12 +149,12 @@ spec:
         kind: Task
         name: mas-fvt-monitor
       when:
-        - input: "$(params.fvt_digest_monitor)"
+        - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
         - input: "$(params.fvt_test_suite)"
           operator: in
-          values: ["monitor_fvt", "monitor_fvt_with_manage", "fvt_91x"]
+          values: ["monitor_fvt" , "monitor_fvt_with_manage"]
       runAfter:
         - ivtcore-monitor
       workspaces:

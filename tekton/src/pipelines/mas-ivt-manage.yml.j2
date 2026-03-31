@@ -53,9 +53,6 @@ spec:
     - name: fvt_digest_ctf
       type: string
       default: ""
-    - name: fvt_digest_monitor
-      type: string
-      default: ""
 
     - name: fvt_test_suite
       type: string
@@ -98,7 +95,7 @@ spec:
         - name: fvt_image_digest_manage
           value: $(params.fvt_digest_manage)
         - name: fvt_image_digest_monitor
-          value: $(params.fvt_digest_monitor)
+          value: $(params.fvt_digest_ctf)
         - name: product_channel_manage
           value: $(params.mas_app_channel_manage)
         - name: product_channel_monitor
@@ -109,7 +106,7 @@ spec:
         kind: Task
         name: mas-ivt-manage
       when:
-        - input: "$(params.fvt_digest_monitor)"
+        - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
         - input: "$(params.fvt_digest_manage)"
