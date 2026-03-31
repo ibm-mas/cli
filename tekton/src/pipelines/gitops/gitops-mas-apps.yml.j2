@@ -828,6 +828,16 @@ spec:
     - name: allow_list
       type: string
       default: ""
+    
+    - name: rds_db2_backup_manage
+      type: string
+      default: ""
+    - name: rds_db2_backup_iot
+      type: string
+      default: ""
+    - name: rds_db2_backup_facilities
+      type: string
+      default: ""
 
     - name: production_database_access_type
       type: string
@@ -877,7 +887,8 @@ spec:
           value: $(params.jdbc_connection_url_additional_params_iot)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_iot)
-
+        - name: rds_db2_backup
+          value: $(params.rds_db2_backup_iot)
       workspaces:
         - name: configs
           workspace: configs
@@ -1080,6 +1091,8 @@ spec:
           value: $(params.jdbc_connection_url_additional_params_manage)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_manage)
+        - name: rds_db2_backup
+          value: $(params.rds_db2_backup_manage)
       workspaces:
         - name: configs
           workspace: configs
@@ -1420,6 +1433,8 @@ spec:
           value: $(params.jdbc_connection_url_additional_params_facilities)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_facilities)
+        - name: rds_db2_backup
+          value: $(params.rds_db2_backup_facilities)
       
       workspaces:
         - name: configs
