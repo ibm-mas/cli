@@ -339,7 +339,7 @@ class GitOpsInstallExecutor():
 
                 # Secrets Manager
                 'secrets_path': 'SECRETS_PATH',
-                'avp_aws_secret_region': 'SM_AWS_REGION',
+                'sm_aws_secret_region': 'SM_AWS_REGION',
                 'sm_aws_access_key_id': 'SM_AWS_ACCESS_KEY_ID',
                 'sm_aws_secret_access_key': 'SM_AWS_SECRET_ACCESS_KEY',
 
