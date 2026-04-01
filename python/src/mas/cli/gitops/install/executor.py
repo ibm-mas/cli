@@ -328,7 +328,7 @@ class GitOpsInstallExecutor():
                 'cluster_id': 'CLUSTER_ID',
                 'cluster_url': 'CLUSTER_URL',
                 'account_id': 'ACCOUNT_ID',
-                'region_id': 'REGION',
+                'region_id': 'REGION_ID',
                 'github_host': 'GITHUB_HOST',
                 'github_org': 'GITHUB_ORG',
                 'github_repo': 'GITHUB_REPO',
