@@ -33,6 +33,7 @@ class Argument:
     description: str
     required: bool = False
     function_name: str = ""
+    is_flag: bool = False  # True if this is a boolean flag (action='store_true')
 
 
 class BashFunctionArgumentExtractor:
@@ -179,8 +180,24 @@ class BashFunctionArgumentExtractor:
 
                 # Look ahead for the export statement
                 for j in range(i + 1, min(i + 5, len(lines))):
+                    # Check for flag pattern: export VAR=true or export VAR="true"
+                    flag_match = re.search(r'export\s+([A-Z_][A-Z0-9_]*)\s*=\s*["\']?true["\']?\s*$', lines[j])
+                    if flag_match:
+                        current_env_var = flag_match.group(1)
+                        arguments.append(Argument(
+                            short_option=short_opt,
+                            long_option=long_opt,
+                            env_var=current_env_var,
+                            description="",
+                            required=False,
+                            function_name=function_name,
+                            is_flag=True
+                        ))
+                        break
+
+                    # Check for regular argument pattern: export VAR=$1
                     export_match = re.search(r'export\s+([A-Z_][A-Z0-9_]*)\s*=', lines[j])
-                    if export_match:
+                    if export_match and not flag_match:
                         current_env_var = export_match.group(1)
                         arguments.append(Argument(
                             short_option=short_opt,
@@ -188,7 +205,8 @@ class BashFunctionArgumentExtractor:
                             env_var=current_env_var,
                             description="",
                             required=False,
-                            function_name=function_name
+                            function_name=function_name,
+                            is_flag=False
                         ))
                         break
                     # Stop at next case or end of block
@@ -204,8 +222,24 @@ class BashFunctionArgumentExtractor:
                 long_opt = match.group(1)
                 # Look ahead for the export statement
                 for j in range(i + 1, min(i + 5, len(lines))):
+                    # Check for flag pattern: export VAR=true or export VAR="true"
+                    flag_match = re.search(r'export\s+([A-Z_][A-Z0-9_]*)\s*=\s*["\']?true["\']?\s*$', lines[j])
+                    if flag_match:
+                        current_env_var = flag_match.group(1)
+                        arguments.append(Argument(
+                            short_option=None,
+                            long_option=long_opt,
+                            env_var=current_env_var,
+                            description="",
+                            required=False,
+                            function_name=function_name,
+                            is_flag=True
+                        ))
+                        break
+
+                    # Check for regular argument pattern: export VAR=$1
                     export_match = re.search(r'export\s+([A-Z_][A-Z0-9_]*)\s*=', lines[j])
-                    if export_match:
+                    if export_match and not flag_match:
                         current_env_var = export_match.group(1)
                         arguments.append(Argument(
                             short_option=None,
@@ -213,7 +247,8 @@ class BashFunctionArgumentExtractor:
                             env_var=current_env_var,
                             description="",
                             required=False,
-                            function_name=function_name
+                            function_name=function_name,
+                            is_flag=False
                         ))
                         break
                     # Stop at next case or end of block
@@ -270,7 +305,8 @@ class BashFunctionArgumentExtractor:
                             env_var=arg.env_var,
                             description=arg.description,
                             required=arg.required,
-                            function_name=arg.function_name
+                            function_name=arg.function_name,
+                            is_flag=arg.is_flag
                         )
 
                     unique_args[arg.long_option] = arg
@@ -304,35 +340,35 @@ class BashFunctionArgumentExtractor:
                 'visualinspection', 'facilities', 'health']
 
         # Define per-app parameter templates
-        # Format: (param_suffix, env_var_suffix, description, action_type)
+        # Format: (param_suffix, env_var_suffix, description, is_flag)
         param_templates = [
             # App installation parameters
-            ('id', 'ID', 'Enable installation of {app} application', 'store_true'),
-            ('channel', 'CHANNEL', 'Channel for {app} application', None),
-            ('catalog-source', 'CATALOG_SOURCE', 'Catalog source for {app} application', None),
-            ('api-version', 'API_VERSION', 'API version for {app} application CR', None),
-            ('kind', 'KIND', 'Kind for {app} application CR', None),
-            ('spec-yaml', 'SPEC_YAML', 'Spec YAML file for {app} application', None),
+            ('id', 'ID', 'Enable installation of {app} application', True),
+            ('channel', 'CHANNEL', 'Channel for {app} application', False),
+            ('catalog-source', 'CATALOG_SOURCE', 'Catalog source for {app} application', False),
+            ('api-version', 'API_VERSION', 'API version for {app} application CR', False),
+            ('kind', 'KIND', 'Kind for {app} application CR', False),
+            ('spec-yaml', 'SPEC_YAML', 'Spec YAML file for {app} application', False),
 
             # App workspace configuration parameters
-            ('appws-api-version', 'APPWS_API_VERSION', 'Workspace API version for {app} application', None),
-            ('appws-kind', 'APPWS_KIND', 'Workspace Kind for {app} application', None),
-            ('appws-spec-yaml', 'APPWS_SPEC_YAML', 'Workspace spec YAML file for {app} application', None),
+            ('appws-api-version', 'APPWS_API_VERSION', 'Workspace API version for {app} application', False),
+            ('appws-kind', 'APPWS_KIND', 'Workspace Kind for {app} application', False),
+            ('appws-spec-yaml', 'APPWS_SPEC_YAML', 'Workspace spec YAML file for {app} application', False),
         ]
 
         # DB2/JDBC parameters (only for apps that need them: manage, iot, facilities)
         db2_apps = ['manage', 'iot', 'facilities']
         db2_param_templates = [
-            ('db2-channel', 'DB2_CHANNEL', 'DB2 channel for {app} application', None),
-            ('db2-version', 'DB2_VERSION', 'DB2 version for {app} application', None),
-            ('db2-meta-storage-class', 'DB2_META_STORAGE_CLASS', 'DB2 meta storage class for {app}', None),
-            ('db2-data-storage-class', 'DB2_DATA_STORAGE_CLASS', 'DB2 data storage class for {app}', None),
-            ('db2-logs-storage-class', 'DB2_LOGS_STORAGE_CLASS', 'DB2 logs storage class for {app}', None),
-            ('db2-backup-storage-class', 'DB2_BACKUP_STORAGE_CLASS', 'DB2 backup storage class for {app}', None),
-            ('db2-instance-registry-yaml', 'DB2_INSTANCE_REGISTRY_YAML', 'DB2 instance registry YAML for {app}', None),
-            ('db2-instance-dbm-config-yaml', 'DB2_INSTANCE_DBM_CONFIG_YAML', 'DB2 instance DBM config YAML for {app}', None),
-            ('db2-database-db-config-yaml', 'DB2_DATABASE_DB_CONFIG_YAML', 'DB2 database config YAML for {app}', None),
-            ('jdbc-instance-name', 'JDBC_INSTANCE_NAME', 'JDBC instance name for {app}', None),
+            ('db2-channel', 'DB2_CHANNEL', 'DB2 channel for {app} application', False),
+            ('db2-version', 'DB2_VERSION', 'DB2 version for {app} application', False),
+            ('db2-meta-storage-class', 'DB2_META_STORAGE_CLASS', 'DB2 meta storage class for {app}', False),
+            ('db2-data-storage-class', 'DB2_DATA_STORAGE_CLASS', 'DB2 data storage class for {app}', False),
+            ('db2-logs-storage-class', 'DB2_LOGS_STORAGE_CLASS', 'DB2 logs storage class for {app}', False),
+            ('db2-backup-storage-class', 'DB2_BACKUP_STORAGE_CLASS', 'DB2 backup storage class for {app}', False),
+            ('db2-instance-registry-yaml', 'DB2_INSTANCE_REGISTRY_YAML', 'DB2 instance registry YAML for {app}', False),
+            ('db2-instance-dbm-config-yaml', 'DB2_INSTANCE_DBM_CONFIG_YAML', 'DB2 instance DBM config YAML for {app}', False),
+            ('db2-database-db-config-yaml', 'DB2_DATABASE_DB_CONFIG_YAML', 'DB2 database config YAML for {app}', False),
+            ('jdbc-instance-name', 'JDBC_INSTANCE_NAME', 'JDBC instance name for {app}', False),
         ]
 
         # Generate arguments for each app
@@ -340,7 +376,7 @@ class BashFunctionArgumentExtractor:
             app_upper = app.upper().replace('-', '_')
 
             # Generate standard app parameters
-            for param_suffix, env_suffix, desc_template, action in param_templates:
+            for param_suffix, env_suffix, desc_template, is_flag in param_templates:
                 long_option = f'--mas-app-{param_suffix}-{app}'
                 env_var = f'MAS_APP_{env_suffix}_{app_upper}'
                 description = desc_template.format(app=app)
@@ -351,12 +387,13 @@ class BashFunctionArgumentExtractor:
                     env_var=env_var,
                     description=description,
                     required=False,
-                    function_name='gitops_install'
+                    function_name='gitops_install',
+                    is_flag=is_flag
                 )
 
             # Generate DB2/JDBC parameters for applicable apps
             if app in db2_apps:
-                for param_suffix, env_suffix, desc_template, action in db2_param_templates:
+                for param_suffix, env_suffix, desc_template, is_flag in db2_param_templates:
                     long_option = f'--{param_suffix}-{app}'
                     env_var = f'{env_suffix}_{app_upper}'
                     description = desc_template.format(app=app)
@@ -367,7 +404,8 @@ class BashFunctionArgumentExtractor:
                         env_var=env_var,
                         description=description,
                         required=False,
-                        function_name='gitops_install'
+                        function_name='gitops_install',
+                        is_flag=is_flag
                     )
 
         logger.info(f"Generated {len(per_app_args)} per-app arguments")

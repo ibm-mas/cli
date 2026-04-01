@@ -175,14 +175,25 @@ For more information, see: https://ibm-mas.github.io/cli/
         # Determine the destination name (convert --long-option to long_option)
         dest = arg.long_option.lstrip('-').replace('-', '_')
 
-        # Add the argument
-        group.add_argument(
-            *flags,
-            dest=dest,
-            help=f"{arg.description} (env: {arg.env_var})",
-            required=arg.required,
-            metavar=arg.env_var
-        )
+        # Add the argument based on whether it's a flag or not
+        if arg.is_flag:
+            # Boolean flag - no value required
+            group.add_argument(
+                *flags,
+                dest=dest,
+                help=f"{arg.description} (env: {arg.env_var})",
+                required=arg.required,
+                action='store_true'
+            )
+        else:
+            # Regular argument - requires a value
+            group.add_argument(
+                *flags,
+                dest=dest,
+                help=f"{arg.description} (env: {arg.env_var})",
+                required=arg.required,
+                metavar=arg.env_var
+            )
 
     def parse_args(self, argv: Optional[List[str]] = None) -> Dict[str, Any]:
         """
