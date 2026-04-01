@@ -376,14 +376,16 @@ class InstallSummarizerMixin():
 
             # If dev mode is enabled → allow mongo_provider
             if dev_mode:
+                # mongo_provider is OPTIONAL in dev mode
                 if mongo_provider:
                     self.printParamSummary("Mongo Provider", "mongo_provider")
             else:
-                # If dev mode is OFF but mongo_provider is given → error
-                if mongo_provider:
+                # Only error if provider explicitly set
+                if mongo_provider not in [None, "", "default"]:
                     self.fatalError(
                         "mongo_provider should not be set when dev_mode is False"
                     )
+
 
         elif self.getParam("mongodb_action") == "byo":
             self.printSummary("Type", "BYO (mongodb-system.yaml)")
