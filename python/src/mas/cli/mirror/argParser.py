@@ -102,6 +102,12 @@ mainGroup.add_argument(
     help="Path to authentication file (must exist). If not provided, will be generated from environment variables (REGISTRY_USERNAME, REGISTRY_PASSWORD, and IBM_ENTITLEMENT_KEY)."
 )
 
+mainGroup.add_argument(
+    "--prefix",
+    required=False,
+    type=str,
+    help="Add prefix to image path in registry"
+)
 # Add package-specific arguments dynamically, organized by group
 # First, deduplicate by argName and aggregate package names
 

@@ -631,6 +631,7 @@ class MirrorApp(BaseApp):
         destTlsVerify = args.dest_tls_verify
         imageTimeout = args.image_timeout
         mirrorAll = args.all
+        prefix = args.prefix
 
         # Validate that oc-mirror is available on PATH
         if not shutil.which("oc-mirror"):
@@ -679,6 +680,9 @@ class MirrorApp(BaseApp):
             if mode == "m2d":
                 self.printSummary("Destination", rootDir)
             else:
+                if prefix:
+                    self.printSummary("Prefix", prefix)
+                    targetRegistry = f"{targetRegistry}/{prefix}"
                 self.printSummary("Destination", targetRegistry)
                 self.printSummary("Verify Registry Certificate", destTlsVerify)
             self.printSummary("Mirror Image Timeout", imageTimeout)
@@ -716,9 +720,11 @@ class MirrorApp(BaseApp):
                     "mas_visualinspection_version"
                 ]
                 if catalogKey in perReleaseVersions:
-                    version = catalog[catalogKey][release]
-                else:
-                    version = catalog[catalogKey]
+                    if release in catalog[catalogKey]:
+                        version = catalog[catalogKey][release]
+                    else:
+                        logger.warning(f'skipping mirror for {catalogKey} as there is no release: {release} in catalog: {catalogVersion}')
+                        continue
 
                 # Remove any +buildnum properties from the version in the metadata file
                 try:
