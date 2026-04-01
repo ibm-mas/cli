@@ -404,6 +404,35 @@ function git_lock_branch_name() {
 
 
 
+# Clones the target repo WITHOUT acquiring a lock branch.
+# This is a lightweight version that should be used when you need to check if changes are needed
+# before acquiring the lock. Use this in combination with clone_and_lock_target_git_repo_conditional.
+# Parameters: GITHUB_HOST, GITHUB_ORG, GITHUB_REPO, GIT_BRANCH, LOCAL_DIR, SSH_PATH
+function clone_target_git_repo_for_check() {
+  GITHUB_HOST=$1
+  GITHUB_ORG=$2
+  GITHUB_REPO=$3
+  GIT_BRANCH=$4
+  LOCAL_DIR=$5
+  SSH_PATH=$6
+
+  GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
+
+  echo ""
+  echo "clone_target_git_repo_for_check"
+  echo "================================================="
+  
+  # Remove any existing clone
+  rm -rf "${GITOPS_REPO_DIR}"
+  
+  # Clone the repo
+  clone_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}"
+  
+  echo "clone_target_git_repo_for_check: success"
+  echo "================================================="
+}
+
+
 # Clones the target repo and attempts to create a new branch ($GIT_LOCK_BRANCH) on the remote
 # If this lock branch already exists, this means another process is currently making a change and could lead to a merge conflict.
 # This function retries a limited number of times to reaquire the lock branch, and exits if this does not succeed.
@@ -412,7 +441,7 @@ function git_lock_branch_name() {
 # leave the lock branch in place (which would permanently block any other invokations of this function with the same GIT_LOCK_BRANCH.
 # For consistency, it is recommended to use the git_lock_branch_name function above to generate GIT_LOCK_BRANCH, i.e.
 #   GIT_LOCK_BRANCH=$(git_lock_branch_name "${LOCK_NAME}" ${ACCOUNT_ID} "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
-# In order to commit and push at the end of any script that uses this function, use save_and_unlock_target_git_repo. 
+# In order to commit and push at the end of any script that uses this function, use save_and_unlock_target_git_repo.
 function clone_and_lock_target_git_repo() {
 
   GITHUB_HOST=$1
@@ -424,7 +453,7 @@ function clone_and_lock_target_git_repo() {
   GIT_LOCK_BRANCH=$7
 
   RETRIES=${8:-100}
-  RETRY_DELAY_SECONDS=${8:-20}
+  RETRY_DELAY_SECONDS=${9:-20}
 
   GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
   LOCKFILE_NAME='.lock'
@@ -598,6 +627,114 @@ function git_push_with_retries {
 
     echo ""
     echo "git_push_with_retries: failed (rc: ${rc}), retry in ${RETRY_DELAY_SECONDS}s"
+
+# Optimized version that only acquires lock if changes are needed
+# This function follows a check-then-lock pattern to minimize unnecessary Git pushes:
+# 1. Clone repo WITHOUT lock
+# 2. Generate/apply configs
+# 3. Check if there are actual changes
+# 4. If changes exist: acquire lock, re-clone fresh (to get any updates from other processes), re-apply changes, and push
+# 5. If no changes: skip lock acquisition entirely
+#
+# This significantly reduces unnecessary lock branch pushes when no changes are needed.
+# Note: Step 4 re-clones to ensure we have the latest main branch, as another process may have
+# updated it between steps 1 and 4.
+#
+# Parameters:
+#   GITHUB_HOST, GITHUB_ORG, GITHUB_REPO, GIT_BRANCH, LOCAL_DIR, SSH_PATH, GIT_LOCK_BRANCH
+#   APPLY_CHANGES_CALLBACK - name of a function to call that applies changes to the repo
+#   COMMIT_MSG - commit message to use if changes are pushed
+#   RETURNVARNAME_MODIFIED - (optional) variable name to set to 1 if modified, 0 if not
+#
+# Example usage:
+#   function my_apply_changes() {
+#     local GITOPS_REPO_DIR="$1"
+#     # Apply your changes here
+#     cp my-config.yaml "${GITOPS_REPO_DIR}/path/to/config.yaml"
+#   }
+#
+#   clone_check_and_lock_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" \
+#     "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}" \
+#     "my_apply_changes" "${GIT_COMMIT_MSG}" WAS_MODIFIED
+#
+function clone_check_and_lock_target_git_repo() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local GIT_BRANCH=$4
+  local LOCAL_DIR=$5
+  local SSH_PATH=$6
+  local GIT_LOCK_BRANCH=$7
+  local APPLY_CHANGES_CALLBACK=$8
+  local COMMIT_MSG=$9
+  local RETURNVARNAME_MODIFIED="${10}"
+
+  local GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
+
+  echo ""
+  echo "clone_check_and_lock_target_git_repo"
+  echo "================================================="
+  echo "Optimized locking: checking for changes before acquiring lock"
+
+  # Step 1: Clone repo without lock (for initial check)
+  echo ""
+  echo "Step 1: Cloning repo without lock for change detection"
+  clone_target_git_repo_for_check "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}"
+
+  # Step 2: Apply changes via callback
+  echo ""
+  echo "Step 2: Applying changes via callback function: ${APPLY_CHANGES_CALLBACK}"
+  ${APPLY_CHANGES_CALLBACK} "${GITOPS_REPO_DIR}"
+
+  # Step 3: Check if there are any changes
+  echo ""
+  echo "Step 3: Checking for changes..."
+  if ! has_git_changes "${GITOPS_REPO_DIR}"; then
+    echo ""
+    echo "No changes detected - skipping lock acquisition and push"
+    echo "This avoids unnecessary Git pushes and reduces load on GitHub"
+    echo "================================================="
+    
+    # Clean up the clone
+    rm -rf "${GITOPS_REPO_DIR}"
+    
+    # Set return variable if provided
+    if [[ -n "${RETURNVARNAME_MODIFIED}" ]]; then
+      local -n RETURNVAR_MODIFIED="${RETURNVARNAME_MODIFIED}"
+      RETURNVAR_MODIFIED=0
+    fi
+    
+    return 0
+  fi
+
+  # Step 4: Changes detected - now acquire lock and push
+  echo ""
+  echo "Step 4: Changes detected - acquiring lock to push changes"
+  echo "Note: Will re-clone with lock to ensure we have latest main branch"
+  
+  # Remove the temporary clone from step 1
+  # This is important because another process may have updated main branch between step 1 and now
+  rm -rf "${GITOPS_REPO_DIR}"
+  
+  # Acquire lock and clone fresh (this gets the latest main branch)
+  clone_and_lock_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}" "${GIT_LOCK_BRANCH}"
+  
+  # Re-apply changes on the fresh clone with lock
+  # This ensures our changes are applied on top of the latest main branch
+  echo ""
+  echo "Step 5: Re-applying changes on locked branch (with latest main)"
+  ${APPLY_CHANGES_CALLBACK} "${GITOPS_REPO_DIR}"
+  
+  # Push changes
+  echo ""
+  echo "Step 6: Pushing changes and releasing lock"
+  save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}" "${COMMIT_MSG}" "${GIT_LOCK_BRANCH}" "${RETURNVARNAME_MODIFIED}"
+  
+  echo ""
+  echo "clone_check_and_lock_target_git_repo: success"
+  echo "================================================="
+}
+
     echo "..."
     sleep $RETRY_DELAY_SECONDS
   done
@@ -606,6 +743,26 @@ function git_push_with_retries {
   echo "git_push_with_retries: non-recoverable failure"
   echo "================================================="
   return 1
+}
+
+
+# Check if there are any changes in the working directory that need to be committed
+# Returns 0 if there are changes, 1 if there are no changes
+# Parameters: GITOPS_REPO_DIR
+function has_git_changes() {
+  local GITOPS_REPO_DIR="$1"
+  
+  # Check for any changes (staged, unstaged, or untracked files)
+  local GIT_STATUS=$(git -C "${GITOPS_REPO_DIR}" status --porcelain=v1)
+  
+  if [[ -n "$GIT_STATUS" ]]; then
+    echo "Changes detected in repository:"
+    echo "$GIT_STATUS"
+    return 0
+  else
+    echo "No changes detected in repository"
+    return 1
+  fi
 }
 
 
