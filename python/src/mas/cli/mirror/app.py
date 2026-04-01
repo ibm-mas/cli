@@ -725,6 +725,8 @@ class MirrorApp(BaseApp):
                     else:
                         logger.warning(f'skipping mirror for {catalogKey} as there is no release: {release} in catalog: {catalogVersion}')
                         continue
+                else:
+                    version = catalog[catalogKey]
 
                 # Remove any +buildnum properties from the version in the metadata file
                 try:
