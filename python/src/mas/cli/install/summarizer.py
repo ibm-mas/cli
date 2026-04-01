@@ -374,8 +374,19 @@ class InstallSummarizerMixin():
             self.printSummary("Type", "MongoCE Operator")
             self.printParamSummary("Install Namespace", "mongodb_namespace")
             # Only print Mongo Provider in dev mode
-            if self.getParam("dev_mode"):
-                self.printParamSummary("Mongo Provider", "mongo_provider")
+            dev_mode = self.getParam("dev_mode")
+            mongo_provider = self.getParam("mongo_provider")
+
+            # If dev mode is enabled → allow mongo_provider
+            if dev_mode:
+                if mongo_provider:
+                    self.printParamSummary("Mongo Provider", "mongo_provider")
+            else:
+                # If dev mode is OFF but mongo_provider is given → error
+                if mongo_provider:
+                    self.fatalError(
+                        "mongo_provider should not be set when dev_mode is False"
+                    )
 
         elif self.getParam("mongodb_action") == "byo":
             self.printSummary("Type", "BYO (mongodb-system.yaml)")
