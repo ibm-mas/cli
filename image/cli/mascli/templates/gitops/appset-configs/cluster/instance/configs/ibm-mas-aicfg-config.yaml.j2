@@ -7,6 +7,7 @@ mas_config_kind: "aicfgs"
 mas_config_api_version: "config.mas.ibm.com/v1"
 use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
 
+aiservice_display_name: "AI Service Configuration"
 aiservice_url: {{ AISERVICE_URL }}
 aiservice_tenant_id: {{ AISERVICE_TENANT_ID }}
 aiservice_enabled: {{ AISERVICE_ENABLED }}
@@ -18,9 +19,9 @@ system_suite_aicfg_labels:
     mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
 
 aiservice_credentials:
-  secretName: "{{ MAS_INSTANCE_ID }}-ai-credentials-system"
+  secretName: "{{ MAS_INSTANCE_ID }}-usersupplied-ai-creds-system"
 
 aiservice_certificates:
-  - alias: ai-service-ca
+  - alias: aiservice
     crt: |
       <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_CERTIFICATE }} | base64decode>
