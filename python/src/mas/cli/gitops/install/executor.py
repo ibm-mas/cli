@@ -70,7 +70,9 @@ class GitOpsInstallExecutor():
 
             # Step 1: Execute gitops-deps if needed (optional)
             # Execute individual dependency commands based on what's configured
-            if self.params.get('mongodb_action'):
+            # Execute dependency commands if configured
+            # These parameters contain action values like 'install', 'byo', etc.
+            if self.params.get('mongodb_action') is not None:
                 with Halo(text='Executing gitops-mongo', spinner=self.spinner) as h:
                     if self._executeGitOpsCommand('gitops-mongo', self.params):
                         h.stop_and_persist(symbol=self.success_icon, text="gitops-mongo completed successfully")
@@ -78,7 +80,7 @@ class GitOpsInstallExecutor():
                         h.stop_and_persist(symbol=self.failure_icon, text="gitops-mongo failed")
                         return False
 
-            if self.params.get('kafka_action'):
+            if self.params.get('kafka_action') is not None:
                 with Halo(text='Executing gitops-kafka', spinner=self.spinner) as h:
                     if self._executeGitOpsCommand('gitops-kafka', self.params):
                         h.stop_and_persist(symbol=self.success_icon, text="gitops-kafka completed successfully")
@@ -86,7 +88,7 @@ class GitOpsInstallExecutor():
                         h.stop_and_persist(symbol=self.failure_icon, text="gitops-kafka failed")
                         return False
 
-            if self.params.get('cos_action'):
+            if self.params.get('cos_action') is not None:
                 with Halo(text='Executing gitops-cos', spinner=self.spinner) as h:
                     if self._executeGitOpsCommand('gitops-cos', self.params):
                         h.stop_and_persist(symbol=self.success_icon, text="gitops-cos completed successfully")
@@ -94,7 +96,7 @@ class GitOpsInstallExecutor():
                         h.stop_and_persist(symbol=self.failure_icon, text="gitops-cos failed")
                         return False
 
-            if self.params.get('efs_action'):
+            if self.params.get('efs_action') is not None:
                 with Halo(text='Executing gitops-efs', spinner=self.spinner) as h:
                     if self._executeGitOpsCommand('gitops-efs', self.params):
                         h.stop_and_persist(symbol=self.success_icon, text="gitops-efs completed successfully")
