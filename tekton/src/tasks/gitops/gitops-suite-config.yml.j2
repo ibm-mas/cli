@@ -35,6 +35,25 @@ spec:
     - name: dro_ca_certificate_file
       type: string
       default: ""
+    # AICFG
+    - name: install_aiservice_cfg
+      type: string
+      default: "false"
+    - name: aiservice_url
+      type: string
+      default: ""
+    - name: aiservice_tenant_id
+      type: string
+      default: ""
+    - name: aiservice_enabled
+      type: string
+      default: "true"
+    - name: aiservice_ssl_enabled
+      type: string
+      default: "true"
+    - name: aiservice_meta_agent_enabled
+      type: string
+      default: "false"
     - name: cluster_url
       type: string
       default: ""
@@ -85,6 +104,19 @@ spec:
         value: $(params.dro_contact_lastname)
       - name: DRO_CA_CERTIFICATE_FILE
         value: $(params.dro_ca_certificate_file)
+      # AICFG
+      - name: INSTALL_AISERVICE_CFG
+        value: $(params.install_aiservice_cfg)
+      - name: AISERVICE_URL
+        value: $(params.aiservice_url)
+      - name: AISERVICE_TENANT_ID
+        value: $(params.aiservice_tenant_id)
+      - name: AISERVICE_ENABLED
+        value: $(params.aiservice_enabled)
+      - name: AISERVICE_SSL_ENABLED
+        value: $(params.aiservice_ssl_enabled)
+      - name: AISERVICE_META_AGENT_ENABLED
+        value: $(params.aiservice_meta_agent_enabled)
       - name: MAS_SLSCFG_POD_TEMPLATE_YAML
         value: $(params.mas_slscfg_pod_template_yaml)
       - name: MAS_BASCFG_POD_TEMPLATE_YAML
@@ -164,6 +196,33 @@ spec:
         --dro-ca-certificate-file "$DRO_CA_CERTIFICATE_FILE" \
         --mas-segment-key "$MAS_SEGMENT_KEY" \
         || exit 1
+
+        if [[ "$INSTALL_AISERVICE_CFG" == "true" ]]; then
+          echo "AI Service configuration enabled, creating AiCfg..."
+          mkdir -p /tmp/init-mas-config-aicfg
+          mas gitops-mas-config \
+          --account-id "$ACCOUNT_ID" \
+          --cluster-id "$CLUSTER_ID" \
+          --mas-instance-id "$MAS_INSTANCE_ID" \
+          --secrets-path "$SECRETS_PATH" \
+          --github-push \
+          --github-host "$GITHUB_HOST" \
+          --github-org "$GITHUB_ORG" \
+          --github-repo "$GITHUB_REPO" \
+          --git-branch "$GIT_BRANCH" \
+          --config-action upsert \
+          --mas-config-scope system \
+          --mas-config-type aicfg \
+          --dir /tmp/init-mas-config-aicfg \
+          --aiservice-url "$AISERVICE_URL" \
+          --aiservice-tenant-id "$AISERVICE_TENANT_ID" \
+          --aiservice-enabled "$AISERVICE_ENABLED" \
+          --aiservice-ssl-enabled "$AISERVICE_SSL_ENABLED" \
+          --aiservice-meta-agent-enabled "$AISERVICE_META_AGENT_ENABLED" \
+          || exit 1
+        else
+          echo "AI Service not configured, skipping AiCfg creation"
+        fi
 
         
       command:

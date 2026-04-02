@@ -64,7 +64,6 @@ spec:
           ansible-playbook ibm.mas_saas.generate_saas_license_file || exit 1
           mas gitops-license \
             -a ${ACCOUNT} \
-            -i ${ICN} \
             -s ${SAAS_SUB_ID} \
             -c ${CLUSTER_NAME} \
             --license-file /tmp/authorized_entitlement_saas.lic
@@ -74,7 +73,6 @@ spec:
           mas gitops-license \
             -a ${ACCOUNT} \
             -c ${CLUSTER_NAME} \
-            -i ${ICN} \
             -m ${MAS_INSTANCE_ID} \
             --license-file /tmp/authorized_entitlement_saas.lic
           exit $?

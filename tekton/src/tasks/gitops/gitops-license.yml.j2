@@ -44,7 +44,7 @@ spec:
       - |-
 
         if [[ -z "${MAS_INSTANCE_ID}" ]]; then
-          mas gitops-license -a $ACCOUNT -i $ICN -s $SAAS_SUB_ID \
+          mas gitops-license -a $ACCOUNT -s $SAAS_SUB_ID \
           --license-file /workspace/shared-entitlement/entitlement.lic
           exit $?
         else
