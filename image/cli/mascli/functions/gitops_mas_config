@@ -1039,15 +1039,6 @@ function gitops_mas_config() {
       echo "AISERVICE_ENABLED: ${AISERVICE_ENABLED}"
       echo "AISERVICE_SSL_ENABLED: ${AISERVICE_SSL_ENABLED}"
       echo "AISERVICE_META_AGENT_ENABLED: ${AISERVICE_META_AGENT_ENABLED}"
-      
-      # Regenerate the Suite CR with AI Service configuration
-      SUITE_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml"
-      if [ -f "${SUITE_FILE}" ]; then
-        echo "Regenerating Suite CR with AI Service configuration..."
-        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 ${SUITE_FILE}
-      else
-        echo "Warning: Suite CR file not found at ${SUITE_FILE}"
-      fi
     else
       # Standard config handling for other config types
       # If the file doesn't exist, create a blank one
@@ -1109,22 +1100,11 @@ function gitops_mas_config() {
 
   fi
 
-  # For aicfg, show the Suite CR instead of configs file
-  if [ "${MAS_CONFIG_TYPE}" == "aicfg" ]; then
-    SUITE_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml"
-    echo_h2 "Updated Suite CR with AI Service configuration (${SUITE_FILE})"
-    if [ -f ${SUITE_FILE} ]; then
-      cat $SUITE_FILE
-    else
-      echo "<Suite CR file not found>"
-    fi
+  echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+  if [ -f ${CONFIGS_FILE} ]; then
+    cat $CONFIGS_FILE
   else
-    echo_h2 "Updated configuration file (${CONFIGS_FILE})"
-    if [ -f ${CONFIGS_FILE} ]; then
-      cat $CONFIGS_FILE
-    else
-      echo "<file was deleted>"
-    fi
+    echo "<file was deleted>"
   fi
 
   # Commit and push to github target repo
