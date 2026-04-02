@@ -1719,7 +1719,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam(key, value)
                     self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
 
-            elif key == "mongo_provider":
+            elif key == "mongodb_provider":
                 if value:
                     if self.devMode:
                         self.setParam(key, value)
