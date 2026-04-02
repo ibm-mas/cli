@@ -3,11 +3,7 @@ apiVersion: v1
 kind: Secret
 type: Opaque
 metadata:
-{%- if scope == "system" %}
   name: "{{ mas_instance_id }}-usersupplied-ai-creds-system"
-{%- elif scope == "workspace" %}
-  name: "{{ mas_instance_id }}-usersupplied-ai-creds-{{ mas_workspace_id }}"
-{%- endif %}
   namespace: "mas-{{ mas_instance_id }}-core"
 stringData:
   api_key: "{{ ai_apikey }}"
@@ -15,34 +11,21 @@ stringData:
 apiVersion: config.mas.ibm.com/v1
 kind: AiCfg
 metadata:
-{%- if scope == "system" %}
   name: "{{ mas_instance_id }}-ai-system"
-{%- elif scope == "workspace" %}
-  name: "{{ mas_instance_id }}-ai-{{ mas_workspace_id }}"
-{%- endif %}
   namespace: "mas-{{ mas_instance_id }}-core"
   labels:
-    mas.ibm.com/configScope: {{ scope }}
+    mas.ibm.com/configScope: system
     mas.ibm.com/instanceId: {{ mas_instance_id }}
-{%- if scope == "system" %}
     mas.ibm.com/configId: ai-system
-{%- elif scope == "workspace" %}
-    mas.ibm.com/configId: ai-{{ mas_workspace_id }}
-    mas.ibm.com/workspaceId: {{ mas_workspace_id }}
-{%- endif %}
 spec:
   displayName: "{{ cfg_display_name }}"
-  aiService:
+  config:
     enabled: {{ ai_enabled | lower }}
     url: "{{ ai_url }}"
     tenantId: "{{ ai_tenant_id }}"
     sslEnabled: {{ ai_ssl_enabled | lower }}
     credentials:
-{%- if scope == "system" %}
       secretName: "{{ mas_instance_id }}-usersupplied-ai-creds-system"
-{%- elif scope == "workspace" %}
-      secretName: "{{ mas_instance_id }}-usersupplied-ai-creds-{{ mas_workspace_id }}"
-{%- endif %}
   metaAgent:
     enabled: {{ meta_agent_enabled | lower }}
 {%- if ai_ssl_enabled == True %}
