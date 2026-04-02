@@ -80,14 +80,14 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
     
-    - name: aiservice-ds-migration
+    - name: aiservice-rhoai-install
       when:
         - input: "$(params.odh_to_rhoai_migration)"
           operator: in
           values: ["true"]
       command:
         - /opt/app-root/src/run-role.sh
-        - aiservice_ds_migration
+        - aiservice_rhoai
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
