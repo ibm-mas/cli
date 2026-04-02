@@ -103,4 +103,6 @@ optionalParams = [
 
     # Certificate Issuer
     "aiservice_certificate_issuer",
+    "aiservice_install_plan_approval",
 ]
+
