@@ -62,7 +62,7 @@ class installArgBuilderMixin():
         command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
 
         if self.getParam('mas_special_characters') == "true":
-            command += f" --allow-special-chars \"{newline}"
+            command += f" --allow-special-chars {newline}"
 
         # ECK Integration
         # -----------------------------------------------------------------------------
