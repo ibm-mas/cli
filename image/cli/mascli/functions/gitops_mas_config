@@ -1030,36 +1030,25 @@ function gitops_mas_config() {
     echo
     echo_h2 "Updating configuration file"
 
-    # Special handling for aicfg - update Suite CR instead of creating separate config
-    if [ "${MAS_CONFIG_TYPE}" == "aicfg" ]; then
-      echo "AI Service configuration will be added to Suite CR (ibm-mas-suite.yaml)"
-      # The AISERVICE_* variables are already exported and will be used by the Suite template
-      echo "AISERVICE_URL: ${AISERVICE_URL}"
-      echo "AISERVICE_TENANT_ID: ${AISERVICE_TENANT_ID}"
-      echo "AISERVICE_ENABLED: ${AISERVICE_ENABLED}"
-      echo "AISERVICE_SSL_ENABLED: ${AISERVICE_SSL_ENABLED}"
-      echo "AISERVICE_META_AGENT_ENABLED: ${AISERVICE_META_AGENT_ENABLED}"
-    else
-      # Standard config handling for other config types
-      # If the file doesn't exist, create a blank one
-      if ! [ -f ${CONFIGS_FILE} ]; then
-        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-config-common.yaml.j2 $CONFIGS_FILE
-      fi
-
-      # Remove any existing config with this name
-      yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
-
-      # Render the appropriate template for the config into a new file
-      jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 $ADDITIONAL_JINJA_PARAMS_FILE | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
-
-      # Merge the two files
-      yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
-
-      # sort the configs by mas_config_name.
-      # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
-      # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed if we need to for configs in future
-      yq -i '.ibm_mas_suite_configs |= sort_by(.mas_config_name)' $CONFIGS_FILE
+    # Standard config handling for all config types including aicfg
+    # If the file doesn't exist, create a blank one
+    if ! [ -f ${CONFIGS_FILE} ]; then
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-config-common.yaml.j2 $CONFIGS_FILE
     fi
+
+    # Remove any existing config with this name
+    yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+
+    # Render the appropriate template for the config into a new file
+    jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 $ADDITIONAL_JINJA_PARAMS_FILE | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+
+    # Merge the two files
+    yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+
+    # sort the configs by mas_config_name.
+    # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
+    # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed if we need to for configs in future
+    yq -i '.ibm_mas_suite_configs |= sort_by(.mas_config_name)' $CONFIGS_FILE
 
   fi # [ "${CONFIG_ACTION}" == "upsert" ]
 
