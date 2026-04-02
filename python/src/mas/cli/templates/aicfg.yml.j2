@@ -6,7 +6,7 @@ metadata:
   name: "{{ mas_instance_id }}-usersupplied-ai-creds-system"
   namespace: "mas-{{ mas_instance_id }}-core"
 stringData:
-  api_key: "{{ ai_apikey }}"
+  api_key: "{{ ai_apikey }}"  # pragma: allowlist secret
 ---
 apiVersion: config.mas.ibm.com/v1
 kind: AiCfg
