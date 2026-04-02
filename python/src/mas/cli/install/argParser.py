@@ -431,7 +431,7 @@ mongoArgGroup.add_argument(
 )
 
 mongoArgGroup.add_argument(
-    "--mongo-provider",
+    "--mongodb-provider",
     required=False,
     choices=["community", "mck", "rotate"],
     help="Mongo provider to use (community or mck or rotate). Only valid with --dev-mode",
