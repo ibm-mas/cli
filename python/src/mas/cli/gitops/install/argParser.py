@@ -88,6 +88,14 @@ For more information, see: https://ibm-mas.github.io/cli/
             if long_option not in unique_args:
                 unique_args[long_option] = arg
 
+        # Add orchestration arguments (for controlling dependency installation steps)
+        orchestration_args = self.extractor.get_orchestration_arguments()
+
+        # Merge orchestration arguments, avoiding duplicates by long_option
+        for long_option, arg in orchestration_args.items():
+            if long_option not in unique_args:
+                unique_args[long_option] = arg
+
         logger.info(f"Total unique arguments available for gitops-install: {len(unique_args)}")
 
         # Debug: Log all unique arguments

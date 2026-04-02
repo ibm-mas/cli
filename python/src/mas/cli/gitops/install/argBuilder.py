@@ -410,3 +410,62 @@ class BashFunctionArgumentExtractor:
 
         logger.info(f"Generated {len(per_app_args)} per-app arguments")
         return per_app_args
+
+    def get_orchestration_arguments(self) -> Dict[str, Argument]:
+        """
+        Generate orchestration arguments for GitOps install command.
+
+        These arguments control which dependency installation steps to execute
+        and are not part of the underlying bash functions.
+
+        Returns:
+            Dictionary mapping long_option to Argument object for orchestration parameters
+        """
+        orchestration_args: Dict[str, Argument] = {}
+
+        # MongoDB action parameter
+        orchestration_args['--mongodb-action'] = Argument(
+            short_option=None,
+            long_option='--mongodb-action',
+            env_var='MONGODB_ACTION',
+            description='MongoDB installation action (install or byo)',
+            required=False,
+            function_name='gitops_install',
+            is_flag=False
+        )
+
+        # Kafka action parameter
+        orchestration_args['--kafka-action'] = Argument(
+            short_option=None,
+            long_option='--kafka-action',
+            env_var='KAFKA_ACTION',
+            description='Kafka installation action (install)',
+            required=False,
+            function_name='gitops_install',
+            is_flag=False
+        )
+
+        # COS action parameter
+        orchestration_args['--cos-action'] = Argument(
+            short_option=None,
+            long_option='--cos-action',
+            env_var='COS_ACTION',
+            description='COS installation action (provision)',
+            required=False,
+            function_name='gitops_install',
+            is_flag=False
+        )
+
+        # EFS action parameter
+        orchestration_args['--efs-action'] = Argument(
+            short_option=None,
+            long_option='--efs-action',
+            env_var='EFS_ACTION',
+            description='EFS installation action (install)',
+            required=False,
+            function_name='gitops_install',
+            is_flag=False
+        )
+
+        logger.info(f"Generated {len(orchestration_args)} orchestration arguments")
+        return orchestration_args
