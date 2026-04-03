@@ -48,7 +48,9 @@ def test_install_interactive_no_catalog(tmpdir):
         '.*Workspace.*name.*': lambda msg: 'Test Workspace',
         # 10. Operational mode
         '.*Operational Mode.*': lambda msg: '1',
-        # 11. Application selection
+        # 11. Permission mode
+        '.*Permission Mode.*': lambda msg: '1',
+        # 12. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Install Monitor.*': lambda msg: 'n',
         '.*Install Manage.*': lambda msg: 'y',
@@ -60,18 +62,18 @@ def test_install_interactive_no_catalog(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
-        # 12a. Grafana configuration
+        # 13. Grafana configuration
         '.*Install Grafana.*': lambda msg: 'y',
-        # 12. MongoDB configuration
+        # 14. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
-        # 13. Db2 configuration
+        # 15. Db2 configuration
         '.*Create system Db2 instance.*': lambda msg: 'y',
         '.*Re-use System Db2 instance for Manage application.*': lambda msg: 'n',
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
-        # 14. Kafka configuration
+        # 16. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
-        # 15. Final confirmation
+        # 17. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }

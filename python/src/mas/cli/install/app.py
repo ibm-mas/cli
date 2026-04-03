@@ -636,7 +636,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printDescription([
             "Choose the permission mode for your MAS installation:",
             "",
-            "  1. <b>cluster</b> - Install with ClusterRoles (default, full functionality)",
+            "  1. <b>cluster</b> - Install with ClusterRoles (default)",
             "     - ClusterRoles installed by OCP admin",
             "     - Full application lifecycle management capability",
             "",

@@ -82,7 +82,9 @@ def test_install_master_dev_mode(tmpdir):
         '.*Workspace.*name.*': lambda msg: 'Test Workspace',
         # 9. Operational mode
         '.*Operational Mode.*': lambda msg: '1',
-        # 10. Application selection
+        # 10. Permission mode
+        '.*Permission Mode.*': lambda msg: '1',
+        # 11. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Custom channel for iot.*': lambda msg: '9.1.x-dev',
         '.*Install Monitor.*': lambda msg: 'y',
@@ -97,18 +99,18 @@ def test_install_master_dev_mode(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
-        # 10a. Grafana configuration
+        # 12. Grafana configuration
         '.*Install Grafana.*': lambda msg: 'y',
-        # 11. MongoDB configuration
+        # 13. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
-        # 12. Db2 configuration
+        # 14. Db2 configuration
         '.*Create system Db2 instance.*': lambda msg: 'y',
         '.*Re-use System Db2 instance for Manage application.*': lambda msg: 'n',
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
-        # 13. Kafka configuration
+        # 15. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
-        # 14. Final confirmation
+        # 16. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }
@@ -163,7 +165,9 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         '.*Workspace.*name.*': lambda msg: 'Test Workspace',
         # 9. Operational mode
         '.*Operational Mode.*': lambda msg: '1',
-        # 10. Application selection
+        # 10. Permission mode
+        '.*Permission Mode.*': lambda msg: '1',
+        # 11. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Custom channel for iot.*': lambda msg: '9.1.x-dev',
         '.*Install Monitor.*': lambda msg: 'y',
@@ -178,18 +182,18 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
-        # 10a. Grafana configuration
+        # 12. Grafana configuration
         '.*Install Grafana.*': lambda msg: 'y',
-        # 11. MongoDB configuration
+        # 13. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
-        # 12. Db2 configuration
+        # 14. Db2 configuration
         '.*Create system Db2 instance.*': lambda msg: 'y',
         '.*Re-use System Db2 instance for Manage application.*': lambda msg: 'n',
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
-        # 13. Kafka configuration
+        # 15. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
-        # 14. Final confirmation
+        # 16. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }
@@ -269,7 +273,9 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Workspace.*name.*': lambda msg: 'Test Workspace',
         # 10. Operational mode
         '.*Operational Mode.*': lambda msg: '1',
-        # 11. Certificate Authority Trust
+        # 11. Permission mode
+        '.*Permission Mode.*': lambda msg: '1',
+        # 12. Certificate Authority Trust
         '.*Trust default CAs.*': lambda msg: 'y',
         # 12. Cluster ingress certificate secret name
         '.*Cluster ingress certificate secret name.*': lambda msg: '',  # Leave empty for auto-detection
@@ -308,12 +314,12 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
-        # 20a. Grafana configuration (appears when advanced options are enabled)
+        # 22. Grafana configuration (appears when advanced options are enabled)
         '.*Install Grafana.*': lambda msg: 'y',
-        # 21. MongoDB configuration
+        # 23. MongoDB configuration
         '.*MongoDb namespace.*': lambda msg: 'mongoce',  # Use default MongoDB namespace
         '.*Create MongoDb cluster.*': lambda msg: 'y',
-        # 22. Db2 configuration
+        # 24. Db2 configuration
         '.*Create system Db2 instance.*': lambda msg: 'y',
         '.*Re-use System Db2 instance for Manage application.*': lambda msg: 'n',
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
@@ -327,10 +333,10 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Select Kafka provider.*': lambda msg: '1',  # Select default Kafka provider
         '.*Strimzi namespace.*': lambda msg: 'strimzi',  # Strimzi namespace
         '.*Use pod templates.*': lambda msg: 'n',  # Skip pod templates
-        # 23. Kafka configuration
+        # 25. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
-        # 24. Final confirmation
+        # 26. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }
