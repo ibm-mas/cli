@@ -179,6 +179,6 @@ class AiServiceUpgradeApp(BaseApp):
                     h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
                     return False
 
-            except (ResourceNotFoundError, NotFoundError):
+            except ResourceNotFoundError:
                 h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
                 return False
