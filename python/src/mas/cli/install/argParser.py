@@ -260,6 +260,15 @@ masAdvancedArgGroup.add_argument(
     const="true"
 )
 
+masAdvancedArgGroup.add_argument(
+    "--permission-mode",
+    dest="mas_permission_mode",
+    required=False,
+    help="Permission mode for MAS installation: 'cluster' (with ClusterRoles, default), 'nonEssential' (without ClusterRoles, limited to pre-created namespaces), 'essential' (essential roles only, no app lifecycle management)",
+    choices=["cluster", "nonEssential", "essential"],
+    default="cluster"
+)
+
 # DNS Integration - IBM CIS
 # -----------------------------------------------------------------------------
 cisArgGroup = installArgParser.add_argument_group("DNS Integration - CIS")

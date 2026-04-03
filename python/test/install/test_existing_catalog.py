@@ -48,7 +48,9 @@ def test_install_interactive_existing_catalog(tmpdir):
         '.*Workspace.*name.*': lambda msg: 'Test Workspace',
         # 10. Operational mode
         '.*Operational Mode.*': lambda msg: '1',
-        # 11. Application selection
+        # 11. Permission mode
+        '.*Permission Mode.*': lambda msg: '1',
+        # 12. Application selection
         # Note: With version-based dependencies, Monitor can be installed standalone
         '.*Install IoT.*': lambda msg: 'n',
         '.*Install Monitor.*': lambda msg: 'n',
@@ -60,13 +62,13 @@ def test_install_interactive_existing_catalog(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
-        # 11a. Grafana configuration
+        # 13. Grafana configuration
         '.*Install Grafana.*': lambda msg: 'y',
-        # 12. MongoDB configuration
+        # 14. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
-        # 13. Db2 configuration
+        # 15. Db2 configuration
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
-        # 15. Final confirmation
+        # 16. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }

@@ -90,6 +90,10 @@ spec:
       type: string
       description: Flag to control metrics used to understand progression of tasks and workflows within the product
       default: "True"
+    - name: mas_permission_mode
+      type: string
+      description: Permission mode for MAS installation (cluster, nonEssential, essential)
+      default: ""
 
     - name: ibm_entitlement_key
       type: string
@@ -206,6 +210,8 @@ spec:
         value: $(params.mas_usability_metrics)
       - name: MAS_DEPLOYMENT_PROGRESSION
         value: $(params.mas_deployment_progression)
+      - name: MAS_PERMISSION_MODE
+        value: $(params.mas_permission_mode)
 
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)

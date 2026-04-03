@@ -630,6 +630,31 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
             self.setParam("rhoai", "false")
 
+    @logMethodCall
+    def configPermissionMode(self):
+        self.printH1("Configure Permission Mode")
+        self.printDescription([
+            "Choose the permission mode for your MAS installation:",
+            "",
+            "  1. <b>cluster</b> - Install with ClusterRoles (default)",
+            "     - ClusterRoles installed by OCP admin",
+            "     - Full application lifecycle management capability",
+            "",
+            "  2. <b>nonEssential</b> - Install without ClusterRoles",
+            "     - Namespace-scoped Roles only",
+            "     - Application lifecycle management limited to pre-created namespaces",
+            "     - Requires pre-creation of application namespaces",
+            "",
+            "  3. <b>essential</b> - Install with essential Roles only",
+            "     - Minimal permissions",
+            "     - No application lifecycle management via MAS Admin UI",
+            "     - OCP admin must manage application lifecycle"
+        ])
+
+        permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
+        permissionModeMap = {1: "cluster", 2: "nonEssential", 3: "essential"}
+        self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
+
     def _getMasDomainForDisplay(self):
         masDomain = self.getParam("mas_domain")
         if not masDomain:
@@ -1517,6 +1542,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # MAS Core
         self.configCertManager()
         self.configMAS()
+        self.configPermissionMode()
 
         # MAS Applications
         self.configApps()
