@@ -650,7 +650,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "     - No application lifecycle management via MAS Admin UI",
             "     - OCP admin must manage application lifecycle"
         ])
-        
+
         permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
         permissionModeMap = {1: "cluster", 2: "nonEssential", 3: "essential"}
         self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
