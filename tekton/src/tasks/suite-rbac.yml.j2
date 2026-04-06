@@ -1,0 +1,49 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-rbac
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: mas_instance_id
+      type: string
+      description: MAS instance ID
+    - name: mas_permission_mode
+      type: string
+      description: Permission mode for MAS installation (cluster, nonEssential, essential)
+      default: "cluster"
+    - name: mas_catalog_version
+      type: string
+      description: Catalog version for RBAC files
+      default: ""
+    - name: mas_channel
+      type: string
+      description: MAS channel version
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_PERMISSION_MODE
+        value: $(params.mas_permission_mode)
+      - name: MAS_CATALOG_VERSION
+        value: $(params.mas_catalog_version)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+
+  steps:
+    - name: apply-rbac
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_rbac
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs

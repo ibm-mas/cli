@@ -238,19 +238,30 @@ spec:
           operator: notin
           values: [""]
 
-    # 5.4 Suite Installation
+    # 5.4 Apply RBAC based on permission mode
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-rbac.yml.j2') | indent(4) }}
+      runAfter:
+        - cert-manager
+        - ibm-catalogs
+      when:
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
+
+    # 5.5 Suite Installation
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-install.yml.j2') | indent(4) }}
       runAfter:
         - sls
         - dro
         - gencfg-workspace
         - suite-certs
+        - suite-rbac
       when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
 
-    # 5.5 Suite Configuration
+    # 5.6 Suite Configuration
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
@@ -259,7 +270,7 @@ spec:
           operator: notin
           values: [""]
 
-    # 5.6 Suite Verification
+    # 5.7 Suite Verification
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2') | indent(4) }}
       runAfter:
         - suite-config
@@ -268,13 +279,13 @@ spec:
           operator: notin
           values: [""]
 
-    # 5.7 Configure Db2 in MAS
+    # 5.8 Configure Db2 in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
         - suite-db2-setup-facilities
 
-    # 5.8 Configure Kafka in MAS
+    # 5.9 Configure Kafka in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
