@@ -85,7 +85,11 @@ class KafkaSettingsMixin():
         civilEnabled = self.installManage and ("civil=" in components and
                                                 (",civil=" in components or components.startswith("civil=")))
 
-        if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT) or civilEnabled:
+        # Set kafka_required flag for Tekton pipeline to determine if Kafka installation is needed
+        kafkaRequired = (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT) or civilEnabled
+        self.setParam("kafka_required", "true" if kafkaRequired else "false")
+
+        if kafkaRequired:
             # Determine which app name to display
             if useNewDependency and self.installMonitor:
                 appName = "Monitor"

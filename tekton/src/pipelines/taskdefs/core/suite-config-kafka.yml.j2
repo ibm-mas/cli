@@ -10,11 +10,11 @@
   taskRef:
     kind: Task
     name: mas-devops-suite-config
-  # Only load the KafkaCfg if IoT or Manage is being installed
+  # Only load the KafkaCfg if Kafka is required (IoT, Monitor >= 9.2.0, or Civil component enabled)
   when:
-    - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
+    - input: "$(params.kafka_required)"
+      operator: in
+      values: ["true"]
   workspaces:
     - name: configs
       workspace: shared-configs
