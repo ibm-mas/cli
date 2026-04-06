@@ -1,0 +1,26 @@
+mas_config_name: "{{ MAS_CONFIG_NAME }}"
+mas_config_chart: ibm-mas-aicfg-config
+mas_config_scope: {{ MAS_CONFIG_SCOPE }}
+mas_workspace_id: {{ MAS_WORKSPACE_ID }}
+mas_application_id: {{ MAS_APP_ID }}
+mas_config_kind: "aicfgs"
+mas_config_api_version: "config.mas.ibm.com/v1"
+use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
+
+aiservice_display_name: "AI Service Configuration"
+aiservice_url: {{ AISERVICE_URL }}
+aiservice_tenant_id: {{ AISERVICE_TENANT_ID }}
+aiservice_enabled: {{ AISERVICE_ENABLED }}
+aiservice_ssl_enabled: {{ AISERVICE_SSL_ENABLED }}
+aiservice_meta_agent_enabled: {{ AISERVICE_META_AGENT_ENABLED }}
+
+system_suite_aicfg_labels:
+    mas.ibm.com/configScope: system
+    mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
+
+aiservice_api_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_API_KEY }}>  # pragma: allowlist secret
+
+aiservice_certificates:
+  - alias: aiservice
+    crt: |
+      <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_CERTIFICATE }} | base64decode>

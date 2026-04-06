@@ -75,6 +75,26 @@ spec:
       type: string
       default: ""
 
+    # AICFG
+    - name: install_aiservice_cfg
+      type: string
+      default: "false"
+    - name: aiservice_url
+      type: string
+      default: ""
+    - name: aiservice_tenant_id
+      type: string
+      default: ""
+    - name: aiservice_enabled
+      type: string
+      default: "true"
+    - name: aiservice_ssl_enabled
+      type: string
+      default: "true"
+    - name: aiservice_meta_agent_enabled
+      type: string
+      default: "false"
+
     - name: smtp_host
       type: string
     - name: smtp_port
@@ -549,6 +569,19 @@ spec:
           value: $(params.dro_contact_lastname)
         - name: dro_ca_certificate_file
           value: $(params.dro_ca_certificate_file)
+        # AICFG
+        - name: install_aiservice_cfg
+          value: $(params.install_aiservice_cfg)
+        - name: aiservice_url
+          value: $(params.aiservice_url)
+        - name: aiservice_tenant_id
+          value: $(params.aiservice_tenant_id)
+        - name: aiservice_enabled
+          value: $(params.aiservice_enabled)
+        - name: aiservice_ssl_enabled
+          value: $(params.aiservice_ssl_enabled)
+        - name: aiservice_meta_agent_enabled
+          value: $(params.aiservice_meta_agent_enabled)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: mas_bascfg_pod_template_yaml
