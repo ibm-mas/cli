@@ -83,10 +83,12 @@ class KafkaSettingsMixin():
         # Handle both ",civil=" and "civil=" at start of string
         components = self.getParam("mas_appws_components")
         civilEnabled = self.installManage and ("civil=" in components and
-                                                (",civil=" in components or components.startswith("civil=")))
+                                               (",civil=" in components or components.startswith("civil=")))
 
         # Set kafka_required flag for Tekton pipeline to determine if Kafka installation is needed
-        kafkaRequired = (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT) or civilEnabled
+        kafkaRequired = ((useNewDependency and self.installMonitor) or
+                         (not useNewDependency and self.installIoT) or
+                         civilEnabled)
         self.setParam("kafka_required", "true" if kafkaRequired else "false")
 
         if kafkaRequired:
@@ -97,7 +99,7 @@ class KafkaSettingsMixin():
                 appName = "Manage Civil Infrastructure"
             else:
                 appName = "IoT"
-            
+
             self.printH1("Configure Kafka")
             self.printDescription([
                 f"Maximo {appName} requires a shared system-scope Kafka instance",
