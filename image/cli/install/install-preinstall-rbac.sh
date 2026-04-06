@@ -31,13 +31,16 @@ RBAC_DEST="/opt/app-root/rbac/operators"
 # Create destination directory
 mkdir -p "$RBAC_DEST"
 
-# Check if pre-install directory already exists (local development)
-if [ -d "/tmp/install/pre-install/maximo-operator-catalog/operators" ]; then
-  echo "Using local pre-install directory"
+# If the local tar.gz file is present, extract and use it
+# Otherwise, clone from GitHub
+if [[ -e /tmp/install/pre-install.tar.gz ]]; then
+  echo "Installing local build of pre-install from archive"
+  cd /tmp/install
+  tar -xzf pre-install.tar.gz
   PREINSTALL_SOURCE="/tmp/install/pre-install/maximo-operator-catalog"
 else
   # Clone pre-install repository
-  echo "Cloning pre-install repository..."
+  echo "Cloning pre-install repository from GitHub..."
   
   # Determine which branch/tag to use
   if [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
@@ -68,115 +71,32 @@ if [ ! -d "$OPERATORS_SOURCE" ]; then
   exit 1
 fi
 
-echo ""
-echo "Copying RBAC for all MAS versions..."
-echo "Source: $OPERATORS_SOURCE"
-echo ""
+echo "Copying RBAC files from $OPERATORS_SOURCE to $RBAC_DEST"
 
-# Track what we copied
-VERSION_COUNT=0
-OPERATOR_COUNT=0
-TOTAL_FILES=0
+VERSIONS_COPIED=()
 
-# Copy RBAC for all MAS versions
+# Copy all versioned RBAC files
 for VERSION_DIR in "$OPERATORS_SOURCE"/*/; do
   if [ -d "$VERSION_DIR" ]; then
     VERSION_NAME=$(basename "$VERSION_DIR")
     
-    # Skip non-version directories (like README.md parent dir)
+    # Skip non-version directories (only process directories like 9.2, 9.3, etc.)
     if [[ ! "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+$ ]]; then
       continue
     fi
     
-    echo "=== MAS Version: $VERSION_NAME ==="
-    VERSION_OPERATOR_COUNT=0
+    VERSIONS_COPIED+=("$VERSION_NAME")
     
     # Process each operator in this version
     for OPERATOR_DIR in "$VERSION_DIR"/*/; do
-      if [ -d "$OPERATOR_DIR" ]; then
+      if [ -d "$OPERATOR_DIR" ] && [ -d "$OPERATOR_DIR/rbac" ]; then
         OPERATOR_NAME=$(basename "$OPERATOR_DIR")
-        
-        # Skip non-operator directories
-        if [ "$OPERATOR_NAME" == "ibm-operator-catalog" ]; then
-          continue
-        fi
-        
-        # Check if operator has RBAC directory
-        if [ -d "$OPERATOR_DIR/rbac" ]; then
-          echo "  ✓ $OPERATOR_NAME"
-          
-          # Destination: /opt/app-root/rbac/operators/<version>/<operator>/rbac/
-          DEST_PATH="$RBAC_DEST/$VERSION_NAME/$OPERATOR_NAME/rbac"
-          mkdir -p "$DEST_PATH"
-          
-          # Copy clusterroles if they exist
-          if [ -d "$OPERATOR_DIR/rbac/clusterroles" ]; then
-            cp -r "$OPERATOR_DIR/rbac/clusterroles" "$DEST_PATH/"
-            CR_COUNT=$(find "$DEST_PATH/clusterroles" -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | wc -l | tr -d ' ')
-            if [ "$CR_COUNT" -gt 0 ]; then
-              echo "    - ClusterRoles: $CR_COUNT"
-              TOTAL_FILES=$((TOTAL_FILES + CR_COUNT))
-            fi
-          fi
-          
-          # Copy roles if they exist
-          if [ -d "$OPERATOR_DIR/rbac/roles" ]; then
-            cp -r "$OPERATOR_DIR/rbac/roles" "$DEST_PATH/"
-            
-            # Count essential roles
-            if [ -d "$DEST_PATH/roles/essential" ]; then
-              ESS_COUNT=$(find "$DEST_PATH/roles/essential" -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | wc -l | tr -d ' ')
-              if [ "$ESS_COUNT" -gt 0 ]; then
-                echo "    - Essential: $ESS_COUNT"
-                TOTAL_FILES=$((TOTAL_FILES + ESS_COUNT))
-              fi
-            fi
-            
-            # Count non-essential roles
-            if [ -d "$DEST_PATH/roles/non-essential" ]; then
-              NON_ESS_COUNT=$(find "$DEST_PATH/roles/non-essential" -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | wc -l | tr -d ' ')
-              if [ "$NON_ESS_COUNT" -gt 0 ]; then
-                echo "    - Non-Essential: $NON_ESS_COUNT"
-                TOTAL_FILES=$((TOTAL_FILES + NON_ESS_COUNT))
-              fi
-            fi
-          fi
-          
-          VERSION_OPERATOR_COUNT=$((VERSION_OPERATOR_COUNT + 1))
-          OPERATOR_COUNT=$((OPERATOR_COUNT + 1))
-        fi
+        DEST_PATH="$RBAC_DEST/$VERSION_NAME/$OPERATOR_NAME/rbac"
+        mkdir -p "$DEST_PATH"
+        cp -r "$OPERATOR_DIR/rbac"/* "$DEST_PATH/"
       fi
     done
-    
-    if [ $VERSION_OPERATOR_COUNT -gt 0 ]; then
-      echo "  Total operators in $VERSION_NAME: $VERSION_OPERATOR_COUNT"
-      VERSION_COUNT=$((VERSION_COUNT + 1))
-    fi
-    echo ""
   fi
 done
 
-# Summary
-if [ $VERSION_COUNT -eq 0 ]; then
-  echo "WARNING: No versioned RBAC found"
-  echo "Expected structure: operators/<version>/<operator>/rbac/"
-else
-  echo "========================================="
-  echo "RBAC Installation Summary:"
-  echo "  - MAS versions copied: $VERSION_COUNT"
-  echo "  - Total operators: $OPERATOR_COUNT"
-  echo "  - Total RBAC files: $TOTAL_FILES"
-  echo "  - Installation directory: $RBAC_DEST"
-  echo "========================================="
-fi
-
-echo ""
-echo "Note: User-facing RBAC (admin/readonly roles) remain in"
-echo "      pre-install and are applied via kustomize, not by CLI."
-echo ""
-echo "Directory structure (first 50 lines):"
-if [ -d "$RBAC_DEST" ]; then
-  ls -R "$RBAC_DEST" | head -50
-else
-  echo "  (No RBAC directory created yet)"
-fi
+echo "RBAC files copied successfully for versions: ${VERSIONS_COPIED[*]}"
