@@ -427,8 +427,8 @@ function gitops_aiservice_tenant() {
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   # dro
   export SECRET_KEY_ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
-  export DROCFG_CA_B64ENC=${SECRETS_PREFIX}dro#drocfg_ca_b64enc
-  export SECRET_KEY_DROCFG_API_TOKEN=${SECRETS_PREFIX}dro#dro_api_token
+  export DRO_CA_B64ENC=${SECRETS_PREFIX}dro#dro_ca_b64enc
+  export SECRET_KEY_DRO_API_TOKEN=${SECRETS_PREFIX}dro#dro_api_token
 
   # sls
   if [ -z "$STANDALONE_SLS_SERVICE" ]; then
@@ -468,7 +468,7 @@ function gitops_aiservice_tenant() {
   # check for those variables present into the aws sm 
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,drocfg_ca_b64enc"
+  sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_ca_b64enc"
   if [ -z "$STANDALONE_SLS_SERVICE" ]; then
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
   else
