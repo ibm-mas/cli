@@ -339,9 +339,9 @@ class installArgBuilderMixin():
                 command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
             if self.getParam('aiservice_channel') != "":
                 command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
-            # change1
-            # if self.getParam('aiservice_install_plan_approval') != "":
-            #     command += f"  --aiservice-install-plan-approval \"{self.getParam('aiservice_install_plan_approval')}\"{newline}"
+            
+            if self.getParam('aiservice_install_plan_approval') != "":
+                command += f"  --aiservice-install-plan-approval \"{self.getParam('aiservice_install_plan_approval')}\"{newline}"
 
 
             # Certificate Issuer for AI Service
