@@ -18,7 +18,7 @@ system_suite_aicfg_labels:
     mas.ibm.com/configScope: system
     mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
 
-aiservice_api_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_API_KEY }}>
+aiservice_api_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_API_KEY }}>  # pragma: allowlist secret
 
 aiservice_certificates:
   - alias: aiservice
