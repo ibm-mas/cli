@@ -82,13 +82,13 @@ class KafkaSettingsMixin():
         # Check if Civil component is enabled in Manage
         # Handle both ",civil=" and "civil=" at start of string
         components = self.getParam("mas_appws_components")
-        civilEnabled = self.installManage and ("civil=" in components and
-                                               (",civil=" in components or components.startswith("civil=")))
+        civilEnabled = (self.installManage and "civil=" in components
+                        and (",civil=" in components or components.startswith("civil=")))
 
         # Set kafka_required flag for Tekton pipeline to determine if Kafka installation is needed
-        kafkaRequired = ((useNewDependency and self.installMonitor) or
-                         (not useNewDependency and self.installIoT) or
-                         civilEnabled)
+        kafkaRequired = ((useNewDependency and self.installMonitor)
+                         or (not useNewDependency and self.installIoT)
+                         or civilEnabled)
         self.setParam("kafka_required", "true" if kafkaRequired else "false")
 
         if kafkaRequired:
