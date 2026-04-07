@@ -1847,9 +1847,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         except NoSuchCatalogError:
             pass
 
-        # Configure Kafka settings (set kafka_required based on IoT, Monitor >= 9.2.0, or Civil)
-        self.configKafka()
-
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
             if findSLSByNamespace(self.getParam("sls_namespace"), dynClient=self.dynamicClient):
