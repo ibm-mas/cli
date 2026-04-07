@@ -21,6 +21,10 @@ spec:
       description: Instance ID
     
     # Archives specific parameters
+    - name: include_mongo_archive
+      type: string
+      description: Download Mongo archive
+      default: "false"
     - name: include_sls_archive
       type: string
       description: Download SLS archive
@@ -89,6 +93,8 @@ spec:
         value: $(params.backup_archive_name)
       
       # Archive specific
+      - name: INCLUDE_MONGO_ARCHIVE
+        value: $(params.include_mongo_archive)
       - name: INCLUDE_SLS_ARCHIVE
         value: $(params.include_sls_archive)
       - name: INCLUDE_MANAGE_DB_ARCHIVE
