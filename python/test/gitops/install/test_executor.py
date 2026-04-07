@@ -210,6 +210,7 @@ class TestGitOpsInstallExecutor:
             'account_id': 'test-account',
             'cluster_id': 'test-cluster',
             'mas_instance_id': 'testinst',
+            'mas_workspace_id': 'testws',
             'mas_app_id_iot': 'iot',
             'mas_app_id_manage': 'manage'
         }
