@@ -120,13 +120,14 @@ class GitOpsInstallExecutor():
                     h.stop_and_persist(symbol=self.failure_icon, text="gitops-suite failed")
                     return False
 
-            # Step 4: Execute gitops-suite-workspace
-            with Halo(text='Executing gitops-suite-workspace', spinner=self.spinner) as h:
-                if self._executeGitOpsCommand('gitops-suite-workspace', self.params):
-                    h.stop_and_persist(symbol=self.success_icon, text="gitops-suite-workspace completed successfully")
-                else:
-                    h.stop_and_persist(symbol=self.failure_icon, text="gitops-suite-workspace failed")
-                    return False
+            # Step 4: Execute gitops-suite-workspace (only if mas_workspace_id is set)
+            if self.params.get('mas_workspace_id'):
+                with Halo(text='Executing gitops-suite-workspace', spinner=self.spinner) as h:
+                    if self._executeGitOpsCommand('gitops-suite-workspace', self.params):
+                        h.stop_and_persist(symbol=self.success_icon, text="gitops-suite-workspace completed successfully")
+                    else:
+                        h.stop_and_persist(symbol=self.failure_icon, text="gitops-suite-workspace failed")
+                        return False
 
             # Step 5: Execute gitops-suite-app-install for each application
             apps_to_install = []
@@ -157,16 +158,17 @@ class GitOpsInstallExecutor():
                         h.stop_and_persist(symbol=self.failure_icon, text=f"gitops-suite-app-install for {app_id} failed")
                         return False
 
-            # Step 6: Execute gitops-suite-app-config for each application that needs configuration
-            for app_id in apps_to_install:
-                with Halo(text=f'Executing gitops-suite-app-config for {app_id}', spinner=self.spinner) as h:
-                    app_params = self._prepare_app_params(app_id, 'config')
+            # Step 6: Execute gitops-suite-app-config for each application that needs configuration (only if mas_workspace_id is set)
+            if self.params.get('mas_workspace_id'):
+                for app_id in apps_to_install:
+                    with Halo(text=f'Executing gitops-suite-app-config for {app_id}', spinner=self.spinner) as h:
+                        app_params = self._prepare_app_params(app_id, 'config')
 
-                    if self._executeGitOpsCommand('gitops-suite-app-config', app_params):
-                        h.stop_and_persist(symbol=self.success_icon, text=f"gitops-suite-app-config for {app_id} completed successfully")
-                    else:
-                        h.stop_and_persist(symbol=self.failure_icon, text=f"gitops-suite-app-config for {app_id} failed")
-                        return False
+                        if self._executeGitOpsCommand('gitops-suite-app-config', app_params):
+                            h.stop_and_persist(symbol=self.success_icon, text=f"gitops-suite-app-config for {app_id} completed successfully")
+                        else:
+                            h.stop_and_persist(symbol=self.failure_icon, text=f"gitops-suite-app-config for {app_id} failed")
+                            return False
 
             print_formatted_text(HTML(f"\n<Green>GitOps installation completed successfully for {instanceId}</Green>\n"))
             logger.info("All GitOps commands executed successfully")
