@@ -312,7 +312,7 @@ function gitops_aiservice_tenant_noninteractive() {
   [[ -z "$CATALOG_SOURCE" ]] && gitops_aiservice_tenant_help "CATALOG_SOURCE is not set. Please provide the catalog source using --catalog-source."
   
   # -- DRO
-  [[ -z "$DRO_URL" ]] && gitops_aiservice_tenant_help "DRO_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
+  [[ -z "$DRO_URL" ]] && gitops_aiservice_tenant_help "DRO_URL is not set. Please specify the DRO configuration URL using --dro-url."
   
   # -- SLS
   if [ -z "$STANDALONE_SLS_SERVICE" ]; then
