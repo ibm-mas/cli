@@ -180,6 +180,10 @@ For more information, see: https://ibm-mas.github.io/cli/
             flags.append(arg.short_option)
         flags.append(arg.long_option)
 
+        # Add any aliases
+        if arg.aliases:
+            flags.extend(arg.aliases)
+
         # Determine the destination name (convert --long-option to long_option)
         dest = arg.long_option.lstrip('-').replace('-', '_')
 

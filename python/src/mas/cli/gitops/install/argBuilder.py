@@ -19,7 +19,7 @@ output to build a comprehensive list of available arguments.
 import logging
 import re
 from typing import List, Dict, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,7 @@ class Argument:
     required: bool = False
     function_name: str = ""
     is_flag: bool = False  # True if this is a boolean flag (action='store_true')
+    aliases: List[str] = field(default_factory=list)  # Alternative long option names
 
 
 class BashFunctionArgumentExtractor:
@@ -171,8 +172,54 @@ class BashFunctionArgumentExtractor:
             if not in_case_statement:
                 continue
 
-            # Match case option lines: -d|--dir) or --some-option)
-            # Pattern 1: Short and long option
+            # Match case option lines: -d|--dir) or --some-option) or --option1|--option2)
+            # Pattern 1: Two long options (e.g., --mongo-yaml-file|--yaml-file)
+            match = re.match(r'^\s*(--[a-z0-9-]+)\s*\|\s*(--[a-z0-9-]+)\s*\)', line)
+            if match:
+                long_opt1 = match.group(1)
+                long_opt2 = match.group(2)
+
+                # Look ahead for the export statement
+                for j in range(i + 1, min(i + 5, len(lines))):
+                    # Check for flag pattern: export VAR=true or export VAR="true"
+                    flag_match = re.search(r'export\s+([A-Z_][A-Z0-9_]*)\s*=\s*["\']?true["\']?\s*$', lines[j])
+                    if flag_match:
+                        current_env_var = flag_match.group(1)
+                        arguments.append(Argument(
+                            short_option=None,
+                            long_option=long_opt1,
+                            env_var=current_env_var,
+                            description="",
+                            required=False,
+                            function_name=function_name,
+                            is_flag=True,
+                            aliases=[long_opt2]
+                        ))
+                        break
+
+                    # Check for regular argument pattern: export VAR=$1
+                    export_match = re.search(r'export\s+([A-Z_][A-Z0-9_]*)\s*=', lines[j])
+                    if export_match and not flag_match:
+                        current_env_var = export_match.group(1)
+                        arguments.append(Argument(
+                            short_option=None,
+                            long_option=long_opt1,
+                            env_var=current_env_var,
+                            description="",
+                            required=False,
+                            function_name=function_name,
+                            is_flag=False,
+                            aliases=[long_opt2]
+                        ))
+                        break
+                    # Stop at next case or end of block
+                    if ';;' in lines[j]:
+                        break
+
+                current_env_var = None
+                continue
+
+            # Pattern 2: Short and long option
             match = re.match(r'^\s*(-[a-zA-Z])\s*\|\s*(--[a-z0-9-]+)\s*\)', line)
             if match:
                 short_opt = match.group(1)
@@ -216,7 +263,7 @@ class BashFunctionArgumentExtractor:
                 current_env_var = None
                 continue
 
-            # Pattern 2: Long option only
+            # Pattern 3: Long option only
             match = re.match(r'^\s*(--[a-z0-9-]+)\s*\)', line)
             if match:
                 long_opt = match.group(1)
