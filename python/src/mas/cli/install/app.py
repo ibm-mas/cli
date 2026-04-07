@@ -632,6 +632,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configPermissionMode(self):
+        if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            return
+
         self.printH1("Configure Permission Mode")
         self.printDescription([
             "Choose how MAS should be installed with respect to cluster-wide permissions:",
