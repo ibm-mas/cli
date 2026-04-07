@@ -22,7 +22,7 @@ ibm_aiservice_tenant(required):
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
       --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Service instance
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
-      --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                   URL of the DRO configuration service
+      --dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                                         URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
       --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                         Endpoint URL for Watsonx.ai
       --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                           Full URL for Watsonx.ai including API key
@@ -40,7 +40,7 @@ AiService :
 --mas-icr-cpopen ${COLOR_YELLOW}MAS_ICR_CPOPEN${TEXT_RESET}                                                 IBM Cloud Pak Open container registry URL
 
 DRO :
---drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                         URL of the DRO configuration service
+--dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                                           URL of the DRO configuration service
 
 SLS :
 --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                     URL of the SLS configuration service
@@ -185,8 +185,8 @@ function gitops_aiservice_tenant_noninteractive() {
         ;;
 
       # -- DRO
-      --drocfg-url)
-        export DROCFG_URL=$1 && shift
+      --dro-url)
+        export DRO_URL=$1 && shift
         ;;
 
       # -- SLS
@@ -312,7 +312,7 @@ function gitops_aiservice_tenant_noninteractive() {
   [[ -z "$CATALOG_SOURCE" ]] && gitops_aiservice_tenant_help "CATALOG_SOURCE is not set. Please provide the catalog source using --catalog-source."
   
   # -- DRO
-  [[ -z "$DROCFG_URL" ]] && gitops_aiservice_tenant_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
+  [[ -z "$DRO_URL" ]] && gitops_aiservice_tenant_help "DRO_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
   
   # -- SLS
   if [ -z "$STANDALONE_SLS_SERVICE" ]; then
