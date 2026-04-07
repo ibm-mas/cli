@@ -901,6 +901,10 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
+        # Skip for IoT 9.2.x and above (IoT 9.2+ does not require DB2)
+       # - input: "$(params.mas_app_channel_iot)"
+        #  operator: notin
+        #  values: ["9.2.x", "9.3.x", "9.4.x", "9.5.x", "9.6.x", "9.7.x", "9.8.x", "9.9.x", "10.x", "11.x", "12.x"]
 
     # 3.1 DB2 for IoT
     - name: gitops-db2u-database-iot
