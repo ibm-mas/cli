@@ -502,6 +502,7 @@ class GitOpsInstallExecutor():
                         env[env_var] = str(params[param_key]).lower()
                     else:
                         env[env_var] = str(params[param_key])
+                    logger.debug(f"Set environment variable {env_var}={env[env_var]} from param {param_key}")
 
             # Special case: Set ICR_PASSWORD from ibm_entitlement_key if not already set
             if 'ibm_entitlement_key' in params and params['ibm_entitlement_key']:
@@ -519,11 +520,18 @@ class GitOpsInstallExecutor():
             ]
 
             # Note: gitops_working_dir is set as GITOPS_WORKING_DIR environment variable
-            # via the param_mapping above (line 392), so commands that need it will pick it up
+            # via the param_mapping above (line 329), so commands that need it will pick it up
             # from the environment rather than as a command-line argument
 
             # Execute the bash command
             logger.info(f"Executing command: {' '.join(cmd)}")
+
+            # Log critical environment variables for debugging
+            critical_vars = ['MAS_WORKSPACE_ID', 'MAS_INSTANCE_ID', 'REGION_ID', 'ACCOUNT_ID', 'CLUSTER_ID']
+            logger.debug(f"Critical environment variables for command '{command}':")
+            for var in critical_vars:
+                logger.debug(f"  {var}={env.get(var, '<not set>')}")
+
             result = subprocess.run(
                 cmd,
                 env=env,
