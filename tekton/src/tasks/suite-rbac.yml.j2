@@ -14,10 +14,6 @@ spec:
       type: string
       description: Permission mode for MAS installation (cluster, nonEssential, essential)
       default: "cluster"
-    - name: mas_catalog_version
-      type: string
-      description: Catalog version for RBAC files
-      default: ""
     - name: mas_channel
       type: string
       description: MAS channel version
@@ -31,8 +27,6 @@ spec:
         value: $(params.mas_instance_id)
       - name: MAS_PERMISSION_MODE
         value: $(params.mas_permission_mode)
-      - name: MAS_CATALOG_VERSION
-        value: $(params.mas_catalog_version)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
 
