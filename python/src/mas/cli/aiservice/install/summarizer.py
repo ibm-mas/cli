@@ -50,6 +50,8 @@ class aiServiceInstallSummarizerMixin():
         if "aiservice_certificate_issuer" in self.params:
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
+        self.printParamSummary("Configure AI Service to run in IPv6 mode", "enable_ipv6")
+
         self.printH2("AI Service Tenant Entitlement")
         self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
         self.printParamSummary("Start Date", "tenant_entitlement_start_date")
