@@ -25,7 +25,6 @@ from ...cli import BaseApp
 from .argParser import GitOpsArgumentParser
 from .executor import GitOpsInstallExecutor
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions
-from mas.devops.ocp import connect
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +46,6 @@ class GitOpsInstallApp(BaseApp):
         # The path is relative to the CLI root directory
         self.arg_parser = GitOpsArgumentParser(functions_dir="/mascli/functions")
         self.executor: Optional[GitOpsInstallExecutor] = None
-        self.dynamicClient = None
 
     def install(self, argv: List[str]) -> int:
         """
@@ -90,20 +88,18 @@ class GitOpsInstallApp(BaseApp):
 
             logger.info("Configuration validation successful")
 
-            # Connect to OpenShift cluster if install-pipelines-operator flag is set
-            if self.params.get('install_pipelines_operator'):
-                logger.info("Connecting to OpenShift cluster for pipelines installation")
-                self.dynamicClient = connect()
-
             # Execute installation
             logger.info("Starting installation execution")
             if self._execute_installation():
                 # Install OpenShift Pipelines if requested
                 if self.params.get('install_pipelines_operator'):
                     logger.info("Installing OpenShift Pipelines Operator")
-                    pipelinesNamespace = f"mas-{self.params.get('mas_instance_id')}-pipelines"
+                    # Connect to OpenShift cluster - accessing the property will initialize it
+                    logger.info("Connecting to OpenShift cluster for pipelines installation")
+                    dynamic_client = self.dynamicClient
+
                     with Halo(text='Validating OpenShift Pipelines installation', spinner='dots') as h:
-                        if installOpenShiftPipelines(self.dynamicClient, self.params.get("storage_class_rwx")):
+                        if installOpenShiftPipelines(dynamic_client, self.params.get("storage_class_rwx")):
                             h.stop_and_persist(symbol='✔', text="OpenShift Pipelines Operator is installed and ready to use")
                         else:
                             h.stop_and_persist(symbol='✖', text="OpenShift Pipelines Operator installation failed")
@@ -111,8 +107,8 @@ class GitOpsInstallApp(BaseApp):
                             self._print_failure()
                             logger.debug("<<< GitOpsInstallApp.install (pipelines installation failure)")
                             return 1
-
                     with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+                        pipelinesNamespace = f"mas-{self.params.get('mas_instance_id')}-pipelines"
                         updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                         h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
