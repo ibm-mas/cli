@@ -152,6 +152,22 @@ spec:
       type: string
       default: ""
       description: Comma-separated list of AI Service instance IDs
+    - name: aiservice_channel
+      type: string
+      default: ""
+      description: AI Service feature channel used during migration
+    - name: entitlement_key
+      type: string
+      default: ""
+      description: IBM entitlement key for AI Service migration
+    - name: entitlement_username
+      type: string
+      default: ""
+      description: IBM entitlement username for AI Service migration
+    - name: skip_compatibility_check
+      type: string
+      default: "False"
+      description: Skip AI Service compatibility checks during migration
 
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
@@ -345,6 +361,9 @@ spec:
         - update-watson-machine-learning
         - update-analytics-engine
         - update-cognos
+        {% for aiservice_id in aiservice_instance_ids.split(',') if aiservice_id | trim %}
+        - migrate-aiservice-{{ aiservice_id | trim }}
+        {% endfor %}
 
   finally:
     # Update synchronization configmap

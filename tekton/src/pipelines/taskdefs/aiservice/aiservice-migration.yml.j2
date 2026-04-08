@@ -1,5 +1,5 @@
 {% set aiservice_ids = aiservice_instance_ids.split(',') %}
-{% for aiservice_id in aiservice_ids %}
+{% for aiservice_id in aiservice_ids if aiservice_id | trim %}
 - name: migrate-aiservice-{{ aiservice_id | trim }}
   timeout: "0"
   taskRef:
@@ -8,6 +8,16 @@
   runAfter:
     - post-update-verify
   params:
+    - name: image_pull_policy
+      value: $(params.image_pull_policy)
     - name: aiservice_instance_id
       value: {{ aiservice_id | trim }}
+    - name: aiservice_channel
+      value: $(params.aiservice_channel)
+    - name: entitlement_key
+      value: $(params.entitlement_key)
+    - name: entitlement_username
+      value: $(params.entitlement_username)
+    - name: skip_compatibility_check
+      value: $(params.skip_compatibility_check)
 {% endfor %}
