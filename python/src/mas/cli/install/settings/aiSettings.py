@@ -97,10 +97,10 @@ class AiSettingsMixin():
             return
 
         instanceId = self.getParam('mas_instance_id')
+        workspaceId = self.getParam('mas_workspace_id')
 
         # AiCfg is always configured at system scope
         scope = "system"
-        workspaceId = ""
         self.setParam("ai_scope", "system")
 
         # Check if user wants to provide existing AiCfg or create configuration
