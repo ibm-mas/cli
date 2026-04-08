@@ -273,23 +273,23 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Permission Mode.*': lambda msg: '1',
         # 12. Certificate Authority Trust
         '.*Trust default CAs.*': lambda msg: 'y',
-        # 12. Cluster ingress certificate secret name
+        # 13. Cluster ingress certificate secret name
         '.*Cluster ingress certificate secret name.*': lambda msg: '',  # Leave empty for auto-detection
-        # 13. Domain & certificate management
+        # 14. Domain & certificate management
         '.*Configure domain.*certificate management.*': lambda msg: 'n',  # Skip domain/cert config for simplicity
-        # 14. SSO properties
+        # 15. SSO properties
         '.*Configure SSO properties.*': lambda msg: 'n',  # Skip SSO config
-        # 15. Special characters for user IDs
+        # 16. Special characters for user IDs
         '.*Allow special characters for user IDs and usernames.*': lambda msg: 'n',
-        # 16. Guided Tour
+        # 17. Guided Tour
         '.*Enable Guided Tour.*': lambda msg: 'y',
-        # 17. Feature adoption metrics
+        # 18. Feature adoption metrics
         '.*Enable feature adoption metrics.*': lambda msg: 'y',
-        # 18. Deployment progression metrics
+        # 19. Deployment progression metrics
         '.*Enable deployment progression metrics.*': lambda msg: 'y',
-        # 19. Usability metrics
+        # 20. Usability metrics
         '.*Enable usability metrics.*': lambda msg: 'y',
-        # 20. Application selection
+        # 21. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Custom channel for iot.*': lambda msg: '9.2.x-dev',
         '.*Install Monitor.*': lambda msg: 'y',

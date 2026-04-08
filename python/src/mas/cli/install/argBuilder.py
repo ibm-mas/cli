@@ -92,7 +92,7 @@ class installArgBuilderMixin():
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
-        if self.getParam('mas_permission_mode') != "" and self.getParam('mas_permission_mode') != "cluster":
+        if self.getParam('mas_permission_mode') != "":
             command += f"  --permission-mode {self.getParam('mas_permission_mode')}{newline}"
 
         if self.getParam('mas_trust_default_cas').lower() == "false":

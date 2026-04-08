@@ -1890,6 +1890,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.licensePrompt()
             self.setParam("db2u_kind", "db2ucluster")
 
+        if self.getParam("mas_permission_mode") != "":
+            if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+                self.fatalError(f"--permission-mode is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+        elif isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            self.setParam("mas_permission_mode", "cluster")
+
         self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
