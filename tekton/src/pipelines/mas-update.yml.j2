@@ -361,9 +361,6 @@ spec:
         - update-watson-machine-learning
         - update-analytics-engine
         - update-cognos
-        {% for aiservice_id in aiservice_instance_ids.split(',') if aiservice_id | trim %}
-        - migrate-aiservice-{{ aiservice_id | trim }}
-        {% endfor %}
 
   finally:
     # Update synchronization configmap
