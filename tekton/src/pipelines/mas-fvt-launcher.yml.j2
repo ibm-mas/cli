@@ -403,9 +403,10 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: $(params.launchfvt_iot)
+        # Run when either IoT FVT or Monitor FVT is enabled (Monitor needs IoT installation)
+        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True"]
+          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -443,9 +444,10 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: $(params.launchfvt_iot)
+        # Run when either IoT FVT or Monitor FVT is enabled (Monitor needs IoT installation)
+        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True"]
+          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -489,12 +491,10 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
-        # Run approval-iot if either:
-        # 1. IoT FVT tests ran (launchfvt_iot=true), OR
-        # 2. Monitor FVT needs IoT but IoT FVT tests are skipped (launchfvt_monitor=true AND launchfvt_iot!=true)
+        # Run approval-iot when either IoT FVT or Monitor FVT is enabled
         - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue"]
+          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
         - input: $(params.mas_monitor_install_order)
           operator: in
           values: ["after-iot"]
@@ -520,12 +520,10 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
-        # Run approval-iot-after-monitor if either:
-        # 1. IoT FVT tests ran (launchfvt_iot=true), OR
-        # 2. Monitor FVT needs IoT but IoT FVT tests are skipped (launchfvt_monitor=true AND launchfvt_iot!=true)
+        # Run approval-iot-after-monitor when either IoT FVT or Monitor FVT is enabled
         - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue"]
+          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
         - input: $(params.mas_monitor_install_order)
           operator: in
           values: ["before-iot"]
