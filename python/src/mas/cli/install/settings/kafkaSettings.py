@@ -82,18 +82,10 @@ class KafkaSettingsMixin():
         # Check if Civil component is enabled in Manage
         # Handle both ",civil=" and "civil=" at start of string
         components = self.getParam("mas_appws_components")
-        hasCivil = "civil=" in components
-        civilAtStart = components.startswith("civil=")
-        civilWithComma = ",civil=" in components
-        civilEnabled = self.installManage and hasCivil and (civilWithComma or civilAtStart)
+        civilEnabled = self.installManage and ("civil=" in components and
+                                                (",civil=" in components or components.startswith("civil=")))
 
-        # Set kafka_required flag for Tekton pipeline to determine if Kafka installation is needed
-        monitorNeedsKafka = useNewDependency and self.installMonitor
-        iotNeedsKafka = not useNewDependency and self.installIoT
-        kafkaRequired = monitorNeedsKafka or iotNeedsKafka or civilEnabled
-        self.setParam("kafka_required", "true" if kafkaRequired else "false")
-
-        if kafkaRequired:
+        if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT) or civilEnabled:
             # Determine which app name to display
             if useNewDependency and self.installMonitor:
                 appName = "Monitor"
