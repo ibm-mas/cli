@@ -112,6 +112,7 @@ optionalParams = [
     "cpd_install_wml",
     "cpd_install_ae",
     # Kafka
+    "kafka_required",
     "kafka_namespace",
     "kafka_version",
     "aws_msk_instance_type",
