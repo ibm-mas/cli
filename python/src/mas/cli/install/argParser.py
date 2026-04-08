@@ -266,7 +266,7 @@ masAdvancedArgGroup.add_argument(
     required=False,
     help="Permission mode for MAS installation: 'cluster' (with ClusterRoles, default), 'nonEssential' (without ClusterRoles, limited to pre-created namespaces), 'essential' (essential roles only, no app lifecycle management)",
     choices=["cluster", "nonEssential", "essential"],
-    default="cluster"
+    default=None
 )
 
 # DNS Integration - IBM CIS

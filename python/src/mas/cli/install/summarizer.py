@@ -47,7 +47,8 @@ class InstallSummarizerMixin():
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
-        self.printParamSummary("Permission Mode", "mas_permission_mode")
+        if self.getParam("mas_permission_mode") != "":
+            self.printParamSummary("Permission Mode", "mas_permission_mode")
         if self.isAirgap():
             self.printSummary("Install Mode", "Disconnected Install")
         else:
