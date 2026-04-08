@@ -498,6 +498,7 @@ spec:
       type: string
     - name: cp4d_action
       type: string
+      default: ""
     - name: cpfs_size
       type: string
       default: "small"
@@ -3207,4 +3208,4 @@ spec:
       when:
         - input: "$(params.cp4d_action)"
           operator: in
-          values: ["uninstall"]
+          values: ["uninstall", ""]
