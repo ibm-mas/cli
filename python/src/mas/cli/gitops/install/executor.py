@@ -354,8 +354,11 @@ class GitOpsInstallExecutor():
                 'icr_cp_open': 'ICR_CP_OPEN',
 
                 # Catalog Configuration
+                'catalog_version': 'MAS_CATALOG_VERSION',
                 'mas_catalog_version': 'MAS_CATALOG_VERSION',
+                'catalog_image': 'MAS_CATALOG_IMAGE',
                 'mas_catalog_image': 'MAS_CATALOG_IMAGE',
+                'catalog_action': 'MAS_CATALOG_ACTION',
                 'mas_catalog_action': 'MAS_CATALOG_ACTION',
 
                 # Certificate Manager
@@ -392,6 +395,7 @@ class GitOpsInstallExecutor():
                 'mongo_namespace': 'MONGO_NAMESPACE',
                 'mongodb_action': 'MONGODB_ACTION',
                 'mongo_yaml_file': 'MONGO_YAML_FILE',
+                'yaml_file': 'MONGO_YAML_FILE',
                 'mongo_username': 'MONGO_USERNAME',
                 'mongo_password': 'MONGO_PASSWORD',
                 'vpc_ipv4_cidr': 'VPC_IPV4_CIDR',
@@ -448,6 +452,8 @@ class GitOpsInstallExecutor():
                 'db2_action': 'DB2_ACTION',
                 'db2_version': 'DB2_VERSION',
                 'db2_channel': 'DB2_CHANNEL',
+                'db2_subscription_install_plan': 'DB2_INSTALL_PLAN',
+                'db2_install_plan': 'DB2_INSTALL_PLAN',
 
                 # Storage Classes
                 'storage_class_rwx': 'STORAGE_CLASS_RWX',
@@ -494,6 +500,18 @@ class GitOpsInstallExecutor():
                 'cpd_product_version': 'CPD_PRODUCT_VERSION',
                 'cpd_primary_storage_class': 'CPD_PRIMARY_STORAGE_CLASS',
                 'cpd_metadata_storage_class': 'CPD_METADATA_STORAGE_CLASS',
+
+                # AI Service Storage Configuration
+                'storage_provider': 'AISERVICE_STORAGE_PROVIDER',
+                'aiservice_storage_provider': 'AISERVICE_STORAGE_PROVIDER',
+                'storage_ssl': 'AISERVICE_STORAGE_SSL',
+                'aiservice_storage_ssl': 'AISERVICE_STORAGE_SSL',
+                'storage_region': 'AISERVICE_STORAGE_REGION',
+                'aiservice_storage_region': 'AISERVICE_STORAGE_REGION',
+
+                # CIS Compliance Configuration
+                'cis_compliance_install_plan': 'CIS_INSTALL_PLAN',
+                'cis_install_plan': 'CIS_INSTALL_PLAN',
             }
 
             # Set environment variables from params
