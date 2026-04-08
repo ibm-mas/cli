@@ -336,36 +336,62 @@ class BashFunctionArgumentExtractor:
         """
         unique_args: Dict[str, Argument] = {}
         used_short_options: set = set()
+        used_long_options: set = set()  # Track all long options including aliases
         all_args = self.extract_all_arguments()
 
         for function_name, arguments in all_args.items():
             for arg in arguments:
-                # Use long_option as the key for deduplication (this is what argparse cares about)
-                if arg.long_option not in unique_args:
-                    # Check if short option is already used by another argument
-                    if arg.short_option and arg.short_option in used_short_options:
-                        logger.warning(f"Short option {arg.short_option} for {arg.long_option} conflicts with another argument, removing short option")
-                        # Create a new Argument without the short option
-                        arg = Argument(
-                            short_option=None,
-                            long_option=arg.long_option,
-                            env_var=arg.env_var,
-                            description=arg.description,
-                            required=arg.required,
-                            function_name=arg.function_name,
-                            is_flag=arg.is_flag
-                        )
+                # Check if this long_option or any of its aliases conflict with existing arguments
+                conflicts_with_existing = False
 
-                    unique_args[arg.long_option] = arg
-                    if arg.short_option:
-                        used_short_options.add(arg.short_option)
-                else:
-                    # If argument already exists, mark as required if any function requires it
-                    if arg.required:
-                        unique_args[arg.long_option].required = True
-                    # Use longer description if available
-                    if len(arg.description) > len(unique_args[arg.long_option].description):
-                        unique_args[arg.long_option].description = arg.description
+                # Check if the main long_option is already used (as main option or alias)
+                if arg.long_option in used_long_options:
+                    conflicts_with_existing = True
+                    logger.debug(f"Skipping duplicate argument {arg.long_option} from {function_name} (already defined)")
+
+                # Check if any of this argument's aliases conflict with existing main options or aliases
+                if not conflicts_with_existing and arg.aliases:
+                    for alias in arg.aliases:
+                        if alias in used_long_options:
+                            conflicts_with_existing = True
+                            logger.debug(f"Skipping argument {arg.long_option} from {function_name} because alias {alias} conflicts with existing argument")
+                            break
+
+                if conflicts_with_existing:
+                    # Merge metadata with existing argument if it exists
+                    if arg.long_option in unique_args:
+                        if arg.required:
+                            unique_args[arg.long_option].required = True
+                        if len(arg.description) > len(unique_args[arg.long_option].description):
+                            unique_args[arg.long_option].description = arg.description
+                    continue
+
+                # Check if short option is already used by another argument
+                if arg.short_option and arg.short_option in used_short_options:
+                    logger.warning(f"Short option {arg.short_option} for {arg.long_option} conflicts with another argument, removing short option")
+                    # Create a new Argument without the short option
+                    arg = Argument(
+                        short_option=None,
+                        long_option=arg.long_option,
+                        env_var=arg.env_var,
+                        description=arg.description,
+                        required=arg.required,
+                        function_name=arg.function_name,
+                        is_flag=arg.is_flag,
+                        aliases=arg.aliases
+                    )
+
+                # Add this argument
+                unique_args[arg.long_option] = arg
+
+                # Track all option strings (main option and aliases)
+                used_long_options.add(arg.long_option)
+                if arg.aliases:
+                    for alias in arg.aliases:
+                        used_long_options.add(alias)
+
+                if arg.short_option:
+                    used_short_options.add(arg.short_option)
 
         logger.info(f"Extracted {len(unique_args)} unique arguments from bash functions")
         return unique_args
