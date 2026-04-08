@@ -90,8 +90,11 @@
     # RHOAI flag
     - name: rhoai
       value: $(params.rhoai)
+
     - name: aiservice_certificate_issuer
       value: $(params.aiservice_certificate_issuer)
+    - name: enable_ipv6
+      value: $(params.enable_ipv6)
 
   taskRef:
     name: mas-devops-aiservice
