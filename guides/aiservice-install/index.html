@@ -441,7 +441,7 @@
 <p>If you have not already determined the catalog version for your installation, refer to the information in the <a href="../../catalogs/">Operator Catalog</a> topic, or contact IBM Support for guidance.</p>
 <h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link">¶</a></h2>
 <p>Run the <code>mas aiservice-install</code> command and follow the interactive prompts. Mount your home directory to access the license file when needed.</p>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.5.1 mas aiservice-install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.6.0 mas aiservice-install
 </code></pre>
 <p>The interactive install will guide you through the following steps:</p>
 <div>
@@ -474,6 +474,7 @@
         <li><strong>Channel:</strong> AI Service version channel (e.g., 9.1.x)</li>
         <li><strong>S3 Storage Configuration:</strong> Configure object storage for AI Service data (MinIO or external S3)</li>
         <li><strong>Certificate Issuer (Advanced Mode Only):</strong> Optionally configure a pre-configured certificate issuer for AI Service</li>
+        <li><strong>Network configuration (Advanced Mode Only):</strong> Optionally enable IPv6 SingleStack network configuration for AI Service</li>
         <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
         <li><strong>RSL Configuration:</strong> Configure Red Hat Service Locator integration</li>
         <li><strong>Tenant Configuration:</strong> Set up AI Service tenant(s)</li>
@@ -500,7 +501,7 @@
 <p>The following command demonstrates a complete AI Service installation with all configuration options. This command will launch the MAS CLI container image, login to your OpenShift Cluster and start the AI Service installation without triggering any prompts.</p>
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=your_entitlement_key_here
 
-docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.5.1 bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.6.0 bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas aiservice-install \
     --mas-catalog-version v9-260326-amd64 \
@@ -794,6 +795,25 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.
 <td>Name of the certificate issuer for AI Service</td>
 <td>No</td>
 <td><code>letsencrypt-prod</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="enable-ipv6-networking">Enable IPv6 Networking<a class="headerlink" href="#enable-ipv6-networking" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--enable-ipv6</code></td>
+<td>Enable IPv6 SingleStack networking for AI Service</td>
+<td>No</td>
+<td>N/A</td>
 </tr>
 </tbody>
 </table>
@@ -1118,6 +1138,11 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.
                       <li class="md-toc__item">
                         <a href="#certificate-configuration" class="md-toc__link" data-md-level="2">
                           Certificate Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#enable-ipv6-networking" class="md-toc__link" data-md-level="2">
+                          Enable IPv6 Networking
                         </a>
                       </li>
                       <li class="md-toc__item">
