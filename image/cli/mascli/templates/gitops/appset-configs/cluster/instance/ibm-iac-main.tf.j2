@@ -413,7 +413,7 @@ locals {
           create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix_mvi}-mvi"
           id                   = "${var.s3bucket_name_prefix_mvi}-mvi"
-          access_level         = "ro"
+          access_level         = "rw"
           s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_mvi}-mvi"
           secret_suffix        = "cos"
           cos_secret_format    = false
