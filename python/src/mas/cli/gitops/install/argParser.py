@@ -115,6 +115,15 @@ For more information, see: https://ibm-mas.github.io/cli/
                 for arg in args:
                     self._add_argument_to_group(group, arg)
 
+        # Add manual arguments not derived from bash functions
+        advanced_group = self.parser.add_argument_group('Advanced Options')
+        advanced_group.add_argument(
+            '--install-pipelines-operator',
+            dest='install_pipelines_operator',
+            action='store_true',
+            help='Install OpenShift Pipelines Operator (primarily for FVT testing)'
+        )
+
         return self.parser
 
     def _group_arguments(self, unique_args: Dict[str, Argument]) -> Dict[str, List[Argument]]:
