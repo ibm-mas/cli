@@ -12,23 +12,24 @@ jdbc_connection_url: <path:{{ SECRETS_PATH }}:{{ JDBC_CONNECTION_URL }}>
 jdbc_connection_url_additional_params: {{ JDBC_CONNECTION_URL_ADDITIONAL_PARAMS }}
 {%- endif %}
 replica_db: {{ REPLICA_DB }}
-db2_instance_registry:
-  {% filter indent(width=2) -%}
-  {{ DB2_INSTANCE_REGISTRY }}
-  {%- endfilter %}
+{% if DB2_DATABASE_DB_CONFIG %}
 db2_database_db_config:
   {% filter indent(width=2) -%}
   {{ DB2_DATABASE_DB_CONFIG }}
   {%- endfilter %}
-{% if DB2_ADDONS_AUDIT_CONFIG %}
-db2_addons_audit_config:
-  {% filter indent(width=2) -%}
-  {{ DB2_ADDONS_AUDIT_CONFIG }}
-  {%- endfilter %}
 {% endif %}
-{% if DB2_INSTANCE_DBM_CONFIG %}
-db2_instance_dbm_config:
-  {% filter indent(width=2) -%}
-  {{ DB2_INSTANCE_DBM_CONFIG }}
-  {%- endfilter %}
+{% if RDS_DB2_BACKUP is defined and RDS_DB2_BACKUP == 'true' %}
+backup:
+  enabled: true
+  s3_bucket_name: "{{ S3_BUCKET_NAME }}"
+  s3_prefix: "db2-backups" 
+  compression: "NONE"
+  util_impact_priority: 50
+  num_files: 4
+  parallelism: 4
+  num_buffers: 8
+  
+  full:
+    enabled: true
+    schedule: "0 2 * * 0"
 {% endif %}
