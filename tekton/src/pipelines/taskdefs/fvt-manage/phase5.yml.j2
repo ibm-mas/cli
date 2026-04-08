@@ -5,6 +5,7 @@
 # - fvt-manage-base-ui-directprint (selenium)
 # - fvt-manage-base-ui-adhoc-report (selenium)
 # - fvt-manage-base-ui-userprofile (cypress)
+# - fvt-manage-base-ui-scheduler-crews (cypress)
 # - fvt-manage-base-ui-scheduler-scheduling (cypress)
 # - fvt-manage-base-ui-scheduler-dispatching (cypress)
 # - fvt-manage-base-ui-scheduler-planning (cypress)
@@ -110,6 +111,24 @@
     - fvt-manage-base-ui-communication-temp
     - fvt-manage-base-ui-scheduler-classic
 
+# Scheduler Crews Cypress test
+- name: fvt-manage-base-ui-scheduler-crews
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-crews
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp
+    - fvt-manage-base-ui-scheduler-classic
 
 # Scheduling Dashboard Cypress test
 - name: fvt-manage-base-ui-scheduler-scheduling
