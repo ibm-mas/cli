@@ -10,7 +10,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Basic Configuration (Required):
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                                               Directory for GitOps repository
+  -d, --dir, --gitops-working-dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                         Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                                                Account ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                                                Cluster ID
       --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}                                                                          Custom Labels definition in dict format
@@ -31,9 +31,9 @@ Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                                                                              Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
 Operator Catalog (Optional):
-      --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}                                                                  Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')
-      --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}                                                                      Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
-      --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}                                                                    Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
+      --catalog-version, --mas-catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}                                           Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')
+      --catalog-image, --mas-catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}                                                 Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
+      --catalog-action, --mas-catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}                                                    Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
 
 Redhat Cert Manager (Optional):
       --install-redhat-cert-manager ${COLOR_YELLOW}INSTALL_REDHAT_CERT_MANAGER${TEXT_RESET}                                              Install RedHat Cert Manager (default to true)
@@ -139,7 +139,7 @@ function gitops_cluster_noninteractive() {
     shift
     case $key in
       # GitOps Configuration
-      -d|--dir)
+      -d|--dir|--gitops-working-dir)
         export GITOPS_WORKING_DIR=$1 && shift
         ;;
       -a|--account-id)
@@ -188,11 +188,14 @@ function gitops_cluster_noninteractive() {
         ;;
 
       # Operator Catalog
-      --catalog-version)
+      --catalog-version|--mas-catalog-version)
         export MAS_CATALOG_VERSION=$1 && shift
         ;;
-      --catalog-image)
+      --catalog-image|--mas-catalog-image)
         export MAS_CATALOG_IMAGE=$1 && shift
+        ;;
+      --catalog-action|--mas-catalog-action)
+        export MAS_CATALOG_ACTION=$1 && shift
         ;;
 
       # Redhat Cert Manager

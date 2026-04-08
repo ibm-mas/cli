@@ -10,7 +10,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Basic Configuration:
-  -a, --account_id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                        Account name that the cluster belongs to
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                        Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                        Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}              IBM Suite Maximo Application Suite Instance ID
       --license-file ${COLOR_YELLOW}LICENSE_FILE${TEXT_RESET}                    Path to IBM SLS License File

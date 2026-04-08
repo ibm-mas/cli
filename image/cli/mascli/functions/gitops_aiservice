@@ -27,7 +27,7 @@ ibm aiservice(required):
 
 storage provider:
       --aiservice-storage-provider ${TEXT_RESET}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}
-      --aiservice-storage_ssl ${TEXT_RESET}AISERVICE_STORAGE_SSL${TEXT_RESET}
+      --aiservice-storage-ssl ${TEXT_RESET}AISERVICE_STORAGE_SSL${TEXT_RESET}
       --aiservice-storage-region ${TEXT_RESET}AISERVICE_STORAGE_REGION${TEXT_RESET}
       
 sls_dro_jdbc
@@ -165,7 +165,7 @@ function gitops_aiservice_noninteractive() {
       --aiservice-storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
-      --aiservice-storage_ssl)
+      --aiservice-storage-ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
       --mas-catalog-source)

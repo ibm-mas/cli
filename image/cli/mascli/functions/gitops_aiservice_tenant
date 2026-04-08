@@ -13,7 +13,7 @@ Basic Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                  Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                   Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                   Cluster ID
-  -i, --Instance-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                 Instance ID
+  -i, --instance-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                 Instance ID
 
 ibm_aiservice_tenant(required):
       --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                             The AiService instance ID used by AI Service
@@ -55,7 +55,7 @@ Watsonx :
 Storage :
 --aiservice-storage-provider ${COLOR_YELLOW}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}                    The storage provider used by AI Service (e.g., S3, MinIO)
 --aiservice-storage-region ${COLOR_YELLOW}AISERVICE_STORAGE_REGION${TEXT_RESET}                        Storage region used in STORAGE (if applicable)
---aiservice-storage_ssl ${COLOR_YELLOW}AISERVICE_STORAGE_SSL${TEXT_RESET}                              Whether STORAGE uses SSL (true/false)
+--aiservice-storage-ssl ${COLOR_YELLOW}AISERVICE_STORAGE_SSL${TEXT_RESET}                              Whether STORAGE uses SSL (true/false)
 
 
 Automatic GitHub Push (Optional):
@@ -216,7 +216,7 @@ function gitops_aiservice_tenant_noninteractive() {
       --aiservice-storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
-      --aiservice-storage_ssl)
+      --aiservice-storage-ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
 
@@ -314,7 +314,7 @@ function gitops_aiservice_tenant_noninteractive() {
   [[ -z "$RSL_URL" ]] && gitops_aiservice_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
   [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
   
-  [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage_ssl."
+  [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage-ssl."
   [[ -z "$AISERVICE_STORAGE_PROVIDER" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_PROVIDER is not set. Please specify the STORAGE provider using --aiservice-storage-provider."
  
  }
