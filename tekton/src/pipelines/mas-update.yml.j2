@@ -342,7 +342,7 @@ spec:
     # 6. Migrate any AI Service instances. Updating to a new feature channel release
     # could require migration as release 9.2 introduces a significant architecural change.
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/aiservice/aiservice-migration.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/aiservice/aiservice-migration.yml.j2') | default('', true) | indent(4) }}
 
 
     # 7. Verify health of the cluster after dependencies updates
