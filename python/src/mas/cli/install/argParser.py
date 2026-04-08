@@ -1314,13 +1314,6 @@ kafkaCommonArgGroup = installArgParser.add_argument_group(
     "Common Kafka configuration options including provider selection (Strimzi, Red Hat AMQ Streams, IBM Event Streams, or AWS MSK) and authentication credentials."
 )
 kafkaCommonArgGroup.add_argument(
-    "--kafka-required",
-    required=False,
-    help="Set to 'true' to indicate Kafka is required (automatically determined based on IoT, Monitor >= 9.2.0, or Civil component)",
-    choices=["true", "false"],
-    metavar="{true,false}"
-)
-kafkaCommonArgGroup.add_argument(
     "--kafka-provider",
     required=False,
     help="Kafka provider: redhat (Red Hat AMQ Streams), strimzi, ibm (IBM Event Streams), or aws (AWS MSK)",

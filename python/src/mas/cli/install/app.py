@@ -1601,16 +1601,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None:
                     self.setParam("kafka_provider", value)
                     self.setParam("kafka_action_system", "install")
-                    # Automatically set kafka_required=true for backward compatibility
-                    # (unless explicitly set to false via --kafka-required flag)
-                    if self.getParam("kafka_required") is None:
-                        self.setParam("kafka_required", "true")
-
-            elif key == "kafka_required":
-                # Handle kafka_required explicitly after kafka_provider
-                # This allows backward compatibility logic to work
-                if value is not None:
-                    self.setParam("kafka_required", value)
 
             elif key == "kafka_username":
                 if value is not None:
