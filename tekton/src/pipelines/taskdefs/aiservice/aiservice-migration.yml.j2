@@ -1,4 +1,4 @@
-{% set aiservice_ids = aiservice_instance_ids.split(',') %}
+{% set aiservice_ids = (aiservice_instance_ids | default('')).split(',') %}
 {% for aiservice_id in aiservice_ids if aiservice_id | trim %}
 - name: migrate-aiservice-{{ aiservice_id | trim }}
   timeout: "0"
