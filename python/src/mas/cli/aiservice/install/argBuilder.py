@@ -108,6 +108,10 @@ class aiServiceInstallArgBuilderMixin():
         if self.getParam('aiservice_certificate_issuer') != "":
             command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
 
+        # Enable IPv6 networking
+        if self.getParam('enable_ipv6').lower() == "true":
+            command += f"  --enable-ipv6{newline}"
+
         if self.getParam('aiservice_s3_accesskey') != "":
             command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
         if self.getParam('aiservice_s3_secretkey') != "":
