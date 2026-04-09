@@ -66,21 +66,22 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         else:
             # No Monitor installed - set default
             self.setParam("mas_monitor_install_order", "after-iot")
+
     def checkPermissionModeForUpgrade(self, instanceId):
         """
         Check if MAS is in 'essential' permission mode and block upgrade if so.
-        
+
         In essential mode, ibm-mas operator does not have permissions to access
         application resources, making upgrade impossible.
-        
+
         Args:
             instanceId: MAS instance ID
-        
+
         Raises:
             SystemExit: If upgrade should be blocked (essential mode detected)
         """
         permissionMode = getSuitePermissionMode(self.dynamicClient, instanceId)
-        
+
         if permissionMode == 'essential':
             self.printH1("❌ Upgrade Blocked: Essential Permission Mode")
             print()
@@ -96,7 +97,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 "3. Switch back to 'essential' mode after the upgrade"
             ])
             sys.exit(1)
-
 
     def upgrade(self, argv):
         """
@@ -246,7 +246,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.checkPermissionModeForUpgrade(instanceId)
         print_formatted_text(HTML("<Green>✓ Permission mode check passed</Green>"))
         print()
-
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
