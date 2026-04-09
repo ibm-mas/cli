@@ -99,4 +99,37 @@ spec:
         - name: aiservice_instance_id
           value: $(params.aiservice_instance_id)
 
-   
+    #3.gitops-deprovision-rhoai
+    # -------------------------------------------------------------------------
+    - name: run-gitops-deprovision-rhoai
+      runAfter:
+        - run-gitops-deprovision-aiservice
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-rhoai
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: cluster_id
+          value: $(params.cluster_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
