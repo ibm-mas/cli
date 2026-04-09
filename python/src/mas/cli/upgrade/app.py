@@ -23,7 +23,7 @@ from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, verifyAppInstance
+from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, getSuitePermissionMode, verifyAppInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
@@ -66,6 +66,37 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         else:
             # No Monitor installed - set default
             self.setParam("mas_monitor_install_order", "after-iot")
+    def checkPermissionModeForUpgrade(self, instanceId):
+        """
+        Check if MAS is in 'essential' permission mode and block upgrade if so.
+        
+        In essential mode, ibm-mas operator does not have permissions to access
+        application resources, making upgrade impossible.
+        
+        Args:
+            instanceId: MAS instance ID
+        
+        Raises:
+            SystemExit: If upgrade should be blocked (essential mode detected)
+        """
+        permissionMode = getSuitePermissionMode(self.dynamicClient, instanceId)
+        
+        if permissionMode == 'essential':
+            self.printH1("❌ Upgrade Blocked: Essential Permission Mode")
+            print()
+            self.printDescription([
+                "<Red><b>Cannot upgrade MAS in 'essential' permission mode.</b></Red>",
+                "",
+                "The ibm-mas operator does not have sufficient permissions to access",
+                "application resources and perform upgrade pre-checks.",
+                "",
+                "<Yellow><b>To proceed with the upgrade:</b></Yellow>",
+                "1. Temporarily switch to 'cluster' or 'nonEssential' mode",
+                "2. Complete the upgrade",
+                "3. Switch back to 'essential' mode after the upgrade"
+            ])
+            sys.exit(1)
+
 
     def upgrade(self, argv):
         """
@@ -210,6 +241,12 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         # Compute Monitor install order for upgrade
         self.computeMonitorInstallOrderForUpgrade(instanceId)
+        # Check permission mode
+        self.printH1("Permission Mode Validation")
+        self.checkPermissionModeForUpgrade(instanceId)
+        print_formatted_text(HTML("<Green>✓ Permission mode check passed</Green>"))
+        print()
+
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
