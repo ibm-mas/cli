@@ -24,7 +24,13 @@ from halo import Halo
 from ...cli import BaseApp
 from .argParser import GitOpsArgumentParser
 from .executor import GitOpsInstallExecutor
-from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions
+from mas.devops.tekton import (
+    installOpenShiftPipelines,
+    updateTektonDefinitions,
+    preparePipelinesNamespace,
+    prepareInstallSecrets,
+    createNamespace
+)
 
 logger = logging.getLogger(__name__)
 
@@ -97,9 +103,12 @@ class GitOpsInstallApp(BaseApp):
                     # Connect to OpenShift cluster - accessing the property will initialize it
                     logger.info("Connecting to OpenShift cluster for pipelines installation")
                     dynamic_client = self.dynamicClient
+                    pipelineStorageClass = self.getParam("storage_class_rwx")
+                    pipelineStorageAccessMode = "ReadWriteMany"
+                    pipelinesNamespace = f"mas-{self.params.get('mas_instance_id')}-pipelines"
 
                     with Halo(text='Validating OpenShift Pipelines installation', spinner='dots') as h:
-                        if installOpenShiftPipelines(dynamic_client, self.params.get("storage_class_rwx")):
+                        if installOpenShiftPipelines(dynamic_client, pipelineStorageClass):
                             h.stop_and_persist(symbol='✔', text="OpenShift Pipelines Operator is installed and ready to use")
                         else:
                             h.stop_and_persist(symbol='✖', text="OpenShift Pipelines Operator installation failed")
@@ -107,8 +116,28 @@ class GitOpsInstallApp(BaseApp):
                             self._print_failure()
                             logger.debug("<<< GitOpsInstallApp.install (pipelines installation failure)")
                             return 1
+
+                    with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+                        createNamespace(dynamic_client, pipelinesNamespace)
+                        preparePipelinesNamespace(
+                            dynClient=dynamic_client,
+                            instanceId=self.params.get("mas_instance_id"),
+                            storageClass=pipelineStorageClass,
+                            accessMode=pipelineStorageAccessMode,
+                            configureRBAC=(self.params.get("service_account_name") == "")
+                        )
+                        prepareInstallSecrets(
+                            dynClient=dynamic_client,
+                            namespace=pipelinesNamespace,
+                            slsLicenseFile=self.slsLicenseFileSecret,
+                            additionalConfigs=self.additionalConfigsSecret,
+                            podTemplates=self.podTemplatesSecret,
+                            certs=self.certsSecret
+                        )
+
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
+
                     with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
-                        pipelinesNamespace = f"mas-{self.params.get('mas_instance_id')}-pipelines"
                         updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                         h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
