@@ -13,9 +13,11 @@ function logts() {
 # These can be overridden via environment variables
 REDIS_HOST="${REDIS_HOST:-localhost}"
 REDIS_PORT="${REDIS_PORT:-6379}"
+REDIS_USERNAME="${REDIS_USERNAME:-}" #pragma: allowlist secret
 REDIS_PASSWORD="${REDIS_PASSWORD:-}" #pragma: allowlist secret
 REDIS_TLS="${REDIS_TLS:-false}"
 REDIS_DB="${REDIS_DB:-0}"
+REDIS_TLS_CA_CERT_B64="${REDIS_TLS_CA_CERT_B64:-}" #pragma: allowlist secret
 
 # Lock configuration
 GITOPS_LOCK_TTL="${GITOPS_LOCK_TTL:-300}"           # 5 minutes default
@@ -23,14 +25,35 @@ GITOPS_LOCK_RETRY_MAX="${GITOPS_LOCK_RETRY_MAX:-100}"
 GITOPS_LOCK_RETRY_DELAY="${GITOPS_LOCK_RETRY_DELAY:-20}"
 GITOPS_USE_REDIS_LOCKING="${GITOPS_USE_REDIS_LOCKING:-true}"
 
+# Setup Redis TLS certificate from base64 if provided
+function setup_redis_tls_cert() {
+  if [[ -n "${REDIS_TLS_CA_CERT_B64}" && "${REDIS_TLS}" == "true" ]]; then
+    local cert_dir="/tmp/redis-certs"
+    mkdir -p "${cert_dir}"
+    export REDIS_TLS_CA_CERT="${cert_dir}/ca-cert.pem"
+    echo "${REDIS_TLS_CA_CERT_B64}" | base64 -d > "${REDIS_TLS_CA_CERT}"
+    echo "$(logts) Redis TLS certificate decoded to ${REDIS_TLS_CA_CERT}"
+  fi
+}
+
 # Build redis-cli command with authentication and TLS if needed
 function redis_cli_cmd() {
+  # Setup TLS cert if needed
+  setup_redis_tls_cert
+  
   local cmd="redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} -n ${REDIS_DB}"
   
+  # Add username if provided (Redis 6+)
+  if [[ -n "${REDIS_USERNAME}" ]]; then
+    cmd="${cmd} --user ${REDIS_USERNAME}"
+  fi
+  
+  # Add password if provided
   if [[ -n "${REDIS_PASSWORD}" ]]; then
     cmd="${cmd} -a ${REDIS_PASSWORD}"
   fi
   
+  # Add TLS options if enabled
   if [[ "${REDIS_TLS}" == "true" ]]; then
     cmd="${cmd} --tls"
     if [[ -n "${REDIS_TLS_CA_CERT}" ]]; then
