@@ -96,15 +96,28 @@ class KafkaSettingsMixin():
                 appName = "IoT"
 
             self.printH1("Configure Kafka")
-            self.printDescription([
-                f"Maximo {appName} requires a shared system-scope Kafka instance",
-                "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
-                "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
-            ])
+            
+            # For Civil, only Strimzi is supported
+            if civilEnabled:
+                self.printDescription([
+                    f"Maximo {appName} requires a shared system-scope Kafka instance",
+                    "Supported Kafka provider: Strimzi (only Strimzi is supported for Civil Infrastructure)",
+                    "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
+                ])
+            else:
+                self.printDescription([
+                    f"Maximo {appName} requires a shared system-scope Kafka instance",
+                    "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
+                    "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
+                ])
+            
             if self.yesOrNo("Create system Kafka instance using one of the supported providers"):
                 self.setParam("kafka_action_system", "install")
 
-                if self.showAdvancedOptions:
+                # For Civil, force Strimzi provider
+                if civilEnabled:
+                    self.setParam("kafka_provider", "strimzi")
+                elif self.showAdvancedOptions:
                     self.printDescription([
                         "",
                         "Kafka Provider:",
