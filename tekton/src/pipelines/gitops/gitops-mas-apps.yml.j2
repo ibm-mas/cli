@@ -2125,6 +2125,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/monitor-app.yml.j2') | indent(4) }}
       runAfter:
         - app-cfg-iot
+        - gitops-jdbc-config-monitor
 
     # 6.2 Configure Monitor workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/monitor-workspace.yml.j2') | indent(4) }}
