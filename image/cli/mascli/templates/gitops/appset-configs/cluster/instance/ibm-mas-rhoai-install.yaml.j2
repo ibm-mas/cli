@@ -1,0 +1,40 @@
+---
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AISERVICE_INSTANCE_ID }}"
+
+ibm_rhoai:
+  openshift_namespace: {{ OPENSHIFT_NAMESPACE }}
+  rhoai_pipeline_channel: {{ RHOAI_PIPELINE_CHANNEL }}
+  rhoai_pipeline_installplan: {{ RHOAI_PIPELINE_INSTALLPLAN }}
+  pipeline_catalog_source: {{ PIPELINE_CATALOG_SOURCE }}
+  service_mesh_namespace: {{ SERVICE_MESH_NAMESPACE }}
+  service_mesh_channel: {{ SERVICE_MESH_CHANNEL }}
+  service_mesh_catalog_source: {{ SERVICE_MESH_CATALOG_SOURCE }}
+  service_mesh_sourceNamespace: {{ SERVICE_MESH_SOURCENAMESPACE }}
+  operatorName: {{ OPERATOR_NAME }}
+  serverless_channel: {{ SERVERLESS_CHANNEL }}
+  authorino_catalog_source: {{ AUTHORINO_CATALOG_SOURCE }}
+  rhoai_channel: {{ RHOAI_CHANNEL }}
+  rhoai_catalog_source: {{ RHOAI_CATALOG_SOURCE }}
+  rhoai_operator_version: {{ RHOAI_OPERATOR_VERSION }}
+  rhoai_namespace: {{ RHOAI_NAMESPACE }}
+
+  aiservice_namespace: {{ AISERVICE_NAMESPACE }}
+  pull_secret_name: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IMAGE_PULL_SECRET_B64 }}>"
+
+  # Serverless Operator
+  serverless_namespace: {{ SERVERLESS_NAMESPACE }}
+  serverless_operator_name: {{ SERVERLESS_OPERATOR_NAME }}
+  serverless_operator_source: {{ SERVERLESS_OPERATOR_SOURCE }}
+  serverless_operator_sourceNamespace: {{ SERVERLESS_OPERATOR_SOURCE_NAMESPACE }}
+
+  # OpenDataHub Operator
+  openshiftai_OperatorGroup_name: {{ OPENSHIFTAI_OPERATORGROUP_NAME }}
+  openshiftai_name: {{ OPENSHIFTAI_NAME }}
+  openshiftai_namespace: {{ OPENSHIFTAI_NAMESPACE }}
+  openshiftai_installPlanApproval: {{ RHOAI_INSTALL_PLAN }}
+  openshiftai_channel: {{ OPENSHIFTAI_CHANNEL }}
+  openshiftai_source: {{ OPENSHIFTAI_SOURCE }}
+  openshiftai_sourceNamespace: {{ OPENSHIFTAI_SOURCE_NAMESPACE }}
+  aiservice_rhoai_model_deployment_type: "{{ AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE }}"
+  primary_storage_class: {{ PRIMARY_STORAGE_CLASS }}
+
