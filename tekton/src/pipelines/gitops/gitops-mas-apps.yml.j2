@@ -1380,6 +1380,7 @@ spec:
       runAfter:
         - gitops-db2u-database-monitor
         - gitops-rds-db2-database-monitor
+        - gitops-jdbc-config-manage
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
