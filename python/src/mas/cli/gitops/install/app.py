@@ -24,12 +24,12 @@ from halo import Halo
 from ...cli import BaseApp
 from .argParser import GitOpsArgumentParser
 from .executor import GitOpsInstallExecutor
+from mas.devops.ocp import createNamespace
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
     preparePipelinesNamespace,
-    prepareInstallSecrets,
-    createNamespace
+    prepareInstallSecrets
 )
 
 logger = logging.getLogger(__name__)
