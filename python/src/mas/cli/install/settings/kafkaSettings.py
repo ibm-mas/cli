@@ -82,9 +82,9 @@ class KafkaSettingsMixin():
         # Check if Civil component is enabled in Manage
         # Handle both ",civil=" and "civil=" at start of string
         components = self.getParam("mas_appws_components")
-        civilEnabled = (self.installManage
-                        and "civil=" in components
-                        and (",civil=" in components or components.startswith("civil=")))
+        civilEnabled = (self.installManage and
+                        "civil=" in components and
+                        (",civil=" in components or components.startswith("civil=")))
 
         if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT) or civilEnabled:
             # Determine which app name to display
