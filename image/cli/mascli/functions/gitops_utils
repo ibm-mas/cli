@@ -82,7 +82,8 @@ function redis_available() {
   echo "$(logts) Checking Redis availability: ${display_cmd} PING"
   
   # Capture both stdout and stderr to see actual errors
-  local result=$(${redis_cmd} PING 2>&1)
+  # Filter out any log messages that might be in the output
+  local result=$(${redis_cmd} PING 2>&1 | grep -v "^\[" | head -1)
   local exit_code=$?
   
   if [[ "${result}" == "PONG" ]]; then
@@ -90,10 +91,10 @@ function redis_available() {
     return 0
   else
     echo "$(logts) Redis is not available"
-    if [[ ${exit_code} -ne 0 ]]; then
+    if [[ ${exit_code} -ne 0 ]] || [[ -z "${result}" ]]; then
       echo "$(logts) Redis connection error (exit code: ${exit_code}):"
-      # Suppress password in error output
-      echo "${result}" | sed 's/-a [^ ]*/-a ****/g'
+      # Get full error output, suppress password, and filter timestamps
+      ${redis_cmd} PING 2>&1 | grep -v "^\[" | sed 's/-a [^ ]*/-a ****/g'
     else
       echo "$(logts) Unexpected response: ${result}"
     fi
@@ -814,15 +815,15 @@ function gitops_lock_and_modify() {
   echo "$(logts) Redis Configuration:"
   echo "  GITOPS_USE_REDIS_LOCKING ... ${GITOPS_USE_REDIS_LOCKING}"
   echo "  REDIS_HOST .................. ${REDIS_HOST}"
-  echo "  REDIS_PORT .................. ${REDIS_PORT} (actual port number)" #pragma: allowlist secret
+  echo "  REDIS_PORT .................. ${REDIS_PORT}"
   echo "  REDIS_DB .................... ${REDIS_DB}"
   echo "  REDIS_TLS ................... ${REDIS_TLS}"
-  echo "  REDIS_USERNAME .............. ${REDIS_USERNAME:+***set***}" #pragma: allowlist secret
-  echo "  REDIS_PASSWORD .............. ${REDIS_PASSWORD:+***set***}" #pragma: allowlist secret
+  echo "  REDIS_USERNAME .............. ${REDIS_USERNAME:+***set***}"
+  echo "  REDIS_PASSWORD .............. ${REDIS_PASSWORD:+***set***}"  # pragma: allowlist secret
   echo "  GITOPS_LOCK_TTL ............. ${GITOPS_LOCK_TTL}s"
   echo "  GITOPS_LOCK_RETRY_MAX ....... ${GITOPS_LOCK_RETRY_MAX}"
   echo "  GITOPS_LOCK_RETRY_DELAY ..... ${GITOPS_LOCK_RETRY_DELAY}s"
-  echo "  REDIS_PORT_DEBUG ............ Port is: ${REDIS_PORT}" #pragma: allowlist secret
+  echo "  REDIS_PORT_DEBUG ............ Port is: ${REDIS_PORT}"
   
   # Check if Redis locking is enabled and available
   if [[ "${GITOPS_USE_REDIS_LOCKING}" == "true" ]]; then
