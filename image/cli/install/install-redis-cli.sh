@@ -7,14 +7,23 @@ echo "Installing redis-cli..."
 if command -v microdnf &> /dev/null; then
     # UBI minimal images use microdnf
     echo "Detected microdnf (UBI minimal)"
+    # Enable EPEL for redis package
+    microdnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm || true
     microdnf install -y redis && microdnf clean all
 elif command -v dnf &> /dev/null; then
     # RHEL 8+/Fedora use dnf
     echo "Detected dnf (RHEL/Fedora)"
+    # Try to enable EPEL repository for RHEL/UBI
+    dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm 2>/dev/null || \
+    dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm 2>/dev/null || \
+    echo "EPEL already installed or not needed"
+    
+    # Install redis
     dnf install -y redis && dnf clean all
 elif command -v yum &> /dev/null; then
     # RHEL 7 and older use yum
     echo "Detected yum (RHEL 7)"
+    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm || true
     yum install -y redis && yum clean all
 elif command -v apt-get &> /dev/null; then
     # Debian/Ubuntu use apt-get
