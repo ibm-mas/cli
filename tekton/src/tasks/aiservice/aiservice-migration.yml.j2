@@ -7,9 +7,10 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
-    - name: aiservice_instance_id
+    - name: aiservice_instance_ids
       type: string
-      description: AI Service Instance ID
+      default: ""
+      description: Comma-separated AI Service Instance IDs
     - name: aiservice_channel
       type: string
       default: ""
@@ -31,8 +32,6 @@ spec:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
-      - name: AISERVICE_INSTANCE_ID
-        value: $(params.aiservice_instance_id)
       - name: AISERVICE_CHANNEL
         value: $(params.aiservice_channel)
       - name: MAS_ENTITLEMENT_KEY
@@ -43,8 +42,26 @@ spec:
         value: $(params.skip_compatibility_check)
   steps:
     - name: aiservice-migration
-      command:
-        - /opt/app-root/src/run-role.sh
-        - aiservice_migration
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        IFS=',' read -ra IDS <<< "$(params.aiservice_instance_ids)"
+
+        if [ "${#IDS[@]}" -eq 0 ] || [ -z "$(params.aiservice_instance_ids)" ]; then
+          echo "No AI Service instances detected, skipping migration"
+          exit 0
+        fi
+
+        for id in "${IDS[@]}"; do
+          id="$(echo "$id" | xargs)"
+          if [ -z "$id" ]; then
+            continue
+          fi
+
+          echo "Running AI Service migration for instance: $id"
+          export AISERVICE_INSTANCE_ID="$id"
+          /opt/app-root/src/run-role.sh aiservice_migration
+        done

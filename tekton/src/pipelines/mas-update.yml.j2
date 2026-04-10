@@ -341,8 +341,28 @@ spec:
  
     # 6. Migrate any AI Service instances. Updating to a new feature channel release
     # could require migration as release 9.2 introduces a significant architecural change.
+    # AI Service migration
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/aiservice/aiservice-migration.yml.j2') | default('', true) | indent(4) }}
+    - name: aiservice-migration
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-aiservice-migration
+      runAfter:
+        - post-update-verify
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: aiservice_instance_ids
+          value: $(params.aiservice_instance_ids)
+        - name: aiservice_channel
+          value: $(params.aiservice_channel)
+        - name: entitlement_key
+          value: $(params.entitlement_key)
+        - name: entitlement_username
+          value: $(params.entitlement_username)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
 
 
     # 7. Verify health of the cluster after dependencies updates
