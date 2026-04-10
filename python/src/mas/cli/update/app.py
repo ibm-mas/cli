@@ -227,21 +227,20 @@ class UpdateApp(BaseApp):
             ])
 
     def reviewMASInstance(self) -> bool:
-        instances = listMasInstances(self.dynamicClient)
-        return self.reviewInstances(instances, 'MAS', 'Suite.core.mas.ibm.com/v1')
+        return self.reviewInstances(listMasInstances, 'MAS', 'Suite.core.mas.ibm.com/v1')
 
     def reviewAiServiceInstance(self) -> bool:
-        instances = listAiServiceInstances(self.dynamicClient)
-        param_key = "aiservice_instance_ids"
-        self.setParam(param_key, "")
-        for instance in instances:
-            param = self.getParam(param_key)
-            self.setParam(param_key, f"{param},{instance['metadata']['name']}".lstrip(","))
-        return self.reviewInstances(instances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1')
+        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1', "aiservice_instance_ids")
 
-    def reviewInstances(self, instances: list, name: str, kind: str) -> bool:
+    def reviewInstances(self, getInstances: Callable, name: str, kind: str, instanceParamKey: str = "") -> bool:
         self.printH1(f"Review {name} Instances")
         try:
+            instances = getInstances(self.dynamicClient)
+            if instanceParamKey != "":
+                self.setParam(instanceParamKey, "")
+                for instance in instances:
+                    param = self.getParam(instanceParamKey)
+                    self.setParam(instanceParamKey, f"{param},{instance['metadata']['name']}".lstrip(","))
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
                 self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
