@@ -9,6 +9,8 @@ if command -v microdnf &> /dev/null; then
     echo "Detected microdnf (UBI minimal)"
     # Enable EPEL for redis package
     microdnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm || true
+    # Enable redis module stream for RHEL 9
+    microdnf module enable -y redis:7 2>/dev/null || true
     microdnf install -y redis && microdnf clean all
 elif command -v dnf &> /dev/null; then
     # RHEL 8+/Fedora use dnf
@@ -17,6 +19,11 @@ elif command -v dnf &> /dev/null; then
     dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm 2>/dev/null || \
     dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm 2>/dev/null || \
     echo "EPEL already installed or not needed"
+    
+    # Enable redis module stream for RHEL 9 (required for modular filtering)
+    dnf module enable -y redis:7 2>/dev/null || \
+    dnf module enable -y redis 2>/dev/null || \
+    echo "Redis module not available or already enabled"
     
     # Install redis
     dnf install -y redis && dnf clean all
