@@ -77,6 +77,8 @@ def test_install_noninteractive(tmpdir):
                              '--dro-namespace', 'redhat-marketplace',
                              '--mongodb-namespace', 'mongoce',
                              '--aiservice-channel', '9.1.x',
+                             '--aiservice-certificate-issuer', 'cert-issuer',
+                             '--enable-ipv6',
                              '--s3-accesskey', 'test',
                              '--s3-secretkey', 'test',
                              '--s3-host', 'minio-service.minio.svc.cluster.local',
@@ -187,6 +189,8 @@ def test_install_interactive_advanced(tmpdir):
                     return 'y'
                 if re.match('.*Certificate issuer name.*', message):
                     return 'cert-issuer'
+                if re.match('.*Enable IPv6 SingleStack networking.*', message):
+                    return 'y'
                 if re.match('.*RSL url.*', message):
                     return 'https://rls.maximo.test.ibm.com'
                 if re.match('.*ORG Id of RSL.*', message):
