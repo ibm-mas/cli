@@ -309,6 +309,17 @@ spec:
           else
             echo "gitops-mas-initiator: No ICN source directory found, ICN folder created but empty"
           fi
+          
+          # Update mas-instance-params.yaml to reference SLS service from ICN folder
+          export MAS_INSTANCE_PARAMS_FILE=gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+          if [ -f "$MAS_INSTANCE_PARAMS_FILE" ]; then
+            echo "gitops-mas-initiator: Adding SLS service reference to mas-instance-params.yaml"
+            yq -i '.mas_instance.sls_service.icn = env(ICN)' $MAS_INSTANCE_PARAMS_FILE
+            yq -i '.mas_instance.sls_service.subscription_id = env(SAAS_SUB_ID)' $MAS_INSTANCE_PARAMS_FILE
+            echo "gitops-mas-initiator: SLS service configured with ICN=$ICN and SAAS_SUB_ID=$SAAS_SUB_ID"
+          else
+            echo "gitops-mas-initiator: Warning - mas-instance-params.yaml not found at $MAS_INSTANCE_PARAMS_FILE"
+          fi
         else
           echo "gitops-mas-initiator: ICN or SAAS_SUB_ID not provided, skipping ICN folder creation"
         fi
