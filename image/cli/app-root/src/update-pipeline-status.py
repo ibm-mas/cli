@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
         if "" in [instanceId, pipelineName, pipelineRunName, pipelineStatus]:
             print("Slack notification skipped: one or more required env vars are not set")
-        elif pipelineName not in [ "mas-install", "mas-update", "mas-upgrade", "mas-uninstall" ]:
+        elif pipelineName not in ["mas-install", "mas-update", "mas-upgrade", "mas-uninstall"]:
             print(f"No slack notifications for pipeline: {pipelineName}")
         else:
             if pipelineStatus == "Started":
