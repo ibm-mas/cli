@@ -28,7 +28,9 @@ class UpdateArgumentParser(argparse.ArgumentParser):
             f"                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {{redhat,strimzi}}]\n"
             f"                  [--artifactory-username ARTIFACTORY_USERNAME]\n"
             f"                  [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode]\n"
-            f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--no-confirm] [--skip-pre-check]\n"
+            f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--aiservice-channel AISERVICE_CHANNEL]\n"
+            f"                  [--entitlement-username ENTITLEMENT_USERNAME] [--entitlement-key ENTITLEMENT_KEY]\n"
+            f"                  [--skip-compatibility-check] [--no-confirm] [--skip-pre-check]\n"
             f"\n"
             f"Usage (interactive mode):\n"
             f"  {prog}\n"
@@ -169,7 +171,7 @@ depsArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 otherArgGroup = updateArgParser.add_argument_group(
     'More',
-    'Additional options including development mode, Artifactory credentials, CP4D version, confirmation prompts, and pre-check control.'
+    'Additional options including development mode, Artifactory credentials, CP4D version, AI Service migration inputs, confirmation prompts, and pre-check control.'
 )
 otherArgGroup.add_argument(
     "--artifactory-username",
@@ -193,6 +195,28 @@ otherArgGroup.add_argument(
     dest="cpd_product_version",
     required=False,
     help="Product version of CP4D to use"
+)
+otherArgGroup.add_argument(
+    "--aiservice-channel",
+    required=False,
+    help="AI Service channel used during migration"
+)
+otherArgGroup.add_argument(
+    "--entitlement-username",
+    required=False,
+    help="Entitlement username for AI Service migration"
+)
+otherArgGroup.add_argument(
+    "--entitlement-key",
+    required=False,
+    help="Entitlement key for AI Service migration"
+)
+otherArgGroup.add_argument(
+    '--skip-compatibility-check',
+    required=False,
+    action='store_const',
+    const="True",
+    help="Skip AI Service compatibility checks during migration",
 )
 otherArgGroup.add_argument(
     '--no-confirm',

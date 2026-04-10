@@ -57,6 +57,10 @@ class UpdateApp(BaseApp):
                 "skip_pre_check",
                 "dev_mode",
                 "cpd_product_version",
+                "aiservice_channel",
+                "entitlement_username",
+                "entitlement_key",
+                "skip_compatibility_check",
                 # Dev Mode
                 "artifactory_username",
                 "artifactory_token"
@@ -100,9 +104,19 @@ class UpdateApp(BaseApp):
         if not isMasInstalled and not isAiServiceInstalled:
             self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
 
+        if isAiServiceInstalled:
+            if self.getParam("entitlement_username") == "":
+                self.setParam("entitlement_username", "cp")
+            if self.getParam("skip_compatibility_check") == "":
+                self.setParam("skip_compatibility_check", "False")
+
         if self.args.mas_catalog_version is None:
             # Interactive mode
             self.chooseCatalog()
+
+        if isAiServiceInstalled:
+            if self.getParam("entitlement_key") == "":
+                self.promptForString("IBM entitlement key", "entitlement_key", isPassword=True)
 
         # Validations
         if not self.devMode:
@@ -237,16 +251,26 @@ class UpdateApp(BaseApp):
         self.printH1(f"Review {name} Instances")
         try:
             instances = getInstances(self.dynamicClient)
+
+            if len(instances) == 0:
+                if instanceParamKey != "":
+                    self.setParam(instanceParamKey, "")
+                self.printDescription([f"No {name} instances were detected on the cluster"])
+                return False
+
             if instanceParamKey != "":
                 self.setParam(instanceParamKey, "")
                 for instance in instances:
                     param = self.getParam(instanceParamKey)
                     self.setParam(instanceParamKey, f"{param},{instance['metadata']['name']}".lstrip(","))
+
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
                 self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
             return True
         except ResourceNotFoundError:
+            if instanceParamKey != "":
+                self.setParam(instanceParamKey, "")
             self.printDescription([f"No {name} instances were detected on the cluster ({kind} API is not available)"])
             return False
 
