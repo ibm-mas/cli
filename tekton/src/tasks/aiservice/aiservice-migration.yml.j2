@@ -48,12 +48,14 @@ spec:
         #!/usr/bin/env bash
         set -euo pipefail
 
-        IFS=',' read -ra IDS <<< "$(params.aiservice_instance_ids)"
+        INSTANCE_IDS='$(params.aiservice_instance_ids)'
 
-        if [ "${#IDS[@]}" -eq 0 ] || [ -z "$(params.aiservice_instance_ids)" ]; then
+        if [ -z "${INSTANCE_IDS}" ]; then
           echo "No AI Service instances detected, skipping migration"
           exit 0
         fi
+
+        IFS=',' read -ra IDS <<< "${INSTANCE_IDS}"
 
         for id in "${IDS[@]}"; do
           id="$(echo "$id" | xargs)"
