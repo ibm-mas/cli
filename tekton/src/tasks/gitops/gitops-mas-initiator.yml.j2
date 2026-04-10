@@ -293,8 +293,8 @@ spec:
         # Process any .j2 files
         process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
 
-        # Create ICN folder structure if ICN and SAAS_SUB_ID are provided
-        if [[ -n "$ICN" && -n "$SAAS_SUB_ID" ]]; then
+        # Create ICN folder structure if ICN is provided
+        if [[ -n "$ICN" ]]; then
           export ICN_DIR=$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/$CLUSTER_NAME/$ICN/$SAAS_SUB_ID
           mkdir -p $ICN_DIR
           echo "gitops-mas-initiator: Created ICN directory: $ICN_DIR"
@@ -321,7 +321,7 @@ spec:
             echo "gitops-mas-initiator: Warning - mas-instance-params.yaml not found at $MAS_INSTANCE_PARAMS_FILE"
           fi
         else
-          echo "gitops-mas-initiator: ICN or SAAS_SUB_ID not provided, skipping ICN folder creation"
+          echo "gitops-mas-initiator: ICN not provided, skipping ICN folder creation"
         fi
 
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
