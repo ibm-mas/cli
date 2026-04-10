@@ -5,6 +5,8 @@ DELIMIITER="/"
 
 function logts() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S.%3N')]"
+}
+
 # =============================================================================
 # Redis Configuration and Connection Functions
 # =============================================================================
@@ -792,11 +794,25 @@ function gitops_lock_and_modify() {
   echo "$(logts) gitops_lock_and_modify"
   echo "================================================="
   
+  # Print Redis configuration for debugging
+  echo "$(logts) Redis Configuration:"
+  echo "  GITOPS_USE_REDIS_LOCKING ... ${GITOPS_USE_REDIS_LOCKING}"
+  echo "  REDIS_HOST .................. ${REDIS_HOST}"
+  echo "  REDIS_PORT .................. ${REDIS_PORT}"
+  echo "  REDIS_DB .................... ${REDIS_DB}"
+  echo "  REDIS_TLS ................... ${REDIS_TLS}"
+  echo "  REDIS_USERNAME .............. ${REDIS_USERNAME:+***set***}" #pragma: allowlist secret
+  echo "  REDIS_PASSWORD .............. ${REDIS_PASSWORD:+***set***}" #pragma: allowlist secret
+  echo "  GITOPS_LOCK_TTL ............. ${GITOPS_LOCK_TTL}s"
+  echo "  GITOPS_LOCK_RETRY_MAX ....... ${GITOPS_LOCK_RETRY_MAX}"
+  echo "  GITOPS_LOCK_RETRY_DELAY ..... ${GITOPS_LOCK_RETRY_DELAY}s"
+  
   # Check if Redis locking is enabled and available
   if [[ "${GITOPS_USE_REDIS_LOCKING}" == "true" ]]; then
     echo "$(logts) Redis locking enabled, checking availability..."
     
     if redis_available; then
+      echo "$(logts) ✓ Redis is available and accessible"
       echo "$(logts) Using Redis-based distributed locking"
       clone_and_modify_with_redis_lock "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" \
         "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}" "${LOCK_IDENTIFIER}" \
