@@ -205,7 +205,6 @@ function redis_extend_lock() {
   fi
 }
 
-}
 
 function sm_login() {
   if [[ "$AVP_TYPE" == "aws" ]]; then
