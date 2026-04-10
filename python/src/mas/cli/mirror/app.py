@@ -719,6 +719,9 @@ class MirrorApp(BaseApp):
                     "mas_optimizer_version",
                     "mas_visualinspection_version"
                 ]
+                if catalogKey not in catalog:
+                    logger.warning(f'Missing {catalogKey} in the catalog')
+                    continue
                 if catalogKey in perReleaseVersions:
                     if release in catalog[catalogKey]:
                         version = catalog[catalogKey][release]
