@@ -36,6 +36,12 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
+    - name: icn
+      type: string
+      default: ""
+    - name: saas_sub_id
+      type: string
+      default: ""
     - name: mas_app_channel_assist
       type: string
     - name: mas_app_install_plan_assist
@@ -146,6 +152,10 @@ spec:
         value: $(params.mas_operationalmode)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: ICN
+        value: $(params.icn)
+      - name: SAAS_SUB_ID
+        value: $(params.saas_sub_id)
       - name: MAS_APP_CHANNEL_ASSIST
         value: $(params.mas_app_channel_assist)
       - name: MAS_APP_INSTALL_PLAN_ASSIST
@@ -282,6 +292,26 @@ spec:
 
         # Process any .j2 files
         process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
+
+        # Create ICN folder structure if ICN and SAAS_SUB_ID are provided
+        if [[ -n "$ICN" && -n "$SAAS_SUB_ID" ]]; then
+          export ICN_DIR=$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/$CLUSTER_NAME/$ICN/$SAAS_SUB_ID
+          mkdir -p $ICN_DIR
+          echo "gitops-mas-initiator: Created ICN directory: $ICN_DIR"
+          
+          # Copy ICN-specific configurations if they exist in source
+          if [ -d "$SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/icn/$CLUSTER_NAME/$ICN/$SAAS_SUB_ID" ]; then
+            echo "gitops-mas-initiator: Copying ICN configurations from source to $ICN_DIR"
+            cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/icn/$CLUSTER_NAME/$ICN/$SAAS_SUB_ID/* $ICN_DIR/
+            
+            # Process any .j2 files in ICN directory
+            process_j2_files "$ICN_DIR"
+          else
+            echo "gitops-mas-initiator: No ICN source directory found, ICN folder created but empty"
+          fi
+        else
+          echo "gitops-mas-initiator: ICN or SAAS_SUB_ID not provided, skipping ICN folder creation"
+        fi
 
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
         if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
