@@ -82,20 +82,20 @@ if __name__ == "__main__":
     if SLACK_TOKEN and SLACK_CHANNEL:
         print("\nSlack integration enabled")
 
-        if "" in [instanceId, pipelineName, pipelineStatus]:
+        if "" in [instanceId, pipelineName, pipelineRunName, pipelineStatus]:
             print("Slack notification skipped: one or more required env vars are not set")
         else:
             if pipelineStatus == "Started":
                 print("Sending pipeline start notification to Slack...")
-                send_slack_notification("pipeline-start", pipelineName, instanceId)
+                send_slack_notification("pipeline-start", pipelineRunName, instanceId)
 
             elif pipelineStatus in ["Completed", "Succeeded"]:
                 print("Sending pipeline completion (success) notification to Slack...")
-                send_slack_notification("pipeline-complete", pipelineName, instanceId, rc=0)
+                send_slack_notification("pipeline-complete", pipelineRunName, instanceId, rc=0)
 
             elif pipelineStatus == "Failed":
                 print("Sending pipeline completion (failure) notification to Slack...")
-                send_slack_notification("pipeline-complete", pipelineName, instanceId, rc=1)
+                send_slack_notification("pipeline-complete", pipelineRunName, instanceId, rc=1)
     else:
         print("\nSlack integration disabled (SLACK_TOKEN or SLACK_CHANNEL not set)")
 
