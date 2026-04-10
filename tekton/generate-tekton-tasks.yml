@@ -38,6 +38,7 @@
         - mongodb
         - nvidia-gpu
         - ocs
+        - redis
         - rhoai-migration
         - sls-registry-update
         - sls
