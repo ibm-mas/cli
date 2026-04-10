@@ -116,6 +116,9 @@ spec:
     - name: s3_mvi
       type: string
       default: ''
+    - name: s3_facilities
+      type: string
+      default: ''
 
    # iac-msk common params
     - name: is_msk
@@ -394,6 +397,8 @@ spec:
           value: $(params.s3_manage)
         - name: s3_mvi
           value: $(params.s3_mvi)
+        - name: s3_facilities
+          value: $(params.s3_facilities)
 
     # Task 3: Provision MSK (Conditional - runs if is_msk=true)
     # -------------------------------------------------------------------------
@@ -619,6 +624,8 @@ spec:
           value: $(params.s3_manage)
         - name: s3_mvi
           value: $(params.s3_mvi)
+        - name: s3_facilities
+          value: $(params.s3_facilities)
 
       # iac-msk iot params
         - name: msk_kafka_version
