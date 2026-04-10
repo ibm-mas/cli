@@ -16,11 +16,6 @@ python3 /opt/app-root/src/register-start.py
 export ROLE_NAME=$1
 shift
 
-echo "PIPELINE_NAME: $PIPELINE_NAME"
-echo "PIPELINE_STATUS: $PIPELINE_STATUS"
-echo "PIPELINERUN_NAME: $PIPELINERUN_NAME"
-echo "PIPELINERUN_NAMESPACE: $PIPELINERUN_NAMESPACE"
-
 # Send Slack start notification if configured
 if [ -n "$SLACK_TOKEN" ] && [ -n "$SLACK_CHANNEL" ]; then
   python3 /opt/app-root/bin/mas-devops-notify-slack \
