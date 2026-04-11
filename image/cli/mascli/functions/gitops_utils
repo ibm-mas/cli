@@ -96,7 +96,7 @@ function redis_available() {
       # Get full error output, suppress password, and filter timestamps
       ${redis_cmd} PING 2>&1 | grep -v "^\[" | sed 's/-a [^ ]*/-a ****/g'
     else
-      echo "$(logts) Unexpected response: ${result}"
+      echo "$(logts) Unexpected response: \"${result}\""
     fi
     return 1
   fi
