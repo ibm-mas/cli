@@ -34,7 +34,7 @@ function setup_redis_tls_cert() {
     mkdir -p "${cert_dir}"
     export REDIS_TLS_CA_CERT="${cert_dir}/ca-cert.pem"
     echo "${REDIS_TLS_CA_CERT_B64}" | base64 -d > "${REDIS_TLS_CA_CERT}"
-    echo "$(logts) Redis TLS certificate decoded to ${REDIS_TLS_CA_CERT}"
+    echo "$(logts) Redis TLS certificate decoded to ${REDIS_TLS_CA_CERT}" >&2
   fi
 }
 
