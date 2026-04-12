@@ -116,7 +116,7 @@ function generate_lock_value() {
 
 # Acquire a Redis lock with retries
 # Parameters:
-#   $1 - Lock key (e.g., "gitops:lock:repo:cluster:instance")
+#   $1 - Lock key (e.g., "gitops:lock:gitops-mas-config.account.cluster.instance")
 #   $2 - Variable name to store lock value (for later release)
 #   $3 - TTL in seconds (optional, defaults to GITOPS_LOCK_TTL)
 #   $4 - Max retries (optional, defaults to GITOPS_LOCK_RETRY_MAX)
@@ -142,7 +142,7 @@ function redis_acquire_lock() {
     echo "$(logts) Lock acquisition attempt ${attempt} of ${max_retries}"
     
     # Try to acquire lock using SET with NX (only if not exists) and EX (expiry)
-    local result=$(${redis_cmd} SET "${lock_key}" "${lock_value}" NX EX ${ttl} 2>&1)
+    local result=$(${redis_cmd} SET "${lock_key}" "${lock_value}" NX EX ${ttl} 2>&1 | grep -v "^Warning:")
     
     if [[ "${result}" == "OK" ]]; then
       echo "$(logts) ✓ Lock acquired successfully"
@@ -161,6 +161,19 @@ function redis_acquire_lock() {
   
   echo ""
   echo "$(logts) ✗ Failed to acquire lock after ${max_retries} attempts"
+  echo "Total wait time: $((max_retries * retry_delay)) seconds"
+  
+  # Show who currently holds the lock for debugging
+  local current_holder=$(${redis_cmd} GET "${lock_key}" 2>&1 | grep -v "^Warning:")
+  if [[ -n "${current_holder}" ]]; then
+    echo "Lock currently held by: ${current_holder}"
+    local ttl=$(${redis_cmd} TTL "${lock_key}" 2>&1 | grep -v "^Warning:")
+    if [[ "${ttl}" =~ ^[0-9]+$ ]]; then
+      echo "Lock will expire in: ${ttl} seconds"
+    fi
+  else
+    echo "Lock status: Not currently held (race condition or just released)"
+  fi
   echo "================================================="
   return 1
 }
@@ -669,7 +682,10 @@ function clone_and_modify_with_redis_lock() {
   local RETURNVARNAME_MODIFIED="${10}"
   
   local GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
-  local REDIS_LOCK_KEY="gitops:lock:${GITHUB_REPO}:${LOCK_NAME}"
+  
+  # Lock key format: gitops:lock:<operation-type>.<account>.<cluster>.<instance>
+  # This allows different operations on different config types to run concurrently
+  local REDIS_LOCK_KEY="gitops:lock:${LOCK_NAME}"
   local REDIS_LOCK_VALUE=""
   
   echo ""
@@ -686,8 +702,8 @@ function clone_and_modify_with_redis_lock() {
     return 1
   fi
   
-  # Register trap to release lock on exit
-  trap "redis_release_lock '${REDIS_LOCK_KEY}' '${REDIS_LOCK_VALUE}'" EXIT
+  # Register trap to release lock on exit (including errors and interrupts)
+  trap "redis_release_lock '${REDIS_LOCK_KEY}' '${REDIS_LOCK_VALUE}'" EXIT INT TERM
   
   # Step 2: Clone the repository (safe - we have the lock)
   echo ""
