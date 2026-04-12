@@ -71,6 +71,7 @@ IBM DB2U:
       --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                     Flag to indicate whether enhanced HADR was configured manually
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                     List of IPs or CIDR range that will be whitelisted
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                             Cluster domain if any tls route needs to be created. Only needed if redhat cert-manager is not installed.
+      --production-database-access-type ${COLOR_YELLOW}PRODUCTION_DATABASE_ACCESS_TYPE${TEXT_RESET}           Production database access type (e.g., 'ITIC')
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -309,6 +310,9 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --allow-list)
         export ALLOW_LIST=$1 && shift
+        ;;
+      --production-database-access-type)
+        export PRODUCTION_DATABASE_ACCESS_TYPE=$1 && shift
         ;;
       --cluster-domain)
       export CLUSTER_DOMAIN=$1 && shift
@@ -638,6 +642,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "skip-backup-notification ...................... ${COLOR_MAGENTA}${SKIP_BACKUP_NOTIFICATION}"
   echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   echo_reset_dim "allow-list .................................... ${COLOR_MAGENTA}${ALLOW_LIST}"
+  echo_reset_dim "Production Database Access Type ............... ${COLOR_MAGENTA}${PRODUCTION_DATABASE_ACCESS_TYPE}"
   echo_reset_dim "Cluster Domain ................................ ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   reset_colors
 

@@ -111,6 +111,26 @@ variable "iam_user_arn_prefix_mvi" {
     description = "iam user arn"
 }
 {%- endif %}
+{%- if S3_FACILITIES | lower == 'true'%}
+variable "s3_iam_users_list_facilities" {
+    description = "s3 user list"
+        type = map(object({
+        iam_user_name = string
+    }))
+}
+variable "s3bucket_name_prefix_facilities" {
+    type        = string
+    description = "s3 bucket name prefix"
+}
+variable "iam_user_name_prefix_facilities" {
+    type        = string
+    description = "iam user name prefix"
+}
+variable "iam_user_arn_prefix_facilities" {
+    type        = string
+    description = "iam user arn"
+}
+{%- endif %}
 
 {%- endif %}
 {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true')%}
