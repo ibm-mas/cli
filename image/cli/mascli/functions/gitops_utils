@@ -683,9 +683,10 @@ function clone_and_modify_with_redis_lock() {
   
   local GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
   
-  # Lock key format: gitops:lock:<operation-type>.<account>.<cluster>.<instance>
+  # Use same lock naming convention as Git-based locking for consistency
+  # Format: lock.<operation-type>.<account>.<cluster>.<instance>
   # This allows different operations on different config types to run concurrently
-  local REDIS_LOCK_KEY="gitops:lock:${LOCK_NAME}"
+  local REDIS_LOCK_KEY="lock.${LOCK_NAME}"
   local REDIS_LOCK_VALUE=""
   
   echo ""
