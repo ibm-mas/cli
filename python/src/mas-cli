@@ -23,7 +23,7 @@ from mas.cli.uninstall.app import UninstallApp
 from mas.cli.backup.app import BackupApp
 from mas.cli.restore.app import RestoreApp
 from mas.cli.mirror.app import MirrorApp
-from mas.cli.setup_rbac.app import SetupRBACAPP
+from mas.cli.setup_rbac.app import SetupRBACApp
 
 from prompt_toolkit import HTML, print_formatted_text
 from urllib3.exceptions import MaxRetryError
@@ -87,7 +87,7 @@ if __name__ == '__main__':
             app = MirrorApp()
             app.mirror(argv[2:])
         elif function == "setup-rbac":
-            app = SetupRBACAPP()
+            app = SetupRBACApp()
             app.setupRBAC(argv[2:])
         elif function in ["-h", "--help"]:
             usage()

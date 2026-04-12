@@ -19,7 +19,7 @@ from mas.devops.tekton import prepareInstallRBAC
 logger = logging.getLogger(__name__)
 
 
-class SetupRBACAPP(BaseApp):
+class SetupRBACApp(BaseApp):
     def setupRBAC(self, argv):
         """
         Create the minimal install RBAC resources for MAS installation.
@@ -38,9 +38,9 @@ class SetupRBACAPP(BaseApp):
         pipelineNamespace = f"mas-{instanceId}-pipelines"
 
         self.printH1("Create RBAC resources for MAS installation")
-        self.printDescription(["This will apply the minimal install RBAC bundle for the target MAS instance.,"
+        self.printDescription(["This will apply the minimal install RBAC bundle for the target MAS instance."
                                "",
-                               "The bundle creates the fine-grained service accounts used to urn 'mas install' and the install pipeline."])
+                               "The bundle creates the fine-grained service accounts used to run 'mas install' and the install pipeline."])
         self.printSummary("Instance ID", instanceId)
         self.printSummary("Install Pipeline Namespace", pipelineNamespace)
         self.printSummary("Install User Service Account", installUserSA)
@@ -49,10 +49,11 @@ class SetupRBACAPP(BaseApp):
         with Halo(text=f"Applying RBAC resources for {instanceId}...", spinner=self.spinner) as h:
             prepareInstallRBAC(
                 dynClient=self.dynClient,
+                namespace=pipelineNamespace,
                 instanceId=instanceId,
                 installRBACDir=self.installRBACDir
             )
-            h.stop_and_persist(symbol=self.successIcon, text=f"Install RBAC us ready for {instanceId}")
+            h.stop_and_persist(symbol=self.successIcon, text=f"Install RBAC is ready for {instanceId}")
 
         self.printH1("Next Steps")
         self.printDescription(["The RBAC resources for the install pipeline have been created. "

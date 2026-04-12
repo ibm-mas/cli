@@ -27,17 +27,22 @@ tekton:
 tekton-test: tekton
 	tekton/test.sh
 
-docker:
+rbac:
+	rm -rf image/cli/rbac
+	cp -r rbac image/cli/rbac
+
+docker: rbac
 	docker build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
 
-all: ansible-devops python tekton docker
+all: ansible-devops python tekton rbac docker
 
 run:
 	docker run -ti quay.io/ibmmas/cli:100.0.0-pre.local
 
 clean:
-	rm image/cli/install/ibm-mas_devops.tar.gz
-	rm image/cli/bin/templates/ibm-mas-tekton.yaml
+	rm -f image/cli/install/ibm-mas_devops.tar.gz
+	rm -f image/cli/bin/templates/ibm-mas-tekton.yaml
+	rm -rf image/cli/rbac
 
 create:
 	oc apply -f tmp/deployment.yaml

@@ -37,7 +37,7 @@ targetArgGroup.add_argument(
 )
 
 otherArgGroup = setupRBACArgParser.add_argument_group(
-    "More"
+    "More",
     "Additional options for setup-rbac."
 )
 
