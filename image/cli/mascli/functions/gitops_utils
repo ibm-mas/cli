@@ -82,8 +82,8 @@ function redis_available() {
   echo "$(logts) Checking Redis availability: ${display_cmd} PING"
   
   # Capture both stdout and stderr to see actual errors
-  # Filter out any log messages that might be in the output
-  local result=$(${redis_cmd} PING 2>&1 | grep -v "^\[" | head -1)
+  # Filter out log messages and redis-cli warnings
+  local result=$(${redis_cmd} PING 2>&1 | grep -v "^\[" | grep -v "^Warning:" | head -1)
   local exit_code=$?
   
   if [[ "${result}" == "PONG" ]]; then
