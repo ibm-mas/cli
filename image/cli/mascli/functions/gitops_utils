@@ -49,9 +49,10 @@ function redis_cli_cmd() {
     cmd="${cmd} --user ${REDIS_USERNAME}"
   fi
   
-  # Add password if provided
+  # Set password via environment variable to avoid command-line warning
+  # This is more secure than using -a flag as it doesn't expose password in process list
   if [[ -n "${REDIS_PASSWORD}" ]]; then
-    cmd="${cmd} -a ${REDIS_PASSWORD}"
+    export REDISCLI_AUTH="${REDIS_PASSWORD}"
   fi
   
   # Add TLS options if enabled
@@ -76,13 +77,12 @@ function redis_available() {
   
   local redis_cmd=$(redis_cli_cmd)
   
-  # Suppress password in output
-  local display_cmd=$(echo "${redis_cmd}" | sed 's/-a [^ ]*/-a ****/g')
-  echo "$(logts) Checking Redis availability: ${display_cmd} PING"
+  # Display command (password is now set via REDISCLI_AUTH env var, not in command)
+  echo "$(logts) Checking Redis availability: ${redis_cmd} PING"
   
   # Capture both stdout and stderr to see actual errors
-  # Filter out log messages and redis-cli warnings
-  local result=$(${redis_cmd} PING 2>&1 | grep -v "^\[" | grep -v "^Warning:" | head -1)
+  # Filter out log messages (no need to filter warnings anymore as we use REDISCLI_AUTH)
+  local result=$(${redis_cmd} PING 2>&1 | grep -v "^\[" | head -1)
   local exit_code=$?
   
   if [[ "${result}" == "PONG" ]]; then
