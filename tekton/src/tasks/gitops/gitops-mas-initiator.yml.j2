@@ -36,9 +36,6 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: icn
-      type: string
-      default: ""
     - name: mas_app_channel_assist
       type: string
     - name: mas_app_install_plan_assist
@@ -116,6 +113,9 @@ spec:
     - name: artifactory_token
       type: string
       default: ""
+    - name: centralised_sls
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-mas-initiator
     env:
@@ -149,8 +149,6 @@ spec:
         value: $(params.mas_operationalmode)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: ICN
-        value: $(params.icn)
       - name: MAS_APP_CHANNEL_ASSIST
         value: $(params.mas_app_channel_assist)
       - name: MAS_APP_INSTALL_PLAN_ASSIST
@@ -211,6 +209,8 @@ spec:
         value: $(params.artifactory_username)
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
+      - name: CENTRALISED_SLS
+        value: $(params.centralised_sls)
   steps:
     - args:
       - |-
@@ -289,7 +289,7 @@ spec:
         process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
 
         # Create ICN folder structure if ICN is provided
-        if [[ -n "$ICN" ]]; then
+        if [[ -n "$CENTRALISED_SLS" ]]; then
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
           echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
           cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/

@@ -116,7 +116,7 @@ spec:
     - name: artifactory_token
       type: string
       default: ""
-    - name: icn
+    - name: centralised_sls
       type: string
       default: ""
   tasks:
@@ -220,8 +220,8 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
-        - name: icn
-          value: $(params.icn)
+        - name: centralised_sls
+          value: $(params.centralised_sls)
       taskRef:
         kind: Task
         name: gitops-mas-initiator
