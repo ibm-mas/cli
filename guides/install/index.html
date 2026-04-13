@@ -862,6 +862,33 @@
   </tbody>
 </table>
 
+<h3 id="redis">Redis<a class="headerlink" href="#redis" title="Permanent link">¶</a></h3>
+<p>Configure the namespace for Redis deployment (required for Collaborate addon).</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--redis-namespace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Namespace for Redis deployment (default: redis)</td>
+    </tr>
+  </tbody>
+</table>
+
 <h3 id="ocp-configuration">OCP Configuration<a class="headerlink" href="#ocp-configuration" title="Permanent link">¶</a></h3>
 <p>OpenShift Container Platform specific configuration including ingress certificate settings.</p>
 <table style="width: 100%; table-layout: fixed;">
@@ -2455,7 +2482,7 @@
 </tr>
 <tr>
 <td><strong>MAS CLI Version</strong></td>
-<td><code>19.6.0</code></td>
+<td><code>19.7.0</code></td>
 <td>Use specific image tag</td>
 <td>Document exact version used</td>
 </tr>
@@ -2503,7 +2530,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <li>OpenShift version (e.g., <code>4.18.3</code>)</li>
 <li>Red Hat catalog digests (all catalogs with full SHA256)</li>
 <li>IBM MAS catalog version (e.g., <code>v9-260326-amd64</code>)</li>
-<li>MAS CLI version (e.g., <code>19.6.0</code>)</li>
+<li>MAS CLI version (e.g., <code>19.7.0</code>)</li>
 <li><strong>Reason for pinning</strong>: Business justification and requirements</li>
 <li><strong>Planned review date</strong>: When the configuration will be reviewed for updates</li>
 <li><strong>Responsible contact</strong>: Person or team responsible for maintenance</li>
@@ -2640,7 +2667,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <li><strong>Standalone Installation</strong>: For standalone AI Service installation, use the dedicated <code>mas aiservice-install</code> command to install AI Service independently of the main MAS installation.</li>
 </ul>
 </div>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.6.0 mas install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.7.0 mas install
 </code></pre>
 <p>The interactive install will guide you through a series of questioned designed to help you arrive at the best configuration for your scenario, it can be broken down as below:</p>
 <div>
@@ -2753,7 +2780,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 SUPERUSER_PASSWORD=xxx
 
-docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.6.0  bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:19.7.0  bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas install \
     --mas-catalog-version v9-260326-amd64 \
@@ -2900,6 +2927,11 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
                       <li class="md-toc__item">
                         <a href="#mongodb-community-operator" class="md-toc__link" data-md-level="2">
                           MongoDB Community Operator
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#redis" class="md-toc__link" data-md-level="2">
+                          Redis
                         </a>
                       </li>
                       <li class="md-toc__item">
