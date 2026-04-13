@@ -64,6 +64,7 @@ from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
+    enablePipelinesConsolePlugin,
     updateTektonDefinitions,
     preparePipelinesNamespace,
     prepareInstallSecrets,
@@ -2113,6 +2114,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
+
+            # Enable console plugin for OCP 4.21+
+            with Halo(text='Enabling Pipelines console plugin', spinner=self.spinner) as h:
+                if enablePipelinesConsolePlugin(self.dynamicClient):
+                    h.stop_and_persist(symbol=self.successIcon, text="Pipelines console plugin enabled")
+                else:
+                    h.stop_and_persist(symbol=self.warningIcon, text="Failed to enable Pipelines console plugin (non-fatal)")
+                    # Note: This is non-fatal as the plugin can be enabled manually
 
             if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
                 with Halo(text='Configuring cluster for path-based routing', spinner=self.spinner) as h:
