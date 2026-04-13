@@ -29,8 +29,7 @@ class UpdateArgumentParser(argparse.ArgumentParser):
             f"                  [--artifactory-username ARTIFACTORY_USERNAME]\n"
             f"                  [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode]\n"
             f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--aiservice-channel AISERVICE_CHANNEL]\n"
-            f"                  [--entitlement-username ENTITLEMENT_USERNAME] [--entitlement-key ENTITLEMENT_KEY]\n"
-            f"                  [--skip-compatibility-check] [--no-confirm] [--skip-pre-check]\n"
+            f"                  [--no-confirm] [--skip-pre-check]\n"
             f"\n"
             f"Usage (interactive mode):\n"
             f"  {prog}\n"
@@ -200,23 +199,6 @@ otherArgGroup.add_argument(
     "--aiservice-channel",
     required=False,
     help="AI Service channel used during migration"
-)
-otherArgGroup.add_argument(
-    "--entitlement-username",
-    required=False,
-    help="Entitlement username for AI Service migration"
-)
-otherArgGroup.add_argument(
-    "--entitlement-key",
-    required=False,
-    help="Entitlement key for AI Service migration"
-)
-otherArgGroup.add_argument(
-    '--skip-compatibility-check',
-    required=False,
-    action='store_const',
-    const="True",
-    help="Skip AI Service compatibility checks during migration",
 )
 otherArgGroup.add_argument(
     '--no-confirm',
