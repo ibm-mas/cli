@@ -135,6 +135,9 @@ spec:
     - name: allow_list
       type: string
       default: ""
+    - name: production_database_access_type
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-db2u-database
     env:
@@ -248,6 +251,8 @@ spec:
         value: $(params.db2_backup_notify_slack_url)
       - name: AUTO_BACKUP
         value: $(params.auto_backup)
+      - name: PRODUCTION_DATABASE_ACCESS_TYPE
+        value: $(params.production_database_access_type)
       - name: REPLICA_DB
         value: $(params.replica_db)
       - name: IS_REPLICA_TASK

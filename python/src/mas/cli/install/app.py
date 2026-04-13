@@ -847,7 +847,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.isSNO():
             self.setParam("mongodb_replicas", "1")
             self.setParam("mongodb_cpu_requests", "500m")
+            self.setParam("redis_replicas", "1")
             self.setParam("mas_app_settings_aio_flag", "false")
+        else:
+            # Multi-node cluster: use 3 replicas for Redis HA
+            self.setParam("redis_replicas", "3")
 
     @logMethodCall
     def configDNSAndCerts(self):
@@ -1719,6 +1723,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.setParam(key, value)
                     self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
+            # Redis
+            elif key == "redis_namespace":
+                if value is not None and value != "":
+                    self.setParam(key, value)
+                    self.setParam("redis_action", "install")
+                    self.setParam("redis_cfg_file", f"/workspace/configs/redis-{value}.yml")
 
             # SLS
             elif key == "license_file":
@@ -1870,6 +1880,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         #  An error should be raised if "health" is not specified when installing Predict.
         if ((self.getParam("mas_app_channel_predict") is not None and self.getParam("mas_app_channel_predict") != "") and 'health' not in self.getParam("mas_appws_components")):
             self.fatalError("--manage-components must include 'health' component when installing Predict")
+
+        # Configure Redis if Collaborate addon is enabled
+        if self.installManage and "collaborate=" in self.getParam("mas_appws_components"):
+            logger.debug("Collaborate addon detected in mas_appws_components, configuring Redis")
+            self.setParam("redis_action", "install")
+            if self.getParam("redis_namespace") == "":
+                self.setParam("redis_namespace", "redis")
+            self.setParam("redis_cfg_file", f"/workspace/configs/redis-{self.getParam('redis_namespace')}.yml")
 
         # Validate ArcGIS installation requirements in non-interactive mode
         if self.installArcgis:
