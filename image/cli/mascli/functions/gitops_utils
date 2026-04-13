@@ -76,6 +76,11 @@ function redis_available() {
     return 1
   fi
   
+  # Set REDISCLI_AUTH in current shell before calling redis_cli_cmd
+  if [[ -n "${REDIS_PASSWORD}" ]]; then
+    export REDISCLI_AUTH="${REDIS_PASSWORD}"
+  fi
+  
   local redis_cmd=$(redis_cli_cmd)
   
   # Display command (password is now set via REDISCLI_AUTH env var, not in command)
@@ -722,6 +727,7 @@ function clone_and_modify_with_redis_lock() {
     echo "$(logts) Apply changes callback failed"
     rm -rf "${GITOPS_REPO_DIR}"
     redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
     return 1
   fi
   
@@ -740,6 +746,9 @@ function clone_and_modify_with_redis_lock() {
     
     rm -rf "${GITOPS_REPO_DIR}"
     redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    
+    # Clear the EXIT trap before returning to prevent it from firing
+    trap - EXIT INT TERM
     
     echo ""
     echo "$(logts) clone_and_modify_with_redis_lock: success (no changes)"
@@ -762,6 +771,7 @@ function clone_and_modify_with_redis_lock() {
     echo "$(logts) git add failed"
     rm -rf "${GITOPS_REPO_DIR}"
     redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
     return 1
   }
   
@@ -781,6 +791,7 @@ function clone_and_modify_with_redis_lock() {
     echo "$(logts) git commit failed with exit code ${COMMIT_RC}"
     rm -rf "${GITOPS_REPO_DIR}"
     redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
     return 1
   fi
   
@@ -795,6 +806,7 @@ function clone_and_modify_with_redis_lock() {
     
     rm -rf "${GITOPS_REPO_DIR}"
     redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
     
     echo ""
     echo "$(logts) clone_and_modify_with_redis_lock: success (no changes)"
@@ -809,12 +821,16 @@ function clone_and_modify_with_redis_lock() {
     echo "$(logts) git push failed"
     rm -rf "${GITOPS_REPO_DIR}"
     redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
     return 1
   fi
   
   # Step 7: Cleanup and release lock
   rm -rf "${GITOPS_REPO_DIR}"
   redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+  
+  # Clear the EXIT trap before returning
+  trap - EXIT INT TERM
   
   echo ""
   echo "$(logts) clone_and_modify_with_redis_lock: success (changes pushed)"
