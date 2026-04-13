@@ -10,12 +10,13 @@
 
 from .db2Settings import Db2SettingsMixin
 from .mongodbSettings import MongoDbSettingsMixin
+from .redisSettings import RedisSettingsMixin
 from .kafkaSettings import KafkaSettingsMixin
 from .manageSettings import ManageSettingsMixin
 from .additionalConfigs import AdditionalConfigsMixin
 
 
-class InstallSettingsMixin(Db2SettingsMixin, MongoDbSettingsMixin, KafkaSettingsMixin, ManageSettingsMixin, AdditionalConfigsMixin):
+class InstallSettingsMixin(Db2SettingsMixin, MongoDbSettingsMixin, RedisSettingsMixin, KafkaSettingsMixin, ManageSettingsMixin, AdditionalConfigsMixin):
     """
     This class collects all the Mixins providing interactive prompts for mas-install
     """
