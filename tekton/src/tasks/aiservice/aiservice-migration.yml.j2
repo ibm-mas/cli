@@ -15,18 +15,6 @@ spec:
       type: string
       default: ""
       description: AI Service channel
-    - name: entitlement_key
-      type: string
-      default: ""
-      description: IBM entitlement key
-    - name: entitlement_username
-      type: string
-      default: ""
-      description: IBM entitlement username
-    
-    - name: skip_compatibility_check
-      type: string
-      default: "False"
 
   stepTemplate:
     env:
@@ -34,12 +22,7 @@ spec:
 
       - name: AISERVICE_CHANNEL
         value: $(params.aiservice_channel)
-      - name: MAS_ENTITLEMENT_KEY
-        value: $(params.entitlement_key)
-      - name: MAS_ENTITLEMENT_USERNAME
-        value: $(params.entitlement_username)
-      - name: SKIP_COMPATIBILITY_CHECK
-        value: $(params.skip_compatibility_check)
+
   steps:
     - name: aiservice-migration
       image: quay.io/ibmmas/cli:latest

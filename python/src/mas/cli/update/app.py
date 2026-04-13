@@ -204,7 +204,6 @@ class UpdateApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text="Submitting PipelineRun for MAS update", spinner=self.spinner) as h:
-                self.printSummary("Instance ID param before run", self.getParam("aiservice_instance_ids"))
                 pipelineURL = launchUpdatePipeline(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text="PipelineRun for MAS update submitted")
@@ -254,7 +253,6 @@ class UpdateApp(BaseApp):
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
                 self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
-            self.printSummary("Instance ID param", self.getParam(instanceParamKey))
             return True
         except ResourceNotFoundError:
             if instanceParamKey != "":
