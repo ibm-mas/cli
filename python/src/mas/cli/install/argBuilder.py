@@ -62,7 +62,7 @@ class installArgBuilderMixin():
         command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
 
         if self.getParam('mas_special_characters') == "true":
-            command += f" --allow-special-chars \"{newline}"
+            command += f" --allow-special-chars {newline}"
 
         # ECK Integration
         # -----------------------------------------------------------------------------
@@ -179,6 +179,11 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('mongodb_namespace') != "":
             command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
+
+        # Redis Configuration
+        # -----------------------------------------------------------------------------
+        if self.getParam('redis_namespace') != "":
+            command += f"  --redis-namespace \"{self.getParam('redis_namespace')}\"{newline}"
 
         # OCP Configuration
         # -----------------------------------------------------------------------------
