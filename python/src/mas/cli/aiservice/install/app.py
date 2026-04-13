@@ -130,6 +130,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.printDescription([
             "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
             " - Configure certificate issuer",
+            " - Enable IPv6 SingleStack networking for services",
         ])
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
@@ -332,14 +333,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             elif key == "manual_certificates":
                 if value is not None:
-                    self.setParam("mas_manual_cert_mgmt", True)
+                    self.setParam("mas_manual_cert_mgmt", "true")
                     self.manualCertsDir = value
                 else:
-                    self.setParam("mas_manual_cert_mgmt", False)
+                    self.setParam("mas_manual_cert_mgmt", "false")
                     self.manualCertsDir = None
 
             elif key == "enable_ipv6":
-                self.setParam("enable_ipv6", True)
+                self.setParam("enable_ipv6", "true")
 
             # Fail if there's any arguments we don't know how to handle
             else:
@@ -567,6 +568,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # Configure Certificate Issuer
         self.configCertIssuer()
 
+        # Configure Network configuration for services
+        self.configNetworking()
+
     @logMethodCall
     def configCertIssuer(self):
         if self.showAdvancedOptions:
@@ -574,6 +578,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             configureCertIssuer = self.yesOrNo('Configure certificate issuer')
             if configureCertIssuer:
                 self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
+
+    @logMethodCall
+    def configNetworking(self):
+        if self.showAdvancedOptions:
+            self.printH1("Network configuration for services")
+            self.yesOrNo('Enable IPv6 SingleStack networking', 'enable_ipv6')
 
     @logMethodCall
     def aiServiceTenantSettings(self) -> None:

@@ -198,6 +198,7 @@ class InstallSummarizerMixin():
                 self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + AIP", "Enabled" if "aip=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Vegetation Management", "Enabled" if "vegm=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Collaborate", "Enabled" if "collaborate=" in self.getParam("mas_appws_components") else "Disabled")
 
                 self.printParamSummary("+ Upgrade Type", "mas_appws_upgrade_type")
 
@@ -375,6 +376,12 @@ class InstallSummarizerMixin():
         else:
             self.fatalError(f"Unexpected value for mongodb_action parameter: {self.getParam('mongodb_action')}")
 
+    def redisSummary(self) -> None:
+        if self.getParam("redis_action") == "install":
+            self.printH2("Redis")
+            self.printSummary("Type", "Redis with Sentinel HA")
+            self.printParamSummary("Install Namespace", "redis_namespace")
+
     def kafkaSummary(self) -> None:
         if self.getParam("kafka_action_system") != "":
             self.printH2("Kafka")
@@ -452,6 +459,7 @@ class InstallSummarizerMixin():
 
         # Application Dependencies
         self.mongoSummary()
+        self.redisSummary()
         self.db2Summary()
         self.cosSummary()
         self.kafkaSummary()

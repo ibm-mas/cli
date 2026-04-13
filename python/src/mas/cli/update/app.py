@@ -136,6 +136,7 @@ class UpdateApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is not installed")
 
         self.detectGrafana4()
+        self.detectODH()
         self.detectMongoDb()
         self.detectDb2uOrKafka("db2")
         self.detectDb2uOrKafka("kafka")
@@ -176,6 +177,7 @@ class UpdateApp(BaseApp):
 
         self.printH2("Required Migrations")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
+        self.printSummary("AI Service Data Science Platform", "Migrate from ODH to RHOAI" if self.getParam("odh_to_rhoai_migration") != "" else "No action required")
 
         if not self.noConfirm:
             print()
@@ -337,6 +339,46 @@ class UpdateApp(BaseApp):
                     return False
             except (ResourceNotFoundError, NotFoundError):
                 h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 is not installed")
+                return False
+
+    def detectODH(self) -> bool:
+        """
+        Detect if ODH (Open Data Hub) is installed and may need migration to RHOAI.
+        This is a simplified check - the Ansible role will perform detailed validation.
+        """
+        with Halo(text='Checking for Open Data Hub (ODH)', spinner=self.spinner) as h:
+            try:
+                subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
+                subscriptions = subscriptionAPI.get(namespace="openshift-operators").to_dict()["items"]
+
+                odh_installed = any(
+                    sub.get("spec", {}).get("name") == "opendatahub-operator"
+                    for sub in subscriptions
+                )
+
+                if odh_installed:
+                    h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub detected - migration to RHOAI will be evaluated")
+                    self.printDescription([
+                        "<u>Required Migration Notice</u>",
+                        "Open Data Hub (ODH) is currently installed and will be migrated to Red Hat OpenShift AI (RHOAI)",
+                        "- The update process will automatically handle the migration",
+                        "- ODH will be replaced with RHOAI",
+                        "- This migration is mandatory to continue receiving updates",
+                        "",
+                        "<u>Expected Downtime</u>",
+                        "- AI Service will be unavailable during migration (~10-12 minutes)",
+                        "- Data science workloads will be temporarily interrupted",
+                        "- Deployed models will be preserved"
+                    ])
+                    # Set parameter to trigger ODH to RHOAI migration
+                    self.setParam("odh_to_rhoai_migration", "true")
+                    return True
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
+                    return False
+
+            except (ResourceNotFoundError, NotFoundError):
+                h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
                 return False
 
     def detectMongoDb(self) -> None:
