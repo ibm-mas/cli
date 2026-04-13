@@ -36,10 +36,10 @@ nav:
       - "restore": commands/restore.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
+      - "Apr 14 2026": catalogs/v9-260414-amd64.md
       - "Mar 26 2026": catalogs/v9-260326-amd64.md
       - "Feb 26 2026": catalogs/v9-260226-amd64.md
       - "Jan 29 2026": catalogs/v9-260129-amd64.md
-      - "Dec 31 2025": catalogs/v9-251231-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
