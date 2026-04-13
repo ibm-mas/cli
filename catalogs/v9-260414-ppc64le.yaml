@@ -1,0 +1,12 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Maximo Operators (v9-260414-ppc64le)
+  publisher: IBM
+  description: Static Catalog Source for IBM Maximo Application Suite
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:98ce4c020d8d6552ccb9b65aa09d136f5b13a45c798e932f847b0c451d76c7d2
+  priority: 90
