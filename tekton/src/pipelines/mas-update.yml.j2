@@ -109,6 +109,13 @@ spec:
       description: Approves the Grafana Operator upgrade to version 5
       default: ""
 
+    # AI Service Migration (ODH to RHOAI)
+    # -------------------------------------------------------------------------
+    - name: odh_to_rhoai_migration
+      type: string
+      default: ""
+      description: Set to "true" to trigger ODH to RHOAI migration during update
+
     # CP4D update
     # -------------------------------------------------------------------------
     - name: cpd_product_version
@@ -229,6 +236,21 @@ spec:
         - name: devops_suite_name
           value: dependencies-grafana-update
 
+    - name: update-rhoai
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-rhoai-migration
+      when:
+        - input: $(params.odh_to_rhoai_migration)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - post-update-verify
+      params:
+        - name: devops_suite_name
+          value: dependencies-rhoai-migration
+
     - name: update-db2
       timeout: "0"
       taskRef:
@@ -332,6 +354,7 @@ spec:
         - update-watson-machine-learning
         - update-analytics-engine
         - update-cognos
+        - update-rhoai
 
   finally:
     # Update synchronization configmap

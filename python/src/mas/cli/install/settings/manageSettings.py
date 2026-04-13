@@ -176,6 +176,10 @@ class ManageSettingsMixin():
                     self.params["mas_appws_components"] += ",aip=latest"
                 if self.yesOrNo(" - Vegetation Management"):
                     self.params["mas_appws_components"] += ",vegm=latest"
+                if self.yesOrNo(" - Collaborate"):
+                    self.params["mas_appws_components"] += ",collaborate=latest"
+                    # Configure Redis for Collaborate addon
+                    self.configRedis()
                 logger.debug(f"Generated mas_appws_components = {self.params['mas_appws_components']}")
 
                 if ",icd=" in self.params["mas_appws_components"]:
