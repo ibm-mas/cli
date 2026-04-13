@@ -752,6 +752,6 @@ class MirrorApp(BaseApp):
     def _is_unsupported_package(self, version: str, packageName: str) -> bool:
         unsupported = False
         if packageName == "ibm-aiservice-tenant" and version.startswith("9.1."):
-            logger.info("Package 'ibm-aiservice-tenant' only supported for 9.2.x or higher")
+            logger.warning("Skipping mirroring package 'ibm-aiservice-tenant' due to unsupported version, only supported for 9.2.x or higher")
             unsupported = True
         return unsupported
