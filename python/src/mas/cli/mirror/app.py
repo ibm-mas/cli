@@ -720,6 +720,9 @@ class MirrorApp(BaseApp):
                 else:
                     version = catalog[catalogKey]
 
+                if self._is_unsupported_package(version, packageName):
+                    continue
+
                 # Remove any +buildnum properties from the version in the metadata file
                 try:
                     version = version.split("+")[0]
@@ -745,3 +748,10 @@ class MirrorApp(BaseApp):
                 )
 
             print_formatted_text(HTML("\n<B>✅ Mirror operation completed</B>"))
+
+    def _is_unsupported_package(self, version: str, packageName: str) -> bool:
+        unsupported = False
+        if packageName == "ibm-aiservice-tenant" and version.startswith("9.1."):
+            logger.info("Package 'ibm-aiservice-tenant' only supported for 9.2.x or higher")
+            unsupported = True
+        return unsupported

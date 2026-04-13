@@ -16,6 +16,7 @@ PACKAGE_CONFIGS = [
 
     ("Optional Dependencies", "aiservice", "ibm-aiservice", "aiservice_version"),
     ("Optional Dependencies", "aiservice", "ibm-aiservice-tenant", "aiservice_version"),
+
     ("Optional Dependencies", "data-dictionary", "ibm-data-dictionary", "dd_version"),
 
     ("Optional Dependencies", "db2u-s11", "ibm-db2uoperator-s11", "db2u_version"),
