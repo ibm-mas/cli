@@ -618,6 +618,14 @@ locals {
       efs_mount_count = {{EFS_IOT_DB2_MOUNT_COUNT}}
     }
 {%- endif %}
+{%- if EFS_MONITOR_DB2 == "true" %}
+    monitor-db2 = {
+      name = join("-", ["efs", var.cluster_name, var.instance_name, "monitor-db2"])
+      performance_mode = "{{EFS_MONITOR_DB2_PERFORMANCE_MODE}}"
+      throughput_mode = "{{EFS_MONITOR_DB2_THROUGHPUT_MODE}}"
+      efs_mount_count = {{EFS_MONITOR_DB2_MOUNT_COUNT}}
+    }
+{%- endif %}
 {%- if EFS_VISUALINSPECTION_MAIN == "true" %}
     visualinspection-main = {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "visualinspection-main"])
