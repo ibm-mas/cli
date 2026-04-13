@@ -58,9 +58,6 @@ class UpdateApp(BaseApp):
                 "dev_mode",
                 "cpd_product_version",
                 "aiservice_channel",
-                "entitlement_username",
-                "entitlement_key",
-                "skip_compatibility_check",
                 # Dev Mode
                 "artifactory_username",
                 "artifactory_token"
@@ -104,19 +101,9 @@ class UpdateApp(BaseApp):
         if not isMasInstalled and not isAiServiceInstalled:
             self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
 
-        if isAiServiceInstalled:
-            if self.getParam("entitlement_username") == "":
-                self.setParam("entitlement_username", "cp")
-            if self.getParam("skip_compatibility_check") == "":
-                self.setParam("skip_compatibility_check", "False")
-
         if self.args.mas_catalog_version is None:
             # Interactive mode
             self.chooseCatalog()
-
-        if isAiServiceInstalled:
-            if self.getParam("entitlement_key") == "":
-                self.promptForString("IBM entitlement key", "entitlement_key", isPassword=True)
 
         # Validations
         if not self.devMode:
