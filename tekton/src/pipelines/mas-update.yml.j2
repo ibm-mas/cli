@@ -192,10 +192,6 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
-        
-        # AI Service Migration (ODH to RHOAI)
-        - name: odh_to_rhoai_migration
-          value: $(params.odh_to_rhoai_migration)
 
 
     # 3. Verify health of the cluster before we consider the update complete
