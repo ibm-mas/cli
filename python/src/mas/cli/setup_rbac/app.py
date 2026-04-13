@@ -26,10 +26,10 @@ class SetupRBACApp(BaseApp):
         This is intended to be used in cases where the user does not have permissions to create RBAC resources in the cluster.
         The cluster admin create the necessary RBAC resources for them before they run the install command.
         """
-        self.args = setupRBACArgParser().parse_args(args=argv)
+        self.args = setupRBACArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
 
-        self.printH1("Set Target OpensShift Cluster")
+        self.printH1("Set Target OpenShift Cluster")
         self.connect()
 
         instanceId = self.args.mas_instance_id
@@ -48,7 +48,7 @@ class SetupRBACApp(BaseApp):
 
         with Halo(text=f"Applying RBAC resources for {instanceId}...", spinner=self.spinner) as h:
             prepareInstallRBAC(
-                dynClient=self.dynClient,
+                dynClient=self.dynamicClient,
                 namespace=pipelineNamespace,
                 instanceId=instanceId,
                 installRBACDir=self.installRBACDir

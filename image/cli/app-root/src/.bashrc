@@ -43,6 +43,7 @@ if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-roks${TEXT_RESET} to provision an OCP cluster on IBMCloud Red Hat OpenShift Service (ROKS)"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-rosa${TEXT_RESET} to provision an OCP cluster on AWS Red Hat OpenShift Service (ROSA)"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-fyre${TEXT_RESET} to provision an OCP cluster on IBM DevIT Fyre (internal)"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas setup-rbac${TEXT_RESET} to setup RBAC resources for MAS installation in a cluster"
     echo "AI Service (Standalone) Management:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-install${TEXT_RESET} to install a new AI Service instance"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-upgrade${TEXT_RESET} to upgrade a existing AI Service instance"
