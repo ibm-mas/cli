@@ -705,7 +705,8 @@ function clone_and_modify_with_redis_lock() {
   fi
   
   # Register trap to release lock on exit (including errors and interrupts)
-  trap "redis_release_lock '${REDIS_LOCK_KEY}' '${REDIS_LOCK_VALUE}'" EXIT INT TERM
+  # Use || true to prevent trap from causing script failure if lock already released
+  trap "redis_release_lock '${REDIS_LOCK_KEY}' '${REDIS_LOCK_VALUE}' || true" EXIT INT TERM
   
   # Step 2: Clone the repository (safe - we have the lock)
   echo ""
@@ -720,7 +721,7 @@ function clone_and_modify_with_redis_lock() {
   if ! ${APPLY_CHANGES_CALLBACK} "${GITOPS_REPO_DIR}"; then
     echo "$(logts) Apply changes callback failed"
     rm -rf "${GITOPS_REPO_DIR}"
-    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
     return 1
   fi
   
@@ -738,7 +739,7 @@ function clone_and_modify_with_redis_lock() {
     fi
     
     rm -rf "${GITOPS_REPO_DIR}"
-    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
     
     echo ""
     echo "$(logts) clone_and_modify_with_redis_lock: success (no changes)"
@@ -760,7 +761,7 @@ function clone_and_modify_with_redis_lock() {
   git -C "${GITOPS_REPO_DIR}" add -v . || {
     echo "$(logts) git add failed"
     rm -rf "${GITOPS_REPO_DIR}"
-    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
     return 1
   }
   
@@ -770,7 +771,7 @@ function clone_and_modify_with_redis_lock() {
   git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}" || {
     echo "$(logts) git commit failed"
     rm -rf "${GITOPS_REPO_DIR}"
-    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
     return 1
   }
   
@@ -780,13 +781,13 @@ function clone_and_modify_with_redis_lock() {
   if ! git_push_with_retries "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}"; then
     echo "$(logts) git push failed"
     rm -rf "${GITOPS_REPO_DIR}"
-    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
     return 1
   fi
   
   # Step 7: Cleanup and release lock
   rm -rf "${GITOPS_REPO_DIR}"
-  redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}"
+  redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
   
   echo ""
   echo "$(logts) clone_and_modify_with_redis_lock: success (changes pushed)"
