@@ -28,6 +28,9 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
+    - name: mas_appws_components
+      type: string
+      default: ""
 
     # FVT Configuration
     - name: fvt_image_registry
@@ -65,6 +68,17 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
+
+    # Manage Components Information
+    - name: fvt-component
+      taskRef:
+        kind: Task
+        name: mas-fvt-components
+      params:
+        - name: mas_appws_components
+          value: "$(params.mas_appws_components)"
+      runAfter:
+        - pipeline-start
 
     # 2. Manage FVT - Manage Mobile
     # -------------------------------------------------------------------------
