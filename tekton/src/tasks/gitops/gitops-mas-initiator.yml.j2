@@ -288,16 +288,22 @@ spec:
         # Process any .j2 files
         process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
 
-        # Create ICN folder structure if ICN is provided
-        if [[ -n "$CENTRALISED_SLS" ]]; then
+        # Create ICN folder structure if CENTRALISED_SLS is true
+        if [[ "$CENTRALISED_SLS" == "true" ]]; then
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
           echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
           cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
 
           # Process any .j2 files
-          process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"         
+          process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
         else
-          echo "gitops-mas-initiator: ICN not provided, skipping ICN folder creation"
+          echo "gitops-mas-initiator: CENTRALISED_SLS not true, removing ICN folder if exists"
+          if [ -d "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn" ]; then
+            rm -rf $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
+            echo "gitops-mas-initiator: Removed ICN folder"
+          else
+            echo "gitops-mas-initiator: No ICN folder to remove"
+          fi
         fi
 
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
