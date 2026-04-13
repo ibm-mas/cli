@@ -768,12 +768,39 @@ function clone_and_modify_with_redis_lock() {
   echo ""
   echo "$(logts) git commit -m '${GIT_COMMIT_MSG}'"
   echo "-------------------------------------------------"
-  git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}" || {
-    echo "$(logts) git commit failed"
+  git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}"
+  
+  local COMMIT_RC=$?
+  echo "$(logts) commit returned ${COMMIT_RC}"
+  
+  # Handle git commit return codes:
+  # 0 = success (changes committed)
+  # 1 = nothing to commit (working tree clean) - this is OK
+  # other = actual error
+  if [[ ${COMMIT_RC} -ne 0 && ${COMMIT_RC} -ne 1 ]]; then
+    echo "$(logts) git commit failed with exit code ${COMMIT_RC}"
     rm -rf "${GITOPS_REPO_DIR}"
     redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
     return 1
-  }
+  fi
+  
+  # If nothing to commit (RC=1), treat as no changes scenario
+  if [[ ${COMMIT_RC} -eq 1 ]]; then
+    echo "$(logts) Nothing to commit - treating as no changes"
+    
+    if [[ -n "${RETURNVARNAME_MODIFIED}" ]]; then
+      local -n RETURNVAR_MODIFIED="${RETURNVARNAME_MODIFIED}"
+      RETURNVAR_MODIFIED=0
+    fi
+    
+    rm -rf "${GITOPS_REPO_DIR}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    
+    echo ""
+    echo "$(logts) clone_and_modify_with_redis_lock: success (no changes)"
+    echo "================================================="
+    return 0
+  fi
   
   # Step 6: Push with retries (in case of concurrent pushes from different lock keys)
   echo ""
