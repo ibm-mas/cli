@@ -155,19 +155,7 @@ spec:
     - name: aiservice_channel
       type: string
       default: ""
-      description: AI Service feature channel used during migration
-    - name: entitlement_key
-      type: string
-      default: ""
-      description: IBM entitlement key for AI Service migration
-    - name: entitlement_username
-      type: string
-      default: ""
-      description: IBM entitlement username for AI Service migration
-    - name: skip_compatibility_check
-      type: string
-      default: "False"
-      description: Skip AI Service compatibility checks during migration
+      description: AI Service catalog channel
 
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
@@ -340,7 +328,7 @@ spec:
 
  
     # 6. Migrate any AI Service instances. Updating to a new feature channel release
-    # could require migration as release 9.2 introduces a significant architecural change.
+    # could require migration as release 9.2 introduces a significant architectural change.
     # AI Service migration
     # -------------------------------------------------------------------------
     - name: aiservice-migration
@@ -351,19 +339,10 @@ spec:
       runAfter:
         - post-update-verify
       params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
         - name: aiservice_instance_ids
           value: $(params.aiservice_instance_ids)
         - name: aiservice_channel
           value: $(params.aiservice_channel)
-        - name: entitlement_key
-          value: $(params.entitlement_key)
-        - name: entitlement_username
-          value: $(params.entitlement_username)
-        - name: skip_compatibility_check
-          value: $(params.skip_compatibility_check)
-
 
     # 7. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
