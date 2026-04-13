@@ -10,6 +10,7 @@ function logts() {
 # =============================================================================
 # Redis Configuration and Connection Functions
 # =============================================================================
+
 # Redis connection configuration
 # These can be overridden via environment variables
 REDIS_HOST="${REDIS_HOST:-localhost}"
