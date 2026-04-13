@@ -846,7 +846,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.isSNO():
             self.setParam("mongodb_replicas", "1")
             self.setParam("mongodb_cpu_requests", "500m")
+            self.setParam("redis_replicas", "1")
             self.setParam("mas_app_settings_aio_flag", "false")
+        else:
+            # Multi-node cluster: use 3 replicas for Redis HA
+            self.setParam("redis_replicas", "3")
 
     @logMethodCall
     def configDNSAndCerts(self):
@@ -978,19 +982,78 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def configApps(self):
         self.printH1("Application Selection")
-        self.installIoT = self.yesOrNo("Install IoT")
 
+        # For Monitor >= 9.2.0: Monitor and IoT are independent (no dependency)
+        # For Monitor < 9.2.0: Monitor depends on IoT (original behavior)
+        # For IoT >= 9.2.0: IoT depends on Monitor
+
+        self.installIoT = self.yesOrNo("Install IoT")
         if self.installIoT:
             self.configAppChannel("iot")
+            iotChannel = self.getParam("mas_app_channel_iot")
+
+            # Prompt for Monitor installation
             self.installMonitor = self.yesOrNo("Install Monitor")
+            if self.installMonitor:
+                self.configAppChannel("monitor")
+
+                # Validate version compatibility between IoT and Monitor
+                monitorChannel = self.getParam("mas_app_channel_monitor")
+                if iotChannel and monitorChannel:
+                    iotIs920OrLater = isVersionEqualOrAfter('9.2.0', iotChannel)
+                    monitorIs920OrLater = isVersionEqualOrAfter('9.2.0', monitorChannel)
+
+                    # IoT >= 9.2.0 requires Monitor >= 9.2.0
+                    if iotIs920OrLater and not monitorIs920OrLater:
+                        self.printDescription([
+                            "",
+                            "<Red>Error: IoT version 9.2.0 or later requires Monitor version 9.2.0 or later.</Red>",
+                            f"<Yellow>IoT channel: {iotChannel}, Monitor channel: {monitorChannel}</Yellow>",
+                            "<Yellow>Please select compatible versions for both applications.</Yellow>",
+                            ""
+                        ])
+                        self.fatalError("Incompatible IoT and Monitor versions selected")
+
+                    # IoT < 9.2.0 requires Monitor < 9.2.0
+                    if not iotIs920OrLater and monitorIs920OrLater:
+                        self.printDescription([
+                            "",
+                            "<Red>Error: IoT version earlier than 9.2.0 requires Monitor version earlier than 9.2.0.</Red>",
+                            f"<Yellow>IoT channel: {iotChannel}, Monitor channel: {monitorChannel}</Yellow>",
+                            "<Yellow>Please select compatible versions for both applications.</Yellow>",
+                            ""
+                        ])
+                        self.fatalError("Incompatible IoT and Monitor versions selected")
+            else:
+                # User declined Monitor installation
+                # Validate: IoT >= 9.2.0 requires Monitor
+                if iotChannel and isVersionEqualOrAfter('9.2.0', iotChannel):
+                    self.printDescription([
+                        "",
+                        "<Red>Error: IoT version 9.2.0 or later requires Monitor to be installed.</Red>",
+                        "<Yellow>Please install Monitor to proceed with IoT 9.2.0+ installation.</Yellow>",
+                        ""
+                    ])
+                    self.fatalError("IoT 9.2.0+ requires Monitor to be installed")
+                # For IoT < 9.2.0, Monitor is optional
         else:
-            self.installMonitor = False
+            # If IoT not selected, check Monitor version to determine if standalone is allowed
+            self.installMonitor = self.yesOrNo("Install Monitor")
+            if self.installMonitor:
+                self.configAppChannel("monitor")
+                monitorChannel = self.getParam("mas_app_channel_monitor")
+                # For Monitor < 9.2.0, Monitor requires IoT
+                if monitorChannel and not isVersionEqualOrAfter('9.2.0', monitorChannel):
+                    self.printDescription([
+                        "",
+                        "<Red>Error: Monitor version earlier than 9.2.0 requires IoT to be installed.</Red>",
+                        "<Yellow>Please install IoT first, or choose Monitor 9.2.0+ for standalone installation.</Yellow>",
+                        ""
+                    ])
+                    self.installMonitor = False
 
         # Initialize ArcGIS flag (will be set to True later in arcgisSettings() if needed)
         self.installArcgis = False
-
-        if self.installMonitor:
-            self.configAppChannel("monitor")
 
         self.manageAppName = "Manage"
         self.isManageFoundation = False
@@ -1009,6 +1072,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installManage:
             self.configAppChannel("manage")
 
+        # Predict requires IoT + Manage (original behavior maintained)
         if self.installIoT and self.installManage:
             self.installPredict = self.yesOrNo("Install Predict")
         else:
@@ -1105,6 +1169,32 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installIoT:
             self.setParam("mas_app_settings_iot_fpl_pvc_storage_class", self.getParam("storage_class_rwo"))
             self.setParam("mas_app_settings_iot_mqttbroker_pvc_storage_class", self.getParam("storage_class_rwo"))
+
+    @logMethodCall
+    def setMonitorInstallOrder(self) -> None:
+        """
+        Determine the installation order for Monitor relative to IoT based on Monitor version.
+        Monitor >= 9.2.0 installs before IoT (new behavior)
+        Monitor < 9.2.0 installs after IoT (legacy behavior)
+        """
+        if self.installMonitor and self.installIoT:
+            from mas.devops.utils import isVersionEqualOrAfter
+            monitorChannel = self.getParam("mas_app_channel_monitor")
+
+            if monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel):
+                # Monitor >= 9.2.0: Install Monitor before IoT
+                self.setParam("mas_monitor_install_order", "before-iot")
+                logger.debug(f"Monitor channel {monitorChannel} >= 9.2.0: Monitor will install before IoT")
+            else:
+                # Monitor < 9.2.0: Install Monitor after IoT (legacy)
+                self.setParam("mas_monitor_install_order", "after-iot")
+                logger.debug(f"Monitor channel {monitorChannel} < 9.2.0: Monitor will install after IoT (legacy behavior)")
+        elif self.installMonitor:
+            # Only Monitor, no IoT - order doesn't matter but set default
+            self.setParam("mas_monitor_install_order", "before-iot")
+        else:
+            # No Monitor installed - set default
+            self.setParam("mas_monitor_install_order", "after-iot")
 
     @logMethodCall
     def optimizerSettings(self) -> None:
@@ -1632,6 +1722,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.setParam(key, value)
                     self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
+            # Redis
+            elif key == "redis_namespace":
+                if value is not None and value != "":
+                    self.setParam(key, value)
+                    self.setParam("redis_action", "install")
+                    self.setParam("redis_cfg_file", f"/workspace/configs/redis-{value}.yml")
 
             # SLS
             elif key == "license_file":
@@ -1784,6 +1880,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if ((self.getParam("mas_app_channel_predict") is not None and self.getParam("mas_app_channel_predict") != "") and 'health' not in self.getParam("mas_appws_components")):
             self.fatalError("--manage-components must include 'health' component when installing Predict")
 
+        # Configure Redis if Collaborate addon is enabled
+        if self.installManage and "collaborate=" in self.getParam("mas_appws_components"):
+            logger.debug("Collaborate addon detected in mas_appws_components, configuring Redis")
+            self.setParam("redis_action", "install")
+            if self.getParam("redis_namespace") == "":
+                self.setParam("redis_namespace", "redis")
+            self.setParam("redis_cfg_file", f"/workspace/configs/redis-{self.getParam('redis_namespace')}.yml")
+
         # Validate ArcGIS installation requirements in non-interactive mode
         if self.installArcgis:
             hasSpatial = self.installManage and "spatial=" in self.getParam("mas_appws_components")
@@ -1866,6 +1970,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # After we've configured the basic inputs, we can calculate these ones
         self.setIoTStorageClasses()
+        self.setMonitorInstallOrder()
         if self.deployCP4D:
             self.configCP4D()
 
