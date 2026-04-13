@@ -13,6 +13,10 @@ source /opt/app-root/src/env.sh
 
 python3 /opt/app-root/src/register-start.py
 
+echo "DEVOPS_SUITE_NAME: $DEVOPS_SUITE_NAME"
+echo "DEVOPS_BUILD_NUMBER: $DEVOPS_BUILD_NUMBER"
+echo "ANSIBLE_DEVOPS_VERSION: $ANSIBLE_DEVOPS_VERSION"
+
 export ROLE_NAME=$1
 shift
 
