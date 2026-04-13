@@ -58,7 +58,7 @@ class UpdateApp(BaseApp):
                 "dev_mode",
                 "cpd_product_version",
                 "aiservice_channel",
-                # Dev Mode
+                # Dev Mode 
                 "artifactory_username",
                 "artifactory_token"
 
