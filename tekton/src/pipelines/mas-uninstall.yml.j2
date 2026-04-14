@@ -81,7 +81,14 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-uninstall
-
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
 
     # 1. Uninstall IBM Maximo Application Suite Applications
     # -------------------------------------------------------------------------
