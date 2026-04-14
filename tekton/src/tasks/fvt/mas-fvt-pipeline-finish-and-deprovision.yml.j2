@@ -8,19 +8,11 @@ spec:
     # Common CLI parameters (required by cli-env.yml.j2)
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
     
-    # Pipeline status parameters
+    # Pipeline status parameter (pipeline_name, pipelinerun_name, pipelinerun_namespace are in cli-params.yml.j2)
     - name: pipeline_status
       type: string
       description: "tasks.status value: Succeeded, Failed, Completed, or None"
-    - name: pipeline_name
       type: string
-      description: "Provide the name of the pipeline"
-    - name: pipelinerun_name
-      type: string
-      description: "Provide the name of the pipelinerun"
-    - name: pipelinerun_namespace
-      type: string
-      description: "Provide the namespace of the pipelinerun"
     
     # Deprovision control parameter
     - name: deprovision
