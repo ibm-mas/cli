@@ -383,10 +383,12 @@ function get_tf_value() {
         return 1
     fi
 
-    # Install python-hcl2 if missing
-    if ! $PYTHON_BIN -c "import hcl2" 2>/dev/null; then
-        echo "python-hcl2 not found. Installing..." >&2
-        $PYTHON_BIN -m pip install python-hcl2 >/dev/null
+    # Install python-hcl2 if missing (specific version for consistency)
+    local HCL2_VERSION="4.3.2"
+    if ! $PYTHON_BIN -c "import hcl2; hcl2.load" 2>/dev/null; then
+        echo "python-hcl2 not found. Installing version ${HCL2_VERSION}..." >&2
+        $PYTHON_BIN -m pip install --user "python-hcl2==${HCL2_VERSION}" >/dev/null 2>&1 || \
+        $PYTHON_BIN -m pip install --break-system-packages "python-hcl2==${HCL2_VERSION}" >/dev/null 2>&1
     fi
 
     # Run Python and print ONLY the value
@@ -394,7 +396,6 @@ function get_tf_value() {
 import hcl2
 import re
 import sys
-import json
 
 file_path = """$FILE"""
 dot_path = """$DOTPATH"""   # <- triple-quoted to avoid ANY shell quoting issues
@@ -426,14 +427,47 @@ def resolve_path(obj, path):
             value = value[t]
     return value
 
+def format_output(result):
+    """Format output to match original HCL representation"""
+    if isinstance(result, list):
+        # Format list items - strings already come with quotes from hcl2
+        formatted_items = []
+        for item in result:
+            if isinstance(item, str):
+                # Add quotes only if not already present
+                if not (item.startswith('"') and item.endswith('"')):
+                    formatted_items.append(f'"{item}"')
+                else:
+                    formatted_items.append(item)
+            else:
+                formatted_items.append(str(item))
+        return '[' + ', '.join(formatted_items) + ']'
+    elif isinstance(result, dict):
+        # Format dict as space-separated key=value pairs
+        items = []
+        for k, v in result.items():
+            if isinstance(v, str):
+                # Add quotes only if not already present
+                if not (v.startswith('"') and v.endswith('"')):
+                    items.append(f'{k}="{v}"')
+                else:
+                    items.append(f'{k}={v}')
+            else:
+                items.append(f'{k}={v}')
+        return ' '.join(items)
+    elif isinstance(result, str):
+        # Return string as-is (remove quotes if present from hcl2 parsing)
+        if result.startswith('"') and result.endswith('"'):
+            return result[1:-1]
+        return result
+    else:
+        return str(result)
+
 data = unwrap_singleton_lists(load_hcl(file_path))
 
 try:
     result = resolve_path(data, dot_path)
-    if isinstance(result, (list, dict)):
-        print(json.dumps(result))
-    else:
-        print(result)
+    print(format_output(result))
 except Exception as e:
     print(f"Error: {e}", file=sys.stderr)
     sys.exit(1)
