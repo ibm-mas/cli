@@ -70,3 +70,30 @@ spec:
               name: $(params.configmap_name)
               key: IGNORE_FAILURE
               optional: true
+
+        - name: DEVOPS_ENVIRONMENT
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops-slack
+              key: MAS_INSTANCE_ID
+              optional: true
+        - name: SLACK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops-slack
+              key: SLACK_TOKEN
+              optional: true
+        - name: SLACK_CHANNEL
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops-slack
+              key: SLACK_CHANNEL
+              optional: true
+        - name: PIPELINE_STATUS
+          value: $(params.pipeline_status)
+        - name: PIPELINE_NAME
+          value: $(params.pipeline_name)
+        - name: PIPELINERUN_NAME
+          value: $(params.pipelinerun_name)
+        - name: PIPELINERUN_NAMESPACE
+          value: $(params.pipelinerun_namespace)
