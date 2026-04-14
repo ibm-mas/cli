@@ -5,6 +5,9 @@ metadata:
   name: mas-devops-wait-for-configmap-v2
 spec:
   params:
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
     - name: configmap_namespace
       type: string
       description: "The namespace of the configmap to wait for"
@@ -24,14 +27,31 @@ spec:
     # Optional escape route
     - name: escape_configmap_name
       type: string
-      description: "The name of the configmap wait for"
+      description: "The name of the configmap to wait for"
       default: ""
-      description: "The key in the configmap to watch for"
+    
+    # Pipeline context information
+    - name: pipeline_status
+      type: string
+      description: "Pipeline status"
+      default: ""
+    - name: pipeline_name
+      type: string
+      description: "Name of the Pipeline"
+      default: ""
+    - name: pipelinerun_name
+      type: string
+      description: "Name of the PipelineRun"
+      default: ""
+    - name: pipelinerun_namespace
+      type: string
+      description: "Namespace of the PipelineRun"
       default: ""
 
   steps:
     - name: wait-for-configmap
       image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/wait-for-configmap.sh
       env:
