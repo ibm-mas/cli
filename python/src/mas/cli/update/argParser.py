@@ -28,8 +28,7 @@ class UpdateArgumentParser(argparse.ArgumentParser):
             f"                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {{redhat,strimzi}}]\n"
             f"                  [--artifactory-username ARTIFACTORY_USERNAME]\n"
             f"                  [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode]\n"
-            f"                  [--cp4d-version CPD_PRODUCT_VERSION]\n"
-            f"                  [--no-confirm] [--skip-pre-check]\n"
+            f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--no-confirm] [--skip-pre-check]\n"
             f"\n"
             f"Usage (interactive mode):\n"
             f"  {prog}\n"
@@ -170,7 +169,7 @@ depsArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 otherArgGroup = updateArgParser.add_argument_group(
     'More',
-    'Additional options including development mode, Artifactory credentials, CP4D version, AI Service migration inputs, confirmation prompts, and pre-check control.'
+    'Additional options including development mode, Artifactory credentials, CP4D version, confirmation prompts, and pre-check control.'
 )
 otherArgGroup.add_argument(
     "--artifactory-username",

@@ -159,10 +159,6 @@ spec:
       type: string
       default: ""
       description: Comma-separated list of AI Service instance IDs
-    - name: aiservice_channel
-      type: string
-      default: ""
-      description: AI Service catalog channel
 
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
@@ -363,8 +359,6 @@ spec:
       params:
         - name: aiservice_instance_ids
           value: $(params.aiservice_instance_ids)
-        - name: aiservice_channel
-          value: $(params.aiservice_channel)
 
     # 7. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
