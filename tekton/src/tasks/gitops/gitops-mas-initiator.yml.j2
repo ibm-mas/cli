@@ -297,13 +297,7 @@ spec:
           # Process any .j2 files
           process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
         else
-          echo "gitops-mas-initiator: CENTRALISED_SLS not true, removing ICN folder if exists"
-          if [ -d "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn" ]; then
-            rm -rf $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
-            echo "gitops-mas-initiator: Removed ICN folder"
-          else
-            echo "gitops-mas-initiator: No ICN folder to remove"
-          fi
+          echo "gitops-mas-initiator: CENTRALISED_SLS not true, skipping ICN folder creation"
         fi
 
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
