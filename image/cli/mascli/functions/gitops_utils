@@ -886,51 +886,24 @@ function gitops_lock_and_modify() {
   echo "  GITOPS_LOCK_RETRY_DELAY ..... ${GITOPS_LOCK_RETRY_DELAY}s"
   echo "  REDIS_PORT_DEBUG ............ Port is: ${REDIS_PORT}"
   
-  # Check if Redis locking is enabled and available
-  if [[ "${GITOPS_USE_REDIS_LOCKING}" == "true" ]]; then
-    echo "$(logts) Redis locking enabled, checking availability..."
-    
-    if redis_available; then
-      echo "$(logts) ✓ Redis is available and accessible"
-      echo "$(logts) Using Redis-based distributed locking"
-      clone_and_modify_with_redis_lock "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" \
-        "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}" "${LOCK_IDENTIFIER}" \
-        "${APPLY_CHANGES_CALLBACK}" "${GIT_COMMIT_MSG}" "${RETURNVARNAME_MODIFIED}"
-      return $?
-    else
-      echo "$(logts) ⚠ Redis not available, falling back to Git-based locking"
-    fi
-  else
-    echo "$(logts) Redis locking disabled via GITOPS_USE_REDIS_LOCKING=false"
-  fi
-  
-  # Fallback to Git-based locking
-  echo "$(logts) Using Git-based locking (legacy)"
-  
-  local GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
-  
-  # Acquire Git lock
-  clone_and_lock_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" \
-    "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}" "${LOCK_IDENTIFIER}"
-  
-  if [[ $? -ne 0 ]]; then
-    echo "$(logts) Failed to acquire Git lock"
+  # Redis locking is mandatory for migrated GitOps flows
+  if [[ "${GITOPS_USE_REDIS_LOCKING}" != "true" ]]; then
+    echo "$(logts) ERROR: Redis locking is required but GITOPS_USE_REDIS_LOCKING is not set to true"
     return 1
   fi
-  
-  # Apply changes
-  echo ""
-  echo "$(logts) Applying changes via callback: ${APPLY_CHANGES_CALLBACK}"
-  echo "-------------------------------------------------"
-  if ! ${APPLY_CHANGES_CALLBACK} "${GITOPS_REPO_DIR}"; then
-    echo "$(logts) Apply changes callback failed"
+
+  echo "$(logts) Redis locking enabled, checking availability..."
+
+  if ! redis_available; then
+    echo "$(logts) ERROR: Redis locking is required but Redis is not available"
     return 1
   fi
-  
-  # Save and unlock
-  save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}" \
-    "${GIT_COMMIT_MSG}" "${LOCK_IDENTIFIER}" "${RETURNVARNAME_MODIFIED}"
-  
+
+  echo "$(logts) ✓ Redis is available and accessible"
+  echo "$(logts) Using Redis-based distributed locking"
+  clone_and_modify_with_redis_lock "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" \
+    "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}" "${LOCK_IDENTIFIER}" \
+    "${APPLY_CHANGES_CALLBACK}" "${GIT_COMMIT_MSG}" "${RETURNVARNAME_MODIFIED}"
   return $?
 }
 
