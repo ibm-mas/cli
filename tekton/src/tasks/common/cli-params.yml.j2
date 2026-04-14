@@ -8,3 +8,21 @@
   type: string
   description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
   default: ""
+- name: SLACK_TOKEN
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops-slack
+      key: SLACK_TOKEN
+      optional: true
+- name: SLACK_CHANNEL
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops-slack
+      key: SLACK_CHANNEL
+      optional: true
+- name: PIPELINE_NAMESPACE
+  value: $(params.pipeline_namespace)
+- name: PIPELINERUN_NAME
+  value: $(params.pipelinerun_name)
+- name: PIPELINE_NAME
+  value: $(params.pipeline_name)
