@@ -116,6 +116,9 @@ spec:
     - name: artifactory_token
       type: string
       default: ""
+    - name: centralised_sls
+      type: string
+      default: ""
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -217,6 +220,8 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
+        - name: centralised_sls
+          value: $(params.centralised_sls)
       taskRef:
         kind: Task
         name: gitops-mas-initiator
