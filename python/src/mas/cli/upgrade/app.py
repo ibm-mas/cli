@@ -81,15 +81,13 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             SystemExit: If upgrade should be blocked (essential mode detected)
         """
         permissionMode = getSuitePermissionMode(self.dynamicClient, instanceId)
+        print_formatted_text(HTML(f"<Gray>Permission mode: {permissionMode}</Gray>"))
 
         if permissionMode == 'essential':
-            self.printH1("❌ Upgrade Blocked: Essential Permission Mode")
+            print_formatted_text(HTML("<Red>Cannot upgrade MAS in 'essential' Permission Mode</Red>"))
             print()
             self.printDescription([
-                "<Red><b>Cannot upgrade MAS in 'essential' permission mode.</b></Red>",
-                "",
-                "The ibm-mas operator does not have sufficient permissions to access",
-                "application resources and perform upgrade pre-checks.",
+                "The ibm-mas operator does not have sufficient permissions to access application resources and perform upgrade pre-checks.",
                 "",
                 "<Yellow><b>To proceed with the upgrade:</b></Yellow>",
                 "1. Temporarily switch to 'cluster' or 'nonEssential' mode",
@@ -241,11 +239,14 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         # Compute Monitor install order for upgrade
         self.computeMonitorInstallOrderForUpgrade(instanceId)
-        # Check permission mode
-        self.printH1("Permission Mode Validation")
-        self.checkPermissionModeForUpgrade(instanceId)
-        print_formatted_text(HTML("<Green>✓ Permission mode check passed</Green>"))
-        print()
+        
+        # Check permission mode only when upgrading FROM 9.2.x or later
+        # (9.1.x doesn't have permissionMode feature)
+        if currentChannel and currentChannel.startswith("9.2"):
+            self.printH1("Permission Mode Validation")
+            self.checkPermissionModeForUpgrade(instanceId)
+            print_formatted_text(HTML("<Green>✓ Permission mode check passed</Green>"))
+            print()
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
