@@ -10,18 +10,11 @@ spec:
     - name: aiservice_instance_ids
       type: string
       default: ""
-      description: Comma-separated AI Service Instance IDs
-    - name: aiservice_channel
-      type: string
-      default: ""
-      description: AI Service channel
+      description: Comma-separated AI Service instance IDs
 
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
-
-      - name: AISERVICE_CHANNEL
-        value: $(params.aiservice_channel)
 
   steps:
     - name: aiservice-migration

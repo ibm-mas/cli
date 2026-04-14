@@ -28,7 +28,7 @@ class UpdateArgumentParser(argparse.ArgumentParser):
             f"                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {{redhat,strimzi}}]\n"
             f"                  [--artifactory-username ARTIFACTORY_USERNAME]\n"
             f"                  [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode]\n"
-            f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--aiservice-channel AISERVICE_CHANNEL]\n"
+            f"                  [--cp4d-version CPD_PRODUCT_VERSION]\n"
             f"                  [--no-confirm] [--skip-pre-check]\n"
             f"\n"
             f"Usage (interactive mode):\n"
@@ -194,11 +194,6 @@ otherArgGroup.add_argument(
     dest="cpd_product_version",
     required=False,
     help="Product version of CP4D to use"
-)
-otherArgGroup.add_argument(
-    "--aiservice-channel",
-    required=False,
-    help="AI Service channel used during migration"
 )
 otherArgGroup.add_argument(
     '--no-confirm',
