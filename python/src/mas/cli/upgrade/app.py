@@ -239,7 +239,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         # Compute Monitor install order for upgrade
         self.computeMonitorInstallOrderForUpgrade(instanceId)
-        
+
         # Check permission mode only when upgrading FROM 9.2.x or later
         # (9.1.x doesn't have permissionMode feature)
         if currentChannel and currentChannel.startswith("9.2"):
