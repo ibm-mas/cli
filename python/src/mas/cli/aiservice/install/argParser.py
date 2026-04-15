@@ -460,7 +460,11 @@ db2ArgGroup.add_argument(
     required=False,
     help="Subscription channel for Db2u"
 )
-
+db2ArgGroup.add_argument(
+    "--db2-license-file",
+    required=False,
+    help="Db2 License File for Db2"
+)
 
 # Development Mode
 # -----------------------------------------------------------------------------
