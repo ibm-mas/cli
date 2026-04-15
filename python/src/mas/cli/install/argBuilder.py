@@ -183,11 +183,6 @@ class installArgBuilderMixin():
         if self.getParam('mongodb_namespace') != "":
             command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
 
-        # Redis Configuration
-        # -----------------------------------------------------------------------------
-        if self.getParam('redis_namespace') != "":
-            command += f"  --redis-namespace \"{self.getParam('redis_namespace')}\"{newline}"
-
         # OCP Configuration
         # -----------------------------------------------------------------------------
         if self.getParam('ocp_ingress_tls_secret_name') != "":
