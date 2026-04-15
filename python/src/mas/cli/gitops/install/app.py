@@ -96,7 +96,8 @@ class GitOpsInstallApp(BaseApp):
 
             # Execute installation
             logger.info("Starting installation execution")
-            if self._execute_installation():
+            success = self._execute_installation()
+            if success:
                 # Install OpenShift Pipelines if requested
                 if self.params.get('install_pipelines_operator'):
                     logger.info("Installing OpenShift Pipelines Operator")

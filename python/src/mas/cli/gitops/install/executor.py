@@ -112,6 +112,14 @@ class GitOpsInstallExecutor():
                     h.stop_and_persist(symbol=self.failure_icon, text="gitops-cluster failed")
                     return False
 
+            # Step 2.5: Execute gitops-license
+            with Halo(text='Executing gitops-license', spinner=self.spinner) as h:
+                if self._executeGitOpsCommand('gitops-license', self.params):
+                    h.stop_and_persist(symbol=self.success_icon, text="gitops-license completed successfully")
+                else:
+                    h.stop_and_persist(symbol=self.failure_icon, text="gitops-license failed")
+                    return False
+
             # Step 3: Execute gitops-suite (instance)
             with Halo(text='Executing gitops-suite', spinner=self.spinner) as h:
                 if self._executeGitOpsCommand('gitops-suite', self.params):
@@ -119,6 +127,84 @@ class GitOpsInstallExecutor():
                 else:
                     h.stop_and_persist(symbol=self.failure_icon, text="gitops-suite failed")
                     return False
+
+            # Step 3.1: Execute gitops-mas-config for bas
+            with Halo(text='Executing gitops-mas-config (bas)', spinner=self.spinner) as h:
+                mas_config_params = self.params.copy()
+                mas_config_params['mas_config_type'] = 'bas'
+                mas_config_params['config_action'] = 'upsert'
+                if self._executeGitOpsCommand('gitops-mas-config', mas_config_params):
+                    h.stop_and_persist(symbol=self.success_icon, text="gitops-mas-config (bas) completed successfully")
+                else:
+                    h.stop_and_persist(symbol=self.failure_icon, text="gitops-mas-config (bas) failed")
+                    return False
+
+            # Step 3.2: Execute gitops-mas-config for mongo
+            with Halo(text='Executing gitops-mas-config (mongo)', spinner=self.spinner) as h:
+                mas_config_params = self.params.copy()
+                mas_config_params['mas_config_type'] = 'mongo'
+                mas_config_params['config_action'] = 'upsert'
+                if self._executeGitOpsCommand('gitops-mas-config', mas_config_params):
+                    h.stop_and_persist(symbol=self.success_icon, text="gitops-mas-config (mongo) completed successfully")
+                else:
+                    h.stop_and_persist(symbol=self.failure_icon, text="gitops-mas-config (mongo) failed")
+                    return False
+
+            # Step 3.3: Execute gitops-mas-config for sls
+            with Halo(text='Executing gitops-mas-config (sls)', spinner=self.spinner) as h:
+                mas_config_params = self.params.copy()
+                mas_config_params['mas_config_type'] = 'sls'
+                mas_config_params['config_action'] = 'upsert'
+                if self._executeGitOpsCommand('gitops-mas-config', mas_config_params):
+                    h.stop_and_persist(symbol=self.success_icon, text="gitops-mas-config (sls) completed successfully")
+                else:
+                    h.stop_and_persist(symbol=self.failure_icon, text="gitops-mas-config (sls) failed")
+                    return False
+
+            # Step 3.4: Execute gitops-db2u
+            with Halo(text='Executing gitops-db2u', spinner=self.spinner) as h:
+                if self._executeGitOpsCommand('gitops-db2u', self.params):
+                    h.stop_and_persist(symbol=self.success_icon, text="gitops-db2u completed successfully")
+                else:
+                    h.stop_and_persist(symbol=self.failure_icon, text="gitops-db2u failed")
+                    return False
+
+            # Step 3.5: Execute gitops-db2u-database for manage, facilities, and iot apps
+            # followed by gitops-mas-config (jdbc) for each
+            db2u_apps = []
+            if self.params.get('mas_app_id_manage'):
+                db2u_apps.append('manage')
+            if self.params.get('mas_app_id_facilities'):
+                db2u_apps.append('facilities')
+            if self.params.get('mas_app_id_iot'):
+                db2u_apps.append('iot')
+
+            for app_id in db2u_apps:
+                # Execute gitops-db2u-database for the app
+                with Halo(text=f'Executing gitops-db2u-database for {app_id}', spinner=self.spinner) as h:
+                    db2u_params = self._prepare_app_params(app_id, 'install')
+                    if self._executeGitOpsCommand('gitops-db2u-database', db2u_params):
+                        h.stop_and_persist(symbol=self.success_icon, text=f"gitops-db2u-database for {app_id} completed successfully")
+                    else:
+                        h.stop_and_persist(symbol=self.failure_icon, text=f"gitops-db2u-database for {app_id} failed")
+                        return False
+
+                # Execute gitops-mas-config (jdbc) after each db2u-database
+                with Halo(text=f'Executing gitops-mas-config (jdbc) for {app_id}', spinner=self.spinner) as h:
+                    jdbc_params = db2u_params.copy()
+                    jdbc_params['mas_config_type'] = 'jdbc'
+                    jdbc_params['mas_app_id'] = app_id
+                    jdbc_params['config_action'] = 'upsert'
+                    # Set mas_config_scope: 'system' for iot, 'wsapp' for manage and facilities
+                    if app_id == 'iot':
+                        jdbc_params['mas_config_scope'] = 'system'
+                    else:  # manage or facilities
+                        jdbc_params['mas_config_scope'] = 'wsapp'
+                    if self._executeGitOpsCommand('gitops-mas-config', jdbc_params):
+                        h.stop_and_persist(symbol=self.success_icon, text=f"gitops-mas-config (jdbc) for {app_id} completed successfully")
+                    else:
+                        h.stop_and_persist(symbol=self.failure_icon, text=f"gitops-mas-config (jdbc) for {app_id} failed")
+                        return False
 
             # Step 4: Execute gitops-suite-workspace (only if mas_workspace_id is set)
             if self.params.get('mas_workspace_id'):
