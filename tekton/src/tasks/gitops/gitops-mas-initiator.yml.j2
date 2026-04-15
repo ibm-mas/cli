@@ -258,6 +258,50 @@ spec:
           set -e -o pipefail
         fi
 
+        # Fetch public NLB DNS name from AWS and create secret
+        echo "Fetching Network Load Balancer DNS name for fvtsaas VPC..."
+        
+        # Get VPC ID for fvtsaas
+        VPC_ID=$(aws ec2 describe-vpcs --filters "Name=tag:Name,Values=*fvtsaas*" --query 'Vpcs[0].VpcId' --output text)
+        
+        if [[ -z "$VPC_ID" || "$VPC_ID" == "None" ]]; then
+          echo "ERROR: Could not find fvtsaas VPC"
+          exit 1
+        fi
+        
+        echo "Found VPC ID: $VPC_ID"
+        
+        # Get Network Load Balancer DNS name (internet-facing, type network, name contains fvtsaas and ext)
+        NLB_DNS=$(aws elbv2 describe-load-balancers \
+          --query "LoadBalancers[?VpcId=='${VPC_ID}' && Type=='network' && Scheme=='internet-facing'].{Name:LoadBalancerName,DNS:DNSName}" \
+          --output json | jq -r '.[] | select(.Name | contains("fvtsaas") and contains("ext")) | .DNS' | head -n 1)
+        
+        if [[ -z "$NLB_DNS" || "$NLB_DNS" == "None" ]]; then
+          echo "ERROR: Could not find internet-facing Network Load Balancer in fvtsaas VPC"
+          exit 1
+        fi
+        
+        echo "Found NLB DNS: $NLB_DNS"
+        
+        # Create AWS secret with NLB DNS information using path structure
+        SECRET_NAME="${ACCOUNT}/${CLUSTER_NAME}/public-elb"
+        
+        # Check if secret already exists
+        if aws secretsmanager describe-secret --secret-id "${SECRET_NAME}" 2>/dev/null; then
+          echo "Updating existing secret: ${SECRET_NAME}"
+          aws secretsmanager update-secret \
+            --secret-id "${SECRET_NAME}" \
+            --secret-string "{\"dns\":\"${NLB_DNS}\"}"
+        else
+          echo "Creating new secret: ${SECRET_NAME}"
+          aws secretsmanager create-secret \
+            --name "${SECRET_NAME}" \
+            --description "Public Network Load Balancer DNS for fvt" \
+            --secret-string "{\"dns\":\"${NLB_DNS}\"}"
+        fi
+        
+        echo "AWS secret created/updated successfully: ${SECRET_NAME}"
+
         export TARGET_LOCAL_DIR="/tmp/target_repo"
         mkdir -p $TARGET_LOCAL_DIR
         cd $TARGET_LOCAL_DIR
@@ -299,7 +343,7 @@ spec:
         else
           echo "gitops-mas-initiator: CENTRALISED_SLS not true, skipping ICN folder creation"
         fi
-
+       
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
         if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
 
