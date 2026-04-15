@@ -1,0 +1,45 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-aiservice-migration
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: aiservice_instance_ids
+      type: string
+      default: ""
+      description: Comma-separated AI Service instance IDs
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+  steps:
+    - name: aiservice-migration
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        INSTANCE_IDS='$(params.aiservice_instance_ids)'
+
+        if [ -z "${INSTANCE_IDS}" ]; then
+          echo "No AI Service instances detected, skipping migration"
+          exit 0
+        fi
+
+        IFS=',' read -ra IDS <<< "${INSTANCE_IDS}"
+
+        for id in "${IDS[@]}"; do
+          id="$(echo "$id" | xargs)"
+          if [ -z "$id" ]; then
+            continue
+          fi
+
+          echo "Running AI Service migration for instance: $id"
+          export AISERVICE_INSTANCE_ID="$id"
+          /opt/app-root/src/run-role.sh aiservice_migration
+        done
