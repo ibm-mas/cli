@@ -49,6 +49,27 @@ spec:
       runAfter:
         - waitfor-approval
 
+    # 1.1. Apply RBAC before upgrade
+    # -------------------------------------------------------------------------
+    # When upgrading to 9.2.x-rbac or later, clusterrole/nonessential roles need to be created before the upgrade
+    # The operator needs these permissions to perform pre-checks during the upgrade
+    # The suite_rbac role will skip execution for MAS versions below 9.2 automatically
+    - name: suite-rbac
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-rbac
+      runAfter:
+        - pre-upgrade-check
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.mas_channel)
+        - name: mas_permission_mode
+          value: $(params.mas_permission_mode)
 
     # 2. Suite Upgrade (Phase 1)
     # -------------------------------------------------------------------------
@@ -58,7 +79,7 @@ spec:
         kind: Task
         name: mas-devops-suite-upgrade
       runAfter:
-        - pre-upgrade-check
+        - suite-rbac
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
