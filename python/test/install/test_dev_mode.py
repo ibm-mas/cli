@@ -85,7 +85,8 @@ def test_install_master_dev_mode(tmpdir):
         # 10. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Custom channel for iot.*': lambda msg: '9.1.x-dev',
-        '.*Install Monitor.*': lambda msg: 'n',
+        '.*Install Monitor.*': lambda msg: 'y',
+        '.*Custom channel for monitor.*': lambda msg: '9.1.x-dev',
         '.*Install Manage.*': lambda msg: 'y',
         '.*Custom channel for manage.*': lambda msg: '9.1.x-dev',
         '.*Select components to enable.*': lambda msg: 'n',
@@ -165,7 +166,8 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         # 10. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Custom channel for iot.*': lambda msg: '9.1.x-dev',
-        '.*Install Monitor.*': lambda msg: 'n',
+        '.*Install Monitor.*': lambda msg: 'y',
+        '.*Custom channel for monitor.*': lambda msg: '9.1.x-dev',
         '.*Install Manage.*': lambda msg: 'y',
         '.*Custom channel for manage.*': lambda msg: '9.1.x-dev',
         '.*Select components to enable.*': lambda msg: 'n',
@@ -288,7 +290,8 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 20. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Custom channel for iot.*': lambda msg: '9.2.x-dev',
-        '.*Install Monitor.*': lambda msg: 'n',
+        '.*Install Monitor.*': lambda msg: 'y',
+        '.*Custom channel for monitor.*': lambda msg: '9.2.x-dev',
         '.*Install Manage.*': lambda msg: 'y',
         '.*Custom channel for manage.*': lambda msg: '9.2.x-dev',
         '.*Select a server bundle configuration.*': lambda msg: '1',  # Select dev server bundle

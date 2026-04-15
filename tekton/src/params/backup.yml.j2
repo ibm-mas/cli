@@ -99,6 +99,11 @@
   description: Set to false to skip Grafana install
   default: "true"
 
+- name: include_mongo
+  type: string
+  description: Set to false to skip Mongo backup/restore (if Mongo is external)
+  default: "true"
+
 - name: include_sls
   type: string
   description: Set to false to skip SLS backup/restore (if SLS is external)

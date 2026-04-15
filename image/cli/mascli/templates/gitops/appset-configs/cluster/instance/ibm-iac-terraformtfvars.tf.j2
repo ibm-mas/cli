@@ -29,7 +29,7 @@ name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 
 {%- if IS_S3 | lower == 'true'  %}
 #S3 related params starts
-allowed_bucket_policy_keys = ["logs", "doclinks", "mvi"]
+allowed_bucket_policy_keys = ["logs", "doclinks", "mvi", "facilities"]
 allowed_bucket_lifecycle_configuration_keys = ["custfiles", "backup"]
 enable_dr = false
 {%- if S3_MANAGE | lower == 'true'  %}
@@ -65,6 +65,18 @@ s3_iam_users_list_mvi = {
 }
 #S3 MVI related params ends
 {%- endif %}
+{%- if S3_FACILITIES | lower == 'true'  %}
+#S3 facilities related params starts
+s3bucket_name_prefix_facilities    = "massaas-cos-{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}"
+iam_user_name_prefix_facilities = "massaas-cos-{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-sid"
+iam_user_arn_prefix_facilities  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-sid"
+s3_iam_users_list_facilities = {
+    facilities = {
+        iam_user_name = "massaas-cos-{{ CLUSTER_ID }}-{{ MAS_INSTANCE_ID }}-sid-facilities-rw"
+    }
+}
+#S3 FACILITIES related params ends
+{%- endif %}
 
 #S3 related params ends
 {%- endif %}
@@ -94,35 +106,62 @@ account_id = "{{ACCOUNT_ID}}"
 #RDS related params starts
 engine_version            = "11.5.9.0.sb00063198.r1"
 db2_parameters_apply_type = "pending-reboot"
+s3backup_bucket_name_prefix_db2 = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}"
 s3bucket_name_prefix_db2    = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
 iam_user_name_prefix_audit_log = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
 iam_user_arn_prefix_audit_log  = "arn:aws:iam::{{ACCOUNT_ID}}:user/{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
+iam_user_name_prefix_backup = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
+iam_user_arn_prefix_backup  = "arn:aws:iam::{{ACCOUNT_ID}}:user/{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
 {%- if (RDS_MANAGE | lower == 'true') %}
 #RDS S3 MANAGE AUDIT LOG related params starts
 s3_iam_users_list_audit_log_manage = {
-    audit_logs  = {
+    audit_log  = {
         iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-manage"
     }
 }
 #RDS S3 MANAGE AUDIT LOG related params ends
+
+#RDS S3 MANAGE Backup related params starts
+s3_iam_users_list_backup_manage = {
+    backup  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-backup-manage"
+    }
+}
+#RDS S3 MANAGE Backup related params ends
 {%- endif %}
 {%- if (RDS_IOT | lower == 'true') %}
 #RDS S3 IOT AUDIT LOG related params starts
 s3_iam_users_list_audit_log_iot = {
-    audit_logs  = {
+    audit_log  = {
         iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-iot"
     }
 }
 #RDS S3 IOT AUDIT LOG related params ends
+
+#RDS S3 iot Backup related params starts
+s3_iam_users_list_backup_iot = {
+    backup  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-backup-iot"
+    }
+}
+#RDS S3 iot Backup related params ends
 {%- endif %}
 {%- if (RDS_FACILITIES | lower == 'true') %}
 #RDS S3 FACILITIES AUDIT LOG related params starts
 s3_iam_users_list_audit_log_facilities = {
-    audit_logs  = {
+    audit_log  = {
         iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-facilities"
     }
 }
 #RDS S3 FACILITIES AUDIT LOG related params ends
+
+#RDS S3 facilities Backup related params starts
+s3_iam_users_list_backup_facilities = {
+    backup  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-backup-facilities"
+    }
+}
+#RDS S3 facilities Backup related params ends
 {%- endif %}
 #RDS related params ends
 {%- endif %}

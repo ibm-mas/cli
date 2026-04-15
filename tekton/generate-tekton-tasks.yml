@@ -54,6 +54,7 @@
         - odh
         - rhoai
         - aiservice-upgrade
+        - aiservice-migration
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
