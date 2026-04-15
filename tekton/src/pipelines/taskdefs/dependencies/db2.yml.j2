@@ -146,6 +146,7 @@
   workspaces:
     - name: configs
       workspace: shared-configs
+{%- if db2_license_workspace is defined and db2_license_workspace == 'true' %}
     - name: entitlement
       workspace: shared-entitlement
-      optional: true
+{% endif %}

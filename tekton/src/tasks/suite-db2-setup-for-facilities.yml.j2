@@ -59,6 +59,10 @@ spec:
     - name: db2u_kind
       type: string
       default: ""
+    - name: db2_license_file
+      type: string
+      default: ""
+      description: Db2 activation license file
 
     # Db2 - Node scheduling
     - name: db2_affinity_key
@@ -208,6 +212,8 @@ spec:
         value: $(params.db2_table_org)
       - name: DB2U_KIND
         value: $(params.db2u_kind)
+      - name: DB2_LICENSE_FILE
+        value: $(params.db2_license_file)
 
       # Db2 - Node Scheduling
       - name: DB2_AFFINITY_KEY
@@ -302,4 +308,6 @@ spec:
     
   workspaces:
     - name: configs
+      optional: true
+    - name: shared-entitlement
       optional: true
