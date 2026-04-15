@@ -233,17 +233,32 @@ class UpdateApp(BaseApp):
         return self.reviewInstances(listMasInstances, 'MAS', 'Suite.core.mas.ibm.com/v1')
 
     def reviewAiServiceInstance(self) -> bool:
-        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1')
+        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1', "aiservice_instance_ids")
 
-    def reviewInstances(self, getInstances: Callable, name: str, kind: str) -> bool:
+    def reviewInstances(self, getInstances: Callable, name: str, kind: str, instanceParamKey: str = "") -> bool:
         self.printH1(f"Review {name} Instances")
         try:
             instances = getInstances(self.dynamicClient)
+
+            if len(instances) == 0:
+                if instanceParamKey != "":
+                    self.setParam(instanceParamKey, "")
+                self.printDescription([f"No {name} instances were detected on the cluster"])
+                return False
+
+            if instanceParamKey != "":
+                self.setParam(instanceParamKey, "")
+                for instance in instances:
+                    param = self.getParam(instanceParamKey)
+                    self.setParam(instanceParamKey, f"{param},{instance['metadata']['name']}".lstrip(","))
+
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
                 self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
             return True
         except ResourceNotFoundError:
+            if instanceParamKey != "":
+                self.setParam(instanceParamKey, "")
             self.printDescription([f"No {name} instances were detected on the cluster ({kind} API is not available)"])
             return False
 
