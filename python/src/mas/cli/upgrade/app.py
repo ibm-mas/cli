@@ -90,7 +90,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 "The ibm-mas operator does not have sufficient permissions to access application resources and perform upgrade pre-checks.",
                 "",
                 "<Yellow><b>To proceed with the upgrade:</b></Yellow>",
-                "1. Temporarily switch to 'cluster' or 'nonEssential' mode",
+                "1. Temporarily switch to at least 'nonEssential' mode or 'cluster' mode",
                 "2. Complete the upgrade",
                 "3. Switch back to 'essential' mode after the upgrade"
             ])
