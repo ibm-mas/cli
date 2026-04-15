@@ -42,23 +42,17 @@ else
   # Clone pre-install repository
   echo "Cloning pre-install repository from GitHub..."
   
-  # Determine which branch/tag to use
-  if [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
-    PREINSTALL_BRANCH="${GITHUB_REF_NAME}"
-    echo "Attempting to clone matching branch: ${PREINSTALL_BRANCH}"
-  else
-    # For tag builds, use main branch
-    PREINSTALL_BRANCH="main"
-    echo "Using main branch for tag build"
-  fi
+  # Use ds.rbac branch for RBAC files
+  PREINSTALL_BRANCH="ds.rbac"
+  echo "Using pre-install branch: ${PREINSTALL_BRANCH}"
   
   # Clone the repository
   cd /tmp/install
   if git clone --depth 1 --branch "${PREINSTALL_BRANCH}" https://github.com/ibm-mas/pre-install.git 2>/dev/null; then
     echo "Successfully cloned pre-install repository (branch: ${PREINSTALL_BRANCH})"
   else
-    echo "Branch ${PREINSTALL_BRANCH} not found, falling back to main branch"
-    git clone --depth 1 --branch main https://github.com/ibm-mas/pre-install.git
+    echo "Branch ${PREINSTALL_BRANCH} not found, falling back to master branch"
+    git clone --depth 1 --branch master https://github.com/ibm-mas/pre-install.git
   fi
   
   PREINSTALL_SOURCE="/tmp/install/pre-install/maximo-operator-catalog"
