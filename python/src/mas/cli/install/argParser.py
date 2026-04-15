@@ -1188,6 +1188,11 @@ db2ArgGroup.add_argument(
     help="Timezone for Db2 instance"
 )
 db2ArgGroup.add_argument(
+    "--db2-license-file",
+    required=False,
+    help="Db2 License File for Db2"
+)
+db2ArgGroup.add_argument(
     "--db2-affinity-key",
     required=False,
     help="Set a node label to declare affinity to"

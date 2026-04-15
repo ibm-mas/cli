@@ -67,7 +67,8 @@ def test_install_master_dev_mode(tmpdir):
         ".*Use the auto-detected storage classes.*": lambda msg: 'y',
         # 5. SLS configuration
         '.*SLS channel.*': lambda msg: '1.x-stable',
-        '.*License file.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+        '.*>License file<.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',  # SLS License (exact match with HTML tags)
+        '.*>Db2 License file<.*': lambda msg: '',  # Db2 License (exact match with HTML tags)
         # 6. DRO configuration
         ".*Contact e-mail address.*": lambda msg: 'maximo@ibm.com',
         ".*Contact first name.*": lambda msg: 'Test',
@@ -148,7 +149,8 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Use the auto-detected storage classes.*": lambda msg: 'y',
         # 5. SLS configuration
         '.*SLS channel.*': lambda msg: '1.x-stable',
-        '.*License file.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+        '.*>License file<.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',  # SLS License (exact match with HTML tags)
+        '.*>Db2 License file<.*': lambda msg: '',  # Db2 License (exact match with HTML tags)
         # 6. DRO configuration
         ".*Contact e-mail address.*": lambda msg: 'maximo@ibm.com',
         ".*Contact first name.*": lambda msg: 'Test',
@@ -253,7 +255,8 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 6. SLS configuration
         '.*SLS Mode.*': lambda msg: '1',  # SLS Mode prompt (appears with advanced options)
         '.*SLS channel.*': lambda msg: '1.x-stable',
-        '.*License file.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+        '.*>License file<.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',  # SLS License (exact match with HTML tags)
+        '.*>Db2 License file<.*': lambda msg: '',  # Db2 License (exact match with HTML tags)
         # 7. DRO configuration
         '.*DRO.*Namespace.*': lambda msg: '',  # DRO Namespace prompt (appears with advanced options)
         ".*Contact e-mail address.*": lambda msg: 'maximo@ibm.com',

@@ -35,7 +35,8 @@ def test_install_interactive_no_catalog(tmpdir):
         # 5. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: 'y',
         # 6. SLS configuration
-        '.*License file.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+        '.*>License file<.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',  # SLS License (exact match with HTML tags)
+        '.*>Db2 License file<.*': lambda msg: '',  # Db2 License (exact match with HTML tags)
         # 7. DRO configuration
         ".*Contact e-mail address.*": lambda msg: 'maximo@ibm.com',
         ".*Contact first name.*": lambda msg: 'Test',

@@ -11,6 +11,10 @@ spec:
     - name: ibm_entitlement_key
       type: string
       default: ""
+    - name: db2_license_file
+      type: string
+      description: Path to Db2 license file
+      default: ""
 
     # Db2u Operator
     - name: db2_channel
@@ -222,6 +226,8 @@ spec:
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
+      - name: DB2_LICENSE_FILE
+        value: $(params.db2_license_file)
 
       # Db2u Operator
       - name: DB2_CHANNEL
@@ -369,4 +375,6 @@ spec:
     - name: configs
       optional: true
     - name: backups
+      optional: true
+    - name: shared-entitlement
       optional: true
