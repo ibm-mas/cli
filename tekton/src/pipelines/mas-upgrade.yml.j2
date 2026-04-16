@@ -70,6 +70,9 @@ spec:
           value: $(params.mas_channel)
         - name: mas_permission_mode
           value: $(params.mas_permission_mode)
+      workspaces:
+        - name: configs
+          workspace: shared-configs
 
     # 2. Suite Upgrade (Phase 1)
     # -------------------------------------------------------------------------
