@@ -101,6 +101,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_odh
 . $CLI_DIR/functions/gitops_aiservice
 . $CLI_DIR/functions/gitops_aiservice_tenant
+. $CLI_DIR/functions/gitops_mongo_atlas
 . $CLI_DIR/functions/gitops_deprovision_aiservice_tenant
 . $CLI_DIR/functions/gitops_deprovision_aiservice
 . $CLI_DIR/functions/gitops_mas_provisioner
@@ -679,7 +680,13 @@ case $1 in
     reset_colors
     gitops_deprovision_odh "$@"
     ;;
-
+  gitops-mongo-atlas)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_mongo_atlas "$@"
+    ;;
   gitops-aiservice)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
