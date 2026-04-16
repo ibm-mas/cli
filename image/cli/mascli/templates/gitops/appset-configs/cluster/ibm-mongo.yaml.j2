@@ -17,7 +17,7 @@ mongo:
   mongo_pit_enabled: {{ MONGO_PIT_ENABLED }}
   mongo_helm_repo: {{ MONGO_HELM_REPO }}
   mongo_namespace: {{ MONGO_NAMESPACE }}
-  mongo_publicApiKey: "<path:{{ SECRETS_PATH }}:{{ MONGO_PUBLIC_API_KEY }}>"
-  mongo_privateApiKey: "<path:{{ SECRETS_PATH }}:{{ MONGO_PRIVATE_API_KEY }}>"
+  mongo_publicApiKey: "<path:{{ SECRETS_PATH }}:{{ MONGO_PUBLICAPIKEY }}>"
+  mongo_privateApiKey: "<path:{{ SECRETS_PATH }}:{{ MONGO_PRIVATEAPIKEY }}>"
   mongo_update_mongo_secret: {{ MONGO_UPDATE_MONGO_SECRET }}
   mongo_atlasURI: {{ MONGO_ATLASURI }}

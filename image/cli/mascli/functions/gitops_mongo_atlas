@@ -355,6 +355,8 @@ function gitops_mongo_atlas() {
   sm_update_secret $SECRET_NAME_MONGO_ATLAS "{\"public_api_key\": \"${MONGO_PUBLIC_API_KEY_VALUE}\", \"private_api_key\": \"${MONGO_PRIVATE_API_KEY_VALUE}\"}" "${TAGS}"
 
   # Export variables for template
+  export MONGO_PUBLICAPIKEY="${MONGO_PUBLICAPIKEY}"
+  export MONGO_PRIVATEAPIKEY="${MONGO_PRIVATEAPIKEY}"
   export MONGO_ATLASURI="${ATLAS_URI}"
   export MONGO_HELM_REPO="${MONGO_HELM_REPO:-}"
   export MONGO_NAMESPACE="${MONGO_NAMESPACE:-mongodb-atlas-system}"
