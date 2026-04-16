@@ -340,8 +340,8 @@ spec:
         # Create ICN folder structure if CENTRALISED_SLS is true
         if [[ "$CENTRALISED_SLS" == "true" ]]; then
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
-          echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
-          cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
+          echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
+          cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
 
           # Process any .j2 files
           process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
@@ -496,6 +496,7 @@ spec:
         if [[ ! "$GIT_COMMIT_MSG" =~ ^"[skip deploy]" ]]; then
             # Append a new line to the file to drive the deployment at cluster level
             echo "" >> gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+            echo "" >> gitops/$ACCOUNT/icn/icn.yaml
         else
             echo "Commit message starts with [skip deploy], no changes made."
         fi
