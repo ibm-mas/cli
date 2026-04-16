@@ -695,14 +695,6 @@ function clone_and_modify_with_redis_lock() {
   local REDIS_LOCK_KEY="lock.${LOCK_NAME}"
   local REDIS_LOCK_VALUE=""
   
-  echo ""
-  echo "$(logts) clone_and_modify_with_redis_lock"
-  echo "================================================="
-  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}"
-  echo "Branch: ${GIT_BRANCH}"
-  echo "Lock name: ${LOCK_NAME}"
-  echo "Redis lock key: ${REDIS_LOCK_KEY}"
-  
   # Step 1: Acquire Redis lock
   if ! redis_acquire_lock "${REDIS_LOCK_KEY}" REDIS_LOCK_VALUE; then
     echo "$(logts) Failed to acquire Redis lock"
@@ -875,17 +867,6 @@ function gitops_lock_and_modify() {
   # Print Redis configuration for debugging
   echo "$(logts) Redis Configuration:"
   echo "  GITOPS_USE_REDIS_LOCKING ... ${GITOPS_USE_REDIS_LOCKING}"
-  echo "  REDIS_HOST .................. ${REDIS_HOST}"
-  echo "  REDIS_PORT .................. ${REDIS_PORT}"
-  echo "  REDIS_DB .................... ${REDIS_DB}"
-  echo "  REDIS_TLS ................... ${REDIS_TLS}"
-  echo "  REDIS_USERNAME .............. ${REDIS_USERNAME:+***set***}"
-  echo "  REDIS_PASSWORD .............. ${REDIS_PASSWORD:+***set***}"  # pragma: allowlist secret
-  echo "  GITOPS_LOCK_TTL ............. ${GITOPS_LOCK_TTL}s"
-  echo "  GITOPS_LOCK_RETRY_MAX ....... ${GITOPS_LOCK_RETRY_MAX}"
-  echo "  GITOPS_LOCK_RETRY_DELAY ..... ${GITOPS_LOCK_RETRY_DELAY}s"
-  echo "  REDIS_PORT_DEBUG ............ Port is: ${REDIS_PORT}"
-  
   # Redis locking is mandatory for migrated GitOps flows
   if [[ "${GITOPS_USE_REDIS_LOCKING}" != "true" ]]; then
     echo "$(logts) ERROR: Redis locking is required but GITOPS_USE_REDIS_LOCKING is not set to true"
