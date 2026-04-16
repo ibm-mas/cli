@@ -411,35 +411,16 @@ class GitOpsInstallExecutor():
 
             # gitops_working_dir is optional - commands will use their own defaults if not provided
 
-            # Map common parameters to environment variables
-            param_mapping = {
-                # GitOps Configuration
-                'gitops_working_dir': 'GITOPS_WORKING_DIR',
-                'cluster_id': 'CLUSTER_ID',
-                'cluster_url': 'CLUSTER_URL',
-                'account_id': 'ACCOUNT_ID',
-                'region_id': 'REGION_ID',
-                'github_host': 'GITHUB_HOST',
-                'github_org': 'GITHUB_ORG',
-                'github_repo': 'GITHUB_REPO',
-                'git_branch': 'GIT_BRANCH',
-                'github_user': 'GITHUB_USER',
-                'git_commit_msg': 'GIT_COMMIT_MSG',
-                'github_push': 'GITHUB_PUSH',
+            # Special mappings for parameters that need name transformations
+            # These are exceptions where the param name doesn't directly map to the env var name
+            special_mappings = {
+                # Parameters that need prefix/suffix changes
+                'secret_access_key': 'AWS_SECRET_ACCESS_KEY',
+                'aws_vpc_id': 'VPC_ID',
+                'ocp_domain': 'OCP_CLUSTER_DOMAIN',
+                'gitops_repo_token_secret': 'GITHUB_PAT',
 
-                # Secrets Manager
-                'secrets_path': 'SECRETS_PATH',
-                'sm_aws_secret_region': 'SM_AWS_REGION',
-                'sm_aws_access_key_id': 'SM_AWS_ACCESS_KEY_ID',
-                'sm_aws_secret_access_key': 'SM_AWS_SECRET_ACCESS_KEY',
-
-                # IBM Container Registry
-                'icr_username': 'ICR_USERNAME',
-                'icr_password': 'ICR_PASSWORD',
-                'icr_cp': 'ICR_CP',
-                'icr_cp_open': 'ICR_CP_OPEN',
-
-                # Catalog Configuration
+                # Parameters with aliases (multiple param names -> same env var)
                 'catalog_version': 'MAS_CATALOG_VERSION',
                 'mas_catalog_version': 'MAS_CATALOG_VERSION',
                 'catalog_image': 'MAS_CATALOG_IMAGE',
@@ -447,148 +428,6 @@ class GitOpsInstallExecutor():
                 'catalog_action': 'MAS_CATALOG_ACTION',
                 'mas_catalog_action': 'MAS_CATALOG_ACTION',
 
-                # Certificate Manager
-                'install_redhat_cert_manager': 'INSTALL_REDHAT_CERT_MANAGER',
-                'redhat_cert_manager_install_plan': 'REDHAT_CERT_MANAGER_INSTALL_PLAN',
-
-                # DNS Provider
-                'dns_provider': 'DNS_PROVIDER',
-                'ocp_domain': 'OCP_CLUSTER_DOMAIN',
-
-                # MAS Instance Configuration
-                'mas_instance_id': 'MAS_INSTANCE_ID',
-                'mas_workspace_id': 'MAS_WORKSPACE_ID',
-                'mas_workspace_name': 'MAS_WORKSPACE_NAME',
-                'mas_channel': 'MAS_CHANNEL',
-                'mas_domain': 'MAS_DOMAIN',
-                'mas_annotations': 'MAS_ANNOTATIONS',
-                'mas_image_tags': 'MAS_IMAGE_TAGS',
-                'mas_labels': 'MAS_LABELS',
-                'mas_config_dir': 'MAS_CONFIG_DIR',
-                'mas_manual_cert_mgmt': 'MAS_MANUAL_CERT_MGMT',
-                'mas_manual_certs_yaml': 'MAS_MANUAL_CERTS_YAML',
-                'mas_pod_template_yaml': 'MAS_POD_TEMPLATE_YAML',
-                'mas_install_plan': 'MAS_INSTALL_PLAN',
-
-                # SLS Configuration
-                'sls_channel': 'SLS_CHANNEL',
-                'sls_install_plan': 'SLS_INSTALL_PLAN',
-                'sls_license_id': 'SLS_LICENSE_ID',
-                'sls_license_file': 'SLS_LICENSE_FILE',
-                'license_file': 'LICENSE_FILE',
-
-                # MongoDB Configuration
-                'mongo_provider': 'MONGODB_PROVIDER',
-                'mongo_namespace': 'MONGO_NAMESPACE',
-                'mongodb_action': 'MONGODB_ACTION',
-                'mongo_yaml_file': 'MONGO_YAML_FILE',
-                'yaml_file': 'MONGO_YAML_FILE',
-                'mongo_username': 'MONGO_USERNAME',
-                'mongo_password': 'MONGO_PASSWORD',
-                'vpc_ipv4_cidr': 'VPC_IPV4_CIDR',
-                'aws_docdb_instance_number': 'AWS_DOCDB_INSTANCE_NUMBER',
-                'aws_docdb_engine_version': 'AWS_DOCDB_ENGINE_VERSION',
-
-                # Kafka Configuration
-                'kafka_action': 'KAFKA_ACTION',
-                'kafka_provider': 'KAFKA_PROVIDER',
-                'kafka_version': 'KAFKA_VERSION',
-                'kafka_namespace': 'KAFKA_NAMESPACE',
-                'kafkacfg_file_name': 'KAFKACFG_FILE_NAME',
-                'aws_msk_instance_type': 'AWS_MSK_INSTANCE_TYPE',
-                'aws_msk_instance_number': 'AWS_MSK_INSTANCE_NUMBER',
-                'aws_msk_volume_size': 'AWS_MSK_VOLUME_SIZE',
-                'aws_msk_cidr_az1': 'AWS_MSK_CIDR_AZ1',
-                'aws_msk_cidr_az2': 'AWS_MSK_CIDR_AZ2',
-                'aws_msk_cidr_az3': 'AWS_MSK_CIDR_AZ3',
-                'aws_msk_egress_cidr': 'AWS_MSK_EGRESS_CIDR',
-                'aws_msk_ingress_cidr': 'AWS_MSK_INGRESS_CIDR',
-                'eventstreams_resourcegroup': 'EVENTSTREAMS_RESOURCEGROUP',
-                'eventstreams_name': 'EVENTSTREAMS_NAME',
-                'eventstreams_location': 'EVENTSTREAMS_LOCATION',
-
-                # COS Configuration
-                'cos_action': 'COS_ACTION',
-                'cos_type': 'COS_TYPE',
-                'cos_resourcegroup': 'COS_RESOURCEGROUP',
-                'cos_apikey': 'COS_APIKEY',
-                'cos_instance_name': 'COS_INSTANCE_NAME',
-                'cos_bucket_name': 'COS_BUCKET_NAME',
-                'cos_use_hmac': 'COS_USE_HMAC',
-
-                # EFS Configuration
-                'efs_action': 'EFS_ACTION',
-                'cloud_provider': 'CLOUD_PROVIDER',
-
-                # Cloud Provider Credentials
-                'ibmcloud_apikey': 'IBMCLOUD_APIKEY',
-                'ibmcloud_resourcegroup': 'IBMCLOUD_RESOURCEGROUP',
-                'aws_region': 'AWS_REGION',
-                'aws_access_key_id': 'AWS_ACCESS_KEY_ID',
-                'secret_access_key': 'AWS_SECRET_ACCESS_KEY',
-                'aws_vpc_id': 'VPC_ID',
-
-                # GitOps Additional Configuration
-                'nvidia_gpu_action': 'NVIDIA_GPU_ACTION',
-                'sls_instance_name': 'SLS_INSTANCE_NAME',
-                'avp_aws_secret_key': 'AVP_AWS_SECRET_KEY',
-                'avp_aws_access_key': 'AVP_AWS_ACCESS_KEY',
-                'gitops_repo_token_secret': 'GITHUB_PAT',
-
-                # DB2 Configuration
-                'db2_action': 'DB2_ACTION',
-                'db2_version': 'DB2_VERSION',
-                'db2_channel': 'DB2_CHANNEL',
-                'db2_subscription_install_plan': 'DB2_INSTALL_PLAN',
-                'db2_install_plan': 'DB2_INSTALL_PLAN',
-
-                # Storage Classes
-                'storage_class_rwx': 'STORAGE_CLASS_RWX',
-                'storage_class_rwo': 'STORAGE_CLASS_RWO',
-                'default_block_storage_class': 'DEFAULT_BLOCK_STORAGE_CLASS',
-                'default_file_storage_class': 'DEFAULT_FILE_STORAGE_CLASS',
-
-                # MAS Application Configuration
-                'mas_app_id': 'MAS_APP_ID',
-                'mas_app_channel': 'MAS_APP_CHANNEL',
-                'mas_app_install_plan': 'MAS_APP_INSTALL_PLAN',
-                'mas_app_catalog_source': 'MAS_APP_CATALOG_SOURCE',
-                'mas_app_spec_yaml': 'MAS_APP_SPEC_YAML',
-
-                # DRO Configuration
-                'dro_contact_email': 'DRO_CONTACT_EMAIL',
-                'dro_contact_firstname': 'DRO_CONTACT_FIRSTNAME',
-                'dro_contact_lastname': 'DRO_CONTACT_LASTNAME',
-
-                # SMTP Configuration
-                'smtp_host': 'SMTP_HOST',
-                'smtp_port': 'SMTP_PORT',
-                'smtp_username': 'SMTP_USERNAME',
-                'smtp_password': 'SMTP_PASSWORD',
-                'smtp_from': 'SMTP_FROM',
-                'smtp_security': 'SMTP_SECURITY',
-                'smtp_authentication': 'SMTP_AUTHENTICATION',
-
-                # LDAP Configuration
-                'ldap_url': 'LDAP_URL',
-                'ldap_bind_dn': 'LDAP_BIND_DN',
-                'ldap_bind_password': 'LDAP_BIND_PASSWORD',
-                'ldap_user_base_dn': 'LDAP_USER_BASE_DN',
-                'ldap_group_base_dn': 'LDAP_GROUP_BASE_DN',
-                'ldap_certificate_file': 'LDAP_CERTIFICATE_FILE',
-                'ldap_basedn': 'LDAP_BASEDN',
-                'ldap_userid_map': 'LDAP_USERID_MAP',
-
-                # Advanced Configuration Files
-                'dro_ca_certificate_file': 'DRO_CA_CERTIFICATE_FILE',
-
-                # CP4D Configuration
-                'cp4d_action': 'CP4D_ACTION',
-                'cpd_product_version': 'CPD_PRODUCT_VERSION',
-                'cpd_primary_storage_class': 'CPD_PRIMARY_STORAGE_CLASS',
-                'cpd_metadata_storage_class': 'CPD_METADATA_STORAGE_CLASS',
-
-                # AI Service Storage Configuration
                 'storage_provider': 'AISERVICE_STORAGE_PROVIDER',
                 'aiservice_storage_provider': 'AISERVICE_STORAGE_PROVIDER',
                 'storage_ssl': 'AISERVICE_STORAGE_SSL',
@@ -596,31 +435,67 @@ class GitOpsInstallExecutor():
                 'storage_region': 'AISERVICE_STORAGE_REGION',
                 'aiservice_storage_region': 'AISERVICE_STORAGE_REGION',
 
-                # CIS Compliance Configuration
                 'cis_compliance_install_plan': 'CIS_INSTALL_PLAN',
                 'cis_install_plan': 'CIS_INSTALL_PLAN',
+
+                'db2_subscription_install_plan': 'DB2_INSTALL_PLAN',
+                'db2_install_plan': 'DB2_INSTALL_PLAN',
+
+                'mongo_provider': 'MONGODB_PROVIDER',
+                'mongodb_action': 'MONGODB_ACTION',
+                'yaml_file': 'MONGO_YAML_FILE',
             }
 
-            # Set environment variables from params
-            for param_key, env_var in param_mapping.items():
+            # Conditional mappings - only set if target env var is not already set
+            # These provide fallback values from alternative parameter names
+            conditional_mappings = {
+                'ibm_entitlement_key': 'ICR_PASSWORD',
+                'sls_license_file': 'LICENSE_FILE',
+            }
+
+            # Track which env vars have been set to avoid duplicates
+            env_vars_set = set()
+
+            # First, apply special mappings
+            for param_key, env_var in special_mappings.items():
                 if param_key in params and params[param_key] is not None:
                     # Convert boolean values to lowercase strings ("true"/"false")
                     if isinstance(params[param_key], bool):
                         env[env_var] = str(params[param_key]).lower()
                     else:
                         env[env_var] = str(params[param_key])
+                    env_vars_set.add(env_var)
+                    logger.debug(f"Set environment variable {env_var}={env[env_var]} from param {param_key} (special mapping)")
+
+            # Then, set all other params as env vars (uppercase param name)
+            for param_key, param_value in params.items():
+                if param_value is not None:
+                    # Convert param name to uppercase for env var name
+                    env_var = param_key.upper()
+
+                    # Skip if already set by special mapping
+                    if env_var in env_vars_set:
+                        continue
+
+                    # Convert boolean values to lowercase strings ("true"/"false")
+                    if isinstance(param_value, bool):
+                        env[env_var] = str(param_value).lower()
+                    else:
+                        env[env_var] = str(param_value)
+                    env_vars_set.add(env_var)
                     logger.debug(f"Set environment variable {env_var}={env[env_var]} from param {param_key}")
 
-            # Special case: Set ICR_PASSWORD from ibm_entitlement_key if not already set
-            if 'ibm_entitlement_key' in params and params['ibm_entitlement_key']:
-                if 'ICR_PASSWORD' not in env:
-                    env['ICR_PASSWORD'] = str(params['ibm_entitlement_key'])
-
-            # Special case: Set LICENSE_FILE from sls_license_file if LICENSE_FILE is not already set
-            # This mirrors the bash function's logic at line 97 of gitops_license
-            if 'LICENSE_FILE' not in env and 'sls_license_file' in params and params['sls_license_file']:
-                env['LICENSE_FILE'] = str(params['sls_license_file'])
-                logger.debug(f"Set LICENSE_FILE from sls_license_file: {env['LICENSE_FILE']}")
+            # Apply conditional mappings - only set if target env var is not already set
+            for param_key, env_var in conditional_mappings.items():
+                if param_key in params and params[param_key] is not None:
+                    if env_var not in env:
+                        # Convert boolean values to lowercase strings ("true"/"false")
+                        if isinstance(params[param_key], bool):
+                            env[env_var] = str(params[param_key]).lower()
+                        else:
+                            env[env_var] = str(params[param_key])
+                        env_vars_set.add(env_var)
+                        logger.debug(f"Set environment variable {env_var}={env[env_var]} from param {param_key} (conditional mapping)")
 
             # Build the command with required CLI parameters
             # These parameters are always required and must be passed on the command line
