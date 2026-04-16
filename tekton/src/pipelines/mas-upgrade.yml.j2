@@ -68,6 +68,7 @@ spec:
       runAfter:
         - pre-upgrade-check
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_channel
@@ -80,6 +81,7 @@ spec:
     - name: core-verify
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_channel
@@ -177,6 +179,7 @@ spec:
     - name: app-manage-upgrade
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
@@ -202,6 +205,7 @@ spec:
     - name: app-monitor-upgrade-before-iot
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
@@ -227,6 +231,7 @@ spec:
     - name: app-iot-upgrade-after-monitor
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
@@ -252,6 +257,7 @@ spec:
     - name: app-iot-upgrade
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
@@ -277,6 +283,7 @@ spec:
     - name: app-visualinspection-upgrade
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
@@ -299,6 +306,7 @@ spec:
     - name: app-assist-upgrade
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
@@ -321,6 +329,7 @@ spec:
     - name: app-optimizer-upgrade
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
@@ -342,6 +351,7 @@ spec:
     - name: app-monitor-upgrade
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
@@ -367,6 +377,7 @@ spec:
     - name: app-predict-upgrade
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
