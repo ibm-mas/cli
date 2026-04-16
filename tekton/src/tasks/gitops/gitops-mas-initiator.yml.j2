@@ -261,7 +261,7 @@ spec:
         # Fetch public NLB DNS name from AWS and create secret
         echo "Fetching Network Load Balancer DNS name for $CLUSTER_NAME VPC..."
         
-       # Note the - after cluster name. this is to distinguish between different similar named clusters
+        # Note the - after cluster name. this is to distinguish between different similar named clusters
         vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.[].Value // ""' | xargs)
         if [ -z "$vpc_name" ]; then
           # Needed if there is only one cluster in account
