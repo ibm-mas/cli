@@ -293,6 +293,57 @@ spec:
     - name: provisioner_mas_annotations_repo_url
       type: string
       default: ''
+
+    # MongoDB Atlas Parameters
+    - name: atlasURI
+      type: string
+      default: "https://cloud.mongodb.com/"
+    - name: mongo_action
+      type: string
+      default: ""
+    - name: mongo_major_db_version
+      type: string
+      default: ""
+    - name: mongo_vpc_id
+      type: string
+      default: ""
+    - name: mongo_subnet_ids
+      type: string
+      default: ""
+    - name: mongo_project_id
+      type: string
+      default: ""
+    - name: mongo_organization_id
+      type: string
+      default: ""
+    - name: mongo_instance_size
+      type: string
+      default: ""
+    - name: mongo_node_count
+      type: string
+      default: "3"
+    - name: mongo_shards
+      type: string
+      default: "1"
+    - name: mongo_backup_enabled
+      type: string
+      default: "true"
+    - name: mongo_pit_enabled
+      type: string
+      default: "true"
+    - name: mongo_helm_repo
+      type: string
+      default: ""
+    - name: mongo_namespace
+      type: string
+      default: "mongodb-atlas-system"
+    - name: mongo_update_mongo_secret
+      type: string
+      default: "true"
+    - name: mongo_atlasURI
+      type: string
+      default: "https://cloud.mongodb.com/"
+
   tasks:
     - name: gitops-cluster
       params:
@@ -419,6 +470,71 @@ spec:
           workspace: configs
         - name: gitops-cluster-configs
           workspace: gitops-cluster-configs
+
+    - name: gitops-mongo-atlas
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: atlasURI
+          value: $(params.atlasURI)
+        - name: mongo_action
+          value: $(params.mongo_action)
+        - name: mongo_major_db_version
+          value: $(params.mongo_major_db_version)
+        - name: mongo_vpc_id
+          value: $(params.mongo_vpc_id)
+        - name: mongo_subnet_ids
+          value: $(params.mongo_subnet_ids)
+        - name: mongo_project_id
+          value: $(params.mongo_project_id)
+        - name: mongo_organization_id
+          value: $(params.mongo_organization_id)
+        - name: mongo_instance_size
+          value: $(params.mongo_instance_size)
+        - name: mongo_node_count
+          value: $(params.mongo_node_count)
+        - name: mongo_shards
+          value: $(params.mongo_shards)
+        - name: mongo_backup_enabled
+          value: $(params.mongo_backup_enabled)
+        - name: mongo_pit_enabled
+          value: $(params.mongo_pit_enabled)
+        - name: mongo_helm_repo
+          value: $(params.mongo_helm_repo)
+        - name: mongo_namespace
+          value: $(params.mongo_namespace)
+        - name: mongo_update_mongo_secret
+          value: $(params.mongo_update_mongo_secret)
+        - name: mongo_atlasURI
+          value: $(params.mongo_atlasURI)
+      taskRef:
+        kind: Task
+        name: gitops-mongo-atlas
+      when:
+        - input: "$(params.mongo_action)"
+          operator: in
+          values: ["install", "uninstall"]
+      workspaces:
+        - name: configs
+          workspace: configs
 
     - name: gitops-efs-csi-driver
       runAfter:

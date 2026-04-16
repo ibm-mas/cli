@@ -1,0 +1,396 @@
+#!/usr/bin/env bash
+
+function gitops_mongo_atlas_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-mongo-atlas [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration (Required):
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
+
+AWS Secrets Manager Configuration (Required):
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}                Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}            Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}        Your AWS Secret Key
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                         Secrets Manager path
+
+MongoDB Atlas Configuration (Required):
+      --atlas-uri ${COLOR_YELLOW}ATLAS_URI${TEXT_RESET}                                           MongoDB Atlas URI (default: 'https://cloud.mongodb.com/')
+
+MongoDB Atlas Resource Configuration (Required):
+      --mongo-action ${COLOR_YELLOW}MONGO_ACTION${TEXT_RESET}                                     Action to perform ('install' or 'uninstall')
+      --mongo-major-db-version ${COLOR_YELLOW}MONGO_MAJOR_DB_VERSION${TEXT_RESET}                 MongoDB major version (e.g., '2.5.1')
+      --mongo-vpc-id ${COLOR_YELLOW}MONGO_VPC_ID${TEXT_RESET}                                     VPC ID for MongoDB Atlas
+      --mongo-subnet-ids ${COLOR_YELLOW}MONGO_SUBNET_IDS${TEXT_RESET}                             Comma-separated list of subnet IDs
+
+MongoDB Atlas Details (Required):
+      --mongo-project-id ${COLOR_YELLOW}MONGO_PROJECT_ID${TEXT_RESET}                             MongoDB Atlas Project ID
+      --mongo-organization-id ${COLOR_YELLOW}MONGO_ORGANIZATION_ID${TEXT_RESET}                   MongoDB Atlas Organization ID
+
+MongoDB Cluster Configuration (Required):
+      --mongo-instance-size ${COLOR_YELLOW}MONGO_INSTANCE_SIZE${TEXT_RESET}                       Instance size (e.g., 'M10', 'M20', 'M30')
+      --mongo-node-count ${COLOR_YELLOW}MONGO_NODE_COUNT${TEXT_RESET}                             Number of nodes (default: 3)
+      --mongo-shards ${COLOR_YELLOW}MONGO_SHARDS${TEXT_RESET}                                     Number of shards (default: 1)
+
+MongoDB Backup Configuration (Optional):
+      --mongo-backup-enabled ${COLOR_YELLOW}MONGO_BACKUP_ENABLED${TEXT_RESET}                     Enable backup (default: true)
+      --mongo-pit-enabled ${COLOR_YELLOW}MONGO_PIT_ENABLED${TEXT_RESET}                           Enable point-in-time restore (default: true)
+
+MongoDB Helm Configuration (Optional):
+      --mongo-helm-repo ${COLOR_YELLOW}MONGO_HELM_REPO${TEXT_RESET}                               Helm repository URL
+
+MongoDB API Keys (Required):
+      --mongo-public-api-key ${COLOR_YELLOW}MONGO_PUBLIC_API_KEY${TEXT_RESET}                     MongoDB Atlas Public API Key
+      --mongo-private-api-key ${COLOR_YELLOW}MONGO_PRIVATE_API_KEY${TEXT_RESET}                   MongoDB Atlas Private API Key
+
+Secret Management (Optional):
+      --mongo-update-mongo-secret ${COLOR_YELLOW}MONGO_UPDATE_MONGO_SECRET${TEXT_RESET}           Update MongoDB secret (default: true)
+
+Automatic GitHub Push (Optional):
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}         Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}         GitHub Hostname for your GitOps repository
+  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}           Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}         Github repo for your GitOps repository
+  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}              Git ssh key path
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}           Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}   Git commit message to use when committing to of your GitOps repository
+
+Other Commands:
+  -h, --help                              Show this help message
+EOM
+
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_mongo_atlas_noninteractive() {
+  # Set defaults
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SM_DELIM="/"
+
+  export GITHUB_PUSH="false"
+  export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-mongo-atlas commit"}
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+
+  # MongoDB Atlas defaults
+  export ATLAS_URI=${ATLAS_URI:-"https://cloud.mongodb.com/"}
+  export MONGO_NODE_COUNT=${MONGO_NODE_COUNT:-3}
+  export MONGO_SHARDS=${MONGO_SHARDS:-1}
+  export MONGO_BACKUP_ENABLED=${MONGO_BACKUP_ENABLED:-"true"}
+  export MONGO_PIT_ENABLED=${MONGO_PIT_ENABLED:-"true"}
+  export MONGO_UPDATE_MONGO_SECRET=${MONGO_UPDATE_MONGO_SECRET:-"true"}
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+
+      # MongoDB Atlas Configuration
+      --atlas-uri)
+        export ATLAS_URI=$1 && shift
+        ;;
+
+      # MongoDB Atlas Resource Configuration
+      --mongo-action)
+        export MONGO_ACTION=$1 && shift
+        ;;
+      --mongo-major-db-version)
+        export MONGO_MAJOR_DB_VERSION=$1 && shift
+        ;;
+      --mongo-vpc-id)
+        export MONGO_VPC_ID=$1 && shift
+        ;;
+      --mongo-subnet-ids)
+        export MONGO_SUBNET_IDS=$1 && shift
+        ;;
+
+      # MongoDB Atlas Details
+      --mongo-project-id)
+        export MONGO_PROJECT_ID=$1 && shift
+        ;;
+      --mongo-organization-id)
+        export MONGO_ORGANIZATION_ID=$1 && shift
+        ;;
+
+      # MongoDB Cluster Configuration
+      --mongo-instance-size)
+        export MONGO_INSTANCE_SIZE=$1 && shift
+        ;;
+      --mongo-node-count)
+        export MONGO_NODE_COUNT=$1 && shift
+        ;;
+      --mongo-shards)
+        export MONGO_SHARDS=$1 && shift
+        ;;
+
+      # MongoDB Backup Configuration
+      --mongo-backup-enabled)
+        export MONGO_BACKUP_ENABLED=$1 && shift
+        ;;
+      --mongo-pit-enabled)
+        export MONGO_PIT_ENABLED=$1 && shift
+        ;;
+
+      # MongoDB Helm Configuration
+      --mongo-helm-repo)
+        export MONGO_HELM_REPO=$1 && shift
+        ;;
+      --mongo-namespace)
+        export MONGO_NAMESPACE=$1 && shift
+        ;;
+      --mongo-atlasURI)
+        export MONGO_ATLASURI=$1 && shift
+        ;;
+
+      # MongoDB API Keys
+      --mongo-public-api-key)
+        export MONGO_PUBLIC_API_KEY_VALUE=$1 && shift
+        ;;
+      --mongo-private-api-key)
+        export MONGO_PRIVATE_API_KEY_VALUE=$1 && shift
+        ;;
+
+      # Secret Management
+      --mongo-update-mongo-secret)
+        export MONGO_UPDATE_MONGO_SECRET=$1 && shift
+        ;;
+
+      # Automatic GitHub Push (Optional)
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_mongo_atlas_help
+        ;;
+      *)
+        # unknown option
+        gitops_mongo_atlas_help  "Usage Error: Unsupported option \"${key}\""
+        ;;
+    esac
+  done
+
+  # Validate required parameters
+  [[ -z "$ACCOUNT_ID" ]] && gitops_mongo_atlas_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_mongo_atlas_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_mongo_atlas_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$SECRETS_PATH" ]] && gitops_mongo_atlas_help "SECRETS_PATH is not set"
+  
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_mongo_atlas_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_mongo_atlas_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_mongo_atlas_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_mongo_atlas_help "GIT_BRANCH is not set"
+  fi
+
+  # MongoDB Atlas specific validations
+  [[ -z "$MONGO_ACTION" ]] && gitops_mongo_atlas_help "MONGO_ACTION is not set"
+  [[ -z "$MONGO_MAJOR_DB_VERSION" ]] && gitops_mongo_atlas_help "MONGO_MAJOR_DB_VERSION is not set"
+  [[ -z "$MONGO_VPC_ID" ]] && gitops_mongo_atlas_help "MONGO_VPC_ID is not set"
+  [[ -z "$MONGO_SUBNET_IDS" ]] && gitops_mongo_atlas_help "MONGO_SUBNET_IDS is not set"
+  [[ -z "$MONGO_PROJECT_ID" ]] && gitops_mongo_atlas_help "MONGO_PROJECT_ID is not set"
+  [[ -z "$MONGO_ORGANIZATION_ID" ]] && gitops_mongo_atlas_help "MONGO_ORGANIZATION_ID is not set"
+  [[ -z "$MONGO_INSTANCE_SIZE" ]] && gitops_mongo_atlas_help "MONGO_INSTANCE_SIZE is not set"
+  [[ -z "$MONGO_PUBLIC_API_KEY_VALUE" ]] && gitops_mongo_atlas_help "MONGO_PUBLIC_API_KEY_VALUE is not set"
+  [[ -z "$MONGO_PRIVATE_API_KEY_VALUE" ]] && gitops_mongo_atlas_help "MONGO_PRIVATE_API_KEY_VALUE is not set"
+}
+
+function gitops_mongo_atlas() {
+  # Take the first parameter off (it will be gitops-mongo-atlas)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_mongo_atlas_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_mongo_atlas_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ............... ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory ............ ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host ......................... ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization ................. ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ................... ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ....................... ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ............... ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory ............ ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ................................. ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ............................. ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ............................. ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ........................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "MongoDB Atlas Configuration" "    "
+  echo_reset_dim "Atlas URI .............................. ${COLOR_MAGENTA}${ATLAS_URI}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "MongoDB Atlas Resource" "    "
+  echo_reset_dim "Action ............................. ${COLOR_MAGENTA}${MONGO_ACTION}"
+  echo_reset_dim "Major DB Version ................... ${COLOR_MAGENTA}${MONGO_MAJOR_DB_VERSION}"
+  echo_reset_dim "VPC ID ............................. ${COLOR_MAGENTA}${MONGO_VPC_ID}"
+  echo_reset_dim "Subnet IDs ......................... ${COLOR_MAGENTA}${MONGO_SUBNET_IDS}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "MongoDB Atlas Details" "    "
+  echo_reset_dim "Project ID ......................... ${COLOR_MAGENTA}${MONGO_PROJECT_ID}"
+  echo_reset_dim "Organization ID .................... ${COLOR_MAGENTA}${MONGO_ORGANIZATION_ID}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "MongoDB Cluster Configuration" "    "
+  echo_reset_dim "Instance Size ...................... ${COLOR_MAGENTA}${MONGO_INSTANCE_SIZE}"
+  echo_reset_dim "Node Count ......................... ${COLOR_MAGENTA}${MONGO_NODE_COUNT}"
+  echo_reset_dim "Shards ............................. ${COLOR_MAGENTA}${MONGO_SHARDS}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "MongoDB Backup Configuration" "    "
+  echo_reset_dim "Backup Enabled ..................... ${COLOR_MAGENTA}${MONGO_BACKUP_ENABLED}"
+  echo_reset_dim "Point-in-Time Enabled .............. ${COLOR_MAGENTA}${MONGO_PIT_ENABLED}"
+  reset_colors
+
+  if [[ -n "$MONGO_HELM_REPO" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "MongoDB Helm Configuration" "    "
+    echo_reset_dim "Helm Repository .................... ${COLOR_MAGENTA}${MONGO_HELM_REPO}"
+    reset_colors
+  fi
+
+  # Set up secrets
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Configuring MongoDB Atlas secrets"
+  AVP_TYPE=aws
+  sm_login
+
+  export SECRET_NAME_MONGO_ATLAS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}mongo_atlas
+  export MONGO_PUBLIC_API_KEY=${SECRET_NAME_MONGO_ATLAS}#public_api_key
+  export MONGO_PRIVATE_API_KEY=${SECRET_NAME_MONGO_ATLAS}#private_api_key
+
+  echo "- Update MongoDB Atlas API Keys secret"
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mongo_atlas\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+  sm_update_secret $SECRET_NAME_MONGO_ATLAS "{\"public_api_key\": \"${MONGO_PUBLIC_API_KEY_VALUE}\", \"private_api_key\": \"${MONGO_PRIVATE_API_KEY_VALUE}\"}" "${TAGS}"
+
+  # Export variables for template
+  export MONGO_ATLASURI="${ATLAS_URI}"
+  export MONGO_HELM_REPO="${MONGO_HELM_REPO:-}"
+  export MONGO_NAMESPACE="${MONGO_NAMESPACE:-mongodb-atlas-system}"
+
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_CLUSTER_DIR}
+
+  # Convert comma-separated subnet IDs to array for Jinja2 template
+  IFS=',' read -ra MONGO_SUBNET_IDS <<< "$MONGO_SUBNET_IDS"
+  export MONGO_SUBNET_IDS
+
+  # Generate ArgoApp for MongoDB Atlas
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating MongoDB Atlas Argo Application"
+
+  echo "- MongoDB Atlas Cluster Configuration"
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-mongo.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mongo.yaml
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+}
