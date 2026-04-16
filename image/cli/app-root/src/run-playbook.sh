@@ -16,14 +16,6 @@ source /opt/app-root/src/env.sh
 
 python3 /opt/app-root/src/register-start.py
 
-echo "DEVOPS_SUITE_NAME: $DEVOPS_SUITE_NAME"
-echo "DEVOPS_BUILD_NUMBER: $DEVOPS_BUILD_NUMBER"
-echo "ANSIBLE_DEVOPS_VERSION: $ANSIBLE_DEVOPS_VERSION"
-echo "PIPELINE_NAME: $PIPELINE_NAME"
-echo "PIPELINERUN_NAME: $PIPELINERUN_NAME"
-echo "DEVOPS_ENVIRONMENT: $DEVOPS_ENVIRONMENT"
-
-
 # Capture the playbook name for notification
 PLAYBOOK_NAME="$1"
 
