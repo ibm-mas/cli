@@ -337,6 +337,12 @@ spec:
     - name: mongo_namespace
       type: string
       default: "mongodb-atlas-system"
+    - name: mongo_publicApiKey
+      type: string
+      default: ""
+    - name: mongo_privateApiKey
+      type: string
+      default: ""
     - name: mongo_update_mongo_secret
       type: string
       default: "true"
@@ -521,6 +527,10 @@ spec:
           value: $(params.mongo_helm_repo)
         - name: mongo_namespace
           value: $(params.mongo_namespace)
+        - name: mongo_publicApiKey
+          value: $(params.mongo_publicApiKey)
+        - name: mongo_privateApiKey
+          value: $(params.mongo_privateApiKey)
         - name: mongo_update_mongo_secret
           value: $(params.mongo_update_mongo_secret)
         - name: mongo_atlasURI
