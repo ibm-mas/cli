@@ -301,6 +301,15 @@ function gitops_iac_noninteractive() {
           [[ $# -gt 0 ]] && shift
         fi
         ;;
+      --s3-facilities)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export S3_FACILITIES=$1
+          shift
+        else
+          export S3_FACILITIES=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
 
       --is-msk)
         if [[ -n "$1" && "$1" != --* ]]; then
@@ -757,6 +766,7 @@ function compute_s3_variables() {
   echo "  ACCOUNT_ID: ${ACCOUNT_ID}"
   echo "  S3_MANAGE: ${S3_MANAGE}"
   echo "  S3_MVI: ${S3_MVI}"
+  echo "  S3_FACILITIES: ${S3_FACILITIES}"
   echo "  VPC_ID: ${VPC_ID_VALUE}"
 
   echo " S3 variables computed successfully"
@@ -1052,14 +1062,16 @@ function gitops_iac_provision_s3() {
   echo
   echo_h2 "Generating IAC/S3 Configuration"
   
-  # S3_MANAGE and S3_MVI are already set from command-line parameters
+  # S3_MANAGE, S3_MVI and S3_FACILITIES are already set from command-line parameters
   echo "S3_MANAGE: ${S3_MANAGE}"
   echo "S3_MVI: ${S3_MVI}"
+  echo "S3_FACILITIES: ${S3_FACILITIES}"
 
   export APP_NAME=""
   APP_PARAMS=(
   "manage $S3_MANAGE"
   "mvi $S3_MVI"
+  "facilities $S3_FACILITIES"
   )
 
   for row in "${APP_PARAMS[@]}"; do
@@ -1235,31 +1247,44 @@ function gitops_iac_provision_rdsdb2(){
     echo RDS_DB2_CONFIG_FACILITIES
   fi
   APP_PARAMS=(
-  "manage $RDS_MANAGE_DB2_INSTANCE_CLASS $RDS_MANAGE_DB2_STORAGE_TYPE $RDS_MANAGE_ALLOCATED_STORAGE"
-  "iot $RDS_IOT_DB2_INSTANCE_CLASS $RDS_IOT_DB2_STORAGE_TYPE $RDS_IOT_ALLOCATED_STORAGE"
-  "facilities $RDS_FACILITIES_DB2_INSTANCE_CLASS $RDS_FACILITIES_DB2_STORAGE_TYPE $RDS_FACILITIES_ALLOCATED_STORAGE"
+  "manage $RDS_MANAGE_DB2_INSTANCE_CLASS $RDS_MANAGE_DB2_STORAGE_TYPE $RDS_MANAGE_ALLOCATED_STORAGE $RDS_MANAGE_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS"
+  "iot $RDS_IOT_DB2_INSTANCE_CLASS $RDS_IOT_DB2_STORAGE_TYPE $RDS_IOT_ALLOCATED_STORAGE $RDS_IOT_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS"
+  "facilities $RDS_FACILITIES_DB2_INSTANCE_CLASS $RDS_FACILITIES_DB2_STORAGE_TYPE $RDS_FACILITIES_ALLOCATED_STORAGE $RDS_FACILITIES_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS"
   )
 
   for row in "${APP_PARAMS[@]}"; do
-    read -r app instance storage allocated <<< "$row"
+    read -r app instance storage allocated additional_params<<< "$row"
 
     if check_params "$app" "$instance" "$storage" "$allocated"; then
       export RDS_APP="$app"
       export RDS_S3_APP_NAME="$app"
+      export RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$(set_ssl_params "$additional_params")
+      echo "Additional params for $app - ${RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS}"
       echo "Generating rds-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/rds-db2-$app.tf"
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.tf.j2 ${GITOPS_CLUSTER_DIR}/db2rds-$app.tf
 
       echo "Generating db2_parameters-$app.yaml file ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml "
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-db2paramaters.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml
 
-      echo "Generating s3-instance-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf
+      # Loop through bucket types to generate S3 configurations
+      for BUCKET_TYPE in "audit_log" "backup"; do
+        export BUCKET_TYPE
+        echo "Generating s3-instance-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$BUCKET_TYPE-$app.tf "
+        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$BUCKET_TYPE-$app.tf
 
-      echo "Generating s3-iampolicy-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf
+        echo "Generating s3-iampolicy-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$BUCKET_TYPE-$app.tf "
+        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$BUCKET_TYPE-$app.tf
+        # Set BUCKET_TYPE_NAME based on BUCKET_TYPE value
+        if [ "$BUCKET_TYPE" == "audit_log" ]; then
+          export BUCKET_TYPE_NAME="auditlog"
+        else
+          export BUCKET_TYPE_NAME="$BUCKET_TYPE"
+        fi
 
-      echo "Generating s3-accesspoints-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf
+
+        echo "Generating s3-accesspoints-db2-$BUCKET_TYPE-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$BUCKET_TYPE-$app.tf "
+        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$BUCKET_TYPE-$app.tf
+      done
     fi
   done
 
@@ -1532,29 +1557,45 @@ function gitops_iac_manage_pr() {
             if [[ "$MERGE_PR_STATUS" != "true" ]]; then
               echo_h2 "  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
               exit 1
+            else
+              # Delete the branch after successful merge
+              echo_h2 "  Deleting branch '${WORKING_BRANCH}' after successful merge"
+              delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
             fi
           else
             echo_h2 "  Atlantis Apply Failed. Pipeline Failed."
             comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
             close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+            # Delete the branch after closing PR due to apply failure
+            echo_h2 "  Deleting branch '${WORKING_BRANCH}' after closing PR"
+            delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
             exit 1
           fi
         else
           echo_h2 "  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
           comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
           close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+          # Delete the branch after closing PR due to atlantis apply comment failure
+          echo_h2 "  Deleting branch '${WORKING_BRANCH}' after closing PR"
+          delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
           exit 1
         fi
       else
         echo_h2 "  Failed to approve PR. Closing PR. Pipeline Failed."
         comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
         close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+        # Delete the branch after closing PR due to approval failure
+        echo_h2 "  Deleting branch '${WORKING_BRANCH}' after closing PR"
+        delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
         exit 1
       fi
     else
       echo_h2 "  Atlantis Plan Failed. Closing PR. Pipeline Failed."
       comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
       close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+      # Delete the branch after closing PR due to plan failure
+      echo_h2 "  Deleting branch '${WORKING_BRANCH}' after closing PR"
+      delete_branch "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH"
       exit 1
     fi
   else
@@ -1690,5 +1731,46 @@ function check_params() {
   
   # All parameters are set, return app name
   echo "$app_name"
+  return 0
+}
+
+
+# Function to set or append SSL connection parameters
+# Usage: set_ssl_params "$ADDITIONAL_PARAMS"
+# Returns: SSL connection string with default or appended values
+# Example: set_ssl_params "" returns "sslConnection=true;sslVersion=TLSv1.2"
+#          set_ssl_params "param1=value1" returns "param1=value1;sslConnection=true;sslVersion=TLSv1.2"
+#          set_ssl_params "sslConnection=true" returns "sslConnection=true;sslVersion=TLSv1.2"
+#          set_ssl_params "sslVersion=TLSv1.2" returns "sslVersion=TLSv1.2;sslConnection=true"
+#          set_ssl_params "sslConnection=true;sslVersion=TLSv1.2" returns "sslConnection=true;sslVersion=TLSv1.2"
+function set_ssl_params() {
+  local additional_params="$1"
+  local result="$additional_params"
+  
+  # If additional_params is empty, return default SSL settings
+  if [[ -z "$additional_params" ]]; then
+    echo "sslConnection=true;sslVersion=TLSv1.2"
+    return 0
+  fi
+  
+  # Check if sslConnection is missing and append it
+  if [[ "$additional_params" != *"sslConnection="* ]]; then
+    if [[ -n "$result" ]]; then
+      result="${result};sslConnection=true"
+    else
+      result="sslConnection=true"
+    fi
+  fi
+  
+  # Check if sslVersion is missing and append it
+  if [[ "$additional_params" != *"sslVersion="* ]]; then
+    if [[ -n "$result" ]]; then
+      result="${result};sslVersion=TLSv1.2"
+    else
+      result="sslVersion=TLSv1.2"
+    fi
+  fi
+  
+  echo "$result"
   return 0
 }

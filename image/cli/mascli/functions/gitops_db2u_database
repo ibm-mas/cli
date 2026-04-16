@@ -71,6 +71,7 @@ IBM DB2U:
       --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                        Flag to indicate whether enhanced HADR was configured manually
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                        List of IPs or CIDR range that will be whitelisted
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                Cluster domain if any tls route needs to be created. Only needed if redhat cert-manager is not installed.
+      --production-database-access-type ${COLOR_YELLOW}PRODUCTION_DATABASE_ACCESS_TYPE${TEXT_RESET}              Production database access type (e.g., 'ITIC')
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                    Secrets Manager path
@@ -310,6 +311,9 @@ function gitops_db2u_database_noninteractive() {
       --allow-list)
         export ALLOW_LIST=$1 && shift
         ;;
+      --production-database-access-type)
+        export PRODUCTION_DATABASE_ACCESS_TYPE=$1 && shift
+        ;;
       --cluster-domain)
       export CLUSTER_DOMAIN=$1 && shift
         ;;
@@ -405,8 +409,7 @@ function gitops_db2u_database() {
   # as both of these scrtipts modify the same file
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
-  export SECRET_NAME_DB2_BACKUP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup
-  export SECRET_NAME_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}icd
+
 
   #Defaults
   if [[ -z $DB2_TLS_VERSION ]]; then
@@ -505,6 +508,12 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     else
       export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
     fi
+  fi
+  if [[ -z $SECRET_NAME_DB2_BACKUP ]]; then
+    export SECRET_NAME_DB2_BACKUP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup
+  fi
+  if [[ -z $SECRET_NAME_ICD_AUTH_KEY ]]; then
+    export SECRET_NAME_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}icd
   fi
   if [[ -z $DB2_BACKUP_BUCKET_NAME ]]; then
     export DB2_BACKUP_BUCKET_NAME=${SECRET_NAME_DB2_BACKUP}#bucketName
@@ -631,6 +640,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "skip-backup-notification ...................... ${COLOR_MAGENTA}${SKIP_BACKUP_NOTIFICATION}"
   echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   echo_reset_dim "allow-list .................................... ${COLOR_MAGENTA}${ALLOW_LIST}"
+  echo_reset_dim "Production Database Access Type ............... ${COLOR_MAGENTA}${PRODUCTION_DATABASE_ACCESS_TYPE}"
   echo_reset_dim "Cluster Domain ................................ ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   reset_colors
 

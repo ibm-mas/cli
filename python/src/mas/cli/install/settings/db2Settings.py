@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -31,6 +31,8 @@ class Db2SettingsMixin():
         manageAppName: str
         showAdvancedOptions: bool
         localConfigDir: str | None
+        catalogDb2Channel: str
+        chosenCatalog: Dict[str, Any] | None
 
         # Methods from BaseApp
         def setParam(self, param: str, value: str) -> None:
@@ -80,7 +82,7 @@ class Db2SettingsMixin():
         def selectLocalConfigDir(self) -> None:
             ...
 
-        def generateJDBCCfg(self, **kwargs: Any) -> None:
+        def generateJDBCCfg(self, instanceId: str, scope: str, destination: str, appId: str = "", workspaceId: str = "") -> None:
             ...
 
     # In silentMode, no prompts will show up for "happy path" DB2 configuration scenarios. Prompts will still show up when an input is absolutely required
@@ -91,8 +93,9 @@ class Db2SettingsMixin():
 
         self.setDB2DefaultChannel()  # Set default channel for Db2 if not already set
 
-        # If neither Iot, Manage or Facilities is being installed, we have nothing to do
-        if not self.installIoT and not self.installManage and not self.installFacilities:
+        # If neither Monitor, Manage or Facilities is being installed, we have nothing to do
+        # Note: For Monitor >= 9.2.0, Monitor requires Db2; for Monitor < 9.2.0, IoT requires Db2
+        if not self.installMonitor and not self.installIoT and not self.installManage and not self.installFacilities:
             print_formatted_text("No applications have been selected that require a Db2 installation")
             self.setParam("db2_action_system", "none")
             self.setParam("db2_action_manage", "none")
@@ -108,15 +111,34 @@ class Db2SettingsMixin():
 
         self.setDB2DefaultSettings()
 
+        # Determine which application requires the system database based on Monitor version
+        # For Monitor >= 9.2.0: Monitor requires system Db2
+        # For Monitor < 9.2.0: IoT requires system Db2 (original behavior)
+        from mas.devops.utils import isVersionEqualOrAfter
+        monitorChannel = self.getParam("mas_app_channel_monitor")
+        useNewDependency = monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel)
         instanceId = self.getParam('mas_instance_id')
-        # Do we need to set up an IoT database?
-        if self.installIoT:
+        # Do we need to set up a system database?
+        if useNewDependency and self.installMonitor:
+            # New behavior: Monitor >= 9.2.0 requires system Db2
+            if not silentMode:
+                self.printH2("Database Configuration for Maximo Monitor")
+                self.printDescription([
+                    "Maximo Monitor requires a shared system-scope Db2 instance because other applications in the suite require access to the same database source",
+                    " - Only IBM Db2 is supported for this database"
+                ])
+        elif self.installIoT:
+            # Original behavior: IoT requires system Db2
             if not silentMode:
                 self.printH2("Database Configuration for Maximo IoT")
                 self.printDescription([
-                    "Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source",
+                    "Maximo IoT requires a shared system-scope Db2 instance because other applications in the suite require access to the same database source",
                     " - Only IBM Db2 is supported for this database"
                 ])
+        else:
+            self.setParam("db2_action_system", "none")
+
+        if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
             createSystemDb2UsingUniversalOperator = True
             if not silentMode:
                 createSystemDb2UsingUniversalOperator = self.yesOrNo("Create system Db2 instance using the IBM Db2 Universal Operator")
@@ -151,7 +173,7 @@ class Db2SettingsMixin():
                 ])
             # Determine whether to use the system or a dedicated database
             reuseSystemDb2 = False
-            if self.installIoT:
+            if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
                 if not silentMode:
                     reuseSystemDb2 = self.yesOrNo(f"Re-use System Db2 instance for {self.manageAppName} application")
             if reuseSystemDb2:
@@ -230,6 +252,8 @@ class Db2SettingsMixin():
                     f"Note that the same settings are applied to both the IoT and {self.manageAppName} Db2 instances",
                     "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster",
                     "For more information refer to the Red Hat documentation:",
+                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-node-affinity</u></Orange>",
+                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-taints-tolerations</u></Orange>",
                     " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-node-affinity</u></Orange>",
                     " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-taints-tolerations</u></Orange>",
                     " - <Orange><u>https://docs.openshift.com/container-platform/4.18/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
@@ -269,6 +293,17 @@ class Db2SettingsMixin():
                     self.promptForString(" + Metadata Volume", "db2_meta_storage_size", default=self.getParam("db2_meta_storage_size"))
                     self.promptForString(" + Transaction Logs Volume", "db2_logs_storage_size", default=self.getParam("db2_logs_storage_size"))
                     self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
+
+                if self.devMode:
+                    if self.yesOrNo("Select Db2 Custom Resource(CR)"):
+                        self.printDescription([
+                            "Db2 Custom Resource",
+                            "  1. Db2uCluster",
+                            "  2. Db2uInstance"
+                        ])
+                        self.promptForListSelect("Select the CR Resource", ["db2ucluster", "db2uinstance"], "db2u_kind")
+                    else:
+                        self.setParam("db2u_kind", "db2ucluster")
             else:
                 self.setParam("db2_namespace", "db2u")
 

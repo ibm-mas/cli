@@ -38,6 +38,7 @@
         - mongodb
         - nvidia-gpu
         - ocs
+        - rhoai-migration
         - sls-registry-update
         - sls
         - turbonomic
@@ -54,6 +55,7 @@
         - odh
         - rhoai
         - aiservice-upgrade
+        - aiservice-migration
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -136,12 +138,19 @@
         src: "{{ task_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - clean-workspaces
+        - prepare-backup-workspace
+        - download-backup-archive
         - gencfg-workspace
         - must-gather
+        - suite-app-backup
         - suite-app-install
+        - suite-app-restore
+        - suite-app-rollback
         - suite-app-uninstall
         - suite-app-upgrade
-        - suite-app-rollback
+        - suite-backup
+        - suite-restore
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
@@ -152,10 +161,11 @@
         - suite-uninstall
         - suite-upgrade
         - suite-verify
+        - upload-backup-archive
 
     # 7. Generate Tasks (OCP)
     # -------------------------------------------------------------------------
-    - name: Generate Tasks (Suite)
+    - name: Generate Tasks (OCP)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/ocp/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
@@ -225,6 +235,7 @@
         - gitops-deprovision-suite
         - gitops-dro
         - gitops-efs
+        - gitops-efs-csi-driver
         - gitops-jdbc-config
         - gitops-kafka
         - gitops-kafka-config

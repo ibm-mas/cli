@@ -14,12 +14,14 @@ from sys import argv
 
 from mas.cli import __version__ as VERSION
 from mas.cli.install.app import InstallApp
-from mas.cli.gitops.install.app import GitOpsInstallApp
 from mas.cli.aiservice.install.app import AiServiceInstallApp
 from mas.cli.aiservice.upgrade.app import AiServiceUpgradeApp
 from mas.cli.update.app import UpdateApp
 from mas.cli.upgrade.app import UpgradeApp
 from mas.cli.uninstall.app import UninstallApp
+from mas.cli.backup.app import BackupApp
+from mas.cli.restore.app import RestoreApp
+from mas.cli.mirror.app import MirrorApp
 
 from prompt_toolkit import HTML, print_formatted_text
 from urllib3.exceptions import MaxRetryError
@@ -40,12 +42,12 @@ def usage():
     print("")
     print_formatted_text(HTML(
         "<b>MAS Management Actions:</b>\n"
-        + " - <ForestGreen>mas-cli install</ForestGreen>         Install IBM Maximo Application Suite\n"  # noqa: W503
-        + " - <ForestGreen>mas-cli gitops-install</ForestGreen>  Install MAS using GitOps (non-interactive)\n"  # noqa: W503
-        + " - <ForestGreen>mas-cli update</ForestGreen>          Apply updates and security fixes\n"  # noqa: W503
-        + " - <ForestGreen>mas-cli upgrade</ForestGreen>         Upgrade to a new MAS release\n"  # noqa: W503
-        + " - <ForestGreen>mas-cli uninstall</ForestGreen>       Remove MAS from the cluster\n"  # noqa: W503
-
+        + " - <ForestGreen>mas-cli install</ForestGreen>   Install IBM Maximo Application Suite\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli update</ForestGreen>    Apply updates and security fixes\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade to a new MAS release\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli backup</ForestGreen>    Backup a MAS instance\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli mirror</ForestGreen>    Mirror container images \n"  # noqa: W503
     ))
     print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
 
@@ -57,9 +59,6 @@ if __name__ == '__main__':
 
         if function == "install":
             app = InstallApp()
-            exit(app.install(argv[2:]))
-        elif function == "gitops-install":
-            app = GitOpsInstallApp()
             exit(app.install(argv[2:]))
         elif function == "aiservice-install":
             app = AiServiceInstallApp()
@@ -75,7 +74,16 @@ if __name__ == '__main__':
             exit(app.update(argv[2:]))
         elif function == "upgrade":
             app = UpgradeApp()
-            exit(app.upgrade(argv[2:]))
+            app.upgrade(argv[2:])
+        elif function == "backup":
+            app = BackupApp()
+            app.backup(argv[2:])
+        elif function == "restore":
+            app = RestoreApp()
+            app.restore(argv[2:])
+        elif function == "mirror":
+            app = MirrorApp()
+            app.mirror(argv[2:])
         elif function in ["-h", "--help"]:
             usage()
             exit(0)

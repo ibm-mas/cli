@@ -498,6 +498,7 @@ spec:
       type: string
     - name: cp4d_action
       type: string
+      default: ""
     - name: cpfs_size
       type: string
       default: "small"
@@ -828,6 +829,20 @@ spec:
     - name: allow_list
       type: string
       default: ""
+    
+    - name: rds_db2_backup_manage
+      type: string
+      default: ""
+    - name: rds_db2_backup_iot
+      type: string
+      default: ""
+    - name: rds_db2_backup_facilities
+      type: string
+      default: ""
+
+    - name: production_database_access_type
+      type: string
+      default: ""
 
     # Wait for instance PipelineRun parameters
     # -------------------------------------------------------------------------
@@ -909,15 +924,10 @@ spec:
           value: iot
         - name: jdbc_connection_url_additional_params
           value: $(params.jdbc_connection_url_additional_params_iot)
-        - name: db2_instance_registry_yaml
-          value: $(params.db2_instance_registry_yaml_iot)
-        - name: db2_instance_dbm_config_yaml
-          value: $(params.db2_instance_dbm_config_yaml_iot)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_iot)
-        - name: db2_addons_audit_config_yaml
-          value: $(params.db2_addons_audit_config_yaml_iot)
-
+        - name: rds_db2_backup
+          value: $(params.rds_db2_backup_iot)
       workspaces:
         - name: configs
           workspace: configs
@@ -927,9 +937,6 @@ spec:
           kind: Task
           name: gitops-rds-db2-database
       when:
-        - input: "$(params.db2_action_iot)"
-          operator: notin
-          values: [""]
         - input: "$(params.jdbc_type_iot)"
           operator: in
           values: ["rds-db2"]
@@ -1123,14 +1130,10 @@ spec:
           value: $(params.replica_db_manage)
         - name: jdbc_connection_url_additional_params
           value: $(params.jdbc_connection_url_additional_params_manage)
-        - name: db2_instance_registry_yaml
-          value: $(params.db2_instance_registry_yaml_manage)
-        - name: db2_instance_dbm_config_yaml
-          value: $(params.db2_instance_dbm_config_yaml_manage)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_manage)
-        - name: db2_addons_audit_config_yaml
-          value: $(params.db2_addons_audit_config_yaml_manage)
+        - name: rds_db2_backup
+          value: $(params.rds_db2_backup_manage)
       workspaces:
         - name: configs
           workspace: configs
@@ -1140,9 +1143,6 @@ spec:
           kind: Task
           name: gitops-rds-db2-database
       when:
-        - input: "$(params.db2_action_manage)"
-          operator: notin
-          values: [""]
         - input: "$(params.jdbc_type_manage)"
           operator: in
           values: ["rds-db2"]
@@ -1261,6 +1261,8 @@ spec:
           value: $(params.auto_backup_manage)
         - name: allow_list
           value: $(params.allow_list)
+        - name: production_database_access_type
+          value: $(params.production_database_access_type)
         
       workspaces:
         - name: configs
@@ -1472,15 +1474,11 @@ spec:
           value: $(params.replica_db_facilities)
         - name: jdbc_connection_url_additional_params
           value: $(params.jdbc_connection_url_additional_params_facilities)
-        - name: db2_instance_registry_yaml
-          value: $(params.db2_instance_registry_yaml_facilities)
-        - name: db2_instance_dbm_config_yaml
-          value: $(params.db2_instance_dbm_config_yaml_facilities)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_facilities)
-        - name: db2_addons_audit_config_yaml
-          value: $(params.db2_addons_audit_config_yaml_facilities)
-
+        - name: rds_db2_backup
+          value: $(params.rds_db2_backup_facilities)
+      
       workspaces:
         - name: configs
           workspace: configs
@@ -1490,9 +1488,6 @@ spec:
           kind: Task
           name: gitops-rds-db2-database
       when:
-        - input: "$(params.db2_action_facilities)"
-          operator: notin
-          values: [""]
         - input: "$(params.jdbc_type_facilities)"
           operator: in
           values: ["rds-db2"]
@@ -1609,7 +1604,7 @@ spec:
           value: $(params.manually_set_enhanced_hadr_facilities)
         - name: auto_backup
           value: $(params.auto_backup_facilities)
-        
+
       workspaces:
         - name: configs
           workspace: configs
@@ -3269,4 +3264,4 @@ spec:
       when:
         - input: "$(params.cp4d_action)"
           operator: in
-          values: ["uninstall"]
+          values: ["uninstall", ""]

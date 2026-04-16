@@ -24,6 +24,7 @@ UPGRADE_TYPES = ["regularUpgrade", "onlineUpgrade"]
 ATTACHMENT_PROVIDERS = ["filestorage", "ibm", "aws"]
 ATTACHMENT_MODES = ["cr", "db"]
 FACILITIES_SIZES = ["small", "medium", "large"]
+FACILITIES_APPOMUPGRADEMODE = ["manual", "load-only", "automatic"]
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
 
 
@@ -434,6 +435,31 @@ ocpArgGroup.add_argument(
     help="Name of the secret holding the cluster's ingress certificates"
 )
 
+# Grafana
+# -----------------------------------------------------------------------------
+grafanaArgGroup = installArgParser.add_argument_group(
+    "Grafana",
+    "Configure Grafana installation, namespace and storage size."
+)
+grafanaArgGroup.add_argument(
+    "--skip-grafana-install",
+    required=False,
+    action="store_true",
+    help="Skip Grafana installation"
+)
+grafanaArgGroup.add_argument(
+    "--grafana-v5-namespace",
+    required=False,
+    help="Customize the Grafana namespace",
+    default="grafana5"
+)
+grafanaArgGroup.add_argument(
+    "--grafana-instance-storage-size",
+    required=False,
+    help="Customize the Grafana storage size",
+    default="10Gi"
+)
+
 # MAS Applications
 # -----------------------------------------------------------------------------
 masAppsArgGroup = installArgParser.add_argument_group(
@@ -702,6 +728,14 @@ manageArgGroup.add_argument(
 facilitiesArgGroup = installArgParser.add_argument_group(
     "Advanced Settings - Facilities",
     "Advanced configuration for Maximo Real Estate and Facilities including deployment size, image pull policy, routes timeout, Liberty extensions, vault secrets, workflow agents, connection pool size, and storage settings."
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-app-om-upgrade-mode",
+    dest="mas_ws_facilities_app_om_upgrade_mode",
+    required=False,
+    help="Sets the Application Object Migration Mode",
+    choices=FACILITIES_APPOMUPGRADEMODE,
+    metavar="{manual,load-only,automatic}"
 )
 facilitiesArgGroup.add_argument(
     "--facilities-size",
@@ -1230,6 +1264,12 @@ db2ArgGroup.add_argument(
     required=False,
     help="Db2 temporary storage capacity"
 )
+db2ArgGroup.add_argument(
+    "--db2u-kind",
+    dest="db2u_kind",
+    required=False,
+    help="Db2 resource kind in the cluster"
+)
 
 # ECK Integration
 # -----------------------------------------------------------------------------
@@ -1517,7 +1557,7 @@ approvalsGroup.add_argument(
 # -----------------------------------------------------------------------------
 otherArgGroup = installArgParser.add_argument_group(
     "More",
-    "Additional options including advanced/simplified mode toggles, license acceptance, development mode, Artifactory credentials, PVC wait control, pre-check skip, Grafana installation, confirmation prompts, image pull policy, and custom service account."
+    "Additional options including advanced/simplified mode toggles, license acceptance, development mode, Artifactory credentials, PVC wait control, pre-check skip, confirmation prompts, image pull policy, and custom service account."
 )
 otherArgGroup.add_argument(
     "--artifactory-username",
@@ -1560,12 +1600,6 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     help="Disable the 'pre-install-check' at the start of the install pipeline"
-)
-otherArgGroup.add_argument(
-    "--skip-grafana-install",
-    required=False,
-    action="store_true",
-    help="Skip Grafana installation"
 )
 otherArgGroup.add_argument(
     "--no-confirm",
