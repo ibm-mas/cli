@@ -496,7 +496,9 @@ spec:
         if [[ ! "$GIT_COMMIT_MSG" =~ ^"[skip deploy]" ]]; then
             # Append a new line to the file to drive the deployment at cluster level
             echo "" >> gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-            echo "" >> gitops/$ACCOUNT/icn/icn.yaml
+            if [[ "$CENTRALISED_SLS" == "true" ]]; then
+                echo "" >> gitops/$ACCOUNT/icn/icn.yaml
+            fi
         else
             echo "Commit message starts with [skip deploy], no changes made."
         fi
