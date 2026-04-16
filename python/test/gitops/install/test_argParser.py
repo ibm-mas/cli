@@ -431,5 +431,3 @@ class TestGitOpsArgumentParser:
 
         # Should be converted to underscore
         assert params['mas_instance_id'] == 'testinst'
-
-# Made with Bob

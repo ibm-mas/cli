@@ -284,5 +284,3 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
     )
     # Run the test
     run_install_test(tmpdir, config)
-
-# Made with Bob

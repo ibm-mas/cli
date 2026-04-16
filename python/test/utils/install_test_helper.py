@@ -318,5 +318,3 @@ def run_install_test(tmpdir, config: InstallTestConfig):
     """
     helper = InstallTestHelper(tmpdir, config)
     helper.run_install_test()
-
-# Made with Bob

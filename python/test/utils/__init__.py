@@ -13,5 +13,3 @@ from .prompt_tracker import PromptTracker, create_prompt_handler
 from .install_test_helper import InstallTestConfig, InstallTestHelper, run_install_test
 
 __all__ = ['PromptTracker', 'create_prompt_handler', 'InstallTestConfig', 'InstallTestHelper', 'run_install_test']
-
-# Made with Bob

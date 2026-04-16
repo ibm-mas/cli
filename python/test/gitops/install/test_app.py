@@ -450,5 +450,3 @@ def test_main_function():
 
         assert exc_info.value.code == 0
         mock_app.install.assert_called_once()
-
-# Made with Bob

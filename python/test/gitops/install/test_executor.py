@@ -499,5 +499,3 @@ class TestGitOpsInstallExecutor:
         result = executor._executeGitOpsCommand('gitops-cluster', params)
 
         assert result is False
-
-# Made with Bob
