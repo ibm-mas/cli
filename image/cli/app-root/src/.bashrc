@@ -49,7 +49,6 @@ if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-mirror-images${TEXT_RESET} to mirror container images required by AIService to a private registry"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-configure-airgap${TEXT_RESET} to configure a cluster to use a private registry as a mirror for AIService"
     echo "Gitops based Management:"
-    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas gitops-install${TEXT_RESET} to install MAS using GitOps (non-interactive only)"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas gitops${TEXT_RESET} to show all gitops related sub-commands"
     echo
 fi

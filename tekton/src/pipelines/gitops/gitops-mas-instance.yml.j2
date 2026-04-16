@@ -279,32 +279,10 @@ spec:
       default: ""
   tasks:
 
-    # 0. Wait for cluster PipelineRun
-    # -------------------------------------------------------------------------
-    - name: wait-for-cluster
-      taskRef:
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: $(params.wait_for_pipelinerun)
-        - name: delay
-          value: $(params.wait_delay)
-        - name: max_retries
-          value: $(params.wait_max_retries)
-        - name: ignore_failure
-          value: "False"
-      when:
-        - input: "$(params.wait_for_pipelinerun)"
-          operator: notin
-          values: [""]
 
     # 1. Per-instance DB2U Operator
     # -------------------------------------------------------------------------
     - name: gitops-db2u
-      runAfter:
-        - wait-for-cluster
       params:
         - name: cluster_name
           value: $(params.cluster_name)
