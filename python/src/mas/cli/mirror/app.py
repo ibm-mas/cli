@@ -485,7 +485,7 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
     if not flag:
         logger.info(f"Skipping {package} version {version} for {arch} architecture")
         # Add empty progress bar to align with other status messages
-        emptyBar = " |" + " " * 20 + "|"
+        emptyBar = "|" + " " * 20 + "|"
         displayName = f"{package} v{version} ({arch})"
         print(f"{displayName}".ljust(50) + f" ⏭️ {emptyBar} Mirroring disabled by user")
         return MirrorResult(images=0, mirrored=0, name=displayName)
@@ -804,7 +804,15 @@ class MirrorApp(BaseApp):
                 "mas_visualinspection_version"
             ]
             if catalogKey in perReleaseVersions:
-                version = catalog[catalogKey][release]
+                try:
+                    version = catalog[catalogKey][release]
+                except KeyError:
+                    # Release key is missing from the catalog - no content available for this release
+                    logger.info(f"No content available for {packageName} in MAS release {release}")
+                    emptyBar = "|" + " " * 20 + "|"
+                    displayName = f"{packageName} ({arch})"
+                    print(f"{displayName}".ljust(50) + f" ⏭️ {emptyBar} No content to mirror for MAS release {release}")
+                    continue
             else:
                 version = catalog[catalogKey]
 
