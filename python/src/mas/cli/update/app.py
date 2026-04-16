@@ -23,7 +23,7 @@ from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.aiservice import listAiServiceInstances
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSlackSecrets
 
 
 logger = logging.getLogger(__name__)
@@ -203,6 +203,16 @@ class UpdateApp(BaseApp):
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 preparePipelinesNamespace(dynClient=self.dynamicClient)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
+
+            # Create slack secret if slack token and channel are provided
+            if self.getParam("slack_token") and self.getParam("slack_channel"):
+                with Halo(text='Creating Slack notification secret', spinner=self.spinner) as h:
+                    prepareUpdateSlackSecrets(
+                        dynClient=self.dynamicClient,
+                        slack_token=self.getParam("slack_token"),
+                        slack_channel=self.getParam("slack_channel")
+                    )
+                    h.stop_and_persist(symbol=self.successIcon, text="Slack notification secret created")
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
