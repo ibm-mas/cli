@@ -74,12 +74,6 @@ spec:
     - name: dro_ca_certificate_file
       type: string
       default: ""
-    - name: dro_api_token
-      type: string
-      default: ""
-    - name: dro_url
-      type: string
-      default: ""
 
     - name: smtp_host
       type: string
@@ -279,8 +273,7 @@ spec:
       default: ""
   tasks:
 
-
-    # 1. Per-instance DB2U Operator
+    # 0. Per-instance DB2U Operator
     # -------------------------------------------------------------------------
     - name: gitops-db2u
       params:
@@ -428,6 +421,8 @@ spec:
           value: $(params.mas_install_plan)
         - name: sls_install_plan
           value: $(params.sls_install_plan)
+        - name: github_pat
+          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: icr_cp
@@ -542,6 +537,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: dro_contact_email
@@ -552,10 +549,6 @@ spec:
           value: $(params.dro_contact_lastname)
         - name: dro_ca_certificate_file
           value: $(params.dro_ca_certificate_file)
-        - name: dro_api_token
-          value: $(params.dro_api_token)
-        - name: dro_url
-          value: $(params.dro_url)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: mas_bascfg_pod_template_yaml
@@ -604,6 +597,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: avp_aws_secret_region
@@ -642,6 +637,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: smtp_host
@@ -762,6 +759,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: ldap_url
@@ -812,6 +811,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: cluster_url

@@ -17,9 +17,15 @@ spec:
       type: string
     - name: github_host
       type: string
+    - name: github_pat
+      type: string
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
       type: string
     - name: mas_instance_id
       type: string
@@ -29,9 +35,13 @@ spec:
       type: string
     - name: cos_resourcegroup
       type: string
+    - name: cos_apikey
+      type: string
     - name: cos_use_hmac
       type: string
     - name: ibmcloud_resourcegroup
+      type: string
+    - name: ibmcloud_apikey
       type: string
 
   stepTemplate:
@@ -52,9 +62,15 @@ spec:
       - name: GITHUB_HOST
         value: $(params.github_host)
       - name: GITHUB_REPO
-        value: $(params.github_repo
+        value: $(params.github_repo)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: COS_ACTION
@@ -63,14 +79,14 @@ spec:
         value: $(params.cos_type)
       - name: COS_RESOURCEGROUP
         value: $(params.cos_resourcegroup)
+      - name: COS_APIKEY
+        value: $(params.cos_apikey)
       - name: COS_USE_HMAC
         value: $(params.cos_use_hmac)
       - name: IBMCLOUD_RESOURCEGROUP
         value: $(params.ibmcloud_resourcegroup)
-    envFrom:
-      - secretRef:
-          # secret needs to contain SM_AWS_SECRET_ACCESS_KEY, SM_AWS_ACCESS_KEY_ID, GITHUB_PAT and optinal IBMCLOUD_APIKEY or COS_APIKEY
-          name: secure-properties
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
   steps:
     - args:
       - |-

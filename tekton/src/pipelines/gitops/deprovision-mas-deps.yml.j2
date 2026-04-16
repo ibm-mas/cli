@@ -29,6 +29,10 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
 
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
@@ -81,6 +85,9 @@ spec:
     - name: cloud_provider
       type: string
       default: aws
+    - name: cos_apikey
+      type: string
+      default: ""
     - name: cos_use_hmac
       type: string
       default: ""
@@ -89,6 +96,9 @@ spec:
       type: string
       description: Name of an existing Resource Group in IBM Cloud account
       default: "Default"
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
 
   tasks:
 {% if wait_for_deprovision == true %}
@@ -127,6 +137,10 @@ spec:
           value: $(params.mas_instance_id)
         - name: cloud_provider
           value: $(params.cloud_provider)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
         - name: efs_action
           value: $(params.efs_action)
       workspaces:
@@ -150,6 +164,10 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
         - name: vpc_ipv4_cidr
           value: $(params.vpc_ipv4_cidr)
         - name: mongo_provider
@@ -187,6 +205,10 @@ spec:
           value: $(params.kafka_provider)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
         - name: vpc_ipv4_cidr
           value: $(params.vpc_ipv4_cidr)
       taskRef:
@@ -210,10 +232,16 @@ spec:
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
+        - name: github_pat
+          value: $(params.github_pat)
         - name: cluster_name
           value: $(params.cluster_name)
         - name: account
           value: $(params.account)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: cos_action
@@ -222,10 +250,14 @@ spec:
           value: $(params.cos_type)
         - name: cos_resourcegroup
           value: $(params.cos_resourcegroup)
+        - name: cos_apikey
+          value: $(params.cos_apikey)
         - name: cos_use_hmac
           value: $(params.cos_use_hmac)
         - name: ibmcloud_resourcegroup
           value: $(params.ibmcloud_resourcegroup)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
       workspaces:
         - name: configs
           workspace: configs
