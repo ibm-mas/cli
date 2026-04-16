@@ -13,23 +13,24 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
     - name: vpc_ipv4_cidr
       type: string
-      default: ""
     - name: mongo_provider
       type: string
       default: aws
     - name: aws_docdb_instance_number
       type: string
-      default: "3"
+      default: 3
     - name: aws_docdb_engine_version
       type: string
-      default: "4.0.0"
+      default: 4.0.0
   stepTemplate:
     name: gitops-mongo
     env:
-      - name: MONGO_YAML_FILE
-        value: "/workspace/shared-gitops-configs/mongo.yaml"
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT
@@ -38,6 +39,10 @@ spec:
         value: $(params.secrets_path)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
       - name: VPC_IPV4_CIDR
         value: $(params.vpc_ipv4_cidr)
       - name: MONGO_PROVIDER
@@ -46,91 +51,48 @@ spec:
         value: $(params.aws_docdb_instance_number)
       - name: AWS_DOCDB_ENGINE_VERSION
         value: $(params.aws_docdb_engine_version)
-    envFrom:
-      - secretRef:
-          # secret needs to contain SM_AWS_SECRET_ACCESS_KEY, SM_AWS_ACCESS_KEY_ID
-          name: secure-properties
   steps:
     - args:
       - |-
+        aws configure set aws_access_key_id $(params.avp_aws_access_key)
+        aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
+        aws configure set default.region $(params.avp_aws_secret_region)
 
-        export MAS_INSTANCE_ID=gitops
-
-        if [ "$MONGO_PROVIDER" == "aws" ]; then
-
-          aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
-          aws configure set default.region $SM_AWS_REGION
-
-          # AWS provider requires VPC configuration
-          if [ -z "$VPC_IPV4_CIDR" ]; then
-            echo "Error: VPC_IPV4_CIDR is required when using AWS mongo provider"
-            exit 1
-          fi
-
-          # Note the - after cluster name. this is to distinguish between different similar named clusters
-          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.[].Value // ""' | xargs)
-          if [ -z "$vpc_name" ]; then
-            # Needed if there is only one cluster in account
-            vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs)
-          fi
-          export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
-          
-          if [ -z "$VPC_ID" ]; then
-            echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
-            exit 1
-          fi
-
-          echo "VPC of $VPC_ID found for $CLUSTER_NAME"
-          
-          aws ec2 associate-vpc-cidr-block \
-          --vpc-id $VPC_ID \
-          --cidr-block 10.1.0.0/23
-
-          mas gitops-mongo -a $ACCOUNT -c $CLUSTER_NAME \
-          --mongo-provider $MONGO_PROVIDER \
-          --aws-region $SM_AWS_REGION \
-          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
-          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
-          --aws-vpc-id $VPC_ID \
-          --aws-docdb-cluster-name docdb-$CLUSTER_NAME \
-          --aws-docdb-ingress-cidr $VPC_IPV4_CIDR  \
-          --aws-docdb-egress-cidr $VPC_IPV4_CIDR \
-          --aws-docdb-cidr-az1 10.1.0.0/27 \
-          --aws-docdb-cidr-az2 10.1.0.32/27 \
-          --aws-docdb-cidr-az3 10.1.0.64/27 \
-          --aws-docdb-instance-identifier-prefix docdb-$CLUSTER_NAME \
-          --aws-docdb-instance-number $AWS_DOCDB_INSTANCE_NUMBER \
-          --aws-docdb-engine-version $AWS_DOCDB_ENGINE_VERSION
-
-        elif [ "$MONGO_PROVIDER" == "yaml" ]; then
-          # YAML provider requires mongo credentials from secure-properties secret
-          if [ -z "$MONGO_USERNAME" ] || [ -z "$MONGO_PASSWORD" ]; then
-            echo "Error: MONGO_USERNAME and MONGO_PASSWORD must be set in secure-properties secret when using YAML mongo provider"
-            exit 1
-          fi
-
-          # Check if MONGO_YAML_FILE is set (should be mounted from workspace or configmap)
-          if [ -z "$MONGO_YAML_FILE" ]; then
-            echo "Error: MONGO_YAML_FILE environment variable must be set when using YAML mongo provider"
-            exit 1
-          fi
-
-          if [ ! -f "$MONGO_YAML_FILE" ]; then
-            echo "Error: MONGO_YAML_FILE does not exist at path: $MONGO_YAML_FILE"
-            exit 1
-          fi
-
-          mas gitops-mongo -a $ACCOUNT -c $CLUSTER_NAME \
-          --mongo-provider $MONGO_PROVIDER \
-          --yaml-file $MONGO_YAML_FILE \
-          --mongo-username $MONGO_USERNAME \
-          --mongo-password $MONGO_PASSWORD
-
-        else
-          echo "Error: Unsupported MONGO_PROVIDER: $MONGO_PROVIDER. Must be 'aws' or 'yaml'"
+        # Note the - after cluster name. this is to distinguish between different similar named clusters
+        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.[].Value // ""' | xargs)
+        if [ -z "$vpc_name" ]; then
+          # Needed if there is only one cluster in account
+          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs)
+        fi
+        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
+        
+        if [ -z "$VPC_ID" ]; then
+          echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
           exit 1
         fi
+
+        echo "VPC of $VPC_ID found for $CLUSTER_NAME"
+        export MAS_INSTANCE_ID=gitops
+        
+        aws ec2 associate-vpc-cidr-block \
+        --vpc-id $VPC_ID \
+        --cidr-block 10.1.0.0/23
+
+        mas gitops-mongo -a $ACCOUNT -c $CLUSTER_NAME \
+        --mongo-provider $MONGO_PROVIDER \
+        --aws-region $SM_AWS_REGION \
+        --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+        --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+        --aws-vpc-id $VPC_ID \
+        --aws-docdb-cluster-name docdb-$CLUSTER_NAME \
+        --aws-docdb-ingress-cidr $VPC_IPV4_CIDR  \
+        --aws-docdb-egress-cidr $VPC_IPV4_CIDR \
+        --aws-docdb-cidr-az1 10.1.0.0/27 \
+        --aws-docdb-cidr-az2 10.1.0.32/27 \
+        --aws-docdb-cidr-az3 10.1.0.64/27 \
+        --aws-docdb-instance-identifier-prefix docdb-$CLUSTER_NAME \
+        --aws-docdb-instance-number $AWS_DOCDB_INSTANCE_NUMBER \
+        --aws-docdb-engine-version $AWS_DOCDB_ENGINE_VERSION
 
         exit $?
       command:
@@ -141,8 +103,6 @@ spec:
       image: quay.io/ibmmas/cli:latest
   workspaces:
     - name: configs
-    - name: shared-gitops-configs
-      optional: true
 
 
 
