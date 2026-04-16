@@ -259,25 +259,30 @@ spec:
         fi
 
         # Fetch public NLB DNS name from AWS and create secret
-        echo "Fetching Network Load Balancer DNS name for fvtsaas VPC..."
+        echo "Fetching Network Load Balancer DNS name for $CLUSTER_NAME VPC..."
         
-        # Get VPC ID for fvtsaas
-        VPC_ID=$(aws ec2 describe-vpcs --filters "Name=tag:Name,Values=*fvtsaas*" --query 'Vpcs[0].VpcId' --output text)
+       # Note the - after cluster name. this is to distinguish between different similar named clusters
+        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.[].Value // ""' | xargs)
+        if [ -z "$vpc_name" ]; then
+          # Needed if there is only one cluster in account
+          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs)
+        fi
+        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
         
-        if [[ -z "$VPC_ID" || "$VPC_ID" == "None" ]]; then
-          echo "ERROR: Could not find fvtsaas VPC"
+        if [ -z "$VPC_ID" ]; then
+          echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
           exit 1
         fi
+
+        echo "VPC of $VPC_ID found for $CLUSTER_NAME"     
         
-        echo "Found VPC ID: $VPC_ID"
-        
-        # Get Network Load Balancer DNS name (internet-facing, type network, name contains fvtsaas and ext)
+        # Get Network Load Balancer DNS name (internet-facing, type network, name contains $CLUSTER_NAME and ext)
         NLB_DNS=$(aws elbv2 describe-load-balancers \
           --query "LoadBalancers[?VpcId=='${VPC_ID}' && Type=='network' && Scheme=='internet-facing'].{Name:LoadBalancerName,DNS:DNSName}" \
-          --output json | jq -r '.[] | select(.Name | contains("fvtsaas") and contains("ext")) | .DNS' | head -n 1)
+          --output json | jq -r '.[] | select(.Name | contains("'${CLUSTER_NAME}'") and contains("ext")) | .DNS' | head -n 1)
         
         if [[ -z "$NLB_DNS" || "$NLB_DNS" == "None" ]]; then
-          echo "ERROR: Could not find internet-facing Network Load Balancer in fvtsaas VPC"
+          echo "ERROR: Could not find internet-facing Network Load Balancer in $CLUSTER_NAME VPC"
           exit 1
         fi
         
