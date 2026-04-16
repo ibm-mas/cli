@@ -1456,12 +1456,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Note: Future versions will auto-configure these from MAS Manage.",
                 ""
             ])
-            self.promptForString("RSL url", "rsl_url")
-            self.promptForString("ORG Id of RSL", "rsl_org_id")
-            rslToken = self.promptForString("Token for RSL", isPassword=True)
-            if not rslToken.startswith("Bearer "):
-                rslToken = "Bearer " + rslToken
-            self.setParam("rsl_token", rslToken)
+            
             if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
                 self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 

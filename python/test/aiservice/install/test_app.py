@@ -103,9 +103,7 @@ def test_install_noninteractive(tmpdir):
                              '--tenant-entitlement-type', 'standard',
                              '--tenant-entitlement-start-date', '2025-08-28',
                              '--tenant-entitlement-end-date', '2026-08-28',
-                             '--rsl-url', 'https:/test.rsl.maximo.ibm.com/api/v3/vector/query',
-                             '--rsl-org-id', 'testOrgId',
-                             '--rsl-token', 'testRslToken',
+                             
                              '--rsl-ca-crt', 'testRslCaCert',
                              '--accept-license', '--no-confirm',
                              '--skip-pre-check'])
@@ -191,12 +189,7 @@ def test_install_interactive_advanced(tmpdir):
                     return 'cert-issuer'
                 if re.match('.*Enable IPv6 SingleStack networking.*', message):
                     return 'y'
-                if re.match('.*RSL url.*', message):
-                    return 'https://rls.maximo.test.ibm.com'
-                if re.match('.*ORG Id of RSL.*', message):
-                    return 'rslOrgId'
-                if re.match('.*Token for RSL.*', message):
-                    return 'rslToken'
+               
                 if re.match('.*Watsonxai machine learning url.*', message):
                     return 'watsonxUrl'
                 if re.match('.*Does the RSL API use a self-signed certificate.*', message):
@@ -311,12 +304,8 @@ def test_install_interactive_simplified(tmpdir):
                     return 'username'
                 if re.match('.*minio root password.*', message):
                     return 'password'
-                if re.match('.*RSL url.*', message):
-                    return 'https://rls.maximo.test.ibm.com'
-                if re.match('.*ORG Id of RSL.*', message):
-                    return 'rslOrgId'
-                if re.match('.*Token for RSL.*', message):
-                    return 'rslToken'
+                
+               
                 if re.match('.*Watsonxai machine learning url.*', message):
                     return 'watsonxUrl'
                 if re.match('.*Does the RSL API use a self-signed certificate.*', message):

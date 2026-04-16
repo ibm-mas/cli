@@ -27,9 +27,7 @@ ibm_aiservice_tenant:
   slscfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_REGISTRATION_KEY }}>"
   aiservice_sls_subscription_id: "{{ AISERVICE_SLS_SUBSCRIPTION_ID }}"
   
-  rsl_url: "{{ RSL_URL }}"
-  rsl_org_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_ORG_ID }}>"
-  rsl_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_TOKEN }}>"
+  
   rsl_ca_crt: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_CA_CRT }}>"
 
   #s3 for manage job

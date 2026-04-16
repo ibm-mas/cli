@@ -1045,24 +1045,7 @@ aiServiceTenantArgGroup.add_argument(
     required=False,
     help="End date for AI Service tenant"
 )
-aiServiceTenantArgGroup.add_argument(
-    "--rsl-url",
-    dest="rsl_url",
-    required=False,
-    help="rsl url"
-)
-aiServiceTenantArgGroup.add_argument(
-    "--rsl-org-id",
-    dest="rsl_org_id",
-    required=False,
-    help="org id for rsl"
-)
-aiServiceTenantArgGroup.add_argument(
-    "--rsl-token",
-    dest="rsl_token",
-    required=False,
-    help="token for rsl"
-)
+
 aiServiceTenantArgGroup.add_argument(
     "--rsl-ca-crt",
     dest="rsl_ca_crt",

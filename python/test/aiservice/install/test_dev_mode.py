@@ -93,9 +93,7 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         '.*Watsonxai Deployment ID.*': lambda msg: '',
         '.*Watsonxai Space ID.*': lambda msg: '',
         # 13. RSL Integration
-        '.*RSL url.*': lambda msg: 'https://api.rsl-service.suite.maximo.com',
-        '.*ORG Id of RSL.*': lambda msg: 'testOrgId',
-        '.*Token for RSL.*': lambda msg: 'testRslToken',
+        
         '.*Does the RSL API use a self-signed certificate.*': lambda msg: 'n',
         # 14. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
@@ -164,9 +162,7 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         '.*Watsonxai Deployment ID.*': lambda msg: '',
         '.*Watsonxai Space ID.*': lambda msg: '',
         # 13. RSL Integration
-        '.*RSL url.*': lambda msg: 'https://api.rsl-service.suite.maximo.com',
-        '.*ORG Id of RSL.*': lambda msg: 'testOrgId',
-        '.*Token for RSL.*': lambda msg: 'testRslToken',
+        
         '.*Does the RSL API use a self-signed certificate.*': lambda msg: 'n',
         # 14. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
@@ -238,9 +234,7 @@ def test_aiservice_install_master_dev_mode_non_interactive(tmpdir):
             "--watsonxai-apikey", "testWxApiKey",
             "--watsonxai-url", "https://us-south.ml.cloud.ibm.com",
             "--watsonxai-project-id", "testProjectId",
-            "--rsl-url", "https://api.rsl-service.suite.maximo.com",
-            "--rsl-org-id", "testOrgId",
-            "--rsl-token", "testRslToken",
+          
             "--accept-license",
             "--no-confirm",
             "--skip-pre-check",
