@@ -416,10 +416,9 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
 
     # Execute command with progress bar
     # Use fixed-width title (50 chars) for alignment, with in-progress icon
-    # Customize stats format to show only count and elapsed time (no rate)
     barTitleBase = displayName.ljust(50)
     barTitle = f"{barTitleBase} ⏳"
-    with alive_bar(totalImages, title=barTitle, length=20, enrich_print=False, stats='{count}/{total} [{percent:.0%}] in {elapsed}') as bar:
+    with alive_bar(totalImages, title=barTitle, length=20, enrich_print=False) as bar:
         exitCode, resultData = runCommand(cmd, progressBar=bar)
 
         # Update bar title with status icon after completion
