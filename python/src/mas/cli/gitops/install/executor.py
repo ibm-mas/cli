@@ -475,6 +475,7 @@ class GitOpsInstallExecutor():
                 'sls_install_plan': 'SLS_INSTALL_PLAN',
                 'sls_license_id': 'SLS_LICENSE_ID',
                 'sls_license_file': 'SLS_LICENSE_FILE',
+                'license_file': 'LICENSE_FILE',
 
                 # MongoDB Configuration
                 'mongo_provider': 'MONGODB_PROVIDER',
@@ -614,6 +615,12 @@ class GitOpsInstallExecutor():
             if 'ibm_entitlement_key' in params and params['ibm_entitlement_key']:
                 if 'ICR_PASSWORD' not in env:
                     env['ICR_PASSWORD'] = str(params['ibm_entitlement_key'])
+
+            # Special case: Set LICENSE_FILE from sls_license_file if LICENSE_FILE is not already set
+            # This mirrors the bash function's logic at line 97 of gitops_license
+            if 'LICENSE_FILE' not in env and 'sls_license_file' in params and params['sls_license_file']:
+                env['LICENSE_FILE'] = str(params['sls_license_file'])
+                logger.debug(f"Set LICENSE_FILE from sls_license_file: {env['LICENSE_FILE']}")
 
             # Build the command with required CLI parameters
             # These parameters are always required and must be passed on the command line
