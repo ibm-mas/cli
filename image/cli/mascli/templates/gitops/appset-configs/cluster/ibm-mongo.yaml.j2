@@ -4,7 +4,10 @@ mongo:
   mongo_action: {{ MONGO_ACTION }}
   mongo_major_db_version: {{ MONGO_MAJOR_DB_VERSION }}
   mongo_vpc_id: {{ MONGO_VPC_ID }}
-  mongo_subnet_ids: {{ MONGO_SUBNET_IDS }}
+  mongo_subnet_ids:
+  {% for subnet in MONGO_SUBNET_IDS %}
+    - "{{ subnet }}"
+  {% endfor %}
   mongo_project_id: {{ MONGO_PROJECT_ID }}
   mongo_organization_id: {{ MONGO_ORGANIZATION_ID }}
   mongo_instance_size: {{ MONGO_INSTANCE_SIZE }}
