@@ -40,9 +40,7 @@ clean:
 	rm image/cli/bin/templates/ibm-mas-tekton.yaml
 
 create:
-	@BRANCH=$$(git branch --show-current) && \
-	sed "s|image: 'quay.io/ibmmas/cli:.*'|image: 'quay.io/ibmmas/cli:$$BRANCH'|" tmp/deployment.yaml | \
-	oc apply -f -
+	oc apply -f tmp/deployment.yaml
 delete:
 	oc delete pod $(shell oc get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}")
 exec:
