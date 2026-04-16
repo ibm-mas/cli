@@ -284,7 +284,7 @@ class AdditionalConfigsMixin():
                     "name": "pipeline-db2-license"
                 }
             }
-            self.setParam("db2_license_file", f"/workspace/entitlement/{path.basename(self.db2LicenseFileLocal)}")
+            self.setParam("db2_license_file", f"/workspace/db2/{path.basename(self.db2LicenseFileLocal)}")
             self.db2LicenseFileSecret = self.addFilesToSecret(db2LicenseFileSecret, self.db2LicenseFileLocal, '')
         else:
             self.db2LicenseFileSecret = None

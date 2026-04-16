@@ -90,7 +90,6 @@ optionalParams = [
     "db2_timezone",
     "db2_namespace",
     "db2_channel",
-    "db2_license_file",
     "db2_affinity_key",
     "db2_affinity_value",
     "db2_tolerate_key",

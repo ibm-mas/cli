@@ -1960,7 +1960,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.deployCP4D:
             self.configCP4D()
 
-        # Set up the secrets for additional configs, podtemplates, sls license file and manual certificates
+        # Set up the secrets for additional configs, podtemplates, sls license file, db2 license file and manual certificates
         self.additionalConfigs()
         self.podTemplates()
         self.slsLicenseFile()
