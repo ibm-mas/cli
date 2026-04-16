@@ -307,6 +307,15 @@ def runCommand(cmd: List[str], progressBar=None) -> tuple[int, Dict]:
     Returns:
         Tuple of (exitCode, resultData) where resultData contains captured information
     """
+    # Wrap command with stdbuf if available to force line buffering
+    # This ensures real-time output in container environments where the subprocess
+    # would otherwise use full buffering when it detects no TTY
+    if shutil.which('stdbuf'):
+        cmd = ['stdbuf', '-oL', '-eL'] + cmd
+        logger.debug("Using stdbuf to force line-buffered output")
+    else:
+        logger.debug("stdbuf not available, proceeding without it")
+
     logger.info(f"Executing: {' '.join(cmd)}")
 
     # Dictionary to capture result data from output
@@ -407,9 +416,10 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
 
     # Execute command with progress bar
     # Use fixed-width title (50 chars) for alignment, with in-progress icon
+    # Customize stats format to show only count and elapsed time (no rate)
     barTitleBase = displayName.ljust(50)
     barTitle = f"{barTitleBase} ⏳"
-    with alive_bar(totalImages, title=barTitle, length=20, enrich_print=False) as bar:
+    with alive_bar(totalImages, title=barTitle, length=20, enrich_print=False, stats='{count}/{total} [{percent:.0%}] in {elapsed}') as bar:
         exitCode, resultData = runCommand(cmd, progressBar=bar)
 
         # Update bar title with status icon after completion
