@@ -57,6 +57,7 @@ class UpdateApp(BaseApp):
                 "skip_pre_check",
                 "dev_mode",
                 "cpd_product_version",
+                "image_pull_policy",
                 # Dev Mode
                 "artifactory_username",
                 "artifactory_token",

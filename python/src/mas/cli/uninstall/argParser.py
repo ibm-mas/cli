@@ -13,6 +13,8 @@ import argparse
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
 
+IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
+
 uninstallArgParser = argparse.ArgumentParser(
     prog='mas uninstall',
     description="\n".join([
@@ -110,6 +112,14 @@ otherArgGroup.add_argument(
     '--slack-channel',
     required=False,
     help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)"
+)
+otherArgGroup.add_argument(
+    "--image-pull-policy",
+    dest="image_pull_policy",
+    required=False,
+    help="Image pull policy for Tekton Pipeline",
+    choices=IMAGE_PULL_POLICIES,
+    metavar="{IfNotPresent,Always}"
 )
 otherArgGroup.add_argument(
     '-h', "--help",
