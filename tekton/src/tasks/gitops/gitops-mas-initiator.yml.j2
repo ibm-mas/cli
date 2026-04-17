@@ -262,12 +262,25 @@ spec:
         echo "Fetching Network Load Balancer DNS name for $CLUSTER_NAME VPC..."
         
         # Note the - after cluster name. this is to distinguish between different similar named clusters
-        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.[].Value // ""' | xargs)
+        # Fixed: Use proper error handling to avoid piping empty/invalid output to yq
+        vpc_output=$(aws ec2 describe-vpcs --output yaml 2>/dev/null)
+        if [ -z "$vpc_output" ]; then
+          echo "ERROR: Failed to describe VPCs or no VPCs found"
+          exit 1
+        fi
+        vpc_name=$(echo "$vpc_output" | grep "$CLUSTER_NAME-" | yq '.[].Value // ""' 2>/dev/null | xargs)
         if [ -z "$vpc_name" ]; then
           # Needed if there is only one cluster in account
-          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs)
+          vpc_name=$(echo "$vpc_output" | grep "$CLUSTER_NAME-" | yq '.Value // ""' 2>/dev/null | xargs)
         fi
-        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
+        
+        if [ -z "$vpc_name" ]; then
+          echo "ERROR: Could not find VPC name containing '$CLUSTER_NAME-'"
+          exit 1
+        fi
+        
+        echo "Found VPC name: $vpc_name"
+        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml 2>/dev/null | yq '.Vpcs[].VpcId // ""' 2>/dev/null)
         
         if [ -z "$VPC_ID" ]; then
           echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
