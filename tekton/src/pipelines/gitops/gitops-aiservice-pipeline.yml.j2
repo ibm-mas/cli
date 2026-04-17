@@ -26,6 +26,8 @@ spec:
       type: string
     - name: github_host
       type: string
+    - name: ai_platform
+      type: string
 
     # aiservice-specific
     - name: aiservice_namespace
@@ -97,6 +99,24 @@ spec:
     - name: aiservice_s3_secret
       type: string
 
+    # RHOAI-specific
+    - name: rhoai_channel
+      type: string
+    - name: rhoai_subscription_install_plan
+      type: string
+    - name: openshiftai_name
+      type: string
+    - name: openshiftai_operator_group
+      type: string
+    - name: openshiftai_namespace
+      type: string
+    - name: rhoai_operator_version
+      type: string
+    - name: openshiftai_source 
+      type: string
+    - name: aiservice_rhoai_model_deployment_type
+      type: string
+
   workspaces:
     - name: configs
 
@@ -105,6 +125,10 @@ spec:
     # 2.gitops-odh
     # -------------------------------------------------------------------------
     - name: gitops-odh
+      when:
+        - input: "$(params.ai_platform)"
+          operator: in
+          values: ["odh"]
       taskRef:
         name: gitops-odh
       workspaces:
@@ -154,6 +178,62 @@ spec:
         - name: aiservice_odh_model_deployment_type
           value: $(params.aiservice_odh_model_deployment_type)
 
+    # 2.gitops-rhoai
+    # -------------------------------------------------------------------------
+    - name: gitops-rhoai
+      when:
+        - input: "$(params.ai_platform)"
+          operator: in
+          values: ["rhoai"]
+      taskRef:
+        name: gitops-rhoai
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: aiservice_namespace
+          value: $(params.aiservice_namespace)
+        - name: rhoai_channel
+          value: $(params.rhoai_channel)
+        - name: rhoai_subscription_install_plan
+          value: $(params.rhoai_subscription_install_plan)
+        - name: openshiftai_name
+          value: $(params.openshiftai_name)
+        - name: openshiftai_operator_group
+          value: $(params.openshiftai_operator_group)
+        - name: openshiftai_namespace
+          value: $(params.openshiftai_namespace)
+        - name: rhoai_operator_version
+          value: $(params.rhoai_operator_version)
+        - name: aiservice_storage_ssl
+          value: $(params.aiservice_storage_ssl)
+        - name: aiservice_storage_region
+          value: $(params.aiservice_storage_region)
+        - name: openshiftai_source 
+          value: $(params.openshiftai_source)
+        - name: aiservice_rhoai_model_deployment_type
+          value: $(params.aiservice_rhoai_model_deployment_type)
+
     # 3.gitops-aiservice
     # -------------------------------------------------------------------------
 
@@ -162,6 +242,7 @@ spec:
         name: gitops-aiservice
       runAfter:
         - gitops-odh
+        - gitops-rhoai
       workspaces:
         - name: configs
           workspace: configs
