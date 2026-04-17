@@ -749,7 +749,7 @@ function argocd_sync(){
   APP_NAME=$1
   echo
   echo "Force Application $APP_NAME to Sync ..."
-  argocd app sync $APP_NAME --force --timeout 30 --assumeYes --grpc-web
+  argocd app sync $APP_NAME --timeout 30 --assumeYes --grpc-web
   RC=$?
   echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
 }
@@ -893,9 +893,14 @@ function parse_storage_class_name() {
 }
 
 # If the first parameter matches a "generated(<type>)" directive (see parse_storage_class_name() above),
-# This will return a suitable name containing all necessary delimiters for a K8S storage class resource:
-# ${STORAGE_CLASS_TYPE}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${MAS_APP_ID}-${DEPENDENCY}
-# e.g. "efs-noble5-inst1-manage-db2"
+# this will return a suitable name containing necessary delimiters for a K8S storage class resource.
+# The name is built dynamically based on which parameters are provided:
+# ${STORAGE_CLASS_TYPE}-${CLUSTER_ID}[-${MAS_INSTANCE_ID}][-${MAS_APP_ID}][-${DEPENDENCY}]
+#
+# Examples:
+#   All params: "efs-noble5-inst1-manage-db2"
+#   No MAS params: "efs-noble5"
+#   Only instance: "efs-noble5-inst1"
 #
 # For efs (i.e. "generated(efs)"), the output of this function is also used in generate_storage_class_def() (below) to lookup
 # an EFS instance in AWS by its CreationToken.
@@ -903,13 +908,13 @@ function parse_storage_class_name() {
 # Resulting name must not be longer than 64 characters (due to CreationToken field length restrictions):
 #   STORAGE_CLASS_TYPE: 6 chars max
 #   CLUSTER_ID: 12 chars max
-#   MAS_INSTANCE_ID: 12 chars max
-#   MAS_APP_ID: 16 chars max
-#   DEPENDENCY: 8 chars max
-#   
+#   MAS_INSTANCE_ID: 12 chars max (optional)
+#   MAS_APP_ID: 16 chars max (optional)
+#   DEPENDENCY: 8 chars max (optional)
+#
 #   After the 4 chars reserved for delimiters this results in names of max 58 in length, leaving
 #   us with 6 chars of headroom in case of future requirements.
-# 
+#
 # If the first parameter does not match the "generated(<type>)" directive, this indicates that a named
 # storage class was specified, so this function will just return the first parameter unchanged.
 function generate_storage_class_name() {
@@ -925,7 +930,22 @@ function generate_storage_class_name() {
     exit 0
   fi
 
-  echo "${STORAGE_CLASS_TYPE}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${MAS_APP_ID}-${DEPENDENCY}"
+  # Build name dynamically based on available parameters
+  STORAGE_CLASS_NAME="${STORAGE_CLASS_TYPE}-${CLUSTER_ID}"
+  
+  if [[ -n "${MAS_INSTANCE_ID}" ]]; then
+    STORAGE_CLASS_NAME="${STORAGE_CLASS_NAME}-${MAS_INSTANCE_ID}"
+  fi
+  
+  if [[ -n "${MAS_APP_ID}" ]]; then
+    STORAGE_CLASS_NAME="${STORAGE_CLASS_NAME}-${MAS_APP_ID}"
+  fi
+  
+  if [[ -n "${DEPENDENCY}" ]]; then
+    STORAGE_CLASS_NAME="${STORAGE_CLASS_NAME}-${DEPENDENCY}"
+  fi
+  
+  echo "${STORAGE_CLASS_NAME}"
 }
 
 # Adds the storage class definition yaml to STORAGE_CLASS_DEFINITIONS_SO_FAR based on INPUT_STORAGE_CLASS_NAME, then echoes (i.e. "returns") STORAGE_CLASS_DEFINITIONS_SO_FAR
@@ -988,9 +1008,15 @@ function generate_storage_class_def() {
   elif [[ "${STORAGE_CLASS_TYPE}" == "efs" ]]; then
 
     CREATION_TOKEN="${STORAGE_CLASS_NAME}"
-    EFS_FILESYSTEM_ID=$(aws efs describe-file-systems --creation-token "${CREATION_TOKEN}"  --query 'FileSystems[0].FileSystemId' --output text)
+    # Use AWS_REGION if set, otherwise fall back to SM_AWS_REGION or AWS_DEFAULT_REGION
+    EFS_AWS_REGION="${AWS_REGION:-${SM_AWS_REGION:-${AWS_DEFAULT_REGION}}}"
+    if [[ -z "${EFS_AWS_REGION}" ]]; then
+      echo "AWS region not set. Please set AWS_REGION, SM_AWS_REGION, or AWS_DEFAULT_REGION environment variable." >&2
+      exit 1
+    fi
+    EFS_FILESYSTEM_ID=$(aws efs describe-file-systems --region "${EFS_AWS_REGION}" --creation-token "${CREATION_TOKEN}" --query 'FileSystems[0].FileSystemId' --output text)
     if [[ -z "${EFS_FILESYSTEM_ID}" || "${EFS_FILESYSTEM_ID}" == "None" ]]; then
-      echo "Unable to find EFS Instance with CreationToken ${CREATION_TOKEN}. Aborting." >&2
+      echo "Unable to find EFS Instance with CreationToken ${CREATION_TOKEN} in region ${EFS_AWS_REGION}. Aborting." >&2
       exit 1
     fi
 
@@ -1821,6 +1847,121 @@ function close_pr() {
         return 0
       fi
     fi
+  done
+  return 0
+}
+
+# -----------------------------------------------------------------------------
+# Delete a branch from a GitHub repository
+# -----------------------------------------------------------------------------
+# Usage:
+#   delete_branch "github.com" "ibm-mas" "gitops-config" "feature-branch" 3 60
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.ibm.com")
+#   $2 - GITHUB_ORG (e.g., "ibm-mas")
+#   $3 - GITHUB_REPO (e.g., "gitops-config")
+#   $4 - BRANCH_NAME (e.g., "feature-branch")
+#   $5 - MAX_RETRIES (optional, default: 3)
+#   $6 - RETRY_DELAY (optional, default: 60 seconds)
+# Returns:
+#   0 on success or failure (logs errors to stderr)
+# Example:
+#   delete_branch "github.com" "ibm-mas" "gitops-config" "feature-branch" 5 60
+function delete_branch() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local BRANCH_NAME=$4
+  local MAX_RETRIES=${5:-3}
+  local RETRY_DELAY=${6:-60}
+
+  echo "" >&2
+  echo "$(logts) delete_branch" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "Branch: ${BRANCH_NAME}" >&2
+  echo "Max Retries: ${MAX_RETRIES}" >&2
+  echo "Retry Delay: ${RETRY_DELAY} seconds" >&2
+  echo "=================================================" >&2
+
+  if [[ -z "${GITHUB_PAT}" ]]; then
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
+    return 0
+  fi
+
+  # Validate branch name is not a protected branch
+  if [[ "${BRANCH_NAME}" == "main" || "${BRANCH_NAME}" == "master" || "${BRANCH_NAME}" == "develop" ]]; then
+    echo " Error: Cannot delete protected branch '${BRANCH_NAME}'" >&2
+    return 0
+  fi
+
+  # GitHub API URL for deleting the branch
+  local BRANCH_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/git/refs/heads/${BRANCH_NAME}"
+
+  # Retry loop
+  for (( attempt=1; attempt<=${MAX_RETRIES}; attempt++ )); do
+    echo "" >&2
+    echo "$(logts) Attempt ${attempt} of ${MAX_RETRIES}: Deleting branch '${BRANCH_NAME}'..." >&2
+    echo "-------------------------------------------------" >&2
+
+    # Delete the branch
+    set +o pipefail
+    local DELETE_RESPONSE=$(curl -s -X DELETE \
+      -H "Authorization: token ${GITHUB_PAT}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      "${BRANCH_API_URL}")
+    local CURL_RC=$?
+    set -o pipefail
+
+    if [[ $CURL_RC -ne 0 ]]; then
+      echo " Error: curl failed with return code ${CURL_RC}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to delete branch after ${MAX_RETRIES} attempts" >&2
+        return 0
+      fi
+    fi
+
+    # Check if the response is empty (successful deletion) or contains an error
+    if [[ -z "${DELETE_RESPONSE}" ]]; then
+      echo "" >&2
+      echo " Branch '${BRANCH_NAME}' deleted successfully!" >&2
+      echo "=================================================" >&2
+      return 0
+    fi
+
+    # Check for error message in response
+    local ERROR_MESSAGE=$(echo "${DELETE_RESPONSE}" | jq -r '.message' 2>/dev/null)
+    
+    if [[ -n "${ERROR_MESSAGE}" && "${ERROR_MESSAGE}" != "null" ]]; then
+      # Check if branch doesn't exist (already deleted)
+      if [[ "${ERROR_MESSAGE}" == *"Reference does not exist"* || "${ERROR_MESSAGE}" == *"Not Found"* ]]; then
+        echo "" >&2
+        echo " Branch '${BRANCH_NAME}' does not exist (may have been already deleted)" >&2
+        echo "=================================================" >&2
+        return 0
+      fi
+      
+      echo " Error: ${ERROR_MESSAGE}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to delete branch after ${MAX_RETRIES} attempts" >&2
+        return 0
+      fi
+    fi
+
+    # If we get here with a response but no error, consider it successful
+    echo "" >&2
+    echo " Branch '${BRANCH_NAME}' deleted successfully!" >&2
+    echo "=================================================" >&2
+    return 0
   done
   return 0
 }

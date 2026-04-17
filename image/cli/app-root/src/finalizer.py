@@ -81,8 +81,26 @@ def getKafkaVersion(namespace):
     return "unknown"
 
 
+# Get DataScience Version
+# -------------------------------------------------------------------------
+
+
+def getDscVersion():
+    try:
+        crs = dynClient.resources.get(api_version="datasciencecluster.opendatahub.io/v1", kind="DataScienceCluster")
+        cr = crs.get(name="default-dsc", namespace="opendatahub")
+        if cr.status and cr.status.release.version:
+            setObject["target.datascienceVersion"] = cr.status.release.version
+        else:
+            print("Unable to determine Data Science version: status.release.version unavailable")
+    except Exception as e:
+        print(f"Unable to determine Data Science version: {e}")
+
+
 # Get cp4d components versions
 # -------------------------------------------------------------------------
+
+
 def getcp4dCompsVersions():
 
     # Get Analytics Engine Version
@@ -549,6 +567,20 @@ if __name__ == "__main__":
             print("Unable to determine CP4D version: status.versions unavailable")
     except Exception as e:
         print(f"Unable to determine CP4D version: {e}")
+
+    # Lookup DataScience version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="datasciencecluster.opendatahub.io/v1", kind="DataScienceCluster")
+        cr = crs.get(name="default-dsc", namespace="opendatahub")
+        if cr.status and cr.status.release.version:
+            datascienceVersion = cr.status.release.version
+            setObject["target.datascienceVersion"] = datascienceVersion
+            getDscVersion()
+        else:
+            print("Unable to determine Data Science version: status.release.version unavailable")
+    except Exception as e:
+        print(f"Unable to determine Data Science version: {e}")
 
     # Connect to mongoDb
     # -------------------------------------------------------------------------

@@ -16,6 +16,7 @@ nav:
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
       - "Uninstall": guides/uninstall.md
+      - "Backup and Restore": guides/backup-restore.md
   - "Examples":
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md
@@ -31,12 +32,14 @@ nav:
       - "provision-roks": commands/provision-roks.md
       - "provision-rosa": commands/provision-rosa.md
       - "configtool-oidc": commands/configtool-oidc.md
+      - "backup": commands/backup.md
+      - "restore": commands/restore.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
-      - "Feb 16 2026": catalogs/v9-260216-amd64.md
+      - "Mar 26 2026": catalogs/v9-260326-amd64.md
+      - "Feb 26 2026": catalogs/v9-260226-amd64.md
       - "Jan 29 2026": catalogs/v9-260129-amd64.md
       - "Dec 31 2025": catalogs/v9-251231-amd64.md
-      - "Nov 27 2025": catalogs/v9-251127-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
