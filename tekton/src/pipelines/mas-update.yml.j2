@@ -152,6 +152,13 @@ spec:
       type: string
       default: ""
       description: ReadWriteMany storage class
+    
+    # AI Service
+    # -------------------------------------------------------------------------
+    - name: aiservice_instance_ids
+      type: string
+      default: ""
+      description: Comma-separated list of AI Service instance IDs
 
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
@@ -337,8 +344,22 @@ spec:
       runAfter:
         - update-cp4d
 
+    # 6. Migrate any AI Service instances. Updating to a new feature channel release
+    # could require migration as release 9.2 introduces a significant architectural change.
+    # AI Service migration
+    # -------------------------------------------------------------------------
+    - name: aiservice-migration
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-aiservice-migration
+      runAfter:
+        - post-update-verify
+      params:
+        - name: aiservice_instance_ids
+          value: $(params.aiservice_instance_ids)
 
-    # 6. Verify health of the cluster after dependencies updates
+    # 7. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-deps-update-verify',
