@@ -22,4 +22,7 @@ aiservice_api_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_API_KEY }}> 
 
 aiservice_certificates:
   - alias: aiservice
-    crt: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_CERTIFICATE }}>
+    crt: |
+      {% filter indent(width=6) -%}
+      <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_CERTIFICATE }}>
+      {%- endfilter %}
