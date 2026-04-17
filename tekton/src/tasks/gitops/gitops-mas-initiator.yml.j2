@@ -423,7 +423,9 @@ spec:
           # Split path by / and extract ICN and SAAS_SUB_ID
           IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
           
+          {% raw %}
           if [ ${#PARTS[@]} -lt 6 ]; then
+          {% endraw %}
             echo "Error: Invalid SLS service parameter file Path $SLS_SERVICE format." >&2
             exit 1
           fi
