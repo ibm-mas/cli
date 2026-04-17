@@ -322,7 +322,7 @@ function gitops_aiservice_tenant_noninteractive() {
   # -- Watsonx
   [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
   [[ -z "$AISERVICE_WATSONX_FULL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONX_FULL is not set. Please specify the full Watsonx.ai URL using --aiservice-watsonx-full."
-  
+  [[ -z "$RSL_URL" ]] && gitops_aiservice_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
   [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
   
   [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage_ssl."
@@ -442,7 +442,8 @@ function gitops_aiservice_tenant() {
     export SECRET_KEY_SLS_URL=${SLS_SECRETS_PREFIX}sls#sls_url
   fi  
 
-  
+  export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
+  export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
   export SECRET_KEY_RSL_CA_CRT=${SECRETS_PREFIX}rsl#rsl_ca_crt
   
   #watsonx
@@ -473,7 +474,7 @@ function gitops_aiservice_tenant() {
   else
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
   fi
- 
+  sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
   # finally push them into the git repo
