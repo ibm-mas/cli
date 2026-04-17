@@ -19,11 +19,10 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.12/site-packages/ansibl
     VIRTUAL_ENV_DISABLE_PROMPT=1 \
     PYTHONWARNINGS="ignore:Unverified HTTPS request"
 
-# 3. Install redis-cli for distributed locking support
-# 4. Install Python packages
-# 5. Install Ansible collections
-# 6. Disable ibmcloud cli's new version check
-# 7. Set file permissions to be developer (hack) friendly
+# 3. Install Python packages
+# 4. Install Ansible collections
+# 5. Disable ibmcloud cli's new version check
+# 6. Set file permissions to be developer (hack) friendly
 COPY install /tmp/install
 RUN --mount=type=secret,id=ARTIFACTORY_TOKEN,env=ARTIFACTORY_TOKEN \
     --mount=type=secret,id=ARTIFACTORY_GENERIC_RELEASE_URL,env=ARTIFACTORY_GENERIC_RELEASE_URL \
@@ -31,7 +30,6 @@ RUN --mount=type=secret,id=ARTIFACTORY_TOKEN,env=ARTIFACTORY_TOKEN \
     --mount=type=secret,id=GITHUB_REF_TYPE,env=GITHUB_REF_TYPE \
     umask 0002 && \
     ls /tmp/install && \
-    bash /tmp/install/install-redis-cli.sh && \
     bash /tmp/install/install-python-packages.sh && \
     bash /tmp/install/install-ansible-collections.sh && \
     bash /tmp/install/permissions-updates.sh && \

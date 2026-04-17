@@ -86,22 +86,28 @@ If any of these are not true, the operation fails.
 }
 ```
 
-### Step 2: Configure IBM Toolchain Environment Variables
+### Step 2: Configure Environment Variables for Function Execution
 
-Add these environment variables to your IBM Toolchain pipeline.
+These environment variables must be set in the runtime environment whenever you execute migrated GitOps functions that use `gitops_lock_and_modify`.
 
-#### In IBM Toolchain → Pipeline → Environment Properties:
+Using IBM Toolchain to call these functions is optional. If you are using IBM Toolchain, add them as pipeline environment properties. If you are running the functions from another environment, export the same variables there before execution.
 
-| Variable Name | Type | Value | Description |
-|--------------|------|-------|-------------|
-| `REDIS_USERNAME` | Secure | `ibm_cloud_user` | Redis username from credentials |
-| `REDIS_HOST` | Text | `c-abc123.databases.appdomain.cloud` | Redis hostname |
-| `REDIS_PORT` | Text | `31234` | Redis port |
-| `REDIS_PASSWORD` | Secure | `your-redis-password` | Redis password |
-| `REDIS_TLS_CA_CERT_B64` | Secure | `LS0tLS1CRUdJTi...` | Base64-encoded TLS certificate |
-| `GITOPS_USE_REDIS_LOCKING` | Text | `true` | Required for migrated locking flows |
-| `REDIS_TLS` | Text | `true` | Enable TLS (required for IBM Cloud) |
-| `REDIS_DB` | Text | `0` | Redis database number |
+#### Required Environment Variables
+
+| Variable Name | Example Value | Description |
+|--------------|---------------|-------------|
+| `REDIS_USERNAME` | `ibm_cloud_user` | Redis username from credentials |
+| `REDIS_HOST` | `c-abc123.databases.appdomain.cloud` | Redis hostname |
+| `REDIS_PORT` | `31234` | Redis port |
+| `REDIS_PASSWORD` | `your-redis-password` | Redis password |
+| `REDIS_TLS_CA_CERT_B64` | `LS0tLS1CRUdJTi...` | Base64-encoded TLS certificate |
+| `GITOPS_USE_REDIS_LOCKING` | `true` | Required for migrated locking flows |
+| `REDIS_TLS` | `true` | Enable TLS (required for IBM Cloud) |
+| `REDIS_DB` | `0` | Redis database number |
+
+#### If Using IBM Toolchain
+
+Add the variables above in **IBM Toolchain → Pipeline → Environment Properties**.
 
 #### Optional Tuning Parameters
 
@@ -394,44 +400,6 @@ If Redis becomes unavailable, migrated GitOps flows stop until Redis connectivit
 This is expected behavior.
 
 ---
-
-## Container Image Setup
-
-### Adding redis-cli to Custom Images
-
-If you're building a custom CLI image, add redis-cli installation.
-
-**1. Create installation script** (`image/cli/install/install-redis-cli.sh`):
-```bash
-#!/bin/bash
-set -e
-
-echo "Installing redis-cli..."
-
-if command -v microdnf &> /dev/null; then
-    microdnf install -y redis && microdnf clean all
-elif command -v dnf &> /dev/null; then
-    dnf install -y redis && dnf clean all
-elif command -v yum &> /dev/null; then
-    yum install -y redis && yum clean all
-elif command -v apt-get &> /dev/null; then
-    apt-get update && apt-get install -y redis-tools && rm -rf /var/lib/apt/lists/*
-elif command -v apk &> /dev/null; then
-    apk add --no-cache redis
-else
-    echo "ERROR: No supported package manager found"
-    exit 1
-fi
-
-redis-cli --version
-```
-
-**2. Update Dockerfile** (`image/cli/Dockerfile`):
-```dockerfile
-COPY install /tmp/install
-RUN bash /tmp/install/install-redis-cli.sh && \
-    bash /tmp/install/install-python-packages.sh
-```
 
 ---
 
