@@ -1,23 +1,23 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
 mongo:
-  mongo_action: {{ MONGO_ACTION }}
-  mongo_major_db_version: {{ MONGO_MAJOR_DB_VERSION }}
-  mongo_vpc_id: {{ MONGO_VPC_ID }}
-  mongo_subnet_ids:
+  action: {{ MONGO_ACTION }}
+  major_db_version: {{ MONGO_MAJOR_DB_VERSION }}
+  vpc_id: {{ MONGO_VPC_ID }}
+  subnet_ids:
   {% for subnet in MONGO_SUBNET_IDS %}
     - "{{ subnet }}"
   {% endfor %}
-  mongo_project_id: {{ MONGO_PROJECT_ID }}
-  mongo_organization_id: {{ MONGO_ORGANIZATION_ID }}
-  mongo_instance_size: {{ MONGO_INSTANCE_SIZE }}
-  mongo_node_count: {{ MONGO_NODE_COUNT }}
-  mongo_shards: {{ MONGO_SHARDS }}
-  mongo_backup_enabled: {{ MONGO_BACKUP_ENABLED }}
-  mongo_pit_enabled: {{ MONGO_PIT_ENABLED }}
-  mongo_helm_repo: {{ MONGO_HELM_REPO }}
-  mongo_namespace: {{ MONGO_NAMESPACE }}
-  mongo_publicApiKey: "<path:{{ SECRETS_PATH }}:{{ MONGODB_ATLAS_PUBLIC_KEY }}>"
-  mongo_privateApiKey: "<path:{{ SECRETS_PATH }}:{{ MONGODB_ATLAS_PRIVATE_KEY }}>"
-  mongo_update_mongo_secret: {{ MONGO_UPDATE_MONGO_SECRET }}
-  mongo_atlasURI: {{ MONGO_ATLASURI }}
+  project_id: {{ MONGO_PROJECT_ID }}
+  organization_id: {{ MONGO_ORGANIZATION_ID }}
+  instance_size: {{ MONGO_INSTANCE_SIZE }}
+  node_count: {{ MONGO_NODE_COUNT }}
+  shards: {{ MONGO_SHARDS }}
+  backup_enabled: {{ MONGO_BACKUP_ENABLED }}
+  pit_enabled: {{ MONGO_PIT_ENABLED }}
+  helm_repo: {{ MONGO_HELM_REPO }}
+  namespace: {{ MONGO_NAMESPACE }}
+  publicApiKey: "<path:{{ SECRETS_PATH }}:{{ SECRET_MONGODB_ATLAS_PUBLIC_KEY }}>"
+  privateApiKey: "<path:{{ SECRETS_PATH }}:{{ SECRET_MONGODB_ATLAS_PRIVATE_KEY }}>"
+  update_mongo_secret: {{ MONGO_UPDATE_MONGO_SECRET }}
+  atlasURI: {{ MONGO_ATLASURI }}

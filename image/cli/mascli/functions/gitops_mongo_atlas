@@ -347,6 +347,8 @@ function gitops_mongo_atlas() {
   sm_login
 
   export SECRET_NAME_MONGO_ATLAS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}mongo_atlas
+  export SECRET_MONGODB_ATLAS_PUBLIC_KEY=${SECRET_NAME_MONGO_ATLAS}#public_api_key
+  export SECRET_MONGODB_ATLAS_PRIVATE_KEY=${SECRET_NAME_MONGO_ATLAS}#private_api_key
 
   echo "- Update MongoDB Atlas API Keys secret"
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mongo_atlas\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
