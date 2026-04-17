@@ -277,7 +277,7 @@ class InstallSummarizerMixin():
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
             self.printH2("RSL")
-           
+
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
             self.printH2("IBM Db2 Univeral Operator Configuration")

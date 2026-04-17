@@ -1456,7 +1456,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Note: Future versions will auto-configure these from MAS Manage.",
                 ""
             ])
-            
+
             if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
                 self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 

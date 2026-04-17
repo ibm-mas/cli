@@ -409,7 +409,6 @@ class installArgBuilderMixin():
             if self.getParam('tenant_entitlement_end_date') != "":
                 command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
 
-           
             if self.getParam('rsl_ca_crt') != "":
                 command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 

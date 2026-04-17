@@ -103,7 +103,7 @@ def test_install_noninteractive(tmpdir):
                              '--tenant-entitlement-type', 'standard',
                              '--tenant-entitlement-start-date', '2025-08-28',
                              '--tenant-entitlement-end-date', '2026-08-28',
-                             
+
                              '--rsl-ca-crt', 'testRslCaCert',
                              '--accept-license', '--no-confirm',
                              '--skip-pre-check'])
@@ -189,7 +189,7 @@ def test_install_interactive_advanced(tmpdir):
                     return 'cert-issuer'
                 if re.match('.*Enable IPv6 SingleStack networking.*', message):
                     return 'y'
-               
+
                 if re.match('.*Watsonxai machine learning url.*', message):
                     return 'watsonxUrl'
                 if re.match('.*Does the RSL API use a self-signed certificate.*', message):
@@ -304,8 +304,7 @@ def test_install_interactive_simplified(tmpdir):
                     return 'username'
                 if re.match('.*minio root password.*', message):
                     return 'password'
-                
-               
+
                 if re.match('.*Watsonxai machine learning url.*', message):
                     return 'watsonxUrl'
                 if re.match('.*Does the RSL API use a self-signed certificate.*', message):
