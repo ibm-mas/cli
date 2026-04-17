@@ -2,19 +2,15 @@
 
 set -e
 
-# This script clones the pre-install repository and copies ALL versioned operator RBAC files
-# into the CLI image during build time. The CLI copies all MAS versions so it can
-# support different MAS releases.
+# This script clones the pre-install repository and copies ALL operator RBAC files
+# into the CLI image during build time. The CLI copies the flattened RBAC structure
+# so suite_rbac can auto-detect RBAC files by filename prefix for each MAS version.
 #
-# Structure in pre-install (grouped by MAS version):
-#   operators/<mas_version>/<operator>/rbac/clusterroles/
-#   operators/<mas_version>/<operator>/rbac/roles/essential/
-#   operators/<mas_version>/<operator>/rbac/roles/non-essential/
+# Structure in pre-install:
+#   operators/<operator>/rbac/<mas_version>/*.yml
 #
-# Structure in CLI image (preserves MAS version structure):
-#   /opt/app-root/rbac/operators/<mas_version>/<operator>/rbac/clusterroles/
-#   /opt/app-root/rbac/operators/<mas_version>/<operator>/rbac/roles/essential/
-#   /opt/app-root/rbac/operators/<mas_version>/<operator>/rbac/roles/non-essential/
+# Structure in CLI image:
+#   /opt/app-root/rbac/operators/<operator>/rbac/<mas_version>/*.yml
 export GITHUB_REF_NAME="${GITHUB_REF_NAME:-ds.rbac}"
 export GITHUB_REF_TYPE="${GITHUB_REF_TYPE:-branch}"
 echo "========================================"
@@ -75,28 +71,24 @@ echo "Copying RBAC files from $OPERATORS_SOURCE to $RBAC_DEST"
 
 VERSIONS_COPIED=()
 
-# Copy all versioned RBAC files
-for VERSION_DIR in "$OPERATORS_SOURCE"/*/; do
-  if [ -d "$VERSION_DIR" ]; then
-    VERSION_NAME=$(basename "$VERSION_DIR")
-    
-    # Skip non-version directories (only process directories like 9.2, 9.3, etc.)
-    if [[ ! "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+$ ]]; then
-      continue
-    fi
-    
-    VERSIONS_COPIED+=("$VERSION_NAME")
-    
-    # Process each operator in this version
-    for OPERATOR_DIR in "$VERSION_DIR"/*/; do
-      if [ -d "$OPERATOR_DIR" ] && [ -d "$OPERATOR_DIR/rbac" ]; then
-        OPERATOR_NAME=$(basename "$OPERATOR_DIR")
-        DEST_PATH="$RBAC_DEST/$VERSION_NAME/$OPERATOR_NAME/rbac"
-        mkdir -p "$DEST_PATH"
-        cp -r "$OPERATOR_DIR/rbac"/* "$DEST_PATH/"
+# Copy flattened operator RBAC files
+for OPERATOR_DIR in "$OPERATORS_SOURCE"/*/; do
+  if [ -d "$OPERATOR_DIR" ] && [ -d "$OPERATOR_DIR/rbac" ]; then
+    OPERATOR_NAME=$(basename "$OPERATOR_DIR")
+    DEST_PATH="$RBAC_DEST/$OPERATOR_NAME/rbac"
+    mkdir -p "$DEST_PATH"
+    cp -r "$OPERATOR_DIR/rbac"/* "$DEST_PATH/"
+
+    for VERSION_DIR in "$OPERATOR_DIR/rbac"/*/; do
+      if [ -d "$VERSION_DIR" ]; then
+        VERSION_NAME=$(basename "$VERSION_DIR")
+        if [[ "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+$ ]]; then
+          VERSIONS_COPIED+=("$VERSION_NAME")
+        fi
       fi
     done
   fi
 done
 
+VERSIONS_COPIED=($(printf "%s\n" "${VERSIONS_COPIED[@]}" | sort -u))
 echo "RBAC files copied successfully for versions: ${VERSIONS_COPIED[*]}"
