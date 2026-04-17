@@ -20,9 +20,4 @@ system_suite_aicfg_labels:
 
 aiservice_api_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_API_KEY }}>  # pragma: allowlist secret
 
-aiservice_certificates:
-  - alias: aiservice
-    crt: |
-      {% filter indent(width=6) -%}
-      <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_CERTIFICATE }}>
-      {%- endfilter %}
+aiservice_certificate_body: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_CERTIFICATE }}>
