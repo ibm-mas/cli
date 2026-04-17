@@ -46,8 +46,8 @@ MongoDB Helm Configuration (Optional):
       --mongo-helm-repo ${COLOR_YELLOW}MONGO_HELM_REPO${TEXT_RESET}                               Helm repository URL
 
 MongoDB API Keys (Required):
-      --mongo-public-api-key ${COLOR_YELLOW}MONGO_PUBLICAPIKEY${TEXT_RESET}                     MongoDB Atlas Public API Key
-      --mongo-private-api-key ${COLOR_YELLOW}MONGO_PRIVATEAPIKEY${TEXT_RESET}                   MongoDB Atlas Private API Key
+      --mongo-public-api-key ${COLOR_YELLOW}MONGODB_ATLAS_PUBLIC_KEY${TEXT_RESET}                     MongoDB Atlas Public API Key
+      --mongo-private-api-key ${COLOR_YELLOW}MONGODB_ATLAS_PRIVATE_KEY${TEXT_RESET}                   MongoDB Atlas Private API Key
 
 Secret Management (Optional):
       --mongo-update-mongo-secret ${COLOR_YELLOW}MONGO_UPDATE_MONGO_SECRET${TEXT_RESET}           Update MongoDB secret (default: true)
@@ -176,10 +176,10 @@ function gitops_mongo_atlas_noninteractive() {
 
       # MongoDB API Keys
       --mongo-public-api-key)
-        export MONGO_PUBLICAPIKEY=$1 && shift
+        export MONGODB_ATLAS_PUBLIC_KEY=$1 && shift
         ;;
       --mongo-private-api-key)
-        export MONGO_PRIVATEAPIKEY=$1 && shift
+        export MONGODB_ATLAS_PRIVATE_KEY=$1 && shift
         ;;
 
       # Secret Management
@@ -242,8 +242,8 @@ function gitops_mongo_atlas_noninteractive() {
   [[ -z "$MONGO_PROJECT_ID" ]] && gitops_mongo_atlas_help "MONGO_PROJECT_ID is not set"
   [[ -z "$MONGO_ORGANIZATION_ID" ]] && gitops_mongo_atlas_help "MONGO_ORGANIZATION_ID is not set"
   [[ -z "$MONGO_INSTANCE_SIZE" ]] && gitops_mongo_atlas_help "MONGO_INSTANCE_SIZE is not set"
-  [[ -z "$MONGO_PUBLICAPIKEY" ]] && gitops_mongo_atlas_help "MONGO_PUBLICAPIKEY is not set"
-  [[ -z "$MONGO_PRIVATEAPIKEY" ]] && gitops_mongo_atlas_help "MONGO_PRIVATEAPIKEY is not set"
+  [[ -z "$MONGODB_ATLAS_PUBLIC_KEY" ]] && gitops_mongo_atlas_help "MONGODB_ATLAS_PUBLIC_KEY is not set"
+  [[ -z "$MONGODB_ATLAS_PRIVATE_KEY" ]] && gitops_mongo_atlas_help "MONGODB_ATLAS_PRIVATE_KEY is not set"
 }
 
 function gitops_mongo_atlas() {
@@ -347,12 +347,10 @@ function gitops_mongo_atlas() {
   sm_login
 
   export SECRET_NAME_MONGO_ATLAS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}mongo_atlas
-  export MONGO_PUBLICAPIKEY="${MONGO_PUBLICAPIKEY}"
-  export MONGO_PRIVATEAPIKEY="${MONGO_PRIVATEAPIKEY}"
 
   echo "- Update MongoDB Atlas API Keys secret"
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mongo_atlas\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-  sm_update_secret $SECRET_NAME_MONGO_ATLAS "{\"public_api_key\": \"${MONGO_PUBLICAPIKEY}\", \"private_api_key\": \"${MONGO_PRIVATEAPIKEY}\"}" "${TAGS}"
+  sm_update_secret $SECRET_NAME_MONGO_ATLAS "{\"public_api_key\": \"${MONGODB_ATLAS_PUBLIC_KEY}\", \"private_api_key\": \"${MONGODB_ATLAS_PRIVATE_KEY}\"}" "${TAGS}"
 
   # Export variables for template
   export MONGO_ATLASURI="${ATLAS_URI}"

@@ -69,12 +69,6 @@ spec:
       type: string
       default: "mongodb-atlas-system"
 
-    # MongoDB API Keys
-    - name: mongo_publicApiKey
-      type: string
-    - name: mongo_privateApiKey
-      type: string
-
     # Secret Management
     - name: mongo_update_mongo_secret
       type: string
@@ -143,12 +137,6 @@ spec:
       - name: MONGO_NAMESPACE
         value: $(params.mongo_namespace)
 
-      # MongoDB API Keys
-      - name: MONGO_PUBLICAPIKEY
-        value: $(params.mongo_publicApiKey)
-      - name: MONGO_PRIVATEAPIKEY
-        value: $(params.mongo_privateApiKey)
-
       # Secret Management
       - name: MONGO_UPDATE_MONGO_SECRET
         value: $(params.mongo_update_mongo_secret)
@@ -202,10 +190,7 @@ spec:
         --mongo-pit-enabled $MONGO_PIT_ENABLED \
         --mongo-helm-repo $MONGO_HELM_REPO \
         --mongo-namespace $MONGO_NAMESPACE \
-        --mongo-atlasURI $MONGO_ATLASURI \
-        --mongo-public-api-key $MONGO_PUBLICAPIKEY \
-        --mongo-private-api-key $MONGO_PRIVATEAPIKEY
-
+        --mongo-atlasURI $MONGO_ATLASURI
         exit $?
       command:
         - /bin/sh
