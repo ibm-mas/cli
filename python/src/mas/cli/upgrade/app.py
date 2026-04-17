@@ -82,7 +82,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         """
         permissionMode = getSuitePermissionMode(self.dynamicClient, instanceId)
         print_formatted_text(HTML(f"<Gray>Permission mode: {permissionMode}</Gray>"))
-        
+
         # Store permission mode in params for PipelineRun
         self.setParam("mas_permission_mode", permissionMode)
 
