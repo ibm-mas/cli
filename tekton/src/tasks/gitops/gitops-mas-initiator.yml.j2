@@ -337,17 +337,7 @@ spec:
         # Process any .j2 files
         process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
 
-        # Create ICN folder structure if CENTRALISED_SLS is true
-        if [[ "$CENTRALISED_SLS" == "true" ]]; then
-          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
-          echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
-          cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
-
-          # Process any .j2 files
-          process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
-        else
-          echo "gitops-mas-initiator: CENTRALISED_SLS not true, skipping ICN folder creation"
-        fi
+        # ICN folder will be created later after extracting ICN and SAAS_SUB_ID
        
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
         if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
@@ -414,6 +404,49 @@ spec:
 
         yq -i '.mas_instance.manual_cert_mgmt = env(MANUAL_CERTS_CONTROL_FLAG)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
         echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
+
+        # Extract ICN and SAAS_SUB_ID from sls.sls_service parameter only when CENTRALISED_SLS is true
+        ICN_FILE_PATH=""
+        if [[ "$CENTRALISED_SLS" == "true" ]]; then
+          SLS_SERVICE=$(yq '.sls.sls_service // ""' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml)
+          
+          if [ -z "$SLS_SERVICE" ]; then
+            echo "Error: CENTRALISED_SLS is true but no SLS service reference found in mas-instance-params.yaml" >&2
+            exit 1
+          fi
+          
+          echo "gitops-mas-initiator: Found SLS service reference: $SLS_SERVICE"
+          
+          # Clean the path by removing <ref: and >
+          CLEAN_PATH=$(echo "$SLS_SERVICE" | sed 's#<ref:##; s#>##')
+          
+          # Split path by / and extract ICN and SAAS_SUB_ID
+          IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+          
+          if [ ${#PARTS[@]} -lt 6 ]; then
+            echo "Error: Invalid SLS service parameter file Path $SLS_SERVICE format." >&2
+            exit 1
+          fi
+          
+          # Extract ICN (4th element, index 3) and SAAS_SUB_ID (5th element, index 4)
+          export ICN="${PARTS[3]}"
+          export SAAS_SUB_ID="${PARTS[4]}"
+          echo "gitops-mas-initiator: Extracted ICN from SLS service: $ICN"
+          echo "gitops-mas-initiator: Extracted SAAS_SUB_ID from SLS service: $SAAS_SUB_ID"
+          
+          # Set the ICN file path for later use in skip deploy section
+          ICN_FILE_PATH="gitops/$ACCOUNT/icn/$ICN/$SAAS_SUB_ID/sls-params.yaml"
+          
+          # Create ICN folder structure and copy files
+          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
+          echo "gitops-mas-initiator: Copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
+          cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
+          
+          # Process any .j2 files in ICN folder
+          process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
+        else
+          echo "gitops-mas-initiator: CENTRALISED_SLS not true, skipping ICN setup"
+        fi
 
         if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
           yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
@@ -496,8 +529,8 @@ spec:
         if [[ ! "$GIT_COMMIT_MSG" =~ ^"[skip deploy]" ]]; then
             # Append a new line to the file to drive the deployment at cluster level
             echo "" >> gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-            if [[ "$CENTRALISED_SLS" == "true" ]]; then
-                echo "" >> gitops/$ACCOUNT/icn/icn.yaml
+            if [ -n "$ICN_FILE_PATH" ]; then
+                echo "" >> "$ICN_FILE_PATH"
             fi
         else
             echo "Commit message starts with [skip deploy], no changes made."
