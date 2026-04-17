@@ -261,6 +261,7 @@ spec:
         # Fetch public NLB DNS name from AWS and create secret
         echo "Fetching Network Load Balancer DNS name for $CLUSTER_NAME VPC..."
         
+        set +o pipefail
         # Note the - after cluster name. this is to distinguish between different similar named clusters
         vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.[].Value // ""' | xargs)
         if [ -z "$vpc_name" ]; then
@@ -268,6 +269,7 @@ spec:
           vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs)
         fi
         export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
+        set -o pipefail
         
         if [ -z "$VPC_ID" ]; then
           echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
