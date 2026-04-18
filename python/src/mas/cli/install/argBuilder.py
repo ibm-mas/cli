@@ -579,6 +579,11 @@ class installArgBuilderMixin():
         if self.getParam('approval_aiservice') != "":
             command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
 
+        # Slack
+        # -----------------------------------------------------------------------------
+        if self.getParam('slack_channel') != "" and self.getParam('slack_token'):
+            command += f"  --slack-channel \"{self.getParam('slack_channel')}\"  --slack-token $SLACK_TOKEN{newline}"
+
         # More Options
         # -----------------------------------------------------------------------------
         if self.devMode:
