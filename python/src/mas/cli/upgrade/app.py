@@ -79,6 +79,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.nextChannel = args.next_channel
         self.devMode = args.dev_mode
 
+        # Set image_pull_policy if provided
+        if args.image_pull_policy and args.image_pull_policy != "":
+            self.setParam("image_pull_policy", args.image_pull_policy)
+
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
