@@ -12,6 +12,7 @@
 import sys
 import logging
 import logging.handlers
+import re
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
@@ -250,6 +251,13 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.checkPermissionModeForUpgrade(instanceId)
             print_formatted_text(HTML("<Green>✓ Permission mode check passed</Green>"))
             print()
+
+        # Set RBAC version for RBAC recreation (extract version from nextChannel)
+        # e.g., "9.2.x-rbac" -> "9.2"
+        rbac_version_match = re.match(r'^(\d+\.\d+)', self.nextChannel)
+        if rbac_version_match:
+            mas_rbac_version = rbac_version_match.group(1)
+            self.setParam("mas_rbac_version", mas_rbac_version)
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))

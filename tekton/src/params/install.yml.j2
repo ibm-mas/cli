@@ -425,6 +425,10 @@
   type: string
   description: Permission mode for MAS installation (cluster, nonEssential, or essential)
   default: ""
+- name: mas_rbac_version
+  type: string
+  description: MAS RBAC version (Target MAS version) for upgrade (e.g., 9.2) - used by suite-rbac to apply correct RBAC files
+  default: ""
 - name: mas_domain
   type: string
   default: ""
