@@ -314,5 +314,3 @@ echo "   • Do not commit these files to Git"
 echo "   • Use IBM Toolchain's 'Secure' property type for sensitive values"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-
-# Made with Bob
