@@ -50,6 +50,8 @@ class aiServiceInstallSummarizerMixin():
         if "aiservice_certificate_issuer" in self.params:
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
+        self.printParamSummary("Configure AI Service to run in IPv6 mode", "enable_ipv6")
+
         self.printH2("AI Service Tenant Entitlement")
         self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
         self.printParamSummary("Start Date", "tenant_entitlement_start_date")
@@ -108,6 +110,13 @@ class aiServiceInstallSummarizerMixin():
         else:
             self.fatalError(f"Unexpected value for mongodb_action parameter: {self.getParam('mongodb_action')}")
 
+    def slackSummary(self) -> None:
+        self.printH2("Slack Integration")
+        if self.getParam("slack_channel") != "":
+            self.printParamSummary("Slack Channel", "slack_channel")
+        else:
+            self.printSummary("Slack Channel", "Not Configured")
+
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
@@ -127,3 +136,6 @@ class aiServiceInstallSummarizerMixin():
         self.slsSummary()
         self.mongoSummary()
         self.db2Summary()
+
+        # Notification Integration
+        self.slackSummary()
