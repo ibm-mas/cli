@@ -816,6 +816,16 @@ case $1 in
     reset_colors
     gitops_suite_license_service "$@"
     ;;
+  setup-rbac)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! setup-rbac                                                                !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "setup-rbac")
+    shift
+    # Run the new Python-based setup-rbac
+    mas-cli setup-rbac "$@"
+    ;;
+
 
   *)
     echo "unknown parameter $1"
