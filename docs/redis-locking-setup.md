@@ -6,11 +6,11 @@ This guide explains how to configure and use Redis-based distributed locking in 
 
 ## Important Behavior Change
 
-Redis locking is now required for migrated GitOps flows that use `gitops_lock_and_modify`.
+Redis locking is now the **preferred** mechanism for migrated GitOps flows that use `gitops_lock_and_modify`.
 
-There is no longer any fallback to Git branch locking.
+**Automatic Fallback**: If Redis is unavailable or misconfigured, the system automatically falls back to Git branch-based locking to ensure operations continue.
 
-If Redis is unavailable, misconfigured, or disabled, migrated GitOps operations fail immediately.
+This provides resilience while maintaining the performance benefits of Redis when available.
 
 ---
 
@@ -45,14 +45,16 @@ redis-cli --version
 
 If not installed, see the [Container Image Setup](#container-image-setup) section below.
 
-### Required Runtime Requirement
+### Runtime Requirements
 
-For migrated GitOps flows:
-- `GITOPS_USE_REDIS_LOCKING` must be `true`
-- Redis must be reachable from the pipeline runtime
-- Redis auth/TLS settings must be valid
+For optimal performance with migrated GitOps flows:
+- Set `GITOPS_USE_REDIS_LOCKING=true` to enable Redis locking
+- Ensure Redis is reachable from the pipeline runtime
+- Configure valid Redis auth/TLS settings
 
-If any of these are not true, the operation fails.
+**Fallback Behavior**: If Redis is unavailable or misconfigured, the system automatically falls back to Git branch-based locking. This ensures operations continue even if Redis is temporarily unavailable.
+
+**Optional**: Set `GITOPS_FALLBACK_TO_GIT_LOCKING=false` to disable fallback and require Redis (fail-fast mode).
 
 ---
 
@@ -101,9 +103,10 @@ Using IBM Toolchain to call these functions is optional. If you are using IBM To
 | `REDIS_PORT` | `31234` | Redis port |
 | `REDIS_PASSWORD` | `your-redis-password` | Redis password |
 | `REDIS_TLS_CA_CERT_B64` | `LS0tLS1CRUdJTi...` | Base64-encoded TLS certificate |
-| `GITOPS_USE_REDIS_LOCKING` | `true` | Required for migrated locking flows |
+| `GITOPS_USE_REDIS_LOCKING` | `true` | Enable Redis locking (recommended) |
 | `REDIS_TLS` | `true` | Enable TLS (required for IBM Cloud) |
 | `REDIS_DB` | `0` | Redis database number |
+| `GITOPS_FALLBACK_TO_GIT_LOCKING` | `true` | Allow fallback to Git locking (default: true) |
 
 #### If Using IBM Toolchain
 
@@ -131,19 +134,27 @@ Add the variables above in **IBM Toolchain → Pipeline → Environment Properti
 │  1. Pipeline starts → Load Redis credentials from secrets   │
 │                                                             │
 │  2. Call gitops_lock_and_modify()                           │
-│     ├─ Verify GITOPS_USE_REDIS_LOCKING=true                 │
+│     ├─ Check GITOPS_USE_REDIS_LOCKING=true                  │
 │     ├─ Check Redis availability                             │
-│     ├─ If YES: Use Redis locking ✓                          │
-│     └─ If NO: Fail immediately                              │
+│     ├─ If Redis available: Use Redis locking ✓              │
+│     └─ If Redis unavailable: Fallback to Git locking ⚠      │
 │                                                             │
-│  3. Redis Locking Flow:                                     │
+│  3a. Redis Locking Flow (Preferred):                        │
 │     ├─ Acquire Redis lock (atomic SET NX operation)         │
 │     ├─ Clone Git repository                                 │
 │     ├─ Apply changes (callback function)                    │
 │     ├─ Commit and push directly to target branch            │
 │     └─ Release Redis lock                                   │
 │                                                             │
-│  4. Lock automatically expires after TTL                    │
+│  3b. Git Locking Flow (Fallback):                           │
+│     ├─ Clone Git repository                                 │
+│     ├─ Create and push lock branch                          │
+│     ├─ Apply changes (callback function)                    │
+│     ├─ Commit to lock branch                                │
+│     ├─ Merge lock branch to target branch                   │
+│     └─ Delete lock branch                                   │
+│                                                             │
+│  4. Lock automatically expires after TTL (Redis only)       │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -151,11 +162,12 @@ Add the variables above in **IBM Toolchain → Pipeline → Environment Properti
 ### Key Benefits
 
 1. **Atomic Operations**: Redis `SET NX` ensures only one pipeline acquires the lock
-2. **No Git Pollution**: No temporary branches are created
-3. **Auto-Expiry**: Locks automatically expire
+2. **No Git Pollution**: No temporary branches are created (when using Redis)
+3. **Auto-Expiry**: Locks automatically expire (Redis only)
 4. **Faster**: Redis operations are much faster than Git
-5. **Explicit Failure Mode**: Misconfigured Redis fails fast instead of silently changing behavior
+5. **Resilient**: Automatic fallback to Git locking ensures operations continue
 6. **Cross-Pipeline**: Works across different Tekton pipelines and jobs
+7. **Flexible**: Can disable fallback for strict Redis-only mode
 
 ---
 
@@ -181,7 +193,7 @@ if [ "$GITHUB_PUSH" == "true" ]; then
 fi
 ```
 
-### After: Redis-Required Locking
+### After: Redis with Git Fallback
 
 ```bash
 function apply_cp4d_service_changes() {
@@ -196,6 +208,7 @@ function apply_cp4d_service_changes() {
 if [ "$GITHUB_PUSH" == "true" ]; then
   LOCK_NAME="gitops-cp4d-service.${ACCOUNT_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
+  # Automatically uses Redis if available, falls back to Git locking if not
   gitops_lock_and_modify \
     "${GITHUB_HOST}" \
     "${GITHUB_ORG}" \
@@ -219,15 +232,16 @@ fi
 
 ### Key Differences
 
-| Aspect | Old (Git Locking) | New (Redis Locking) |
-|--------|--------------------|---------------------|
-| Lock mechanism | Git branch | Redis key |
-| Lock acquisition | Create/push branch | Atomic `SET NX` |
-| Lock release | Delete branch/merge | Delete Redis key |
-| Cleanup | Manual branch deletion | TTL-based expiry |
-| Speed | Slow | Fast |
-| Failure mode | Git lock branch behavior | Fail fast if Redis unavailable |
-| Fallback | N/A | None |
+| Aspect | Old (Git Locking) | New (Redis with Fallback) |
+|--------|--------------------|---------------------------|
+| Primary lock mechanism | Git branch | Redis key |
+| Lock acquisition | Create/push branch | Atomic `SET NX` (Redis) or branch (Git fallback) |
+| Lock release | Delete branch/merge | Delete Redis key or branch |
+| Cleanup | Manual branch deletion | TTL-based expiry (Redis) or branch deletion (Git) |
+| Speed | Slow | Fast (Redis) or Slow (Git fallback) |
+| Failure mode | Git lock branch behavior | Automatic fallback to Git locking |
+| Fallback | N/A | Git-based locking (configurable) |
+| Resilience | Single mechanism | Dual mechanism with automatic failover |
 
 ---
 
@@ -243,11 +257,11 @@ source /path/to/mascli/functions/gitops_utils
 echo "Testing Redis connection..."
 if redis_available; then
   echo "✓ Redis is accessible and ready"
-  echo "✓ Migrated GitOps flows can run"
+  echo "✓ GitOps flows will use Redis locking (optimal performance)"
 else
-  echo "✗ Redis is not accessible"
-  echo "✗ Migrated GitOps flows will fail"
-  exit 1
+  echo "⚠ Redis is not accessible"
+  echo "⚠ GitOps flows will fall back to Git-based locking"
+  echo "  (Operations will continue but with reduced performance)"
 fi
 ```
 
@@ -309,21 +323,25 @@ Migration completion:
 **Symptoms**:
 ```text
 redis-cli command not found in PATH
-ERROR: Redis locking is required but Redis is not available
+⚠ Redis not available, falling back to Git-based locking
 ```
 
 **Root Cause**:
 - `redis-cli` is not installed in the container image
 
-**Solution**:
+**Impact**:
+- Operations will use Git-based locking (slower but functional)
+
+**Solution** (for optimal performance):
 1. Verify CLI image version 19.6.1+
 2. Update the image if needed
 3. Add `redis-cli` to custom images
 
-### Issue: `ERROR: Redis locking is required but Redis is not available`
+### Issue: `⚠ Redis not available, falling back to Git-based locking`
 
 **Symptoms**:
-- Migrated pipeline fails before lock acquisition
+- Pipeline logs show fallback to Git locking
+- Operations complete successfully but slower
 
 **Possible Causes**:
 1. Wrong host or port
@@ -331,6 +349,10 @@ ERROR: Redis locking is required but Redis is not available
 3. TLS certificate issue
 4. Network/firewall issue
 5. Redis service unavailable
+
+**Impact**:
+- Operations continue using Git-based locking
+- Performance is reduced (25-75 seconds overhead vs 0.2-0.7 seconds)
 
 **Manual Test**:
 ```bash
@@ -340,13 +362,22 @@ redis-cli -h $REDIS_HOST -p $REDIS_PORT \
   PING
 ```
 
-### Issue: `ERROR: Redis locking is required but GITOPS_USE_REDIS_LOCKING is not set to true`
+**Solution**:
+- Fix Redis configuration to restore optimal performance
+- Or accept Git-based locking performance
+
+### Issue: Operations fail with Redis error
+
+**Symptoms**:
+- Pipeline fails with Redis connection error
+- `GITOPS_FALLBACK_TO_GIT_LOCKING=false` is set
 
 **Cause**:
-- Pipeline configuration is incomplete
+- Fallback is disabled and Redis is unavailable
 
 **Solution**:
-- Set `GITOPS_USE_REDIS_LOCKING=true`
+1. Fix Redis connectivity, OR
+2. Enable fallback: `GITOPS_FALLBACK_TO_GIT_LOCKING=true`
 
 ### Issue: `Failed to acquire lock after N attempts`
 
@@ -395,9 +426,17 @@ Set up alerts for:
 - Unexpected lock duration
 
 ### Operational Note
-If Redis becomes unavailable, migrated GitOps flows stop until Redis connectivity is restored.
+If Redis becomes unavailable, migrated GitOps flows automatically fall back to Git-based locking.
 
-This is expected behavior.
+**Default Behavior** (`GITOPS_FALLBACK_TO_GIT_LOCKING=true`):
+- Operations continue with Git-based locking
+- Performance is reduced but functionality is maintained
+- No manual intervention required
+
+**Strict Mode** (`GITOPS_FALLBACK_TO_GIT_LOCKING=false`):
+- Operations fail immediately if Redis is unavailable
+- Requires Redis connectivity to be restored
+- Use this mode when Redis availability is guaranteed
 
 ---
 
@@ -405,12 +444,22 @@ This is expected behavior.
 
 ## Summary
 
-✅ `redis-cli` is required in the container  
-✅ Redis environment variables must be configured  
-✅ `GITOPS_USE_REDIS_LOCKING=true` is required  
-✅ All identified Git branch locking functions are migrated  
-✅ No fallback to Git locking remains in `gitops_lock_and_modify`  
-✅ Fail-fast behavior is now enforced  
-✅ Redis locking eliminates Git branch locking issues and branch pollution  
+✅ `redis-cli` is recommended in the container for optimal performance
+✅ Redis environment variables should be configured for best results
+✅ `GITOPS_USE_REDIS_LOCKING=true` enables Redis locking (recommended)
+✅ All identified Git branch locking functions are migrated
+✅ **Automatic fallback to Git locking** ensures operations continue if Redis is unavailable
+✅ `GITOPS_FALLBACK_TO_GIT_LOCKING=true` (default) provides resilience
+✅ Redis locking eliminates Git branch locking issues and branch pollution when available
+✅ Git-based locking serves as reliable fallback mechanism
 
-Redis is now the required locking backend for migrated GitOps flows.
+**Redis is the preferred locking backend** for migrated GitOps flows, with automatic fallback to Git-based locking for resilience.
+
+### Configuration Modes
+
+| Mode | Redis Available | Fallback Enabled | Behavior |
+|------|----------------|------------------|----------|
+| **Optimal** | ✅ Yes | ✅ Yes | Uses Redis (fast) |
+| **Resilient** | ❌ No | ✅ Yes | Falls back to Git (slower but works) |
+| **Strict** | ❌ No | ❌ No | Fails immediately |
+| **Git-only** | N/A | ✅ Yes + `GITOPS_USE_REDIS_LOCKING=false` | Always uses Git |
