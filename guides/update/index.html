@@ -526,6 +526,24 @@
       <td><code>false</code></td>
       <td>Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline</td>
     </tr>
+    <tr>
+      <td><code>--slack-token</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Slack bot token for sending pipeline status notifications</td>
+    </tr>
+    <tr>
+      <td><code>--slack-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Slack channel(s) for pipeline notifications (comma-separated for multiple channels)</td>
+    </tr>
+    <tr>
+      <td><code>--image-pull-policy</code></td>
+      <td><code>{IfNotPresent, Always}</code></td>
+      <td>-</td>
+      <td>Image pull policy for Tekton Pipeline</td>
+    </tr>
   </tbody>
 </table>
 
