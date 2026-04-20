@@ -259,21 +259,20 @@ spec:
         fi
 
         # Fetch public NLB DNS name from AWS and create secret
-        echo "Fetching Network Load Balancer DNS name for $CLUSTER_NAME VPC."
+        echo "Fetching Network Load Balancer DNS name for $CLUSTER_NAME VPC..."
         
         set +o pipefail
         # Note the - after cluster name. this is to distinguish between different similar named clusters
-        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.[].Value // ""' | xargs)
+        vpc_name=$(aws ec2 describe-vpcs --output yaml 2>/dev/null | grep $CLUSTER_NAME- | yq '.[].Value // ""' 2>/dev/null | xargs)
         if [ -z "$vpc_name" ]; then
           # Needed if there is only one cluster in account
-          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs)
+          vpc_name=$(aws ec2 describe-vpcs --output yaml 2>/dev/null | grep $CLUSTER_NAME- | yq '.Value // ""' 2>/dev/null | xargs)
         fi
-        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
+        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml 2>/dev/null | yq '.Vpcs[].VpcId' 2>/dev/null)
         set -o pipefail
         
         if [ -z "$VPC_ID" ]; then
           echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
-          exit 1
         fi
 
         echo "VPC of $VPC_ID found for $CLUSTER_NAME"     
@@ -419,11 +418,10 @@ spec:
           process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
           
           # Now extract ICN and SAAS_SUB_ID from sls.sls_service parameter
-          SLS_SERVICE=$(yq '.sls.sls_service // ""' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml.J2)
+          SLS_SERVICE=$(yq '.sls.sls_service // ""' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml.j2)
           
           if [ -z "$SLS_SERVICE" ]; then
             echo "Error: CENTRALISED_SLS is true but no SLS service reference found in mas-instance-params.yaml" >&2
-            exit 1
           fi
           
           echo "gitops-mas-initiator: Found SLS service reference: $SLS_SERVICE"
