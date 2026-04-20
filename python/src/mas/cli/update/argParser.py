@@ -13,6 +13,8 @@ import sys
 
 from ..cli import getHelpFormatter
 
+IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
+
 
 class UpdateArgumentParser(argparse.ArgumentParser):
     """Custom argument parser that validates --catalog requirement"""
@@ -215,6 +217,24 @@ otherArgGroup.add_argument(
     action='store_true',
     default=False,
     help="Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline",
+)
+otherArgGroup.add_argument(
+    '--slack-token',
+    required=False,
+    help="Slack bot token for sending pipeline status notifications"
+)
+otherArgGroup.add_argument(
+    '--slack-channel',
+    required=False,
+    help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)"
+)
+otherArgGroup.add_argument(
+    "--image-pull-policy",
+    dest="image_pull_policy",
+    required=False,
+    help="Image pull policy for Tekton Pipeline",
+    choices=IMAGE_PULL_POLICIES,
+    metavar="{IfNotPresent,Always}"
 )
 otherArgGroup.add_argument(
     '-h', "--help",
