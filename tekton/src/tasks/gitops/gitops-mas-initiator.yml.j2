@@ -407,11 +407,12 @@ spec:
         echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
 
         # Extract ICN and SAAS_SUB_ID from sls.sls_service parameter only when CENTRALISED_SLS is true
+        echo "hard coded true"
         ICN_FILE_PATH=""
         if [[ "$CENTRALISED_SLS" == "true" ]]; then
           # Create ICN folder structure and copy files first
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
-          echo "gitops-mas-initiator: Copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
+          echo "gitops-mas-initiator: Copying icn directory into  $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
           cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
           
           # Process any .j2 files in ICN folder
