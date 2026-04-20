@@ -107,6 +107,9 @@ class installArgBuilderMixin():
         if self.getParam('mas_configure_ingress').lower() == "true":
             command += f"  --configure-ingress{newline}"
 
+        if self.getParam('mas_use_service_mesh') != "":
+            command += f"  --servicemesh \"{self.getParam('mas_use_service_mesh')}\"{newline}"
+
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
