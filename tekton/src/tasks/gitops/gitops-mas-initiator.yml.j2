@@ -410,7 +410,16 @@ spec:
         # Extract ICN and SAAS_SUB_ID from sls.sls_service parameter only when CENTRALISED_SLS is true
         ICN_FILE_PATH=""
         if [[ "$CENTRALISED_SLS" == "true" ]]; then
-          SLS_SERVICE=$(yq '.sls.sls_service // ""' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml)
+          # Create ICN folder structure and copy files first
+          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
+          echo "gitops-mas-initiator: Copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
+          cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
+          
+          # Process any .j2 files in ICN folder
+          process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
+          
+          # Now extract ICN and SAAS_SUB_ID from sls.sls_service parameter
+          SLS_SERVICE=$(yq '.sls.sls_service // ""' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml.J2)
           
           if [ -z "$SLS_SERVICE" ]; then
             echo "Error: CENTRALISED_SLS is true but no SLS service reference found in mas-instance-params.yaml" >&2
@@ -440,14 +449,6 @@ spec:
           
           # Set the ICN file path for later use in skip deploy section
           ICN_FILE_PATH="gitops/$ACCOUNT/icn/$ICN/$SAAS_SUB_ID/sls-params.yaml"
-          
-          # Create ICN folder structure and copy files
-          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
-          echo "gitops-mas-initiator: Copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
-          cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
-          
-          # Process any .j2 files in ICN folder
-          process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
         else
           echo "gitops-mas-initiator: CENTRALISED_SLS not true, skipping ICN setup"
         fi
