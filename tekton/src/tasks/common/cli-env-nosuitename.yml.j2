@@ -13,6 +13,24 @@
 - name: DEVOPS_ENVIRONMENT
   valueFrom:
     secretKeyRef:
-      name: mas-devops
+      name: mas-devops-slack
       key: MAS_INSTANCE_ID
       optional: true
+- name: SLACK_TOKEN
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops-slack
+      key: SLACK_TOKEN
+      optional: true
+- name: SLACK_CHANNEL
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops-slack
+      key: SLACK_CHANNEL
+      optional: true
+- name: PIPELINE_NAMESPACE
+  value: $(params.pipelinerun_namespace)
+- name: PIPELINERUN_NAME
+  value: $(params.pipelinerun_name)
+- name: PIPELINE_NAME
+  value: $(params.pipeline_name)
