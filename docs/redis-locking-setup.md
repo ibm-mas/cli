@@ -52,9 +52,9 @@ For optimal performance with migrated GitOps flows:
 - Ensure Redis is reachable from the pipeline runtime
 - Configure valid Redis auth/TLS settings
 
-**Behavior with `GITOPS_USE_REDIS_LOCKING=true`**: If Redis is unavailable or misconfigured, the system automatically falls back to Git branch-based locking. This ensures operations continue even if Redis is temporarily unavailable.
+**Behavior with `GITOPS_USE_REDIS_LOCKING=true`**: Redis must be available and properly configured. If Redis is unavailable or misconfigured, the operation will fail with an error. This ensures explicit control over the locking mechanism.
 
-**Alternative**: Set `GITOPS_USE_REDIS_LOCKING=false` to always use Git branch locking (skips Redis entirely).
+**Default behavior**: `GITOPS_USE_REDIS_LOCKING=false` uses Git branch locking (skips Redis entirely). This is the default to avoid breaking changes for existing deployments.
 
 ---
 
@@ -103,7 +103,7 @@ Using IBM Toolchain to call these functions is optional. If you are using IBM To
 | `REDIS_PORT` | `31234` | Redis port |
 | `REDIS_PASSWORD` | `your-redis-password` | Redis password |
 | `REDIS_TLS_CA_CERT_B64` | `LS0tLS1CRUdJTi...` | Base64-encoded TLS certificate |
-| `GITOPS_USE_REDIS_LOCKING` | `true` | Enable Redis locking with automatic Git fallback (recommended) |
+| `GITOPS_USE_REDIS_LOCKING` | `true` | Enable Redis locking with automatic Git fallback (recommended, not default) |
 | `REDIS_TLS` | `true` | Enable TLS (required for IBM Cloud) |
 | `REDIS_DB` | `0` | Redis database number |
 
@@ -238,9 +238,9 @@ fi
 | Lock release | Delete branch/merge | Delete Redis key or branch |
 | Cleanup | Manual branch deletion | TTL-based expiry (Redis) or branch deletion (Git) |
 | Speed | Slow | Fast (Redis) or Slow (Git fallback) |
-| Failure mode | Git lock branch behavior | Automatic fallback to Git locking when `GITOPS_USE_REDIS_LOCKING=true` |
-| Control | N/A | `GITOPS_USE_REDIS_LOCKING` (true=Redis+fallback, false=Git-only) |
-| Resilience | Single mechanism | Dual mechanism with automatic failover |
+| Failure mode | Git lock branch behavior | Fails if Redis unavailable when `GITOPS_USE_REDIS_LOCKING=true` |
+| Control | N/A | `GITOPS_USE_REDIS_LOCKING` (true=Redis-only, false=Git-only, default: false) |
+| Resilience | Single mechanism | Single mechanism (explicit control) |
 
 ---
 
@@ -421,18 +421,18 @@ Set up alerts for:
 - Unexpected lock duration
 
 ### Operational Note
-When `GITOPS_USE_REDIS_LOCKING=true` (recommended), if Redis becomes unavailable, migrated GitOps flows automatically fall back to Git-based locking.
+When `GITOPS_USE_REDIS_LOCKING=true` (recommended), Redis must be available and properly configured.
 
-**With `GITOPS_USE_REDIS_LOCKING=true` (default/recommended)**:
-- Tries Redis first for optimal performance
-- Automatically falls back to Git-based locking if Redis is unavailable
-- Operations continue with reduced performance but maintained functionality
-- No manual intervention required
+**With `GITOPS_USE_REDIS_LOCKING=true` (recommended)**:
+- Uses Redis for optimal performance
+- Requires Redis to be available and properly configured
+- Operations will fail if Redis is unavailable
+- Provides explicit control over locking mechanism
 
-**With `GITOPS_USE_REDIS_LOCKING=false`**:
+**With `GITOPS_USE_REDIS_LOCKING=false` (default)**:
 - Uses Git-based locking directly
 - Skips Redis entirely
-- Use this mode if you don't have Redis available
+- This is the default to avoid breaking changes
 
 ---
 
@@ -442,11 +442,11 @@ When `GITOPS_USE_REDIS_LOCKING=true` (recommended), if Redis becomes unavailable
 
 ✅ `redis-cli` is recommended in the container for optimal performance
 ✅ Redis environment variables should be configured for best results
-✅ `GITOPS_USE_REDIS_LOCKING=true` enables Redis locking with automatic Git fallback (recommended)
+✅ `GITOPS_USE_REDIS_LOCKING=true` enables Redis locking (recommended, requires Redis to be available)
 ✅ All identified Git branch locking functions are migrated
-✅ **Automatic fallback to Git locking** ensures operations continue if Redis is unavailable (when `GITOPS_USE_REDIS_LOCKING=true`)
+✅ **Explicit control**: Operations fail if Redis is unavailable when `GITOPS_USE_REDIS_LOCKING=true`
 ✅ Redis locking eliminates Git branch locking issues and branch pollution when available
-✅ Git-based locking serves as reliable fallback mechanism
+✅ Git-based locking remains available via `GITOPS_USE_REDIS_LOCKING=false` (default)
 
 **Redis is the preferred locking backend** for migrated GitOps flows, with automatic fallback to Git-based locking for resilience.
 

@@ -6,9 +6,9 @@
 #
 # Redis is the preferred locking mechanism for migrated GitOps flows.
 # When GITOPS_USE_REDIS_LOCKING=true (recommended):
-#   - Uses Redis if available (optimal performance)
-#   - Automatically falls back to Git branch locking if Redis is unavailable
-# When GITOPS_USE_REDIS_LOCKING=false:
+#   - Uses Redis for optimal performance
+#   - Requires Redis to be available (fails if not)
+# When GITOPS_USE_REDIS_LOCKING=false (default):
 #   - Uses Git branch locking directly
 #
 # Prerequisites:
@@ -34,9 +34,12 @@ echo "=========================================="
 echo ""
 echo "Redis is the preferred locking mechanism for migrated GitOps flows."
 echo ""
-echo "Behavior with GITOPS_USE_REDIS_LOCKING=true (recommended):"
-echo "  • Uses Redis if available (optimal performance)"
-echo "  • Automatically falls back to Git locking if Redis is unavailable"
+echo "Behavior with GITOPS_USE_REDIS_LOCKING=true (recommended, not default):"
+echo "  • Uses Redis for optimal performance"
+echo "  • Requires Redis to be available (fails if not)"
+echo ""
+echo "Default behavior (GITOPS_USE_REDIS_LOCKING=false):"
+echo "  • Uses Git branch locking directly"
 echo ""
 
 # Check prerequisites
@@ -238,10 +241,10 @@ Generated: $(date)
 Instance: $REDIS_INSTANCE_NAME
 
 IMPORTANT:
-When GITOPS_USE_REDIS_LOCKING=true (recommended):
-  - Uses Redis if available (optimal performance)
-  - Automatically falls back to Git branch locking if Redis is unavailable
-When GITOPS_USE_REDIS_LOCKING=false:
+When GITOPS_USE_REDIS_LOCKING=true (recommended, not default):
+  - Uses Redis for optimal performance
+  - Requires Redis to be available (fails if not)
+When GITOPS_USE_REDIS_LOCKING=false (default):
   - Uses Git branch locking directly
 
 REQUIRED VARIABLES:
@@ -266,8 +269,8 @@ cat > "$JSON_FILE" << EOF
   "redis_instance": "$REDIS_INSTANCE_NAME",
   "generated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "notes": [
-    "GITOPS_USE_REDIS_LOCKING=true: Uses Redis if available, falls back to Git locking if not",
-    "GITOPS_USE_REDIS_LOCKING=false: Uses Git branch locking directly"
+    "GITOPS_USE_REDIS_LOCKING=true: Uses Redis, requires it to be available (recommended, not default)",
+    "GITOPS_USE_REDIS_LOCKING=false: Uses Git branch locking directly (default)"
   ],
   "environment_variables": {
     "REDIS_USERNAME": "$REDIS_USERNAME",

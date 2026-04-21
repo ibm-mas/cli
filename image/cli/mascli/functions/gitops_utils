@@ -25,7 +25,7 @@ REDIS_TLS_CA_CERT_B64="${REDIS_TLS_CA_CERT_B64:-}" #pragma: allowlist secret
 GITOPS_LOCK_TTL="${GITOPS_LOCK_TTL:-300}"           # 5 minutes default
 GITOPS_LOCK_RETRY_MAX="${GITOPS_LOCK_RETRY_MAX:-100}"
 GITOPS_LOCK_RETRY_DELAY="${GITOPS_LOCK_RETRY_DELAY:-20}"
-GITOPS_USE_REDIS_LOCKING="${GITOPS_USE_REDIS_LOCKING:-true}"
+GITOPS_USE_REDIS_LOCKING="${GITOPS_USE_REDIS_LOCKING:-false}"
 
 # Setup Redis TLS certificate from base64 if provided
 function setup_redis_tls_cert() {
@@ -846,7 +846,7 @@ function clone_and_modify_with_redis_lock() {
 #   $10 - RETURNVARNAME_MODIFIED (optional)
 #
 # Environment variables:
-#   GITOPS_USE_REDIS_LOCKING - Set to "true" to use Redis, "false" for Git (default: true)
+#   GITOPS_USE_REDIS_LOCKING - Set to "true" to use Redis, "false" for Git (default: false)
 #
 function gitops_lock_and_modify() {
   local GITHUB_HOST="$1"
@@ -876,7 +876,9 @@ function gitops_lock_and_modify() {
         "${APPLY_CHANGES_CALLBACK}" "${GIT_COMMIT_MSG}" "${RETURNVARNAME_MODIFIED}"
       return $?
     else
-      echo "$(logts) ⚠ Redis not available, falling back to Git-based locking"
+      echo "$(logts) ✗ ERROR: Redis locking is enabled (GITOPS_USE_REDIS_LOCKING=true) but Redis is not available"
+      echo "$(logts) Please ensure Redis is properly configured or set GITOPS_USE_REDIS_LOCKING=false to use Git-based locking"
+      return 1
     fi
   else
     echo "$(logts) Redis locking disabled via GITOPS_USE_REDIS_LOCKING=false"
