@@ -17,6 +17,7 @@ resources:
   - pipeline/clusterrole-grafana5.yaml
   - pipeline/clusterrole-mas-x-core.yaml
   - pipeline/clusterrole-mongoce.yaml
+  - pipeline/db2u.yaml
   - pipeline/eck.yaml
   - pipeline/grafana5.yaml
   - pipeline/ibm-sls.yaml
