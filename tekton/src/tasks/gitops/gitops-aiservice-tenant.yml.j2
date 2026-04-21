@@ -196,7 +196,7 @@ spec:
           export CATALOG_CHANNEL=${AISERVICE_CATALOG_CHANNEL}
         fi
         echo "[INFO] CATALOG_CHANNEL=${CATALOG_CHANNEL}"
-        
+
         mas gitops-aiservice-tenant -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
         --dir /tmp/init-aiservice-tenant \
