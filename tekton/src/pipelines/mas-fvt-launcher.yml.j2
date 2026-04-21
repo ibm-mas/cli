@@ -985,7 +985,8 @@ spec:
 
     # 9. Application FVT - Predict
     # -------------------------------------------------------------------------
-    # We only start the Predict part of the FVT launcher after the Monitor part has completed
+    # We only start the Predict part of the FVT launcher after Monitor, Manage, and IoT are approved
+    # This ensures Predict installation can start (since it depends on IoT completion)
     - name: waitfor-predict
       timeout: "0"
       taskRef:
@@ -1020,6 +1021,8 @@ spec:
       runAfter:
         - approval-monitor
         - approval-manage
+        - approval-iot
+        - approval-iot-after-monitor
 
     - name: launchfvt-predict
       timeout: "0"
