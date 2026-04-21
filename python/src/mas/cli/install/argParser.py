@@ -801,7 +801,7 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_storage_log_mode",
     required=False,
     help="Storage mode for Facilities logs",
-    default="ReadWriteOnce",
+    default="ReadWriteMany",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-log-storage-size",
@@ -821,7 +821,7 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_storage_userfiles_mode",
     required=False,
     help="Storage mode for Facilities user files",
-    default="ReadWriteOnce",
+    default="ReadWriteMany",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-size",
