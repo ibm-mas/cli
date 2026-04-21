@@ -767,8 +767,7 @@ facilitiesArgGroup.add_argument(
     "--facilities-xml-extension",
     dest="mas_ws_facilities_liberty_extension_XML",
     required=False,
-    help="Secret name containing Liberty server extensions",
-    default="{}",
+    help="Secret name containing Liberty server extensions"
 )
 facilitiesArgGroup.add_argument(
     "--facilities-vault-secret",
@@ -781,7 +780,6 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_dwfagents",
     required=False,
     help="List of dedicated workflow agents",
-    default="[]",
     type=str
 )
 facilitiesArgGroup.add_argument(
