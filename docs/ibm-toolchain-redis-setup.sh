@@ -4,8 +4,12 @@
 # This script extracts Redis credentials from IBM Cloud and generates
 # environment variable configuration for IBM Toolchain.
 #
-# Redis is now mandatory for migrated GitOps locking flows.
-# There is no fallback to Git branch locking in gitops_lock_and_modify.
+# Redis is the preferred locking mechanism for migrated GitOps flows.
+# When GITOPS_USE_REDIS_LOCKING=true (recommended):
+#   - Uses Redis if available (optimal performance)
+#   - Automatically falls back to Git branch locking if Redis is unavailable
+# When GITOPS_USE_REDIS_LOCKING=false:
+#   - Uses Git branch locking directly
 #
 # Prerequisites:
 #   - IBM Cloud CLI installed: curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
@@ -28,8 +32,11 @@ echo "=========================================="
 echo "IBM Cloud Redis Configuration Extractor"
 echo "=========================================="
 echo ""
-echo "Redis is required for migrated GitOps locking."
-echo "No Git branch locking fallback is available."
+echo "Redis is the preferred locking mechanism for migrated GitOps flows."
+echo ""
+echo "Behavior with GITOPS_USE_REDIS_LOCKING=true (recommended):"
+echo "  • Uses Redis if available (optimal performance)"
+echo "  • Automatically falls back to Git locking if Redis is unavailable"
 echo ""
 
 # Check prerequisites
@@ -145,7 +152,8 @@ if redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" \
     echo "✓ PING successful"
 else
     echo "✗ PING failed"
-    echo "Redis must be reachable before using migrated GitOps flows"
+    echo "⚠ Redis is not reachable - GitOps flows will fall back to Git-based locking"
+    echo "  (Operations will continue but with reduced performance)"
     rm -f "$TEMP_CERT_FILE" "$TEMP_CREDS_FILE"
     exit 1
 fi
@@ -230,8 +238,11 @@ Generated: $(date)
 Instance: $REDIS_INSTANCE_NAME
 
 IMPORTANT:
-Redis is mandatory for migrated gitops_lock_and_modify flows.
-There is no fallback to Git branch locking.
+When GITOPS_USE_REDIS_LOCKING=true (recommended):
+  - Uses Redis if available (optimal performance)
+  - Automatically falls back to Git branch locking if Redis is unavailable
+When GITOPS_USE_REDIS_LOCKING=false:
+  - Uses Git branch locking directly
 
 REQUIRED VARIABLES:
 REDIS_USERNAME=$REDIS_USERNAME
@@ -255,8 +266,8 @@ cat > "$JSON_FILE" << EOF
   "redis_instance": "$REDIS_INSTANCE_NAME",
   "generated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "notes": [
-    "Redis is mandatory for migrated gitops_lock_and_modify flows",
-    "There is no fallback to Git branch locking"
+    "GITOPS_USE_REDIS_LOCKING=true: Uses Redis if available, falls back to Git locking if not",
+    "GITOPS_USE_REDIS_LOCKING=false: Uses Git branch locking directly"
   ],
   "environment_variables": {
     "REDIS_USERNAME": "$REDIS_USERNAME",
@@ -299,11 +310,15 @@ echo "   • Or add redis-cli to custom images (see docs/redis-locking-setup.md)
 echo ""
 echo "4. Deploy and Test:"
 echo "   • Deploy your updated pipeline"
-echo "   • Monitor logs for 'Using Redis-based distributed locking'"
-echo "   • If you see 'Redis locking is required but Redis is not available', fix Redis connectivity first"
-echo "   • If you see 'redis-cli command not found', update your CLI image"
+echo "   • Monitor logs for 'Using Redis-based distributed locking' (optimal)"
+echo "   • If you see '⚠ Redis not available, falling back to Git-based locking', operations will continue but slower"
+echo "   • If you see 'redis-cli command not found', update your CLI image for optimal performance"
 echo ""
-echo "5. Documentation:"
+echo "5. Optional: Use Git-Only Locking:"
+echo "   • Set GITOPS_USE_REDIS_LOCKING=false to always use Git branch locking"
+echo "   • Default is true (Redis preferred with automatic fallback)"
+echo ""
+echo "6. Documentation:"
 echo "   • See: docs/redis-locking-setup.md"
 echo "   • See: docs/MIGRATION_COMPLETE_SUMMARY.md"
 echo ""
