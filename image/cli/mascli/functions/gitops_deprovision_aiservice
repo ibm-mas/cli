@@ -209,7 +209,7 @@ function gitops_deprovision_aiservice() {
 
   export SECRET_IBM_ENTITLEMENT_AUTH=${SECRETS_PREFIX}ibm_entitlement
   export SECRET_S3_AUTH=${SECRETS_PREFIX}s3
-  export SECRET_DRO_AUTH=${SECRETS_PREFIX}droai
+  export SECRET_DRO_AUTH=${SECRETS_PREFIX}dro
   export SECRET_SLS_AUTH=${SECRETS_PREFIX}sls
   export SECRET_JDBC_AUTH=${SECRETS_PREFIX}jdbc
 
