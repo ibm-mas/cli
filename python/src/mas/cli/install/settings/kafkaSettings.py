@@ -82,9 +82,7 @@ class KafkaSettingsMixin():
         # Check if Civil component is enabled in Manage
         # Handle both ",civil=" and "civil=" at start of string
         components = self.getParam("mas_appws_components")
-        civilEnabled = (self.installManage
-                        and "civil=" in components
-                        and (",civil=" in components or components.startswith("civil=")))
+        civilEnabled = (self.installManage and "civil=" in components and (",civil=" in components or components.startswith("civil=")))
 
         if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT) or civilEnabled:
             # Determine which app name to display
@@ -96,7 +94,7 @@ class KafkaSettingsMixin():
                 appName = "IoT"
 
             self.printH1("Configure Kafka")
-            
+
             # For Civil, only Strimzi is supported
             if civilEnabled:
                 self.printDescription([
@@ -110,7 +108,7 @@ class KafkaSettingsMixin():
                     "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
                     "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
                 ])
-            
+
             if self.yesOrNo("Create system Kafka instance using one of the supported providers"):
                 self.setParam("kafka_action_system", "install")
 
