@@ -511,7 +511,10 @@ spec:
             # Append a new line to the file to drive the deployment at cluster level
             echo "" >> gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
             if [ -f "$ICN_FILE_PATH" ]; then
+              echo "Appending newline to $ICN_FILE_PATH"
               echo "" >> "$ICN_FILE_PATH"
+            else
+              echo "ICN file not found: $ICN_FILE_PATH"
             fi
         else
             echo "Commit message starts with [skip deploy], no changes made."
