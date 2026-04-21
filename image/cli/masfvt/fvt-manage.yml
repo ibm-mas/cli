@@ -31,6 +31,7 @@
     ldap_bind_password: "{{ lookup('env', 'LDAP_BIND_PASSWORD') }}"
     ldap_user_map: "{{ lookup('env', 'LDAP_USER_MAP') }}"
     ldap_cert_alias: "{{ lookup('env', 'LDAP_CERT_ALIAS') }}"
+    jdbc_type: "{{ lookup('env', 'JDBC_TYPE') }}"
     ldap_crt: "{{ lookup('env', 'LDAP_CRT') }}"
   tasks:
     - name: "Debug"

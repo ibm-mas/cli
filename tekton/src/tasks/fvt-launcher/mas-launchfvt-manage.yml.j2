@@ -165,6 +165,12 @@ spec:
             secretKeyRef:
               name: mas-fvt-manage
               key: LDAP_CRT
+              optional: false              
+        - name: JDBC_TYPE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: JDBC_TYPE
               optional: false
 
     - name: wait-for-pipelinerun
