@@ -221,5 +221,9 @@ optionalParams = [
     # Grafana
     "skip_grafana_install",
     "grafana_v5_namespace",
-    "grafana_instance_storage_size"
+    "grafana_instance_storage_size",
+
+    # Slack Integration
+    "slack_token",
+    "slack_channel"
 ]
