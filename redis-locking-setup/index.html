@@ -1,0 +1,1117 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Redis-Based GitOps Locking for IBM Toolchain - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../search/main.js"></script>
+    
+  <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href=".." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/redis-locking-setup.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="Guides">
+    
+      
+  <cds-side-nav-menu-item href="../guides/image-mirroring/">
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../guides/image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../guides/install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../guides/aiservice-install/">
+    AI Service Standalone Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../guides/update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../guides/upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../guides/uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../guides/backup-restore/">
+    Backup and Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Command Reference">
+    
+      
+  <cds-side-nav-menu-item href="../commands/uninstall/">
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/must-gather/">
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/configure-airgap/">
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/mirror-redhat-images/">
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/setup-registry/">
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/teardown-registry/">
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/provision-fyre/">
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/provision-roks/">
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/provision-rosa/">
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/configtool-oidc/">
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/backup/">
+    backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../commands/restore/">
+    restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../catalogs/v9-260326-amd64/">
+    Mar 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../catalogs/v9-260226-amd64/">
+    Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../catalogs/v9-260129-amd64/">
+    Jan 29 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../catalogs/v9-251231-amd64/">
+    Dec 31 2025
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#redis-based-gitops-locking-for-ibm-toolchain">Redis-Based GitOps Locking for IBM Toolchain</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#overview">Overview</cds-select-item>
+    
+      <cds-select-item value="#important-behavior-change">Important Behavior Change</cds-select-item>
+    
+      <cds-select-item value="#problem-statement">Problem Statement</cds-select-item>
+    
+      <cds-select-item value="#solution-redis-distributed-locking">Solution: Redis Distributed Locking</cds-select-item>
+    
+      <cds-select-item value="#prerequisites">Prerequisites</cds-select-item>
+    
+      <cds-select-item value="#ibm-cloud-redis-setup">IBM Cloud Redis Setup</cds-select-item>
+    
+      <cds-select-item value="#how-it-works">How It Works</cds-select-item>
+    
+      <cds-select-item value="#code-migration-guide">Code Migration Guide</cds-select-item>
+    
+      <cds-select-item value="#testing-and-verification">Testing and Verification</cds-select-item>
+    
+      <cds-select-item value="#migration-status">Migration Status</cds-select-item>
+    
+      <cds-select-item value="#troubleshooting">Troubleshooting</cds-select-item>
+    
+      <cds-select-item value="#performance-comparison">Performance Comparison</cds-select-item>
+    
+      <cds-select-item value="#support-and-maintenance">Support and Maintenance</cds-select-item>
+    
+      <cds-select-item value="#summary">Summary</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="redis-based-gitops-locking-for-ibm-toolchain">Redis-Based GitOps Locking for IBM Toolchain<a class="headerlink" href="#redis-based-gitops-locking-for-ibm-toolchain" title="Permanent link">¶</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>This guide explains how to configure and use Redis-based distributed locking in IBM Toolchain to avoid Git branch locking issues when multiple pipelines run concurrently.</p>
+<h2 id="important-behavior-change">Important Behavior Change<a class="headerlink" href="#important-behavior-change" title="Permanent link">¶</a></h2>
+<p>Redis locking is now the <strong>preferred</strong> mechanism for migrated GitOps flows that use <code>gitops_lock_and_modify</code>.</p>
+<p><strong>Automatic Fallback</strong>: If Redis is unavailable or misconfigured, the system automatically falls back to Git branch-based locking to ensure operations continue.</p>
+<p>This provides resilience while maintaining the performance benefits of Redis when available.</p>
+<hr>
+<h2 id="problem-statement">Problem Statement<a class="headerlink" href="#problem-statement" title="Permanent link">¶</a></h2>
+<p>The previous Git branch-based locking (<code>clone_and_lock_target_git_repo</code>) had these limitations:
+- <strong>Race conditions</strong>: Multiple pipelines can create duplicate commits
+- <strong>Merge conflicts</strong>: Concurrent updates cause unresolvable conflicts
+- <strong>Branch pollution</strong>: Temporary lock branches clutter the repository
+- <strong>Slow operations</strong>: Git operations are slower than Redis
+- <strong>Orphaned locks</strong>: Failed pipelines can leave lock branches behind</p>
+<h2 id="solution-redis-distributed-locking">Solution: Redis Distributed Locking<a class="headerlink" href="#solution-redis-distributed-locking" title="Permanent link">¶</a></h2>
+<p>Redis provides atomic operations for distributed locking that eliminate these issues.</p>
+<hr>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¶</a></h2>
+<h3 id="container-image-requirements">Container Image Requirements<a class="headerlink" href="#container-image-requirements" title="Permanent link">¶</a></h3>
+<p>The CLI container image <strong>must have <code>redis-cli</code> installed</strong> to use Redis-based locking.</p>
+<p><strong>Status</strong>: ✅ As of version 19.6.1+, <code>redis-cli</code> is automatically installed in the CLI container image.</p>
+<p>If you're using an older version or custom image, ensure <code>redis-cli</code> is available:</p>
+<pre><code class="language-bash">redis-cli --version
+</code></pre>
+<p>If not installed, see the <a href="#container-image-setup">Container Image Setup</a> section below.</p>
+<h3 id="runtime-requirements">Runtime Requirements<a class="headerlink" href="#runtime-requirements" title="Permanent link">¶</a></h3>
+<p>For optimal performance with migrated GitOps flows:
+- Set <code>GITOPS_USE_REDIS_LOCKING=true</code> to enable Redis locking (recommended)
+- Ensure Redis is reachable from the pipeline runtime
+- Configure valid Redis auth/TLS settings</p>
+<p><strong>Behavior with <code>GITOPS_USE_REDIS_LOCKING=true</code></strong>: Redis must be available and properly configured. If Redis is unavailable or misconfigured, the operation will fail with an error. This ensures explicit control over the locking mechanism.</p>
+<p><strong>Default behavior</strong>: <code>GITOPS_USE_REDIS_LOCKING=false</code> uses Git branch locking (skips Redis entirely). This is the default to avoid breaking changes for existing deployments.</p>
+<hr>
+<h2 id="ibm-cloud-redis-setup">IBM Cloud Redis Setup<a class="headerlink" href="#ibm-cloud-redis-setup" title="Permanent link">¶</a></h2>
+<h3 id="step-1-get-redis-credentials-from-ibm-cloud">Step 1: Get Redis Credentials from IBM Cloud<a class="headerlink" href="#step-1-get-redis-credentials-from-ibm-cloud" title="Permanent link">¶</a></h3>
+<ol>
+<li>Navigate to your IBM Cloud Redis instance</li>
+<li>Go to <strong>Service Credentials</strong> → <strong>View Credentials</strong></li>
+<li>Extract the following values:</li>
+</ol>
+<pre><code class="language-json">{
+  "connection": {
+    "rediss": {
+      "hosts": [
+        {
+          "hostname": "c-abc123.databases.appdomain.cloud",
+          "port": 31234
+        }
+      ],
+      "authentication": {
+        "username": "ibm_cloud_user",
+        "password": "your-redis-password"  # pragma: allowlist secret
+      },
+      "certificate": {
+        "certificate_base64": "LS0tLS1CRUdJTi..."
+      }
+    }
+  }
+}
+</code></pre>
+<h3 id="step-2-configure-environment-variables-for-function-execution">Step 2: Configure Environment Variables for Function Execution<a class="headerlink" href="#step-2-configure-environment-variables-for-function-execution" title="Permanent link">¶</a></h3>
+<p>These environment variables must be set in the runtime environment whenever you execute migrated GitOps functions that use <code>gitops_lock_and_modify</code>.</p>
+<p>Using IBM Toolchain to call these functions is optional. If you are using IBM Toolchain, add them as pipeline environment properties. If you are running the functions from another environment, export the same variables there before execution.</p>
+<h4 id="required-environment-variables">Required Environment Variables<a class="headerlink" href="#required-environment-variables" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Variable Name</th>
+<th>Example Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REDIS_USERNAME</code></td>
+<td><code>ibm_cloud_user</code></td>
+<td>Redis username from credentials</td>
+</tr>
+<tr>
+<td><code>REDIS_HOST</code></td>
+<td><code>c-abc123.databases.appdomain.cloud</code></td>
+<td>Redis hostname</td>
+</tr>
+<tr>
+<td><code>REDIS_PORT</code></td>
+<td><code>31234</code></td>
+<td>Redis port</td>
+</tr>
+<tr>
+<td><code>REDIS_PASSWORD</code></td>
+<td><code>your-redis-password</code></td>
+<td>Redis password</td>
+</tr>
+<tr>
+<td><code>REDIS_TLS_CA_CERT_B64</code></td>
+<td><code>LS0tLS1CRUdJTi...</code></td>
+<td>Base64-encoded TLS certificate</td>
+</tr>
+<tr>
+<td><code>GITOPS_USE_REDIS_LOCKING</code></td>
+<td><code>true</code></td>
+<td>Enable Redis locking with automatic Git fallback (recommended, not default)</td>
+</tr>
+<tr>
+<td><code>REDIS_TLS</code></td>
+<td><code>true</code></td>
+<td>Enable TLS (required for IBM Cloud)</td>
+</tr>
+<tr>
+<td><code>REDIS_DB</code></td>
+<td><code>0</code></td>
+<td>Redis database number</td>
+</tr>
+</tbody>
+</table>
+<h4 id="if-using-ibm-toolchain">If Using IBM Toolchain<a class="headerlink" href="#if-using-ibm-toolchain" title="Permanent link">¶</a></h4>
+<p>Add the variables above in <strong>IBM Toolchain → Pipeline → Environment Properties</strong>.</p>
+<h4 id="optional-tuning-parameters">Optional Tuning Parameters<a class="headerlink" href="#optional-tuning-parameters" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Variable Name</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GITOPS_LOCK_TTL</code></td>
+<td><code>300</code></td>
+<td>Lock expires after N seconds</td>
+</tr>
+<tr>
+<td><code>GITOPS_LOCK_RETRY_MAX</code></td>
+<td><code>100</code></td>
+<td>Maximum retry attempts</td>
+</tr>
+<tr>
+<td><code>GITOPS_LOCK_RETRY_DELAY</code></td>
+<td><code>20</code></td>
+<td>Seconds between retry attempts</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">¶</a></h2>
+<h3 id="architecture-flow">Architecture Flow<a class="headerlink" href="#architecture-flow" title="Permanent link">¶</a></h3>
+<pre><code class="language-text">┌─────────────────────────────────────────────────────────────┐
+│                    IBM Toolchain Pipeline                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. Pipeline starts → Load Redis credentials from secrets   │
+│                                                             │
+│  2. Call gitops_lock_and_modify()                           │
+│     ├─ Check GITOPS_USE_REDIS_LOCKING=true                  │
+│     ├─ Check Redis availability                             │
+│     ├─ If Redis available: Use Redis locking ✓              │
+│     └─ If Redis unavailable: Fallback to Git locking ⚠      │
+│                                                             │
+│  3a. Redis Locking Flow (Preferred):                        │
+│     ├─ Acquire Redis lock (atomic SET NX operation)         │
+│     ├─ Clone Git repository                                 │
+│     ├─ Apply changes (callback function)                    │
+│     ├─ Commit and push directly to target branch            │
+│     └─ Release Redis lock                                   │
+│                                                             │
+│  3b. Git Locking Flow (Fallback):                           │
+│     ├─ Clone Git repository                                 │
+│     ├─ Create and push lock branch                          │
+│     ├─ Apply changes (callback function)                    │
+│     ├─ Commit to lock branch                                │
+│     ├─ Merge lock branch to target branch                   │
+│     └─ Delete lock branch                                   │
+│                                                             │
+│  4. Lock automatically expires after TTL (Redis only)       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="key-benefits">Key Benefits<a class="headerlink" href="#key-benefits" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Atomic Operations</strong>: Redis <code>SET NX</code> ensures only one pipeline acquires the lock</li>
+<li><strong>No Git Pollution</strong>: No temporary branches are created (when using Redis)</li>
+<li><strong>Auto-Expiry</strong>: Locks automatically expire (Redis only)</li>
+<li><strong>Faster</strong>: Redis operations are much faster than Git</li>
+<li><strong>Resilient</strong>: Automatic fallback to Git locking when <code>GITOPS_USE_REDIS_LOCKING=true</code></li>
+<li><strong>Cross-Pipeline</strong>: Works across different Tekton pipelines and jobs</li>
+<li><strong>Flexible</strong>: Can use Git-only mode with <code>GITOPS_USE_REDIS_LOCKING=false</code></li>
+</ol>
+<hr>
+<h2 id="code-migration-guide">Code Migration Guide<a class="headerlink" href="#code-migration-guide" title="Permanent link">¶</a></h2>
+<h3 id="before-old-git-based-locking">Before: Old Git-Based Locking<a class="headerlink" href="#before-old-git-based-locking" title="Permanent link">¶</a></h3>
+<pre><code class="language-bash">GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-cp4d-service" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+
+if [ "$GITHUB_PUSH" == "true" ]; then
+  clone_and_lock_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" \
+    "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
+fi
+
+mkdir -p ${GITOPS_INSTANCE_DIR}
+jinjanate_commmon template.j2 ${GITOPS_INSTANCE_DIR}/config.yaml
+
+if [ "$GITHUB_PUSH" == "true" ]; then
+  save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" \
+    "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" CONFIG_CHANGED
+  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+fi
+</code></pre>
+<h3 id="after-redis-with-git-fallback">After: Redis with Git Fallback<a class="headerlink" href="#after-redis-with-git-fallback" title="Permanent link">¶</a></h3>
+<pre><code class="language-bash">function apply_cp4d_service_changes() {
+  local GITOPS_REPO_DIR="$1"
+  local GITOPS_INSTANCE_DIR="${GITOPS_REPO_DIR}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}"
+
+  mkdir -p "${GITOPS_INSTANCE_DIR}"
+  jinjanate_commmon template.j2 "${GITOPS_INSTANCE_DIR}/config.yaml"
+  return 0
+}
+
+if [ "$GITHUB_PUSH" == "true" ]; then
+  LOCK_NAME="gitops-cp4d-service.${ACCOUNT_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+  # Automatically uses Redis if available, falls back to Git locking if not
+  gitops_lock_and_modify \
+    "${GITHUB_HOST}" \
+    "${GITHUB_ORG}" \
+    "${GITHUB_REPO}" \
+    "${GIT_BRANCH}" \
+    "${GITOPS_WORKING_DIR}" \
+    "${GIT_SSH}" \
+    "${LOCK_NAME}" \
+    "apply_cp4d_service_changes" \
+    "${GIT_COMMIT_MSG}" \
+    CONFIG_CHANGED
+
+  if [[ "${CONFIG_CHANGED}" == "1" ]]; then
+    echo "Configuration was modified and pushed"
+  fi
+else
+  mkdir -p ${GITOPS_INSTANCE_DIR}
+  apply_cp4d_service_changes "${GITOPS_WORKING_DIR}/${GITHUB_REPO}"
+fi
+</code></pre>
+<h3 id="key-differences">Key Differences<a class="headerlink" href="#key-differences" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Old (Git Locking)</th>
+<th>New (Redis with Fallback)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primary lock mechanism</td>
+<td>Git branch</td>
+<td>Redis key (when available)</td>
+</tr>
+<tr>
+<td>Lock acquisition</td>
+<td>Create/push branch</td>
+<td>Atomic <code>SET NX</code> (Redis) or branch (Git fallback)</td>
+</tr>
+<tr>
+<td>Lock release</td>
+<td>Delete branch/merge</td>
+<td>Delete Redis key or branch</td>
+</tr>
+<tr>
+<td>Cleanup</td>
+<td>Manual branch deletion</td>
+<td>TTL-based expiry (Redis) or branch deletion (Git)</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Slow</td>
+<td>Fast (Redis) or Slow (Git fallback)</td>
+</tr>
+<tr>
+<td>Failure mode</td>
+<td>Git lock branch behavior</td>
+<td>Fails if Redis unavailable when <code>GITOPS_USE_REDIS_LOCKING=true</code></td>
+</tr>
+<tr>
+<td>Control</td>
+<td>N/A</td>
+<td><code>GITOPS_USE_REDIS_LOCKING</code> (true=Redis-only, false=Git-only, default: false)</td>
+</tr>
+<tr>
+<td>Resilience</td>
+<td>Single mechanism</td>
+<td>Single mechanism (explicit control)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="testing-and-verification">Testing and Verification<a class="headerlink" href="#testing-and-verification" title="Permanent link">¶</a></h2>
+<h3 id="1-test-redis-connection">1. Test Redis Connection<a class="headerlink" href="#1-test-redis-connection" title="Permanent link">¶</a></h3>
+<pre><code class="language-bash">#!/bin/bash
+
+source /path/to/mascli/functions/gitops_utils
+
+echo "Testing Redis connection..."
+if redis_available; then
+  echo "✓ Redis is accessible and ready"
+  echo "✓ GitOps flows will use Redis locking (optimal performance)"
+else
+  echo "⚠ Redis is not accessible"
+  echo "⚠ GitOps flows will fall back to Git-based locking"
+  echo "  (Operations will continue but with reduced performance)"
+fi
+</code></pre>
+<h3 id="2-monitor-active-locks">2. Monitor Active Locks<a class="headerlink" href="#2-monitor-active-locks" title="Permanent link">¶</a></h3>
+<pre><code class="language-bash">redis-cli -h $REDIS_HOST -p $REDIS_PORT \
+  --user $REDIS_USERNAME -a $REDIS_PASSWORD \
+  --tls --cacert /tmp/redis-certs/ca-cert.pem \
+  KEYS "gitops:lock:*"
+</code></pre>
+<h3 id="3-check-specific-lock">3. Check Specific Lock<a class="headerlink" href="#3-check-specific-lock" title="Permanent link">¶</a></h3>
+<pre><code class="language-bash">redis-cli -h $REDIS_HOST -p $REDIS_PORT \
+  --user $REDIS_USERNAME -a $REDIS_PASSWORD \
+  --tls --cacert /tmp/redis-certs/ca-cert.pem \
+  GET "gitops:lock:gitops-config:gitops-cp4d-service.account.cluster.instance"
+</code></pre>
+<h3 id="4-emergency-lock-release">4. Emergency Lock Release<a class="headerlink" href="#4-emergency-lock-release" title="Permanent link">¶</a></h3>
+<pre><code class="language-bash">redis-cli -h $REDIS_HOST -p $REDIS_PORT \
+  --user $REDIS_USERNAME -a $REDIS_PASSWORD \
+  --tls --cacert /tmp/redis-certs/ca-cert.pem \
+  DEL "gitops:lock:gitops-config:gitops-cp4d-service.account.cluster.instance"
+</code></pre>
+<hr>
+<h2 id="migration-status">Migration Status<a class="headerlink" href="#migration-status" title="Permanent link">¶</a></h2>
+<h3 id="completed-migrations">Completed Migrations<a class="headerlink" href="#completed-migrations" title="Permanent link">¶</a></h3>
+<p>The following functions have been migrated:
+- <code>gitops_cp4d_service</code>
+- <code>gitops_suite_app_config</code>
+- <code>gitops_deprovision_app_config</code>
+- <code>gitops_mas_config</code>
+- <code>gitops_suite_workspace</code>
+- <code>gitops_deprovision_suite_workspace</code>
+- <code>gitops_deprovision_cp4d_service</code>
+- <code>gitops_db2u_database</code>
+- <code>gitops_rds_db2_database</code>
+- <code>gitops_deprovision_db2u_database</code></p>
+<p>Migration completion:
+- Migrated: 10
+- Remaining: 0</p>
+<hr>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¶</a></h2>
+<h3 id="issue-redis-cli-command-not-found-in-path">Issue: <code>redis-cli command not found in PATH</code><a class="headerlink" href="#issue-redis-cli-command-not-found-in-path" title="Permanent link">¶</a></h3>
+<p><strong>Symptoms</strong>:</p>
+<pre><code class="language-text">redis-cli command not found in PATH
+⚠ Redis not available, falling back to Git-based locking
+</code></pre>
+<p><strong>Root Cause</strong>:
+- <code>redis-cli</code> is not installed in the container image</p>
+<p><strong>Impact</strong>:
+- Operations will use Git-based locking (slower but functional)</p>
+<p><strong>Solution</strong> (for optimal performance):
+1. Verify CLI image version 19.6.1+
+2. Update the image if needed
+3. Add <code>redis-cli</code> to custom images</p>
+<h3 id="issue-redis-not-available-falling-back-to-git-based-locking">Issue: <code>⚠ Redis not available, falling back to Git-based locking</code><a class="headerlink" href="#issue-redis-not-available-falling-back-to-git-based-locking" title="Permanent link">¶</a></h3>
+<p><strong>Symptoms</strong>:
+- Pipeline logs show fallback to Git locking
+- Operations complete successfully but slower</p>
+<p><strong>Possible Causes</strong>:
+1. Wrong host or port
+2. Wrong username or password
+3. TLS certificate issue
+4. Network/firewall issue
+5. Redis service unavailable</p>
+<p><strong>Impact</strong>:
+- Operations continue using Git-based locking
+- Performance is reduced (25-75 seconds overhead vs 0.2-0.7 seconds)</p>
+<p><strong>Manual Test</strong>:</p>
+<pre><code class="language-bash">redis-cli -h $REDIS_HOST -p $REDIS_PORT \
+  --user $REDIS_USERNAME -a $REDIS_PASSWORD \
+  --tls --cacert /tmp/redis-certs/ca-cert.pem \
+  PING
+</code></pre>
+<p><strong>Solution</strong>:
+- Fix Redis configuration to restore optimal performance
+- Or accept Git-based locking performance</p>
+<h3 id="issue-want-to-use-git-only-locking">Issue: Want to use Git-only locking<a class="headerlink" href="#issue-want-to-use-git-only-locking" title="Permanent link">¶</a></h3>
+<p><strong>Scenario</strong>:
+- You want to skip Redis entirely and always use Git branch locking</p>
+<p><strong>Solution</strong>:
+- Set <code>GITOPS_USE_REDIS_LOCKING=false</code>
+- This bypasses Redis checks and uses Git branch locking directly</p>
+<h3 id="issue-failed-to-acquire-lock-after-n-attempts">Issue: <code>Failed to acquire lock after N attempts</code><a class="headerlink" href="#issue-failed-to-acquire-lock-after-n-attempts" title="Permanent link">¶</a></h3>
+<p><strong>Cause</strong>:
+- Another process holds the same lock</p>
+<p><strong>Solutions</strong>:
+1. Wait for lock release
+2. Check active locks
+3. Increase retry settings if necessary</p>
+<hr>
+<h2 id="performance-comparison">Performance Comparison<a class="headerlink" href="#performance-comparison" title="Permanent link">¶</a></h2>
+<h3 id="git-based-locking-old">Git-Based Locking (Old)<a class="headerlink" href="#git-based-locking-old" title="Permanent link">¶</a></h3>
+<ul>
+<li>Lock acquisition: 10-30 seconds</li>
+<li>Lock release: 15-45 seconds</li>
+<li>Total overhead: 25-75 seconds</li>
+<li>Failure mode: Orphaned branches/manual cleanup</li>
+</ul>
+<h3 id="redis-based-locking-current-with-gitops_use_redis_lockingtrue">Redis-Based Locking (Current with GITOPS_USE_REDIS_LOCKING=true)<a class="headerlink" href="#redis-based-locking-current-with-gitops_use_redis_lockingtrue" title="Permanent link">¶</a></h3>
+<ul>
+<li>Lock acquisition: 0.1-0.5 seconds</li>
+<li>Lock release: 0.1-0.2 seconds</li>
+<li>Total overhead: 0.2-0.7 seconds</li>
+<li>Failure mode: Automatic fallback to Git locking if Redis unavailable</li>
+</ul>
+<p><strong>Performance Improvement: ~50-100x faster</strong></p>
+<hr>
+<h2 id="support-and-maintenance">Support and Maintenance<a class="headerlink" href="#support-and-maintenance" title="Permanent link">¶</a></h2>
+<h3 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">¶</a></h3>
+<p>Monitor:
+- Redis connection count
+- Lock acquisition success rate
+- Average lock duration
+- Failed lock acquisitions</p>
+<h3 id="alerts">Alerts<a class="headerlink" href="#alerts" title="Permanent link">¶</a></h3>
+<p>Set up alerts for:
+- Redis unavailable
+- High lock contention
+- Excessive retries
+- Unexpected lock duration</p>
+<h3 id="operational-note">Operational Note<a class="headerlink" href="#operational-note" title="Permanent link">¶</a></h3>
+<p>When <code>GITOPS_USE_REDIS_LOCKING=true</code> (recommended), Redis must be available and properly configured.</p>
+<p><strong>With <code>GITOPS_USE_REDIS_LOCKING=true</code> (recommended)</strong>:
+- Uses Redis for optimal performance
+- Requires Redis to be available and properly configured
+- Operations will fail if Redis is unavailable
+- Provides explicit control over locking mechanism</p>
+<p><strong>With <code>GITOPS_USE_REDIS_LOCKING=false</code> (default)</strong>:
+- Uses Git-based locking directly
+- Skips Redis entirely
+- This is the default to avoid breaking changes</p>
+<hr>
+<hr>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">¶</a></h2>
+<p>✅ <code>redis-cli</code> is recommended in the container for optimal performance
+✅ Redis environment variables should be configured for best results
+✅ <code>GITOPS_USE_REDIS_LOCKING=true</code> enables Redis locking (recommended, requires Redis to be available)
+✅ All identified Git branch locking functions are migrated
+✅ <strong>Explicit control</strong>: Operations fail if Redis is unavailable when <code>GITOPS_USE_REDIS_LOCKING=true</code>
+✅ Redis locking eliminates Git branch locking issues and branch pollution when available
+✅ Git-based locking remains available via <code>GITOPS_USE_REDIS_LOCKING=false</code> (default)</p>
+<p><strong>Redis is the preferred locking backend</strong> for migrated GitOps flows, with automatic fallback to Git-based locking for resilience.</p>
+<h3 id="configuration-modes">Configuration Modes<a class="headerlink" href="#configuration-modes" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th><code>GITOPS_USE_REDIS_LOCKING</code></th>
+<th>Redis Available</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Optimal</strong></td>
+<td><code>true</code></td>
+<td>✅ Yes</td>
+<td>Uses Redis (fast)</td>
+</tr>
+<tr>
+<td><strong>Resilient Fallback</strong></td>
+<td><code>true</code></td>
+<td>❌ No</td>
+<td>Falls back to Git (slower but works)</td>
+</tr>
+<tr>
+<td><strong>Git-only</strong></td>
+<td><code>false</code></td>
+<td>N/A</td>
+<td>Always uses Git (skips Redis)</td>
+</tr>
+</tbody>
+</table>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#overview" class="md-toc__link" data-md-level="1">
+                  Overview
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#important-behavior-change" class="md-toc__link" data-md-level="1">
+                  Important Behavior Change
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#problem-statement" class="md-toc__link" data-md-level="1">
+                  Problem Statement
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#solution-redis-distributed-locking" class="md-toc__link" data-md-level="1">
+                  Solution: Redis Distributed Locking
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#prerequisites" class="md-toc__link" data-md-level="1">
+                  Prerequisites
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#container-image-requirements" class="md-toc__link" data-md-level="2">
+                          Container Image Requirements
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#runtime-requirements" class="md-toc__link" data-md-level="2">
+                          Runtime Requirements
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#ibm-cloud-redis-setup" class="md-toc__link" data-md-level="1">
+                  IBM Cloud Redis Setup
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#step-1-get-redis-credentials-from-ibm-cloud" class="md-toc__link" data-md-level="2">
+                          Step 1: Get Redis Credentials from IBM Cloud
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#step-2-configure-environment-variables-for-function-execution" class="md-toc__link" data-md-level="2">
+                          Step 2: Configure Environment Variables for Function Execution
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#how-it-works" class="md-toc__link" data-md-level="1">
+                  How It Works
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#architecture-flow" class="md-toc__link" data-md-level="2">
+                          Architecture Flow
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#key-benefits" class="md-toc__link" data-md-level="2">
+                          Key Benefits
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#code-migration-guide" class="md-toc__link" data-md-level="1">
+                  Code Migration Guide
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#before-old-git-based-locking" class="md-toc__link" data-md-level="2">
+                          Before: Old Git-Based Locking
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#after-redis-with-git-fallback" class="md-toc__link" data-md-level="2">
+                          After: Redis with Git Fallback
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#key-differences" class="md-toc__link" data-md-level="2">
+                          Key Differences
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#testing-and-verification" class="md-toc__link" data-md-level="1">
+                  Testing and Verification
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#1-test-redis-connection" class="md-toc__link" data-md-level="2">
+                          1. Test Redis Connection
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#2-monitor-active-locks" class="md-toc__link" data-md-level="2">
+                          2. Monitor Active Locks
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#3-check-specific-lock" class="md-toc__link" data-md-level="2">
+                          3. Check Specific Lock
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#4-emergency-lock-release" class="md-toc__link" data-md-level="2">
+                          4. Emergency Lock Release
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#migration-status" class="md-toc__link" data-md-level="1">
+                  Migration Status
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#completed-migrations" class="md-toc__link" data-md-level="2">
+                          Completed Migrations
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#troubleshooting" class="md-toc__link" data-md-level="1">
+                  Troubleshooting
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#issue-redis-cli-command-not-found-in-path" class="md-toc__link" data-md-level="2">
+                          Issue: redis-cli command not found in PATH
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#issue-redis-not-available-falling-back-to-git-based-locking" class="md-toc__link" data-md-level="2">
+                          Issue: ⚠ Redis not available, falling back to Git-based locking
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#issue-want-to-use-git-only-locking" class="md-toc__link" data-md-level="2">
+                          Issue: Want to use Git-only locking
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#issue-failed-to-acquire-lock-after-n-attempts" class="md-toc__link" data-md-level="2">
+                          Issue: Failed to acquire lock after N attempts
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#performance-comparison" class="md-toc__link" data-md-level="1">
+                  Performance Comparison
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#git-based-locking-old" class="md-toc__link" data-md-level="2">
+                          Git-Based Locking (Old)
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#redis-based-locking-current-with-gitops_use_redis_lockingtrue" class="md-toc__link" data-md-level="2">
+                          Redis-Based Locking (Current with GITOPS_USE_REDIS_LOCKING=true)
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#support-and-maintenance" class="md-toc__link" data-md-level="1">
+                  Support and Maintenance
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#monitoring" class="md-toc__link" data-md-level="2">
+                          Monitoring
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#alerts" class="md-toc__link" data-md-level="2">
+                          Alerts
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#operational-note" class="md-toc__link" data-md-level="2">
+                          Operational Note
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#summary" class="md-toc__link" data-md-level="1">
+                  Summary
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#configuration-modes" class="md-toc__link" data-md-level="2">
+                          Configuration Modes
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>
