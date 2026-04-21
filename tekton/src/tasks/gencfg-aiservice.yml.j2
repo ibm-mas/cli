@@ -17,8 +17,6 @@ spec:
     - name: aiservice_channel
       type: string
       default: ""
-    - name: mas_config_dir
-      type: string
 
   workspaces:
     - name: shared-configs
@@ -36,8 +34,6 @@ spec:
           value: $(params.aiservice_instance_id)
         - name: AISERVICE_CHANNEL
           value: $(params.aiservice_channel)
-        - name: MAS_CONFIG_DIR
-          value: $(params.mas_config_dir)
       
       workingDir: /workspace/shared-configs
       
@@ -52,7 +48,6 @@ spec:
         echo "MAS Workspace ID ........... ${MAS_WORKSPACE_ID}"
         echo "AI Service Instance ID ..... ${AISERVICE_INSTANCE_ID}"
         echo "AI Service Channel ......... ${AISERVICE_CHANNEL}"
-        echo "Config Directory ........... ${MAS_CONFIG_DIR}"
         echo ""
         
         # Construct tenant ID (always "user" by default)
@@ -99,7 +94,7 @@ spec:
         echo "================================================================================"
         
         # Create the AiCfg YAML file
-        cat > "${MAS_CONFIG_DIR}/aicfg-${MAS_INSTANCE_ID}-system.yaml" <<EOF
+        cat > "aicfg-${MAS_INSTANCE_ID}-system.yaml" <<EOF
         ---
         apiVersion: v1
         kind: Secret
@@ -137,7 +132,7 @@ spec:
         $(echo "${CERTIFICATE}" | sed 's/^/        /')
         EOF
         
-        echo "✓ AiCfg file created: ${MAS_CONFIG_DIR}/aicfg-${MAS_INSTANCE_ID}-system.yaml"
+        echo "✓ AiCfg file created: aicfg-${MAS_INSTANCE_ID}-system.yaml"
         echo ""
         echo "================================================================================"
         echo "AiCfg generation complete"
