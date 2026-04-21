@@ -94,3 +94,16 @@ rules:
       - create
       - patch
       - list
+  
+  # DB2 requires cert-manager issuers and certificates for SSL
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - issuers
+      - certificates
+    verbs:
+      - get
+      - create
+      - patch
+      - list
+      - watch
