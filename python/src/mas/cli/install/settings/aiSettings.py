@@ -210,68 +210,25 @@ class AiSettingsMixin():
 
         # Check if AI Service is being installed on the same cluster
         if hasattr(self, 'installAIService') and self.installAIService:
-            # Auto-detect AI Service details from cluster
+            # AI Service will be installed - defer AiCfg generation to pipeline
             if not silentMode:
-                self.printH2("AiCfg Configuration (Auto-Detection)")
+                self.printH2("AiCfg Configuration (Automatic)")
                 self.printDescription([
                     "AI Service is being installed on this cluster.",
-                    "The installer will automatically detect connection details from the cluster.",
+                    "The AiCfg will be automatically generated and applied by the pipeline",
+                    "AFTER AI Service installation completes.",
                     "",
-                    "IMPORTANT: The AiCfg file must be applied AFTER the MAS Core operator is installed,",
-                    "as the AiCfg CRD is created by the operator (not during initial config phase).",
-                    "Do NOT include this file in the initial configuration directory.",
-                    "Apply it after the operator creates the CRD."
+                    "The pipeline will:",
+                    "  1. Install AI Service first",
+                    "  2. Auto-detect connection details (URL, API key, certificate)",
+                    "  3. Generate and apply AiCfg automatically",
+                    "",
+                    "No manual configuration needed!"
                 ])
 
-            createAiConfig = True
-            if not silentMode:
-                createAiConfig = self.yesOrNo("Generate AiCfg configuration file (apply after operator install)")
-
-            if createAiConfig:
-                self.setParam("ai_action", "configure")
-                self.selectLocalConfigDir()
-                assert self.localConfigDir is not None, "localConfigDir must be set"
-
-                aiCfgFile = path.join(self.localConfigDir, f"aicfg-{instanceId}-system.yaml")
-
-                # Try to auto-detect from cluster
-                detected_config = self._detectAiServiceFromCluster()
-
-                if detected_config:
-                    # Use detected values
-                    print_formatted_text("\nUsing auto-detected AI Service configuration:")
-                    print_formatted_text(f"  URL: {detected_config['url']}")
-                    print_formatted_text(f"  Tenant ID: {detected_config['tenant_id']}")
-                    print_formatted_text("  API Key: " + ('*' * 32))
-                    print_formatted_text("  Certificate: Retrieved")
-                    print_formatted_text("  Enabled: true (default)")
-                    print_formatted_text("  Meta Agent: true (default)")
-                    print_formatted_text("  SSL Enabled: true (default)\n")
-
-                    # Generate AiCfg with detected values
-                    self._generateAiCfgWithValues(
-                        instanceId=instanceId,
-                        scope=scope,
-                        destination=aiCfgFile,
-                        workspaceId=workspaceId,
-                        url=detected_config['url'],
-                        tenantId=detected_config['tenant_id'],
-                        apikey=detected_config['apikey'],
-                        certificate=detected_config['certificate'],
-                        enabled=True,
-                        metaAgentEnabled=True,
-                        sslEnabled=True
-                    )
-
-                    print_formatted_text(f"\n✓ AiCfg configuration file created: {aiCfgFile}")
-                    print_formatted_text("This configuration will be applied during MAS installation.")
-                else:
-                    print_formatted_text("\n⚠ Auto-detection failed. Falling back to manual configuration.\n")
-                    # Fall back to manual configuration
-                    self.generateAiCfg(instanceId=instanceId, scope=scope, destination=aiCfgFile, workspaceId=workspaceId)
-            else:
-                self.setParam("ai_action", "none")
-                print_formatted_text("AiCfg configuration skipped")
+            # Set action to indicate pipeline should handle it
+            self.setParam("ai_action", "pipeline")
+            print_formatted_text("\n✓ AiCfg will be automatically configured by the pipeline after AI Service installation")
         else:
             # Manual configuration for external AI Service
             if not silentMode:

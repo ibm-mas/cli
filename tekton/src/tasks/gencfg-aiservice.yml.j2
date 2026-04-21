@@ -1,0 +1,144 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-gencfg-aiservice
+spec:
+  params:
+    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+
+    - name: mas_instance_id
+      type: string
+    - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: aiservice_instance_id
+      type: string
+    - name: aiservice_channel
+      type: string
+      default: ""
+    - name: mas_config_dir
+      type: string
+
+  workspaces:
+    - name: shared-configs
+
+  steps:
+    - name: gencfg-aiservice
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: MAS_INSTANCE_ID
+          value: $(params.mas_instance_id)
+        - name: MAS_WORKSPACE_ID
+          value: $(params.mas_workspace_id)
+        - name: AISERVICE_INSTANCE_ID
+          value: $(params.aiservice_instance_id)
+        - name: AISERVICE_CHANNEL
+          value: $(params.aiservice_channel)
+        - name: MAS_CONFIG_DIR
+          value: $(params.mas_config_dir)
+      
+      workingDir: /workspace/shared-configs
+      
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "================================================================================"
+        echo "Generating AiCfg with auto-detected values from cluster"
+        echo "================================================================================"
+        echo "MAS Instance ID ............ ${MAS_INSTANCE_ID}"
+        echo "MAS Workspace ID ........... ${MAS_WORKSPACE_ID}"
+        echo "AI Service Instance ID ..... ${AISERVICE_INSTANCE_ID}"
+        echo "AI Service Channel ......... ${AISERVICE_CHANNEL}"
+        echo "Config Directory ........... ${MAS_CONFIG_DIR}"
+        echo ""
+        
+        # Construct tenant ID (always "user" by default)
+        AISERVICE_TENANT_ID="user"
+        
+        # Set namespaces
+        AISERVICE_NAMESPACE="aiservice-${AISERVICE_INSTANCE_ID}"
+        AISERVICE_TENANT_NAME="aiservice-${AISERVICE_INSTANCE_ID}-${AISERVICE_TENANT_ID}"
+        
+        echo "AI Service Tenant ID ....... ${AISERVICE_TENANT_ID}"
+        
+        # Determine tenant namespace based on channel
+        if [[ "${AISERVICE_CHANNEL}" == 9.1.* ]]; then
+          AISERVICE_TENANT_NAMESPACE="${AISERVICE_NAMESPACE}"
+        else
+          AISERVICE_TENANT_NAMESPACE="${AISERVICE_TENANT_NAME}"
+        fi
+        
+        echo "AI Service Namespace ....... ${AISERVICE_NAMESPACE}"
+        echo "Tenant Namespace ........... ${AISERVICE_TENANT_NAMESPACE}"
+        echo ""
+        
+        # 1. Get API Key from secret
+        echo "Fetching API key from secret..."
+        SECRET_NAME="${AISERVICE_TENANT_NAME}----apikey-secret"
+        APIKEY=$(oc get secret "${SECRET_NAME}" -n "${AISERVICE_TENANT_NAMESPACE}" -o jsonpath='{.data.AIBROKER_APIKEY}' | base64 -d)
+        echo "✓ API key retrieved"
+        
+        # 2. Get URL from route
+        echo "Fetching URL from route..."
+        ROUTE_HOST=$(oc get route aibroker -n "${AISERVICE_NAMESPACE}" -o jsonpath='{.spec.host}')
+        URL="https://${ROUTE_HOST}/ibm/aibroker/service/rest/api/v1"
+        echo "✓ URL: ${URL}"
+        
+        # 3. Get TLS certificate from secret
+        echo "Fetching certificate from secret..."
+        TLS_SECRET_NAME="${AISERVICE_INSTANCE_ID}-public-aibroker-tls"
+        CERTIFICATE=$(oc get secret "${TLS_SECRET_NAME}" -n "${AISERVICE_NAMESPACE}" -o jsonpath='{.data.ca\.crt}' | base64 -d)
+        echo "✓ Certificate retrieved"
+        
+        echo ""
+        echo "================================================================================"
+        echo "Generating AiCfg YAML file"
+        echo "================================================================================"
+        
+        # Create the AiCfg YAML file
+        cat > "${MAS_CONFIG_DIR}/aicfg-${MAS_INSTANCE_ID}-system.yaml" <<EOF
+        ---
+        apiVersion: v1
+        kind: Secret
+        type: Opaque
+        metadata:
+          name: "${MAS_INSTANCE_ID}-usersupplied-ai-creds-system"
+          namespace: "mas-${MAS_INSTANCE_ID}-core"
+        stringData:
+          api_key: "${APIKEY}"
+        ---
+        apiVersion: config.mas.ibm.com/v1
+        kind: AiCfg
+        metadata:
+          name: "${MAS_INSTANCE_ID}-ai-system"
+          namespace: "mas-${MAS_INSTANCE_ID}-core"
+          labels:
+            mas.ibm.com/configScope: system
+            mas.ibm.com/instanceId: ${MAS_INSTANCE_ID}
+            mas.ibm.com/workspaceId: ${MAS_WORKSPACE_ID}
+            mas.ibm.com/configId: ai-system
+        spec:
+          displayName: "AI Service Configuration"
+          config:
+            enabled: true
+            url: "${URL}"
+            tenantId: "${AISERVICE_TENANT_NAME}"
+            sslEnabled: true
+            credentials:
+              secretName: "${MAS_INSTANCE_ID}-usersupplied-ai-creds-system"
+          metaAgent:
+            enabled: true
+          certificates:
+            - alias: aiservice
+              crt: |-
+        $(echo "${CERTIFICATE}" | sed 's/^/        /')
+        EOF
+        
+        echo "✓ AiCfg file created: ${MAS_CONFIG_DIR}/aicfg-${MAS_INSTANCE_ID}-system.yaml"
+        echo ""
+        echo "================================================================================"
+        echo "AiCfg generation complete"
+        echo "================================================================================"
