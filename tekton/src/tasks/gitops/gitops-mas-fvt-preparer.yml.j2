@@ -173,6 +173,9 @@ spec:
       default: ""
     - name: ldap_userid_map
       type: string
+    - name: jdbc_type
+      type: string
+      default: ""
       default: ""
 
     - name: icn
@@ -318,6 +321,8 @@ spec:
       - name: LDAP_USER_MAP
         value: $(params.ldap_userid_map)
       - name: LDAP_CERT_ALIAS
+      - name: JDBC_TYPE
+        value: $(params.jdbc_type)
         value: ldap
 
       - name: ICN

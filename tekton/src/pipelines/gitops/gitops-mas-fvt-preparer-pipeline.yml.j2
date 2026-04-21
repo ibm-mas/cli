@@ -173,6 +173,9 @@ spec:
     - name: sls_license_icn
       type: string
     - name: smtp_use_sendgrid
+    - name: jdbc_type
+      type: string
+      default: ""
       type: string
       default: ""
 
@@ -307,6 +310,8 @@ spec:
         - name: ldap_basedn
           value: $(params.ldap_basedn)
         - name: ldap_userid_map
+        - name: jdbc_type
+          value: $(params.jdbc_type)
           value: $(params.ldap_userid_map)
 
         - name: icn
