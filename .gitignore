@@ -48,19 +48,16 @@ image/cli/mascli/fyre-dev.noble3.tgke-db2u-manage-env.sh
 
 python/.venv
 python/.venv-windows
-python/pandoc-*
 python/build
 python/dist
 python/src/mas_cli.egg-info
 python/src/mas/cli/templates/ibm-mas-tekton.yaml
 python/src/mas/cli/templates/ibm-mas-tekton-with-digest.yaml
 python/mas-*.spec
-python/README.rst
 
 /mkdocs_plugins/mkdocs_mas_catalogs.egg-info
-/.venv-docs
-/.venv-docs
 /mkdocs_plugins/mkdocs_mas_plugins.egg-info
+/.venv-docs
 rbac-install.yaml
 
 .venv

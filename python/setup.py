@@ -14,13 +14,8 @@ import os
 sys.path.insert(0, 'src')
 
 
-if not os.path.exists('README.rst'):
-    import pypandoc
-    pypandoc.download_pandoc(targetfolder='~/bin/')
-    pypandoc.convert_file('README.md', 'rst', outputfile='README.rst')
-
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # Maintain a single source of versioning
@@ -57,6 +52,7 @@ setup(
     license='Eclipse Public License - v1.0',
     description='Python Admin CLI for Maximo Application Suite',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     install_requires=[
         'mas-devops >= 5.2.0',   # EPL
         'alive-progress',        # MIT License
