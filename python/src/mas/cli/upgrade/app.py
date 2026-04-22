@@ -253,7 +253,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             print()
 
         # Set RBAC version for RBAC recreation (extract version from nextChannel)
-        # e.g., "9.2.x-at-rbac" -> "9.2"
+        # e.g., "9.2.x-rbac" -> "9.2"
         rbac_version_match = re.match(r'^(\d+\.\d+)', self.nextChannel)
         if rbac_version_match:
             mas_rbac_version = rbac_version_match.group(1)
