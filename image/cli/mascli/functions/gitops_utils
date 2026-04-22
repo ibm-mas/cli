@@ -930,6 +930,12 @@ function generate_storage_class_name() {
     exit 0
   fi
 
+  # Special case for Monitor with non-db2 dependency: return just the type "efs"
+  if [[ "${MAS_APP_ID}" == "monitor" && "${DEPENDENCY}" != "db2" && "${STORAGE_CLASS_TYPE}" == "efs" ]]; then
+    echo "${STORAGE_CLASS_TYPE}"
+    return 0
+  fi
+
   # Build name dynamically based on available parameters
   STORAGE_CLASS_NAME="${STORAGE_CLASS_TYPE}-${CLUSTER_ID}"
   

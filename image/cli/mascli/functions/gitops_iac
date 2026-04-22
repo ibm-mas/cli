@@ -204,6 +204,36 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
+      --efs-monitor-main-performance-mode)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MONITOR_MAIN_PERFORMANCE_MODE=$1
+          shift
+        else
+          export EFS_MONITOR_MAIN_PERFORMANCE_MODE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --efs-monitor-main-mount-count)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MONITOR_MAIN_MOUNT_COUNT=$1
+          shift
+        else
+          export EFS_MONITOR_MAIN_MOUNT_COUNT=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --efs-monitor-main-throughput-mode)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MONITOR_MAIN_THROUGHPUT_MODE=$1
+          shift
+        else
+          export EFS_MONITOR_MAIN_THROUGHPUT_MODE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
       --efs-facilities-db2-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_DB2_PERFORMANCE_MODE=$1
@@ -741,12 +771,20 @@ function compute_efs_variables() {
 
   if [[ -n "$EFS_MONITOR_DB2_PERFORMANCE_MODE" && -n "$EFS_MONITOR_DB2_MOUNT_COUNT" && -n "$EFS_MONITOR_DB2_THROUGHPUT_MODE" ]]; then
     export EFS_MONITOR_DB2=true
-    echo "  EFS_MONITOR: true"
+    echo "  EFS_MONITOR_DB2: true"
   else
     export EFS_MONITOR_DB2=false
-    echo "  EFS_MONITOR: false"
+    echo "  EFS_MONITOR_DB2: false"
   fi
-  
+
+  if [[ -n "$EFS_MONITOR_MAIN_PERFORMANCE_MODE" && -n "$EFS_MONITOR_MAIN_MOUNT_COUNT" && -n "$EFS_MONITOR_MAIN_THROUGHPUT_MODE" ]]; then
+    export EFS_MONITOR_MAIN=true
+    echo "  EFS_MONITOR_MAIN: true"
+  else
+    export EFS_MONITOR_MAIN=false
+    echo "  EFS_MONITOR_MAIN: false"
+  fi
+
   if [[ -n "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" && -n "$EFS_FACILITIES_DB2_MOUNT_COUNT" && -n "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" ]]; then
     export EFS_FACILITIES_DB2=true
     echo "  EFS_FACILITIES: true"

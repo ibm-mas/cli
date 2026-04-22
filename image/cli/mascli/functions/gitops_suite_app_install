@@ -392,6 +392,15 @@ function gitops_suite_app_install() {
     fi
   fi
 
+  if [[ "${MAS_APP_ID}" == "monitor" ]]; then
+    MONITOR_STORAGE_CLASS=$(echo "${MAS_APP_SPEC}" | yq '.mas_app_spec.settings.storage.storageClassName // ""')
+    if [[ -n "${MONITOR_STORAGE_CLASS}" ]]; then
+      STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MONITOR_STORAGE_CLASS}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+      MONITOR_STORAGE_CLASS=$(generate_storage_class_name "${MONITOR_STORAGE_CLASS}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" )
+      MAS_APP_SPEC=$(echo "${MAS_APP_SPEC}" | yq '.mas_app_spec.settings.storage.storageClassName = "'${MONITOR_STORAGE_CLASS}'"')
+    fi
+  fi
+
 
   # Set certs only if manual cert is True (to create k8s secret in gitops) for app $MAS_APP_ID
   # ---------------------------------------------------------------------------
