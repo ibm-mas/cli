@@ -1642,6 +1642,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mongodb_action", "byo")
                     self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
 
+                # If there is a file named kafka-<instance>-system.yaml we will use this as a BYO Kafka datasource
+                if self.localConfigDir is not None:
+                    instanceId = self.getParam("mas_instance_id")
+                    if instanceId is not None and instanceId != "":
+                        kafkaConfigFile = path.join(self.localConfigDir, f"kafka-{instanceId}-system.yaml")
+                        if path.exists(kafkaConfigFile):
+                            self.setParam("kafka_action_system", "byo")
+
             elif key == "pod_templates":
                 # For the named configurations we will convert into the path
                 if value in ["best-effort", "guaranteed"]:
@@ -1896,6 +1904,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
                 self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
 
+        # Validate Kafka requirements for IoT installation in non-interactive mode
+        if self.installIoT:
+            kafkaAction = self.getParam("kafka_action_system")
+            hasKafkaConfig = kafkaAction in ["install", "byo"]
+            if not hasKafkaConfig:
+                self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
+
     @logMethodCall
     def install(self, argv):
         """
@@ -2132,7 +2147,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
-                    certs=self.certsSecret
+                    certs=self.certsSecret,
+                    slack_token=self.getParam("slack_token"),
+                    slack_channel=self.getParam("slack_channel")
                 )
 
                 self.setupApprovals(pipelinesNamespace)
