@@ -839,8 +839,8 @@ facilitiesArgGroup.add_argument(
     "--facilities-server-timezone",
     dest="mas_ws_facilities_server_timezone",
     required=False,
-    help="Facilities server timezone"
-    type=str
+    help="Facilities server timezone",
+    type=str,
     default='UTC'
 )
 
