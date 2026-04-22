@@ -139,6 +139,7 @@
         - clean-workspaces
         - prepare-backup-workspace
         - download-backup-archive
+        - gencfg-aiservice
         - gencfg-workspace
         - must-gather
         - suite-app-backup
