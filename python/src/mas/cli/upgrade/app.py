@@ -253,16 +253,20 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             print()
 
         # Set RBAC version for RBAC recreation (extract version from nextChannel)
-        # e.g., "9.2.x-rbac" -> "9.2"
+        # e.g., "9.2.x-at-rbac" -> "9.2"
         rbac_version_match = re.match(r'^(\d+\.\d+)', self.nextChannel)
         if rbac_version_match:
             mas_rbac_version = rbac_version_match.group(1)
             self.setParam("mas_rbac_version", mas_rbac_version)
+            print_formatted_text(HTML(f"<Green>✓ MAS RBAC Version set to: {mas_rbac_version}</Green>"))
+        else:
+            print_formatted_text(HTML(f"<Red>✗ Failed to extract RBAC version from channel: {self.nextChannel}</Red>"))
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {self.nextChannel}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>MAS RBAC Version ................ {self.params.get('mas_rbac_version', 'Not Set')}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
 
         if not self.noConfirm:
