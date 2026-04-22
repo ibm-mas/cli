@@ -10,12 +10,12 @@
 
 from typing import TYPE_CHECKING, Dict, List, NoReturn
 from prompt_toolkit.completion import WordCompleter
-from mas.cli.validators import LanguageValidator
+from mas.cli.validators import LanguageValidator, CustomizationArchiveNameValidator
 from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
 from openshift.dynamic.exceptions import ResourceNotFoundError
 from ...validators import AiserviceTeanantIDValidator
 from prompt_toolkit import print_formatted_text, HTML
-from mas.cli.validators import LanguageValidator, CustomizationArchiveNameValidator
+
 
 import logging
 logger = logging.getLogger(__name__)
