@@ -248,6 +248,8 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 4. Routing Mode Configuration - Select path-based routing
         '.*Routing Mode.*': lambda msg: '1',  # Select path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
+        # 5. Service Mesh Configuration - to use service mesg
+        '.*Use Service Mesh.*': lambda msg: 'y',  # Select to use service mesh
         # 5. Configure IngressController for path-based routing
         '.*Configure ingress namespace ownership.*': lambda msg: 'y',  # Agree to configure
         # 5. Storage classes

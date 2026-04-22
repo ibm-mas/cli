@@ -432,6 +432,7 @@ spec:
       runAfter:
         - app-install-manage
         - app-install-monitor
+        - app-install-iot-after-monitor
         - app-install-monitor-after-iot
         - suite-config-watson-studio
         - watson-machine-learning
@@ -495,6 +496,7 @@ spec:
         - app-install-assist
         - app-install-optimizer
         - app-install-predict # infers Manage, Monitor, and IoT completed
+        - app-install-iot-after-monitor # ensures IoT completes when Predict is skipped
         - app-install-visualinspection
         - app-install-facilities
         - arcgis

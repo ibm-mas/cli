@@ -185,6 +185,13 @@ masAdvancedArgGroup.add_argument(
     help="Name of the IngressController to use for path-based routing (default: 'default')"
 )
 masAdvancedArgGroup.add_argument(
+    "--servicemesh",
+    dest="mas_use_service_mesh",
+    required=False,
+    help="Configure MAS to use Service Mesh networking (default: false)",
+    choices=["true", "false"]
+)
+masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
     help="Path to directory containing the certificates to be applied"
