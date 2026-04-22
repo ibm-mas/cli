@@ -835,6 +835,14 @@ facilitiesArgGroup.add_argument(
     required=False,
     help="Storage size for Facilities user files"
 )
+facilitiesArgGroup.add_argument(
+    "--facilities-server-timezone",
+    dest="mas_ws_facilities_server_timezone",
+    required=False,
+    help="Facilities server timezone"
+    type=str
+    default='UTC'
+)
 
 # Open Data Hub
 # -----------------------------------------------------------------------------

@@ -331,6 +331,10 @@ spec:
       type: string
       description: Define storage mode for userfiles
       default: ""
+    - name: mas_ws_facilities_server_timezone
+      type: string
+      description: Define facilities server timezone. Warning: set this only if the Facilities DB is using a timezonae other than UTC. 
+      default: "UTC"      
     - name: mas_ws_facilities_config_map_name
       type: string
       description: ConfigMap with configurations not supported by Tekton
@@ -546,6 +550,8 @@ spec:
           value: $(params.mas_ws_facilities_config_map_name)
         - name: MAS_FACILITIES_APP_OM_UPGRADE_MODE
           value: $(params.mas_ws_facilities_app_om_upgrade_mode)
+        - name: MAS_FACILITIES_SERVER_TIMEZONE
+          value: $(params.mas_ws_facilities_server_timezone)          
 
     - name: app-wait-for-approval
       # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"

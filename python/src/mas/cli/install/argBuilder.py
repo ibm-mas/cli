@@ -337,6 +337,9 @@ class installArgBuilderMixin():
             if self.getParam('mas_ws_facilities_storage_userfiles_size') != "":
                 command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
 
+            if self.getParam('mas_ws_facilities_server_timezone') != "":
+                command += f"  --facilities-server-timezone \"{self.getParam('mas_ws_facilities_server_timezone')}\"{newline}"
+
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
         if self.installAIService:

@@ -1309,6 +1309,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     print_formatted_text(HTML("<LightSlateGrey> Example: '[{\"name\":\"dwfa1\",\"members\":[{\"name\": \"u1\", \"class\": \"user\"}]}, {\"name\":\"dwfa2\",\"members\":[{\"name\": \"u2\", \"class\": \"user\"},{\"name\":\"g1\", \"class\":\"group\"}]}]' </LightSlateGrey>"))
                     self.promptForString("Dedicated Workflow Agent JSON:", "mas_ws_facilities_dwfagents", validator=JsonValidator())
 
+                if self.yesOrNo("Does your Real Estate and Facilities DB use a timezone other than UTC"):
+                    self.promptForString("Provide server timezone", "mas_ws_facilities_server_timezone", default="UTC")
+                    # Set Manage dedicated Db2 instance timezone to be same as Facilities server timezone
+                    self.setParam("db2_timezone", self.getParam("mas_ws_facilities_server_timezone"))
+
                 # If advanced options is selected, we need to create a file to add props not supported by Tekton
                 self.selectLocalConfigDir()
                 if self.localConfigDir is not None:
