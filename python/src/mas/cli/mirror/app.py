@@ -35,6 +35,9 @@ from .config import PACKAGE_CONFIGS
 
 logger = logging.getLogger(__name__)
 
+# Constants
+EMPTY_PROGRESS_BAR = " |" + " " * 20 + "|"
+
 
 def logMethodCall(func):
     def wrapper(self, *args, **kwargs):
@@ -485,9 +488,8 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
     if not flag:
         logger.info(f"Skipping {package} version {version} for {arch} architecture")
         # Add empty progress bar to align with other status messages
-        emptyBar = "|" + " " * 20 + "|"
         displayName = f"{package} v{version} ({arch})"
-        print(f"{displayName}".ljust(50) + f" ⏭️ {emptyBar} Mirroring disabled by user")
+        print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} Mirroring disabled by user")
         return MirrorResult(images=0, mirrored=0, name=displayName)
 
     logger.info(f"Mirroring {package} version {version} for {arch} architecture")
@@ -804,17 +806,23 @@ class MirrorApp(BaseApp):
                 "mas_visualinspection_version"
             ]
             if catalogKey in perReleaseVersions:
-                try:
-                    version = catalog[catalogKey][release]
-                except KeyError:
-                    # Release key is missing from the catalog - no content available for this release
+                # Check if the catalogKey exists in the catalog first
+                if catalogKey not in catalog or release not in catalog[catalogKey] or (release == "8.10.x" and packageName == "ibm-mas-manage-icd"):
                     logger.info(f"No content available for {packageName} in MAS release {release}")
-                    emptyBar = "|" + " " * 20 + "|"
                     displayName = f"{packageName} ({arch})"
-                    print(f"{displayName}".ljust(50) + f" ⏭️ {emptyBar} No content to mirror for MAS release {release}")
+                    print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} No content to mirror for MAS release {release}")
                     continue
+
+                version = catalog[catalogKey][release]
             else:
                 version = catalog[catalogKey]
+
+            # Check if version is empty or None (content exists in catalog but is empty)
+            if not version:
+                logger.info(f"No content available for {packageName} in MAS release {release}")
+                displayName = f"{packageName} ({arch})"
+                print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} No content to mirror for MAS release {release}")
+                continue
 
             if self._isUnsupportedPackage(version, packageName):
                 continue
