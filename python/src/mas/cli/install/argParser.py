@@ -185,6 +185,13 @@ masAdvancedArgGroup.add_argument(
     help="Name of the IngressController to use for path-based routing (default: 'default')"
 )
 masAdvancedArgGroup.add_argument(
+    "--servicemesh",
+    dest="mas_use_service_mesh",
+    required=False,
+    help="Configure MAS to use Service Mesh networking (default: false)",
+    choices=["true", "false"]
+)
+masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
     help="Path to directory containing the certificates to be applied"
@@ -1587,6 +1594,18 @@ otherArgGroup.add_argument(
     action="store_true",
     default=False,
     help="Don't show advanced install options (in interactive mode)"
+)
+otherArgGroup.add_argument(
+    "--slack-token",
+    dest="slack_token",
+    required=False,
+    help="Slack bot token for sending pipeline notifications"
+)
+otherArgGroup.add_argument(
+    "--slack-channel",
+    dest="slack_channel",
+    required=False,
+    help="Slack channel(s) for notifications (comma-separated for multiple channels)"
 )
 
 otherArgGroup.add_argument(
