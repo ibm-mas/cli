@@ -15,6 +15,7 @@ from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInst
 from openshift.dynamic.exceptions import ResourceNotFoundError
 from ...validators import AiserviceTeanantIDValidator
 from prompt_toolkit import print_formatted_text, HTML
+from mas.cli.validators import LanguageValidator, CustomizationArchiveNameValidator
 
 import logging
 logger = logging.getLogger(__name__)
@@ -260,7 +261,7 @@ class ManageSettingsMixin():
             ])
 
             if self.yesOrNo("Include customization archive"):
-                self.promptForString("Customization archive name", "mas_app_settings_customization_archive_name")
+                self.promptForString("Customization archive name", "mas_app_settings_customization_archive_name", validator=CustomizationArchiveNameValidator())
                 self.promptForString("Customization archive path/url", "mas_app_settings_customization_archive_url")
                 if self.yesOrNo("Provide authentication to access customization archive URL"):
                     self.promptForString("Username", "mas_app_settings_customization_archive_username")
