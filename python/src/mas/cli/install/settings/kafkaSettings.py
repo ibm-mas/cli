@@ -11,7 +11,6 @@
 from typing import TYPE_CHECKING, Dict, List, NoReturn
 from os import path
 from prompt_toolkit import print_formatted_text
-from mas.devops.utils import isVersionEqualOrAfter
 
 
 if TYPE_CHECKING:
@@ -75,6 +74,7 @@ class KafkaSettingsMixin():
             ...
 
     def configKafka(self) -> None:
+        if self.installIoT:
         # Check if we should use the new dependency (Monitor >= 9.2.0)
         monitorChannel = self.getParam("mas_app_channel_monitor")
         useNewDependency = monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel)
