@@ -24,6 +24,7 @@ from dataclasses import dataclass, field
 from os import path, environ, makedirs
 
 from alive_progress import alive_bar
+from jinja2 import Template
 from prompt_toolkit import print_formatted_text, HTML
 
 from mas.devops.data import getCatalog, NoSuchCatalogError
@@ -195,6 +196,114 @@ def getISC(configPath: str) -> str:
     except Exception as e:
         logger.error(f"Unexpected error downloading config file: {e}")
         raise FileNotFoundError(f"Config file not found locally and could not be downloaded from GitHub: {configPath}") from e
+
+
+def getRedHatISC(configPath: str, ocpRelease: str) -> str:
+    """
+    Get the Red Hat Image Set Config file, downloading and templating if needed.
+
+    The config file is expected to be in ~/.ibm-mas/image-set-configs/{configPath}.
+    If the file doesn't exist, it will be downloaded from GitHub and templated with Jinja2.
+
+    Args:
+        configPath: Relative path to the config template (e.g., "redhat/rhoai.yml.j2")
+        ocpRelease: OCP release version to substitute in template (e.g., "4.18")
+
+    Returns:
+        Full path to the local templated config file
+
+    Raises:
+        FileNotFoundError: If the file doesn't exist and cannot be downloaded
+        ValueError: If templating fails
+    """
+    # Get home directory
+    homeDir = environ.get('HOME') or environ.get('USERPROFILE') or ''
+    if not homeDir:
+        raise FileNotFoundError("Could not determine home directory")
+
+    # Construct full local path for the templated file (without .j2 extension)
+    # e.g., redhat/rhoai.yml.j2 -> redhat/rhoai-4.18.yml
+    basePath = configPath.replace('.j2', '')
+    baseDir = path.dirname(basePath)
+    baseFile = path.basename(basePath)
+    fileName, fileExt = path.splitext(baseFile)
+    templatedFileName = f"{fileName}-{ocpRelease}{fileExt}"
+    templatedPath = path.join(baseDir, templatedFileName)
+
+    localPath = path.join(homeDir, '.ibm-mas', 'image-set-configs', templatedPath)
+
+    # If templated file exists, return it
+    if path.exists(localPath):
+        logger.info(f"Using existing templated config file: {localPath}")
+        return localPath
+
+    # File doesn't exist, try to download template and render it
+    logger.info(f"Templated config file not found locally: {localPath}")
+
+    # Construct GitHub raw content URL for the template
+    githubUrl = f"https://raw.githubusercontent.com/ibm-mas/image-set-configs/master/{configPath}"
+
+    logger.info(f"Attempting to download template from: {githubUrl}")
+
+    try:
+        # Create directory if it doesn't exist
+        localDir = path.dirname(localPath)
+        makedirs(localDir, exist_ok=True)
+
+        # Download the template file
+        with urllib.request.urlopen(githubUrl) as response:
+            templateContent = response.read().decode('utf-8')
+
+        # Template the content
+        template = Template(templateContent)
+        renderedContent = template.render(ocp_release=ocpRelease)
+
+        # Write to local file
+        with open(localPath, 'w') as f:
+            f.write(renderedContent)
+
+        logger.info(f"Successfully downloaded and templated config file to: {localPath}")
+        return localPath
+
+    except urllib.error.HTTPError as e:
+        logger.error(f"Failed to download template from GitHub: HTTP {e.code} - {e.reason}")
+        raise FileNotFoundError(f"Template file not found on GitHub: {configPath}") from e
+    except urllib.error.URLError as e:
+        logger.error(f"Failed to download template from GitHub: {e.reason}")
+        raise FileNotFoundError(f"Could not download template from GitHub: {configPath}") from e
+    except Exception as e:
+        logger.error(f"Unexpected error processing template: {e}")
+        raise ValueError(f"Failed to process Red Hat ISC template: {e}") from e
+
+
+def validateRedHatParameters(mirrorRhoai: bool, ocpRelease: Optional[str],
+                             redhatPullSecret: Optional[str]) -> None:
+    """
+    Validate Red Hat mirroring parameters.
+
+    Args:
+        mirrorRhoai: Whether RHOAI mirroring is requested
+        ocpRelease: OCP release version
+        redhatPullSecret: Path to Red Hat pull secret file
+
+    Raises:
+        ValueError: If validation fails
+    """
+    if not mirrorRhoai:
+        return
+
+    if not ocpRelease:
+        raise ValueError("--ocp-release is required when --rhoai is set")
+
+    if not redhatPullSecret:
+        raise ValueError("--redhat-pullsecret is required when --rhoai is set")
+
+    if not path.exists(redhatPullSecret):
+        raise ValueError(f"Red Hat pull secret file does not exist: {redhatPullSecret}")
+
+    # Validate OCP release format (e.g., "4.18", "4.19")
+    if not re.match(r'^\d+\.\d+$', ocpRelease):
+        raise ValueError(f"Invalid OCP release format: {ocpRelease}. Expected format: 'X.Y' (e.g., '4.18')")
 
 
 def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=None) -> None:
@@ -566,6 +675,66 @@ def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
                           ocMirrorPath, authFilePath, rootDir, destTlsVerify, imageTimeout)
 
 
+def mirrorRedHatContent(contentType: str, ocpRelease: str, mode: str,
+                        targetRegistry: str = "", ocMirrorPath: str = "oc-mirror",
+                        authFilePath: Optional[str] = None, rootDir: str = "",
+                        destTlsVerify: bool = True, imageTimeout: str = "20m") -> MirrorResult:
+    """
+    Mirror Red Hat content and return the result.
+
+    Args:
+        contentType: Type of Red Hat content (e.g., "rhoai")
+        ocpRelease: OCP release version (e.g., "4.18")
+        mode: Mirror mode ("m2m", "m2d", or "d2m")
+        targetRegistry: Target registry for m2m and d2m modes
+        ocMirrorPath: Path to oc-mirror binary (default: "oc-mirror")
+        authFilePath: Path to authentication file (default: ~/.ibm-mas/auth.json)
+        rootDir: Root directory for mirror operations (workspace for m2m, disk storage for m2d/d2m)
+        destTlsVerify: Verify TLS certificates for destination registry (default: True)
+        imageTimeout: Timeout for image operations (default: "20m")
+
+    Returns:
+        MirrorResult object with images, mirrored, and success status.
+        Returns images=0, mirrored=0, success=False if operation failed or results couldn't be parsed.
+
+    Raises:
+        ValueError: If content type is not supported
+        FileNotFoundError: If ISC template cannot be downloaded
+    """
+    logger.info(f"Mirroring Red Hat {contentType} content for OCP {ocpRelease}")
+
+    # Map content type to ISC template path
+    contentTypeMap = {
+        "rhoai": "redhat/rhoai.yml.j2"
+    }
+
+    if contentType not in contentTypeMap:
+        raise ValueError(f"Unsupported Red Hat content type: {contentType}. Supported types: {', '.join(contentTypeMap.keys())}")
+
+    iscTemplatePath = contentTypeMap[contentType]
+
+    # Get or download and template the ISC file
+    try:
+        configPath = getRedHatISC(iscTemplatePath, ocpRelease)
+    except (FileNotFoundError, ValueError) as e:
+        logger.error(f"Failed to get Red Hat ISC: {e}")
+        displayName = f"Red Hat OpenShift AI (OCP {ocpRelease})"
+        print(f"❌ {displayName} - ISC template not found or failed to process")
+        return MirrorResult(images=0, mirrored=0, name=displayName)
+
+    # Create display name based on content type
+    contentDisplayNames = {
+        "rhoai": f"Red Hat OpenShift AI (OCP {ocpRelease})"
+    }
+    displayName = contentDisplayNames.get(contentType, f"Red Hat {contentType} (OCP {ocpRelease})")
+
+    # Create workspace path: redhat/{contentType}/{ocpRelease}
+    workspacePath = f"redhat/{contentType}/{ocpRelease}"
+
+    return _executeMirror(configPath, displayName, workspacePath, mode, targetRegistry,
+                          ocMirrorPath, authFilePath, rootDir, destTlsVerify, imageTimeout)
+
+
 def validateEnvironmentVariables(mode: str, targetRegistry: str) -> None:
     """
     Validate that required environment variables are set based on the mirror mode.
@@ -595,19 +764,21 @@ def validateEnvironmentVariables(mode: str, targetRegistry: str) -> None:
         raise ValueError(f"Missing required environment variables: {', '.join(missingVars)}")
 
 
-def generateAuthFile(mode: str, targetRegistry: str) -> str:
+def generateAuthFile(mode: str, targetRegistry: str, redhatPullSecretPath: Optional[str] = None) -> str:
     """
-    Generate an authentication file from environment variables.
+    Generate an authentication file from environment variables and optionally merge Red Hat pull secret.
 
     Args:
         mode: Mirror mode ("m2m", "m2d", or "d2m")
         targetRegistry: Target registry for m2m and d2m modes
+        redhatPullSecretPath: Optional path to Red Hat pull secret file to merge
 
     Returns:
         Path to the generated auth file
 
     Raises:
         ValueError: If required environment variables are not set
+        FileNotFoundError: If Red Hat pull secret file doesn't exist
     """
     # Validate environment variables first
     validateEnvironmentVariables(mode, targetRegistry)
@@ -645,6 +816,32 @@ def generateAuthFile(mode: str, targetRegistry: str) -> str:
         authConfig["cp.icr.io/cp"] = {
             "auth": authBase64
         }
+
+    # Merge Red Hat pull secret if provided
+    if redhatPullSecretPath:
+        if not path.exists(redhatPullSecretPath):
+            raise FileNotFoundError(f"Red Hat pull secret file not found: {redhatPullSecretPath}")
+
+        logger.info(f"Merging Red Hat pull secret from: {redhatPullSecretPath}")
+        try:
+            with open(redhatPullSecretPath, 'r') as f:
+                redhatPullSecret = json.load(f)
+
+            # Merge the auths section from Red Hat pull secret
+            if 'auths' in redhatPullSecret:
+                redhatAuths = redhatPullSecret['auths']
+                logger.info(f"Merging {len(redhatAuths)} registry entries from Red Hat pull secret")
+                for registry, authData in redhatAuths.items():
+                    if registry in authConfig:
+                        logger.warning(f"Registry {registry} already exists in auth config, Red Hat entry will override")
+                    authConfig[registry] = authData
+                    logger.debug(f"Added Red Hat registry: {registry}")
+            else:
+                logger.warning("Red Hat pull secret does not contain 'auths' section")
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Failed to parse Red Hat pull secret as JSON: {e}")
+        except Exception as e:
+            raise ValueError(f"Failed to read Red Hat pull secret: {e}")
 
     auths = {
         "auths": authConfig
@@ -689,6 +886,11 @@ class MirrorApp(BaseApp):
         imageTimeout = args.image_timeout
         mirrorAll = args.all
 
+        # Red Hat content parameters
+        ocpRelease = args.ocp_release
+        redhatPullSecret = args.redhat_pullsecret
+        mirrorRhoai = args.rhoai
+
         # Validate that oc-mirror is available on PATH
         if not shutil.which("oc-mirror"):
             logger.error("oc-mirror executable not found on PATH")
@@ -701,6 +903,14 @@ class MirrorApp(BaseApp):
             self.fatalError(f"--target-registry is required when mode is '{mode}'")
             return
 
+        # Validate Red Hat parameters
+        try:
+            validateRedHatParameters(mirrorRhoai, ocpRelease, redhatPullSecret)
+        except ValueError as e:
+            logger.error(f"Red Hat parameter validation failed: {e}")
+            self.fatalError(str(e))
+            return
+
         # Handle authfile parameter
         if authFile:
             # Validate that the file exists
@@ -711,10 +921,10 @@ class MirrorApp(BaseApp):
             logger.info(f"Using provided auth file: {authFile}")
             authFilePath = authFile
         else:
-            # Generate auth file from environment variables
+            # Generate auth file from environment variables (and optionally merge Red Hat pull secret)
             try:
-                authFilePath = generateAuthFile(mode, targetRegistry)
-            except ValueError as e:
+                authFilePath = generateAuthFile(mode, targetRegistry, redhatPullSecret if mirrorRhoai else None)
+            except (ValueError, FileNotFoundError) as e:
                 logger.error(f"Failed to generate auth file: {e}")
                 self.fatalError(f"Failed to generate auth file: {e}")
                 return
@@ -747,6 +957,9 @@ class MirrorApp(BaseApp):
         self.printSummary("Release", release)
         self.printSummary("Mode", mode)
         self.printSummary("Authentication File", authFilePath)
+        if mirrorRhoai:
+            self.printSummary("Red Hat Content", "OpenShift AI")
+            self.printSummary("OCP Release", ocpRelease)
 
         self.printH1("Mirror Target")
         if mode == "m2d":
@@ -857,6 +1070,30 @@ class MirrorApp(BaseApp):
                 mirroredImages += packageResult.mirrored
                 if not packageResult.success:
                     failedMirrors.append(packageResult)
+
+        # Mirror Red Hat content if requested
+        if mirrorRhoai:
+            self.printH1("Red Hat Content")
+            try:
+                rhoaiResult = mirrorRedHatContent(
+                    contentType="rhoai",
+                    ocpRelease=ocpRelease,
+                    mode=mode,
+                    targetRegistry=targetRegistry,
+                    authFilePath=authFilePath,
+                    rootDir=rootDir,
+                    destTlsVerify=destTlsVerify,
+                    imageTimeout=imageTimeout
+                )
+
+                # Track results
+                totalImages += rhoaiResult.images
+                mirroredImages += rhoaiResult.mirrored
+                if not rhoaiResult.success:
+                    failedMirrors.append(rhoaiResult)
+            except Exception as e:
+                logger.error(f"Failed to mirror Red Hat OpenShift AI: {e}")
+                print_formatted_text(HTML(f"<ansired>❌ Failed to mirror Red Hat OpenShift AI: {e}</ansired>"))
 
         # Report final status
         if len(failedMirrors) > 0:

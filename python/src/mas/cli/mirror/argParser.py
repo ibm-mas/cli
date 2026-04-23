@@ -136,6 +136,26 @@ for groupName, groupItems in groupby(PACKAGE_CONFIGS, key=lambda x: x[0]):
                 action="store_true"
             )
 
+redhatGroup = mirrorArgParser.add_argument_group("Red Hat Content")
+redhatGroup.add_argument(
+    "--ocp-release",
+    required=False,
+    type=str,
+    help="OpenShift Container Platform release version for Red Hat content (e.g., 4.18, 4.19, 4.20)"
+)
+redhatGroup.add_argument(
+    "--redhat-pullsecret",
+    required=False,
+    type=str,
+    help="Path to Red Hat pull secret file (required when mirroring Red Hat content)"
+)
+redhatGroup.add_argument(
+    "--rhoai",
+    required=False,
+    action="store_true",
+    help="Mirror Red Hat OpenShift AI content (requires --ocp-release and --redhat-pullsecret)"
+)
+
 advancedGroup = mirrorArgParser.add_argument_group("Advanced Configuration")
 advancedGroup.add_argument(
     "--all",
