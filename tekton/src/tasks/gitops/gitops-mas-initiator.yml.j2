@@ -548,7 +548,7 @@ spec:
             # Append a new line to the file to drive the deployment at ICN level
             if [[ -n "$ICN_FILE_PATH" ]] && [[ -f "$ICN_FILE_PATH" ]]; then
               echo "Appending newline to $ICN_FILE_PATH"
-              echo "" >> "$ICN_FILE_PATH"
+              printf '\n' >> "$ICN_FILE_PATH"
             else
               echo "ICN file not found or ICN_FILE_PATH not set: $ICN_FILE_PATH"
             fi
