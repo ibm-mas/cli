@@ -107,6 +107,9 @@ class installArgBuilderMixin():
         if self.getParam('mas_configure_ingress').lower() == "true":
             command += f"  --configure-ingress{newline}"
 
+        if self.getParam('mas_use_service_mesh') != "":
+            command += f"  --servicemesh \"{self.getParam('mas_use_service_mesh')}\"{newline}"
+
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
@@ -578,6 +581,11 @@ class installArgBuilderMixin():
             command += f"  --approval-facilities \"{self.getParam('approval_facilities')}\"{newline}"
         if self.getParam('approval_aiservice') != "":
             command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
+
+        # Slack
+        # -----------------------------------------------------------------------------
+        if self.getParam('slack_channel') != "" and self.getParam('slack_token'):
+            command += f"  --slack-channel \"{self.getParam('slack_channel')}\"  --slack-token $SLACK_TOKEN{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------

@@ -378,6 +378,7 @@ spec:
     # -------------------------------------------------------------------------
     # Wait for IoT installation to complete before launching IoT FVT
     # For Monitor < 9.2.0 (after-iot): IoT installs before Monitor (legacy behavior)
+    # IoT does not depend on Manage, it can start right after Core is verified
     - name: waitfor-iot
       timeout: "0"
       taskRef:
@@ -414,7 +415,7 @@ spec:
           operator: in
           values: ["after-iot"]
       runAfter:
-        - approval-manage
+        - approval-suite-verify
 
     # Wait for IoT (before-iot scenario) - runs after Monitor approval
     # For Monitor >= 9.2.0: Monitor installs first, then IoT installs after Monitor
@@ -991,7 +992,8 @@ spec:
 
     # 9. Application FVT - Predict
     # -------------------------------------------------------------------------
-    # We only start the Predict part of the FVT launcher after the Monitor part has completed
+    # We only start the Predict part of the FVT launcher after Monitor, Manage, and IoT are approved
+    # This ensures Predict installation can start (since it depends on IoT completion)
     - name: waitfor-predict
       timeout: "0"
       taskRef:
@@ -1026,6 +1028,8 @@ spec:
       runAfter:
         - approval-monitor
         - approval-manage
+        - approval-iot
+        - approval-iot-after-monitor
 
     - name: launchfvt-predict
       timeout: "0"
@@ -1268,7 +1272,11 @@ spec:
         - launchfvt-mobile
         - approval-assist
         - approval-optimizer
-        - approval-predict # Infers Manage, Monitor and IoT completed
+        - approval-predict
+        - approval-iot # Ensure IoT FVT completes before Day2 (pre-9.2)
+        - approval-iot-after-monitor # Ensure IoT FVT completes before Day2 (post-9.2)
+        - approval-monitor # Ensure Monitor FVT completes before Day2 (pre-9.2)
+        - approval-monitor-before-iot # Ensure Monitor FVT completes before Day2 (post-9.2)
         - approval-visualinspection
         - launchivt-manage
         - approval-facilities

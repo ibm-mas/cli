@@ -28,6 +28,11 @@ spec:
       type: string
       description: AI Service Tenant ID to bind with Manage
       default: ""
+    
+    - name: aiservice_channel
+      type: string
+      description: AI Service Channel (independent, same for all apps)
+      default: ""
 
     # Custom Label Support
     - name: custom_labels
@@ -411,6 +416,8 @@ spec:
           value: $(params.manage_bind_aiservice_instance_id)
         - name: AISERVICE_TENANT_ID
           value: $(params.manage_bind_aiservice_tenant_id)
+        - name: AISERVICE_CHANNEL
+          value: $(params.aiservice_channel)
 
         # CPD Version
         - name: CPD_PRODUCT_VERSION

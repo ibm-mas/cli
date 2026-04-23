@@ -23,7 +23,7 @@ from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.aiservice import listAiServiceInstances
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSlackSecrets
 
 
 logger = logging.getLogger(__name__)
@@ -57,9 +57,13 @@ class UpdateApp(BaseApp):
                 "skip_pre_check",
                 "dev_mode",
                 "cpd_product_version",
+                "image_pull_policy",
                 # Dev Mode
                 "artifactory_username",
-                "artifactory_token"
+                "artifactory_token",
+                # Slack Integration
+                "slack_token",
+                "slack_channel"
 
             ]
             for key, value in vars(self.args).items():
@@ -201,6 +205,16 @@ class UpdateApp(BaseApp):
                 preparePipelinesNamespace(dynClient=self.dynamicClient)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
+            # Create slack secret if slack token and channel are provided
+            if self.getParam("slack_token") and self.getParam("slack_channel"):
+                with Halo(text='Creating Slack notification secret', spinner=self.spinner) as h:
+                    prepareUpdateSlackSecrets(
+                        dynClient=self.dynamicClient,
+                        slack_token=self.getParam("slack_token"),
+                        slack_channel=self.getParam("slack_channel")
+                    )
+                    h.stop_and_persist(symbol=self.successIcon, text="Slack notification secret created")
+
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
@@ -233,17 +247,32 @@ class UpdateApp(BaseApp):
         return self.reviewInstances(listMasInstances, 'MAS', 'Suite.core.mas.ibm.com/v1')
 
     def reviewAiServiceInstance(self) -> bool:
-        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1')
+        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1', "aiservice_instance_ids")
 
-    def reviewInstances(self, getInstances: Callable, name: str, kind: str) -> bool:
+    def reviewInstances(self, getInstances: Callable, name: str, kind: str, instanceParamKey: str = "") -> bool:
         self.printH1(f"Review {name} Instances")
         try:
             instances = getInstances(self.dynamicClient)
+
+            if len(instances) == 0:
+                if instanceParamKey != "":
+                    self.setParam(instanceParamKey, "")
+                self.printDescription([f"No {name} instances were detected on the cluster"])
+                return False
+
+            if instanceParamKey != "":
+                self.setParam(instanceParamKey, "")
+                for instance in instances:
+                    param = self.getParam(instanceParamKey)
+                    self.setParam(instanceParamKey, f"{param},{instance['metadata']['name']}".lstrip(","))
+
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
                 self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
             return True
         except ResourceNotFoundError:
+            if instanceParamKey != "":
+                self.setParam(instanceParamKey, "")
             self.printDescription([f"No {name} instances were detected on the cluster ({kind} API is not available)"])
             return False
 
