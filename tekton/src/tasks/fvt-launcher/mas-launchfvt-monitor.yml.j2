@@ -13,6 +13,12 @@ spec:
     - name: pipelinerun_name
       type: string
 
+    # Specify which test suite to run
+    - name: fvt_test_suite
+      type: string
+      default: "fvt_91x"
+      description: "Test suite to execute (fvt_91x, fvt_monitor_only, etc.)"
+
   steps:
     - name: start-pipelinerun
       image: quay.io/ibmmas/cli:latest
@@ -27,6 +33,8 @@ spec:
           value: $(params.pipelinerun_name)
         - name: PIPELINERUN_NAMESPACE
           value: $(context.taskRun.namespace)
+        - name: FVT_TEST_SUITE
+          value: $(params.fvt_test_suite)
 
         # Lookups from mas-devops
         # -----------------------------------------------------------------------
