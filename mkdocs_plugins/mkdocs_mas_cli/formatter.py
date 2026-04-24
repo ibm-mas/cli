@@ -264,6 +264,3 @@ class MarkdownFormatter:
         text = text.replace("'", '\x26#39;')
 
         return text
-
-
-# Made with Bob

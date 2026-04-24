@@ -24,11 +24,15 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.12/site-packages/ansibl
 # 5. Disable ibmcloud cli's new version check
 # 6. Set file permissions to be developer (hack) friendly
 COPY install /tmp/install
-RUN --mount=type=secret,id=ARTIFACTORY_TOKEN,env=ARTIFACTORY_TOKEN \
-    --mount=type=secret,id=ARTIFACTORY_GENERIC_RELEASE_URL,env=ARTIFACTORY_GENERIC_RELEASE_URL \
-    --mount=type=secret,id=GITHUB_REF_NAME,env=GITHUB_REF_NAME \
-    --mount=type=secret,id=GITHUB_REF_TYPE,env=GITHUB_REF_TYPE \
+RUN --mount=type=secret,id=ARTIFACTORY_TOKEN \
+    --mount=type=secret,id=ARTIFACTORY_GENERIC_RELEASE_URL \
+    --mount=type=secret,id=GITHUB_REF_NAME \
+    --mount=type=secret,id=GITHUB_REF_TYPE \
     umask 0002 && \
+    export ARTIFACTORY_TOKEN=$(cat /run/secrets/ARTIFACTORY_TOKEN 2>/dev/null || echo "") && \
+    export ARTIFACTORY_GENERIC_RELEASE_URL=$(cat /run/secrets/ARTIFACTORY_GENERIC_RELEASE_URL 2>/dev/null || echo "") && \
+    export GITHUB_REF_NAME=$(cat /run/secrets/GITHUB_REF_NAME 2>/dev/null || echo "") && \
+    export GITHUB_REF_TYPE=$(cat /run/secrets/GITHUB_REF_TYPE 2>/dev/null || echo "") && \
     ls /tmp/install && \
     bash /tmp/install/install-python-packages.sh && \
     bash /tmp/install/install-ansible-collections.sh && \
