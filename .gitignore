@@ -45,8 +45,7 @@ image/cli/mascli/fyre-dev.noble3.tgkc-env.sh
 image/cli/mascli/fyre-dev.noble3.tgkd-env.sh
 image/cli/mascli/fyre-dev.noble3.tgke-env.sh
 image/cli/mascli/fyre-dev.noble3.tgke-db2u-manage-env.sh
-image/cli/install/ibm-mas_devops.tar.gz
-image/cli/install/mas_devops.tar.gz
+
 python/.venv
 python/.venv-windows
 python/pandoc-*
