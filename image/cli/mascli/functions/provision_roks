@@ -36,6 +36,10 @@ Turbonomic Integration:
       --turbonomic-username ${COLOR_YELLOW}TURBONOMIC_USERNAME${TEXT_RESET}              Turbonomic username
       --turbonomic-password ${COLOR_YELLOW}TURBONOMIC_PASSWORD${TEXT_RESET}              Turbonomic password
 
+Service Mesh Installation:
+      --install-service-mesh       Install Redhat Openshift Service Mesh to handle cluster networking
+      --install-kiali              Install Kiali as a monitoring UI for Redhat Openshift Service Mesh
+
 Other Commands:
       --no-confirm                              Provision the cluster without prompting for confirmation
   -h, --help                                    Show this help message
@@ -103,7 +107,13 @@ function provision_roks_noninteractive() {
       --turbonomic-password)
         TURBONOMIC_PASSWORD=$1 && shift
         ;;
-
+      # Service Mesh
+      --install-service-mesh)
+        INSTALL_SERVICE_MESH=true
+        ;;
+      --install-kiali)
+        INSTALL_KIALI=true
+        ;;
       # Other options
       --no-confirm)
         NO_CONFIRM=true
@@ -229,6 +239,13 @@ function provision_roks_interactive() {
     prompt_for_secret "Password" TURBONOMIC_PASSWORD
   fi
 
+  echo
+  echo_h2 "Service Mesh Installation:"
+  prompt_for_confirm "Install Service Mesh" && export INSTALL_SERVICE_MESH=true
+  if [[ "$INSTALL_SERVICE_MESH" == "true" ]]; then
+    prompt_for_confirm "Install Kiali" && export INSTALL_KIALI=true
+  fi
+
   export UPGRADE_IMAGE_REGISTRY_STORAGE=false
   echo ""
   echo_h2 "Upgrade Image Registry Capacity"
@@ -272,6 +289,8 @@ function provision_roks() {
   export TURBONOMIC_USERNAME
   export TURBONOMIC_PASSWORD
 
+  export INSTALL_SERVICE_MESH
+  export INSTALL_KIALI
 
   echo ""
   echo_h2 "Review Settings"
@@ -316,6 +335,12 @@ function provision_roks() {
     echo_reset_dim "Server URL .................. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_URL}"
     echo_reset_dim "Server Version .............. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_VERSION}"
   fi
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Service Mesh Integration" "    "
+  echo_reset_dim "Install Service Mesh ........ ${COLOR_MAGENTA}${INSTALL_SERVICE_MESH:-false}"
+  echo_reset_dim "Install Kiali................ ${COLOR_MAGENTA}${INSTALL_KIALI:-false}"
 
   echo
   reset_colors
