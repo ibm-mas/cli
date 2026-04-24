@@ -227,7 +227,7 @@ optionalParams = [
     # Slack Integration
     "slack_token",
     "slack_channel"
-    
+
     # MongoDB
     "mongodb_provider"
 ]
