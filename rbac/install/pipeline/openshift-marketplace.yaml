@@ -44,7 +44,6 @@ rules:
       - get
       - create
       - patch
-      - delete
   # Pipeline needs to create and patch service accounts for catalog sources (OCP 4.12+)
   - apiGroups:
       - ""
@@ -54,4 +53,3 @@ rules:
       - get
       - create
       - patch
-      - delete
