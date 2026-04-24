@@ -93,7 +93,7 @@ rbac:
 # Container Image Targets
 # ==============================================================================
 
-docker: tekton ## Build Docker image locally with Tekton resources
+docker: rbac ## Build Docker image locally with Tekton resources
 	@echo "$${ARTIFACTORY_TOKEN:-}" > /tmp/.artifactory_token
 	@echo "$${ARTIFACTORY_GENERIC_RELEASE_URL:-}" > /tmp/.artifactory_url
 	@echo "$${GITHUB_REF_NAME:-local}" > /tmp/.github_ref_name
