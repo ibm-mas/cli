@@ -405,12 +405,6 @@ function gitops_db2u_database() {
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
   CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-db2u-databases.yaml"
 
-  # NOTE: must align with lock branch name used by gitops_deprovision_db2u_database script
-  # as both of these scrtipts modify the same file
-  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
-
-
-
   #Defaults
   if [[ -z $DB2_TLS_VERSION ]]; then
     export DB2_TLS_VERSION=TLSv1.2
@@ -565,7 +559,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
     echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
     echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
-    echo_reset_dim "Lock Branch ........................... ${COLOR_MAGENTA}${GIT_LOCK_BRANCH}"
   else
     echo_h2 "GitOps Target" "    "
     echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
@@ -762,57 +755,89 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   STORAGE_CLASS_DEFINITIONS=$(echo "${STORAGE_CLASS_DEFINITIONS}" | yq e 'sortKeys(.)' -)
 
 
-  # Clone github target repo
+  # Define callback function to generate DB2U database configuration
+  # This function will be called by gitops_lock_and_modify after acquiring the lock
   # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
-    # only create the lock branch if we plan to actually push changes to git
-    clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
-  fi
-  mkdir -p ${GITOPS_INSTANCE_DIR}
+  function apply_db2u_database_changes() {
+    local GITOPS_REPO_DIR="$1"
+    local GITOPS_INSTANCE_DIR="${GITOPS_REPO_DIR}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}"
+    local CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-db2u-databases.yaml"
 
-  # Generate ArgoApps
-  # ---------------------------------------------------------------------------
-  echo
-  echo_h2 "Generating DB2U Database Configuraton"
-  echo
+    mkdir -p "${GITOPS_INSTANCE_DIR}"
 
-  # If the file doesn't exist, create a blank one
-  if ! [ -f ${CONFIGS_FILE} ]; then
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database-common.yaml.j2 $CONFIGS_FILE
-  fi
+    # Generate ArgoApps
+    # ---------------------------------------------------------------------------
+    echo
+    echo_h2 "Generating DB2U Database Configuraton"
+    echo
 
-  # Remove any existing config with this name
-  yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+    # If the file doesn't exist, create a blank one
+    if ! [ -f ${CONFIGS_FILE} ]; then
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database-common.yaml.j2 $CONFIGS_FILE
+    fi
 
-  # Create new file
-  echo -n "" > ${TEMP_DIR}/newconfig.yaml
-  # Render the appropriate template for the config into a new file. For standby database, it will be generated only if it is a replica task and replica is enabled.
-  if [[ (${IS_REPLICA_TASK} == 'false') || (${IS_REPLICA_TASK} == 'true' && ${REPLICA_DB} == 'true') ]]; then
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
-  fi
+    # Remove any existing config with this name
+    yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
-  # Merge the two files
-  yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+    # Create new file
+    echo -n "" > ${TEMP_DIR}/newconfig.yaml
+    # Render the appropriate template for the config into a new file. For standby database, it will be generated only if it is a replica task and replica is enabled.
+    if [[ (${IS_REPLICA_TASK} == 'false') || (${IS_REPLICA_TASK} == 'true' && ${REPLICA_DB} == 'true') ]]; then
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+    fi
 
-  # sort the configs by db2_instance_name.
-  # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
-  # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
-  yq -i '.ibm_db2u_databases |= sort_by(.db2_instance_name)' $CONFIGS_FILE
+    # Merge the two files
+    yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
 
-  echo_h2 "Updated configuration file (${CONFIGS_FILE})"
-  if [ -f ${CONFIGS_FILE} ]; then
-    cat $CONFIGS_FILE
-  else
-    echo "<file was deleted>"
-  fi
+    # sort the configs by db2_instance_name.
+    # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
+    # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
+    yq -i '.ibm_db2u_databases |= sort_by(.db2_instance_name)' $CONFIGS_FILE
 
-  # Commit and push to github target repo
+    echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+    if [ -f "${CONFIGS_FILE}" ]; then
+      cat "${CONFIGS_FILE}"
+    else
+      echo "<file was deleted>"
+    fi
+
+    return 0
+  }
+
+  # Use Redis-based locking with automatic fallback to Git locking
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" DB2_CONFIG_CHANGED
-    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+
+    # Create unique lock identifier for this operation
+    # NOTE: must align with lock name used by gitops_deprovision_db2u_database script
+    # as both of these scripts modify the same file
+    LOCK_NAME="gitops-db2u-database.${ACCOUNT_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+    # Use the new gitops_lock_and_modify method
+    # This will automatically use Redis if available, otherwise fall back to Git locking
+    gitops_lock_and_modify \
+      "${GITHUB_HOST}" \
+      "${GITHUB_ORG}" \
+      "${GITHUB_REPO}" \
+      "${GIT_BRANCH}" \
+      "${GITOPS_WORKING_DIR}" \
+      "${GIT_SSH}" \
+      "${LOCK_NAME}" \
+      "apply_db2u_database_changes" \
+      "${GIT_COMMIT_MSG}" \
+      DB2_CONFIG_CHANGED
+
+    if [[ "${DB2_CONFIG_CHANGED}" == "1" ]]; then
+      echo "DB2U database configuration was modified and pushed successfully"
+    else
+      echo "No changes detected in DB2U database configuration"
+    fi
+  else
+    # If not pushing to GitHub, just generate files locally
+    mkdir -p ${GITOPS_INSTANCE_DIR}
+    apply_db2u_database_changes "${GITOPS_WORKING_DIR}/${GITHUB_REPO}"
   fi
 
   rm -rf $TEMP_DIR

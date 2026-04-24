@@ -20,6 +20,16 @@
 - name: custom_labels
   type: string
   default: ""
+
+# Slack Notifications
+- name: slack_token
+  type: string
+  default: ""
+  description: Slack bot token for sending pipeline notifications
+- name: slack_channel
+  type: string
+  default: ""
+  description: Slack channel(s) for notifications (comma-separated for multiple channels)
   description: Optional custom labels, comma separated list of key=value pairs
 
 {% if application is not defined %}
