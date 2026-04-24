@@ -185,13 +185,18 @@ function gitops_deprovision_suite_license_service() {
   # Set up secrets
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Deleting Subscription secret"
+  echo_h2 "Deleting Subscription secrets"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
   
   # Created by gitops_suite_license_service task
+  # 1. License secret
   export SECRET_KEY_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}license
   sm_delete_secret ${SECRET_KEY_LICENSE_FILE}
+  
+  # 2. Mongo instance secret (created by gitops_suite_license_service at line 388)
+  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}mongo
+  sm_delete_secret ${SECRET_NAME_MONGO}
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
