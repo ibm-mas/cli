@@ -50,6 +50,3 @@ def test_install_interactive_unsupported_ocp(tmpdir):
     # The test will also fail if not all prompts are matched, proving that
     # the prompt verification works correctly even with SystemExit
     run_install_test(tmpdir, config)
-
-
-# Made with Bob

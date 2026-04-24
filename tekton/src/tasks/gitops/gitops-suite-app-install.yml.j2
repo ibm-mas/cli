@@ -63,6 +63,9 @@ spec:
     - name: mas_manual_certs_yaml
       type: string
       default: ""
+    - name: cluster_admin_role
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-app-install
     env:
@@ -114,6 +117,8 @@ spec:
         value: $(params.mas_manual_certs_yaml)
       - name: GPU_REQUEST_QUOTA
         value: $(params.gpu_request_quota)
+      - name: CLUSTER_ADMIN_ROLE
+        value: $(params.cluster_admin_role)
     envFrom:
       - configMapRef:
           name: environment-properties

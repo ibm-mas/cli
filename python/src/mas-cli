@@ -10,7 +10,6 @@
 # *****************************************************************************
 
 import logging
-import logging.handlers
 from sys import argv
 
 from mas.cli import __version__ as VERSION
@@ -56,24 +55,25 @@ def usage():
 
 
 if __name__ == '__main__':
+    app = None
     try:
         function = argv[1]
 
         if function == "install":
             app = InstallApp()
-            app.install(argv[2:])
+            exit(app.install(argv[2:]))
         elif function == "aiservice-install":
             app = AiServiceInstallApp()
-            app.install(argv[2:])
+            exit(app.install(argv[2:]))
         elif function == "aiservice-upgrade":
             app = AiServiceUpgradeApp()
-            app.upgrade(argv[2:])
+            exit(app.upgrade(argv[2:]))
         elif function == "uninstall":
             app = UninstallApp()
-            app.uninstall(argv[2:])
+            exit(app.uninstall(argv[2:]))
         elif function == "update":
             app = UpdateApp()
-            app.update(argv[2:])
+            exit(app.update(argv[2:]))
         elif function == "upgrade":
             app = UpgradeApp()
             app.upgrade(argv[2:])
@@ -100,10 +100,27 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     except ApiException as e:
-        app.fatalError(message=f"[{e.status}:{e.reason}] {e.summary()}")
+        error_msg = f"[{e.status}:{e.reason}] {e.body if hasattr(e, 'body') else str(e)}"
+        if app:
+            app.fatalError(message=error_msg)
+        else:
+            logger.error(error_msg)
+            exit(1)
     except MaxRetryError as e:
-        app.fatalError(message="Unable to connect to API server", exception=e)
+        if app:
+            app.fatalError(message="Unable to connect to API server", exception=e)
+        else:
+            logger.error("Unable to connect to API server", exc_info=e)
+            exit(1)
     except TemplateNotFound as e:
-        app.fatalError("Could not find template", exception=e)
+        if app:
+            app.fatalError("Could not find template", exception=e)
+        else:
+            logger.error("Could not find template", exc_info=e)
+            exit(1)
     except KubectlCommandError as e:
-        app.fatalError("Could not execute kubectl command", exception=e)
+        if app:
+            app.fatalError("Could not execute kubectl command", exception=e)
+        else:
+            logger.error("Could not execute kubectl command", exc_info=e)
+            exit(1)
