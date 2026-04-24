@@ -14,6 +14,7 @@ def invalid_timestamp_key(key: str) -> bool:
 
 if __name__ == "__main__":
     if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
+        print("Missing DEVOPS_MONGO_URI environment variable, cannot record timestamp")
         sys.exit(0)
 
     print("MongoDb integration enabled (v2 data model)")
@@ -32,7 +33,7 @@ if __name__ == "__main__":
 
     # Note: We don't use MAS_INSTANCE_ID to remove the confusion between when a role actually
     # needs MAS_INSTANCE_ID and when we are providing it just for the reporting framework
-    instanceId = os.getenv("DEVOPS_ENVIRONMENT", "none")
+    instanceId = os.getenv("DEVOPS_ENVIRONMENT")
     build = os.getenv("DEVOPS_BUILD_NUMBER")
 
     if instanceId is None:
