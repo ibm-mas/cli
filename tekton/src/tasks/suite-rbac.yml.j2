@@ -17,6 +17,10 @@ spec:
       type: string
       description: MAS channel version
       default: ""
+    - name: mas_selected_apps
+      type: string
+      description: list of selected MAS applications
+      default: ""
 
   stepTemplate:
     env:
@@ -28,6 +32,8 @@ spec:
         value: $(params.mas_permission_mode)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
+      - name: MAS_SELECTED_APPS
+        value: $(params.mas_selected_apps)
 
   steps:
     - name: apply-rbac

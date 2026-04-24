@@ -84,6 +84,32 @@ def logMethodCall(func):
 
 
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
+
+    def setSelectedAppsParam(self):
+        selectedApps = ["core"]
+        if self.installAssist:
+            selectedApps.append("assist")
+        if self.installIoT:
+            selectedApps.append("iot")
+        if self.installManage:
+            selectedApps.append("manage")
+        if self.installMonitor:
+            selectedApps.append("monitor")
+        if self.installPredict:
+            selectedApps.append("predict")
+        if self.installInspection:
+            selectedApps.append("visualinspection")
+        if self.installOptimizer:
+            selectedApps.append("optimizer")
+        if self.installFacilities:
+            selectedApps.append("facilities")
+        if self.installAIService:
+            selectedApps.append("aiservice")
+        if self.installArcgis:
+            selectedApps.append("arcgis")
+
+        self.setParam("mas_selected_apps", ",".join(selectedApps))
+
     @logMethodCall
     def validateCatalogSource(self):
         # Check supported OCP versions - but we can only do this in non-development mode because in development mode
@@ -1138,6 +1164,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.installAIService = False
 
+        self.setSelectedAppsParam()
+
     @logMethodCall
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
@@ -1920,6 +1948,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             arcgis_channel = self.getParam("mas_arcgis_channel")
             if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
                 self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
+
+        self.setSelectedAppsParam()
 
     @logMethodCall
     def install(self, argv):
