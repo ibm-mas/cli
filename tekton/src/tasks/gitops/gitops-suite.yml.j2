@@ -60,6 +60,9 @@ spec:
     - name: mas_routing_mode
       type: string
       default: ""
+    - name: mas_use_service_mesh
+      type: string
+      default: ""
     - name: mas_ingress_controller_name
       type: string
       default: ""
@@ -208,6 +211,8 @@ spec:
         value: $(params.mas_domain)
       - name: MAS_ROUTING_MODE
         value: $(params.mas_routing_mode)
+      - name: MAS_USE_SERVICE_MESH
+        value: $(params.mas_use_service_mesh)
       - name: MAS_INGRESS_CONTROLLER_NAME
         value: $(params.mas_ingress_controller_name)
       - name: ICR_CP

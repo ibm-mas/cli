@@ -22,7 +22,7 @@ ibm_aiservice_tenant(required):
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
       --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Service instance
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
-      --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                   URL of the DRO configuration service
+      --dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                                         URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
       --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                         Endpoint URL for Watsonx.ai
       --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                           Full URL for Watsonx.ai including API key
@@ -40,7 +40,7 @@ AiService :
 --mas-icr-cpopen ${COLOR_YELLOW}MAS_ICR_CPOPEN${TEXT_RESET}                                                 IBM Cloud Pak Open container registry URL
 
 DRO :
---drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                         URL of the DRO configuration service
+--dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                                           URL of the DRO configuration service
 
 SLS :
 --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                     URL of the SLS configuration service
@@ -185,8 +185,8 @@ function gitops_aiservice_tenant_noninteractive() {
         ;;
 
       # -- DRO
-      --drocfg-url)
-        export DROCFG_URL=$1 && shift
+      --dro-url)
+        export DRO_URL=$1 && shift
         ;;
 
       # -- SLS
@@ -312,7 +312,7 @@ function gitops_aiservice_tenant_noninteractive() {
   [[ -z "$CATALOG_SOURCE" ]] && gitops_aiservice_tenant_help "CATALOG_SOURCE is not set. Please provide the catalog source using --catalog-source."
   
   # -- DRO
-  [[ -z "$DROCFG_URL" ]] && gitops_aiservice_tenant_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
+  [[ -z "$DRO_URL" ]] && gitops_aiservice_tenant_help "DRO_URL is not set. Please specify the DRO configuration URL using --dro-url."
   
   # -- SLS
   if [ -z "$STANDALONE_SLS_SERVICE" ]; then
@@ -427,8 +427,8 @@ function gitops_aiservice_tenant() {
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   # dro
   export SECRET_KEY_ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
-  export DROCFG_CA_B64ENC=${SECRETS_PREFIX}droai#drocfg_ca_b64enc
-  export SECRET_KEY_DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}droai#drocfg_registration_key
+  export DRO_CA_B64ENC=${SECRETS_PREFIX}dro#dro_ca_b64enc
+  export SECRET_KEY_DRO_API_TOKEN=${SECRETS_PREFIX}dro#dro_api_token
 
   # sls
   if [ -z "$STANDALONE_SLS_SERVICE" ]; then
@@ -468,7 +468,7 @@ function gitops_aiservice_tenant() {
   # check for those variables present into the aws sm 
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_registration_key,drocfg_ca_b64enc"
+  sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_ca_b64enc"
   if [ -z "$STANDALONE_SLS_SERVICE" ]; then
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
   else
