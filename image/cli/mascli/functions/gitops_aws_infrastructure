@@ -140,17 +140,41 @@ function create_aws_tgw_peering(){
   echo "Not Supported"
 }
 
+function gitops_aws_infrastructure_noninteractive() {
+  SECRETS_KEY_SEPERATOR="/"
 
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # Configuration
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+    
+     # Other Commands
+      -h|--help)
+        gitops_aws_infrastructure_help
+        ;;
+      *)
+        # unknown option
+        gitops_aws_infrastructure_help  "Usage Error: Unsupported option \"${key}\" "
+        ;;
+      esac
+  done
+}
 
 function gitops_aws_infrastructure(){
   shift
-  # if [[ $# -gt 0 ]]; then
-  #   gitops_aws_infrastructure_noninteractive "$@"
-  # else
-  #   echo "Not supported yet"
-  #   exit 1
-  #   gitops_aws_infrastructure_interactive
-  # fi  
+  if [[ $# -gt 0 ]]; then
+    gitops_aws_infrastructure_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_aws_infrastructure_interactive
+  fi  
+
   echo
   reset_colors
   echo_h2 "Review Settings"
