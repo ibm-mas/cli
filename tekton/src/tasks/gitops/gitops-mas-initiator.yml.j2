@@ -535,6 +535,14 @@ spec:
           
           # Set the ICN file path for later use in skip deploy section
           ICN_FILE_PATH="$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/$ICN/$SAAS_SUB_ID/sls-params.yaml"
+          
+          # Update sls.domain in sls-params.yaml 
+          if [[ -f "$ICN_FILE_PATH" ]]; then
+            echo "gitops-mas-initiator: Updating sls.domain in $ICN_FILE_PATH to $APPSDOMAIN"
+            yq -i '.sls.domain = env(APPSDOMAIN)' "$ICN_FILE_PATH"
+          else
+            echo "gitops-mas-initiator: Warning - sls-params.yaml not found at $ICN_FILE_PATH"
+          fi
  
         else
           echo "gitops-mas-initiator: CENTRALISED_SLS not true, skipping ICN setup"

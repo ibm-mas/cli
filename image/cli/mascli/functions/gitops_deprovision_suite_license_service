@@ -197,6 +197,10 @@ function gitops_deprovision_suite_license_service() {
   # 2. Mongo instance secret (created by gitops_suite_license_service at line 388)
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}mongo
   sm_delete_secret ${SECRET_NAME_MONGO}
+  
+  # 3. SLS config secret (created by postsync hook on ibm-sls chart for standalone SLS)
+  export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}sls
+  sm_delete_secret ${SECRET_NAME_SLS}
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
