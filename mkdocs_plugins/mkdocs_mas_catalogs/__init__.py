@@ -294,6 +294,3 @@ There are no known issues for this catalog release.
 -------------------------------------------------------------------------------
 {known_issues_text}
 """
-
-
-# Made with Bob
