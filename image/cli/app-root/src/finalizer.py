@@ -772,6 +772,6 @@ if __name__ == "__main__":
             message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
             message.append(SlackUtil.buildSection("Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
             try:
-              postMessage(FVT_SLACK_CHANNEL, message, threadId)
+                postMessage(FVT_SLACK_CHANNEL, message, threadId)
             except Exception as e:
                 print(f"An exception occured posting the test result summary to Slack: {e}")
