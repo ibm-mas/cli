@@ -26,6 +26,7 @@ from .settings import UpgradeSettingsMixin
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, getSuitePermissionMode, verifyAppInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
+from mas.devops.utils import isVersionEqualOrAfter
 
 logger = logging.getLogger(__name__)
 
@@ -244,12 +245,19 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         # Compute Monitor install order for upgrade
         self.computeMonitorInstallOrderForUpgrade(instanceId)
 
-        # Check permission mode only when upgrading FROM 9.2.x or later
-        # (9.1.x doesn't have permissionMode feature)
-        if currentChannel and currentChannel.startswith("9.2"):
-            self.printH1("Permission Mode Validation")
-            self.checkPermissionModeForUpgrade(instanceId)
-            print_formatted_text(HTML("<Green>✓ Permission mode check passed</Green>"))
+        # Set permission mode when upgrading TO 9.2.x or later (RBAC-based permission modes)
+        # For 9.1.x -> 9.2.x upgrades: get from Suite status (defaults to 'cluster')
+        # For 9.2.x -> 9.2.x/9.3.x upgrades: validate and get from Suite status
+        if self.nextChannel and isVersionEqualOrAfter('9.2.0', self.nextChannel):
+            self.printH1("Permission Mode")
+            permissionMode = getSuitePermissionMode(self.dynamicClient, instanceId)
+            self.setParam("mas_permission_mode", permissionMode)
+            print_formatted_text(HTML(f"<Green>✓ Permission mode: {permissionMode}</Green>"))
+
+            # Additional validation only when upgrading FROM 9.2.x or later
+            if currentChannel and isVersionEqualOrAfter('9.2.0', currentChannel):
+                self.checkPermissionModeForUpgrade(instanceId)
+                print_formatted_text(HTML("<Green>✓ Permission mode validation passed</Green>"))
             print()
 
         # Set RBAC version for RBAC recreation (extract version from nextChannel)
