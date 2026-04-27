@@ -85,11 +85,15 @@ tekton-ocp: ## Generate Tekton pipelines configured for your OCP internal regist
 tekton-test: tekton ## Run Tekton pipeline tests
 	tekton/test.sh
 
+rbac:
+	rm -rf image/cli/rbac
+	cp -r rbac image/cli/rbac
+
 # ==============================================================================
 # Container Image Targets
 # ==============================================================================
 
-docker: tekton ## Build Docker image locally with Tekton resources
+docker: rbac ## Build Docker image locally with Tekton resources
 	@echo "$${ARTIFACTORY_TOKEN:-}" > /tmp/.artifactory_token
 	@echo "$${ARTIFACTORY_GENERIC_RELEASE_URL:-}" > /tmp/.artifactory_url
 	@echo "$${GITHUB_REF_NAME:-local}" > /tmp/.github_ref_name
@@ -212,7 +216,7 @@ build-and-push-ocp: ## Build image for OCP architecture and push to internal reg
 # Composite Build Targets
 # ==============================================================================
 
-all: ansible-devops python tekton docker ## Build all components for local development (default)
+all: ansible-devops python tekton rbac docker ## Build all components for local development (default)
 
 all-ocp: ansible-devops python tekton-ocp build-and-push-ocp ## Build all components and push to your OCP registry
 	@echo ""
@@ -237,6 +241,7 @@ run: ## Run the CLI container image locally
 clean: ## Remove built artifacts
 	rm image/cli/install/ibm-mas_devops.tar.gz
 	rm image/cli/bin/templates/ibm-mas-tekton.yaml
+  rm -rf image/cli/rbac
 
 # ==============================================================================
 # OpenShift Pod Management Targets
