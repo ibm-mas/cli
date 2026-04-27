@@ -88,6 +88,3 @@ def test_install_interactive_existing_catalog(tmpdir):
 
     # Run the test
     run_install_test(tmpdir, config)
-
-
-# Made with Bob
