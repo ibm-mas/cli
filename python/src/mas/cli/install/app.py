@@ -1975,7 +1975,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             hasKafkaConfig = kafkaAction in ["install", "byo"]
             if not hasKafkaConfig:
                 self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
-         
+
         self.setSelectedAppsParam()
 
     @logMethodCall
