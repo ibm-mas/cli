@@ -26,6 +26,27 @@ spec:
       type: string
     - name: cli_version
       type: string
+    - name: argoapp_namespace
+      type: string
+      default: "openshift-gitops"
+    - name: argocluster_namespace
+      type: string
+      default: "openshift-gitops"
+    - name: argocluster_instance
+      type: string
+      default: ""
+    - name: restricted_access
+      type: string
+      default: "false"
+    - name: auto_delete
+      type: string
+      default: "false"
+    - name: cluster_admin_role
+      type: string
+      default: "true"
+    - name: application_admin_role
+      type: string
+      default: "true"
   stepTemplate:
     name: gitops-bootstrap
     env:
@@ -49,6 +70,20 @@ spec:
         value: $(params.app_revision)
       - name: CLI_VERSION
         value: $(params.cli_version)
+      - name: ARGOAPP_NAMESPACE
+        value: $(params.argoapp_namespace)
+      - name: ARGOCLUSTER_NAMESPACE
+        value: $(params.argocluster_namespace)
+      - name: ARGOCLUSTER_INSTANCE
+        value: $(params.argocluster_instance)
+      - name: RESTRICTED_ACCESS
+        value: $(params.restricted_access)
+      - name: AUTO_DELETE
+        value: $(params.auto_delete)
+      - name: CLUSTER_ADMIN_ROLE
+        value: $(params.cluster_admin_role)
+      - name: APPLICATION_ADMIN_ROLE
+        value: $(params.application_admin_role)
   steps:
     - args:
       - |-
