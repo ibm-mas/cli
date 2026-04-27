@@ -592,6 +592,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCATrust()
         self.configDNSAndCerts()
         self.configRoutingMode()
+        self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
         self.configReportAdoptionMetricsFlag()
@@ -836,6 +837,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         except Exception as e:
             logger.warning(f"User may not have permissions to configure IngressController '{controllerName}': {e}")
             return False
+
+    @logMethodCall
+    def configServiceMesh(self) -> None:
+        if self.showAdvancedOptions:
+            self.printH1("Configure Service Mesh")
+            self.printDescription([
+                "By default, Maximo Application Suite does not use Service Mesh for routing."
+            ])
+            self.yesOrNo("Use Service Mesh", "mas_use_service_mesh")
+        else:
+            self.setParam("mas_use_service_mesh", "false")
 
     @logMethodCall
     def configAnnotations(self):
