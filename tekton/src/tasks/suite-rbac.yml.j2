@@ -21,6 +21,10 @@ spec:
       type: string
       description: MAS RBAC version (e.g., 9.2) - used to apply correct RBAC files
       default: ""
+    - name: mas_selected_apps
+      type: string
+      description: list of selected MAS applications
+      default: ""
 
   stepTemplate:
     env:
@@ -32,8 +36,6 @@ spec:
         value: $(params.mas_permission_mode)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
-      - name: MAS_RBAC_VERSION
-        value: $(params.mas_rbac_version)
 
   steps:
     - name: apply-rbac
