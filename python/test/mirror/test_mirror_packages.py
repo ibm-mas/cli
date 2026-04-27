@@ -307,4 +307,42 @@ def test_mirror_with_all_flag(tmpdir):
     run_mirror_test(tmpdir, config)
 
 
+def test_mirror_assist_with_couchdb(tmpdir):
+    """
+    Test mirroring Assist package with CouchDB dependency.
+
+    This scenario tests:
+    - Assist package (assist) which includes: ibm-mas-assist, ibm-couchdb
+    - Mode: m2m
+    - Should generate config with both Assist and CouchDB package images
+    - CouchDB version is retrieved from catalog's couchdb_version key
+    """
+    config = MirrorTestConfig(
+        mode='m2m',
+        catalog_version='v9-260129-amd64',
+        release='9.1.x',
+        target_registry='registry.example.com/mas',
+        root_dir=str(tmpdir),
+        packages={
+            'assist': True,
+        },
+        mock_oc_mirror_output=[
+            '2026/02/09 17:00:00  [INFO]   : Hello, welcome to oc-mirror',
+            '2026/02/09 17:00:15  [INFO]   : 15 / 15 additional images mirrored successfully',
+        ],
+        mock_image_count=15,
+        expect_success=True,
+        timeout_seconds=30,
+        env_vars={
+            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
+            'REGISTRY_USERNAME': 'testuser',
+            'REGISTRY_PASSWORD': 'testpass',
+            'HOME': str(tmpdir),
+        },
+        config_exists_locally=True,
+    )
+
+    run_mirror_test(tmpdir, config)
+
+
 # Made with Bob
