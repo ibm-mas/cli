@@ -35,6 +35,12 @@ spec:
     - name: dro_ca_certificate_file
       type: string
       default: ""
+    - name: dro_api_token
+      type: string
+      default: ""
+    - name: dro_url
+      type: string
+      default: ""
     - name: cluster_url
       type: string
       default: ""
@@ -85,6 +91,10 @@ spec:
         value: $(params.dro_contact_lastname)
       - name: DRO_CA_CERTIFICATE_FILE
         value: $(params.dro_ca_certificate_file)
+      - name: DRO_API_TOKEN
+        value: $(params.dro_api_token)
+      - name: DRO_URL
+        value: $(params.dro_url)
       - name: MAS_SLSCFG_POD_TEMPLATE_YAML
         value: $(params.mas_slscfg_pod_template_yaml)
       - name: MAS_BASCFG_POD_TEMPLATE_YAML
