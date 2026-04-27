@@ -20,6 +20,21 @@ else
   TARGET_DIR=$DIR/../../tekton/target
   VERSION=${VERSION:-100.0.0-pre.localbuild}
 
+  # Check if we should use OCP internal registry
+  if [ "$USE_OCP_REGISTRY" == "true" ]; then
+    OCP_PROJECT=${OCP_PROJECT:-$(oc project -q 2>/dev/null)}
+    if [ -z "$OCP_PROJECT" ]; then
+      echo "Error: Cannot determine OCP project. Please set OCP_PROJECT environment variable or ensure you're logged into OCP."
+      exit 1
+    fi
+    IMAGE_REGISTRY="image-registry.openshift-image-registry.svc:5000"
+    IMAGE_REFERENCE="${IMAGE_REGISTRY}/${OCP_PROJECT}/ibmmas-cli:${VERSION}"
+    echo "Using OCP internal registry image: ${IMAGE_REFERENCE}"
+  else
+    IMAGE_REFERENCE="quay.io/ibmmas/cli:${VERSION}"
+    echo "Using default image: ${IMAGE_REFERENCE}"
+  fi
+
   TASK_FILES=$TARGET_DIR/tasks/*.yaml
   PIPELINE_FILES=$TARGET_DIR/pipelines/*.yaml
 
@@ -76,8 +91,30 @@ for FILE in $PIPELINE_FILES; do
 done
 
 # What a very long winded way of doing in-place sed! I'm sure someone did it this way for a reason?
-sed "s#quay.io/ibmmas/cli:latest#quay.io/ibmmas/cli:$VERSION#g" $TARGET_FILE > $TARGET_FILE.txt
-sed "s#quay.io/ibmmas/cli:latest#quay.io/ibmmas/cli:$VERSION#g" $TARGET_FILE_FVT > $TARGET_FILE_FVT.txt
+if [ "$DEV_MODE" == "true" ] && [ "$USE_OCP_REGISTRY" == "true" ]; then
+  # Use the OCP internal registry image reference
+  echo "Updating image references to: ${IMAGE_REFERENCE}"
+  
+  # Update individual task files
+  for FILE in $TASK_FILES; do
+    sed "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" $FILE > $FILE.tmp
+    mv $FILE.tmp $FILE
+  done
+  
+  # Update individual pipeline files
+  for FILE in $PIPELINE_FILES; do
+    sed "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" $FILE > $FILE.tmp
+    mv $FILE.tmp $FILE
+  done
+  
+  # Update combined files
+  sed "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" $TARGET_FILE > $TARGET_FILE.txt
+  sed "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" $TARGET_FILE_FVT > $TARGET_FILE_FVT.txt
+else
+  # Use the default quay.io image reference
+  sed "s#quay.io/ibmmas/cli:latest#quay.io/ibmmas/cli:$VERSION#g" $TARGET_FILE > $TARGET_FILE.txt
+  sed "s#quay.io/ibmmas/cli:latest#quay.io/ibmmas/cli:$VERSION#g" $TARGET_FILE_FVT > $TARGET_FILE_FVT.txt
+fi
 rm $TARGET_FILE
 rm $TARGET_FILE_FVT
 mv $TARGET_FILE.txt $TARGET_FILE

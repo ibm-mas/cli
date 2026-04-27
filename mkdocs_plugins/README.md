@@ -543,6 +543,6 @@ This is part of a broader code deduplication effort across the IBM MAS CLI proje
 
 These plugins are part of the IBM Maximo Application Suite CLI project and follow the same license (Eclipse Public License v1.0).
 
-## Made with Bob
+#
 
 These plugins were designed and implemented with assistance from Bob, an AI coding assistant, following established MkDocs plugin patterns and best practices.
