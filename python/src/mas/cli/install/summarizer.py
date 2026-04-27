@@ -86,6 +86,9 @@ class InstallSummarizerMixin():
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
         print()
+        self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
+
+        print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
 
         if self.getParam("mas_manual_cert_mgmt") != "":
@@ -415,6 +418,13 @@ class InstallSummarizerMixin():
         else:
             self.printSummary("Install Grafana", "Do Not Install")
 
+    def slackSummary(self) -> None:
+        self.printH2("Slack Integration")
+        if self.getParam("slack_channel") != "":
+            self.printParamSummary("Slack Channel", "slack_channel")
+        else:
+            self.printSummary("Slack Channel", "Not Configured")
+
     def installSummary(self) -> None:
         pass
         # self.printH2("Install Process")
@@ -454,6 +464,9 @@ class InstallSummarizerMixin():
         self.kafkaSummary()
         self.cp4dSummary()
         self.grafanaSummary()
+
+        # Notification Integration
+        self.slackSummary()
 
         # Install options
         self.installSummary()

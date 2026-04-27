@@ -27,7 +27,7 @@ ibm aiservice(required):
 
 storage provider:
       --aiservice-storage-provider ${TEXT_RESET}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}
-      --aiservice-storage_ssl ${TEXT_RESET}AISERVICE_STORAGE_SSL${TEXT_RESET}
+      --aiservice-storage-ssl ${TEXT_RESET}AISERVICE_STORAGE_SSL${TEXT_RESET}
       --aiservice-storage-region ${TEXT_RESET}AISERVICE_STORAGE_REGION${TEXT_RESET}
       
 sls_dro_jdbc
@@ -164,7 +164,7 @@ function gitops_aiservice_noninteractive() {
       --aiservice-storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
-      --aiservice-storage_ssl)
+      --aiservice-storage-ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
       --mas-catalog-source)
@@ -364,9 +364,9 @@ function gitops_aiservice() {
   export SECRET_KEY_STORAGE_REGION=${SECRETS_PREFIX}s3#sm_s3_region
 
   #dro
-  export DROCFG_CA_B64ENC=${SECRETS_PREFIX}droai#drocfg_ca_b64enc
-  export DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}droai#drocfg_registration_key
-  export DROCFG_URL=${SECRETS_PREFIX}droai#drocfg_url
+  export DRO_CA_B64ENC=${SECRETS_PREFIX}dro#dro_ca_b64enc
+  export DRO_API_TOKEN=${SECRETS_PREFIX}dro#dro_api_token
+  export DRO_URL=${SECRETS_PREFIX}dro#dro_url
   #jdbc
   export JDBCCFG_USERNAME=${SECRETS_PREFIX}jdbc#jdbccfg_username
   export JDBCCFG_PASSWORD=${SECRETS_PREFIX}jdbc#jdbccfg_password
@@ -377,7 +377,7 @@ function gitops_aiservice() {
   export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_registration_key,drocfg_url,drocfg_ca_b64enc"
+  sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_url,dro_ca_b64enc"
   sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
   sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca_b64enc"
 

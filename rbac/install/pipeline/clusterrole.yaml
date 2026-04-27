@@ -95,3 +95,14 @@ rules:
     verbs:
       - get
       - patch
+
+  # Pipeline needs to create namespaces for dependencies (db2, mongoce, etc.)
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - create
+      - patch
+      - list
