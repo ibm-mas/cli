@@ -36,6 +36,8 @@ spec:
         value: $(params.mas_permission_mode)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
+      - name: MAS_RBAC_VERSION
+        value: $(params.mas_rbac_version)
 
   steps:
     - name: apply-rbac
