@@ -75,17 +75,17 @@ class KafkaSettingsMixin():
     def configKafka(self) -> None:
         # Check if CIVIL component is enabled in Manage
         isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
-        
+
         if self.installIoT or isCivilEnabled:
             self.printH1("Configure Kafka")
-            
+
             # Build description based on what requires Kafka
             requirements = []
             if self.installIoT:
                 requirements.append("Maximo IoT")
             if isCivilEnabled:
                 requirements.append("Maximo Manage Civil Infrastructure")
-            
+
             requirementsText = " and ".join(requirements)
             self.printDescription([
                 f"{requirementsText} requires a shared system-scope Kafka instance",
