@@ -81,7 +81,15 @@ class BackupApp(BaseApp):
                 "manage_db2_namespace",
                 "manage_db2_instance_name",
                 "manage_db2_backup_type",
-                "manage_db2_backup_vendor"
+                "manage_db2_backup_vendor",
+                # Facilities App Backup
+                "facilities_workspace_id",
+                "backup_facilities_app",
+                "backup_facilities_db",
+                "facilities_db2_namespace",
+                "facilities_db2_instance_name",
+                "facilities_db2_backup_type",
+                "facilities_db2_backup_vendor"
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -144,6 +152,9 @@ class BackupApp(BaseApp):
             # Prompt for Manage app backup
             self.promptForManageAppBackup()
 
+            # Prompt for Facilities app backup
+            self.promptForFacilitiesAppBackup()
+
             self.promptForUploadConfiguration()
             # Prompt for clean backup option if not provided
             self.promptForCleanBackup()
@@ -185,6 +196,16 @@ class BackupApp(BaseApp):
                 self.printSummary("Db2 Namespace", self.getParam("manage_db2_namespace"))
                 self.printSummary("Db2 Instance Name", self.getParam("manage_db2_instance_name"))
                 self.printSummary("Db2 Backup Type", self.getParam("manage_db2_backup_type"))
+
+        if self.getParam("backup_facilities_app") == "true":
+            self.printH2("Facilities Application Backup")
+            self.printSummary("Backup Facilities App", "Yes")
+            self.printSummary("Workspace ID", self.getParam("facilities_workspace_id"))
+            self.printSummary("Backup Facilities incluster Db2 Database", "Yes" if self.getParam("backup_facilities_db") == "true" else "No")
+            if self.getParam("backup_facilities_db") == "true":
+                self.printSummary("Db2 Namespace", self.getParam("facilities_db2_namespace"))
+                self.printSummary("Db2 Instance Name", self.getParam("facilities_db2_instance_name"))
+                self.printSummary("Db2 Backup Type", self.getParam("facilities_db2_backup_type"))
 
         continueWithBackup = True
         if not self.noConfirm:
@@ -597,3 +618,52 @@ class BackupApp(BaseApp):
 
         # Always set to disk for pipeline as s3 upload is handled for the whole pipeline
         self.setParam(f"{appId}_db2_backup_vendor", "disk")
+
+    def promptForFacilitiesAppBackup(self) -> None:
+        """Prompt user for Facilities application backup configuration"""
+        self.printH1("Facilities Application Backup")
+        self.printDescription([
+            "In addition to backing up the MAS Suite, you can also backup the Facilities application.",
+            "This includes the Facilities namespace resources and persistent volume data."
+        ])
+
+        backupFacilitiesApp = self.yesOrNo("Do you want to backup the Facilities application")
+
+        if backupFacilitiesApp:
+            self.setParam("backup_facilities_app", "true")
+
+            # Get workspace ID - try to auto-detect first
+            try:
+                instanceId = self.getParam("mas_instance_id")
+                workspaceId = getWorkspaceId(self.dynamicClient, instanceId, appId="facilities")
+                if workspaceId:
+                    self.printDescription([f"Detected Facilities workspace: <u>{workspaceId}</u>"])
+                    useDetected = self.yesOrNo("Use this workspace")
+                    if useDetected:
+                        self.setParam("facilities_workspace_id", workspaceId)
+                    else:
+                        workspaceId = self.promptForString("Enter Facilities workspace ID")
+                        self.setParam("facilities_workspace_id", workspaceId)
+                else:
+                    workspaceId = self.promptForString("Enter Facilities workspace ID")
+                    self.setParam("facilities_workspace_id", workspaceId)
+            except Exception:
+                workspaceId = self.promptForString("Enter Facilities workspace ID")
+                self.setParam("facilities_workspace_id", workspaceId)
+
+            # Ask about DB2 backup
+            self.printH2("Facilities Database Backup")
+            self.printDescription([
+                "The Facilities application uses a Db2 database that should also be backed up.",
+                "This will backup the incluster Db2 database associated with the Facilities workspace."
+            ])
+            backupDb2 = self.yesOrNo("Do you want to backup the Facilities database (Db2)")
+
+            if backupDb2:
+                self.setParam("backup_facilities_db", "true")
+                self.promptForDb2BackupConfiguration("facilities")
+            else:
+                self.setParam("backup_facilities_db", "false")
+        else:
+            self.setParam("backup_facilities_app", "false")
+            self.setParam("backup_facilities_db", "false")

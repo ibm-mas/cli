@@ -174,6 +174,52 @@ manageAppArgGroup.add_argument(
     help="Manage Db2 backup type: offline (database unavailable) or online (database remains available)"
 )
 
+facilitiesAppArgGroup = backupArgParser.add_argument_group(
+    'Facilities Application Backup',
+    'Configure backup of the Facilities application and its database.'
+)
+facilitiesAppArgGroup.add_argument(
+    '--backup-facilities-app',
+    dest='backup_facilities_app',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Backup the Facilities application"
+)
+facilitiesAppArgGroup.add_argument(
+    '--facilities-workspace-id',
+    dest='facilities_workspace_id',
+    required=False,
+    help="Facilities workspace ID"
+)
+facilitiesAppArgGroup.add_argument(
+    '--backup-facilities-db',
+    dest='backup_facilities_db',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Backup the Facilities application database (Db2)"
+)
+facilitiesAppArgGroup.add_argument(
+    '--facilities-db2-namespace',
+    dest='facilities_db2_namespace',
+    required=False,
+    help="Facilities Db2 namespace (default: db2u)"
+)
+facilitiesAppArgGroup.add_argument(
+    '--facilities-db2-instance-name',
+    dest='facilities_db2_instance_name',
+    required=False,
+    help="Facilities Db2 instance name"
+)
+facilitiesAppArgGroup.add_argument(
+    '--facilities-db2-backup-type',
+    dest='facilities_db2_backup_type',
+    required=False,
+    choices=["offline", "online"],
+    help="Facilities Db2 backup type: offline (database unavailable) or online (database remains available)"
+)
+
 componentsArgGroup = backupArgParser.add_argument_group(
     'Components',
     'Configure which components to include in the backup.'
