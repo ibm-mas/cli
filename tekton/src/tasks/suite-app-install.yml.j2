@@ -40,6 +40,11 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    - name: mas_use_service_mesh
+      type: string
+      description: Optional string parameter, either true or false (defaults to false), defines whether the suite will be configured to use redhat service mesh for networking
+      default: ""
+
     # Install Step
     # -------------------------------------------------------------------------
     # Pre-Release Support
@@ -377,6 +382,9 @@ spec:
         # Entitlement
         - name: IBM_ENTITLEMENT_KEY
           value: $(params.ibm_entitlement_key)
+
+        - name: MAS_USE_SERVICE_MESH
+          value: $(params.mas_use_service_mesh)
 
         # Application - Operator
         - name: MAS_APP_CHANNEL
