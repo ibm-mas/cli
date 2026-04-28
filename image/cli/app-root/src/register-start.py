@@ -92,3 +92,17 @@ if __name__ == "__main__":
         },
         upsert=True
     )
+
+    # If the run document already existed before register-start.py was invoked,
+    # we should backfill the run timestamp once and leave it unchanged on later updates.
+    db.runsv2.update_one(
+        {
+            "_id": runId,
+            "timestamp": {"$exists": False}
+        },
+        {
+            "$set": {
+                "timestamp": datetime.now(UTC)
+            }
+        }
+    )
