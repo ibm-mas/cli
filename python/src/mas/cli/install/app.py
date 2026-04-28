@@ -927,16 +927,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
 
             self.printH1("Configure Domain & Certificate Management")
-            
+
             # Check if Permission Mode is essential or nonEssential
             permissionMode = self.getParam("mas_permission_mode")
-            isRestrictedPermissionMode = permissionMode in ["essential", "nonEssential"]   
+            isRestrictedPermissionMode = permissionMode in ["essential", "nonEssential"]
             configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
             if configureDomainAndCertMgmt:
                 configureDomain = self.yesOrNo('Configure custom domain')
                 if configureDomain:
                     self.promptForString("MAS top-level domain", "mas_domain")
-                    
+
                     if not isRestrictedPermissionMode:
                         self.printDescription([
                             "",
