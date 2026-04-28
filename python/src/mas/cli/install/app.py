@@ -927,39 +927,55 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
 
             self.printH1("Configure Domain & Certificate Management")
+            
+            # Check if Permission Mode is essential or nonEssential
+            permissionMode = self.getParam("mas_permission_mode")
+            isRestrictedPermissionMode = permissionMode in ["essential", "nonEssential"]   
             configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
             if configureDomainAndCertMgmt:
                 configureDomain = self.yesOrNo('Configure custom domain')
                 if configureDomain:
                     self.promptForString("MAS top-level domain", "mas_domain")
-                    self.printDescription([
-                        "",
-                        "DNS Integrations:",
-                        "  1. Cloudflare",
-                        "  2. IBM Cloud Internet Services",
-                        "  3. AWS Route 53",
-                        "  4. None (I will set up DNS myself)"
-                    ])
+                    
+                    if not isRestrictedPermissionMode:
+                        self.printDescription([
+                            "",
+                            "DNS Integrations:",
+                            "  1. Cloudflare",
+                            "  2. IBM Cloud Internet Services",
+                            "  3. AWS Route 53",
+                            "  4. None (I will set up DNS myself)"
+                        ])
 
-                    dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
+                        dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
 
-                    if dnsProvider == 1:
-                        self.configDNSAndCertsCloudflare()
-                    elif dnsProvider == 2:
-                        self.configDNSAndCertsCIS()
-                    elif dnsProvider == 3:
-                        self.configDNSAndCertsRoute53()
-                    elif dnsProvider == 4:
-                        # Use MAS default self-signed cluster issuer with a custom domain
+                        if dnsProvider == 1:
+                            self.configDNSAndCertsCloudflare()
+                        elif dnsProvider == 2:
+                            self.configDNSAndCertsCIS()
+                        elif dnsProvider == 3:
+                            self.configDNSAndCertsRoute53()
+                        elif dnsProvider == 4:
+                            # Use MAS default self-signed cluster issuer with a custom domain
+                            self.setParam("dns_provider", "")
+                            self.setParam("mas_cluster_issuer", "")
+
+                        if dnsProvider in [1, 2]:
+                            self.printDescription([
+                                "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
+                                "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                            ])
+                            self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
+                    else:
+                        # For restricted permission modes, disable DNS provider configuration
+                        self.printDescription([
+                            "<b>Important:</b> You are using Permission Mode '<b>" + permissionMode + "</b>'.",
+                            "DNS provider configuration is <b>not supported</b> with this Permission Mode.",
+                            "This is because it requires creating custom public issuers in each application namespace, which would need to be done manually.",
+                            "If you need custom certificates, you can use <b>manual certificate management</b> by providing your own certificates."
+                        ])
                         self.setParam("dns_provider", "")
                         self.setParam("mas_cluster_issuer", "")
-
-                    if dnsProvider in [1, 2]:
-                        self.printDescription([
-                            "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
-                            "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
-                        ])
-                        self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
 
                 else:
                     # Use MAS default self-signed cluster issuer with the default domain
