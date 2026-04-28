@@ -1969,14 +1969,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
                 self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
 
-        self.setSelectedAppsParam()
-
         # Validate Kafka requirements for IoT installation in non-interactive mode
         if self.installIoT:
             kafkaAction = self.getParam("kafka_action_system")
             hasKafkaConfig = kafkaAction in ["install", "byo"]
             if not hasKafkaConfig:
                 self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
+
+        self.setSelectedAppsParam()
 
     @logMethodCall
     def install(self, argv):
