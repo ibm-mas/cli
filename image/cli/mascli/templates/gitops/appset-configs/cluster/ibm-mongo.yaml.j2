@@ -1,23 +1,34 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
 mongo:
-  action: {{ MONGO_ACTION }}
-  major_db_version: {{ MONGO_MAJOR_DB_VERSION }}
-  vpc_id: {{ MONGO_VPC_ID }}
-  subnet_ids:
-  {% for subnet in MONGO_SUBNET_IDS %}
-    - "{{ subnet }}"
-  {% endfor %}
-  project_id: {{ MONGO_PROJECT_ID }}
-  organization_id: {{ MONGO_ORGANIZATION_ID }}
-  instance_size: {{ MONGO_INSTANCE_SIZE }}
-  node_count: {{ MONGO_NODE_COUNT }}
-  shards: {{ MONGO_SHARDS }}
-  backup_enabled: {{ MONGO_BACKUP_ENABLED }}
-  pit_enabled: {{ MONGO_PIT_ENABLED }}
-  helm_repo: {{ MONGO_HELM_REPO }}
-  namespace: {{ MONGO_NAMESPACE }}
-  publicApiKey: "<path:{{ SECRETS_PATH }}:{{ SECRET_MONGODB_ATLAS_PUBLIC_KEY }}>"
-  privateApiKey: "<path:{{ SECRETS_PATH }}:{{ SECRET_MONGODB_ATLAS_PRIVATE_KEY }}>"
-  update_mongo_secret: {{ MONGO_UPDATE_MONGO_SECRET }}
-  atlasURI: {{ MONGO_ATLASURI }}
+  atlas:
+    action: {{ MONGO_ACTION }}
+    major_db_version: {{ MONGO_MAJOR_DB_VERSION }}
+    vpcEndpointId: {{ MONGO_VPC_ID }}
+    subnet_ids:
+    {% for subnet in MONGO_SUBNET_IDS %}
+      - "{{ subnet }}"
+    {% endfor %}
+    project_id: {{ MONGO_PROJECT_ID }}
+    organization_id: {{ MONGO_ORGANIZATION_ID }}
+    instance_size: {{ MONGO_INSTANCE_SIZE }}
+    node_count: {{ MONGO_NODE_COUNT }}
+    shards: {{ MONGO_SHARDS }}
+    backup_enabled: {{ MONGO_BACKUP_ENABLED }}
+    pit_enabled: {{ MONGO_PIT_ENABLED }}
+    helm_repo: {{ MONGO_HELM_REPO }}
+    namespace: {{ MONGO_NAMESPACE }}
+    publicApiKey: "<path:{{ SECRETS_PATH }}:{{ SECRET_MONGODB_ATLAS_PUBLIC_KEY }}>"
+    privateApiKey: "<path:{{ SECRETS_PATH }}:{{ SECRET_MONGODB_ATLAS_PRIVATE_KEY }}>"
+    update_mongo_secret: {{ MONGO_UPDATE_MONGO_SECRET }}
+    atlasURI: {{ MONGO_ATLASURI }}
+    reset_master_password: {{ MONGO_RESET_MASTER_PASSWORD }}
+    auto_scaling:
+      enabled: {{ MONGO_AUTO_SCALING_ENABLED }}
+      compute:
+        enabled: {{ MONGO_COMPUTE_ENABLED }}
+        scale_down_enabled: {{ MONGO_SCALE_DOWN_ENABLED }}
+        min_instance_size: {{ MONGO_MIN_INSTANCE_SIZE }}
+        max_instance_size: {{ MONGO_MAX_INSTANCE_SIZE }}
+      disk_gb:
+        enabled: {{ MONGO_DISK_GB_ENABLED }}

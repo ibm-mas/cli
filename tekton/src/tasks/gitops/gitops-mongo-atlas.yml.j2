@@ -76,6 +76,28 @@ spec:
     - name: mongo_atlasURI
       type: string
       default: "https://cloud.mongodb.com/"
+    # MongoDB Auto-Scaling Configuration
+    - name: mongo_reset_master_password
+      type: string
+      default: "false"
+    - name: mongo_auto_scaling_enabled
+      type: string
+      default: "false"
+    - name: mongo_compute_enabled
+      type: string
+      default: "false"
+    - name: mongo_scale_down_enabled
+      type: string
+      default: "false"
+    - name: mongo_min_instance_size
+      type: string
+      default: ""
+    - name: mongo_max_instance_size
+      type: string
+      default: ""
+    - name: mongo_disk_gb_enabled
+      type: string
+      default: "false"
 
   stepTemplate:
     name: gitops-mongo-atlas
@@ -138,6 +160,21 @@ spec:
         value: $(params.mongo_namespace)
 
       # Secret Management
+      # MongoDB Auto-Scaling Configuration
+      - name: MONGO_RESET_MASTER_PASSWORD
+        value: $(params.mongo_reset_master_password)
+      - name: MONGO_AUTO_SCALING_ENABLED
+        value: $(params.mongo_auto_scaling_enabled)
+      - name: MONGO_COMPUTE_ENABLED
+        value: $(params.mongo_compute_enabled)
+      - name: MONGO_SCALE_DOWN_ENABLED
+        value: $(params.mongo_scale_down_enabled)
+      - name: MONGO_MIN_INSTANCE_SIZE
+        value: $(params.mongo_min_instance_size)
+      - name: MONGO_MAX_INSTANCE_SIZE
+        value: $(params.mongo_max_instance_size)
+      - name: MONGO_DISK_GB_ENABLED
+        value: $(params.mongo_disk_gb_enabled)
       - name: MONGO_UPDATE_MONGO_SECRET
         value: $(params.mongo_update_mongo_secret)
       - name: MONGO_ATLASURI
@@ -181,6 +218,13 @@ spec:
         --mongo-major-db-version $MONGO_MAJOR_DB_VERSION \
         --mongo-vpc-id $MONGO_VPC_ID \
         --mongo-subnet-ids $MONGO_SUBNET_IDS \
+        --mongo-reset-master-password $MONGO_RESET_MASTER_PASSWORD \
+        --mongo-auto-scaling-enabled $MONGO_AUTO_SCALING_ENABLED \
+        --mongo-compute-enabled $MONGO_COMPUTE_ENABLED \
+        --mongo-scale-down-enabled $MONGO_SCALE_DOWN_ENABLED \
+        --mongo-min-instance-size $MONGO_MIN_INSTANCE_SIZE \
+        --mongo-max-instance-size $MONGO_MAX_INSTANCE_SIZE \
+        --mongo-disk-gb-enabled $MONGO_DISK_GB_ENABLED
         --mongo-project-id $MONGO_PROJECT_ID \
         --mongo-organization-id $MONGO_ORGANIZATION_ID \
         --mongo-instance-size $MONGO_INSTANCE_SIZE \

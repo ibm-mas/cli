@@ -50,6 +50,15 @@ MongoDB API Keys (Required):
       --mongo-private-api-key ${COLOR_YELLOW}MONGODB_ATLAS_PRIVATE_KEY${TEXT_RESET}                   MongoDB Atlas Private API Key
 
 Secret Management (Optional):
+      --mongo-reset-master-password ${COLOR_YELLOW}MONGO_RESET_MASTER_PASSWORD${TEXT_RESET}       Reset master password (default: false)
+
+# MongoDB Auto-Scaling Configuration (Optional):
+      --mongo-auto-scaling-enabled ${COLOR_YELLOW}MONGO_AUTO_SCALING_ENABLED${TEXT_RESET}         Enable auto-scaling (default: false)
+      --mongo-compute-enabled ${COLOR_YELLOW}MONGO_COMPUTE_ENABLED${TEXT_RESET}                   Enable compute auto-scaling (default: false)
+      --mongo-scale-down-enabled ${COLOR_YELLOW}MONGO_SCALE_DOWN_ENABLED${TEXT_RESET}             Enable scale down (default: false)
+      --mongo-min-instance-size ${COLOR_YELLOW}MONGO_MIN_INSTANCE_SIZE${TEXT_RESET}               Minimum instance size (e.g., 'M10')
+      --mongo-max-instance-size ${COLOR_YELLOW}MONGO_MAX_INSTANCE_SIZE${TEXT_RESET}               Maximum instance size (e.g., 'M30')
+      --mongo-disk-gb-enabled ${COLOR_YELLOW}MONGO_DISK_GB_ENABLED${TEXT_RESET}                   Enable disk GB auto-scaling (default: false)
       --mongo-update-mongo-secret ${COLOR_YELLOW}MONGO_UPDATE_MONGO_SECRET${TEXT_RESET}           Update MongoDB secret (default: true)
 
 Automatic GitHub Push (Optional):
@@ -74,6 +83,13 @@ function gitops_mongo_atlas_noninteractive() {
   SM_DELIM="/"
 
   export GITHUB_PUSH="false"
+  export MONGO_RESET_MASTER_PASSWORD=${MONGO_RESET_MASTER_PASSWORD:-"false"}
+  export MONGO_AUTO_SCALING_ENABLED=${MONGO_AUTO_SCALING_ENABLED:-"false"}
+  export MONGO_COMPUTE_ENABLED=${MONGO_COMPUTE_ENABLED:-"false"}
+  export MONGO_SCALE_DOWN_ENABLED=${MONGO_SCALE_DOWN_ENABLED:-"false"}
+  export MONGO_MIN_INSTANCE_SIZE=${MONGO_MIN_INSTANCE_SIZE:-""}
+  export MONGO_MAX_INSTANCE_SIZE=${MONGO_MAX_INSTANCE_SIZE:-""}
+  export MONGO_DISK_GB_ENABLED=${MONGO_DISK_GB_ENABLED:-"false"}
   export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-mongo-atlas commit"}
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
@@ -176,6 +192,29 @@ function gitops_mongo_atlas_noninteractive() {
 
       # MongoDB API Keys
       --mongo-public-api-key)
+      --mongo-reset-master-password)
+        export MONGO_RESET_MASTER_PASSWORD=$1 && shift
+        ;;
+
+      # MongoDB Auto-Scaling Configuration
+      --mongo-auto-scaling-enabled)
+        export MONGO_AUTO_SCALING_ENABLED=$1 && shift
+        ;;
+      --mongo-compute-enabled)
+        export MONGO_COMPUTE_ENABLED=$1 && shift
+        ;;
+      --mongo-scale-down-enabled)
+        export MONGO_SCALE_DOWN_ENABLED=$1 && shift
+        ;;
+      --mongo-min-instance-size)
+        export MONGO_MIN_INSTANCE_SIZE=$1 && shift
+        ;;
+      --mongo-max-instance-size)
+        export MONGO_MAX_INSTANCE_SIZE=$1 && shift
+        ;;
+      --mongo-disk-gb-enabled)
+        export MONGO_DISK_GB_ENABLED=$1 && shift
+        ;;
         export MONGODB_ATLAS_PUBLIC_KEY=$1 && shift
         ;;
       --mongo-private-api-key)
@@ -313,6 +352,16 @@ function gitops_mongo_atlas() {
   echo_reset_dim "Subnet IDs ......................... ${COLOR_MAGENTA}${MONGO_SUBNET_IDS}"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "MongoDB Auto-Scaling Configuration" "    "
+  echo_reset_dim "Reset Master Password .............. ${COLOR_MAGENTA}${MONGO_RESET_MASTER_PASSWORD}"
+  echo_reset_dim "Auto-Scaling Enabled ............... ${COLOR_MAGENTA}${MONGO_AUTO_SCALING_ENABLED}"
+  echo_reset_dim "Compute Enabled .................... ${COLOR_MAGENTA}${MONGO_COMPUTE_ENABLED}"
+  echo_reset_dim "Scale Down Enabled ................. ${COLOR_MAGENTA}${MONGO_SCALE_DOWN_ENABLED}"
+  echo_reset_dim "Min Instance Size .................. ${COLOR_MAGENTA}${MONGO_MIN_INSTANCE_SIZE}"
+  echo_reset_dim "Max Instance Size .................. ${COLOR_MAGENTA}${MONGO_MAX_INSTANCE_SIZE}"
+  echo_reset_dim "Disk GB Enabled .................... ${COLOR_MAGENTA}${MONGO_DISK_GB_ENABLED}"
+  reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "MongoDB Atlas Details" "    "
   echo_reset_dim "Project ID ......................... ${COLOR_MAGENTA}${MONGO_PROJECT_ID}"
