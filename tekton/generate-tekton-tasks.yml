@@ -38,7 +38,6 @@
         - mongodb
         - nvidia-gpu
         - ocs
-        - redis
         - rhoai-migration
         - sls-registry-update
         - sls
@@ -56,6 +55,7 @@
         - odh
         - rhoai
         - aiservice-upgrade
+        - aiservice-migration
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------

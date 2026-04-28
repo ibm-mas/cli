@@ -180,11 +180,6 @@ class installArgBuilderMixin():
         if self.getParam('mongodb_namespace') != "":
             command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
 
-        # Redis Configuration
-        # -----------------------------------------------------------------------------
-        if self.getParam('redis_namespace') != "":
-            command += f"  --redis-namespace \"{self.getParam('redis_namespace')}\"{newline}"
-
         # OCP Configuration
         # -----------------------------------------------------------------------------
         if self.getParam('ocp_ingress_tls_secret_name') != "":
@@ -583,6 +578,11 @@ class installArgBuilderMixin():
             command += f"  --approval-facilities \"{self.getParam('approval_facilities')}\"{newline}"
         if self.getParam('approval_aiservice') != "":
             command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
+
+        # Slack
+        # -----------------------------------------------------------------------------
+        if self.getParam('slack_channel') != "" and self.getParam('slack_token'):
+            command += f"  --slack-channel \"{self.getParam('slack_channel')}\"  --slack-token $SLACK_TOKEN{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------
