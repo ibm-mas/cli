@@ -45,6 +45,8 @@ rules:
     resources:
       - configmaps
     verbs:
+      - get
+      - create
       - delete
 
   # MAS install creates Pipelines, Tasks, and PipelineRuns
