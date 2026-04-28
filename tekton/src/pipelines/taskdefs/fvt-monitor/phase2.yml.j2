@@ -18,7 +18,7 @@
   when:
     - input: "$(params.fvt_test_suite)"
       operator: in
-      values: ["fvt_9x"]
+      values: ["fvt_9x", "fvt_91x"]
   runAfter:
     - fvt-monitor-only
 
@@ -32,7 +32,7 @@
   when:
     - input: "$(params.fvt_test_suite)"
       operator: in
-      values: ["fvt_mref"]
+      values: ["fvt_mref", "fvt_9x", "fvt_91x"]
   runAfter:
     - fvt-monitor-only
 
@@ -46,7 +46,7 @@
   when:
     - input: "$(params.fvt_test_suite)"
       operator: in
-      values: ["fvt_iot"]
+      values: ["fvt_iot", "fvt_9x"]
   runAfter:
     - fvt-monitor-only
 
@@ -60,7 +60,7 @@
   when:
     - input: "$(params.fvt_test_suite)"
       operator: in
-      values: ["fvt_scada"]
+      values: ["fvt_scada", "fvt_9x", "fvt_91x"]
   runAfter:
     - fvt-monitor-only
 
@@ -74,6 +74,6 @@
   when:
     - input: "$(params.fvt_test_suite)"
       operator: in
-      values: ["fvt_mist"]
+      values: ["fvt_mist", "fvt_9x"]
   runAfter:
     - fvt-monitor-only
