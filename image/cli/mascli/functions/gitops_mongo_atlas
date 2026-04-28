@@ -189,9 +189,6 @@ function gitops_mongo_atlas_noninteractive() {
       --mongo-atlasURI)
         export MONGO_ATLASURI=$1 && shift
         ;;
-
-      # MongoDB API Keys
-      --mongo-public-api-key)
       --mongo-reset-master-password)
         export MONGO_RESET_MASTER_PASSWORD=$1 && shift
         ;;
@@ -215,6 +212,8 @@ function gitops_mongo_atlas_noninteractive() {
       --mongo-disk-gb-enabled)
         export MONGO_DISK_GB_ENABLED=$1 && shift
         ;;
+      # MongoDB API Keys
+      --mongo-public-api-key)        
         export MONGODB_ATLAS_PUBLIC_KEY=$1 && shift
         ;;
       --mongo-private-api-key)
