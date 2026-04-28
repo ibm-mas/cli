@@ -8,4 +8,6 @@
 #
 # *****************************************************************************
 
+from .cli import BaseApp  # noqa: F401
+
 __version__ = "100.0.0"  # Python module compatible semver

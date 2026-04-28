@@ -591,6 +591,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCATrust()
         self.configDNSAndCerts()
         self.configRoutingMode()
+        self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
         self.configReportAdoptionMetricsFlag()
@@ -837,6 +838,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             return False
 
     @logMethodCall
+    def configServiceMesh(self) -> None:
+        if self.showAdvancedOptions:
+            self.printH1("Configure Service Mesh")
+            self.printDescription([
+                "By default, Maximo Application Suite does not use Service Mesh for routing."
+            ])
+            self.yesOrNo("Use Service Mesh", "mas_use_service_mesh")
+        else:
+            self.setParam("mas_use_service_mesh", "false")
+
+    @logMethodCall
     def configAnnotations(self):
         if self.operationalMode == 2:
             self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
@@ -846,11 +858,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.isSNO():
             self.setParam("mongodb_replicas", "1")
             self.setParam("mongodb_cpu_requests", "500m")
-            self.setParam("redis_replicas", "1")
             self.setParam("mas_app_settings_aio_flag", "false")
-        else:
-            # Multi-node cluster: use 3 replicas for Redis HA
-            self.setParam("redis_replicas", "3")
 
     @logMethodCall
     def configDNSAndCerts(self):
@@ -1634,6 +1642,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mongodb_action", "byo")
                     self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
 
+                # If there is a file named kafka-<instance>-system.yaml we will use this as a BYO Kafka datasource
+                if self.localConfigDir is not None:
+                    instanceId = self.getParam("mas_instance_id")
+                    if instanceId is not None and instanceId != "":
+                        kafkaConfigFile = path.join(self.localConfigDir, f"kafka-{instanceId}-system.yaml")
+                        if path.exists(kafkaConfigFile):
+                            self.setParam("kafka_action_system", "byo")
+
             elif key == "pod_templates":
                 # For the named configurations we will convert into the path
                 if value in ["best-effort", "guaranteed"]:
@@ -1722,12 +1738,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.setParam(key, value)
                     self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
-            # Redis
-            elif key == "redis_namespace":
-                if value is not None and value != "":
-                    self.setParam(key, value)
-                    self.setParam("redis_action", "install")
-                    self.setParam("redis_cfg_file", f"/workspace/configs/redis-{value}.yml")
 
             # SLS
             elif key == "license_file":
@@ -1880,14 +1890,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if ((self.getParam("mas_app_channel_predict") is not None and self.getParam("mas_app_channel_predict") != "") and 'health' not in self.getParam("mas_appws_components")):
             self.fatalError("--manage-components must include 'health' component when installing Predict")
 
-        # Configure Redis if Collaborate addon is enabled
-        if self.installManage and "collaborate=" in self.getParam("mas_appws_components"):
-            logger.debug("Collaborate addon detected in mas_appws_components, configuring Redis")
-            self.setParam("redis_action", "install")
-            if self.getParam("redis_namespace") == "":
-                self.setParam("redis_namespace", "redis")
-            self.setParam("redis_cfg_file", f"/workspace/configs/redis-{self.getParam('redis_namespace')}.yml")
-
         # Validate ArcGIS installation requirements in non-interactive mode
         if self.installArcgis:
             hasSpatial = self.installManage and "spatial=" in self.getParam("mas_appws_components")
@@ -1901,6 +1903,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             arcgis_channel = self.getParam("mas_arcgis_channel")
             if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
                 self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
+
+        # Validate Kafka requirements for IoT installation in non-interactive mode
+        if self.installIoT:
+            kafkaAction = self.getParam("kafka_action_system")
+            hasKafkaConfig = kafkaAction in ["install", "byo"]
+            if not hasKafkaConfig:
+                self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
 
     @logMethodCall
     def install(self, argv):
@@ -2138,7 +2147,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
-                    certs=self.certsSecret
+                    certs=self.certsSecret,
+                    slack_token=self.getParam("slack_token"),
+                    slack_channel=self.getParam("slack_channel")
                 )
 
                 self.setupApprovals(pipelinesNamespace)

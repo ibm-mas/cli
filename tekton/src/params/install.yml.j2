@@ -90,21 +90,6 @@
   type: string
   description: IBM Cloud MongoDb admin password
   default: ""
-# Dependencies - Redis
-# -----------------------------------------------------------------------------
-- name: redis_namespace
-  type: string
-  description: Redis namespace
-  default: ""
-- name: redis_replicas
-  type: string
-  description: Redis replicas
-  default: ""
-- name: redis_action
-  type: string
-  description: Redis action
-  default: ""
-
 
 # Dependencies (Kafka) - General variables
 - name: kafka_action_system
@@ -464,6 +449,9 @@
   type: string
   default: ""
 - name: mas_routing_mode
+  type: string
+  default: ""
+- name: mas_use_service_mesh
   type: string
   default: ""
 - name: mas_ingress_controller_name

@@ -15,6 +15,8 @@ PACKAGE_CONFIGS = [
     ("Optional Dependencies", "amlen", "amlen", "amlen_extras_version"),
 
     ("Optional Dependencies", "aiservice", "ibm-aiservice", "aiservice_version"),
+    ("Optional Dependencies", "aiservice", "ibm-aiservice-tenant", "aiservice_version"),
+
     ("Optional Dependencies", "data-dictionary", "ibm-data-dictionary", "dd_version"),
 
     ("Optional Dependencies", "db2u-s11", "ibm-db2uoperator-s11", "db2u_version"),
@@ -24,6 +26,7 @@ PACKAGE_CONFIGS = [
 
     ("Maximo Application Suite", "core", "ibm-mas", "mas_core_version"),
     ("Maximo Application Suite", "assist", "ibm-mas-assist", "mas_assist_version"),
+    ("Maximo Application Suite", "assist", "ibm-couchdb", "couchdb_version"),
     ("Maximo Application Suite", "iot", "ibm-mas-iot", "mas_iot_version"),
     ("Maximo Application Suite", "facilities", "ibm-mas-facilities", "mas_facilities_version"),
     ("Maximo Application Suite", "manage", "ibm-mas-manage", "mas_manage_version"),
