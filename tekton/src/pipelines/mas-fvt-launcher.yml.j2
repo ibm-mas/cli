@@ -456,6 +456,8 @@ spec:
       runAfter:
         - approval-monitor-before-iot
 
+    # Launch IoT FVT (Monitor < 9.2.0 - after IoT)
+    # For pre-9.2 installations, IoT installs before Monitor and can run independently
     - name: launchfvt-iot
       timeout: "0"
       params:
@@ -470,8 +472,32 @@ spec:
         - input: $(params.launchfvt_iot)
           operator: in
           values: ["true", "True"]
+        - input: $(params.mas_monitor_install_order)
+          operator: in
+          values: ["after-iot"]
       runAfter:
         - waitfor-iot
+
+    # Launch IoT FVT (Monitor >= 9.2.0 - before IoT)
+    # For post-9.2 installations, IoT installs after Monitor, so wait for Monitor approval first
+    - name: launchfvt-iot-after-monitor
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-iot"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-iot
+      when:
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.mas_monitor_install_order)
+          operator: in
+          values: ["before-iot"]
+      runAfter:
         - waitfor-iot-after-monitor
 
     - name: approval-iot
@@ -490,14 +516,11 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
-        - input: $(params.launchfvt_iot)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.mas_monitor_install_order)
           operator: in
           values: ["after-iot"]
       runAfter:
-        - launchfvt-iot
+        - waitfor-iot
 
     # Approve IoT (before-iot scenario) - only after both Monitor and IoT FVT complete
     # For Monitor >= 9.2.0: IoT installs after Monitor, so approval happens after both FVTs
@@ -517,15 +540,11 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
-        - input: $(params.launchfvt_iot)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.mas_monitor_install_order)
           operator: in
           values: ["before-iot"]
       runAfter:
-        - launchfvt-iot
-        - launchfvt-monitor-before-iot
+        - waitfor-iot-after-monitor
 
 
     # 5. Application FVT - Manage
@@ -874,14 +893,11 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
-        - input: $(params.launchfvt_monitor)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.mas_monitor_install_order)
           operator: in
           values: ["after-iot"]
       runAfter:
-        - launchfvt-monitor
+        - waitfor-monitor
 
     # Approve Monitor for Monitor >= 9.2.0 (before-iot scenario)
     # This runs immediately after Monitor installation completes, allowing IoT to start
@@ -899,9 +915,6 @@ spec:
           value: approved
       when:
         - input: $(params.sync_with_install)
-          operator: in
-          values: ["true", "True"]
-        - input: $(params.launchfvt_monitor)
           operator: in
           values: ["true", "True"]
         - input: $(params.mas_monitor_install_order)
