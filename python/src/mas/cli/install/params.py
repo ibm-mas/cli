@@ -217,8 +217,10 @@ optionalParams = [
 
     # Certificate Issuer
     "aiservice_certificate_issuer",
-    
+
     "aiservice_install_plan_approval",
+
+   
 
     # Grafana
     "skip_grafana_install",
