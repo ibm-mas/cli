@@ -663,26 +663,26 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if self.showAdvancedOptions:
                 self.printH1("Configure Permission Mode")
                 self.printDescription([
-                    "Choose how MAS should be installed with respect to cluster-wide permissions:",
+                    "Choose how MAS should be installed with respect to permissions:",
                     "",
                     "  1. <b>cluster</b> - Install with ClusterRoles (default)",
-                    "     - Keeps the current default MAS behavior",
-                    "     - ClusterRoles are applied by automation instead of operators",
-                    "     - Full application lifecycle management remains available",
+                    "     - MAS admins can create, update, and remove applications across the cluster",
+                    "     - Cluster-scoped RBAC is installed for full MAS-managed application lifecycle",
+                    "     - Best when cluster-wide delegated permissions are allowed",
                     "",
-                    "  2. <b>nonEssential</b> - Install without ClusterRoles",
-                    "     - Uses namespace-scoped roles for non-essential access",
-                    "     - Application lifecycle management works only in pre-created namespaces",
-                    "     - OpenShift admin must pre-create app namespaces as needed",
+                    "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
+                    "     - No ClusterRoles are installed in this mode",
+                    "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
+                    "     - Use this when cluster-wide permissions are not allowed but delegated app management is still needed",
                     "",
-                    "  3. <b>essential</b> - Install with essential Roles only",
-                    "     - Only essential permissions are available",
-                    "     - MAS Admin UI/API cannot manage application lifecycle",
-                    "     - OpenShift admin must manage apps outside MAS automation"
+                    "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
+                    "     - No ClusterRoles are installed in this mode",
+                    "     - Only essential permissions required for the core platform are applied",
+                    "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS"
                 ])
 
                 permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
-                permissionModeMap = {1: "cluster", 2: "nonEssential", 3: "essential"}
+                permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
                 self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
             elif self.getParam("mas_permission_mode") == "":
                 self.setParam("mas_permission_mode", "cluster")
