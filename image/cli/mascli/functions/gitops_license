@@ -10,16 +10,18 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Basic Configuration:
-  -a, --account_id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                        Account name that the cluster belongs to
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                        Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                        Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}              IBM Suite Maximo Application Suite Instance ID
       --license-file ${COLOR_YELLOW}LICENSE_FILE${TEXT_RESET}                    Path to IBM SLS License File
+      --sls-license-file ${COLOR_YELLOW}SLS_LICENSE_FILE${TEXT_RESET}            Path to IBM SLS License File (alternative)
 
 Standalone License Server Configuration
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                        Account name that the cluster belongs to
   -i, --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}                      IBM Customer Number
   -s, --saas-subscription-id  ${COLOR_YELLOW}ICN${TEXT_RESET}                    SaaS subscription id
       --license-file ${COLOR_YELLOW}LICENSE_FILE${TEXT_RESET}                    Path to IBM SLS License File
+      --sls-license-file ${COLOR_YELLOW}SLS_LICENSE_FILE${TEXT_RESET}            Path to IBM SLS License File (alternative)
 
 AWS Secrets Manager Configuration:
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -63,6 +65,9 @@ function gitops_license_noninteractive() {
       --license-file)
         export LICENSE_FILE=$1 && shift
         ;;
+      --sls-license-file)
+        export SLS_LICENSE_FILE=$1 && shift
+        ;;
 
       # AWS Secrets Manager Configuration:
       --sm-aws-secret-region)
@@ -88,8 +93,11 @@ function gitops_license_noninteractive() {
       esac
   done
 
+  # Set LICENSE_FILE from SLS_LICENSE_FILE if LICENSE_FILE is not set
+  [[ -z "$LICENSE_FILE" && -n "$SLS_LICENSE_FILE" ]] && export LICENSE_FILE="$SLS_LICENSE_FILE"
+  
   [[ -z "$ACCOUNT_ID" ]] && gitops_license_help "ACCOUNT_ID is not set"
-  [[ -z "$LICENSE_FILE" ]] && gitops_license_help "LICENSE_FILE is not set"
+  [[ -z "$LICENSE_FILE" ]] && gitops_license_help "LICENSE_FILE or SLS_LICENSE_FILE is not set"
   ( [[ ! -z "$SAAS_SUB_ID" ]] && [[ -z "$ICN" ]] ) && gitops_license_help "ICN is not set"
 
 }
