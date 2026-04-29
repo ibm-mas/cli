@@ -16,11 +16,18 @@
     - name: fvt_test_suite
       value: fvt_9x
   when:
+    - input: "$(params.launchfvt_monitor)"
+      operator: in
+      values: ["true", "True"]
     - input: "$(params.fvt_test_suite)"
       operator: in
       values: ["fvt_9x", "fvt_91x"]
+    - input: "$(params.mas_monitor_install_order)"
+      operator: in
+      values: ["before-iot"]
   runAfter:
     - fvt-monitor-only
+    - waitfor-iot-after-monitor
 
 # Monitor FVT - Bootstrap & Integration Setup (runs in PARALLEL after IoT installation)
 - name: fvt-mref
@@ -30,11 +37,18 @@
     - name: fvt_test_suite
       value: fvt_mref
   when:
+    - input: "$(params.launchfvt_monitor)"
+      operator: in
+      values: ["true", "True"]
     - input: "$(params.fvt_test_suite)"
       operator: in
       values: ["fvt_mref", "fvt_9x", "fvt_91x"]
+    - input: "$(params.mas_monitor_install_order)"
+      operator: in
+      values: ["before-iot"]
   runAfter:
     - fvt-monitor-only
+    - waitfor-iot-after-monitor
 
 # Monitor FVT - IoT Integration Tests (runs in PARALLEL after IoT installation)
 - name: fvt-iot
@@ -44,11 +58,18 @@
     - name: fvt_test_suite
       value: fvt_iot
   when:
+    - input: "$(params.launchfvt_monitor)"
+      operator: in
+      values: ["true", "True"]
     - input: "$(params.fvt_test_suite)"
       operator: in
       values: ["fvt_iot", "fvt_9x"]
+    - input: "$(params.mas_monitor_install_order)"
+      operator: in
+      values: ["before-iot"]
   runAfter:
     - fvt-monitor-only
+    - waitfor-iot-after-monitor
 
 # Monitor FVT - SCADA Connector Tests (runs in PARALLEL after IoT installation)
 - name: fvt-scada
@@ -58,11 +79,18 @@
     - name: fvt_test_suite
       value: fvt_scada
   when:
+    - input: "$(params.launchfvt_monitor)"
+      operator: in
+      values: ["true", "True"]
     - input: "$(params.fvt_test_suite)"
       operator: in
       values: ["fvt_scada", "fvt_9x", "fvt_91x"]
+    - input: "$(params.mas_monitor_install_order)"
+      operator: in
+      values: ["before-iot"]
   runAfter:
     - fvt-monitor-only
+    - waitfor-iot-after-monitor
 
 # Monitor FVT - MIST Integration Tests (runs in PARALLEL after IoT installation)
 - name: fvt-mist
@@ -72,8 +100,15 @@
     - name: fvt_test_suite
       value: fvt_mist
   when:
+    - input: "$(params.launchfvt_monitor)"
+      operator: in
+      values: ["true", "True"]
     - input: "$(params.fvt_test_suite)"
       operator: in
       values: ["fvt_mist", "fvt_9x"]
+    - input: "$(params.mas_monitor_install_order)"
+      operator: in
+      values: ["before-iot"]
   runAfter:
     - fvt-monitor-only
+    - waitfor-iot-after-monitor

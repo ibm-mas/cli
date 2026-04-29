@@ -11,8 +11,11 @@
     - name: fvt_test_suite
       value: fvt_monitor_only
   when:
-    - input: "$(params.fvt_test_suite)"
+    - input: "$(params.launchfvt_monitor)"
       operator: in
-      values: ["fvt_monitor_only", "fvt_9x", "fvt_mref", "fvt_iot", "fvt_scada", "fvt_mist"]
+      values: ["true", "True"]
+    - input: "$(params.mas_monitor_install_order)"
+      operator: in
+      values: ["before-iot"]
   runAfter:
-    - ivtcore-monitor
+    - waitfor-monitor-before-iot
