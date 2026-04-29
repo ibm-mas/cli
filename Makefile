@@ -241,7 +241,7 @@ run: ## Run the CLI container image locally
 clean: ## Remove built artifacts
 	rm image/cli/install/ibm-mas_devops.tar.gz
 	rm image/cli/bin/templates/ibm-mas-tekton.yaml
-  rm -rf image/cli/rbac
+	rm -rf image/cli/rbac
 
 # ==============================================================================
 # OpenShift Pod Management Targets
