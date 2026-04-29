@@ -20,7 +20,7 @@ metadata:
     mas.ibm.com/configId: ai-system
 spec:
   displayName: "{{ cfg_display_name }}"
-  config:
+  aiService:
     enabled: {{ ai_enabled | lower }}
     url: "{{ ai_url }}"
     tenantId: "{{ ai_tenant_id }}"
