@@ -95,6 +95,22 @@ spec:
     - name: mongo_max_instance_size
       type: string
       default: ""
+    # MongoDB Cross-Region Backup Configuration
+    - name: mongo_cross_region_backup_enabled
+      type: string
+      default: "false"
+    - name: mongo_cross_region_backup_region
+      type: string
+      default: ""
+    - name: mongo_cross_region_restore_window_days
+      type: string
+      default: "7"
+    - name: mongo_backup_copy_frequencies
+      type: string
+      default: ""
+    - name: mongo_backup_policy_items
+      type: string
+      default: ""
     - name: mongo_disk_gb_enabled
       type: string
       default: "false"
@@ -173,6 +189,17 @@ spec:
         value: $(params.mongo_min_instance_size)
       - name: MONGO_MAX_INSTANCE_SIZE
         value: $(params.mongo_max_instance_size)
+      # MongoDB Cross-Region Backup Configuration
+      - name: MONGO_CROSS_REGION_BACKUP_ENABLED
+        value: $(params.mongo_cross_region_backup_enabled)
+      - name: MONGO_CROSS_REGION_BACKUP_REGION
+        value: $(params.mongo_cross_region_backup_region)
+      - name: MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS
+        value: $(params.mongo_cross_region_restore_window_days)
+      - name: MONGO_BACKUP_COPY_FREQUENCIES
+        value: $(params.mongo_backup_copy_frequencies)
+      - name: MONGO_BACKUP_POLICY_ITEMS
+        value: $(params.mongo_backup_policy_items)
       - name: MONGO_DISK_GB_ENABLED
         value: $(params.mongo_disk_gb_enabled)
       - name: MONGO_UPDATE_MONGO_SECRET
@@ -226,6 +253,11 @@ spec:
         --mongo-max-instance-size $MONGO_MAX_INSTANCE_SIZE \
         --mongo-disk-gb-enabled $MONGO_DISK_GB_ENABLED
         --mongo-project-id $MONGO_PROJECT_ID \
+        --mongo-cross-region-backup-enabled $MONGO_CROSS_REGION_BACKUP_ENABLED \
+        --mongo-cross-region-backup-region $MONGO_CROSS_REGION_BACKUP_REGION \
+        --mongo-cross-region-restore-window-days $MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS \
+        --mongo-backup-copy-frequencies $MONGO_BACKUP_COPY_FREQUENCIES \
+        --mongo-backup-policy-items $MONGO_BACKUP_POLICY_ITEMS
         --mongo-organization-id $MONGO_ORGANIZATION_ID \
         --mongo-instance-size $MONGO_INSTANCE_SIZE \
         --mongo-node-count $MONGO_NODE_COUNT \

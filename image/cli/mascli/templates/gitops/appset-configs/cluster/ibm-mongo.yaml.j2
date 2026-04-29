@@ -23,6 +23,7 @@ mongo:
     update_mongo_secret: {{ MONGO_UPDATE_MONGO_SECRET }}
     atlasURI: {{ MONGO_ATLASURI }}
     reset_master_password: {{ MONGO_RESET_MASTER_PASSWORD }}
+    {% if MONGO_AUTO_SCALING_ENABLED == "true" %}
     auto_scaling:
       enabled: {{ MONGO_AUTO_SCALING_ENABLED }}
       compute:
@@ -32,3 +33,21 @@ mongo:
         max_instance_size: {{ MONGO_MAX_INSTANCE_SIZE }}
       disk_gb:
         enabled: {{ MONGO_DISK_GB_ENABLED }}
+    {% endif %}
+    {% if MONGO_CROSS_REGION_BACKUP_ENABLED == "true" %}
+    cross_region_copy_backup:
+      enabled: {{ MONGO_CROSS_REGION_BACKUP_ENABLED }}
+      region: {{ MONGO_CROSS_REGION_BACKUP_REGION }}
+      restoreWindowDays: {{ MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS }}
+      backup_copy_frequencies:
+      {% for frequency in MONGO_BACKUP_COPY_FREQUENCIES %}
+        - {{ frequency }}
+      {% endfor %}
+      backup_policy_items:
+      {% for policy in MONGO_BACKUP_POLICY_ITEMS %}
+        - frequencyType: {{ policy.frequencyType }}
+          frequencyInterval: {{ policy.frequencyInterval }}
+          retentionUnit: {{ policy.retentionUnit }}
+          retentionValue: {{ policy.retentionValue }}
+      {% endfor %}
+    {% endif %}
