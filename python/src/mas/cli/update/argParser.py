@@ -125,6 +125,12 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
+    '--db2-license-file',
+    required=False,
+    help="Path to a valid Db2 v12 activation license file required for Db2 v11 to v12 upgrades",
+)
+
+depsArgGroup.add_argument(
     '--mongodb-namespace',
     required=False,
     help="Namespace where MongoCE operator and instances will be updated",

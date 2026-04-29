@@ -24,13 +24,14 @@ from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.aiservice import listAiServiceInstances
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSlackSecrets
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSlackSecrets, prepareInstallSecrets
+from ..install.settings import AdditionalConfigsMixin
 
 
 logger = logging.getLogger(__name__)
 
 
-class UpdateApp(BaseApp):
+class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
     def update(self, argv):
         """
@@ -39,6 +40,7 @@ class UpdateApp(BaseApp):
         self.args = updateArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
         self.devMode = self.args.dev_mode
+        self.db2LicenseFileLocal = None
 
         if self.args.mas_catalog_version:
             # Non-interactive mode
@@ -83,6 +85,11 @@ class UpdateApp(BaseApp):
                 # Arguments that we don't need to do anything with
                 elif key in ["no_confirm", "help"]:
                     pass
+
+                # Db2 License file has special handling
+                elif key == "db2_license_file":
+                    if value is not None and value != "":
+                        self.db2LicenseFileLocal = value
 
                 # Fail if there's any arguments we don't know how to handle
                 else:
@@ -190,6 +197,9 @@ class UpdateApp(BaseApp):
             continueWithUpdate = self.yesOrNo("Proceed with these settings")
         # Prepare the namespace and launch the installation pipeline
         if self.noConfirm or continueWithUpdate:
+            # Db2 workspace in update pipeline
+            self.db2LicenseFile()
+
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Update")
@@ -205,6 +215,11 @@ class UpdateApp(BaseApp):
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 preparePipelinesNamespace(dynClient=self.dynamicClient)
+                prepareInstallSecrets(
+                    dynClient=self.dynamicClient,
+                    namespace=pipelinesNamespace,
+                    db2LicenseFile=self.db2LicenseFileSecret,
+                )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             # Create slack secret if slack token and channel are provided
@@ -750,6 +765,20 @@ class UpdateApp(BaseApp):
                                             print()
                                         else:
                                             h.stop_and_persist(symbol=self.successIcon, text=f"Db2 will be updated from {minMajorVersion} to {targetMajorVersion}")
+
+                                        # Db2 v11 to v12 upgrades require a customer-provided Db2 v12 license file.
+                                        # Enforce this here so the update is blocked before the Tekton pipeline is launched.
+                                        if minMajorVersion == 11 and targetMajorVersion == 12:
+                                            # In non-interactive mode we must fail fast because there is no safe way to recover.
+                                            if self.noConfirm and self.db2LicenseFileLocal is None:
+                                                self.fatalError("The Db2 v11 to v12 upgrade cannot proceed without a valid '--db2-license-file' argument when using '--no-confirm'")
+                                            elif self.db2LicenseFileLocal is None:
+                                                # In interactive mode, prompt for a valid license file before allowing the upgrade to continue.
+                                                self.printDescription([
+                                                    "Db2 v11 to v12 upgrades require a valid Db2 v12 activation license file.",
+                                                    "If you cannot provide a valid file, the update must be aborted."
+                                                ])
+                                                self.db2LicenseFileLocal = self.promptForFile("Path to a valid Db2 v12 license file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
 
                                         # Set db2_channel when upgrade is confirmed (either via flag or user prompt)
                                         self.setParam("db2_channel", targetDb2uVersion)

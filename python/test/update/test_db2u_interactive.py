@@ -141,6 +141,10 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
     - Update proceeds successfully
     """
 
+    valid_license_file = os.path.join(str(tmpdir), "db2-license.lic")
+    with open(valid_license_file, "w") as handle:
+        handle.write("db2-license")
+
     prompt_handlers = {
         # Proceed with current cluster
         '.*Proceed with this cluster.*': lambda msg: 'y',
@@ -148,6 +152,8 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
         '.*Select catalog version.*': lambda msg: '1',
         # Db2 version upgrade confirmation - match the exact format
         '.*Confirm update from Db2 11 to 12.*': lambda msg: 'y',
+        # License prompt
+        '.*Path to a valid Db2 v12 license file.*': lambda msg: valid_license_file,
         # Final confirmation
         '.*Proceed with these settings.*': lambda msg: 'y',
     }
@@ -205,6 +211,47 @@ def test_db2u_major_version_upgrade_rejected(tmpdir, resource_kind):
         }],
         expect_system_exit=True,
         expected_exit_code=1,
+        timeout_seconds=60
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_major_version_upgrade_aborted_when_license_file_rejected(tmpdir, resource_kind):
+    """Test interactive Db2 v11 to v12 upgrade aborts when an invalid license file path is provided.
+
+    Expected behavior:
+    - User confirms the major version upgrade
+    - User provides a path to a non-existent license file (mustExist=False, so prompt accepts it)
+    - User confirms the final settings
+    - db2LicenseFile() attempts to open the file and raises FileNotFoundError
+    - Update is aborted with an unhandled exception
+    """
+
+    invalid_license_file = os.path.join(str(tmpdir), "missing-db2-license.lic")
+
+    prompt_handlers = {
+        '.*Proceed with this cluster.*': lambda msg: 'y',
+        '.*Select catalog version.*': lambda msg: '1',
+        '.*Confirm update from Db2 11 to 12.*': lambda msg: 'y',
+        '.*Path to a valid Db2 v12 license file.*': lambda msg: invalid_license_file,
+        '.*Proceed with these settings.*': lambda msg: 'y',
+    }
+
+    config = UpdateTestConfig(
+        prompt_handlers=prompt_handlers,
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",
+        db2u_target_version="v12.0",
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        expect_exception=FileNotFoundError,
         timeout_seconds=60
     )
 

@@ -45,6 +45,7 @@ class UpdateTestConfig:
         timeout_seconds: int = 30,
         expect_system_exit: bool = False,
         expected_exit_code: Optional[int] = None,
+        expect_exception: Optional[type] = None,
         argv: Optional[list] = None
     ):
         """
@@ -71,6 +72,7 @@ class UpdateTestConfig:
             timeout_seconds: Timeout for watchdog (default 30s)
             expect_system_exit: Whether to expect SystemExit to be raised
             expected_exit_code: Expected exit code if SystemExit is raised
+            expect_exception: Expect a specific exception type to be raised (e.g. FileNotFoundError)
             argv: Command line arguments to pass to app.update() (default: [])
         """
         self.prompt_handlers = prompt_handlers
@@ -93,6 +95,7 @@ class UpdateTestConfig:
         self.timeout_seconds = timeout_seconds
         self.expect_system_exit = expect_system_exit
         self.expected_exit_code = expected_exit_code
+        self.expect_exception = expect_exception
         self.argv = argv if argv is not None else []
 
 
@@ -461,6 +464,7 @@ class UpdateTestHelper:
                     ('install_pipelines', mock.patch('mas.cli.update.app.installOpenShiftPipelines')),
                     ('create_namespace', mock.patch('mas.cli.update.app.createNamespace')),
                     ('prepare_pipelines_namespace', mock.patch('mas.cli.update.app.preparePipelinesNamespace')),
+                    ('prepare_install_secrets', mock.patch('mas.cli.update.app.prepareInstallSecrets')),
                     ('update_tekton_definitions', mock.patch('mas.cli.update.app.updateTektonDefinitions')),
                     ('launch_update_pipeline', mock.patch('mas.cli.update.app.launchUpdatePipeline')),
                     ('mixins_prompt', mock.patch('mas.cli.displayMixins.prompt')),
@@ -520,6 +524,8 @@ class UpdateTestHelper:
                 # Setup prompt handler
                 self.setup_prompt_handler(mocks['mixins_prompt'], prompt_session_instance)
 
+                exception_raised = None
+
                 try:
                     self.app = UpdateApp()
                     self.app.update(argv=self.config.argv)
@@ -528,12 +534,20 @@ class UpdateTestHelper:
                     exit_code = e.code
                     if not self.config.expect_system_exit:
                         raise
+                except Exception as e:
+                    exception_raised = e
+                    if self.config.expect_exception is None or not isinstance(e, self.config.expect_exception):
+                        raise
                 finally:
                     self.stop_watchdog()
 
                 # Check if test timed out
                 if self.test_failed['message']:
                     raise TimeoutError(self.test_failed['message'])
+
+                # Verify specific exception was raised if expected
+                if self.config.expect_exception is not None and exception_raised is None:
+                    raise AssertionError(f"Expected {self.config.expect_exception.__name__} to be raised but it was not")
 
                 # Verify SystemExit was raised if expected
                 if self.config.expect_system_exit and not system_exit_raised:
