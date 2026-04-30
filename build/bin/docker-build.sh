@@ -75,6 +75,15 @@ fi
 
 docker buildx create --name builder-$TARGET_PLATFORM
 docker buildx use builder-$TARGET_PLATFORM
+
+# Create temporary secret files for Podman compatibility
+# These will be cleaned up automatically after the build
+SECRET_DIR=$(mktemp -d)
+echo "${ARTIFACTORY_TOKEN:-}" > "$SECRET_DIR/ARTIFACTORY_TOKEN"
+echo "${ARTIFACTORY_GENERIC_RELEASE_URL:-}" > "$SECRET_DIR/ARTIFACTORY_GENERIC_RELEASE_URL"
+echo "${GITHUB_REF_NAME:-}" > "$SECRET_DIR/GITHUB_REF_NAME"
+echo "${GITHUB_REF_TYPE:-}" > "$SECRET_DIR/GITHUB_REF_TYPE"
+
 docker buildx build --progress plain \
   --load \
   --platform linux/$TARGET_PLATFORM \
@@ -83,11 +92,14 @@ docker buildx build --progress plain \
   --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
   --build-arg VCS_REF=$GITHUB_SHA \
   --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
-  --secret id=ARTIFACTORY_TOKEN \
-  --secret id=ARTIFACTORY_GENERIC_RELEASE_URL \
-  --secret id=GITHUB_REF_NAME \
-  --secret id=GITHUB_REF_TYPE \
+  --secret id=ARTIFACTORY_TOKEN,src="$SECRET_DIR/ARTIFACTORY_TOKEN" \
+  --secret id=ARTIFACTORY_GENERIC_RELEASE_URL,src="$SECRET_DIR/ARTIFACTORY_GENERIC_RELEASE_URL" \
+  --secret id=GITHUB_REF_NAME,src="$SECRET_DIR/GITHUB_REF_NAME" \
+  --secret id=GITHUB_REF_TYPE,src="$SECRET_DIR/GITHUB_REF_TYPE" \
   -t $LOCAL_TAG $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH || exit 1
+
+# Clean up temporary secret files
+rm -rf "$SECRET_DIR"
 
 # 5. Generate OSCAP(Security Content Automation Protocol) report
 # ---------------------------------------------------------------------------------------------------------------------
