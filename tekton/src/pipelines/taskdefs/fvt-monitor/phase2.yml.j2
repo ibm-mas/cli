@@ -25,6 +25,12 @@
     - input: "$(params.mas_monitor_install_order)"
       operator: in
       values: ["before-iot"]
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_monitor)"
+      operator: notin
+      values: [""]
   runAfter:
     - fvt-monitor-only
     - waitfor-iot-after-monitor
@@ -46,6 +52,12 @@
     - input: "$(params.mas_monitor_install_order)"
       operator: in
       values: ["before-iot"]
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_monitor)"
+      operator: notin
+      values: [""]
   runAfter:
     - fvt-monitor-only
     - waitfor-iot-after-monitor
@@ -67,6 +79,12 @@
     - input: "$(params.mas_monitor_install_order)"
       operator: in
       values: ["before-iot"]
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_monitor)"
+      operator: notin
+      values: [""]
   runAfter:
     - fvt-monitor-only
     - waitfor-iot-after-monitor
@@ -88,6 +106,12 @@
     - input: "$(params.mas_monitor_install_order)"
       operator: in
       values: ["before-iot"]
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_monitor)"
+      operator: notin
+      values: [""]
   runAfter:
     - fvt-monitor-only
     - waitfor-iot-after-monitor
@@ -109,6 +133,12 @@
     - input: "$(params.mas_monitor_install_order)"
       operator: in
       values: ["before-iot"]
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_monitor)"
+      operator: notin
+      values: [""]
   runAfter:
     - fvt-monitor-only
     - waitfor-iot-after-monitor
