@@ -668,21 +668,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "  1. <b>cluster</b> - Install with ClusterRoles (default)",
                     "     - MAS admins can create, update, and remove applications across the cluster",
                     "     - Cluster-scoped RBAC is installed for full MAS-managed application lifecycle",
-                    "     - Best when cluster-wide delegated permissions are allowed",
                     "",
                     "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
                     "     - No ClusterRoles are installed in this mode",
                     "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
-                    "     - DNS provider automation is not available in this mode",
-                    "     - ClusterIssuer creation or selection is not supported in this mode",
-                    "     - Use this when cluster-wide permissions are not allowed but delegated app management is still needed",
+                    "     - DNS integration is not available in this mode. If you use a custom domain, you must configure DNS manually.",
                     "",
                     "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
                     "     - No ClusterRoles are installed in this mode",
                     "     - Only essential permissions required for the core platform are applied",
                     "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
-                    "     - DNS provider automation is not available in this mode",
-                    "     - ClusterIssuer creation or selection is not supported in this mode"
+                    "     - DNS integration is not available in this mode. If you use a custom domain, you must configure DNS manually."
                 ])
 
                 permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
@@ -935,6 +931,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if configureDomainAndCertMgmt:
                 configureDomain = self.yesOrNo('Configure custom domain')
                 if configureDomain:
+                    if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                        self.printDescription([
+                            f"You are using the {self.getParam('mas_permission_mode')} permission mode.",
+                            "DNS integration is not available in this mode.",
+                            "If you use a custom domain, you need to configure DNS manually."
+                        ])
                     self.promptForString("MAS top-level domain", "mas_domain")
 
                     if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
@@ -1956,9 +1958,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.fatalError(
                         "\n".join([
                             f"Invalid configuration for permission mode '{self.getParam('mas_permission_mode')}'",
-                            "DNS provider automation and ClusterIssuer configuration are not supported when MAS is installed without ClusterRoles.",
+                            "DNS integration is not available in this mode.",
                             "Remove DNS integration options such as --dns-provider and --mas-cluster-issuer, or switch to --permission-mode cluster.",
-                            "If you want to continue with namespaced or minimal mode, manage DNS records and certificates manually."
+                            "If you want to continue with namespaced or minimal mode, you need to manage DNS records manually"
                         ])
                     )
         elif isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
