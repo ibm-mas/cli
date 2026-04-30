@@ -60,10 +60,9 @@ Secret Management (Optional):
       --mongo-max-instance-size ${COLOR_YELLOW}MONGO_MAX_INSTANCE_SIZE${TEXT_RESET}               Maximum instance size (e.g., 'M30')
 # MongoDB Cross-Region Backup Configuration (Optional):
       --mongo-cross-region-backup-enabled ${COLOR_YELLOW}MONGO_CROSS_REGION_BACKUP_ENABLED${TEXT_RESET}   Enable cross-region backup (default: false)
-      --mongo-cross-region-backup-region ${COLOR_YELLOW}MONGO_CROSS_REGION_BACKUP_REGION${TEXT_RESET}     Backup region (e.g., 'us-west-2')
       --mongo-cross-region-restore-window-days ${COLOR_YELLOW}MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS${TEXT_RESET}  Restore window in days (default: 7)
-      --mongo-backup-copy-frequencies ${COLOR_YELLOW}MONGO_BACKUP_COPY_FREQUENCIES${TEXT_RESET}           Comma-separated backup frequencies (e.g., 'MONTHLY,WEEKLY')
-      --mongo-backup-policy-items ${COLOR_YELLOW}MONGO_BACKUP_POLICY_ITEMS${TEXT_RESET}                   JSON string of backup policy items
+      --mongo-cross-region-backup-regions ${COLOR_YELLOW}MONGO_CROSS_REGION_BACKUP_REGIONS${TEXT_RESET}   JSON string of regions array with region, shouldCopyOplogs, and frequencies
+      --mongo-backup-policy-items ${COLOR_YELLOW}MONGO_BACKUP_POLICY_ITEMS${TEXT_RESET}                   JSON string of backup policy items (mandatory when cross-region backup is enabled)
       --mongo-disk-gb-enabled ${COLOR_YELLOW}MONGO_DISK_GB_ENABLED${TEXT_RESET}                   Enable disk GB auto-scaling (default: false)
       --mongo-update-mongo-secret ${COLOR_YELLOW}MONGO_UPDATE_MONGO_SECRET${TEXT_RESET}           Update MongoDB secret (default: true)
 
@@ -98,9 +97,8 @@ function gitops_mongo_atlas_noninteractive() {
   export MONGO_DISK_GB_ENABLED=${MONGO_DISK_GB_ENABLED:-"false"}
   export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-mongo-atlas commit"}
   export MONGO_CROSS_REGION_BACKUP_ENABLED=${MONGO_CROSS_REGION_BACKUP_ENABLED:-"false"}
-  export MONGO_CROSS_REGION_BACKUP_REGION=${MONGO_CROSS_REGION_BACKUP_REGION:-""}
   export MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS=${MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS:-"7"}
-  export MONGO_BACKUP_COPY_FREQUENCIES=${MONGO_BACKUP_COPY_FREQUENCIES:-""}
+  export MONGO_CROSS_REGION_BACKUP_REGIONS=${MONGO_CROSS_REGION_BACKUP_REGIONS:-""}
   export MONGO_BACKUP_POLICY_ITEMS=${MONGO_BACKUP_POLICY_ITEMS:-""}
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
@@ -240,14 +238,11 @@ function gitops_mongo_atlas_noninteractive() {
       --mongo-cross-region-backup-enabled)
         export MONGO_CROSS_REGION_BACKUP_ENABLED=$1 && shift
         ;;
-      --mongo-cross-region-backup-region)
-        export MONGO_CROSS_REGION_BACKUP_REGION=$1 && shift
-        ;;
       --mongo-cross-region-restore-window-days)
         export MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS=$1 && shift
         ;;
-      --mongo-backup-copy-frequencies)
-        export MONGO_BACKUP_COPY_FREQUENCIES=$1 && shift
+      --mongo-cross-region-backup-regions)
+        export MONGO_CROSS_REGION_BACKUP_REGIONS=$1 && shift
         ;;
       --mongo-backup-policy-items)
         export MONGO_BACKUP_POLICY_ITEMS=$1 && shift
@@ -388,9 +383,8 @@ function gitops_mongo_atlas() {
   echo "${TEXT_DIM}"
   echo_h2 "MongoDB Cross-Region Backup Configuration" "    "
   echo_reset_dim "Cross-Region Backup Enabled ........ ${COLOR_MAGENTA}${MONGO_CROSS_REGION_BACKUP_ENABLED}"
-  echo_reset_dim "Backup Region ...................... ${COLOR_MAGENTA}${MONGO_CROSS_REGION_BACKUP_REGION}"
   echo_reset_dim "Restore Window Days ................ ${COLOR_MAGENTA}${MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS}"
-  echo_reset_dim "Backup Copy Frequencies ............ ${COLOR_MAGENTA}${MONGO_BACKUP_COPY_FREQUENCIES}"
+  echo_reset_dim "Backup Regions ..................... ${COLOR_MAGENTA}${MONGO_CROSS_REGION_BACKUP_REGIONS}"
   echo_reset_dim "Backup Policy Items ................ ${COLOR_MAGENTA}${MONGO_BACKUP_POLICY_ITEMS}"
   reset_colors
   echo_reset_dim "Max Instance Size .................. ${COLOR_MAGENTA}${MONGO_MAX_INSTANCE_SIZE}"
@@ -417,17 +411,17 @@ function gitops_mongo_atlas() {
 
   if [[ -n "$MONGO_HELM_REPO" ]]; then
     echo "${TEXT_DIM}"
-  # Convert comma-separated backup copy frequencies to array for Jinja2 template
-  if [[ -n "$MONGO_BACKUP_COPY_FREQUENCIES" ]]; then
-    IFS=',' read -ra MONGO_BACKUP_COPY_FREQUENCIES <<< "$MONGO_BACKUP_COPY_FREQUENCIES"
-    export MONGO_BACKUP_COPY_FREQUENCIES
+  # Parse cross-region backup regions JSON string for Jinja2 template
+  if [[ -n "$MONGO_CROSS_REGION_BACKUP_REGIONS" ]]; then
+    # Keep as JSON string for Jinja2 to parse
+    export MONGO_CROSS_REGION_BACKUP_REGIONS
   else
-    export MONGO_BACKUP_COPY_FREQUENCIES=()
+    export MONGO_CROSS_REGION_BACKUP_REGIONS='[]'
   fi
 
-  # Parse backup policy items JSON string to array for Jinja2 template
+  # Parse backup policy items JSON string for Jinja2 template
   if [[ -n "$MONGO_BACKUP_POLICY_ITEMS" ]]; then
-    # Convert JSON string to Python-parseable format for Jinja2
+    # Keep as JSON string for Jinja2 to parse
     export MONGO_BACKUP_POLICY_ITEMS
   else
     export MONGO_BACKUP_POLICY_ITEMS='[]'

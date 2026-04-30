@@ -364,13 +364,10 @@ spec:
     - name: mongo_cross_region_backup_enabled
       type: string
       default: "false"
-    - name: mongo_cross_region_backup_region
-      type: string
-      default: ""
     - name: mongo_cross_region_restore_window_days
       type: string
       default: "7"
-    - name: mongo_backup_copy_frequencies
+    - name: mongo_cross_region_backup_regions
       type: string
       default: ""
     - name: mongo_backup_policy_items
@@ -571,12 +568,10 @@ spec:
         - name: mongo_max_instance_size
         - name: mongo_cross_region_backup_enabled
           value: $(params.mongo_cross_region_backup_enabled)
-        - name: mongo_cross_region_backup_region
-          value: $(params.mongo_cross_region_backup_region)
         - name: mongo_cross_region_restore_window_days
           value: $(params.mongo_cross_region_restore_window_days)
-        - name: mongo_backup_copy_frequencies
-          value: $(params.mongo_backup_copy_frequencies)
+        - name: mongo_cross_region_backup_regions
+          value: $(params.mongo_cross_region_backup_regions)
         - name: mongo_backup_policy_items
           value: $(params.mongo_backup_policy_items)
           value: $(params.mongo_max_instance_size)
