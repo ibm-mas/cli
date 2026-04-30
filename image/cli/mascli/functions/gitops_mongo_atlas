@@ -59,7 +59,7 @@ Secret Management (Optional):
       --mongo-min-instance-size ${COLOR_YELLOW}MONGO_MIN_INSTANCE_SIZE${TEXT_RESET}               Minimum instance size (e.g., 'M10')
       --mongo-max-instance-size ${COLOR_YELLOW}MONGO_MAX_INSTANCE_SIZE${TEXT_RESET}               Maximum instance size (e.g., 'M30')
 # MongoDB Cross-Region Backup Configuration (Optional):
-      --mongo-cross-region-backup-enabled ${COLOR_YELLOW}MONGO_CROSS_REGION_BACKUP_ENABLED${TEXT_RESET}   Enable cross-region backup (default: false)
+      --mongo-cross-region-backup-enabled ${COLOR_YELLOW}MONGO_CROSS_REGION_COPY_BACKUP_ENABLED${TEXT_RESET}   Enable cross-region backup (default: false)
       --mongo-cross-region-restore-window-days ${COLOR_YELLOW}MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS${TEXT_RESET}  Restore window in days (default: 7)
       --mongo-cross-region-backup-regions ${COLOR_YELLOW}MONGO_CROSS_REGION_BACKUP_REGIONS${TEXT_RESET}   JSON string of regions array with region, shouldCopyOplogs, and frequencies
       --mongo-backup-policy-items ${COLOR_YELLOW}MONGO_BACKUP_POLICY_ITEMS${TEXT_RESET}                   JSON string of backup policy items (mandatory when cross-region backup is enabled)
@@ -96,10 +96,10 @@ function gitops_mongo_atlas_noninteractive() {
   export MONGO_MAX_INSTANCE_SIZE=${MONGO_MAX_INSTANCE_SIZE:-""}
   export MONGO_DISK_GB_ENABLED=${MONGO_DISK_GB_ENABLED:-"false"}
   export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-mongo-atlas commit"}
-  export MONGO_CROSS_REGION_BACKUP_ENABLED=${MONGO_CROSS_REGION_BACKUP_ENABLED:-"false"}
-  export MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS=${MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS:-"7"}
-  export MONGO_CROSS_REGION_BACKUP_REGIONS=${MONGO_CROSS_REGION_BACKUP_REGIONS:-""}
-  export MONGO_BACKUP_POLICY_ITEMS=${MONGO_BACKUP_POLICY_ITEMS:-""}
+  export MONGO_CROSS_REGION_COPY_BACKUP_ENABLED=${MONGO_CROSS_REGION_COPY_BACKUP_ENABLED:-"false"}
+  export MONGO_CROSS_REGION_COPY_BACKUP_RESTORE_WINDOW_DAYS=${MONGO_CROSS_REGION_COPY_BACKUP_RESTORE_WINDOW_DAYS:-"7"}
+  export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS=${MONGO_CROSS_REGION_COPY_BACKUP_REGIONS:-""}
+  export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS=${MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS:-""}
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   # MongoDB Atlas defaults
@@ -236,16 +236,16 @@ function gitops_mongo_atlas_noninteractive() {
 
       # MongoDB Cross-Region Backup Configuration
       --mongo-cross-region-backup-enabled)
-        export MONGO_CROSS_REGION_BACKUP_ENABLED=$1 && shift
+        export MONGO_CROSS_REGION_COPY_BACKUP_ENABLED=$1 && shift
         ;;
       --mongo-cross-region-restore-window-days)
-        export MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS=$1 && shift
+        export MONGO_CROSS_REGION_COPY_BACKUP_RESTORE_WINDOW_DAYS=$1 && shift
         ;;
       --mongo-cross-region-backup-regions)
-        export MONGO_CROSS_REGION_BACKUP_REGIONS=$1 && shift
+        export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS=$1 && shift
         ;;
       --mongo-backup-policy-items)
-        export MONGO_BACKUP_POLICY_ITEMS=$1 && shift
+        export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS=$1 && shift
         ;;
       # Automatic GitHub Push (Optional)
       -P|--github-push)
@@ -381,27 +381,27 @@ function gitops_mongo_atlas() {
   echo_reset_dim "Scale Down Enabled ................. ${COLOR_MAGENTA}${MONGO_SCALE_DOWN_ENABLED}"
   echo_reset_dim "Min Instance Size .................. ${COLOR_MAGENTA}${MONGO_MIN_INSTANCE_SIZE}"
   # Parse cross-region backup regions JSON string for Jinja2 template
-  if [[ -n "$MONGO_CROSS_REGION_BACKUP_REGIONS" ]]; then
+  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" ]]; then
     # Keep as JSON string for Jinja2 to parse
-    export MONGO_CROSS_REGION_BACKUP_REGIONS
+    export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS
   else
-    export MONGO_CROSS_REGION_BACKUP_REGIONS='[]'
+    export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS='[]'
   fi
 
   # Parse backup policy items JSON string for Jinja2 template
-  if [[ -n "$MONGO_BACKUP_POLICY_ITEMS" ]]; then
+  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" ]]; then
     # Keep as JSON string for Jinja2 to parse
-    export MONGO_BACKUP_POLICY_ITEMS
+    export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS
   else
-    export MONGO_BACKUP_POLICY_ITEMS='[]'
+    export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS='[]'
   fi
 
   echo "${TEXT_DIM}"
   echo_h2 "MongoDB Cross-Region Backup Configuration" "    "
-  echo_reset_dim "Cross-Region Backup Enabled ........ ${COLOR_MAGENTA}${MONGO_CROSS_REGION_BACKUP_ENABLED}"
-  echo_reset_dim "Restore Window Days ................ ${COLOR_MAGENTA}${MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS}"
-  echo_reset_dim "Backup Regions ..................... ${COLOR_MAGENTA}${MONGO_CROSS_REGION_BACKUP_REGIONS}"
-  echo_reset_dim "Backup Policy Items ................ ${COLOR_MAGENTA}${MONGO_BACKUP_POLICY_ITEMS}"
+  echo_reset_dim "Cross-Region Backup Enabled ........ ${COLOR_MAGENTA}${MONGO_CROSS_REGION_COPY_BACKUP_ENABLED}"
+  echo_reset_dim "Restore Window Days ................ ${COLOR_MAGENTA}${MONGO_CROSS_REGION_COPY_BACKUP_RESTORE_WINDOW_DAYS}"
+  echo_reset_dim "Backup Regions ..................... ${COLOR_MAGENTA}${MONGO_CROSS_REGION_COPY_BACKUP_REGIONS}"
+  echo_reset_dim "Backup Policy Items ................ ${COLOR_MAGENTA}${MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS}"
   reset_colors
   echo_reset_dim "Max Instance Size .................. ${COLOR_MAGENTA}${MONGO_MAX_INSTANCE_SIZE}"
   echo_reset_dim "Disk GB Enabled .................... ${COLOR_MAGENTA}${MONGO_DISK_GB_ENABLED}"

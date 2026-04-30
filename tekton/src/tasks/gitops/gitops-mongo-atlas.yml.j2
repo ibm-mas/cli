@@ -187,13 +187,13 @@ spec:
       - name: MONGO_MAX_INSTANCE_SIZE
         value: $(params.mongo_max_instance_size)
       # MongoDB Cross-Region Backup Configuration
-      - name: MONGO_CROSS_REGION_BACKUP_ENABLED
+      - name: MONGO_CROSS_REGION_COPY_BACKUP_ENABLED
         value: $(params.mongo_cross_region_backup_enabled)
-      - name: MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS
+      - name: MONGO_CROSS_REGION_COPY_BACKUP_RESTORE_WINDOW_DAYS
         value: $(params.mongo_cross_region_restore_window_days)
-      - name: MONGO_CROSS_REGION_BACKUP_REGIONS
+      - name: MONGO_CROSS_REGION_COPY_BACKUP_REGIONS
         value: $(params.mongo_cross_region_backup_regions)
-      - name: MONGO_BACKUP_POLICY_ITEMS
+      - name: MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS
         value: $(params.mongo_backup_policy_items)
       - name: MONGO_DISK_GB_ENABLED
         value: $(params.mongo_disk_gb_enabled)
@@ -248,7 +248,7 @@ spec:
         --mongo-max-instance-size $MONGO_MAX_INSTANCE_SIZE \
         --mongo-disk-gb-enabled $MONGO_DISK_GB_ENABLED \
         --mongo-project-id $MONGO_PROJECT_ID \
-        --mongo-cross-region-backup-enabled $MONGO_CROSS_REGION_BACKUP_ENABLED \
+        --mongo-cross-region-backup-enabled $MONGO_CROSS_REGION_COPY_BACKUP_ENABLED \
         --mongo-cross-region-restore-window-days $MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS \
         --mongo-cross-region-backup-regions $MONGO_CROSS_REGION_BACKUP_REGIONS \
         --mongo-backup-policy-items $MONGO_BACKUP_POLICY_ITEMS \
