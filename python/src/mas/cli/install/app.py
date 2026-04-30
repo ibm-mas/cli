@@ -929,14 +929,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printH1("Configure Domain & Certificate Management")
             configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
             if configureDomainAndCertMgmt:
+                if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                    self.printDescription([
+                        f"You are using the {self.getParam('mas_permission_mode')} permission mode.",
+                        "DNS integration is not available in this mode.",
+                        "If you use a custom domain, you need to configure DNS manually."
+                    ])
                 configureDomain = self.yesOrNo('Configure custom domain')
                 if configureDomain:
-                    if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
-                        self.printDescription([
-                            f"You are using the {self.getParam('mas_permission_mode')} permission mode.",
-                            "DNS integration is not available in this mode.",
-                            "If you use a custom domain, you need to configure DNS manually."
-                        ])
                     self.promptForString("MAS top-level domain", "mas_domain")
 
                     if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
