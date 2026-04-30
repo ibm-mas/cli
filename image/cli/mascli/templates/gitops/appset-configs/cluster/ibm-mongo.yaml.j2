@@ -19,7 +19,7 @@ mongo:
     update_mongo_secret: {{ MONGO_UPDATE_MONGO_SECRET }}
     atlasURI: {{ MONGO_ATLASURI }}
     reset_master_password: {{ MONGO_RESET_MASTER_PASSWORD }}
-    {% if MONGO_AUTO_SCALING_ENABLED == "true" %}
+    {%- if MONGO_AUTO_SCALING_ENABLED == "true" %}
     auto_scaling:
       enabled: {{ MONGO_AUTO_SCALING_ENABLED }}
       compute:
@@ -29,17 +29,17 @@ mongo:
         max_instance_size: {{ MONGO_MAX_INSTANCE_SIZE }}
       disk_gb:
         enabled: {{ MONGO_DISK_GB_ENABLED }}
-    {% endif %}
-    {% if MONGO_CROSS_REGION_COPY_BACKUP_ENABLED == "true" %}
+    {%- endif %}
+    {%- if MONGO_CROSS_REGION_COPY_BACKUP_ENABLED == "true" %}
     cross_region_copy_backup:
       enabled: {{ MONGO_CROSS_REGION_COPY_BACKUP_ENABLED }}
       restoreWindowDays: {{ MONGO_CROSS_REGION_COPY_BACKUP_RESTORE_WINDOW_DAYS }}
       regions:
-      {% if MONGO_CROSS_REGION_COPY_BACKUP_REGIONS and MONGO_CROSS_REGION_COPY_BACKUP_REGIONS != '[]' %}
+      {%- if MONGO_CROSS_REGION_COPY_BACKUP_REGIONS and MONGO_CROSS_REGION_COPY_BACKUP_REGIONS != '[]' %}
 {{ MONGO_CROSS_REGION_COPY_BACKUP_REGIONS_YAML | indent(6, first=True) }}
-      {% endif %}
+      {%- endif %}
       backup_policy_items:
-      {% if MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS and MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS != '[]' %}
+      {%- if MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS and MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS != '[]' %}
 {{ MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS_YAML | indent(6, first=True) }}
-      {% endif %}
-    {% endif %}
+      {%- endif %}
+    {%- endif %}
