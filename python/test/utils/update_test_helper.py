@@ -32,6 +32,8 @@ class UpdateTestConfig:
         db2u_namespaces: Optional[List[str]] = None,
         db2u_resource_kind: str = "Db2uCluster",
         db2u_namespace_arg: Optional[str] = None,
+        db2u_version: Optional[str] = None,
+        db2u_target_version: Optional[str] = None,
         kafka_namespaces: Optional[List[str]] = None,
         kafka_namespace_arg: Optional[str] = None,
         kafka_provider: Optional[str] = None,
@@ -43,6 +45,7 @@ class UpdateTestConfig:
         timeout_seconds: int = 30,
         expect_system_exit: bool = False,
         expected_exit_code: Optional[int] = None,
+        expect_exception: Optional[type] = None,
         argv: Optional[list] = None
     ):
         """
@@ -56,6 +59,8 @@ class UpdateTestConfig:
             db2u_namespaces: List of namespaces containing Db2U resources (None = no resources)
             db2u_resource_kind: Type of Db2U resource ("Db2uCluster" or "Db2uInstance")
             db2u_namespace_arg: Value for --db2-namespace CLI argument
+            db2u_version: Current Db2u version (e.g., "11.5.9.0")
+            db2u_target_version: Target Db2u version from catalog (e.g., "v12.0")
             kafka_namespaces: List of namespaces containing Kafka resources
             kafka_namespace_arg: Value for --kafka-namespace CLI argument
             kafka_provider: Kafka provider type ("strimzi" or "redhat")
@@ -67,6 +72,7 @@ class UpdateTestConfig:
             timeout_seconds: Timeout for watchdog (default 30s)
             expect_system_exit: Whether to expect SystemExit to be raised
             expected_exit_code: Expected exit code if SystemExit is raised
+            expect_exception: Expect a specific exception type to be raised (e.g. FileNotFoundError)
             argv: Command line arguments to pass to app.update() (default: [])
         """
         self.prompt_handlers = prompt_handlers
@@ -76,6 +82,8 @@ class UpdateTestConfig:
         self.db2u_namespaces = db2u_namespaces if db2u_namespaces is not None else []
         self.db2u_resource_kind = db2u_resource_kind
         self.db2u_namespace_arg = db2u_namespace_arg
+        self.db2u_version = db2u_version if db2u_version is not None else "11.5.9.0"
+        self.db2u_target_version = db2u_target_version if db2u_target_version is not None else "v11.5"
         self.kafka_namespaces = kafka_namespaces if kafka_namespaces is not None else []
         self.kafka_namespace_arg = kafka_namespace_arg
         self.kafka_provider = kafka_provider
@@ -87,6 +95,7 @@ class UpdateTestConfig:
         self.timeout_seconds = timeout_seconds
         self.expect_system_exit = expect_system_exit
         self.expected_exit_code = expected_exit_code
+        self.expect_exception = expect_exception
         self.argv = argv if argv is not None else []
 
 
@@ -140,7 +149,7 @@ class UpdateTestHelper:
                 "namespace": namespace
             },
             "spec": {
-                "version": "11.5.9.0",
+                "version": self.config.db2u_version,
                 "license": {"accept": True}
             },
             "status": {
@@ -455,6 +464,7 @@ class UpdateTestHelper:
                     ('install_pipelines', mock.patch('mas.cli.update.app.installOpenShiftPipelines')),
                     ('create_namespace', mock.patch('mas.cli.update.app.createNamespace')),
                     ('prepare_pipelines_namespace', mock.patch('mas.cli.update.app.preparePipelinesNamespace')),
+                    ('prepare_update_secrets', mock.patch('mas.cli.update.app.prepareUpdateSecrets')),
                     ('update_tekton_definitions', mock.patch('mas.cli.update.app.updateTektonDefinitions')),
                     ('launch_update_pipeline', mock.patch('mas.cli.update.app.launchUpdatePipeline')),
                     ('mixins_prompt', mock.patch('mas.cli.displayMixins.prompt')),
@@ -495,7 +505,8 @@ class UpdateTestHelper:
                 mocks['get_catalog'].return_value = {
                     'ocp_compatibility': ['4.16', '4.17', '4.18'],
                     'mongo_extras_version_default': '6.0.5',
-                    'cpd_product_version_default': '5.2.0'
+                    'cpd_product_version_default': '5.2.0',
+                    'db2_channel_default': self.config.db2u_target_version
                 }
 
                 # Pipeline setup
@@ -513,6 +524,8 @@ class UpdateTestHelper:
                 # Setup prompt handler
                 self.setup_prompt_handler(mocks['mixins_prompt'], prompt_session_instance)
 
+                exception_raised = None
+
                 try:
                     self.app = UpdateApp()
                     self.app.update(argv=self.config.argv)
@@ -521,12 +534,20 @@ class UpdateTestHelper:
                     exit_code = e.code
                     if not self.config.expect_system_exit:
                         raise
+                except Exception as e:
+                    exception_raised = e
+                    if self.config.expect_exception is None or not isinstance(e, self.config.expect_exception):
+                        raise
                 finally:
                     self.stop_watchdog()
 
                 # Check if test timed out
                 if self.test_failed['message']:
                     raise TimeoutError(self.test_failed['message'])
+
+                # Verify specific exception was raised if expected
+                if self.config.expect_exception is not None and exception_raised is None:
+                    raise AssertionError(f"Expected {self.config.expect_exception.__name__} to be raised but it was not")
 
                 # Verify SystemExit was raised if expected
                 if self.config.expect_system_exit and not system_exit_raised:

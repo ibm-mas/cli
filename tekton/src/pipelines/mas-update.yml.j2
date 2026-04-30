@@ -4,6 +4,10 @@ kind: Pipeline
 metadata:
   name: mas-update
 spec:
+  workspaces:
+    # Db2 License File
+    - name: shared-db2
+      optional: true
   params:
     # Tekton Pipeline Configuration
     # -------------------------------------------------------------------------
@@ -47,6 +51,18 @@ spec:
       type: string
       default: "db2u"
       description: Namespace where db2 instances will be updated
+    - name: db2_v12_upgrade
+      type: string
+      description: Approves the Db2 upgrade to version 12 if needed
+      default: ""
+    - name: db2_license_file
+      type: string
+      description: Optional path to a Db2 v12 activation license file; required at runtime for Db2 v11 to v12 upgrades
+      default: ""
+    - name: db2_channel
+      type: string
+      description: Db2 channel to be upgraded
+      default: ""
 
     # mongodb update
     # -------------------------------------------------------------------------
@@ -285,6 +301,15 @@ spec:
           value: $(params.db2_action)
         - name: db2_namespace
           value: $(params.db2_namespace)
+        - name: db2_v12_upgrade
+          value: $(params.db2_v12_upgrade)
+        - name: db2_license_file
+          value: $(params.db2_license_file)
+        - name: db2_channel
+          value: $(params.db2_channel)
+      workspaces:
+        - name: db2
+          workspace: shared-db2
 
     - name: update-mongodb
       timeout: "0"
@@ -410,3 +435,4 @@ spec:
           # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
           value: $(tasks.status)
+

@@ -454,6 +454,8 @@ class installArgBuilderMixin():
                 command += f"  --db2-type \"{self.getParam('db2_type')}\"{newline}"
             if self.getParam('db2_timezone') != "":
                 command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+            if self.db2LicenseFileLocal != "":
+                command += f"  --db2-license-file \"{self.db2LicenseFileLocal}\"{newline}"
 
             if self.getParam('db2_affinity_key') != "":
                 command += f"  --db2-affinity-key \"{self.getParam('db2_affinity_key')}\"{newline}"

@@ -9,12 +9,14 @@ spec:
     - name: shared-configs
     # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
     - name: shared-additional-configs
-    # The SLS entitlement key file that will be installed during install-sls.
+    # The SLS entitlement key and Db2 license file that will be installed during install-sls and db2.
     - name: shared-entitlement
     # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
     - name: shared-certificates
     # PodTemplates configurations
     - name: shared-pod-templates
+    # Db2 License File
+    - name: shared-db2
 
   params:
     # 1. Common Parameters
@@ -114,18 +116,18 @@ spec:
 
     # 2.3 Db2
     # 2.3.1 System Db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
         - cert-manager
 
     # 2.3.2 Dedicated Manage Db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
         - db2-system
 
     # 2.3.3 Install Dedicated Db2 for AI Service
     # -------------------------------------------------------------------------
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
         - cert-manager
 

@@ -184,6 +184,8 @@ class aiServiceInstallArgBuilderMixin():
 
         if self.getParam('db2_channel') != "":
             command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
+        if self.db2LicenseFileLocal:
+            command += f"  --db2-license-file \"{self.db2LicenseFileLocal}\""
 
         command += "  --accept-license --no-confirm"
         return command

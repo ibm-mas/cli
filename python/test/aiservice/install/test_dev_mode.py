@@ -66,7 +66,8 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         # 4. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: 'y',
         # 5. SLS configuration
-        '.*License file.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+        '.*>License file<.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+        '.*>Db2 License file<.*': lambda msg: '',
         # 6. DRO configuration
         ".*Contact e-mail address.*": lambda msg: 'maximo@ibm.com',
         ".*Contact first name.*": lambda msg: 'Test',
@@ -137,7 +138,8 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         # 4. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: 'y',
         # 5. SLS configuration
-        '.*License file.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+        '.*>License file<.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+        '.*>Db2 License file<.*': lambda msg: '',
         # 6. DRO configuration
         ".*Contact e-mail address.*": lambda msg: 'maximo@ibm.com',
         ".*Contact first name.*": lambda msg: 'Test',
