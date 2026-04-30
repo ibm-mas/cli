@@ -27,7 +27,6 @@ MongoDB Atlas Resource Configuration (Required):
       --mongo-action ${COLOR_YELLOW}MONGO_ACTION${TEXT_RESET}                                     Action to perform ('install' or 'uninstall')
       --mongo-major-db-version ${COLOR_YELLOW}MONGO_MAJOR_DB_VERSION${TEXT_RESET}                 MongoDB major version (e.g., '2.5.1')
       --mongo-vpc-id ${COLOR_YELLOW}MONGO_VPC_ID${TEXT_RESET}                                     VPC ID for MongoDB Atlas
-      --mongo-subnet-ids ${COLOR_YELLOW}MONGO_SUBNET_IDS${TEXT_RESET}                             Comma-separated list of subnet IDs
 
 MongoDB Atlas Details (Required):
       --mongo-project-id ${COLOR_YELLOW}MONGO_PROJECT_ID${TEXT_RESET}                             MongoDB Atlas Project ID
@@ -156,9 +155,6 @@ function gitops_mongo_atlas_noninteractive() {
         ;;
       --mongo-vpc-id)
         export MONGO_VPC_ID=$1 && shift
-        ;;
-      --mongo-subnet-ids)
-        export MONGO_SUBNET_IDS=$1 && shift
         ;;
 
       # MongoDB Atlas Details
@@ -298,7 +294,6 @@ function gitops_mongo_atlas_noninteractive() {
   [[ -z "$MONGO_ACTION" ]] && gitops_mongo_atlas_help "MONGO_ACTION is not set"
   [[ -z "$MONGO_MAJOR_DB_VERSION" ]] && gitops_mongo_atlas_help "MONGO_MAJOR_DB_VERSION is not set"
   [[ -z "$MONGO_VPC_ID" ]] && gitops_mongo_atlas_help "MONGO_VPC_ID is not set"
-  [[ -z "$MONGO_SUBNET_IDS" ]] && gitops_mongo_atlas_help "MONGO_SUBNET_IDS is not set"
   [[ -z "$MONGO_PROJECT_ID" ]] && gitops_mongo_atlas_help "MONGO_PROJECT_ID is not set"
   [[ -z "$MONGO_ORGANIZATION_ID" ]] && gitops_mongo_atlas_help "MONGO_ORGANIZATION_ID is not set"
   [[ -z "$MONGO_INSTANCE_SIZE" ]] && gitops_mongo_atlas_help "MONGO_INSTANCE_SIZE is not set"
@@ -370,7 +365,6 @@ function gitops_mongo_atlas() {
   echo_reset_dim "Action ............................. ${COLOR_MAGENTA}${MONGO_ACTION}"
   echo_reset_dim "Major DB Version ................... ${COLOR_MAGENTA}${MONGO_MAJOR_DB_VERSION}"
   echo_reset_dim "VPC ID ............................. ${COLOR_MAGENTA}${MONGO_VPC_ID}"
-  echo_reset_dim "Subnet IDs ......................... ${COLOR_MAGENTA}${MONGO_SUBNET_IDS}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -457,10 +451,6 @@ function gitops_mongo_atlas() {
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_CLUSTER_DIR}
-
-  # Convert comma-separated subnet IDs to array for Jinja2 template
-  IFS=',' read -ra MONGO_SUBNET_IDS <<< "$MONGO_SUBNET_IDS"
-  export MONGO_SUBNET_IDS
 
   # Generate ArgoApp for MongoDB Atlas
   # ---------------------------------------------------------------------------

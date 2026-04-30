@@ -307,9 +307,6 @@ spec:
     - name: mongo_vpc_id
       type: string
       default: ""
-    - name: mongo_subnet_ids
-      type: string
-      default: ""
     - name: mongo_project_id
       type: string
       default: ""
@@ -535,8 +532,6 @@ spec:
           value: $(params.mongo_major_db_version)
         - name: mongo_vpc_id
           value: $(params.mongo_vpc_id)
-        - name: mongo_subnet_ids
-          value: $(params.mongo_subnet_ids)
         - name: mongo_project_id
           value: $(params.mongo_project_id)
         - name: mongo_organization_id

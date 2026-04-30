@@ -34,8 +34,6 @@ spec:
       type: string
     - name: mongo_vpc_id
       type: string
-    - name: mongo_subnet_ids
-      type: string
 
     # MongoDB Atlas Details
     - name: mongo_project_id
@@ -143,9 +141,6 @@ spec:
         value: $(params.mongo_major_db_version)
       - name: MONGO_VPC_ID
         value: $(params.mongo_vpc_id)
-      - name: MONGO_SUBNET_IDS
-        value: $(params.mongo_subnet_ids)
-
       # MongoDB Atlas Details
       - name: MONGO_PROJECT_ID
         value: $(params.mongo_project_id)
@@ -239,7 +234,6 @@ spec:
         --mongo-action $MONGO_ACTION \
         --mongo-major-db-version $MONGO_MAJOR_DB_VERSION \
         --mongo-vpc-id $MONGO_VPC_ID \
-        --mongo-subnet-ids $MONGO_SUBNET_IDS \
         --mongo-reset-master-password $MONGO_RESET_MASTER_PASSWORD \
         --mongo-auto-scaling-enabled $MONGO_AUTO_SCALING_ENABLED \
         --mongo-compute-enabled $MONGO_COMPUTE_ENABLED \

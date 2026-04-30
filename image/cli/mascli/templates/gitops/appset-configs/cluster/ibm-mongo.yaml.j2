@@ -5,10 +5,6 @@ mongo:
     action: {{ MONGO_ACTION }}
     major_db_version: {{ MONGO_MAJOR_DB_VERSION }}
     vpcEndpointId: {{ MONGO_VPC_ID }}
-    subnet_ids:
-    {% for subnet in MONGO_SUBNET_IDS %}
-      - "{{ subnet }}"
-    {% endfor %}
     project_id: {{ MONGO_PROJECT_ID }}
     organization_id: {{ MONGO_ORGANIZATION_ID }}
     instance_size: {{ MONGO_INSTANCE_SIZE }}
@@ -34,6 +30,7 @@ mongo:
       disk_gb:
         enabled: {{ MONGO_DISK_GB_ENABLED }}
     {% endif %}
+    {% if MONGO_CROSS_REGION_COPY_BACKUP_ENABLED == "true" %}
     cross_region_copy_backup:
       enabled: {{ MONGO_CROSS_REGION_COPY_BACKUP_ENABLED }}
       restoreWindowDays: {{ MONGO_CROSS_REGION_COPY_BACKUP_RESTORE_WINDOW_DAYS }}
@@ -45,3 +42,4 @@ mongo:
       {% if MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS and MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS != '[]' %}
 {{ MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS_YAML | indent(6, first=True) }}
       {% endif %}
+    {% endif %}
