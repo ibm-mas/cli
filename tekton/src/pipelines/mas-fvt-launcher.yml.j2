@@ -1054,10 +1054,6 @@ spec:
         - input: $(params.launchfvt_predict)
           operator: in
           values: ["true", "True"]
-      when:
-        - input: $(params.launchfvt_predict)
-          operator: in
-          values: ["true", "True"]
       runAfter:
         - waitfor-predict
 
