@@ -538,6 +538,18 @@ otherArgGroup.add_argument(
     required=False,
     help="Run the install pipeline under a custom service account (also disables creation of the default 'pipeline' service account)",
 )
+otherArgGroup.add_argument(
+    "--slack-token",
+    dest="slack_token",
+    required=False,
+    help="Slack bot token for sending pipeline notifications"
+)
+otherArgGroup.add_argument(
+    "--slack-channel",
+    dest="slack_channel",
+    required=False,
+    help="Slack channel(s) for notifications (comma-separated for multiple channels)"
+)
 
 otherArgGroup.add_argument(
     "-h", "--help",

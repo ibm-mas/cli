@@ -67,7 +67,6 @@ from mas.devops.tekton import (
     updateTektonDefinitions,
     preparePipelinesNamespace,
     prepareInstallSecrets,
-    prepareAIServiceInstallSecrets,
     testCLI,
     launchInstallPipeline
 )
@@ -2152,16 +2151,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel")
                 )
-
-                # If AI Service is being installed, also prepare AI Service Slack secrets
-                if self.getParam("aiservice_instance_id"):
-                    aiserviceInstanceId = self.getParam("aiservice_instance_id")
-                    prepareAIServiceInstallSecrets(
-                        dynClient=self.dynamicClient,
-                        instanceId=aiserviceInstanceId,
-                        slack_token=self.getParam("slack_token"),
-                        slack_channel=self.getParam("slack_channel")
-                    )
 
                 self.setupApprovals(pipelinesNamespace)
 

@@ -23,7 +23,7 @@ from .argParser import upgradeArgParser
 
 from mas.devops.ocp import createNamespace
 from mas.devops.aiservice import listAiServiceInstances, getAiserviceChannel
-from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchAiServiceUpgradePipeline
+from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, prepareAIServiceInstallSecrets, launchAiServiceUpgradePipeline
 from openshift.dynamic.exceptions import ResourceNotFoundError
 logger = logging.getLogger(__name__)
 
@@ -123,6 +123,16 @@ class AiServiceUpgradeApp(BaseApp):
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
+                
+                # Create AI Service Slack secret if credentials provided
+                if args.slack_token and args.slack_channel:
+                    prepareAIServiceInstallSecrets(
+                        dynClient=self.dynamicClient,
+                        instanceId=aiserviceInstanceId,
+                        slack_token=args.slack_token,
+                        slack_channel=args.slack_channel
+                    )
+                
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
