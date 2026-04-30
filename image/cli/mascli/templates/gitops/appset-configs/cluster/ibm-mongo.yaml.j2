@@ -34,7 +34,6 @@ mongo:
       disk_gb:
         enabled: {{ MONGO_DISK_GB_ENABLED }}
     {% endif %}
-    {% if MONGO_CROSS_REGION_BACKUP_ENABLED == "true" %}
     cross_region_copy_backup:
       enabled: {{ MONGO_CROSS_REGION_BACKUP_ENABLED }}
       restoreWindowDays: {{ MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS }}
@@ -54,4 +53,3 @@ mongo:
           retentionUnit: {{ policy.retentionUnit }}
           retentionValue: {{ policy.retentionValue }}
       {% endfor %}
-    {% endif %}
