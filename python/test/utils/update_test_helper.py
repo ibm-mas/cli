@@ -464,7 +464,7 @@ class UpdateTestHelper:
                     ('install_pipelines', mock.patch('mas.cli.update.app.installOpenShiftPipelines')),
                     ('create_namespace', mock.patch('mas.cli.update.app.createNamespace')),
                     ('prepare_pipelines_namespace', mock.patch('mas.cli.update.app.preparePipelinesNamespace')),
-                    ('prepare_install_secrets', mock.patch('mas.cli.update.app.prepareInstallSecrets')),
+                    ('prepare_update_secrets', mock.patch('mas.cli.update.app.prepareUpdateSecrets')),
                     ('update_tekton_definitions', mock.patch('mas.cli.update.app.updateTektonDefinitions')),
                     ('launch_update_pipeline', mock.patch('mas.cli.update.app.launchUpdatePipeline')),
                     ('mixins_prompt', mock.patch('mas.cli.displayMixins.prompt')),
