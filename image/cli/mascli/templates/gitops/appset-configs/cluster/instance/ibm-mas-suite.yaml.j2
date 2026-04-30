@@ -106,6 +106,14 @@ ibm_mas_suite:
 {% endif %}
 
 
+{% if MONGO_RESET_INSTANCE_PASSWORD is defined and MONGO_RESET_INSTANCE_PASSWORD != '' %}
+  mongo:
+    mongo_reset_instance_password: {{ MONGO_RESET_INSTANCE_PASSWORD }}
+{%- if MONGO_UPDATE_INSTANCE_MONGO_SECRET is defined and MONGO_UPDATE_INSTANCE_MONGO_SECRET != '' %}
+    mongo_update_instance_mongo_secret: {{ MONGO_UPDATE_INSTANCE_MONGO_SECRET }}
+{%- endif %}
+{% endif %}
+
 {% if WELCOME_MESSAGE is defined and WELCOME_MESSAGE != '' %}
   welcome_message: |
     {{ WELCOME_MESSAGE | indent(4) }}

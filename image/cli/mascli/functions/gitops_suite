@@ -26,7 +26,9 @@ AWS Secrets Manager Configuration (Required):
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
 
 MongoDb Provider Selection (Required):
-      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}            The mongodb provider to install ('aws' or 'yaml')
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}                              The mongodb provider to install ('aws' or 'yaml')
+      --mongo-reset-instance-password ${COLOR_YELLOW}MONGO_RESET_INSTANCE_PASSWORD${TEXT_RESET}      Reset MongoDB instance password (true/false, default: false)
+      --mongo-update-instance-secret ${COLOR_YELLOW}MONGO_UPDATE_INSTANCE_MONGO_SECRET${TEXT_RESET}  Update MongoDB instance secret (true/false, default: false)
 
 IBM Suite License Service:
   -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
@@ -279,6 +281,12 @@ function gitops_suite_noninteractive() {
 
       --mas-wipe-mongo-data)
         export MAS_WIPE_MONGO_DATA=$1 && shift
+        ;;
+      --mongo-reset-instance-password)
+        export MONGO_RESET_INSTANCE_PASSWORD=$1 && shift
+        ;;
+      --mongo-update-instance-secret)
+        export MONGO_UPDATE_INSTANCE_MONGO_SECRET=$1 && shift
         ;;
       --mas-feature-usage)
         export MAS_FEATURE_USAGE=$1 && shift
@@ -750,6 +758,10 @@ function gitops_suite() {
   
   # by default yaml. pass aws, in case if configuring with DocDB
   export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+  
+  # MongoDB reset and update flags
+  export MONGO_RESET_INSTANCE_PASSWORD=${MONGO_RESET_INSTANCE_PASSWORD:-"false"}
+  export MONGO_UPDATE_INSTANCE_MONGO_SECRET=${MONGO_UPDATE_INSTANCE_MONGO_SECRET:-"false"}
 
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
