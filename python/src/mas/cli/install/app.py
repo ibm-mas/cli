@@ -683,6 +683,24 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
                 permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
                 permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
+
+                if permissionModeInt == 2:
+                    self.printDescription([
+                        "",
+                        "<Yellow>Important limitation for 'namespaced' permission mode</Yellow>",
+                        " - DNS provider automation is not available in this mode",
+                        " - ClusterIssuer creation or selection is not supported in this mode",
+                        " - If you continue, DNS integration configuration will not be available",
+                    ])
+                elif permissionModeInt == 3:
+                    self.printDescription([
+                        "",
+                        "<Yellow>Important limitation for 'minimal' permission mode</Yellow>",
+                        " - DNS provider automation is not available in this mode",
+                        " - ClusterIssuer creation or selection is not supported in this mode",
+                        " - If you continue, DNS integration configuration will not be available",
+                    ])
+
                 self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
             elif self.getParam("mas_permission_mode") == "":
                 self.setParam("mas_permission_mode", "cluster")
@@ -932,34 +950,39 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 configureDomain = self.yesOrNo('Configure custom domain')
                 if configureDomain:
                     self.promptForString("MAS top-level domain", "mas_domain")
-                    self.printDescription([
-                        "",
-                        "DNS Integrations:",
-                        "  1. Cloudflare",
-                        "  2. IBM Cloud Internet Services",
-                        "  3. AWS Route 53",
-                        "  4. None (I will set up DNS myself)"
-                    ])
 
-                    dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
-
-                    if dnsProvider == 1:
-                        self.configDNSAndCertsCloudflare()
-                    elif dnsProvider == 2:
-                        self.configDNSAndCertsCIS()
-                    elif dnsProvider == 3:
-                        self.configDNSAndCertsRoute53()
-                    elif dnsProvider == 4:
-                        # Use MAS default self-signed cluster issuer with a custom domain
+                    if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
                         self.setParam("dns_provider", "")
                         self.setParam("mas_cluster_issuer", "")
-
-                    if dnsProvider in [1, 2]:
+                    else:
                         self.printDescription([
-                            "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
-                            "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                            "",
+                            "DNS Integrations:",
+                            "  1. Cloudflare",
+                            "  2. IBM Cloud Internet Services",
+                            "  3. AWS Route 53",
+                            "  4. None (I will set up DNS myself)"
                         ])
-                        self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
+
+                        dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
+
+                        if dnsProvider == 1:
+                            self.configDNSAndCertsCloudflare()
+                        elif dnsProvider == 2:
+                            self.configDNSAndCertsCIS()
+                        elif dnsProvider == 3:
+                            self.configDNSAndCertsRoute53()
+                        elif dnsProvider == 4:
+                            # Use MAS default self-signed cluster issuer with a custom domain
+                            self.setParam("dns_provider", "")
+                            self.setParam("mas_cluster_issuer", "")
+
+                        if dnsProvider in [1, 2]:
+                            self.printDescription([
+                                "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
+                                "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                            ])
+                            self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
 
                 else:
                     # Use MAS default self-signed cluster issuer with the default domain
@@ -1942,6 +1965,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.getParam("mas_permission_mode") != "":
             if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
                 self.fatalError(f"--permission-mode is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+            elif self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                if self.getParam("dns_provider") != "" or self.getParam("mas_cluster_issuer") != "":
+                    self.fatalError(
+                        "\n".join([
+                            f"Invalid configuration for permission mode '{self.getParam('mas_permission_mode')}'",
+                            "DNS provider automation and ClusterIssuer configuration are not supported when MAS is installed without ClusterRoles.",
+                            "Remove DNS integration options such as --dns-provider and --mas-cluster-issuer, or switch to --permission-mode cluster.",
+                            "If you want to continue with namespaced or minimal mode, manage DNS records and certificates manually."
+                        ])
+                    )
         elif isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
             self.setParam("mas_permission_mode", "cluster")
 
