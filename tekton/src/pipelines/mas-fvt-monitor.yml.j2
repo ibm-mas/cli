@@ -122,26 +122,7 @@ spec:
           operator: notin
           values: [""]
 
-    # 2. Monitor FVT - Phased Execution (Version > 9.2)
-    # -----------------------------------------------------------------------------
-    # Monitor FVT for version > 9.2 is split into specialized suites organized in phases:
-    #
-    # Phase 1 (Pre-IoT): File Ingest tests that don't require IoT - runs BEFORE IoT install
-    # Phase 2 (Post-IoT): All other suites run in PARALLEL after IoT installation
-    #   - fvt-9x (Core Monitor tests)
-    #   - fvt-mref (Bootstrap & integration setup)
-    #   - fvt-iot (IoT integration tests)
-    #   - fvt-scada (SCADA connector tests)
-    #   - fvt-mist (MIST integration tests)
-    #
-    # Note: monitor_fvt_with_manage is a separate suite for older versions (8.10, 8.11, 9.0)
-    # and is NOT part of this phased execution model
-    #
-    # Each suite runs as a separate task to enable IoT-independent execution for version > 9.2
-    {{ lookup('template', 'taskdefs/fvt-monitor/phase1.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-monitor/phase2.yml.j2') | indent(4) }}
-
-    # 2b. Monitor FVT with Manage Integration (Version 8.x/9.0 only)
+    # 2. Monitor FVT with Manage Integration (Version 8.x/9.0 only)
     # -----------------------------------------------------------------------------
     # This is a separate suite for older Monitor versions (8.10, 8.11, 9.0) when Manage is installed
     # It is NOT part of the phased execution model above
@@ -180,7 +161,7 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-data-dictionary/data-dictionary.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-9x
+        - fvt-monitor-with-manage
 
   finally:
     # 1. Run CV
