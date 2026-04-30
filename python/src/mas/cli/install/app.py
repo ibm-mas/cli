@@ -667,18 +667,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "",
                     "  1. <b>cluster</b> - Install with ClusterRoles (default)",
                     "     - MAS admins can create, update, and remove applications across the cluster",
-                    "     - Cluster-scoped RBAC is installed for full MAS-managed application lifecycle",
+                    "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts",
                     "",
                     "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
                     "     - No ClusterRoles are installed in this mode",
+                    "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
                     "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
-                    "     - DNS integration is not available in this mode. If you use a custom domain, you must configure DNS manually.",
+                    "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
                     "",
                     "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
                     "     - No ClusterRoles are installed in this mode",
-                    "     - Only essential permissions required for the core platform are applied",
+                    "     - Only essential permissions required for MAS applications are applied",
                     "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
-                    "     - DNS integration is not available in this mode. If you use a custom domain, you must configure DNS manually."
+                    "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually."
                 ])
 
                 permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
