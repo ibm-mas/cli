@@ -673,34 +673,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
                     "     - No ClusterRoles are installed in this mode",
                     "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
+                    "     - DNS provider automation is not available in this mode",
+                    "     - ClusterIssuer creation or selection is not supported in this mode",
                     "     - Use this when cluster-wide permissions are not allowed but delegated app management is still needed",
                     "",
                     "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
                     "     - No ClusterRoles are installed in this mode",
                     "     - Only essential permissions required for the core platform are applied",
-                    "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS"
+                    "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
+                    "     - DNS provider automation is not available in this mode",
+                    "     - ClusterIssuer creation or selection is not supported in this mode"
                 ])
 
                 permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
                 permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
-
-                if permissionModeInt == 2:
-                    self.printDescription([
-                        "",
-                        "<Yellow>Important limitation for 'namespaced' permission mode</Yellow>",
-                        " - DNS provider automation is not available in this mode",
-                        " - ClusterIssuer creation or selection is not supported in this mode",
-                        " - If you continue, DNS integration configuration will not be available",
-                    ])
-                elif permissionModeInt == 3:
-                    self.printDescription([
-                        "",
-                        "<Yellow>Important limitation for 'minimal' permission mode</Yellow>",
-                        " - DNS provider automation is not available in this mode",
-                        " - ClusterIssuer creation or selection is not supported in this mode",
-                        " - If you continue, DNS integration configuration will not be available",
-                    ])
-
                 self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
             elif self.getParam("mas_permission_mode") == "":
                 self.setParam("mas_permission_mode", "cluster")
