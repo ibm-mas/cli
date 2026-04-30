@@ -50,12 +50,13 @@ spec:
         echo "AI Service Channel ......... ${AISERVICE_CHANNEL}"
         echo ""
         
-        # Construct tenant ID (always "user" by default)
-        AISERVICE_TENANT_ID="user"
+        # Construct tenant ID and tenant name
+        # Format: aiservice-{instance_id}-user
+        AISERVICE_TENANT_ID="aiservice-${AISERVICE_INSTANCE_ID}-user"
         
         # Set namespaces
         AISERVICE_NAMESPACE="aiservice-${AISERVICE_INSTANCE_ID}"
-        AISERVICE_TENANT_NAME="aiservice-${AISERVICE_INSTANCE_ID}-${AISERVICE_TENANT_ID}"
+        AISERVICE_TENANT_NAME="${AISERVICE_TENANT_ID}"
         
         echo "AI Service Tenant ID ....... ${AISERVICE_TENANT_ID}"
         
@@ -104,6 +105,11 @@ spec:
           namespace: "mas-${MAS_INSTANCE_ID}-core"
         stringData:
           api_key: "${APIKEY}"
+          url: "${URL}"
+          tenantId: "${AISERVICE_TENANT_ID}"
+          metaAgentEnabled: "true"
+          aicfgCerts: |-
+        $(echo "${CERTIFICATE}" | sed 's/^/    /')
         ---
         apiVersion: config.mas.ibm.com/v1
         kind: AiCfg
