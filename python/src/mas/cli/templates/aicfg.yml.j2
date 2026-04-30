@@ -20,15 +20,16 @@ metadata:
     mas.ibm.com/configId: ai-system
 spec:
   displayName: "{{ cfg_display_name }}"
-  aiService:
-    enabled: {{ ai_enabled | lower }}
-    url: "{{ ai_url }}"
-    tenantId: "{{ ai_tenant_id }}"
-    sslEnabled: {{ ai_ssl_enabled | lower }}
-    credentials:
-      secretName: "{{ mas_instance_id }}-usersupplied-ai-creds-system"
-  metaAgent:
-    enabled: {{ meta_agent_enabled | lower }}
+  config:
+    aiservice:
+      enabled: {{ ai_enabled | lower }}
+      url: "{{ ai_url }}"
+      tenantId: "{{ ai_tenant_id }}"
+      sslEnabled: {{ ai_ssl_enabled | lower }}
+      credentials:
+        secretName: "{{ mas_instance_id }}-usersupplied-ai-creds-system"
+    assistantAgent:
+      enabled: {{ meta_agent_enabled | lower }}
 {%- if ai_ssl_enabled == True %}
   certificates:
     - alias: aiservice

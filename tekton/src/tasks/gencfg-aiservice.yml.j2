@@ -117,15 +117,16 @@ spec:
             mas.ibm.com/configId: ai-system
         spec:
           displayName: "AI Service Configuration"
-          aiService:
-            enabled: true
-            url: "${URL}"
-            tenantId: "${AISERVICE_TENANT_NAME}"
-            sslEnabled: true
-            credentials:
-              secretName: "${MAS_INSTANCE_ID}-usersupplied-ai-creds-system"
-          metaAgent:
-            enabled: true
+          config:
+            aiservice:
+              enabled: true
+              url: "${URL}"
+              tenantId: "${AISERVICE_TENANT_ID}"
+              sslEnabled: true
+              credentials:
+                secretName: "${MAS_INSTANCE_ID}-usersupplied-ai-creds-system"
+            assistantAgent:
+              enabled: true
           certificates:
             - alias: aiservice
               crt: |-
