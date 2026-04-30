@@ -125,7 +125,12 @@ class BaseApp(PrintMixin, PromptMixin):
         self.h2count: int = 0
 
         self.localConfigDir: str | None = None
+        self.cliRootDir: str = path.join(path.abspath(path.dirname(__file__)), "..", "..", "..", "..")
         self.templatesDir: str = path.join(path.abspath(path.dirname(__file__)), "templates")
+        self.installRBACDir: str = path.join(self.cliRootDir, "rbac", "install")
+        if not path.isfile(path.join(self.installRBACDir, "kustomization.yaml")):
+            logger.error(f"Could not find install RBAC bundle at {self.installRBACDir}, this is required for the setup-rbac command")
+            self.installRBACDir = "/opt/app-root/src/rbac/install"
         self.tektonDefsWithoutDigestPath: str = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
         self.tektonDefsWithDigestPath: str = path.join(self.templatesDir, "ibm-mas-tekton-with-digest.yaml")
 

@@ -1,5 +1,6 @@
 [flake8]
 # These rules are ignored
 # - E501 line too long
-ignore = E501
+# - W504 line break after binary operator (conflicts with W503)
+ignore = E501,W504
 max-line-length = 120
