@@ -498,7 +498,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel")
                 )
-                
                 # Create AI Service specific Slack secret
                 prepareAIServiceInstallSecrets(
                     dynClient=self.dynamicClient,
