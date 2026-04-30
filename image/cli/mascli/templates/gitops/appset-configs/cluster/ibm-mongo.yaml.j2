@@ -34,24 +34,22 @@ mongo:
       disk_gb:
         enabled: {{ MONGO_DISK_GB_ENABLED }}
     {% endif %}
-    {% if MONGO_CROSS_REGION_BACKUP_ENABLED == "true" %}
     cross_region_copy_backup:
       enabled: {{ MONGO_CROSS_REGION_BACKUP_ENABLED }}
       restoreWindowDays: {{ MONGO_CROSS_REGION_RESTORE_WINDOW_DAYS }}
       regions:
-      {% for region in MONGO_CROSS_REGION_BACKUP_REGIONS %}
+      {% for region in MONGO_CROSS_REGION_BACKUP_REGIONS | fromjson %}
         - region: {{ region.region }}
-          shouldCopyOplogs: {{ region.shouldCopyOplogs }}
+          shouldCopyOplogs: {{ region.shouldCopyOplogs | lower }}
           frequencies:
           {% for frequency in region.frequencies %}
             - {{ frequency }}
           {% endfor %}
       {% endfor %}
       backup_policy_items:
-      {% for policy in MONGO_BACKUP_POLICY_ITEMS %}
+      {% for policy in MONGO_BACKUP_POLICY_ITEMS | fromjson %}
         - frequencyType: {{ policy.frequencyType }}
           frequencyInterval: {{ policy.frequencyInterval }}
           retentionUnit: {{ policy.retentionUnit }}
           retentionValue: {{ policy.retentionValue }}
       {% endfor %}
-    {% endif %}
