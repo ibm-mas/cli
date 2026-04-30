@@ -380,21 +380,35 @@ function gitops_mongo_atlas() {
   echo_reset_dim "Compute Enabled .................... ${COLOR_MAGENTA}${MONGO_COMPUTE_ENABLED}"
   echo_reset_dim "Scale Down Enabled ................. ${COLOR_MAGENTA}${MONGO_SCALE_DOWN_ENABLED}"
   echo_reset_dim "Min Instance Size .................. ${COLOR_MAGENTA}${MONGO_MIN_INSTANCE_SIZE}"
-  # Parse cross-region backup regions JSON string for Jinja2 template
-  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" ]]; then
-    # Keep as JSON string for Jinja2 to parse
-    export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS
+  # Convert JSON to YAML for regions
+  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" ]] && [[ "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" != "[]" ]]; then
+    export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS_YAML=$(echo "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" | python3 -c "
+import sys, json, yaml
+try:
+    data = json.loads(sys.stdin.read())
+    print(yaml.dump(data, default_flow_style=False, sort_keys=False).rstrip())
+except:
+    pass
+" 2>/dev/null)
   else
-    export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS='[]'
+    export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS_YAML=""
   fi
+  export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS
 
-  # Parse backup policy items JSON string for Jinja2 template
-  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" ]]; then
-    # Keep as JSON string for Jinja2 to parse
-    export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS
+  # Convert JSON to YAML for policy items
+  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" ]] && [[ "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" != "[]" ]]; then
+    export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS_YAML=$(echo "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" | python3 -c "
+import sys, json, yaml
+try:
+    data = json.loads(sys.stdin.read())
+    print(yaml.dump(data, default_flow_style=False, sort_keys=False).rstrip())
+except:
+    pass
+" 2>/dev/null)
   else
-    export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS='[]'
+    export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS_YAML=""
   fi
+  export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS
 
   echo "${TEXT_DIM}"
   echo_h2 "MongoDB Cross-Region Backup Configuration" "    "

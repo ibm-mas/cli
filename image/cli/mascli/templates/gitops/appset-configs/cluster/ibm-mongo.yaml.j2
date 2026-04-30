@@ -38,18 +38,10 @@ mongo:
       enabled: {{ MONGO_CROSS_REGION_COPY_BACKUP_ENABLED }}
       restoreWindowDays: {{ MONGO_CROSS_REGION_COPY_BACKUP_RESTORE_WINDOW_DAYS }}
       regions:
-      {% for region in MONGO_CROSS_REGION_COPY_BACKUP_REGIONS %}
-        - region: {{ region.region }}
-          shouldCopyOplogs: {{ region.shouldCopyOplogs  }}
-          frequencies:
-          {% for frequency in region.frequencies %}
-            - {{ frequency }}
-          {% endfor %}
-      {% endfor %}
+      {% if MONGO_CROSS_REGION_COPY_BACKUP_REGIONS and MONGO_CROSS_REGION_COPY_BACKUP_REGIONS != '[]' %}
+{{ MONGO_CROSS_REGION_COPY_BACKUP_REGIONS_YAML | indent(6, first=True) }}
+      {% endif %}
       backup_policy_items:
-      {% for policy in MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS %}
-        - frequencyType: {{ policy.frequencyType }}
-          frequencyInterval: {{ policy.frequencyInterval }}
-          retentionUnit: {{ policy.retentionUnit }}
-          retentionValue: {{ policy.retentionValue }}
-      {% endfor %}
+      {% if MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS and MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS != '[]' %}
+{{ MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS_YAML | indent(6, first=True) }}
+      {% endif %}
