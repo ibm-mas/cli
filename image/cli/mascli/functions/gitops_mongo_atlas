@@ -380,35 +380,14 @@ function gitops_mongo_atlas() {
   echo_reset_dim "Compute Enabled .................... ${COLOR_MAGENTA}${MONGO_COMPUTE_ENABLED}"
   echo_reset_dim "Scale Down Enabled ................. ${COLOR_MAGENTA}${MONGO_SCALE_DOWN_ENABLED}"
   echo_reset_dim "Min Instance Size .................. ${COLOR_MAGENTA}${MONGO_MIN_INSTANCE_SIZE}"
-  # Convert JSON to YAML for regions
-  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" ]] && [[ "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" != "[]" ]]; then
-    export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS_YAML=$(echo "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" | python3 -c "
-import sys, json, yaml
-try:
-    data = json.loads(sys.stdin.read())
-    print(yaml.dump(data, default_flow_style=False, sort_keys=False).rstrip())
-except:
-    pass
-" 2>/dev/null)
-  else
-    export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS_YAML=""
+  # Keep JSON strings as-is - will be processed during template generation
+  if [[ -z "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" ]]; then
+    export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS='[]'
   fi
-  export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS
-
-  # Convert JSON to YAML for policy items
-  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" ]] && [[ "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" != "[]" ]]; then
-    export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS_YAML=$(echo "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" | python3 -c "
-import sys, json, yaml
-try:
-    data = json.loads(sys.stdin.read())
-    print(yaml.dump(data, default_flow_style=False, sort_keys=False).rstrip())
-except:
-    pass
-" 2>/dev/null)
-  else
-    export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS_YAML=""
+  
+  if [[ -z "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" ]]; then
+    export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS='[]'
   fi
-  export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS
 
   echo "${TEXT_DIM}"
   echo_h2 "MongoDB Cross-Region Backup Configuration" "    "
@@ -489,6 +468,40 @@ except:
   echo_h2 "Generating MongoDB Atlas Argo Application"
 
   echo "- MongoDB Atlas Cluster Configuration"
+  
+  # Pre-process JSON to YAML for the template
+  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" ]] && [[ "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" != "[]" ]]; then
+    REGIONS_YAML=$(echo "$MONGO_CROSS_REGION_COPY_BACKUP_REGIONS" | python3 -c "
+import sys, json
+data = json.loads(sys.stdin.read())
+for item in data:
+    print(f\"      - region: {item.get('region', '')}\" )
+    print(f\"        shouldCopyOplogs: {str(item.get('shouldCopyOplogs', '')).lower()}\")
+    print(f\"        frequencies:\")
+    for freq in item.get('frequencies', []):
+        print(f\"        - {freq}\")
+" 2>/dev/null)
+  else
+    REGIONS_YAML=""
+  fi
+  
+  if [[ -n "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" ]] && [[ "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" != "[]" ]]; then
+    POLICY_YAML=$(echo "$MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS" | python3 -c "
+import sys, json
+data = json.loads(sys.stdin.read())
+for item in data:
+    print(f\"      - frequencyType: {item.get('frequencyType', '')}\")
+    print(f\"        frequencyInterval: {item.get('frequencyInterval', '')}\")
+    print(f\"        retentionUnit: {item.get('retentionUnit', '')}\")
+    print(f\"        retentionValue: {item.get('retentionValue', '')}\")
+" 2>/dev/null)
+  else
+    POLICY_YAML=""
+  fi
+  
+  export MONGO_CROSS_REGION_COPY_BACKUP_REGIONS_YAML="$REGIONS_YAML"
+  export MONGO_CROSS_REGION_COPY_BACKUP_POLICY_ITEMS_YAML="$POLICY_YAML"
+  
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-mongo.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mongo.yaml
 
   # Commit and push to github target repo
