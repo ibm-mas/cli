@@ -602,8 +602,10 @@ function gitops_suite() {
 
   echo "${TEXT_DIM}"
   echo_h4 "Mongo" "    "
-  echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
-  echo_reset_dim "MAS_WIPE_MONGO_DATA ............ ${COLOR_MAGENTA}${MAS_WIPE_MONGO_DATA}"
+  echo_reset_dim "Mongo Provider  ........................... ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+  echo_reset_dim "MAS_WIPE_MONGO_DATA ....................... ${COLOR_MAGENTA}${MAS_WIPE_MONGO_DATA}"
+  echo_reset_dim "MONGO_RESET_INSTANCE_PASSWORD ............. ${COLOR_MAGENTA}${MONGO_RESET_INSTANCE_PASSWORD}"
+  echo_reset_dim "MONGO_UPDATE_INSTANCE_MONGO_SECRET ........ ${COLOR_MAGENTA}${MONGO_UPDATE_INSTANCE_MONGO_SECRET}"
   reset_colors
 
   echo "${TEXT_DIM}"
