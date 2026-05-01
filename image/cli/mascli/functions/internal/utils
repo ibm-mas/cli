@@ -433,6 +433,10 @@ try:
     if isinstance(result, (list, dict)):
         print(json.dumps(result))
     else:
+        # For string values, remove surrounding quotes if present
+        # This handles cases where hcl2 returns quoted strings from .tfvars files
+        if isinstance(result, str) and result.startswith('"') and result.endswith('"') and len(result) > 1:
+            result = result[1:-1]
         print(result)
 except Exception as e:
     print(f"Error: {e}", file=sys.stderr)
