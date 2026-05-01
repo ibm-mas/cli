@@ -5,7 +5,7 @@
 # ==============================================================================
 # This Makefile builds the IBM Maximo Application Suite (MAS) CLI container
 # image and associated components including Ansible collections, Python packages,
-# and Tekton pipelines.
+# and Tekton pipelines. Test
 #
 # Prerequisites:
 #   - ansible-galaxy (for Ansible collection builds)
