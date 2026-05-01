@@ -834,27 +834,6 @@ spec:
       runAfter:
         - approval-manage
 
-    # Launch Monitor FVT (Monitor < 9.2.0 - after IoT)
-    - name: launchfvt-monitor
-      timeout: "0"
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-monitor"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-monitor
-      when:
-        - input: $(params.launchfvt_monitor)
-          operator: in
-          values: ["true", "True"]
-        - input: $(params.mas_monitor_install_order)
-          operator: in
-          values: ["after-iot"]
-      runAfter:
-        - waitfor-monitor
-
     # Launch Monitor FVT (Monitor >= 9.2.0 - before IoT)
     # Waits for both Monitor and IoT installations to complete before launching
     - name: launchfvt-monitor-before-iot
@@ -876,7 +855,27 @@ spec:
           values: ["before-iot"]
       runAfter:
         - waitfor-monitor-before-iot
-        - waitfor-iot-after-monitor
+
+    # Launch Monitor FVT (Monitor < 9.2.0 - after IoT) - LEGACY
+    - name: launchfvt-monitor
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-monitor"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-monitor
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.mas_monitor_install_order)
+          operator: in
+          values: ["after-iot"]
+      runAfter:
+        - waitfor-monitor
 
     # Approve Monitor for Monitor < 9.2.0 (after-iot scenario)
     - name: approval-monitor

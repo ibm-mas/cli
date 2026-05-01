@@ -40,7 +40,11 @@ spec:
       default: "true"
     - name: fvt_test_suite
       type: string
-      description: Which Monitor FVT suite to run ('monitor_fvt' or 'monitor_fvt_with_manage')
+      description: Which Monitor FVT suite to run ('fvt_91x', 'fvt_monitor_only', or 'monitor_fvt_with_manage')
+    - name: test_marker
+      type: string
+      description: Pytest marker to filter tests (e.g., 'monitor_only', 'requires_iot', 'integration')
+      default: ""
     - name: ctf_is_local
       type: string
       description: Boolean value to check if tests are runninng locally or on fvt
@@ -84,6 +88,8 @@ spec:
         # Test Data
         - name: FVT_TEST_SUITE
           value: $(params.fvt_test_suite)
+        - name: TEST_MARKER
+          value: $(params.test_marker)
         - name: FVT_ENABLE_DEBUG
           value: "$(params.fvt_enable_debug)"
         - name: CTF_IS_LOCAL

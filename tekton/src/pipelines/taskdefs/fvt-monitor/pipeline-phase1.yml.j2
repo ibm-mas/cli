@@ -1,0 +1,21 @@
+# -------------------------------------------------------------
+# PHASE 1 - Pre-IoT Installation
+# - fvt-monitor-only (File Ingest - NO IoT required)
+# -------------------------------------------------------------
+
+# Monitor FVT - File Ingest (runs BEFORE IoT installation)
+- name: fvt-monitor-only
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt_monitor_only
+  when:
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_test_suite)"
+      operator: notin
+      values: ["monitor_fvt_with_manage"]
+  runAfter:
+    - ivtcore-monitor

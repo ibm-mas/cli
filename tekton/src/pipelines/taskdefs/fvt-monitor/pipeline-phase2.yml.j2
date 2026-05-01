@@ -1,0 +1,99 @@
+# -------------------------------------------------------------
+# PHASE 2 - Post-IoT Installation (Parallel Execution)
+# All suites run in PARALLEL after IoT installation:
+# - fvt-9x (Core Monitor tests)
+# - fvt-mref (Bootstrap & integration setup)
+# - fvt-iot (IoT integration tests)
+# - fvt-scada (SCADA connector tests)
+# - fvt-mist (MIST integration tests)
+# -------------------------------------------------------------
+
+# Monitor FVT - Core Monitor Tests (runs in PARALLEL after IoT installation)
+- name: fvt-9x
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt_9x
+  when:
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_test_suite)"
+      operator: in
+      values: ["fvt_9x", "fvt_91x"]
+  runAfter:
+    - fvt-monitor-only
+    - waitfor-iot
+
+# Monitor FVT - Bootstrap & Integration Setup (runs in PARALLEL after IoT installation)
+- name: fvt-mref
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt_mref
+  when:
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_test_suite)"
+      operator: in
+      values: ["fvt_mref", "fvt_9x", "fvt_91x"]
+  runAfter:
+    - fvt-monitor-only
+    - waitfor-iot
+
+# Monitor FVT - IoT Integration Tests (runs in PARALLEL after IoT installation)
+- name: fvt-iot
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt_iot
+  when:
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_test_suite)"
+      operator: in
+      values: ["fvt_iot", "fvt_9x"]
+  runAfter:
+    - fvt-monitor-only
+    - waitfor-iot
+
+# Monitor FVT - SCADA Connector Tests (runs in PARALLEL after IoT installation)
+- name: fvt-scada
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt_scada
+  when:
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_test_suite)"
+      operator: in
+      values: ["fvt_scada", "fvt_9x", "fvt_91x"]
+  runAfter:
+    - fvt-monitor-only
+    - waitfor-iot
+
+# Monitor FVT - MIST Integration Tests (runs in PARALLEL after IoT installation)
+- name: fvt-mist
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt_mist
+  when:
+    - input: "$(params.fvt_digest_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_test_suite)"
+      operator: in
+      values: ["fvt_mist", "fvt_9x"]
+  runAfter:
+    - fvt-monitor-only
+    - waitfor-iot

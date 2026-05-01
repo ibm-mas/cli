@@ -24,7 +24,7 @@
       {%- if '9.1' in mas_app_channel_monitor -%}
         fvt_91x
       {%- elif '9.2' in mas_app_channel_monitor -%}
-        fvt_91x
+        fvt_9x
       {%- elif mas_app_channel_manage == '' -%}
         monitor_fvt
       {%- else -%}
