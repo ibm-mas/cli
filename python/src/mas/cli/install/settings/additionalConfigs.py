@@ -275,6 +275,8 @@ class AdditionalConfigsMixin():
             self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
 
     def aiserviceConfig(self) -> None:
+        self.aiserviceConfigSecret = None
+
         if self.aiserviceTenantSchedulingConfigFileLocal:
             aiserviceConfigSecret: dict[str, Any] = {
                 "apiVersion": "v1",

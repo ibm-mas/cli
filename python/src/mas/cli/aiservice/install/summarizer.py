@@ -58,7 +58,7 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("End Date", "tenant_entitlement_end_date")
 
         if self.aiserviceTenantSchedulingConfigFileLocal:
-            self.printParamSummary("Scheduling constraints config file", "tenant_scheduling_config_file")
+            self.printSummary("Scheduling constraints config file", self.aiserviceTenantSchedulingConfigFileLocal)
 
         self.printH2("S3 Configuration")
         # self.printParamSummary("Storage provider", "aiservice_s3_provider")

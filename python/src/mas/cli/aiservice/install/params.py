@@ -110,7 +110,4 @@ optionalParams = [
     # Slack
     "slack_token",
     "slack_channel",
-
-    # Scheduling constraints
-    "tenant_scheduling_config_file",
 ]
