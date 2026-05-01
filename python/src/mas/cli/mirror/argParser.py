@@ -75,7 +75,7 @@ mainGroup.add_argument(
     "--release",
     required=True,
     help="MAS release version",
-    choices=["8.10.x", "8.11.x", "9.0.x", "9.1.x"]
+    choices=["8.10.x", "8.11.x", "9.0.x", "9.1.x", "9.2.x-feature"]
 )
 mainGroup.add_argument(
     "--mode",
