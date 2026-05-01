@@ -447,6 +447,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # Set up the sls license file
         self.slsLicenseFile()
 
+        self.aiserviceConfig()
+
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
         self.printDescription([
@@ -494,6 +496,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,
+                    aiserviceConfig=self.aiserviceConfigSecret,
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel")
                 )
@@ -597,6 +600,22 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("tenant_entitlement_type", "standard")
         self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
         self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
+
+        self.configSchedulingConstraints()
+
+    @logMethodCall
+    def configSchedulingConstraints(self):
+        if self.showAdvancedOptions:
+            self.printH1("Scheduling constraints for AI Workloads")
+            self.printDescription(content=[
+                "AI Service supports configuring tolerations and nodeSelector per tenant to schedule AI workloads(training pipelines & Inference services) on dedicated nodes.",
+                "To configure tolerations and nodeSelector, create a YAML configuration file",
+                "The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:",
+                "  `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)",
+                "  `nodeSelector`: Dictionary of node label key-value pairs",
+            ])
+
+            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling constraints YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
 
     def _setMinioStorageDefaults(self) -> None:
         """

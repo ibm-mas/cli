@@ -57,6 +57,9 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("Start Date", "tenant_entitlement_start_date")
         self.printParamSummary("End Date", "tenant_entitlement_end_date")
 
+        if self.aiserviceTenantSchedulingConfigFileLocal:
+            self.printParamSummary("Scheduling constraints config file", "tenant_scheduling_config_file")
+
         self.printH2("S3 Configuration")
         # self.printParamSummary("Storage provider", "aiservice_s3_provider")
         if self.getParam("minio_root_user") is not None and self.getParam("minio_root_user") != "":

@@ -172,6 +172,8 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
         if self.getParam('tenant_entitlement_end_date') != "":
             command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
+        if self.aiserviceTenantSchedulingConfigFileLocal:
+            command += f"  --tenant-scheduling-constraints-file \"{self.aiserviceTenantSchedulingConfigFileLocal}\"{newline}"
 
         if self.getParam('rsl_url') != "":
             command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"

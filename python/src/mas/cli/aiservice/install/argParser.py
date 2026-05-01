@@ -23,7 +23,7 @@ def isValidFile(parser, arg) -> str:
 
 
 aiServiceinstallArgParser = argparse.ArgumentParser(
-    prog="mas install-aiservice",
+    prog="mas aiservice-install",
     description="\n".join([
         f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
         "Install Aiservice by configuring and launching the Tekton Pipeline.\n",
@@ -443,6 +443,13 @@ aiserviceAdvancedArgGroup.add_argument(
     help="Configure AI Service to run in IPv6. Before setting this option, be sure your cluster is configured in IPv6",
     action="store_const",
     const="true"
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--tenant-scheduling-constraints-file",
+    dest="tenant_scheduling_config_file",
+    required=False,
+    help="Path to the YAML file that contains the scheduling constraints for tenant",
+    type=lambda x: isValidFile(aiServiceinstallArgParser, x)
 )
 
 
