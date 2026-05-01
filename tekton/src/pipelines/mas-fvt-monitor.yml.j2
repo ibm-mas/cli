@@ -122,7 +122,51 @@ spec:
           operator: notin
           values: [""]
 
-    # 2. Monitor FVT with Manage Integration (Version 8.x/9.0 only)
+    # 2. Monitor FVT Phase 1 - Pre-IoT (File Ingest)
+    # -----------------------------------------------------------------------------
+    # Phase 1 runs immediately after Monitor installation completes
+    {{ lookup('template', 'taskdefs/fvt-monitor/pipeline-phase1.yml.j2') | indent(4) }}
+
+    # 3. Wait for IoT Installation
+    # -----------------------------------------------------------------------------
+    - name: waitfor-iot
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: sync-install
+        - name: configmap_key
+          value: IOT_INSTALL_STATUS
+        - name: configmap_target_value
+          value: Completed
+        - name: delay
+          value: "60"
+        - name: max_retries
+          value: "60"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.fvt_test_suite)"
+          operator: notin
+          values: ["monitor_fvt_with_manage"]
+      runAfter:
+        - fvt-monitor-only
+
+    # 4. Monitor FVT Phase 2 - Post-IoT (Parallel Execution)
+    # -----------------------------------------------------------------------------
+    # Phase 2 runs in parallel after IoT installation completes
+    {{ lookup('template', 'taskdefs/fvt-monitor/pipeline-phase2.yml.j2') | indent(4) }}
+
+    # 5. Monitor FVT with Manage Integration (Version 8.x/9.0 only - LEGACY)
     # -----------------------------------------------------------------------------
     # This is a separate suite for older Monitor versions (8.10, 8.11, 9.0) when Manage is installed
     # It is NOT part of the phased execution model above

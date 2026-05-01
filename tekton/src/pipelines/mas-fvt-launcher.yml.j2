@@ -149,25 +149,6 @@ spec:
     - name: aiservice_instance_id
       type: string
       default: ""
-    
-    # Monitor FVT Parameters
-    # -------------------------------------------------------------------------
-    - name: fvt_digest_monitor
-      type: string
-      default: ""
-      description: "Monitor FVT image digest"
-    - name: mas_app_channel_monitor
-      type: string
-      default: ""
-      description: "Monitor app channel version"
-    - name: mas_workspace_id
-      type: string
-      default: ""
-      description: "MAS workspace ID"
-    - name: fvt_test_suite
-      type: string
-      default: "fvt_9x"
-      description: "Monitor FVT test suite to run (fvt_9x, fvt_91x, fvt_mref, fvt_iot, fvt_scada, fvt_mist, fvt_monitor_only)"
 
   tasks:
     # 0. Configuration
@@ -851,13 +832,27 @@ spec:
       runAfter:
         - approval-manage
 
-    # ============================================================
-    # Monitor FVT - Phase 1 & Phase 2 Execution
-    # Phase 1: File Ingest (runs after Monitor install, before IoT)
-    # Phase 2: All other suites (run in parallel after IoT install)
-    # ============================================================
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/phase1.yml.j2') | indent(4) }}
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-monitor/phase2.yml.j2') | indent(4) }}
+    # Launch Monitor FVT (Monitor >= 9.2.0 - before IoT)
+    # Waits for both Monitor and IoT installations to complete before launching
+    - name: launchfvt-monitor-before-iot
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-monitor"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-monitor
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.mas_monitor_install_order)
+          operator: in
+          values: ["before-iot"]
+      runAfter:
+        - waitfor-monitor-before-iot
 
     # Launch Monitor FVT (Monitor < 9.2.0 - after IoT) - LEGACY
     - name: launchfvt-monitor
