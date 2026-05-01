@@ -60,6 +60,27 @@ spec:
       type: string
     - name: cli_version
       type: string
+    - name: argoapp_namespace
+      type: string
+      default: "openshift-gitops"
+    - name: argocluster_namespace
+      type: string
+      default: "openshift-gitops"
+    - name: argocluster_instance
+      type: string
+      default: ""
+    - name: restricted_access
+      type: string
+      default: "false"
+    - name: auto_delete
+      type: string
+      default: "false"
+    - name: cluster_admin_role
+      type: string
+      default: "true"
+    - name: application_admin_role
+      type: string
+      default: "true"
 
   tasks:
 {% if wait_for_deprovision == true %}
@@ -138,6 +159,20 @@ spec:
           value: $(params.app_revision)
         - name: cli_version
           value: $(params.cli_version)
+        - name: argoapp_namespace
+          value: $(params.argoapp_namespace)
+        - name: argocluster_namespace
+          value: $(params.argocluster_namespace)
+        - name: argocluster_instance
+          value: $(params.argocluster_instance)
+        - name: restricted_access
+          value: $(params.restricted_access)
+        - name: auto_delete
+          value: $(params.auto_delete)
+        - name: cluster_admin_role
+          value: $(params.cluster_admin_role)
+        - name: application_admin_role
+          value: $(params.application_admin_role)
       taskRef:
         kind: Task
         name: gitops-bootstrap

@@ -36,11 +36,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"iac provision"}
-
 function gitops_iac_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"iac provision"}
 
   # Set default values
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
