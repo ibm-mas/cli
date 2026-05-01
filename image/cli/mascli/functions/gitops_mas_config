@@ -887,9 +887,57 @@ function gitops_mas_config() {
       export SECRET_KEY_OBJECTSTORAGE_INFO=${OBJECTSTORAGE_SECRET}#info
       export COS_SECRET_FILE=$TEMP_DIR/cos-secret.json
       sm_login
-      sm_verify_secret_exists ${OBJECTSTORAGE_SECRET} "username,password,info"
+      
+      # Get the secret (don't verify format yet, as it might be in Terraform format)
       sm_get_secret_file ${OBJECTSTORAGE_SECRET} $COS_SECRET_FILE
-
+      
+      # Check if secret has MVI-required format (username, password, info) or Terraform format (accessKey, access_secret_key)
+      HAS_USERNAME=$(jq -r 'has("username")' $COS_SECRET_FILE)
+      HAS_PASSWORD=$(jq -r 'has("password")' $COS_SECRET_FILE)
+      HAS_INFO=$(jq -r 'has("info")' $COS_SECRET_FILE)
+      HAS_ACCESSKEY=$(jq -r 'has("accessKey")' $COS_SECRET_FILE)
+      HAS_SECRET_KEY=$(jq -r 'has("access_secret_key")' $COS_SECRET_FILE)
+      HAS_ENDPOINT=$(jq -r 'has("endpointURL")' $COS_SECRET_FILE)
+      
+      # If secret has Terraform format but not MVI format, transform it
+      if [ "$HAS_ACCESSKEY" == "true" ] && [ "$HAS_SECRET_KEY" == "true" ] && [ "$HAS_ENDPOINT" == "true" ] && \
+         ([ "$HAS_USERNAME" != "true" ] || [ "$HAS_PASSWORD" != "true" ] || [ "$HAS_INFO" != "true" ]); then
+        
+        echo_warning "Secret has Terraform format (accessKey, access_secret_key). Transforming to add ObjectStorageCfg required fields."
+        
+        # Extract Terraform values
+        ACCESS_KEY=$(jq -r '.accessKey' $COS_SECRET_FILE)
+        SECRET_KEY=$(jq -r '.access_secret_key' $COS_SECRET_FILE)
+        ENDPOINT_URL=$(jq -r '.endpointURL' $COS_SECRET_FILE)
+        
+        # Create info field in YAML format
+        INFO_YAML="config:\n url: ${ENDPOINT_URL}"
+        
+        # Update secret with ObjectStorageCfg required fields while preserving Terraform fields
+        UPDATED_SECRET=$(jq \
+          --arg username "$ACCESS_KEY" \
+          --arg password "$SECRET_KEY" \
+          --arg info "$INFO_YAML" \
+          '. + {username: $username, password: $password, info: $info}' \
+          $COS_SECRET_FILE)
+        
+        # Save updated secret back to Secrets Manager
+        echo "$UPDATED_SECRET" | aws secretsmanager update-secret \
+          --secret-id "${OBJECTSTORAGE_SECRET}" \
+          --region "${SM_AWS_REGION}" \
+          --secret-string file:///dev/stdin \
+          --description "COS credentials (includes both Terraform and ObjectStorageCfg formats)" > /dev/null
+        
+        echo_highlight "Secret transformed and updated in Secrets Manager."
+        
+        # Refresh the local copy
+        sm_get_secret_file ${OBJECTSTORAGE_SECRET} $COS_SECRET_FILE
+      fi
+      
+      # Now verify the secret has the required MVI format
+      sm_verify_secret_exists ${OBJECTSTORAGE_SECRET} "username,password,info"
+      
+      # Extract info field and write to YAML file for Jinja template
       jq -r .info $COS_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
 
       export SECRET_KEY_OBJECTSTORAGE_USERNAME=${OBJECTSTORAGE_SECRET}#username
