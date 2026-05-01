@@ -840,6 +840,16 @@ spec:
       type: string
       default: ""
 
+    - name: rds_db2_name_manage
+      type: string
+      default: ""
+    - name: rds_db2_name_iot
+      type: string
+      default: ""
+    - name: rds_db2_name_facilities
+      type: string
+      default: ""
+
   tasks:
     # 2. Kafka
     # -------------------------------------------------------------------------
@@ -886,6 +896,8 @@ spec:
           value: $(params.db2_database_db_config_yaml_iot)
         - name: rds_db2_backup
           value: $(params.rds_db2_backup_iot)
+        - name: rds_db2_name
+          value: $(params.rds_db2_name_iot)
       workspaces:
         - name: configs
           workspace: configs
@@ -1090,6 +1102,8 @@ spec:
           value: $(params.db2_database_db_config_yaml_manage)
         - name: rds_db2_backup
           value: $(params.rds_db2_backup_manage)
+        - name: rds_db2_name
+          value: $(params.rds_db2_name_manage)
       workspaces:
         - name: configs
           workspace: configs
@@ -1430,7 +1444,8 @@ spec:
           value: $(params.db2_database_db_config_yaml_facilities)
         - name: rds_db2_backup
           value: $(params.rds_db2_backup_facilities)
-      
+        - name: rds_db2_name
+          value: $(params.rds_db2_name_facilities)
       workspaces:
         - name: configs
           workspace: configs
