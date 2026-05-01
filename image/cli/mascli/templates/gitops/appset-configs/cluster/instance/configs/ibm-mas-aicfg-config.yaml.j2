@@ -17,6 +17,7 @@ aiservice_meta_agent_enabled: {{ AISERVICE_META_AGENT_ENABLED }}
 system_suite_aicfg_labels:
     mas.ibm.com/configScope: system
     mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
+    mas.ibm.com/workspaceId: "{{ MAS_WORKSPACE_ID }}"
 
 aiservice_api_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AISERVICE_API_KEY }}>  # pragma: allowlist secret
 
