@@ -41,6 +41,9 @@ spec:
     - name: rds_db2_backup
       type: string
       default: "false"
+    - name: rds_db2_name
+      type: string
+      default: "false"
 
   stepTemplate:
     name: gitops-rds-db2-database
@@ -77,6 +80,8 @@ spec:
         value: $(params.replica_db)
       - name: RDS_DB2_BACKUP
         value: $(params.rds_db2_backup)
+      - name: RDS_DB2_NAME
+        value: $(params.rds_db2_name)
     envFrom:
       - configMapRef:
           name: environment-properties

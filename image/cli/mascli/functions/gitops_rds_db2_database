@@ -28,7 +28,7 @@ IBM RDS DB2:
       --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                       Flag to know that this is ReplicaDB instance
       --rds-db2-backup ${COLOR_YELLOW}RDS_DB2_BACKUP${TEXT_RESET}                                                Flag to know that this is RDS DB2 backup instance
-
+      --rds-db2-name ${COLOR_YELLOW}RDS_DB2_NAME${TEXT_RESET}                                                    Flag to know that this is RDS DB2 Name
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}   Secrets Manager key seperator string      
@@ -127,6 +127,9 @@ function gitops_rds_db2_database_noninteractive() {
       --rds-db2-backup)
         export RDS_DB2_BACKUP=$1 && shift
         ;;
+      --rds-db2-name)
+        export RDS_DB2_NAME=$1 && shift
+        ;;
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -220,6 +223,9 @@ function gitops_rds_db2_database() {
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     export DB2_INSTANCE_NAME=rds-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   fi
+  if [[ -z $RDS_DB2_NAME ]]; then
+    export RDS_DB2_NAME="MAXIMO"
+  fi
   export DB2_NAMESPACE="rds-${MAS_INSTANCE_ID}"
 
   if [ -z $GIT_SSH ]; then
@@ -273,6 +279,7 @@ function gitops_rds_db2_database() {
   echo_reset_dim "mas-app-id  ................................... ${COLOR_MAGENTA}${MAS_APP_ID}"
   echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
   echo_reset_dim "rds-db2-backup ................................ ${COLOR_MAGENTA}${RDS_DB2_BACKUP}"
+  echo_reset_dim "rds-db2-name ................................   ${COLOR_MAGENTA}${RDS_DB2_NAME}"
   echo_reset_dim "db2-instance-registry-yaml .................... ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
   echo_reset_dim "db2-instance-dbm-config-yaml .................. ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
   echo_reset_dim "db2-database-db-config-yaml ................... ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
@@ -315,7 +322,7 @@ function gitops_rds_db2_database() {
   # db2rds params from aws config secrets
   export HOST=${CONFIG_SECRETS_PREFIX}#db2_endpoint
   export PORT=${CONFIG_SECRETS_PREFIX}#db2_port
-  export DBNAME=${CONFIG_SECRETS_PREFIX}#db2_name
+  export DBNAME=${RDS_DB2_NAME}
   export JDBC_CONNECTION_URL=${CONFIG_SECRETS_PREFIX}#jdbc_connection_url
   export RDS_ADMIN_DB_NAME=${CONFIG_SECRETS_PREFIX}#db2_admin_db_name
 
