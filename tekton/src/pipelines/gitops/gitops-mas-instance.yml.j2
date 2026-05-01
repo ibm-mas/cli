@@ -36,6 +36,12 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
+    - name: mongo_reset_instance_password
+      type: string
+      default: "false"
+    - name: mongo_update_instance_mongo_secret
+      type: string
+      default: "false"
     - name: sls_channel
       type: string
     - name: mas_channel
@@ -395,6 +401,10 @@ spec:
           value: $(params.mas_instance_id)
         - name: mongo_provider
           value: $(params.mongo_provider)
+        - name: mongo_reset_instance_password
+          value: $(params.mongo_reset_instance_password)
+        - name: mongo_update_instance_mongo_secret
+          value: $(params.mongo_update_instance_mongo_secret)
         - name: user_action
           value: $(params.docdb_user_action)
         - name: git_branch
@@ -533,6 +543,10 @@ spec:
           value: $(params.mas_instance_id)
         - name: mongo_provider
           value: $(params.mongo_provider)
+        - name: mongo_reset_instance_password
+          value: $(params.mongo_reset_instance_password)
+        - name: mongo_update_instance_mongo_secret
+          value: $(params.mongo_update_instance_mongo_secret)
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org
