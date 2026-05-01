@@ -910,8 +910,12 @@ function gitops_mas_config() {
         SECRET_KEY=$(jq -r '.access_secret_key' $COS_SECRET_FILE)
         ENDPOINT_URL=$(jq -r '.endpointURL' $COS_SECRET_FILE)
         
-        # Create info field in YAML format
-        INFO_YAML="config:\n url: ${ENDPOINT_URL}"
+        # Create info field in YAML format with proper newlines
+        INFO_YAML=$(cat <<EOF
+config:
+  url: ${ENDPOINT_URL}
+EOF
+)
         
         # Update secret with ObjectStorageCfg required fields while preserving Terraform fields
         UPDATED_SECRET=$(jq \
