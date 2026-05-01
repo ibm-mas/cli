@@ -8,10 +8,11 @@ Contents
 3. [Building the Tekton definitions](#building-the-tekton-definitions)
 4. [Building the Documentation](#building-the-documentation)
 5. [Building the container image locally](#building-the-container-image-locally)
-6. [Using the docker image](#using-the-docker-image)
-7. [Working Across Repositories](#working-across-repositories)
-8. [Pull Requests](#pull-requests)
-9. [Pulling MAS Ansible Devops into MAS Command Line Interface](#pulling-mas-ansible-devops-into-mas-command-line-interface)
+6. [Building and deploying to OpenShift Container Platform](#building-and-deploying-to-openshift-container-platform)
+7. [Using the docker image](#using-the-docker-image)
+8. [Working Across Repositories](#working-across-repositories)
+9. [Pull Requests](#pull-requests)
+10. [Pulling MAS Ansible Devops into MAS Command Line Interface](#pulling-mas-ansible-devops-into-mas-command-line-interface)
 
 
 Detect Secrets
@@ -91,6 +92,51 @@ Build & install ansible collections and the mas.devops & mas.cli Python packages
 make all
 make run
 ```
+
+Building and deploying to OpenShift Container Platform
+-------------------------------------------------------------------------------
+When developing locally and testing against an OCP cluster, you can use the OCP-specific build targets to build Tekton definitions that reference your cluster's internal registry and push the container image directly to that registry.
+
+**Prerequisites:**
+- You must be logged into your OCP cluster using `oc login`
+- The cluster's internal image registry must be accessible
+
+### Build Tekton definitions for OCP
+Build Tekton definitions configured to use the OCP internal registry:
+```bash
+make tekton-ocp
+```
+
+This target:
+- Verifies you are logged into an OCP cluster
+- Builds Tekton definitions with `USE_OCP_REGISTRY=true` to reference the internal registry
+- Configures tasks to use `image-registry.openshift-image-registry.svc:5000/<project>/ibmmas-cli:100.0.0-pre.localbuild`
+
+### Push container image to OCP registry
+Push the locally built container image to your OCP cluster's internal registry:
+```bash
+make push-to-ocp
+```
+
+This target:
+- Exposes the OCP internal registry route if not already exposed
+- Authenticates to the registry using your OCP token
+- Tags the local image for the OCP registry
+- Pushes the image to `image-registry.openshift-image-registry.svc:5000/<project>/ibmmas-cli:100.0.0-pre.localbuild`
+- Supports both `podman` and `docker` (with fallback to `skopeo` for TLS issues)
+
+### Complete OCP build and deployment
+Build everything and deploy to OCP in one command:
+```bash
+make all-ocp
+```
+
+This is equivalent to running:
+```bash
+make ansible-devops python tekton-ocp docker push-to-ocp
+```
+
+After completion, your Tekton tasks will be configured to use the image from your cluster's internal registry, making it ideal for local development and testing.
 
 
 Using the docker image
