@@ -85,6 +85,9 @@ class AiServiceUpgradeApp(BaseApp):
                     self.fatalError(f"No upgrade available, {aiserviceInstanceId} is are already on the latest release {currentAiserviceChannel}")
                 nextAiserviceChannel = self.upgrade_path[currentAiserviceChannel]
 
+        # Detect ODH and notify user about migration
+        odhDetected = self.detectODH()
+
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
             self.printDescription([
@@ -103,6 +106,9 @@ class AiServiceUpgradeApp(BaseApp):
         print_formatted_text(HTML(f"<LightSlateGrey>Current AI Service Channel ............. {currentAiserviceChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Next AI Service Channel ................ {nextAiserviceChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
+        print()
+        print_formatted_text(HTML("<LightSlateGrey><u>Required Migrations</u></LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>AI Service Data Science Platform ........ {'Migrate from ODH to RHOAI' if odhDetected else 'No action required'}</LightSlateGrey>"))
 
         if not self.noConfirm:
             print()
@@ -136,4 +142,43 @@ class AiServiceUpgradeApp(BaseApp):
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {aiserviceInstanceId} upgrade, see log file for details")
+
+    def detectODH(self) -> bool:
+        """
+        Detect if ODH (Open Data Hub) is installed and may need migration to RHOAI.
+        This is a simplified check - the Ansible role will perform detailed validation.
+        """
+        with Halo(text='Checking for Open Data Hub (ODH)', spinner=self.spinner) as h:
+            try:
+                subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
+                subscriptions = subscriptionAPI.get(namespace="openshift-operators").to_dict()["items"]
+
+                odh_installed = any(
+                    sub.get("spec", {}).get("name") == "opendatahub-operator"
+                    for sub in subscriptions
+                )
+
+                if odh_installed:
+                    h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub detected - migration to RHOAI will be performed")
                     print()
+                    self.printDescription([
+                        "<u>Required Migration Notice</u>",
+                        "Open Data Hub (ODH) is currently installed and will be migrated to Red Hat OpenShift AI (RHOAI)",
+                        "- The upgrade process will automatically handle the migration",
+                        "- ODH will be replaced with RHOAI",
+                        "- This migration is mandatory to continue receiving updates",
+                        "",
+                        "<u>Expected Downtime</u>",
+                        "- AI Service will be unavailable during migration (~10-12 minutes)",
+                        "- Data science workloads will be temporarily interrupted",
+                        "- Deployed models will be preserved"
+                    ])
+                    print()
+                    return True
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
+                    return False
+
+            except ResourceNotFoundError:
+                h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
+                return False
