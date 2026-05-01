@@ -60,18 +60,18 @@ def test_install_interactive_no_catalog(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
-        # 12. Grafana configuration
+        # 12a. Grafana configuration
         '.*Install Grafana.*': lambda msg: 'y',
-        # 13. MongoDB configuration
+        # 12. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
-        # 14. Db2 configuration
+        # 13. Db2 configuration
         '.*Create system Db2 instance.*': lambda msg: 'y',
         '.*Re-use System Db2 instance for Manage application.*': lambda msg: 'n',
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
-        # 15. Kafka configuration
+        # 14. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
-        # 16. Final confirmation
+        # 15. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }

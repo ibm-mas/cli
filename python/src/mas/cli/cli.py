@@ -163,6 +163,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "visualinspection": ["9.2.x-feature", "9.1.x"],
                 "iot": ["9.2.x-feature", "9.1.x"],
                 "monitor": ["9.2.x-feature", "9.1.x"],
+                "predict": ["9.2.x-feature", "9.1.x"],
                 "facilities": ["9.2.x-feature", "9.1.x"],
             },
             "9.1.x": {

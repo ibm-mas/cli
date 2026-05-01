@@ -64,6 +64,7 @@ from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
+    enablePipelinesConsolePlugin,
     updateTektonDefinitions,
     preparePipelinesNamespace,
     prepareInstallSecrets,
@@ -663,26 +664,27 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if self.showAdvancedOptions:
                 self.printH1("Configure Permission Mode")
                 self.printDescription([
-                    "Choose how MAS should be installed with respect to cluster-wide permissions:",
+                    "Choose how MAS should be installed with respect to permissions:",
                     "",
                     "  1. <b>cluster</b> - Install with ClusterRoles (default)",
-                    "     - Keeps the current default MAS behavior",
-                    "     - ClusterRoles are applied by automation instead of operators",
-                    "     - Full application lifecycle management remains available",
+                    "     - MAS admins can create, update, and remove applications across the cluster",
+                    "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts",
                     "",
-                    "  2. <b>nonEssential</b> - Install without ClusterRoles",
-                    "     - Uses namespace-scoped roles for non-essential access",
-                    "     - Application lifecycle management works only in pre-created namespaces",
-                    "     - OpenShift admin must pre-create app namespaces as needed",
+                    "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
+                    "     - No ClusterRoles are installed in this mode",
+                    "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
+                    "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
+                    "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
                     "",
-                    "  3. <b>essential</b> - Install with essential Roles only",
-                    "     - Only essential permissions are available",
-                    "     - MAS Admin UI/API cannot manage application lifecycle",
-                    "     - OpenShift admin must manage apps outside MAS automation"
+                    "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
+                    "     - No ClusterRoles are installed in this mode",
+                    "     - Only essential permissions required for MAS applications are applied",
+                    "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
+                    "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually."
                 ])
 
                 permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
-                permissionModeMap = {1: "cluster", 2: "nonEssential", 3: "essential"}
+                permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
                 self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
             elif self.getParam("mas_permission_mode") == "":
                 self.setParam("mas_permission_mode", "cluster")
@@ -929,37 +931,48 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printH1("Configure Domain & Certificate Management")
             configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
             if configureDomainAndCertMgmt:
+                if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                    self.printDescription([
+                        f"You are using the {self.getParam('mas_permission_mode')} permission mode.",
+                        "DNS integration is not available in this mode.",
+                        "If you use a custom domain, you need to configure DNS manually."
+                    ])
                 configureDomain = self.yesOrNo('Configure custom domain')
                 if configureDomain:
                     self.promptForString("MAS top-level domain", "mas_domain")
-                    self.printDescription([
-                        "",
-                        "DNS Integrations:",
-                        "  1. Cloudflare",
-                        "  2. IBM Cloud Internet Services",
-                        "  3. AWS Route 53",
-                        "  4. None (I will set up DNS myself)"
-                    ])
 
-                    dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
-
-                    if dnsProvider == 1:
-                        self.configDNSAndCertsCloudflare()
-                    elif dnsProvider == 2:
-                        self.configDNSAndCertsCIS()
-                    elif dnsProvider == 3:
-                        self.configDNSAndCertsRoute53()
-                    elif dnsProvider == 4:
-                        # Use MAS default self-signed cluster issuer with a custom domain
+                    if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
                         self.setParam("dns_provider", "")
                         self.setParam("mas_cluster_issuer", "")
-
-                    if dnsProvider in [1, 2]:
+                    else:
                         self.printDescription([
-                            "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
-                            "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                            "",
+                            "DNS Integrations:",
+                            "  1. Cloudflare",
+                            "  2. IBM Cloud Internet Services",
+                            "  3. AWS Route 53",
+                            "  4. None (I will set up DNS myself)"
                         ])
-                        self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
+
+                        dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
+
+                        if dnsProvider == 1:
+                            self.configDNSAndCertsCloudflare()
+                        elif dnsProvider == 2:
+                            self.configDNSAndCertsCIS()
+                        elif dnsProvider == 3:
+                            self.configDNSAndCertsRoute53()
+                        elif dnsProvider == 4:
+                            # Use MAS default self-signed cluster issuer with a custom domain
+                            self.setParam("dns_provider", "")
+                            self.setParam("mas_cluster_issuer", "")
+
+                        if dnsProvider in [1, 2]:
+                            self.printDescription([
+                                "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
+                                "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                            ])
+                            self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
 
                 else:
                     # Use MAS default self-signed cluster issuer with the default domain
@@ -1942,6 +1955,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.getParam("mas_permission_mode") != "":
             if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
                 self.fatalError(f"--permission-mode is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+            elif self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                if self.getParam("dns_provider") != "" or self.getParam("mas_cluster_issuer") != "":
+                    self.fatalError(
+                        "\n".join([
+                            f"Invalid configuration for permission mode '{self.getParam('mas_permission_mode')}'",
+                            "DNS integration is not available in this mode.",
+                            "Remove DNS integration options such as --dns-provider and --mas-cluster-issuer, or switch to --permission-mode cluster.",
+                            "If you want to continue with namespaced or minimal mode, you need to manage DNS records manually"
+                        ])
+                    )
         elif isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
             self.setParam("mas_permission_mode", "cluster")
 
@@ -2189,6 +2212,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
+
+            # Enable console plugin for OCP 4.21+
+            with Halo(text='Enabling Pipelines console plugin', spinner=self.spinner) as h:
+                if enablePipelinesConsolePlugin(self.dynamicClient):
+                    h.stop_and_persist(symbol=self.successIcon, text="Pipelines console plugin enabled")
+                else:
+                    h.stop_and_persist(symbol=self.warningIcon, text="Failed to enable Pipelines console plugin (non-fatal)")
+                    # Note: This is non-fatal as the plugin can be enabled manually
 
             if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
                 with Halo(text='Configuring cluster for path-based routing', spinner=self.spinner) as h:
