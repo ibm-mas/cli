@@ -98,6 +98,10 @@ spec:
       type: string
       description: Permission mode for MAS installation (cluster, namespaced, minimal)
       default: ""
+    - name: mas_internal_certificate_issuer_kind
+      type: string
+      description: Internal certificate issuer kind for MAS Suite CR (Issuer or ClusterIssuer)
+      default: ""
 
     - name: ibm_entitlement_key
       type: string
@@ -218,6 +222,8 @@ spec:
         value: $(params.mas_deployment_progression)
       - name: MAS_PERMISSION_MODE
         value: $(params.mas_permission_mode)
+      - name: MAS_INTERNAL_CERTIFICATE_ISSUER_KIND
+        value: $(params.mas_internal_certificate_issuer_kind)
 
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)

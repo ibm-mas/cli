@@ -71,6 +71,7 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline
 )
+from mas.devops.preinstall_rbac import applyPreInstallMASRBAC, permissionCheckForRBAC
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,7 @@ def logMethodCall(func):
 
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
 
-    def setSelectedAppsParam(self):
+    def getSelectedApps(self) -> list[str]:
         selectedApps = ["core"]
         if self.installAssist:
             selectedApps.append("assist")
@@ -109,7 +110,49 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installArcgis:
             selectedApps.append("arcgis")
 
-        self.setParam("mas_selected_apps", ",".join(selectedApps))
+        return selectedApps
+
+    def evaluatePreInstallRBACAccess(self) -> None:
+        self.applyPreInstallMASRBAC = False
+
+        if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            return
+
+        # TODO: Sort out the openshift-ingress exception properly.
+        # For now, keep continue pre-install RBAC for minimal mode here.
+        # if self.getParam("mas_permission_mode") == "minimal":
+            # return
+
+        if self.getParam("skip_preinstall_rbac") == "true":
+            return
+
+        permissionResults = permissionCheckForRBAC(self.dynamicClient)
+        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
+
+        if hasPreInstallRBACAccess:
+            self.applyPreInstallMASRBAC = True
+            return
+
+        if self.isInteractiveMode:
+            self.printDescription([
+                "",
+                f"You selected the '{self.getParam('mas_permission_mode')}' permission mode.",
+                "Applying RBAC based on the selected permission mode before launching the install pipeline requires cluster administrator level permissions.",
+                "Your current cluster login does not appear to have sufficient permissions to apply that RBAC.",
+                "If your OpenShift administrator has already run 'mas setup-preinstall-rbac', you can continue the installation without applying it again."
+            ])
+
+            if not self.yesOrNo("Has your OpenShift administrator already run 'mas setup-preinstall-rbac'"):
+                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas setup-preinstall-rbac' and then run mas install again.")
+        else:
+            self.fatalError(
+                "\n".join([
+                    f"You selected the '{self.getParam('mas_permission_mode')}' permission mode.",
+                    "Applying RBAC based on the selected permission mode before launching the install pipeline requires cluster administrator level permissions.",
+                    "Your current cluster login does not appear to have sufficient permissions to apply that RBAC.",
+                    "Ask your OpenShift administrator to run 'mas setup-preinstall-rbac' and then run mas install again with --skip-preinstall-rbac"
+                ])
+            )
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -979,6 +1022,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("dns_provider", "")
                     self.setParam("mas_domain", "")
                     self.setParam("mas_cluster_issuer", "")
+                if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+                    if self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                        self.setParam("mas_internal_certificate_issuer_kind", "Issuer")
+                    else:
+                        self.printDescription([
+                            "Select the internal certificate issuer kind to configure in the Suite CR.",
+                            "  1. Issuer",
+                            "  2. ClusterIssuer"
+                        ])
+                        issuerKindChoice = self.promptForInt("Internal certificate issuer kind", min=1, max=2, default=2)
+                        self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")
                 self.manualCerts = self.yesOrNo("Configure manual certificates")
                 self.setParam("mas_manual_cert_mgmt", str(self.manualCerts).lower())
                 if self.getParam("mas_manual_cert_mgmt").lower() == "true":
@@ -1188,8 +1242,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.configAIService()
         else:
             self.installAIService = False
-
-        self.setSelectedAppsParam()
 
     @logMethodCall
     def configAppChannel(self, appId):
@@ -1599,6 +1651,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # MAS Core
         self.configPermissionMode()
+        self.evaluatePreInstallRBACAccess()
         self.configCertManager()
         self.configMAS()
 
@@ -1851,7 +1904,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified", "mas_configure_ingress"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_preinstall_rbac", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified", "mas_configure_ingress"]:
                 pass
 
             elif key == "manual_certificates":
@@ -1955,19 +2008,34 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.getParam("mas_permission_mode") != "":
             if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
                 self.fatalError(f"--permission-mode is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
-            elif self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
-                if self.getParam("dns_provider") != "" or self.getParam("mas_cluster_issuer") != "":
+            else:
+                if self.getParam("mas_internal_certificate_issuer_kind") == "":
+                    if self.getParam("mas_permission_mode") == "cluster":
+                        self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer")
+                    else:
+                        self.setParam("mas_internal_certificate_issuer_kind", "Issuer")
+
+                if self.getParam("mas_internal_certificate_issuer_kind") == "ClusterIssuer" and self.getParam("mas_permission_mode") != "cluster":
+                    self.fatalError(
+                        "\n".join([
+                            "Invalid configuration for internal certificate issuer kind 'ClusterIssuer'",
+                            "ClusterIssuer can only be used when --permission-mode cluster is selected."
+                        ])
+                    )
+
+                if self.getParam("mas_permission_mode") in ["namespaced", "minimal"] and self.getParam("dns_provider") != "":
                     self.fatalError(
                         "\n".join([
                             f"Invalid configuration for permission mode '{self.getParam('mas_permission_mode')}'",
                             "DNS integration is not available in this mode.",
-                            "Remove DNS integration options such as --dns-provider and --mas-cluster-issuer, or switch to --permission-mode cluster.",
+                            "Remove DNS integration option --dns-provider, or switch to --permission-mode cluster.",
                             "If you want to continue with namespaced or minimal mode, you need to manage DNS records manually"
                         ])
                     )
         elif isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
             self.setParam("mas_permission_mode", "cluster")
 
+        self.evaluatePreInstallRBACAccess()
         self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
@@ -1999,8 +2067,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if not hasKafkaConfig:
                 self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
 
-        self.setSelectedAppsParam()
-
     @logMethodCall
     def install(self, argv):
         """
@@ -2030,6 +2096,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
+
+        if hasattr(args, 'skip_preinstall_rbac') and args.skip_preinstall_rbac:
+            self.setParam("skip_preinstall_rbac", "true")
 
         if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
             self.setParam("mas_configure_ingress", "true")
@@ -2212,6 +2281,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
+
+            if self.applyPreInstallMASRBAC:
+                with Halo(text='Applying pre-install MAS RBAC', spinner=self.spinner) as h:
+                    applyPreInstallMASRBAC(
+                        dynClient=self.dynamicClient,
+                        masVersion=".".join(self.getParam("mas_channel").split(".")[:2]),
+                        masInstanceId=self.getParam("mas_instance_id"),
+                        permissionMode=self.getParam("mas_permission_mode"),
+                        selectedApps=self.getSelectedApps()
+                    )
+                    h.stop_and_persist(symbol=self.successIcon, text="Pre-install MAS RBAC applied")
 
             # Enable console plugin for OCP 4.21+
             with Halo(text='Enabling Pipelines console plugin', spinner=self.spinner) as h:

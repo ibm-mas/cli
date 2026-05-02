@@ -157,7 +157,6 @@
         - suite-db2-setup-for-facilities
         - suite-dns
         - suite-install
-        - suite-rbac
         - suite-rollback
         - suite-uninstall
         - suite-upgrade
