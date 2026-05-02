@@ -23,6 +23,7 @@ class KafkaSettingsMixin():
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
         installIoT: bool
+        installManage: bool
         showAdvancedOptions: bool
         localConfigDir: str | None
 
@@ -72,10 +73,22 @@ class KafkaSettingsMixin():
             ...
 
     def configKafka(self) -> None:
-        if self.installIoT:
+        # Check if CIVIL component is enabled in Manage
+        isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
+
+        if self.installIoT or isCivilEnabled:
             self.printH1("Configure Kafka")
+
+            # Build description based on what requires Kafka
+            requirements = []
+            if self.installIoT:
+                requirements.append("Maximo IoT")
+            if isCivilEnabled:
+                requirements.append("Maximo Manage Civil Infrastructure")
+
+            requirementsText = " and ".join(requirements)
             self.printDescription([
-                "Maximo IoT requires a shared system-scope Kafka instance",
+                f"{requirementsText} requires a shared system-scope Kafka instance",
                 "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
                 "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
             ])
