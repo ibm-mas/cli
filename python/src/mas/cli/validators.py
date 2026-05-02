@@ -241,4 +241,11 @@ class BucketPrefixValidator(Validator):
         if not match(r"^.{1,4}$", bucketPrefix):
             raise ValidationError(message='Bucket prefix does not meet the requirement', cursor_position=len(bucketPrefix))
 
+
+class CustomizationArchiveNameValidator(Validator):
+    def validate(self, document: Document) -> None:
+        name = document.text
+        if not match(r"^[0-9a-zA-Z][0-9a-zA-Z\-_.]+$", name):
+            raise ValidationError(message='Customization archive name must start with a letter or digit, and contain only letters, digits, hyphens, underscores, and dots', cursor_position=len(name))
+
 # Made with Bob
