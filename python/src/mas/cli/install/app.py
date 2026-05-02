@@ -137,20 +137,21 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printDescription([
                 "",
                 f"You selected the '{self.getParam('mas_permission_mode')}' permission mode.",
-                "Applying RBAC based on the selected permission mode before launching the install pipeline requires cluster administrator level permissions.",
-                "Your current cluster login does not appear to have sufficient permissions to apply that RBAC.",
-                "If your OpenShift administrator has already run 'mas setup-preinstall-rbac', you can continue the installation without applying it again."
+                "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
+                "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
+                "Ask your OpenShift administrator to run 'mas setup-preinstall-rbac' for this MAS instance, MAS version, permission mode, and selected apps.",
+                "If that has already been done, you can continue the installation without applying it again."
             ])
 
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas setup-preinstall-rbac'"):
-                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas setup-preinstall-rbac' and then run mas install again.")
+            if not self.yesOrNo("Has your OpenShift administrator already run 'mas setup-preinstall-rbac' for this installation"):
+                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas setup-preinstall-rbac' for this installation and then run mas install again.")
         else:
             self.fatalError(
                 "\n".join([
                     f"You selected the '{self.getParam('mas_permission_mode')}' permission mode.",
-                    "Applying RBAC based on the selected permission mode before launching the install pipeline requires cluster administrator level permissions.",
-                    "Your current cluster login does not appear to have sufficient permissions to apply that RBAC.",
-                    "Ask your OpenShift administrator to run 'mas setup-preinstall-rbac' and then run mas install again with --skip-preinstall-rbac"
+                    "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
+                    "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
+                    "Ask your OpenShift administrator to run 'mas setup-preinstall-rbac' for this installation and then rerun 'mas install' with --skip-preinstall-rbac."
                 ])
             )
 
@@ -729,6 +730,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
                 permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
                 self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
+
+                if self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                    self.setParam("mas_internal_certificate_issuer_kind", "Issuer")
+                else:
+                    self.printDescription([
+                        "Select the internal certificate issuer kind to configure in the Suite CR.",
+                        "  1. Issuer",
+                        "  2. ClusterIssuer"
+                    ])
+                    issuerKindChoice = self.promptForInt("Internal certificate issuer kind", min=1, max=2, default=2)
+                    self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")
             elif self.getParam("mas_permission_mode") == "":
                 self.setParam("mas_permission_mode", "cluster")
                 self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer")
@@ -1023,17 +1035,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("dns_provider", "")
                     self.setParam("mas_domain", "")
                     self.setParam("mas_cluster_issuer", "")
-                if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
-                    if self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
-                        self.setParam("mas_internal_certificate_issuer_kind", "Issuer")
-                    else:
-                        self.printDescription([
-                            "Select the internal certificate issuer kind to configure in the Suite CR.",
-                            "  1. Issuer",
-                            "  2. ClusterIssuer"
-                        ])
-                        issuerKindChoice = self.promptForInt("Internal certificate issuer kind", min=1, max=2, default=2)
-                        self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")
                 self.manualCerts = self.yesOrNo("Configure manual certificates")
                 self.setParam("mas_manual_cert_mgmt", str(self.manualCerts).lower())
                 if self.getParam("mas_manual_cert_mgmt").lower() == "true":
