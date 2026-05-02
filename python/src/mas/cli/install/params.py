@@ -46,6 +46,7 @@ optionalParams = [
     "mas_app_settings_demodata",
     "mas_permission_mode",
     "skip_preinstall_rbac",
+    "mas_internal_certificate_issuer_kind",
     "mas_app_settings_customization_archive_name",
     "mas_app_settings_customization_archive_url",
     "mas_app_settings_customization_archive_username",
@@ -72,7 +73,6 @@ optionalParams = [
     # TODO: Route53 support
     "dns_provider",
     "mas_cluster_issuer",
-    "mas_internal_certificate_issuer_kind",
     "ocp_ingress",
     # CIS
     "cis_email",

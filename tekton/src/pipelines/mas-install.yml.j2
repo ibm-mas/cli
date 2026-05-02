@@ -250,7 +250,7 @@ spec:
           operator: notin
           values: [""]
 
-    # 5.6 Suite Configuration
+    # 5.5 Suite Configuration
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
@@ -259,7 +259,7 @@ spec:
           operator: notin
           values: [""]
 
-    # 5.7 Suite Verification
+    # 5.6 Suite Verification
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2') | indent(4) }}
       runAfter:
         - suite-config
@@ -268,13 +268,13 @@ spec:
           operator: notin
           values: [""]
 
-    # 5.8 Configure Db2 in MAS
+    # 5.7 Configure Db2 in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
         - suite-db2-setup-facilities
 
-    # 5.9 Configure Kafka in MAS
+    # 5.8 Configure Kafka in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
