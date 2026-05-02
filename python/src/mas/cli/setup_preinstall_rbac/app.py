@@ -124,7 +124,11 @@ class SetupPreinstallRBACApp(BaseApp):
         permissionMode = self.getParam("permission_mode").strip()
         selectedApps = [app.strip() for app in self.getParam("apps").split(",") if app.strip()]
 
-        if not isVersionEqualOrAfter("9.2.0", masVersion):
+        masVersionForComparison = masVersion
+        if masVersionForComparison.count(".") == 1:
+            masVersionForComparison = f"{masVersionForComparison}.0"
+
+        if not isVersionEqualOrAfter("9.2.0", masVersionForComparison):
             self.fatalError("Set up pre-install RBAC for MAS is supported only for MAS version 9.2 and later")
 
         permissionResults = permissionCheckForRBAC(self.dynamicClient)

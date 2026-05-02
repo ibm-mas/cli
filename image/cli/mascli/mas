@@ -827,6 +827,15 @@ case $1 in
     mas-cli setup-rbac "$@"
     ;;
 
+  setup-preinstall-rbac)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! setup-preinstall-rbac                                                     !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "setup-preinstall-rbac")
+    shift
+    # Run the new Python-based setup-preinstall-rbac
+    mas-cli setup-preinstall-rbac "$@"
+    ;;
 
   gitops)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Functions (v${VERSION})${TEXT_RESET}"

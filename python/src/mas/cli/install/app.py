@@ -731,6 +731,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
             elif self.getParam("mas_permission_mode") == "":
                 self.setParam("mas_permission_mode", "cluster")
+                self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer")
+                
 
     def _getMasDomainForDisplay(self):
         masDomain = self.getParam("mas_domain")
