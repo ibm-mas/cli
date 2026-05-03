@@ -66,6 +66,8 @@ rules:
       - kafkacfgs
       - slscfgs
       - bascfgs
+      - idpcfgs
+      - smtpcfgs
     verbs:
       - get
       - create

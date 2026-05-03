@@ -94,6 +94,18 @@ rules:
       - create
       - patch
       - list
+  # DB2 setup requires pod exec access to copy files and run commands
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+      - pods/exec
+    verbs:
+      - get
+      - list
+      - create
+  
   
   # DB2 requires cert-manager issuers and certificates for SSL
   - apiGroups:
