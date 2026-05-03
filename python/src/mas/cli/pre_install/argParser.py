@@ -14,7 +14,7 @@ from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
 
 setupPreinstallRBACArgParser = argparse.ArgumentParser(
-    prog="mas setup-preinstall-rbac",
+    prog="mas pre-install",
     description="\n".join([
         f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
         "Set up pre-install RBAC for MAS.",
@@ -40,7 +40,7 @@ targetArgGroup.add_argument(
     "--mas-version",
     dest="mas_version",
     required=False,
-    help="The MAS major.minor version used to select pre-install RBAC manifests, for example 9.2"
+    help="The MAS version in x.y.z format used to select pre-install RBAC manifests, for example 9.2.0"
 )
 
 targetArgGroup.add_argument(
@@ -60,7 +60,7 @@ targetArgGroup.add_argument(
 
 otherArgGroup = setupPreinstallRBACArgParser.add_argument_group(
     "More",
-    "Additional options for setup-preinstall-rbac."
+    "Additional options for pre-install."
 )
 
 otherArgGroup.add_argument(

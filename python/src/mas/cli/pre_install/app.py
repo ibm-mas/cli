@@ -17,7 +17,7 @@ from prompt_toolkit.completion import WordCompleter
 from ..cli import BaseApp
 from ..validators import InstanceIDFormatValidator
 from .argParser import setupPreinstallRBACArgParser
-from mas.devops.preinstall_rbac import applyPreInstallMASRBAC, permissionCheckForRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 from mas.devops.utils import isVersionEqualOrAfter
 
 logger = logging.getLogger(__name__)
@@ -32,10 +32,10 @@ class SetupPreinstallRBACApp(BaseApp):
     def promptForMASVersion(self) -> None:
         self.printH2("MAS Version")
         self.printDescription([
-            "Enter the MAS major.minor version used to select the pre-install RBAC manifests.",
-            "For example: 9.2"
+            "Enter the MAS version in x.y.z format.",
+            "For example: 9.2.0"
         ])
-        self.promptForString("MAS Version", "mas_version", default="9.2")
+        self.promptForString("MAS Version", "mas_version", default="9.2.0")
 
     def promptForPermissionMode(self) -> None:
         self.printH2("Permission Mode")
@@ -76,7 +76,6 @@ class SetupPreinstallRBACApp(BaseApp):
     def setupPreinstallRBAC(self, argv):
         """
         Set up pre-install RBAC for MAS.
-        This command is intended for use by an OpenShift administrator before a MAS administrator runs mas install.
         """
         self.args = setupPreinstallRBACArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
@@ -101,16 +100,6 @@ class SetupPreinstallRBACApp(BaseApp):
                 self.setParam("mas_version", self.args.mas_version.strip())
             else:
                 self.promptForMASVersion()
-
-            if self.args.permission_mode is not None:
-                self.setParam("permission_mode", self.args.permission_mode.strip())
-            else:
-                self.promptForPermissionMode()
-
-            if self.args.apps is not None:
-                self.setParam("apps", self.args.apps.strip())
-            else:
-                self.promptForApps()
         else:
             requiredParams = ["mas_instance_id", "mas_version", "permission_mode", "apps"]
             for key in requiredParams:
@@ -121,22 +110,37 @@ class SetupPreinstallRBACApp(BaseApp):
 
         instanceId = self.getParam("mas_instance_id")
         masVersion = self.getParam("mas_version").strip()
-        permissionMode = self.getParam("permission_mode").strip()
-        selectedApps = [app.strip() for app in self.getParam("apps").split(",") if app.strip()]
+
+        masVersionParts = masVersion.split(".")
+        if len(masVersionParts) != 3 or not all(part.isdigit() for part in masVersionParts):
+            self.fatalError("MAS version must be provided in x.y.z format, for example 9.2.0")
 
         masVersionForComparison = masVersion
-        if masVersionForComparison.count(".") == 1:
-            masVersionForComparison = f"{masVersionForComparison}.0"
-
         if not isVersionEqualOrAfter("9.2.0", masVersionForComparison):
-            self.fatalError("Set up pre-install RBAC for MAS is supported only for MAS version 9.2 and later")
+            self.fatalError("mas pre-install is supported only for MAS version 9.2.0 and later")
+
+        masVersion = ".".join(masVersionParts[:2])
+
+        if self.interactive_mode:
+            if self.args.permission_mode is not None:
+                self.setParam("permission_mode", self.args.permission_mode.strip())
+            else:
+                self.promptForPermissionMode()
+
+            if self.args.apps is not None:
+                self.setParam("apps", self.args.apps.strip())
+            else:
+                self.promptForApps()
+
+        permissionMode = self.getParam("permission_mode").strip()
+        selectedApps = [app.strip() for app in self.getParam("apps").split(",") if app.strip()]
 
         permissionResults = permissionCheckForRBAC(self.dynamicClient)
         hasAdminPermissions = all(result["allowed"] for result in permissionResults)
         if not hasAdminPermissions:
             self.fatalError("You do not have the appropriate permissions to set up pre-install RBAC for MAS. Only a cluster administrator can perform this action.")
 
-        self.printH1("Set Up Pre-Install RBAC for MAS")
+        self.printH1("MAS Pre-Install")
         self.printDescription([
             "This will set up pre-install RBAC for MAS.",
             "",
