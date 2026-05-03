@@ -106,3 +106,90 @@ rules:
       - create
       - patch
       - list
+  
+  # Must-gather needs to read pods and their logs across all namespaces
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/log
+    verbs:
+      - get
+      - list
+  
+  # Must-gather needs to read events for diagnostics
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - get
+      - list
+  
+  # Must-gather needs to read services and endpoints
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - endpoints
+    verbs:
+      - get
+      - list
+  
+  # Must-gather needs to read configmaps across namespaces
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+  
+  # Must-gather needs to read PVCs and PVs
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+      - persistentvolumes
+    verbs:
+      - get
+      - list
+  
+  # Must-gather needs to read nodes for cluster diagnostics
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+  
+  # Must-gather needs to read all MAS custom resources
+  - apiGroups:
+      - core.mas.ibm.com
+      - config.mas.ibm.com
+      - apps.mas.ibm.com
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+  
+  # Must-gather needs to read operator resources
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - clusterserviceversions
+      - installplans
+    verbs:
+      - get
+      - list
+  
+  # Must-gather needs to read routes
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
+    verbs:
+      - get
+      - list

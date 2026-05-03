@@ -52,3 +52,120 @@ rules:
     verbs:
       - create
       - patch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:sls-instance
+  namespace: sls-{{ mas_instance_id }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{ mas_instance_id }}:install-pipeline:sls-instance
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:sls-instance
+  namespace: sls-{{ mas_instance_id }}
+rules:
+  # SLS instance namespace management
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - patch
+  
+  # SLS requires secrets for entitlement keys and certificates
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - create
+      - patch
+      - delete
+  
+  # SLS requires configmaps
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - create
+      - patch
+  
+  # SLS requires service accounts
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+      - create
+      - patch
+  
+  # SLS instance creation and management
+  - apiGroups:
+      - sls.ibm.com
+    resources:
+      - licenseservices
+    verbs:
+      - get
+      - create
+      - patch
+      - list
+      - watch
+  
+  # SLS requires PVCs
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - get
+      - create
+      - patch
+      - list
+  
+  # SLS requires services
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - get
+      - create
+      - patch
+  
+  # SLS requires deployments and statefulsets
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - statefulsets
+    verbs:
+      - get
+      - create
+      - patch
+      - list
+      - watch
+  
+  # SLS requires routes for external access
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
+    verbs:
+      - get
+      - create
+      - patch
