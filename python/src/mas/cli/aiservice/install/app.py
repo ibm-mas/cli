@@ -403,7 +403,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_preinstall_rbac", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified"]:
                 pass
 
             elif key == "manual_certificates":
