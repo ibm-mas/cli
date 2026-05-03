@@ -83,6 +83,19 @@ rules:
       - get
       - patch
   
+  # SLS operator subscription requires operatorgroups
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - operatorgroups
+      - subscriptions
+      - installplans
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+  
   # SLS requires secrets for entitlement keys and certificates
   - apiGroups:
       - ""

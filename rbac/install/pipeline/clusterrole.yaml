@@ -193,3 +193,12 @@ rules:
     verbs:
       - get
       - list
+  
+  # Creating routes with custom hostnames requires cluster-wide permission
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes/custom-host
+    verbs:
+      - create
+      - update
