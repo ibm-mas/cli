@@ -123,7 +123,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # if self.getParam("mas_permission_mode") == "minimal":
             # return
 
-        if self.getParam("skip_preinstall_rbac") is True:
+        if self.getParam("skip_preinstall_rbac") == "true":
             return
 
         permissionResults = permissionCheckForRBAC(self.dynamicClient)
@@ -711,7 +711,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "Choose how MAS should be installed with respect to permissions:",
                     "",
                     "  1. <b>cluster</b> - Install with ClusterRoles (default)",
-                    "     - MAS admins can create, update, and remove applications across the cluster",
+                    "     - MAS has cluster-level access to manage its applications and resources across the cluster",
                     "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts",
                     "",
                     "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
@@ -2072,6 +2072,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         )
         elif isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
             self.setParam("mas_permission_mode", "cluster")
+            if self.getParam("mas_internal_certificate_issuer_kind") == "":
+                self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer")
 
         self.evaluatePreInstallRBACAccess()
         self.setDB2DefaultChannel()
