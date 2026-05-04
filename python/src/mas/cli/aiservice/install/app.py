@@ -79,9 +79,6 @@ def logMethodCall(func):
 
 class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin, ConfigGeneratorMixin):
 
-    def getSelectedApps(self) -> list[str]:
-        return ["aiservice"]
-
     def evaluatePreInstallRBACAccess(self) -> None:
         self.applyPreInstallMASRBAC = False
 
