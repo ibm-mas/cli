@@ -38,7 +38,7 @@ RUN --mount=type=secret,id=ARTIFACTORY_TOKEN \
     ls /tmp/install && \
     bash /tmp/install/install-python-packages.sh && \
     bash /tmp/install/install-ansible-collections.sh && \
-    bash /tmp/install/install-preinstall-rbac.sh && \
+    bash /tmp/install/pre-install-rbac.sh && \
     bash /tmp/install/permissions-updates.sh && \
     ibmcloud config --check-version=false && \
     ln -s /opt/app-root/lib/python3.12/site-packages /mascli/site-packages && \

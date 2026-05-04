@@ -7,12 +7,10 @@ set -e
 #
 # Structures in pre-install:
 #   catalogs/maximo-operator-catalog/operators/<operator>/rbac/<mas_version>/*.yml
-#   catalogs/redhat-operator-catalog/operators/<operator>/rbac/<mas_version>/*.yml
 #   openshift-platform/operators/<operator>/rbac/<mas_version>/*.yml
 #
 # Structure in CLI image:
 #   /opt/app-root/rbac/maximo-operator-catalog/operators/<operator>/rbac/<mas_version>/*.yml
-#   /opt/app-root/rbac/redhat-operator-catalog/operators/<operator>/rbac/<mas_version>/*.yml
 #   /opt/app-root/rbac/openshift-platform/operators/<operator>/rbac/<mas_version>/*.yml
 export GITHUB_REF_NAME="${GITHUB_REF_NAME:-ds.rbac}"
 export GITHUB_REF_TYPE="${GITHUB_REF_TYPE:-branch}"
@@ -112,7 +110,6 @@ copy_operator_rbac() {
 }
 
 copy_operator_rbac "$MAXIMO_OPERATORS_SOURCE" "$RBAC_DEST/maximo-operator-catalog/operators"
-copy_operator_rbac "$REDHAT_OPERATORS_SOURCE" "$RBAC_DEST/redhat-operator-catalog/operators"
 copy_operator_rbac "$OPENSHIFT_PLATFORM_OPERATORS_SOURCE" "$RBAC_DEST/openshift-platform/operators"
 
 VERSIONS_COPIED=($(printf "%s\n" "${VERSIONS_COPIED[@]}" | sort -u))
