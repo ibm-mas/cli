@@ -104,6 +104,9 @@ optionalParams = [
     # Certificate Issuer
     "aiservice_certificate_issuer",
 
+    # permission mode
+    "permission_mode",
+
     # Enable IPv6 networking
     "enable_ipv6",
 

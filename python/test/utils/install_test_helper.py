@@ -121,6 +121,7 @@ class InstallTestHelper:
         dynamic_client = MagicMock(DynamicClient)
         resources = MagicMock()
         dynamic_client.resources = resources
+        dynamic_client.client = MagicMock()
 
         # Create individual API mocks
         routes_api = MagicMock()

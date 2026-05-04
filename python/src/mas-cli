@@ -23,6 +23,7 @@ from mas.cli.backup.app import BackupApp
 from mas.cli.restore.app import RestoreApp
 from mas.cli.mirror.app import MirrorApp
 from mas.cli.setup_rbac.app import SetupRBACApp
+from mas.cli.pre_install.app import SetupPreinstallRBACApp
 
 from prompt_toolkit import HTML, print_formatted_text
 from urllib3.exceptions import MaxRetryError
@@ -50,6 +51,7 @@ def usage():
         + " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"  # noqa: W503
         + " - <ForestGreen>mas-cli mirror</ForestGreen>    Mirror container images \n"  # noqa: W503
         + " - <ForestGreen>mas-cli setup-rbac</ForestGreen>  Set up RBAC resources for MAS installation\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli pre-install</ForestGreen>  Set up pre-install RBAC for MAS\n"  # noqa: W503
     ))
     print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
 
@@ -89,6 +91,9 @@ if __name__ == '__main__':
         elif function == "setup-rbac":
             app = SetupRBACApp()
             app.setupRBAC(argv[2:])
+        elif function == "pre-install":
+            app = SetupPreinstallRBACApp()
+            app.setupPreinstallRBAC(argv[2:])
         elif function in ["-h", "--help"]:
             usage()
             exit(0)

@@ -44,6 +44,8 @@ optionalParams = [
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
     "mas_app_settings_demodata",
+    "mas_permission_mode",
+    "mas_internal_certificate_issuer_kind",
     "mas_app_settings_customization_archive_name",
     "mas_app_settings_customization_archive_url",
     "mas_app_settings_customization_archive_username",

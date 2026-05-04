@@ -421,6 +421,14 @@
 
 # MAS Configuration
 # -----------------------------------------------------------------------------
+- name: mas_permission_mode
+  type: string
+  description: Permission mode for MAS installation (cluster, namespaced, or minimal)
+  default: ""
+- name: mas_internal_certificate_issuer_kind
+  type: string
+  description: Internal certificate issuer kind for MAS Suite CR (Issuer or ClusterIssuer)
+  default: ""
 - name: mas_domain
   type: string
   default: ""

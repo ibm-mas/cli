@@ -259,12 +259,29 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
+    "--mas-internal-certificate-issuer-kind",
+    dest="mas_internal_certificate_issuer_kind",
+    required=False,
+    choices=["Issuer", "ClusterIssuer"],
+    help="Specify the internal certificate issuer kind to use in the Suite CR",
+)
+
+masAdvancedArgGroup.add_argument(
     "--enable-ipv6",
     dest="enable_ipv6",
     required=False,
     help="Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6",
     action="store_const",
     const="true"
+)
+
+masAdvancedArgGroup.add_argument(
+    "--permission-mode",
+    dest="mas_permission_mode",
+    required=False,
+    help="Permission mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
+    choices=["cluster", "namespaced", "minimal"],
+    default=None
 )
 
 # DNS Integration - IBM CIS
@@ -1626,6 +1643,14 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     help="Disable the 'pre-install-check' at the start of the install pipeline"
+)
+
+otherArgGroup.add_argument(
+    "--skip-preinstall-rbac",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Skip CLI application of pre-install MAS RBAC. Use this when an OpenShift administrator has already applied the required RBAC."
 )
 otherArgGroup.add_argument(
     "--no-confirm",

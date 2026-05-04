@@ -47,6 +47,14 @@ class InstallSummarizerMixin():
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
+        if self.getParam("mas_permission_mode") != "":
+            self.printParamSummary("Permission Mode", "mas_permission_mode")
+        if self.getParam("mas_internal_certificate_issuer_kind") != "":
+            self.printParamSummary("Internal Certificate Issuer Kind", "mas_internal_certificate_issuer_kind")
+        self.printSummary(
+            "Apply Pre-Install MAS RBAC",
+            "No" if self.getParam("skip_preinstall_rbac") == "true" else "Yes"
+        )
         if self.isAirgap():
             self.printSummary("Install Mode", "Disconnected Install")
         else:
