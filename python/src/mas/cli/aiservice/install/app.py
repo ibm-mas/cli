@@ -239,10 +239,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.devMode:
             self.configAppChannel()
 
-        # Permission mode prompt (especially in dev mode)
-        if isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
-            self.configPermissionMode()
-
         self.aiServiceSettings()
         self.aiServiceTenantSettings()
         self.aiServiceIntegrations()

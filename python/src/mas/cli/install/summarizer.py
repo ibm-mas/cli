@@ -49,6 +49,8 @@ class InstallSummarizerMixin():
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
         if self.getParam("mas_permission_mode") != "":
             self.printParamSummary("Permission Mode", "mas_permission_mode")
+        if self.getParam("mas_internal_certificate_issuer_kind") != "":
+            self.printParamSummary("Internal Certificate Issuer Kind", "mas_internal_certificate_issuer_kind")
         self.printSummary(
             "Apply Pre-Install MAS RBAC",
             "No" if self.getParam("skip_preinstall_rbac") == "true" else "Yes"
@@ -63,8 +65,6 @@ class InstallSummarizerMixin():
             self.printParamSummary("Domain Name", "mas_domain")
             self.printParamSummary("DNS Provider", "dns_provider")
             self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
-            if self.getParam("mas_internal_certificate_issuer_kind") != "":
-                self.printParamSummary("Internal Certificate Issuer Kind", "mas_internal_certificate_issuer_kind")
 
             if self.getParam('ocp_ingress') != "":
                 self.printParamSummary("OCP Ingress", "ocp_ingress")
