@@ -25,8 +25,9 @@ if [ -n "$SLACK_TOKEN" ] && [ -n "$SLACK_CHANNEL" ]; then
     --action ansible-start \
     --task-name "$DEVOPS_SUITE_NAME" \
     --pipeline-name "${PIPELINERUN_NAME:-unknown}" \
-    --instance-id "${DEVOPS_ENVIRONMENT:-}" || true
-      echo "# ----------------- Sending Start Notification Suite: $DEVOPS_SUITE_NAME | pipeline: $PIPELINE_NAME($PIPELINERUN_NAME) | Instance id: $DEVOPS_ENVIRONMENT -------------------- #"
+    --instance-id "${DEVOPS_ENVIRONMENT:-}" \
+    --namespace "${PIPELINE_NAMESPACE:-}" || true
+  echo "# ----------------- Sending Start Notification Suite: $DEVOPS_SUITE_NAME | pipeline: $PIPELINE_NAME($PIPELINERUN_NAME) | Instance id: $DEVOPS_ENVIRONMENT -------------------- #"
 fi
 
 ansible-playbook ibm.mas_devops."$@"
@@ -39,8 +40,9 @@ if [ -n "$SLACK_TOKEN" ] && [ -n "$SLACK_CHANNEL" ]; then
     --rc $rc \
     --task-name "$DEVOPS_SUITE_NAME" \
     --pipeline-name "${PIPELINERUN_NAME:-unknown}" \
-    --instance-id "${DEVOPS_ENVIRONMENT:-}" || true
-      echo "# ----------------- Sending Start Notification Suite: $DEVOPS_SUITE_NAME | pipeline: $PIPELINE_NAME($PIPELINERUN_NAME) | Instance id: $DEVOPS_ENVIRONMENT -------------------- #"
+    --instance-id "${DEVOPS_ENVIRONMENT:-}" \
+    --namespace "${PIPELINE_NAMESPACE:-}" || true
+  echo "# ----------------- Sending Start Notification Suite: $DEVOPS_SUITE_NAME | pipeline: $PIPELINE_NAME($PIPELINERUN_NAME) | Instance id: $DEVOPS_ENVIRONMENT -------------------- #"
 fi
 
 python3 /opt/app-root/src/save-junit-to-mongo.py
