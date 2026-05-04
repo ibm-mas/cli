@@ -32,7 +32,7 @@ spec:
       type: string
     - name: mongo_major_db_version
       type: string
-    - name: mongo_vpc_id
+    - name: mongo_vpc_endpoint_id
       type: string
 
     # MongoDB Atlas Details
@@ -139,8 +139,8 @@ spec:
         value: $(params.mongo_action)
       - name: MONGO_MAJOR_DB_VERSION
         value: $(params.mongo_major_db_version)
-      - name: MONGO_VPC_ID
-        value: $(params.mongo_vpc_id)
+      - name: MONGO_VPC_ENDPOINT_ID
+        value: $(params.mongo_vpc_endpoint_id)
       # MongoDB Atlas Details
       - name: MONGO_PROJECT_ID
         value: $(params.mongo_project_id)
@@ -213,8 +213,7 @@ spec:
         echo "MongoDB Atlas Configuration"
         echo "Action ......................... ${MONGO_ACTION}"
         echo "Major DB Version ............... ${MONGO_MAJOR_DB_VERSION}"
-        echo "VPC ID ......................... ${MONGO_VPC_ID}"
-        echo "Subnet IDs ..................... ${MONGO_SUBNET_IDS}"
+        echo "VPC Endpoint ID ................ ${MONGO_VPC_ENDPOINT_ID}"
         echo "Project ID ..................... ${MONGO_PROJECT_ID}"
         echo "Organization ID ................ ${MONGO_ORGANIZATION_ID}"
         echo "Instance Size .................. ${MONGO_INSTANCE_SIZE}"
@@ -233,7 +232,7 @@ spec:
         --atlas-uri $ATLAS_URI \
         --mongo-action $MONGO_ACTION \
         --mongo-major-db-version $MONGO_MAJOR_DB_VERSION \
-        --mongo-vpc-id $MONGO_VPC_ID \
+        --mongo-vpc-endpoint-id $MONGO_VPC_ENDPOINT_ID \
         --mongo-reset-master-password $MONGO_RESET_MASTER_PASSWORD \
         --mongo-auto-scaling-enabled $MONGO_AUTO_SCALING_ENABLED \
         --mongo-compute-enabled $MONGO_COMPUTE_ENABLED \

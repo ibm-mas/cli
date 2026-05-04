@@ -26,7 +26,7 @@ MongoDB Atlas Configuration (Required):
 MongoDB Atlas Resource Configuration (Required):
       --mongo-action ${COLOR_YELLOW}MONGO_ACTION${TEXT_RESET}                                     Action to perform ('install' or 'uninstall')
       --mongo-major-db-version ${COLOR_YELLOW}MONGO_MAJOR_DB_VERSION${TEXT_RESET}                 MongoDB major version (e.g., '2.5.1')
-      --mongo-vpc-id ${COLOR_YELLOW}MONGO_VPC_ID${TEXT_RESET}                                     VPC ID for MongoDB Atlas
+      --mongo-vpc-endpoint-id ${COLOR_YELLOW}MONGO_VPC_ENDPOINT_ID${TEXT_RESET}                   VPC Endpoint ID for MongoDB Atlas
 
 MongoDB Atlas Details (Required):
       --mongo-project-id ${COLOR_YELLOW}MONGO_PROJECT_ID${TEXT_RESET}                             MongoDB Atlas Project ID
@@ -153,8 +153,8 @@ function gitops_mongo_atlas_noninteractive() {
       --mongo-major-db-version)
         export MONGO_MAJOR_DB_VERSION=$1 && shift
         ;;
-      --mongo-vpc-id)
-        export MONGO_VPC_ID=$1 && shift
+      --mongo-vpc-endpoint-id)
+        export MONGO_VPC_ENDPOINT_ID=$1 && shift
         ;;
 
       # MongoDB Atlas Details
@@ -293,7 +293,7 @@ function gitops_mongo_atlas_noninteractive() {
   # MongoDB Atlas specific validations
   [[ -z "$MONGO_ACTION" ]] && gitops_mongo_atlas_help "MONGO_ACTION is not set"
   [[ -z "$MONGO_MAJOR_DB_VERSION" ]] && gitops_mongo_atlas_help "MONGO_MAJOR_DB_VERSION is not set"
-  [[ -z "$MONGO_VPC_ID" ]] && gitops_mongo_atlas_help "MONGO_VPC_ID is not set"
+  [[ -z "$MONGO_VPC_ENDPOINT_ID" ]] && gitops_mongo_atlas_help "MONGO_VPC_ENDPOINT_ID is not set"
   [[ -z "$MONGO_PROJECT_ID" ]] && gitops_mongo_atlas_help "MONGO_PROJECT_ID is not set"
   [[ -z "$MONGO_ORGANIZATION_ID" ]] && gitops_mongo_atlas_help "MONGO_ORGANIZATION_ID is not set"
   [[ -z "$MONGO_INSTANCE_SIZE" ]] && gitops_mongo_atlas_help "MONGO_INSTANCE_SIZE is not set"
@@ -364,7 +364,7 @@ function gitops_mongo_atlas() {
   echo_h2 "MongoDB Atlas Resource" "    "
   echo_reset_dim "Action ............................. ${COLOR_MAGENTA}${MONGO_ACTION}"
   echo_reset_dim "Major DB Version ................... ${COLOR_MAGENTA}${MONGO_MAJOR_DB_VERSION}"
-  echo_reset_dim "VPC ID ............................. ${COLOR_MAGENTA}${MONGO_VPC_ID}"
+  echo_reset_dim "VPC Endpoint ID .................... ${COLOR_MAGENTA}${MONGO_VPC_ENDPOINT_ID}"
   reset_colors
 
   echo "${TEXT_DIM}"

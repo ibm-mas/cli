@@ -304,7 +304,7 @@ spec:
     - name: mongo_major_db_version
       type: string
       default: ""
-    - name: mongo_vpc_id
+    - name: mongo_vpc_endpoint_id
       type: string
       default: ""
     - name: mongo_project_id
@@ -530,8 +530,8 @@ spec:
           value: $(params.mongo_action)
         - name: mongo_major_db_version
           value: $(params.mongo_major_db_version)
-        - name: mongo_vpc_id
-          value: $(params.mongo_vpc_id)
+        - name: mongo_vpc_endpoint_id
+          value: $(params.mongo_vpc_endpoint_id)
         - name: mongo_project_id
           value: $(params.mongo_project_id)
         - name: mongo_organization_id
