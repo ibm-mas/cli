@@ -21,6 +21,7 @@ resources:
   - pipeline/eck.yaml
   - pipeline/grafana5.yaml
   - pipeline/ibm-sls.yaml
+  - pipeline/mas-x-app.yaml
   - pipeline/mas-x-core.yaml
   - pipeline/mas-x-pipelines.yaml
   - pipeline/mongoce.yaml

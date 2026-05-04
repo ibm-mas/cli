@@ -53,3 +53,38 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: db2u
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mas-{{ mas_instance_id }}-manage
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mas-{{ mas_instance_id }}-monitor
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mas-{{ mas_instance_id }}-health
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mas-{{ mas_instance_id }}-predict
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mas-{{ mas_instance_id }}-assist
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mas-{{ mas_instance_id }}-visualinspection
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mas-{{ mas_instance_id }}-iot
