@@ -62,14 +62,7 @@ else
 fi
 
 MAXIMO_OPERATORS_SOURCE="$PREINSTALL_SOURCE/catalogs/maximo-operator-catalog/operators"
-REDHAT_OPERATORS_SOURCE="$PREINSTALL_SOURCE/catalogs/redhat-operator-catalog/operators"
 OPENSHIFT_PLATFORM_OPERATORS_SOURCE="$PREINSTALL_SOURCE/openshift-platform/operators"
-
-COPY_SOURCES=(
-  "$MAXIMO_OPERATORS_SOURCE"
-  "$REDHAT_OPERATORS_SOURCE"
-  "$OPENSHIFT_PLATFORM_OPERATORS_SOURCE"
-)
 
 echo "Copying RBAC files into $RBAC_DEST"
 
