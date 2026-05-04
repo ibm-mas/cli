@@ -445,10 +445,10 @@ aiserviceAdvancedArgGroup.add_argument(
     const="true"
 )
 aiserviceAdvancedArgGroup.add_argument(
-    "--tenant-scheduling-constraints-file",
+    "--tenant-scheduling-config-file",
     dest="tenant_scheduling_config_file",
     required=False,
-    help="Path to the YAML file that contains the scheduling constraints for tenant",
+    help="Path to the YAML file that contains the scheduling configuration for tenant",
     type=lambda x: isValidFile(aiServiceinstallArgParser, x)
 )
 

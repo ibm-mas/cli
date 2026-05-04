@@ -96,6 +96,7 @@ class InstallTestHelper:
         self.tmpdir.join('authorized_entitlement.lic').write('testLicense')
         self.tmpdir.join('mongodb-system.yaml').write('#')
         self.tmpdir.join('cert.crt').write('#')
+        self.tmpdir.join('aiservice-tenant-affinity-config.yaml').write('#')
 
     def start_watchdog(self):
         """Start watchdog thread to detect hanging prompts."""

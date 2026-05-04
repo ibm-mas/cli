@@ -104,7 +104,7 @@ def test_install_noninteractive(tmpdir):
                              '--tenant-entitlement-type', 'standard',
                              '--tenant-entitlement-start-date', '2025-08-28',
                              '--tenant-entitlement-end-date', '2026-08-28',
-                             '--tenant-scheduling-constraints-file', f'{tmpdir}/aiservice-tenant-affinity-config.yaml',
+                             '--tenant-scheduling-config-file', f'{tmpdir}/aiservice-tenant-affinity-config.yaml',
                              '--rsl-url', 'https:/test.rsl.maximo.ibm.com/api/v3/vector/query',
                              '--rsl-org-id', 'testOrgId',
                              '--rsl-token', 'testRslToken',

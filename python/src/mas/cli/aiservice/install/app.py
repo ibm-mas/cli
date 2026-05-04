@@ -129,7 +129,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
             " - Configure certificate issuer",
             " - Enable IPv6 SingleStack networking for services",
-            " - Configure Tolerations & nodeSelector for AI Service tenant"
+            " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant"
         ])
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
@@ -613,7 +613,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def configSchedulingConstraints(self):
         if self.showAdvancedOptions:
-            self.printH1("Scheduling constraints for AI Workloads")
+            self.printH1("Scheduling configuration for AI Workloads")
             self.printDescription(content=[
                 "AI Service supports configuring tolerations and nodeSelector per tenant to schedule AI workloads(training pipelines & Inference services) on dedicated nodes.",
                 "To configure tolerations and nodeSelector, create a YAML configuration file",
@@ -622,7 +622,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 "  `nodeSelector`: Dictionary of node label key-value pairs",
             ])
 
-            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling constraints YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
+            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
 
     def _setMinioStorageDefaults(self) -> None:
         """
