@@ -115,6 +115,12 @@ masArgGroup.add_argument(
     help="AI Service Instance ID"
 )
 masArgGroup.add_argument(
+    "--configure-AIAssistant",
+    dest="configure_aiassistant",
+    required=False,
+    help="Configure AI Assistant in silent mode (for example: pipeline, configure, none)"
+)
+masArgGroup.add_argument(
     "--allow-special-chars",
     dest="mas_special_characters",
     required=False,

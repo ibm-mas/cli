@@ -1600,6 +1600,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     # Set manage - bind - AI Service params same as provided AI Service's params
                     self.setParam("manage_bind_aiservice_instance_id", vars(self.args).get("aiservice_instance_id", ""))
                     self.setParam("manage_bind_aiservice_tenant_id", "user")
+            elif key == "configure_aiassistant":
+                if value is not None and value != "":
+                    self.setParam("configure_aiassistant", value)
             elif key == "manage_bind_aiservice_instance_id":
                 # only set if AI Service not being installed
                 if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":

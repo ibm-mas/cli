@@ -192,12 +192,16 @@ class AiSettingsMixin():
             ])
 
         # Ask if user wants to configure AiCfg
-        configureAi = True
         if not silentMode:
+            # Interactive mode - ask user
             configureAi = self.yesOrNo("Do you want to configure AiCfg")
+        else:
+            # Silent mode - check if explicitly requested via parameter
+            # Default to False (skip) unless parameter says otherwise
+            configureAi = self.getParam("configure_aiassistant") not in [None, "none", ""]
 
         if not configureAi:
-            self.setParam("ai_action", "none")
+            self.setParam("configure_aiassistant", "none")
             print_formatted_text("AiCfg configuration skipped")
             return
 
@@ -227,7 +231,7 @@ class AiSettingsMixin():
                 ])
 
             # Set action to indicate pipeline should handle it
-            self.setParam("ai_action", "pipeline")
+            self.setParam("configure_aiassistant", "pipeline")
             print_formatted_text("\n✓ AiCfg will be automatically configured by the pipeline after AI Service installation")
         else:
             # Manual configuration for external AI Service
@@ -248,7 +252,7 @@ class AiSettingsMixin():
                 createAiConfig = self.yesOrNo("Generate AiCfg configuration file (apply after operator install)")
 
             if createAiConfig:
-                self.setParam("ai_action", "configure")
+                self.setParam("configure_aiassistant", "configure")
 
                 self.selectLocalConfigDir()
 
@@ -272,5 +276,5 @@ class AiSettingsMixin():
                 print_formatted_text(f"\nAiCfg configuration file created: {aiCfgFile}")
                 print_formatted_text("This configuration will be applied during MAS installation.")
             else:
-                self.setParam("ai_action", "none")
+                self.setParam("configure_aiassistant", "none")
                 print_formatted_text("AiCfg configuration skipped")
