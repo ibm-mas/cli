@@ -11,7 +11,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
+  -d, --dir, --gitops-working-dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
@@ -65,13 +65,13 @@ Authorino:
       --authorino-catalog-source
 
 Storage:
-      --storage-provider
+      --storage-provider, --aiservice-storage-provider
       --storage-accesskey
       --storage-secretkey
       --storage-host
       --storage-port
-      --storage-ssl
-      --storage-region
+      --storage-ssl, --aiservice-storage-ssl
+      --storage-region, --aiservice-storage-region
       --pipelines-bucket
       --primary-storage-class
 
@@ -146,7 +146,7 @@ function gitops_odh_noninteractive() {
   while [[ $# -gt 0 ]]; do
     key="$1"; shift
     case $key in
-      -d|--dir) export GITOPS_WORKING_DIR="$1"; shift ;;
+      -d|--dir|--gitops-working-dir) export GITOPS_WORKING_DIR="$1"; shift ;;
       -a|--account-id) export ACCOUNT_ID="$1"; shift ;;
       -c|--cluster-id) export CLUSTER_ID="$1"; shift ;;
       -m|--aiservice-instance-id) export AISERVICE_INSTANCE_ID="$1"; shift ;;
@@ -278,13 +278,13 @@ function gitops_odh_noninteractive() {
         export AISERVICE_NAMESPACE=$1 && shift
         ;;
 
-      --storage-provider)
+      --storage-provider|--aiservice-storage-provider)
         export AISERVICE_STORAGE_PROVIDER=$1 && shift
         ;;
-      --storage-ssl)
+      --storage-ssl|--aiservice-storage-ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
-      --storage-region)
+      --storage-region|--aiservice-storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
       --aiservice-odh-model-deployment-type)

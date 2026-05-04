@@ -64,6 +64,7 @@ from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
+    enablePipelinesConsolePlugin,
     updateTektonDefinitions,
     preparePipelinesNamespace,
     prepareInstallSecrets,
@@ -591,6 +592,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCATrust()
         self.configDNSAndCerts()
         self.configRoutingMode()
+        self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
         self.configReportAdoptionMetricsFlag()
@@ -835,6 +837,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         except Exception as e:
             logger.warning(f"User may not have permissions to configure IngressController '{controllerName}': {e}")
             return False
+
+    @logMethodCall
+    def configServiceMesh(self) -> None:
+        if self.showAdvancedOptions:
+            self.printH1("Configure Service Mesh")
+            self.printDescription([
+                "By default, Maximo Application Suite does not use Service Mesh for routing."
+            ])
+            self.yesOrNo("Use Service Mesh", "mas_use_service_mesh")
+        else:
+            self.setParam("mas_use_service_mesh", "false")
 
     @logMethodCall
     def configAnnotations(self):
@@ -1630,6 +1643,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mongodb_action", "byo")
                     self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
 
+                # If there is a file named kafka-<instance>-system.yaml we will use this as a BYO Kafka datasource
+                if self.localConfigDir is not None:
+                    instanceId = self.getParam("mas_instance_id")
+                    if instanceId is not None and instanceId != "":
+                        kafkaConfigFile = path.join(self.localConfigDir, f"kafka-{instanceId}-system.yaml")
+                        if path.exists(kafkaConfigFile):
+                            self.setParam("kafka_action_system", "byo")
+
             elif key == "pod_templates":
                 # For the named configurations we will convert into the path
                 if value in ["best-effort", "guaranteed"]:
@@ -1884,6 +1905,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
                 self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
 
+        # Validate Kafka requirements for IoT installation in non-interactive mode
+        if self.installIoT:
+            kafkaAction = self.getParam("kafka_action_system")
+            hasKafkaConfig = kafkaAction in ["install", "byo"]
+            if not hasKafkaConfig:
+                self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
+
     @logMethodCall
     def install(self, argv):
         """
@@ -2096,6 +2124,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
+            # Enable console plugin for OCP 4.21+
+            with Halo(text='Enabling Pipelines console plugin', spinner=self.spinner) as h:
+                if enablePipelinesConsolePlugin(self.dynamicClient):
+                    h.stop_and_persist(symbol=self.successIcon, text="Pipelines console plugin enabled")
+                else:
+                    h.stop_and_persist(symbol=self.warningIcon, text="Failed to enable Pipelines console plugin (non-fatal)")
+                    # Note: This is non-fatal as the plugin can be enabled manually
+
             if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
                 with Halo(text='Configuring cluster for path-based routing', spinner=self.spinner) as h:
                     ingressControllerName = self.getParam("mas_ingress_controller_name") if self.getParam("mas_ingress_controller_name") else "default"
@@ -2120,7 +2156,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
-                    certs=self.certsSecret
+                    certs=self.certsSecret,
+                    slack_token=self.getParam("slack_token"),
+                    slack_channel=self.getParam("slack_channel")
                 )
 
                 self.setupApprovals(pipelinesNamespace)
