@@ -18,6 +18,7 @@ setupPreinstallRBACArgParser = argparse.ArgumentParser(
     description="\n".join([
         f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
         "Set up pre-install RBAC for MAS.",
+        "Available only for MAS version 9.2.0 and later.",
     ]),
     epilog="",
     formatter_class=getHelpFormatter(),

@@ -22,6 +22,19 @@ from mas.devops.utils import isVersionEqualOrAfter
 
 logger = logging.getLogger(__name__)
 
+VALID_PREINSTALL_APPS = {
+    "core",
+    "aiservice",
+    "arcgis",
+    "facilities",
+    "iot",
+    "manage",
+    "monitor",
+    "optimizer",
+    "predict",
+    "visualinspection"
+}
+
 
 class SetupPreinstallRBACApp(BaseApp):
 
@@ -133,7 +146,13 @@ class SetupPreinstallRBACApp(BaseApp):
                 self.promptForApps()
 
         permissionMode = self.getParam("permission_mode").strip()
-        selectedApps = [app.strip() for app in self.getParam("apps").split(",") if app.strip()]
+        selectedApps = [app.strip().lower() for app in self.getParam("apps").split(",") if app.strip()]
+        invalidApps = sorted({app for app in selectedApps if app not in VALID_PREINSTALL_APPS})
+        if invalidApps:
+            self.fatalError(
+                f"Unsupported app value(s): {', '.join(invalidApps)}. "
+                f"Supported apps are: {', '.join(sorted(VALID_PREINSTALL_APPS))}"
+            )
 
         permissionResults = permissionCheckForRBAC(self.dynamicClient)
         hasAdminPermissions = all(result["allowed"] for result in permissionResults)
