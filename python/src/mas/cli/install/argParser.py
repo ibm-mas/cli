@@ -535,7 +535,6 @@ masAppsArgGroup.add_argument(
 # )
 
 
-
 masAppsArgGroup.add_argument(
     "--aiservice-install-plan-approval",
     dest="aiservice_install_plan_approval",
@@ -544,7 +543,6 @@ masAppsArgGroup.add_argument(
     choices=["Automatic", "Manual"],
     help="Install plan approval for AI Service operator subscription"
 )
-
 
 
 # Arcgis

@@ -80,11 +80,8 @@ class aiServiceInstallArgBuilderMixin():
         # -----------------------------------------------------------------------------
         command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
 
-
         if self.getParam('aiservice_install_plan_approval') != "":
             command += f"  --aiservice-install-plan-approval \"{self.getParam('aiservice_install_plan_approval')}\"{newline}"
-
-
 
         # Development Mode
         # -----------------------------------------------------------------------------

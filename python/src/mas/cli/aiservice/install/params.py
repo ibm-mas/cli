@@ -107,7 +107,6 @@ optionalParams = [
 
     # Enable IPv6 networking
     "enable_ipv6",
-  
+
     "aiservice_install_plan_approval",
 ]
-
