@@ -144,7 +144,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ])
 
             if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
-                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run mas install again.")
+                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run mas install again with --skip-preinstall-rbac.")
         else:
             self.fatalError(
                 "\n".join([
