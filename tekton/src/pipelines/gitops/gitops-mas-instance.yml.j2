@@ -36,6 +36,9 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
+    - name: mongo_action
+      type: string
+      default: ""
     - name: mongo_reset_instance_password
       type: string
       default: "false"
@@ -543,6 +546,8 @@ spec:
           value: $(params.mas_instance_id)
         - name: mongo_provider
           value: $(params.mongo_provider)
+        - name: mongo_action
+          value: $(params.mongo_action)
         - name: mongo_reset_instance_password
           value: $(params.mongo_reset_instance_password)
         - name: mongo_update_instance_mongo_secret

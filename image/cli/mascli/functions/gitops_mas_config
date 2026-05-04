@@ -35,6 +35,7 @@ AWS Secrets Manager Configuration (Required):
 
 Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
   --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. One of aws|yaml (defaults to yaml)
+  --mongo-action ${COLOR_YELLOW}MONGO_ACTION${TEXT_RESET}        The mongo action. One of install|uninstall (optional, used to determine secret validation)
 
 SLS Configuration (if MAS_CONFIG_TYPE is "sls"):
   --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}         The location of a file containing the POD template
@@ -176,6 +177,9 @@ function gitops_mas_config_noninteractive() {
       # MongoDb Provider Selection
       --mongo-provider)
         export MONGODB_PROVIDER=$1 && shift
+        ;;
+      --mongo-action)
+        export MONGO_ACTION=$1 && shift
         ;;
 
       # SLS
@@ -743,7 +747,11 @@ function gitops_mas_config() {
       export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
       sm_login
       if [ $MONGODB_PROVIDER == 'yaml' ]; then
-        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info"
+        if [ "${MONGO_ACTION}" == "install" ]; then
+          sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "info"
+        else
+          sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info"
+        fi
         sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
       elif [ $MONGODB_PROVIDER == 'aws' ]; then
         #check if username,password,info exist at cluster level. Please note if username password not exist at instance level, it will be created 

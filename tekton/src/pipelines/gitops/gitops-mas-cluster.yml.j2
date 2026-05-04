@@ -340,6 +340,9 @@ spec:
     - name: mongo_atlasURI
       type: string
       default: "https://cloud.mongodb.com/"
+    - name: mongodb_provider
+      type: string
+      default: "yaml"
     - name: mongo_reset_master_password
       type: string
       default: "false"
@@ -576,13 +579,15 @@ spec:
           value: $(params.mongo_update_mongo_secret)
         - name: mongo_atlasURI
           value: $(params.mongo_atlasURI)
+        - name: mongodb_provider
+          value: $(params.mongodb_provider)
       taskRef:
         kind: Task
         name: gitops-mongo-atlas
       when:
         - input: "$(params.mongo_action)"
           operator: in
-          values: ["install", "uninstall"]
+          values: ["install"]
       workspaces:
         - name: configs
           workspace: configs

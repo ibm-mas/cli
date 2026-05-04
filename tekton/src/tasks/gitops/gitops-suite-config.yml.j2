@@ -16,6 +16,9 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
+    - name: mongo_action
+      type: string
+      default: ""
     - name: git_branch
       type: string
     - name: github_org
@@ -71,6 +74,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: MONGODB_PROVIDER
         value: $(params.mongo_provider)
+      - name: MONGO_ACTION
+        value: $(params.mongo_action)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
@@ -134,6 +139,7 @@ spec:
         --mas-config-type mongo \
         --dir /tmp/init-mas-config-mongo \
         --mongo-provider "$MONGODB_PROVIDER" \
+        --mongo-action "$MONGO_ACTION" \
         || exit 1
 
         mkdir -p /tmp/init-mas-config-sls

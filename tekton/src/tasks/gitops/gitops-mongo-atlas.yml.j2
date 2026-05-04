@@ -26,6 +26,9 @@ spec:
     - name: atlasURI
       type: string
       default: "https://cloud.mongodb.com/"
+    - name: mongodb_provider
+      type: string
+      default: "yaml"
 
     # MongoDB Atlas Resource Configuration
     - name: mongo_action
@@ -133,6 +136,8 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: ATLAS_URI
         value: $(params.atlasURI)
+      - name: MONGODB_PROVIDER
+        value: $(params.mongodb_provider)
 
       # MongoDB Atlas Resource Configuration
       - name: MONGO_ACTION
@@ -253,7 +258,8 @@ spec:
         --mongo-pit-enabled $MONGO_PIT_ENABLED \
         --mongo-helm-repo $MONGO_HELM_REPO \
         --mongo-namespace $MONGO_NAMESPACE \
-        --mongo-atlasURI $MONGO_ATLASURI
+        --mongo-atlasURI $MONGO_ATLASURI \
+        --mongo-provider $MONGODB_PROVIDER
         exit $?
       command:
         - /bin/sh
