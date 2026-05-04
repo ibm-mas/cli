@@ -106,8 +106,7 @@ optionalParams = [
 
     # permission mode
     "permission_mode",
-    "skip_preinstall_rbac",
-    
+
     # Enable IPv6 networking
     "enable_ipv6",
 

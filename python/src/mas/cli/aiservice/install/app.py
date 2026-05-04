@@ -78,7 +78,7 @@ def logMethodCall(func):
 
 
 class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin, ConfigGeneratorMixin):
-    
+
     def getSelectedApps(self) -> list[str]:
         return ["aiservice"]
 
@@ -441,7 +441,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         if self.getParam("permission_mode") != "" and not isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
             self.fatalError("--permission-mode is supported only for AI Service releases aligned to MAS 9.2.0 and later")
-        
+
         # Set default permission_mode for 9.2.0+ if not provided
         if isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")) and self.getParam("permission_mode") == "":
             self.setParam("permission_mode", "cluster")

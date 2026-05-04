@@ -2031,6 +2031,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.licensePrompt()
             self.setParam("db2u_kind", "db2ucluster")
 
+        if self.getParam("mas_internal_certificate_issuer_kind") != "" and not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            self.fatalError(f"--mas-internal-certificate-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+
         if self.getParam("mas_permission_mode") != "":
             if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
                 self.fatalError(f"--permission-mode is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
