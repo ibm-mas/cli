@@ -19,7 +19,6 @@ python3 /opt/app-root/src/register-start.py
 # Capture the playbook name for notification
 PLAYBOOK_NAME="$1"
 
-echo "PIPELINE_NAMESPACE: $PIPELINE_NAMESPACE"
 # Send Slack start notification if configured
 if [ -n "$SLACK_TOKEN" ] && [ -n "$SLACK_CHANNEL" ]; then
   python3 /opt/app-root/bin/mas-devops-notify-slack \
