@@ -211,7 +211,13 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
-      # 3. CLI Container Images
+      # 3. Prepare RBAC Directory
+      # -------------------------------------------------------------------------------------------
+      - name: Copy RBAC directory to build context
+        run: |
+          cp -r $GITHUB_WORKSPACE/rbac $GITHUB_WORKSPACE/image/cli/rbac
+
+      # 4. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
         id: docker-build
@@ -275,7 +281,13 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
-      # 3. CLI Container Images
+      # 3. Prepare RBAC Directory
+      # -------------------------------------------------------------------------------------------
+      - name: Copy RBAC directory to build context
+        run: |
+          cp -r $GITHUB_WORKSPACE/rbac $GITHUB_WORKSPACE/image/cli/rbac
+
+      # 4. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
         id: docker-build
@@ -338,7 +350,13 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
-      # 3. CLI Container Images
+      # 3. Prepare RBAC Directory
+      # -------------------------------------------------------------------------------------------
+      - name: Copy RBAC directory to build context
+        run: |
+          cp -r $GITHUB_WORKSPACE/rbac $GITHUB_WORKSPACE/image/cli/rbac
+
+      # 4. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
         id: docker-build
@@ -401,7 +419,13 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
-      # 3. CLI Container Images
+      # 3. Prepare RBAC Directory
+      # -------------------------------------------------------------------------------------------
+      - name: Copy RBAC directory to build context
+        run: |
+          cp -r $GITHUB_WORKSPACE/rbac $GITHUB_WORKSPACE/image/cli/rbac
+
+      # 4. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
         id: docker-build

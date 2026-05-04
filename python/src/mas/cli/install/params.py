@@ -38,6 +38,7 @@ optionalParams = [
     "mas_superuser_password",
     "mas_trust_default_cas",
     "mas_routing_mode",
+    "mas_use_service_mesh",
     "mas_ingress_controller_name",
     "mas_app_settings_server_bundles_size",
     "mas_app_settings_default_jms",

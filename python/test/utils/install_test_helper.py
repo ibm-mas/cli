@@ -403,6 +403,3 @@ def run_aiservice_install_test(tmpdir, config: InstallTestConfig):
         AssertionError: If prompt verification fails
     """
     run_install_test(tmpdir, config, install_type='aiservice')
-
-
-# Made with Bob

@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: mas
-  namespace: openshift-gitops
+  namespace: {{ ARGOCLUSTER_NAMESPACE }}
 spec:
   description: IBM Maximo Application Suite
   clusterResourceWhitelist:

@@ -7,10 +7,10 @@ clean:
 	rm -rf .venv
 
 install: venv
-	. .venv/bin/activate && python -m pip install --editable ../../python-devops[dev]
+	. .venv/bin/activate && python -m pip install --upgrade pip && python -m pip install --editable ../../python-devops[dev]
 	. .venv/bin/activate && python -m pip install --editable .[dev]
 
-build: venv
+build: install
 	rm -f README.rst
 	. .venv/bin/activate && python -m build
 

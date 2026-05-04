@@ -21,6 +21,20 @@ custom_labels:
   {{ CUSTOM_LABELS | indent(2) }}
 {% endif %}
 
+{% if ARGOCLUSTER_INSTANCE is defined and ARGOCLUSTER_INSTANCE !='' %}
+argocluster_instance: {{ ARGOCLUSTER_INSTANCE }}
+{% endif %}
+
+{% if APPLICATION_ADMIN_SERVICE_ACCOUNT_NAME is defined and APPLICATION_ADMIN_SERVICE_ACCOUNT_NAME !='' or APPLICATION_ADMIN_SERVICE_ACCOUNT_NAMESPACE is defined and APPLICATION_ADMIN_SERVICE_ACCOUNT_NAMESPACE !='' %}
+application_admin_service_account:
+{%- if APPLICATION_ADMIN_SERVICE_ACCOUNT_NAME is defined and APPLICATION_ADMIN_SERVICE_ACCOUNT_NAME !='' %}
+  name: {{ APPLICATION_ADMIN_SERVICE_ACCOUNT_NAME }}
+{%- endif %}
+{%- if APPLICATION_ADMIN_SERVICE_ACCOUNT_NAMESPACE is defined and APPLICATION_ADMIN_SERVICE_ACCOUNT_NAMESPACE !='' %}
+  namespace: {{ APPLICATION_ADMIN_SERVICE_ACCOUNT_NAMESPACE }}
+{%- endif %}
+{% endif %}
+
 {% if MAS_WIPE_MONGO_DATA == 'true' %}
 mas_wipe_mongo_data: true
 {% else %}
