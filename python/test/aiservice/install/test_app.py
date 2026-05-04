@@ -25,6 +25,7 @@ from mas.cli.aiservice.install.app import AiServiceInstallApp
 
 def test_install_noninteractive(tmpdir):
     tmpdir.join('authorized_entitlement.lic').write('testLicense')
+    tmpdir.join('aiservice-tenant-affinity-config.yaml').write('#')
     with mock.patch('mas.cli.cli.config'):
         dynamic_client = MagicMock(DynamicClient)
         resources = MagicMock()
@@ -103,6 +104,7 @@ def test_install_noninteractive(tmpdir):
                              '--tenant-entitlement-type', 'standard',
                              '--tenant-entitlement-start-date', '2025-08-28',
                              '--tenant-entitlement-end-date', '2026-08-28',
+                             '--tenant-scheduling-config-file', f'{tmpdir}/aiservice-tenant-affinity-config.yaml',
                              '--rsl-url', 'https:/test.rsl.maximo.ibm.com/api/v3/vector/query',
                              '--rsl-org-id', 'testOrgId',
                              '--rsl-token', 'testRslToken',
@@ -113,6 +115,7 @@ def test_install_noninteractive(tmpdir):
 
 def test_install_interactive_advanced(tmpdir):
     tmpdir.join('authorized_entitlement.lic').write('testLicense')
+    tmpdir.join('aiservice-tenant-affinity-config.yaml').write('#')
     tmpdir.join('mongodb-system.yaml').write('#')
     tmpdir.join('cert.crt').write('#')
     with mock.patch('mas.cli.cli.config'):
@@ -177,6 +180,8 @@ def test_install_interactive_advanced(tmpdir):
                     return f'{tmpdir}/authorized_entitlement.lic'
                 if re.match('.*Instance ID.*', message):
                     return 'apmdevops'
+                if re.match('.*Scheduling constraints YAML file.*', message):
+                    return f'{tmpdir}/aiservice-tenant-affinity-config.yaml'
                 if re.match('.*Operational Mode.*', message):
                     return '1'
                 if re.match('.*Install Minio.*', message):

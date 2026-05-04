@@ -257,10 +257,12 @@ class InstallSummarizerMixin():
             if "aiservice_certificate_issuer" in self.params:
                 self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
-            self.printH2("AI Service Tenant Entitlement")
+            self.printH2("AI Service Tenant Configuration")
             self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
             self.printParamSummary("Start Date", "tenant_entitlement_start_date")
             self.printParamSummary("End Date", "tenant_entitlement_end_date")
+            if self.aiserviceTenantSchedulingConfigFileLocal:
+                self.printSummary("Scheduling configuration file", self.aiserviceTenantSchedulingConfigFileLocal)
 
             self.printH2("S3 Configuration")
             # self.printParamSummary("Storage provider", "aiservice_s3_provider")
