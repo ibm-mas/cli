@@ -28,6 +28,10 @@ ibm_sls:
     authMechanism: {{ DOCDB_AUTHMECHANISM | default("DEFAULT") }}
     configDb: {{ DOCDB_CONFIGDB | default("admin") }}
     secretName: sls-mongo-credentials
+  mongo:
+    mongo_reset_instance_password: {{ MONGO_RESET_INSTANCE_PASSWORD }}
+    mongo_update_instance_mongo_secret: {{ MONGO_UPDATE_INSTANCE_MONGO_SECRET }}
+
 {%- if config.retryWrites is sameas false %}
     retryWrites: false
 {%- endif %}
