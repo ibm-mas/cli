@@ -7,9 +7,7 @@ ibm_mas_suite:
   mas_feature_usage: "{{ MAS_FEATURE_USAGE }}"
   mas_deployment_progression: "{{ MAS_DEPLOYMENT_PROGRESSION }}"
   mas_usability_metrics: "{{ MAS_USABILITY_METRICS }}"
-  mongo:
-    mongo_reset_instance_password: {{ MONGO_RESET_INSTANCE_PASSWORD }}
-    mongo_update_instance_mongo_secret: {{ MONGO_UPDATE_INSTANCE_MONGO_SECRET }}
+
 {%- if DNS_PROVIDER is defined and DNS_PROVIDER !='' %}
   # suite dns
   dns_provider: "{{ DNS_PROVIDER }}"
