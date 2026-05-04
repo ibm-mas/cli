@@ -3,6 +3,7 @@
 *.pyc
 
 .env
+.venv
 kubectl.exe
 mas.log
 
@@ -45,6 +46,7 @@ image/cli/mascli/fyre-dev.noble3.tgkc-env.sh
 image/cli/mascli/fyre-dev.noble3.tgkd-env.sh
 image/cli/mascli/fyre-dev.noble3.tgke-env.sh
 image/cli/mascli/fyre-dev.noble3.tgke-db2u-manage-env.sh
+image/cli/podman-build*
 
 python/.venv
 python/.venv-windows

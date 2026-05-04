@@ -82,6 +82,9 @@ class InstallSummarizerMixin():
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
         print()
+        self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
+
+        print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
 
         if self.getParam("mas_manual_cert_mgmt") != "":

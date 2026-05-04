@@ -120,6 +120,3 @@ class MASCLIPlugin(BasePlugin):
             )
 
         return parser
-
-
-# Made with Bob
