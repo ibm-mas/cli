@@ -738,13 +738,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         "Select the internal certificate issuer kind used by MAS for internal certificates:",
                         "",
                         "  1. Issuer",
-                        "     - Uses a namespace-scoped cert-manager Issuer",
-                        "     - Best when MAS is installed with more restricted permissions",
-                        "     - DNS integration is not available with this option",
+                        "     - MAS uses a namespace-scoped issuer resource for internal certificates",
+                        "     - You can not get CLI-managed DNS integration",
                         "",
                         "  2. ClusterIssuer",
-                        "     - Uses a cluster-scoped cert-manager ClusterIssuer",
-                        "     - Required if you want to use DNS integration managed by the CLI"
+                        "     - MAS uses a cluster-scoped clusterissuer resource for internal certificates"
                     ])
                     issuerKindChoice = self.promptForInt("Internal certificate issuer kind", min=1, max=2, default=2)
                     self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")

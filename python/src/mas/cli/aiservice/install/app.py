@@ -104,12 +104,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 f"You selected the '{self.getParam('permission_mode')}' permission mode.",
                 "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                 "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
-                "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance, AI Service version, permission mode, and selected apps.",
+                "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance.",
                 "If that has already been done, you can continue the installation without applying it again."
             ])
 
             if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this AI Service installation"):
-                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again.")
+                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again with --skip-preinstall-rbac.")
         else:
             self.fatalError(
                 "\n".join([
@@ -138,7 +138,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
                 "     - No ClusterRoles are installed in this mode",
                 "     - Only essential permissions required for AI Service are applied",
-                "     - OpenShift admins must manage resources outside AI Service"
+                "     - AI Service can manage only the resources covered by these essential permissions"
             ])
 
             permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
@@ -251,6 +251,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configMongoDb()
         self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
+        # Permission mode prompt (especially in dev mode)
+        if isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
+            self.configPermissionMode()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -593,7 +596,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 with Halo(text=f"Setting up pre-install RBAC for AI Service instance {self.getParam('aiservice_instance_id')}...", spinner=self.spinner) as h:
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
-                        masVersion="9.2" if isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")) else "9.1",
+                        masVersion=".".join(self.getParam("aiservice_channel").split(".")[:2]),
                         masInstanceId=self.getParam("aiservice_instance_id"),
                         permissionMode=self.getParam("permission_mode"),
                         selectedApps=["aiservice"]
