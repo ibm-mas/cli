@@ -15,6 +15,7 @@ function mirror_aiservice_everything() {
     MIRROR_MINIO=true
     MIRROR_MARIADB=true
     MIRROR_OPENDATAHUB=true
+    MIRROR_OPENSHIFTAI=true
 }
 
 function mirror_aiservice_to_registry_noninteractive() {
@@ -28,6 +29,7 @@ function mirror_aiservice_to_registry_noninteractive() {
   MIRROR_MINIO=false
   MIRROR_MARIADB=false
   MIRROR_OPENDATAHUB=false
+  MIRROR_OPENSHIFTAI=false
 
   while [[ $# -gt 0 ]]
   do
@@ -112,6 +114,9 @@ function mirror_aiservice_to_registry_noninteractive() {
       --mirror-opendatahub)
         MIRROR_OPENDATAHUB=true
         ;;
+      --mirror-openshiftai)
+        MIRROR_OPENSHIFTAI=true
+        ;;
 
       --no-confirm)
         NO_CONFIRM=true
@@ -163,6 +168,7 @@ function mirror_aiservice_to_registry_interactive() {
     prompt_for_confirm "Red Hat ODF" MIRROR_ODF
     prompt_for_confirm "MariaDB" MIRROR_MARIADB
     prompt_for_confirm "OpenDataHub" MIRROR_OPENDATAHUB
+    prompt_for_confirm "OpenShiftAi" MIRROR_OPENSHIFTAI
   fi
 
   echo
@@ -186,6 +192,7 @@ export MIRROR_MINIO
   export MIRROR_MARIADB
 
   export MIRROR_OPENDATAHUB
+  export MIRROR_OPENSHIFTAI
   export MIRROR_ODF
 
   if [[ "$MIRROR_CATALOG" == true ||
@@ -193,6 +200,7 @@ export MIRROR_MINIO
     "$MIRROR_DB2U" == true ||
     "$MIRROR_ODF" == true ||
     "$MIRROR_OPENDATAHUB" == true ||
+    "$MIRROR_OPENSHIFTAI" == true ||
     "$MIRROR_MARIADB" == true ]]
   then
     MIRROR_DEPS=true
@@ -215,6 +223,7 @@ export MIRROR_MINIO
   show_mirror_status "Minio ..............................." $MIRROR_MINIO
   show_mirror_status "MariaDb ............................." $MIRROR_MARIADB
   show_mirror_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
+  show_mirror_status "OpenShiftAi ........................." $MIRROR_OPENSHIFTAI
 
   confirm_mirror
 

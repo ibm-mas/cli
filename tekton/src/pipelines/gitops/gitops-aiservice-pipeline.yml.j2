@@ -86,8 +86,6 @@ spec:
       type: string
     - name: aiservice_odh_model_deployment_type
       type: string
-    - name: sls_registration_key_secret
-      type: string
     - name: dro_token_secret
       type: string
     - name: dro_cacert_secret
@@ -225,8 +223,6 @@ spec:
           value: $(params.aiservice_s3_endpoint_url)
         - name: aiservice_s3_bucket_prefix
           value: $(params.aiservice_s3_bucket_prefix)
-        - name: sls_registration_key_secret
-          value: $(params.sls_registration_key_secret)
         - name: dro_token_secret
           value: $(params.dro_token_secret)
         - name: dro_cacert_secret

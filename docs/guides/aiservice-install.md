@@ -84,6 +84,7 @@ The interactive install will guide you through the following steps:
         <li><strong>Channel:</strong> AI Service version channel (e.g., 9.1.x)</li>
         <li><strong>S3 Storage Configuration:</strong> Configure object storage for AI Service data (MinIO or external S3)</li>
         <li><strong>Certificate Issuer (Advanced Mode Only):</strong> Optionally configure a pre-configured certificate issuer for AI Service</li>
+        <li><strong>Network configuration (Advanced Mode Only):</strong> Optionally enable IPv6 SingleStack network configuration for AI Service</li>
         <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
         <li><strong>RSL Configuration:</strong> Configure Red Hat Service Locator integration</li>
         <li><strong>Tenant Configuration:</strong> Set up AI Service tenant(s)</li>
@@ -224,6 +225,12 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 | Parameter | Description | Required | Example |
 |-----------|-------------|----------|---------|
 | `--aiservice-certificate-issuer` | Name of the certificate issuer for AI Service | No | `letsencrypt-prod` |
+
+### Enable IPv6 Networking
+
+| Parameter | Description | Required | Example |
+|-----------|-------------|----------|---------|
+| `--enable-ipv6` | Enable IPv6 SingleStack networking for AI Service | No | N/A |
 
 ### OpenDataHub Configuration
 

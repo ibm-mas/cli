@@ -103,4 +103,7 @@ optionalParams = [
 
     # Certificate Issuer
     "aiservice_certificate_issuer",
+
+    # Enable IPv6 networking
+    "enable_ipv6",
 ]

@@ -1,0 +1,69 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-prepare-backup-workspace
+spec:
+  params:
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Image pull policy for the container image
+
+  workspaces:
+    - name: backups
+      description: Backup workspace to prepare
+
+  steps:
+    - name: prepare-backup-workspace
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "=========================================="
+        echo "Workspace Preparation - Starting"
+        echo "=========================================="
+        echo ""
+        
+        # Prepare backup workspace configs directory
+        if [ -d "/workspace/backups" ]; then
+          echo "Backup workspace exists, preparing configs directory..."
+          echo ""
+          
+          # Remove existing configs directory if it exists
+          if [ -d "/workspace/backups/configs" ]; then
+            echo "Removing existing /workspace/backups/configs directory..."
+            rm -rf /workspace/backups/configs
+            echo "✓ Existing configs directory removed"
+            echo ""
+          fi
+          
+          # Create clean configs directory
+          echo "Creating clean /workspace/backups/configs directory..."
+          mkdir -p /workspace/backups/configs
+          echo "✓ Clean configs directory created"
+          echo ""
+          
+          # Verify the directory was created
+          echo "Verifying directory structure:"
+          echo "------------------------------"
+          ls -lah /workspace/backups/ || echo "Unable to list directory"
+          echo ""
+          
+          if [ -d "/workspace/backups/configs" ]; then
+            echo "✓ /workspace/backups/configs directory is ready"
+          else
+            echo "✗ Failed to create /workspace/backups/configs directory"
+            exit 1
+          fi
+        else
+          echo "✗ /workspace/backups does not exist"
+          exit 1
+        fi
+        
+        echo ""
+        echo "=========================================="
+        echo "Workspace preparation completed successfully"
+        echo "=========================================="

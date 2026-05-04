@@ -83,6 +83,18 @@ spec:
       type: string
       default: ""
 
+    - name: dns_provider
+      type: string
+      default: ""
+
+    - name: cis_service_name
+      type: string
+      default: ""
+    
+    - name: cis_crn
+      type: string
+      default: ""
+
     - name: cluster_url
       type: string
       default: ""
@@ -228,6 +240,12 @@ spec:
           value: $(params.cluster_url)
         - name: ocp_cluster_domain
           value: $(params.ocp_cluster_domain)
+        - name: dns_provider
+          value: $(params.dns_provider)
+        - name: cis_service_name
+          value: $(params.cis_service_name)
+        - name: cis_crn
+          value: $(params.cis_crn)
 
         - name: sls_license_icn
           value: $(params.sls_license_icn)
@@ -246,3 +264,6 @@ spec:
           workspace: configs
         - name: shared-gitops-configs
           workspace: shared-gitops-configs
+
+
+

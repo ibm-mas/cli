@@ -736,7 +736,7 @@ spec:
 
         # Remove argocd window
         argocd_login
-        ARGOWINDOW=$(argocd proj windows list mas | grep "$CLUSTER_NAME.$MAS_INSTANCE_ID\b" | cut -c1-1)
+        ARGOWINDOW=$(argocd proj windows list mas | grep "$CLUSTER_NAME.$MAS_INSTANCE_ID\b" | sed 's/%!(EXTRA.*)//' | cut -c1-1)
         echo "argo:argocd proj windows delete mas $ARGOWINDOW"
         argocd proj windows delete mas $ARGOWINDOW --grpc-web
 

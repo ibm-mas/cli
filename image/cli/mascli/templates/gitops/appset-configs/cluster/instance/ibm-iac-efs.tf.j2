@@ -11,8 +11,8 @@ module "efs" {
 
   }
 
-    throughput_mode              = each.value.throughput_mode
-    efs_mount_ingress_subnet_ids = local.cluster.internal_subnet_ids
-    efs_mount_egress_subnet_ids  = local.cluster.external_subnet_ids
-    efs_worker_subnet_id_list    = local.cluster.internal_subnet_ids
+  throughput_mode              = each.value.throughput_mode
+  efs_mount_ingress_subnet_ids = local.cluster.external_subnet_ids
+  efs_mount_egress_subnet_ids  = local.cluster.external_subnet_ids
+  efs_worker_subnet_id_list    = local.cluster.internal_subnet_ids
 }

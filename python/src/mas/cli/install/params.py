@@ -156,6 +156,7 @@ optionalParams = [
     "mas_deployment_progression",
     # Facilities
     "mas_ws_facilities_size",
+    "mas_ws_facilities_app_om_upgrade_mode",
     "mas_ws_facilities_routes_timeout",
     "mas_ws_facilities_liberty_extension_XML",
     "mas_ws_facilities_vault_secret",
@@ -215,5 +216,10 @@ optionalParams = [
     "environment_type",
 
     # Certificate Issuer
-    "aiservice_certificate_issuer"
+    "aiservice_certificate_issuer",
+
+    # Grafana
+    "skip_grafana_install",
+    "grafana_v5_namespace",
+    "grafana_instance_storage_size"
 ]

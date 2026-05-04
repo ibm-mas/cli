@@ -19,6 +19,10 @@ spec:
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
+    - name: mas_config_dir
+      type: string
+      description: config directory path
+      default: "/workspace/configs"
 
     # Storage Class
     - name: mongodb_storage_class
@@ -67,6 +71,20 @@ spec:
       description: Approves the MongoDb upgrade to version 8 if needed
       default: ""
 
+    # Backup/Restore specific parameters
+    - name: mongodb_backup_version
+      type: string
+      description: Optional. Version/timestamp for the backup
+      default: ""
+    - name: mongodb_instance_name
+      type: string
+      description: Optional. MongoDB instance name for backup
+      default: ""
+    - name: override_mongodb_storageclass
+      type: string
+      description: Override database PVC storageclass during restore
+      default: "false"
+
     # Dependencies - IBM Cloud MongoDb
     # -------------------------------------------------------------------------
     - name: ibmcloud_resourcegroup
@@ -100,7 +118,7 @@ spec:
 
       # General
       - name: MAS_CONFIG_DIR
-        value: /workspace/configs
+        value: $(params.mas_config_dir)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: AISERVICE_INSTANCE_ID
@@ -148,6 +166,16 @@ spec:
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
 
+      # Backup/Restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: MONGODB_BACKUP_VERSION
+        value: $(params.mongodb_backup_version)
+      - name: MONGODB_INSTANCE_NAME
+        value: $(params.mongodb_instance_name)
+      - name: OVERRIDE_STORAGECLASS
+        value: $(params.override_mongodb_storageclass)
+
   steps:
     - name: mongodb
       script: |
@@ -162,8 +190,10 @@ spec:
 
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      workingDir: /workspace/configs
+      workingDir: $(params.mas_config_dir)
 
   workspaces:
     - name: configs
+      optional: true
+    - name: backups
       optional: true

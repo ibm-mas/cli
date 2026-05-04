@@ -422,11 +422,27 @@ aiServiceArgGroup.add_argument(
     default="non-production",
     help="Environment type (default: non-production)"
 )
-aiServiceArgGroup.add_argument(
+
+# AI Service advanced configuration
+# -----------------------------------------------------------------------------
+aiserviceAdvancedArgGroup = aiServiceinstallArgParser.add_argument_group(
+    "Advanced configuration for AI Service",
+    "Advanced configuration options for AI Service including certificates issuer and IPv6 support"
+)
+aiserviceAdvancedArgGroup.add_argument(
     "--aiservice-certificate-issuer",
     dest="aiservice_certificate_issuer",
     required=False,
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--enable-ipv6",
+    dest="enable_ipv6",
+    required=False,
+    default="false",
+    help="Configure AI Service to run in IPv6. Before setting this option, be sure your cluster is configured in IPv6",
+    action="store_const",
+    const="true"
 )
 
 

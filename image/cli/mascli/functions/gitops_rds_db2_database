@@ -27,6 +27,7 @@ IBM RDS DB2:
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the rds db2 cluster addons audit config section.
       --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                       Flag to know that this is ReplicaDB instance
+      --rds-db2-backup ${COLOR_YELLOW}RDS_DB2_BACKUP${TEXT_RESET}                                                Flag to know that this is RDS DB2 backup instance
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -122,6 +123,9 @@ function gitops_rds_db2_database_noninteractive() {
         ;;
       --replica-db)
         export REPLICA_DB=$1 && shift
+        ;;
+      --rds-db2-backup)
+        export RDS_DB2_BACKUP=$1 && shift
         ;;
       # Automatic GitHub Push
       -P|--github-push)
@@ -268,6 +272,7 @@ function gitops_rds_db2_database() {
   echo_reset_dim "db2-instance-name ............................. ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
   echo_reset_dim "mas-app-id  ................................... ${COLOR_MAGENTA}${MAS_APP_ID}"
   echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
+  echo_reset_dim "rds-db2-backup ................................ ${COLOR_MAGENTA}${RDS_DB2_BACKUP}"
   echo_reset_dim "db2-instance-registry-yaml .................... ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
   echo_reset_dim "db2-instance-dbm-config-yaml .................. ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
   echo_reset_dim "db2-database-db-config-yaml ................... ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
@@ -305,7 +310,7 @@ function gitops_rds_db2_database() {
 
   #secret prefix creation
   CONFIG_SECRETS_PREFIX=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
-  CREDENTIALS_SECRETS_PREFIX=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+  CREDENTIALS_SECRETS_PREFIX=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}admin${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
 
   # db2rds params from aws config secrets
   export HOST=${CONFIG_SECRETS_PREFIX}#db2_endpoint
@@ -321,6 +326,9 @@ function gitops_rds_db2_database() {
   # db2rds params from saas-env
   export REPLICA_DB=${REPLICA_DB}
   export JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=${JDBC_CONNECTION_URL_ADDITIONAL_PARAMS}
+
+  # S3 bucket name for RDS DB2 backups
+  export S3_BUCKET_NAME="${CLUSTER_ID}-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
 
   # Clone github target repo
@@ -377,3 +385,4 @@ function gitops_rds_db2_database() {
     rm -rf $TEMP_DIR
 
 }
+
