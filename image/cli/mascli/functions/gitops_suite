@@ -27,6 +27,7 @@ AWS Secrets Manager Configuration (Required):
 
 MongoDb Provider Selection (Required):
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}                              The mongodb provider to install ('aws' or 'yaml')
+      --mongo-action ${COLOR_YELLOW}MONGO_ACTION${TEXT_RESET}                                    The mongo action ('install' or 'uninstall', optional)
       --mongo-reset-instance-password ${COLOR_YELLOW}MONGO_RESET_INSTANCE_PASSWORD${TEXT_RESET}      Reset MongoDB instance password (true/false, default: false)
       --mongo-update-instance-secret ${COLOR_YELLOW}MONGO_UPDATE_INSTANCE_MONGO_SECRET${TEXT_RESET}  Update MongoDB instance secret (true/false, default: false)
 
@@ -234,6 +235,9 @@ function gitops_suite_noninteractive() {
       # MongoDb Provider Selection
       --mongo-provider)
         export MONGODB_PROVIDER=$1 && shift
+        ;;
+      --mongo-action)
+        export MONGO_ACTION=$1 && shift
         ;;
 
       # SLS

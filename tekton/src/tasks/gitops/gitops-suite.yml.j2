@@ -22,6 +22,9 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
+    - name: mongo_action
+      type: string
+      default: ""
     - name: mongo_reset_instance_password
       type: string
       default: "false"
@@ -201,6 +204,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: MONGODB_PROVIDER
         value: $(params.mongo_provider)
+      - name: MONGO_ACTION
+        value: $(params.mongo_action)
       - name: MONGO_RESET_INSTANCE_PASSWORD
         value: $(params.mongo_reset_instance_password)
       - name: MONGO_UPDATE_INSTANCE_MONGO_SECRET
@@ -392,7 +397,8 @@ spec:
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH \
-        --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA" 
+        --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA" \
+        --mongo-action "$MONGO_ACTION"
 
         exit $?
       command:
