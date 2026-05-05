@@ -88,6 +88,7 @@ The interactive install will guide you through the following steps:
         <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
         <li><strong>RSL Configuration:</strong> Configure Red Hat Service Locator integration</li>
         <li><strong>Tenant Configuration:</strong> Set up AI Service tenant(s)</li>
+        <li><strong>Customize pod scheduling configuration for AI Workloads (Advanced Mode Only):</strong> Configure tolerations & nodeSelector for AI workloads (Training pipeline & Inference Service). See <a href="#scheduling-configuration-file-format">Scheduling Configuration File Format</a> for file configuration details.</li>
         <li><strong>Operational Mode:</strong> Choose between production or non-production mode</li>
       </ul>
     </cds-accordion-item>
@@ -153,6 +154,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
     --tenant-entitlement-type standard \
     --tenant-entitlement-start-date 2025-01-01 \
     --tenant-entitlement-end-date 2026-01-01 \
+    --tenant-scheduling-config-file "/mnt/home/aiservice-tenant-affinity.yaml" \
     \
     --rsl-url http://your-rsl-host:3001/api/v3/vector/query \
     --rsl-org-id your_org_id \
@@ -268,6 +270,51 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 | `--rsl-url` | RSL service URL | Optional | `http://host:3001/api/v3/vector/query` |
 | `--rsl-org-id` | RSL organization ID | Optional | `your_org_id` |
 | `--rsl-token` | RSL authentication token | Optional | `Bearer your_token` |
+
+### AI Workload Scheduling Configuration
+
+| Parameter | Description | Required | Example |
+|-----------|-------------|----------|---------|
+| `--aiservice-scheduling-config-file` | Path to YAML file containing scheduling configuration for AI workloads (training pipeline & inference service) | Optional | `/mnt/home/scheduling-config.yaml` |
+
+!!! note "Scheduling Configuration"
+    The scheduling configuration allows you to customize pod placement for AI workloads using tolerations and nodeSelector. This is useful for dedicating specific nodes to AI workloads or ensuring proper resource allocation.
+
+#### Scheduling Configuration File Format
+
+The scheduling configuration file must be a YAML file with the following structure:
+
+```yaml
+pipeline:
+  tolerations:
+    - key: "kmodels"
+      operator: "Equal"
+      value: "pipeline"
+      effect: "NoSchedule"
+  nodeSelector:
+    kmodels: pipeline
+predictor:
+  tolerations:
+    - key: "kmodels"
+      operator: "Equal"
+      value: "inference"
+      effect: "NoSchedule"
+  nodeSelector:
+    kmodels: inference
+```
+
+**Configuration File Structure**:
+
+The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:
+  - `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)
+  - `nodeSelector`: Dictionary of node label key-value pairs
+At least one of `tolerations` or `nodeSelector` must be defined for each non-empty object.
+
+
+!!! tip "Use Cases"
+    - **Dedicated GPU Nodes**: Use nodeSelector to schedule AI workloads on GPU-enabled nodes
+    - **Resource Isolation**: Use tolerations to ensure AI workloads run on dedicated nodes with specific taints
+    - **Multi-tenant Environments**: Separate AI workloads from other cluster workloads using node affinity
 
 ### Additional Options
 
