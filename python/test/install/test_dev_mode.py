@@ -274,7 +274,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 11. Permission mode
         '.*Permission Mode.*': lambda msg: '1',
         # 12. Internal certificate issuer kind (appears when Permission Mode is cluster)
-        '.*Internal certificate issuer kind.*': lambda msg: '2',  # Select ClusterIssuer
+        '.*Certificate issuer kind.*': lambda msg: '2',  # Select ClusterIssuer
         # 13. Certificate Authority Trust
         '.*Trust default CAs.*': lambda msg: 'y',
         # 14. Cluster ingress certificate secret name
