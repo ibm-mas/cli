@@ -11,6 +11,7 @@
 from typing import TYPE_CHECKING, Dict, List, NoReturn
 from os import path
 from prompt_toolkit import print_formatted_text
+from mas.devops.utils import isVersionEqualOrAfter
 
 
 if TYPE_CHECKING:
@@ -75,16 +76,22 @@ class KafkaSettingsMixin():
     def configKafka(self) -> None:
         # Check if CIVIL component is enabled in Manage
         isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
+        # Civil only requires Kafka for version 9.2+
+        isCivilRequiringKafka = False
+        if isCivilEnabled:
+            manageChannel = self.getParam("mas_app_channel_manage")
+            if manageChannel and isVersionEqualOrAfter('9.2.0', manageChannel):
+                isCivilRequiringKafka = True
 
-        if self.installIoT or isCivilEnabled:
+        if self.installIoT or isCivilRequiringKafka:
             self.printH1("Configure Kafka")
 
             # Build description based on what requires Kafka
             requirements = []
             if self.installIoT:
                 requirements.append("Maximo IoT")
-            if isCivilEnabled:
-                requirements.append("Maximo Manage Civil Infrastructure")
+            if isCivilRequiringKafka:
+                requirements.append("Maximo Manage Civil Infrastructure (9.2+)")
 
             requirementsText = " and ".join(requirements)
             self.printDescription([

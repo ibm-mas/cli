@@ -1906,16 +1906,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Validate Kafka requirements for IoT or CIVIL installation in non-interactive mode
         isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
-        if self.installIoT or isCivilEnabled:
+        # Civil only requires Kafka for version 9.2+
+        isCivilRequiringKafka = False
+        if isCivilEnabled:
+            manageChannel = self.getParam("mas_app_channel_manage")
+            if manageChannel and isVersionEqualOrAfter('9.2.0', manageChannel):
+                isCivilRequiringKafka = True
+        
+        if self.installIoT or isCivilRequiringKafka:
             kafkaAction = self.getParam("kafka_action_system")
             hasKafkaConfig = kafkaAction in ["install", "byo"]
             if not hasKafkaConfig:
-                if self.installIoT and isCivilEnabled:
-                    self.fatalError("--iot-channel and Manage Civil Infrastructure component require Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
+                if self.installIoT and isCivilRequiringKafka:
+                    self.fatalError("--iot-channel and Manage Civil Infrastructure component (version 9.2+) require Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
                 elif self.installIoT:
                     self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
                 else:
-                    self.fatalError("Manage Civil Infrastructure component requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
+                    self.fatalError("Manage Civil Infrastructure component (version 9.2+) requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
 
     @logMethodCall
     def install(self, argv):
