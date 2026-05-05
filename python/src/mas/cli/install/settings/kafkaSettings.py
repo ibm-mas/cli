@@ -73,29 +73,35 @@ class KafkaSettingsMixin():
         def selectLocalConfigDir(self) -> None:
             ...
 
-    def configKafka(self) -> None:
-        # Check if CIVIL component is enabled in Manage
+    def _requiresKafkaIoT(self) -> bool:
+        return self.installIoT
+
+    def _requiresKafkaCivil(self) -> bool:
         isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
-        # Civil only requires Kafka for version 9.2+
-        isCivilRequiringKafka = False
         if isCivilEnabled:
             manageChannel = self.getParam("mas_app_channel_manage")
             if manageChannel and isVersionEqualOrAfter('9.2.0', manageChannel):
-                isCivilRequiringKafka = True
+                return True
+        return False
 
-        if self.installIoT or isCivilRequiringKafka:
+    def _getKafkaRequirements(self) -> List[str]:
+        requirements = []
+        if self._requiresKafkaIoT():
+            requirements.append("Maximo IoT")
+        if self._requiresKafkaCivil():
+            requirements.append("Manage Civil Infrastructure (9.2+)")
+        return requirements
+
+    def configKafka(self) -> None:
+        requirements = self._getKafkaRequirements()
+        
+        if requirements:
             self.printH1("Configure Kafka")
 
-            # Build description based on what requires Kafka
-            requirements = []
-            if self.installIoT:
-                requirements.append("Maximo IoT")
-            if isCivilRequiringKafka:
-                requirements.append("Maximo Manage Civil Infrastructure (9.2+)")
-
             requirementsText = " and ".join(requirements)
+            verb = "require" if len(requirements) > 1 else "requires"
             self.printDescription([
-                f"{requirementsText} requires a shared system-scope Kafka instance",
+                f"{requirementsText} {verb} a shared system-scope Kafka instance",
                 "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
                 "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
             ])
