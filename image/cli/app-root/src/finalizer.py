@@ -610,11 +610,16 @@ if __name__ == "__main__":
         print("FVT Run is not yet completed. Skipping slack message with results to report channel")
         sys.exit(0)
 
-    if instanceId.startswith("fvt"):
-        # To generate the channel name we remove the "fvt" prefix from the instanceId
-        FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId.replace('fvt', '')}"
-    else:
-        FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId}"
+    FVT_SLACK_CHANNEL = os.getenv("SLACK_CHANNEL")
+    if FVT_SLACK_CHANNEL is None or FVT_SLACK_CHANNEL == "":
+        print("FVT_SLACK_CHANNEL is not set, hence generating channel name based on instanceId")
+        if instanceId.startswith("fvt"):
+            # To generate the channel name we remove the "fvt" prefix from the instanceId
+            FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId.replace('fvt', '')}"
+            print(f"Generated FVT_SLACK_CHANNEL name is {FVT_SLACK_CHANNEL}")
+        else:
+            FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId}"
+            print(f"Generated FVT_SLACK_CHANNEL name is {FVT_SLACK_CHANNEL}")
 
     FVT_JIRA_TOKEN = os.getenv("FVT_JIRA_TOKEN")
     if FVT_JIRA_TOKEN is None or FVT_JIRA_TOKEN == "":
