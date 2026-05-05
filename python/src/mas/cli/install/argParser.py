@@ -741,6 +741,7 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_app_om_upgrade_mode",
     required=False,
     help="Sets the Application Object Migration Mode",
+    default="manual",
     choices=FACILITIES_APPOMUPGRADEMODE,
     metavar="{manual,load-only,automatic}"
 )
@@ -749,6 +750,7 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_size",
     required=False,
     help="Size of Facilities deployment",
+    default="small",
     choices=FACILITIES_SIZES,
     metavar="{small,medium,large}"
 )
@@ -757,6 +759,7 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_pull_policy",
     required=False,
     help="Image pull policy for Facilities",
+    default="IfNotPresent",
     choices=IMAGE_PULL_POLICIES,
     metavar="{IfNotPresent,Always}"
 )
@@ -804,13 +807,15 @@ facilitiesArgGroup.add_argument(
     "--facilities-log-storage-mode",
     dest="mas_ws_facilities_storage_log_mode",
     required=False,
-    help="Storage mode for Facilities logs"
+    help="Storage mode for Facilities logs",
+    default="ReadWriteMany",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-log-storage-size",
     dest="mas_ws_facilities_storage_log_size",
     required=False,
-    help="Storage size for Facilities logs"
+    help="Storage size for Facilities logs",
+    default=30
 )
 facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-class",
@@ -822,13 +827,15 @@ facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-mode",
     dest="mas_ws_facilities_storage_userfiles_mode",
     required=False,
-    help="Storage mode for Facilities user files"
+    help="Storage mode for Facilities user files",
+    default="ReadWriteMany",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-size",
     dest="mas_ws_facilities_storage_userfiles_size",
     required=False,
-    help="Storage size for Facilities user files"
+    help="Storage size for Facilities user files",
+    default=50
 )
 
 # Open Data Hub
@@ -1095,6 +1102,13 @@ aiServiceArgGroup.add_argument(
     dest="aiservice_certificate_issuer",
     required=False,
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
+)
+aiServiceArgGroup.add_argument(
+    "--tenant-scheduling-config-file",
+    dest="tenant_scheduling_config_file",
+    required=False,
+    help="Path to the YAML file that contains the scheduling configuration for tenant",
+    type=lambda x: isValidFile(installArgParser, x)
 )
 
 # IBM Cloud Pak for Data
