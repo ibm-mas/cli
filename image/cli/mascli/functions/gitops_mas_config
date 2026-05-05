@@ -404,7 +404,7 @@ function gitops_mas_config_noninteractive() {
   if [ "${CONFIG_ACTION}" == "upsert" ]; then
 
     if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
-      export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+      export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"aws"}
       if ! [[ "$MONGODB_PROVIDER" =~ ^(aws|yaml)$ ]]; then
         gitops_mas_config_help "Invalid MONGODB_PROVIDER \"${MONGODB_PROVIDER}\"; must be one of aws|yaml"
       fi

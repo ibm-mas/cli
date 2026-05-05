@@ -22,7 +22,7 @@ AWS Secrets Manager Configuration (Required):
 
 MongoDB Atlas Configuration (Required):
       --atlas-uri ${COLOR_YELLOW}ATLAS_URI${TEXT_RESET}                                           MongoDB Atlas URI (default: 'https://cloud.mongodb.com/')
-      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}                               MongoDB provider type (default: 'atlas')
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}                               MongoDB provider type (default: 'aws')
 
 MongoDB Atlas Resource Configuration (Required):
       --mongo-action ${COLOR_YELLOW}MONGO_ACTION${TEXT_RESET}                                     Action to perform ('install' or 'uninstall')
@@ -104,7 +104,7 @@ function gitops_mongo_atlas_noninteractive() {
 
   # MongoDB Atlas defaults
   export ATLAS_URI=${ATLAS_URI:-"https://cloud.mongodb.com/"}
-  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"aws"}
   export MONGO_NODE_COUNT=${MONGO_NODE_COUNT:-3}
   export MONGO_SHARDS=${MONGO_SHARDS:-1}
   export MONGO_BACKUP_ENABLED=${MONGO_BACKUP_ENABLED:-"true"}

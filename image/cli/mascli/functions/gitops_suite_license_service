@@ -326,7 +326,7 @@ function gitops_suite_license_service() {
   mkdir -p $TEMP_DIR
 
   # by default yaml. pass aws, in case if configuring with DocDB
-  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"aws"}
 
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml

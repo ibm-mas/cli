@@ -763,7 +763,7 @@ function gitops_suite() {
   fi
   
   # by default yaml. pass aws, in case if configuring with DocDB
-  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"aws"}
   
   # MongoDB reset and update flags
   export MONGO_RESET_INSTANCE_PASSWORD=${MONGO_RESET_INSTANCE_PASSWORD:-"false"}
@@ -772,13 +772,27 @@ function gitops_suite() {
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
 
-  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info"
-  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+  # Verify cluster-level secret exists and retrieve it
+  # If mongodb_provider is yaml and mongo_action is install, only info field is required
+  if [[ "${MONGODB_PROVIDER}" == "yaml" && "${MONGO_ACTION}" == "install" ]]; then
+    echo
+    echo_h2 "MongoDB Provider is 'yaml' - Verifying cluster-level MongoDB secret (info field only)"
+    sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "info"
+    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+    
+    jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
+    UNESCAPED_MONGO_INFO=$(jq -r .info $MONGO_SECRET_FILE)
+    echo "✓ Cluster-level MongoDB secret verified (master credentials not required for yaml provider)"
+  else
+    # For aws provider or other actions, retrieve and process the secret with all fields
+    sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info"
+    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
 
-  jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
-  MASTER_MONGO_USERNAME=$(jq -r .username $MONGO_SECRET_FILE)
-  MASTER_MONGO_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)
-  UNESCAPED_MONGO_INFO=$(jq -r .info $MONGO_SECRET_FILE)
+    jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
+    MASTER_MONGO_USERNAME=$(jq -r .username $MONGO_SECRET_FILE)
+    MASTER_MONGO_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)
+    UNESCAPED_MONGO_INFO=$(jq -r .info $MONGO_SECRET_FILE)
+  fi
 
 
   # Instance-level secrets to use
@@ -794,12 +808,13 @@ function gitops_suite() {
   export SECRET_KEY_MONGO_INFO=${SECRET_NAME_MONGO}#info
 
   
+  # Create/update instance-level secret
   export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
   sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_SECRET_FILE
   INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
 
-  # Setting mongo instance secret with info field copied from the cluster level secret, 
+  # Setting mongo instance secret with info field copied from the cluster level secret
   # Instance username and password will be created in presync hook unless it is already set in the docdb secret created in federal env, this is due to the
   # presync hook not running in a federal env due to the userid requirements.
   export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
