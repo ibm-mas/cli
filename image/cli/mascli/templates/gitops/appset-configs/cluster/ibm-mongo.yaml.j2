@@ -3,7 +3,7 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 mongo:
   atlas:
     action: {{ MONGO_ACTION }}
-    mongodb_provider: {{ MONGODB_PROVIDER }}
+    mongodb_provider: "{{ MONGODB_PROVIDER }}"
     major_db_version: "{{ MONGO_MAJOR_DB_VERSION }}"
     vpcEndpointId: {{ MONGO_VPC_ENDPOINT_ID }}
     project_id: {{ MONGO_PROJECT_ID }}
