@@ -732,23 +732,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
 
                 if self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
-                    self.setParam("mas_internal_certificate_issuer_kind", "Issuer")
+                    self.setParam("mas_issuer_kind", "Issuer")
                 else:
                     self.printDescription([
-                        "Select the internal certificate issuer kind used by MAS for internal certificates:",
+                        "Select the issuer kind used by MAS for certificates:",
                         "",
                         "  1. Issuer",
-                        "     - MAS uses a namespace-scoped issuer resource for internal certificates",
+                        "     - MAS uses a namespace-scoped issuer resource for certificates",
                         "     - You can not get CLI-managed DNS integration",
                         "",
                         "  2. ClusterIssuer",
-                        "     - MAS uses a cluster-scoped clusterissuer resource for internal certificates"
+                        "     - MAS uses a cluster-scoped clusterissuer resource for certificates"
                     ])
-                    issuerKindChoice = self.promptForInt("Internal certificate issuer kind", min=1, max=2, default=2)
-                    self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")
+                    issuerKindChoice = self.promptForInt("Certificate issuer kind", min=1, max=2, default=2)
+                    self.setParam("mas_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")
             elif self.getParam("mas_permission_mode") == "":
                 self.setParam("mas_permission_mode", "cluster")
-                self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer")
+                self.setParam("mas_issuer_kind", "ClusterIssuer")
 
     def _handleDNSIntegrationRestriction(self):
         if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
@@ -762,10 +762,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ])
             return True
 
-        if self.getParam("mas_internal_certificate_issuer_kind") == "Issuer":
+        if self.getParam("mas_issuer_kind") == "Issuer":
             self.printDescription([
-                "You selected Issuer as the internal certificate issuer kind.",
-                "DNS integration is not available when the internal certificate issuer kind is Issuer.",
+                "You selected Issuer as the certificate issuer kind.",
+                "DNS integration is not available when the certificate issuer kind is Issuer.",
                 "If you use a custom domain, you need to configure DNS manually."
             ])
             return True
@@ -2029,23 +2029,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.licensePrompt()
             self.setParam("db2u_kind", "db2ucluster")
 
-        if self.getParam("mas_internal_certificate_issuer_kind") != "" and not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
-            self.fatalError(f"--mas-internal-certificate-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+        if self.getParam("mas_issuer_kind") != "" and not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            self.fatalError(f"--mas-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
 
         if self.getParam("mas_permission_mode") != "":
             if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
                 self.fatalError(f"--permission-mode is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
             else:
-                if self.getParam("mas_internal_certificate_issuer_kind") == "":
+                if self.getParam("mas_issuer_kind") == "":
                     if self.getParam("mas_permission_mode") == "cluster":
-                        self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer")
+                        self.setParam("mas_issuer_kind", "ClusterIssuer")
                     else:
-                        self.setParam("mas_internal_certificate_issuer_kind", "Issuer")
+                        self.setParam("mas_issuer_kind", "Issuer")
 
-                if self.getParam("mas_internal_certificate_issuer_kind") == "ClusterIssuer" and self.getParam("mas_permission_mode") != "cluster":
+                if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.getParam("mas_permission_mode") != "cluster":
                     self.fatalError(
                         "\n".join([
-                            "Invalid configuration for internal certificate issuer kind 'ClusterIssuer'",
+                            "Invalid configuration for certificate issuer kind 'ClusterIssuer'",
                             "ClusterIssuer can only be used when --permission-mode cluster is selected."
                         ])
                     )
@@ -2056,25 +2056,25 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             "\n".join([
                                 f"Invalid configuration for permission mode '{self.getParam('mas_permission_mode')}'",
                                 "DNS integration is not available in this mode.",
-                                "Remove DNS integration option --dns-provider, or switch to --permission-mode cluster and use --mas-internal-certificate-issuer-kind ClusterIssuer.",
+                                "Remove DNS integration option --dns-provider, or switch to --permission-mode cluster and use --mas-issuer-kind ClusterIssuer.",
                             ])
                         )
 
                     if (
                         self.getParam("mas_permission_mode") == "cluster" and
-                        self.getParam("mas_internal_certificate_issuer_kind") == "Issuer"
+                        self.getParam("mas_issuer_kind") == "Issuer"
                     ):
                         self.fatalError(
                             "\n".join([
-                                "Invalid configuration for internal certificate issuer kind 'Issuer'",
-                                "DNS integration is not available when --mas-internal-certificate-issuer-kind Issuer is selected.",
-                                "Remove DNS integration option --dns-provider, or use --mas-internal-certificate-issuer-kind ClusterIssuer.",
+                                "Invalid configuration for certificate issuer kind 'Issuer'",
+                                "DNS integration is not available when --mas-issuer-kind Issuer is selected.",
+                                "Remove DNS integration option --dns-provider, or use --mas-issuer-kind ClusterIssuer.",
                             ])
                         )
         elif isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
             self.setParam("mas_permission_mode", "cluster")
-            if self.getParam("mas_internal_certificate_issuer_kind") == "":
-                self.setParam("mas_internal_certificate_issuer_kind", "ClusterIssuer")
+            if self.getParam("mas_issuer_kind") == "":
+                self.setParam("mas_issuer_kind", "ClusterIssuer")
 
         self.evaluatePreInstallRBACAccess()
         self.setDB2DefaultChannel()

@@ -259,11 +259,11 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
-    "--mas-internal-certificate-issuer-kind",
-    dest="mas_internal_certificate_issuer_kind",
+    "--mas-issuer-kind",
+    dest="mas_issuer_kind",
     required=False,
     choices=["Issuer", "ClusterIssuer"],
-    help="Specify the internal certificate issuer kind to use in the Suite CR",
+    help="Specify the certificate issuer kind to configure Mas Certificate",
 )
 
 masAdvancedArgGroup.add_argument(
