@@ -1103,6 +1103,13 @@ aiServiceArgGroup.add_argument(
     required=False,
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
 )
+aiServiceArgGroup.add_argument(
+    "--tenant-scheduling-config-file",
+    dest="tenant_scheduling_config_file",
+    required=False,
+    help="Path to the YAML file that contains the scheduling configuration for tenant",
+    type=lambda x: isValidFile(installArgParser, x)
+)
 
 # IBM Cloud Pak for Data
 # -----------------------------------------------------------------------------
