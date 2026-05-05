@@ -1401,6 +1401,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
             self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
 
+            self.aiserviceTenantSchedulingConfigFileLocal = None
+            self.configSchedulingConstraints()
+
+    @logMethodCall
+    def configSchedulingConstraints(self):
+        if self.showAdvancedOptions:
+            self.printH1("Scheduling configuration for AI Workloads")
+            self.printDescription(content=[
+                "AI Service supports configuring tolerations and nodeSelector per tenant to schedule AI workloads(training pipelines & Inference services) on dedicated nodes.",
+                "To configure tolerations and nodeSelector, create a YAML configuration file",
+                "The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:",
+                "  `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)",
+                "  `nodeSelector`: Dictionary of node label key-value pairs",
+            ])
+
+            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
+
     @logMethodCall
     def _setMinioStorageDefaults(self) -> None:
         """
@@ -1496,7 +1513,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Enable optional Real Estate and Facilities configurations",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
             " - Choose alternative Apache Kafka providers (default to Strimzi)",
-            " - Customize Grafana storage settings"
+            " - Customize Grafana storage settings",
+            " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant"
         ])
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
@@ -1504,6 +1522,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
         self.isInteractiveMode = True
+
+        # Initialize attributes that may be used later
+        self.aiserviceTenantSchedulingConfigFileLocal = None
 
         if simplified:
             self.showAdvancedOptions = False
@@ -1580,6 +1601,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.db2SetTolerations = False
         self.installAIService = False
         self.slsLicenseFileLocal = None
+        self.aiserviceTenantSchedulingConfigFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
             "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
@@ -1842,6 +1864,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if len(value) == 0 or len(value) > 4:
                     self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
 
+            elif key == "tenant_scheduling_config_file":
+                # No need to perform validation if file exist here, as it has been already validated by argParser type check.
+                if value is not None and value != "":
+                    self.aiserviceTenantSchedulingConfigFileLocal = value
+
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")
@@ -1989,6 +2016,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.podTemplates()
         self.slsLicenseFile()
         self.manualCertificates()
+        self.aiserviceConfig()
 
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
@@ -2157,6 +2185,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,
+                    aiserviceConfig=self.aiserviceConfigSecret,
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel")
                 )

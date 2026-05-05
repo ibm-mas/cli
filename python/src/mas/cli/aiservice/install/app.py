@@ -37,9 +37,7 @@ from ...install.catalogs import supportedCatalogs
 # AI Service utilizes two distinct databases: DB2 is employed by the AiBroker component.
 # By default, AiService will deploy DB2 within the same namespace as MAS (db2u), but it will be configured as a separate DB2 instance.
 
-from ...install.settings.mongodbSettings import MongoDbSettingsMixin
-from ...install.settings.db2Settings import Db2SettingsMixin
-from ...install.settings.additionalConfigs import AdditionalConfigsMixin
+from ...install.settings import InstallSettingsMixin
 
 from mas.cli.validators import (
     InstanceIDFormatValidator,
@@ -75,7 +73,7 @@ def logMethodCall(func):
     return wrapper
 
 
-class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin, ConfigGeneratorMixin):
+class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, InstallSettingsMixin, ConfigGeneratorMixin):
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
@@ -131,6 +129,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
             " - Configure certificate issuer",
             " - Enable IPv6 SingleStack networking for services",
+            " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant"
         ])
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
@@ -188,6 +187,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
+
+        self.aiserviceTenantSchedulingConfigFileLocal = None
 
         self.approvals = {
             "approval_aiservice": {"id": "aiservice"},
@@ -249,6 +250,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             elif key == "aiservice_s3_bucket_prefix":
                 if len(value) == 0 or len(value) > 4:
                     self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
+
+            elif key == "tenant_scheduling_config_file":
+                # No need to perform validation if file exist here, as it has been already validated by argParser type check.
+                if value is not None and value != "":
+                    self.aiserviceTenantSchedulingConfigFileLocal = value
 
             elif key == "non_prod":
                 if not value:
@@ -447,6 +453,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # Set up the sls license file
         self.slsLicenseFile()
 
+        self.aiserviceConfig()
+
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
         self.printDescription([
@@ -494,6 +502,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,
+                    aiserviceConfig=self.aiserviceConfigSecret,
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel")
                 )
@@ -597,6 +606,23 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("tenant_entitlement_type", "standard")
         self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
         self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
+
+        self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.configSchedulingConstraints()
+
+    @logMethodCall
+    def configSchedulingConstraints(self):
+        if self.showAdvancedOptions:
+            self.printH1("Scheduling configuration for AI Workloads")
+            self.printDescription(content=[
+                "AI Service supports configuring tolerations and nodeSelector per tenant to schedule AI workloads(training pipelines & Inference services) on dedicated nodes.",
+                "To configure tolerations and nodeSelector, create a YAML configuration file",
+                "The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:",
+                "  `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)",
+                "  `nodeSelector`: Dictionary of node label key-value pairs",
+            ])
+
+            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
 
     def _setMinioStorageDefaults(self) -> None:
         """
