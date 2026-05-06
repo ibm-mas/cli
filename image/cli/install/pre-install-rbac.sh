@@ -45,8 +45,8 @@ else
     echo "Attempting to clone matching branch: ${PREINSTALL_BRANCH}"
   else
     # For tag builds, use main branch
-    PREINSTALL_BRANCH="main"
-    echo "Using main branch for tag build"
+    PREINSTALL_BRANCH="master"
+    echo "Using master branch for tag build"
   fi
   
   # Clone the repository
