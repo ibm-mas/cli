@@ -215,6 +215,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
+        self.db2LicenseFileLocal = None
 
         # Catalog
         self.configCatalog()
@@ -243,6 +244,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configMongoDb()
         self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
+        self.printDescription([
+            "Db2 Universal Operator for v12 onwards requires to add a License activation key",
+            "If you don't have a license press enter to continue."
+        ])
+        self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
         # Permission mode prompt (especially in dev mode)
         if isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
             self.configPermissionMode()
@@ -258,6 +264,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
+        self.db2LicenseFileLocal = None
 
         self.aiserviceTenantSchedulingConfigFileLocal = None
 
@@ -374,6 +381,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if value is not None and value != "":
                     self.slsLicenseFileLocal = value
                     self.setParam("sls_action", "install")
+            elif key == "db2_license_file":
+                if value is not None and value != "":
+                    self.db2LicenseFileLocal = value
             elif key == "dedicated_sls":
                 if value:
                     self.setParam("sls_namespace", f"mas-{self.args.aiservice_instance_id}-sls")
@@ -533,8 +543,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.evaluatePreInstallRBACAccess()
 
-        # Set up the sls license file
+        # Set up the sls and db2 license file
         self.slsLicenseFile()
+        self.db2LicenseFile()
 
         self.aiserviceConfig()
 
@@ -582,6 +593,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     dynClient=self.dynamicClient,
                     namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
+                    db2LicenseFile=self.db2LicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,
