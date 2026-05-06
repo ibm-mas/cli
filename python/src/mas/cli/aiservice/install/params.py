@@ -104,4 +104,8 @@ optionalParams = [
 
     # Enable IPv6 networking
     "enable_ipv6",
+
+    # Slack
+    "slack_token",
+    "slack_channel",
 ]

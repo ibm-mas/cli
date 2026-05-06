@@ -173,6 +173,14 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-update
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-update-check', 'devops_suite_name': 'pre-update-check'}) | indent(4) }}
       runAfter:
@@ -189,6 +197,7 @@ spec:
       runAfter:
         - pre-update-check
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-catalog
         - name: mas_catalog_version
@@ -221,6 +230,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-ocs
         - name: ocs_action
@@ -238,6 +248,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: grafana_action
           value: update
         - name: devops_suite_name
@@ -255,6 +266,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: dependencies-rhoai-migration
 
@@ -266,6 +278,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-db2
         - name: db2_action
@@ -281,6 +294,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-mongodb
         - name: mongodb_action
@@ -308,6 +322,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-kafka
         - name: kafka_action
@@ -356,6 +371,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: aiservice_instance_ids
           value: $(params.aiservice_instance_ids)
 

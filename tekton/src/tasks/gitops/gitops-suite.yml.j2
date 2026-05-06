@@ -60,6 +60,9 @@ spec:
     - name: mas_routing_mode
       type: string
       default: ""
+    - name: mas_use_service_mesh
+      type: string
+      default: ""
     - name: mas_ingress_controller_name
       type: string
       default: ""
@@ -166,6 +169,15 @@ spec:
     - name: sls_service
       type: string
       default: ""
+    - name: argocluster_instance
+      type: string
+      default: ""
+    - name: application_admin_sa_name
+      type: string
+      default: ""
+    - name: application_admin_sa_namespace
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -199,6 +211,8 @@ spec:
         value: $(params.mas_domain)
       - name: MAS_ROUTING_MODE
         value: $(params.mas_routing_mode)
+      - name: MAS_USE_SERVICE_MESH
+        value: $(params.mas_use_service_mesh)
       - name: MAS_INGRESS_CONTROLLER_NAME
         value: $(params.mas_ingress_controller_name)
       - name: ICR_CP
@@ -293,6 +307,12 @@ spec:
         value: $(params.application_configuration)
       - name: STANDALONE_SLS_SERVICE
         value: $(params.sls_service)
+      - name: ARGOCLUSTER_INSTANCE
+        value: $(params.argocluster_instance)
+      - name: APPLICATION_ADMIN_SERVICE_ACCOUNT_NAME
+        value: $(params.application_admin_sa_name)
+      - name: APPLICATION_ADMIN_SERVICE_ACCOUNT_NAMESPACE
+        value: $(params.application_admin_sa_namespace)
 
     envFrom:
       - configMapRef:

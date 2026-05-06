@@ -143,6 +143,9 @@ spec:
       type: string
     - name: tenant_entitlement_end_date
       type: string
+    # Config file for scheduling constraints for AI workloads
+    - name: tenant_scheduling_cfg_file
+      type: string
 
     # RSL
    
@@ -248,6 +251,8 @@ spec:
         value: $(params.tenant_entitlement_start_date)
       - name: AISERVICE_TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
+      - name: AISERVICE_TENANT_SCHEDULING_CONFIG_FILE
+        value: $(params.tenant_scheduling_cfg_file)
 
       # RSL
       
@@ -313,4 +318,6 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true
+    - name: aiservice
       optional: true

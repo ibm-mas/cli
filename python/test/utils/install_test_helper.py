@@ -96,6 +96,7 @@ class InstallTestHelper:
         self.tmpdir.join('authorized_entitlement.lic').write('testLicense')
         self.tmpdir.join('mongodb-system.yaml').write('#')
         self.tmpdir.join('cert.crt').write('#')
+        self.tmpdir.join('aiservice-tenant-affinity-config.yaml').write('#')
 
     def start_watchdog(self):
         """Start watchdog thread to detect hanging prompts."""
@@ -403,6 +404,3 @@ def run_aiservice_install_test(tmpdir, config: InstallTestConfig):
         AssertionError: If prompt verification fails
     """
     run_install_test(tmpdir, config, install_type='aiservice')
-
-
-# Made with Bob

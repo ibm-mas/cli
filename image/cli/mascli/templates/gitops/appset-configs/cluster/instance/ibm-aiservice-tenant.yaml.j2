@@ -13,9 +13,9 @@ ibm_aiservice_tenant:
   mas_icr_cpopen: "{{ MAS_ICR_CPOPEN }}"
 
   # dro
-  drocfg_url: "{{ DROCFG_URL }}"
-  drocfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DROCFG_REGISTRATION_KEY }}>"
-  drocfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ DROCFG_CA_B64ENC }}>"
+  dro_url: "{{ DRO_URL }}"
+  dro_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_API_TOKEN }}>"
+  dro_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ DRO_CA_B64ENC }}>"
 
   # sls
   slscfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_CA_B64ENC }}>"

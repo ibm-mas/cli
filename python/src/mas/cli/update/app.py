@@ -23,7 +23,7 @@ from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.aiservice import listAiServiceInstances
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSlackSecrets
 
 
 logger = logging.getLogger(__name__)
@@ -57,9 +57,13 @@ class UpdateApp(BaseApp):
                 "skip_pre_check",
                 "dev_mode",
                 "cpd_product_version",
+                "image_pull_policy",
                 # Dev Mode
                 "artifactory_username",
-                "artifactory_token"
+                "artifactory_token",
+                # Slack Integration
+                "slack_token",
+                "slack_channel"
 
             ]
             for key, value in vars(self.args).items():
@@ -201,6 +205,16 @@ class UpdateApp(BaseApp):
                 preparePipelinesNamespace(dynClient=self.dynamicClient)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
+            # Create slack secret if slack token and channel are provided
+            if self.getParam("slack_token") and self.getParam("slack_channel"):
+                with Halo(text='Creating Slack notification secret', spinner=self.spinner) as h:
+                    prepareUpdateSlackSecrets(
+                        dynClient=self.dynamicClient,
+                        slack_token=self.getParam("slack_token"),
+                        slack_channel=self.getParam("slack_channel")
+                    )
+                    h.stop_and_persist(symbol=self.successIcon, text="Slack notification secret created")
+
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
@@ -266,13 +280,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
-            "  2) Feb 26 2026 Update (MAS 9.1.10, 9.0.21, 8.11.32, &amp; 8.10.35)",
-            "  3) Jan 29 2026 Update (MAS 9.1.8, 9.0.19, 8.11.30, &amp; 8.10.33)",
+            "  1) Apr 30 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
+            "  2) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
+            "  3) Feb 26 2026 Update (MAS 9.1.10, 9.0.21, 8.11.32, &amp; 8.10.35)",
         ])
 
         catalogOptions = [
-            "v9-260326-amd64", "v9-260226-amd64", "v9-260129-amd64",
+            "v9-260430-amd64", "v9-260326-amd64", "v9-260226-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
