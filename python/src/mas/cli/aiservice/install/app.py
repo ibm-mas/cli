@@ -56,7 +56,6 @@ from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
     prepareInstallSecrets,
-    prepareAIServiceInstallSecrets,
     testCLI,
     launchInstallPipeline
 )
@@ -579,13 +578,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,
                     aiserviceConfig=self.aiserviceConfigSecret,
-                    slack_token=self.getParam("slack_token"),
-                    slack_channel=self.getParam("slack_channel")
-                )
-                # Create AI Service specific Slack secret
-                prepareAIServiceInstallSecrets(
-                    dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aiservice_instance_id"),
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel")
                 )
