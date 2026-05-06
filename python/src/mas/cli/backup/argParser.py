@@ -47,9 +47,21 @@ backupArgGroup.add_argument(
     help="Version/timestamp for the backup (auto-generated if not provided)"
 )
 backupArgGroup.add_argument(
+    '--backup-storage-class',
+    dest='backup_storage_class',
+    required=False,
+    help="Storage class for backup-pvc PVC storage"
+)
+backupArgGroup.add_argument(
     '--backup-storage-size',
     required=False,
     help="Size of the backup PVC storage (default: 20Gi)"
+)
+backupArgGroup.add_argument(
+    '--backup-storage-access-mode',
+    dest='backup_storage_access_mode',
+    required=False,
+    help="Access mode for backup PVC storage"
 )
 backupArgGroup.add_argument(
     '--clean-backup',
@@ -181,6 +193,23 @@ componentsArgGroup.add_argument(
     action="store_const",
     const="false",
     help="Exclude SLS from backup (use if SLS is external)"
+)
+componentsArgGroup.add_argument(
+    '--include-mongo',
+    dest='include_mongo',
+    required=False,
+    action="store_const",
+    const="true",
+    default="true",
+    help="Include MongoDB in backup (default: true)"
+)
+componentsArgGroup.add_argument(
+    '--exclude-mongo',
+    dest='include_mongo',
+    required=False,
+    action="store_const",
+    const="false",
+    help="Exclude MongoDB from backup (use if MongoDB is external)"
 )
 
 depsArgGroup = backupArgParser.add_argument_group(

@@ -6,9 +6,9 @@ ibm_aiservice:
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
 
   #DRO
-  drocfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ DROCFG_REGISTRATION_KEY }}>"
-  drocfg_url: "<path:{{ SECRETS_PATH }}:{{ DROCFG_URL }}>"
-  drocfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ DROCFG_CA_B64ENC }}>"
+  dro_api_token: "<path:{{ SECRETS_PATH }}:{{ DRO_API_TOKEN }}>"
+  dro_url: "<path:{{ SECRETS_PATH }}:{{ DRO_URL }}>"
+  dro_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ DRO_CA_B64ENC }}>"
   aiservice_dro_token_secret: "{{ DRO_TOKEN_SECRET }}"
   aiservice_dro_cacert_secret: "{{ DRO_CACERT_SECRET }}"
   

@@ -47,6 +47,14 @@ class InstallSummarizerMixin():
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
+        if self.getParam("mas_permission_mode") != "":
+            self.printParamSummary("Permission Mode", "mas_permission_mode")
+        if self.getParam("mas_issuer_kind") != "":
+            self.printParamSummary("Mas Certificate Issuer Kind", "mas_issuer_kind")
+        self.printSummary(
+            "Apply Pre-Install MAS RBAC",
+            "No" if self.getParam("skip_preinstall_rbac") == "true" else "Yes"
+        )
         if self.isAirgap():
             self.printSummary("Install Mode", "Disconnected Install")
         else:
@@ -80,6 +88,9 @@ class InstallSummarizerMixin():
         if self.getParam("mas_routing_mode") == "path":
             self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
+
+        print()
+        self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
 
         print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
@@ -254,10 +265,12 @@ class InstallSummarizerMixin():
             if "aiservice_certificate_issuer" in self.params:
                 self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
-            self.printH2("AI Service Tenant Entitlement")
+            self.printH2("AI Service Tenant Configuration")
             self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
             self.printParamSummary("Start Date", "tenant_entitlement_start_date")
             self.printParamSummary("End Date", "tenant_entitlement_end_date")
+            if self.aiserviceTenantSchedulingConfigFileLocal:
+                self.printSummary("Scheduling configuration file", self.aiserviceTenantSchedulingConfigFileLocal)
 
             self.printH2("S3 Configuration")
             # self.printParamSummary("Storage provider", "aiservice_s3_provider")
@@ -411,6 +424,13 @@ class InstallSummarizerMixin():
         else:
             self.printSummary("Install Grafana", "Do Not Install")
 
+    def slackSummary(self) -> None:
+        self.printH2("Slack Integration")
+        if self.getParam("slack_channel") != "":
+            self.printParamSummary("Slack Channel", "slack_channel")
+        else:
+            self.printSummary("Slack Channel", "Not Configured")
+
     def installSummary(self) -> None:
         pass
         # self.printH2("Install Process")
@@ -450,6 +470,9 @@ class InstallSummarizerMixin():
         self.kafkaSummary()
         self.cp4dSummary()
         self.grafanaSummary()
+
+        # Notification Integration
+        self.slackSummary()
 
         # Install options
         self.installSummary()

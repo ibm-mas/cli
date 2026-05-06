@@ -106,5 +106,3 @@ def create_prompt_handler(prompt_handlers: Dict[str, Callable[[str], str]]) -> t
     """
     tracker = PromptTracker(prompt_handlers)
     return tracker, tracker.handle_prompt
-
-# Made with Bob

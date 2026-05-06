@@ -10,7 +10,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
+  -d, --dir, --gitops-working-dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region ${COLOR_YELLOW}REGION${TEXT_RESET}                    Region
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
@@ -63,7 +63,7 @@ function gitops_nvidia_gpu_noninteractive() {
     shift
     case $key in
       # GitOps Configuration
-      -d|--dir)
+      -d|--dir|--gitops-working-dir)
         export GITOPS_WORKING_DIR=$1 && shift
         ;;
       -g|--gitops-version)
@@ -113,7 +113,7 @@ function gitops_nvidia_gpu_noninteractive() {
       --gpu-driver-repository-path)
         export GPU_DRIVER_REPOSITORY_PATH=$1 && shift
         ;;
-      --nfd_image)
+      --nfd-image)
         export NFD_IMAGE=$1 && shift
         ;;
 

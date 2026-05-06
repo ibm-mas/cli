@@ -2,7 +2,7 @@
   "terraform": {
     "backend": {
       "s3": {
-        "bucket": "mas-aws-build",
+        "bucket": "{{GITHUB_REPO}}",
         "key": "mas-instance/{{MAS_INSTANCE_ID}}/terraform.tfstate",
         "region": "{{REGION_NAME}}",
         "use_lockfile": true

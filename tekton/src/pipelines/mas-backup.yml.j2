@@ -153,6 +153,11 @@ spec:
         - name: mongodb_provider
           value: $(params.mongodb_provider)
 
+      when:
+        - input: "$(params.include_mongo)"
+          operator: in
+          values: ["true", "True"]
+
       taskRef:
         kind: Task
         name: mas-devops-mongodb

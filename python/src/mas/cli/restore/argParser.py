@@ -120,9 +120,21 @@ restoreArgGroup.add_argument(
     help="Version/timestamp used in backup. Example: YYYYMMDD-HHMMSS"
 )
 restoreArgGroup.add_argument(
+    '--backup-storage-class',
+    dest='backup_storage_class',
+    required=False,
+    help="Storage class for backup-pvc PVC storage"
+)
+restoreArgGroup.add_argument(
     '--backup-storage-size',
     required=False,
     help="Size of the PVC storage, must be bigger than backup archive size. (default: 20Gi)"
+)
+restoreArgGroup.add_argument(
+    '--backup-storage-access-mode',
+    dest='backup_storage_access_mode',
+    required=False,
+    help="Access mode for backup PVC storage"
 )
 restoreArgGroup.add_argument(
     '--clean-backup',
@@ -286,6 +298,24 @@ manageAppArgGroup.add_argument(
 componentsArgGroup = restoreArgParser.add_argument_group(
     'Components',
     'Configure which components to include in the restore.'
+)
+
+componentsArgGroup.add_argument(
+    '--include-mongo',
+    dest='include_mongo',
+    required=False,
+    action="store_const",
+    const="true",
+    default="true",
+    help="Include MongoDB in backup (default: true)"
+)
+componentsArgGroup.add_argument(
+    '--exclude-mongo',
+    dest='include_mongo',
+    required=False,
+    action="store_const",
+    const="false",
+    help="Exclude MongoDB from backup (use if MongoDB is external)"
 )
 
 componentsArgGroup.add_argument(

@@ -85,7 +85,8 @@ def test_install_master_dev_mode(tmpdir):
         # 10. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Custom channel for iot.*': lambda msg: '9.1.x-dev',
-        '.*Install Monitor.*': lambda msg: 'n',
+        '.*Install Monitor.*': lambda msg: 'y',
+        '.*Custom channel for monitor.*': lambda msg: '9.1.x-dev',
         '.*Install Manage.*': lambda msg: 'y',
         '.*Custom channel for manage.*': lambda msg: '9.1.x-dev',
         '.*Select components to enable.*': lambda msg: 'n',
@@ -96,15 +97,15 @@ def test_install_master_dev_mode(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
-        # 10a. Grafana configuration
+        # 11. Grafana configuration
         '.*Install Grafana.*': lambda msg: 'y',
-        # 11. MongoDB configuration
+        # 12. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
-        # 12. Db2 configuration
+        # 13. Db2 configuration
         '.*Create system Db2 instance.*': lambda msg: 'y',
         '.*Re-use System Db2 instance for Manage application.*': lambda msg: 'n',
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
-        # 13. Kafka configuration
+        # 14. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
         # 14. AiCfg configuration
@@ -167,7 +168,8 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         # 10. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Custom channel for iot.*': lambda msg: '9.1.x-dev',
-        '.*Install Monitor.*': lambda msg: 'n',
+        '.*Install Monitor.*': lambda msg: 'y',
+        '.*Custom channel for monitor.*': lambda msg: '9.1.x-dev',
         '.*Install Manage.*': lambda msg: 'y',
         '.*Custom channel for manage.*': lambda msg: '9.1.x-dev',
         '.*Select components to enable.*': lambda msg: 'n',
@@ -178,15 +180,15 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
-        # 10a. Grafana configuration
+        # 11. Grafana configuration
         '.*Install Grafana.*': lambda msg: 'y',
-        # 11. MongoDB configuration
+        # 12. MongoDB configuration
         '.*Create MongoDb cluster.*': lambda msg: 'y',
-        # 12. Db2 configuration
+        # 13. Db2 configuration
         '.*Create system Db2 instance.*': lambda msg: 'y',
         '.*Re-use System Db2 instance for Manage application.*': lambda msg: 'n',
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
-        # 13. Kafka configuration
+        # 14. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
         # 14. AiCfg configuration
@@ -248,6 +250,8 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 4. Routing Mode Configuration - Select path-based routing
         '.*Routing Mode.*': lambda msg: '1',  # Select path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
+        # 5. Service Mesh Configuration - to use service mesg
+        '.*Use Service Mesh.*': lambda msg: 'y',  # Select to use service mesh
         # 5. Configure IngressController for path-based routing
         '.*Configure ingress namespace ownership.*': lambda msg: 'y',  # Agree to configure
         # 5. Storage classes
@@ -271,28 +275,33 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Workspace.*name.*': lambda msg: 'Test Workspace',
         # 10. Operational mode
         '.*Operational Mode.*': lambda msg: '1',
-        # 11. Certificate Authority Trust
+        # 11. Permission mode
+        '.*Permission Mode.*': lambda msg: '1',
+        # 12. Internal certificate issuer kind (appears when Permission Mode is cluster)
+        '.*Certificate issuer kind.*': lambda msg: '2',  # Select ClusterIssuer
+        # 13. Certificate Authority Trust
         '.*Trust default CAs.*': lambda msg: 'y',
-        # 12. Cluster ingress certificate secret name
+        # 14. Cluster ingress certificate secret name
         '.*Cluster ingress certificate secret name.*': lambda msg: '',  # Leave empty for auto-detection
-        # 13. Domain & certificate management
+        # 15. Domain & certificate management
         '.*Configure domain.*certificate management.*': lambda msg: 'n',  # Skip domain/cert config for simplicity
-        # 14. SSO properties
+        # 16. SSO properties
         '.*Configure SSO properties.*': lambda msg: 'n',  # Skip SSO config
-        # 15. Special characters for user IDs
+        # 17. Special characters for user IDs
         '.*Allow special characters for user IDs and usernames.*': lambda msg: 'n',
-        # 16. Guided Tour
+        # 18. Guided Tour
         '.*Enable Guided Tour.*': lambda msg: 'y',
-        # 17. Feature adoption metrics
+        # 19. Feature adoption metrics
         '.*Enable feature adoption metrics.*': lambda msg: 'y',
-        # 18. Deployment progression metrics
+        # 20. Deployment progression metrics
         '.*Enable deployment progression metrics.*': lambda msg: 'y',
-        # 19. Usability metrics
+        # 21. Usability metrics
         '.*Enable usability metrics.*': lambda msg: 'y',
-        # 20. Application selection
+        # 22. Application selection
         '.*Install IoT.*': lambda msg: 'y',
         '.*Custom channel for iot.*': lambda msg: '9.2.x-dev',
-        '.*Install Monitor.*': lambda msg: 'n',
+        '.*Install Monitor.*': lambda msg: 'y',
+        '.*Custom channel for monitor.*': lambda msg: '9.2.x-dev',
         '.*Install Manage.*': lambda msg: 'y',
         '.*Custom channel for manage.*': lambda msg: '9.2.x-dev',
         '.*Select a server bundle configuration.*': lambda msg: '1',  # Select dev server bundle
@@ -309,12 +318,12 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Install Visual Inspection.*': lambda msg: 'n',
         '.*Install.*Real Estate and Facilities.*': lambda msg: 'n',
         '.*Install AI Service.*': lambda msg: 'n',
-        # 20a. Grafana configuration (appears when advanced options are enabled)
+        # 23. Grafana configuration (appears when advanced options are enabled)
         '.*Install Grafana.*': lambda msg: 'y',
-        # 21. MongoDB configuration
+        # 24. MongoDB configuration
         '.*MongoDb namespace.*': lambda msg: 'mongoce',  # Use default MongoDB namespace
         '.*Create MongoDb cluster.*': lambda msg: 'y',
-        # 22. Db2 configuration
+        # 25. Db2 configuration
         '.*Create system Db2 instance.*': lambda msg: 'y',
         '.*Re-use System Db2 instance for Manage application.*': lambda msg: 'n',
         '.*Create Manage dedicated Db2 instance.*': lambda msg: 'y',
@@ -328,12 +337,12 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Select Kafka provider.*': lambda msg: '1',  # Select default Kafka provider
         '.*Strimzi namespace.*': lambda msg: 'strimzi',  # Strimzi namespace
         '.*Use pod templates.*': lambda msg: 'n',  # Skip pod templates
-        # 23. Kafka configuration
+        # 26. Kafka configuration
         '.*Create system Kafka instance.*': lambda msg: 'y',
         '.*Kafka version.*': lambda msg: '3.8.0',
         # 24. AiCfg configuration
         '.*Do you want to configure AiCfg.*': lambda msg: 'n',
-        # 25. Final confirmation
+        # 27. Final confirmation
         '.*Use additional configurations.*': lambda msg: 'n',
         ".*Proceed with these settings.*": lambda msg: 'y',
     }
@@ -386,7 +395,6 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
             "--superuser-username", "MAS_SUPERUSER_USERNAME",
             "--superuser-password", "MAS_SUPERUSER_PASSWORD",
             "--mas-channel", "9.2.x-dev",
-            "--assist-channel", "9.2.x-dev",
             "--iot-channel", "9.2.x-dev",
             "--db2-system", "--kafka-provider", "strimzi",
             "--monitor-channel", "9.2.x-dev",
@@ -423,7 +431,6 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
             "--sls-namespace", "sls-fvtcore",
             "--sls-channel", "3.x-dev",
             "--approval-core", "100:300:true",
-            "--approval-assist", "100:300:true",
             "--approval-iot", "100:300:true",
             "--approval-manage", "100:600:true",
             "--approval-monitor", "100:300:true",
@@ -513,7 +520,6 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
             "--sls-namespace", "sls-fvtcore",
             "--sls-channel", "3.x-dev",
             "--approval-core", "100:300:true",
-            "--approval-assist", "100:300:true",
             "--approval-iot", "100:300:true",
             "--approval-manage", "100:600:true",
             "--approval-monitor", "100:300:true",
@@ -526,6 +532,75 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
         ]
     )
     # Run the test
+    run_install_test(tmpdir, config)
+
+
+def test_install_master_dev_mode_non_interactive_with_slack(tmpdir):
+    """Test non-interactive installation with Slack notification parameters.
+
+    This test verifies that slack_token and slack_channel parameters are properly
+    handled in non-interactive mode and passed through to the pipeline configuration.
+    """
+
+    # Define prompt handlers - should be empty for non-interactive mode
+    prompt_handlers = {}
+
+    # Create test configuration with Slack parameters
+    config = InstallTestConfig(
+        prompt_handlers=prompt_handlers,
+        current_catalog=None,  # No catalog installed
+        architecture='amd64',
+        is_sno=False,
+        is_airgap=False,
+        storage_class_name='nfs-client',
+        storage_provider='nfs',
+        storage_provider_name='NFS Client',
+        ocp_version='4.18.0',
+        timeout_seconds=30,
+        argv=[
+            "--dev-mode",
+            "--artifactory-username", "ARTIFACTORY_USERNAME",
+            "--artifactory-token", "ARTIFACTORY_TOKEN",
+            "--mas-catalog-version", "v9-master-amd64",
+            "--mas-instance-id", "fvtcore",
+            "--mas-workspace-id", "masdev",
+            "--mas-workspace-name", "MAS Development",
+            "--superuser-username", "MAS_SUPERUSER_USERNAME",
+            "--superuser-password", "MAS_SUPERUSER_PASSWORD",
+            "--mas-channel", "9.2.x-dev",
+            "--iot-channel", "9.2.x-dev",
+            "--db2-system", "--kafka-provider", "strimzi",
+            "--manage-channel", "9.2.x-dev",
+            "--manage-components", "",
+            "--db2-manage", "--manage-jdbc", "workspace-application",
+            "--cos", "ibm",
+            "--cos-resourcegroup", "fvt-layer3",
+            "--cos-apikey", "IBMCLOUD_APIKEY",
+            "--cos-instance-name", "Object Storage for MAS - fvtcore",
+            "--cos-bucket-name", "fvtcore-masdev-bucket-20260209-0209",
+            "--db2-channel", "rotate",
+            "--skip-grafana-install",
+            "--additional-configs", f"{tmpdir}",
+            "--storage-class-rwx", "ibmc-file-gold-gid",
+            "--storage-class-rwo", "ibmc-block-gold",
+            "--storage-pipeline", "ibmc-file-gold-gid",
+            "--storage-accessmode", "ReadWriteMany",
+            "--ibm-entitlement-key", "IBM_ENTITLEMENT_KEY",
+            "--license-file", f"{tmpdir}/authorized_entitlement.lic",
+            "--uds-email", "iotf@uk.ibm.com",
+            "--uds-firstname", "First",
+            "--uds-lastname", "Last",
+            "--sls-namespace", "sls-fvtcore",
+            "--sls-channel", "3.x-dev",
+            # Slack notification parameters
+            "--slack-token", "xoxb-test-slack-token-12345",
+            "--slack-channel", "mas-notifications,mas-alerts",
+            "--accept-license",
+            "--no-confirm",
+        ]
+    )
+    # Run the test
+    run_install_test(tmpdir, config)
     run_install_test(tmpdir, config)
 
 # Made with Bob

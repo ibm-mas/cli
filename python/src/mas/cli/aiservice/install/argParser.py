@@ -23,7 +23,7 @@ def isValidFile(parser, arg) -> str:
 
 
 aiServiceinstallArgParser = argparse.ArgumentParser(
-    prog="mas install-aiservice",
+    prog="mas aiservice-install",
     description="\n".join([
         f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
         "Install Aiservice by configuring and launching the Tekton Pipeline.\n",
@@ -422,11 +422,48 @@ aiServiceArgGroup.add_argument(
     default="non-production",
     help="Environment type (default: non-production)"
 )
-aiServiceArgGroup.add_argument(
+
+# AI Service advanced configuration
+# -----------------------------------------------------------------------------
+aiserviceAdvancedArgGroup = aiServiceinstallArgParser.add_argument_group(
+    "Advanced configuration for AI Service",
+    "Advanced configuration options for AI Service including certificates issuer and IPv6 support"
+)
+aiserviceAdvancedArgGroup.add_argument(
     "--aiservice-certificate-issuer",
     dest="aiservice_certificate_issuer",
     required=False,
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--permission-mode",
+    dest="permission_mode",
+    required=False,
+    choices=["cluster", "namespaced", "minimal"],
+    help="The permission mode used to determine which pre-install RBAC manifests are applied for AI Service (MAS 9.2+ advanced option)"
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--skip-preinstall-rbac",
+    dest="skip_preinstall_rbac",
+    required=False,
+    action="store_true",
+    help="Skip pre-install RBAC setup (non-interactive mode only)"
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--enable-ipv6",
+    dest="enable_ipv6",
+    required=False,
+    default="false",
+    help="Configure AI Service to run in IPv6. Before setting this option, be sure your cluster is configured in IPv6",
+    action="store_const",
+    const="true"
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--tenant-scheduling-config-file",
+    dest="tenant_scheduling_config_file",
+    required=False,
+    help="Path to the YAML file that contains the scheduling configuration for tenant",
+    type=lambda x: isValidFile(aiServiceinstallArgParser, x)
 )
 
 

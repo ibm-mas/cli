@@ -62,7 +62,7 @@ class installArgBuilderMixin():
         command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
 
         if self.getParam('mas_special_characters') == "true":
-            command += f" --allow-special-chars \"{newline}"
+            command += f" --allow-special-chars {newline}"
 
         # ECK Integration
         # -----------------------------------------------------------------------------
@@ -92,6 +92,9 @@ class installArgBuilderMixin():
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
+        if self.getParam('mas_permission_mode') != "":
+            command += f"  --permission-mode {self.getParam('mas_permission_mode')}{newline}"
+
         if self.getParam('mas_trust_default_cas').lower() == "false":
             command += f"  --disable-ca-trust{newline}"
 
@@ -106,6 +109,9 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_configure_ingress').lower() == "true":
             command += f"  --configure-ingress{newline}"
+
+        if self.getParam('mas_use_service_mesh') != "":
+            command += f"  --servicemesh \"{self.getParam('mas_use_service_mesh')}\"{newline}"
 
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
@@ -124,6 +130,9 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_cluster_issuer') != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
+
+        if self.getParam('mas_issuer_kind') != "":
+            command += f"  --mas-issuer-kind \"{self.getParam('mas_issuer_kind')}\"{newline}"
 
         if self.getParam('mas_enable_walkme').lower() == "false":
             command += f"  --disable-walkme{newline}"
@@ -408,6 +417,8 @@ class installArgBuilderMixin():
                 command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
             if self.getParam('tenant_entitlement_end_date') != "":
                 command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
+            if self.aiserviceTenantSchedulingConfigFileLocal:
+                command += f"  --tenant-scheduling-config-file \"{self.aiserviceTenantSchedulingConfigFileLocal}\"{newline}"
 
             if self.getParam('rsl_url') != "":
                 command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
@@ -579,12 +590,19 @@ class installArgBuilderMixin():
         if self.getParam('approval_aiservice') != "":
             command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
 
+        # Slack
+        # -----------------------------------------------------------------------------
+        if self.getParam('slack_channel') != "" and self.getParam('slack_token'):
+            command += f"  --slack-channel \"{self.getParam('slack_channel')}\"  --slack-token $SLACK_TOKEN{newline}"
+
         # More Options
         # -----------------------------------------------------------------------------
         if self.devMode:
             command += f"  --dev-mode{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
+        if self.getParam('skip_preinstall_rbac') == "true":
+            command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam('image_pull_policy') != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam('service_account_name') != "":

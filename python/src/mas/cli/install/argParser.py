@@ -191,6 +191,13 @@ masAdvancedArgGroup.add_argument(
     help="Name of the IngressController to use for path-based routing (default: 'default')"
 )
 masAdvancedArgGroup.add_argument(
+    "--servicemesh",
+    dest="mas_use_service_mesh",
+    required=False,
+    help="Configure MAS to use Service Mesh networking (default: false)",
+    choices=["true", "false"]
+)
+masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
     help="Path to directory containing the certificates to be applied"
@@ -258,12 +265,29 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
+    "--mas-issuer-kind",
+    dest="mas_issuer_kind",
+    required=False,
+    choices=["Issuer", "ClusterIssuer"],
+    help="Specify the certificate issuer kind to configure Mas Certificate",
+)
+
+masAdvancedArgGroup.add_argument(
     "--enable-ipv6",
     dest="enable_ipv6",
     required=False,
     help="Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6",
     action="store_const",
     const="true"
+)
+
+masAdvancedArgGroup.add_argument(
+    "--permission-mode",
+    dest="mas_permission_mode",
+    required=False,
+    help="Permission mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
+    choices=["cluster", "namespaced", "minimal"],
+    default=None
 )
 
 # DNS Integration - IBM CIS
@@ -740,6 +764,7 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_app_om_upgrade_mode",
     required=False,
     help="Sets the Application Object Migration Mode",
+    default="manual",
     choices=FACILITIES_APPOMUPGRADEMODE,
     metavar="{manual,load-only,automatic}"
 )
@@ -748,6 +773,7 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_size",
     required=False,
     help="Size of Facilities deployment",
+    default="small",
     choices=FACILITIES_SIZES,
     metavar="{small,medium,large}"
 )
@@ -756,6 +782,7 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_pull_policy",
     required=False,
     help="Image pull policy for Facilities",
+    default="IfNotPresent",
     choices=IMAGE_PULL_POLICIES,
     metavar="{IfNotPresent,Always}"
 )
@@ -803,13 +830,15 @@ facilitiesArgGroup.add_argument(
     "--facilities-log-storage-mode",
     dest="mas_ws_facilities_storage_log_mode",
     required=False,
-    help="Storage mode for Facilities logs"
+    help="Storage mode for Facilities logs",
+    default="ReadWriteMany",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-log-storage-size",
     dest="mas_ws_facilities_storage_log_size",
     required=False,
-    help="Storage size for Facilities logs"
+    help="Storage size for Facilities logs",
+    default=30
 )
 facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-class",
@@ -821,13 +850,15 @@ facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-mode",
     dest="mas_ws_facilities_storage_userfiles_mode",
     required=False,
-    help="Storage mode for Facilities user files"
+    help="Storage mode for Facilities user files",
+    default="ReadWriteMany",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-size",
     dest="mas_ws_facilities_storage_userfiles_size",
     required=False,
-    help="Storage size for Facilities user files"
+    help="Storage size for Facilities user files",
+    default=50
 )
 
 # Open Data Hub
@@ -1094,6 +1125,13 @@ aiServiceArgGroup.add_argument(
     dest="aiservice_certificate_issuer",
     required=False,
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
+)
+aiServiceArgGroup.add_argument(
+    "--tenant-scheduling-config-file",
+    dest="tenant_scheduling_config_file",
+    required=False,
+    help="Path to the YAML file that contains the scheduling configuration for tenant",
+    type=lambda x: isValidFile(installArgParser, x)
 )
 
 # IBM Cloud Pak for Data
@@ -1587,6 +1625,18 @@ otherArgGroup.add_argument(
     default=False,
     help="Don't show advanced install options (in interactive mode)"
 )
+otherArgGroup.add_argument(
+    "--slack-token",
+    dest="slack_token",
+    required=False,
+    help="Slack bot token for sending pipeline notifications"
+)
+otherArgGroup.add_argument(
+    "--slack-channel",
+    dest="slack_channel",
+    required=False,
+    help="Slack channel(s) for notifications (comma-separated for multiple channels)"
+)
 
 otherArgGroup.add_argument(
     "--accept-license",
@@ -1606,6 +1656,14 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     help="Disable the 'pre-install-check' at the start of the install pipeline"
+)
+
+otherArgGroup.add_argument(
+    "--skip-preinstall-rbac",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Skip CLI application of pre-install MAS RBAC. Use this when an OpenShift administrator has already applied the required RBAC."
 )
 otherArgGroup.add_argument(
     "--no-confirm",

@@ -38,6 +38,10 @@ spec:
     - name: replica_db
       type: string
       default: "false"
+    - name: rds_db2_backup
+      type: string
+      default: "false"
+
   stepTemplate:
     name: gitops-rds-db2-database
     env:
@@ -71,6 +75,8 @@ spec:
         value: $(params.jdbc_connection_url_additional_params)
       - name: REPLICA_DB
         value: $(params.replica_db)
+      - name: RDS_DB2_BACKUP
+        value: $(params.rds_db2_backup)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -104,3 +110,4 @@ spec:
   workspaces:
     - name: configs
     - name: shared-gitops-configs
+
