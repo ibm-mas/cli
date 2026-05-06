@@ -259,12 +259,29 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
+    "--mas-issuer-kind",
+    dest="mas_issuer_kind",
+    required=False,
+    choices=["Issuer", "ClusterIssuer"],
+    help="Specify the certificate issuer kind to configure Mas Certificate",
+)
+
+masAdvancedArgGroup.add_argument(
     "--enable-ipv6",
     dest="enable_ipv6",
     required=False,
     help="Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6",
     action="store_const",
     const="true"
+)
+
+masAdvancedArgGroup.add_argument(
+    "--permission-mode",
+    dest="mas_permission_mode",
+    required=False,
+    help="Permission mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
+    choices=["cluster", "namespaced", "minimal"],
+    default=None
 )
 
 # DNS Integration - IBM CIS
@@ -1209,6 +1226,11 @@ db2ArgGroup.add_argument(
     help="Timezone for Db2 instance"
 )
 db2ArgGroup.add_argument(
+    "--db2-license-file",
+    required=False,
+    help="Db2 License File for Db2"
+)
+db2ArgGroup.add_argument(
     "--db2-affinity-key",
     required=False,
     help="Set a node label to declare affinity to"
@@ -1633,6 +1655,14 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     help="Disable the 'pre-install-check' at the start of the install pipeline"
+)
+
+otherArgGroup.add_argument(
+    "--skip-preinstall-rbac",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Skip CLI application of pre-install MAS RBAC. Use this when an OpenShift administrator has already applied the required RBAC."
 )
 otherArgGroup.add_argument(
     "--no-confirm",
