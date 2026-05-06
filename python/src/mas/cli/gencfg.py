@@ -74,7 +74,7 @@ class ConfigGeneratorMixin():
         apikey = self.promptForString("AI Service API Key", isPassword=True)
 
         enabled = self.yesOrNo("Enable AI Service (set aiService.enabled to true)")
-        metaAgentEnabled = self.yesOrNo("Enable Meta Agent (AI assistant for MAS)")
+        metaAgentEnabled = self.yesOrNo("Enable AI Assistant Agent (AI assistant for MAS)")
         sslEnabled = self.yesOrNo("Enable SSL Connection")
 
         if sslEnabled:
