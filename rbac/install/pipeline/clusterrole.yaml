@@ -11,6 +11,9 @@ subjects:
   - kind: ServiceAccount
     name: mas-{{ mas_instance_id }}-install-pipeline
     namespace: mas-{{ mas_instance_id }}-pipelines
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
