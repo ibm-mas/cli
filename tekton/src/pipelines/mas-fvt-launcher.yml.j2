@@ -756,7 +756,8 @@ spec:
     # -------------------------------------------------------------------------
     # Wait for Monitor installation to complete before launching Monitor FVT
     # For Monitor >= 9.2.0 (before-iot): runs in parallel with waitfor-iot
-    # For Monitor < 9.2.0 (after-iot): runs after waitfor-iot (legacy behavior)
+    # For Monitor < 9.2.0 (after-iot): runs after both manage approval and waitfor-iot
+    # Note: Monitor installation depends on manage completing, so we must wait for manage approval
     - name: waitfor-monitor
       timeout: "0"
       taskRef:
@@ -793,6 +794,7 @@ spec:
           values: ["after-iot"]
       runAfter:
         - waitfor-iot
+        - approval-manage
 
     # Wait for Monitor (before-iot scenario) - runs in parallel with IoT
     - name: waitfor-monitor-before-iot
@@ -1048,10 +1050,6 @@ spec:
       taskRef:
         kind: Task
         name: mas-launchfvt-predict
-      when:
-        - input: $(params.launchfvt_predict)
-          operator: in
-          values: ["true", "True"]
       when:
         - input: $(params.launchfvt_predict)
           operator: in

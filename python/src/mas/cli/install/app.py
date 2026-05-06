@@ -64,12 +64,14 @@ from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
+    enablePipelinesConsolePlugin,
     updateTektonDefinitions,
     preparePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
     launchInstallPipeline
 )
+from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +86,75 @@ def logMethodCall(func):
 
 
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
+
+    def getSelectedApps(self) -> list[str]:
+        selectedApps = ["core"]
+        if self.installAssist:
+            selectedApps.append("assist")
+        if self.installIoT:
+            selectedApps.append("iot")
+        if self.installManage:
+            selectedApps.append("manage")
+        if self.installMonitor:
+            selectedApps.append("monitor")
+        if self.installPredict:
+            selectedApps.append("predict")
+        if self.installInspection:
+            selectedApps.append("visualinspection")
+        if self.installOptimizer:
+            selectedApps.append("optimizer")
+        if self.installFacilities:
+            selectedApps.append("facilities")
+        if self.installAIService:
+            selectedApps.append("aiservice")
+        if self.installArcgis:
+            selectedApps.append("arcgis")
+
+        return selectedApps
+
+    def evaluatePreInstallRBACAccess(self) -> None:
+        self.applyPreInstallMASRBAC = False
+
+        if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            return
+
+        # TODO: Sort out the openshift-ingress exception properly.
+        # For now, keep continue pre-install RBAC for minimal mode here.
+        # if self.getParam("mas_permission_mode") == "minimal":
+            # return
+
+        if self.getParam("skip_preinstall_rbac") == "true":
+            return
+
+        permissionResults = permissionCheckForRBAC(self.dynamicClient)
+        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
+
+        if hasPreInstallRBACAccess:
+            self.applyPreInstallMASRBAC = True
+            return
+
+        if self.isInteractiveMode:
+            self.printDescription([
+                "",
+                f"You selected the '{self.getParam('mas_permission_mode')}' permission mode.",
+                "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
+                "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
+                "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS version, permission mode, and selected apps.",
+                "If that has already been done, you can continue the installation without applying it again."
+            ])
+
+            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
+                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run mas install again with --skip-preinstall-rbac.")
+        else:
+            self.fatalError(
+                "\n".join([
+                    f"You selected the '{self.getParam('mas_permission_mode')}' permission mode.",
+                    "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
+                    "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
+                    "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas install' with --skip-preinstall-rbac."
+                ])
+            )
+
     @logMethodCall
     def validateCatalogSource(self):
         # Check supported OCP versions - but we can only do this in non-development mode because in development mode
@@ -631,6 +702,76 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
             self.setParam("rhoai", "false")
 
+    @logMethodCall
+    def configPermissionMode(self):
+        if isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            if self.showAdvancedOptions:
+                self.printH1("Configure Permission Mode")
+                self.printDescription([
+                    "Choose how MAS should be installed with respect to permissions:",
+                    "",
+                    "  1. <b>cluster</b> - Install with ClusterRoles (default)",
+                    "     - MAS has cluster-level access to manage its applications and resources across the cluster",
+                    "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts",
+                    "",
+                    "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
+                    "     - No ClusterRoles are installed in this mode",
+                    "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
+                    "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
+                    "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
+                    "",
+                    "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
+                    "     - No ClusterRoles are installed in this mode",
+                    "     - Only essential permissions required for MAS applications are applied",
+                    "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
+                    "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually."
+                ])
+
+                permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
+                permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
+                self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
+
+                if self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                    self.setParam("mas_issuer_kind", "Issuer")
+                else:
+                    self.printDescription([
+                        "Select the issuer kind used by MAS for certificates:",
+                        "",
+                        "  1. Issuer",
+                        "     - MAS uses a namespace-scoped issuer resource for certificates",
+                        "     - You can not get CLI-managed DNS integration",
+                        "",
+                        "  2. ClusterIssuer",
+                        "     - MAS uses a cluster-scoped clusterissuer resource for certificates"
+                    ])
+                    issuerKindChoice = self.promptForInt("Certificate issuer kind", min=1, max=2, default=2)
+                    self.setParam("mas_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")
+            elif self.getParam("mas_permission_mode") == "":
+                self.setParam("mas_permission_mode", "cluster")
+                self.setParam("mas_issuer_kind", "ClusterIssuer")
+
+    def _handleDNSIntegrationRestriction(self):
+        if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            return False
+
+        if self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+            self.printDescription([
+                f"You are using the {self.getParam('mas_permission_mode')} permission mode.",
+                "DNS integration is not available in this mode.",
+                "If you use a custom domain, you need to configure DNS manually."
+            ])
+            return True
+
+        if self.getParam("mas_issuer_kind") == "Issuer":
+            self.printDescription([
+                "You selected Issuer as the certificate issuer kind.",
+                "DNS integration is not available when the certificate issuer kind is Issuer.",
+                "If you use a custom domain, you need to configure DNS manually."
+            ])
+            return True
+
+        return False
+
     def _getMasDomainForDisplay(self):
         masDomain = self.getParam("mas_domain")
         if not masDomain:
@@ -873,37 +1014,43 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printH1("Configure Domain & Certificate Management")
             configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
             if configureDomainAndCertMgmt:
+                dnsIntegrationRestricted = self._handleDNSIntegrationRestriction()
                 configureDomain = self.yesOrNo('Configure custom domain')
                 if configureDomain:
                     self.promptForString("MAS top-level domain", "mas_domain")
-                    self.printDescription([
-                        "",
-                        "DNS Integrations:",
-                        "  1. Cloudflare",
-                        "  2. IBM Cloud Internet Services",
-                        "  3. AWS Route 53",
-                        "  4. None (I will set up DNS myself)"
-                    ])
 
-                    dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
-
-                    if dnsProvider == 1:
-                        self.configDNSAndCertsCloudflare()
-                    elif dnsProvider == 2:
-                        self.configDNSAndCertsCIS()
-                    elif dnsProvider == 3:
-                        self.configDNSAndCertsRoute53()
-                    elif dnsProvider == 4:
-                        # Use MAS default self-signed cluster issuer with a custom domain
+                    if dnsIntegrationRestricted:
                         self.setParam("dns_provider", "")
                         self.setParam("mas_cluster_issuer", "")
-
-                    if dnsProvider in [1, 2]:
+                    else:
                         self.printDescription([
-                            "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
-                            "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                            "",
+                            "DNS Integrations:",
+                            "  1. Cloudflare",
+                            "  2. IBM Cloud Internet Services",
+                            "  3. AWS Route 53",
+                            "  4. None (I will set up DNS myself)"
                         ])
-                        self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
+
+                        dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
+
+                        if dnsProvider == 1:
+                            self.configDNSAndCertsCloudflare()
+                        elif dnsProvider == 2:
+                            self.configDNSAndCertsCIS()
+                        elif dnsProvider == 3:
+                            self.configDNSAndCertsRoute53()
+                        elif dnsProvider == 4:
+                            # Use MAS default self-signed cluster issuer with a custom domain
+                            self.setParam("dns_provider", "")
+                            self.setParam("mas_cluster_issuer", "")
+
+                        if dnsProvider in [1, 2]:
+                            self.printDescription([
+                                "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
+                                "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                            ])
+                            self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
 
                 else:
                     # Use MAS default self-signed cluster issuer with the default domain
@@ -1400,6 +1547,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
             self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
 
+            self.aiserviceTenantSchedulingConfigFileLocal = None
+            self.configSchedulingConstraints()
+
+    @logMethodCall
+    def configSchedulingConstraints(self):
+        if self.showAdvancedOptions:
+            self.printH1("Scheduling configuration for AI Workloads")
+            self.printDescription(content=[
+                "AI Service supports configuring tolerations and nodeSelector per tenant to schedule AI workloads(training pipelines & Inference services) on dedicated nodes.",
+                "To configure tolerations and nodeSelector, create a YAML configuration file",
+                "The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:",
+                "  `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)",
+                "  `nodeSelector`: Dictionary of node label key-value pairs",
+            ])
+
+            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
+
     @logMethodCall
     def _setMinioStorageDefaults(self) -> None:
         """
@@ -1495,7 +1659,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Enable optional Real Estate and Facilities configurations",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
             " - Choose alternative Apache Kafka providers (default to Strimzi)",
-            " - Customize Grafana storage settings"
+            " - Customize Grafana storage settings",
+            " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant"
         ])
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
@@ -1503,6 +1668,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
         self.isInteractiveMode = True
+
+        # Initialize attributes that may be used later
+        self.aiserviceTenantSchedulingConfigFileLocal = None
 
         if simplified:
             self.showAdvancedOptions = False
@@ -1527,6 +1695,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configICRCredentials()
 
         # MAS Core
+        self.configPermissionMode()
+        self.evaluatePreInstallRBACAccess()
         self.configCertManager()
         self.configMAS()
 
@@ -1579,6 +1749,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.db2SetTolerations = False
         self.installAIService = False
         self.slsLicenseFileLocal = None
+        self.db2LicenseFileLocal = None
+        self.aiserviceTenantSchedulingConfigFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
             "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
@@ -1744,6 +1916,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.slsLicenseFileLocal = value
                     self.setParam("sls_action", "install")
+            elif key == "db2_license_file":
+                if value is not None and value != "":
+                    self.db2LicenseFileLocal = value
             elif key == "dedicated_sls":
                 if value:
                     self.setParam("sls_namespace", f"mas-{self.args.mas_instance_id}-sls")
@@ -1779,7 +1954,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified", "mas_configure_ingress"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_preinstall_rbac", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified", "mas_configure_ingress"]:
                 pass
 
             elif key == "manual_certificates":
@@ -1841,6 +2016,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if len(value) == 0 or len(value) > 4:
                     self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
 
+            elif key == "tenant_scheduling_config_file":
+                # No need to perform validation if file exist here, as it has been already validated by argParser type check.
+                if value is not None and value != "":
+                    self.aiserviceTenantSchedulingConfigFileLocal = value
+
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")
@@ -1880,6 +2060,54 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.licensePrompt()
             self.setParam("db2u_kind", "db2ucluster")
 
+        if self.getParam("mas_issuer_kind") != "" and not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            self.fatalError(f"--mas-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+
+        if self.getParam("mas_permission_mode") != "":
+            if not isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+                self.fatalError(f"--permission-mode is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+            else:
+                if self.getParam("mas_issuer_kind") == "":
+                    if self.getParam("mas_permission_mode") == "cluster":
+                        self.setParam("mas_issuer_kind", "ClusterIssuer")
+                    else:
+                        self.setParam("mas_issuer_kind", "Issuer")
+
+                if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.getParam("mas_permission_mode") != "cluster":
+                    self.fatalError(
+                        "\n".join([
+                            "Invalid configuration for certificate issuer kind 'ClusterIssuer'",
+                            "ClusterIssuer can only be used when --permission-mode cluster is selected."
+                        ])
+                    )
+
+                if self.getParam("dns_provider") != "":
+                    if self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                        self.fatalError(
+                            "\n".join([
+                                f"Invalid configuration for permission mode '{self.getParam('mas_permission_mode')}'",
+                                "DNS integration is not available in this mode.",
+                                "Remove DNS integration option --dns-provider, or switch to --permission-mode cluster and use --mas-issuer-kind ClusterIssuer.",
+                            ])
+                        )
+
+                    if (
+                        self.getParam("mas_permission_mode") == "cluster" and
+                        self.getParam("mas_issuer_kind") == "Issuer"
+                    ):
+                        self.fatalError(
+                            "\n".join([
+                                "Invalid configuration for certificate issuer kind 'Issuer'",
+                                "DNS integration is not available when --mas-issuer-kind Issuer is selected.",
+                                "Remove DNS integration option --dns-provider, or use --mas-issuer-kind ClusterIssuer.",
+                            ])
+                        )
+        elif isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")):
+            self.setParam("mas_permission_mode", "cluster")
+            if self.getParam("mas_issuer_kind") == "":
+                self.setParam("mas_issuer_kind", "ClusterIssuer")
+
+        self.evaluatePreInstallRBACAccess()
         self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
@@ -1954,6 +2182,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
+        if hasattr(args, 'skip_preinstall_rbac') and args.skip_preinstall_rbac:
+            self.setParam("skip_preinstall_rbac", "true")
+
         if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
             self.setParam("mas_configure_ingress", "true")
 
@@ -1996,11 +2227,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.deployCP4D:
             self.configCP4D()
 
-        # Set up the secrets for additional configs, podtemplates, sls license file and manual certificates
+        # Set up the secrets for additional configs, podtemplates, sls license file, db2 license file and manual certificates
         self.additionalConfigs()
         self.podTemplates()
         self.slsLicenseFile()
+        self.db2LicenseFile()
         self.manualCertificates()
+        self.aiserviceConfig()
 
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
@@ -2136,6 +2369,25 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
+            if self.applyPreInstallMASRBAC:
+                with Halo(text='Applying pre-install MAS RBAC', spinner=self.spinner) as h:
+                    applyPreInstallMASRBAC(
+                        dynClient=self.dynamicClient,
+                        masVersion=".".join(self.getParam("mas_channel").split(".")[:2]),
+                        masInstanceId=self.getParam("mas_instance_id"),
+                        permissionMode=self.getParam("mas_permission_mode"),
+                        selectedApps=self.getSelectedApps()
+                    )
+                    h.stop_and_persist(symbol=self.successIcon, text="Pre-install MAS RBAC applied")
+
+            # Enable console plugin for OCP 4.21+
+            with Halo(text='Enabling Pipelines console plugin', spinner=self.spinner) as h:
+                if enablePipelinesConsolePlugin(self.dynamicClient):
+                    h.stop_and_persist(symbol=self.successIcon, text="Pipelines console plugin enabled")
+                else:
+                    h.stop_and_persist(symbol=self.warningIcon, text="Failed to enable Pipelines console plugin (non-fatal)")
+                    # Note: This is non-fatal as the plugin can be enabled manually
+
             if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
                 with Halo(text='Configuring cluster for path-based routing', spinner=self.spinner) as h:
                     ingressControllerName = self.getParam("mas_ingress_controller_name") if self.getParam("mas_ingress_controller_name") else "default"
@@ -2158,9 +2410,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     dynClient=self.dynamicClient,
                     namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
+                    db2LicenseFile=self.db2LicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,
+                    aiserviceConfig=self.aiserviceConfigSecret,
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel")
                 )

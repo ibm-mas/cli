@@ -170,4 +170,228 @@ def test_db2u_no_namespaces(tmpdir, resource_kind, with_arg):
     run_update_test(tmpdir, config)
 
 
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_major_version_upgrade_without_flag(tmpdir, resource_kind):
+    """Test non-interactive update with Db2 major version upgrade but no flag - should fail.
+
+    Expected behavior:
+    - Detects Db2 v11 needs upgrade to v12
+    - No --db2-v12-upgrade flag provided
+    - Raises SystemExit with non-zero exit code
+    - Error message indicates --db2-v12-upgrade flag is required
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",  # Current version
+        db2u_target_version="v12.0",  # Target requires upgrade
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
+        expect_system_exit=True,  # Expect failure
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_major_version_upgrade_with_flag(tmpdir, resource_kind):
+    """Test non-interactive update with Db2 major version upgrade and flag.
+
+    Expected behavior:
+    - Detects Db2 v11 needs upgrade to v12
+    - --db2-v12-upgrade flag provided
+    - Valid --db2-license-file path provided
+    - Update proceeds successfully
+    """
+
+    valid_license_file = os.path.join(str(tmpdir), "db2-license.lic")
+    with open(valid_license_file, "w") as handle:
+        handle.write("db2-license")
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",  # Current version
+        db2u_target_version="v12.0",  # Target requires upgrade
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=[
+            '--catalog', 'v9-260129-amd64',
+            '--db2-v12-upgrade',
+            '--db2-license-file', valid_license_file,
+            '--no-confirm'
+        ],
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_major_version_upgrade_with_flag_without_license_file(tmpdir, resource_kind):
+    """Test non-interactive Db2 v11 to v12 upgrade without license file - should fail."""
+
+    config = UpdateTestConfig(
+        prompt_handlers={},
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",
+        db2u_target_version="v12.0",
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=['--catalog', 'v9-260129-amd64', '--db2-v12-upgrade', '--no-confirm'],
+        expect_system_exit=True,
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_major_version_upgrade_with_flag_invalid_license_file(tmpdir, resource_kind):
+    """Test non-interactive Db2 v11 to v12 upgrade with invalid license file path - should fail.
+
+    Expected behavior:
+    - --db2-v12-upgrade flag is provided
+    - --db2-license-file points to a non-existent file
+    - db2LicenseFile() attempts to open the file and raises FileNotFoundError
+    - Update is aborted with FileNotFoundError
+    """
+
+    invalid_license_file = os.path.join(str(tmpdir), "missing-db2-license.lic")
+
+    config = UpdateTestConfig(
+        prompt_handlers={},
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",
+        db2u_target_version="v12.0",
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=[
+            '--catalog', 'v9-260129-amd64',
+            '--db2-v12-upgrade',
+            '--db2-license-file', invalid_license_file,
+            '--no-confirm'
+        ],
+        expect_exception=FileNotFoundError,
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_minor_version_upgrade_no_flag_needed(tmpdir, resource_kind):
+    """Test non-interactive update with Db2 minor version upgrade - no flag needed.
+
+    Expected behavior:
+    - Detects Db2 v11.5.8.0 needs upgrade to v11.5.9.0
+    - No flag required for minor version upgrade
+    - Update proceeds successfully
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.8.0",  # Current version
+        db2u_target_version="v11.5",  # Same major version
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_same_version_no_upgrade(tmpdir, resource_kind):
+    """Test non-interactive update when Db2 is already at target version.
+
+    Expected behavior:
+    - Detects Db2 is already at target version
+    - No upgrade needed
+    - Update proceeds successfully
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",  # Current version
+        db2u_target_version="v11.5",  # Same version
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_combined_namespace_and_version_upgrade(tmpdir, resource_kind):
+    """Test non-interactive update with namespace arg, version flag, and license file."""
+
+    valid_license_file = os.path.join(str(tmpdir), "db2-license-combined.lic")
+    with open(valid_license_file, "w") as handle:
+        handle.write("db2-license")
+
+    config = UpdateTestConfig(
+        prompt_handlers={},  # No prompts in non-interactive mode
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-ns1", "db2u-ns2"],  # Multiple namespaces
+        db2u_resource_kind=resource_kind,
+        db2u_namespace_arg="db2u-ns1",  # Explicit namespace
+        db2u_version="11.5.9.0",  # Current version
+        db2u_target_version="v12.0",  # Target requires upgrade
+        mas_instances=[{
+            "metadata": {"name": "inst1"},
+            "status": {"versions": {"reconciled": "9.1.7"}}
+        }],
+        argv=[
+            '--catalog', 'v9-260129-amd64',
+            '--db2-namespace', 'db2u-ns1',
+            '--db2-v12-upgrade',
+            '--db2-license-file', valid_license_file,
+            '--no-confirm'
+        ],
+        timeout_seconds=30
+    )
+
+    run_update_test(tmpdir, config)
+
+
 # Made with Bob
