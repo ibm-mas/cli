@@ -23,7 +23,7 @@ from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.aiservice import listAiServiceInstances
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSlackSecrets
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSecrets
 
 
 logger = logging.getLogger(__name__)
@@ -208,7 +208,7 @@ class UpdateApp(BaseApp):
             # Create slack secret if slack token and channel are provided
             if self.getParam("slack_token") and self.getParam("slack_channel"):
                 with Halo(text='Creating Slack notification secret', spinner=self.spinner) as h:
-                    prepareUpdateSlackSecrets(
+                    prepareUpdateSecrets(
                         dynClient=self.dynamicClient,
                         slack_token=self.getParam("slack_token"),
                         slack_channel=self.getParam("slack_channel")
