@@ -29,7 +29,7 @@ spec:
       credentials:
         secretName: "{{ mas_instance_id }}-usersupplied-ai-creds-system"
     assistantAgent:
-      enabled: {{ meta_agent_enabled | lower }}
+      enabled: {{ ai_assistant_enabled | lower }}
 {%- if ai_ssl_enabled == True %}
   certificates:
     - alias: aiservice
