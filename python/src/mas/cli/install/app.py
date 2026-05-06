@@ -2166,7 +2166,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         )
                     else:
                         # In interactive mode, ask user if they want to proceed
-                        if not self.yesOrNo("Do you want to proceed with the installation without Kafka? (Defect Detection will not work)"):
+                        if not self.yesOrNo("Do you want to proceed with the installation without Kafka? (Defect Detection functionality will not work)"):
                             self.fatalError("Installation cancelled. Please configure Kafka before installing.")
 
     @logMethodCall

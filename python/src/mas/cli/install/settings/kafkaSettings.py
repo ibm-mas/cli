@@ -89,7 +89,7 @@ class KafkaSettingsMixin():
         if self._requiresKafkaIoT():
             requirements.append("Maximo IoT")
         if self._requiresKafkaCivil():
-            requirements.append("Manage Civil Infrastructure (9.2+)")
+            requirements.append("Manage Civil Infrastructure (9.2+) Defect Detection")
         return requirements
 
     def configKafka(self) -> None:
@@ -98,13 +98,25 @@ class KafkaSettingsMixin():
         if requirements:
             self.printH1("Configure Kafka")
 
-            requirementsText = " and ".join(requirements)
-            verb = "require" if len(requirements) > 1 else "requires"
-            self.printDescription([
-                f"{requirementsText} {verb} a shared system-scope Kafka instance",
+            # Build description based on what requires Kafka
+            hasIoT = self._requiresKafkaIoT()
+            hasCivil = self._requiresKafkaCivil()
+            
+            description = []
+            if hasIoT and hasCivil:
+                description.append("Maximo IoT and Manage Civil Infrastructure (9.2+) Defect Detection require a shared system-scope Kafka instance")
+            elif hasIoT:
+                description.append("Maximo IoT requires a shared system-scope Kafka instance")
+            else:  # hasCivil
+                description.append("Manage Civil Infrastructure (9.2+) Defect Detection functionality requires a shared system-scope Kafka instance")
+                description.append("Note: Defect Detection functionality will not work.")
+            
+            description.extend([
                 "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
                 "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
             ])
+            
+            self.printDescription(description)
             if self.yesOrNo("Create system Kafka instance using one of the supported providers"):
                 self.setParam("kafka_action_system", "install")
 
