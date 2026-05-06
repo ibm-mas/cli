@@ -24,6 +24,7 @@ ibm aiservice(required):
       --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
       --aiservice-instance-id ${TEXT_RESET}AISERVICE_INSTANCE_ID${TEXT_RESET}
       --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}
+      --aiservice-install-plan-approval ${TEXT_RESET}AISERVICE_INSTALL_PLAN_APPROVAL${TEXT_RESET}
 
 storage provider:
       --aiservice-storage-provider ${TEXT_RESET}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}
@@ -34,8 +35,6 @@ sls_dro_jdbc
       --artifactory-username ${TEXT_RESET}ARTIFACTORY_USERNAME${TEXT_RESET}
       --aiservice-channel ${TEXT_RESET}AISERVICE_CHANNEL${TEXT_RESET}
       --mas-catalog-source ${TEXT_RESET}MAS_CATALOG_SOURCE${TEXT_RESET}
-      
-      --aiservice-install-plan-approval ${TEXT_RESET}AISERVICE_INSTALL_PLAN_APPROVAL${TEXT_RESET}
       --mas-icr-cp ${TEXT_RESET}MAS_ICR_CP${TEXT_RESET}
       --mas-icr-cpopen ${TEXT_RESET}MAS_ICR_CPOPEN${TEXT_RESET}
       --cluster-domain ${TEXT_RESET}CLUSTER_DOMAIN${TEXT_RESET}
@@ -88,9 +87,7 @@ function gitops_aiservice_noninteractive() {
   export AISERVICE_STORAGE_REGION=${AISERVICE_STORAGE_REGION:-""}
   export AISERVICE_STORAGE_SSL=${AISERVICE_STORAGE_SSL:-"true"}
   export MAS_CATALOG_SOURCE=${MAS_CATALOG_SOURCE:-"ibm-operator-catalog"}
- 
   export AISERVICE_INSTALL_PLAN_APPROVAL=${AISERVICE_INSTALL_PLAN_APPROVAL:-"Automatic"}
-
   export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
   export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"PRODUCTION"}
   export DRO_TOKEN_SECRET=${DRO_TOKEN_SECRET:-"dro-token"}
@@ -269,7 +266,6 @@ function gitops_aiservice_noninteractive() {
   [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aiservice_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
   [[ -z "$AISERVICE_CHANNEL" ]] && gitops_aiservice_help "AISERVICE_CHANNEL is not set. Please provide the mas app channel using --aiservice-channel"
   [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aiservice_help "MAS_CATALOG_SOURCE is not set. Please provide the mas catalog source using --mas-catalog-source"
-  
   [[ -z "$MAS_ICR_CP" ]] && gitops_aiservice_help "MAS_ICR_CP is not set. Please provide the MAS ICR CP using --mas-icr-cp"
   [[ -z "$MAS_ICR_CPOPEN" ]] && gitops_aiservice_help "MAS_ICR_CPOPEN is not set. Please provide the MAS ICR CPOPEN using --mas-icr-cpopopen"
   [[ -z "$IN_SAAS_ENV" ]] && gitops_aiservice_help "IN_SAAS_ENV is not set. Please specify if this is in SaaS environment using --in-saas-env."
