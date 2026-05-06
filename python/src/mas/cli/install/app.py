@@ -2132,25 +2132,42 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
                 self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
 
-        # Validate Kafka requirements for IoT or CIVIL installation in non-interactive mode
-        isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
-        # Civil only requires Kafka for version 9.2+
-        isCivilRequiringKafka = False
-        if isCivilEnabled:
-            manageChannel = self.getParam("mas_app_channel_manage")
-            if manageChannel and isVersionEqualOrAfter('9.2.0', manageChannel):
-                isCivilRequiringKafka = True
-        
-        if self.installIoT or isCivilRequiringKafka:
+        # Validate Kafka requirements for IoT installation in non-interactive mode
+        if self.installIoT:
             kafkaAction = self.getParam("kafka_action_system")
             hasKafkaConfig = kafkaAction in ["install", "byo"]
             if not hasKafkaConfig:
-                if self.installIoT and isCivilRequiringKafka:
-                    self.fatalError("--iot-channel and Manage Civil Infrastructure component (version 9.2+) require Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
-                elif self.installIoT:
-                    self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
-                else:
-                    self.fatalError("Manage Civil Infrastructure component (version 9.2+) requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
+                self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
+
+        # Validate Kafka requirements for CIVIL installation in non-interactive mode
+        isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
+        if isCivilEnabled:
+            manageChannel = self.getParam("mas_app_channel_manage")
+            if manageChannel and isVersionEqualOrAfter('9.2.0', manageChannel):
+                kafkaAction = self.getParam("kafka_action_system")
+                hasKafkaConfig = kafkaAction in ["install", "byo"]
+                if not hasKafkaConfig:
+                    # Warn user but give option to proceed (Civil will work, but Defect Detection won't)
+                    print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka Configuration Required</Yellow>"))
+                    print_formatted_text(HTML(
+                        f"<LightSlateGrey>Installing Manage {manageChannel} with Civil Infrastructure component "
+                        "requires Kafka configuration. Civil versions >= 9.2.0 require a shared system-scope Kafka instance.</LightSlateGrey>"
+                    ))
+                    print_formatted_text(HTML(
+                        "<LightSlateGrey>Without Kafka, the Defect Detection functionality will not work.</LightSlateGrey>"
+                    ))
+                    print()
+                    
+                    if self.noConfirm:
+                        # In non-interactive mode, log warning and proceed
+                        logger.warning(
+                            f"Installing Manage {manageChannel} with Civil component without Kafka configuration. "
+                            "Defect Detection functionality will not work."
+                        )
+                    else:
+                        # In interactive mode, ask user if they want to proceed
+                        if not self.yesOrNo("Do you want to proceed with the installation without Kafka? (Defect Detection will not work)"):
+                            self.fatalError("Installation cancelled. Please configure Kafka before installing.")
 
     @logMethodCall
     def install(self, argv):
