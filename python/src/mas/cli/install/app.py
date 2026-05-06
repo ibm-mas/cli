@@ -1719,6 +1719,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configMongoDb()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
+        self.configAi()  # Configure AI Service integration
 
         self.configGrafana()
 
@@ -1749,6 +1750,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.db2SetTolerations = False
         self.installAIService = False
         self.slsLicenseFileLocal = None
+        self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
@@ -1876,6 +1878,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     # Set manage - bind - AI Service params same as provided AI Service's params
                     self.setParam("manage_bind_aiservice_instance_id", vars(self.args).get("aiservice_instance_id", ""))
                     self.setParam("manage_bind_aiservice_tenant_id", "user")
+            elif key == "configure_aiassistant":
+                if value is not None and value != "":
+                    self.setParam("configure_aiassistant", value)
             elif key == "manage_bind_aiservice_instance_id":
                 # only set if AI Service not being installed
                 if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
@@ -1915,6 +1920,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.slsLicenseFileLocal = value
                     self.setParam("sls_action", "install")
+            elif key == "db2_license_file":
+                if value is not None and value != "":
+                    self.db2LicenseFileLocal = value
             elif key == "dedicated_sls":
                 if value:
                     self.setParam("sls_namespace", f"mas-{self.args.mas_instance_id}-sls")
@@ -2210,10 +2218,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.deployCP4D:
             self.configCP4D()
 
-        # Set up the secrets for additional configs, podtemplates, sls license file and manual certificates
+        # Set up the secrets for additional configs, podtemplates, sls license file, db2 license file and manual certificates
         self.additionalConfigs()
         self.podTemplates()
         self.slsLicenseFile()
+        self.db2LicenseFile()
         self.manualCertificates()
         self.aiserviceConfig()
 
@@ -2392,6 +2401,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     dynClient=self.dynamicClient,
                     namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
+                    db2LicenseFile=self.db2LicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,

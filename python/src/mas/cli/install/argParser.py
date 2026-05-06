@@ -115,6 +115,12 @@ masArgGroup.add_argument(
     help="AI Service Instance ID"
 )
 masArgGroup.add_argument(
+    "--configure-ai-assistant",
+    dest="configure_aiassistant",
+    required=False,
+    help="Configure AI Assistant in silent mode (for example: pipeline, configure, none)"
+)
+masArgGroup.add_argument(
     "--allow-special-chars",
     dest="mas_special_characters",
     required=False,
@@ -1224,6 +1230,11 @@ db2ArgGroup.add_argument(
     "--db2-timezone",
     required=False,
     help="Timezone for Db2 instance"
+)
+db2ArgGroup.add_argument(
+    "--db2-license-file",
+    required=False,
+    help="Db2 License File for Db2"
 )
 db2ArgGroup.add_argument(
     "--db2-affinity-key",
