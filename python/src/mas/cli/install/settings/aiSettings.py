@@ -11,7 +11,6 @@
 from os import path
 from typing import TYPE_CHECKING, Dict, List, Any
 from prompt_toolkit import print_formatted_text
-from base64 import b64decode
 
 
 if TYPE_CHECKING:
