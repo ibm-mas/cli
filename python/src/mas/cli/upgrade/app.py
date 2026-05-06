@@ -69,6 +69,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         """
         Validate Kafka requirements when upgrading Manage with Civil to 9.2+.
         Civil >= 9.2 requires Kafka configuration.
+        Warns user and gives option to proceed without Kafka (Defect Detection will not function).
         """
         # Check if upgrading TO Manage 9.2+ (use TARGET channel, not current)
         if not self.nextChannel or not isVersionEqualOrAfter('9.2.0', self.nextChannel):
@@ -103,11 +104,28 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 hasKafkaConfig = kafkaAction in ["install", "byo"]
 
                 if not hasKafkaConfig:
-                    self.fatalError(
-                        f"Upgrading to Manage {self.nextChannel} with Civil Infrastructure component "
-                        "requires Kafka configuration. Civil versions >= 9.2.0 require a shared "
-                        "system-scope Kafka instance. Please configure Kafka before upgrading."
-                    )
+                    # Warn user but give option to proceed
+                    print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka Configuration Required</Yellow>"))
+                    print_formatted_text(HTML(
+                        f"<LightSlateGrey>Upgrading to Manage {self.nextChannel} with Civil Infrastructure component "
+                        "requires Kafka configuration. Civil versions >= 9.2.0 require a shared system-scope Kafka instance.</LightSlateGrey>"
+                    ))
+                    print_formatted_text(HTML(
+                        "<LightSlateGrey>Without Kafka, the Defect Detection functionality within Civil Infrastructure will not work, "
+                        "but other Civil and Manage components will continue to function.</LightSlateGrey>"
+                    ))
+                    print()
+                    
+                    if self.noConfirm:
+                        # In non-interactive mode, log warning and proceed
+                        logger.warning(
+                            f"Upgrading to Manage {self.nextChannel} with Civil component without Kafka configuration. "
+                            "Defect Detection functionality will not work."
+                        )
+                    else:
+                        # In interactive mode, ask user if they want to proceed
+                        if not self.yesOrNo("Do you want to proceed with the upgrade without Kafka? (Defect Detection will not work)"):
+                            self.fatalError("Upgrade cancelled. Please configure Kafka before upgrading.")
 
         except Exception as e:
             logger.warning(f"Could not query ManageWorkspace CR for Civil component check: {e}")
