@@ -174,8 +174,10 @@ def test_install_interactive_advanced(tmpdir):
                     return 'nfs-client'
                 if re.match('.*SLS Mode.*', message):
                     return '1'
-                if re.match('.*License file.*', message):
+                if re.match('.*>License file<.*', message):
                     return f'{tmpdir}/authorized_entitlement.lic'
+                if re.match('.*>Db2 License file<.*', message):
+                    return ''
                 if re.match('.*Instance ID.*', message):
                     return 'apmdevops'
                 if re.match('.*Scheduling constraints YAML file.*', message):
@@ -301,8 +303,10 @@ def test_install_interactive_simplified(tmpdir):
                     return 'nfs-client'
                 if re.match('.*SLS Mode.*', message):
                     return '1'
-                if re.match('.*License file.*', message):
+                if re.match('.*>License file<.*', message):
                     return f'{tmpdir}/authorized_entitlement.lic'
+                if re.match('.*>Db2 License file<.*', message):
+                    return ''
                 if re.match('.*Instance ID.*', message):
                     return 'apmdevops'
                 if re.match('.*Operational Mode.*', message):
