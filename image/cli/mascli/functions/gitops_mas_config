@@ -37,22 +37,24 @@ Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
   --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. One of aws|yaml (defaults to yaml)
 
 SLS Configuration (if MAS_CONFIG_TYPE is "sls"):
-  --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
-  --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
+  --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}         The location of a file containing the POD template
+  --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}                   Internal Certificate Authority to use for provisoning internal certificates
 
 DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
-  --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
-  --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}     The first name to register with DRO
-  --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}       The last name to register with DRO
-  --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET} The location of a file containing the DRO CA certificate
-  --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
-  --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
+  --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}                            The email address to register with DRO
+  --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}                    The first name to register with DRO
+  --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}                      The last name to register with DRO
+  --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET}                The location of a file containing the DRO CA certificate
+  --dro-api-token ${COLOR_YELLOW}DRO_API_TOKEN${TEXT_RESET}                                    The DRO API token (optional, normally set by 08-postsync-update-sm_Job in DRO argo app)
+  --dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                                The DRO URL (optional, normally set by 08-postsync-update-sm_Job in DRO argo app)
+  --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                                The segment key for authentication for Segment
+  --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}      The location of a file containing the POD template
 
 MAF Configuration (required if MAS_CONFIG_TYPE is "appcfg"):
-  --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                       Enable MAF for the application configuration (true|false)
-  --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}    Storage class name to use for MAF persistent storage
-  --maf-size ${COLOR_YELLOW}MAF_SIZE${TEXT_RESET}                             Size of the MAF persistent storage (e.g. 2Gi)
-  --mas-appcfg-pod-template-yaml ${COLOR_YELLOW}MAS_APPCFG_POD_TEMPLATE_YAML${TEXT_RESET}   
+  --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                                        Enable MAF for the application configuration (true|false)
+  --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}                     Storage class name to use for MAF persistent storage
+  --maf-size ${COLOR_YELLOW}MAF_SIZE${TEXT_RESET}                                              Size of the MAF persistent storage (e.g. 2Gi)
+  --mas-appcfg-pod-template-yaml ${COLOR_YELLOW}MAS_APPCFG_POD_TEMPLATE_YAML${TEXT_RESET}      The location of a file containing the POD template
 
 IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}       Display name for IDPCfg resource
@@ -72,7 +74,7 @@ JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
 
 SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"): 
   --smtp-display-name ${COLOR_YELLOW}SMTP_DISPLAY_NAME${TEXT_RESET}                                       Display name for SmtpCfg resource
-  --smtp-host ${COLOR_YELLOW}SMTP_HOST${TEXT_RESET}                                                        Host of the SMTP server
+  --smtp-host ${COLOR_YELLOW}SMTP_HOST${TEXT_RESET}                                                       Host of the SMTP server
   --smtp-port ${COLOR_YELLOW}SMTP_PORT${TEXT_RESET}                                                       Port of the SMTP server
   --smtp-security ${COLOR_YELLOW}SMTP_SECURITY${TEXT_RESET}                                               Security protocol. None, STARTTLS or SSL
   --smtp-authentication ${COLOR_YELLOW}SMTP_AUTHENTICATION${TEXT_RESET}                                   true or false on whether to authenticate, default false
@@ -200,6 +202,12 @@ function gitops_mas_config_noninteractive() {
         ;;
       --dro-ca-certificate-file)
         export DRO_CA_CERTIFICATE_FILE=$1 && shift
+        ;;
+      --dro-api-token)
+        export DRO_API_TOKEN=$1 && shift
+        ;;
+      --dro-url)
+        export DRO_URL=$1 && shift
         ;;
       --mas-segment-key)
         export MAS_SEGMENT_KEY=$1 && shift
@@ -431,6 +439,7 @@ function gitops_mas_config_noninteractive() {
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
       export JDBC_ROUTE=${JDBC_ROUTE:-default}
+      [[ -z "$MAS_APP_ID" ]] && gitops_mas_config_help "MAS_APP_ID must be set when configuring JDBC"
 
       # Set JDBC instance name based on JDBC_TYPE
       if [[ -z "$JDBC_INSTANCE_NAME" ]]; then
@@ -527,7 +536,6 @@ function gitops_mas_config() {
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
   CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-suite-configs.yaml"
-  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-mas-config" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
   export USE_POSTDELETE_HOOKS=${USE_POSTDELETE_HOOKS:-true}
 
@@ -616,6 +624,8 @@ function gitops_mas_config() {
       echo_reset_dim "DRO Contact First Name  ........ ${COLOR_MAGENTA}${DRO_CONTACT_FIRSTNAME}"
       echo_reset_dim "DRO Contact Last Name  ......... ${COLOR_MAGENTA}${DRO_CONTACT_LASTNAME}"
       echo_reset_dim "DRO Certificate File  .......... ${COLOR_MAGENTA}${DRO_CA_CERTIFICATE_FILE}"
+      echo_reset_dim "DRO API Token  ................. ${COLOR_MAGENTA}${DRO_API_TOKEN:0:4}<snip>"
+      echo_reset_dim "DRO URL  ....................... ${COLOR_MAGENTA}${DRO_URL}"
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_BASCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
@@ -702,17 +712,17 @@ function gitops_mas_config() {
 
   # Clone github target repo
   # ---------------------------------------------------------------------------
-  echo
-  echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+  # Define callback function to generate MAS configuration
+  # This function will be called by gitops_lock_and_modify after acquiring the lock
+  # ---------------------------------------------------------------------------
+  function apply_mas_config_changes() {
+    local GITOPS_REPO_DIR="$1"
+    local GITOPS_INSTANCE_DIR="${GITOPS_REPO_DIR}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}"
+    local CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-suite-configs.yaml"
+    
+    mkdir -p "${GITOPS_INSTANCE_DIR}"
 
-  if [ "$GITHUB_PUSH" == "true" ]; then
-    # only create the lock branch if we plan to actually push changes to git
-    clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
-  fi
-  mkdir -p ${GITOPS_INSTANCE_DIR}
-
-
-  if [ "${CONFIG_ACTION}" == "upsert" ]; then
+    if [ "${CONFIG_ACTION}" == "upsert" ]; then
     echo
     echo_h2 "Fetching/Updating secrets specific to ${MAS_CONFIG_TYPE}"
 
@@ -762,8 +772,9 @@ function gitops_mas_config() {
 
 
     if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
-      export SECRET_KEY_DRO_API_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_api_token
-      export SECRET_KEY_DRO_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_url
+      export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
+      export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
+      export SECRET_KEY_DRO_URL=${SECRET_NAME_DRO}#dro_url
       export SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mas_segment_key
       export SECRET_KEY_MAS_SEGMENT_KEY=${SECRET_NAME_MAS_SEGMENT_KEY}#mas_segment_key
       export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
@@ -773,6 +784,25 @@ function gitops_mas_config() {
       if [[ -n "$MAS_BASCFG_POD_TEMPLATE_YAML" && -s "$MAS_BASCFG_POD_TEMPLATE_YAML" ]]; then
         export MAS_BASCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_BASCFG_POD_TEMPLATE_YAML})
         echo -e "\n - MAS_BASCFG_POD_TEMPLATE CONTENT .................. ${MAS_BASCFG_POD_TEMPLATE}"
+      fi
+
+      # Update DRO secrets if provided
+      # ---------------------------------------------------------------------------
+      if [[ -n "${DRO_API_TOKEN}" ]] || [[ -n "${DRO_URL}" ]]; then
+        sm_login
+        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+        DRO_SECRET_JSON="{"
+        if [[ -n "${DRO_API_TOKEN}" ]]; then
+          DRO_SECRET_JSON="${DRO_SECRET_JSON}\"dro_api_token\": \"${DRO_API_TOKEN}\""
+        fi
+        if [[ -n "${DRO_URL}" ]]; then
+          if [[ -n "${DRO_API_TOKEN}" ]]; then
+            DRO_SECRET_JSON="${DRO_SECRET_JSON}, "
+          fi
+          DRO_SECRET_JSON="${DRO_SECRET_JSON}\"dro_url\": \"${DRO_URL}\""
+        fi
+        DRO_SECRET_JSON="${DRO_SECRET_JSON}}"
+        sm_update_secret $SECRET_NAME_DRO "${DRO_SECRET_JSON}" "${TAGS}"
       fi
 
       if [[ -n "${MAS_SEGMENT_KEY}" ]]; then
@@ -1030,22 +1060,53 @@ function gitops_mas_config() {
     fi
 
 
-  fi
+    fi
 
-  echo_h2 "Updated configuration file (${CONFIGS_FILE})"
-  if [ -f ${CONFIGS_FILE} ]; then
-    cat $CONFIGS_FILE
-  else
-    echo "<file was deleted>"
-  fi
+    echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+    if [ -f "${CONFIGS_FILE}" ]; then
+      cat "${CONFIGS_FILE}"
+    else
+      echo "<file was deleted>"
+    fi
+    
+    return 0
+  }
 
-  # Commit and push to github target repo
+  # Use Redis-based locking with automatic fallback to Git locking
   # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+  
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}"
-    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    
+    # Create unique lock identifier for this operation
+    LOCK_NAME="gitops-mas-config.${ACCOUNT_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    
+    # Use the new gitops_lock_and_modify method
+    # This will automatically use Redis if available, otherwise fall back to Git locking
+    gitops_lock_and_modify \
+      "${GITHUB_HOST}" \
+      "${GITHUB_ORG}" \
+      "${GITHUB_REPO}" \
+      "${GIT_BRANCH}" \
+      "${GITOPS_WORKING_DIR}" \
+      "${GIT_SSH}" \
+      "${LOCK_NAME}" \
+      "apply_mas_config_changes" \
+      "${GIT_COMMIT_MSG}" \
+      MAS_CONFIG_CHANGED
+    
+    if [[ "${MAS_CONFIG_CHANGED}" == "1" ]]; then
+      echo "MAS configuration was modified and pushed successfully"
+    else
+      echo "No changes detected in MAS configuration"
+    fi
+  else
+    # If not pushing to GitHub, just generate files locally
+    mkdir -p ${GITOPS_INSTANCE_DIR}
+    apply_mas_config_changes "${GITOPS_WORKING_DIR}/${GITHUB_REPO}"
   fi
 
   rm -rf $TEMP_DIR

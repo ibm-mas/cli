@@ -1,3 +1,11 @@
 # Controls the image pull policy for the ibmmas/cli image
 - name: image_pull_policy
   value: $(params.image_pull_policy)
+
+# Pipeline context information
+- name: pipelinerun_namespace
+  value: $(context.pipelineRun.namespace)
+- name: pipelinerun_name
+  value: $(context.pipelineRun.name)
+- name: pipeline_name
+  value: $(context.pipeline.name)

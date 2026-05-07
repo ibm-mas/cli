@@ -7,6 +7,241 @@ function logts() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S.%3N')]"
 }
 
+# =============================================================================
+# Redis Configuration and Connection Functions
+# =============================================================================
+
+# Redis connection configuration
+# These can be overridden via environment variables
+REDIS_HOST="${REDIS_HOST:-localhost}"
+REDIS_PORT="${REDIS_PORT:-6379}"
+REDIS_USERNAME="${REDIS_USERNAME:-}" #pragma: allowlist secret
+REDIS_PASSWORD="${REDIS_PASSWORD:-}" #pragma: allowlist secret
+REDIS_TLS="${REDIS_TLS:-false}"
+REDIS_DB="${REDIS_DB:-0}"
+REDIS_TLS_CA_CERT_B64="${REDIS_TLS_CA_CERT_B64:-}" #pragma: allowlist secret
+
+# Lock configuration
+GITOPS_LOCK_TTL="${GITOPS_LOCK_TTL:-300}"           # 5 minutes default
+GITOPS_LOCK_RETRY_MAX="${GITOPS_LOCK_RETRY_MAX:-100}"
+GITOPS_LOCK_RETRY_DELAY="${GITOPS_LOCK_RETRY_DELAY:-20}"
+GITOPS_USE_REDIS_LOCKING="${GITOPS_USE_REDIS_LOCKING:-false}"
+
+# Setup Redis TLS certificate from base64 if provided
+function setup_redis_tls_cert() {
+  if [[ -n "${REDIS_TLS_CA_CERT_B64}" && "${REDIS_TLS}" == "true" ]]; then
+    local cert_dir="/tmp/redis-certs"
+    mkdir -p "${cert_dir}"
+    export REDIS_TLS_CA_CERT="${cert_dir}/ca-cert.pem"
+    echo "${REDIS_TLS_CA_CERT_B64}" | base64 -d > "${REDIS_TLS_CA_CERT}"
+    echo "$(logts) Redis TLS certificate decoded to ${REDIS_TLS_CA_CERT}" >&2
+  fi
+}
+
+# Build redis-cli command with authentication and TLS if needed
+function redis_cli_cmd() {
+  # Setup TLS cert if needed
+  setup_redis_tls_cert
+  
+  local cmd="redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} -n ${REDIS_DB}"
+  
+  # Add username if provided (Redis 6+)
+  if [[ -n "${REDIS_USERNAME}" ]]; then
+    cmd="${cmd} --user ${REDIS_USERNAME}"
+  fi
+  
+  # Set password via environment variable to avoid command-line warning
+  # This is more secure than using -a flag as it doesn't expose password in process list
+  if [[ -n "${REDIS_PASSWORD}" ]]; then
+    export REDISCLI_AUTH="${REDIS_PASSWORD}"
+  fi
+  
+  # Add TLS options if enabled
+  if [[ "${REDIS_TLS}" == "true" ]]; then
+    cmd="${cmd} --tls"
+    if [[ -n "${REDIS_TLS_CA_CERT}" ]]; then
+      cmd="${cmd} --cacert ${REDIS_TLS_CA_CERT}"
+    fi
+  fi
+  
+  echo "${cmd}"
+}
+
+# Check if Redis is available and accessible
+function redis_available() {
+  # First check if redis-cli is installed
+  if ! command -v redis-cli &> /dev/null; then
+    echo "$(logts) redis-cli command not found in PATH"
+    echo "$(logts) Redis is not available"
+    return 1
+  fi
+  
+  # Set REDISCLI_AUTH in current shell before calling redis_cli_cmd
+  if [[ -n "${REDIS_PASSWORD}" ]]; then
+    export REDISCLI_AUTH="${REDIS_PASSWORD}"
+  fi
+  
+  local redis_cmd=$(redis_cli_cmd)
+  
+  # Display command (password is now set via REDISCLI_AUTH env var, not in command)
+  echo "$(logts) Checking Redis availability: ${redis_cmd} PING"
+  
+  # Capture both stdout and stderr to see actual errors
+  # Filter out log messages (no need to filter warnings anymore as we use REDISCLI_AUTH)
+  local result=$(${redis_cmd} PING 2>&1 | grep -v "^\[" | head -1)
+  local exit_code=$?
+  
+  if [[ "${result}" == "PONG" ]]; then
+    echo "$(logts) Redis is available"
+    return 0
+  else
+    echo "$(logts) Redis is not available"
+    if [[ ${exit_code} -ne 0 ]] || [[ -z "${result}" ]]; then
+      echo "$(logts) Redis connection error (exit code: ${exit_code}):"
+      # Get full error output, suppress password, and filter timestamps
+      ${redis_cmd} PING 2>&1 | grep -v "^\[" | sed 's/-a [^ ]*/-a ****/g'
+    else
+      echo "$(logts) Unexpected response: \"${result}\""
+    fi
+    return 1
+  fi
+}
+
+# Generate a unique lock value (UUID)
+function generate_lock_value() {
+  if [[ -f /proc/sys/kernel/random/uuid ]]; then
+    cat /proc/sys/kernel/random/uuid
+  else
+    uuidgen 2>/dev/null || echo "$(date +%s%N)-$$-${RANDOM}"
+  fi
+}
+
+# =============================================================================
+# Redis Distributed Locking Functions
+# =============================================================================
+
+# Acquire a Redis lock with retries
+# Parameters:
+#   $1 - Lock key (e.g., "gitops:lock:gitops-mas-config.account.cluster.instance")
+#   $2 - Variable name to store lock value (for later release)
+#   $3 - TTL in seconds (optional, defaults to GITOPS_LOCK_TTL)
+#   $4 - Max retries (optional, defaults to GITOPS_LOCK_RETRY_MAX)
+#   $5 - Retry delay in seconds (optional, defaults to GITOPS_LOCK_RETRY_DELAY)
+# Returns: 0 if lock acquired, 1 if failed
+function redis_acquire_lock() {
+  local lock_key="$1"
+  local lock_value_var="$2"
+  local ttl="${3:-${GITOPS_LOCK_TTL}}"
+  local max_retries="${4:-${GITOPS_LOCK_RETRY_MAX}}"
+  local retry_delay="${5:-${GITOPS_LOCK_RETRY_DELAY}}"
+  
+  local lock_value=$(generate_lock_value)
+  local redis_cmd=$(redis_cli_cmd)
+  
+  echo ""
+  echo "$(logts) redis_acquire_lock: ${lock_key}"
+  echo "================================================="
+  echo "Lock TTL: ${ttl}s, Max retries: ${max_retries}, Retry delay: ${retry_delay}s"
+  
+  for (( attempt=1; attempt<=${max_retries}; attempt++ )); do
+    echo ""
+    echo "$(logts) Lock acquisition attempt ${attempt} of ${max_retries}"
+    
+    # Try to acquire lock using SET with NX (only if not exists) and EX (expiry)
+    local result=$(${redis_cmd} SET "${lock_key}" "${lock_value}" NX EX ${ttl} 2>&1 | grep -v "^Warning:")
+    
+    if [[ "${result}" == "OK" ]]; then
+      echo "$(logts) ✓ Lock acquired successfully"
+      echo "================================================="
+      
+      # Store lock value in the provided variable name for later release
+      eval "${lock_value_var}='${lock_value}'"
+      return 0
+    fi
+    
+    if [[ ${attempt} -lt ${max_retries} ]]; then
+      echo "$(logts) Lock currently held by another process, retrying in ${retry_delay}s..."
+      sleep ${retry_delay}
+    fi
+  done
+  
+  echo ""
+  echo "$(logts) ✗ Failed to acquire lock after ${max_retries} attempts"
+  echo "Total wait time: $((max_retries * retry_delay)) seconds"
+  
+  # Show who currently holds the lock for debugging
+  local current_holder=$(${redis_cmd} GET "${lock_key}" 2>&1 | grep -v "^Warning:")
+  if [[ -n "${current_holder}" ]]; then
+    echo "Lock currently held by: ${current_holder}"
+    local ttl=$(${redis_cmd} TTL "${lock_key}" 2>&1 | grep -v "^Warning:")
+    if [[ "${ttl}" =~ ^[0-9]+$ ]]; then
+      echo "Lock will expire in: ${ttl} seconds"
+    fi
+  else
+    echo "Lock status: Not currently held (race condition or just released)"
+  fi
+  echo "================================================="
+  return 1
+}
+
+# Release a Redis lock
+# Parameters:
+#   $1 - Lock key
+#   $2 - Lock value (to verify ownership)
+# Returns: 0 if released, 1 if not owned or error
+function redis_release_lock() {
+  local lock_key="$1"
+  local lock_value="$2"
+  local redis_cmd=$(redis_cli_cmd)
+  
+  echo ""
+  echo "$(logts) redis_release_lock: ${lock_key}"
+  echo "================================================="
+  
+  # Only release if we still own the lock (check value matches)
+  # Use Lua script for atomic check-and-delete
+  local lua_script='if redis.call("get",KEYS[1]) == ARGV[1] then return redis.call("del",KEYS[1]) else return 0 end'
+  local result=$(${redis_cmd} EVAL "${lua_script}" 1 "${lock_key}" "${lock_value}" 2>&1)
+  
+  if [[ "${result}" == "1" ]]; then
+    echo "$(logts) ✓ Lock released successfully"
+    echo "================================================="
+    return 0
+  else
+    echo "$(logts) ⚠ Lock not released (may have expired or not owned)"
+    echo "================================================="
+    return 1
+  fi
+}
+
+# Extend a Redis lock TTL
+# Parameters:
+#   $1 - Lock key
+#   $2 - Lock value (to verify ownership)
+#   $3 - New TTL in seconds
+# Returns: 0 if extended, 1 if not owned or error
+function redis_extend_lock() {
+  local lock_key="$1"
+  local lock_value="$2"
+  local new_ttl="$3"
+  local redis_cmd=$(redis_cli_cmd)
+  
+  echo "$(logts) Extending lock TTL to ${new_ttl}s"
+  
+  # Use Lua script for atomic check-and-expire
+  local lua_script='if redis.call("get",KEYS[1]) == ARGV[1] then return redis.call("expire",KEYS[1],ARGV[2]) else return 0 end'
+  local result=$(${redis_cmd} EVAL "${lua_script}" 1 "${lock_key}" "${lock_value}" "${new_ttl}" 2>&1)
+  
+  if [[ "${result}" == "1" ]]; then
+    echo "$(logts) ✓ Lock TTL extended"
+    return 0
+  else
+    echo "$(logts) ⚠ Lock TTL not extended (may have expired or not owned)"
+    return 1
+  fi
+}
+
+
 function sm_login() {
   if [[ "$AVP_TYPE" == "aws" ]]; then
     echo "Logging into AWS SecretsManager ..."
@@ -407,6 +642,297 @@ function git_lock_branch_name() {
 # Clones the target repo and attempts to create a new branch ($GIT_LOCK_BRANCH) on the remote
 # If this lock branch already exists, this means another process is currently making a change and could lead to a merge conflict.
 # This function retries a limited number of times to reaquire the lock branch, and exits if this does not succeed.
+
+# =============================================================================
+# Redis-Based GitOps Functions (New Implementation)
+# =============================================================================
+
+# Helper function to check if there are uncommitted changes in a git repo
+function has_git_changes() {
+  local repo_dir="$1"
+  local git_status=$(git -C "${repo_dir}" status --porcelain=v1 2>/dev/null)
+  
+  if [[ -n "${git_status}" ]]; then
+    return 0  # Has changes
+  else
+    return 1  # No changes
+  fi
+}
+
+# Clone and modify GitOps repo with Redis-based locking
+# This function replaces the Git-based locking approach with Redis distributed locking
+# 
+# Parameters:
+#   $1 - GITHUB_HOST
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - GIT_BRANCH
+#   $5 - LOCAL_DIR
+#   $6 - SSH_PATH
+#   $7 - LOCK_NAME (used to generate Redis lock key)
+#   $8 - APPLY_CHANGES_CALLBACK (function to call to apply changes)
+#   $9 - GIT_COMMIT_MSG
+#   $10 - RETURNVARNAME_MODIFIED (optional variable name to store whether changes were made)
+#
+# Returns: 0 on success, 1 on failure
+function clone_and_modify_with_redis_lock() {
+  local GITHUB_HOST="$1"
+  local GITHUB_ORG="$2"
+  local GITHUB_REPO="$3"
+  local GIT_BRANCH="$4"
+  local LOCAL_DIR="$5"
+  local SSH_PATH="$6"
+  local LOCK_NAME="$7"
+  local APPLY_CHANGES_CALLBACK="$8"
+  local GIT_COMMIT_MSG="$9"
+  local RETURNVARNAME_MODIFIED="${10}"
+  
+  local GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
+  
+  # Use same lock naming convention as Git-based locking for consistency
+  # Format: lock.<operation-type>.<account>.<cluster>.<instance>
+  # This allows different operations on different config types to run concurrently
+  local REDIS_LOCK_KEY="lock.${LOCK_NAME}"
+  local REDIS_LOCK_VALUE=""
+  
+  # Step 1: Acquire Redis lock
+  if ! redis_acquire_lock "${REDIS_LOCK_KEY}" REDIS_LOCK_VALUE; then
+    echo "$(logts) Failed to acquire Redis lock"
+    return 1
+  fi
+  
+  # Register trap to release lock on exit (including errors and interrupts)
+  # Use || true to prevent trap from causing script failure if lock already released
+  trap "redis_release_lock '${REDIS_LOCK_KEY}' '${REDIS_LOCK_VALUE}' || true" EXIT INT TERM
+  
+  # Step 2: Clone the repository (safe - we have the lock)
+  echo ""
+  echo "$(logts) Cloning repository (lock acquired)"
+  clone_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" \
+    "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}"
+  
+  # Step 3: Apply changes ONCE (safe - we have the lock)
+  echo ""
+  echo "$(logts) Applying changes via callback: ${APPLY_CHANGES_CALLBACK}"
+  echo "-------------------------------------------------"
+  if ! ${APPLY_CHANGES_CALLBACK} "${GITOPS_REPO_DIR}"; then
+    echo "$(logts) Apply changes callback failed"
+    rm -rf "${GITOPS_REPO_DIR}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
+    return 1
+  fi
+  
+  # Step 4: Check if changes exist
+  echo ""
+  echo "$(logts) Checking for changes"
+  echo "-------------------------------------------------"
+  
+  if ! has_git_changes "${GITOPS_REPO_DIR}"; then
+    echo "$(logts) No changes detected - skipping Git push"
+    
+    if [[ -n "${RETURNVARNAME_MODIFIED}" ]]; then
+      local -n RETURNVAR_MODIFIED="${RETURNVARNAME_MODIFIED}"
+      RETURNVAR_MODIFIED=0
+    fi
+    
+    rm -rf "${GITOPS_REPO_DIR}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    
+    # Clear the EXIT trap before returning to prevent it from firing
+    trap - EXIT INT TERM
+    
+    echo ""
+    echo "$(logts) clone_and_modify_with_redis_lock: success (no changes)"
+    echo "================================================="
+    return 0
+  fi
+  
+  echo "$(logts) Changes detected - proceeding with Git push"
+  
+  if [[ -n "${RETURNVARNAME_MODIFIED}" ]]; then
+    local -n RETURNVAR_MODIFIED="${RETURNVARNAME_MODIFIED}"
+    RETURNVAR_MODIFIED=1
+  fi
+  
+  # Step 5: Commit and push changes to Git (no lock branch needed!)
+  echo ""
+  echo "$(logts) git add -v ."
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" add -v . || {
+    echo "$(logts) git add failed"
+    rm -rf "${GITOPS_REPO_DIR}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
+    return 1
+  }
+  
+  echo ""
+  echo "$(logts) git commit -m '${GIT_COMMIT_MSG}'"
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}"
+  
+  local COMMIT_RC=$?
+  echo "$(logts) commit returned ${COMMIT_RC}"
+  
+  # Handle git commit return codes:
+  # 0 = success (changes committed)
+  # 1 = nothing to commit (working tree clean) - this is OK
+  # other = actual error
+  if [[ ${COMMIT_RC} -ne 0 && ${COMMIT_RC} -ne 1 ]]; then
+    echo "$(logts) git commit failed with exit code ${COMMIT_RC}"
+    rm -rf "${GITOPS_REPO_DIR}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
+    return 1
+  fi
+  
+  # If nothing to commit (RC=1), treat as no changes scenario
+  if [[ ${COMMIT_RC} -eq 1 ]]; then
+    echo "$(logts) Nothing to commit - treating as no changes"
+    
+    if [[ -n "${RETURNVARNAME_MODIFIED}" ]]; then
+      local -n RETURNVAR_MODIFIED="${RETURNVARNAME_MODIFIED}"
+      RETURNVAR_MODIFIED=0
+    fi
+    
+    rm -rf "${GITOPS_REPO_DIR}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
+    
+    echo ""
+    echo "$(logts) clone_and_modify_with_redis_lock: success (no changes)"
+    echo "================================================="
+    return 0
+  fi
+  
+  # Step 6: Push with retries (in case of concurrent pushes from different lock keys)
+  echo ""
+  echo "$(logts) Pushing changes to ${GIT_BRANCH}"
+  if ! git_push_with_retries "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}"; then
+    echo "$(logts) git push failed"
+    rm -rf "${GITOPS_REPO_DIR}"
+    redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+    trap - EXIT INT TERM
+    return 1
+  fi
+  
+  # Step 7: Cleanup and release lock
+  rm -rf "${GITOPS_REPO_DIR}"
+  redis_release_lock "${REDIS_LOCK_KEY}" "${REDIS_LOCK_VALUE}" || true
+  
+  # Clear the EXIT trap before returning
+  trap - EXIT INT TERM
+  
+  echo ""
+  echo "$(logts) clone_and_modify_with_redis_lock: success (changes pushed)"
+  echo "================================================="
+  return 0
+}
+
+# Wrapper function that chooses between Redis and Git locking based on configuration
+# This allows gradual migration and fallback capability
+#
+# Parameters: Same as clone_and_lock_target_git_repo but with additional callback parameter
+#   $1 - GITHUB_HOST
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - GIT_BRANCH
+#   $5 - LOCAL_DIR
+#   $6 - SSH_PATH
+#   $7 - LOCK_NAME (for Redis) or GIT_LOCK_BRANCH (for Git)
+#   $8 - APPLY_CHANGES_CALLBACK (function to apply changes)
+#   $9 - GIT_COMMIT_MSG
+#   $10 - RETURNVARNAME_MODIFIED (optional)
+#
+# Environment variables:
+#   GITOPS_USE_REDIS_LOCKING - Set to "true" to use Redis, "false" for Git (default: false)
+#
+function gitops_lock_and_modify() {
+  local GITHUB_HOST="$1"
+  local GITHUB_ORG="$2"
+  local GITHUB_REPO="$3"
+  local GIT_BRANCH="$4"
+  local LOCAL_DIR="$5"
+  local SSH_PATH="$6"
+  local LOCK_IDENTIFIER="$7"
+  local APPLY_CHANGES_CALLBACK="$8"
+  local GIT_COMMIT_MSG="$9"
+  local RETURNVARNAME_MODIFIED="${10}"
+
+  echo ""
+  echo "$(logts) gitops_lock_and_modify"
+  echo "================================================="
+  
+  # Check if Redis locking is enabled and available
+  if [[ "${GITOPS_USE_REDIS_LOCKING}" == "true" ]]; then
+    echo "$(logts) Redis locking enabled, checking availability..."
+    
+    if redis_available; then
+      echo "$(logts) ✓ Redis is available and accessible"
+      echo "$(logts) Using Redis-based distributed locking"
+      clone_and_modify_with_redis_lock "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" \
+        "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}" "${LOCK_IDENTIFIER}" \
+        "${APPLY_CHANGES_CALLBACK}" "${GIT_COMMIT_MSG}" "${RETURNVARNAME_MODIFIED}"
+      return $?
+    else
+      echo "$(logts) ✗ ERROR: Redis locking is enabled (GITOPS_USE_REDIS_LOCKING=true) but Redis is not available"
+      echo "$(logts) Please ensure Redis is properly configured or set GITOPS_USE_REDIS_LOCKING=false to use Git-based locking"
+      return 1
+    fi
+  else
+    echo "$(logts) Redis locking disabled via GITOPS_USE_REDIS_LOCKING=false"
+  fi
+  
+  # Fallback to Git-based locking
+  echo "$(logts) Using Git-based locking (legacy)"
+  
+  local GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
+  
+  # Acquire Git lock
+  echo ""
+  echo "$(logts) Acquiring Git lock..."
+  clone_and_lock_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" \
+    "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}" "${LOCK_IDENTIFIER}"
+  
+  if [[ $? -ne 0 ]]; then
+    echo "$(logts) ERROR: Failed to acquire Git lock"
+    return 1
+  fi
+  
+  echo "$(logts) ✓ Git lock acquired successfully"
+  
+  # Apply changes
+  echo ""
+  echo "$(logts) Applying changes via callback: ${APPLY_CHANGES_CALLBACK}"
+  echo "================================================="
+  if ! ${APPLY_CHANGES_CALLBACK} "${GITOPS_REPO_DIR}"; then
+    echo "$(logts) ERROR: Apply changes callback failed"
+    # Cleanup will be handled by the exit trap set in clone_and_lock_target_git_repo
+    return 1
+  fi
+  
+  echo "$(logts) ✓ Changes applied successfully"
+  
+  # Save and unlock
+  echo ""
+  echo "$(logts) Saving changes and releasing Git lock..."
+  echo "================================================="
+  save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}" \
+    "${GIT_COMMIT_MSG}" "${LOCK_IDENTIFIER}" "${RETURNVARNAME_MODIFIED}"
+  
+  local save_rc=$?
+  if [[ ${save_rc} -ne 0 ]]; then
+    echo "$(logts) ERROR: Failed to save and unlock Git repo"
+    return 1
+  fi
+  
+  echo ""
+  echo "$(logts) gitops_lock_and_modify: success"
+  echo "================================================="
+  return 0
+}
+
 # In this way, we guarantee sequentual execution order across any script that shares the same $GIT_LOCK_BRANCH name.
 # If the function successfully acquires the lock branch, it registers git_lock_branch_name as an exit trap, to ensure we do not
 # leave the lock branch in place (which would permanently block any other invokations of this function with the same GIT_LOCK_BRANCH.

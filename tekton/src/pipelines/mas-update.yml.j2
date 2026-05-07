@@ -4,6 +4,10 @@ kind: Pipeline
 metadata:
   name: mas-update
 spec:
+  workspaces:
+    # Db2 License File
+    - name: shared-db2
+      optional: true
   params:
     # Tekton Pipeline Configuration
     # -------------------------------------------------------------------------
@@ -47,6 +51,18 @@ spec:
       type: string
       default: "db2u"
       description: Namespace where db2 instances will be updated
+    - name: db2_v12_upgrade
+      type: string
+      description: Approves the Db2 upgrade to version 12 if needed
+      default: ""
+    - name: db2_license_file
+      type: string
+      description: Optional path to a Db2 v12 activation license file; required at runtime for Db2 v11 to v12 upgrades
+      default: ""
+    - name: db2_channel
+      type: string
+      description: Db2 channel to be upgraded
+      default: ""
 
     # mongodb update
     # -------------------------------------------------------------------------
@@ -152,6 +168,13 @@ spec:
       type: string
       default: ""
       description: ReadWriteMany storage class
+    
+    # AI Service
+    # -------------------------------------------------------------------------
+    - name: aiservice_instance_ids
+      type: string
+      default: ""
+      description: Comma-separated list of AI Service instance IDs
 
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
@@ -166,6 +189,14 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-update
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-update-check', 'devops_suite_name': 'pre-update-check'}) | indent(4) }}
       runAfter:
@@ -182,6 +213,7 @@ spec:
       runAfter:
         - pre-update-check
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-catalog
         - name: mas_catalog_version
@@ -214,6 +246,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-ocs
         - name: ocs_action
@@ -231,6 +264,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: grafana_action
           value: update
         - name: devops_suite_name
@@ -248,6 +282,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: dependencies-rhoai-migration
 
@@ -259,12 +294,22 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-db2
         - name: db2_action
           value: $(params.db2_action)
         - name: db2_namespace
           value: $(params.db2_namespace)
+        - name: db2_v12_upgrade
+          value: $(params.db2_v12_upgrade)
+        - name: db2_license_file
+          value: $(params.db2_license_file)
+        - name: db2_channel
+          value: $(params.db2_channel)
+      workspaces:
+        - name: db2
+          workspace: shared-db2
 
     - name: update-mongodb
       timeout: "0"
@@ -274,6 +319,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-mongodb
         - name: mongodb_action
@@ -301,6 +347,7 @@ spec:
       runAfter:
         - post-update-verify
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-kafka
         - name: kafka_action
@@ -337,8 +384,23 @@ spec:
       runAfter:
         - update-cp4d
 
+    # 6. Migrate any AI Service instances. Updating to a new feature channel release
+    # could require migration as release 9.2 introduces a significant architectural change.
+    # AI Service migration
+    # -------------------------------------------------------------------------
+    - name: aiservice-migration
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-aiservice-migration
+      runAfter:
+        - post-update-verify
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        - name: aiservice_instance_ids
+          value: $(params.aiservice_instance_ids)
 
-    # 6. Verify health of the cluster after dependencies updates
+    # 7. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-deps-update-verify',
@@ -373,3 +435,4 @@ spec:
           # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
           value: $(tasks.status)
+
