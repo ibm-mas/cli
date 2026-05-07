@@ -95,6 +95,8 @@
       value: $(params.aiservice_certificate_issuer)
     - name: enable_ipv6
       value: $(params.enable_ipv6)
+    - name: tenant_scheduling_cfg_file
+      value: $(params.tenant_scheduling_cfg_file)
 
   taskRef:
     name: mas-devops-aiservice
@@ -106,3 +108,5 @@
   workspaces:
     - name: configs
       workspace: shared-configs
+    - name: aiservice
+      workspace: shared-aiservice-config
