@@ -96,6 +96,10 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --dev-mode{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
+        if self.getParam('permission_mode') != "":
+            command += f"  --permission-mode \"{self.getParam('permission_mode')}\"{newline}"
+        if self.getParam('skip_preinstall_rbac') != "":
+            command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam('image_pull_policy') != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam('service_account_name') != "":
@@ -172,6 +176,8 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
         if self.getParam('tenant_entitlement_end_date') != "":
             command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
+        if self.aiserviceTenantSchedulingConfigFileLocal:
+            command += f"  --tenant-scheduling-config-file \"{self.aiserviceTenantSchedulingConfigFileLocal}\"{newline}"
 
         if self.getParam('rsl_url') != "":
             command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
@@ -184,6 +190,8 @@ class aiServiceInstallArgBuilderMixin():
 
         if self.getParam('db2_channel') != "":
             command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
+        if self.db2LicenseFileLocal:
+            command += f"  --db2-license-file \"{self.db2LicenseFileLocal}\""
 
         command += "  --accept-license --no-confirm"
         return command
