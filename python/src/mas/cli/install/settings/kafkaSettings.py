@@ -107,9 +107,8 @@ class KafkaSettingsMixin():
                 description.append("Maximo IoT and Manage Civil Infrastructure (9.2+) Defect Detection require a shared system-scope Kafka instance")
             elif hasIoT:
                 description.append("Maximo IoT requires a shared system-scope Kafka instance")
-            else:  # hasCivil
+            elif hasCivil:
                 description.append("Manage Civil Infrastructure (9.2+) Defect Detection functionality requires a shared system-scope Kafka instance")
-                description.append("Note: Defect Detection functionality will not work.")
             
             description.extend([
                 "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
