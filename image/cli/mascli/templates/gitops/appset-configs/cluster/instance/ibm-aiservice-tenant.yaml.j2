@@ -55,3 +55,7 @@ ibm_aiservice_tenant:
   tenant_entitlement_end_date: "{{ TENANT_ENTITLEMENT_END_DATE }}"
   
   aiservice_operator_log_level: "{{ AISERVICE_OPERATOR_LOG_LEVEL }}"
+
+{% if TENANT_SCHEDULING_CONFIG_FILE is defined and TENANT_SCHEDULING_CONFIG_FILE != '' %}
+  tenant_scheduling_config: {{ TENANT_SCHEDULING_CONFIG_FILE }}
+{% endif %}
