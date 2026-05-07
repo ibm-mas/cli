@@ -496,8 +496,6 @@ spec:
     # 14.2 Generate AiCfg with auto-detected values
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/gencfg-aiservice.yml.j2') | indent(4) }}
-      runAfter:
-        - aiservice
       when:
         - input: "$(params.mas_instance_id)"
           operator: notin
@@ -508,6 +506,8 @@ spec:
         - input: "$(params.configure_aiassistant)"
           operator: in
           values: ["pipeline"]
+      runAfter:
+        - aiservice
 
     # 15. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
