@@ -98,30 +98,38 @@ spec:
     # AI Service storage
     - name: aiservice_s3_accesskey
       type: string
+      default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_secretkey
       type: string
+      default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_host
       type: string
+      default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_port
       type: string
+      default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_ssl
       type: string
+      default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_region
       type: string
+      default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_bucket_prefix
       type: string
       default: ""
     - name: aiservice_s3_tenants_bucket
       type: string
+      default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_templates_bucket
       type: string
+      default: "This option is mandatory"
       default: ""
     - name: environment_type
       type: string
@@ -149,8 +157,6 @@ spec:
 
     # RHOAI flag
     - name: rhoai
-      type: string
-      default: ""
     
     # Certificate Issuer
     - name: aiservice_certificate_issuer
