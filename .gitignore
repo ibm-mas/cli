@@ -5,7 +5,7 @@
 .env
 .venv
 kubectl.exe
-mas.log
+mas.log*
 
 site/
 report/
