@@ -557,8 +557,6 @@ masAppsArgGroup.add_argument(
     choices=["Automatic", "Manual"],
     help="Install plan approval for AI Service operator subscription"
 )
-
-
 # Arcgis
 # -----------------------------------------------------------------------------
 arcgisArgGroup = installArgParser.add_argument_group("Maximo Location Services for Esri (arcgis)")

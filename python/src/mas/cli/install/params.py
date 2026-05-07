@@ -223,8 +223,6 @@ optionalParams = [
 
     "aiservice_install_plan_approval",
 
-
-
     # Grafana
     "skip_grafana_install",
     "grafana_v5_namespace",
