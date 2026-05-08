@@ -401,7 +401,7 @@ function gitops_aiservice_tenant() {
   echo_reset_dim "tenant ID ...................................................... ${COLOR_MAGENTA}${TENANT_ID}"
   echo_reset_dim "cluster domain ................................................. ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "in SaaS environment ............................................ ${COLOR_MAGENTA}${IN_SAAS_ENV}"
-if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" ]]
+if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" ]]; then
   echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}${TENANT_SCHEDULING_CONFIG_YAML}"
 else
   echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}Not Configured"
