@@ -56,6 +56,7 @@ ibm_aiservice_tenant:
   
   aiservice_operator_log_level: "{{ AISERVICE_OPERATOR_LOG_LEVEL }}"
 
-{% if TENANT_SCHEDULING_CONFIG_FILE is defined and TENANT_SCHEDULING_CONFIG_FILE != '' %}
-  tenant_scheduling_config: {{ TENANT_SCHEDULING_CONFIG_FILE }}
+{% if TENANT_SCHEDULING_CONFIG is defined and TENANT_SCHEDULING_CONFIG != '' %}
+  tenant_scheduling_config:
+    {{ TENANT_SCHEDULING_CONFIG | indent(4)}}
 {% endif %}

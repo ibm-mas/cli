@@ -258,8 +258,8 @@ function gitops_aiservice_tenant_noninteractive() {
         export TENANT_ENTITLEMENT_END_DATE=$1 && shift
         ;;
 
-      --tenant-scheduling-config-file)
-        export TENANT_SCHEDULING_CONFIG_FILE=$1 && shift
+      --tenant-scheduling-config-yaml)
+        export TENANT_SCHEDULING_CONFIG_YAML=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -401,8 +401,8 @@ function gitops_aiservice_tenant() {
   echo_reset_dim "tenant ID ...................................................... ${COLOR_MAGENTA}${TENANT_ID}"
   echo_reset_dim "cluster domain ................................................. ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "in SaaS environment ............................................ ${COLOR_MAGENTA}${IN_SAAS_ENV}"
-if [[ -n "$TENANT_SCHEDULING_CONFIG_FILE" ]]
-  echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}Configured"
+if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" ]]
+  echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}${TENANT_SCHEDULING_CONFIG_YAML}"
 else
   echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}Not Configured"
 fi
@@ -485,6 +485,13 @@ fi
   fi
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
+
+  # Load scheduling config file
+  # ---------------------------------------------------------------------------
+  if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" && -s "$TENANT_SCHEDULING_CONFIG_YAML" ]]; then
+    export TENANT_SCHEDULING_CONFIG=$(yq eval '.' ${TENANT_SCHEDULING_CONFIG_YAML})
+    echo -e "\n - TENANT_SCHEDULING_CONFIG CONTENT .................. ${TENANT_SCHEDULING_CONFIG}"
+  fi
   
   # finally push them into the git repo
 
