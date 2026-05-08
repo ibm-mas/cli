@@ -18,10 +18,10 @@ ibm_sls_standalone:
   ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
   sls_domain: {{ SLS_DOMAIN }}
 {%- if DNS_PROVIDER|lower == "cis" %}
-  dns_provider: {{ DNS_PROVIDER }}
+  dns_provider: "{{ DNS_PROVIDER }}"
 {%- if CIS_SERVICE_NAME is defined and CIS_SERVICE_NAME != '' and CIS_CRN is defined and CIS_CRN != '' %}
-  cis_service_name: {{ CIS_SERVICE_NAME }}
-  cis_crn: {{ CIS_CRN }}
+  cis_service_name: "{{ CIS_SERVICE_NAME }}"
+  cis_crn: "{{ CIS_CRN }}"
 {%- endif %}
 {%- endif %}
   ibm_customer_number: "{{ ICN }}"
