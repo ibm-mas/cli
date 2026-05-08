@@ -13,6 +13,8 @@ import argparse
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
 
+IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
+
 upgradeArgParser = argparse.ArgumentParser(
     prog='mas upgrade',
     description="\n".join([
@@ -71,6 +73,24 @@ masArgGroup.add_argument(
     required=False,
     default="",
     help="The Target Mas channel to Upgrade on"
+)
+otherArgGroup.add_argument(
+    '--slack-token',
+    required=False,
+    help="Slack bot token for sending pipeline status notifications"
+)
+otherArgGroup.add_argument(
+    '--slack-channel',
+    required=False,
+    help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)"
+)
+otherArgGroup.add_argument(
+    "--image-pull-policy",
+    dest="image_pull_policy",
+    required=False,
+    help="Image pull policy for Tekton Pipeline",
+    choices=IMAGE_PULL_POLICIES,
+    metavar="{IfNotPresent,Always}"
 )
 otherArgGroup.add_argument(
     '-h', "--help",

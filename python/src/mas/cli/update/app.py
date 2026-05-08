@@ -11,6 +11,7 @@
 
 import logging
 import logging.handlers
+import re
 from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
@@ -23,13 +24,14 @@ from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.aiservice import listAiServiceInstances
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSecrets
+from ..install.settings import AdditionalConfigsMixin
 
 
 logger = logging.getLogger(__name__)
 
 
-class UpdateApp(BaseApp):
+class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
     def update(self, argv):
         """
@@ -38,6 +40,7 @@ class UpdateApp(BaseApp):
         self.args = updateArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
         self.devMode = self.args.dev_mode
+        self.db2LicenseFileLocal = None
 
         if self.args.mas_catalog_version:
             # Non-interactive mode
@@ -45,6 +48,7 @@ class UpdateApp(BaseApp):
             requiredParams = ["mas_catalog_version"]
             optionalParams = [
                 "db2_namespace",
+                "db2_v12_upgrade",
                 "mongodb_namespace",
                 "mongodb_v5_upgrade",
                 "mongodb_v6_upgrade",
@@ -57,9 +61,13 @@ class UpdateApp(BaseApp):
                 "skip_pre_check",
                 "dev_mode",
                 "cpd_product_version",
+                "image_pull_policy",
                 # Dev Mode
                 "artifactory_username",
-                "artifactory_token"
+                "artifactory_token",
+                # Slack Integration
+                "slack_token",
+                "slack_channel"
 
             ]
             for key, value in vars(self.args).items():
@@ -77,6 +85,11 @@ class UpdateApp(BaseApp):
                 # Arguments that we don't need to do anything with
                 elif key in ["no_confirm", "help"]:
                     pass
+
+                # Db2 License file has special handling
+                elif key == "db2_license_file":
+                    if value is not None and value != "":
+                        self.db2LicenseFileLocal = value
 
                 # Fail if there's any arguments we don't know how to handle
                 else:
@@ -133,9 +146,10 @@ class UpdateApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is not installed")
 
         self.detectGrafana4()
+        self.detectODH()
         self.detectMongoDb()
-        self.detectDb2uOrKafka("db2")
-        self.detectDb2uOrKafka("kafka")
+        self.detectDb2u()
+        self.detectKafka()
         self.detectCP4D()
 
         print()
@@ -173,6 +187,7 @@ class UpdateApp(BaseApp):
 
         self.printH2("Required Migrations")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
+        self.printSummary("AI Service Data Science Platform", "Migrate from ODH to RHOAI" if self.getParam("odh_to_rhoai_migration") != "" else "No action required")
 
         if not self.noConfirm:
             print()
@@ -182,6 +197,9 @@ class UpdateApp(BaseApp):
             continueWithUpdate = self.yesOrNo("Proceed with these settings")
         # Prepare the namespace and launch the installation pipeline
         if self.noConfirm or continueWithUpdate:
+            # Db2 workspace in update pipeline
+            self.db2LicenseFile()
+
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Update")
@@ -197,7 +215,12 @@ class UpdateApp(BaseApp):
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 preparePipelinesNamespace(dynClient=self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
+                prepareUpdateSecrets(
+                    dynClient=self.dynamicClient,
+                    slack_token=self.getParam("slack_token"),
+                    slack_channel=self.getParam("slack_channel"),
+                    db2LicenseFile=self.db2LicenseFileSecret,
+                )
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
@@ -231,17 +254,32 @@ class UpdateApp(BaseApp):
         return self.reviewInstances(listMasInstances, 'MAS', 'Suite.core.mas.ibm.com/v1')
 
     def reviewAiServiceInstance(self) -> bool:
-        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1')
+        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1', "aiservice_instance_ids")
 
-    def reviewInstances(self, getInstances: Callable, name: str, kind: str) -> bool:
+    def reviewInstances(self, getInstances: Callable, name: str, kind: str, instanceParamKey: str = "") -> bool:
         self.printH1(f"Review {name} Instances")
         try:
             instances = getInstances(self.dynamicClient)
+
+            if len(instances) == 0:
+                if instanceParamKey != "":
+                    self.setParam(instanceParamKey, "")
+                self.printDescription([f"No {name} instances were detected on the cluster"])
+                return False
+
+            if instanceParamKey != "":
+                self.setParam(instanceParamKey, "")
+                for instance in instances:
+                    param = self.getParam(instanceParamKey)
+                    self.setParam(instanceParamKey, f"{param},{instance['metadata']['name']}".lstrip(","))
+
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
                 self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
             return True
         except ResourceNotFoundError:
+            if instanceParamKey != "":
+                self.setParam(instanceParamKey, "")
             self.printDescription([f"No {name} instances were detected on the cluster ({kind} API is not available)"])
             return False
 
@@ -249,13 +287,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
-            "  2) Feb 26 2026 Update (MAS 9.1.10, 9.0.21, 8.11.32, &amp; 8.10.35)",
-            "  3) Jan 29 2026 Update (MAS 9.1.8, 9.0.19, 8.11.30, &amp; 8.10.33)",
+            "  1) Apr 30 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
+            "  2) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
+            "  3) Feb 26 2026 Update (MAS 9.1.10, 9.0.21, 8.11.32, &amp; 8.10.35)",
         ])
 
         catalogOptions = [
-            "v9-260326-amd64", "v9-260226-amd64", "v9-260129-amd64",
+            "v9-260430-amd64", "v9-260326-amd64", "v9-260226-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -334,6 +372,46 @@ class UpdateApp(BaseApp):
                     return False
             except (ResourceNotFoundError, NotFoundError):
                 h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 is not installed")
+                return False
+
+    def detectODH(self) -> bool:
+        """
+        Detect if ODH (Open Data Hub) is installed and may need migration to RHOAI.
+        This is a simplified check - the Ansible role will perform detailed validation.
+        """
+        with Halo(text='Checking for Open Data Hub (ODH)', spinner=self.spinner) as h:
+            try:
+                subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
+                subscriptions = subscriptionAPI.get(namespace="openshift-operators").to_dict()["items"]
+
+                odh_installed = any(
+                    sub.get("spec", {}).get("name") == "opendatahub-operator"
+                    for sub in subscriptions
+                )
+
+                if odh_installed:
+                    h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub detected - migration to RHOAI will be evaluated")
+                    self.printDescription([
+                        "<u>Required Migration Notice</u>",
+                        "Open Data Hub (ODH) is currently installed and will be migrated to Red Hat OpenShift AI (RHOAI)",
+                        "- The update process will automatically handle the migration",
+                        "- ODH will be replaced with RHOAI",
+                        "- This migration is mandatory to continue receiving updates",
+                        "",
+                        "<u>Expected Downtime</u>",
+                        "- AI Service will be unavailable during migration (~10-12 minutes)",
+                        "- Data science workloads will be temporarily interrupted",
+                        "- Deployed models will be preserved"
+                    ])
+                    # Set parameter to trigger ODH to RHOAI migration
+                    self.setParam("odh_to_rhoai_migration", "true")
+                    return True
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
+                    return False
+
+            except (ResourceNotFoundError, NotFoundError):
+                h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
                 return False
 
     def detectMongoDb(self) -> None:
@@ -556,19 +634,15 @@ class UpdateApp(BaseApp):
             logger.debug(f"{name} is not included in CP4D update: {e}")
             self.setParam(param, "false")
 
-    def detectDb2uOrKafka(self, mode: str) -> bool:
-        if mode == "db2":
-            haloStartingMessage = "Checking for Db2uCluster instances to update"
-            apiVersion = "db2u.databases.ibm.com/v1"
-            kinds = ["Db2uCluster", "Db2uInstance"]
-            paramName = "db2_namespace"
-        elif mode == "kafka":
-            haloStartingMessage = "Checking for Kafka instances to update"
-            apiVersion = "kafka.strimzi.io/v1beta2"
-            kinds = ["Kafka"]
-            paramName = "kafka_namespace"
-        else:
-            self.fatalError("Unexpected error")
+    def detectDb2u(self) -> None:
+        """Detect Db2uCluster and Db2uInstance instances to update."""
+        haloStartingMessage = "Checking for Db2uCluster instances to update"
+        apiVersion = "db2u.databases.ibm.com/v1"
+        kinds = ["Db2uCluster", "Db2uInstance"]
+        paramName = "db2_namespace"
+        mode = "db2"
+        # Get target Db2u version from catalog
+        targetDb2uVersion = self.chosenCatalog["db2_channel_default"]
 
         with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
             try:
@@ -607,6 +681,101 @@ class UpdateApp(BaseApp):
                             for index, ns in enumerate(sorted(namespaces), start=1):
                                 self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
+                            self.setParam("db2_channel", self.chosenCatalog["db2_channel_default"])
+
+                    # Version comparison logic - check if Db2u needs major version upgrade
+                    if len(instances) > 0:
+
+                        if not targetDb2uVersion:
+                            logger.warning("Unable to determine target Db2u version from catalog")
+                        else:
+                            # Extract target major version (first two digits)
+                            # Handle version formats like "11.5.8.0", "12.0.0.0", "v11.5", "v12.0", "s11.5.9.0-cn6"
+                            try:
+                                match = re.match(r'^[vs]?(\d{2})[\d.]*', targetDb2uVersion)
+                                if match:
+                                    targetMajorVersion = int(match.group(1))
+                                else:
+                                    raise ValueError(f"Version format does not match expected pattern: {targetDb2uVersion}")
+                            except (ValueError, AttributeError) as e:
+                                h.stop_and_persist(symbol=self.failureIcon, text=f"Invalid Db2 channel version format: {targetDb2uVersion}")
+                                logger.error(f"Unable to parse target Db2u version: {targetDb2uVersion} - {str(e)}")
+                                targetMajorVersion = None
+
+                            if targetMajorVersion is not None:
+                                # Check all instances to see if any need upgrade
+                                needsUpgrade = False
+                                instanceVersions = []
+
+                                for instance in instances:
+                                    if not isinstance(instance, dict):
+                                        continue
+
+                                    instanceName = instance["metadata"]["name"]
+                                    currentVersion = instance["spec"]["version"]
+
+                                    if not currentVersion:
+                                        logger.warning(f"No version found for Db2u instance: {instanceName}")
+                                        continue
+
+                                    logger.debug(f"Current Db2u version {instanceName}: {currentVersion}")
+
+                                    # Extract major version from current instance
+                                    currentVersionStr = currentVersion.lstrip('s')
+                                    try:
+                                        currentMajorVersion = int(currentVersionStr.split('.')[0])
+                                        instanceVersions.append((instanceName, currentMajorVersion, currentVersion))
+
+                                        # Check if this instance needs upgrade
+                                        if currentMajorVersion < targetMajorVersion:
+                                            needsUpgrade = True
+                                            logger.debug(f"Instance {instanceName} needs upgrade: {currentMajorVersion} -> {targetMajorVersion}")
+                                    except (ValueError, IndexError):
+                                        logger.warning(f"Unable to parse version for instance {instanceName}: {currentVersion}")
+                                        continue
+
+                                if not instanceVersions:
+                                    logger.warning("Unable to determine current Db2u version from any instance")
+                                else:
+                                    logger.debug(f"Target Db2u version from catalog: {targetDb2uVersion} (major: {targetMajorVersion})")
+
+                                    # Check if upgrade to version or higher is needed
+                                    if needsUpgrade:
+                                        # Get the minimum version across all instances for user messaging
+                                        minVersion = min(instanceVersions, key=lambda x: x[1])
+                                        minMajorVersion = minVersion[1]
+
+                                        if self.noConfirm and self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
+                                            h.stop_and_persist(symbol=self.failureIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}")
+                                            self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm Db2 update to version {targetMajorVersion} using '--db2-v{targetMajorVersion}-upgrade' when using '--no-confirm'")
+                                        elif self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
+                                            h.stop_and_persist(symbol=self.successIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}")
+                                            if not self.yesOrNo(f"Confirm update from Db2 {minMajorVersion} to {targetMajorVersion}", f"db2_v{targetMajorVersion}_upgrade"):
+                                                exit(1)
+                                            print()
+                                        else:
+                                            h.stop_and_persist(symbol=self.successIcon, text=f"Db2 will be updated from {minMajorVersion} to {targetMajorVersion}")
+
+                                        # Db2 v11 to v12 upgrades require a customer-provided Db2 v12 license file.
+                                        # Enforce this here so the update is blocked before the Tekton pipeline is launched.
+                                        if minMajorVersion == 11 and targetMajorVersion == 12:
+                                            # In non-interactive mode we must fail fast because there is no safe way to recover.
+                                            if self.noConfirm and self.db2LicenseFileLocal is None:
+                                                self.fatalError("The Db2 v11 to v12 upgrade cannot proceed without a valid '--db2-license-file' argument when using '--no-confirm'")
+                                            elif self.db2LicenseFileLocal is None:
+                                                # In interactive mode, prompt for a valid license file before allowing the upgrade to continue.
+                                                self.printDescription([
+                                                    "Db2 v11 to v12 upgrades require a valid Db2 v12 activation license file.",
+                                                    "If you cannot provide a valid file, the update must be aborted."
+                                                ])
+                                                self.db2LicenseFileLocal = self.promptForFile("Path to a valid Db2 v12 license file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
+
+                                        # Set db2_channel when upgrade is confirmed (either via flag or user prompt)
+                                        self.setParam("db2_channel", targetDb2uVersion)
+                                        logger.debug(f"Db2u major version upgrade required: {minMajorVersion} -> {targetMajorVersion}")
+                                    else:
+                                        self.setParam(f"db2_v{targetMajorVersion}_upgrade", "false")
+                                        logger.debug("No Db2u major version upgrade required")
                 else:
                     logger.debug(f"Found no instances of {kindString} to update")
                     h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kindString} ({apiVersion}) instances to update")
@@ -615,8 +784,57 @@ class UpdateApp(BaseApp):
                 logger.debug(f"{'[' + kindString + ']'}.{apiVersion} is not available in the cluster")
                 h.stop_and_persist(symbol=self.successIcon, text=f"{kindString}.{apiVersion} is not available in the cluster")
 
+    def detectKafka(self) -> None:
+        """Detect Kafka instances to update and determine the provider."""
+        haloStartingMessage = "Checking for Kafka instances to update"
+        apiVersion = "kafka.strimzi.io/v1beta2"
+        kind = "Kafka"
+        paramName = "kafka_namespace"
+        mode = "kafka"
+
+        with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
+            try:
+                k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
+                instances = k8sAPI.get().to_dict()["items"]
+                logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
+
+                if len(instances) > 0:
+                    # If the user provided the namespace using --kafka-namespace then we don't have any work to do here
+                    if self.getParam(paramName) == "":
+                        namespaces = set()
+                        for instance in instances:
+                            namespaces.add(instance["metadata"]["namespace"])
+
+                        if len(namespaces) == 1:
+                            # If kafka is only in one namespace, we will update that
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated")
+                            logger.debug(f"There is only one namespace containing {kind}s so we will target that one: {namespaces}")
+                            self.setParam(paramName, list(namespaces)[0])
+                        elif self.noConfirm:
+                            # If kafka is in multiple namespaces and user has disabled prompts then we must error
+                            namespaceList = ", ".join(list(namespaces))
+                            h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kind}s ({apiVersion}) were found in multiple namespaces")
+                            logger.warning(f"There are multiple namespaces containing {kind}s and user has enable --no-confirm without setting --{mode}-namespace: {namespaceList}")
+                            self.fatalError(f"{kind}s are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
+                        else:
+                            # Otherwise, provide user the list of namespaces we found and ask them to pick on
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) found in multiple namespaces")
+                            logger.debug(f"There are multiple namespaces containing {kind}s, user must choose: {namespaces}")
+                            self.printDescription([
+                                f"{kind}s were found in multiple namespaces, select the namespace to target from the list below:"
+                            ])
+                            for index, ns in enumerate(sorted(namespaces), start=1):
+                                self.printDescription([f"{index}. {ns}"])
+                            self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
+                else:
+                    logger.debug(f"Found no instances of {kind}s to update")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kind}s ({apiVersion}) instances to update")
+            except (ResourceNotFoundError, NotFoundError):
+                logger.debug(f"{kind}.{apiVersion} is not available in the cluster")
+                h.stop_and_persist(symbol=self.successIcon, text=f"{kind}.{apiVersion} is not available in the cluster")
+
             # With Kafka we also have to determine the provider (strimzi or redhat)
-            if mode == "kafka" and self.getParam("kafka_namespace") != "" and self.getParam("kafka_provider") == "":
+            if self.getParam("kafka_namespace") != "" and self.getParam("kafka_provider") == "":
                 try:
                     subAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
                     subs = subAPI.get().to_dict()["items"]
@@ -628,6 +846,10 @@ class UpdateApp(BaseApp):
                             self.setParam("kafka_provider", "strimzi")
                 except (ResourceNotFoundError, NotFoundError):
                     pass
+
+                # If the param is still undefined then there is a big problem
+                if self.getParam("kafka_provider") == "":
+                    self.fatalError("Unable to determine whether the installed Kafka instance is managed by Strimzi or Red Hat AMQ Streams")
 
                 # If the param is still undefined then there is a big problem
                 if self.getParam("kafka_provider") == "":

@@ -54,6 +54,12 @@ spec:
     - name: aiservice_meta_agent_enabled
       type: string
       default: "false"
+    - name: dro_api_token
+      type: string
+      default: ""
+    - name: dro_url
+      type: string
+      default: ""
     - name: cluster_url
       type: string
       default: ""
@@ -117,6 +123,10 @@ spec:
         value: $(params.aiservice_ssl_enabled)
       - name: AISERVICE_META_AGENT_ENABLED
         value: $(params.aiservice_meta_agent_enabled)
+      - name: DRO_API_TOKEN
+        value: $(params.dro_api_token)
+      - name: DRO_URL
+        value: $(params.dro_url)
       - name: MAS_SLSCFG_POD_TEMPLATE_YAML
         value: $(params.mas_slscfg_pod_template_yaml)
       - name: MAS_BASCFG_POD_TEMPLATE_YAML

@@ -303,6 +303,35 @@ locals {
   }
   #mvi related params for S3 ends
 {%- endif %}
+{%- if S3_FACILITIES | lower == 'true'  %}
+  #facilities related params for S3 starts
+  iam_user_arns_facilities = {
+    facilities = "${var.iam_user_arn_prefix_facilities}-facilities-${var.access_level_rw}"
+  }
+  s3_iam_users_list_facilities = {
+    facilities = {
+      bucket_name   = "${var.s3bucket_name_prefix_facilities}-facilities-custfiles"
+      iam_user_name = "${var.iam_user_name_prefix_facilities}-facilities-${var.access_level_rw}"
+      access_level  = var.access_level_rw
+    }
+  }
+  iam_users_by_bucket_facilities = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_facilities : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_facilities :
+      local.iam_user_arns_facilities[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+  bucket_user_names_facilities = {
+    facilities = "${var.iam_user_name_prefix_facilities}-facilities-${var.access_level_rw}"
+  }
+  bucket_user_name_map_facilities = {
+    for key, value in local.s3_iam_users_list_facilities :
+    key => lookup(local.bucket_user_names_facilities, key, null)
+  }
+  #facilities related params for S3 ends
+{%- endif %}
   #S3 Actions params starts
   s3_actions = {
     ro = ["s3:GetObject", "s3:ListBucket"]
@@ -329,7 +358,7 @@ locals {
   {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
     instance = {
       name = var.instance_name
-   {%- if S3_MANAGE | lower == 'true'  %}
+    {%- if S3_MANAGE | lower == 'true'  %}
     #Manage specific S3 buckets starts
       manage_s3buckets = {
         doclinks = {
@@ -376,7 +405,7 @@ locals {
       }
     #Manage specific S3 buckets ends
     {%- endif %}
-   {%- if S3_MVI | lower == 'true'  %}
+    {%- if S3_MVI | lower == 'true'  %}
     #MVI specific S3 buckets starts
       mvi_s3buckets = {
         mvi = {
@@ -384,17 +413,38 @@ locals {
           create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix_mvi}-mvi"
           id                   = "${var.s3bucket_name_prefix_mvi}-mvi"
-          access_level         = "ro"
+          access_level         = "rw"
           s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_mvi}-mvi"
           secret_suffix        = "cos"
-          cos_secret_format    = true
-          manage_secret_format = false
+          cos_secret_format    = false
+          manage_secret_format = true
           expiration           = null
           dr_replicate         = var.enable_dr
         }
       }
     #MVI specific S3 buckets ends
-   {%- endif %}
+    {%- endif %}
+    {%- if S3_FACILITIES | lower == 'true'  %}
+    #Facilities specific S3 buckets starts
+      facilities_s3buckets = {
+        facilities = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3bucket_name_prefix_facilities}-facilities-custfiles"
+          id                   = "${var.s3bucket_name_prefix_facilities}-facilities-custfiles"
+          access_level         = "ro"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_facilities}-facilities-custfiles"
+          secret_suffix        = "facilities_custfiles/cos-custfiles"
+          cos_secret_format    = false
+          manage_secret_format = true
+          expiration = {
+            days = 366 // how long to keep logs
+          }
+          dr_replicate         = false
+        }
+      }
+    #Facilities specific S3 buckets ends
+    {%- endif %}
     {%- if (IS_RDS | lower == 'true') %}
     {%- if (RDS_MANAGE | lower == 'true') %}
     #RDS Manage specific S3 bucket start

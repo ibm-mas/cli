@@ -13,6 +13,8 @@ import sys
 
 from ..cli import getHelpFormatter
 
+IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
+
 
 class UpdateArgumentParser(argparse.ArgumentParser):
     """Custom argument parser that validates --catalog requirement"""
@@ -115,6 +117,20 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
+    '--db2-v12-upgrade',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Required to confirm a major version update for Db2 to version 12",
+)
+
+depsArgGroup.add_argument(
+    '--db2-license-file',
+    required=False,
+    help="Path to a valid Db2 v12 activation license file required for Db2 v11 to v12 upgrades",
+)
+
+depsArgGroup.add_argument(
     '--mongodb-namespace',
     required=False,
     help="Namespace where MongoCE operator and instances will be updated",
@@ -207,6 +223,24 @@ otherArgGroup.add_argument(
     action='store_true',
     default=False,
     help="Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline",
+)
+otherArgGroup.add_argument(
+    '--slack-token',
+    required=False,
+    help="Slack bot token for sending pipeline status notifications"
+)
+otherArgGroup.add_argument(
+    '--slack-channel',
+    required=False,
+    help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)"
+)
+otherArgGroup.add_argument(
+    "--image-pull-policy",
+    dest="image_pull_policy",
+    required=False,
+    help="Image pull policy for Tekton Pipeline",
+    choices=IMAGE_PULL_POLICIES,
+    metavar="{IfNotPresent,Always}"
 )
 otherArgGroup.add_argument(
     '-h', "--help",

@@ -20,13 +20,13 @@ import yaml
 import urllib.request
 import urllib.error
 from typing import List, Dict, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from os import path, environ, makedirs
 
 from alive_progress import alive_bar
 from prompt_toolkit import print_formatted_text, HTML
 
-from mas.devops.data import getCatalog
+from mas.devops.data import getCatalog, NoSuchCatalogError
 
 from ..cli import BaseApp
 from .argParser import mirrorArgParser
@@ -34,6 +34,9 @@ from .config import PACKAGE_CONFIGS
 
 
 logger = logging.getLogger(__name__)
+
+# Constants
+EMPTY_PROGRESS_BAR = " |" + " " * 20 + "|"
 
 
 def logMethodCall(func):
@@ -50,6 +53,8 @@ class MirrorResult:
     """Result of a mirror operation."""
     images: int
     mirrored: int
+    name: str = ""  # Name of the package/catalog being mirrored
+    failed_images: List[str] = field(default_factory=list)  # List of failed image URLs
 
     @property
     def success(self) -> bool:
@@ -60,6 +65,16 @@ class MirrorResult:
             True if all images were mirrored successfully, False otherwise.
         """
         return self.images != 0 and self.images == self.mirrored
+
+    @property
+    def failed_count(self) -> int:
+        """
+        Get the number of failed images.
+
+        Returns:
+            Number of images that failed to mirror.
+        """
+        return max(0, self.images - self.mirrored)
 
 
 def stripLogPrefix(line: str) -> str:
@@ -215,6 +230,10 @@ def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=Non
     # Track which streams are still open (store file objects, not selectors)
     streamsOpen = {process.stdout.fileno(), process.stderr.fileno()}
 
+    # Initialize failed_images list in resultData if not present
+    if 'failed_images' not in resultData:
+        resultData['failed_images'] = []
+
     while streamsOpen:
         # Wait for data to be available on any stream
         events = sel.select(timeout=0.1)
@@ -242,7 +261,9 @@ def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=Non
             lineStripped = line.rstrip()
 
             # Capture result information BEFORE stripping prefix
-            resultMatch = re.search(r'(\d+)\s+/\s+(\d+)\s+additional images mirrored successfully', lineStripped)
+            # Match both success case: "X / Y additional images mirrored successfully"
+            # And partial failure case: "X / Y additional images mirrored: Some additional images failed"
+            resultMatch = re.search(r'(\d+)\s+/\s+(\d+)\s+additional images mirrored', lineStripped)
             if resultMatch:
                 resultData['mirrored'] = int(resultMatch.group(1))
                 resultData['images'] = int(resultMatch.group(2))
@@ -253,6 +274,16 @@ def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=Non
             if successMatch and progressBar is not None:
                 progressBar()  # Increment progress bar
                 logger.debug("Progress bar incremented")
+
+            # Capture failed image URLs from error messages
+            # Pattern matches lines like: "Failed to copy generic gcr.io/kubebuilder/kube-rbac-proxy:1.1.3@sha256:..."
+            # The image URL is at the end of the line after "Failed to copy" and optional type (generic, etc.)
+            failedImageMatch = re.search(r'Failed to copy\s+(?:\w+\s+)?(.+)$', lineStripped)
+            if failedImageMatch:
+                imageUrl = failedImageMatch.group(1).strip()
+                if imageUrl and imageUrl not in resultData['failed_images']:
+                    resultData['failed_images'].append(imageUrl)
+                    logger.debug(f"Captured failed image: {imageUrl}")
 
             # Strip duplicate timestamp/level prefix from command output
             cleanLine = stripLogPrefix(lineStripped)
@@ -345,7 +376,7 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
     if totalImages == 0:
         logger.error(f"No images found in config or failed to parse: {configPath}")
         print(f"❌ {displayName} - No images found in config")
-        return MirrorResult(images=0, mirrored=0)
+        return MirrorResult(images=0, mirrored=0, name=displayName)
 
     logger.info(f"Found {totalImages} images to mirror")
 
@@ -375,7 +406,7 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
     else:
         logger.error(f"Unsupported mirror mode: {mode}")
         print(f"❌ {displayName} - Unsupported mirror mode: {mode}")
-        return MirrorResult(images=0, mirrored=0)
+        return MirrorResult(images=0, mirrored=0, name=displayName)
 
     # Execute command with progress bar
     # Use fixed-width title (50 chars) for alignment, with in-progress icon
@@ -388,13 +419,19 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
         if exitCode != 0:
             bar.title = f"{barTitleBase} ❌"
             logger.error(f"Mirror operation failed with exit code {exitCode}")
-            return MirrorResult(images=0, mirrored=0)
+            # Use mirrored count from resultData if available, otherwise 0
+            mirrored = resultData.get('mirrored', 0)
+            # Use images count from resultData if available, otherwise totalImages
+            images = resultData.get('images', totalImages)
+            return MirrorResult(images=images, mirrored=mirrored, name=displayName, failed_images=resultData.get('failed_images', []))
 
         # Create result object from captured data
         if 'images' in resultData and 'mirrored' in resultData:
             result = MirrorResult(
                 images=resultData['images'],
-                mirrored=resultData['mirrored']
+                mirrored=resultData['mirrored'],
+                name=displayName,
+                failed_images=resultData.get('failed_images', [])
             )
             logger.info(f"Mirror operation completed: {result.mirrored}/{result.images} images mirrored (success={result.success})")
 
@@ -407,7 +444,9 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
         else:
             bar.title = f"{barTitleBase} ⚠️"
             logger.warning("Mirror operation completed but could not parse result statistics")
-            return MirrorResult(images=0, mirrored=0)
+            # Use mirrored count from resultData if available, otherwise 0
+            mirrored = resultData.get('mirrored', 0)
+            return MirrorResult(images=totalImages, mirrored=mirrored, name=displayName, failed_images=resultData.get('failed_images', []))
 
 
 def mirrorPackage(package: str, version: str, arch: str, mode: str,
@@ -441,16 +480,17 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
     # Validate version format
     if len(versionParts) < 2:
         logger.error(f"Invalid version format: '{version}'. Expected format: 'major.minor.patch' (e.g., '9.0.5')")
-        return MirrorResult(images=0, mirrored=0)
+        displayName = f"{package} v{version} ({arch})"
+        return MirrorResult(images=0, mirrored=0, name=displayName)
 
     majorMinor = f"{versionParts[0]}.{versionParts[1]}"
 
     if not flag:
         logger.info(f"Skipping {package} version {version} for {arch} architecture")
         # Add empty progress bar to align with other status messages
-        emptyBar = "|" + " " * 20 + "|"
-        print(f"{package} v{version} ({arch})".ljust(50) + f" ⏭️ {emptyBar} Mirroring disabled by user")
-        return MirrorResult(images=0, mirrored=0)
+        displayName = f"{package} v{version} ({arch})"
+        print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} Mirroring disabled by user")
+        return MirrorResult(images=0, mirrored=0, name=displayName)
 
     logger.info(f"Mirroring {package} version {version} for {arch} architecture")
 
@@ -460,8 +500,9 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
         configPath = getISC(relativeConfigPath)
     except FileNotFoundError as e:
         logger.error(f"Failed to get config file: {e}")
-        print(f"❌ {package} v{version} ({arch}) - Config file not found")
-        return MirrorResult(images=0, mirrored=0)
+        displayName = f"{package} v{version} ({arch})"
+        print(f"❌ {displayName} - Config file not found")
+        return MirrorResult(images=0, mirrored=0, name=displayName)
 
     displayName = f"{package} v{version} ({arch})"
     workspacePath = f"{package}/{arch}/{version}"
@@ -490,8 +531,24 @@ def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
     Returns:
         MirrorResult object with images, mirrored, and success status.
         Returns images=0, mirrored=0, success=False if operation failed or results couldn't be parsed.
+
+    Raises:
+        ValueError: If catalog version is less than 260129 (January 2026)
     """
     logger.info(f"Mirroring catalog {version}")
+
+    # Validate catalog version - extract date portion (e.g., "260129" from "v9-260129-amd64")
+    # Expected format: v{major}-{YYMMDD}-{arch}
+    versionMatch = re.match(r'v\d+-(\d{6})-\w+', version)
+    if versionMatch:
+        catalogDate = int(versionMatch.group(1))
+        if catalogDate < 260129:
+            raise ValueError(
+                f"Mirroring using ImageSetConfigurations is only supported from the January 2026 catalog update onwards. "
+                f"Catalog version {version} (date: {catalogDate}) is not supported."
+            )
+    else:
+        logger.warning(f"Could not parse catalog version format: {version}. Skipping version validation.")
 
     # Get or download the config file
     relativeConfigPath = f"catalogs/{version}.yaml"
@@ -499,8 +556,8 @@ def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
         configPath = getISC(relativeConfigPath)
     except FileNotFoundError as e:
         logger.error(f"Failed to get config file: {e}")
-        print(f"❌ catalog {version} - Config file not found")
-        return MirrorResult(images=0, mirrored=0)
+        # Catalog config not found is a fatal error - re-raise with a clear message
+        raise FileNotFoundError(f"Unable to locate ImageSetConfiguration for the {version} operator catalog") from e
 
     displayName = f"catalog {version}"
     workspacePath = f"catalog/{version}"
@@ -662,29 +719,51 @@ class MirrorApp(BaseApp):
                 self.fatalError(f"Failed to generate auth file: {e}")
                 return
 
-        catalog = getCatalog(catalogVersion)
-        if catalog is None:
-            self.fatalError(f"Catalog {catalogVersion} not found")
+        # First, check if the catalog exists
+        try:
+            catalog = getCatalog(catalogVersion)
+        except NoSuchCatalogError as e:
+            logger.error(f"Catalog not found: {e}")
+            self.fatalError(f"Catalog {catalogVersion} is not known. Please select a valid IBM Maximo Operator Catalog.")
+            return
+
+        # Now validate catalog version (only for valid catalogs)
+        # Expected format: v{major}-{YYMMDD}-{arch}
+        versionMatch = re.match(r'v\d+-(\d{6})-\w+', catalogVersion)
+        if versionMatch:
+            catalogDate = int(versionMatch.group(1))
+            if catalogDate < 260129:
+                self.fatalError(
+                    f"Mirroring using ImageSetConfigurations is only supported from the January 2026 catalog update onwards. "
+                    f"This function does not support catalog version {catalogVersion}."
+                )
+                return
+
+        arch = catalogVersion.split("-")[-1]
+
+        self.printH1("Mirror Configuration")
+        self.printSummary("Catalog", catalogVersion)
+        self.printSummary("Architecture", arch)
+        self.printSummary("Release", release)
+        self.printSummary("Mode", mode)
+        self.printSummary("Authentication File", authFilePath)
+
+        self.printH1("Mirror Target")
+        if mode == "m2d":
+            self.printSummary("Destination", rootDir)
         else:
-            arch = catalogVersion.split("-")[-1]
+            self.printSummary("Destination", targetRegistry)
+            self.printSummary("Verify Registry Certificate", destTlsVerify)
+        self.printSummary("Mirror Image Timeout", imageTimeout)
 
-            self.printH2("Mirror Configuration")
-            self.printSummary("Catalog", catalogVersion)
-            self.printSummary("Architecture", arch)
-            self.printSummary("Release", release)
-            self.printSummary("Mode", mode)
-            self.printSummary("Authentication File", authFilePath)
+        # Track mirror results
+        failedMirrors = []  # List of MirrorResult objects that failed
+        totalImages = 0
+        mirroredImages = 0
 
-            self.printH2("Mirror Target")
-            if mode == "m2d":
-                self.printSummary("Destination", rootDir)
-            else:
-                self.printSummary("Destination", targetRegistry)
-                self.printSummary("Verify Registry Certificate", destTlsVerify)
-            self.printSummary("Mirror Image Timeout", imageTimeout)
-
-            self.printH2("IBM Maximo Operator Catalog")
-            mirrorCatalog(
+        self.printH1("IBM Maximo Operator Catalog")
+        try:
+            catalogResult = mirrorCatalog(
                 version=catalogVersion,
                 mode=mode,
                 targetRegistry=targetRegistry,
@@ -694,54 +773,110 @@ class MirrorApp(BaseApp):
                 imageTimeout=imageTimeout
             )
 
-            # Mirror each package with common parameters using shared configuration
-            currentGroup = None
-            for group, argName, packageName, catalogKey in PACKAGE_CONFIGS:
-                # Print section header when group changes
-                if group != currentGroup:
-                    self.printH2(group)
-                    currentGroup = group
+            # Track catalog results
+            totalImages += catalogResult.images
+            mirroredImages += catalogResult.mirrored
+            if not catalogResult.success:
+                failedMirrors.append(catalogResult)
+        except FileNotFoundError as e:
+            # Catalog config not found is a fatal error
+            print_formatted_text(HTML("\n<B>⚠️  Mirror operation failed</B>"))
+            print_formatted_text(HTML(f"<ansired>{e}</ansired>"))
+            return
 
-                # Get version from catalog - handle both direct keys and release-specific keys
-                perReleaseVersions = [
-                    "aiservice_version",
-                    "mas_core_version",
-                    "mas_assist_version",
-                    "mas_iot_version",
-                    "mas_facilities_version",
-                    "mas_manage_version",
-                    "mas_monitor_version",
-                    "mas_predict_version",
-                    "mas_optimizer_version",
-                    "mas_visualinspection_version"
-                ]
-                if catalogKey in perReleaseVersions:
-                    version = catalog[catalogKey][release]
-                else:
-                    version = catalog[catalogKey]
+        # Mirror each package with common parameters using shared configuration
+        currentGroup = None
+        for group, argName, packageName, catalogKey in PACKAGE_CONFIGS:
+            # Print section header when group changes
+            if group != currentGroup:
+                self.printH1(group)
+                currentGroup = group
 
-                # Remove any +buildnum properties from the version in the metadata file
-                try:
-                    version = version.split("+")[0]
-                except AttributeError:
-                    # This likely means we have the perReleaseVersions configuration incorrect
-                    logger.exception(f"Failed to parse version for {packageName} ({catalogKey}) from catalog: {catalogVersion}")
-                    raise
+            # Get version from catalog - handle both direct keys and release-specific keys
+            perReleaseVersions = [
+                "aiservice_version",
+                "mas_core_version",
+                "mas_assist_version",
+                "mas_iot_version",
+                "mas_facilities_version",
+                "mas_manage_version",
+                "mas_monitor_version",
+                "mas_predict_version",
+                "mas_optimizer_version",
+                "mas_visualinspection_version"
+            ]
+            if catalogKey in perReleaseVersions:
+                # Check if the catalogKey exists in the catalog first
+                if catalogKey not in catalog or release not in catalog[catalogKey] or (release == "8.10.x" and packageName == "ibm-mas-manage-icd"):
+                    logger.info(f"No content available for {packageName} in MAS release {release}")
+                    displayName = f"{packageName} ({arch})"
+                    print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} No content to mirror for MAS release {release}")
+                    continue
 
-                # Get the flag value from args, or use mirrorAll if --all is set
-                flag = mirrorAll or getattr(args, argName.replace("-", "_"))
+                version = catalog[catalogKey][release]
+            else:
+                version = catalog[catalogKey]
 
-                mirrorPackage(
-                    package=packageName,
-                    version=version,
-                    arch=arch,
-                    mode=mode,
-                    targetRegistry=targetRegistry,
-                    flag=flag,
-                    authFilePath=authFilePath,
-                    rootDir=rootDir,
-                    destTlsVerify=destTlsVerify,
-                    imageTimeout=imageTimeout
-                )
+            # Check if version is empty or None (content exists in catalog but is empty)
+            if not version:
+                logger.info(f"No content available for {packageName} in MAS release {release}")
+                displayName = f"{packageName} ({arch})"
+                print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} No content to mirror for MAS release {release}")
+                continue
 
-            print_formatted_text(HTML("\n<B>✅ Mirror operation completed</B>"))
+            if self._isUnsupportedPackage(version, packageName):
+                continue
+
+            # Remove any +buildnum properties from the version in the metadata file
+            try:
+                version = version.split("+")[0]
+            except AttributeError:
+                # This likely means we have the perReleaseVersions configuration incorrect
+                logger.exception(f"Failed to parse version for {packageName} ({catalogKey}) from catalog: {catalogVersion}")
+                raise
+
+            # Get the flag value from args, or use mirrorAll if --all is set
+            flag = mirrorAll or getattr(args, argName.replace("-", "_"))
+
+            packageResult = mirrorPackage(
+                package=packageName,
+                version=version,
+                arch=arch,
+                mode=mode,
+                targetRegistry=targetRegistry,
+                flag=flag,
+                authFilePath=authFilePath,
+                rootDir=rootDir,
+                destTlsVerify=destTlsVerify,
+                imageTimeout=imageTimeout
+            )
+
+            # Track package results (only count if flag was enabled)
+            if flag:
+                totalImages += packageResult.images
+                mirroredImages += packageResult.mirrored
+                if not packageResult.success:
+                    failedMirrors.append(packageResult)
+
+        # Report final status
+        if len(failedMirrors) > 0:
+            failedImages = totalImages - mirroredImages
+            print_formatted_text(HTML("\n<B>⚠️  Mirror operation completed with failures</B>\n"))
+            print_formatted_text(HTML(f"<ansired>Failed to mirror {failedImages} of {totalImages} images</ansired>"))
+
+            for result in failedMirrors:
+                print_formatted_text(HTML(f"<ansired>- {result.name} - {result.failed_count} of {result.images} images failed</ansired>"))
+                if result.failed_images:
+                    for failed_image in result.failed_images:
+                        print_formatted_text(HTML(f"<ansired>  - {failed_image}</ansired>"))
+        else:
+            print_formatted_text(HTML("\n<B>✅ Mirror operation completed successfully</B>"))
+            if totalImages > 0:
+                print_formatted_text(HTML(f"Successfully mirrored {mirroredImages} images"))
+
+    def _isUnsupportedPackage(self, version: str, packageName: str) -> bool:
+        unsupported = False
+        if packageName == "ibm-aiservice-tenant" and version.startswith("9.1."):
+            logger.warning("Skipping mirroring package 'ibm-aiservice-tenant' due to unsupported version, only supported for 9.2.x or higher")
+            unsupported = True
+        return unsupported

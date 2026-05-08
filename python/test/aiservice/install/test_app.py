@@ -25,6 +25,7 @@ from mas.cli.aiservice.install.app import AiServiceInstallApp
 
 def test_install_noninteractive(tmpdir):
     tmpdir.join('authorized_entitlement.lic').write('testLicense')
+    tmpdir.join('aiservice-tenant-affinity-config.yaml').write('#')
     with mock.patch('mas.cli.cli.config'):
         dynamic_client = MagicMock(DynamicClient)
         resources = MagicMock()
@@ -52,7 +53,6 @@ def test_install_noninteractive(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace'),
             mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline
         ):
             dynamic_client_class.return_value = dynamic_client
@@ -77,6 +77,8 @@ def test_install_noninteractive(tmpdir):
                              '--dro-namespace', 'redhat-marketplace',
                              '--mongodb-namespace', 'mongoce',
                              '--aiservice-channel', '9.1.x',
+                             '--aiservice-certificate-issuer', 'cert-issuer',
+                             '--enable-ipv6',
                              '--s3-accesskey', 'test',
                              '--s3-secretkey', 'test',
                              '--s3-host', 'minio-service.minio.svc.cluster.local',
@@ -101,6 +103,7 @@ def test_install_noninteractive(tmpdir):
                              '--tenant-entitlement-type', 'standard',
                              '--tenant-entitlement-start-date', '2025-08-28',
                              '--tenant-entitlement-end-date', '2026-08-28',
+                             '--tenant-scheduling-config-file', f'{tmpdir}/aiservice-tenant-affinity-config.yaml',
                              '--rsl-url', 'https:/test.rsl.maximo.ibm.com/api/v3/vector/query',
                              '--rsl-org-id', 'testOrgId',
                              '--rsl-token', 'testRslToken',
@@ -111,6 +114,7 @@ def test_install_noninteractive(tmpdir):
 
 def test_install_interactive_advanced(tmpdir):
     tmpdir.join('authorized_entitlement.lic').write('testLicense')
+    tmpdir.join('aiservice-tenant-affinity-config.yaml').write('#')
     tmpdir.join('mongodb-system.yaml').write('#')
     tmpdir.join('cert.crt').write('#')
     with mock.patch('mas.cli.cli.config'):
@@ -143,7 +147,6 @@ def test_install_interactive_advanced(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace'),
             mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline,
             mock.patch('mas.cli.cli.isSNO') as is_sno,
             mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
@@ -171,10 +174,14 @@ def test_install_interactive_advanced(tmpdir):
                     return 'nfs-client'
                 if re.match('.*SLS Mode.*', message):
                     return '1'
-                if re.match('.*License file.*', message):
+                if re.match('.*>License file<.*', message):
                     return f'{tmpdir}/authorized_entitlement.lic'
+                if re.match('.*>Db2 License file<.*', message):
+                    return ''
                 if re.match('.*Instance ID.*', message):
                     return 'apmdevops'
+                if re.match('.*Scheduling constraints YAML file.*', message):
+                    return f'{tmpdir}/aiservice-tenant-affinity-config.yaml'
                 if re.match('.*Operational Mode.*', message):
                     return '1'
                 if re.match('.*Install Minio.*', message):
@@ -187,6 +194,8 @@ def test_install_interactive_advanced(tmpdir):
                     return 'y'
                 if re.match('.*Certificate issuer name.*', message):
                     return 'cert-issuer'
+                if re.match('.*Enable IPv6 SingleStack networking.*', message):
+                    return 'y'
                 if re.match('.*RSL url.*', message):
                     return 'https://rls.maximo.test.ibm.com'
                 if re.match('.*ORG Id of RSL.*', message):
@@ -267,7 +276,6 @@ def test_install_interactive_simplified(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace'),
             mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline,
             mock.patch('mas.cli.cli.isSNO') as is_sno,
             mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
@@ -295,8 +303,10 @@ def test_install_interactive_simplified(tmpdir):
                     return 'nfs-client'
                 if re.match('.*SLS Mode.*', message):
                     return '1'
-                if re.match('.*License file.*', message):
+                if re.match('.*>License file<.*', message):
                     return f'{tmpdir}/authorized_entitlement.lic'
+                if re.match('.*>Db2 License file<.*', message):
+                    return ''
                 if re.match('.*Instance ID.*', message):
                     return 'apmdevops'
                 if re.match('.*Operational Mode.*', message):
