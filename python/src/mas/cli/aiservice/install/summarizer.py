@@ -46,16 +46,22 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("Release", "aiservice_channel")
         self.printParamSummary("Instance ID", "aiservice_instance_id")
         self.printParamSummary("Environment Type", "environment_type")
+        if self.getParam("permission_mode") not in [None, ""]:
+            self.printParamSummary("Permission Mode", "permission_mode")
+            self.printSummary("Skip Pre-Install RBAC", "Yes" if self.getParam('skip_preinstall_rbac') == "true" else "No")
 
         if "aiservice_certificate_issuer" in self.params:
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
         self.printParamSummary("Configure AI Service to run in IPv6 mode", "enable_ipv6")
 
-        self.printH2("AI Service Tenant Entitlement")
+        self.printH2("AI Service Tenant Configuration")
         self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
         self.printParamSummary("Start Date", "tenant_entitlement_start_date")
         self.printParamSummary("End Date", "tenant_entitlement_end_date")
+
+        if self.aiserviceTenantSchedulingConfigFileLocal:
+            self.printSummary("Scheduling configuration file", self.aiserviceTenantSchedulingConfigFileLocal)
 
         self.printH2("S3 Configuration")
         # self.printParamSummary("Storage provider", "aiservice_s3_provider")
@@ -110,6 +116,13 @@ class aiServiceInstallSummarizerMixin():
         else:
             self.fatalError(f"Unexpected value for mongodb_action parameter: {self.getParam('mongodb_action')}")
 
+    def slackSummary(self) -> None:
+        self.printH2("Slack Integration")
+        if self.getParam("slack_channel") != "":
+            self.printParamSummary("Slack Channel", "slack_channel")
+        else:
+            self.printSummary("Slack Channel", "Not Configured")
+
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
@@ -129,3 +142,6 @@ class aiServiceInstallSummarizerMixin():
         self.slsSummary()
         self.mongoSummary()
         self.db2Summary()
+
+        # Notification Integration
+        self.slackSummary()

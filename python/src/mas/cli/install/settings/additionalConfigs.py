@@ -32,12 +32,16 @@ class AdditionalConfigsMixin():
         noConfirm: bool
         templatesDir: str
         slsLicenseFileLocal: str | None
+        db2LicenseFileLocal: str | None
         manualCertsDir: str | None
         showAdvancedOptions: bool
+        aiserviceTenantSchedulingConfigFileLocal: str | None
         additionalConfigsSecret: Dict[str, Any] | None
         podTemplatesSecret: Dict[str, Any] | None
         slsLicenseFileSecret: Dict[str, Any] | None
+        db2LicenseFileSecret: Dict[str, Any] | None
         certsSecret: Dict[str, Any] | None
+        aiserviceConfigSecret: Dict[str, Any] | None
 
         # Methods from BaseApp
         def setParam(self, param: str, value: str) -> None:
@@ -271,6 +275,36 @@ class AdditionalConfigsMixin():
             }
             self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
             self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
+
+    def aiserviceConfig(self) -> None:
+        self.aiserviceConfigSecret = None
+
+        if self.aiserviceTenantSchedulingConfigFileLocal:
+            aiserviceConfigSecret: dict[str, Any] = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-aiservice-config"
+                }
+            }
+            self.setParam("tenant_scheduling_config_file", f"/workspace/aiservice/{path.basename(self.aiserviceTenantSchedulingConfigFileLocal)}")
+            self.aiserviceConfigSecret = self.addFilesToSecret(aiserviceConfigSecret, self.aiserviceTenantSchedulingConfigFileLocal, 'yaml')
+
+    def db2LicenseFile(self) -> None:
+        if self.db2LicenseFileLocal:
+            db2LicenseFileSecret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-db2-license"
+                }
+            }
+            self.setParam("db2_license_file", f"/workspace/db2/{path.basename(self.db2LicenseFileLocal)}")
+            self.db2LicenseFileSecret = self.addFilesToSecret(db2LicenseFileSecret, self.db2LicenseFileLocal, '')
+        else:
+            self.db2LicenseFileSecret = None
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:
         """

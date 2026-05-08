@@ -39,6 +39,10 @@ class UninstallApp(BaseApp):
         droNamespace = args.dro_namespace
         self.noConfirm = args.no_confirm
 
+        # Set image_pull_policy if provided
+        if args.image_pull_policy and args.image_pull_policy != "":
+            self.setParam("image_pull_policy", args.image_pull_policy)
+
         if args.uninstall_all_deps:
             uninstallGrafana = True
             uninstallIBMCatalog = True

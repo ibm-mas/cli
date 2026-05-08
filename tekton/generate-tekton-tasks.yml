@@ -38,6 +38,7 @@
         - mongodb
         - nvidia-gpu
         - ocs
+        - rhoai-migration
         - sls-registry-update
         - sls
         - turbonomic
@@ -54,6 +55,7 @@
         - odh
         - rhoai
         - aiservice-upgrade
+        - aiservice-migration
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -139,6 +141,7 @@
         - clean-workspaces
         - prepare-backup-workspace
         - download-backup-archive
+        - gencfg-aiservice
         - gencfg-workspace
         - must-gather
         - suite-app-backup

@@ -11,6 +11,10 @@ spec:
     - name: ibm_entitlement_key
       type: string
       default: ""
+    - name: db2_license_file
+      type: string
+      description: Db2 activation license file
+      default: ""
 
     # Db2u Operator
     - name: db2_channel
@@ -172,6 +176,11 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    # Other Db2 parameters
+    - name: db2_v12_upgrade
+      type: string
+      description: Approves the Db2 upgrade to version 12 if needed
+      default: ""
     # Backup/Restore specific parameters
     - name: db2_backup_version
       type: string
@@ -217,6 +226,8 @@ spec:
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
+      - name: DB2_LICENSE_FILE
+        value: $(params.db2_license_file)
 
       # Db2u Operator
       - name: DB2_CHANNEL
@@ -327,6 +338,10 @@ spec:
       # Custom labels support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+      
+      # Other parameters
+      - name: DB2_V12_UPGRADE
+        value: $(params.db2_v12_upgrade)
 
       # Backup/Restore specific
       - name: MAS_BACKUP_DIR
@@ -360,4 +375,6 @@ spec:
     - name: configs
       optional: true
     - name: backups
+      optional: true
+    - name: db2
       optional: true
