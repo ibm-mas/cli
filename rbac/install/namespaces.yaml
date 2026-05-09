@@ -52,6 +52,11 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: openshift-nfd
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: db2u
 ---
 apiVersion: v1

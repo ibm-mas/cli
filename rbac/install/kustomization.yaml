@@ -30,6 +30,7 @@ resources:
   - pipeline/openshift-ingress.yaml
   - pipeline/openshift-marketplace.yaml
   - pipeline/openshift-monitoring.yaml
+  - pipeline/openshift-nfd.yaml
   - pipeline/openshift-operators.yaml
   - pipeline/openshift-user-workload-monitoring.yaml
   - pipeline/redhat-marketplace.yaml
