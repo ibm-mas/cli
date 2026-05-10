@@ -31,3 +31,15 @@ rules:
       - list
       - create
       - patch
+  # Node Feature Discovery CRD management
+  - apiGroups:
+      - nfd.openshift.io
+    resources:
+      - nodefeaturediscoveries
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+      - watch
