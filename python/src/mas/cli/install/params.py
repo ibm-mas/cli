@@ -38,11 +38,14 @@ optionalParams = [
     "mas_superuser_password",
     "mas_trust_default_cas",
     "mas_routing_mode",
+    "mas_use_service_mesh",
     "mas_ingress_controller_name",
     "mas_app_settings_server_bundles_size",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
     "mas_app_settings_demodata",
+    "mas_permission_mode",
+    "mas_issuer_kind",
     "mas_app_settings_customization_archive_name",
     "mas_app_settings_customization_archive_url",
     "mas_app_settings_customization_archive_username",
@@ -214,6 +217,7 @@ optionalParams = [
     "rsl_token",
     "rsl_ca_crt",
     "environment_type",
+    "configure_aiassistant",
 
     # Certificate Issuer
     "aiservice_certificate_issuer",
@@ -221,5 +225,9 @@ optionalParams = [
     # Grafana
     "skip_grafana_install",
     "grafana_v5_namespace",
-    "grafana_instance_storage_size"
+    "grafana_instance_storage_size",
+
+    # Slack Integration
+    "slack_token",
+    "slack_channel"
 ]

@@ -5,6 +5,9 @@ metadata:
   name: mas-devops-update-pipeline-status
 spec:
   params:
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
     - name: pipeline_status
       type: string
       description: "Started = started, Succeeded = all tasks succeeded. Completed = all tasks succeeded, including one or more skipped.  Any other value is treated as a failure"
@@ -20,6 +23,7 @@ spec:
   steps:
     - name: update-pipeline-status
       image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/update-pipeline-status.py
       env:
@@ -38,8 +42,20 @@ spec:
         - name: DEVOPS_ENVIRONMENT
           valueFrom:
             secretKeyRef:
-              name: mas-devops
+              name: mas-devops-slack
               key: MAS_INSTANCE_ID
+              optional: true
+        - name: SLACK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops-slack
+              key: SLACK_TOKEN
+              optional: true
+        - name: SLACK_CHANNEL
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops-slack
+              key: SLACK_CHANNEL
               optional: true
         - name: PIPELINE_STATUS
           value: $(params.pipeline_status)

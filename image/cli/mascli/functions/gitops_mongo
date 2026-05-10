@@ -38,9 +38,9 @@ AWS MongoDb Provider (Required when MONGODB_PROVIDER is aws):
       --aws-docdb-engine-version ${COLOR_YELLOW}DOCDB_ENGINE_VERSION${TEXT_RESET}                          DocDB Engine Version
 
 YAML MongoDb Provider (Required when MONGODB_PROVIDER is yaml):
-      --yaml-file ${COLOR_YELLOW}MONGO_YAML_FILE${TEXT_RESET}      Path to MongoDb configuration file
-      --mongo-username ${COLOR_YELLOW}MONGO_USERNAME${TEXT_RESET}  MongoDb Username
-      --mongo-password ${COLOR_YELLOW}MONGO_PASSWORD${TEXT_RESET}  MongoDb Password
+      --mongo-yaml-file, --yaml-file ${COLOR_YELLOW}MONGO_YAML_FILE${TEXT_RESET}       Path to MongoDb configuration file
+      --mongo-username ${COLOR_YELLOW}MONGO_USERNAME${TEXT_RESET}                      MongoDb Username
+      --mongo-password ${COLOR_YELLOW}MONGO_PASSWORD${TEXT_RESET}                      MongoDb Password
 
 Other Commands:
   -h, --help                                      Show this help message
@@ -125,7 +125,7 @@ function gitops_mongo_noninteractive() {
         ;;
 
       # YAML MongoDb provider
-      --yaml-file)
+      --mongo-yaml-file|--yaml-file)
         export MONGO_YAML_FILE=$1 && shift
         ;;
       --mongo-username)
@@ -167,7 +167,7 @@ function gitops_mongo_noninteractive() {
 
   if [ $MONGODB_PROVIDER == 'yaml' ]; then
     if [ -z $MONGO_YAML_FILE ] || [ -z $MONGO_USERNAME ] || [ -z $MONGO_PASSWORD ]; then
-      echo 'Missing required params for AWS mongo provider, make sure to provide --yaml-file, --mongo-username, --mongo-password'
+      echo 'Missing required params for YAML mongo provider, make sure to provide --mongo-yaml-file (or --yaml-file), --mongo-username, --mongo-password'
       exit 1
     fi
   fi

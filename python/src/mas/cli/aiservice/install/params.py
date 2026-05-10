@@ -40,6 +40,7 @@ optionalParams = [
     "db2_timezone",
     "db2_namespace",
     "db2_channel",
+    "db2_license_file",
     "db2_affinity_key",
     "db2_affinity_value",
     "db2_tolerate_key",
@@ -100,10 +101,18 @@ optionalParams = [
     "rsl_token",
     "rsl_ca_crt",
     "environment_type",
+    "configure_aiassistant",
 
     # Certificate Issuer
     "aiservice_certificate_issuer",
 
+    # permission mode
+    "permission_mode",
+
     # Enable IPv6 networking
     "enable_ipv6",
+
+    # Slack
+    "slack_token",
+    "slack_channel",
 ]

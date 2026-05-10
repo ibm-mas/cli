@@ -9,12 +9,16 @@ spec:
     - name: shared-configs
     # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
     - name: shared-additional-configs
-    # The SLS entitlement key file that will be installed during install-sls.
+    # The SLS entitlement key and Db2 license file that will be installed during install-sls and db2.
     - name: shared-entitlement
     # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
     - name: shared-certificates
     # PodTemplates configurations
     - name: shared-pod-templates
+    # Db2 License File
+    - name: shared-db2
+    # AIService configurations. Contains Scheduling config file for AI workloads for tenant.
+    - name: shared-aiservice-config
 
   params:
     # 1. Common Parameters
@@ -114,18 +118,18 @@ spec:
 
     # 2.3 Db2
     # 2.3.1 System Db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
         - cert-manager
 
     # 2.3.2 Dedicated Manage Db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
         - db2-system
 
     # 2.3.3 Install Dedicated Db2 for AI Service
     # -------------------------------------------------------------------------
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
         - cert-manager
 
@@ -245,6 +249,7 @@ spec:
         - dro
         - gencfg-workspace
         - suite-certs
+        - aiservice
       when:
         - input: "$(params.mas_instance_id)"
           operator: notin
@@ -254,6 +259,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
+        - gencfg-aiservice
       when:
         - input: "$(params.mas_instance_id)"
           operator: notin
@@ -430,6 +436,7 @@ spec:
       runAfter:
         - app-install-manage
         - app-install-monitor
+        - app-install-iot-after-monitor
         - app-install-monitor-after-iot
         - suite-config-watson-studio
         - watson-machine-learning
@@ -486,6 +493,22 @@ spec:
         - aiservice-odh
         - aiservice-rhoai
 
+    # 14.2 Generate AiCfg with auto-detected values
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/gencfg-aiservice.yml.j2') | indent(4) }}
+      runAfter:
+        - aiservice
+      when:
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
+        - input: "$(params.aiservice_channel)"
+          operator: notin
+          values: [""]
+        - input: "$(params.configure_aiassistant)"
+          operator: in
+          values: ["pipeline"]
+
     # 15. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
@@ -493,6 +516,7 @@ spec:
         - app-install-assist
         - app-install-optimizer
         - app-install-predict # infers Manage, Monitor, and IoT completed
+        - app-install-iot-after-monitor # ensures IoT completes when Predict is skipped
         - app-install-visualinspection
         - app-install-facilities
         - arcgis

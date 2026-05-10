@@ -18,5 +18,3 @@ setup(
     ],
     python_requires=">=3.8",
 )
-
-# Made with Bob

@@ -7,8 +7,8 @@
 apiVersion: argoproj.io/v1beta1
 kind: ArgoCD
 metadata:
-  name: openshift-gitops
-  namespace: openshift-gitops
+  name: {{ ARGOCLUSTER_NAMESPACE }}
+  namespace: {{ ARGOCLUSTER_NAMESPACE }}
 spec:
   resourceTrackingMethod: label
   server:
@@ -66,6 +66,8 @@ spec:
           memory: 128Mi
     provider: dex
   applicationSet:
+    sourceNamespaces:
+      - {{ ARGOCLUSTER_NAMESPACE }}
     resources:
       limits:
         cpu: '2'
@@ -1586,6 +1588,113 @@ spec:
           hs.status = "Progressing"
           hs.message = ""
           return hs
+      atlas.mongodb.com/AtlasDeployment:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              local ready = false
+              local resourceVersionValid = false
+              local validationSucceeded = false
+              local deploymentReady = false
+              
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Ready" and condition.status == "True" then
+                  ready = true
+                end
+                if condition.type == "ResourceVersionIsValid" and condition.status == "True" then
+                  resourceVersionValid = true
+                end
+                if condition.type == "ValidationSucceeded" and condition.status == "True" then
+                  validationSucceeded = true
+                end
+                if condition.type == "DeploymentReady" and condition.status == "True" then
+                  deploymentReady = true
+                end
+              end
+              
+              -- Check if private endpoints are available
+              local privateEndpointsAvailable = false
+              if obj.status.connectionStrings ~= nil and obj.status.connectionStrings.privateEndpoint ~= nil then
+                if #obj.status.connectionStrings.privateEndpoint > 0 then
+                  privateEndpointsAvailable = true
+                end
+              end
+              
+              -- All conditions must be true for healthy status
+              if ready and resourceVersionValid and validationSucceeded and deploymentReady and privateEndpointsAvailable then
+                hs.status = "Healthy"
+                hs.message = "AtlasDeployment is ready with " .. #obj.status.connectionStrings.privateEndpoint .. " private endpoint(s)"
+                return hs
+              end
+              
+              -- Check for any failure conditions
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.status == "False" and condition.reason ~= nil then
+                  hs.status = "Degraded"
+                  hs.message = condition.type .. ": " .. (condition.message or condition.reason)
+                  return hs
+                end
+              end
+              
+              -- If conditions are met but no private endpoints yet
+              if ready and resourceVersionValid and validationSucceeded and deploymentReady and not privateEndpointsAvailable then
+                hs.status = "Progressing"
+                hs.message = "Waiting for private endpoints to be available"
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Waiting for AtlasDeployment conditions"
+          return hs
+
+      atlas.mongodb.com/AtlasDatabaseUser:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              local ready = false
+              local resourceVersionValid = false
+              local validationSucceeded = false
+              local databaseUserReady = false
+              
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Ready" and condition.status == "True" then
+                  ready = true
+                end
+                if condition.type == "ResourceVersionIsValid" and condition.status == "True" then
+                  resourceVersionValid = true
+                end
+                if condition.type == "ValidationSucceeded" and condition.status == "True" then
+                  validationSucceeded = true
+                end
+                if condition.type == "DatabaseUserReady" and condition.status == "True" then
+                  databaseUserReady = true
+                end
+              end
+              
+              -- All conditions must be true for healthy status
+              if ready and resourceVersionValid and validationSucceeded and databaseUserReady then
+                hs.status = "Healthy"
+                hs.message = "AtlasDatabaseUser is ready"
+                return hs
+              end
+              
+              -- Check for any failure conditions
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.status == "False" and condition.reason ~= nil then
+                  hs.status = "Degraded"
+                  hs.message = condition.type .. ": " .. (condition.message or condition.reason)
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Waiting for AtlasDatabaseUser conditions"
+          return hs
+
 
   repo:
     initContainers:
@@ -1619,7 +1728,7 @@ spec:
       requests:
         cpu: 250m
         memory: 256Mi
-    serviceaccount: openshift-gitops-repo-sa
+    serviceaccount: {{ ARGOCLUSTER_NAMESPACE }}-repo-sa
     sidecarContainers:
       - command:
           - /var/run/argocd/argocd-cmp-server
@@ -1661,7 +1770,7 @@ spec:
         name: cmp-plugin
       - name: vault
         secret:
-          secretName: openshift-gitops-vault
+          secretName: {{ ARGOCLUSTER_NAMESPACE }}-vault
   resourceExclusions: |
     - apiGroups:
       - tekton.dev
@@ -1699,3 +1808,8 @@ spec:
         cpu: 250m
         memory: 1Gi
     sharding: {}
+{%- if RESTRICTED_ACCESS == "true" %}
+  defaultClusterScopedRoleDisabled: true
+{%- endif %}
+  sourceNamespaces:
+    - {{ ARGOCLUSTER_NAMESPACE }}
