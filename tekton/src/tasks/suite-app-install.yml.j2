@@ -18,17 +18,17 @@ spec:
     - name: mas_app_id
       type: string
       description: Maximo Applicaiton Suite Application Id
-    
+
     - name: manage_bind_aiservice_instance_id
       type: string
       description: AI Service Instance ID to bind with Manage
       default: ""
-    
+
     - name: manage_bind_aiservice_tenant_id
       type: string
       description: AI Service Tenant ID to bind with Manage
       default: ""
-    
+
     - name: aiservice_channel
       type: string
       description: AI Service Channel (independent, same for all apps)
@@ -267,6 +267,15 @@ spec:
       type: string
       description: Manage upgrade type
       default: ""
+    - name: mas_app_settings_kafkaimageprocessor_pvc_size
+      type: string
+      description: PVC size for Manage Kafka Image Processor
+      default: ""
+    - name: storage_class_rwx
+      type: string
+      description: ReadWriteMany storage class
+      default: ""
+
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size
@@ -495,7 +504,7 @@ spec:
         - name: MAS_MANAGE_ATTACHMENTS_PROVIDER
           value: $(params.mas_manage_attachments_provider)
         - name: IMAGESTITCHING_STORAGE_CLASS
-          value: $(params.mas_manage_imagestitching_storage_class)  
+          value: $(params.mas_manage_imagestitching_storage_class)
         - name: DB2_NAMESPACE
           value: $(params.db2_namespace)
         - name: IBMCLOUD_RESOURCEGROUP
@@ -511,6 +520,11 @@ spec:
         - name: COS_BUCKET_NAME
           value: $(params.cos_bucket_name)
         - name: MAS_APPWS_UPGRADE_TYPE
+        - name: MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_SIZE
+          value: $(params.mas_app_settings_kafkaimageprocessor_pvc_size)
+        - name: MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS
+          value: $(params.storage_class_rwx)
+
           value: $(params.mas_appws_upgrade_type)
 
         # Application Workspace - Operand (Predict)
