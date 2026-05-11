@@ -16,17 +16,21 @@ This guide provides comprehensive information on backing up and restoring IBM Ma
     Run the backup processes using v19.0.0 or later to ensure that you can successfully run a restore. You cannot run a restore process using v19.0.0 or later from back ups created on an older version.
 
 **Supported MAS versions**
-  - MAS 9.1.x
-  - MAS 9.0.x (in testing)
+
+- MAS 9.1.x
+
+Note: MAS 9.0.x (Not supported yet, its in testing)
 
 **User Permissions Required**
-  - `oc` CLI with cluster admin permissions
-  - `mas` CLI with appropriate permissions
-  - Access to Tekton pipeline resources
+
+- `oc` CLI with cluster admin permissions
+- `mas` CLI with appropriate permissions
+- Access to Tekton pipeline resources
 
 **Quick Navigation:**
-  - [Backup Overview](#backup-overview) - Information about backing up MAS instances
-  - [Restore Overview](#restore-overview) - Information about restoring MAS instances
+
+- [Backup Overview](#backup-overview) - Information about backing up MAS instances
+- [Restore Overview](#restore-overview) - Information about restoring MAS instances
 
 
 Backup Overview
