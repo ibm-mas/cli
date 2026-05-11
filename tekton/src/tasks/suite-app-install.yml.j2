@@ -267,7 +267,7 @@ spec:
       type: string
       description: Manage upgrade type
       default: ""
-    - name: mas_app_settings_kafkaimageprocessor_pvc_size
+    - name: mas_manage_kafkaimageprocessor_pvc_size
       type: string
       description: PVC size for Manage Kafka Image Processor
       default: ""
@@ -520,9 +520,9 @@ spec:
         - name: COS_BUCKET_NAME
           value: $(params.cos_bucket_name)
         - name: MAS_APPWS_UPGRADE_TYPE
-        - name: MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_SIZE
-          value: $(params.mas_app_settings_kafkaimageprocessor_pvc_size)
-        - name: MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS
+        - name: MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_SIZE
+          value: $(params.mas_manage_kafkaimageprocessor_pvc_size)
+        - name: MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS
           value: $(params.storage_class_rwx)
 
           value: $(params.mas_appws_upgrade_type)

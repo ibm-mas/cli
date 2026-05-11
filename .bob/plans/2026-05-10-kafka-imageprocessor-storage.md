@@ -21,12 +21,12 @@ Add support for configuring Kafka Image Processor PVC size and storage class in 
 
 **Objective**: Add new parameters to the install pipeline parameter definitions
 
-- [x] **1.1** Add `mas_app_settings_kafkaimageprocessor_pvc_size` parameter to [`tekton/src/params/install.yml.j2`](/tekton/src/params/install.yml.j2)
+- [x] **1.1** Add `mas_manage_kafkaimageprocessor_pvc_size` parameter to [`tekton/src/params/install.yml.j2`](/tekton/src/params/install.yml.j2)
 
 Insert after line 684 (after `mas_appws_upgrade_type`):
 
 ```yaml
-- name: mas_app_settings_kafkaimageprocessor_pvc_size
+- name: mas_manage_kafkaimageprocessor_pvc_size
   type: string
   description: PVC size for Manage Kafka Image Processor
   default: ""
@@ -36,12 +36,12 @@ Insert after line 684 (after `mas_appws_upgrade_type`):
 
 **Objective**: Add parameters and environment variables to the suite-app-install task
 
-- [x] **2.1** Add `mas_app_settings_kafkaimageprocessor_pvc_size` parameter to [`tekton/src/tasks/suite-app-install.yml.j2`](/tekton/src/tasks/suite-app-install.yml.j2)
+- [x] **2.1** Add `mas_manage_kafkaimageprocessor_pvc_size` parameter to [`tekton/src/tasks/suite-app-install.yml.j2`](/tekton/src/tasks/suite-app-install.yml.j2)
 
 Insert after line 269 (after `mas_appws_upgrade_type`):
 
 ```yaml
-    - name: mas_app_settings_kafkaimageprocessor_pvc_size
+    - name: mas_manage_kafkaimageprocessor_pvc_size
       type: string
       description: PVC size for Manage Kafka Image Processor
       default: ""
@@ -58,21 +58,21 @@ Insert after the `manage_kafkaimageprocessor_pvc_size` parameter:
       default: ""
 ```
 
-- [x] **2.3** Add `MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_SIZE` environment variable to [`tekton/src/tasks/suite-app-install.yml.j2`](/tekton/src/tasks/suite-app-install.yml.j2)
+- [x] **2.3** Add `MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_SIZE` environment variable to [`tekton/src/tasks/suite-app-install.yml.j2`](/tekton/src/tasks/suite-app-install.yml.j2)
 
 Insert in the `app-config` step's `env` section after line 514 (after `MAS_APPWS_UPGRADE_TYPE`):
 
 ```yaml
-        - name: MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_SIZE
-          value: $(params.mas_app_settings_kafkaimageprocessor_pvc_size)
+        - name: MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_SIZE
+          value: $(params.mas_manage_kafkaimageprocessor_pvc_size)
 ```
 
-- [x] **2.4** Add `MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS` environment variable to [`tekton/src/tasks/suite-app-install.yml.j2`](/tekton/src/tasks/suite-app-install.yml.j2)
+- [x] **2.4** Add `MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS` environment variable to [`tekton/src/tasks/suite-app-install.yml.j2`](/tekton/src/tasks/suite-app-install.yml.j2)
 
-Insert after the `MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_SIZE` variable:
+Insert after the `MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_SIZE` variable:
 
 ```yaml
-        - name: MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS
+        - name: MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS
           value: $(params.storage_class_rwx)
 ```
 
@@ -85,8 +85,8 @@ Insert after the `MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_SIZE` variable:
 Insert after line 114 (after `mas_appws_upgrade_type`):
 
 ```yaml
-    - name: mas_app_settings_kafkaimageprocessor_pvc_size
-      value: $(params.mas_app_settings_kafkaimageprocessor_pvc_size)
+    - name: mas_manage_kafkaimageprocessor_pvc_size
+      value: $(params.mas_manage_kafkaimageprocessor_pvc_size)
     - name: storage_class_rwx
       value: $(params.storage_class_rwx)
 ```
@@ -114,11 +114,11 @@ Insert after line 114 (after `mas_appws_upgrade_type`):
 
 ### Success Criteria
 
-1. **Parameter Definition**: `mas_app_settings_kafkaimageprocessor_pvc_size` parameter exists in install pipeline with empty default
-2. **Task Parameters**: Both `mas_app_settings_kafkaimageprocessor_pvc_size` and `storage_class_rwx` parameters are defined in suite-app-install task
-3. **Environment Variables**: Both `MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_SIZE` and `MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS` are defined in suite-app-install task's app-config step
+1. **Parameter Definition**: `mas_manage_kafkaimageprocessor_pvc_size` parameter exists in install pipeline with empty default
+2. **Task Parameters**: Both `mas_manage_kafkaimageprocessor_pvc_size` and `storage_class_rwx` parameters are defined in suite-app-install task
+3. **Environment Variables**: Both `MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_SIZE` and `MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS` are defined in suite-app-install task's app-config step
 4. **Pipeline Mapping**: Manage app taskdef passes both parameters to suite-app-install task correctly
-5. **Storage Class Reuse**: `MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS` uses `$(params.storage_class_rwx)`
+5. **Storage Class Reuse**: `MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS` uses `$(params.storage_class_rwx)`
 6. **Generation Success**: Both Ansible playbooks complete without errors
 7. **YAML Validity**: Generated files are valid YAML with proper indentation
 
@@ -130,10 +130,10 @@ ansible-playbook tekton/generate-tekton-tasks.yml
 ansible-playbook tekton/generate-tekton-pipelines.yml
 
 # Verify parameter in pipeline
-grep -A 2 "mas_app_settings_kafkaimageprocessor_pvc_size" target/pipelines/mas-install.yaml
+grep -A 2 "mas_manage_kafkaimageprocessor_pvc_size" target/pipelines/mas-install.yaml
 
 # Verify task parameters
-grep -A 2 "mas_app_settings_kafkaimageprocessor_pvc_size" target/tasks/suite-app-install.yaml
+grep -A 2 "mas_manage_kafkaimageprocessor_pvc_size" target/tasks/suite-app-install.yaml
 grep -A 2 "storage_class_rwx" target/tasks/suite-app-install.yaml
 
 # Verify environment variables in task
@@ -149,9 +149,9 @@ yamllint target/pipelines/mas-install.yaml
 ### Parameter Naming
 
 Following the established pattern for Manage application settings:
-- Pipeline parameter: `mas_app_settings_kafkaimageprocessor_pvc_size` (lowercase with underscores)
-- Environment variable: `MAS_APP_SETTINGS_KAFKAIMAGEPROCESSOR_PVC_SIZE` (uppercase with underscores)
-- Ansible variable: `mas_app_settings_kafkaimageprocessor_pvc_size` (same as pipeline parameter)
+- Pipeline parameter: `mas_manage_kafkaimageprocessor_pvc_size` (lowercase with underscores)
+- Environment variable: `MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_SIZE` (uppercase with underscores)
+- Ansible variable: `mas_manage_kafkaimageprocessor_pvc_size` (same as pipeline parameter)
 
 ### Storage Class Strategy
 
