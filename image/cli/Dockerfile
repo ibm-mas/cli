@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/cli-base:latest
+FROM quay.io/ibmmas/cli-base:1.10.1-pre.ibm-db
 ARG VERSION_LABEL
 
 # Auto-expire the image in quay.io after 3 weeks
@@ -8,7 +8,6 @@ LABEL quay.expires-after=3w
 COPY app-root/src/ /opt/app-root/src/
 COPY rbac/ /opt/app-root/src/rbac/
 COPY mascli/ /mascli/
-COPY masfvt/ /masfvt/
 COPY usr/bin/ /usr/bin/
 
 # 2. Set up Environment
