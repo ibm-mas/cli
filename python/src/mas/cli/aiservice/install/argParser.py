@@ -436,6 +436,20 @@ aiserviceAdvancedArgGroup.add_argument(
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
 )
 aiserviceAdvancedArgGroup.add_argument(
+    "--permission-mode",
+    dest="permission_mode",
+    required=False,
+    choices=["cluster", "namespaced", "minimal"],
+    help="The permission mode used to determine which pre-install RBAC manifests are applied for AI Service (MAS 9.2+ advanced option)"
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--skip-preinstall-rbac",
+    dest="skip_preinstall_rbac",
+    required=False,
+    action="store_true",
+    help="Skip pre-install RBAC setup (non-interactive mode only)"
+)
+aiserviceAdvancedArgGroup.add_argument(
     "--enable-ipv6",
     dest="enable_ipv6",
     required=False,
@@ -467,7 +481,11 @@ db2ArgGroup.add_argument(
     required=False,
     help="Subscription channel for Db2u"
 )
-
+db2ArgGroup.add_argument(
+    "--db2-license-file",
+    required=False,
+    help="Db2 License File for Db2"
+)
 
 # Development Mode
 # -----------------------------------------------------------------------------
@@ -544,6 +562,18 @@ otherArgGroup.add_argument(
     dest="service_account_name",
     required=False,
     help="Run the install pipeline under a custom service account (also disables creation of the default 'pipeline' service account)",
+)
+otherArgGroup.add_argument(
+    "--slack-token",
+    dest="slack_token",
+    required=False,
+    help="Slack bot token for sending pipeline notifications"
+)
+otherArgGroup.add_argument(
+    "--slack-channel",
+    dest="slack_channel",
+    required=False,
+    help="Slack channel(s) for notifications (comma-separated for multiple channels)"
 )
 
 otherArgGroup.add_argument(

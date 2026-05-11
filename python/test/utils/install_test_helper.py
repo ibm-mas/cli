@@ -122,6 +122,7 @@ class InstallTestHelper:
         dynamic_client = MagicMock(DynamicClient)
         resources = MagicMock()
         dynamic_client.resources = resources
+        dynamic_client.client = MagicMock()
 
         # Create individual API mocks
         routes_api = MagicMock()
@@ -281,11 +282,9 @@ class InstallTestHelper:
             from mas.cli.aiservice.install.app import AiServiceInstallApp
             app_class = AiServiceInstallApp
             app_module = 'mas.cli.aiservice.install.app'
-            prepare_namespace_func = 'prepareAiServicePipelinesNamespace'
         else:
             app_class = InstallApp
             app_module = 'mas.cli.install.app'
-            prepare_namespace_func = 'preparePipelinesNamespace'
 
         self.setup_test_files()
         self.start_watchdog()
@@ -304,7 +303,6 @@ class InstallTestHelper:
                 mock.patch(f'{app_module}.installOpenShiftPipelines'),
                 mock.patch(f'{app_module}.updateTektonDefinitions'),
                 mock.patch(f'{app_module}.createNamespace'),
-                mock.patch(f'{app_module}.{prepare_namespace_func}'),
                 mock.patch(f'{app_module}.launchInstallPipeline') as launch_install_pipeline,
                 mock.patch('mas.cli.install.app.configureIngressForPathBasedRouting') as configure_ingress,
                 mock.patch('mas.cli.cli.isSNO') as is_sno,
