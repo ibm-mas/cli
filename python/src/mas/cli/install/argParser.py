@@ -548,7 +548,6 @@ masAppsArgGroup.add_argument(
     help="Subscription channel for Maximo AI Service"
 )
 
-
 # Arcgis
 # -----------------------------------------------------------------------------
 arcgisArgGroup = installArgParser.add_argument_group("Maximo Location Services for Esri (arcgis)")

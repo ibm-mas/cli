@@ -114,6 +114,4 @@ optionalParams = [
     # Slack
     "slack_token",
     "slack_channel",
-
-
 ]
