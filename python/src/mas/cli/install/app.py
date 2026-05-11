@@ -1880,7 +1880,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("manage_bind_aiservice_tenant_id", "user")
             elif key == "configure_aiassistant":
                 if value is not None and value != "":
-                    self.setParam("configure_aiassistant", value)
+                    # Convert boolean-like values to "pipeline" or "none"
+                    if value in ["true", "True", "TRUE", "1", "yes", "Yes", "YES"]:
+                        self.setParam("configure_aiassistant", "pipeline")
+                    elif value in ["false", "False", "FALSE", "0", "no", "No", "NO"]:
+                        self.setParam("configure_aiassistant", "none")
+                    else:
+                        # Use the value as-is (should be "pipeline", "none", or "configure")
+                        self.setParam("configure_aiassistant", value)
             elif key == "manage_bind_aiservice_instance_id":
                 # only set if AI Service not being installed
                 if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
