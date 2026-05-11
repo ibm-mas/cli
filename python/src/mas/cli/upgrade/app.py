@@ -103,7 +103,14 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 kafkaAction = self.getParam("kafka_action_system")
                 hasKafkaConfig = kafkaAction in ["install", "byo"]
 
-                if not hasKafkaConfig:
+                if hasKafkaConfig:
+                    # Kafka is available - enable KafkaImageProcessor
+                    self.setParam("ENABLE_KAFKAIMAGEPROCESSOR", "true")
+                    logger.info("Kafka configuration detected. KafkaImageProcessor will be enabled for Civil Infrastructure.")
+                else:
+                    # No Kafka - disable KafkaImageProcessor and warn user
+                    self.setParam("ENABLE_KAFKAIMAGEPROCESSOR", "false")
+                    
                     # Warn user but give option to proceed
                     print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka Configuration Required</Yellow>"))
                     print_formatted_text(HTML(
@@ -120,7 +127,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         # In non-interactive mode, log warning and proceed
                         logger.warning(
                             f"Upgrading to Manage {self.nextChannel} with Civil component without Kafka configuration. "
-                            "Defect Detection functionality will not work."
+                            "Defect Detection functionality will not work. ENABLE_KAFKAIMAGEPROCESSOR set to false."
                         )
                     else:
                         # In interactive mode, ask user if they want to proceed
