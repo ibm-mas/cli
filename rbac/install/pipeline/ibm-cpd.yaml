@@ -2,12 +2,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: mas:{{ mas_instance_id }}:install-pipeline:openshift-nfd
-  namespace: openshift-nfd
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd-operators
+  namespace: ibm-cpd-operators
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: mas:{{ mas_instance_id }}:install-pipeline:openshift-nfd
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd-operators
 subjects:
   - kind: ServiceAccount
     name: mas-{{ mas_instance_id }}-install-pipeline
@@ -16,10 +16,10 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: mas:{{ mas_instance_id }}:install-pipeline:openshift-nfd
-  namespace: openshift-nfd
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd-operators
+  namespace: ibm-cpd-operators
 rules:
-  # Nvidia GPU operator installation requires operator subscription
+  # Cloud Pak for Data operator installation
   - apiGroups:
       - operators.coreos.com
     resources:
@@ -31,28 +31,27 @@ rules:
       - list
       - create
       - patch
-  # Node Feature Discovery CRD management
+  # IBM entitlement key secret
   - apiGroups:
-      - nfd.openshift.io
+      - ""
     resources:
-      - nodefeaturediscoveries
+      - secrets
     verbs:
       - get
       - list
       - create
       - patch
       - update
-      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: mas:{{ mas_instance_id }}:install-pipeline:nvidia-gpu-operator
-  namespace: nvidia-gpu-operator
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd
+  namespace: ibm-cpd
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: mas:{{ mas_instance_id }}:install-pipeline:nvidia-gpu-operator
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd
 subjects:
   - kind: ServiceAccount
     name: mas-{{ mas_instance_id }}-install-pipeline
@@ -61,18 +60,42 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: mas:{{ mas_instance_id }}:install-pipeline:nvidia-gpu-operator
-  namespace: nvidia-gpu-operator
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd
+  namespace: ibm-cpd
 rules:
-  # Nvidia GPU operator installation requires operator subscription
+  # Cloud Pak for Data instance management
   - apiGroups:
-      - operators.coreos.com
+      - ""
     resources:
-      - installplans
-      - operatorgroups
-      - subscriptions
+      - secrets
+      - configmaps
+      - serviceaccounts
     verbs:
       - get
       - list
       - create
       - patch
+      - update
+  # CPD services and deployments
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+  # CPD routes
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update

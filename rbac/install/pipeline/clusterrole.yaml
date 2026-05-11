@@ -118,3 +118,16 @@ rules:
     verbs:
       - create
       - update
+
+  # Nvidia GPU operator ClusterPolicy is cluster-scoped
+  - apiGroups:
+      - nvidia.com
+    resources:
+      - clusterpolicies
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+      - watch

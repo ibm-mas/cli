@@ -62,6 +62,16 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: ibm-cpd-operators
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ibm-cpd
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: db2u
 ---
 apiVersion: v1
