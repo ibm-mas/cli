@@ -635,7 +635,7 @@ class BackupApp(BaseApp):
             # Get workspace ID - try to auto-detect first
             try:
                 instanceId = self.getParam("mas_instance_id")
-                workspaceId = getWorkspaceId(self.dynamicClient, instanceId, appId="facilities")
+                workspaceId = getWorkspaceId(self.dynamicClient, instanceId)
                 if workspaceId:
                     self.printDescription([f"Detected Facilities workspace: <u>{workspaceId}</u>"])
                     useDetected = self.yesOrNo("Use this workspace")
