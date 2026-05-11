@@ -173,6 +173,7 @@ masAppsArgGroup.add_argument(
     required=False,
     help="Subscription channel for Maximo AI Service"
 )
+
 # ODH
 # -----------------------------------------------------------------------------
 odhArgGroup = aiServiceinstallArgParser.add_argument_group("Opendatahub")
