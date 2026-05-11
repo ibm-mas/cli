@@ -468,7 +468,7 @@ function gitops_aiservice_tenant() {
   else
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
   fi
-  # RSL secret verification removed per MASAIB-1915 - only CA cert needed for self-signed certs
+  sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_ca_crt" # only CA cert field have to validate
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
   # finally push them into the git repo
