@@ -409,16 +409,22 @@
 <p>The MAS backup and restore in CLI release v19.0.0 and later contains process, backup archive file and directory changes that are not backward compatible with earlier backup and restore versions.</p>
 <p>Run the backup processes using v19.0.0 or later to ensure that you can successfully run a restore. You cannot run a restore process using v19.0.0 or later from back ups created on an older version.</p>
 </div>
-<p><strong>Supported MAS versions</strong>
-  - MAS 9.1.x
-  - MAS 9.0.x (in testing)</p>
-<p><strong>User Permissions Required</strong>
-  - <code>oc</code> CLI with cluster admin permissions
-  - <code>mas</code> CLI with appropriate permissions
-  - Access to Tekton pipeline resources</p>
-<p><strong>Quick Navigation:</strong>
-  - <a href="#backup-overview">Backup Overview</a> - Information about backing up MAS instances
-  - <a href="#restore-overview">Restore Overview</a> - Information about restoring MAS instances</p>
+<p><strong>Supported MAS versions</strong></p>
+<ul>
+<li>MAS 9.1.x</li>
+</ul>
+<p>Note: MAS 9.0.x (Not supported yet, its in testing)</p>
+<p><strong>User Permissions Required</strong></p>
+<ul>
+<li><code>oc</code> CLI with cluster admin permissions</li>
+<li><code>mas</code> CLI with appropriate permissions</li>
+<li>Access to Tekton pipeline resources</li>
+</ul>
+<p><strong>Quick Navigation:</strong></p>
+<ul>
+<li><a href="#backup-overview">Backup Overview</a> - Information about backing up MAS instances</li>
+<li><a href="#restore-overview">Restore Overview</a> - Information about restoring MAS instances</li>
+</ul>
 <h2 id="backup-overview">Backup Overview<a class="headerlink" href="#backup-overview" title="Permanent link">¶</a></h2>
 <p>The MAS backup process uses Tekton pipelines to orchestrate the backup of multiple components. The Tekton pipeline executes <a href="https://ibm-mas.github.io/ansible-devops/">Ansible DevOps Collection</a> roles to perform the actual backup operations.</p>
 <h3 id="backup-components">Backup Components<a class="headerlink" href="#backup-components" title="Permanent link">¶</a></h3>
