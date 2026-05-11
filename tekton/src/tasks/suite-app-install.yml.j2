@@ -520,12 +520,11 @@ spec:
         - name: COS_BUCKET_NAME
           value: $(params.cos_bucket_name)
         - name: MAS_APPWS_UPGRADE_TYPE
+          value: $(params.mas_appws_upgrade_type)
         - name: MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_SIZE
           value: $(params.mas_manage_kafkaimageprocessor_pvc_size)
         - name: MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS
           value: $(params.storage_class_rwx)
-
-          value: $(params.mas_appws_upgrade_type)
 
         # Application Workspace - Operand (Predict)
         - name: PREDICT_DEPLOYMENT_SIZE
