@@ -115,5 +115,5 @@ optionalParams = [
     "slack_token",
     "slack_channel",
 
-    "aiservice_install_plan_approval",
+
 ]

@@ -20,7 +20,8 @@ ibm_aiservice_tenant(required):
       --catalog-source ${TEXT_RESET}CATALOG_SOURCE${TEXT_RESET}                                             The catalog source from which to install the tenant operator
       --catalog-channel ${TEXT_RESET}CATALOG_CHANNEL${TEXT_RESET}                                           The catalog channel from which to install the tenant operator
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
-      --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Service instance
+      --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}  
+      --aiservice-tenant-install-plan-approval ${TEXT_RESET}AISERVICE_TENANT_INSTALL_PLAN_APPROVAL${TEXT_RESET}                                                   The tenant ID for the AI Service instance
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
       --dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                                         URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
@@ -32,7 +33,8 @@ AiService :
 --aiservice-provision-tenant ${COLOR_YELLOW}AISERVICE_PROVISION_TENANT${TEXT_RESET}                         Whether to provision the AI Service tenant
 --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                                   The AI Service instance ID
 --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                              The tenant's Kubernetes namespace
---tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Service instance
+--tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}  
+--aiservice-tenant-install-plan-approval ${TEXT_RESET}AISERVICE_TENANT_INSTALL_PLAN_APPROVAL${TEXT_RESET}                                                          The tenant ID for the AI Service instance
 --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in-saas-env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
 --aiservice_operator_log_level ${COLOR_YELLOW}AISERVICE_OPERATOR_LOG_LEVEL${TEXT_RESET}                     Log level for the AI Service operator (e.g., info, debug)
@@ -102,6 +104,7 @@ function gitops_aiservice_tenant_noninteractive() {
   #adding default values # -- aiservice Defaults
   export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}
   export AISERVICE_PROVISION_TENANT=${AISERVICE_PROVISION_TENANT:-"provision-tenant"}
+  export AISERVICE_TENANT_INSTALL_PLAN_APPROVAL=${AISERVICE_TENANT_INSTALL_PLAN_APPROVAL:-"Automatic"}
   export CATALOG_SOURCE=${CATALOG_SOURCE:-"ibm-operator-catalog"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
@@ -170,6 +173,9 @@ function gitops_aiservice_tenant_noninteractive() {
         ;;
       --tenant-id)
         export TENANT_ID=$1 && shift
+        ;;
+      --aiservice-tenant-install-plan-approval)
+        export AISERVICE_TENANT_INSTALL_PLAN_APPROVAL=$1 && shift
         ;;
       --cluster-domain)
         export CLUSTER_DOMAIN=$1 && shift
@@ -395,6 +401,7 @@ function gitops_aiservice_tenant() {
   echo_reset_dim "AiService instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
+  echo_reset_dim "AIService Tenant Install Plan Approval . ${COLOR_MAGENTA}${AISERVICE_TENANT_INSTALL_PLAN_APPROVAL}"
   echo_reset_dim "cluster domain ............................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "in SaaS environment .......................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
 

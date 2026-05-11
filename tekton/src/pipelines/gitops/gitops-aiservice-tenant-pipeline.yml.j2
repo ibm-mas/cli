@@ -36,6 +36,9 @@ spec:
       type: string
     - name: catalog_source
       type: string
+    - name: aiservice_tenant_install_plan_approval
+      type: string
+      default: "Automatic"
     - name: tenantNamespace
       type: string
     - name: tenant_id
@@ -138,6 +141,8 @@ spec:
           value: $(params.aiservice_tenant_catalog_channel)
         - name: catalog_source
           value: $(params.catalog_source)
+        - name: aiservice_tenant_install_plan_approval
+          value: $(params.aiservice_tenant_install_plan_approval)
         - name: tenantNamespace
           value: $(params.tenantNamespace)
         - name: tenant_id

@@ -173,14 +173,7 @@ masAppsArgGroup.add_argument(
     required=False,
     help="Subscription channel for Maximo AI Service"
 )
-masAppsArgGroup.add_argument(
-    "--aiservice-install-plan-approval",
-    dest="aiservice_install_plan_approval",
-    required=False,
-    default="Automatic",
-    choices=["Automatic", "Manual"],
-    help="Install plan approval for AI Service operator subscription"
-)
+
 
 # ODH
 # -----------------------------------------------------------------------------
