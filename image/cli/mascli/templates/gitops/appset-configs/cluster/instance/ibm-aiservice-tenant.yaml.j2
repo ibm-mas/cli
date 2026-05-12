@@ -29,7 +29,9 @@ ibm_aiservice_tenant:
   
   # RSL - Per MASAIB-1915: Only CA cert needed for self-signed certificates
   # RSL URL, Org ID, and token are provided during FMEA model creation in the UI
+{% if SECRET_KEY_RSL_CA_CRT is defined and SECRET_KEY_RSL_CA_CRT != '' %}
   rsl_ca_crt: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_CA_CRT }}>"
+{% endif %}
 
   #s3 for manage job
   aiservice_s3_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_ACCESSKEY }}>"

@@ -438,7 +438,13 @@ function gitops_aiservice_tenant() {
     export SECRET_KEY_SLS_URL=${SLS_SECRETS_PREFIX}sls#sls_url
   fi  
 
-  export SECRET_KEY_RSL_CA_CRT=${SECRETS_PREFIX}rsl#rsl_ca_crt
+  # RSL - Check if secret exists and has a value before exporting
+  RSL_SECRET="${SECRETS_PREFIX}rsl"
+  RSL_CA_CRT_VALUE=$(sm_get_secret_value "$RSL_SECRET" "rsl_ca_crt")
+  if [[ -n "$RSL_CA_CRT_VALUE" && "$RSL_CA_CRT_VALUE" != "null" && "$RSL_CA_CRT_VALUE" != "" ]]; then
+    export SECRET_KEY_RSL_CA_CRT=${RSL_SECRET}#rsl_ca_crt
+    echo "RSL CA certificate key found and exported"
+  fi
   
   #watsonx
   WATSONX_SECRET="${SECRETS_PREFIX}watsonx"
@@ -468,7 +474,6 @@ function gitops_aiservice_tenant() {
   else
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
   fi
-  sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_ca_crt" # only CA cert field have to validate
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
   # finally push them into the git repo
