@@ -8,6 +8,7 @@ LABEL quay.expires-after=3w
 COPY app-root/src/ /opt/app-root/src/
 COPY rbac/ /opt/app-root/src/rbac/
 COPY mascli/ /mascli/
+COPY masfvt/ /masfvt/
 COPY usr/bin/ /usr/bin/
 
 # 2. Set up Environment
