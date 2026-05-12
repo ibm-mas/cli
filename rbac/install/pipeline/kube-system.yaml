@@ -31,3 +31,14 @@ rules:
       - create
       - patch
       - update
+  # DaemonSets for system-level components (e.g., GPU drivers, monitoring agents)
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update

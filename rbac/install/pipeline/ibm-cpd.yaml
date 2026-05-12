@@ -31,11 +31,12 @@ rules:
       - list
       - create
       - patch
-  # IBM entitlement key secret
+  # IBM entitlement key secret and service accounts
   - apiGroups:
       - ""
     resources:
       - secrets
+      - serviceaccounts
     verbs:
       - get
       - list
