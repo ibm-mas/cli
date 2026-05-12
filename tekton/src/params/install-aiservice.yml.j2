@@ -20,6 +20,10 @@
   type: string
   description: Environment type
   default: ""
+- name: configure_aiassistant
+  type: string
+  description: Configure AI Assistant integration
+  default: ""
 
 # MAS Application Configuration - IBM Maximo AI Service - S3
 # -----------------------------------------------------------------------------
@@ -95,6 +99,10 @@
 - name: tenant_entitlement_end_date
   type: string
   description: define end date for tenant
+  default: ""
+- name: tenant_scheduling_cfg_file
+  type: string
+  description: Path to YAML file that contains scheduling constraints for AI workloads for tenant
   default: ""
 
 # MAS Application Configuration - IBM Maximo AI Service - Watstonx

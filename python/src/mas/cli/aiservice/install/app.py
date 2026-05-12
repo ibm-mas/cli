@@ -37,9 +37,7 @@ from ...install.catalogs import supportedCatalogs
 # AI Service utilizes two distinct databases: DB2 is employed by the AiBroker component.
 # By default, AiService will deploy DB2 within the same namespace as MAS (db2u), but it will be configured as a separate DB2 instance.
 
-from ...install.settings.mongodbSettings import MongoDbSettingsMixin
-from ...install.settings.db2Settings import Db2SettingsMixin
-from ...install.settings.additionalConfigs import AdditionalConfigsMixin
+from ...install.settings import InstallSettingsMixin
 
 from mas.cli.validators import (
     InstanceIDFormatValidator,
@@ -57,11 +55,12 @@ from mas.devops.data import getCatalog, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
-    prepareAiServicePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
     launchInstallPipeline
 )
+from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
+from mas.devops.utils import isVersionEqualOrAfter
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +74,73 @@ def logMethodCall(func):
     return wrapper
 
 
-class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin, ConfigGeneratorMixin):
+class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, InstallSettingsMixin, ConfigGeneratorMixin):
+
+    def evaluatePreInstallRBACAccess(self) -> None:
+        self.applyPreInstallMASRBAC = False
+
+        if not isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
+            return
+
+        if self.getParam("skip_preinstall_rbac") == "true":
+            return
+
+        permissionResults = permissionCheckForRBAC(self.dynamicClient)
+        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
+
+        if hasPreInstallRBACAccess:
+            self.applyPreInstallMASRBAC = True
+            return
+
+        if self.isInteractiveMode:
+            self.printDescription([
+                "",
+                f"You selected the '{self.getParam('permission_mode')}' permission mode.",
+                "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
+                "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
+                "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance.",
+                "If that has already been done, you can continue the installation without applying it again."
+            ])
+
+            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this AI Service installation"):
+                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again with --skip-preinstall-rbac.")
+        else:
+            self.fatalError(
+                "\n".join([
+                    f"You selected the '{self.getParam('permission_mode')}' permission mode.",
+                    "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
+                    "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
+                    "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas aiservice-install' with --skip-preinstall-rbac."
+                ])
+            )
+
+    def configPermissionMode(self) -> None:
+        if self.showAdvancedOptions:
+            self.printH1("Configure Permission Mode")
+            self.printDescription([
+                "Choose how AI Service should be installed with respect to permissions:",
+                "",
+                "  1. <b>cluster</b> - Install with ClusterRoles (default)",
+                "     - AI Service has cluster-level access to manage its resources across the cluster",
+                "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to AI Service service accounts",
+                "",
+                "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
+                "     - No ClusterRoles are installed in this mode",
+                "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
+                "     - AI Service can manage resources only in namespaces prepared by the OpenShift admin",
+                "",
+                "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
+                "     - No ClusterRoles are installed in this mode",
+                "     - Only essential permissions required for AI Service are applied",
+                "     - AI Service can manage only the resources covered by these essential permissions"
+            ])
+
+            permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
+            permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
+            self.setParam("permission_mode", permissionModeMap[permissionModeInt])
+        elif self.getParam("permission_mode") == "":
+            self.setParam("permission_mode", "cluster")
+
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
@@ -131,6 +196,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
             " - Configure certificate issuer",
             " - Enable IPv6 SingleStack networking for services",
+            " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant"
         ])
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
@@ -148,6 +214,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
+        self.db2LicenseFileLocal = None
 
         # Catalog
         self.configCatalog()
@@ -176,6 +243,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configMongoDb()
         self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
+        self.printDescription([
+            "Db2 Universal Operator for v12 onwards requires to add a License activation key",
+            "If you don't have a license press enter to continue."
+        ])
+        self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
+        # Permission mode prompt (especially in dev mode)
+        if isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
+            self.configPermissionMode()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -188,6 +263,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
+        self.db2LicenseFileLocal = None
+
+        self.aiserviceTenantSchedulingConfigFileLocal = None
 
         self.approvals = {
             "approval_aiservice": {"id": "aiservice"},
@@ -250,6 +328,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if len(value) == 0 or len(value) > 4:
                     self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
 
+            elif key == "tenant_scheduling_config_file":
+                # No need to perform validation if file exist here, as it has been already validated by argParser type check.
+                if value is not None and value != "":
+                    self.aiserviceTenantSchedulingConfigFileLocal = value
+
             elif key == "non_prod":
                 if not value:
                     self.operationalMode = 1
@@ -297,6 +380,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if value is not None and value != "":
                     self.slsLicenseFileLocal = value
                     self.setParam("sls_action", "install")
+            elif key == "db2_license_file":
+                if value is not None and value != "":
+                    self.db2LicenseFileLocal = value
             elif key == "dedicated_sls":
                 if value:
                     self.setParam("sls_namespace", f"mas-{self.args.aiservice_instance_id}-sls")
@@ -328,7 +414,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_preinstall_rbac", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified"]:
                 pass
 
             elif key == "manual_certificates":
@@ -363,6 +449,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
+
+        if self.getParam("permission_mode") != "" and not isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
+            self.fatalError("--permission-mode is supported only for AI Service releases aligned to MAS 9.2.0 and later")
+
+        # Set default permission_mode for 9.2.0+ if not provided
+        if isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")) and self.getParam("permission_mode") == "":
+            self.setParam("permission_mode", "cluster")
 
     @logMethodCall
     def install(self, argv):
@@ -402,6 +495,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
+
+        if hasattr(args, 'skip_preinstall_rbac') and args.skip_preinstall_rbac:
+            self.setParam("skip_preinstall_rbac", "true")
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -444,8 +540,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.nonInteractiveMode()
 
-        # Set up the sls license file
+        self.evaluatePreInstallRBACAccess()
+
+        # Set up the sls and db2 license file
         self.slsLicenseFile()
+        self.db2LicenseFile()
+
+        self.aiserviceConfig()
 
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
@@ -480,20 +581,15 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
-                prepareAiServicePipelinesNamespace(
-                    dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aiservice_instance_id"),
-                    storageClass=self.pipelineStorageClass,
-                    accessMode=self.pipelineStorageAccessMode,
-                    configureRBAC=(self.getParam("service_account_name") == "")
-                )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
                     namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
+                    db2LicenseFile=self.db2LicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,
+                    aiserviceConfig=self.aiserviceConfigSecret,
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel")
                 )
@@ -501,6 +597,17 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 self.setupApprovals(pipelinesNamespace)
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
+
+            if self.applyPreInstallMASRBAC:
+                with Halo(text=f"Setting up pre-install RBAC for AI Service instance {self.getParam('aiservice_instance_id')}...", spinner=self.spinner) as h:
+                    applyPreInstallMASRBAC(
+                        dynClient=self.dynamicClient,
+                        masVersion=".".join(self.getParam("aiservice_channel").split(".")[:2]),
+                        masInstanceId=self.getParam("aiservice_instance_id"),
+                        permissionMode=self.getParam("permission_mode"),
+                        selectedApps=["aiservice"]
+                    )
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for AI Service is ready for {self.getParam('aiservice_instance_id')}")
 
             with Halo(text='Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
                 testCLI()
@@ -597,6 +704,23 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("tenant_entitlement_type", "standard")
         self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
         self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
+
+        self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.configSchedulingConstraints()
+
+    @logMethodCall
+    def configSchedulingConstraints(self):
+        if self.showAdvancedOptions:
+            self.printH1("Scheduling configuration for AI Workloads")
+            self.printDescription(content=[
+                "AI Service supports configuring tolerations and nodeSelector per tenant to schedule AI workloads(training pipelines & Inference services) on dedicated nodes.",
+                "To configure tolerations and nodeSelector, create a YAML configuration file",
+                "The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:",
+                "  `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)",
+                "  `nodeSelector`: Dictionary of node label key-value pairs",
+            ])
+
+            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
 
     def _setMinioStorageDefaults(self) -> None:
         """

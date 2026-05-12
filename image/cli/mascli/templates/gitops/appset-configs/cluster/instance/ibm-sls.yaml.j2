@@ -8,6 +8,7 @@ ibm_sls:
   sls_channel: {{ SLS_CHANNEL }}
   sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
   ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
+{% endif %}
   
   # aws docdb
   mongodb_provider: "{{ MONGODB_PROVIDER }}"
@@ -56,6 +57,4 @@ ibm_sls:
 {%- endif -%}
 {% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
   internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
-{% endif %}
-
 {% endif %}
