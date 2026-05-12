@@ -814,14 +814,6 @@ function gitops_mas_config() {
 
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
 
-      # Hardcode MAS_APP_ID to "manage" for appcfg if not already set
-      # MAF is currently only supported for Manage application
-      # ---------------------------------------------------------------------------
-      if [[ -z "${MAS_APP_ID}" ]]; then
-        export MAS_APP_ID="manage"
-        echo -e "\n - MAS_APP_ID not set, defaulting to 'manage' for appcfg"
-      fi
-
       # Set pod template yaml
       # ---------------------------------------------------------------------------
       if [[ -n "$MAS_APPCFG_POD_TEMPLATE_YAML" && -s "$MAS_APPCFG_POD_TEMPLATE_YAML" ]]; then
@@ -830,12 +822,14 @@ function gitops_mas_config() {
       fi
 
       # Process storage class name (handle generated(efs) directive)
-      # Use "main" dependency like Manage app workspace configuration
+      # For MAF appcfg, use cluster-level storage class: efs-{CLUSTER_ID}-main
+      # Do not include MAS_INSTANCE_ID or MAS_APP_ID in the storage class name
       # ---------------------------------------------------------------------------
       export STORAGE_CLASS_DEFINITIONS
       if [[ -n "${MAF_STORAGE_CLASSNAME}" ]]; then
-        STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MAF_STORAGE_CLASSNAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${MAS_APP_ID}" "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
-        MAF_STORAGE_CLASSNAME=$(generate_storage_class_name "${MAF_STORAGE_CLASSNAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${MAS_APP_ID}" "main")
+        # Pass empty strings for MAS_INSTANCE_ID and MAS_APP_ID to generate cluster-level storage class
+        STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MAF_STORAGE_CLASSNAME}" "${CLUSTER_ID}" "" "" "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+        MAF_STORAGE_CLASSNAME=$(generate_storage_class_name "${MAF_STORAGE_CLASSNAME}" "${CLUSTER_ID}" "" "" "main")
         
         echo -e "\n - MAF_STORAGE_CLASSNAME (processed) ............... ${MAF_STORAGE_CLASSNAME}"
       fi
