@@ -9,8 +9,6 @@ spec:
     - name: shared-configs
     # PodTemplates configurations
     - name: shared-pod-templates
-    # Db2 License File
-    - name: shared-db2
   params:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
@@ -124,14 +122,7 @@ spec:
     {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 
     {{ task_yaml | indent(4, false) }}
-    # 3.1.3 Dedicated Facilities Db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
-      runAfter:
-        - db2-manage
-    
-    {{ task_yaml | indent(4, false) }}
-
-    # 3.1.4 Configure Db2 in MAS
+    # 3.1.3 Configure Db2 in MAS
     {%- set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | from_yaml %}
     {%- set task = tasks[0] %}
     {%- set merged_when = (task.when | default([])) + [{
@@ -404,14 +395,8 @@ spec:
         - app-manage-upgrade
         - app-monitor-upgrade
         - app-monitor-upgrade-before-iot
-    
-    # 12 Install & Configure Facilities
-    # -------------------------------------------------------------------------
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-config-db2
 
-    # 13 Facilities Upgrade
+    # 12 Facilities Upgrade
     # -------------------------------------------------------------------------
     - name: app-facilities-upgrade
       timeout: "0"
@@ -433,7 +418,7 @@ spec:
       runAfter:
         - app-install-facilities
 
-    # 14. Verify health of the cluster after upgrade
+    # 13. Verify health of the cluster after upgrade
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-upgrade-verify',
