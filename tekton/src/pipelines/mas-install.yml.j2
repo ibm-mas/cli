@@ -472,7 +472,7 @@ spec:
     # 13.1 Dedicated Facilities Db2
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
       runAfter:
-        - suite-config-db2
+        - db2-manage
 
     # 13.2 Install Facilities
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
