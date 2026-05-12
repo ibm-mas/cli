@@ -130,7 +130,7 @@ spec:
       'operator': 'in',
       'values': ['true']
     }] %}
-    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-db2-setup-facilities']}, recursive=True) %}
+    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-manage']}, recursive=True) %}
     {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 
     {{ task_yaml | indent(4, false) }}
