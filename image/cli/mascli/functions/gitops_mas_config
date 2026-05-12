@@ -813,7 +813,9 @@ function gitops_mas_config() {
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+
       sm_login
+      
       # Set pod template yaml
       # ---------------------------------------------------------------------------
       if [[ -n "$MAS_APPCFG_POD_TEMPLATE_YAML" && -s "$MAS_APPCFG_POD_TEMPLATE_YAML" ]]; then
