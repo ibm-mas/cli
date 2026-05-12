@@ -821,6 +821,17 @@ function gitops_mas_config() {
         echo -e "\n - MAS_APPCFG_POD_TEMPLATE CONTENT .................. ${MAS_APPCFG_POD_TEMPLATE}"
       fi
 
+      # Process storage class name (handle generated(efs) directive)
+      # Use "main" dependency like Manage app workspace configuration
+      # ---------------------------------------------------------------------------
+      export STORAGE_CLASS_DEFINITIONS
+      if [[ -n "${MAF_STORAGE_CLASSNAME}" ]]; then
+        STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MAF_STORAGE_CLASSNAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${MAS_APP_ID}" "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+        MAF_STORAGE_CLASSNAME=$(generate_storage_class_name "${MAF_STORAGE_CLASSNAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${MAS_APP_ID}" "main")
+        
+        echo -e "\n - MAF_STORAGE_CLASSNAME (processed) ............... ${MAF_STORAGE_CLASSNAME}"
+      fi
+
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
