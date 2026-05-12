@@ -91,7 +91,7 @@ spec:
     - name: aiservice_ssl_enabled
       type: string
       default: "true"
-    - name: aiservice_meta_agent_enabled
+    - name: aiservice_aiassistant_enabled
       type: string
       default: "false"
 
@@ -586,8 +586,8 @@ spec:
           value: $(params.aiservice_enabled)
         - name: aiservice_ssl_enabled
           value: $(params.aiservice_ssl_enabled)
-        - name: aiservice_meta_agent_enabled
-          value: $(params.aiservice_meta_agent_enabled)
+        - name: aiservice_aiassistant_enabled
+          value: $(params.aiservice_aiassistant_enabled)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: mas_bascfg_pod_template_yaml

@@ -55,7 +55,7 @@ AI Service Configuration (required if MAS_CONFIG_TYPE is "aicfg"):
   --aiservice-tenant-id ${COLOR_YELLOW}AISERVICE_TENANT_ID${TEXT_RESET}         The tenant ID for AI Service
   --aiservice-enabled ${COLOR_YELLOW}AISERVICE_ENABLED${TEXT_RESET}             Enable AI Service (true|false)
   --aiservice-ssl-enabled ${COLOR_YELLOW}AISERVICE_SSL_ENABLED${TEXT_RESET}     Enable SSL for AI Service (true|false)
-  --aiservice-meta-agent-enabled ${COLOR_YELLOW}AISERVICE_META_AGENT_ENABLED${TEXT_RESET} Enable Meta Agent (true|false)
+  --aiservice-aiassistant-enabled ${COLOR_YELLOW}AISERVICE_AIASSISTANT_ENABLED${TEXT_RESET} Enable AI Assistant (true|false)
 
 MAF Configuration (required if MAS_CONFIG_TYPE is "appcfg"):
   --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                                        Enable MAF for the application configuration (true|false)
@@ -239,8 +239,8 @@ function gitops_mas_config_noninteractive() {
       --aiservice-ssl-enabled)
         export AISERVICE_SSL_ENABLED=$1 && shift
         ;;
-      --aiservice-meta-agent-enabled)
-        export AISERVICE_META_AGENT_ENABLED=$1 && shift
+      --aiservice-aiassistant-enabled)
+        export AISERVICE_AIASSISTANT_ENABLED=$1 && shift
         ;;
       --maf-enabled)
         export MAF_ENABLED=$1 && shift
@@ -443,7 +443,7 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$AISERVICE_TENANT_ID" ]] && gitops_mas_config_help "AISERVICE_TENANT_ID is not set"
       [[ -z "$AISERVICE_ENABLED" ]] && gitops_mas_config_help "AISERVICE_ENABLED is not set"
       [[ -z "$AISERVICE_SSL_ENABLED" ]] && gitops_mas_config_help "AISERVICE_SSL_ENABLED is not set"
-      [[ -z "$AISERVICE_META_AGENT_ENABLED" ]] && gitops_mas_config_help "AISERVICE_META_AGENT_ENABLED is not set"
+      [[ -z "$AISERVICE_AIASSISTANT_ENABLED" ]] && gitops_mas_config_help "AISERVICE_AIASSISTANT_ENABLED is not set"
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
@@ -668,7 +668,7 @@ function gitops_mas_config() {
       echo_reset_dim "AI Service Tenant ID ........... ${COLOR_MAGENTA}${AISERVICE_TENANT_ID}"
       echo_reset_dim "AI Service Enabled ............. ${COLOR_MAGENTA}${AISERVICE_ENABLED}"
       echo_reset_dim "AI Service SSL Enabled ......... ${COLOR_MAGENTA}${AISERVICE_SSL_ENABLED}"
-      echo_reset_dim "AI Service Meta Agent Enabled .. ${COLOR_MAGENTA}${AISERVICE_META_AGENT_ENABLED}"
+      echo_reset_dim "AI Service AI Assistant Enabled .. ${COLOR_MAGENTA}${AISERVICE_AIASSISTANT_ENABLED}"
       reset_colors
     fi
 
