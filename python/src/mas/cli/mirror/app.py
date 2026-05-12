@@ -800,6 +800,7 @@ class MirrorApp(BaseApp):
                 "mas_iot_version",
                 "mas_facilities_version",
                 "mas_manage_version",
+                "mas_arcgis_version",
                 "mas_monitor_version",
                 "mas_predict_version",
                 "mas_optimizer_version",

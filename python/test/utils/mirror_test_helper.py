@@ -177,6 +177,7 @@ class MirrorTestHelper:
                 'mas_optimizer_version': {'9.1.x': '9.1.0'},
                 'mas_visualinspection_version': {'9.1.x': '9.1.0'},
                 'mas_facilities_version': {'9.1.x': '9.1.0'},
+                'mas_arcgis_version': {'9.1.x': '9.1.0'},
                 'db2u_version': '11.5.9.0+123',
                 'amlen_extras_version': '1.0.0',
                 'aiservice_version': {'9.1.x': '1.0.0'},
