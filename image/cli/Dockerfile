@@ -43,4 +43,3 @@ RUN --mount=type=secret,id=ARTIFACTORY_TOKEN \
     ibmcloud config --check-version=false && \
     ln -s /opt/app-root/lib/python3.12/site-packages /mascli/site-packages && \
     rm -rf /tmp/install
-
