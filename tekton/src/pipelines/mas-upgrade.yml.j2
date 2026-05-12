@@ -399,14 +399,14 @@ spec:
     # 12 Install & Configure Facilities
     # -------------------------------------------------------------------------
     # 12.1 Dedicated Facilities Db2
-      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
-        runAfter:
-          - db2-manage
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
+      runAfter:
+        - db2-manage
 
     # 12.2 Install Facilities
-      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
-        runAfter:
-          - suite-config-db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
 
     # 13 Facilities Upgrade
     # -------------------------------------------------------------------------
