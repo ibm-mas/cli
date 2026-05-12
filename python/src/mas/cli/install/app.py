@@ -2168,7 +2168,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         "<LightSlateGrey>Without Kafka, the Defect Detection functionality will not work.</LightSlateGrey>"
                     ))
                     print()
-                    
+
                     if self.noConfirm:
                         # In non-interactive mode, log warning and proceed
                         logger.warning(

@@ -115,7 +115,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         "but other Civil and Manage components will continue to function.</LightSlateGrey>"
                     ))
                     print()
-                    
+
                     if self.noConfirm:
                         # In non-interactive mode, log warning and proceed
                         logger.warning(

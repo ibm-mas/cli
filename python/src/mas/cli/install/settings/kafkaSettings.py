@@ -94,14 +94,14 @@ class KafkaSettingsMixin():
 
     def configKafka(self) -> None:
         requirements = self._getKafkaRequirements()
-        
+
         if requirements:
             self.printH1("Configure Kafka")
 
             # Build description based on what requires Kafka
             hasIoT = self._requiresKafkaIoT()
             hasCivil = self._requiresKafkaCivil()
-            
+
             description = []
             if hasIoT and hasCivil:
                 description.append("Maximo IoT and Manage Civil Infrastructure (9.2+) Defect Detection require a shared system-scope Kafka instance")
@@ -109,12 +109,12 @@ class KafkaSettingsMixin():
                 description.append("Maximo IoT requires a shared system-scope Kafka instance")
             elif hasCivil:
                 description.append("Manage Civil Infrastructure (9.2+) Defect Detection functionality requires a shared system-scope Kafka instance")
-            
+
             description.extend([
                 "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
                 "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
             ])
-            
+
             self.printDescription(description)
             if self.yesOrNo("Create system Kafka instance using one of the supported providers"):
                 self.setParam("kafka_action_system", "install")
