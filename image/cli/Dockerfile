@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/cli-base:1.10.1-pre.ibm-db
+FROM quay.io/ibmmas/cli-base:1.11.0-pre.stable
 ARG VERSION_LABEL
 
 # Auto-expire the image in quay.io after 3 weeks
