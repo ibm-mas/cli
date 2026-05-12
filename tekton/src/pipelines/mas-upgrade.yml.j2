@@ -124,7 +124,14 @@ spec:
     {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 
     {{ task_yaml | indent(4, false) }}
-    # 3.1.3 Configure Db2 in MAS
+    # 3.1.3 Dedicated Facilities Db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
+      runAfter:
+        - db2-manage
+    
+    {{ task_yaml | indent(4, false) }}
+
+    # 3.1.4 Configure Db2 in MAS
     {%- set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | from_yaml %}
     {%- set task = tasks[0] %}
     {%- set merged_when = (task.when | default([])) + [{
@@ -132,7 +139,7 @@ spec:
       'operator': 'in',
       'values': ['true']
     }] %}
-    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-manage']}, recursive=True) %}
+    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-db2-setup-facilities']}, recursive=True) %}
     {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 
     {{ task_yaml | indent(4, false) }}
@@ -400,12 +407,6 @@ spec:
     
     # 12 Install & Configure Facilities
     # -------------------------------------------------------------------------
-    # 12.1 Dedicated Facilities Db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
-      runAfter:
-        - db2-manage
-
-    # 12.2 Install Facilities
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-db2
