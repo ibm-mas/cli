@@ -29,6 +29,7 @@ PACKAGE_CONFIGS = [
     ("Maximo Application Suite", "assist", "ibm-couchdb", "couchdb_version"),
     ("Maximo Application Suite", "iot", "ibm-mas-iot", "mas_iot_version"),
     ("Maximo Application Suite", "facilities", "ibm-mas-facilities", "mas_facilities_version"),
+    ("Maximo Application Suite", "arcgis", "ibm-mas-arcgis", "mas_arcgis_version"),
     ("Maximo Application Suite", "manage", "ibm-mas-manage", "mas_manage_version"),
     ("Maximo Application Suite", "manage-icd", "ibm-mas-manage-icd", "mas_manage_version"),
     ("Maximo Application Suite", "monitor", "ibm-mas-monitor", "mas_monitor_version"),
