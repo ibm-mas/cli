@@ -105,14 +105,13 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
                 if not hasKafkaConfig:
                     # Warn user but give option to proceed
-                    print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka Configuration Required</Yellow>"))
+                    print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka configuration is required</Yellow>"))
                     print_formatted_text(HTML(
-                        f"<LightSlateGrey>Upgrading to Manage {self.nextChannel} with Civil Infrastructure component "
-                        "requires Kafka configuration. Civil versions >= 9.2.0 require a shared system-scope Kafka instance.</LightSlateGrey>"
+                        f"<LightSlateGrey>Upgrading to Manage {self.nextChannel} with the Civil Infrastructure component "
+                        "requires Kafka configuration. Civil Infrastructure versions 9.2.0 and later require a shared, system-scoped Kafka instance.</LightSlateGrey>"
                     ))
                     print_formatted_text(HTML(
-                        "<LightSlateGrey>Without Kafka, the Defect Detection functionality within Civil Infrastructure will not work, "
-                        "but other Civil and Manage components will continue to function.</LightSlateGrey>"
+                        "<LightSlateGrey>Without it, Defect Detection does not work.</LightSlateGrey>"
                     ))
                     print()
 

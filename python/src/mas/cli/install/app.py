@@ -2159,13 +2159,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 hasKafkaConfig = kafkaAction in ["install", "byo"]
                 if not hasKafkaConfig:
                     # Warn user but give option to proceed (Civil will work, but Defect Detection won't)
-                    print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka Configuration Required</Yellow>"))
+                    print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka configuration is required</Yellow>"))
                     print_formatted_text(HTML(
-                        f"<LightSlateGrey>Installing Manage {manageChannel} with Civil Infrastructure component "
-                        "requires Kafka configuration. Civil versions >= 9.2.0 require a shared system-scope Kafka instance.</LightSlateGrey>"
+                        f"<LightSlateGrey>Installing Manage {manageChannel} with the Civil Infrastructure component requires Kafka configuration. "
+                        "Civil Infrastructure versions 9.2.0 and later require a shared, system-scoped Kafka instance.</LightSlateGrey>"
                     ))
                     print_formatted_text(HTML(
-                        "<LightSlateGrey>Without Kafka, the Defect Detection functionality will not work.</LightSlateGrey>"
+                        "<LightSlateGrey>Without it, Defect Detection does not work.</LightSlateGrey>"
                     ))
                     print()
 
