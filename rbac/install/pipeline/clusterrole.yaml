@@ -131,3 +131,19 @@ rules:
       - patch
       - update
       - watch
+
+  # Cloud Pak for Data requires wildcard permissions to delegate to namespace roles
+  # This allows CPD operators to create roles with any permissions within their namespaces
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+      - deletecollection
