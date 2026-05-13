@@ -17,6 +17,7 @@ function mirror_everything() {
     MIRROR_MAS_PREDICT=true
     MIRROR_MAS_VISUALINSPECTION=true
     MIRROR_MAS_FACILITIES=true
+    MIRROR_MAS_ARCGIS=true
 
     # Dependencies (Other)
     MIRROR_CATALOG=true
@@ -52,6 +53,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_MAS_OPTIMIZER=false
   MIRROR_MAS_VISUALINSPECTION=false
   MIRROR_MAS_FACILITIES=false
+  MIRROR_MAS_ARCGIS=false
 
   # Dependencies
   MIRROR_CATALOG=false
@@ -167,6 +169,9 @@ function mirror_to_registry_noninteractive() {
       --mirror-facilities)
         MIRROR_MAS_FACILITIES=true
         ;;
+      --mirror-arcgis)
+        MIRROR_MAS_ARCGIS=true
+        ;;
 
       # Content Selection (Other Dependencies)
       --mirror-cfs)
@@ -281,6 +286,7 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
     prompt_for_confirm "IBM Maximo Application Suite - Facilities" MIRROR_MAS_FACILITIES
+    prompt_for_confirm "IBM Maximo Application Suite - ArcGIS" MIRROR_MAS_ARCGIS
 
     prompt_for_confirm_default_yes "IBM Foundational Services" MIRROR_COMMONSERVICES
     prompt_for_confirm_default_yes "IBM Suite License Service" MIRROR_SLS
@@ -377,6 +383,7 @@ function mirror_to_registry() {
   export MIRROR_COGNOS
   export MIRROR_ODF
   export MIRROR_MAS_ICD
+  export MIRROR_MAS_ARCGIS
 
 
   if [[ "$MIRROR_CATALOG" == true ||
@@ -422,6 +429,7 @@ function mirror_to_registry() {
   show_mirror_status "IBM Maximo Optimizer ................" $MIRROR_MAS_OPTIMIZER
   show_mirror_status "IBM Maximo Visual Inspection ........" $MIRROR_MAS_VISUALINSPECTION
   show_mirror_status "IBM Maximo Facilities ..............." $MIRROR_MAS_FACILITIES
+  show_mirror_status "IBM Maximo Location Services (ArcGIS)" $MIRROR_MAS_ARCGIS
 
   echo
   reset_colors
@@ -458,5 +466,6 @@ function mirror_to_registry() {
   mirror_one_thing $MIRROR_MAS_OPTIMIZER        "IBM Maximo Optimizer"                  "$LOG_PREFIX-optimizer.log"        mirror_add_optimizer
   mirror_one_thing $MIRROR_MAS_VISUALINSPECTION "IBM Maximo Visual Inspection"          "$LOG_PREFIX-visualinspection.log" mirror_add_visualinspection
   mirror_one_thing $MIRROR_MAS_FACILITIES       "IBM Maximo Facilities"                 "$LOG_PREFIX-facilities.log"       mirror_add_facilities
+  mirror_one_thing $MIRROR_MAS_ARCGIS           "IBM Maximo Location Services (ArcGIS)" "$LOG_PREFIX-arcgis.log"           mirror_add_arcgis
   mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
 }
