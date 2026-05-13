@@ -490,7 +490,7 @@ fi
   # ---------------------------------------------------------------------------
   if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" && -s "$TENANT_SCHEDULING_CONFIG_YAML" ]]; then
     export TENANT_SCHEDULING_CONFIG=$(yq eval '.' ${TENANT_SCHEDULING_CONFIG_YAML})
-    echo -e "\n - TENANT_SCHEDULING_CONFIG CONTENT .................. ${TENANT_SCHEDULING_CONFIG}"
+    echo -e "\n - TENANT_SCHEDULING_CONFIG content .................. ${TENANT_SCHEDULING_CONFIG}"
   fi
   
   # finally push them into the git repo
