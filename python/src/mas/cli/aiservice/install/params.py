@@ -99,6 +99,7 @@ optionalParams = [
 
     "rsl_ca_crt",
     "environment_type",
+    "configure_aiassistant",
 
     # Certificate Issuer
     "aiservice_certificate_issuer",

@@ -112,6 +112,10 @@
       value: $(params.cos_bucket_name)
     - name: mas_appws_upgrade_type
       value: $(params.mas_appws_upgrade_type)
+    - name: mas_manage_kafkaimageprocessor_pvc_size
+      value: $(params.mas_manage_kafkaimageprocessor_pvc_size)
+    - name: storage_class_rwx
+      value: $(params.storage_class_rwx)
   workspaces:
     - name: configs
       workspace: shared-configs

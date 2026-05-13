@@ -57,6 +57,7 @@
 
 # Manage Direct Print Report Tasks
 - name: fvt-manage-base-ui-directprint
+  timeout: "0"
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   taskRef:
     kind: Task
@@ -77,6 +78,7 @@
 
 # Manage FVT Adhoc Reports
 - name: fvt-manage-base-ui-adhoc-report
+  timeout: "0"
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   taskRef:
     kind: Task
@@ -185,4 +187,4 @@
     - fvt-manage-base-ui-user-crud
     - fvt-manage-base-ui-user-consumption
     - fvt-manage-base-ui-communication-temp
-    - fvt-manage-base-ui-scheduler-classic    
+    - fvt-manage-base-ui-scheduler-classic

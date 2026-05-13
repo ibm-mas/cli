@@ -505,6 +505,9 @@ spec:
         - input: "$(params.aiservice_channel)"
           operator: notin
           values: [""]
+        - input: "$(params.configure_aiassistant)"
+          operator: in
+          values: ["pipeline"]
 
     # 15. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
