@@ -43,6 +43,33 @@ rules:
       - create
       - patch
       - update
+  # CPD operators need to create RBAC resources
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+      - rolebindings
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+      - delete
+  # Grant wildcard permissions that CPD operators need to delegate
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+      - deletecollection
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
