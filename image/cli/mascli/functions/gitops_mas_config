@@ -17,7 +17,7 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
   -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
-  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
+  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of aicfg|appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
   --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
 
@@ -37,22 +37,31 @@ Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
   --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. One of aws|yaml (defaults to yaml)
 
 SLS Configuration (if MAS_CONFIG_TYPE is "sls"):
-  --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
-  --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
+  --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}         The location of a file containing the POD template
+  --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}                   Internal Certificate Authority to use for provisoning internal certificates
 
 DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
-  --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
-  --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}     The first name to register with DRO
-  --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}       The last name to register with DRO
-  --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET} The location of a file containing the DRO CA certificate
-  --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
-  --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
+  --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}                            The email address to register with DRO
+  --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}                    The first name to register with DRO
+  --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}                      The last name to register with DRO
+  --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET}                The location of a file containing the DRO CA certificate
+  --dro-api-token ${COLOR_YELLOW}DRO_API_TOKEN${TEXT_RESET}                                    The DRO API token (optional, normally set by 08-postsync-update-sm_Job in DRO argo app)
+  --dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                                The DRO URL (optional, normally set by 08-postsync-update-sm_Job in DRO argo app)
+  --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                                The segment key for authentication for Segment
+  --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}      The location of a file containing the POD template
+
+AI Service Configuration (required if MAS_CONFIG_TYPE is "aicfg"):
+  --aiservice-url ${COLOR_YELLOW}AISERVICE_URL${TEXT_RESET}                     The URL of the AI Service
+  --aiservice-tenant-id ${COLOR_YELLOW}AISERVICE_TENANT_ID${TEXT_RESET}         The tenant ID for AI Service
+  --aiservice-enabled ${COLOR_YELLOW}AISERVICE_ENABLED${TEXT_RESET}             Enable AI Service (true|false)
+  --aiservice-ssl-enabled ${COLOR_YELLOW}AISERVICE_SSL_ENABLED${TEXT_RESET}     Enable SSL for AI Service (true|false)
+  --aiservice-aiassistant-enabled ${COLOR_YELLOW}AISERVICE_AIASSISTANT_ENABLED${TEXT_RESET} Enable AI Assistant (true|false)
 
 MAF Configuration (required if MAS_CONFIG_TYPE is "appcfg"):
-  --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                       Enable MAF for the application configuration (true|false)
-  --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}    Storage class name to use for MAF persistent storage
-  --maf-size ${COLOR_YELLOW}MAF_SIZE${TEXT_RESET}                             Size of the MAF persistent storage (e.g. 2Gi)
-  --mas-appcfg-pod-template-yaml ${COLOR_YELLOW}MAS_APPCFG_POD_TEMPLATE_YAML${TEXT_RESET}   
+  --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                                        Enable MAF for the application configuration (true|false)
+  --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}                     Storage class name to use for MAF persistent storage
+  --maf-size ${COLOR_YELLOW}MAF_SIZE${TEXT_RESET}                                              Size of the MAF persistent storage (e.g. 2Gi)
+  --mas-appcfg-pod-template-yaml ${COLOR_YELLOW}MAS_APPCFG_POD_TEMPLATE_YAML${TEXT_RESET}      The location of a file containing the POD template
 
 IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}       Display name for IDPCfg resource
@@ -72,7 +81,7 @@ JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
 
 SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"): 
   --smtp-display-name ${COLOR_YELLOW}SMTP_DISPLAY_NAME${TEXT_RESET}                                       Display name for SmtpCfg resource
-  --smtp-host ${COLOR_YELLOW}SMTP_HOST${TEXT_RESET}                                                        Host of the SMTP server
+  --smtp-host ${COLOR_YELLOW}SMTP_HOST${TEXT_RESET}                                                       Host of the SMTP server
   --smtp-port ${COLOR_YELLOW}SMTP_PORT${TEXT_RESET}                                                       Port of the SMTP server
   --smtp-security ${COLOR_YELLOW}SMTP_SECURITY${TEXT_RESET}                                               Security protocol. None, STARTTLS or SSL
   --smtp-authentication ${COLOR_YELLOW}SMTP_AUTHENTICATION${TEXT_RESET}                                   true or false on whether to authenticate, default false
@@ -201,6 +210,12 @@ function gitops_mas_config_noninteractive() {
       --dro-ca-certificate-file)
         export DRO_CA_CERTIFICATE_FILE=$1 && shift
         ;;
+      --dro-api-token)
+        export DRO_API_TOKEN=$1 && shift
+        ;;
+      --dro-url)
+        export DRO_URL=$1 && shift
+        ;;
       --mas-segment-key)
         export MAS_SEGMENT_KEY=$1 && shift
         ;;
@@ -209,6 +224,23 @@ function gitops_mas_config_noninteractive() {
         ;;
       --mas-appcfg-pod-template-yaml)
         export MAS_APPCFG_POD_TEMPLATE_YAML=$1 && shift
+        ;;
+
+      # AICFG
+      --aiservice-url)
+        export AISERVICE_URL=$1 && shift
+        ;;
+      --aiservice-tenant-id)
+        export AISERVICE_TENANT_ID=$1 && shift
+        ;;
+      --aiservice-enabled)
+        export AISERVICE_ENABLED=$1 && shift
+        ;;
+      --aiservice-ssl-enabled)
+        export AISERVICE_SSL_ENABLED=$1 && shift
+        ;;
+      --aiservice-aiassistant-enabled)
+        export AISERVICE_AIASSISTANT_ENABLED=$1 && shift
         ;;
       --maf-enabled)
         export MAF_ENABLED=$1 && shift
@@ -369,8 +401,8 @@ function gitops_mas_config_noninteractive() {
   fi
 
   [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_CONFIG_TYPE is not set"
-  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
-    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
+  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(aicfg|appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
+    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of aicfg|appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
 
   [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_mas_config_help "MAS_CONFIG_SCOPE is not set"
@@ -406,6 +438,14 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$DRO_CA_CERTIFICATE_FILE" ]] && gitops_mas_config_help "DRO_CA_CERTIFICATE_FILE is not set"
     fi
 
+    if [ "${MAS_CONFIG_TYPE}" == "aicfg" ]; then
+      [[ -z "$AISERVICE_URL" ]] && gitops_mas_config_help "AISERVICE_URL is not set"
+      [[ -z "$AISERVICE_TENANT_ID" ]] && gitops_mas_config_help "AISERVICE_TENANT_ID is not set"
+      [[ -z "$AISERVICE_ENABLED" ]] && gitops_mas_config_help "AISERVICE_ENABLED is not set"
+      [[ -z "$AISERVICE_SSL_ENABLED" ]] && gitops_mas_config_help "AISERVICE_SSL_ENABLED is not set"
+      [[ -z "$AISERVICE_AIASSISTANT_ENABLED" ]] && gitops_mas_config_help "AISERVICE_AIASSISTANT_ENABLED is not set"
+    fi
+
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
       [[ -z "$MAF_ENABLED" ]] && gitops_mas_config_help "MAF_ENABLED is not set"
       [[ -z "$MAF_SIZE" ]] && gitops_mas_config_help "MAF_SIZE is not set"
@@ -431,6 +471,7 @@ function gitops_mas_config_noninteractive() {
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
       export JDBC_ROUTE=${JDBC_ROUTE:-default}
+      [[ -z "$MAS_APP_ID" ]] && gitops_mas_config_help "MAS_APP_ID must be set when configuring JDBC"
 
       # Set JDBC instance name based on JDBC_TYPE
       if [[ -z "$JDBC_INSTANCE_NAME" ]]; then
@@ -615,9 +656,22 @@ function gitops_mas_config() {
       echo_reset_dim "DRO Contact First Name  ........ ${COLOR_MAGENTA}${DRO_CONTACT_FIRSTNAME}"
       echo_reset_dim "DRO Contact Last Name  ......... ${COLOR_MAGENTA}${DRO_CONTACT_LASTNAME}"
       echo_reset_dim "DRO Certificate File  .......... ${COLOR_MAGENTA}${DRO_CA_CERTIFICATE_FILE}"
+      echo_reset_dim "DRO API Token  ................. ${COLOR_MAGENTA}${DRO_API_TOKEN:0:4}<snip>"
+      echo_reset_dim "DRO URL  ....................... ${COLOR_MAGENTA}${DRO_URL}"
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_BASCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "aicfg" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "AI Service URL ................. ${COLOR_MAGENTA}${AISERVICE_URL}"
+      echo_reset_dim "AI Service Tenant ID ........... ${COLOR_MAGENTA}${AISERVICE_TENANT_ID}"
+      echo_reset_dim "AI Service Enabled ............. ${COLOR_MAGENTA}${AISERVICE_ENABLED}"
+      echo_reset_dim "AI Service SSL Enabled ......... ${COLOR_MAGENTA}${AISERVICE_SSL_ENABLED}"
+      echo_reset_dim "AI Service AI Assistant Enabled .. ${COLOR_MAGENTA}${AISERVICE_AIASSISTANT_ENABLED}"
+      reset_colors
+    fi
+
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "MAF Enabled  ................... ${COLOR_MAGENTA}${MAF_ENABLED}"
@@ -761,8 +815,9 @@ function gitops_mas_config() {
 
 
     if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
-      export SECRET_KEY_DRO_API_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_api_token
-      export SECRET_KEY_DRO_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_url
+      export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
+      export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
+      export SECRET_KEY_DRO_URL=${SECRET_NAME_DRO}#dro_url
       export SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mas_segment_key
       export SECRET_KEY_MAS_SEGMENT_KEY=${SECRET_NAME_MAS_SEGMENT_KEY}#mas_segment_key
       export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
@@ -774,10 +829,45 @@ function gitops_mas_config() {
         echo -e "\n - MAS_BASCFG_POD_TEMPLATE CONTENT .................. ${MAS_BASCFG_POD_TEMPLATE}"
       fi
 
+      # Update DRO secrets if provided
+      # ---------------------------------------------------------------------------
+      if [[ -n "${DRO_API_TOKEN}" ]] || [[ -n "${DRO_URL}" ]]; then
+        sm_login
+        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+        DRO_SECRET_JSON="{"
+        if [[ -n "${DRO_API_TOKEN}" ]]; then
+          DRO_SECRET_JSON="${DRO_SECRET_JSON}\"dro_api_token\": \"${DRO_API_TOKEN}\""
+        fi
+        if [[ -n "${DRO_URL}" ]]; then
+          if [[ -n "${DRO_API_TOKEN}" ]]; then
+            DRO_SECRET_JSON="${DRO_SECRET_JSON}, "
+          fi
+          DRO_SECRET_JSON="${DRO_SECRET_JSON}\"dro_url\": \"${DRO_URL}\""
+        fi
+        DRO_SECRET_JSON="${DRO_SECRET_JSON}}"
+        sm_update_secret $SECRET_NAME_DRO "${DRO_SECRET_JSON}" "${TAGS}"
+      fi
+
       if [[ -n "${MAS_SEGMENT_KEY}" ]]; then
         sm_login
         TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $SECRET_NAME_MAS_SEGMENT_KEY "{\"mas_segment_key\": \"$MAS_SEGMENT_KEY\"}" "${TAGS}"
+      fi
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "aicfg" ]; then
+      export SECRET_NAME_AISERVICE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ai-credentials
+      export SECRET_KEY_AISERVICE_API_KEY=${SECRET_NAME_AISERVICE}#apiKey
+      export SECRET_KEY_AISERVICE_CERTIFICATE=${SECRET_NAME_AISERVICE}#certificate
+      
+      # Check if MAS version supports AI Service (9.2.0+)
+      MAS_VERSION=$(echo "$MAS_CHANNEL" | sed -E 's/^([0-9]+\.[0-9]+).*/\1/')
+      MAS_MAJOR=$(echo "$MAS_VERSION" | cut -d. -f1)
+      MAS_MINOR=$(echo "$MAS_VERSION" | cut -d. -f2)
+      if [[ "$MAS_MAJOR" -gt 9 ]] || [[ "$MAS_MAJOR" -eq 9 && "$MAS_MINOR" -ge 2 ]]; then
+        export AISERVICE_SUPPORTED="true"
+      else
+        export AISERVICE_SUPPORTED="false"
       fi
     fi
 
@@ -973,6 +1063,7 @@ function gitops_mas_config() {
     echo
     echo_h2 "Updating configuration file"
 
+    # Standard config handling for all config types including aicfg
     # If the file doesn't exist, create a blank one
     if ! [ -f ${CONFIGS_FILE} ]; then
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-config-common.yaml.j2 $CONFIGS_FILE

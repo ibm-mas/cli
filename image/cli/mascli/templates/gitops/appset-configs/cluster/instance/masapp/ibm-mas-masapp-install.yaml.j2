@@ -12,8 +12,9 @@ ibm_suite_app_{{ MAS_APP_ID }}_install:
   mas_app_api_version: {{ MAS_APP_API_VERSION }}
   mas_app_kind: {{ MAS_APP_KIND }}
   run_sync_hooks: true
+  {% if MAS_APP_SPEC is defined and MAS_APP_SPEC != '' %}
   {{ MAS_APP_SPEC | indent(2) }}
-
+  {% endif %}
   {% if MAS_MANUAL_CERT_MGMT == 'true' %}
   mas_manual_cert_mgmt: true
   {% else %}

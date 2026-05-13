@@ -182,6 +182,7 @@ class MirrorTestHelper:
                 'aiservice_version': {'9.1.x': '1.0.0'},
                 'dd_version': '1.0.0',
                 'mongo_extras_version_default': '6.0.0',
+                'couchdb_version': '1.0.13',
                 # CP4D Platform version keys
                 'common_svcs_version': '4.13.0',
                 'ibm_zen_version': '6.2.0+20250530.152516.232',

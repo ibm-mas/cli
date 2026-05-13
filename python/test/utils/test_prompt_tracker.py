@@ -83,5 +83,3 @@ def test_prompt_tracker_get_match_counts():
     counts = tracker.get_match_counts()
     assert counts['.*test1.*'] == 1
     assert counts['.*test2.*'] == 1
-
-# Made with Bob
