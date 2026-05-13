@@ -87,6 +87,7 @@ ibm_mas_suite:
     {{ OIDC_CONFIG_YAML | indent(4) }}
 {% endif %}
 
+
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
   allow_list: {{ALLOW_LIST}}
 {% endif %}
