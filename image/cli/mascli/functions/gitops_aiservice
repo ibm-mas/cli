@@ -40,7 +40,8 @@ sls_dro_jdbc
       --in-saas-env ${TEXT_RESET}IN_SAAS_ENV${TEXT_RESET}
       --is-external-route ${TEXT_RESET}IS_EXTERNAL_ROUTE${TEXT_RESET}  # A flag indicating to enable external route (default value is: false)
       --jdbc-secret ${TEXT_RESET}JDBC_SECRET${TEXT_RESET}
-      --use-aws-db2 ${TEXT_RESET}USE_AWS_DB2${TEXT_RESET}  # A flag indicating to use aws hosted db2 (default value is: false)  
+      --use-aws-db2 ${TEXT_RESET}USE_AWS_DB2${TEXT_RESET}  # A flag indicating to use aws hosted db2 (default value is: false)
+      --is-gitops-fvt-env ${TEXT_RESET}IS_GITOPS_FVT_ENV${TEXT_RESET}  # A flag indicating FVT environment to skip SLS secret verification (default value is: false)
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -68,12 +69,13 @@ function gitops_aiservice_noninteractive() {
    #adding default values # all generic values should to put here # check with ansible playbook/gitops anvs 
    #only export below in whiel loop
 
-  #adding default values 
+  #adding default values
   export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
-  export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed  
+  export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed
   export JDBC_SECRET=${JDBC_SECRET:-"aiservice-jdbc-secret"}
   export USE_AWS_DB2=${USE_AWS_DB2:-"false"}  # Default to "false", can be set to "true" if needed
+  export IS_GITOPS_FVT_ENV=${IS_GITOPS_FVT_ENV:-"false"}  # Default to "false", set to "true" for FVT environments
   export MAS_ICR_CP=${MAS_ICR_CP:-"cp.icr.io/cp"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"icr.io/cpopen"}
   # -- SLS Defaults
@@ -143,7 +145,10 @@ function gitops_aiservice_noninteractive() {
           export JDBC_SECRET=$1 && shift
         ;;
       --use-aws-db2)
-          export USE_AWS_DB2=$1 && shift 
+          export USE_AWS_DB2=$1 && shift
+        ;;
+      --is-gitops-fvt-env)
+          export IS_GITOPS_FVT_ENV=$1 && shift
         ;;
       --mas-icr-cp)
         export MAS_ICR_CP=$1 && shift
@@ -384,7 +389,14 @@ function gitops_aiservice() {
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_registration_key,drocfg_url,drocfg_ca_b64enc"
-  sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
+  
+  # Skip SLS secret verification in FVT environment as secrets will be created by postSync job
+  if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
+    sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
+  else
+    echo_warning "Skipping SLS secret verification in FVT environment (IS_GITOPS_FVT_ENV=true)"
+  fi
+  
   sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
   sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca_b64enc"
 
