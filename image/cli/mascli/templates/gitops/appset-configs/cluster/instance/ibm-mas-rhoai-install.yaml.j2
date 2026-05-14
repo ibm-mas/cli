@@ -2,7 +2,6 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AISERVICE_INSTANCE_ID }}"
 
 ibm_rhoai:
-  ai_platform: {{ AI_PLATFORM }}
   openshift_namespace: {{ OPENSHIFT_NAMESPACE }}
   rhoai_pipeline_channel: {{ RHOAI_PIPELINE_CHANNEL }}
   rhoai_pipeline_installplan: {{ RHOAI_PIPELINE_INSTALLPLAN }}
@@ -28,14 +27,14 @@ ibm_rhoai:
   serverless_operator_source: {{ SERVERLESS_OPERATOR_SOURCE }}
   serverless_operator_sourceNamespace: {{ SERVERLESS_OPERATOR_SOURCE_NAMESPACE }}
 
-  # OpenDataHub Operator
-  openshiftai_OperatorGroup_name: {{ OPENSHIFTAI_OPERATORGROUP_NAME }}
-  openshiftai_name: {{ OPENSHIFTAI_NAME }}
-  openshiftai_namespace: {{ OPENSHIFTAI_NAMESPACE }}
-  openshiftai_installPlanApproval: {{ RHOAI_INSTALL_PLAN }}
-  openshiftai_channel: {{ OPENSHIFTAI_CHANNEL }}
-  openshiftai_source: {{ OPENSHIFTAI_SOURCE }}
-  openshiftai_sourceNamespace: {{ OPENSHIFTAI_SOURCE_NAMESPACE }}
-  aiservice_rhoai_model_deployment_type: "{{ AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE }}"
+  # RHOAI Operator
+  rhoai_applications_namespace: redhat-ods-applications
+  rhoai_monitoring_namespace: redhat-ods-monitoring
+  rhoai_OperatorGroup_name: {{ OPENSHIFTAI_OPERATORGROUP_NAME }}
+  rhoai_name: {{ OPENSHIFTAI_NAME }}
+  rhoai_installPlanApproval: {{ RHOAI_INSTALL_PLAN }}
+  rhoai_source: {{ OPENSHIFTAI_SOURCE }}
+  rhoai_sourceNamespace: {{ OPENSHIFTAI_SOURCE_NAMESPACE }}
+  aiservice_rhoai_model_deployment_type: {{ AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE }}
   primary_storage_class: {{ PRIMARY_STORAGE_CLASS }}
 
