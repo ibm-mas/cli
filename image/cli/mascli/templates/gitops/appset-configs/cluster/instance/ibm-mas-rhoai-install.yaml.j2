@@ -2,6 +2,7 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AISERVICE_INSTANCE_ID }}"
 
 ibm_rhoai:
+  action: {{ RHOAI_ACTION }}
   openshift_namespace: {{ OPENSHIFT_NAMESPACE }}
   rhoai_pipeline_channel: {{ RHOAI_PIPELINE_CHANNEL }}
   rhoai_pipeline_installplan: {{ RHOAI_PIPELINE_INSTALLPLAN }}
