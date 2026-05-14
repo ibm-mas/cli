@@ -148,6 +148,8 @@ spec:
       type: string
 
     # RSL
+    - name: rsl_ca_cert
+      type: string
    
 
     # RHOAI flag
@@ -255,8 +257,9 @@ spec:
         value: $(params.tenant_scheduling_cfg_file)
 
       # RSL
-      
-
+      - name: RSL_CA_CERT
+        value: $(params.rsl_ca_cert)
+        
       # Certificate Issuer
       - name: AISERVICE_CERTIFICATE_ISSUER
         value: $(params.aiservice_certificate_issuer)
