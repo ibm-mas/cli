@@ -69,7 +69,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         """
         Validate Kafka requirements when upgrading Manage with Civil to 9.2+.
         Civil >= 9.2 requires Kafka configuration.
-        Warns user and gives option to proceed without Kafka (Defect Detection will not function).
+        Warns user and gives option to proceed without Kafka.
         """
         # Check if upgrading TO Manage 9.2+ (use TARGET channel, not current)
         if not self.nextChannel or not isVersionEqualOrAfter('9.2.0', self.nextChannel):
@@ -111,7 +111,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         "requires Kafka configuration. Civil Infrastructure versions 9.2.0 and later require a shared, system-scoped Kafka instance.</LightSlateGrey>"
                     ))
                     print_formatted_text(HTML(
-                        "<LightSlateGrey>Without it, Defect Detection does not work.</LightSlateGrey>"
+                        "<LightSlateGrey>Without it, Defect Detection 9.2.0 functionality is not enabled.</LightSlateGrey>"
                     ))
                     print()
 
@@ -119,11 +119,11 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         # In non-interactive mode, log warning and proceed
                         logger.warning(
                             f"Upgrading to Manage {self.nextChannel} with Civil component without Kafka configuration. "
-                            "Defect Detection functionality will not work."
+                            "Defect Detection 9.2.0 functionality will not be enabled."
                         )
                     else:
                         # In interactive mode, ask user if they want to proceed
-                        if not self.yesOrNo("Do you want to proceed with the upgrade without Kafka? (Defect Detection will not work)"):
+                        if not self.yesOrNo("Do you want to proceed with the upgrade without Kafka? Defect Detection 9.2.0 functionality is not enabled."):
                             self.fatalError("Upgrade cancelled. Please configure Kafka before upgrading.")
 
         except Exception as e:

@@ -2158,14 +2158,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 kafkaAction = self.getParam("kafka_action_system")
                 hasKafkaConfig = kafkaAction in ["install", "byo"]
                 if not hasKafkaConfig:
-                    # Warn user but give option to proceed (Civil will work, but Defect Detection won't)
+                    # Warn user but give option to proceed 
                     print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka configuration is required</Yellow>"))
                     print_formatted_text(HTML(
                         f"<LightSlateGrey>Installing Manage {manageChannel} with the Civil Infrastructure component requires Kafka configuration. "
                         "Civil Infrastructure versions 9.2.0 and later require a shared, system-scoped Kafka instance.</LightSlateGrey>"
                     ))
                     print_formatted_text(HTML(
-                        "<LightSlateGrey>Without it, Defect Detection does not work.</LightSlateGrey>"
+                        "<LightSlateGrey>Without it, Defect Detection 9.2.0 functionality is not enabled.</LightSlateGrey>"
                     ))
                     print()
 
@@ -2173,11 +2173,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         # In non-interactive mode, log warning and proceed
                         logger.warning(
                             f"Installing Manage {manageChannel} with Civil component without Kafka configuration. "
-                            "Defect Detection functionality will not work."
+                            "Defect Detection 9.2.0 functionality is not enabled.."
                         )
                     else:
                         # In interactive mode, ask user if they want to proceed
-                        if not self.yesOrNo("Do you want to proceed with the installation without Kafka? (Defect Detection functionality will not work)"):
+                        if not self.yesOrNo("Do you want to proceed with the installation without Kafka? Defect Detection 9.2.0 functionality is not enabled."):
                             self.fatalError("Installation cancelled. Please configure Kafka before installing.")
 
     @logMethodCall
