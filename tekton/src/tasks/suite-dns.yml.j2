@@ -22,6 +22,9 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
+    - name: mas_channel
+      type: string
+      default: ""
     - name: ocp_ingress
       type: string
       default: ""
@@ -111,6 +114,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
       - name: MAS_DOMAIN

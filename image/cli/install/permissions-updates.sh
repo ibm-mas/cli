@@ -11,7 +11,10 @@ chmod +x /mascli/mas
 chmod +x /mascli/must-gather/*
 chmod +x /mascli/debug/*
 chmod +x /mascli/backup-restore/*
-chmod -R ug+w /masfvt
+# Only chmod /masfvt if it exists
+if [ -d /masfvt ]; then
+  chmod -R ug+w /masfvt
+fi
 chmod +x /usr/bin/gather
 chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops
 ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops
