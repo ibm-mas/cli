@@ -1562,7 +1562,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "  `nodeSelector`: Dictionary of node label key-value pairs",
             ])
 
-            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
+            configSchedulingConstraints = self.yesOrNo('Configure Scheduling policies for AI Service tenant')
+            if configSchedulingConstraints:
+                self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
 
     @logMethodCall
     def _setMinioStorageDefaults(self) -> None:
