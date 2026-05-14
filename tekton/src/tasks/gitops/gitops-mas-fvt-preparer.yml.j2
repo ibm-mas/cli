@@ -185,6 +185,9 @@ spec:
     - name: use_sendgrid
       type: string
       default: ""
+    - name: standalone_sls_service
+      type: string
+      default: ""
 
   stepTemplate:
     name: gitops-mas-fvt-preparer
@@ -331,6 +334,8 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: USE_SENDGRID
         value: $(params.use_sendgrid)
+      - name: STANDALONE_SLS_SERVICE
+        value: $(params.standalone_sls_service)
 
     envFrom:
       - configMapRef:
@@ -500,7 +505,27 @@ spec:
           MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}"
           BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${CLUSTER_NAME}"
           SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${CLUSTER_NAME}"
-          SLS_APP_NAME="sls.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+
+          # Check if centralized SLS is being used
+          if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+            # Extract ICN and subscription ID from STANDALONE_SLS_SERVICE path
+            CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+            IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+            {% raw %}
+            if [ ${#PARTS[@]} -lt 6 ]; then
+            {% endraw %}
+              echo "Error: Invalid SLS service parameter file Path $STANDALONE_SLS_SERVICE format." >&2
+              exit 1
+            fi
+            CENTRALIZED_ICN="${PARTS[3]}"
+            SAAS_SUB_ID="${PARTS[4]}"
+            # Use centralized SLS format: sls.icnid.subscriptionid
+            SLS_APP_NAME="sls.${CENTRALIZED_ICN}.${SAAS_SUB_ID}"
+          else
+            # Use standalone SLS format
+            SLS_APP_NAME="sls.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          fi
+
           SUITE_APP_NAME="suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
 

@@ -175,6 +175,9 @@ spec:
     - name: smtp_use_sendgrid
       type: string
       default: ""
+    - name: standalone_sls_service
+      type: string
+      default: ""
     - name: jdbc_type
       type: string
       default: ""
@@ -320,6 +323,8 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: use_sendgrid
           value: $(params.smtp_use_sendgrid)
+        - name: standalone_sls_service
+          value: $(params.standalone_sls_service)
 
       workspaces:
         - name: configs
