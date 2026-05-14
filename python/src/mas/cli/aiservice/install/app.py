@@ -55,7 +55,6 @@ from mas.devops.data import getCatalog, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
-    prepareAiServicePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
     launchInstallPipeline
@@ -582,13 +581,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
-                prepareAiServicePipelinesNamespace(
-                    dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aiservice_instance_id"),
-                    storageClass=self.pipelineStorageClass,
-                    accessMode=self.pipelineStorageAccessMode,
-                    configureRBAC=(self.getParam("service_account_name") == "")
-                )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
                     namespace=pipelinesNamespace,
@@ -728,7 +720,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 "  `nodeSelector`: Dictionary of node label key-value pairs",
             ])
 
-            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
+            configSchedulingConstraints = self.yesOrNo('Configure Scheduling policies for AI Service tenant')
+            if configSchedulingConstraints:
+                self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
 
     def _setMinioStorageDefaults(self) -> None:
         """

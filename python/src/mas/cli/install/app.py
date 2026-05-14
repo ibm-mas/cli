@@ -1562,7 +1562,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "  `nodeSelector`: Dictionary of node label key-value pairs",
             ])
 
-            self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
+            configSchedulingConstraints = self.yesOrNo('Configure Scheduling policies for AI Service tenant')
+            if configSchedulingConstraints:
+                self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
 
     @logMethodCall
     def _setMinioStorageDefaults(self) -> None:
@@ -1880,7 +1882,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("manage_bind_aiservice_tenant_id", "user")
             elif key == "configure_aiassistant":
                 if value is not None and value != "":
-                    self.setParam("configure_aiassistant", value)
+                    # Convert boolean-like values to "pipeline" or "none"
+                    if value in ["true", "True", "TRUE", "1", "yes", "Yes", "YES"]:
+                        self.setParam("configure_aiassistant", "pipeline")
+                    elif value in ["false", "False", "FALSE", "0", "no", "No", "NO"]:
+                        self.setParam("configure_aiassistant", "none")
+                    else:
+                        # Use the value as-is (should be "pipeline", "none", or "configure")
+                        self.setParam("configure_aiassistant", value)
             elif key == "manage_bind_aiservice_instance_id":
                 # only set if AI Service not being installed
                 if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
@@ -2142,6 +2151,36 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             hasKafkaConfig = kafkaAction in ["install", "byo"]
             if not hasKafkaConfig:
                 self.fatalError("--iot-channel requires Kafka configuration. Provide Kafka install arguments such as --kafka-provider, or supply a BYO Kafka config file named kafka-<mas-instance-id>-system.yaml using --additional-configs")
+
+        # Validate Kafka requirements for CIVIL installation in non-interactive mode
+        isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
+        if isCivilEnabled:
+            manageChannel = self.getParam("mas_app_channel_manage")
+            if manageChannel and isVersionEqualOrAfter('9.2.0', manageChannel):
+                kafkaAction = self.getParam("kafka_action_system")
+                hasKafkaConfig = kafkaAction in ["install", "byo"]
+                if not hasKafkaConfig:
+                    # Warn user but give option to proceed (Civil will work, but Defect Detection won't)
+                    print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka Configuration Required</Yellow>"))
+                    print_formatted_text(HTML(
+                        f"<LightSlateGrey>Installing Manage {manageChannel} with Civil Infrastructure component "
+                        "requires Kafka configuration. Civil versions >= 9.2.0 require a shared system-scope Kafka instance.</LightSlateGrey>"
+                    ))
+                    print_formatted_text(HTML(
+                        "<LightSlateGrey>Without Kafka, the Defect Detection functionality will not work.</LightSlateGrey>"
+                    ))
+                    print()
+
+                    if self.noConfirm:
+                        # In non-interactive mode, log warning and proceed
+                        logger.warning(
+                            f"Installing Manage {manageChannel} with Civil component without Kafka configuration. "
+                            "Defect Detection functionality will not work."
+                        )
+                    else:
+                        # In interactive mode, ask user if they want to proceed
+                        if not self.yesOrNo("Do you want to proceed with the installation without Kafka? (Defect Detection functionality will not work)"):
+                            self.fatalError("Installation cancelled. Please configure Kafka before installing.")
 
     @logMethodCall
     def install(self, argv):
