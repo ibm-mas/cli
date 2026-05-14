@@ -24,6 +24,9 @@ spec:
       type: string
     - name: github_host
       type: string
+    - name: aiservice_enable_deprovisioning
+      type: string
+      default: "false"
     - name: aiservice_namespace
       type: string
     - name: aiservice_provision_tenant
@@ -132,6 +135,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: aiservice_enable_deprovisioning
+          value: $(params.aiservice_enable_deprovisioning)
         - name: aiservice_namespace
           value: $(params.aiservice_namespace)
         - name: aiservice_provision_tenant
