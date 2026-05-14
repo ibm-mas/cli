@@ -106,6 +106,7 @@ function gitops_rhoai_noninteractive() {
 
 
 
+  export RHOAI_ACTION="${RHOAI_ACTION:-"uninstall"}"
   export OPENSHIFT_NAMESPACE="${OPENSHIFT_NAMESPACE:-"openshift-operators"}"
   export RHOAI_PIPELINE_CHANNEL="${RHOAI_PIPELINE_CHANNEL:-"latest"}"
   export RHOAI_PIPELINE_INSTALLPLAN="${RHOAI_PIPELINE_INSTALLPLAN:-"manual"}"
@@ -129,9 +130,9 @@ function gitops_rhoai_noninteractive() {
   export SERVERLESS_OPERATOR_SOURCE="${SERVERLESS_OPERATOR_SOURCE:-"redhat-operators"}"
   export SERVERLESS_OPERATOR_SOURCE_NAMESPACE="${SERVERLESS_OPERATOR_SOURCE_NAMESPACE:-"openshift-marketplace"}"
 
-  export OPENSHIFTAI_OPERATORGROUP_NAME="${OPENSHIFTAI_OPERATORGROUP_NAME:-"operatorgroup"}"
-  export OPENSHIFTAI_NAME="${OPENSHIFTAI_NAME:-"rhods-operator"}"
-  export OPENSHIFTAI_NAMESPACE="${OPENSHIFTAI_NAMESPACE:-"redhat-ods-operator"}"
+  export OPENSHIFTAI_OPERATORGROUP_NAME="${RHOAI_OPERATOR_GROUP:-"operatorgroup"}"
+  export OPENSHIFTAI_NAME="${RHOAI_NAME:-"rhods-operator"}"
+  export OPENSHIFTAI_NAMESPACE="${RHOAI_NAMESPACE:-"redhat-ods-operator"}"
   export RHOAI_INSTALL_PLAN="${RHOAI_INSTALL_PLAN:-"Automatic"}"
   export OPENSHIFTAI_CHANNEL="${OPENSHIFTAI_CHANNEL:-"stable"}"
   export OPENSHIFTAI_SOURCE="${OPENSHIFTAI_SOURCE:-"redhat-operators"}"
