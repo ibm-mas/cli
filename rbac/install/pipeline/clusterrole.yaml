@@ -147,3 +147,4 @@ rules:
       - update
       - watch
       - deletecollection
+      - impersonate
