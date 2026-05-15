@@ -405,6 +405,7 @@ function gitops_aiservice_tenant() {
   echo_reset_dim "AiService instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
+  echo_reset_dim "AIService Tenant Install Plan Approval . ${COLOR_MAGENTA}${AISERVICE_TENANT_INSTALL_PLAN_APPROVAL}"
   echo_reset_dim "cluster domain ............................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "in SaaS environment .......................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
 
