@@ -55,6 +55,7 @@ from mas.devops.data import getCatalog, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
+    prepareAiServicePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
     launchInstallPipeline
@@ -581,6 +582,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
+                prepareAiServicePipelinesNamespace(
+                    dynClient=self.dynamicClient,
+                    instanceId=self.getParam("aiservice_instance_id"),
+                    storageClass=self.pipelineStorageClass,
+                    accessMode=self.pipelineStorageAccessMode,
+                    configureRBAC=(self.getParam("service_account_name") == "")
+                )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
                     namespace=pipelinesNamespace,

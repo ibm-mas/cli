@@ -53,6 +53,7 @@ def test_install_noninteractive(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
+            mock.patch('mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace'),
             mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline
         ):
             dynamic_client_class.return_value = dynamic_client
@@ -147,6 +148,7 @@ def test_install_interactive_advanced(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
+            mock.patch('mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace'),
             mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline,
             mock.patch('mas.cli.cli.isSNO') as is_sno,
             mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
@@ -278,6 +280,7 @@ def test_install_interactive_simplified(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
+            mock.patch('mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace'),
             mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline,
             mock.patch('mas.cli.cli.isSNO') as is_sno,
             mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
