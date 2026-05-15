@@ -418,8 +418,7 @@ fi
   echo_reset_dim "MAS ICR CPOPEN registry ........................................ ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
 
 
-  echo_reset_dim "MAS ICR CP registry .......................... ${COLOR_MAGENTA}${MAS_ICR_CP}"
-  echo_reset_dim "MAS ICR CPOPEN registry ...................... ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
+
 
   # -- SLS
   echo_reset_dim "SLS subscription ID ............................................ ${COLOR_MAGENTA}${AISERVICE_SLS_SUBSCRIPTION_ID}"
