@@ -20,8 +20,8 @@ ibm_aiservice_tenant(required):
       --catalog-source ${TEXT_RESET}CATALOG_SOURCE${TEXT_RESET}                                             The catalog source from which to install the tenant operator
       --catalog-channel ${TEXT_RESET}CATALOG_CHANNEL${TEXT_RESET}                                           The catalog channel from which to install the tenant operator
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
-      --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}  
-      --aiservice-tenant-install-plan-approval ${TEXT_RESET}AISERVICE_TENANT_INSTALL_PLAN_APPROVAL${TEXT_RESET}                                                   The tenant ID for the AI Service instance
+      --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Service instance
+      --aiservice-tenant-install-plan-approval ${TEXT_RESET}AISERVICE_TENANT_INSTALL_PLAN_APPROVAL${TEXT_RESET}                                                   
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
       --dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                                         URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
@@ -34,8 +34,8 @@ AiService :
 --aiservice-provision-tenant ${COLOR_YELLOW}AISERVICE_PROVISION_TENANT${TEXT_RESET}                         Whether to provision the AI Service tenant
 --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                                   The AI Service instance ID
 --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                              The tenant's Kubernetes namespace
---tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}  
---aiservice-tenant-install-plan-approval ${TEXT_RESET}AISERVICE_TENANT_INSTALL_PLAN_APPROVAL${TEXT_RESET}                                                          The tenant ID for the AI Service instance
+--tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Service instance
+--aiservice-tenant-install-plan-approval ${TEXT_RESET}AISERVICE_TENANT_INSTALL_PLAN_APPROVAL${TEXT_RESET}                                                          
 --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in-saas-env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
 --aiservice_operator_log_level ${COLOR_YELLOW}AISERVICE_OPERATOR_LOG_LEVEL${TEXT_RESET}                     Log level for the AI Service operator (e.g., info, debug)
