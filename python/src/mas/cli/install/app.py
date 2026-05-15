@@ -2085,6 +2085,8 @@ class InstallApp(
         self.isInteractiveMode = True
 
         # Initialize attributes that may be used later
+        self.slsLicenseFileLocal = None
+        self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
 
         if simplified:
