@@ -294,29 +294,13 @@ Add after the `mas_appws_bindings_jdbc` parameter:
   - [x] Update [`summarizer.py`](python/src/mas/cli/install/summarizer.py) to display Image Processor status and Kafka binding
   - [x] Validate all Python changes with `autopep8` and `flake8`
 
-- [ ] **Phase 7: Automated Testing**
-  - [ ] Create `python/test/install/test_manage92_civil_kafka.py` with two test functions:
-    - [ ] `test_manage92_civil_no_kafka_interactive()` - Interactive test: Manage 9.2 with Civil, decline Kafka Image Processor
-      - Prompt handlers for Civil component selection
-      - Decline Kafka Image Processor when prompted
-      - Verify no Kafka configuration required
-      - Verify `mas_appws_bindings_kafka_manage` is empty
-    - [ ] `test_manage92_civil_with_kafka_interactive()` - Interactive test: Manage 9.2 with Civil, enable Kafka Image Processor
-      - Prompt handlers for Civil component selection
-      - Accept Kafka Image Processor when prompted
-      - Prompt handlers for Kafka configuration
-      - Verify `mas_appws_bindings_kafka_manage = "system"`
-      - Verify Kafka provider is configured
-    - [ ] `test_manage92_civil_with_kafka_non_interactive()` - Non-interactive test: Manage 9.2 with Civil and `--manage-kafka system`
-      - Use argv similar to [`test_install_master_dev_mode_non_interactive()`](python/test/install/test_dev_mode.py:372)
-      - Include `--manage-channel 9.2.x-dev`
-      - Include `--manage-components "base=latest,civil=latest"`
-      - Include `--manage-kafka system`
-      - Include `--kafka-provider strimzi`
-      - Verify installation completes successfully
-    - [ ] `test_manage92_civil_kafka_validation_errors()` - Non-interactive validation tests:
-      - Test `--manage-kafka` without `--kafka-provider` → expect error
-      - Test `--manage-kafka` with Manage < 9.2.0 → expect error
+- [x] **Phase 7: Automated Testing**
+  - [x] Create `python/test/install/test_manage92_civil_kafka.py` with four test functions:
+    - [x] `test_manage92_civil_no_kafka_interactive()` - Interactive test: Manage 9.2 with Civil, decline Kafka Image Processor
+    - [x] `test_manage92_civil_with_kafka_interactive()` - Interactive test: Manage 9.2 with Civil, enable Kafka Image Processor
+    - [x] `test_manage92_civil_with_kafka_non_interactive()` - Non-interactive test: Manage 9.2 with Civil and `--manage-kafka system`
+    - [x] `test_manage92_civil_kafka_validation_errors()` - Non-interactive validation tests for error conditions
+  - [x] All tests validated with flake8 (no errors)
 
 ## Validation
 

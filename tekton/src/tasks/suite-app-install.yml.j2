@@ -113,6 +113,10 @@ spec:
       type: string
       description: Components to configure in the workspace
       default: ""
+    - name: mas_appws_bindings_kafka
+      type: string
+      description: Components to configure in the workspace
+      default: ""
 
     # Application Workspace - Operand (Manage)
     - name: mas_appws_bindings_health_wsl_flag
@@ -439,6 +443,8 @@ spec:
         # Application Workspace - Operand
         - name: MAS_APPWS_BINDINGS_JDBC
           value: $(params.mas_appws_bindings_jdbc)
+        - name: MAS_APPWS_BINDINGS_KAFKA
+          value: $(params.mas_appws_bindings_kafka)
         - name: MAS_APPWS_COMPONENTS
           value: $(params.mas_appws_components)
 
