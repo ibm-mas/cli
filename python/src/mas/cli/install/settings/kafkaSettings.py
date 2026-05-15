@@ -11,15 +11,13 @@
 from typing import TYPE_CHECKING, Dict, List, NoReturn
 from os import path
 from prompt_toolkit import print_formatted_text
-from mas.devops.utils import isVersionEqualOrAfter
-
 
 if TYPE_CHECKING:
     from prompt_toolkit.completion import WordCompleter
     from prompt_toolkit.validation import Validator
 
 
-class KafkaSettingsMixin():
+class KafkaSettingsMixin:
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
@@ -27,6 +25,7 @@ class KafkaSettingsMixin():
         installManage: bool
         showAdvancedOptions: bool
         localConfigDir: str | None
+        enableKafkaImageProcessor: bool
 
         # Methods from BaseApp
         def setParam(self, param: str, value: str) -> None:
@@ -76,20 +75,14 @@ class KafkaSettingsMixin():
     def _requiresKafkaIoT(self) -> bool:
         return self.installIoT
 
-    def _requiresKafkaCivil(self) -> bool:
-        isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
-        if isCivilEnabled:
-            manageChannel = self.getParam("mas_app_channel_manage")
-            if manageChannel and isVersionEqualOrAfter('9.2.0', manageChannel):
-                return True
-        return False
-
     def _getKafkaRequirements(self) -> List[str]:
         requirements = []
         if self._requiresKafkaIoT():
             requirements.append("Maximo IoT")
-        if self._requiresKafkaCivil():
-            requirements.append("Manage Civil Infrastructure (9.2+) Defect Detection")
+        if self.enableKafkaImageProcessor:
+            requirements.append(
+                "Manage Civil Infrastructure (9.2+) Kafka Image Processor"
+            )
         return requirements
 
     def configKafka(self) -> None:
@@ -100,20 +93,28 @@ class KafkaSettingsMixin():
 
             # Build description based on what requires Kafka
             hasIoT = self._requiresKafkaIoT()
-            hasCivil = self._requiresKafkaCivil()
+            hasImageProcessor = self.enableKafkaImageProcessor
 
             description = []
-            if hasIoT and hasCivil:
-                description.append("Maximo IoT and Manage Civil Infrastructure (9.2+) Defect Detection require a shared system-scope Kafka instance")
+            if hasIoT and hasImageProcessor:
+                description.append(
+                    "Maximo IoT and Manage Civil Infrastructure Kafka Image Processor require a shared system-scope Kafka instance"
+                )
             elif hasIoT:
-                description.append("Maximo IoT requires a shared system-scope Kafka instance")
-            elif hasCivil:
-                description.append("Manage Civil Infrastructure (9.2+) Defect Detection functionality requires a shared system-scope Kafka instance")
+                description.append(
+                    "Maximo IoT requires a shared system-scope Kafka instance"
+                )
+            elif hasImageProcessor:
+                description.append(
+                    "Manage Civil Infrastructure Kafka Image Processor requires a shared system-scope Kafka instance"
+                )
 
-            description.extend([
-                "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
-                "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
-            ])
+            description.extend(
+                [
+                    "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
+                    "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file",
+                ]
+            )
 
             self.printDescription(description)
             if self.yesOrNo("Create system Kafka instance using one of the supported providers"):
@@ -187,7 +188,7 @@ class KafkaSettingsMixin():
             else:
                 self.setParam("kafka_action_system", "byo")
                 self.selectLocalConfigDir()
-                instanceId = self.getParam('mas_instance_id')
+                instanceId = self.getParam("mas_instance_id")
 
                 # Check if a configuration already exists
                 assert self.localConfigDir is not None, "localConfigDir must be set"

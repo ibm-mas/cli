@@ -23,7 +23,7 @@ requiredParams = [
     # DRO
     "dro_contact_email",
     "dro_contact_firstname",
-    "dro_contact_lastname"
+    "dro_contact_lastname",
 ]
 
 optionalParams = [
@@ -60,6 +60,7 @@ optionalParams = [
     "mas_manage_ws_db_encryptionsecret",
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
+    "mas_appws_bindings_kafka_manage",
     "mas_appws_components",
     "mas_appws_bindings_health_wsl_flag",
     "mas_domain",
@@ -189,7 +190,6 @@ optionalParams = [
     "aiservice_s3_bucket_prefix",
     "aiservice_s3_tenants_bucket",
     "aiservice_s3_templates_bucket",
-
     "aiservice_watsonxai_apikey",
     "aiservice_watsonxai_url",
     "aiservice_watsonxai_project_id",
@@ -204,30 +204,24 @@ optionalParams = [
     "aiservice_instance_id",
     "aiservice_watsonxai_instance_id",
     "aiservice_watsonxai_verify",
-
     "minio_root_user",
     "minio_root_password",
-
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
-
     "rsl_url",
     "rsl_org_id",
     "rsl_token",
     "rsl_ca_crt",
     "environment_type",
     "configure_aiassistant",
-
     # Certificate Issuer
     "aiservice_certificate_issuer",
-
     # Grafana
     "skip_grafana_install",
     "grafana_v5_namespace",
     "grafana_instance_storage_size",
-
     # Slack Integration
     "slack_token",
-    "slack_channel"
+    "slack_channel",
 ]
