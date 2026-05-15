@@ -148,3 +148,17 @@ rules:
       - watch
       - deletecollection
       - impersonate
+
+  # Allow binding and escalating ClusterRoles (including admin) without having all their permissions
+  # This is required for CPD to assign the admin role to service accounts
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+    verbs:
+      - bind
+      - escalate
+    resourceNames:
+      - admin
+      - edit
+      - view
