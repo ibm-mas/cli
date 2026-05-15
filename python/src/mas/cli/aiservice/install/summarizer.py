@@ -80,8 +80,6 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("URL", "aiservice_watsonxai_url")
         self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
-       
-
     def db2Summary(self) -> None:
         self.printH2("IBM Db2 Univeral Operator Configuration")
         self.printParamSummary("Action", "db2_action_aiservice")
