@@ -177,6 +177,8 @@ def test_install_interactive_advanced(tmpdir):
                     return ''
                 if re.match('.*Instance ID.*', message):
                     return 'apmdevops'
+                if re.match('.*Configure Scheduling policies for AI Service tenant.*', message):
+                    return 'y'
                 if re.match('.*Scheduling constraints YAML file.*', message):
                     return f'{tmpdir}/aiservice-tenant-affinity-config.yaml'
                 if re.match('.*Operational Mode.*', message):

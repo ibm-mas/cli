@@ -104,7 +104,7 @@ function provision_fyre_noninteractive() {
         OCP_FIPS_ENABLED=true
         ;;
       --enable-ipv6)
-        ENABLE_IPV6=true
+        OCP_ENABLE_IPV6=true
         ;;
 
       # Worker configuration
@@ -181,7 +181,7 @@ function provision_fyre_noninteractive() {
   fi
 
   # IPV6 supported only in rtp site
-  if [[ "$ENABLE_IPV6" == "true" ]]; then
+  if [[ "$OCP_ENABLE_IPV6" == "true" ]]; then
     FYRE_SITE=rtp
   fi
 
@@ -276,7 +276,7 @@ function provision_fyre_interactive() {
     prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY "16"
     prompt_for_input "Worker Additional Disk Sizes (GB, comma-seperated list)" FYRE_WORKER_ADDITIONAL_DISKS
     prompt_for_confirm "Enable FIPS? " OCP_FIPS_ENABLED
-    prompt_for_confirm "Enable IPV6? " ENABLE_IPV6
+    prompt_for_confirm "Enable IPV6? " OCP_ENABLE_IPV6
   else
     FYRE_QUOTA_TYPE="quick_burn"
     if [[ "$FYRE_SITE" != "svl" ]]; then
@@ -368,7 +368,7 @@ function provision_fyre() {
   export FYRE_WORKER_MEMORY
   export FYRE_WORKER_ADDITIONAL_DISKS
   export OCP_FIPS_ENABLED
-  export ENABLE_IPV6
+  export OCP_ENABLE_IPV6
 
   export OCP_STORAGE_PROVIDER
 
@@ -409,7 +409,7 @@ function provision_fyre() {
     echo_reset_dim "Worker Node Memory ........ ${COLOR_MAGENTA}${FYRE_WORKER_MEMORY:-Default}"
     echo_reset_dim "Worker Node Disks ......... ${COLOR_MAGENTA}${FYRE_WORKER_ADDITIONAL_DISKS:-None}"
     echo_reset_dim "Enable FIPS? .............. ${COLOR_MAGENTA}${OCP_FIPS_ENABLED:-None}"
-    echo_reset_dim "Enable IPV6? .............. ${COLOR_MAGENTA}${ENABLE_IPV6:-None}"
+    echo_reset_dim "Enable IPV6? .............. ${COLOR_MAGENTA}${OCP_ENABLE_IPV6:-None}"
   fi
 
   reset_colors
