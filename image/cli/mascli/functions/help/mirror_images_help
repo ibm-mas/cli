@@ -53,6 +53,7 @@ Content Selection (Applications):
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
       --mirror-predict                            Mirror images for IBM Maximo Predict
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
+      --mirror-arcgis                             Mirror images for IBM Maximo Location Services (ArcGIS)
 
 Content Selection (Cloud Pak for Data):
       --mirror-cp4d                               Mirror images for IBM Cloud Pak for Data Platform
