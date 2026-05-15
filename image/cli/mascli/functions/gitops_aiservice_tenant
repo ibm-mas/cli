@@ -397,7 +397,7 @@ function gitops_aiservice_tenant() {
 
   # echo all the variables of gitops envs
 
-  # -- aiservice
+   # -- aiservice tenant
   echo_reset_dim "Aiservice namespace ........................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
   echo_reset_dim "Catalog channel ............................... ${COLOR_MAGENTA}${CATALOG_CHANNEL}"
   echo_reset_dim "Catalog source ................................ ${COLOR_MAGENTA}${CATALOG_SOURCE}"
@@ -408,6 +408,15 @@ function gitops_aiservice_tenant() {
   echo_reset_dim "AIService Tenant Install Plan Approval . ${COLOR_MAGENTA}${AISERVICE_TENANT_INSTALL_PLAN_APPROVAL}"
   echo_reset_dim "cluster domain ............................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "in SaaS environment .......................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
+  if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" ]]; then
+  echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}${TENANT_SCHEDULING_CONFIG_YAML}"
+else
+  echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}Not Configured"
+fi
+
+  echo_reset_dim "MAS ICR CP registry ............................................ ${COLOR_MAGENTA}${MAS_ICR_CP}"
+  echo_reset_dim "MAS ICR CPOPEN registry ........................................ ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
+
 
   echo_reset_dim "MAS ICR CP registry .......................... ${COLOR_MAGENTA}${MAS_ICR_CP}"
   echo_reset_dim "MAS ICR CPOPEN registry ...................... ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
