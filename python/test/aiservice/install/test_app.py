@@ -103,7 +103,7 @@ def test_install_noninteractive(tmpdir):
                              '--tenant-entitlement-type', 'standard',
                              '--tenant-entitlement-start-date', '2025-08-28',
                              '--tenant-entitlement-end-date', '2026-08-28',
-
+                             '--tenant-scheduling-config-file', f'{tmpdir}/aiservice-tenant-affinity-config.yaml',
                              '--rsl-ca-crt', 'testRslCaCert',
                              '--accept-license', '--no-confirm',
                              '--skip-pre-check'])
