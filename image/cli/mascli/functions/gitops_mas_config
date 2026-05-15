@@ -888,8 +888,12 @@ function gitops_mas_config() {
       # ---------------------------------------------------------------------------
       export STORAGE_CLASS_DEFINITIONS
       if [[ -n "${MAF_STORAGE_CLASSNAME}" ]]; then
-        # Generate the actual storage class name from generated(efs) directive if applicable
-        # Generate storage class definition if needed
+        # Resolve generated(efs) to actual storage class name (e.g., efs-cluster1-main)
+        # If not generated(efs), this will return the input unchanged
+        MAF_STORAGE_CLASSNAME=$(generate_storage_class_name "${MAF_STORAGE_CLASSNAME}" "${CLUSTER_ID}" "" "" "main")
+        
+        # Generate storage class definition YAML if this is a generated(efs) directive
+        # This will look up the EFS filesystem and create the storage class definition
         STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MAF_STORAGE_CLASSNAME}" "${CLUSTER_ID}" "" "" "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
 
         echo -e "\n - MAF_STORAGE_CLASSNAME (processed) ............... ${MAF_STORAGE_CLASSNAME}"
