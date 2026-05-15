@@ -148,7 +148,7 @@ spec:
       type: string
 
     # RSL
-    - name: rsl_ca_cert
+    - name: rsl_ca_crt
       type: string
    
 
@@ -257,9 +257,9 @@ spec:
         value: $(params.tenant_scheduling_cfg_file)
 
       # RSL
-      - name: RSL_CA_CERT
-        value: $(params.rsl_ca_cert)
-        
+      - name: RSL_CA_CRT
+        value: $(params.rsl_ca_crt)
+
       # Certificate Issuer
       - name: AISERVICE_CERTIFICATE_ISSUER
         value: $(params.aiservice_certificate_issuer)
