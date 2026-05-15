@@ -94,6 +94,15 @@ class RestoreApp(BaseApp):
                 "manage_db_override_storageclass",
                 "manage_db_storage_class_rwx",
                 "manage_db_storage_class_rwo",
+                # Facilities App Restore
+                "restore_facilities_app",
+                "restore_facilities_db",
+                "facilities_app_override_storageclass",
+                "facilities_app_storage_class_rwx",
+                "facilities_app_storage_class_rwo",
+                "facilities_db_override_storageclass",
+                "facilities_db_storage_class_rwx",
+                "facilities_db_storage_class_rwo",
                 # MongoDB Storage Class Override
                 "override_mongodb_storageclass",
                 "mongodb_storageclass_name"
@@ -169,6 +178,9 @@ class RestoreApp(BaseApp):
             # Prompt for Manage app restore
             self.promptForManageAppRestore()
 
+            # Prompt for Facilities app restore
+            self.promptForFacilitiesAppRestore()
+
             self.promptForDownloadConfiguration()
 
             # Prompt for clean backup option if not provided
@@ -221,6 +233,11 @@ class RestoreApp(BaseApp):
             self.printH2("Manage Application Restore")
             self.printSummary("Restore Manage App", "Yes")
             self.printSummary("Restore Manage incluster Db2 Database", "Yes" if self.getParam("restore_manage_db") == "true" else "No")
+
+        if self.getParam("restore_facilities_app") == "true":
+            self.printH2("Facilities Application Restore")
+            self.printSummary("Restore Facilities App", "Yes")
+            self.printSummary("Restore Facilities incluster Db2 Database", "Yes" if self.getParam("restore_facilities_db") == "true" else "No")
 
         if self.getParam("sls_domain") is not None and self.getParam("sls_domain") != "":
             self.printH2("SLS Configuration")
@@ -671,10 +688,21 @@ class RestoreApp(BaseApp):
                 self.setParam("manage_db_storage_class_rwx", self.getParam("storage_class_rwx"))
                 self.setParam("manage_db_storage_class_rwo", self.getParam("storage_class_rwo"))
 
+            # Configure facilities app storage class override
+            if (self.getParam("storage_class_rwo") is not None and self.getParam("storage_class_rwx") != "") and (self.getParam("storage_class_rwx") is not None and self.getParam("storage_class_rwo") != ""):
+                self.setParam("facilities_app_override_storageclass", "true")
+                self.setParam("facilities_app_storage_class_rwx", self.getParam("storage_class_rwx"))
+                self.setParam("facilities_app_storage_class_rwo", self.getParam("storage_class_rwo"))
+                self.setParam("facilities_db_override_storageclass", "true")
+                self.setParam("facilities_db_storage_class_rwx", self.getParam("storage_class_rwx"))
+                self.setParam("facilities_db_storage_class_rwo", self.getParam("storage_class_rwo"))
+
         else:
             self.setParam("override_mongodb_storageclass", "false")
             self.setParam("manage_app_override_storageclass", "false")
             self.setParam("manage_db_override_storageclass", "false")
+            self.setParam("facilities_app_override_storageclass", "false")
+            self.setParam("facilities_db_override_storageclass", "false")
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str = '', keyPrefix: str = '') -> dict:
         """
@@ -751,3 +779,36 @@ class RestoreApp(BaseApp):
                 logger.debug(f"Added DRO config file to secret: {path.basename(droCfgFile)}")
 
             self.configSecret = configSecret
+
+    def promptForFacilitiesAppRestore(self) -> None:
+        """Prompt user for Facilities application restore configuration"""
+        self.printH1("Facilities Application Restore")
+        self.printDescription([
+            "In addition to restoring the MAS Suite, you can also restore the Facilities application.",
+            "This includes DB2, Facilities namespace resources and persistent volume data."
+        ])
+
+        restoreFacilitiesApp = self.yesOrNo("Do you want to restore the Facilities application")
+
+        if restoreFacilitiesApp:
+            self.setParam("restore_facilities_app", "true")
+
+            # Ask about DB2 restore
+            self.printH2("Facilities Database Restore")
+            self.printDescription([
+                "- The Facilities application uses a Db2 database that should also be restored.",
+                "- This will restore the incluster Db2 database associated with the Facilities workspace.",
+                "- Note: This will be offline restore and the Facilities application will be unavailable during the restore."
+            ])
+
+            restoreDb2 = self.yesOrNo("Do you want to restore the Facilities database (Db2)")
+
+            # Always set to disk for pipeline as s3 download is handled for the whole pipeline
+            self.setParam("facilities_db2_restore_vendor", "disk")
+            if restoreDb2:
+                self.setParam("restore_facilities_db", "true")
+            else:
+                self.setParam("restore_facilities_db", "false")
+        else:
+            self.setParam("restore_facilities_app", "false")
+            self.setParam("restore_facilities_db", "false")
