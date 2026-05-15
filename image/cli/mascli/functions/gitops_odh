@@ -323,6 +323,8 @@ function gitops_odh_noninteractive() {
         export AISERVICE_STORAGE_PROVIDER=$1 && shift
         ;;
       --storage-ssl|--aiservice-storage-ssl)
+        export AISERVICE_STORAGE_SSL=$1 && shift
+        ;;
       --storage-accesskey)
         export AISERVICE_STORAGE_ACCESSKEY=$1 && shift
         ;;
