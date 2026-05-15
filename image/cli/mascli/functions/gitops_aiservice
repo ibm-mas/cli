@@ -381,10 +381,16 @@ function gitops_aiservice() {
   export MAS_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
 
-  sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_url,dro_ca_b64enc"
-  sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
-  sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca_b64enc"
+  # Skip DRO, S3, and JDBC secret validation in FVT environments
+  # These secrets will be created by postSync jobs after deployment
+  if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
+    sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
+    sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_url,dro_ca_b64enc"
+    sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
+    sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca_b64enc"
+  else
+    echo "IS_GITOPS_FVT_ENV is true - Skipping DRO, S3, and JDBC secret validation"
+  fi
 
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
