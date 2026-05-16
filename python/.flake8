@@ -1,5 +1,0 @@
-[flake8]
-max-line-length = 160
-
-# E501 - line too long
-extend-ignore = E501
