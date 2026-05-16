@@ -2,4 +2,4 @@
 # These rules are ignored
 # - E501 line too long
 extend-ignore = E501
-max-line-length = 120
+max-line-length = 160
