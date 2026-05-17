@@ -47,9 +47,7 @@ class installArgBuilderMixin:
         if self.getParam("mas_manage_encryptionsecret_old_cryptox_key") != "":
             command += "export OLD_CRYTPOX_KEY=x\n"
 
-        command += (
-            f"mas install --mas-catalog-version {self.getParam('mas_catalog_version')}"
-        )
+        command += f"mas install --mas-catalog-version {self.getParam('mas_catalog_version')}"
 
         if self.getParam("mas_catalog_digest") != "":
             command += f" --mas-catalog-digest {self.getParam('mas_catalog_digest')}"
@@ -61,9 +59,7 @@ class installArgBuilderMixin:
         command += f"  --mas-channel {self.getParam('mas_channel')}"
         command += f" --mas-instance-id {self.getParam('mas_instance_id')}"
         command += f" --mas-workspace-id {self.getParam('mas_workspace_id')}"
-        command += (
-            f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
-        )
+        command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
 
         if self.getParam("mas_special_characters") == "true":
             command += f" --allow-special-chars {newline}"
@@ -91,17 +87,13 @@ class installArgBuilderMixin:
         if self.localConfigDir is not None:
             command += f'  --additional-configs "{self.localConfigDir}"{newline}'
         if self.getParam("pod_templates") != "":
-            command += (
-                f"  --pod-templates \"{self.getParam('pod_templates')}\"{newline}"
-            )
+            command += f"  --pod-templates \"{self.getParam('pod_templates')}\"{newline}"
 
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
         if self.getParam("mas_permission_mode") != "":
-            command += (
-                f"  --permission-mode {self.getParam('mas_permission_mode')}{newline}"
-            )
+            command += f"  --permission-mode {self.getParam('mas_permission_mode')}{newline}"
 
         if self.getParam("mas_trust_default_cas").lower() == "false":
             command += f"  --disable-ca-trust{newline}"
@@ -119,38 +111,28 @@ class installArgBuilderMixin:
             command += f"  --configure-ingress{newline}"
 
         if self.getParam("mas_use_service_mesh") != "":
-            command += (
-                f"  --servicemesh \"{self.getParam('mas_use_service_mesh')}\"{newline}"
-            )
+            command += f"  --servicemesh \"{self.getParam('mas_use_service_mesh')}\"{newline}"
 
         if self.getParam("mas_domain") != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
         if self.getParam("dns_provider") == "cis":
-            command += (
-                f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}\""
-            )
+            command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}\""
             command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
             command += f" --cis-crn \"{self.getParam('cis_crn')}\""
             command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
 
         if self.getParam("dns_provider") == "cloudflare":
             command += f"  --dns-provider cloudflare --cloudflare-apitoken \"{self.getParam('cloudflare_apitoken')}\"{newline}"
-            command += (
-                f"  --cloudflare-email \"{self.getParam('cloudflare_email')}\"{newline}"
-            )
-            command += (
-                f"  --cloudflare-zone \"{self.getParam('cloudflare_zone')}\"{newline}"
-            )
+            command += f"  --cloudflare-email \"{self.getParam('cloudflare_email')}\"{newline}"
+            command += f"  --cloudflare-zone \"{self.getParam('cloudflare_zone')}\"{newline}"
             command += f"  --cloudflare-subdomain \"{self.getParam('cloudflare_subdomain')}\"{newline}"
 
         if self.getParam("mas_cluster_issuer") != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
 
         if self.getParam("mas_issuer_kind") != "":
-            command += (
-                f"  --mas-issuer-kind \"{self.getParam('mas_issuer_kind')}\"{newline}"
-            )
+            command += f"  --mas-issuer-kind \"{self.getParam('mas_issuer_kind')}\"{newline}"
 
         if self.getParam("mas_enable_walkme").lower() == "false":
             command += f"  --disable-walkme{newline}"
@@ -170,9 +152,7 @@ class installArgBuilderMixin:
         # Storage
         # -----------------------------------------------------------------------------
         command += f"  --storage-class-rwo \"{self.getParam('storage_class_rwo')}\""
-        command += (
-            f" --storage-class-rwx \"{self.getParam('storage_class_rwx')}\"{newline}"
-        )
+        command += f" --storage-class-rwx \"{self.getParam('storage_class_rwx')}\"{newline}"
         command += f'  --storage-pipeline "{self.pipelineStorageClass}"'
         command += f' --storage-accessmode "{self.pipelineStorageAccessMode}"{newline}'
 
@@ -181,10 +161,7 @@ class installArgBuilderMixin:
         addedSLSCmd = False
         if self.getParam("sls_namespace") != "ibm-sls":
             if self.getParam("mas_instance_id") != "":
-                if (
-                    self.getParam("sls_namespace") ==
-                    f"mas-{self.getParam('mas_instance_id')}-sls"
-                ):
+                if self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
                     command += "  --dedicated-sls"
                     addedSLSCmd = True
             else:
@@ -203,13 +180,9 @@ class installArgBuilderMixin:
         # -----------------------------------------------------------------------------
         command += f"  --contact-email \"{self.getParam('dro_contact_email')}\""
         command += f" --contact-firstname \"{self.getParam('dro_contact_firstname')}\""
-        command += (
-            f" --contact-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
-        )
+        command += f" --contact-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
         if self.getParam("dro_namespace") != "":
-            command += (
-                f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
-            )
+            command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
 
         # MongoDb Community Operator
         # -----------------------------------------------------------------------------
@@ -237,9 +210,7 @@ class installArgBuilderMixin:
         if self.installAssist:
             command += f"  --assist-channel \"{self.getParam('mas_app_channel_assist')}\"{newline}"
         if self.installIoT:
-            command += (
-                f"  --iot-channel \"{self.getParam('mas_app_channel_iot')}\"{newline}"
-            )
+            command += f"  --iot-channel \"{self.getParam('mas_app_channel_iot')}\"{newline}"
         if self.installMonitor:
             command += f"  --monitor-channel \"{self.getParam('mas_app_channel_monitor')}\"{newline}"
         if self.installManage:
@@ -261,9 +232,7 @@ class installArgBuilderMixin:
         # Arcgis
         # -----------------------------------------------------------------------------
         if self.installArcgis:
-            command += (
-                f"  --arcgis-channel \"{self.getParam('mas_arcgis_channel')}\"{newline}"
-            )
+            command += f"  --arcgis-channel \"{self.getParam('mas_arcgis_channel')}\"{newline}"
 
         # Manage Advanced Settings
         # -----------------------------------------------------------------------------
@@ -388,48 +357,19 @@ class installArgBuilderMixin:
             if self.getParam("aiservice_certificate_issuer") != "":
                 command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
 
-            if (
-                self.getParam("aiservice_s3_accesskey") != "" and
-                self.getParam("minio_root_user") == ""
-            ):
+            if self.getParam("aiservice_s3_accesskey") != "" and self.getParam("minio_root_user") == "":
                 command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
-            if (
-                self.getParam("aiservice_s3_secretkey") != "" and
-                self.getParam("minio_root_user") == ""
-            ):
+            if self.getParam("aiservice_s3_secretkey") != "" and self.getParam("minio_root_user") == "":
                 command += f"  --s3-secretkey \"{self.getParam('aiservice_s3_secretkey')}\"{newline}"
-            if (
-                self.getParam("aiservice_s3_host") != "" and
-                self.getParam("minio_root_user") == ""
-            ):
-                command += (
-                    f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
-                )
-            if (
-                self.getParam("aiservice_s3_port") != "" and
-                self.getParam("minio_root_user") == ""
-            ):
-                command += (
-                    f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
-                )
-            if (
-                self.getParam("aiservice_s3_ssl") != "" and
-                self.getParam("minio_root_user") == ""
-            ):
-                command += (
-                    f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
-                )
-            if (
-                self.getParam("aiservice_s3_region") != "" and
-                self.getParam("minio_root_user") == ""
-            ):
-                command += (
-                    f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
-                )
-            if (
-                self.getParam("aiservice_s3_bucket_prefix") != "" and
-                self.getParam("minio_root_user") == ""
-            ):
+            if self.getParam("aiservice_s3_host") != "" and self.getParam("minio_root_user") == "":
+                command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
+            if self.getParam("aiservice_s3_port") != "" and self.getParam("minio_root_user") == "":
+                command += f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
+            if self.getParam("aiservice_s3_ssl") != "" and self.getParam("minio_root_user") == "":
+                command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
+            if self.getParam("aiservice_s3_region") != "" and self.getParam("minio_root_user") == "":
+                command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+            if self.getParam("aiservice_s3_bucket_prefix") != "" and self.getParam("minio_root_user") == "":
                 command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
             if self.getParam("aiservice_s3_tenants_bucket") != "":
                 command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
@@ -510,9 +450,9 @@ class installArgBuilderMixin:
         # IBM Db2 Universal Operator
         # -----------------------------------------------------------------------------
         if (
-            self.getParam("db2_action_system") == "install" or
-            self.getParam("db2_action_manage") == "install" or
-            self.getParam("db2_action_facilities") == "install"
+            self.getParam("db2_action_system") == "install"
+            or self.getParam("db2_action_manage") == "install"
+            or self.getParam("db2_action_facilities") == "install"
         ):
             if self.getParam("db2_action_system") == "install":
                 command += f"  --db2-system{newline}"
@@ -522,20 +462,14 @@ class installArgBuilderMixin:
                 command += f"  --db2-facilities{newline}"
 
             if self.getParam("db2_channel") != "":
-                command += (
-                    f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
-                )
+                command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
             if self.getParam("db2_namespace") != "":
-                command += (
-                    f"  --db2-namespace \"{self.getParam('db2_namespace')}\"{newline}"
-                )
+                command += f"  --db2-namespace \"{self.getParam('db2_namespace')}\"{newline}"
 
             if self.getParam("db2_type") != "":
                 command += f"  --db2-type \"{self.getParam('db2_type')}\"{newline}"
             if self.getParam("db2_timezone") != "":
-                command += (
-                    f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
-                )
+                command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
             if self.db2LicenseFileLocal != "":
                 command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
 
@@ -554,9 +488,7 @@ class installArgBuilderMixin:
             if self.getParam("db2_cpu_requests") != "":
                 command += f"  --db2-cpu-requests \"{self.getParam('db2_cpu_requests')}\"{newline}"
             if self.getParam("db2_cpu_limits") != "":
-                command += (
-                    f"  --db2-cpu-limits \"{self.getParam('db2_cpu_limits')}\"{newline}"
-                )
+                command += f"  --db2-cpu-limits \"{self.getParam('db2_cpu_limits')}\"{newline}"
 
             if self.getParam("db2_memory_requests") != "":
                 command += f"  --db2-memory-requests \"{self.getParam('db2_memory_requests')}\"{newline}"
@@ -579,14 +511,10 @@ class installArgBuilderMixin:
         # Kafka - Common
         # -----------------------------------------------------------------------------
         if self.getParam("kafka_provider") != "":
-            command += (
-                f"  --kafka-provider \"{self.getParam('kafka_provider')}\"{newline}"
-            )
+            command += f"  --kafka-provider \"{self.getParam('kafka_provider')}\"{newline}"
 
             if self.getParam("kafka_username") != "":
-                command += (
-                    f"  --kafka-username \"{self.getParam('kafka_username')}\"{newline}"
-                )
+                command += f"  --kafka-username \"{self.getParam('kafka_username')}\"{newline}"
             if self.getParam("kafka_password") != "":
                 command += f"  --kafka-password $KAFKA_PASSWORD{newline}"
 
@@ -595,9 +523,7 @@ class installArgBuilderMixin:
             if self.getParam("kafka_namespace") != "":
                 command += f"  --kafka-namespace \"{self.getParam('kafka_namespace')}\"{newline}"
             if self.getParam("kafka_version") != "":
-                command += (
-                    f"  --kafka-version \"{self.getParam('kafka_version')}\"{newline}"
-                )
+                command += f"  --kafka-version \"{self.getParam('kafka_version')}\"{newline}"
 
             # Kafka - MSK
             # -----------------------------------------------------------------------------
@@ -608,13 +534,9 @@ class installArgBuilderMixin:
 
                 command += f"  --msk-cidr-az1 \"{self.getParam('aws_msk_cidr_az1')}\""
                 command += f" --msk-cidr-az2 \"{self.getParam('aws_msk_cidr_az1')}\""
-                command += (
-                    f" --msk-cidr-az3 \"{self.getParam('aws_msk_cidr_az1')}\"{newline}"
-                )
+                command += f" --msk-cidr-az3 \"{self.getParam('aws_msk_cidr_az1')}\"{newline}"
 
-                command += (
-                    f"  --msk-cidr-egress \"{self.getParam('aws_msk_egress_cidr')}\""
-                )
+                command += f"  --msk-cidr-egress \"{self.getParam('aws_msk_egress_cidr')}\""
                 command += f" --msk-cidr-ingress \"{self.getParam('aws_msk_ingress_cidr')}\"{newline}"
 
             # Kafka - Event Streams
@@ -629,15 +551,11 @@ class installArgBuilderMixin:
         if self.getParam("cos_type") != "":
             command += f"  --cos \"{self.getParam('cos_type')}\""
             if self.getParam("cos_resourcegroup") != "":
-                command += (
-                    f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
-                )
+                command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
             if self.getParam("cos_apikey") != "":
                 command += f" --cos-apikey \"{self.getParam('cos_apikey')}\""
             if self.getParam("cos_instance_name") != "":
-                command += (
-                    f" --cos-instance-name \"{self.getParam('cos_instance_name')}\""
-                )
+                command += f" --cos-instance-name \"{self.getParam('cos_instance_name')}\""
             if self.getParam("cos_bucket_name") != "":
                 command += f" --cos-bucket-name \"{self.getParam('cos_bucket_name')}\"{newline}"
             command += newline
@@ -662,29 +580,19 @@ class installArgBuilderMixin:
         # Approvals
         # -----------------------------------------------------------------------------
         if self.getParam("approval_core") != "":
-            command += (
-                f"  --approval-core \"{self.getParam('approval_core')}\"{newline}"
-            )
+            command += f"  --approval-core \"{self.getParam('approval_core')}\"{newline}"
         if self.getParam("approval_assist") != "":
-            command += (
-                f"  --approval-assist \"{self.getParam('approval_assist')}\"{newline}"
-            )
+            command += f"  --approval-assist \"{self.getParam('approval_assist')}\"{newline}"
         if self.getParam("approval_iot") != "":
             command += f"  --approval-iot \"{self.getParam('approval_iot')}\"{newline}"
         if self.getParam("approval_manage") != "":
-            command += (
-                f"  --approval-manage \"{self.getParam('approval_manage')}\"{newline}"
-            )
+            command += f"  --approval-manage \"{self.getParam('approval_manage')}\"{newline}"
         if self.getParam("approval_monitor") != "":
-            command += (
-                f"  --approval-monitor \"{self.getParam('approval_monitor')}\"{newline}"
-            )
+            command += f"  --approval-monitor \"{self.getParam('approval_monitor')}\"{newline}"
         if self.getParam("approval_optimizer") != "":
             command += f"  --approval-optimizer \"{self.getParam('approval_optimizer')}\"{newline}"
         if self.getParam("approval_predict") != "":
-            command += (
-                f"  --approval-predict \"{self.getParam('approval_predict')}\"{newline}"
-            )
+            command += f"  --approval-predict \"{self.getParam('approval_predict')}\"{newline}"
         if self.getParam("approval_visualinspection") != "":
             command += f"  --approval-visualinspection \"{self.getParam('approval_visualinspection')}\"{newline}"
         if self.getParam("approval_facilities") != "":
@@ -706,13 +614,9 @@ class installArgBuilderMixin:
         if self.getParam("skip_preinstall_rbac") == "true":
             command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam("image_pull_policy") != "":
-            command += (
-                f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
-            )
+            command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam("service_account_name") != "":
-            command += (
-                f"  --service-account {self.getParam('service_account_name')}{newline}"
-            )
+            command += f"  --service-account {self.getParam('service_account_name')}{newline}"
 
         command += "  --accept-license --no-confirm"
         return command
