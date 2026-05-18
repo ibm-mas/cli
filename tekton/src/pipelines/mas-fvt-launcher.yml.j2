@@ -517,10 +517,11 @@ spec:
           operator: in
           values: ["after-iot"]
       runAfter:
-        - waitfor-iot
+        - launchfvt-iot
 
-    # Approve IoT (before-iot scenario) - only after both Monitor and IoT FVT complete
-    # For Monitor >= 9.2.0: IoT installs after Monitor, so approval happens after both FVTs
+    # Approve IoT (before-iot scenario) - runs after IoT installation completes to allow IoT to install
+    # For Monitor >= 9.2.0: IoT installs after Monitor, approval gates IoT installation not Day2
+    # A separate gate ensures both Monitor and IoT FVTs complete before Day2
     - name: approval-iot-after-monitor
       timeout: "0"
       taskRef:
@@ -896,10 +897,11 @@ spec:
           operator: in
           values: ["after-iot"]
       runAfter:
-        - waitfor-monitor
+        - launchfvt-monitor
 
     # Approve Monitor for Monitor >= 9.2.0 (before-iot scenario)
-    # This runs immediately after Monitor installation completes, allowing IoT to start
+    # This runs after Monitor installation completes to allow IoT to start installing
+    # A separate gate ensures both Monitor and IoT FVTs complete before Day2
     - name: approval-monitor-before-iot
       timeout: "0"
       taskRef:
@@ -1276,9 +1278,11 @@ spec:
         - approval-optimizer
         - approval-predict
         - approval-iot # Ensure IoT FVT completes before Day2 (pre-9.2)
-        - approval-iot-after-monitor # Ensure IoT FVT completes before Day2 (post-9.2)
+        - approval-iot-after-monitor # Gates IoT installation (post-9.2), not FVT completion
+        - launchfvt-iot-after-monitor # Ensure IoT FVT completes before Day2 (post-9.2)
         - approval-monitor # Ensure Monitor FVT completes before Day2 (pre-9.2)
-        - approval-monitor-before-iot # Ensure Monitor FVT completes before Day2 (post-9.2)
+        - approval-monitor-before-iot # Gates IoT installation (post-9.2), not FVT completion
+        - launchfvt-monitor-before-iot # Ensure Monitor FVT completes before Day2 (post-9.2)
         - approval-visualinspection
         - launchivt-manage
         - approval-facilities
