@@ -424,7 +424,7 @@ class installArgBuilderMixin:
             if self.aiserviceTenantSchedulingConfigFileLocal:
                 command += f'  --tenant-scheduling-config-file "{self.aiserviceTenantSchedulingConfigFileLocal}"{newline}'
 
-            if self.getParam('rsl_ca_crt') != "":
+            if self.getParam("rsl_ca_crt") != "":
                 command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 
         # IBM Cloud Pak for Data

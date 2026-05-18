@@ -94,8 +94,7 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         ".*Watsonxai Deployment ID.*": lambda msg: "",
         ".*Watsonxai Space ID.*": lambda msg: "",
         # 13. RSL Integration
-
-        '.*Does the RSL API use a self-signed certificate.*': lambda msg: 'n',
+        ".*Does the RSL API use a self-signed certificate.*": lambda msg: "n",
         # 14. MongoDB configuration
         ".*Create MongoDb cluster.*": lambda msg: "y",
         # 15. Final confirmation
@@ -164,8 +163,7 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Watsonxai Deployment ID.*": lambda msg: "",
         ".*Watsonxai Space ID.*": lambda msg: "",
         # 13. RSL Integration
-
-        '.*Does the RSL API use a self-signed certificate.*': lambda msg: 'n',
+        ".*Does the RSL API use a self-signed certificate.*": lambda msg: "n",
         # 14. MongoDB configuration
         ".*Create MongoDb cluster.*": lambda msg: "y",
         # 15. Final confirmation

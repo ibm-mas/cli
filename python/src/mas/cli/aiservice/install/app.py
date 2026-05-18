@@ -794,16 +794,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
             self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
         self.printH1("RSL Integration")
-        self.printDescription([
-            "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
-            "",
-            "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
-            "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
-            "Token: Use your IBM entitlement key (same as MAS installation)",
-            "",
-            "Note: Future versions will auto-configure these from MAS Manage.",
-            ""
-        ])
+        self.printDescription(
+            [
+                "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
+                "",
+                "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
+                "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
+                "Token: Use your IBM entitlement key (same as MAS installation)",
+                "",
+                "Note: Future versions will auto-configure these from MAS Manage.",
+                "",
+            ]
+        )
 
         if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
             self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")

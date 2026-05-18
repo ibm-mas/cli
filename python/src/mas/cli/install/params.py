@@ -209,8 +209,6 @@ optionalParams = [
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
-
-
     "rsl_ca_crt",
     "environment_type",
     "configure_aiassistant",
