@@ -90,6 +90,9 @@ class InstallSummarizerMixin():
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
         print()
+        self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
+
+        print()
         self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
 
         print()

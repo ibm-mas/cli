@@ -198,6 +198,14 @@ masAdvancedArgGroup.add_argument(
     choices=["true", "false"]
 )
 masAdvancedArgGroup.add_argument(
+    "--manual-routes",
+    dest="mas_manual_route_mgmt",
+    required=False,
+    action="store_const",
+    const="true",
+    help="Disable automatic creation of routes."
+)
+masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
     help="Path to directory containing the certificates to be applied"

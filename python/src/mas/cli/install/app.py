@@ -662,6 +662,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCATrust()
         self.configDNSAndCerts()
         self.configRoutingMode()
+        self.configManualRoutesMgmt()
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -977,6 +978,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         except Exception as e:
             logger.warning(f"User may not have permissions to configure IngressController '{controllerName}': {e}")
             return False
+
+    @logMethodCall
+    def configManualRoutesMgmt(self) -> None:
+        if self.showAdvancedOptions:
+            self.printH1("Configure Routes Manually")
+            self.printDescription([
+                "Disable automatic route creation."
+            ])
+            self.yesOrNo("Disable Route Creation", "mas_manual_route_mgmt")
+        else:
+            self.setParam("mas_manual_route_mgmt", "false")
 
     @logMethodCall
     def configServiceMesh(self) -> None:
