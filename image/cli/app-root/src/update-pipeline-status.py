@@ -34,18 +34,27 @@ def send_slack_notification(action, pipeline_name, instance_id, rc=0):
 
         if action == "pipeline-start":
             cmd = [
-                "python3", "/opt/app-root/bin/mas-devops-notify-slack",
-                "--action", "pipeline-start",
-                "--instance-id", instance_id,
-                "--pipeline-name", pipeline_name
+                "python3",
+                "/opt/app-root/bin/mas-devops-notify-slack",
+                "--action",
+                "pipeline-start",
+                "--instance-id",
+                instance_id,
+                "--pipeline-name",
+                pipeline_name,
             ]
         elif action == "pipeline-complete":
             cmd = [
-                "python3", "/opt/app-root/bin/mas-devops-notify-slack",
-                "--action", "pipeline-complete",
-                "--rc", str(rc),
-                "--instance-id", instance_id,
-                "--pipeline-name", pipeline_name
+                "python3",
+                "/opt/app-root/bin/mas-devops-notify-slack",
+                "--action",
+                "pipeline-complete",
+                "--rc",
+                str(rc),
+                "--instance-id",
+                instance_id,
+                "--pipeline-name",
+                pipeline_name,
             ]
         else:
             print(f"Unknown action: {action}")
@@ -104,7 +113,7 @@ if __name__ == "__main__":
     # =========================================================================
     # MongoDB Integration Logic (runs independently)
     # =========================================================================
-    if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
+    if "DEVOPS_MONGO_URI" not in os.environ or os.environ["DEVOPS_MONGO_URI"] == "":
         print("\nMongoDb integration disabled (DEVOPS_MONGO_URI not set)")
         sys.exit(0)
 
@@ -127,28 +136,16 @@ if __name__ == "__main__":
     client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
     db = client.masfvt
 
-    updates = {
-        f"pipelines.{pipelineName}.name": pipelineRunName,
-        f"pipelines.{pipelineName}.namespace": pipelineRunNamespace
-    }
+    updates = {f"pipelines.{pipelineName}.name": pipelineRunName, f"pipelines.{pipelineName}.namespace": pipelineRunNamespace}
 
     if pipelineStatus == "Started":
-        updates = {
-            f"pipelines.{pipelineName}.status": "Started",
-            f"pipelines.{pipelineName}.timestamp": datetime.now(UTC)
-        }
+        updates = {f"pipelines.{pipelineName}.status": "Started", f"pipelines.{pipelineName}.timestamp": datetime.now(UTC)}
 
     elif pipelineStatus in ["Completed", "Succeeded"]:
-        updates = {
-            f"pipelines.{pipelineName}.status": "Completed",
-            f"pipelines.{pipelineName}.timestampFinished": datetime.now(UTC)
-        }
+        updates = {f"pipelines.{pipelineName}.status": "Completed", f"pipelines.{pipelineName}.timestampFinished": datetime.now(UTC)}
 
     elif pipelineStatus == "Failed":
-        updates = {
-            f"pipelines.{pipelineName}.status": "Failed",
-            f"pipelines.{pipelineName}.timestampFinished": datetime.now(UTC)
-        }
+        updates = {f"pipelines.{pipelineName}.status": "Failed", f"pipelines.{pipelineName}.timestampFinished": datetime.now(UTC)}
 
     else:
         print("Unexpected state detected")
@@ -158,17 +155,17 @@ if __name__ == "__main__":
     result1 = db.runsv2.find_one_and_update(
         {"_id": runId},
         {
-            '$setOnInsert': {
+            "$setOnInsert": {
                 "_id": runId,
                 "timestamp": datetime.now(UTC),
                 "target": {
                     "instanceId": instanceId,
                     "buildId": build,
-                }
+                },
             },
-            '$set': updates
+            "$set": updates,
         },
-        upsert=True
+        upsert=True,
     )
 
     print("Pipeline status recorded in MongoDB successfully")
