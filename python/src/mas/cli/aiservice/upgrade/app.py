@@ -25,6 +25,7 @@ from mas.devops.ocp import createNamespace
 from mas.devops.aiservice import listAiServiceInstances, getAiserviceChannel
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchAiServiceUpgradePipeline
 from openshift.dynamic.exceptions import ResourceNotFoundError
+
 logger = logging.getLogger(__name__)
 
 
@@ -69,17 +70,22 @@ class AiServiceUpgradeApp(BaseApp):
 
             for aiservice in aiserviceInstances:
                 print_formatted_text(HTML(f"- <u>{aiservice['metadata']['name']}</u> v{aiservice['status']['versions']['reconciled']}"))
-                aiserviceOptions.append(aiservice['metadata']['name'])
+                aiserviceOptions.append(aiservice["metadata"]["name"])
 
             aiserviceCompleter = WordCompleter(aiserviceOptions)
             print()
-            aiserviceInstanceId = prompt(HTML('<Yellow>Enter AI Service instance ID: </Yellow>'), completer=aiserviceCompleter, validator=AiserviceInstanceIDValidator(), validate_while_typing=False)
+            aiserviceInstanceId = prompt(
+                HTML("<Yellow>Enter AI Service instance ID: </Yellow>"),
+                completer=aiserviceCompleter,
+                validator=AiserviceInstanceIDValidator(),
+                validate_while_typing=False,
+            )
 
         currentAiserviceChannel = getAiserviceChannel(self.dynamicClient, aiserviceInstanceId)
         if currentAiserviceChannel is not None:
             if self.devMode:
                 # this enables upgrade of custom channel for AI service
-                nextAiserviceChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+                nextAiserviceChannel = prompt(HTML("<Yellow>Custom channel</Yellow> "))
             else:
                 if currentAiserviceChannel not in self.upgrade_path:
                     self.fatalError(f"No upgrade available, {aiserviceInstanceId} is are already on the latest release {currentAiserviceChannel}")
@@ -87,10 +93,7 @@ class AiServiceUpgradeApp(BaseApp):
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
-            self.printDescription([
-                "To continue with the upgrade, you must accept the license terms:",
-                self.licenses[nextAiserviceChannel]
-            ])
+            self.printDescription(["To continue with the upgrade, you must accept the license terms:", self.licenses[nextAiserviceChannel]])
 
             if self.noConfirm:
                 self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
@@ -114,26 +117,30 @@ class AiServiceUpgradeApp(BaseApp):
             self.printH1("Launch Upgrade")
             pipelinesNamespace = f"aiservice-{aiserviceInstanceId}-pipelines"
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text='Submitting PipelineRun for {aiserviceInstanceId} upgrade', spinner=self.spinner) as h:
-                pipelineURL = launchAiServiceUpgradePipeline(self.dynamicClient, aiserviceInstanceId, self.skipPreCheck, aiserviceChannel=nextAiserviceChannel, params=self.params)
+            with Halo(text="Submitting PipelineRun for {aiserviceInstanceId} upgrade", spinner=self.spinner) as h:
+                pipelineURL = launchAiServiceUpgradePipeline(
+                    self.dynamicClient, aiserviceInstanceId, self.skipPreCheck, aiserviceChannel=nextAiserviceChannel, params=self.params
+                )
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {aiserviceInstanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
                 else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {aiserviceInstanceId} upgrade, see log file for details")
+                    h.stop_and_persist(
+                        symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {aiserviceInstanceId} upgrade, see log file for details"
+                    )
                     print()

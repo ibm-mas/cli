@@ -873,11 +873,25 @@ function gitops_mas_config() {
 
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
 
+      sm_login
+      
       # Set pod template yaml
       # ---------------------------------------------------------------------------
       if [[ -n "$MAS_APPCFG_POD_TEMPLATE_YAML" && -s "$MAS_APPCFG_POD_TEMPLATE_YAML" ]]; then
         export MAS_APPCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_APPCFG_POD_TEMPLATE_YAML})
         echo -e "\n - MAS_APPCFG_POD_TEMPLATE CONTENT .................. ${MAS_APPCFG_POD_TEMPLATE}"
+      fi
+
+      # Process storage class name (handle generated(efs) directive)
+      # For MAF appcfg, use cluster-level storage class: efs-{CLUSTER_ID}-main
+      # Do not include MAS_INSTANCE_ID or MAS_APP_ID in the storage class name
+      # ---------------------------------------------------------------------------
+      if [[ -n "${MAF_STORAGE_CLASSNAME}" ]]; then
+        # Resolve generated(efs) to actual storage class name (e.g., efs-cluster1-main)
+        # If not generated(efs), this will return the input unchanged
+        MAF_STORAGE_CLASSNAME=$(generate_storage_class_name "${MAF_STORAGE_CLASSNAME}" "${CLUSTER_ID}" "" "" "main")
+
+        echo -e "\n - MAF_STORAGE_CLASSNAME (processed) ............... ${MAF_STORAGE_CLASSNAME}"
       fi
 
     fi

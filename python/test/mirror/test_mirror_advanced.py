@@ -21,7 +21,7 @@ import sys
 import os
 
 # Add test directory to path for utils import
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def test_mirror_with_tls_verify_disabled(tmpdir):
@@ -33,24 +33,24 @@ def test_mirror_with_tls_verify_disabled(tmpdir):
     - Should pass flag to oc-mirror command
     """
     config = MirrorTestConfig(
-        mode='m2m',
-        catalog_version='v9-260129-amd64',
-        release='9.1.x',
-        target_registry='registry.example.com/mas',
+        mode="m2m",
+        catalog_version="v9-260129-amd64",
+        release="9.1.x",
+        target_registry="registry.example.com/mas",
         root_dir=str(tmpdir),
         dest_tls_verify=False,  # Disable TLS verification
         packages={},
         mock_oc_mirror_output=[
-            '2026/02/09 17:00:15  [INFO]   : 10 / 10 additional images mirrored successfully',
+            "2026/02/09 17:00:15  [INFO]   : 10 / 10 additional images mirrored successfully",
         ],
         mock_image_count=10,
         expect_success=True,
         timeout_seconds=30,
         env_vars={
-            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
-            'REGISTRY_USERNAME': 'testuser',
-            'REGISTRY_PASSWORD': 'testpass',
-            'HOME': str(tmpdir),
+            "IBM_ENTITLEMENT_KEY": "test-entitlement-key",
+            "REGISTRY_USERNAME": "testuser",
+            "REGISTRY_PASSWORD": "testpass",
+            "HOME": str(tmpdir),
         },
         config_exists_locally=True,
     )
@@ -67,21 +67,21 @@ def test_mirror_with_custom_image_timeout(tmpdir):
     - Should pass timeout to oc-mirror command
     """
     config = MirrorTestConfig(
-        mode='m2d',
-        catalog_version='v9-260129-amd64',
-        release='9.1.x',
+        mode="m2d",
+        catalog_version="v9-260129-amd64",
+        release="9.1.x",
         root_dir=str(tmpdir),
-        image_timeout='30m',  # Custom timeout
+        image_timeout="30m",  # Custom timeout
         packages={},
         mock_oc_mirror_output=[
-            '2026/02/09 17:00:15  [INFO]   : 10 / 10 additional images mirrored successfully',
+            "2026/02/09 17:00:15  [INFO]   : 10 / 10 additional images mirrored successfully",
         ],
         mock_image_count=10,
         expect_success=True,
         timeout_seconds=30,
         env_vars={
-            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
-            'HOME': str(tmpdir),
+            "IBM_ENTITLEMENT_KEY": "test-entitlement-key",
+            "HOME": str(tmpdir),
         },
         config_exists_locally=True,
     )
