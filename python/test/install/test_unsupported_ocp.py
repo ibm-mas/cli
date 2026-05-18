@@ -15,35 +15,34 @@ import os
 from mas.cli.install.catalogs import supportedCatalogs
 
 # Add test directory to path for utils import
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def test_install_interactive_unsupported_ocp(tmpdir):
-    """Test that installation fails with unsupported OCP version.
-    """
+    """Test that installation fails with unsupported OCP version."""
 
     prompt_handlers = {
         # 1. Cluster connection
-        '.*Proceed with this cluster?.*': lambda msg: 'y',
+        ".*Proceed with this cluster?.*": lambda msg: "y",
         # 2. Install flavour (advanced options)
-        '.*Show advanced installation options.*': lambda msg: 'n',
+        ".*Show advanced installation options.*": lambda msg: "n",
         # 3. Catalog selection
-        '.*Select release.*': lambda msg: '9.1',
+        ".*Select release.*": lambda msg: "9.1",
     }
 
     # Create test configuration with unsupported OCP version
     config = InstallTestConfig(
         prompt_handlers=prompt_handlers,
-        current_catalog={'catalogId': supportedCatalogs['amd64'][1]},
-        architecture='amd64',
+        current_catalog={"catalogId": supportedCatalogs["amd64"][1]},
+        architecture="amd64",
         is_sno=False,
         is_airgap=False,
-        storage_class_name='nfs-client',
-        storage_provider='nfs',
-        storage_provider_name='NFS Client',
-        ocp_version='4.6.0',  # Unsupported version
+        storage_class_name="nfs-client",
+        storage_provider="nfs",
+        storage_provider_name="NFS Client",
+        ocp_version="4.6.0",  # Unsupported version
         timeout_seconds=30,
-        expect_system_exit=True  # We expect SystemExit to be raised
+        expect_system_exit=True,  # We expect SystemExit to be raised
     )
 
     # Run the test - SystemExit will be caught and verified by the helper

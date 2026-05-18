@@ -47,8 +47,8 @@ class PromptTracker:
         # Extract message from either positional args or kwargs
         if args:
             message = str(args[0])
-        elif 'message' in kwargs:
-            message = str(kwargs['message'])
+        elif "message" in kwargs:
+            message = str(kwargs["message"])
         else:
             raise AssertionError(f"No message found in prompt call. Args: {args}, Kwargs: {kwargs}")
 

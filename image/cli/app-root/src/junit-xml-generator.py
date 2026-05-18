@@ -30,15 +30,15 @@ if __name__ == "__main__":
     args, unknown = parser.parse_known_args()
 
     test_cases_dict = []
-    test_case_list = args.test_cases.split(',')
+    test_case_list = args.test_cases.split(",")
     for test_case in test_case_list:
-        test_case_name = test_case.split(':')[0]
-        test_case_time = int(test_case.split(':')[1])
+        test_case_name = test_case.split(":")[0]
+        test_case_time = int(test_case.split(":")[1])
         print(f"Adding test_case: {test_case_name} with elapsed time {test_case_time}")
         test_cases_dict.append(TestCase(test_case_name, test_case_name, test_case_time))
 
     print(f"Creating testsuite : {args.test_suite_name}")
     ts = TestSuite(args.test_suite_name, test_cases_dict)
 
-    with open(os.path.join(args.output_dir, 'output.xml'), 'w') as f:
+    with open(os.path.join(args.output_dir, "output.xml"), "w") as f:
         TestSuite.to_file(f, [ts], prettyprint=False)
