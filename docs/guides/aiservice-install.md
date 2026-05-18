@@ -86,7 +86,7 @@ The interactive install will guide you through the following steps:
         <li><strong>Certificate Issuer (Advanced Mode Only):</strong> Optionally configure a pre-configured certificate issuer for AI Service</li>
         <li><strong>Network configuration (Advanced Mode Only):</strong> Optionally enable IPv6 SingleStack network configuration for AI Service</li>
         <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
-        <li><strong>RSL Configuration:</strong> Configure Red Hat Service Locator integration</li>
+       <li><strong>RSL Configuration:</strong> Optionally provide RSL CA certificate for Red Hat Service Locator integration</li>
         <li><strong>Tenant Configuration:</strong> Set up AI Service tenant(s)</li>
         <li><strong>Customize pod scheduling configuration for AI Workloads (Advanced Mode Only):</strong> Configure tolerations & nodeSelector for AI workloads (Training pipeline & Inference Service). See <a href="#scheduling-configuration-file-format">Scheduling Configuration File Format</a> for file configuration details.</li>
         <li><strong>Operational Mode:</strong> Choose between production or non-production mode</li>
@@ -156,10 +156,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
     --tenant-entitlement-end-date 2026-01-01 \
     --tenant-scheduling-config-file "/mnt/home/aiservice-tenant-affinity.yaml" \
     \
-    --rsl-url http://your-rsl-host:3001/api/v3/vector/query \
-    --rsl-org-id your_org_id \
-    --rsl-token 'Bearer your_rsl_token' \
-    \
+
     --accept-license --no-confirm
 "
 ```
@@ -267,9 +264,10 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 
 | Parameter | Description | Required | Example |
 |-----------|-------------|----------|---------|
-| `--rsl-url` | RSL service URL | Optional | `http://host:3001/api/v3/vector/query` |
-| `--rsl-org-id` | RSL organization ID | Optional | `your_org_id` |
-| `--rsl-token` | RSL authentication token | Optional | `Bearer your_token` |
+| `--rsl-ca-crt` | RSL CA certificate (PEM format) | Optional | `/path/to/ca.crt` |
+
+!!! note
+    The `rsl_url`, `rsl_org_id`, and `rsl_token` parameters are no longer needed to pass inside the install command.
 
 ### AI Workload Scheduling Configuration
 
