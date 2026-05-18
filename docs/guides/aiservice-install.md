@@ -260,7 +260,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 | `--tenant-entitlement-start-date` | Entitlement start date (YYYY-MM-DD) | Yes | `2025-01-01` |
 | `--tenant-entitlement-end-date` | Entitlement end date (YYYY-MM-DD) | Yes | `2026-01-01` |
 
-### RSL (Reliability strategy integration) Configuration
+### RSL (Reliability Strategies Library Integration) Configuration
 
 | Parameter | Description | Required | Example |
 |-----------|-------------|----------|---------|
