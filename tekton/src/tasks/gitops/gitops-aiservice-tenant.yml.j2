@@ -85,6 +85,8 @@ spec:
       type: string
     - name: tenant_entitlement_end_date
       type: string
+    - name: tenant_scheduling_config_yaml
+      type: string
     - name: sls_service
       type: string
       default: ""
@@ -169,6 +171,8 @@ spec:
         value: $(params.tenant_entitlement_start_date)
       - name: TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
+      - name: TENANT_SCHEDULING_CONFIG_YAML
+        value: $(params.tenant_scheduling_config_yaml)
       - name: STANDALONE_SLS_SERVICE
         value: $(params.sls_service)
     envFrom:
@@ -212,3 +216,4 @@ spec:
       image: quay.io/ibmmas/cli:latest
   workspaces:
     - name: configs
+    - name: shared-gitops-configs

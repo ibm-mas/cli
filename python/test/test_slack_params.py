@@ -24,34 +24,30 @@ class TestSlackParameters:
 
     def test_slack_token_in_optional_params(self):
         """Verify slack_token is in the optionalParams list"""
-        assert "slack_token" in optionalParams, \
-            "slack_token should be in optionalParams to support Slack notifications"
+        assert "slack_token" in optionalParams, "slack_token should be in optionalParams to support Slack notifications"
 
     def test_slack_channel_in_optional_params(self):
         """Verify slack_channel is in the optionalParams list"""
-        assert "slack_channel" in optionalParams, \
-            "slack_channel should be in optionalParams to support Slack notifications"
+        assert "slack_channel" in optionalParams, "slack_channel should be in optionalParams to support Slack notifications"
 
     def test_slack_params_are_optional(self):
         """Verify Slack parameters are optional (not required)"""
         from mas.cli.install.params import requiredParams
 
-        assert "slack_token" not in requiredParams, \
-            "slack_token should be optional, not required"
-        assert "slack_channel" not in requiredParams, \
-            "slack_channel should be optional, not required"
+        assert "slack_token" not in requiredParams, "slack_token should be optional, not required"
+        assert "slack_channel" not in requiredParams, "slack_channel should be optional, not required"
 
     def test_slack_params_documentation(self):
         """Document the purpose of Slack parameters"""
         # This test serves as documentation
         slack_params_doc = {
             "slack_token": "OAuth token for Slack API authentication (optional)",
-            "slack_channel": "Comma-separated list of Slack channels for notifications (optional)"
+            "slack_channel": "Comma-separated list of Slack channels for notifications (optional)",
         }
 
         # Verify both parameters exist
         for param, description in slack_params_doc.items():
-            assert param in optionalParams, \
-                f"{param} should be in optionalParams. Purpose: {description}"
+            assert param in optionalParams, f"{param} should be in optionalParams. Purpose: {description}"
+
 
 # Made with Bob

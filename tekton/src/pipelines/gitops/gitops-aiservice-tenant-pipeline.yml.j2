@@ -88,6 +88,9 @@ spec:
       type: string
     - name: tenant_entitlement_end_date
       type: string
+    - name: tenant_scheduling_config_yaml
+      type: string
+      default: ""
 
     # standalone sls
     - name: sls_service
@@ -96,6 +99,7 @@ spec:
 
   workspaces:
     - name: configs
+    - name: shared-gitops-configs
   tasks:
     - name: run-gitops-aiservice-tenant
       taskRef:
@@ -103,6 +107,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -186,5 +192,7 @@ spec:
           value: $(params.tenant_entitlement_start_date)
         - name: tenant_entitlement_end_date
           value: $(params.tenant_entitlement_end_date)
+        - name: tenant_scheduling_config_yaml
+          value: $(params.tenant_scheduling_config_yaml)
         - name: sls_service
           value: $(params.sls_service)
