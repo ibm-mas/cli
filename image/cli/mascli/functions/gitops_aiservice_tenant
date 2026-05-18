@@ -237,9 +237,6 @@ function gitops_aiservice_tenant_noninteractive() {
         ;;
 
       
-      --rsl-url)
-        export RSL_URL=$1 && shift
-        ;;
 
       --aiservice-storage-provider)
         export AISERVICE_STORAGE_PROVIDER=$1 && shift
@@ -332,7 +329,6 @@ function gitops_aiservice_tenant_noninteractive() {
   # -- Watsonx
   [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
   [[ -z "$AISERVICE_WATSONX_FULL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONX_FULL is not set. Please specify the full Watsonx.ai URL using --aiservice-watsonx-full."
-  [[ -z "$RSL_URL" ]] && gitops_aiservice_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
   [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
   
   [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage-ssl."
@@ -458,9 +454,13 @@ fi
     export SECRET_KEY_SLS_URL=${SLS_SECRETS_PREFIX}sls#sls_url
   fi  
 
-  export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
-  export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
-  export SECRET_KEY_RSL_CA_CRT=${SECRETS_PREFIX}rsl#rsl_ca_crt
+  # RSL - Check if secret exists and has a value before exporting
+  RSL_SECRET="${SECRETS_PREFIX}rsl"
+  RSL_CA_CRT_VALUE=$(sm_get_secret_value "$RSL_SECRET" "rsl_ca_crt")
+  if [[ -n "$RSL_CA_CRT_VALUE" && "$RSL_CA_CRT_VALUE" != "null" && "$RSL_CA_CRT_VALUE" != "" ]]; then
+    export SECRET_KEY_RSL_CA_CRT=${RSL_SECRET}#rsl_ca_crt
+    echo "RSL CA certificate key found and exported"
+  fi
   
   #watsonx
   WATSONX_SECRET="${SECRETS_PREFIX}watsonx"
@@ -490,7 +490,6 @@ fi
   else
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
   fi
-  sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
 
   # Load scheduling config file
