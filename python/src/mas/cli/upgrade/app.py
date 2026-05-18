@@ -24,6 +24,7 @@ from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, verifyAppInstance
+from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
@@ -36,9 +37,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         This is needed for upgrade scenarios where Monitor >= 9.2.0 must upgrade before IoT.
         For upgrades, we check the TARGET channel (where we're going), not current channel.
         """
-        from mas.devops.mas import getAppsSubscriptionChannel
-        from mas.devops.utils import isVersionEqualOrAfter
-
         installedApps = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
         hasMonitor = False
         hasIoT = False
@@ -52,7 +50,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         if hasMonitor and hasIoT:
             # For upgrade, check the TARGET channel (self.nextChannel), not current channel
             # If upgrading TO 9.2.x or higher, Monitor must upgrade before IoT
-            if self.nextChannel and isVersionEqualOrAfter('9.2.0', self.nextChannel):
+            if self.nextChannel and isVersionEqualOrAfter("9.2.0", self.nextChannel):
                 # Upgrading to Monitor >= 9.2.0: Monitor must upgrade before IoT
                 self.setParam("mas_monitor_install_order", "before-iot")
                 logger.debug(f"Upgrading to MAS {self.nextChannel} (>= 9.2.0): Monitor will upgrade before IoT")
@@ -66,6 +64,70 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         else:
             # No Monitor installed - set default
             self.setParam("mas_monitor_install_order", "after-iot")
+
+    def validateKafkaForCivilUpgrade(self, instanceId):
+        """
+        Validate Kafka requirements when upgrading Manage with Civil to 9.2+.
+        Civil >= 9.2 requires Kafka configuration.
+        Warns user and gives option to proceed without Kafka (Defect Detection will not function).
+        """
+        # Check if upgrading TO Manage 9.2+ (use TARGET channel, not current)
+        if not self.nextChannel or not isVersionEqualOrAfter("9.2.0", self.nextChannel):
+            return
+
+        # Query the ManageWorkspace CR to check if Civil component is installed
+        workspaceId = getWorkspaceId(self.dynamicClient, instanceId)
+        if not workspaceId:
+            logger.debug("Could not determine workspace ID, skipping Civil Kafka validation")
+            return
+
+        try:
+            # Query ManageWorkspace CR
+            workspaceAPI = self.dynamicClient.resources.get(api_version="apps.mas.ibm.com/v1", kind="ManageWorkspace")
+            workspace = workspaceAPI.get(name=f"{instanceId}-{workspaceId}", namespace=f"mas-{instanceId}-manage")
+
+            # Check if Civil component is in the workspace spec
+            components = workspace.get("spec", {}).get("components", {})
+            hasCivil = "civil" in components
+
+            if hasCivil:
+                logger.debug(f"Civil component detected, upgrading to {self.nextChannel} (>= 9.2.0): Kafka required")
+
+                # Validate Kafka configuration exists
+                kafkaAction = self.getParam("kafka_action_system")
+                hasKafkaConfig = kafkaAction in ["install", "byo"]
+
+                if not hasKafkaConfig:
+                    # Warn user but give option to proceed
+                    print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka Configuration Required</Yellow>"))
+                    print_formatted_text(
+                        HTML(
+                            f"<LightSlateGrey>Upgrading to Manage {self.nextChannel} with Civil Infrastructure component "
+                            "requires Kafka configuration. Civil versions >= 9.2.0 require a shared system-scope Kafka instance.</LightSlateGrey>"
+                        )
+                    )
+                    print_formatted_text(
+                        HTML(
+                            "<LightSlateGrey>Without Kafka, the Defect Detection functionality within Civil Infrastructure will not work, "
+                            "but other Civil and Manage components will continue to function.</LightSlateGrey>"
+                        )
+                    )
+                    print()
+
+                    if self.noConfirm:
+                        # In non-interactive mode, log warning and proceed
+                        logger.warning(
+                            f"Upgrading to Manage {self.nextChannel} with Civil component without Kafka configuration. "
+                            "Defect Detection functionality will not work."
+                        )
+                    else:
+                        # In interactive mode, ask user if they want to proceed
+                        if not self.yesOrNo("Do you want to proceed with the upgrade without Kafka? (Defect Detection will not work)"):
+                            self.fatalError("Upgrade cancelled. Please configure Kafka before upgrading.")
+
+        except Exception as e:
+            logger.warning(f"Could not query ManageWorkspace CR for Civil component check: {e}")
+            # Don't fail the upgrade if we can't query - let ansible handle it
 
     def upgrade(self, argv):
         """
@@ -109,27 +171,31 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
             for suite in suites:
                 print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
-                suiteOptions.append(suite['metadata']['name'])
+                suiteOptions.append(suite["metadata"]["name"])
 
             suiteCompleter = WordCompleter(suiteOptions)
             print()
-            instanceId = prompt(HTML('<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False)
+            instanceId = prompt(
+                HTML("<Yellow>Enter MAS instance ID: </Yellow>"), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False
+            )
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
         if currentChannel is not None:
             if self.devMode:
                 # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
-                self.nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+                self.nextChannel = prompt(HTML("<Yellow>Custom channel</Yellow> "))
             else:
                 if self.nextChannel != "":
                     # --next-channel was explicitly provided by the user
                     if self.nextChannel == currentChannel:
                         # Retry scenario: MAS core already on target channel, but some apps may still be behind
-                        print_formatted_text(HTML(
-                            f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
-                            f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
-                        ))
+                        print_formatted_text(
+                            HTML(
+                                f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
+                                f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
+                            )
+                        )
                     elif self.nextChannel == self.upgrade_path.get(currentChannel):
                         # Valid upgrade path: currentChannel -> nextChannel
                         pass
@@ -177,10 +243,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
-            self.printDescription([
-                "To continue with the upgrade, you must accept the license terms:",
-                self.licenses[self.nextChannel]
-            ])
+            self.printDescription(["To continue with the upgrade, you must accept the license terms:", self.licenses[self.nextChannel]])
 
             if self.noConfirm:
                 self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
@@ -197,7 +260,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.installFacilities = False
             self.installManage = True
             self.isManageFoundation = True
-            self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])
+            self.printDescription(
+                [f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."]
+            )
             self.printH1("Configure IBM Container Registry")
             self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
             if self.devMode:
@@ -215,6 +280,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         # Compute Monitor install order for upgrade
         self.computeMonitorInstallOrderForUpgrade(instanceId)
 
+        # Validate Kafka requirements for Civil component during upgrade
+        self.validateKafkaForCivilUpgrade(instanceId)
+
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
@@ -231,7 +299,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.printH1("Launch Upgrade")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
                 successfullyInstalledPipelines = installOpenShiftPipelines(self.dynamicClient)
                 if successfullyInstalledPipelines:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
@@ -239,15 +307,15 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
+            with Halo(text="Submitting PipelineRun for {instanceId} upgrade", spinner=self.spinner) as h:
                 # Determine masChannel parameter based on scenario:
                 # - Regular upgrade: pass currentChannel so ansible looks up the next channel
                 # - Retry scenario: pass previous channel so ansible upgrades apps to current channel
