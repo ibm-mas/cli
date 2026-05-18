@@ -88,7 +88,7 @@ class BackupApp(BaseApp):
                 "facilities_db2_namespace",
                 "facilities_db2_instance_name",
                 "facilities_db2_backup_type",
-                "facilities_db2_backup_vendor"
+                "facilities_db2_backup_vendor",
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -626,10 +626,12 @@ class BackupApp(BaseApp):
     def promptForFacilitiesAppBackup(self) -> None:
         """Prompt user for Facilities application backup configuration"""
         self.printH1("Facilities Application Backup")
-        self.printDescription([
-            "In addition to backing up the MAS Suite, you can also backup the Facilities application.",
-            "This includes the Facilities namespace resources and persistent volume data."
-        ])
+        self.printDescription(
+            [
+                "In addition to backing up the MAS Suite, you can also backup the Facilities application.",
+                "This includes the Facilities namespace resources and persistent volume data.",
+            ]
+        )
 
         backupFacilitiesApp = self.yesOrNo("Do you want to backup the Facilities application")
 
@@ -657,10 +659,12 @@ class BackupApp(BaseApp):
 
             # Ask about DB2 backup
             self.printH2("Facilities Database Backup")
-            self.printDescription([
-                "The Facilities application uses a Db2 database that should also be backed up.",
-                "This will backup the incluster Db2 database associated with the Facilities workspace."
-            ])
+            self.printDescription(
+                [
+                    "The Facilities application uses a Db2 database that should also be backed up.",
+                    "This will backup the incluster Db2 database associated with the Facilities workspace.",
+                ]
+            )
             backupDb2 = self.yesOrNo("Do you want to backup the Facilities database (Db2)")
 
             if backupDb2:

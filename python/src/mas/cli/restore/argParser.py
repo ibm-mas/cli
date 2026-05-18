@@ -186,106 +186,72 @@ manageAppArgGroup.add_argument("--manage-db-storage-class-rwo", required=False, 
 manageAppArgGroup.add_argument("--manage-db-storage-class-rwx", required=False, dest="manage_db_storage_class_rwx", help="RWX Storage class for DB2 storage")
 
 manageAppArgGroup.add_argument(
-    '--manage-app-storage-class-rwo',
-    required=False,
-    dest="manage_app_storage_class_rwo",
-    help="ReadWriteOnce Storage class for Manage App PVC"
+    "--manage-app-storage-class-rwo", required=False, dest="manage_app_storage_class_rwo", help="ReadWriteOnce Storage class for Manage App PVC"
 )
 
 manageAppArgGroup.add_argument(
-    '--override-manage-db-storageclass',
-    dest='manage_db_override_storageclass',
+    "--override-manage-db-storageclass",
+    dest="manage_db_override_storageclass",
     required=False,
     action="store_const",
     const="true",
-    help="Override database (Db2) PVC storageclass"
+    help="Override database (Db2) PVC storageclass",
 )
 
-manageAppArgGroup.add_argument(
-    '--manage-db-storage-class-rwo',
-    required=False,
-    dest="manage_db_storage_class_rwo",
-    help="RWO Storage class for DB2 storage"
-)
+manageAppArgGroup.add_argument("--manage-db-storage-class-rwo", required=False, dest="manage_db_storage_class_rwo", help="RWO Storage class for DB2 storage")
 
-manageAppArgGroup.add_argument(
-    '--manage-db-storage-class-rwx',
-    required=False,
-    dest="manage_db_storage_class_rwx",
-    help="RWX Storage class for DB2 storage"
-)
+manageAppArgGroup.add_argument("--manage-db-storage-class-rwx", required=False, dest="manage_db_storage_class_rwx", help="RWX Storage class for DB2 storage")
 
 facilitiesAppArgGroup = restoreArgParser.add_argument_group(
-    'Facilities Application Restore',
-    'Configure restore of the Facilities application and its database.'
+    "Facilities Application Restore", "Configure restore of the Facilities application and its database."
 )
 facilitiesAppArgGroup.add_argument(
-    '--restore-facilities-app',
-    dest='restore_facilities_app',
+    "--restore-facilities-app", dest="restore_facilities_app", required=False, action="store_const", const="true", help="Restore the Facilities application"
+)
+facilitiesAppArgGroup.add_argument(
+    "--restore-facilities-db",
+    dest="restore_facilities_db",
     required=False,
     action="store_const",
     const="true",
-    help="Restore the Facilities application"
+    help="Restore the Facilities application database (Db2)",
 )
+
 facilitiesAppArgGroup.add_argument(
-    '--restore-facilities-db',
-    dest='restore_facilities_db',
+    "--override-facilities-app-storageclass",
+    dest="facilities_app_override_storageclass",
     required=False,
     action="store_const",
     const="true",
-    help="Restore the Facilities application database (Db2)"
+    help="Override Facilities Application PVC storageclass",
 )
 
 facilitiesAppArgGroup.add_argument(
-    '--override-facilities-app-storageclass',
-    dest='facilities_app_override_storageclass',
+    "--facilities-app-storage-class-rwx", required=False, dest="facilities_app_storage_class_rwx", help="ReadWriteMany Storage class for Facilities App PVC"
+)
+
+facilitiesAppArgGroup.add_argument(
+    "--facilities-app-storage-class-rwo", required=False, dest="facilities_app_storage_class_rwo", help="ReadWriteOnce Storage class for Facilities App PVC"
+)
+
+facilitiesAppArgGroup.add_argument(
+    "--override-facilities-db-storageclass",
+    dest="facilities_db_override_storageclass",
     required=False,
     action="store_const",
     const="true",
-    help="Override Facilities Application PVC storageclass"
+    help="Override Facilities database (Db2) PVC storageclass",
 )
 
 facilitiesAppArgGroup.add_argument(
-    '--facilities-app-storage-class-rwx',
-    required=False,
-    dest="facilities_app_storage_class_rwx",
-    help="ReadWriteMany Storage class for Facilities App PVC"
+    "--facilities-db-storage-class-rwo", required=False, dest="facilities_db_storage_class_rwo", help="RWO Storage class for Facilities DB2 storage"
 )
 
 facilitiesAppArgGroup.add_argument(
-    '--facilities-app-storage-class-rwo',
-    required=False,
-    dest="facilities_app_storage_class_rwo",
-    help="ReadWriteOnce Storage class for Facilities App PVC"
+    "--facilities-db-storage-class-rwx", required=False, dest="facilities_db_storage_class_rwx", help="RWX Storage class for Facilities DB2 storage"
 )
 
-facilitiesAppArgGroup.add_argument(
-    '--override-facilities-db-storageclass',
-    dest='facilities_db_override_storageclass',
-    required=False,
-    action="store_const",
-    const="true",
-    help="Override Facilities database (Db2) PVC storageclass"
-)
-
-facilitiesAppArgGroup.add_argument(
-    '--facilities-db-storage-class-rwo',
-    required=False,
-    dest="facilities_db_storage_class_rwo",
-    help="RWO Storage class for Facilities DB2 storage"
-)
-
-facilitiesAppArgGroup.add_argument(
-    '--facilities-db-storage-class-rwx',
-    required=False,
-    dest="facilities_db_storage_class_rwx",
-    help="RWX Storage class for Facilities DB2 storage"
-)
-
-componentsArgGroup = restoreArgParser.add_argument_group(
-    'Components',
-    'Configure which components to include in the restore.'
-)
+componentsArgGroup = restoreArgParser.add_argument_group("Components", "Configure which components to include in the restore.")
 
 componentsArgGroup.add_argument(
     "--include-mongo",

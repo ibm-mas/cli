@@ -708,7 +708,9 @@ class RestoreApp(BaseApp):
                 self.setParam("manage_db_storage_class_rwo", self.getParam("storage_class_rwo"))
 
             # Configure facilities app storage class override
-            if (self.getParam("storage_class_rwo") is not None and self.getParam("storage_class_rwx") != "") and (self.getParam("storage_class_rwx") is not None and self.getParam("storage_class_rwo") != ""):
+            if (self.getParam("storage_class_rwo") is not None and self.getParam("storage_class_rwx") != "") and (
+                self.getParam("storage_class_rwx") is not None and self.getParam("storage_class_rwo") != ""
+            ):
                 self.setParam("facilities_app_override_storageclass", "true")
                 self.setParam("facilities_app_storage_class_rwx", self.getParam("storage_class_rwx"))
                 self.setParam("facilities_app_storage_class_rwo", self.getParam("storage_class_rwo"))
@@ -795,10 +797,12 @@ class RestoreApp(BaseApp):
     def promptForFacilitiesAppRestore(self) -> None:
         """Prompt user for Facilities application restore configuration"""
         self.printH1("Facilities Application Restore")
-        self.printDescription([
-            "In addition to restoring the MAS Suite, you can also restore the Facilities application.",
-            "This includes DB2, Facilities namespace resources and persistent volume data."
-        ])
+        self.printDescription(
+            [
+                "In addition to restoring the MAS Suite, you can also restore the Facilities application.",
+                "This includes DB2, Facilities namespace resources and persistent volume data.",
+            ]
+        )
 
         restoreFacilitiesApp = self.yesOrNo("Do you want to restore the Facilities application")
 
@@ -807,11 +811,13 @@ class RestoreApp(BaseApp):
 
             # Ask about DB2 restore
             self.printH2("Facilities Database Restore")
-            self.printDescription([
-                "- The Facilities application uses a Db2 database that should also be restored.",
-                "- This will restore the incluster Db2 database associated with the Facilities workspace.",
-                "- Note: This will be offline restore and the Facilities application will be unavailable during the restore."
-            ])
+            self.printDescription(
+                [
+                    "- The Facilities application uses a Db2 database that should also be restored.",
+                    "- This will restore the incluster Db2 database associated with the Facilities workspace.",
+                    "- Note: This will be offline restore and the Facilities application will be unavailable during the restore.",
+                ]
+            )
 
             restoreDb2 = self.yesOrNo("Do you want to restore the Facilities database (Db2)")
 
