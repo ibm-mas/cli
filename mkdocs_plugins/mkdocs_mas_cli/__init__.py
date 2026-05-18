@@ -28,14 +28,14 @@ class MASCLIPlugin(BasePlugin):
         """Replace CLI directives with rendered content."""
 
         # Pattern to match the directive block
-        pattern = r':::mas-cli-usage\s*\n((?:.*\n)*?):::'
+        pattern = r":::mas-cli-usage\s*\n((?:.*\n)*?):::"
 
         def replace_directive(match):
             """Parse and replace a single directive."""
             params_text = match.group(1)
             params = self._parse_params(params_text)
 
-            if 'module' not in params or 'parser' not in params:
+            if "module" not in params or "parser" not in params:
                 raise ValueError(
                     "CLI documentation directive missing required parameters. "
                     "Must specify both 'module' and 'parser'. "
@@ -43,10 +43,10 @@ class MASCLIPlugin(BasePlugin):
                 )
 
             return self._render_cli_usage(
-                params['module'],
-                params['parser'],
-                ignore_description=self._parse_bool(params.get('ignore_description', 'false')),
-                ignore_epilog=self._parse_bool(params.get('ignore_epilog', 'false'))
+                params["module"],
+                params["parser"],
+                ignore_description=self._parse_bool(params.get("ignore_description", "false")),
+                ignore_epilog=self._parse_bool(params.get("ignore_epilog", "false")),
             )
 
         markdown = re.sub(pattern, replace_directive, markdown)
@@ -55,15 +55,15 @@ class MASCLIPlugin(BasePlugin):
     def _parse_params(self, params_text):
         """Parse YAML-style parameters from directive."""
         params = {}
-        for line in params_text.strip().split('\n'):
-            if ':' in line:
-                key, value = line.split(':', 1)
+        for line in params_text.strip().split("\n"):
+            if ":" in line:
+                key, value = line.split(":", 1)
                 params[key.strip()] = value.strip()
         return params
 
     def _parse_bool(self, value):
         """Parse boolean value from string."""
-        return value.lower() in ('true', 'yes', '1', 'on')
+        return value.lower() in ("true", "yes", "1", "on")
 
     def _render_cli_usage(self, module_path, parser_name, ignore_description=False, ignore_epilog=False):
         """Load parser and generate markdown documentation."""
@@ -94,29 +94,18 @@ class MASCLIPlugin(BasePlugin):
                     module = importlib.import_module(module_path)
                 except ImportError as e2:
                     raise ImportError(
-                        f"Could not import {module_path}. "
-                        f"Tried adding {python_src_str} to sys.path. "
-                        f"Original error: {e}. "
-                        f"After path addition: {e2}"
+                        f"Could not import {module_path}. " f"Tried adding {python_src_str} to sys.path. " f"Original error: {e}. " f"After path addition: {e2}"
                     )
             else:
-                raise ImportError(
-                    f"Could not import {module_path}. "
-                    f"Python source path {python_src} does not exist. "
-                    f"Error: {e}"
-                )
+                raise ImportError(f"Could not import {module_path}. " f"Python source path {python_src} does not exist. " f"Error: {e}")
 
         if not hasattr(module, parser_name):
-            raise AttributeError(
-                f"Module {module_path} does not have attribute '{parser_name}'"
-            )
+            raise AttributeError(f"Module {module_path} does not have attribute '{parser_name}'")
 
         parser = getattr(module, parser_name)
 
         # Verify it's an ArgumentParser
-        if not hasattr(parser, '_action_groups'):
-            raise TypeError(
-                f"{parser_name} is not an ArgumentParser instance"
-            )
+        if not hasattr(parser, "_action_groups"):
+            raise TypeError(f"{parser_name} is not an ArgumentParser instance")
 
         return parser

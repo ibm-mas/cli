@@ -1,10 +1,10 @@
 default_language_version:
     python: python
 repos:
-  - repo: https://github.com/hhatto/autopep8
-    rev: v2.3.2
+  - repo: https://github.com/psf/black
+    rev: 26.3.1
     hooks:
-    -   id: autopep8
+      - id: black
   - repo: https://github.com/PyCQA/flake8
     rev: 7.3.0
     hooks:
