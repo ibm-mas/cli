@@ -24,166 +24,84 @@ def isValidFile(parser, arg) -> str:
 
 aiServiceinstallArgParser = argparse.ArgumentParser(
     prog="mas aiservice-install",
-    description="\n".join([
-        f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Install Aiservice by configuring and launching the Tekton Pipeline.\n",
-        "Interactive Mode:",
-        "Omitting the --instance-id option will trigger an interactive prompt"
-    ]),
+    description="\n".join(
+        [
+            f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
+            "Install Aiservice by configuring and launching the Tekton Pipeline.\n",
+            "Interactive Mode:",
+            "Omitting the --instance-id option will trigger an interactive prompt",
+        ]
+    ),
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
-    add_help=False
+    add_help=False,
 )
 
 # MAS Catalog Selection & Entitlement
 # -----------------------------------------------------------------------------
 catArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Catalog Selection & Entitlement")
+catArgGroup.add_argument("-c", "--mas-catalog-version", required=False, help="IBM Maximo Operator Catalog to install")
 catArgGroup.add_argument(
-    "-c", "--mas-catalog-version",
-    required=False,
-    help="IBM Maximo Operator Catalog to install"
+    "--mas-catalog-digest", required=False, help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources"
 )
-catArgGroup.add_argument(
-    "--mas-catalog-digest",
-    required=False,
-    help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources"
-)
-catArgGroup.add_argument(
-    "--ibm-entitlement-key",
-    required=False,
-    help="IBM entitlement key"
-)
+catArgGroup.add_argument("--ibm-entitlement-key", required=False, help="IBM entitlement key")
 
 # AI Service Basic Configuration
 # -----------------------------------------------------------------------------
 masArgGroup = aiServiceinstallArgParser.add_argument_group("AI Service Basic Configuration")
-masArgGroup.add_argument(
-    "-i", "--aiservice-instance-id",
-    required=False,
-    help="AI Service Instance ID"
-)
+masArgGroup.add_argument("-i", "--aiservice-instance-id", required=False, help="AI Service Instance ID")
 
 # MAS Advanced Configuration
 # -----------------------------------------------------------------------------
 masAdvancedArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Advanced Configuration")
-masAdvancedArgGroup.add_argument(
-    "--additional-configs",
-    required=False,
-    help="Path to a directory containing additional configuration files to be applied"
-)
-masAdvancedArgGroup.add_argument(
-    "--non-prod",
-    required=False,
-    help="Install MAS in non-production mode",
-    action="store_true"
-)
+masAdvancedArgGroup.add_argument("--additional-configs", required=False, help="Path to a directory containing additional configuration files to be applied")
+masAdvancedArgGroup.add_argument("--non-prod", required=False, help="Install MAS in non-production mode", action="store_true")
 
 # Storage
 # -----------------------------------------------------------------------------
 storageArgGroup = aiServiceinstallArgParser.add_argument_group("Storage")
-storageArgGroup.add_argument(
-    "--storage-class-rwo",
-    required=False,
-    help="ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)"
-)
-storageArgGroup.add_argument(
-    "--storage-class-rwx",
-    required=False,
-    help="ReadWriteMany (RWX) storage class (e.g. ibmc-file-gold-gid)"
-)
-storageArgGroup.add_argument(
-    "--storage-pipeline",
-    required=False,
-    help="Install pipeline storage class (e.g. ibmc-file-gold-gid)"
-)
+storageArgGroup.add_argument("--storage-class-rwo", required=False, help="ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)")
+storageArgGroup.add_argument("--storage-class-rwx", required=False, help="ReadWriteMany (RWX) storage class (e.g. ibmc-file-gold-gid)")
+storageArgGroup.add_argument("--storage-pipeline", required=False, help="Install pipeline storage class (e.g. ibmc-file-gold-gid)")
 storageArgGroup.add_argument(
     "--storage-accessmode",
     required=False,
     help="Install pipeline storage class access mode (ReadWriteMany or ReadWriteOnce)",
-    choices=["ReadWriteMany", "ReadWriteOnce"]
+    choices=["ReadWriteMany", "ReadWriteOnce"],
 )
 
 # IBM Suite License Service
 # -----------------------------------------------------------------------------
 slsArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Suite License Service")
-slsArgGroup.add_argument(
-    "--license-file",
-    required=False,
-    help="Path to MAS license file",
-    type=lambda x: isValidFile(aiServiceinstallArgParser, x)
-)
-slsArgGroup.add_argument(
-    "--sls-namespace",
-    required=False,
-    help="Customize the SLS install namespace",
-    default="ibm-sls"
-)
-slsArgGroup.add_argument(
-    "--dedicated-sls",
-    action="store_true",
-    default=False,
-    help="Set the SLS namespace to mas-<instanceid>-sls"
-)
+slsArgGroup.add_argument("--license-file", required=False, help="Path to MAS license file", type=lambda x: isValidFile(aiServiceinstallArgParser, x))
+slsArgGroup.add_argument("--sls-namespace", required=False, help="Customize the SLS install namespace", default="ibm-sls")
+slsArgGroup.add_argument("--dedicated-sls", action="store_true", default=False, help="Set the SLS namespace to mas-<instanceid>-sls")
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------
 droArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
-droArgGroup.add_argument(
-    "--contact-email",
-    "--uds-email",
-    dest="dro_contact_email",
-    required=False,
-    help="Contact e-mail address"
-)
-droArgGroup.add_argument(
-    "--contact-firstname",
-    "--uds-firstname",
-    dest="dro_contact_firstname",
-    required=False,
-    help="Contact first name"
-)
-droArgGroup.add_argument(
-    "--contact-lastname",
-    "--uds-lastname",
-    dest="dro_contact_lastname",
-    required=False,
-    help="Contact last name"
-)
-droArgGroup.add_argument(
-    "--dro-namespace",
-    required=False,
-    help="Namespace for the Data Reporting Operator"
-)
+droArgGroup.add_argument("--contact-email", "--uds-email", dest="dro_contact_email", required=False, help="Contact e-mail address")
+droArgGroup.add_argument("--contact-firstname", "--uds-firstname", dest="dro_contact_firstname", required=False, help="Contact first name")
+droArgGroup.add_argument("--contact-lastname", "--uds-lastname", dest="dro_contact_lastname", required=False, help="Contact last name")
+droArgGroup.add_argument("--dro-namespace", required=False, help="Namespace for the Data Reporting Operator")
 
 # MongoDb Community Operator
 # -----------------------------------------------------------------------------
 mongoArgGroup = aiServiceinstallArgParser.add_argument_group("MongoDb Community Operator")
-mongoArgGroup.add_argument(
-    "--mongodb-namespace",
-    required=False,
-    help="Namespace for the MongoDB Community Operator"
-)
+mongoArgGroup.add_argument("--mongodb-namespace", required=False, help="Namespace for the MongoDB Community Operator")
 
 # MAS Applications
 # -----------------------------------------------------------------------------
 masAppsArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Applications")
 
-masAppsArgGroup.add_argument(
-    "--aiservice-channel",
-    required=False,
-    help="Subscription channel for Maximo AI Service"
-)
+masAppsArgGroup.add_argument("--aiservice-channel", required=False, help="Subscription channel for Maximo AI Service")
 
 # ODH
 # -----------------------------------------------------------------------------
 odhArgGroup = aiServiceinstallArgParser.add_argument_group("Opendatahub")
 
 odhArgGroup.add_argument(
-    "--odh-model-deployment-type",
-    dest="aiservice_odh_model_deployment_type",
-    required=False,
-    default="raw",
-    help="Model deployment type for ODH"
+    "--odh-model-deployment-type", dest="aiservice_odh_model_deployment_type", required=False, default="raw", help="Model deployment type for ODH"
 )
 
 # Red Hat Openshift AI
@@ -195,16 +113,11 @@ rhoaiArgGroup.add_argument(
     dest="aiservice_rhoai_model_deployment_type",
     required=False,
     default="raw",
-    help="Model deployment type for RedHat Openshift AI"
+    help="Model deployment type for RedHat Openshift AI",
 )
 
 rhoaiArgGroup.add_argument(
-    "--rhoai",
-    dest="rhoai",
-    required=False,
-    help="temporary flag to install Redhat Openshift AI instead of Opendatahub",
-    action="store_const",
-    const="true"
+    "--rhoai", dest="rhoai", required=False, help="temporary flag to install Redhat Openshift AI instead of Opendatahub", action="store_const", const="true"
 )
 
 # S3 - General
@@ -219,198 +132,75 @@ s3ArgGroup.add_argument(
     required=False,
     help="Install Minio and configure it as the S3 provider for AI Service",
     action="store_const",
-    const="true"
+    const="true",
 )
 
-s3ArgGroup.add_argument(
-    "--minio-root-user",
-    dest="minio_root_user",
-    required=False,
-    help="Root user for minio"
-)
-s3ArgGroup.add_argument(
-    "--minio-root-password",
-    dest="minio_root_password",
-    required=False,
-    help="Password for minio root user"
-)
+s3ArgGroup.add_argument("--minio-root-user", dest="minio_root_user", required=False, help="Root user for minio")
+s3ArgGroup.add_argument("--minio-root-password", dest="minio_root_password", required=False, help="Password for minio root user")
 
 # S3 - External Connection
 # -----------------------------------------------------------------------------
-s3ArgGroup.add_argument(
-    "--s3-host",
-    dest="aiservice_s3_host",
-    required=False,
-    help="Hostname or IP address of the S3 storage service"
-)
-s3ArgGroup.add_argument(
-    "--s3-port",
-    dest="aiservice_s3_port",
-    required=False,
-    help="Port number for the S3 storage service"
-)
-s3ArgGroup.add_argument(
-    "--s3-ssl",
-    dest="aiservice_s3_ssl",
-    required=False,
-    help="Enable or disable SSL for S3 connection (true/false)"
-)
-s3ArgGroup.add_argument(
-    "--s3-accesskey",
-    dest="aiservice_s3_accesskey",
-    required=False,
-    help="Access key for authenticating with the S3 storage service"
-)
-s3ArgGroup.add_argument(
-    "--s3-secretkey",
-    dest="aiservice_s3_secretkey",
-    required=False,
-    help="Secret key for authenticating with the S3 storage service"
-)
-s3ArgGroup.add_argument(
-    "--s3-region",
-    dest="aiservice_s3_region",
-    required=False,
-    help="Region for the S3 storage service"
-)
-s3ArgGroup.add_argument(
-    "--s3-bucket-prefix",
-    dest="aiservice_s3_bucket_prefix",
-    required=False,
-    help="Bucket prefix configured with S3 storage service"
-)
+s3ArgGroup.add_argument("--s3-host", dest="aiservice_s3_host", required=False, help="Hostname or IP address of the S3 storage service")
+s3ArgGroup.add_argument("--s3-port", dest="aiservice_s3_port", required=False, help="Port number for the S3 storage service")
+s3ArgGroup.add_argument("--s3-ssl", dest="aiservice_s3_ssl", required=False, help="Enable or disable SSL for S3 connection (true/false)")
+s3ArgGroup.add_argument("--s3-accesskey", dest="aiservice_s3_accesskey", required=False, help="Access key for authenticating with the S3 storage service")
+s3ArgGroup.add_argument("--s3-secretkey", dest="aiservice_s3_secretkey", required=False, help="Secret key for authenticating with the S3 storage service")
+s3ArgGroup.add_argument("--s3-region", dest="aiservice_s3_region", required=False, help="Region for the S3 storage service")
+s3ArgGroup.add_argument("--s3-bucket-prefix", dest="aiservice_s3_bucket_prefix", required=False, help="Bucket prefix configured with S3 storage service")
 
 # S3 - Bucket Naming
 # -----------------------------------------------------------------------------
 s3ArgGroup.add_argument(
-    "--s3-tenants-bucket",
-    dest="aiservice_s3_tenants_bucket",
-    required=False,
-    default="km-tenants",
-    help="Name of the S3 bucket for tenants storage"
+    "--s3-tenants-bucket", dest="aiservice_s3_tenants_bucket", required=False, default="km-tenants", help="Name of the S3 bucket for tenants storage"
 )
 s3ArgGroup.add_argument(
-    "--s3-templates-bucket",
-    dest="aiservice_s3_templates_bucket",
-    required=False,
-    default="km-templates",
-    help="Name of the S3 bucket for templates storage"
+    "--s3-templates-bucket", dest="aiservice_s3_templates_bucket", required=False, default="km-templates", help="Name of the S3 bucket for templates storage"
 )
 
 # Watsonx
 # -----------------------------------------------------------------------------
 watsonxArgGroup = aiServiceinstallArgParser.add_argument_group("Watsonx")
 
-watsonxArgGroup.add_argument(
-    "--watsonxai-apikey",
-    dest="aiservice_watsonxai_apikey",
-    required=False,
-    help="API key for WatsonX"
-)
-watsonxArgGroup.add_argument(
-    "--watsonxai-url",
-    dest="aiservice_watsonxai_url",
-    required=False,
-    help="URL endpoint for WatsonX"
-)
-watsonxArgGroup.add_argument(
-    "--watsonxai-project-id",
-    dest="aiservice_watsonxai_project_id",
-    required=False,
-    help="Project ID for WatsonX"
-)
-watsonxArgGroup.add_argument(
-    "--watsonx-action",
-    dest="aiservice_watsonx_action",
-    required=False,
-    help="Action to perform with WatsonX (install/remove)"
-)
+watsonxArgGroup.add_argument("--watsonxai-apikey", dest="aiservice_watsonxai_apikey", required=False, help="API key for WatsonX")
+watsonxArgGroup.add_argument("--watsonxai-url", dest="aiservice_watsonxai_url", required=False, help="URL endpoint for WatsonX")
+watsonxArgGroup.add_argument("--watsonxai-project-id", dest="aiservice_watsonxai_project_id", required=False, help="Project ID for WatsonX")
+watsonxArgGroup.add_argument("--watsonx-action", dest="aiservice_watsonx_action", required=False, help="Action to perform with WatsonX (install/remove)")
 watsonxArgGroup.add_argument(
     "--watsonxai-ca-crt",
     dest="aiservice_watsonxai_ca_crt",
     required=False,
-    help="CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)"
+    help="CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)",
 )
-watsonxArgGroup.add_argument(
-    "--watsonxai-deployment-id",
-    dest="aiservice_watsonxai_deployment_id",
-    required=False,
-    help="WatsonX deployment ID"
-)
-watsonxArgGroup.add_argument(
-    "--watsonxai-space-id",
-    dest="aiservice_watsonxai_space_id",
-    required=False,
-    help="WatsonX space ID"
-)
-watsonxArgGroup.add_argument(
-    "--watsonxai-instance-id",
-    dest="aiservice_watsonxai_instance_id",
-    required=False,
-    help="WatsonX instance ID"
-)
-watsonxArgGroup.add_argument(
-    "--watsonxai-username",
-    dest="aiservice_watsonxai_username",
-    required=False,
-    help="WatsonX username"
-)
-watsonxArgGroup.add_argument(
-    "--watsonxai-version",
-    dest="aiservice_watsonxai_version",
-    required=False,
-    help="WatsonX version"
-)
-watsonxArgGroup.add_argument(
-    "--watsonxai-onprem",
-    dest="aiservice_watsonxai_on_prem",
-    required=False,
-    help="WatsonX deployed on prem"
-)
+watsonxArgGroup.add_argument("--watsonxai-deployment-id", dest="aiservice_watsonxai_deployment_id", required=False, help="WatsonX deployment ID")
+watsonxArgGroup.add_argument("--watsonxai-space-id", dest="aiservice_watsonxai_space_id", required=False, help="WatsonX space ID")
+watsonxArgGroup.add_argument("--watsonxai-instance-id", dest="aiservice_watsonxai_instance_id", required=False, help="WatsonX instance ID")
+watsonxArgGroup.add_argument("--watsonxai-username", dest="aiservice_watsonxai_username", required=False, help="WatsonX username")
+watsonxArgGroup.add_argument("--watsonxai-version", dest="aiservice_watsonxai_version", required=False, help="WatsonX version")
+watsonxArgGroup.add_argument("--watsonxai-onprem", dest="aiservice_watsonxai_on_prem", required=False, help="WatsonX deployed on prem")
 
 # AI Service
 # -----------------------------------------------------------------------------
 aiServiceArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Service")
 
 aiServiceArgGroup.add_argument(
-    "--tenant-entitlement-type",
-    dest="tenant_entitlement_type",
-    required=False,
-    default="standard",
-    help="Entitlement type for AI Service tenant"
+    "--tenant-entitlement-type", dest="tenant_entitlement_type", required=False, default="standard", help="Entitlement type for AI Service tenant"
+)
+aiServiceArgGroup.add_argument("--tenant-entitlement-start-date", dest="tenant_entitlement_start_date", required=False, help="Start date for AI Service tenant")
+aiServiceArgGroup.add_argument("--tenant-entitlement-end-date", dest="tenant_entitlement_end_date", required=False, help="End date for AI Service tenant")
+aiServiceArgGroup.add_argument("--rsl-url", dest="rsl_url", required=False, help="rsl url")
+aiServiceArgGroup.add_argument("--rsl-org-id", dest="rsl_org_id", required=False, help="org id for rsl")
+aiServiceArgGroup.add_argument("--rsl-token", dest="rsl_token", required=False, help="token for rsl")
+aiServiceArgGroup.add_argument(
+    "--rsl-ca-crt", dest="rsl_ca_crt", required=False, help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)"
 )
 aiServiceArgGroup.add_argument(
-    "--tenant-entitlement-start-date",
-    dest="tenant_entitlement_start_date",
-    required=False,
-    help="Start date for AI Service tenant"
-)
-aiServiceArgGroup.add_argument(
-    "--tenant-entitlement-end-date",
-    dest="tenant_entitlement_end_date",
-    required=False,
-    help="End date for AI Service tenant"
-)
-
-aiServiceArgGroup.add_argument(
-    "--rsl-ca-crt",
-    dest="rsl_ca_crt",
-    required=False,
-    help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)"
-)
-aiServiceArgGroup.add_argument(
-    "--environment-type",
-    dest="environment_type",
-    required=False,
-    default="non-production",
-    help="Environment type (default: non-production)"
+    "--environment-type", dest="environment_type", required=False, default="non-production", help="Environment type (default: non-production)"
 )
 
 # AI Service advanced configuration
 # -----------------------------------------------------------------------------
 aiserviceAdvancedArgGroup = aiServiceinstallArgParser.add_argument_group(
-    "Advanced configuration for AI Service",
-    "Advanced configuration options for AI Service including certificates issuer and IPv6 support"
+    "Advanced configuration for AI Service", "Advanced configuration options for AI Service including certificates issuer and IPv6 support"
 )
 aiserviceAdvancedArgGroup.add_argument(
     "--aiservice-certificate-issuer",
@@ -423,14 +213,10 @@ aiserviceAdvancedArgGroup.add_argument(
     dest="permission_mode",
     required=False,
     choices=["cluster", "namespaced", "minimal"],
-    help="The permission mode used to determine which pre-install RBAC manifests are applied for AI Service (MAS 9.2+ advanced option)"
+    help="The permission mode used to determine which pre-install RBAC manifests are applied for AI Service (MAS 9.2+ advanced option)",
 )
 aiserviceAdvancedArgGroup.add_argument(
-    "--skip-preinstall-rbac",
-    dest="skip_preinstall_rbac",
-    required=False,
-    action="store_true",
-    help="Skip pre-install RBAC setup (non-interactive mode only)"
+    "--skip-preinstall-rbac", dest="skip_preinstall_rbac", required=False, action="store_true", help="Skip pre-install RBAC setup (non-interactive mode only)"
 )
 aiserviceAdvancedArgGroup.add_argument(
     "--enable-ipv6",
@@ -439,14 +225,14 @@ aiserviceAdvancedArgGroup.add_argument(
     default="false",
     help="Configure AI Service to run in IPv6. Before setting this option, be sure your cluster is configured in IPv6",
     action="store_const",
-    const="true"
+    const="true",
 )
 aiserviceAdvancedArgGroup.add_argument(
     "--tenant-scheduling-config-file",
     dest="tenant_scheduling_config_file",
     required=False,
     help="Path to the YAML file that contains the scheduling configuration for tenant",
-    type=lambda x: isValidFile(aiServiceinstallArgParser, x)
+    type=lambda x: isValidFile(aiServiceinstallArgParser, x),
 )
 
 
@@ -454,66 +240,27 @@ aiserviceAdvancedArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 db2ArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Db2 Universal Operator")
 
-db2ArgGroup.add_argument(
-    "--db2-namespace",
-    required=False,
-    help="Change namespace where Db2u instances will be created"
-)
-db2ArgGroup.add_argument(
-    "--db2-channel",
-    required=False,
-    help="Subscription channel for Db2u"
-)
-db2ArgGroup.add_argument(
-    "--db2-license-file",
-    required=False,
-    help="Db2 License File for Db2"
-)
+db2ArgGroup.add_argument("--db2-namespace", required=False, help="Change namespace where Db2u instances will be created")
+db2ArgGroup.add_argument("--db2-channel", required=False, help="Subscription channel for Db2u")
+db2ArgGroup.add_argument("--db2-license-file", required=False, help="Db2 License File for Db2")
 
 # Development Mode
 # -----------------------------------------------------------------------------
 devArgGroup = aiServiceinstallArgParser.add_argument_group("Development Mode")
-devArgGroup.add_argument(
-    "--artifactory-username",
-    required=False,
-    help="Username for access to development builds on Artifactory"
-)
-devArgGroup.add_argument(
-    "--artifactory-token",
-    required=False,
-    help="API Token for access to development builds on Artifactory"
-)
+devArgGroup.add_argument("--artifactory-username", required=False, help="Username for access to development builds on Artifactory")
+devArgGroup.add_argument("--artifactory-token", required=False, help="API Token for access to development builds on Artifactory")
 
 # Approvals
 # -----------------------------------------------------------------------------
 approvalsGroup = aiServiceinstallArgParser.add_argument_group("Integrated Approval Workflow (MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
-approvalsGroup.add_argument(
-    "--approval-aiservice",
-    default="",
-    help="Require approval after the AI Service has been configured"
-)
+approvalsGroup.add_argument("--approval-aiservice", default="", help="Require approval after the AI Service has been configured")
 
 # More Options
 # -----------------------------------------------------------------------------
 otherArgGroup = aiServiceinstallArgParser.add_argument_group("More")
-otherArgGroup.add_argument(
-    "--advanced",
-    action="store_true",
-    default=False,
-    help="Show advanced install options (in interactve mode)"
-)
-otherArgGroup.add_argument(
-    "--simplified",
-    action="store_true",
-    default=False,
-    help="Don't show advanced install options (in interactve mode)"
-)
-otherArgGroup.add_argument(
-    "--accept-license",
-    action="store_true",
-    default=False,
-    help="Accept all license terms without prompting"
-)
+otherArgGroup.add_argument("--advanced", action="store_true", default=False, help="Show advanced install options (in interactve mode)")
+otherArgGroup.add_argument("--simplified", action="store_true", default=False, help="Don't show advanced install options (in interactve mode)")
+otherArgGroup.add_argument("--accept-license", action="store_true", default=False, help="Accept all license terms without prompting")
 otherArgGroup.add_argument(
     "--dev-mode",
     required=False,
@@ -521,12 +268,7 @@ otherArgGroup.add_argument(
     default=False,
     help="Configure installation for development mode",
 )
-otherArgGroup.add_argument(
-    "--skip-pre-check",
-    required=False,
-    action="store_true",
-    help="Disable the 'pre-install-check' at the start of the install pipeline"
-)
+otherArgGroup.add_argument("--skip-pre-check", required=False, action="store_true", help="Disable the 'pre-install-check' at the start of the install pipeline")
 otherArgGroup.add_argument(
     "--no-confirm",
     required=False,
@@ -546,21 +288,14 @@ otherArgGroup.add_argument(
     required=False,
     help="Run the install pipeline under a custom service account (also disables creation of the default 'pipeline' service account)",
 )
+otherArgGroup.add_argument("--slack-token", dest="slack_token", required=False, help="Slack bot token for sending pipeline notifications")
 otherArgGroup.add_argument(
-    "--slack-token",
-    dest="slack_token",
-    required=False,
-    help="Slack bot token for sending pipeline notifications"
-)
-otherArgGroup.add_argument(
-    "--slack-channel",
-    dest="slack_channel",
-    required=False,
-    help="Slack channel(s) for notifications (comma-separated for multiple channels)"
+    "--slack-channel", dest="slack_channel", required=False, help="Slack channel(s) for notifications (comma-separated for multiple channels)"
 )
 
 otherArgGroup.add_argument(
-    "-h", "--help",
+    "-h",
+    "--help",
     action="help",
     default=False,
     help="Show this help message and exit",
