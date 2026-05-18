@@ -253,7 +253,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         '.*Routing Mode.*': lambda msg: '1',  # Select path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
         # 5. Manual Routes Configuration - to use manual route configuration
-        '.*Manual Routes.*': lambda msg: 'y',  # Select to use service mesh
+        '.*Disable Route Creation.*': lambda msg: 'y',  # Select to use service mesh
         # 5. Service Mesh Configuration - to use service mesg
         '.*Use Service Mesh.*': lambda msg: 'y',  # Select to use service mesh
         # 5. Configure IngressController for path-based routing
