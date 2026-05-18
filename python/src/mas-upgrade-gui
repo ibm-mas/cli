@@ -31,14 +31,14 @@ logger = logging.getLogger(__name__)
 # - https://realpython.com/python-gui-tkinter
 
 
-class MasGui():
+class MasGui:
     def __init__(self):
 
         self.homeDir = path.abspath(path.dirname(__file__))
         logger.debug(f"Home directory = {self.homeDir}")
         # Root Window
         self.window = tk.Tk()
-        self.window.title('IBM Maximo Application Suite Admin Tool')
+        self.window.title("IBM Maximo Application Suite Admin Tool")
         self.window.resizable(False, False)
 
         # Fonts
@@ -113,9 +113,7 @@ class MasGui():
 
         # Configure the Kubernetes API Client
         config.load_kube_config()
-        self.dynClient = dynamic.DynamicClient(
-            api_client.ApiClient(configuration=config.load_kube_config())
-        )
+        self.dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
 
         # Get a list of all MAS instances installed on the cluster
         suites = listMasInstances(self.dynClient)
@@ -125,13 +123,15 @@ class MasGui():
         self.upgradeButtons = {}
         row = 0
         for suite in suites:
-            name = tk.Label(master=self.tableFrame, text=suite['metadata']['name'], width=20)
-            version = tk.Label(master=self.tableFrame, text=suite['status']['versions']['reconciled'], width=20)
-            self.upgradeButtons[suite['metadata']['name']] = tk.Button(master=self.tableFrame, text="Upgrade", width=20, command=lambda: self.upgradeAndUpdateUI(suite['metadata']['name']))
+            name = tk.Label(master=self.tableFrame, text=suite["metadata"]["name"], width=20)
+            version = tk.Label(master=self.tableFrame, text=suite["status"]["versions"]["reconciled"], width=20)
+            self.upgradeButtons[suite["metadata"]["name"]] = tk.Button(
+                master=self.tableFrame, text="Upgrade", width=20, command=lambda: self.upgradeAndUpdateUI(suite["metadata"]["name"])
+            )
 
             name.grid(row=row, column=0)
             version.grid(row=row, column=1)
-            self.upgradeButtons[suite['metadata']['name']].grid(row=row, column=2)
+            self.upgradeButtons[suite["metadata"]["name"]].grid(row=row, column=2)
             row += 1
 
         self.tableHeader.pack(padx=2, pady=5)
@@ -158,14 +158,12 @@ class MasGui():
         self.upgradeButtons[instanceId].config(state=tk.DISABLED)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Set up a log formatter
-    chFormatter = logging.Formatter('%(asctime)-25s' + ' %(levelname)-8s %(message)s')
+    chFormatter = logging.Formatter("%(asctime)-25s" + " %(levelname)-8s %(message)s")
 
     # Set up a log handler (5mb rotating log file)
-    ch = logging.handlers.RotatingFileHandler(
-        "mas.log", maxBytes=(1048576 * 5), backupCount=2
-    )
+    ch = logging.handlers.RotatingFileHandler("mas.log", maxBytes=(1048576 * 5), backupCount=2)
 
     ch.setLevel(logging.DEBUG)
     ch.setFormatter(chFormatter)
