@@ -11,7 +11,11 @@ spec:
     - name: start-update
       script: |
         #!/usr/bin/env bash
-        mas update --catalog $MAS_CATALOG_VERSION_UPDATE $CLI_UPDATE_EXTRA_FLAGS --no-confirm
+        if [[ -n "DB2_LICENSE" ]]; then
+          mas update --catalog $MAS_CATALOG_VERSION_UPDATE $CLI_UPDATE_EXTRA_FLAGS --no-confirm
+        else
+          mas update --catalog $MAS_CATALOG_VERSION_UPDATE $CLI_UPDATE_EXTRA_FLAGS --db2-license-file $DB2_LICENSE --no-confirm
+        fi
         RESULT=$1
         echo 'MAS LOG'
         echo '--------------------------------------------------------------------------------'
@@ -34,4 +38,10 @@ spec:
             secretKeyRef:
               name: mas-fvt-update
               key: CLI_UPDATE_EXTRA_FLAGS
+              optional: true
+        - name: DB2_LICENSE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-update
+              key: DB2_LICENSE
               optional: true
