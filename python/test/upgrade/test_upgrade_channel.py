@@ -39,9 +39,7 @@ class TestUpgradeChannelLogic:
                     # Mock for getNodes
                     mock_nodes_api = Mock()
                     mock_nodes_response = Mock()
-                    mock_nodes_response.to_dict.return_value = {
-                        'items': [{'status': {'nodeInfo': {'architecture': 'amd64'}}}]
-                    }
+                    mock_nodes_response.to_dict.return_value = {"items": [{"status": {"nodeInfo": {"architecture": "amd64"}}}]}
                     mock_nodes_api.get.return_value = mock_nodes_response
                     return mock_nodes_api
                 elif kind == "Subscription":
@@ -61,6 +59,7 @@ class TestUpgradeChannelLogic:
                 else:
                     # Default mock
                     return Mock()
+
             mock_client.resources.get.side_effect = mock_resources_get
             app._dynClient = mock_client
             app.params = {}
@@ -71,21 +70,21 @@ class TestUpgradeChannelLogic:
         Test regular upgrade: current=8.11.x, next=9.0.x
         Should pass masChannel="8.11.x" to ansible
         """
-        with patch('mas.devops.mas.getMasChannel', return_value='8.11.x'):
-            with patch('mas.devops.mas.getAppsSubscriptionChannel', return_value=[]):
-                with patch('mas.devops.tekton.launchUpgradePipeline') as mock_launch:
-                    with patch('mas.devops.tekton.installOpenShiftPipelines', return_value=True):
-                        with patch('mas.devops.tekton.updateTektonDefinitions'):
-                            with patch('mas.devops.ocp.createNamespace'):
+        with patch("mas.devops.mas.getMasChannel", return_value="8.11.x"):
+            with patch("mas.devops.mas.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.devops.tekton.launchUpgradePipeline") as mock_launch:
+                    with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
+                        with patch("mas.devops.tekton.updateTektonDefinitions"):
+                            with patch("mas.devops.ocp.createNamespace"):
                                 # Mock args
                                 mock_args = Mock()
-                                mock_args.mas_instance_id = 'test-inst'
+                                mock_args.mas_instance_id = "test-inst"
                                 mock_args.no_confirm = True
                                 mock_args.skip_pre_check = False
                                 mock_args.accept_license = True
                                 mock_args.dev_mode = False
-                                mock_args.next_channel = '9.0.x'
-                                with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
+                                mock_args.next_channel = "9.0.x"
+                                with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
                                     try:
                                         mock_upgrade_app.upgrade([])
                                     except Exception:
@@ -93,29 +92,28 @@ class TestUpgradeChannelLogic:
                                 # Verify masChannel parameter
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
-                                    assert call_kwargs['masChannel'] == '8.11.x', \
-                                        f"Expected masChannel='8.11.x', got '{call_kwargs['masChannel']}'"
+                                    assert call_kwargs["masChannel"] == "8.11.x", f"Expected masChannel='8.11.x', got '{call_kwargs['masChannel']}'"
 
     def test_retry_scenario_with_next_channel(self, mock_upgrade_app):
         """
         Test retry scenario: current=9.1.x, next=9.1.x (core upgraded, apps stuck on 9.0.x)
         Should pass masChannel="9.0.x" (previous channel) to ansible
         """
-        with patch('mas.devops.mas.getMasChannel', return_value='9.1.x'):
-            with patch('mas.devops.mas.getAppsSubscriptionChannel', return_value=[]):
-                with patch('mas.devops.tekton.launchUpgradePipeline') as mock_launch:
-                    with patch('mas.devops.tekton.installOpenShiftPipelines', return_value=True):
-                        with patch('mas.devops.tekton.updateTektonDefinitions'):
-                            with patch('mas.devops.ocp.createNamespace'):
+        with patch("mas.devops.mas.getMasChannel", return_value="9.1.x"):
+            with patch("mas.devops.mas.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.devops.tekton.launchUpgradePipeline") as mock_launch:
+                    with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
+                        with patch("mas.devops.tekton.updateTektonDefinitions"):
+                            with patch("mas.devops.ocp.createNamespace"):
                                 # Mock args
                                 mock_args = Mock()
-                                mock_args.mas_instance_id = 'test-inst'
+                                mock_args.mas_instance_id = "test-inst"
                                 mock_args.no_confirm = True
                                 mock_args.skip_pre_check = False
                                 mock_args.accept_license = True
                                 mock_args.dev_mode = False
-                                mock_args.next_channel = '9.1.x'
-                                with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
+                                mock_args.next_channel = "9.1.x"
+                                with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
                                     try:
                                         mock_upgrade_app.upgrade([])
                                     except Exception:
@@ -123,29 +121,30 @@ class TestUpgradeChannelLogic:
                                 # Verify masChannel parameter - should be previous channel (9.0.x)
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
-                                    assert call_kwargs['masChannel'] == '9.0.x', \
-                                        f"Expected masChannel='9.0.x' (previous channel), got '{call_kwargs['masChannel']}'"
+                                    assert (
+                                        call_kwargs["masChannel"] == "9.0.x"
+                                    ), f"Expected masChannel='9.0.x' (previous channel), got '{call_kwargs['masChannel']}'"
 
     def test_no_next_channel_auto_determine(self, mock_upgrade_app):
         """
         Test auto-determine: no --next-channel provided
         Should pass masChannel="" to let ansible auto-determine
         """
-        with patch('mas.devops.mas.getMasChannel', return_value='8.11.x'):
-            with patch('mas.devops.mas.getAppsSubscriptionChannel', return_value=[]):
-                with patch('mas.devops.tekton.launchUpgradePipeline') as mock_launch:
-                    with patch('mas.devops.tekton.installOpenShiftPipelines', return_value=True):
-                        with patch('mas.devops.tekton.updateTektonDefinitions'):
-                            with patch('mas.devops.ocp.createNamespace'):
+        with patch("mas.devops.mas.getMasChannel", return_value="8.11.x"):
+            with patch("mas.devops.mas.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.devops.tekton.launchUpgradePipeline") as mock_launch:
+                    with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
+                        with patch("mas.devops.tekton.updateTektonDefinitions"):
+                            with patch("mas.devops.ocp.createNamespace"):
                                 # Mock args
                                 mock_args = Mock()
-                                mock_args.mas_instance_id = 'test-inst'
+                                mock_args.mas_instance_id = "test-inst"
                                 mock_args.no_confirm = True
                                 mock_args.skip_pre_check = False
                                 mock_args.accept_license = True
                                 mock_args.dev_mode = False
-                                mock_args.next_channel = ''  # No next channel provided
-                                with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
+                                mock_args.next_channel = ""  # No next channel provided
+                                with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
                                     try:
                                         mock_upgrade_app.upgrade([])
                                     except Exception:
@@ -153,26 +152,25 @@ class TestUpgradeChannelLogic:
                                 # Verify masChannel parameter is empty
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
-                                    assert call_kwargs['masChannel'] == '', \
-                                        f"Expected masChannel='' (auto-determine), got '{call_kwargs['masChannel']}'"
+                                    assert call_kwargs["masChannel"] == "", f"Expected masChannel='' (auto-determine), got '{call_kwargs['masChannel']}'"
 
     def test_invalid_upgrade_path(self, mock_upgrade_app):
         """
         Test invalid upgrade path: current=8.11.x, next=9.1.x (skipping 9.0.x)
         Should raise fatal error
         """
-        with patch('mas.cli.upgrade.app.getMasChannel', return_value='8.11.x'):
-            with patch('mas.cli.upgrade.app.getAppsSubscriptionChannel', return_value=[]):
-                with patch('mas.cli.upgrade.app.verifyAppInstance', return_value=False):
+        with patch("mas.cli.upgrade.app.getMasChannel", return_value="8.11.x"):
+            with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.cli.upgrade.app.verifyAppInstance", return_value=False):
                     # Mock args
                     mock_args = Mock()
-                    mock_args.mas_instance_id = 'test-inst'
+                    mock_args.mas_instance_id = "test-inst"
                     mock_args.no_confirm = True
                     mock_args.skip_pre_check = False
                     mock_args.accept_license = True
                     mock_args.dev_mode = False
-                    mock_args.next_channel = '9.1.x'  # Invalid: skips 9.0.x
-                    with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
+                    mock_args.next_channel = "9.1.x"  # Invalid: skips 9.0.x
+                    with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
                         with pytest.raises(SystemExit) as exc_info:
                             mock_upgrade_app.upgrade([])
                         assert exc_info.value.code == 1
@@ -182,23 +180,23 @@ class TestUpgradeChannelLogic:
         Test app compatibility validation: manage on 8.7.x cannot upgrade to 9.1.x
         Should raise fatal error with detailed message
         """
-        with patch('mas.cli.upgrade.app.getMasChannel', return_value='9.0.x'):
+        with patch("mas.cli.upgrade.app.getMasChannel", return_value="9.0.x"):
             # Mock installed app with incompatible version
-            mock_apps = [
-                {'appId': 'manage', 'channel': '8.7.x'}
-            ]
-            with patch('mas.cli.upgrade.app.getAppsSubscriptionChannel', return_value=mock_apps):
-                with patch('mas.cli.upgrade.app.verifyAppInstance', return_value=False):
+            mock_apps = [{"appId": "manage", "channel": "8.7.x"}]
+            with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=mock_apps):
+                with patch("mas.cli.upgrade.app.verifyAppInstance", return_value=False):
                     # Mock args
                     mock_args = Mock()
-                    mock_args.mas_instance_id = 'test-inst'
+                    mock_args.mas_instance_id = "test-inst"
                     mock_args.no_confirm = True
                     mock_args.skip_pre_check = False
                     mock_args.accept_license = True
                     mock_args.dev_mode = False
-                    mock_args.next_channel = '9.1.x'
-                    with patch('mas.cli.upgrade.argParser.upgradeArgParser.parse_args', return_value=mock_args):
+                    mock_args.next_channel = "9.1.x"
+                    with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
                         with pytest.raises(SystemExit) as exc_info:
                             mock_upgrade_app.upgrade([])
                         assert exc_info.value.code == 1
+
+
 # Made with Bob

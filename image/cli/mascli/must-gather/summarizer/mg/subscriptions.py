@@ -9,8 +9,7 @@ from mg.utils import printHeader
 def process_subscription(output_dir, subscriptionYaml, ipYaml, subscriptions_table):
     # Extract the conditions we are interested in
     sub_condition_types = ["CatalogSourcesUnhealthy"]
-    sub_condition_statuses = {x["type"]: {
-        "status": x["status"]} for x in subscriptionYaml["status"]["conditions"] if x["type"] in sub_condition_types}
+    sub_condition_statuses = {x["type"]: {"status": x["status"]} for x in subscriptionYaml["status"]["conditions"] if x["type"] in sub_condition_types}
 
     if ipYaml is not None:
         ip_status = ipYaml["status"]["phase"]
@@ -32,17 +31,19 @@ def process_subscription(output_dir, subscriptionYaml, ipYaml, subscriptions_tab
     else:
         installedCSV = "<undefined>"
 
-    subscriptions_table.add_row([
-        subscriptionYaml["metadata"]["namespace"],
-        subscriptionYaml["metadata"]["name"],
-        subscriptionYaml["spec"]["channel"],
-        subscriptionYaml["spec"]["source"],
-        installedCSV,
-        approval,
-        sub_condition_statuses["CatalogSourcesUnhealthy"]["status"],
-        installPlan,
-        ip_status
-    ])
+    subscriptions_table.add_row(
+        [
+            subscriptionYaml["metadata"]["namespace"],
+            subscriptionYaml["metadata"]["name"],
+            subscriptionYaml["spec"]["channel"],
+            subscriptionYaml["spec"]["source"],
+            installedCSV,
+            approval,
+            sub_condition_statuses["CatalogSourcesUnhealthy"]["status"],
+            installPlan,
+            ip_status,
+        ]
+    )
 
 
 def summarize(output_dir):
