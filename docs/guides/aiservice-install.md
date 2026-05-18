@@ -86,7 +86,7 @@ The interactive install will guide you through the following steps:
         <li><strong>Certificate Issuer (Advanced Mode Only):</strong> Optionally configure a pre-configured certificate issuer for AI Service</li>
         <li><strong>Network configuration (Advanced Mode Only):</strong> Optionally enable IPv6 SingleStack network configuration for AI Service</li>
         <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
-       <li><strong>RSL Configuration:</strong> Optionally provide RSL CA certificate for Red Hat Service Locator integration</li>
+       <li><strong>RSL Configuration:</strong> Optionally provide RSL CA certificate for Reliability Strategies Library integration</li>
         <li><strong>Tenant Configuration:</strong> Set up AI Service tenant(s)</li>
         <li><strong>Customize pod scheduling configuration for AI Workloads (Advanced Mode Only):</strong> Configure tolerations & nodeSelector for AI workloads (Training pipeline & Inference Service). See <a href="#scheduling-configuration-file-format">Scheduling Configuration File Format</a> for file configuration details.</li>
         <li><strong>Operational Mode:</strong> Choose between production or non-production mode</li>
@@ -260,7 +260,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 | `--tenant-entitlement-start-date` | Entitlement start date (YYYY-MM-DD) | Yes | `2025-01-01` |
 | `--tenant-entitlement-end-date` | Entitlement end date (YYYY-MM-DD) | Yes | `2026-01-01` |
 
-### RSL (Red Hat Service Locator) Configuration
+### RSL (Reliability strategy integration) Configuration
 
 | Parameter | Description | Required | Example |
 |-----------|-------------|----------|---------|
