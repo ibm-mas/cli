@@ -51,7 +51,7 @@ from mas.devops.tekton import (
     prepareAiServicePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
-    launchInstallPipeline
+    launchInstallPipeline,
 )
 from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 from mas.devops.utils import isVersionEqualOrAfter
@@ -600,7 +600,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     instanceId=self.getParam("aiservice_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    configureRBAC=(self.getParam("service_account_name") == "")
+                    configureRBAC=(self.getParam("service_account_name") == ""),
                 )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,

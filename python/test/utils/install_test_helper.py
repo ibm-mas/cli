@@ -275,12 +275,12 @@ class InstallTestHelper:
             from mas.cli.aiservice.install.app import AiServiceInstallApp
 
             app_class = AiServiceInstallApp
-            app_module = 'mas.cli.aiservice.install.app'
-            prepare_namespace_func = 'prepareAiServicePipelinesNamespace'
+            app_module = "mas.cli.aiservice.install.app"
+            prepare_namespace_func = "prepareAiServicePipelinesNamespace"
         else:
             app_class = InstallApp
-            app_module = 'mas.cli.install.app'
-            prepare_namespace_func = 'preparePipelinesNamespace'
+            app_module = "mas.cli.install.app"
+            prepare_namespace_func = "preparePipelinesNamespace"
 
         self.setup_test_files()
         self.start_watchdog()
@@ -292,22 +292,22 @@ class InstallTestHelper:
             dynamic_client, resource_apis = self.setup_mocks()
 
             with (
-                mock.patch('mas.cli.cli.DynamicClient') as dynamic_client_class,
-                mock.patch('mas.cli.cli.getNodes') as get_nodes,
-                mock.patch('mas.cli.cli.isAirgapInstall') as is_airgap_install,
-                mock.patch(f'{app_module}.getCurrentCatalog') as get_current_catalog,
-                mock.patch(f'{app_module}.installOpenShiftPipelines'),
-                mock.patch(f'{app_module}.updateTektonDefinitions'),
-                mock.patch(f'{app_module}.createNamespace'),
-                mock.patch(f'{app_module}.{prepare_namespace_func}'),
-                mock.patch(f'{app_module}.launchInstallPipeline') as launch_install_pipeline,
-                mock.patch('mas.cli.install.app.configureIngressForPathBasedRouting') as configure_ingress,
-                mock.patch('mas.cli.cli.isSNO') as is_sno,
-                mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
-                mock.patch('mas.cli.displayMixins.PromptSession') as prompt_session_class,
-                mock.patch(f'{app_module}.prompt') as app_prompt,
-                mock.patch(f'{app_module}.getStorageClasses') as get_storage_classes,
-                mock.patch(f'{app_module}.getDefaultStorageClasses') as get_default_storage_classes,
+                mock.patch("mas.cli.cli.DynamicClient") as dynamic_client_class,
+                mock.patch("mas.cli.cli.getNodes") as get_nodes,
+                mock.patch("mas.cli.cli.isAirgapInstall") as is_airgap_install,
+                mock.patch(f"{app_module}.getCurrentCatalog") as get_current_catalog,
+                mock.patch(f"{app_module}.installOpenShiftPipelines"),
+                mock.patch(f"{app_module}.updateTektonDefinitions"),
+                mock.patch(f"{app_module}.createNamespace"),
+                mock.patch(f"{app_module}.{prepare_namespace_func}"),
+                mock.patch(f"{app_module}.launchInstallPipeline") as launch_install_pipeline,
+                mock.patch("mas.cli.install.app.configureIngressForPathBasedRouting") as configure_ingress,
+                mock.patch("mas.cli.cli.isSNO") as is_sno,
+                mock.patch("mas.cli.displayMixins.prompt") as mixins_prompt,
+                mock.patch("mas.cli.displayMixins.PromptSession") as prompt_session_class,
+                mock.patch(f"{app_module}.prompt") as app_prompt,
+                mock.patch(f"{app_module}.getStorageClasses") as get_storage_classes,
+                mock.patch(f"{app_module}.getDefaultStorageClasses") as get_default_storage_classes,
             ):
 
                 # Configure mock return values

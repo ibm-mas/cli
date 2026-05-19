@@ -54,14 +54,14 @@ def test_install_noninteractive(tmpdir):
         routes_api.get.return_value = route
         catalog_api.get.side_effect = NotFoundError(ApiException(status="404"))
         with (
-            mock.patch('mas.cli.cli.DynamicClient') as dynamic_client_class,
-            mock.patch('mas.cli.cli.getNodes') as get_nodes,
-            mock.patch('mas.cli.cli.isAirgapInstall') as is_airgap_install,
-            mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
-            mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
-            mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace'),
-            mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline
+            mock.patch("mas.cli.cli.DynamicClient") as dynamic_client_class,
+            mock.patch("mas.cli.cli.getNodes") as get_nodes,
+            mock.patch("mas.cli.cli.isAirgapInstall") as is_airgap_install,
+            mock.patch("mas.cli.aiservice.install.app.getCurrentCatalog") as get_current_catalog,
+            mock.patch("mas.cli.aiservice.install.app.installOpenShiftPipelines"),
+            mock.patch("mas.cli.aiservice.install.app.updateTektonDefinitions"),
+            mock.patch("mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace"),
+            mock.patch("mas.cli.aiservice.install.app.launchInstallPipeline") as launch_ai_service_install_pipeline,
         ):
             dynamic_client_class.return_value = dynamic_client
             get_nodes.return_value = [{"status": {"nodeInfo": {"architecture": "amd64"}}}]
@@ -206,18 +206,18 @@ def test_install_interactive_advanced(tmpdir):
         routes_api.get.return_value = route
         catalog_api.get.side_effect = NotFoundError(ApiException(status="404"))
         with (
-            mock.patch('mas.cli.cli.DynamicClient') as dynamic_client_class,
-            mock.patch('mas.cli.cli.getNodes') as get_nodes,
-            mock.patch('mas.cli.cli.isAirgapInstall') as is_airgap_install,
-            mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
-            mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
-            mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace'),
-            mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline,
-            mock.patch('mas.cli.cli.isSNO') as is_sno,
-            mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
-            mock.patch('mas.cli.aiservice.install.app.prompt') as app_prompt,
-            mock.patch('mas.cli.aiservice.install.app.getStorageClasses') as get_storage_classes
+            mock.patch("mas.cli.cli.DynamicClient") as dynamic_client_class,
+            mock.patch("mas.cli.cli.getNodes") as get_nodes,
+            mock.patch("mas.cli.cli.isAirgapInstall") as is_airgap_install,
+            mock.patch("mas.cli.aiservice.install.app.getCurrentCatalog") as get_current_catalog,
+            mock.patch("mas.cli.aiservice.install.app.installOpenShiftPipelines"),
+            mock.patch("mas.cli.aiservice.install.app.updateTektonDefinitions"),
+            mock.patch("mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace"),
+            mock.patch("mas.cli.aiservice.install.app.launchInstallPipeline") as launch_ai_service_install_pipeline,
+            mock.patch("mas.cli.cli.isSNO") as is_sno,
+            mock.patch("mas.cli.displayMixins.prompt") as mixins_prompt,
+            mock.patch("mas.cli.aiservice.install.app.prompt") as app_prompt,
+            mock.patch("mas.cli.aiservice.install.app.getStorageClasses") as get_storage_classes,
         ):
             dynamic_client_class.return_value = dynamic_client
             get_nodes.return_value = [{"status": {"nodeInfo": {"architecture": "amd64"}}}]
@@ -348,18 +348,18 @@ def test_install_interactive_simplified(tmpdir):
         routes_api.get.return_value = route
         catalog_api.get.side_effect = NotFoundError(ApiException(status="404"))
         with (
-            mock.patch('mas.cli.cli.DynamicClient') as dynamic_client_class,
-            mock.patch('mas.cli.cli.getNodes') as get_nodes,
-            mock.patch('mas.cli.cli.isAirgapInstall') as is_airgap_install,
-            mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
-            mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
-            mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace'),
-            mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline,
-            mock.patch('mas.cli.cli.isSNO') as is_sno,
-            mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
-            mock.patch('mas.cli.aiservice.install.app.prompt') as app_prompt,
-            mock.patch('mas.cli.aiservice.install.app.getStorageClasses') as get_storage_classes
+            mock.patch("mas.cli.cli.DynamicClient") as dynamic_client_class,
+            mock.patch("mas.cli.cli.getNodes") as get_nodes,
+            mock.patch("mas.cli.cli.isAirgapInstall") as is_airgap_install,
+            mock.patch("mas.cli.aiservice.install.app.getCurrentCatalog") as get_current_catalog,
+            mock.patch("mas.cli.aiservice.install.app.installOpenShiftPipelines"),
+            mock.patch("mas.cli.aiservice.install.app.updateTektonDefinitions"),
+            mock.patch("mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace"),
+            mock.patch("mas.cli.aiservice.install.app.launchInstallPipeline") as launch_ai_service_install_pipeline,
+            mock.patch("mas.cli.cli.isSNO") as is_sno,
+            mock.patch("mas.cli.displayMixins.prompt") as mixins_prompt,
+            mock.patch("mas.cli.aiservice.install.app.prompt") as app_prompt,
+            mock.patch("mas.cli.aiservice.install.app.getStorageClasses") as get_storage_classes,
         ):
             dynamic_client_class.return_value = dynamic_client
             get_nodes.return_value = [{"status": {"nodeInfo": {"architecture": "amd64"}}}]
