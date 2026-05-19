@@ -109,6 +109,9 @@ facilitiesAppArgGroup.add_argument(
 
 componentsArgGroup = backupArgParser.add_argument_group("Components", "Configure which components to include in the backup.")
 componentsArgGroup.add_argument(
+    "--include-sls", required=False, action="store_const", const="true", default="true", help="Include SLS in backup (default: true)"
+)
+componentsArgGroup.add_argument(
     "--exclude-sls", dest="include_sls", required=False, action="store_const", const="false", help="Exclude SLS from backup (use if SLS is external)"
 )
 componentsArgGroup.add_argument(

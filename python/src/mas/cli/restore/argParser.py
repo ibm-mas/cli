@@ -185,23 +185,6 @@ manageAppArgGroup.add_argument("--manage-db-storage-class-rwo", required=False, 
 
 manageAppArgGroup.add_argument("--manage-db-storage-class-rwx", required=False, dest="manage_db_storage_class_rwx", help="RWX Storage class for DB2 storage")
 
-manageAppArgGroup.add_argument(
-    "--manage-app-storage-class-rwo", required=False, dest="manage_app_storage_class_rwo", help="ReadWriteOnce Storage class for Manage App PVC"
-)
-
-manageAppArgGroup.add_argument(
-    "--override-manage-db-storageclass",
-    dest="manage_db_override_storageclass",
-    required=False,
-    action="store_const",
-    const="true",
-    help="Override database (Db2) PVC storageclass",
-)
-
-manageAppArgGroup.add_argument("--manage-db-storage-class-rwo", required=False, dest="manage_db_storage_class_rwo", help="RWO Storage class for DB2 storage")
-
-manageAppArgGroup.add_argument("--manage-db-storage-class-rwx", required=False, dest="manage_db_storage_class_rwx", help="RWX Storage class for DB2 storage")
-
 facilitiesAppArgGroup = restoreArgParser.add_argument_group(
     "Facilities Application Restore", "Configure restore of the Facilities application and its database."
 )
