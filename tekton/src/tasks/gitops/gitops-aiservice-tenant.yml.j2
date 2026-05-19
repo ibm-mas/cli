@@ -35,6 +35,9 @@ spec:
       type: string
     - name: catalog_source
       type: string
+    - name: aiservice_tenant_install_plan_approval
+      type: string
+      default: "Automatic"
     - name: tenantNamespace
       type: string
     - name: tenant_id
@@ -79,13 +82,13 @@ spec:
       type: string
     - name: aiservice_s3_bucket_prefix
       type: string
-    - name: rsl_url
-      type: string
     - name: tenant_entitlement_type
       type: string
     - name: tenant_entitlement_start_date
       type: string
     - name: tenant_entitlement_end_date
+      type: string
+    - name: tenant_scheduling_config_yaml
       type: string
     - name: sls_service
       type: string
@@ -123,6 +126,8 @@ spec:
         value: $(params.aiservice_tenant_catalog_channel)
       - name: CATALOG_SOURCE
         value: $(params.catalog_source)
+      - name: AISERVICE_TENANT_INSTALL_PLAN_APPROVAL
+        value: $(params.aiservice_tenant_install_plan_approval)
       - name: TENANT_NAMESPACE
         value: $(params.tenantNamespace)
       - name: TENANT_ID
@@ -165,14 +170,14 @@ spec:
         value: $(params.aiservice_s3_endpoint_url)
       - name: AISERVICE_S3_BUCKET_PREFIX
         value: $(params.aiservice_s3_bucket_prefix)
-      - name: RSL_URL
-        value: $(params.rsl_url)
       - name: TENANT_ENTITLEMENT_TYPE
         value: $(params.tenant_entitlement_type)
       - name: TENANT_ENTITLEMENT_START_DATE
         value: $(params.tenant_entitlement_start_date)
       - name: TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
+      - name: TENANT_SCHEDULING_CONFIG_YAML
+        value: $(params.tenant_scheduling_config_yaml)
       - name: STANDALONE_SLS_SERVICE
         value: $(params.sls_service)
     envFrom:
@@ -216,3 +221,4 @@ spec:
       image: quay.io/ibmmas/cli:latest
   workspaces:
     - name: configs
+    - name: shared-gitops-configs

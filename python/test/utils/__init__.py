@@ -10,29 +10,24 @@
 # *****************************************************************************
 
 from .prompt_tracker import PromptTracker, create_prompt_handler
-from .install_test_helper import (
-    InstallTestConfig,
-    InstallTestHelper,
-    run_install_test,
-    run_aiservice_install_test
-)
+from .install_test_helper import InstallTestConfig, InstallTestHelper, run_install_test, run_aiservice_install_test
 from .update_test_helper import UpdateTestConfig, UpdateTestHelper, run_update_test
 from .mirror_test_helper import MirrorTestConfig, MirrorTestHelper, run_mirror_test
 
 __all__ = [
-    'PromptTracker',
-    'create_prompt_handler',
+    "PromptTracker",
+    "create_prompt_handler",
     # Install
-    'InstallTestConfig',
-    'InstallTestHelper',
-    'run_install_test',
-    'run_aiservice_install_test',
+    "InstallTestConfig",
+    "InstallTestHelper",
+    "run_install_test",
+    "run_aiservice_install_test",
     # Update
-    'UpdateTestConfig',
-    'UpdateTestHelper',
-    'run_update_test',
+    "UpdateTestConfig",
+    "UpdateTestHelper",
+    "run_update_test",
     # Mirror
-    'MirrorTestConfig',
-    'MirrorTestHelper',
-    'run_mirror_test'
+    "MirrorTestConfig",
+    "MirrorTestHelper",
+    "run_mirror_test",
 ]

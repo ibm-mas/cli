@@ -20,8 +20,8 @@ def test_version():
     Test that BaseApp.version matches the VERSION environment variable when set
     """
     expected_version = "100.0.0-pre.local"
-    if 'VERSION' in os.environ:
-        expected_version = os.environ['VERSION']
+    if "VERSION" in os.environ:
+        expected_version = os.environ["VERSION"]
 
     with create_app_session(output=DummyOutput()):
         app = BaseApp()

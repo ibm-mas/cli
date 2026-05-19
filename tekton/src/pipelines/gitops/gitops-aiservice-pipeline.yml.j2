@@ -44,6 +44,9 @@ spec:
       type: string
     - name: aiservice_channel
       type: string
+    - name: aiservice_install_plan_approval   
+      type: string
+      default: "Automatic"
     - name: mas_catalog_source
       type: string
     - name: mas_icr_cp
@@ -205,6 +208,9 @@ spec:
           value: $(params.artifactory_username)
         - name: aiservice_channel
           value: $(params.aiservice_channel)
+        - name: aiservice_install_plan_approval   
+          value: $(params.aiservice_install_plan_approval)
+
         - name: mas_catalog_source
           value: $(params.mas_catalog_source)
         - name: mas_icr_cp

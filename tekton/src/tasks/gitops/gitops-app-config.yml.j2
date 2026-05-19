@@ -101,6 +101,9 @@ spec:
           --config-action upsert \
           --mas-config-scope system \
           --mas-config-type appcfg \
+          --maf-enabled "$MAF_ENABLED" \
+          --maf-storageClassName "$MAF_STORAGE_CLASSNAME" \
+          --maf-size "$MAF_SIZE" \
           --dir /tmp/init-app-config
 
         exit $?

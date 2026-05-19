@@ -19,7 +19,7 @@ requiredParams = [
     # DRO
     "dro_contact_email",
     "dro_contact_firstname",
-    "dro_contact_lastname"
+    "dro_contact_lastname",
 ]
 
 optionalParams = [
@@ -73,7 +73,6 @@ optionalParams = [
     "aiservice_s3_bucket_prefix",
     "aiservice_s3_tenants_bucket",
     "aiservice_s3_templates_bucket",
-
     "aiservice_watsonxai_apikey",
     "aiservice_watsonxai_url",
     "aiservice_watsonxai_project_id",
@@ -88,29 +87,23 @@ optionalParams = [
     "aiservice_instance_id",
     "aiservice_watsonxai_instance_id",
     "aiservice_watsonxai_verify",
-
     "minio_root_user",
     "minio_root_password",
-
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
-
     "rsl_url",
     "rsl_org_id",
     "rsl_token",
     "rsl_ca_crt",
     "environment_type",
-
+    "configure_aiassistant",
     # Certificate Issuer
     "aiservice_certificate_issuer",
-
     # permission mode
     "permission_mode",
-
     # Enable IPv6 networking
     "enable_ipv6",
-
     # Slack
     "slack_token",
     "slack_channel",

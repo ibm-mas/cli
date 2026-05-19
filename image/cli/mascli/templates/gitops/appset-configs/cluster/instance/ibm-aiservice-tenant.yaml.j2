@@ -7,6 +7,7 @@ ibm_aiservice_tenant:
   aiservice_instance_id: "{{ AISERVICE_INSTANCE_ID }}"
   catalog_channel: "{{ CATALOG_CHANNEL }}"
   catalog_source: "{{ CATALOG_SOURCE }}"
+  aiservice_tenant_install_plan_approval: "{{ AISERVICE_TENANT_INSTALL_PLAN_APPROVAL }}"
   tenantNamespace: "{{ TENANT_NAMESPACE }}"
 
   mas_icr_cp: "{{ MAS_ICR_CP }}"
@@ -27,10 +28,11 @@ ibm_aiservice_tenant:
   slscfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_REGISTRATION_KEY }}>"
   aiservice_sls_subscription_id: "{{ AISERVICE_SLS_SUBSCRIPTION_ID }}"
   
-  rsl_url: "{{ RSL_URL }}"
-  rsl_org_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_ORG_ID }}>"
-  rsl_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_TOKEN }}>"
+  # RSL - Per MASAIB-1915: Only CA cert needed for self-signed certificates
+  # RSL URL, Org ID, and token are provided during FMEA model creation in the UI
+{% if SECRET_KEY_RSL_CA_CRT is defined and SECRET_KEY_RSL_CA_CRT != '' %}
   rsl_ca_crt: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_CA_CRT }}>"
+{% endif %}
 
   #s3 for manage job
   aiservice_s3_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_ACCESSKEY }}>"
@@ -55,3 +57,8 @@ ibm_aiservice_tenant:
   tenant_entitlement_end_date: "{{ TENANT_ENTITLEMENT_END_DATE }}"
   
   aiservice_operator_log_level: "{{ AISERVICE_OPERATOR_LOG_LEVEL }}"
+
+{% if TENANT_SCHEDULING_CONFIG is defined and TENANT_SCHEDULING_CONFIG != '' %}
+  tenant_scheduling_config:
+    {{ TENANT_SCHEDULING_CONFIG | indent(4)}}
+{% endif %}
