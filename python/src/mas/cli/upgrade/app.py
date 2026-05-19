@@ -26,6 +26,7 @@ from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, verifyAppInstance
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
+from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +129,44 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         except Exception as e:
             logger.warning(f"Could not query ManageWorkspace CR for Civil component check: {e}")
             # Don't fail the upgrade if we can't query - let ansible handle it
+
+    def evaluatePreInstallRBACForUpgrade(self, instanceId, targetChannel) -> bool:
+        """
+        Evaluate if pre-install RBAC should be applied for upgrade.
+        Returns True if RBAC should be applied, False otherwise.
+        """
+        # Only apply for MAS >= 9.2.0
+        if not isVersionEqualOrAfter("9.2.0", targetChannel):
+            return False
+
+        # Check if user has cluster-admin permissions
+        permissionResults = permissionCheckForRBAC(self.dynamicClient)
+        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
+
+        if hasPreInstallRBACAccess:
+            return True
+
+        # If no permissions, warn user but don't block upgrade
+        logger.warning(
+            "Current user does not have cluster-admin permissions to apply pre-install RBAC. " "Assuming RBAC was already applied for this MAS version."
+        )
+        return False
+
+    def getInstalledAppsForUpgrade(self, instanceId) -> list[str]:
+        """
+        Get list of installed apps that will be upgraded.
+        Reuses existing getAppsSubscriptionChannel() function.
+        """
+        installedApps = []
+
+        appsWithSubscriptions = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+
+        for app in appsWithSubscriptions:
+            appId = app.get("appId")
+            if appId:
+                installedApps.append(appId)
+
+        return installedApps
 
     def upgrade(self, argv):
         """
@@ -306,6 +345,34 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
+            # Apply pre-install RBAC for target version (if needed)
+            if self.evaluatePreInstallRBACForUpgrade(instanceId, self.nextChannel):
+                with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
+                    targetVersion = ".".join(self.nextChannel.split(".")[:2])  # Extract "9.2" from "9.2-feature"
+                    selectedApps = self.getInstalledAppsForUpgrade(instanceId)
+
+                    # Get current permission mode from Suite CR
+                    try:
+                        # suiteAPI = self.dynamicClient.resources.get(
+                        #     api_version="core.mas.ibm.com/v1",
+                        #     kind="Suite"
+                        # )
+                        # suite = suiteAPI.get(name=instanceId, namespace=f"mas-{instanceId}-core")
+                        # permissionMode = suite.spec.settings.get("permissionMode", "cluster")
+                        permissionMode = "cluster"  # Default to cluster mode
+
+                    except Exception as e:
+                        logger.warning(f"Could not determine permission mode from Suite CR: {e}")
+                        permissionMode = "cluster"  # Default to cluster mode
+
+                    applyPreInstallMASRBAC(
+                        dynClient=self.dynamicClient,
+                        masVersion=targetVersion,
+                        masInstanceId=instanceId,
+                        permissionMode=permissionMode,
+                        selectedApps=selectedApps,
+                    )
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for target version {targetVersion}")
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
