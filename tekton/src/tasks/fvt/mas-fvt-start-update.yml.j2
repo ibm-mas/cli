@@ -11,10 +11,11 @@ spec:
     - name: start-update
       script: |
         #!/usr/bin/env bash
-        if [[ -n "DB2_LICENSE" ]]; then
+        if [[ -n "$DB2_LICENSE" ]]; then
           mas update --catalog $MAS_CATALOG_VERSION_UPDATE $CLI_UPDATE_EXTRA_FLAGS --no-confirm
         else
-          mas update --catalog $MAS_CATALOG_VERSION_UPDATE $CLI_UPDATE_EXTRA_FLAGS --db2-license-file $DB2_LICENSE --no-confirm
+          echo $DB2_LICENSE >> $(pwd)/db2_license.lic
+          mas update --catalog $MAS_CATALOG_VERSION_UPDATE $CLI_UPDATE_EXTRA_FLAGS --db2-license-file $(pwd)/db2_license.lic --no-confirm
         fi
         RESULT=$1
         echo 'MAS LOG'
