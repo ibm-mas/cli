@@ -1,5 +1,5 @@
 default_language_version:
-    python: python
+    python: python3
 repos:
   - repo: https://github.com/psf/black
     rev: 26.3.1
