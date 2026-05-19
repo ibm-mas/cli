@@ -203,6 +203,7 @@ masAdvancedArgGroup.add_argument(
     required=False,
     action="store_const",
     const="true",
+    default="false",
     help="Disable automatic creation of routes."
 )
 masAdvancedArgGroup.add_argument(
