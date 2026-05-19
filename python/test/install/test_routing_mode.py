@@ -22,7 +22,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from kubernetes.client.rest import ApiException
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 # =============================================================================
@@ -56,17 +56,14 @@ def create_mock_app():
     return app
 
 
-def create_ingress_controller_mock(name="default", domain="apps.cluster.example.com",
-                                   namespace_ownership="InterNamespaceAllowed", available=True):
+def create_ingress_controller_mock(name="default", domain="apps.cluster.example.com", namespace_ownership="InterNamespaceAllowed", available=True):
     """Create a mock IngressController object that supports both dict and attribute access."""
     controller = MagicMock()
     controller.metadata.name = name
 
     if available:
         controller.status.domain = domain
-        controller.status.conditions = [
-            MagicMock(type='Available', status='True')
-        ]
+        controller.status.conditions = [MagicMock(type="Available", status="True")]
 
     # Create proper nested structure for attribute access
     controller.spec = MagicMock()
@@ -78,16 +75,10 @@ def create_ingress_controller_mock(name="default", domain="apps.cluster.example.
     # Then: spec.get('routeAdmission', {})
     # Then: routeAdmission.get('namespaceOwnership', '')
     def mock_get(key, default=None):
-        if key == 'spec':
-            spec_dict = {
-                'routeAdmission': {
-                    'namespaceOwnership': namespace_ownership
-                }
-            }
+        if key == "spec":
+            spec_dict = {"routeAdmission": {"namespaceOwnership": namespace_ownership}}
             # Return a dict-like object that supports .get()
-            return type('obj', (object,), {
-                'get': lambda self, k, d=None: spec_dict.get(k, d)
-            })()
+            return type("obj", (object,), {"get": lambda self, k, d=None: spec_dict.get(k, d)})()
         return default
 
     controller.get = mock_get
@@ -162,7 +153,7 @@ class TestInteractivePathRouting:
         ingress_api.get.side_effect = [
             controller,  # For permission check
             MagicMock(items=[controller]),  # For listing controllers
-            controller  # For configuration check
+            controller,  # For configuration check
         ]
         app.dynamicClient.resources.get.return_value = ingress_api
 
@@ -172,7 +163,8 @@ class TestInteractivePathRouting:
         ingress_config.spec.get.return_value = "apps.cluster.example.com"
         ingress_config_api.get.return_value = ingress_config
 
-        with patch.object(app.dynamicClient.resources, 'get') as mock_get:
+        with patch.object(app.dynamicClient.resources, "get") as mock_get:
+
             def get_side_effect(api_version, kind):
                 if kind == "IngressController":
                     return ingress_api
@@ -183,7 +175,7 @@ class TestInteractivePathRouting:
             mock_get.side_effect = get_side_effect
 
             # Mock isVersionEqualOrAfter to return True for version check
-            with patch('mas.cli.install.app.isVersionEqualOrAfter', return_value=True):
+            with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
                 app.configRoutingMode()
 
         # Verify parameters are set correctly
@@ -208,7 +200,7 @@ class TestInteractivePathRouting:
         ingress_api.get.side_effect = [
             controller,  # For permission check
             MagicMock(items=[controller]),  # For listing controllers
-            controller  # For configuration check
+            controller,  # For configuration check
         ]
         app.dynamicClient.resources.get.return_value = ingress_api
 
@@ -218,7 +210,8 @@ class TestInteractivePathRouting:
         ingress_config.spec.get.return_value = "apps.cluster.example.com"
         ingress_config_api.get.return_value = ingress_config
 
-        with patch.object(app.dynamicClient.resources, 'get') as mock_get:
+        with patch.object(app.dynamicClient.resources, "get") as mock_get:
+
             def get_side_effect(api_version, kind):
                 if kind == "IngressController":
                     return ingress_api
@@ -229,7 +222,7 @@ class TestInteractivePathRouting:
             mock_get.side_effect = get_side_effect
 
             # Mock isVersionEqualOrAfter to return True for version check
-            with patch('mas.cli.install.app.isVersionEqualOrAfter', return_value=True):
+            with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
                 app.configRoutingMode()
 
         # Verify fallback to subdomain
@@ -250,7 +243,7 @@ class TestInteractivePathRouting:
         ingress_api.get.side_effect = [
             controller,  # For permission check
             MagicMock(items=[controller]),  # For listing controllers
-            controller  # For configuration check
+            controller,  # For configuration check
         ]
 
         # Mock Ingress config
@@ -259,7 +252,8 @@ class TestInteractivePathRouting:
         ingress_config.spec.get.return_value = "apps.cluster.example.com"
         ingress_config_api.get.return_value = ingress_config
 
-        with patch.object(app.dynamicClient.resources, 'get') as mock_get:
+        with patch.object(app.dynamicClient.resources, "get") as mock_get:
+
             def get_side_effect(api_version, kind):
                 if kind == "IngressController":
                     return ingress_api
@@ -269,7 +263,7 @@ class TestInteractivePathRouting:
 
             mock_get.side_effect = get_side_effect
 
-            with patch('mas.cli.install.app.isVersionEqualOrAfter', return_value=True):
+            with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
                 # User chooses to configure, but we'll simulate patch failure later
                 app.yesOrNo.return_value = True
                 app.configRoutingMode()
@@ -297,7 +291,8 @@ class TestInteractivePathRouting:
         ingress_config.spec.get.return_value = "apps.cluster.example.com"
         ingress_config_api.get.return_value = ingress_config
 
-        with patch.object(app.dynamicClient.resources, 'get') as mock_get:
+        with patch.object(app.dynamicClient.resources, "get") as mock_get:
+
             def get_side_effect(api_version, kind):
                 if kind == "IngressController":
                     return ingress_api
@@ -307,7 +302,7 @@ class TestInteractivePathRouting:
 
             mock_get.side_effect = get_side_effect
 
-            with patch('mas.cli.install.app.isVersionEqualOrAfter', return_value=True):
+            with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
                 app.configRoutingMode()
 
         # Should fall back to subdomain when permissions are denied
@@ -340,7 +335,7 @@ class TestInteractiveSubdomainRouting:
         app.dynamicClient.resources.get.return_value = ingress_config_api
 
         # Mock isVersionEqualOrAfter to return True for version check
-        with patch('mas.cli.install.app.isVersionEqualOrAfter', return_value=True):
+        with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
             app.configRoutingMode()
 
         # Verify subdomain mode is set
@@ -392,14 +387,19 @@ class TestNonInteractivePathRouting:
         """
         # Simulate CLI arguments for non-interactive path mode with configure flag
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "path",
-            "--ingress-controller-name", "default",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "path",
+            "--ingress-controller-name",
+            "default",
             "--configure-ingress",
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         # Parse arguments
@@ -420,7 +420,7 @@ class TestNonInteractivePathRouting:
         app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
 
         # Simulate lines 1809-1810 from app.py
-        if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
+        if hasattr(args, "mas_configure_ingress") and args.mas_configure_ingress:
             app.setParam("mas_configure_ingress", "true")
 
         # Verify parameters are set correctly
@@ -446,13 +446,18 @@ class TestNonInteractivePathRouting:
         """Test non-interactive path mode with custom IngressController name."""
         # Simulate CLI arguments with custom controller
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "path",
-            "--ingress-controller-name", "custom-ingress",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "path",
+            "--ingress-controller-name",
+            "custom-ingress",
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         args = installArgParser.parse_args(args=argv)
@@ -481,12 +486,16 @@ class TestNonInteractivePathRouting:
         """Test that missing controller name defaults to 'default'."""
         # Simulate CLI arguments without --ingress-controller-name
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "path",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "path",
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         args = installArgParser.parse_args(args=argv)
@@ -510,13 +519,18 @@ class TestNonInteractivePathRouting:
     def test_noninteractive_path_mode_no_permissions_fails_gracefully(self):
         """Test non-interactive path mode fails gracefully when user lacks permissions."""
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "path",
-            "--ingress-controller-name", "default",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "path",
+            "--ingress-controller-name",
+            "default",
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         args = installArgParser.parse_args(args=argv)
@@ -540,14 +554,19 @@ class TestNonInteractivePathRouting:
     def test_noninteractive_path_mode_with_configure_flag_no_permissions(self):
         """Test non-interactive path mode with --configure-ingress but no permissions."""
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "path",
-            "--ingress-controller-name", "default",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "path",
+            "--ingress-controller-name",
+            "default",
             "--configure-ingress",
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         args = installArgParser.parse_args(args=argv)
@@ -558,7 +577,7 @@ class TestNonInteractivePathRouting:
         app.setParam("mas_routing_mode", args.mas_routing_mode)
         app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
 
-        if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
+        if hasattr(args, "mas_configure_ingress") and args.mas_configure_ingress:
             app.setParam("mas_configure_ingress", "true")
 
         # Mock permission denied
@@ -575,14 +594,19 @@ class TestNonInteractivePathRouting:
     def test_noninteractive_path_mode_controller_not_configured_without_flag(self):
         """Test non-interactive path mode when controller not configured and no --configure-ingress flag."""
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "path",
-            "--ingress-controller-name", "default",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "path",
+            "--ingress-controller-name",
+            "default",
             # Note: --configure-ingress is NOT provided
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         args = installArgParser.parse_args(args=argv)
@@ -609,14 +633,19 @@ class TestNonInteractivePathRouting:
     def test_noninteractive_path_mode_all_flags_with_permissions(self):
         """Test non-interactive path mode with all flags and proper permissions."""
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "path",
-            "--ingress-controller-name", "custom-controller",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "path",
+            "--ingress-controller-name",
+            "custom-controller",
             "--configure-ingress",
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         args = installArgParser.parse_args(args=argv)
@@ -627,7 +656,7 @@ class TestNonInteractivePathRouting:
         app.setParam("mas_routing_mode", args.mas_routing_mode)
         app.setParam("mas_ingress_controller_name", args.mas_ingress_controller_name)
 
-        if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
+        if hasattr(args, "mas_configure_ingress") and args.mas_configure_ingress:
             app.setParam("mas_configure_ingress", "true")
 
         # Mock controller with permissions
@@ -654,13 +683,18 @@ class TestNonInteractivePathRouting:
     def test_noninteractive_path_mode_controller_already_configured(self):
         """Test non-interactive path mode when controller is already properly configured."""
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "path",
-            "--ingress-controller-name", "default",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "path",
+            "--ingress-controller-name",
+            "default",
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         args = installArgParser.parse_args(args=argv)
@@ -696,12 +730,16 @@ class TestNonInteractiveSubdomainRouting:
     def test_noninteractive_subdomain_mode_basic(self):
         """Test basic non-interactive subdomain mode."""
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "subdomain",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "subdomain",
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         args = installArgParser.parse_args(args=argv)
@@ -719,15 +757,20 @@ class TestNonInteractiveSubdomainRouting:
     def test_noninteractive_subdomain_mode_ignores_ingress_flags(self):
         """Test that subdomain mode ignores ingress-related flags."""
         argv = [
-            "--mas-instance-id", "testinst",
-            "--mas-workspace-id", "testws",
-            "--mas-channel", "9.2.0",
-            "--routing", "subdomain",
+            "--mas-instance-id",
+            "testinst",
+            "--mas-workspace-id",
+            "testws",
+            "--mas-channel",
+            "9.2.0",
+            "--routing",
+            "subdomain",
             # Even if these are provided, they should be ignored for subdomain mode
-            "--ingress-controller-name", "default",
+            "--ingress-controller-name",
+            "default",
             "--configure-ingress",
             "--accept-license",
-            "--no-confirm"
+            "--no-confirm",
         ]
 
         args = installArgParser.parse_args(args=argv)
@@ -752,7 +795,7 @@ class TestNonInteractiveSubdomainRouting:
 class TestIngressControllerPatchIntegration:
     """Test suite for configureIngressForPathBasedRouting integration."""
 
-    @patch('mas.devops.ocp.configureIngressForPathBasedRouting')
+    @patch("mas.devops.ocp.configureIngressForPathBasedRouting")
     def test_patch_function_called_with_correct_parameters(self, mock_configure):
         """Test that patch function is called with correct parameters."""
         from mas.devops.ocp import configureIngressForPathBasedRouting
@@ -765,7 +808,7 @@ class TestIngressControllerPatchIntegration:
         assert result is True
         mock_configure.assert_called_once_with(mock_client, "default")
 
-    @patch('mas.devops.ocp.configureIngressForPathBasedRouting')
+    @patch("mas.devops.ocp.configureIngressForPathBasedRouting")
     def test_patch_function_handles_failure(self, mock_configure):
         """Test that patch function failure is handled correctly."""
         from mas.devops.ocp import configureIngressForPathBasedRouting
@@ -777,7 +820,7 @@ class TestIngressControllerPatchIntegration:
 
         assert result is False
 
-    @patch('mas.devops.ocp.configureIngressForPathBasedRouting')
+    @patch("mas.devops.ocp.configureIngressForPathBasedRouting")
     def test_patch_function_with_custom_controller(self, mock_configure):
         """Test patch function with custom IngressController name."""
         from mas.devops.ocp import configureIngressForPathBasedRouting
@@ -813,7 +856,7 @@ class TestCompleteCliFlow:
         ingress_api.get.side_effect = [
             controller1,  # Permission check
             MagicMock(items=[controller1, controller2]),  # List controllers
-            controller1  # Configuration check
+            controller1,  # Configuration check
         ]
 
         ingress_config_api = MagicMock()
@@ -821,7 +864,8 @@ class TestCompleteCliFlow:
         ingress_config.spec.get.return_value = "apps.cluster.example.com"
         ingress_config_api.get.return_value = ingress_config
 
-        with patch.object(app.dynamicClient.resources, 'get') as mock_get:
+        with patch.object(app.dynamicClient.resources, "get") as mock_get:
+
             def get_side_effect(api_version, kind):
                 if kind == "IngressController":
                     return ingress_api
@@ -832,7 +876,7 @@ class TestCompleteCliFlow:
             mock_get.side_effect = get_side_effect
 
             # Mock isVersionEqualOrAfter to return True for version check
-            with patch('mas.cli.install.app.isVersionEqualOrAfter', return_value=True):
+            with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
                 # Set up promptForInt to return different values for routing mode and controller selection
                 app.promptForInt.side_effect = [1, 1]  # Path mode, first controller
                 app.configRoutingMode()
@@ -858,7 +902,7 @@ class TestCompleteCliFlow:
         from mas.devops.utils import isVersionEqualOrAfter
 
         should_configure = (
-            app.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', app.getParam("mas_channel")) and app.getParam("mas_channel") != '9.2.x-feature'
+            app.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", app.getParam("mas_channel")) and app.getParam("mas_channel") != "9.2.x-feature"
         )
 
         assert should_configure is False
@@ -877,7 +921,7 @@ class TestCompleteCliFlow:
         ingress_api.get.side_effect = [
             controller,  # For permission check
             MagicMock(items=[controller]),  # For listing controllers
-            controller  # For configuration check
+            controller,  # For configuration check
         ]
 
         # Mock Ingress config
@@ -886,7 +930,8 @@ class TestCompleteCliFlow:
         ingress_config.spec.get.return_value = "apps.cluster.example.com"
         ingress_config_api.get.return_value = ingress_config
 
-        with patch.object(app.dynamicClient.resources, 'get') as mock_get:
+        with patch.object(app.dynamicClient.resources, "get") as mock_get:
+
             def get_side_effect(api_version, kind):
                 if kind == "IngressController":
                     return ingress_api
@@ -897,10 +942,10 @@ class TestCompleteCliFlow:
             mock_get.side_effect = get_side_effect
 
             # Mock the patching function from python-devops
-            with patch('mas.devops.ocp.configureIngressForPathBasedRouting') as mock_patch:
+            with patch("mas.devops.ocp.configureIngressForPathBasedRouting") as mock_patch:
                 mock_patch.return_value = True  # Patch succeeds
 
-                with patch('mas.cli.install.app.isVersionEqualOrAfter', return_value=True):
+                with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
                     # User selects path mode (option 1) and agrees to configure
                     app.promptForInt.return_value = 1
                     app.yesOrNo.return_value = True
@@ -917,16 +962,11 @@ class TestCompleteCliFlow:
                     # This is what the ansible playbook would call
                     if app.getParam("mas_configure_ingress") == "true":
                         from mas.devops.ocp import configureIngressForPathBasedRouting
-                        result = configureIngressForPathBasedRouting(
-                            app.dynamicClient,
-                            app.getParam("mas_ingress_controller_name")
-                        )
+
+                        result = configureIngressForPathBasedRouting(app.dynamicClient, app.getParam("mas_ingress_controller_name"))
 
                         # Verify the patch function was called with correct parameters
-                        mock_patch.assert_called_once_with(
-                            app.dynamicClient,
-                            "default"
-                        )
+                        mock_patch.assert_called_once_with(app.dynamicClient, "default")
                         assert result is True
 
     def test_complete_end_to_end_flow_advanced_options_disabled_skips_routing(self):
@@ -944,7 +984,7 @@ class TestCompleteCliFlow:
         ingress_config_api.get.return_value = ingress_config
         app.dynamicClient.resources.get.return_value = ingress_config_api
 
-        with patch('mas.cli.install.app.isVersionEqualOrAfter', return_value=True):
+        with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
             app.configRoutingMode()
 
         # Routing mode should not be set (method should exit early)
@@ -953,6 +993,7 @@ class TestCompleteCliFlow:
 
         # promptForInt should not be called (no routing mode prompt)
         assert app.promptForInt.call_count == 0
+
 
 # =============================================================================
 # Parameter Validation Tests
@@ -973,7 +1014,7 @@ class TestParameterValidation:
             assert app.getParam("mas_routing_mode") == mode
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
 
 # Made with Bob

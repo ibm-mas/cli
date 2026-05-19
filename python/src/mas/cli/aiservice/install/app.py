@@ -39,17 +39,10 @@ from ...install.catalogs import supportedCatalogs
 
 from ...install.settings import InstallSettingsMixin
 
-from mas.cli.validators import (
-    InstanceIDFormatValidator,
-    StorageClassValidator,
-    BucketPrefixValidator
-)
+from mas.cli.validators import InstanceIDFormatValidator, StorageClassValidator, BucketPrefixValidator
 
 from mas.devops.ocp import createNamespace, getStorageClasses
-from mas.devops.mas import (
-    getCurrentCatalog,
-    getDefaultStorageClasses
-)
+from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
 from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog, NoSuchCatalogError
 from mas.devops.tekton import (
@@ -72,6 +65,7 @@ def logMethodCall(func):
         result = func(self, *args, **kwargs)
         logger.debug(f"<<< InstallApp.{func.__name__}")
         return result
+
     return wrapper
 
 
@@ -80,7 +74,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def evaluatePreInstallRBACAccess(self) -> None:
         self.applyPreInstallMASRBAC = False
 
-        if not isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
+        if not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
             return
 
         if self.getParam("skip_preinstall_rbac") == "true":
@@ -94,47 +88,55 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             return
 
         if self.isInteractiveMode:
-            self.printDescription([
-                "",
-                f"You selected the '{self.getParam('permission_mode')}' permission mode.",
-                "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
-                "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
-                "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance.",
-                "If that has already been done, you can continue the installation without applying it again."
-            ])
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this AI Service installation"):
-                self.fatalError("Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again with --skip-preinstall-rbac.")
-        else:
-            self.fatalError(
-                "\n".join([
+            self.printDescription(
+                [
+                    "",
                     f"You selected the '{self.getParam('permission_mode')}' permission mode.",
                     "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                     "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas aiservice-install' with --skip-preinstall-rbac."
-                ])
+                    "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance.",
+                    "If that has already been done, you can continue the installation without applying it again.",
+                ]
+            )
+
+            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this AI Service installation"):
+                self.fatalError(
+                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again with --skip-preinstall-rbac."
+                )
+        else:
+            self.fatalError(
+                "\n".join(
+                    [
+                        f"You selected the '{self.getParam('permission_mode')}' permission mode.",
+                        "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
+                        "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
+                        "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas aiservice-install' with --skip-preinstall-rbac.",
+                    ]
+                )
             )
 
     def configPermissionMode(self) -> None:
         if self.showAdvancedOptions:
             self.printH1("Configure Permission Mode")
-            self.printDescription([
-                "Choose how AI Service should be installed with respect to permissions:",
-                "",
-                "  1. <b>cluster</b> - Install with ClusterRoles (default)",
-                "     - AI Service has cluster-level access to manage its resources across the cluster",
-                "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to AI Service service accounts",
-                "",
-                "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
-                "     - No ClusterRoles are installed in this mode",
-                "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
-                "     - AI Service can manage resources only in namespaces prepared by the OpenShift admin",
-                "",
-                "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
-                "     - No ClusterRoles are installed in this mode",
-                "     - Only essential permissions required for AI Service are applied",
-                "     - AI Service can manage only the resources covered by these essential permissions"
-            ])
+            self.printDescription(
+                [
+                    "Choose how AI Service should be installed with respect to permissions:",
+                    "",
+                    "  1. <b>cluster</b> - Install with ClusterRoles (default)",
+                    "     - AI Service has cluster-level access to manage its resources across the cluster",
+                    "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to AI Service service accounts",
+                    "",
+                    "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
+                    "     - No ClusterRoles are installed in this mode",
+                    "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
+                    "     - AI Service can manage resources only in namespaces prepared by the OpenShift admin",
+                    "",
+                    "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
+                    "     - No ClusterRoles are installed in this mode",
+                    "     - Only essential permissions required for AI Service are applied",
+                    "     - AI Service can manage only the resources covered by these essential permissions",
+                ]
+            )
 
             permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
             permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
@@ -155,7 +157,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Dynamically fetch the channels from the chosen catalog
         for channel in self.chosenCatalog["aiservice_version"]:
-            self.catalogReleases.update({channel.replace('.x', ''): channel})
+            self.catalogReleases.update({channel.replace(".x", ""): channel})
 
         # Generate catalogTable
         for application, key in applications.items():
@@ -176,13 +178,15 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def configAibroker(self):
         self.printH1("Configure AI Service Instance")
-        self.printDescription([
-            "Instance ID restrictions:",
-            " - Must be 3-12 characters long",
-            " - Must only use lowercase letters, numbers, and hypen (-) symbol",
-            " - Must start with a lowercase letter",
-            " - Must end with a lowercase letter or a number"
-        ])
+        self.printDescription(
+            [
+                "Instance ID restrictions:",
+                " - Must be 3-12 characters long",
+                " - Must only use lowercase letters, numbers, and hypen (-) symbol",
+                " - Must start with a lowercase letter",
+                " - Must end with a lowercase letter or a number",
+            ]
+        )
         self.promptForString("Instance ID", "aiservice_instance_id", validator=InstanceIDFormatValidator())
 
         if self.slsMode == 2 and not self.getParam("sls_namespace"):
@@ -193,12 +197,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
         self.printH1("Choose Install Mode")
-        self.printDescription([
-            "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
-            " - Configure certificate issuer",
-            " - Enable IPv6 SingleStack networking for services",
-            " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant"
-        ])
+        self.printDescription(
+            [
+                "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
+                " - Configure certificate issuer",
+                " - Enable IPv6 SingleStack networking for services",
+                " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant",
+            ]
+        )
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
     @logMethodCall
@@ -244,13 +250,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configMongoDb()
         self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
-        self.printDescription([
-            "Db2 Universal Operator for v12 onwards requires to add a License activation key",
-            "If you don't have a license press enter to continue."
-        ])
+        self.printDescription(
+            ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
+        )
         self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
         # Permission mode prompt (especially in dev mode)
-        if isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
+        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
             self.configPermissionMode()
 
     @logMethodCall
@@ -295,7 +300,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     "aiservice_s3_port",
                     "aiservice_s3_ssl",
                     "aiservice_s3_bucket_prefix",
-                    "aiservice_s3_region"
+                    "aiservice_s3_region",
                 ]
                 if value is None:
                     for uKey in incompatibleWithMinioInstall:
@@ -415,7 +420,17 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_preinstall_rbac", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified"]:
+            elif key in [
+                "accept_license",
+                "dev_mode",
+                "skip_pre_check",
+                "skip_preinstall_rbac",
+                "skip_grafana_install",
+                "no_confirm",
+                "help",
+                "advanced",
+                "simplified",
+            ]:
                 pass
 
             elif key == "manual_certificates":
@@ -451,11 +466,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.validateCatalogSource()
             self.licensePrompt()
 
-        if self.getParam("permission_mode") != "" and not isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")):
+        if self.getParam("permission_mode") != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
             self.fatalError("--permission-mode is supported only for AI Service releases aligned to MAS 9.2.0 and later")
 
         # Set default permission_mode for 9.2.0+ if not provided
-        if isVersionEqualOrAfter('9.2.0', self.getParam("aiservice_channel")) and self.getParam("permission_mode") == "":
+        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")) and self.getParam("permission_mode") == "":
             self.setParam("permission_mode", "cluster")
 
     @logMethodCall
@@ -473,16 +488,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
 
-        self.printDescription([
-            "<B><U>AI Broker 9.0 Deprecation Notice</U></B>",
-            "",
-            "Maximo AI Broker (introduced with MAS 9.0) has been replaced with Maximo AI Service as of Aug 1 2025",
-            "To continue using the features that were enabled by the AI broker after that time, you must deploy and use Maximo AI Service 9.1:",
-            " - Maximo AI Service 9.1 is compatible with both Maximo Application Suite 9.0 and 9.1 releases",
-            " - If Maximo AI Service is deployed with Maximo Application Suite 9.0, you can use only the AI features that were included in Maximo Application Suite 9.0",
-            "",
-            "Note: Maximo AI Service 9.1 includes a limited-use license to watsonx.ai and incurs an additional AppPoint cost"
-        ])
+        self.printDescription(
+            [
+                "<B><U>AI Broker 9.0 Deprecation Notice</U></B>",
+                "",
+                "Maximo AI Broker (introduced with MAS 9.0) has been replaced with Maximo AI Service as of Aug 1 2025",
+                "To continue using the features that were enabled by the AI broker after that time, you must deploy and use Maximo AI Service 9.1:",
+                " - Maximo AI Service 9.1 is compatible with both Maximo Application Suite 9.0 and 9.1 releases",
+                " - If Maximo AI Service is deployed with Maximo Application Suite 9.0, you can use only the AI features that were included in Maximo Application Suite 9.0",
+                "",
+                "Note: Maximo AI Service 9.1 includes a limited-use license to watsonx.ai and incurs an additional AppPoint cost",
+            ]
+        )
 
         # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
@@ -497,7 +514,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
-        if hasattr(args, 'skip_preinstall_rbac') and args.skip_preinstall_rbac:
+        if hasattr(args, "skip_preinstall_rbac") and args.skip_preinstall_rbac:
             self.setParam("skip_preinstall_rbac", "true")
 
         if instanceId is None:
@@ -551,19 +568,15 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
-        self.printDescription([
-            "Save and re-use the following script to re-run this install without needing to answer the interactive prompts again",
-            "",
-            self.buildCommand()
-        ])
+        self.printDescription(
+            ["Save and re-use the following script to re-run this install without needing to answer the interactive prompts again", "", self.buildCommand()]
+        )
 
         self.displayInstallSummary()
 
         if not self.noConfirm:
             print()
-            self.printDescription([
-                "Please carefully review your choices above, correcting mistakes now is much easier than after the install has begun"
-            ])
+            self.printDescription(["Please carefully review your choices above, correcting mistakes now is much easier than after the install has begun"])
             continueWithInstall = self.yesOrNo("Proceed with these settings")
 
         # Prepare the namespace and launch the installation pipeline
@@ -573,14 +586,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printH1("Launch Install")
             pipelinesNamespace = f"aiservice-{self.getParam('aiservice_instance_id')}-pipelines"
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient, self.getParam("storage_class_rwx")):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 prepareAiServicePipelinesNamespace(
                     dynClient=self.dynamicClient,
@@ -599,7 +612,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     certs=self.certsSecret,
                     aiserviceConfig=self.aiserviceConfigSecret,
                     slack_token=self.getParam("slack_token"),
-                    slack_channel=self.getParam("slack_channel")
+                    slack_channel=self.getParam("slack_channel"),
                 )
 
                 self.setupApprovals(pipelinesNamespace)
@@ -613,15 +626,15 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                         masVersion=".".join(self.getParam("aiservice_channel").split(".")[:2]),
                         masInstanceId=self.getParam("aiservice_instance_id"),
                         permissionMode=self.getParam("permission_mode"),
-                        selectedApps=["aiservice"]
+                        selectedApps=["aiservice"],
                     )
                     h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for AI Service is ready for {self.getParam('aiservice_instance_id')}")
 
-            with Halo(text='Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
+            with Halo(text="Testing availability of MAS CLI image in cluster", spinner=self.spinner) as h:
                 testCLI()
                 h.stop_and_persist(symbol=self.successIcon, text="MAS CLI image deployment test completed")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
@@ -631,7 +644,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aiservice_instance_id')} install submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
                 else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('aiservice_instance_id')} install, see log file for details")
+                    h.stop_and_persist(
+                        symbol=self.failureIcon,
+                        text=f"Failed to submit PipelineRun for {self.getParam('aiservice_instance_id')} install, see log file for details",
+                    )
                     print()
 
     @logMethodCall
@@ -644,8 +660,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         for approval in self.approvals.values():
             if "maxRetries" in approval:
                 # Enable this approval workload
-                logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})")
-                self.initializeApprovalConfigMap(namespace, approval['id'], True, approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
+                logger.debug(
+                    f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})"
+                )
+                self.initializeApprovalConfigMap(namespace, approval["id"], True, approval["maxRetries"], approval["retryDelay"], approval["ignoreFailure"])
 
     @logMethodCall
     def aiServiceSettings(self) -> None:
@@ -653,7 +671,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Ask about MinIO installation FIRST (moved from aiServiceDependencies)
         self.printH2("Storage Configuration")
-        self.printDescription(["AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."])
+        self.printDescription(
+            [
+                "AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."
+            ]
+        )
 
         if self.yesOrNo("Install Minio"):
             # Only ask for MinIO credentials
@@ -671,11 +693,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Storage port", "aiservice_s3_port")
             self.promptForString("Storage ssl", "aiservice_s3_ssl")
             self.promptForString("Storage region", "aiservice_s3_region")
-            self.printDescription([
-                "",
-                "Storage bucket prefix restrictions:",
-                " - Must be 1-4 characters long"
-            ])
+            self.printDescription(["", "Storage bucket prefix restrictions:", " - Must be 1-4 characters long"])
             self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
@@ -690,7 +708,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def configCertIssuer(self):
         if self.showAdvancedOptions:
             self.printH1("Configure Certificate Issuer")
-            configureCertIssuer = self.yesOrNo('Configure certificate issuer')
+            configureCertIssuer = self.yesOrNo("Configure certificate issuer")
             if configureCertIssuer:
                 self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
 
@@ -698,20 +716,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def configNetworking(self):
         if self.showAdvancedOptions:
             self.printH1("Network configuration for services")
-            self.yesOrNo('Enable IPv6 SingleStack networking', 'enable_ipv6')
+            self.yesOrNo("Enable IPv6 SingleStack networking", "enable_ipv6")
 
     @logMethodCall
     def aiServiceTenantSettings(self) -> None:
         self.printH1("AI Service Tenant Settings")
-        self.printDescription([
-            "AI Service will reserve AppPoints for a fixed period of time based on the values you enter:"
-        ])
+        self.printDescription(["AI Service will reserve AppPoints for a fixed period of time based on the values you enter:"])
 
         today = datetime.today()
         oneyear = datetime.today() + relativedelta(years=1)
         self.setParam("tenant_entitlement_type", "standard")
-        self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
-        self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
+        self.setParam("tenant_entitlement_start_date", today.strftime("%Y-%m-%d"))
+        self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime("%Y-%m-%d"))
 
         self.aiserviceTenantSchedulingConfigFileLocal = None
         self.configSchedulingConstraints()
@@ -720,17 +736,21 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def configSchedulingConstraints(self):
         if self.showAdvancedOptions:
             self.printH1("Scheduling configuration for AI Workloads")
-            self.printDescription(content=[
-                "AI Service supports configuring tolerations and nodeSelector per tenant to schedule AI workloads(training pipelines & Inference services) on dedicated nodes.",
-                "To configure tolerations and nodeSelector, create a YAML configuration file",
-                "The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:",
-                "  `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)",
-                "  `nodeSelector`: Dictionary of node label key-value pairs",
-            ])
+            self.printDescription(
+                content=[
+                    "AI Service supports configuring tolerations and nodeSelector per tenant to schedule AI workloads(training pipelines & Inference services) on dedicated nodes.",
+                    "To configure tolerations and nodeSelector, create a YAML configuration file",
+                    "The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:",
+                    "  `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)",
+                    "  `nodeSelector`: Dictionary of node label key-value pairs",
+                ]
+            )
 
-            configSchedulingConstraints = self.yesOrNo('Configure Scheduling policies for AI Service tenant')
+            configSchedulingConstraints = self.yesOrNo("Configure Scheduling policies for AI Service tenant")
             if configSchedulingConstraints:
-                self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile("Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE")
+                self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile(
+                    "Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE"
+                )
 
     def _setMinioStorageDefaults(self) -> None:
         """
@@ -752,28 +772,30 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     def aiServiceIntegrations(self) -> None:
         self.printH1("WatsonX Integration")
-        self.printDescription([
-            "This CLI section configures the integration between the AI Service and IBM watsonx.ai. AI Service",
-            "uses watsonx for model deployment and inferencing.",
-            "",
-            "The WatsonX API key must be a **platform API key** associated with a user that has at least:",
-            "- **Editor permission** for the project",
-            "- **Viewer permission** for the space",
-            "You can generate this key by following IBM's documentation: https://www.ibm.com/docs/en/watsonx/w-and-w/2.2.0?topic=tutorials-generating-api-keys#api-keys__platform__title__1",
-            "",
-            "The endpoint URL is your WatsonX Machine Learning service URL. It can be found in the watsonx.ai",
-            "documentation: https://cloud.ibm.com/apidocs/watsonx-ai-cp/watsonx-ai-cp-2.2.0#endpoint-url",
-            "",
-            "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
-            "",
-            "Optional identifiers:",
-            " - DeploymentId: ID of the model deployment in a **dedicated watsonx runtime**",
-            "   (e.g., granite-3-2-8b-instruct deployed in your dedicated runtime).",
-            " - SpaceId: ID of the **watsonx deployment space** where deployments are managed.",
-            "Provide these only if you already have them; otherwise AI Service can proceed with defaults/workflows",
-            "that do not require pre-existing deployment/space identifiers.",
-            "",
-        ])
+        self.printDescription(
+            [
+                "This CLI section configures the integration between the AI Service and IBM watsonx.ai. AI Service",
+                "uses watsonx for model deployment and inferencing.",
+                "",
+                "The WatsonX API key must be a **platform API key** associated with a user that has at least:",
+                "- **Editor permission** for the project",
+                "- **Viewer permission** for the space",
+                "You can generate this key by following IBM's documentation: https://www.ibm.com/docs/en/watsonx/w-and-w/2.2.0?topic=tutorials-generating-api-keys#api-keys__platform__title__1",
+                "",
+                "The endpoint URL is your WatsonX Machine Learning service URL. It can be found in the watsonx.ai",
+                "documentation: https://cloud.ibm.com/apidocs/watsonx-ai-cp/watsonx-ai-cp-2.2.0#endpoint-url",
+                "",
+                "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
+                "",
+                "Optional identifiers:",
+                " - DeploymentId: ID of the model deployment in a **dedicated watsonx runtime**",
+                "   (e.g., granite-3-2-8b-instruct deployed in your dedicated runtime).",
+                " - SpaceId: ID of the **watsonx deployment space** where deployments are managed.",
+                "Provide these only if you already have them; otherwise AI Service can proceed with defaults/workflows",
+                "that do not require pre-existing deployment/space identifiers.",
+                "",
+            ]
+        )
         self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
         watsonxUrl = self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
         self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
@@ -786,16 +808,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
             self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
         self.printH1("RSL Integration")
-        self.printDescription([
-            "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
-            "",
-            "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
-            "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
-            "Token: Use your IBM entitlement key (same as MAS installation)",
-            "",
-            "Note: Future versions will auto-configure these from MAS Manage.",
-            ""
-        ])
+        self.printDescription(
+            [
+                "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
+                "",
+                "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
+                "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
+                "Token: Use your IBM entitlement key (same as MAS installation)",
+                "",
+                "Note: Future versions will auto-configure these from MAS Manage.",
+                "",
+            ]
+        )
         self.promptForString("RSL url", "rsl_url")
         self.promptForString("ORG Id of RSL", "rsl_org_id")
         rslToken = self.promptForString("Token for RSL", isPassword=True)
@@ -849,12 +873,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             catalogInfo = getCurrentCatalog(self.dynamicClient)
 
             if catalogInfo is None:
-                self.printDescription([
-                    "The catalog you choose dictates the version of everything that is installed, with Maximo Application Suite this is the only version you need to remember; all other versions are determined by this choice.",
-                    "Older catalogs can still be used, but we recommend using an older version of the CLI that aligns with the release date of the catalog.",
-                    " - Learn more: <Orange><u>https://ibm-mas.github.io/cli/catalogs/</u></Orange>",
-                    ""
-                ])
+                self.printDescription(
+                    [
+                        "The catalog you choose dictates the version of everything that is installed, with Maximo Application Suite this is the only version you need to remember; all other versions are determined by this choice.",
+                        "Older catalogs can still be used, but we recommend using an older version of the CLI that aligns with the release date of the catalog.",
+                        " - Learn more: <Orange><u>https://ibm-mas.github.io/cli/catalogs/</u></Orange>",
+                        "",
+                    ]
+                )
                 print("Supported Catalogs:")
                 for catalog in self.catalogOptions:
                     catalogString = self.formatCatalog(catalog)
@@ -865,9 +891,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 catalogSelection = self.promptForString("Select catalog", completer=catalogCompleter)
                 self.setParam("mas_catalog_version", catalogSelection)
             else:
-                self.printDescription([
-                    f"The IBM Maximo Operator Catalog is already installed in this cluster ({catalogInfo['catalogId']}).  If you wish to install MAS using a newer version of the catalog please first update the catalog using mas update."
-                ])
+                self.printDescription(
+                    [
+                        f"The IBM Maximo Operator Catalog is already installed in this cluster ({catalogInfo['catalogId']}).  If you wish to install MAS using a newer version of the catalog please first update the catalog using mas update."
+                    ]
+                )
                 self.setParam("mas_catalog_version", catalogInfo["catalogId"])
 
             self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
@@ -896,10 +924,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             elif re.match(r".+v8-amd64", catalogDisplayName):
                 catalogId = "v8-amd64"
             else:
-                self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+                self.fatalError(
+                    f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update"
+                )
 
             if catalogId != self.getParam("mas_catalog_version"):
-                self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+                self.fatalError(
+                    f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update"
+                )
         except NotFoundError:
             # There's no existing catalog installed
             pass
@@ -909,10 +941,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def licensePrompt(self):
         if not self.licenseAccepted:
             self.printH1("License Terms")
-            self.printDescription([
-                "To continue with the installation, you must accept the license terms:",
-                self.licenses[f"aibroker-{self.getParam('aiservice_channel')}"]
-            ])
+            self.printDescription(
+                ["To continue with the installation, you must accept the license terms:", self.licenses[f"aibroker-{self.getParam('aiservice_channel')}"]]
+            )
 
             if self.noConfirm:
                 self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
@@ -923,12 +954,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def configStorageClasses(self):
         self.printH1("Configure Storage Class Usage")
-        self.printDescription([
-            "Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:",
-            "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
-            "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
-            ""
-        ])
+        self.printDescription(
+            [
+                "Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:",
+                "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
+                "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
+                "",
+            ]
+        )
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         if defaultStorageClasses.provider is not None:
             print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
@@ -945,15 +978,21 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if "storage_class_rwx" not in self.params or self.params["storage_class_rwx"] == "" or overrideStorageClasses:
             self.storageClassProvider = "custom"
 
-            self.printDescription([
-                "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
-                "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be installed"
-            ])
+            self.printDescription(
+                [
+                    "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
+                    "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be installed",
+                ]
+            )
             for storageClass in getStorageClasses(self.dynamicClient):
                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
-            self.params["storage_class_rwo"] = prompt(message=HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-            self.params["storage_class_rwx"] = prompt(message=HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            self.params["storage_class_rwo"] = prompt(
+                message=HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
+            )
+            self.params["storage_class_rwx"] = prompt(
+                message=HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
+            )
 
         # Configure storage class for pipeline PVC
         # We prefer to use ReadWriteMany, but we can cope with ReadWriteOnce if necessary
@@ -1013,19 +1052,21 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def configAppChannel(self):
-        self.params["aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
+        self.params["aiservice_channel"] = prompt(HTML("<Yellow>Custom channel for AI Service</Yellow> "))
 
     @logMethodCall
     def configOperationMode(self):
         self.printH1("Configure Operational Mode")
-        self.printDescription([
-            "Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:",
-            " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations.",
-            " - These specifications are also visible in the metrics that are shared with IBM and in the product UI.",
-            "",
-            "  1. Production",
-            "  2. Non-Production"
-        ])
+        self.printDescription(
+            [
+                "Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:",
+                " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations.",
+                " - These specifications are also visible in the metrics that are shared with IBM and in the product UI.",
+                "",
+                "  1. Production",
+                "  2. Non-Production",
+            ]
+        )
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
