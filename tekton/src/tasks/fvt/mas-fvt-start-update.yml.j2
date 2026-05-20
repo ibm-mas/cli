@@ -14,7 +14,7 @@ spec:
         if [[ -n "$DB2_LICENSE" ]]; then
           mas update --catalog $MAS_CATALOG_VERSION_UPDATE $CLI_UPDATE_EXTRA_FLAGS --no-confirm
         else
-          echo $DB2_LICENSE >> $(pwd)/db2_license.lic
+          echo $DB2_LICENSE | base64 -d >> $(pwd)/db2_license.lic
           mas update --catalog $MAS_CATALOG_VERSION_UPDATE $CLI_UPDATE_EXTRA_FLAGS --db2-license-file $(pwd)/db2_license.lic --no-confirm
         fi
         RESULT=$1
