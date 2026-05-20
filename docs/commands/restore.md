@@ -25,6 +25,10 @@ usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION]
                    [--manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX] [--manage-app-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO]
                    [--override-manage-db-storageclass]
                    [--manage-db-storage-class-rwx MANAGE_DB_STORAGE_CLASS_RWX] [--manage-db-storage-class-rwo MANAGE_DB_STORAGE_CLASS_RWO]
+                   [--restore-facilities-app] [--restore-facilities-db] [--override-facilities-app-storageclass]
+                   [--facilities-app-storage-class-rwx FACILITIES_APP_STORAGE_CLASS_RWX] [--facilities-app-storage-class-rwo FACILITIES_APP_STORAGE_CLASS_RWO]
+                   [--override-facilities-db-storageclass]
+                   [--facilities-db-storage-class-rwx FACILITIES_DB_STORAGE_CLASS_RWX] [--facilities-db-storage-class-rwo FACILITIES_DB_STORAGE_CLASS_RWO]
                    [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm] [--skip-pre-check] [-h]
 
 IBM Maximo Application Suite Admin CLI
@@ -131,6 +135,24 @@ Manage Application Restore:
                         Db2 ReadWriteMany storage class name
   --manage-db-storage-class-rwo MANAGE_DB_STORAGE_CLASS_RWO
                         Db2 ReadWriteOnce storage class name
+
+Facilities Application Restore:
+  --restore-facilities-app
+                        Restore the Facilities application including namespace resources and persistent volume data
+  --restore-facilities-db
+                        Restore the Facilities incluster Db2 database
+  --override-facilities-app-storageclass
+                        Override storage class for Facilities application persistent volumes
+  --facilities-app-storage-class-rwx FACILITIES_APP_STORAGE_CLASS_RWX
+                        Facilities Application ReadWriteMany storage class name
+  --facilities-app-storage-class-rwo FACILITIES_APP_STORAGE_CLASS_RWO
+                        Facilities Application ReadWriteOnce storage class name
+  --override-facilities-db-storageclass
+                        Override storage class for Facilities Db2 database persistent volumes
+  --facilities-db-storage-class-rwx FACILITIES_DB_STORAGE_CLASS_RWX
+                        Facilities Db2 ReadWriteMany storage class name
+  --facilities-db-storage-class-rwo FACILITIES_DB_STORAGE_CLASS_RWO
+                        Facilities Db2 ReadWriteOnce storage class name
 
 More:
   --artifactory-username ARTIFACTORY_USERNAME
@@ -362,6 +384,47 @@ mas restore \
   --no-confirm
 ```
 
+### Restore with Facilities Application
+Restore the Facilities application including namespace resources and persistent volume data:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-facilities-app \
+  --no-confirm
+```
+
+### Restore with Facilities Application and Database
+Restore both the Facilities application and its incluster Db2 database:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-facilities-app \
+  --restore-facilities-db \
+  --no-confirm
+```
+
+### Restore Facilities with Custom Storage Classes
+Restore Facilities application and database with custom storage class overrides:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-facilities-app \
+  --restore-facilities-db \
+  --override-facilities-app-storageclass \
+  --facilities-app-storage-class-rwx custom-rwx-storage \
+  --facilities-app-storage-class-rwo custom-rwo-storage \
+  --override-facilities-db-storageclass \
+  --facilities-db-storage-class-rwx custom-rwx-storage \
+  --facilities-db-storage-class-rwo custom-rwo-storage \
+  --no-confirm
+```
+
 ### Restore Skipping Pre-Check
 Skip the pre-restore validation check (use with caution):
 
@@ -495,6 +558,21 @@ The restore process can now restore the Manage application in addition to the MA
 
 !!! note
     - Manage database restore is an offline operation - the Manage application will be unavailable during the restore
+    - The restore process handles both the application resources and the database data
+    - Storage class overrides are useful when restoring to clusters with different storage infrastructure
+    - A single RWX and RWO storage class is applied across all Db2 persistent volumes (meta, data, backup, logs, temp)
+
+### Facilities Application Restore
+The restore process can restore the Facilities application in addition to the MAS Suite:
+
+- **Facilities Application**: Use `--restore-facilities-app` to restore Facilities namespace resources and persistent volume data
+- **Facilities Database**: Use `--restore-facilities-db` to restore the incluster Db2 database associated with the Facilities workspace
+- **Storage Class Overrides**:
+  - Use `--override-facilities-app-storageclass` to override Facilities application storage classes, then specify `--facilities-app-storage-class-rwx` and `--facilities-app-storage-class-rwo`
+  - Use `--override-facilities-db-storageclass` to override Db2 database storage classes, then specify `--facilities-db-storage-class-rwx` and `--facilities-db-storage-class-rwo`
+
+!!! note
+    - Facilities database restore is an offline operation - the Facilities application will be unavailable during the restore
     - The restore process handles both the application resources and the database data
     - Storage class overrides are useful when restoring to clusters with different storage infrastructure
     - A single RWX and RWO storage class is applied across all Db2 persistent volumes (meta, data, backup, logs, temp)

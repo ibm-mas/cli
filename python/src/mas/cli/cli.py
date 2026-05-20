@@ -49,7 +49,7 @@ def getHelpFormatter(formatter: Type[RawTextHelpFormatter] = RawTextHelpFormatte
     https://stackoverflow.com/a/57655311
     """
     try:
-        kwargs = {'width': w, 'max_help_position': h}
+        kwargs = {"width": w, "max_help_position": h}
         formatter(None, **kwargs)  # type: ignore
         return lambda prog: formatter(prog, **kwargs)
     except TypeError:
@@ -89,7 +89,7 @@ def runCmd(cmdArray: List[str], timeout: int = 630) -> RunCmdResult:
             output, error = p.communicate(timeout=timeout)
             return RunCmdResult(p.returncode, output, error)
         except TimeoutExpired as e:
-            return RunCmdResult(127, b'TimeoutExpired', str(e).encode())
+            return RunCmdResult(127, b"TimeoutExpired", str(e).encode())
 
 
 def logMethodCall(func: Callable) -> Callable:
@@ -98,18 +98,17 @@ def logMethodCall(func: Callable) -> Callable:
         result = func(self, *args, **kwargs)
         logger.debug(f"<<< BaseApp.{func.__name__}")
         return result
+
     return wrapper
 
 
 class BaseApp(PrintMixin, PromptMixin):
     def __init__(self) -> None:
         # Set up a log formatter
-        chFormatter = logging.Formatter('%(asctime)-25s' + ' %(levelname)-8s %(message)s')
+        chFormatter = logging.Formatter("%(asctime)-25s" + " %(levelname)-8s %(message)s")
 
         # Set up a log handler (5mb rotating log file)
-        ch = logging.handlers.RotatingFileHandler(
-            "mas.log", maxBytes=(1048576 * 5), backupCount=2
-        )
+        ch = logging.handlers.RotatingFileHandler("mas.log", maxBytes=(1048576 * 5), backupCount=2)
         ch.setLevel(logging.DEBUG)
         ch.setFormatter(chFormatter)
 
@@ -117,7 +116,7 @@ class BaseApp(PrintMixin, PromptMixin):
         rootLogger = logging.getLogger()
         rootLogger.addHandler(ch)
         rootLogger.setLevel(logging.DEBUG)
-        logging.getLogger('asyncio').setLevel(logging.INFO)
+        logging.getLogger("asyncio").setLevel(logging.INFO)
 
         # Supports extended semver, unlike mas.cli.__version__
         self.version: str = "100.0.0-pre.local"
@@ -235,10 +234,7 @@ class BaseApp(PrintMixin, PromptMixin):
             "8.9.x": "8.10.x",
         }
 
-        self.spinner: Dict[str, Any] = {
-            "interval": 80,
-            "frames": [" ⠋", " ⠙", " ⠹", " ⠸", " ⠼", " ⠴", " ⠦", " ⠧", " ⠇", " ⠏"]
-        }
+        self.spinner: Dict[str, Any] = {"interval": 80, "frames": [" ⠋", " ⠙", " ⠹", " ⠸", " ⠼", " ⠴", " ⠦", " ⠧", " ⠇", " ⠏"]}
         self.successIcon: str = "✅️"
         self.failureIcon: str = "❌"
 
@@ -246,9 +242,13 @@ class BaseApp(PrintMixin, PromptMixin):
         self._apiClient: ApiClient | None = None
 
         self.printTitle(f"\nIBM Maximo Application Suite Admin CLI v{self.version}")
-        print_formatted_text(HTML("Powered by <Orange><u>https://github.com/ibm-mas/ansible-devops/</u></Orange> and <Orange><u>https://tekton.dev/</u></Orange>\n"))
+        print_formatted_text(
+            HTML("Powered by <Orange><u>https://github.com/ibm-mas/ansible-devops/</u></Orange> and <Orange><u>https://tekton.dev/</u></Orange>\n")
+        )
         if which("kubectl") is None:
-            self.fatalError("Could not find kubectl on the path, see <Orange><u>https://kubernetes.io/docs/tasks/tools/#kubectl</u></Orange> for installation instructions")
+            self.fatalError(
+                "Could not find kubectl on the path, see <Orange><u>https://kubernetes.io/docs/tasks/tools/#kubectl</u></Orange> for installation instructions"
+            )
 
     @logMethodCall
     def createTektonFileWithDigest(self) -> None:
@@ -259,9 +259,9 @@ class BaseApp(PrintMixin, PromptMixin):
             # We need to modify the tekton definitions to
             imageWithoutDigest = f"quay.io/ibmmas/cli:{self.version}"
             self.printH1("Disconnected OpenShift Preparation")
-            self.printDescription([
-                f"Unless the {imageWithoutDigest} image is accessible from your cluster the MAS CLI container image must be present in your mirror registry"
-            ])
+            self.printDescription(
+                [f"Unless the {imageWithoutDigest} image is accessible from your cluster the MAS CLI container image must be present in your mirror registry"]
+            )
             cmdArray = ["skopeo", "inspect", f"docker://{imageWithoutDigest}"]
             logger.info(f"Skopeo inspect command: {' '.join(cmdArray)}")
             skopeoResult = runCmd(cmdArray)
@@ -284,12 +284,12 @@ class BaseApp(PrintMixin, PromptMixin):
             # Overwrite the tekton definitions with one that uses the looked up image digest
             imageWithDigest = f"quay.io/ibmmas/cli@{cliImageDigest}"
             self.printHighlight(f"\nConverting Tekton definitions to use {imageWithDigest}")
-            with open(self.tektonDefsPath, 'r') as file:
+            with open(self.tektonDefsPath, "r") as file:
                 tektonDefsWithoutDigest = file.read()
 
             tektonDefsWithDigest = tektonDefsWithoutDigest.replace(imageWithoutDigest, imageWithDigest)
 
-            with open(self.tektonDefsWithDigestPath, 'w') as file:
+            with open(self.tektonDefsWithDigestPath, "w") as file:
                 file.write(tektonDefsWithDigest)
 
             self.tektonDefsPath = self.tektonDefsWithDigestPath
@@ -324,7 +324,9 @@ class BaseApp(PrintMixin, PromptMixin):
             # First check if the legacy ICSP is installed.  If it is raise an error and instruct the user to re-run configure-airgap to
             # migrate the cluster from ICSP to IDMS
             if isAirgapInstall(self.dynamicClient, checkICSP=True):
-                self.fatalError("Deprecated Maximo Application Suite ImageContentSourcePolicy detected on the target cluster.  Run 'mas configure-airgap' to migrate to the replacement ImageDigestMirrorSet beofre proceeding.")
+                self.fatalError(
+                    "Deprecated Maximo Application Suite ImageContentSourcePolicy detected on the target cluster.  Run 'mas configure-airgap' to migrate to the replacement ImageDigestMirrorSet beofre proceeding."
+                )
             self._isAirgap = isAirgapInstall(self.dynamicClient)
         return self._isAirgap
 
@@ -393,9 +395,9 @@ class BaseApp(PrintMixin, PromptMixin):
 
         if promptForNewServer:
             # Prompt for new connection properties
-            server = prompt(HTML('<Yellow>Server URL:</Yellow> '), placeholder="https://...")
-            token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
-            skipVerify = self.yesOrNo('Disable TLS Verify')
+            server = prompt(HTML("<Yellow>Server URL:</Yellow> "), placeholder="https://...")
+            token = prompt(HTML("<Yellow>Login Token:</Yellow> "), is_password=True, placeholder="sha256~...")
+            skipVerify = self.yesOrNo("Disable TLS Verify")
             connect(server, token, skipVerify)
             self.reloadDynamicClient()
             if self._dynClient is None:
@@ -428,16 +430,8 @@ class BaseApp(PrintMixin, PromptMixin):
         configMap = {
             "apiVersion": "v1",
             "kind": "ConfigMap",
-            "metadata": {
-                "name": f"approval-{id}",
-                "namespace": namespace
-            },
-            "data": {
-                "MAX_RETRIES": str(maxRetries),
-                "DELAY": str(delay),
-                "IGNORE_FAILURE": str(ignoreFailure),
-                "STATUS": ""
-            }
+            "metadata": {"name": f"approval-{id}", "namespace": namespace},
+            "data": {"MAX_RETRIES": str(maxRetries), "DELAY": str(delay), "IGNORE_FAILURE": str(ignoreFailure), "STATUS": ""},
         }
 
         # Delete any existing configmap and create a new one
@@ -448,7 +442,9 @@ class BaseApp(PrintMixin, PromptMixin):
             pass
 
         if enabled:
-            logger.debug(f"Enabling approval workflow for {id} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})")
+            logger.debug(
+                f"Enabling approval workflow for {id} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})"
+            )
             cmAPI.create(body=configMap, namespace=namespace)
 
     @logMethodCall
