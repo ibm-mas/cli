@@ -224,6 +224,11 @@ function mustgather() {
   echo "For help reviewing the content of the must gather refer to:"
   echo "https://www.ibm.com/support/pages/how-review-maximo-application-suite-must-gather"
 
+  if [ "$(oc whoami 2>/dev/null)" == "" ] ; then 
+    echo_warning "You must be logged in to the cluster before running the must-gather command"
+    exit 1
+  fi
+
   # ---------------------------------------------------------------------------
   # Generate OCP Report
   # ---------------------------------------------------------------------------
