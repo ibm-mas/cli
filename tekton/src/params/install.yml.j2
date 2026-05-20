@@ -558,6 +558,10 @@
   type: string
   description: Select the JDBC configuration to bind to
   default: system
+- name: mas_appws_bindings_kafka_manage
+  type: string
+  description: Select the Kafka configuration to bind to Manage
+  default: ""
 - name: mas_appws_components
   type: string
   description: Manage components to configure in the workspace
@@ -682,6 +686,11 @@
   type: string
   description: Manage upgrade type
   default: "regularUpgrade"
+- name: mas_manage_kafkaimageprocessor_pvc_size
+  type: string
+  description: PVC size for Manage Kafka Image Processor
+  default: ""
+
 
 # MAS Application Configuration - IBM Maximo Location Services for ESRI
 # -----------------------------------------------------------------------------
@@ -720,7 +729,7 @@
   default: "small"
 - name: mas_ws_facilities_app_om_upgrade_mode
   type: string
-  description: Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades. 
+  description: Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades.
   default: ""
 - name: mas_ws_facilities_routes_timeout
   type: string

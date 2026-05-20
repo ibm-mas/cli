@@ -20,4 +20,5 @@ class InstallSettingsMixin(Db2SettingsMixin, MongoDbSettingsMixin, KafkaSettings
     """
     This class collects all the Mixins providing interactive prompts for mas-install
     """
+
     pass

@@ -15,7 +15,7 @@ import os
 import pytest
 
 # Add test directory to path for utils import
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
@@ -31,11 +31,11 @@ def test_db2u_one_namespace(tmpdir, resource_kind):
 
     prompt_handlers = {
         # Proceed with current cluster
-        '.*Proceed with this cluster?.*': lambda msg: 'y',
+        ".*Proceed with this cluster?.*": lambda msg: "y",
         # Catalog selection
-        '.*Select catalog version.*': lambda msg: '1',
+        ".*Select catalog version.*": lambda msg: "1",
         # Final confirmation
-        '.*Proceed with these settings.*': lambda msg: 'y',
+        ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
@@ -44,11 +44,8 @@ def test_db2u_one_namespace(tmpdir, resource_kind):
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-system"],  # Single namespace
         db2u_resource_kind=resource_kind,
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -68,13 +65,13 @@ def test_db2u_multiple_namespaces(tmpdir, resource_kind):
 
     prompt_handlers = {
         # Proceed with current cluster
-        '.*Proceed with this cluster?.*': lambda msg: 'y',
+        ".*Proceed with this cluster?.*": lambda msg: "y",
         # Catalog selection
-        '.*Select catalog version.*': lambda msg: '1',
+        ".*Select catalog version.*": lambda msg: "1",
         # Namespace selection - user chooses second namespace
-        '.*Select namespace.*': lambda msg: '2',
+        ".*Select namespace.*": lambda msg: "2",
         # Final confirmation
-        '.*Proceed with these settings.*': lambda msg: 'y',
+        ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
@@ -83,11 +80,8 @@ def test_db2u_multiple_namespaces(tmpdir, resource_kind):
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-ns1", "db2u-ns2", "db2u-ns3"],  # Multiple namespaces
         db2u_resource_kind=resource_kind,
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -106,11 +100,11 @@ def test_db2u_none_found(tmpdir, resource_kind):
 
     prompt_handlers = {
         # Proceed with current cluster
-        '.*Proceed with this cluster?.*': lambda msg: 'y',
+        ".*Proceed with this cluster?.*": lambda msg: "y",
         # Catalog selection
-        '.*Select catalog version.*': lambda msg: '1',
+        ".*Select catalog version.*": lambda msg: "1",
         # Final confirmation
-        '.*Proceed with these settings.*': lambda msg: 'y',
+        ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
@@ -119,11 +113,8 @@ def test_db2u_none_found(tmpdir, resource_kind):
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=[],  # No Db2U resources
         db2u_resource_kind=resource_kind,
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -147,15 +138,15 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
 
     prompt_handlers = {
         # Proceed with current cluster
-        '.*Proceed with this cluster.*': lambda msg: 'y',
+        ".*Proceed with this cluster.*": lambda msg: "y",
         # Catalog selection
-        '.*Select catalog version.*': lambda msg: '1',
+        ".*Select catalog version.*": lambda msg: "1",
         # Db2 version upgrade confirmation - match the exact format
-        '.*Confirm update from Db2 11 to 12.*': lambda msg: 'y',
+        ".*Confirm update from Db2 11 to 12.*": lambda msg: "y",
         # License prompt
-        '.*Path to a valid Db2 v12 license file.*': lambda msg: valid_license_file,
+        ".*Path to a valid Db2 v12 license file.*": lambda msg: valid_license_file,
         # Final confirmation
-        '.*Proceed with these settings.*': lambda msg: 'y',
+        ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
@@ -166,11 +157,8 @@ def test_db2u_major_version_upgrade_accepted(tmpdir, resource_kind):
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.9.0",  # Current version
         db2u_target_version="v12.0",  # Target requires upgrade
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        timeout_seconds=60
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        timeout_seconds=60,
     )
 
     run_update_test(tmpdir, config)
@@ -190,11 +178,11 @@ def test_db2u_major_version_upgrade_rejected(tmpdir, resource_kind):
 
     prompt_handlers = {
         # Proceed with current cluster
-        '.*Proceed with this cluster.*': lambda msg: 'y',
+        ".*Proceed with this cluster.*": lambda msg: "y",
         # Catalog selection
-        '.*Select catalog version.*': lambda msg: '1',
+        ".*Select catalog version.*": lambda msg: "1",
         # Db2 version upgrade confirmation - user rejects - match exact format
-        '.*Confirm update from Db2 11 to 12.*': lambda msg: 'n',
+        ".*Confirm update from Db2 11 to 12.*": lambda msg: "n",
     }
 
     config = UpdateTestConfig(
@@ -205,13 +193,10 @@ def test_db2u_major_version_upgrade_rejected(tmpdir, resource_kind):
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.9.0",  # Current version
         db2u_target_version="v12.0",  # Target requires upgrade
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
         expect_system_exit=True,
         expected_exit_code=1,
-        timeout_seconds=60
+        timeout_seconds=60,
     )
 
     run_update_test(tmpdir, config)
@@ -232,11 +217,11 @@ def test_db2u_major_version_upgrade_aborted_when_license_file_rejected(tmpdir, r
     invalid_license_file = os.path.join(str(tmpdir), "missing-db2-license.lic")
 
     prompt_handlers = {
-        '.*Proceed with this cluster.*': lambda msg: 'y',
-        '.*Select catalog version.*': lambda msg: '1',
-        '.*Confirm update from Db2 11 to 12.*': lambda msg: 'y',
-        '.*Path to a valid Db2 v12 license file.*': lambda msg: invalid_license_file,
-        '.*Proceed with these settings.*': lambda msg: 'y',
+        ".*Proceed with this cluster.*": lambda msg: "y",
+        ".*Select catalog version.*": lambda msg: "1",
+        ".*Confirm update from Db2 11 to 12.*": lambda msg: "y",
+        ".*Path to a valid Db2 v12 license file.*": lambda msg: invalid_license_file,
+        ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
@@ -247,12 +232,9 @@ def test_db2u_major_version_upgrade_aborted_when_license_file_rejected(tmpdir, r
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.9.0",
         db2u_target_version="v12.0",
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
         expect_exception=FileNotFoundError,
-        timeout_seconds=60
+        timeout_seconds=60,
     )
 
     run_update_test(tmpdir, config)
@@ -270,11 +252,11 @@ def test_db2u_minor_version_upgrade_no_prompt(tmpdir, resource_kind):
 
     prompt_handlers = {
         # Proceed with current cluster
-        '.*Proceed with this cluster?.*': lambda msg: 'y',
+        ".*Proceed with this cluster?.*": lambda msg: "y",
         # Catalog selection
-        '.*Select catalog version.*': lambda msg: '1',
+        ".*Select catalog version.*": lambda msg: "1",
         # Final confirmation
-        '.*Proceed with these settings.*': lambda msg: 'y',
+        ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
@@ -285,11 +267,8 @@ def test_db2u_minor_version_upgrade_no_prompt(tmpdir, resource_kind):
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.8.0",  # Current version
         db2u_target_version="v11.5",  # Same major version
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -307,10 +286,10 @@ def test_db2u_multiple_namespaces_first_selection(tmpdir, resource_kind):
     """
 
     prompt_handlers = {
-        '.*Proceed with this cluster?.*': lambda msg: 'y',
-        '.*Select catalog version.*': lambda msg: '1',
-        '.*Select namespace.*': lambda msg: '1',  # Select first
-        '.*Proceed with these settings.*': lambda msg: 'y',
+        ".*Proceed with this cluster?.*": lambda msg: "y",
+        ".*Select catalog version.*": lambda msg: "1",
+        ".*Select namespace.*": lambda msg: "1",  # Select first
+        ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
@@ -319,11 +298,8 @@ def test_db2u_multiple_namespaces_first_selection(tmpdir, resource_kind):
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-ns1", "db2u-ns2"],
         db2u_resource_kind=resource_kind,
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -341,10 +317,10 @@ def test_db2u_multiple_namespaces_last_selection(tmpdir, resource_kind):
     """
 
     prompt_handlers = {
-        '.*Proceed with this cluster?.*': lambda msg: 'y',
-        '.*Select catalog version.*': lambda msg: '1',
-        '.*Select namespace.*': lambda msg: '3',  # Select last
-        '.*Proceed with these settings.*': lambda msg: 'y',
+        ".*Proceed with this cluster?.*": lambda msg: "y",
+        ".*Select catalog version.*": lambda msg: "1",
+        ".*Select namespace.*": lambda msg: "3",  # Select last
+        ".*Proceed with these settings.*": lambda msg: "y",
     }
 
     config = UpdateTestConfig(
@@ -353,11 +329,8 @@ def test_db2u_multiple_namespaces_last_selection(tmpdir, resource_kind):
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-ns1", "db2u-ns2", "db2u-ns3"],
         db2u_resource_kind=resource_kind,
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
