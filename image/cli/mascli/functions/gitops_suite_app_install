@@ -16,6 +16,7 @@ GitOps Configuration:
 
 Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                    IBM Suite Maximo Application Suite Instance ID
+  -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}                  IBM Suite Maximo Application Suite workspace ID
       --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                              IBM Suite Maximo Application Suite Application ID
       --mas-app-channel ${COLOR_YELLOW}MAS_APP_CHANNEL${TEXT_RESET}                    IBM Suite Maximo Application Suite Application Channel
       --mas-app-install-plan ${COLOR_YELLOW}MAS_APP_INSTALL_PLAN${TEXT_RESET}          IBM Suite Maximo Application Suite Application Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
@@ -97,6 +98,9 @@ function gitops_suite_app_install_noninteractive() {
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      -W|--mas-workspace-id)
+        export MAS_WORKSPACE_ID=$1 && shift
         ;;
       -r|--region)
         export REGION=$1 && shift
@@ -201,6 +205,9 @@ function gitops_suite_app_install_noninteractive() {
 
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_app_install_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_suite_app_install_help "MAS_APP_ID is not set"
+  if [[ "${MAS_APP_ID}" == "facilities" ]]; then
+    [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_app_install_help "MAS_WORKSPACE_ID is not set for facilities"
+  fi
   [[ -z "$MAS_APP_CHANNEL" ]] && gitops_suite_app_install_help "MAS_APP_CHANNEL is not set"
   [[ -z "$MAS_APP_CATALOG_SOURCE" ]] && gitops_suite_app_install_help "MAS_APP_CATALOG_SOURCE is not set"
   [[ -z "$MAS_APP_API_VERSION" ]] && gitops_suite_app_install_help "MAS_APP_API_VERSION is not set"
@@ -289,6 +296,7 @@ function gitops_suite_app_install() {
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Application ID ........................ ${COLOR_MAGENTA}${MAS_APP_ID}"
+  echo_reset_dim "Workspace ID .......................... ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
   echo_reset_dim "Application Channel ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL}"
   echo_reset_dim "Application Install Plan .............. ${COLOR_MAGENTA}${MAS_APP_INSTALL_PLAN}"
   echo_reset_dim "Application Catalog Source ............ ${COLOR_MAGENTA}${MAS_APP_CATALOG_SOURCE}"
@@ -427,6 +435,7 @@ function gitops_suite_app_install() {
       tls_secret_name['iot']="${MAS_INSTANCE_ID}-public-tls"
       tls_secret_name['add']="${MAS_INSTANCE_ID}-add-cert-public"
       tls_secret_name['assist']="public-assist-tls"
+      tls_secret_name['facilities']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-public-facilities-tls"
       tls_secret_name['monitor']="${MAS_INSTANCE_ID}-public-tls"
       tls_secret_name['optimizer']="${MAS_INSTANCE_ID}-cert-optimizer-public"
       tls_secret_name['predict']="${MAS_INSTANCE_ID}-public-predict-tls"
