@@ -353,6 +353,7 @@ function gitops_aiservice() {
   echo_reset_dim "Is External Route ...................... ${COLOR_MAGENTA}${IS_EXTERNAL_ROUTE}"
   echo_reset_dim "JDBC Secret ............................ ${COLOR_MAGENTA}${JDBC_SECRET}"
   echo_reset_dim "Use AWS DB2 ............................ ${COLOR_MAGENTA}${USE_AWS_DB2}"
+  echo_reset_dim "Is GitOps FVT ENV ............................ ${COLOR_MAGENTA}${IS_GITOPS_FVT_ENV}"
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login

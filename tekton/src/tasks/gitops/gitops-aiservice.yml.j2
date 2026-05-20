@@ -79,6 +79,9 @@ spec:
       type: string
     - name: use_aws_db2
       type: string
+    - name: is_gitops_fvt_env
+      type: string
+      default: "false"
 
   stepTemplate:
     name: gitops-aiservice
@@ -155,6 +158,8 @@ spec:
         value: $(params.jdbc_secret)
       - name: USE_AWS_DB2
         value: $(params.use_aws_db2)
+      - name: IS_GITOPS_FVT_ENV
+        value: $(params.is_gitops_fvt_env)   
         
     envFrom:
       - configMapRef:
