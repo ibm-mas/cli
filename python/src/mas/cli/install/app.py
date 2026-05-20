@@ -46,6 +46,7 @@ from mas.cli.validators import (
     JsonValidator,
     OptimizerInstallPlanValidator,
     BucketPrefixValidator,
+    NotEmptyValidator,
 )
 
 from mas.devops.ocp import (
@@ -1347,7 +1348,11 @@ class InstallApp(
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
         if len(versions) == 0:
-            self.params[f"mas_app_channel_{appId}"] = prompt(HTML(f"<Yellow>Custom channel for {appId}</Yellow>"))
+            self.promptForString(
+                f"Custom channel for {appId}",
+                f"mas_app_channel_{appId}",
+                validator=NotEmptyValidator(),
+            )
         else:
             self.params[f"mas_app_channel_{appId}"] = versions[0]
 
@@ -2502,7 +2507,7 @@ class InstallApp(
             self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
-            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
+            print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
             exit(1)
 
         # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now

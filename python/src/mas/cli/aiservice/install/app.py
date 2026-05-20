@@ -526,7 +526,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
-            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
+            print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
             exit(1)
 
         # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
