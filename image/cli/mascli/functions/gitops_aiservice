@@ -72,6 +72,7 @@ function gitops_aiservice_noninteractive() {
   #adding default values 
   export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
+  export IS_GITOPS_FVT_ENV=${IS_GITOPS_FVT_ENV:-"false"}
   export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed  
   export JDBC_SECRET=${JDBC_SECRET:-"aiservice-jdbc-secret"}
   export USE_AWS_DB2=${USE_AWS_DB2:-"false"}  # Default to "false", can be set to "true" if needed
@@ -136,6 +137,9 @@ function gitops_aiservice_noninteractive() {
       --in-saas-env)
           export IN_SAAS_ENV=$1 && shift
         ;;
+      --is-gitops-fvt-env)
+        export IS_GITOPS_FVT_ENV=$1 && shift
+        ;;  
       --is-external-route)
           export IS_EXTERNAL_ROUTE=$1 && shift
         ;;

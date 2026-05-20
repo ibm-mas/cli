@@ -63,6 +63,8 @@ spec:
       type: string
     - name: use_aws_db2
       type: string
+    - name: is_gitops_fvt_env
+      type: string  
 
     # ODH-specific
     - name: odh_channel
@@ -243,3 +245,5 @@ spec:
           value: $(params.jdbc_secret)
         - name: use_aws_db2
           value: $(params.use_aws_db2)
+        - name: is_gitops_fvt_env
+          value: $(params.is_gitops_fvt_env)  
