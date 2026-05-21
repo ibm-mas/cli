@@ -6,13 +6,13 @@ Usage
 Usage information can be obtained using `mas pre-install --help`
 
 ```
-usage: mas pre-install [-i MAS_INSTANCE_ID] [--mas-version MAS_VERSION]
+usage: mas pre-install [-i MAS_INSTANCE_ID] [--mas-channel MAS_CHANNEL]
                        [--permission-mode {cluster,namespaced}]
                        [--apps APPS] [--no-confirm] [-h]
 
 IBM Maximo Application Suite Admin CLI v21.3.0
 Set up pre-install RBAC for MAS.
-Available only for MAS version 9.2.0 and later.
+Available only for MAS channel 9.2.x and later.
 
 Interactive Mode:
 Omitting required options will trigger an interactive prompt
@@ -22,8 +22,8 @@ Specify the target cluster and MAS instance for which pre-install RBAC should be
 
   -i, --mas-instance-id MAS_INSTANCE_ID
                         The MAS instance ID for which pre-install RBAC will be set up
-  --mas-version MAS_VERSION
-                        The MAS version in x.y.z format used to select pre-install RBAC manifests, for example 9.2.0
+  --mas-channel MAS_CHANNEL
+                        The MAS channel used to select pre-install RBAC manifests, for example 9.2.x
   --permission-mode {cluster,namespaced}
                         The permission mode used to determine which pre-install RBAC manifests are set up
   --apps APPS           Comma-separated list of apps used to filter which pre-install RBAC manifests are set up (required for namespaced mode), for example core,manage,iot
@@ -51,7 +51,7 @@ Set up pre-install RBAC for a MAS instance using namespaced permission mode (app
 ```bash
 mas pre-install \
   --mas-instance-id prod1 \
-  --mas-version 9.2.0 \
+  --mas-channel 9.2.x \
   --permission-mode namespaced \
   --apps core,manage,iot \
   --no-confirm
@@ -63,7 +63,7 @@ Set up pre-install RBAC for cluster permission mode (apps are not required - aut
 ```bash
 mas pre-install \
   --mas-instance-id test1 \
-  --mas-version 9.2.0 \
+  --mas-channel 9.2.x \
   --permission-mode cluster \
   --no-confirm
 ```
@@ -74,7 +74,7 @@ Set up pre-install RBAC for multiple MAS applications:
 ```bash
 mas pre-install \
   --mas-instance-id prod1 \
-  --mas-version 9.2.0 \
+  --mas-channel 9.2.x \
   --permission-mode namespaced \
   --apps core,manage,monitor,iot,predict,visualinspection \
   --no-confirm
@@ -87,7 +87,7 @@ Notes
 The pre-install command performs the following operations:
 
 1. **Validates cluster administrator permissions** - Ensures you have the required permissions to create RBAC resources
-2. **Validates MAS version** - Confirms the version is 9.2.0 or later
+2. **Validates MAS channel** - Confirms the channel is 9.2.x or later
 3. **Validates application selection** - Ensures all specified applications are supported
 4. **Applies RBAC manifests** - Creates ClusterRoles, Roles, RoleBindings, and ServiceAccounts based on permission mode and selected applications
 
@@ -148,7 +148,7 @@ mas install \
 ```bash
 mas pre-install \
   --mas-instance-id prod1 \
-  --mas-version 9.2.0 \
+  --mas-channel 9.2.x \
   --permission-mode namespaced \
   --apps core,manage,iot \
   --no-confirm
@@ -166,7 +166,7 @@ mas install \
 ### Requirements
 
 - OpenShift cluster administrator permissions
-- MAS version 9.2.0 or later
+- MAS channel 9.2.x or later
 - Access to the target OpenShift cluster
 
 !!! warning "Administrator Permissions Required"
@@ -178,7 +178,7 @@ When running without all required options, the command enters interactive mode a
 
 1. Target OpenShift cluster connection
 2. MAS instance ID
-3. MAS version (in x.y.z format)
+3. MAS channel (for example 9.2.x)
 4. Permission mode (cluster or namespaced)
 5. Applications to include (comma-separated list) - **only for namespaced mode**
 
@@ -189,4 +189,4 @@ The command will display a summary of your selections and ask for confirmation b
 ### Version Compatibility
 
 !!! important
-    This command is only supported for MAS version 9.2.0 and later. If you specify an earlier version, the command will fail with an error message.
+    This command is only supported for MAS version 9.2 and later. If you specify an earlier mas version, the command will fail with an error message.
