@@ -88,8 +88,8 @@ The pre-install command performs the following operations:
 
 1. **Validates cluster administrator permissions** - Ensures you have the required permissions to create RBAC resources
 2. **Validates MAS channel** - Confirms the channel is 9.2.x or later
-3. **Validates application selection** - Ensures all specified applications are supported
-4. **Applies RBAC manifests** - Creates ClusterRoles, Roles, RoleBindings, and ServiceAccounts based on permission mode and selected applications
+3. **Validates application selection** - Ensures all specified applications are supported (only in namespaced mode)
+4. **Applies RBAC manifests** - Creates ClusterRoles, ClusterRoleBindings, Roles and RoleBindings based on permission mode and selected applications
 
 ### When to Use Pre-Install
 
@@ -132,7 +132,7 @@ You can specify multiple applications as a comma-separated list (e.g., `core,man
 
 ### Integration with MAS Install
 
-After running `mas pre-install`, proceed with the MAS installation using the `--skip-preinstall-rbac` flag to avoid re-applying the RBAC resources:
+After running `mas pre-install`, proceed with the MAS installation using the `--skip-preinstall-rbac` flag to avoid re-applying the RBAC resources. Use the same permission mode that was used during pre-install for issuerKind selection:
 
 ```bash
 mas install \
