@@ -427,12 +427,6 @@ class installArgBuilderMixin:
             if self.aiserviceTenantSchedulingConfigFileLocal:
                 command += f'  --tenant-scheduling-config-file "{self.aiserviceTenantSchedulingConfigFileLocal}"{newline}'
 
-            if self.getParam("rsl_url") != "":
-                command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
-            if self.getParam("rsl_org_id") != "":
-                command += f"  --rsl-org-id \"{self.getParam('rsl_org_id')}\"{newline}"
-            if self.getParam("rsl_token") != "":
-                command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
             if self.getParam("rsl_ca_crt") != "":
                 command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 
