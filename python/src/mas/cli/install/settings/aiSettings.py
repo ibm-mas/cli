@@ -100,7 +100,7 @@ class AiSettingsMixin:
             # Check MAS version - AiCfg is only supported in MAS 9.2+
             mas_channel = self.getParam("mas_channel")
             is_mas_92_or_later = False
-            
+
             if mas_channel:
                 try:
                     # Extract major.minor version (e.g., "9.2" from "9.2.0")
@@ -111,7 +111,7 @@ class AiSettingsMixin:
                         is_mas_92_or_later = (major > 9) or (major == 9 and minor >= 2)
                 except (ValueError, IndexError):
                     pass
-            
+
             if is_mas_92_or_later:
                 # AI Service will be installed - defer AiCfg generation to pipeline
                 if not silentMode:
@@ -149,7 +149,7 @@ class AiSettingsMixin:
                             "If you upgrade to MAS 9.2+ in the future, you can configure AiCfg then.",
                         ]
                     )
-                
+
                 self.setParam("configure_aiassistant", "none")
                 print_formatted_text("\n⚠️  AiCfg configuration skipped (requires MAS 9.2+)")
         else:
