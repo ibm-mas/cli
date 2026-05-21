@@ -43,7 +43,7 @@ targetArgGroup.add_argument(
     "--permission-mode",
     dest="permission_mode",
     required=False,
-    choices=["cluster", "namespaced", "minimal"],
+    choices=["cluster", "namespaced"],
     help="The permission mode used to determine which pre-install RBAC manifests are set up",
 )
 
@@ -51,7 +51,7 @@ targetArgGroup.add_argument(
     "--apps",
     dest="apps",
     required=False,
-    help="Comma-separated list of apps used to filter which pre-install RBAC manifests are set up, for example core,manage,iot",
+    help="Comma-separated list of apps used to filter which pre-install RBAC manifests are set up (required for namespaced mode), for example core,manage,iot",
 )
 
 otherArgGroup = setupPreinstallRBACArgParser.add_argument_group("More", "Additional options for pre-install.")
