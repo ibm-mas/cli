@@ -1,0 +1,1224 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Restore - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/restore.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="OpenShift Management">
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/">
+    IBM Cloud ROKS
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-aws/">
+    AWS (IPI)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/">
+    IBM DevIT FYRE
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/">
+    Airgap Configuration
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Image Mirroring">
+    
+      
+  <cds-side-nav-menu-item href="../private-registry/">
+    Private Registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-mirroring/">
+    Image Mirroring (IBM)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/">
+    Image Mirroring (Red Hat)
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Install and Configure">
+    
+      
+  <cds-side-nav-menu-item href="../install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/">
+    OIDC Config Tool
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../aiservice-install/">
+    AI Service Install
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Update and Upgrade">
+    
+      
+  <cds-side-nav-menu-item href="../update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Backup and Restore" active="" expanded="">
+    
+      
+  <cds-side-nav-menu-item href="../backup/">
+    Backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="./" active="" expanded="">
+    Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Troubleshooting">
+    
+      
+  <cds-side-nav-menu-item href="../../commands/debug/">
+    Debug
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/must-gather/">
+    Must-Gather
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260430-amd64/">
+    Apr 30 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260326-amd64/">
+    Mar 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260226-amd64/">
+    Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260129-amd64/">
+    Jan 29 2026
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Backup and Restore</cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#restore">Restore</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#restore-overview">Restore Overview</cds-select-item>
+    
+      <cds-select-item value="#restore-modes">Restore Modes</cds-select-item>
+    
+      <cds-select-item value="#restore-process-details">Restore Process Details</cds-select-item>
+    
+      <cds-select-item value="#restore-scenarios-non-interactive-mode">Restore Scenarios - Non-Interactive Mode</cds-select-item>
+    
+      <cds-select-item value="#restore-best-practices">Restore Best Practices</cds-select-item>
+    
+      <cds-select-item value="#restore-troubleshooting">Restore Troubleshooting</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="restore">Restore<a class="headerlink" href="#restore" title="Permanent link">¶</a></h1>
+<p>The MAS restore process uses Tekton pipelines to orchestrate the restoration of MAS instances from backup archives. The restore operation can recover a complete MAS environment or selectively restore components based on your requirements. The restore process provides extensive configuration flexibility, allowing you to modify key settings during restoration such as domain names, SLS/DRO URLs, and storage classes.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Before you begin</p>
+<p>Be aware of the following versioning considerations for the MAS CLI releases:</p>
+<p>The MAS backup and restore in CLI release v19.0.0 and later contains process, backup archive file and directory changes that are not backward compatible with earlier backup and restore versions.</p>
+<p>Run the backup processes using v19.0.0 or later to ensure that you can successfully run a restore. You cannot run a restore process using v19.0.0 or later from back ups created on an older version.</p>
+</div>
+<p><strong>Supported MAS versions</strong></p>
+<ul>
+<li>MAS 9.1.x</li>
+</ul>
+<p>Note: MAS 9.0.x (Not supported yet, its in testing)</p>
+<p><strong>User Permissions Required</strong></p>
+<ul>
+<li><code>oc</code> CLI with cluster admin permissions</li>
+<li><code>mas</code> CLI with appropriate permissions</li>
+<li>Access to Tekton pipeline resources</li>
+</ul>
+<h2 id="restore-overview">Restore Overview<a class="headerlink" href="#restore-overview" title="Permanent link">¶</a></h2>
+<h3 id="restore-components">Restore Components<a class="headerlink" href="#restore-components" title="Permanent link">¶</a></h3>
+<p>The restore process handles the following components:</p>
+<ul>
+<li><strong>IBM Operator Catalogs</strong> - Restores catalog source definitions</li>
+<li><strong>Certificate Manager</strong> - Restores certificate configurations (RedHat only)</li>
+<li><strong>MongoDB</strong> - Restores MongoDB instance with SLS &amp; MAS databases (Community Edition only)</li>
+<li><strong>Suite License Service (SLS)</strong> - Restores SLS instance with license server data (optional, can use external SLS)</li>
+<li><strong>MAS Suite Configuration</strong> - Restores core MAS instance configuration and custom resources</li>
+<li><strong>Suite-level SLSCfg</strong> - Restores or provides custom Suite-level SLS configuration with optional URL override</li>
+<li><strong>Suite-level BASCfg/DROCfg</strong> - Restores or provides custom Suite-level DRO/BAS configuration with optional URL override</li>
+<li><strong>Manage Database</strong> - Optionally restores incluster Db2 database associated with Manage workspace</li>
+<li><strong>Manage Application</strong> - Optionally restores Manage application namespace resources and persistent volume data</li>
+<li><strong>Grafana</strong> - Optionally installs Grafana for monitoring (not part of backup)</li>
+<li><strong>Data Reporter Operator (DRO)</strong> - Optionally installs DRO (not part of backup), when DRO is installed, an auto-generated Suite-level BASCfg CR will be applied automatically.</li>
+</ul>
+<h3 id="restore-limitations">Restore Limitations<a class="headerlink" href="#restore-limitations" title="Permanent link">¶</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Be aware of the following limitations before performing a restore:</p>
+</div>
+<ul>
+<li><strong>Restoring from S3 or Artifactory Only</strong> - When using the pipeline, the restore process is limited to restoring from S3 or Artifactory. Restoring from a local backup file is not supported yet.</li>
+<li><strong>MongoDB Community Edition only</strong> - Restore supports only in-cluster MongoDB Community Edition. Restoring to an external or enterprise MongoDB deployment is not supported.</li>
+<li><strong>Db2 standalone operator only</strong> - The restore process supports only the in-cluster standalone Db2 operator. Other Db2 operator implementations are not included.</li>
+<li><strong>Db2uInstance not supported, only Db2uCluster</strong> - The restore process does not support Db2uInstance for now. Will be supported in future release.</li>
+<li><strong>Certificate Manager (RedHat only)</strong> - Certificate Manager restore is supported only for RedHat Certificate Manager. Other implementations are not handled during restore.</li>
+<li><strong>Same MAS version required</strong> - Restoring a backup to a cluster running a different MAS version may result in incompatibilities. It is strongly recommended to restore to the same MAS version as the backup source.</li>
+<li><strong>Same MAS Instance ID required</strong> - It is strongly recommended to restore to the same MAS instance ID as the backup source.</li>
+<li><strong>Manage application only for app restore</strong> - Only the Manage application is supported. Other MAS applications will be supported in future releases.</li>
+<li><strong>Tekton pipeline dependency</strong> - The restore process requires Tekton pipelines to be available and functional on the target cluster.</li>
+<li><strong>Target cluster must be pre-provisioned</strong> - The restore process does not provision a new OpenShift cluster. A running, accessible cluster with sufficient resources must already exist.</li>
+<li><strong>Storage class compatibility</strong> - The target cluster must have compatible storage classes. If storage classes differ from the source cluster, overrides must be explicitly configured.</li>
+<li><strong>No partial component restore</strong> - Individual components cannot be selectively restored in isolation without running the full pipeline; component selection is configured at pipeline launch time.</li>
+<li><strong>Manual Certificate Management Restriction:</strong> Certificates and secrets from backups will be restored. However, changing the domain during the restoration process will cause issues with manual certificates/secrets, and manual updates of certificates and secrets are required.</li>
+<li><strong>Domain changes require DNS updates</strong> - If restoring with a domain change, DNS records and TLS certificates must be updated manually outside of the restore process.</li>
+<li><strong>Single MAS instance per restore</strong> - Each restore operation targets a single MAS instance. Restoring multiple instances requires separate restore runs.</li>
+<li><strong>Grafana and DRO are not restored from backup</strong> - Grafana and DRO are optionally installed fresh during restore; their previous configurations are not recovered from the backup archive. However, Suite-level BASCFG CR resource is backed up and can be restored.</li>
+<li><strong>No support for CP4D</strong> - The restore process does not support restoring CP4D environments.</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>We are working on reducing the limitations of the restore process and will be adding new capabilties and support for other MAS applications in future releases.</p>
+</div>
+<h3 id="configuration-flexibility">Configuration Flexibility<a class="headerlink" href="#configuration-flexibility" title="Permanent link">¶</a></h3>
+<p>The restore process supports several configuration overrides to adapt the restored environment to new infrastructure:</p>
+<ul>
+<li><strong>Domain Configuration</strong> - Change the MAS domain in the Suite CR during restore</li>
+<li><strong>SLS Configuration</strong> - Restore Suite-level SLSCfg from backup or provide custom configuration file, with optional SLS URL override</li>
+<li><strong>DRO/BAS Configuration</strong> - Restore Suite-level BASCfg from backup or provide custom configuration file, with optional DRO URL override</li>
+<li><strong>Storage Class Override</strong> - Override storage classes for all components (MongoDB, Manage app, Manage DB) when restoring to clusters with different storage providers</li>
+<li><strong>SLS Domain Override</strong> - Change the SLS domain used in the License Service CR</li>
+<li><strong>Backup Download</strong> - Download backup archives from S3 or Artifactory before restore (useful for cross-cluster restores)</li>
+</ul>
+<h3 id="backup-archive-management">Backup Archive Management<a class="headerlink" href="#backup-archive-management" title="Permanent link">¶</a></h3>
+<p>The restore process can work with backup archives in multiple ways:</p>
+<ul>
+<li><strong>Local Backup</strong> - Restore from backup archives already present in the cluster</li>
+<li><strong>S3 Download</strong> - Download backup archives from S3-compatible storage before restore</li>
+<li><strong>Artifactory Download</strong> - Download backup archives from Artifactory (development mode only)</li>
+<li><strong>Custom Archive Names</strong> - Support for custom backup archive naming conventions</li>
+<li><strong>Automatic Cleanup</strong> - Optional cleanup of downloaded archives after successful restore</li>
+</ul>
+<p>When downloading from S3 or Artifactory, the <code>download_backup_archive</code> role selectively downloads only the archives required for the restore operation. The following archive selection parameters control which archives are downloaded:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>include_mongo_archive</code></td>
+<td><code>false</code></td>
+<td>Download the Mongo backup archive</td>
+</tr>
+<tr>
+<td><code>include_sls_archive</code></td>
+<td><code>false</code></td>
+<td>Download the SLS backup archive</td>
+</tr>
+<tr>
+<td><code>include_manage_db_archive</code></td>
+<td><code>false</code></td>
+<td>Download the Manage Db2 database backup archive</td>
+</tr>
+<tr>
+<td><code>include_manage_app_archive</code></td>
+<td><code>false</code></td>
+<td>Download the Manage application backup archive</td>
+</tr>
+</tbody>
+</table>
+<p>These parameters are automatically set by the restore pipeline based on the restore configuration (e.g. <code>--restore-manage-app</code>, <code>--restore-manage-db</code>, <code>--include-sls</code>), so you do not need to set them manually when using the <code>mas restore</code> command.</p>
+<h3 id="ansible-devops-integration">Ansible DevOps Integration<a class="headerlink" href="#ansible-devops-integration" title="Permanent link">¶</a></h3>
+<p>The <code>mas restore</code> command launches a Tekton pipeline that executes the following Ansible roles from the <a href="https://ibm-mas.github.io/ansible-devops/">IBM MAS DevOps Collection</a>:</p>
+<ul>
+<li><a href="https://ibm-mas.github.io/ansible-devops/roles/ibm_catalogs/"><code>ibm.mas_devops.ibm_catalogs</code></a> - Restores IBM Operator Catalog definitions</li>
+<li><a href="https://ibm-mas.github.io/ansible-devops/roles/cert_manager/"><code>ibm.mas_devops.cert_manager</code></a> - Restores Certificate Manager configurations</li>
+<li><a href="https://ibm-mas.github.io/ansible-devops/roles/mongodb/"><code>ibm.mas_devops.mongodb</code></a> - Restores MongoDB Community Edition instance and database</li>
+<li><a href="https://ibm-mas.github.io/ansible-devops/roles/sls/"><code>ibm.mas_devops.sls</code></a> - Restores Suite License Service data</li>
+<li><a href="https://ibm-mas.github.io/ansible-devops/roles/suite_restore/"><code>ibm.mas_devops.suite_restore</code></a> - Restores MAS Core configuration</li>
+<li><a href="https://ibm-mas.github.io/ansible-devops/roles/db2/"><code>ibm.mas_devops.db2</code></a> - Restores Db2u instance and database</li>
+<li><a href="https://ibm-mas.github.io/ansible-devops/roles/suite_app_restore/"><code>ibm.mas_devops.suite_app_restore</code></a> - Restores supported MAS Application configuration</li>
+<li><a href="https://ibm-mas.github.io/ansible-devops/roles/grafana/"><code>ibm.mas_devops.grafana</code></a> - Installs Grafana (optional)</li>
+<li><a href="https://ibm-mas.github.io/ansible-devops/roles/dro/"><code>ibm.mas_devops.dro</code></a> - Installs Data Reporter Operator (optional)</li>
+</ul>
+<h2 id="restore-modes">Restore Modes<a class="headerlink" href="#restore-modes" title="Permanent link">¶</a></h2>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link">¶</a></h3>
+<p>Interactive mode guides you through the restore process with prompts for all required configuration. This is the recommended approach for manual restores.</p>
+<pre><code class="language-bash">docker run -ti --rm quay.io/ibmmas/cli mas restore
+</code></pre>
+<p>The interactive session will:</p>
+<ol>
+<li>Prompt for OpenShift cluster connection</li>
+<li>Request MAS instance ID (must match backup)</li>
+<li>Request backup version to restore</li>
+<li>Configure MongoDB storage class override</li>
+<li>Configure Grafana installation</li>
+<li>Configure SLS restoration</li>
+<li>Configure DRO installation</li>
+<li>Configure MAS domain settings</li>
+<li>Configure SLS and DRO configuration options</li>
+<li>Configure Manage application restore</li>
+<li>Configure Manage Db2 restore</li>
+<li>Request backup storage size</li>
+<li>Offer optional download from S3 or Artifactory</li>
+</ol>
+<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link">¶</a></h3>
+<p>Non-interactive mode is ideal for automation, scheduled restores, and CI/CD pipelines. All required parameters must be provided via command-line arguments.</p>
+<pre><code class="language-bash">docker run -ti --rm quay.io/ibmmas/cli mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --no-confirm
+</code></pre>
+<h2 id="restore-process-details">Restore Process Details<a class="headerlink" href="#restore-process-details" title="Permanent link">¶</a></h2>
+<h3 id="pipeline-execution">Pipeline Execution<a class="headerlink" href="#pipeline-execution" title="Permanent link">¶</a></h3>
+<p>When you run <code>mas restore</code>, the following occurs:</p>
+<ol>
+<li><strong>Validation</strong> - Verifies cluster connectivity and prerequisites</li>
+<li><strong>Namespace Preparation</strong> - Creates/updates <code>mas-{instance-id}-pipelines</code> namespace</li>
+<li><strong>OpenShift Pipelines</strong> - Validates or installs OpenShift Pipelines Operator</li>
+<li><strong>PVC Creation</strong> - Provisions persistent volume for backup storage</li>
+<li><strong>Tekton Pipeline Launch</strong> - Submits PipelineRun with configured parameters</li>
+<li><strong>Pre-Restore Check</strong> - Validates cluster readiness</li>
+<li><strong>Download</strong> (optional) - Downloads backup archive from S3 or Artifactory</li>
+<li><strong>Component Restore</strong> - Executes restore tasks in sequence:</li>
+<li>IBM Catalogs restore</li>
+<li>Certificate Manager restore</li>
+<li>Grafana installation (if enabled)</li>
+<li>MongoDB restore (with optional storage class override)</li>
+<li>SLS restore (if included)</li>
+<li>DRO installation (if enabled)</li>
+<li><strong>Suite Restore</strong> - Restores MAS core configuration with optional domain/URL overrides</li>
+<li><strong>Manage Application Restore</strong> (if enabled) - Restores Manage application and database</li>
+<li><strong>Post-Restore Verification</strong> - Validates restored MAS instance</li>
+<li><strong>Workspace Cleanup</strong> (optional, default: enabled) - Cleans backup and config workspaces</li>
+</ol>
+<h3 id="monitoring-progress">Monitoring Progress<a class="headerlink" href="#monitoring-progress" title="Permanent link">¶</a></h3>
+<p>After launching the restore, a URL to the Tekton PipelineRun is displayed:</p>
+<pre><code>View progress:
+  https://console-openshift-console.apps.cluster.example.com/k8s/ns/mas-inst1-pipelines/tekton.dev~v1beta1~PipelineRun/mas-restore-20260117-191701-YYMMDD-HHMM
+</code></pre>
+<p>Use this URL to:</p>
+<ul>
+<li>Monitor real-time restore progress</li>
+<li>View logs from individual restore tasks</li>
+<li>Troubleshoot any failures</li>
+<li>Verify successful completion</li>
+</ul>
+<h3 id="configuration-flexibility_1">Configuration Flexibility<a class="headerlink" href="#configuration-flexibility_1" title="Permanent link">¶</a></h3>
+<p>The restore process provides several options for handling configurations:</p>
+<h4 id="mas-domain-configuration">MAS Domain Configuration<a class="headerlink" href="#mas-domain-configuration" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>From Backup</strong> (default) - Uses the domain stored in the Suite backup</li>
+<li><strong>Override</strong> - Specify <code>--mas-domain-restore</code> to change the domain during restore</li>
+</ul>
+<h4 id="sls-configuration">SLS Configuration<a class="headerlink" href="#sls-configuration" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>From Backup</strong> (default) - Restores SLSCfg from backup with <code>--include-slscfg-from-backup</code></li>
+<li><strong>Custom File</strong> - Use <code>--exclude-slscfg-from-backup</code> and provide <code>--sls-cfg-file</code></li>
+<li><strong>Change URL</strong> - Use <code>--sls-url-restore</code> to modify the SLS URL while keeping other configuration</li>
+</ul>
+<h4 id="dro-configuration">DRO Configuration<a class="headerlink" href="#dro-configuration" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>From Backup</strong> (default) - Restores BASCfg from backup with <code>--include-drocfg-from-backup</code></li>
+<li><strong>Custom File</strong> - Use <code>--exclude-drocfg-from-backup</code> and provide <code>--dro-cfg-file</code></li>
+<li><strong>Change URL</strong> - Use <code>--dro-url-restore</code> to modify the DRO URL while keeping other configuration</li>
+</ul>
+<h2 id="restore-scenarios-non-interactive-mode">Restore Scenarios - Non-Interactive Mode<a class="headerlink" href="#restore-scenarios-non-interactive-mode" title="Permanent link">¶</a></h2>
+<h3 id="scenario-1-basic-restore-from-local-backup">Scenario 1: Basic Restore from Local Backup<a class="headerlink" href="#scenario-1-basic-restore-from-local-backup" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Backup archive already present in the cluster PVC
+- Standard restore with all defaults</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-2-restore-with-s3-download">Scenario 2: Restore with S3 Download<a class="headerlink" href="#scenario-2-restore-with-s3-download" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Backup stored in AWS S3
+- Need to download before restore</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --download-backup \
+  --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
+  --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
+  --s3-bucket-name mas-backups-prod \
+  --s3-region us-east-1 \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-3-restore-with-domain-change">Scenario 3: Restore with Domain Change<a class="headerlink" href="#scenario-3-restore-with-domain-change" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Restoring to a different cluster with new domain
+- Need to update MAS domain</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --mas-domain-restore new-cluster.example.com \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-4-restore-with-external-sls">Scenario 4: Restore with External SLS<a class="headerlink" href="#scenario-4-restore-with-external-sls" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Using external SLS instance
+- Skip SLS restore but provide custom SLS configuration</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --exclude-sls \
+  --exclude-slscfg-from-backup \
+  --sls-cfg-file /path/to/custom-sls-config.yaml \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-5-restore-with-sls-url-override">Scenario 5: Restore with SLS URL Override<a class="headerlink" href="#scenario-5-restore-with-sls-url-override" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Restore SLS from backup but change the URL
+- SLS moved to different endpoint</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --include-sls \
+  --include-slscfg-from-backup \
+  --sls-url-restore https://new-sls.example.com \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-6-restore-with-dro-installation">Scenario 6: Restore with DRO Installation<a class="headerlink" href="#scenario-6-restore-with-dro-installation" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Install new DRO instance during restore
+- Provide DRO configuration details</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --include-dro \
+  --ibm-entitlement-key YOUR_ENTITLEMENT_KEY \ #pragma: allowlist secret
+  --contact-email admin@example.com \
+  --contact-firstname John \
+  --contact-lastname Doe \
+  --dro-namespace redhat-marketplace \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-7-restore-without-grafana">Scenario 7: Restore Without Grafana<a class="headerlink" href="#scenario-7-restore-without-grafana" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Skip Grafana installation
+- Monitoring not required</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --exclude-grafana \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-8-complete-restore-with-all-options">Scenario 8: Complete Restore with All Options<a class="headerlink" href="#scenario-8-complete-restore-with-all-options" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Download from S3
+- Change domain and SLS URL
+- Install DRO and Grafana
+- Custom storage size</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --backup-storage-size 100Gi \
+  --mas-domain-restore new-cluster.example.com \
+  --include-sls \
+  --include-slscfg-from-backup \
+  --sls-url-restore https://new-sls.example.com \
+  --include-drocfg-from-backup \
+  --dro-url-restore https://new-dro.example.com \
+  --include-grafana \
+  --include-dro \
+  --ibm-entitlement-key YOUR_ENTITLEMENT_KEY \ #pragma: allowlist secret
+  --contact-email admin@example.com \
+  --contact-firstname John \
+  --contact-lastname Doe \
+  --dro-namespace redhat-marketplace \
+  --download-backup \
+  --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
+  --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
+  --s3-bucket-name mas-backups-prod \
+  --s3-region us-east-1 \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-9-restore-for-troubleshooting-no-cleanup">Scenario 9: Restore for Troubleshooting (No Cleanup)<a class="headerlink" href="#scenario-9-restore-for-troubleshooting-no-cleanup" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Need to inspect workspace contents after restore
+- Workspace cleanup disabled</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --no-clean-backup \
+  --no-confirm
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code>--no-clean-backup</code> when you need to inspect the restore workspace contents for troubleshooting. Remember to manually clean up the workspaces later to free up storage.</p>
+</div>
+<h3 id="scenario-10-emergency-restore-skip-pre-check">Scenario 10: Emergency Restore (Skip Pre-Check)<a class="headerlink" href="#scenario-10-emergency-restore-skip-pre-check" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Emergency restore scenario
+- Skip pre-restore validation for speed</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --skip-pre-check \
+  --no-confirm
+</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use <code>--skip-pre-check</code> only in emergency situations. Pre-restore checks validate cluster readiness and can prevent restore failures.</p>
+</div>
+<h3 id="scenario-11-restore-with-mongodb-storage-class-override">Scenario 11: Restore with MongoDB Storage Class Override<a class="headerlink" href="#scenario-11-restore-with-mongodb-storage-class-override" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Restoring to a cluster with different storage classes
+- Need to override MongoDB storage class</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --override-mongodb-storageclass \
+  --mongodb-storageclass-name custom-rwo-storage \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-12-restore-with-manage-application">Scenario 12: Restore with Manage Application<a class="headerlink" href="#scenario-12-restore-with-manage-application" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Need to restore Manage application in addition to MAS Suite
+- Restore Manage namespace resources and persistent volume data</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-manage-app \
+  --no-confirm
+</code></pre>
+<h3 id="scenario-13-restore-with-manage-application-and-database">Scenario 13: Restore with Manage Application and Database<a class="headerlink" href="#scenario-13-restore-with-manage-application-and-database" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Restore both Manage application and its incluster Db2 database
+- Complete Manage workspace restoration</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-manage-app \
+  --restore-manage-db \
+  --no-confirm
+</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Manage database restore is an offline operation. The Manage application will be unavailable during the restore process.</p>
+</div>
+<h3 id="scenario-14-restore-manage-with-custom-storage-classes">Scenario 14: Restore Manage with Custom Storage Classes<a class="headerlink" href="#scenario-14-restore-manage-with-custom-storage-classes" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Restoring to a cluster with different storage infrastructure
+- Need to override storage classes for both Manage app and Db2</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-manage-app \
+  --restore-manage-db \
+  --override-manage-app-storageclass \
+  --manage-app-storage-class-rwx custom-rwx-storage \
+  --manage-app-storage-class-rwo custom-rwo-storage \
+  --override-manage-db-storageclass \
+  --manage-db-storage-class-rwx custom-rwx-storage \
+  --manage-db-storage-class-rwo custom-rwo-storage \
+  --no-confirm
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Manage Db2 storage class override now uses a single ReadWriteMany (<code>--manage-db-storage-class-rwx</code>) and ReadWriteOnce (<code>--manage-db-storage-class-rwo</code>) storage class, applied across all Db2 persistent volumes based on the access modes. The previous per-volume flags (<code>--manage-db-meta-storage-class</code>, <code>--manage-db-data-storage-class</code>, <code>--manage-db-backup-storage-class</code>, <code>--manage-db-logs-storage-class</code>, <code>--manage-db-temp-storage-class</code>) have been removed.</p>
+</div>
+<h3 id="scenario-15-complete-restore-with-mongodb-override-and-manage">Scenario 15: Complete Restore with MongoDB Override and Manage<a class="headerlink" href="#scenario-15-complete-restore-with-mongodb-override-and-manage" title="Permanent link">¶</a></h3>
+<p><strong>Environment:</strong>
+- Comprehensive restore with all new features
+- Override MongoDB storage class
+- Restore Manage application and database
+- Download from S3</p>
+<p><strong>Restore Command:</strong></p>
+<pre><code class="language-bash">mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --backup-storage-size 100Gi \
+  --override-mongodb-storageclass \
+  --mongodb-storageclass-name custom-rwo-storage \
+  --restore-manage-app \
+  --restore-manage-db \
+  --override-manage-db-storageclass \
+  --manage-db-storage-class-rwx custom-rwx-storage \
+  --manage-db-storage-class-rwo custom-rwo-storage \
+  --download-backup \
+  --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
+  --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
+  --s3-bucket-name mas-backups-prod \
+  --s3-region us-east-1 \
+  --no-confirm
+</code></pre>
+<h2 id="restore-best-practices">Restore Best Practices<a class="headerlink" href="#restore-best-practices" title="Permanent link">¶</a></h2>
+<h3 id="pre-restore-checklist">Pre-Restore Checklist<a class="headerlink" href="#pre-restore-checklist" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Verify Backup Integrity</strong> - Ensure backup archives are complete and accessible</li>
+<li><strong>Check Cluster Resources</strong> - Verify sufficient CPU, memory, and storage</li>
+<li><strong>Review Target Environment</strong> - Confirm cluster version and configuration compatibility</li>
+<li><strong>Plan Domain Changes</strong> - Determine if domain or URL changes are needed</li>
+<li><strong>Prepare External Services</strong> - Ensure external SLS/DRO are accessible if used</li>
+<li><strong>Review Storage Classes</strong> - Identify if MongoDB or Manage storage class overrides are needed</li>
+<li><strong>Plan Manage Restore</strong> - Determine if Manage application and database should be restored</li>
+<li><strong>Document Configuration</strong> - Record any custom configurations or overrides</li>
+</ol>
+<h3 id="during-restore">During Restore<a class="headerlink" href="#during-restore" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Monitor Pipeline</strong> - Watch the Tekton PipelineRun for any issues</li>
+<li><strong>Check Logs</strong> - Review task logs if any failures occur</li>
+<li><strong>Verify Components</strong> - Ensure each component restores successfully</li>
+<li><strong>Note Timing</strong> - Track restore duration for future planning</li>
+</ol>
+<h3 id="post-restore-verification">Post-Restore Verification<a class="headerlink" href="#post-restore-verification" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Validate Suite Status</strong> - Confirm MAS Suite CR is ready</li>
+<li><strong>Check Application Access</strong> - Verify MAS applications are accessible</li>
+<li><strong>Test Integrations</strong> - Validate connections to databases and external services</li>
+<li><strong>Verify MongoDB</strong> - Confirm MongoDB is running with correct storage class if overridden</li>
+<li><strong>Validate Manage Application</strong> - If restored, verify Manage application is accessible and functional</li>
+<li><strong>Check Manage Database</strong> - If restored, confirm Db2 database is running with correct storage classes</li>
+<li><strong>Review Configurations</strong> - Confirm all configurations are correct</li>
+<li><strong>Update DNS</strong> - Update DNS records if domain changed</li>
+<li><strong>Test Functionality</strong> - Perform smoke tests on critical functions</li>
+</ol>
+<h3 id="common-restore-scenarios">Common Restore Scenarios<a class="headerlink" href="#common-restore-scenarios" title="Permanent link">¶</a></h3>
+<h4 id="disaster-recovery">Disaster Recovery<a class="headerlink" href="#disaster-recovery" title="Permanent link">¶</a></h4>
+<ul>
+<li>Use latest backup from off-site storage</li>
+<li>May require domain and URL changes</li>
+<li>Verify all external dependencies are available</li>
+<li>Consider MongoDB storage class override if infrastructure changed</li>
+<li>Include Manage application and database restore if needed</li>
+</ul>
+<h4 id="cluster-migration">Cluster Migration<a class="headerlink" href="#cluster-migration" title="Permanent link">¶</a></h4>
+<ul>
+<li>Download backup from source cluster storage</li>
+<li>Change domain to match new cluster</li>
+<li>Update SLS and DRO URLs if needed</li>
+<li>Override MongoDB and Manage storage classes for different infrastructure</li>
+<li>Verify network connectivity and routes</li>
+<li>Plan for Manage database downtime during restore</li>
+</ul>
+<h4 id="environment-cloning">Environment Cloning<a class="headerlink" href="#environment-cloning" title="Permanent link">¶</a></h4>
+<ul>
+<li>Use production backup for dev/test</li>
+<li>Change domain to avoid conflicts</li>
+<li>Consider using external SLS to share licenses</li>
+<li>May exclude DRO for non-production environments</li>
+<li>Override storage classes to use lower-cost storage in non-production</li>
+<li>Optionally restore Manage application for testing</li>
+</ul>
+<h2 id="restore-troubleshooting">Restore Troubleshooting<a class="headerlink" href="#restore-troubleshooting" title="Permanent link">¶</a></h2>
+<h3 id="common-restore-issues">Common Restore Issues<a class="headerlink" href="#common-restore-issues" title="Permanent link">¶</a></h3>
+<p><strong>Issue: "Backup archive not found"</strong></p>
+<ul>
+<li>Verify backup archive exists in PVC or download location</li>
+<li>Check backup version matches the archive name</li>
+<li>Ensure download credentials are correct if downloading from S3/Artifactory</li>
+</ul>
+<p><strong>Issue: "Pre-restore check failed"</strong></p>
+<ul>
+<li>Review cluster resource availability</li>
+<li>Check OpenShift version compatibility</li>
+<li>Verify required operators are available</li>
+<li>Use <code>--skip-pre-check</code> only if necessary</li>
+</ul>
+<p><strong>Issue: "MongoDB restore failed"</strong></p>
+<ul>
+<li>Verify MongoDB namespace and instance name match backup</li>
+<li>Ensure sufficient storage for MongoDB data</li>
+<li>Check MongoDB operator is installed and ready</li>
+<li>If using storage class override, verify the storage class exists and is accessible</li>
+<li>Ensure the specified storage class supports ReadWriteOnce access mode</li>
+</ul>
+<p><strong>Issue: "SLS restore failed"</strong></p>
+<ul>
+<li>Verify SLS namespace is correct</li>
+<li>Check if using <code>--include-sls</code> or <code>--exclude-sls</code> appropriately</li>
+<li>Ensure SLS configuration file is valid if using custom config</li>
+</ul>
+<p><strong>Issue: "Suite restore failed with domain mismatch"</strong></p>
+<ul>
+<li>Use <code>--mas-domain-restore</code> to override domain from backup</li>
+<li>Verify DNS records are updated for new domain</li>
+<li>Check certificate configurations match new domain</li>
+</ul>
+<p><strong>Issue: "DRO installation failed"</strong></p>
+<ul>
+<li>Verify IBM entitlement key is valid</li>
+<li>Check DRO namespace has sufficient permissions</li>
+<li>Ensure contact information is provided correctly</li>
+</ul>
+<p><strong>Issue: "Download from S3 failed"</strong></p>
+<ul>
+<li>Verify AWS credentials are correct</li>
+<li>Check S3 bucket exists and is accessible</li>
+<li>Verify network connectivity to AWS</li>
+<li>Ensure IAM permissions allow GetObject operations</li>
+</ul>
+<p><strong>Issue: "Configuration file not found"</strong>
+<strong>Issue: "Manage application restore failed"</strong></p>
+<ul>
+<li>Verify Manage workspace exists in the backup</li>
+<li>Ensure sufficient storage for Manage application persistent volumes</li>
+<li>Check that storage class overrides (if specified) are valid and accessible</li>
+<li>Verify both ReadWriteMany and ReadWriteOnce storage classes are available if using overrides</li>
+<li>Review Manage namespace for any conflicting resources</li>
+</ul>
+<p><strong>Issue: "Manage Db2 database restore failed"</strong></p>
+<ul>
+<li>Verify Db2 instance exists in the backup</li>
+<li>Ensure sufficient storage for all Db2 persistent volumes (meta, data, backup, logs, temp)</li>
+<li>Check that all specified storage classes exist and support required access modes</li>
+<li>Verify Db2 operator is installed and ready</li>
+<li>Review Db2 pod logs for specific error messages</li>
+<li>Note: Db2 restore is an offline operation - ensure no active connections during restore</li>
+</ul>
+<p><strong>Issue: "Storage class not found during restore"</strong></p>
+<ul>
+<li>Verify the specified storage class exists in the target cluster: <code>oc get storageclass</code></li>
+<li>Check storage class supports the required access mode (RWO or RWX)</li>
+<li>If using cluster defaults, ensure default storage classes are configured</li>
+<li>
+<p>Review storage class provisioner compatibility with the cluster infrastructure</p>
+</li>
+<li>
+<p>Verify custom config file paths are correct</p>
+</li>
+<li>Ensure files are accessible from the CLI container</li>
+<li>Check file format is valid YAML</li>
+</ul>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../backup/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Backup</span>
+      </div>
+    </a>
+    <a href="../../commands/debug/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Debug</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#restore-overview" class="md-toc__link" data-md-level="1">
+                  Restore Overview
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#restore-components" class="md-toc__link" data-md-level="2">
+                          Restore Components
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#restore-limitations" class="md-toc__link" data-md-level="2">
+                          Restore Limitations
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#configuration-flexibility" class="md-toc__link" data-md-level="2">
+                          Configuration Flexibility
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#backup-archive-management" class="md-toc__link" data-md-level="2">
+                          Backup Archive Management
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ansible-devops-integration" class="md-toc__link" data-md-level="2">
+                          Ansible DevOps Integration
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#restore-modes" class="md-toc__link" data-md-level="1">
+                  Restore Modes
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#interactive-mode" class="md-toc__link" data-md-level="2">
+                          Interactive Mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-mode" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Mode
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#restore-process-details" class="md-toc__link" data-md-level="1">
+                  Restore Process Details
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#pipeline-execution" class="md-toc__link" data-md-level="2">
+                          Pipeline Execution
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#monitoring-progress" class="md-toc__link" data-md-level="2">
+                          Monitoring Progress
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#configuration-flexibility_1" class="md-toc__link" data-md-level="2">
+                          Configuration Flexibility
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#restore-scenarios-non-interactive-mode" class="md-toc__link" data-md-level="1">
+                  Restore Scenarios - Non-Interactive Mode
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#scenario-1-basic-restore-from-local-backup" class="md-toc__link" data-md-level="2">
+                          Scenario 1: Basic Restore from Local Backup
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-2-restore-with-s3-download" class="md-toc__link" data-md-level="2">
+                          Scenario 2: Restore with S3 Download
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-3-restore-with-domain-change" class="md-toc__link" data-md-level="2">
+                          Scenario 3: Restore with Domain Change
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-4-restore-with-external-sls" class="md-toc__link" data-md-level="2">
+                          Scenario 4: Restore with External SLS
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-5-restore-with-sls-url-override" class="md-toc__link" data-md-level="2">
+                          Scenario 5: Restore with SLS URL Override
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-6-restore-with-dro-installation" class="md-toc__link" data-md-level="2">
+                          Scenario 6: Restore with DRO Installation
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-7-restore-without-grafana" class="md-toc__link" data-md-level="2">
+                          Scenario 7: Restore Without Grafana
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-8-complete-restore-with-all-options" class="md-toc__link" data-md-level="2">
+                          Scenario 8: Complete Restore with All Options
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-9-restore-for-troubleshooting-no-cleanup" class="md-toc__link" data-md-level="2">
+                          Scenario 9: Restore for Troubleshooting (No Cleanup)
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-10-emergency-restore-skip-pre-check" class="md-toc__link" data-md-level="2">
+                          Scenario 10: Emergency Restore (Skip Pre-Check)
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-11-restore-with-mongodb-storage-class-override" class="md-toc__link" data-md-level="2">
+                          Scenario 11: Restore with MongoDB Storage Class Override
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-12-restore-with-manage-application" class="md-toc__link" data-md-level="2">
+                          Scenario 12: Restore with Manage Application
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-13-restore-with-manage-application-and-database" class="md-toc__link" data-md-level="2">
+                          Scenario 13: Restore with Manage Application and Database
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-14-restore-manage-with-custom-storage-classes" class="md-toc__link" data-md-level="2">
+                          Scenario 14: Restore Manage with Custom Storage Classes
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#scenario-15-complete-restore-with-mongodb-override-and-manage" class="md-toc__link" data-md-level="2">
+                          Scenario 15: Complete Restore with MongoDB Override and Manage
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#restore-best-practices" class="md-toc__link" data-md-level="1">
+                  Restore Best Practices
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#pre-restore-checklist" class="md-toc__link" data-md-level="2">
+                          Pre-Restore Checklist
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#during-restore" class="md-toc__link" data-md-level="2">
+                          During Restore
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#post-restore-verification" class="md-toc__link" data-md-level="2">
+                          Post-Restore Verification
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#common-restore-scenarios" class="md-toc__link" data-md-level="2">
+                          Common Restore Scenarios
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#restore-troubleshooting" class="md-toc__link" data-md-level="1">
+                  Restore Troubleshooting
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#common-restore-issues" class="md-toc__link" data-md-level="2">
+                          Common Restore Issues
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>
