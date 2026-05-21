@@ -52,6 +52,12 @@ spec:
       description: JDBC type for database connection
       default: ""
 
+    # JDBC Configuration
+    - name: jdbc_type
+      type: string
+      description: JDBC type for database connection (e.g., incluster_db2, rds-db2, external-db2)
+      default: ""
+
   stepTemplate:
     name: 'ivt-core'
     env:
@@ -102,6 +108,10 @@ spec:
             name: mas-fvt
             key: FVT_GITHUB_TOKEN
             optional: true
+      
+      # JDBC Configuration
+      - name: JDBC_TYPE
+        value: "$(params.jdbc_type)"
       
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE

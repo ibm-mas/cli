@@ -69,6 +69,12 @@ spec:
       type: string
       default: ""
 
+    # JDBC Configuration
+    - name: jdbc_type
+      type: string
+      description: JDBC type for database connection (e.g., incluster_db2, rds-db2, external-db2)
+      default: ""
+
   stepTemplate:
     name: 'ivt-manage'
     env:
@@ -107,6 +113,8 @@ spec:
             optional: true
       - name: IBMADMIN_ENABLED
         value: "true"
+      - name: JDBC_TYPE
+        value: "$(params.jdbc_type)"
 
   volumes:
     - name: dshm
