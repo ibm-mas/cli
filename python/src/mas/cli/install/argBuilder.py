@@ -113,6 +113,9 @@ class installArgBuilderMixin:
         if self.getParam("mas_use_service_mesh") != "":
             command += f"  --servicemesh \"{self.getParam('mas_use_service_mesh')}\"{newline}"
 
+        if self.getParam("mas_manual_route_mgmt").lower() == "true":
+            command += f"  --manual-routes{newline}"
+
         if self.getParam("mas_domain") != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
