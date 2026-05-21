@@ -155,17 +155,19 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
     def getInstalledAppsForUpgrade(self, instanceId) -> list[str]:
         """
         Get list of installed apps that will be upgraded.
-        Reuses existing getAppsSubscriptionChannel() function.
+        Always includes 'core' since core RBAC is required for all upgrades.
+        getAppsSubscriptionChannel() only returns apps (not core), so we add core explicitly.
         """
-        installedApps = []
+        # Always include core for RBAC application
+        installedApps = ["core"]
 
         appsWithSubscriptions = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+        logger.info(f"Apps with subscriptions detected: {[app.get('appId') for app in appsWithSubscriptions]}")
 
         for app in appsWithSubscriptions:
             appId = app.get("appId")
             if appId:
                 installedApps.append(appId)
-
         return installedApps
 
     def upgrade(self, argv):
@@ -322,6 +324,29 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         # Validate Kafka requirements for Civil component during upgrade
         self.validateKafkaForCivilUpgrade(instanceId)
 
+        detectedMode = None
+        if currentChannel and (currentChannel.startswith("9.2") or currentChannel.startswith("9.3")):
+            # Current channel is 9.2+, detect permission mode
+            detectedMode = getPermissionMode(self.dynamicClient, instanceId)
+
+            if detectedMode == "minimal":
+                self.fatalError(
+                    f"Cannot upgrade MAS instance '{instanceId}' with minimal permission mode.\n\n"
+                    f"The instance is currently installed with 'essential roles only' mode, which does not grant\n"
+                    f"the ibm-mas service account sufficient permissions to manage application resources during upgrade.\n\n"
+                    f"To proceed with the upgrade:\n"
+                    f"1. Temporarily increase permissions by re-applying RBAC with cluster or namespaced mode\n"
+                    f"2. Run the upgrade\n"
+                    f"3. After upgrade completes, you can switch back to minimal mode if desired\n\n"
+                )
+
+            print_formatted_text(HTML(f"<Green> Permission mode check passed (mode: {detectedMode})</Green>"))
+            print()
+        elif currentChannel and currentChannel.startswith("9.1") and self.nextChannel and self.nextChannel.startswith("9.2"):
+            # Upgrading from 9.1 to 9.2: default to cluster mode (9.1 had no permission modes)
+            logger.info("Upgrading from 9.1.x to 9.2.x: defaulting to cluster mode (9.1.x had no permission modes)")
+            detectedMode = "cluster"
+
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
@@ -345,37 +370,13 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
-            # Check permission mode and block upgrade if in minimal mode
-            with Halo(text="Checking permission mode for upgrade compatibility", spinner=self.spinner) as h:
-                selectedApps = self.getInstalledAppsForUpgrade(instanceId)
 
-                # For 9.1.x to 9.2.x upgrade path
-                # 9.1.x had no permission modes, so default to cluster mode
-                if currentChannel and currentChannel.startswith("9.1") and self.nextChannel and self.nextChannel.startswith("9.2"):
-                    logger.info("Upgrading from 9.1.x to 9.2.x: defaulting to cluster mode (9.1.x had no permission modes)")
-                    detectedMode = "cluster"
-                else:
-                    detectedMode = getPermissionMode(self.dynamicClient, instanceId, selectedApps)
-
-                if detectedMode == "minimal":
-                    h.stop_and_persist(symbol="❌", text="Permission mode check failed")
-                    self.fatalError(
-                        f"Cannot upgrade MAS instance '{instanceId}' with minimal permission mode.\n\n"
-                        f"The instance is currently installed with 'essential roles only' mode, which does not grant\n"
-                        f"the ibm-mas service account sufficient permissions to manage application resources during upgrade.\n\n"
-                        f"To proceed with the upgrade:\n"
-                        f"1. Temporarily increase permissions by re-applying RBAC with cluster or namespaced mode\n"
-                        f"2. Run the upgrade\n"
-                        f"3. After upgrade completes, you can switch back to minimal mode if desired\n\n"
-                    )
-                else:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Permission mode check passed (mode: {detectedMode})")
-
-            # Apply pre-install RBAC for target version (if needed)
-            if self.evaluatePreInstallRBACForUpgrade(instanceId, self.nextChannel):
+            # Apply pre-install RBAC for target version (only for nextChannel >= 9.2)
+            if detectedMode and self.evaluatePreInstallRBACForUpgrade(instanceId, self.nextChannel):
                 with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
                     targetVersion = ".".join(self.nextChannel.split(".")[:2])  # Extract "9.2" from "9.2-feature"
-
+                    # get list of installed apps that needs to be upgraded
+                    selectedApps = self.getInstalledAppsForUpgrade(instanceId)
                     # Use detected permission mode for RBAC application
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
