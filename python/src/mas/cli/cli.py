@@ -152,6 +152,9 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture: str | None = None
 
         self.compatibilityMatrix: Dict[str, Dict[str, List[str]]] = {
+            "9.2.x-dev": {
+                "manage": ["9.2.x-dev", "9.1.x"],
+            },
             "9.2.x-feature": {
                 "aibroker": ["9.2.x-feature", "9.1.x"],
                 "manage": ["9.2.x-feature", "9.1.x"],
@@ -222,11 +225,12 @@ class BaseApp(PrintMixin, PromptMixin):
             "9.1.x-feature": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
             "9.1.x": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>",
             "aibroker-9.1.x": " - <u>https://ibm.biz/MAS91-License</u>",
+            "9.2.x-dev": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>\n\nBe aware, this is a DEVELOPMENT channel for internal testing only.   \nThis channel provides access to pre-release development builds for testing purposes.   \nIt is NOT supported for production use and should only be used in development/test environments.   \nBuilds in this channel may be unstable and are subject to change without notice.\n",
             "9.2.x-feature": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
         }
 
         self.upgrade_path: Dict[str, str] = {
-            "9.1.x": "9.2.x-feature",
+            "9.1.x": "9.2.x-dev",  # Default upgrade path for testing
             "9.1.x-feature": "9.1.x",
             "9.0.x": "9.1.x",
             "8.11.x": "9.0.x",

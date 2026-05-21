@@ -23,7 +23,7 @@ from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, verifyAppInstance
+from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, verifyAppInstance, getPermissionMode
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
@@ -345,34 +345,46 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
+            # Check permission mode and block upgrade if in minimal mode
+            with Halo(text="Checking permission mode for upgrade compatibility", spinner=self.spinner) as h:
+                selectedApps = self.getInstalledAppsForUpgrade(instanceId)
+
+                # For 9.1.x to 9.2.x upgrade path
+                # 9.1.x had no permission modes, so default to cluster mode
+                if currentChannel and currentChannel.startswith("9.1") and self.nextChannel and self.nextChannel.startswith("9.2"):
+                    logger.info("Upgrading from 9.1.x to 9.2.x: defaulting to cluster mode (9.1.x had no permission modes)")
+                    detectedMode = "cluster"
+                else:
+                    detectedMode = getPermissionMode(self.dynamicClient, instanceId, selectedApps)
+
+                if detectedMode == "minimal":
+                    h.stop_and_persist(symbol="❌", text="Permission mode check failed")
+                    self.fatalError(
+                        f"Cannot upgrade MAS instance '{instanceId}' with minimal permission mode.\n\n"
+                        f"The instance is currently installed with 'essential roles only' mode, which does not grant\n"
+                        f"the ibm-mas service account sufficient permissions to manage application resources during upgrade.\n\n"
+                        f"To proceed with the upgrade:\n"
+                        f"1. Temporarily increase permissions by re-applying RBAC with cluster or namespaced mode\n"
+                        f"2. Run the upgrade\n"
+                        f"3. After upgrade completes, you can switch back to minimal mode if desired\n\n"
+                    )
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Permission mode check passed (mode: {detectedMode})")
+
             # Apply pre-install RBAC for target version (if needed)
             if self.evaluatePreInstallRBACForUpgrade(instanceId, self.nextChannel):
                 with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
                     targetVersion = ".".join(self.nextChannel.split(".")[:2])  # Extract "9.2" from "9.2-feature"
-                    selectedApps = self.getInstalledAppsForUpgrade(instanceId)
 
-                    # Get current permission mode from Suite CR
-                    try:
-                        # suiteAPI = self.dynamicClient.resources.get(
-                        #     api_version="core.mas.ibm.com/v1",
-                        #     kind="Suite"
-                        # )
-                        # suite = suiteAPI.get(name=instanceId, namespace=f"mas-{instanceId}-core")
-                        # permissionMode = suite.spec.settings.get("permissionMode", "cluster")
-                        permissionMode = "cluster"  # Default to cluster mode
-
-                    except Exception as e:
-                        logger.warning(f"Could not determine permission mode from Suite CR: {e}")
-                        permissionMode = "cluster"  # Default to cluster mode
-
+                    # Use detected permission mode for RBAC application
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
                         masVersion=targetVersion,
                         masInstanceId=instanceId,
-                        permissionMode=permissionMode,
+                        permissionMode=detectedMode,
                         selectedApps=selectedApps,
                     )
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for target version {targetVersion}")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for target version {targetVersion} (mode: {detectedMode})")
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
