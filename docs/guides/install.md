@@ -1,14 +1,6 @@
 Installation
 ===============================================================================
 
-:::mas-cli-usage
-module: mas.cli.install.argParser
-parser: installArgParser
-ignore_description: true
-ignore_epilog: true
-:::
-
-
 Preparation
 -------------------------------------------------------------------------------
 ### IBM Entitlement Key
@@ -34,9 +26,9 @@ The other values can be left at their defaults.  Finally, click **Generate** and
 ### OpenShift Container Platform
 You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index).  The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
-- [AWS](../commands/provision-rosa.md)
-- [IBM Cloud](../commands/provision-roks.md)
-- [IBM DevIT FYRE (Internal)](../commands/provision-fyre.md)
+- [AWS](provision-aws.md)
+- [IBM Cloud](provision-roks.md)
+- [IBM DevIT FYRE (Internal)](provision-fyre.md)
 
 IBM Maximo Application Suite is designed to run on a continuously evolving OpenShift platform. Red Hat regularly updates its operator catalogs (including the Community Operators catalog that provides components such as Grafana), and these updates can sometimes introduce breaking changes. To ensure stable, reproducible installations, it is essential to align the versions of OpenShift, Red Hat operator catalogs, the IBM Maximo operator catalog, and the MAS CLI.
 
@@ -186,7 +178,7 @@ You must have a production grade Docker v2 compatible registry such as [Quay Ent
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
 ```
 
-The registry will be setup running on port 32500.  For more details on this step, refer to the [setup-registry](../commands/setup-registry.md) command's documentation.  Regardless of whether you set up a new registry or already had one, you need to collect the following information about your private registry:
+The registry will be setup running on port 32500.  For more details on this step, refer to the [setup-registry](private-registry.md#registry-deployment) command's documentation.  Regardless of whether you set up a new registry or already had one, you need to collect the following information about your private registry:
 
 | Name                | Detail                                                                                                             |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -210,7 +202,7 @@ For full details on this process review the [image mirroring](image-mirroring.md
 
 
 ### Configure OpenShift to use your Private Registry
-Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An `ImageContentSourcePolicy` named `mas-and-dependencies` will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the `mas install` command.
+Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An `ImageDigestMirrorSet` named `mas-and-dependencies` will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the `mas install` command.
 
 ```bash
 docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap
@@ -221,7 +213,7 @@ docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap --setup-red
 ```
 You will be prompted to provide information about the private registry, including the CA certificate necessary to configure your cluster to trust the private registry.
 
-This command can also be ran non-interactive, for full details refer to the [configure-airgap](../commands/configure-airgap.md) command documentation.
+This command can also be ran non-interactive, for full details refer to the [configure-airgap](configure-airgap.md) command documentation.
 
 ```bash
 mas configure-airgap \
@@ -386,6 +378,14 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
     \
     --accept-license --no-confirm
 ```
+
+
+:::mas-cli-usage
+module: mas.cli.install.argParser
+parser: installArgParser
+ignore_description: true
+ignore_epilog: true
+:::
 
 
 How It Works

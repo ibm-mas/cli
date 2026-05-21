@@ -36,9 +36,9 @@ You should already have a target OpenShift cluster ready to install AI Service i
 
 The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
-- [AWS](../commands/provision-rosa.md)
-- [IBM Cloud](../commands/provision-roks.md)
-- [IBM DevIT FYRE (Internal)](../commands/provision-fyre.md)
+- [AWS](provision-aws.md)
+- [IBM Cloud](provision-roks.md)
+- [IBM DevIT FYRE (Internal)](provision-fyre.md)
 
 ### Operator Catalog Selection
 If you have not already determined the catalog version for your installation, refer to the information in the [Operator Catalog](../catalogs/index.md) topic, or contact IBM Support for guidance.
@@ -373,4 +373,4 @@ When installing Manage alongside AI Service using `mas install`:
 
 You can configure the AI Service binding through the Maximo Manage UI.
 
-For more information on integrating AI Service with Manage, see the [Installation Guide](install.md#application-configuration).
+For more information on integrating AI Service with Manage, see the [Installation Guide](install.md).

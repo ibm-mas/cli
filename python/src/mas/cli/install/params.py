@@ -40,6 +40,7 @@ optionalParams = [
     "mas_routing_mode",
     "mas_use_service_mesh",
     "mas_ingress_controller_name",
+    "mas_manual_route_mgmt",
     "mas_app_settings_server_bundles_size",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
