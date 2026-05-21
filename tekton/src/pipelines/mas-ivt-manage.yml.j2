@@ -62,12 +62,6 @@ spec:
       description: Whether to run the Monitor (Base) [monitor_fvt] or Monitor (with Manage) FVT suite [monitor_fvt_with_manage]
       default: "monitor_fvt_with_manage"
 
-    # JDBC Configuration
-    - name: jdbc_type
-      type: string
-      description: JDBC type for database connection (e.g., incluster_db2, rds-db2, external-db2)
-      default: ""
-
   tasks:
     - name: pipeline-start
       timeout: "0"
@@ -111,8 +105,6 @@ spec:
           value: $(params.mas_app_channel_monitor)
         - name: fvt_test_suite
           value: $(params.fvt_test_suite)
-        - name: jdbc_type
-          value: $(params.jdbc_type)
       taskRef:
         kind: Task
         name: mas-ivt-manage
