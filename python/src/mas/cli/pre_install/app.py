@@ -106,7 +106,7 @@ class SetupPreinstallRBACApp(BaseApp):
         # Extract major.minor version from channel
         # Channel can be in formats like: 9.2.x, 9.2.0, 9.2.x-pre, etc.
         masVersion = ".".join(self.mas_channel.split(".")[:2])
-        
+
         # Validate minimum version requirement
         channelVersion = f"{masVersion}.0"
         if not isVersionEqualOrAfter("9.2.0", channelVersion):
