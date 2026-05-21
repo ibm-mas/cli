@@ -113,6 +113,9 @@ class installArgBuilderMixin:
         if self.getParam("mas_use_service_mesh") != "":
             command += f"  --servicemesh \"{self.getParam('mas_use_service_mesh')}\"{newline}"
 
+        if self.getParam("mas_manual_route_mgmt").lower() == "true":
+            command += f"  --manual-routes{newline}"
+
         if self.getParam("mas_domain") != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
@@ -424,12 +427,6 @@ class installArgBuilderMixin:
             if self.aiserviceTenantSchedulingConfigFileLocal:
                 command += f'  --tenant-scheduling-config-file "{self.aiserviceTenantSchedulingConfigFileLocal}"{newline}'
 
-            if self.getParam("rsl_url") != "":
-                command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
-            if self.getParam("rsl_org_id") != "":
-                command += f"  --rsl-org-id \"{self.getParam('rsl_org_id')}\"{newline}"
-            if self.getParam("rsl_token") != "":
-                command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
             if self.getParam("rsl_ca_crt") != "":
                 command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 

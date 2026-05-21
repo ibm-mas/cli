@@ -45,7 +45,14 @@ from mas.devops.ocp import createNamespace, getStorageClasses
 from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
 from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog, NoSuchCatalogError
-from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, prepareInstallSecrets, testCLI, launchInstallPipeline
+from mas.devops.tekton import (
+    installOpenShiftPipelines,
+    updateTektonDefinitions,
+    prepareAiServicePipelinesNamespace,
+    prepareInstallSecrets,
+    testCLI,
+    launchInstallPipeline,
+)
 from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 from mas.devops.utils import isVersionEqualOrAfter
 
@@ -588,6 +595,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
+                prepareAiServicePipelinesNamespace(
+                    dynClient=self.dynamicClient,
+                    instanceId=self.getParam("aiservice_instance_id"),
+                    storageClass=self.pipelineStorageClass,
+                    accessMode=self.pipelineStorageAccessMode,
+                    configureRBAC=(self.getParam("service_account_name") == ""),
+                )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
                     namespace=pipelinesNamespace,
@@ -798,20 +812,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             [
                 "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
                 "",
-                "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
-                "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
-                "Token: Use your IBM entitlement key (same as MAS installation)",
-                "",
                 "Note: Future versions will auto-configure these from MAS Manage.",
                 "",
             ]
         )
-        self.promptForString("RSL url", "rsl_url")
-        self.promptForString("ORG Id of RSL", "rsl_org_id")
-        rslToken = self.promptForString("Token for RSL", isPassword=True)
-        if not rslToken.startswith("Bearer "):
-            rslToken = "Bearer " + rslToken
-        self.setParam("rsl_token", rslToken)
+
         if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
             self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 
