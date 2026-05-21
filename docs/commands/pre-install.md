@@ -7,7 +7,7 @@ Usage information can be obtained using `mas pre-install --help`
 
 ```
 usage: mas pre-install [-i MAS_INSTANCE_ID] [--mas-version MAS_VERSION]
-                       [--permission-mode {cluster,namespaced,minimal}]
+                       [--permission-mode {cluster,namespaced}]
                        [--apps APPS] [--no-confirm] [-h]
 
 IBM Maximo Application Suite Admin CLI v21.3.0
@@ -24,9 +24,9 @@ Specify the target cluster and MAS instance for which pre-install RBAC should be
                         The MAS instance ID for which pre-install RBAC will be set up
   --mas-version MAS_VERSION
                         The MAS version in x.y.z format used to select pre-install RBAC manifests, for example 9.2.0
-  --permission-mode {cluster,namespaced,minimal}
+  --permission-mode {cluster,namespaced}
                         The permission mode used to determine which pre-install RBAC manifests are set up
-  --apps APPS           Comma-separated list of apps used to filter which pre-install RBAC manifests are set up, for example core,manage,iot
+  --apps APPS           Comma-separated list of apps used to filter which pre-install RBAC manifests are set up (required for namespaced mode), for example core,manage,iot
 
 More:
 Additional options for pre-install.
@@ -46,7 +46,7 @@ mas pre-install
 ```
 
 ### Non-Interactive Pre-Install for Namespaced Mode
-Set up pre-install RBAC for a MAS instance using namespaced permission mode:
+Set up pre-install RBAC for a MAS instance using namespaced permission mode (apps are required):
 
 ```bash
 mas pre-install \
@@ -57,27 +57,14 @@ mas pre-install \
   --no-confirm
 ```
 
-### Pre-Install for Minimal Mode
-Set up pre-install RBAC for minimal permission mode:
-
-```bash
-mas pre-install \
-  --mas-instance-id dev1 \
-  --mas-version 9.2.0 \
-  --permission-mode minimal \
-  --apps core \
-  --no-confirm
-```
-
 ### Pre-Install for Cluster Mode
-Set up pre-install RBAC for cluster permission mode (optional, as cluster mode can apply RBAC during installation):
+Set up pre-install RBAC for cluster permission mode (apps are not required - automatically uses ibm-mas operator):
 
 ```bash
 mas pre-install \
   --mas-instance-id test1 \
   --mas-version 9.2.0 \
   --permission-mode cluster \
-  --apps core,manage,monitor,iot \
   --no-confirm
 ```
 
@@ -117,13 +104,14 @@ The `mas pre-install` command is used to grant necessary RBAC permissions.
 
 ### Permission Modes
 
-All permission modes work with `mas pre-install`:
+The following permission modes are supported with `mas pre-install`:
 
-| Permission Mode | Description |
-|----------------|-------------|
-| **cluster** | MAS has cluster-level access to manage its applications and resources across the cluster. ClusterRoles are installed. |
-| **namespaced** | No ClusterRoles are installed. MAS can manage resources only in namespaces prepared by the OpenShift admin. |
-| **minimal** | Minimal permissions with essential RBAC requirements |
+| Permission Mode | Description | Apps Required |
+|----------------|-------------|---------------|
+| **cluster** | MAS has cluster-level access to manage its applications and resources across the cluster. ClusterRoles are installed for the ibm-mas operator only. | No - automatically uses ibm-mas operator |
+| **namespaced** | No ClusterRoles are installed. MAS can manage resources only in namespaces prepared by the OpenShift admin. Roles are created for selected applications. | Yes - must specify apps |
+
+**Note:** In minimal permission mode, essential roles are installed by each operator during installation, so `mas pre-install` is not required.
 
 ### Supported Applications
 
@@ -191,10 +179,12 @@ When running without all required options, the command enters interactive mode a
 1. Target OpenShift cluster connection
 2. MAS instance ID
 3. MAS version (in x.y.z format)
-4. Permission mode (cluster, namespaced, or minimal)
-5. Applications to include (comma-separated list)
+4. Permission mode (cluster or namespaced)
+5. Applications to include (comma-separated list) - **only for namespaced mode**
 
 The command will display a summary of your selections and ask for confirmation before applying the RBAC resources.
+
+**Note:** In cluster mode, applications are not prompted as the ibm-mas operator is automatically used.
 
 ### Version Compatibility
 
