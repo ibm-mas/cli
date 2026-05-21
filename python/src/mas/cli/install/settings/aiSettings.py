@@ -97,27 +97,61 @@ class AiSettingsMixin:
 
         # Check if AI Service is being installed on the same cluster
         if hasattr(self, "installAIService") and self.installAIService:
-            # AI Service will be installed - defer AiCfg generation to pipeline
-            if not silentMode:
-                self.printH2("AiCfg Configuration (Automatic)")
-                self.printDescription(
-                    [
-                        "AI Service is being installed on this cluster.",
-                        "The AiCfg will be automatically generated and applied by the pipeline",
-                        "AFTER AI Service installation completes.",
-                        "",
-                        "The pipeline will:",
-                        "  1. Install AI Service first",
-                        "  2. Auto-detect connection details (URL, API key, certificate)",
-                        "  3. Generate and apply AiCfg automatically",
-                        "",
-                        "No manual configuration needed!",
-                    ]
-                )
+            # Check MAS version - AiCfg is only supported in MAS 9.2+
+            mas_channel = self.getParam("mas_channel")
+            is_mas_92_or_later = False
+            
+            if mas_channel:
+                try:
+                    # Extract major.minor version (e.g., "9.2" from "9.2.0")
+                    version_parts = mas_channel.split(".")
+                    if len(version_parts) >= 2:
+                        major = int(version_parts[0])
+                        minor = int(version_parts[1])
+                        is_mas_92_or_later = (major > 9) or (major == 9 and minor >= 2)
+                except (ValueError, IndexError):
+                    pass
+            
+            if is_mas_92_or_later:
+                # AI Service will be installed - defer AiCfg generation to pipeline
+                if not silentMode:
+                    self.printH2("AiCfg Configuration (Automatic)")
+                    self.printDescription(
+                        [
+                            "AI Service is being installed on this cluster.",
+                            "The AiCfg will be automatically generated and applied by the pipeline",
+                            "AFTER AI Service installation completes.",
+                            "",
+                            "The pipeline will:",
+                            "  1. Install AI Service first",
+                            "  2. Auto-detect connection details (URL, API key, certificate)",
+                            "  3. Generate and apply AiCfg automatically",
+                            "",
+                            "No manual configuration needed!",
+                        ]
+                    )
 
-            # Set action to indicate pipeline should handle it
-            self.setParam("configure_aiassistant", "pipeline")
-            print_formatted_text("\n✓ AiCfg will be automatically configured by the pipeline after AI Service installation")
+                # Set action to indicate pipeline should handle it
+                self.setParam("configure_aiassistant", "pipeline")
+                print_formatted_text("\n✓ AiCfg will be automatically configured by the pipeline after AI Service installation")
+            else:
+                # MAS 9.1 or earlier - AiCfg not supported
+                if not silentMode:
+                    self.printH2("AiCfg Configuration (Not Available)")
+                    self.printDescription(
+                        [
+                            "AI Service is being installed on this cluster.",
+                            "",
+                            "⚠️  IMPORTANT: AiCfg is only available in MAS 9.2 and later.",
+                            f"   Your MAS channel is: {mas_channel or 'not set'}",
+                            "",
+                            "The AiCfg custom resource will NOT be created automatically.",
+                            "If you upgrade to MAS 9.2+ in the future, you can configure AiCfg then.",
+                        ]
+                    )
+                
+                self.setParam("configure_aiassistant", "none")
+                print_formatted_text("\n⚠️  AiCfg configuration skipped (requires MAS 9.2+)")
         else:
             # Manual configuration for external AI Service
             if not silentMode:
