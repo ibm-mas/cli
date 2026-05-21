@@ -152,9 +152,6 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture: str | None = None
 
         self.compatibilityMatrix: Dict[str, Dict[str, List[str]]] = {
-            "9.2.x-dev": {
-                "manage": ["9.2.x-dev", "9.1.x"],
-            },
             "9.2.x-feature": {
                 "aibroker": ["9.2.x-feature", "9.1.x"],
                 "manage": ["9.2.x-feature", "9.1.x"],
