@@ -150,7 +150,7 @@ class InstallApp(
 
             if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
                 self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run mas install again with --skip-preinstall-rbac."
+                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run 'mas install' again with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'."
                 )
         else:
             self.fatalError(
@@ -159,7 +159,7 @@ class InstallApp(
                         f"You selected the '{self.mas_permission_mode}' permission mode.",
                         "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                         "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                        "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas install' with --skip-preinstall-rbac.",
+                        "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas install' with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'.",
                     ]
                 )
             )
