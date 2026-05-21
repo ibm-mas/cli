@@ -259,6 +259,17 @@ detect-secrets:
 	detect-secrets scan --update .secrets.baseline
 	detect-secrets audit .secrets.baseline
 
+
+.venv-docs:
+# We need to install the python-devops and cli packages because we generate documentation from their code using mkdocs directives
+	python3 -m venv .venv-docs
+	. .venv-docs/bin/activate && python -m pip install setuptools
+	. .venv-docs/bin/activate && python -m pip install -e ../python-devops
+	. .venv-docs/bin/activate && python -m pip install -e ./python
+# Install mkdocs and the various plugins that we use, including our custom plugins
+	. .venv-docs/bin/activate && python -m pip install -q mkdocs properdocs mkdocs-carbon mkdocs-glightbox mkdocs-redirects
+	. .venv-docs/bin/activate && python -m pip install -e ./mkdocs_plugins
+
 .PHONY: mkdocs-serve
-mkdocs-serve:
+mkdocs-serve: .venv-docs
 	. .venv-docs/bin/activate && mkdocs serve --livereload --dev-addr localhost:9010
