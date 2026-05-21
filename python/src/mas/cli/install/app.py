@@ -143,7 +143,7 @@ class InstallApp(
                     f"You selected the '{self.mas_permission_mode}' permission mode.",
                     "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                     "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS version, permission mode, and selected apps.",
+                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS channel, permission mode, and selected apps.",
                     "If that has already been done, you can continue the installation without applying it again.",
                 ]
             )

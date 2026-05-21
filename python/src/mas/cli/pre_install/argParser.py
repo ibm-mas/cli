@@ -36,7 +36,7 @@ targetArgGroup.add_argument(
 )
 
 targetArgGroup.add_argument(
-    "--mas-version", dest="mas_version", required=False, help="The MAS version in x.y.z format used to select pre-install RBAC manifests, for example 9.2.0"
+    "--mas-channel", dest="mas_channel", required=False, help="The MAS channel used to select pre-install RBAC manifests, for example 9.2.x"
 )
 
 targetArgGroup.add_argument(

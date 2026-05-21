@@ -31,10 +31,10 @@ class SetupPreinstallRBACApp(BaseApp):
         self.printH2("MAS Instance")
         self.mas_instance_id = self.promptForString("Instance ID", validator=InstanceIDFormatValidator())
 
-    def promptForMASVersion(self) -> None:
-        self.printH2("MAS Version")
-        self.printDescription(["Enter the MAS version in x.y.z format.", "For example: 9.2.0"])
-        self.mas_version = self.promptForString("MAS Version", default="9.2.0")
+    def promptForMASChannel(self) -> None:
+        self.printH2("MAS Channel")
+        self.printDescription(["Enter the MAS channel", "For example: 9.2.x"])
+        self.mas_channel = self.promptForString("MAS Channel", default="9.2.x")
 
     def promptForPermissionMode(self) -> None:
         self.printH2("Permission Mode")
@@ -69,7 +69,7 @@ class SetupPreinstallRBACApp(BaseApp):
         """
         self.args = setupPreinstallRBACArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
-        self.interactive_mode = not all([self.args.mas_instance_id, self.args.mas_version, self.args.permission_mode])
+        self.interactive_mode = not all([self.args.mas_instance_id, self.args.mas_channel, self.args.permission_mode])
 
         self.printH1("Set Target OpenShift Cluster")
         self.connect()
@@ -81,10 +81,10 @@ class SetupPreinstallRBACApp(BaseApp):
             else:
                 self.promptForMASInstanceId()
 
-            if self.args.mas_version is not None:
-                self.mas_version = self.args.mas_version.strip()
+            if self.args.mas_channel is not None:
+                self.mas_channel = self.args.mas_channel.strip()
             else:
-                self.promptForMASVersion()
+                self.promptForMASChannel()
 
             if self.args.permission_mode is not None:
                 self.permission_mode = self.args.permission_mode.strip()
@@ -94,25 +94,23 @@ class SetupPreinstallRBACApp(BaseApp):
             # Non-interactive mode - validate required parameters
             if not self.args.mas_instance_id or self.args.mas_instance_id.strip() == "":
                 self.fatalError("mas_instance_id must be set")
-            if not self.args.mas_version or self.args.mas_version.strip() == "":
-                self.fatalError("mas_version must be set")
+            if not self.args.mas_channel or self.args.mas_channel.strip() == "":
+                self.fatalError("mas_channel must be set")
             if not self.args.permission_mode or self.args.permission_mode.strip() == "":
                 self.fatalError("permission_mode must be set")
 
             self.mas_instance_id = self.args.mas_instance_id.strip()
-            self.mas_version = self.args.mas_version.strip()
+            self.mas_channel = self.args.mas_channel.strip()
             self.permission_mode = self.args.permission_mode.strip()
 
-        # Validate MAS version format
-        masVersionParts = self.mas_version.split(".")
-        if len(masVersionParts) != 3 or not all(part.isdigit() for part in masVersionParts):
-            self.fatalError("MAS version must be provided in x.y.z format, for example 9.2.0")
-
-        if not isVersionEqualOrAfter("9.2.0", self.mas_version):
-            self.fatalError("mas pre-install is supported only for MAS version 9.2.0 and later")
-
-        # Convert to x.y format for RBAC selection
-        masVersion = ".".join(masVersionParts[:2])
+        # Extract major.minor version from channel
+        # Channel can be in formats like: 9.2.x, 9.2.0, 9.2.x-pre, etc.
+        masVersion = ".".join(self.mas_channel.split(".")[:2])
+        
+        # Validate minimum version requirement
+        channelVersion = f"{masVersion}.0"
+        if not isVersionEqualOrAfter("9.2.0", channelVersion):
+            self.fatalError("mas pre-install is supported only for MAS channel 9.2.x and later")
 
         # Only prompt for apps in namespaced mode
         if self.permission_mode == "namespaced":
@@ -152,7 +150,7 @@ class SetupPreinstallRBACApp(BaseApp):
             ]
         )
         self.printSummary("Instance ID", self.mas_instance_id)
-        self.printSummary("MAS Version", masVersion)
+        self.printSummary("MAS Channel", self.mas_channel)
         self.printSummary("Permission Mode", self.permission_mode)
         if self.permission_mode == "namespaced":
             self.printSummary("Selected Apps", ", ".join(selectedApps))
