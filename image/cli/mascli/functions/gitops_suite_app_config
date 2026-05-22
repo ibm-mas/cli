@@ -352,12 +352,32 @@ function gitops_suite_app_config() {
 
   # Resolve ICN for customer-level secrets (required for Manage MREF password)
   # ---------------------------------------------------------------------------
-  # ICN can come from multiple sources:
-  # 1. STANDALONE_SLS_SERVICE (centralized SLS) - extract from path
-  # 2. SLS_LICENSE_ICN (pre-configured)
-  # 3. Environment variable ICN (if already set)
+  # ICN can come from multiple sources (in priority order):
+  # 1. LICENSE_FILE or SLS_LICENSE_FILE - extract from NOTICE field
+  # 2. STANDALONE_SLS_SERVICE (centralized SLS) - extract from path
+  # 3. SLS_LICENSE_ICN (pre-configured)
+  # 4. Environment variable ICN (if already set)
   
-  if [[ -n "${STANDALONE_SLS_SERVICE}" ]]; then
+  # Try to extract ICN from license file first
+  if [[ -z "${ICN}" ]] && [[ -n "${LICENSE_FILE}" ]] && [[ -f "${LICENSE_FILE}" ]]; then
+    echo "- Attempting to extract ICN from license file: ${LICENSE_FILE}"
+    ICN=$(grep -oP 'ICN:\K[0-9]+' "${LICENSE_FILE}" | head -1)
+    if [[ -n "${ICN}" ]]; then
+      echo "- ICN extracted from license file: ${ICN}"
+    fi
+  fi
+  
+  # Try SLS_LICENSE_FILE if LICENSE_FILE didn't work
+  if [[ -z "${ICN}" ]] && [[ -n "${SLS_LICENSE_FILE}" ]] && [[ -f "${SLS_LICENSE_FILE}" ]]; then
+    echo "- Attempting to extract ICN from SLS license file: ${SLS_LICENSE_FILE}"
+    ICN=$(grep -oP 'ICN:\K[0-9]+' "${SLS_LICENSE_FILE}" | head -1)
+    if [[ -n "${ICN}" ]]; then
+      echo "- ICN extracted from SLS license file: ${ICN}"
+    fi
+  fi
+  
+  # Try STANDALONE_SLS_SERVICE if ICN not yet resolved
+  if [[ -z "${ICN}" ]] && [[ -n "${STANDALONE_SLS_SERVICE}" ]]; then
     echo "- Resolving ICN from STANDALONE_SLS_SERVICE: ${STANDALONE_SLS_SERVICE}"
     CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
     IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
@@ -576,38 +596,28 @@ function gitops_suite_app_config() {
     fi # end if [[ "${MAS_APP_ID}" == "manage" ]]
 
     if [[ "${MAS_APP_ID}" == "facilities" ]]; then
-      # Although the name of the secret can be set in the CR, it is expected to be of the form <workspaceId>-facilities-vs--sn to allow the UI to work
       export FACILITIES_VAULT_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.vaultSecret.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
-      # Use customer-level secret path for Facilities vault secret
+      # Use customer-level secret path for Facilities vault secret (without trailing separator)
       if [[ -n "${ICN}" ]]; then
-        export FACILITIES_VAULT_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}"
+        export FACILITIES_VAULT_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities"
       else
         # Fallback to instance-level if ICN not available
-        export FACILITIES_VAULT_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}
+        export FACILITIES_VAULT_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities"
       fi
       if [[ -n "${FACILITIES_VAULT_SECRET_NAME}" ]]; then
-        if [ "$FACILITIES_VAULT_SECRET_NAME" != "${MAS_WORKSPACE_ID}-facilities-vs--sn" ]; then
-          echo "Error: Secret name $FACILITIES_VAULT_SECRET_NAME does not match ${MAS_WORKSPACE_ID}-facilities-vs--sn"
-          exit 1
-        fi
-        sm_verify_secret_exists ${FACILITIES_VAULT_SECRET}${FACILITIES_VAULT_SECRET_NAME} "pwd"
+        sm_verify_secret_exists "${FACILITIES_VAULT_SECRET}${SECRETS_KEY_SEPERATOR}${FACILITIES_VAULT_SECRET_NAME}" "pwd"
       fi
 
-      # Although the name of the secret can be set in the CR, it is expected to be of the form <workspaceId>-facilities-lexml--sn to allow the UI to work
       export FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.libertyExtensionXML.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
-      # Use customer-level secret path for Facilities liberty extensions secret
+      # Use customer-level secret path for Facilities liberty extensions secret (without trailing separator)
       if [[ -n "${ICN}" ]]; then
-        export FACILITIES_LIBERTY_EXTENSIONS_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}"
+        export FACILITIES_LIBERTY_EXTENSIONS_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities"
       else
         # Fallback to instance-level if ICN not available
-        export FACILITIES_LIBERTY_EXTENSIONS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}
+        export FACILITIES_LIBERTY_EXTENSIONS_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities"
       fi
       if [[ -n "${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}" ]]; then
-        if [ "$FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME" != "${MAS_WORKSPACE_ID}-facilities-lexml--sn" ]; then
-          echo "Error: Secret name $FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME does not match ${MAS_WORKSPACE_ID}-facilities-lexml--sn"
-          exit 1
-        fi
-        sm_verify_secret_exists ${FACILITIES_LIBERTY_EXTENSIONS_SECRET}${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME} "b64_xml"
+        sm_verify_secret_exists "${FACILITIES_LIBERTY_EXTENSIONS_SECRET}${SECRETS_KEY_SEPERATOR}${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}" "b64_xml"
       fi
     fi # end if [[ "${MAS_APP_ID}" == "facilities" ]]
     else
