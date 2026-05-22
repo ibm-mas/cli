@@ -48,6 +48,7 @@ from mas.devops.data import getCatalog, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
+    prepareAiServicePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
     launchInstallPipeline,
