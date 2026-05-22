@@ -11,11 +11,12 @@ from setuptools import setup, find_namespace_packages
 import codecs
 import sys
 import os
-sys.path.insert(0, 'src')
+
+sys.path.insert(0, "src")
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 # Maintain a single source of versioning
@@ -24,13 +25,13 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+    with codecs.open(os.path.join(here, rel_path), "r") as fp:
         return fp.read()
 
 
 def get_version(rel_path):
     for line in read(rel_path).splitlines():
-        if line.startswith('__version__'):
+        if line.startswith("__version__"):
             delim = '"' if '"' in line else "'"
             return line.split(delim)[1]
     else:
@@ -38,47 +39,45 @@ def get_version(rel_path):
 
 
 setup(
-    name='mas-cli',
+    name="mas-cli",
     version=get_version("src/mas/cli/__init__.py"),
-    author='David Parker',
-    author_email='parkerda@uk.ibm.com',
-    package_dir={'': 'src'},
-    packages=find_namespace_packages(where='src'),
+    author="David Parker",
+    author_email="parkerda@uk.ibm.com",
+    package_dir={"": "src"},
+    packages=find_namespace_packages(where="src"),
     include_package_data=True,
-    scripts=[
-        'src/mas-cli'
-    ],
-    url='https://github.com/ibm-mas/cli',
-    license='Eclipse Public License - v1.0',
-    description='Python Admin CLI for Maximo Application Suite',
+    scripts=["src/mas-cli"],
+    url="https://github.com/ibm-mas/cli",
+    license="Eclipse Public License - v1.0",
+    description="Python Admin CLI for Maximo Application Suite",
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     install_requires=[
-        'mas-devops >= 5.2.0',   # EPL
-        'alive-progress',        # MIT License
-        'halo',                  # MIT License
-        'prompt_toolkit',        # BSD License
-        'openshift',             # Apache Software License
-        'kubernetes == 33.1.0',  # Apache Software License, version lock to be removed once https://github.com/kubernetes-client/python/issues/2460 is resolved
-        'tabulate',              # MIT License
+        "mas-devops >= 5.2.0",  # EPL
+        "alive-progress",  # MIT License
+        "halo",  # MIT License
+        "prompt_toolkit",  # BSD License
+        "openshift",  # Apache Software License
+        "kubernetes == 33.1.0",  # Apache Software License, version lock to be removed once https://github.com/kubernetes-client/python/issues/2460 is resolved
+        "tabulate",  # MIT License
     ],
     extras_require={
-        'dev': [
-            'build',       # MIT License
-            'flake8',      # MIT License
-            'pytest',      # MIT License
-            'pyinstaller',  # GPL, https://pyinstaller.org/en/stable/license.html & https://github.com/pyinstaller/pyinstaller/wiki/FAQ#license
+        "dev": [
+            "build",  # MIT License
+            "flake8",  # MIT License
+            "pytest",  # MIT License
+            "pyinstaller",  # GPL, https://pyinstaller.org/en/stable/license.html & https://github.com/pyinstaller/pyinstaller/wiki/FAQ#license
         ]
     },
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.12',
-        'Topic :: Communications',
-        'Topic :: Internet',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-    ]
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.12",
+        "Topic :: Communications",
+        "Topic :: Internet",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
 )
