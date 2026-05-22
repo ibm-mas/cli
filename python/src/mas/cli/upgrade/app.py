@@ -331,8 +331,8 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
             if detectedMode == "minimal":
                 self.fatalError(
-                    f"Cannot upgrade MAS instance '{instanceId}' with minimal permission mode.\n\n"
-                    f"The instance is currently installed with 'essential roles only' mode, which does not grant\n"
+                    f"Cannot upgrade MAS instance '{instanceId}' with 'minimal' permission mode.\n\n"
+                    f"The instance is currently installed with 'minimal' mode, which does not grant\n"
                     f"the ibm-mas service account sufficient permissions to manage application resources during upgrade.\n\n"
                     f"To proceed with the upgrade:\n"
                     f"1. Temporarily increase permissions by re-applying RBAC with cluster or namespaced mode\n"
