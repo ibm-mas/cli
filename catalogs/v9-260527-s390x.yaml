@@ -8,5 +8,5 @@ spec:
   publisher: IBM
   description: Static Catalog Source for IBM Maximo Application Suite
   sourceType: grpc
-  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:246386096a5fe8f81886c835d38d5b1e7c501730f4512b4d737f6ef95a6b5b35
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:e3319b3c6c80635284cca0544580d3e7985cd7f2270d993c5ce2aa0224df215d
   priority: 90
