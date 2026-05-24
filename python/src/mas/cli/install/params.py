@@ -172,9 +172,9 @@ optionalParams = [
     "mas_ws_facilities_storage_userfiles_class",
     "mas_ws_facilities_storage_userfiles_mode",
     "mas_ws_facilities_storage_userfiles_size",
+    "mas_ws_facilities_server_timezone",
     "mas_ws_facilities_dwfagents",
-    "mas_ws_facilities_db_maxconnpoolsize",
-    "mas_ws_facilities_server_timezone",    
+    "mas_ws_facilities_db_maxconnpoolsize",  
     # Special chars
     "mas_special_characters",
     # ODH

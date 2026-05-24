@@ -342,7 +342,7 @@ class InstallSummarizerMixin:
                 "mas_ws_facilities_storage_userfiles_mode",
             )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
-            self.printParamSummary("  + Server Timezone", "mas_ws_facilities_server_timezone")            
+            self.printParamSummary("  + Server Timezone", "mas_ws_facilities_server_timezone")
             if self.getParam("db2_action_facilities") == "none":
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
