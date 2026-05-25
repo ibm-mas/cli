@@ -177,6 +177,10 @@ spec:
     - name: jdbc_type
       type: string
       default: ""
+    - name: enable_transition_testing
+      type: string
+      default: "false"
+      description: "Enable post-IVT transition testing for JDBC configuration changes"
 
     - name: icn
       type: string
@@ -327,6 +331,8 @@ spec:
         value: ldap
       - name: JDBC_TYPE
         value: $(params.jdbc_type)
+      - name: ENABLE_TRANSITION_TESTING
+        value: $(params.enable_transition_testing)
 
       - name: ICN
         value: $(params.icn)
@@ -433,6 +439,111 @@ spec:
           fi
           echo "SendGrid subuser ${SENDGRID_SUBUSER_USERNAME} disabled successfully!"
           echo "It is now safe to run tests against the environment; the suite is no longer capable of sending emails for real."
+
+        # Post-IVT Transition Testing Functions
+        # =========================================================================
+        update_jdbc_configs_for_transition() {
+          echo "=== Updating JDBC Configuration for Transition Testing ==="
+          
+          # Clone gitops-envs repository
+          cd /tmp
+          rm -rf gitops-envs
+          git clone https://${GITOPS_GITHUB_PAT}@${GITOPS_GITHUB_HOST}/${GITOPS_GITHUB_ORG}/${GITOPS_GITHUB_REPO}.git
+          cd gitops-envs
+          
+          # Define file paths
+          SUITE_CONFIG="${ACCOUNT_ID}/${CLUSTER_NAME}/${MAS_INSTANCE_ID}/ibm-mas-suite-configs.yaml"
+          DB_CONFIG="${ACCOUNT_ID}/${CLUSTER_NAME}/${MAS_INSTANCE_ID}/ibm-db2u-databases.yaml"
+          
+          echo "Updating jdbc_type in ${SUITE_CONFIG}"
+          if [ -f "$SUITE_CONFIG" ]; then
+            yq eval '.spec.config.jdbc_type = "incluster-db2"' -i "$SUITE_CONFIG"
+            echo "✓ Updated jdbc_type to 'incluster-db2'"
+          else
+            echo "WARNING: ${SUITE_CONFIG} not found"
+          fi
+          
+          echo "Updating DB2 heap sizes in ${DB_CONFIG}"
+          if [ -f "$DB_CONFIG" ]; then
+            yq eval '.spec.config.DB2_FMP_COMM_HEAPSZ = "8192"' -i "$DB_CONFIG"
+            yq eval '.spec.config.APPLHEAPSZ = "2048"' -i "$DB_CONFIG"
+            echo "✓ Updated DB2_FMP_COMM_HEAPSZ to 8192"
+            echo "✓ Updated APPLHEAPSZ to 2048"
+          else
+            echo "WARNING: ${DB_CONFIG} not found"
+          fi
+          
+          # Commit and push changes
+          git add "$SUITE_CONFIG" "$DB_CONFIG"
+          git commit -m "Post-IVT transition: Update JDBC config for testing - Build ${DEVOPS_BUILD_NUMBER}"
+          git push origin master
+          
+          echo "✓ GitOps configuration updated successfully"
+        }
+
+        run_post_transition_ivt_test() {
+          echo "=== Running Post-Transition IVT Test ==="
+          
+          # Get the IVT image digest
+          IVT_DIGEST=$(oc get secret mas-fvt-manage -n mas-${MAS_INSTANCE_ID}-pipelines -o jsonpath='{.data.IVT_DIGEST_CORE}' | base64 -d)
+          FVT_IMAGE="${FVT_IMAGE_REGISTRY}/mas-devops/ivt-core@${IVT_DIGEST}"
+          
+          echo "Running test_db2_health.py with TEST_PHASE=post-transition"
+          
+          # Create a temporary pod to run the test
+          cat <<EOF | oc apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: post-transition-ivt-${DEVOPS_BUILD_NUMBER}
+  namespace: mas-${MAS_INSTANCE_ID}-pipelines
+spec:
+  restartPolicy: Never
+  containers:
+  - name: ivt-test
+    image: ${FVT_IMAGE}
+    command: ["/bin/bash", "-c"]
+    args:
+      - |
+        cd /opt/ibm/test/src
+        export TEST_PHASE="post-transition"
+        export JDBC_TYPE="incluster-db2"
+        export INSTANCE_ID="${MAS_INSTANCE_ID}"
+        export PRODUCT_ID="ibm-mas-manage"
+        export WORKSPACE_ID="${MAS_WORKSPACE_ID}"
+        export DEVOPS_MONGO_URI="${DEVOPS_MONGO_URI}"
+        export BUILD_NUM="${DEVOPS_BUILD_NUMBER}"
+        pytest -v test_db2_health.py --junitxml=/tmp/post-transition-results.xml
+    env:
+    - name: DEVOPS_MONGO_URI
+      valueFrom:
+        secretKeyRef:
+          name: mas-devops
+          key: DEVOPS_MONGO_URI
+          optional: true
+EOF
+
+          # Wait for pod to complete
+          echo "Waiting for post-transition test to complete..."
+          oc wait --for=condition=Ready pod/post-transition-ivt-${DEVOPS_BUILD_NUMBER} -n mas-${MAS_INSTANCE_ID}-pipelines --timeout=300s || true
+          oc wait --for=jsonpath='{.status.phase}'=Succeeded pod/post-transition-ivt-${DEVOPS_BUILD_NUMBER} -n mas-${MAS_INSTANCE_ID}-pipelines --timeout=600s || true
+          
+          # Get test results
+          echo "Retrieving test results..."
+          oc logs post-transition-ivt-${DEVOPS_BUILD_NUMBER} -n mas-${MAS_INSTANCE_ID}-pipelines
+          
+          # Check if test passed
+          POD_STATUS=$(oc get pod post-transition-ivt-${DEVOPS_BUILD_NUMBER} -n mas-${MAS_INSTANCE_ID}-pipelines -o jsonpath='{.status.phase}')
+          if [ "$POD_STATUS" == "Succeeded" ]; then
+            echo "✓ Post-transition IVT test completed successfully"
+          else
+            echo "✗ Post-transition IVT test failed"
+            exit 1
+          fi
+          
+          # Cleanup
+          oc delete pod post-transition-ivt-${DEVOPS_BUILD_NUMBER} -n mas-${MAS_INSTANCE_ID}-pipelines --ignore-not-found=true
+        }
         }
 
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
@@ -762,6 +873,63 @@ spec:
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} || exit 1
 
         # Wait for launcher to complete
+
+        # Post-IVT Transition Testing
+        # =========================================================================
+        # This section runs AFTER the FVT pipeline completes (which includes IVT-Manage with test_db2_health.py FIRST RUN)
+        # It updates JDBC configs, syncs ArgoCD, and re-runs the test to validate the transition
+        if [[ "$LAUNCHER_ID" == "core" && "${ENABLE_TRANSITION_TESTING:-false}" == "true" ]]; then
+          echo "=========================================="
+          echo "Starting Post-IVT Transition Testing"
+          echo "=========================================="
+          
+          # Step 1: Update GitOps configurations
+          echo "Step 1: Updating GitOps JDBC configurations..."
+          update_jdbc_configs_for_transition
+          
+          # Step 2: Temporarily remove sync window to allow ArgoCD to sync
+          echo "Step 2: Temporarily removing sync window for ArgoCD sync..."
+          argocd_login
+          ARGOWINDOW=$(argocd proj windows list mas | grep "$CLUSTER_NAME.$MAS_INSTANCE_ID\b" | sed 's/%!(EXTRA.*)//' | cut -c1-1)
+          if [ -n "$ARGOWINDOW" ]; then
+            echo "Removing sync window: $ARGOWINDOW"
+            argocd proj windows delete mas $ARGOWINDOW --grpc-web
+          fi
+          
+          # Step 3: Wait for ArgoCD to detect changes
+          echo "Step 3: Waiting 60 seconds for ArgoCD to detect GitOps changes..."
+          sleep 60
+          
+          # Step 4: Trigger ArgoCD sync for affected applications
+          echo "Step 4: Triggering ArgoCD sync for affected applications..."
+          argocd app sync "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" --grpc-web || echo "Warning: suite app sync failed"
+          argocd app sync "${MAS_INSTANCE_ID}-jdbc-system.${CLUSTER_NAME}" --grpc-web || echo "Warning: jdbc-system app sync failed"
+          argocd app sync "${MAS_INSTANCE_ID}-db2u-system.${CLUSTER_NAME}" --grpc-web || echo "Warning: db2u-system app sync failed"
+          
+          # Step 5: Wait for applications to be healthy
+          echo "Step 5: Waiting for applications to sync and become healthy..."
+          check_argo_app_synced "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          check_argo_app_synced "${MAS_INSTANCE_ID}-jdbc-system.${CLUSTER_NAME}"
+          check_argo_app_synced "${MAS_INSTANCE_ID}-db2u-system.${CLUSTER_NAME}"
+          
+          echo "✓ All applications synced successfully"
+          
+          # Step 6: Run post-transition IVT test (SECOND RUN of test_db2_health.py)
+          echo "Step 6: Running post-transition IVT test..."
+          run_post_transition_ivt_test
+          
+          echo "✓ Post-transition IVT test completed successfully"
+          
+          # Step 7: Recreate sync window for remaining tests
+          echo "Step 7: Recreating sync window for remaining tests..."
+          argocd proj windows add mas --kind deny --schedule "* * * * *" --duration ${WINDOW_DURATION}h --applications "*.$CLUSTER_NAME.$MAS_INSTANCE_ID.*,*.$CLUSTER_NAME.$MAS_INSTANCE_ID,$MAS_INSTANCE_ID-*" --grpc-web
+          
+          echo "=========================================="
+          echo "Post-IVT Transition Testing Complete"
+          echo "=========================================="
+        else
+          echo "Post-IVT transition testing is disabled (LAUNCHER_ID=$LAUNCHER_ID, ENABLE_TRANSITION_TESTING=${ENABLE_TRANSITION_TESTING:-false})"
+        fi
         /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
 
         # Remove argocd window

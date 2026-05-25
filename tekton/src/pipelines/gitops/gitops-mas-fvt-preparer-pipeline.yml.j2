@@ -181,6 +181,10 @@ spec:
     - name: jdbc_type
       type: string
       default: ""
+    - name: enable_transition_testing
+      type: string
+      default: "false"
+      description: "Enable post-IVT transition testing for JDBC configuration changes"
 
   tasks:
     - name: mas-launchfvt
@@ -316,6 +320,8 @@ spec:
           value: $(params.ldap_userid_map)
         - name: jdbc_type
           value: $(params.jdbc_type)
+        - name: enable_transition_testing
+          value: $(params.enable_transition_testing)
 
         - name: icn
           value: $(params.sls_license_icn)
