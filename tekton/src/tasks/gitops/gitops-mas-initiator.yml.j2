@@ -601,10 +601,14 @@ spec:
           process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
 
           # Now extract ICN and SAAS_SUB_ID from sls.sls_service parameter
-          SLS_SERVICE=$(yq '.sls.sls_service // ""' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml)
-          
+          if [[ "${IS_GITOPS_FVT_ENV}" == true ]] && [ -n "$AISERVICE_INSTANCE_ID" ]; then
+            SLS_SERVICE=$(yq '.sls.sls_service // ""' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID/aiservice-params.yaml)
+          else
+            SLS_SERVICE=$(yq '.sls.sls_service // ""' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml)
+          fi
+
           if [ -z "$SLS_SERVICE" ]; then
-            echo "Error: CENTRALISED_SLS is true but no SLS service reference found in mas-instance-params.yaml" >&2
+            echo "Error: CENTRALISED_SLS is true but no SLS service reference found in either mas-instance-params.yaml or aiservice-params.yaml" >&2
             exit 1
           fi
           
