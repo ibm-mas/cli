@@ -2224,6 +2224,7 @@ class InstallApp(
                 "advanced",
                 "simplified",
                 "mas_configure_ingress",
+                "use_cli_digest",
             ]:
                 pass
 
