@@ -2479,6 +2479,8 @@ class InstallApp(
 
         self.skip_preinstall_rbac = hasattr(args, "skip_preinstall_rbac") and args.skip_preinstall_rbac
 
+        self.useCliDigest = args.use_cli_digest if hasattr(args, "use_cli_digest") else False
+
         if hasattr(args, "mas_configure_ingress") and args.mas_configure_ingress:
             self.setParam("mas_configure_ingress", "true")
 
