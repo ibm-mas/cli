@@ -114,7 +114,7 @@ spec:
 
     # Disruptive suites ran in serial mode
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-core/phase4-disruptive.yml.j2', template_vars={'runAfter': ['coreapi-groupmgmt', 'coreapi-workspacemgmt', 'useractivation-overall', 'useractivation-expiresat', 'useractivation-inactivity', 'coreapi-dependencies', 'coreapi-usermgmt-v3', 'coreapi-other']}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-core/phase4-disruptive.yml.j2', template_vars={'runAfter': ['coreapi-groupmgmt', 'coreapi-workspacemgmt', 'useractivation-overall', 'useractivation-expiresat', 'useractivation-inactivity', 'manualroutemgmt', 'coreapi-dependencies', 'coreapi-usermgmt-v3', 'coreapi-other']}) | indent(4) }}
 
   finally:
     # 1. Run CV

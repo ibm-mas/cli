@@ -23,7 +23,7 @@ import urllib.error
 from unittest import mock
 
 # Add test directory to path for utils import
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def test_mirror_config_download_success(tmpdir):
@@ -36,20 +36,20 @@ def test_mirror_config_download_success(tmpdir):
     - Proceeds with mirror operation
     """
     config = MirrorTestConfig(
-        mode='m2d',
-        catalog_version='v9-260129-amd64',
-        release='9.1.x',
+        mode="m2d",
+        catalog_version="v9-260129-amd64",
+        release="9.1.x",
         root_dir=str(tmpdir),
         packages={},
         mock_oc_mirror_output=[
-            '2026/02/09 17:00:15  [INFO]   : 10 / 10 additional images mirrored successfully',
+            "2026/02/09 17:00:15  [INFO]   : 10 / 10 additional images mirrored successfully",
         ],
         mock_image_count=10,
         expect_success=True,
         timeout_seconds=30,
         env_vars={
-            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
-            'HOME': str(tmpdir),
+            "IBM_ENTITLEMENT_KEY": "test-entitlement-key",
+            "HOME": str(tmpdir),
         },
         config_exists_locally=False,  # Force download
     )
@@ -67,9 +67,9 @@ def test_mirror_config_download_failure(tmpdir):
     - Should fail gracefully
     """
     config = MirrorTestConfig(
-        mode='m2d',
-        catalog_version='v9-260129-amd64',
-        release='9.1.x',
+        mode="m2d",
+        catalog_version="v9-260129-amd64",
+        release="9.1.x",
         root_dir=str(tmpdir),
         packages={},
         mock_oc_mirror_output=[],
@@ -77,15 +77,15 @@ def test_mirror_config_download_failure(tmpdir):
         expect_success=False,
         timeout_seconds=30,
         env_vars={
-            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
-            'HOME': str(tmpdir),
+            "IBM_ENTITLEMENT_KEY": "test-entitlement-key",
+            "HOME": str(tmpdir),
         },
         config_exists_locally=False,
     )
 
     # Mock urllib to raise exception
-    with mock.patch('urllib.request.urlopen') as mock_urlopen:
-        mock_urlopen.side_effect = urllib.error.URLError('Network error')
+    with mock.patch("urllib.request.urlopen") as mock_urlopen:
+        mock_urlopen.side_effect = urllib.error.URLError("Network error")
 
         try:
             run_mirror_test(tmpdir, config)
@@ -104,15 +104,15 @@ def test_mirror_invalid_yaml_config(tmpdir):
     - Should fail during config parsing
     """
     # Create invalid YAML file
-    config_dir = tmpdir.join('.mas', 'mirror', 'configs')
+    config_dir = tmpdir.join(".mas", "mirror", "configs")
     config_dir.ensure(dir=True)
-    config_file = config_dir.join('v9-260129-amd64.yaml')
-    config_file.write('invalid: yaml: content: [unclosed')
+    config_file = config_dir.join("v9-260129-amd64.yaml")
+    config_file.write("invalid: yaml: content: [unclosed")
 
     config = MirrorTestConfig(
-        mode='m2d',
-        catalog_version='v9-260129-amd64',
-        release='9.1.x',
+        mode="m2d",
+        catalog_version="v9-260129-amd64",
+        release="9.1.x",
         root_dir=str(tmpdir),
         packages={},
         mock_oc_mirror_output=[],
@@ -120,8 +120,8 @@ def test_mirror_invalid_yaml_config(tmpdir):
         expect_success=False,
         timeout_seconds=30,
         env_vars={
-            'IBM_ENTITLEMENT_KEY': 'test-entitlement-key',
-            'HOME': str(tmpdir),
+            "IBM_ENTITLEMENT_KEY": "test-entitlement-key",
+            "HOME": str(tmpdir),
         },
         config_exists_locally=True,
     )
