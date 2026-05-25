@@ -522,7 +522,7 @@ spec:
           key: DEVOPS_MONGO_URI
           optional: true
 EOF
-
+          
           # Wait for pod to complete
           echo "Waiting for post-transition test to complete..."
           oc wait --for=condition=Ready pod/post-transition-ivt-${DEVOPS_BUILD_NUMBER} -n mas-${MAS_INSTANCE_ID}-pipelines --timeout=300s || true
@@ -543,7 +543,6 @@ EOF
           
           # Cleanup
           oc delete pod post-transition-ivt-${DEVOPS_BUILD_NUMBER} -n mas-${MAS_INSTANCE_ID}-pipelines --ignore-not-found=true
-        }
         }
 
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
