@@ -84,7 +84,7 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260527</span><br/><a href="v9-260527-amd64/">amd64</a> | <a href="v9-260527-s390x/">s390x</a> | <a href="v9-260527-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.16, 4.18 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
           <td>latest</td>
