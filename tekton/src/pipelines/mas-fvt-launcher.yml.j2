@@ -43,6 +43,14 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable synchronization with a running MAS uninstall pipeline"
+    - name: sync_with_switch_routing_mode
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with routing mode switch"
+    - name: mas_routing_mode
+      type: string
+      default: "subdomain"
+      description: "Target routing mode to switch to (subdomain or path)"
 
     # What to launch
     # -------------------------------------------------------------------------
@@ -1215,6 +1223,80 @@ spec:
       runAfter:
         - start-upgrade
 
+    # Routing Mode Switch Sync Point
+    # -------------------------------------------------------------------------
+    - name: pre-switch-routing-mode
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-pre-switch-routing-mode
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      when:
+        - input: $(params.sync_with_switch_routing_mode)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-upgrade
+
+    - name: start-switch-routing-mode
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-start-switch-routing-mode
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_routing_mode
+          value: $(params.mas_routing_mode)
+      when:
+        - input: $(params.sync_with_switch_routing_mode)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - pre-switch-routing-mode
+
+    - name: waitfor-switch-routing-mode
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap-v2
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-switch-routing-mode
+        - name: configmap_target_value
+          value: Completed,Succeeded,Failed
+      when:
+        - input: $(params.sync_with_switch_routing_mode)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - start-switch-routing-mode
+
+    - name: post-switch-routing-mode
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-post-switch-routing-mode
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      when:
+        - input: $(params.sync_with_switch_routing_mode)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-switch-routing-mode
+
     # Uninstall Sync Point
     # -------------------------------------------------------------------------
     # Before we uninstall we want to capture the state of the environment
@@ -1227,7 +1309,7 @@ spec:
         kind: Task
         name: mas-fvt-finalize
       runAfter:
-        - waitfor-upgrade
+        - post-switch-routing-mode
 
     - name: start-uninstall
       timeout: "0"

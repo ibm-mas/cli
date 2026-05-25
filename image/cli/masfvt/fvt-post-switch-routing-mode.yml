@@ -1,0 +1,113 @@
+---
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+    mas_routing_mode: "{{ lookup('env', 'MAS_ROUTING_MODE') }}"
+    image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
+    
+  tasks:
+    - name: "Debug - Post-Switch Routing Mode"
+      debug:
+        msg:
+          - "mas_instance_id ............. {{ mas_instance_id }}"
+          - "New routing mode ............ {{ mas_routing_mode }}"
+          - ""
+          - "Running post-switch routing mode validation tests"
+
+    - name: "Get Suite CR"
+      kubernetes.core.k8s_info:
+        api_version: core.mas.ibm.com/v1
+        kind: Suite
+        name: "{{ mas_instance_id }}"
+        namespace: "mas-{{ mas_instance_id }}-core"
+      register: suite_info
+
+    - name: "Fail if Suite not found"
+      fail:
+        msg: "Suite {{ mas_instance_id }} not found"
+      when: suite_info.resources | length == 0
+
+    - name: "Get current routing mode"
+      set_fact:
+        current_routing_mode: "{{ suite_info.resources[0].spec.settings.routingMode | default('subdomain') }}"
+
+    - name: "Verify routing mode was switched"
+      fail:
+        msg: "Routing mode was not switched. Current: {{ current_routing_mode }}, Expected: {{ mas_routing_mode }}"
+      when: current_routing_mode != mas_routing_mode
+
+    - name: "Display routing mode status"
+      debug:
+        msg:
+          - "✓ Routing mode successfully switched to: {{ current_routing_mode }}"
+
+    - name: "Get installed applications"
+      kubernetes.core.k8s_info:
+        api_version: apps.mas.ibm.com/v1
+        kind: SuiteApp
+        namespace: "mas-{{ mas_instance_id }}-core"
+        label_selectors:
+          - "mas.ibm.com/instanceId={{ mas_instance_id }}"
+      register: suite_apps
+
+    - name: "Build list of installed apps"
+      set_fact:
+        installed_apps: "{{ suite_apps.resources | map(attribute='spec.appId') | list }}"
+
+    - name: "Display installed applications"
+      debug:
+        msg:
+          - "Found {{ installed_apps | length }} installed applications"
+          - "Applications: {{ installed_apps }}"
+
+    - name: "Run post-switch tests for each installed app"
+      command: >
+        pytest -v
+        /opt/app-root/src/fvt-ibm-mas-{{ item }}/suites/pathbasedrouting/src/post_switch_test.py
+      environment:
+        INSTANCE_ID: "{{ mas_instance_id }}"
+        NAMESPACE: "mas-{{ mas_instance_id }}-{{ item }}"
+        WORKSPACE_ID: "masdev"
+        PRODUCT_ID: "ibm-mas-{{ item }}"
+        CURRENT_ROUTING_MODE: "{{ current_routing_mode }}"
+      register: app_test_results
+      loop: "{{ installed_apps }}"
+      ignore_errors: true
+      when: 
+        - item != 'core'  # Core tests handled separately
+
+    - name: "Run Core post-switch tests"
+      command: >
+        pytest -v
+        /opt/app-root/src/fvt-ibm-mas/suites/pathbasedrouting/src/post_switch_test.py
+      environment:
+        INSTANCE_ID: "{{ mas_instance_id }}"
+        NAMESPACE: "mas-{{ mas_instance_id }}-core"
+        WORKSPACE_ID: "masdev"
+        PRODUCT_ID: "ibm-mas"
+        CURRENT_ROUTING_MODE: "{{ current_routing_mode }}"
+      register: core_test_result
+      ignore_errors: true
+
+    - name: "Display test results"
+      debug:
+        msg:
+          - "Core tests: {{ 'PASSED' if core_test_result.rc == 0 else 'FAILED' }}"
+          - "App tests: {{ app_test_results.results | map(attribute='rc') | list }}"
+
+    - name: "Fail if any tests failed"
+      fail:
+        msg: "Post-switch routing mode validation tests failed"
+      when: >
+        (core_test_result.rc != 0) or
+        (app_test_results.results | selectattr('rc', 'ne', 0) | list | length > 0)
+
+    - name: "Post-switch validation complete"
+      debug:
+        msg:
+          - "✓ Routing mode successfully switched to {{ current_routing_mode }}"
+          - "✓ All routing mode validation tests passed"
+          - "✓ System is operational in {{ current_routing_mode }} mode"
+
+# Made with Bob
