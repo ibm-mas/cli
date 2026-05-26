@@ -14,6 +14,7 @@ PACKAGE_CONFIGS = [
     ("Optional Dependencies", "amlen", "amlen", "amlen_extras_version"),
     ("Optional Dependencies", "aiservice", "ibm-aiservice", "aiservice_version"),
     ("Optional Dependencies", "aiservice", "ibm-aiservice-tenant", "aiservice_version"),
+    ("Optional Dependencies", "aiservice", "opendatahub", "odh_version"),
     ("Optional Dependencies", "data-dictionary", "ibm-data-dictionary", "dd_version"),
     ("Optional Dependencies", "db2u-s11", "ibm-db2uoperator-s11", "db2u_version"),
     ("Optional Dependencies", "db2u-s12", "ibm-db2uoperator-s12", "db2u_version"),
