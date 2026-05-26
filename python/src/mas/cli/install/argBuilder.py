@@ -92,8 +92,8 @@ class installArgBuilderMixin:
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
-        if self.getParam("mas_permission_mode") != "":
-            command += f"  --permission-mode {self.getParam('mas_permission_mode')}{newline}"
+        if self.mas_permission_mode != "":
+            command += f"  --permission-mode {self.mas_permission_mode}{newline}"
 
         if self.getParam("mas_trust_default_cas").lower() == "false":
             command += f"  --disable-ca-trust{newline}"
@@ -112,6 +112,9 @@ class installArgBuilderMixin:
 
         if self.getParam("mas_use_service_mesh") != "":
             command += f"  --servicemesh \"{self.getParam('mas_use_service_mesh')}\"{newline}"
+
+        if self.getParam("mas_manual_route_mgmt").lower() == "true":
+            command += f"  --manual-routes{newline}"
 
         if self.getParam("mas_domain") != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
@@ -424,12 +427,6 @@ class installArgBuilderMixin:
             if self.aiserviceTenantSchedulingConfigFileLocal:
                 command += f'  --tenant-scheduling-config-file "{self.aiserviceTenantSchedulingConfigFileLocal}"{newline}'
 
-            if self.getParam("rsl_url") != "":
-                command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
-            if self.getParam("rsl_org_id") != "":
-                command += f"  --rsl-org-id \"{self.getParam('rsl_org_id')}\"{newline}"
-            if self.getParam("rsl_token") != "":
-                command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
             if self.getParam("rsl_ca_crt") != "":
                 command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 
@@ -611,7 +608,7 @@ class installArgBuilderMixin:
             command += f"  --dev-mode{newline}"
         if self.getParam("skip_pre_check") is True:
             command += f"  --skip-pre-check{newline}"
-        if self.getParam("skip_preinstall_rbac") == "true":
+        if self.skip_preinstall_rbac:
             command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"

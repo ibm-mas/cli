@@ -187,9 +187,7 @@ aiServiceArgGroup.add_argument(
 )
 aiServiceArgGroup.add_argument("--tenant-entitlement-start-date", dest="tenant_entitlement_start_date", required=False, help="Start date for AI Service tenant")
 aiServiceArgGroup.add_argument("--tenant-entitlement-end-date", dest="tenant_entitlement_end_date", required=False, help="End date for AI Service tenant")
-aiServiceArgGroup.add_argument("--rsl-url", dest="rsl_url", required=False, help="rsl url")
-aiServiceArgGroup.add_argument("--rsl-org-id", dest="rsl_org_id", required=False, help="org id for rsl")
-aiServiceArgGroup.add_argument("--rsl-token", dest="rsl_token", required=False, help="token for rsl")
+
 aiServiceArgGroup.add_argument(
     "--rsl-ca-crt", dest="rsl_ca_crt", required=False, help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)"
 )

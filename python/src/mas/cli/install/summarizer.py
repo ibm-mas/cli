@@ -101,14 +101,15 @@ class InstallSummarizerMixin:
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
-        if self.getParam("mas_permission_mode") != "":
-            self.printParamSummary("Permission Mode", "mas_permission_mode")
+        if self.mas_permission_mode != "":
+            self.printSummary("Permission Mode", self.mas_permission_mode)
+            # Only show "Apply Pre-Install MAS RBAC" when permission mode is defined
+            self.printSummary(
+                "Apply Pre-Install MAS RBAC",
+                "No" if self.skip_preinstall_rbac else "Yes",
+            )
         if self.getParam("mas_issuer_kind") != "":
             self.printParamSummary("Mas Certificate Issuer Kind", "mas_issuer_kind")
-        self.printSummary(
-            "Apply Pre-Install MAS RBAC",
-            "No" if self.getParam("skip_preinstall_rbac") == "true" else "Yes",
-        )
         if self.isAirgap():
             self.printSummary("Install Mode", "Disconnected Install")
         else:
@@ -142,6 +143,9 @@ class InstallSummarizerMixin:
         if self.getParam("mas_routing_mode") == "path":
             self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
+
+        print()
+        self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
 
         print()
         self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
@@ -381,10 +385,6 @@ class InstallSummarizerMixin:
             self.printH2("IBM WatsonX")
             self.printParamSummary("URL", "aiservice_watsonxai_url")
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
-
-            self.printH2("RSL")
-            self.printParamSummary("URL", "rsl_url")
-            self.printParamSummary("Organization ID", "rsl_org_id")
 
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
