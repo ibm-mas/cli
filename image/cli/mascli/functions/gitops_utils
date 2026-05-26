@@ -494,11 +494,12 @@ function sm_get_secret_arn() {
 
 
 # Manage customer-level MREF AES keystore password for Maximo Manage
-# This function ensures all MAS instances for a customer share the same MREF encryption password
-# to prevent backflow issues when moving data between environments (prod/dev/test).
+# Manages customer-level MREF (Maximo Real Estate and Facilities) AES keystore password
+# to ensure all environments for a customer share the same encryption password.
+# This prevents backflow issues when moving data between prod/dev/test environments.
 #
 # The function:
-# 1. Checks if customer-level password exists at ibm-customer/{ICN}/manage_mref_keystore_password
+# 1. Checks if customer-level password exists at ibm-customer/{ICN}/facilities/manage_mref_keystore_password
 # 2. If not, checks for legacy instance-level password and migrates it
 # 3. If neither exists, generates a new secure alphanumeric password
 # 4. Stores password at customer level for reuse across all customer instances
@@ -511,8 +512,8 @@ function sm_get_secret_arn() {
 #   $5 - SECRETS_KEY_SEPERATOR
 #
 # Returns:
-#   Sets MREF_KEYSTORE_PASSWORD environment variable
-#   Returns 0 on success, 1 on failure
+#   0 on success, 1 on failure
+#   Does NOT export password as environment variable
 function manage_customer_mref_password() {
   local ICN="$1"
   local ACCOUNT_ID="$2"
@@ -529,9 +530,9 @@ function manage_customer_mref_password() {
   echo_h2 "Managing Customer-Level MREF AES Keystore Password"
   echo "- Customer ICN: ${ICN}"
   
-  # Define secret paths following customer-level secret pattern: ibm-customer/{ICN}/...
-  local CUSTOMER_SECRET_NAME="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}manage_mref_keystore_password"
-  local LEGACY_SECRET_NAME="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_mref_keystore_password"
+  # Define secret paths following customer-level secret pattern: ibm-customer/{ICN}/facilities/...
+  local CUSTOMER_SECRET_NAME="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage_mref_keystore_password"
+  local LEGACY_SECRET_NAME="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage_mref_keystore_password"
   
   # Check if customer-level secret exists
   echo "- Checking for customer-level secret: ${CUSTOMER_SECRET_NAME}"
@@ -541,7 +542,6 @@ function manage_customer_mref_password() {
   
   if [[ -n "${MREF_PASSWORD}" ]] && [[ "${MREF_PASSWORD}" != "null" ]]; then
     echo "- Customer-level MREF password found, reusing existing password"
-    export MREF_KEYSTORE_PASSWORD="${MREF_PASSWORD}"
     return 0
   fi
   
@@ -571,7 +571,6 @@ function manage_customer_mref_password() {
   
   if [[ $? -eq 0 ]]; then
     echo "- Customer-level MREF password successfully stored"
-    export MREF_KEYSTORE_PASSWORD="${MREF_PASSWORD}"
     return 0
   else
     echo "ERROR: Failed to store customer-level MREF password"

@@ -27,9 +27,6 @@ manage_logging_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_LOGGING_SEC
 {{ MAS_APP_GLOBAL_SECRETS | indent(2) }}
 {%- endif %}
 
-{%- if MREF_KEYSTORE_PASSWORD is defined and MREF_KEYSTORE_PASSWORD !='' %}
-mas_app_settings_mref_keystore_password: {{ MREF_KEYSTORE_PASSWORD }}
-{%- endif %}
 
 {%- if MANAGE_UPDATE_SCHEDULE is defined and MANAGE_UPDATE_SCHEDULE !='' %}
 manage_update_schedule: {{ MANAGE_UPDATE_SCHEDULE }}
