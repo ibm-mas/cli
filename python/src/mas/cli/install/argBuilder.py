@@ -348,6 +348,11 @@ class installArgBuilderMixin:
             if self.getParam("mas_ws_facilities_storage_userfiles_size") != "":
                 command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
 
+            if self.getParam("mas_ws_facilities_properties_file_local") != "":
+                command += f"  --facilities-properties-file \"{self.getParam('mas_ws_facilities_properties_file_local')}\"{newline}"
+            if self.getParam("mas_ws_facilities_properties_secret_name") != "":
+                command += f"  --facilities-properties-secret-name \"{self.getParam('mas_ws_facilities_properties_secret_name')}\"{newline}"
+
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
         if self.installAIService:
