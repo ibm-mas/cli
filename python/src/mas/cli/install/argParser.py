@@ -818,6 +818,19 @@ facilitiesArgGroup.add_argument(
     help="Storage size for Facilities user files",
     default=50,
 )
+facilitiesArgGroup.add_argument(
+    "--facilities-properties-file",
+    dest="mas_ws_facilities_properties_file_local",
+    required=False,
+    help="Path to custom FACILITIES.properties file to upload as secret",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-properties-secret-name",
+    dest="mas_ws_facilities_properties_secret_name",
+    required=False,
+    help="Custom name for the Facilities properties secret (default: facilities-properties)",
+    default="facilities-properties",
+)
 
 # Open Data Hub
 # -----------------------------------------------------------------------------
