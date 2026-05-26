@@ -147,6 +147,8 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self._isSNO: bool | None = None
         self._isAirgap: bool | None = None
+        self.useCliDigest: bool = False
+        self.cliDigest: str | None = None
 
         # Until we connect to the cluster we don't know what architecture it's worker nodes are
         self.architecture: str | None = None
@@ -255,44 +257,90 @@ class BaseApp(PrintMixin, PromptMixin):
         if path.exists(self.tektonDefsWithDigestPath):
             logger.debug(f"We have already generated {self.tektonDefsWithDigestPath}")
             self.tektonDefsPath = self.tektonDefsWithDigestPath
-        elif isAirgapInstall(self.dynamicClient):
-            # We need to modify the tekton definitions to
+        elif isAirgapInstall(self.dynamicClient) or self.useCliDigest:
+            # We need to modify the tekton definitions to use image digest
             imageWithoutDigest = f"quay.io/ibmmas/cli:{self.version}"
-            self.printH1("Disconnected OpenShift Preparation")
-            self.printDescription(
-                [f"Unless the {imageWithoutDigest} image is accessible from your cluster the MAS CLI container image must be present in your mirror registry"]
-            )
-            cmdArray = ["skopeo", "inspect", f"docker://{imageWithoutDigest}"]
-            logger.info(f"Skopeo inspect command: {' '.join(cmdArray)}")
-            skopeoResult = runCmd(cmdArray)
-            if skopeoResult.successful():
-                skopeoData = json.loads(skopeoResult.out)
-                logger.info(f"Skopeo Data for {imageWithoutDigest}: {skopeoData}")
-                if "Digest" not in skopeoData:
-                    self.fatalError("Recieved bad data inspecting CLI manifest to determine digest")
-                cliImageDigest = skopeoData["Digest"]
-            else:
-                warning = f"Unable to retrieve image digest for {imageWithoutDigest} ({skopeoResult.rc})"
-                self.printWarning(warning)
-                logger.warning(warning)
-                logger.warning(skopeoResult.err)
-                if self.noConfirm:
-                    self.fatalError("Unable to automatically determine CLI image digest and --no-confirm flag has been set")
+
+            if self.useCliDigest:
+                self.printH1("CLI Digest Preparation")
+                self.printDescription(
+                    [f"Converting Tekton pipeline definitions to use {imageWithoutDigest} image digest instead of tag to avoid registry QPS issues"]
+                )
+
+                # Check if user provided a specific digest
+                if self.cliDigest:
+                    logger.info(f"Using user-provided CLI image digest: {self.cliDigest}")
+                    cliImageDigest = self.cliDigest
                 else:
-                    cliImageDigest = self.promptForString(f"Enter {imageWithoutDigest} image digest")
+                    logger.info(f"--use-cli-digest flag is set, will lookup digest for {imageWithoutDigest}")
+                    # Auto-lookup the digest
+                    cmdArray = ["skopeo", "inspect", f"docker://{imageWithoutDigest}"]
+                    logger.info(f"Skopeo inspect command: {' '.join(cmdArray)}")
+                    skopeoResult = runCmd(cmdArray)
+                    if skopeoResult.successful():
+                        skopeoData = json.loads(skopeoResult.out)
+                        logger.debug(f"Skopeo Data for {imageWithoutDigest}: {skopeoData}")
+                        if "Digest" not in skopeoData:
+                            self.fatalError("Recieved bad data inspecting CLI manifest to determine digest")
+                        cliImageDigest = skopeoData["Digest"]
+                        logger.info(f"Successfully retrieved CLI image digest: {cliImageDigest}")
+                    else:
+                        warning = f"Unable to retrieve image digest for {imageWithoutDigest} ({skopeoResult.rc})"
+                        self.printWarning(warning)
+                        logger.warning(warning)
+                        logger.warning(skopeoResult.err)
+                        if self.noConfirm:
+                            self.fatalError("Unable to automatically determine CLI image digest and --no-confirm flag has been set")
+                        else:
+                            cliImageDigest = self.promptForString(f"Enter {imageWithoutDigest} image digest")
+                            logger.info(f"User provided CLI image digest: {cliImageDigest}")
+            else:
+                # Airgap install
+                self.printH1("Disconnected OpenShift Preparation")
+                self.printDescription(
+                    [
+                        f"Unless the {imageWithoutDigest} image is accessible from your cluster the MAS CLI container image must be present in your mirror registry"
+                    ]
+                )
+                logger.info(f"Airgap install detected, will lookup digest for {imageWithoutDigest}")
+
+                cmdArray = ["skopeo", "inspect", f"docker://{imageWithoutDigest}"]
+                logger.info(f"Skopeo inspect command: {' '.join(cmdArray)}")
+                skopeoResult = runCmd(cmdArray)
+                if skopeoResult.successful():
+                    skopeoData = json.loads(skopeoResult.out)
+                    logger.debug(f"Skopeo Data for {imageWithoutDigest}: {skopeoData}")
+                    if "Digest" not in skopeoData:
+                        self.fatalError("Recieved bad data inspecting CLI manifest to determine digest")
+                    cliImageDigest = skopeoData["Digest"]
+                    logger.info(f"Successfully retrieved CLI image digest: {cliImageDigest}")
+                else:
+                    warning = f"Unable to retrieve image digest for {imageWithoutDigest} ({skopeoResult.rc})"
+                    self.printWarning(warning)
+                    logger.warning(warning)
+                    logger.warning(skopeoResult.err)
+                    if self.noConfirm:
+                        self.fatalError("Unable to automatically determine CLI image digest and --no-confirm flag has been set")
+                    else:
+                        cliImageDigest = self.promptForString(f"Enter {imageWithoutDigest} image digest")
+                        logger.info(f"User provided CLI image digest: {cliImageDigest}")
 
             # Overwrite the tekton definitions with one that uses the looked up image digest
             imageWithDigest = f"quay.io/ibmmas/cli@{cliImageDigest}"
             self.printHighlight(f"\nConverting Tekton definitions to use {imageWithDigest}")
+            logger.info(f"Converting from tag-based image ({imageWithoutDigest}) to digest-based image ({imageWithDigest})")
+
             with open(self.tektonDefsPath, "r") as file:
                 tektonDefsWithoutDigest = file.read()
 
             tektonDefsWithDigest = tektonDefsWithoutDigest.replace(imageWithoutDigest, imageWithDigest)
 
+            logger.info(f"Writing Tekton definitions with digest to {self.tektonDefsWithDigestPath}")
             with open(self.tektonDefsWithDigestPath, "w") as file:
                 file.write(tektonDefsWithDigest)
 
             self.tektonDefsPath = self.tektonDefsWithDigestPath
+            logger.info("Successfully created Tekton definitions with CLI digest")
 
     @logMethodCall
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> List[str]:
