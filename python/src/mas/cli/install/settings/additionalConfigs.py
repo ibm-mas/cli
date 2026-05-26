@@ -220,18 +220,18 @@ class AdditionalConfigsMixin:
             self.db2LicenseFileSecret = self.addFilesToSecret(db2LicenseFileSecret, self.db2LicenseFileLocal, "")
         else:
             self.db2LicenseFileSecret = None
-    
+
     def facilitiesPropertiesFile(self) -> None:
         """Handle Facilities properties file upload"""
         self.facilitiesPropertiesSecret = None
         facilitiesPropertiesFileLocal = self.getParam("mas_ws_facilities_properties_file_local")
-        
+
         if facilitiesPropertiesFileLocal and facilitiesPropertiesFileLocal != "":
             # Get custom secret name or use default
             secretName = self.getParam("mas_ws_facilities_properties_secret_name")
             if not secretName or secretName == "":
                 secretName = "facilities-properties"
-            
+
             facilitiesPropertiesSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": secretName}}
             self.setParam("mas_ws_facilities_properties_file", "/workspace/facilities/FACILITIES.properties")
             self.setParam("mas_ws_facilities_properties_secret", secretName)

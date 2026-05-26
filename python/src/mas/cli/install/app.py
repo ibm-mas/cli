@@ -1541,14 +1541,14 @@ class InstallApp(
                         "Real Estate and Facilities AES Vault Secret Name",
                         "mas_ws_facilities_vault_secret",
                     )
-                
+
                 # Prompt for custom FACILITIES.properties file
                 if self.yesOrNo("Upload custom FACILITIES.properties file"):
                     self.printDescription(
                         [
                             "Provide the path to your custom FACILITIES.properties file.",
                             "This file will be uploaded as a secret in OpenShift.",
-                            "If you choose not to upload a custom file, the default FACILITIES.properties will be used."
+                            "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
                         ]
                     )
                     facilitiesPropertiesFile = self.promptForString(
@@ -1558,13 +1558,11 @@ class InstallApp(
                     if facilitiesPropertiesFile and path.exists(facilitiesPropertiesFile):
                         self.setParam("mas_ws_facilities_properties_file_local", facilitiesPropertiesFile)
                         self.setParam("mas_ws_facilities_custom_properties", "true")
-                        
+
                         # Prompt for custom secret name
                         if self.yesOrNo("Specify a custom name for the secret"):
                             customSecretName = self.promptForString(
-                                "Secret name (default: facilities-properties)",
-                                "mas_ws_facilities_properties_secret_name",
-                                default="facilities-properties"
+                                "Secret name (default: facilities-properties)", "mas_ws_facilities_properties_secret_name", default="facilities-properties"
                             )
                             if customSecretName and customSecretName != "":
                                 self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
