@@ -73,7 +73,10 @@ class InstallSummarizerMixin:
         self.printParamSummary("Service Account", "service_account_name")
         self.printParamSummary("Image Pull Policy", "image_pull_policy")
         if self.useCliDigest:
-            self.printParamSummary("Use CLI Digest", "Yes")
+            if self.cliDigest:
+                self.printSummary("Use CLI Digest", self.cliDigest)
+            else:
+                self.printParamSummary("Use CLI Digest", "Yes (auto-lookup)")
 
         self.printSummary(
             "Skip Pre-Install Healthcheck",

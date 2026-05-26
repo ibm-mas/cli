@@ -2480,7 +2480,27 @@ class InstallApp(
 
         self.skip_preinstall_rbac = hasattr(args, "skip_preinstall_rbac") and args.skip_preinstall_rbac
 
-        self.useCliDigest = args.use_cli_digest if hasattr(args, "use_cli_digest") else False
+        # Handle --use-cli-digest parameter which can be:
+        # - False (not provided)
+        # - True (provided without value, auto-lookup digest)
+        # - "sha256:..." (provided with specific digest value)
+        if hasattr(args, "use_cli_digest"):
+            use_cli_digest_value = args.use_cli_digest
+            if use_cli_digest_value is False:
+                # Flag not provided
+                self.useCliDigest = False
+                self.cliDigest = None
+            elif use_cli_digest_value is True:
+                # Flag provided without value - auto-lookup digest
+                self.useCliDigest = True
+                self.cliDigest = None
+            else:
+                # Flag provided with digest value
+                self.useCliDigest = True
+                self.cliDigest = use_cli_digest_value
+        else:
+            self.useCliDigest = False
+            self.cliDigest = None
 
         if hasattr(args, "mas_configure_ingress") and args.mas_configure_ingress:
             self.setParam("mas_configure_ingress", "true")

@@ -1575,8 +1575,10 @@ otherArgGroup.add_argument(
     "--use-cli-digest",
     dest="use_cli_digest",
     required=False,
-    action="store_true",
-    help="Use CLI image digest instead of tag in Tekton pipelines",
+    nargs="?",
+    const=True,
+    default=False,
+    help="Use CLI image digest instead of tag in Tekton pipelines. Optionally provide a specific digest (e.g., sha256:abc123...), or omit the value to auto-lookup the digest.",
 )
 
 otherArgGroup.add_argument("-h", "--help", action="help", default=False, help="Show this help message and exit")
