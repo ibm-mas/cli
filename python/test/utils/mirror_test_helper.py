@@ -182,6 +182,7 @@ class MirrorTestHelper:
                 "db2u_version": "11.5.9.0+123",
                 "amlen_extras_version": "1.0.0",
                 "aiservice_version": {"9.1.x": "1.0.0"},
+                "aiservice_tenant_version": "9.2.x",
                 "odh_version": "2.32.0",
                 "dd_version": "1.0.0",
                 "mongo_extras_version_default": "6.0.0",
