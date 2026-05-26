@@ -2516,6 +2516,14 @@ class InstallApp(
         else:
             self.nonInteractiveMode()
 
+        # Set default routing mode to 'path' for MAS 9.2+ if not explicitly configured
+        # This applies to both interactive and non-interactive modes
+        if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
+            if self.getParam("mas_routing_mode") == "":
+                self.setParam("mas_routing_mode", "path")
+                # Set default ingress controller for path-based routing if not already set
+                if self.getParam("mas_ingress_controller_name") == "":
+                    self.setParam("mas_ingress_controller_name", "default")
         # After we've configured the basic inputs, we can calculate these ones
         self.setIoTStorageClasses()
         self.setMonitorInstallOrder()
