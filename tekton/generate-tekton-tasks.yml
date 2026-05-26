@@ -95,6 +95,9 @@
         - mas-fvt-pre-upgrade
         - mas-fvt-post-update
         - mas-fvt-config-helper
+        - mas-fvt-pre-switch-routing-mode
+        - mas-fvt-start-switch-routing-mode
+        - mas-fvt-post-switch-routing-mode
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
