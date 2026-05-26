@@ -466,9 +466,9 @@ spec:
           echo "Updating DB2 heap sizes in ${DB_CONFIG}"
           if [ -f "$DB_CONFIG" ]; then
             yq eval '.spec.config.DB2_FMP_COMM_HEAPSZ = "8192"' -i "$DB_CONFIG"
-            yq eval '.spec.config.APPLHEAPSZ = "2048"' -i "$DB_CONFIG"
+            yq eval '.spec.config.APPLHEAPSZ = "2048 Automatic"' -i "$DB_CONFIG"
             echo "✓ Updated DB2_FMP_COMM_HEAPSZ to 8192"
-            echo "✓ Updated APPLHEAPSZ to 2048"
+            echo "✓ Updated APPLHEAPSZ to '2048 Automatic'"
           else
             echo "WARNING: ${DB_CONFIG} not found"
           fi
