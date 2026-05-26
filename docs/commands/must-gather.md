@@ -194,7 +194,7 @@ mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --m
 mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst2" --mas-app-ids "core,manage"
 
 # Target Manage pods only in inst3
-mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst3" --mas-app-ids "manage" --pods_only
+mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst3" --mas-app-ids "manage" --pods-only
 ```
 
 **Generate MAS quick summary report for specific MAS instance:**  By default, must-gather includes a MAS quick summary report in the `mas-quick-summary` folder, providing compiled information to help identify common issues in the environment. When used with the flags `--summary-only`, `--no-ocp`, `--no-dependencies`, `--no-sls`, and `--mas-instance-ids` to target a specific namespace or MAS application, must-gather focuses the collection for faster execution while still including the MAS quick summary.
