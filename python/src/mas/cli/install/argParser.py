@@ -822,7 +822,7 @@ facilitiesArgGroup.add_argument(
     "--facilities-properties-file",
     dest="mas_ws_facilities_properties_file_local",
     required=False,
-    help="Path to custom FACILITIES.properties file to upload as secret",
+    help="Path to the custom FACILITIES.properties file to upload as secret",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-properties-secret-name",
