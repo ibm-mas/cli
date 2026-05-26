@@ -308,6 +308,16 @@ spec:
         
         echo "AWS secret created/updated successfully: ${SECRET_NAME}"
 
+        # Run mas pre-install before copying files
+        echo "Running mas pre-install for instance $MAS_INSTANCE_ID with channel $MAS_CHANNEL"
+        mas pre-install -i $MAS_INSTANCE_ID --mas-channel $MAS_CHANNEL --permission-mode cluster
+        return_code=$?
+        if [ $return_code -ne 0 ]; then
+          echo "mas pre-install failed with error: $return_code"
+          exit $return_code
+        fi
+        echo "mas pre-install completed successfully"
+
         export TARGET_LOCAL_DIR="/tmp/target_repo"
         mkdir -p $TARGET_LOCAL_DIR
         cd $TARGET_LOCAL_DIR
