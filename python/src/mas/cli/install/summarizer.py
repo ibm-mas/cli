@@ -341,6 +341,8 @@ class InstallSummarizerMixin:
                 "mas_ws_facilities_storage_userfiles_mode",
             )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
+            self.printParamSummary("  + Properties File", "mas_ws_facilities_properties_file_local")
+            self.printParamSummary("  + Properties Secret Name", "mas_ws_facilities_properties_secret_name")
             if self.getParam("db2_action_facilities") == "none":
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
