@@ -10,7 +10,7 @@ from mg.utils import printHeader
 
 def processClusterVersion(output_dir):
     clusterversion_file = output_dir + "/resources/_cluster/clusterversions.txt"
-    with open(clusterversion_file, 'r') as file:
+    with open(clusterversion_file, "r") as file:
         clusterversion = file.read()
     print(clusterversion)
 
@@ -20,22 +20,25 @@ def processNode(output_dir, node, node_table):
     nodename = node.rsplit()[0]
     node_yaml_file = output_dir + "/resources/_cluster/nodes/" + nodename + ".yaml"
 
-    with open(node_yaml_file, 'r') as file:
+    with open(node_yaml_file, "r") as file:
         node_yaml = yaml.safe_load(file)
 
     # Extract the conditions we are interested in
-    condition_types = ['MemoryPressure', 'DiskPressure', 'PIDPressure', 'Ready']
-    condition_statuses = {x['type']: {
-        "status": x['status']} for x in node_yaml['status']['conditions'] if x['type'] in condition_types}
+    condition_types = ["MemoryPressure", "DiskPressure", "PIDPressure", "Ready"]
+    condition_statuses = {x["type"]: {"status": x["status"]} for x in node_yaml["status"]["conditions"] if x["type"] in condition_types}
     condition_statuses
 
-    node_table.add_row([nodename,
-                        node_yaml['status']['capacity']['cpu'],
-                        node_yaml['status']['capacity']['memory'],
-                        condition_statuses['Ready']['status'],
-                        condition_statuses['MemoryPressure']['status'],
-                        condition_statuses['DiskPressure']['status'],
-                        condition_statuses['PIDPressure']['status']])
+    node_table.add_row(
+        [
+            nodename,
+            node_yaml["status"]["capacity"]["cpu"],
+            node_yaml["status"]["capacity"]["memory"],
+            condition_statuses["Ready"]["status"],
+            condition_statuses["MemoryPressure"]["status"],
+            condition_statuses["DiskPressure"]["status"],
+            condition_statuses["PIDPressure"]["status"],
+        ]
+    )
 
 
 def processNodes(output_dir):

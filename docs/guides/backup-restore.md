@@ -16,17 +16,21 @@ This guide provides comprehensive information on backing up and restoring IBM Ma
     Run the backup processes using v19.0.0 or later to ensure that you can successfully run a restore. You cannot run a restore process using v19.0.0 or later from back ups created on an older version.
 
 **Supported MAS versions**
-  - MAS 9.1.x
-  - MAS 9.0.x (in testing)
+
+- MAS 9.1.x
+
+Note: MAS 9.0.x (Not supported yet, its in testing)
 
 **User Permissions Required**
-  - `oc` CLI with cluster admin permissions
-  - `mas` CLI with appropriate permissions
-  - Access to Tekton pipeline resources
+
+- `oc` CLI with cluster admin permissions
+- `mas` CLI with appropriate permissions
+- Access to Tekton pipeline resources
 
 **Quick Navigation:**
-  - [Backup Overview](#backup-overview) - Information about backing up MAS instances
-  - [Restore Overview](#restore-overview) - Information about restoring MAS instances
+
+- [Backup Overview](#backup-overview) - Information about backing up MAS instances
+- [Restore Overview](#restore-overview) - Information about restoring MAS instances
 
 
 Backup Overview
@@ -52,9 +56,9 @@ The backup creates a compressed archive for each supported component that can be
     Be aware of the following limitations before performing a backup:
 
 - **MongoDB Community Edition only** - The backup process supports only in-cluster MongoDB Community Edition. External or enterprise MongoDB deployments are not backed up.
-- **Db2 standalone operator only** - The backup process supports only the in-cluster standalone Db2 operator. Other Db2 operator implementations are not included.
+- **Db2 standalone operator only** - The backup process supports only the in-cluster standalone Db2 operator with Db2Cluster(Db2uInstance is not supported yet). Other Db2 operator implementations are not included.
 - **Certificate Manager (RedHat only)** - Certificate Manager backup is supported only for RedHat Certificate Manager. Other certificate manager implementations are not included.
-- **No support for some apps** - Only Manage application is supported for now. Other MAS applications (Facilities, Monitor, IoT, Predict, etc.) are not supported, but will be added in later releases.
+- **No support for some apps** - Only Manage and Facilities applications are supported for now. Other MAS applications (Monitor, IoT, Predict, etc.) are not supported, but will be added in later releases.
 - **No OpenShift cluster state** - The backup does not capture the full OpenShift cluster state, node configurations, or cluster-level resources outside of MAS namespaces.
 - **No IBM Cloud Pak for Data backups** - The backup process does not support backing up CP4D itself.
 - **No Incremental backups** - Each backup is a full backup; incremental or differential backups are not supported.
@@ -100,10 +104,12 @@ s3://bucket-name/ (or Artfactory - https://na.artifactory.swg-devops.com/artifac
     ├── mas-<instanceid>-backup-<backupversion>-catalog.tar.gz
     ├── mas-<instanceid>-backup-<backupversion>-certmanager.tar.gz
     ├── mas-<instanceid>-backup-<backupversion>-db2u-manage.tar.gz
+    ├── mas-<instanceid>-backup-<backupversion>-db2u-facilities.tar.gz
     ├── mas-<instanceid>-backup-<backupversion>-mongoce.tar.gz
     ├── mas-<instanceid>-backup-<backupversion>-sls.tar.gz
-    └── mas-<instanceid>-backup-<backupversion>-suite.tar.gz
+    ├── mas-<instanceid>-backup-<backupversion>-suite.tar.gz
     ├── mas-<instanceid>-backup-<backupversion>-app-manage.tar.gz
+    └── mas-<instanceid>-backup-<backupversion>-app-facilities.tar.gz
 ```
 
 Each backup archive follows the naming convention: `<instance-id>-backup-<timestamp>-<component>.tar.gz`
@@ -119,6 +125,8 @@ Each backup archive follows the naming convention: `<instance-id>-backup-<timest
 | `suite.tar.gz` | MAS Core configuration and data |
 | `db2u-manage.tar.gz` | Manage Db2 database backup (if included) |
 | `app-manage.tar.gz` | Manage application configuration (if included) |
+| `db2u-facilities.tar.gz` | Facilities Db2 database backup (if included) |
+| `app-facilities.tar.gz` | Facilities application configuration (if included) |
 
 When to Backup
 -------------------------------------------------------------------------------
@@ -212,26 +220,29 @@ The backup captures certificate configurations but not the actual certificates, 
 The backup process supports backing up MAS application resources and persistent volume data. Currently supported:
 
 - **Manage Application** - Backs up Manage namespace resources and persistent volume data
+- **Facilities Application** - Backs up Facilities namespace resources and persistent volume data
 
-When backing up a Manage application, the following resources are included:
+When backing up a Manage or Facilities application, the following resources are included:
 
 **Namespace Resources**:
-- `ManageApp` custom resource
-- `ManageWorkspace` custom resource
-- Encryption secrets (dynamically determined from ManageWorkspace CR)
+- Application custom resource (`ManageApp` or `FacilitiesApp`)
+- Workspace custom resource (`ManageWorkspace` or `FacilitiesWorkspace`)
+- Encryption secrets (dynamically determined from Workspace CR)
 - Certificates with `mas.ibm.com/instanceId` label
 - Subscription and OperatorGroup
 - IBM entitlement secret
 - All referenced secrets (auto-discovered)
 
-**Persistent Volume Data** (if configured in ManageWorkspace CR):
+**Persistent Volume Data** (if configured in Workspace CR):
 - All persistent volumes defined in `spec.settings.deployment.persistentVolumes`
 - Data backed up as compressed tar.gz archives
 - Each PVC's mount path archived separately
 - Common PVCs include JMS server data, custom fonts, and attachments
 
 !!! note
-    Application backup is optional and configured during the interactive backup process or via command-line parameters (`--backup-manage-app`, `--manage-workspace-id`).
+    Application backup is optional and configured during the interactive backup process or via command-line parameters:
+    - Manage: `--backup-manage-app`, `--manage-workspace-id`
+    - Facilities: `--backup-facilities-app`, `--facilities-workspace-id`
 
 ### Db2 Database Backup
 
@@ -258,7 +269,9 @@ The backup process supports backing up Db2 databases used by MAS applications. W
     If your Db2 instance uses circular logging (the default configuration), you **must** use offline backup type. Online backups require archive logging to be enabled via `LOGARCHMETH1` and `LOGARCHMETH2` configuration.
 
 !!! note
-    Db2 backup is optional and configured during the interactive backup process or via command-line parameters (`--backup-manage-db`, `--manage-db2-namespace`, `--manage-db2-instance-name`, `--manage-db2-backup-type`).
+    Db2 backup is optional and configured during the interactive backup process or via command-line parameters:
+    - Manage: `--backup-manage-db`, `--manage-db2-namespace`, `--manage-db2-instance-name`, `--manage-db2-backup-type`
+    - Facilities: `--backup-facilities-db`, `--facilities-db2-namespace`, `--facilities-db2-instance-name`, `--facilities-db2-backup-type`
 
 
 Backup Modes
@@ -443,7 +456,41 @@ mas backup \
 !!! note
     When using an external Db2 database, omit the `--backup-manage-db` flag. The database should be backed up separately using your organization's database backup procedures.
 
-### Scenario 8: Backup for Troubleshooting (No Cleanup)
+### Scenario 7: Backup with Facilities Application
+Backup MAS instance including the Facilities application and its database:
+
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-storage-size 100Gi \
+  --backup-facilities-app \
+  --facilities-workspace-id masdev \
+  --backup-facilities-db \
+  --facilities-db2-namespace db2u \
+  --facilities-db2-instance-name mas-inst1-masdev-facilities \
+  --facilities-db2-backup-type offline \
+  --no-confirm
+```
+
+!!! tip
+    When backing up Facilities with Db2, ensure sufficient backup storage (100Gi+ recommended) to accommodate application PV data and database backups. Use offline backup type if your Db2 instance uses the default circular logging configuration.
+
+### Scenario 8: Backup with Facilities Application Only (External Db2)
+Backup the Facilities application without backing up its database:
+
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-storage-size 50Gi \
+  --backup-facilities-app \
+  --facilities-workspace-id masdev \
+  --no-confirm
+```
+
+!!! note
+    When using an external Db2 database, omit the `--backup-facilities-db` flag. The database should be backed up separately using your organization's database backup procedures.
+
+### Scenario 9: Backup for Troubleshooting (No Cleanup)
 
 **Environment:**
 - Backup for troubleshooting purposes
@@ -464,7 +511,7 @@ mas backup \
 !!! note
     Use `--no-clean-backup` when you need to inspect the backup workspace contents for troubleshooting. Remember to manually clean up the workspaces later to free up storage.
 
-### Scenario 9: Minimal Backup (Skip Pre-Check)
+### Scenario 10: Minimal Backup (Skip Pre-Check)
 
 **Environment:**
 - Emergency backup scenario
@@ -779,6 +826,8 @@ The restore process handles the following components:
 - **Suite-level BASCfg/DROCfg** - Restores or provides custom Suite-level DRO/BAS configuration with optional URL override
 - **Manage Database** - Optionally restores incluster Db2 database associated with Manage workspace
 - **Manage Application** - Optionally restores Manage application namespace resources and persistent volume data
+- **Facilities Database** - Optionally restores incluster Db2 database associated with Facilities workspace
+- **Facilities Application** - Optionally restores Facilities application namespace resources and persistent volume data
 - **Grafana** - Optionally installs Grafana for monitoring (not part of backup)
 - **Data Reporter Operator (DRO)** - Optionally installs DRO (not part of backup), when DRO is installed, an auto-generated Suite-level BASCfg CR will be applied automatically.
 
@@ -794,7 +843,7 @@ The restore process handles the following components:
 - **Certificate Manager (RedHat only)** - Certificate Manager restore is supported only for RedHat Certificate Manager. Other implementations are not handled during restore.
 - **Same MAS version required** - Restoring a backup to a cluster running a different MAS version may result in incompatibilities. It is strongly recommended to restore to the same MAS version as the backup source.
 - **Same MAS Instance ID required** - It is strongly recommended to restore to the same MAS instance ID as the backup source.
-- **Manage application only for app restore** - Only the Manage application is supported. Other MAS applications will be supported in future releases.
+- **Manage and Facilities applications only for app restore** - Only the Manage and Facilities applications are supported. Other MAS applications will be supported in future releases.
 - **Tekton pipeline dependency** - The restore process requires Tekton pipelines to be available and functional on the target cluster.
 - **Target cluster must be pre-provisioned** - The restore process does not provision a new OpenShift cluster. A running, accessible cluster with sufficient resources must already exist.
 - **Storage class compatibility** - The target cluster must have compatible storage classes. If storage classes differ from the source cluster, overrides must be explicitly configured.
@@ -837,8 +886,10 @@ When downloading from S3 or Artifactory, the `download_backup_archive` role sele
 | `include_sls_archive` | `false` | Download the SLS backup archive |
 | `include_manage_db_archive` | `false` | Download the Manage Db2 database backup archive |
 | `include_manage_app_archive` | `false` | Download the Manage application backup archive |
+| `include_facilities_db_archive` | `false` | Download the Facilities Db2 database backup archive |
+| `include_facilities_app_archive` | `false` | Download the Facilities application backup archive |
 
-These parameters are automatically set by the restore pipeline based on the restore configuration (e.g. `--restore-manage-app`, `--restore-manage-db`, `--include-sls`), so you do not need to set them manually when using the `mas restore` command.
+These parameters are automatically set by the restore pipeline based on the restore configuration (e.g. `--restore-manage-app`, `--restore-manage-db`, `--restore-facilities-app`, `--restore-facilities-db`, `--include-sls`), so you do not need to set them manually when using the `mas restore` command.
 
 ### Ansible DevOps Integration
 

@@ -8,38 +8,40 @@ repo_url: https://github.com/ibm-mas/cli
 edit_uri: blob/master/docs/
 
 nav:
-  - "Guides":
-      - "Image Mirroring": guides/image-mirroring.md
-      - "Image Validation": guides/image-validation.md
+  - "OpenShift Management":
+      - "IBM Cloud ROKS": guides/provision-roks.md
+      - "AWS (IPI)": guides/provision-aws.md
+      - "IBM DevIT FYRE": guides/provision-fyre.md
+      - "Airgap Configuration": guides/configure-airgap.md
+  - "Image Mirroring":
+      - "Private Registry": guides/private-registry.md
+      - "Image Mirroring (IBM)": guides/image-mirroring.md
+      - "Image Mirroring (Red Hat)": commands/mirror-redhat-images.md
+  - "Install and Configure":
       - "Install": guides/install.md
-      - "AI Service Standalone Install": guides/aiservice-install.md
+      - "Uninstall": guides/uninstall.md
+      - "OIDC Config Tool": commands/configtool-oidc.md
+      - "AI Service Install": guides/aiservice-install.md
+  - "Update and Upgrade":
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
-      - "Uninstall": guides/uninstall.md
-      - "Backup and Restore": guides/backup-restore.md
+  - "Backup and Restore":
+      - "Backup": guides/backup.md
+      - "Restore": guides/restore.md
+  - "Troubleshooting":
+      - "Debug": commands/debug.md
+      - "Must-Gather": commands/must-gather.md
   - "Examples":
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md
       - "Minimal RBAC": examples/minimal-rbac.md
-  - "Command Reference":
-      - "uninstall": commands/uninstall.md
-      - "must-gather": commands/must-gather.md
-      - "configure-airgap": commands/configure-airgap.md
-      - "mirror-redhat-images": commands/mirror-redhat-images.md
-      - "setup-registry": commands/setup-registry.md
-      - "teardown-registry": commands/teardown-registry.md
-      - "provision-fyre": commands/provision-fyre.md
-      - "provision-roks": commands/provision-roks.md
-      - "provision-rosa": commands/provision-rosa.md
-      - "configtool-oidc": commands/configtool-oidc.md
-      - "backup": commands/backup.md
-      - "restore": commands/restore.md
+      - "Image Validation": guides/image-validation.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
+      - "May 27 2026": catalogs/v9-260527-amd64.md
       - "Apr 30 2026": catalogs/v9-260430-amd64.md
       - "Mar 26 2026": catalogs/v9-260326-amd64.md
       - "Feb 26 2026": catalogs/v9-260226-amd64.md
-      - "Jan 29 2026": catalogs/v9-260129-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
@@ -87,12 +89,23 @@ plugins:
   - redirects:
       redirect_maps:
         "guides/architecture/core.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-core-services"
+        "guides/backup-and-restore.md": "guides/backup.md"
         "guides/mas-pods-explained.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-pod-details"
         "guides/choosing-the-right-catalog.md": "catalogs/index.md"
         "commands/mirror-images.md": "guides/image-mirroring.md"
         "commands/install.md": "guides/install.md"
         "commands/update.md": "guides/update.md"
         "commands/upgrade.md": "guides/upgrade.md"
+        "commands/provision-fyre.md": "guides/provision-fyre.md"
+        "commands/provision-roks.md": "guides/provision-roks.md"
+        "commands/provision-rosa.md": "guides/provision-roks.md"
+        "commands/provision-aws.md": "guides/provision-aws.md"
+        "commands/configure-airgap.md": "guides/configure-airgap.md"
+        "commands/setup-registry.md": "guides/private-registry.md"
+        "commands/teardown-registry.md": "guides/private-registry.md"
+        "commands/uninstall.md": "guides/uninstall.md"
+        "commands/backup.md": "guides/backup.md"
+        "commands/restore.md": "guides/restore.md"
   - glightbox:
       shadow: true
       caption_position: bottom
