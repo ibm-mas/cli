@@ -982,7 +982,7 @@ class InstallApp(
                                         "     --type=merge \\",
                                         '     --patch=\'{"spec":{"routeAdmission":{"namespaceOwnership":"InterNamespaceAllowed"}}}\'',
                                         "",
-                                        "3. Use subdomain routing mode instead path"
+                                        "3. Use subdomain routing mode instead path",
                                     ]
                                 )
                             )
@@ -1036,10 +1036,10 @@ class InstallApp(
     def _promptForIngressConfiguration(self, ingressControllerName):
         """
         Display IngressController configuration prompt and handle user response.
-        
+
         Args:
             ingressControllerName: Name of the IngressController
-            
+
         Returns:
             bool: True if user wants to configure, False otherwise
         """
@@ -1059,20 +1059,20 @@ class InstallApp(
                 "",
             ]
         )
-        
+
         return self.yesOrNo("Configure ingress namespace ownership policy to enable path-based routing for MAS")
 
     def _validateAndConfigureIngressControllerForPathRouting(self):
         """
         Validate and configure IngressController for path-based routing in non-interactive mode.
-        
+
         This function:
         1. Determines the IngressController name (from CLI flag, parameter, or default)
         2. Checks user permissions
         3. Validates IngressController existence and configuration
         4. Prompts user to configure if needed (respects --no-confirm flag)
         5. Sets mas_configure_ingress parameter if user agrees
-        
+
         Raises:
             SystemExit: If validation fails or user declines configuration
         """
