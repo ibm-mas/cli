@@ -988,8 +988,8 @@ class TestCompleteCliFlow:
             app.configRoutingMode()
 
         # Routing mode should not be set (method should exit early)
-        # Default is subdomain if not explicitly set
-        assert app.getParam("mas_routing_mode") == ""
+        # Default is path if not explicitly set for 9.2+
+        assert app.getParam("mas_routing_mode") == "path"
 
         # promptForInt should not be called (no routing mode prompt)
         assert app.promptForInt.call_count == 0
