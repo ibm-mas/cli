@@ -310,7 +310,7 @@ spec:
 
         # Run mas pre-install before copying files
         echo "Running mas pre-install for instance $MAS_INSTANCE_ID with channel $MAS_CHANNEL"
-        mas pre-install -i $MAS_INSTANCE_ID --mas-channel $MAS_CHANNEL --permission-mode cluster
+        mas pre-install -i $MAS_INSTANCE_ID --mas-channel $MAS_CHANNEL --permission-mode cluster --no-confirm
         return_code=$?
         if [ $return_code -ne 0 ]; then
           echo "mas pre-install failed with error: $return_code"
