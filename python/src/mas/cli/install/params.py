@@ -176,7 +176,6 @@ optionalParams = [
     "mas_ws_facilities_db_maxconnpoolsize",
     "mas_ws_facilities_properties_file_local",
     "mas_ws_facilities_custom_properties",
-    "mas_ws_facilities_properties_secret",
     "mas_ws_facilities_properties_secret_name",
     # Special chars
     "mas_special_characters",
