@@ -187,9 +187,6 @@ spec:
     - name: github_org
       type: string
       default: "maximoappsuite"
-    - name: github_pat
-      type: string
-      default: ""
 
     - name: icn
       type: string
@@ -346,8 +343,6 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_ORG
         value: $(params.github_org)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
 
       - name: ICN
         value: $(params.icn)

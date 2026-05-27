@@ -191,9 +191,6 @@ spec:
     - name: github_org
       type: string
       default: "maximoappsuite"
-    - name: github_pat
-      type: string
-      default: ""
 
   tasks:
     - name: mas-launchfvt
@@ -335,8 +332,6 @@ spec:
           value: $(params.github_host)
         - name: github_org
           value: $(params.github_org)
-        - name: github_pat
-          value: $(params.github_pat)
 
         - name: icn
           value: $(params.sls_license_icn)
