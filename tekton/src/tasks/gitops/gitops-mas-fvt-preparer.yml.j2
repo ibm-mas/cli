@@ -181,6 +181,15 @@ spec:
       type: string
       default: "false"
       description: "Enable post-IVT transition testing for JDBC configuration changes"
+    - name: github_host
+      type: string
+      default: "github.ibm.com"
+    - name: github_org
+      type: string
+      default: "maximoappsuite"
+    - name: github_pat
+      type: string
+      default: ""
 
     - name: icn
       type: string
@@ -333,6 +342,12 @@ spec:
         value: $(params.jdbc_type)
       - name: ENABLE_TRANSITION_TESTING
         value: $(params.enable_transition_testing)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
 
       - name: ICN
         value: $(params.icn)
@@ -446,11 +461,32 @@ spec:
         update_jdbc_configs_for_transition() {
           echo "=== Updating JDBC Configuration for Transition Testing ==="
           
+          # Validate required variables
+          if [ -z "${GITHUB_HOST}" ] || [ -z "${GITHUB_ORG}" ] || [ -z "${GITHUB_PAT}" ]; then
+            echo "ERROR: GitHub credentials not set (GITHUB_HOST, GITHUB_ORG, GITHUB_PAT)"
+            return 1
+          fi
+          
+          if [ -z "${ACCOUNT_ID}" ] || [ -z "${CLUSTER_NAME}" ] || [ -z "${MAS_INSTANCE_ID}" ]; then
+            echo "ERROR: Required environment variables not set (ACCOUNT_ID, CLUSTER_NAME, MAS_INSTANCE_ID)"
+            return 1
+          fi
+          
           # Clone gitops-envs repository
-          cd /tmp
+          cd /tmp || return 1
           rm -rf gitops-envs
-          git clone https://${GITOPS_GITHUB_PAT}@${GITOPS_GITHUB_HOST}/${GITOPS_GITHUB_ORG}/gitops-envs.git
-          cd gitops-envs
+          
+          echo "Cloning gitops-envs repository from ${GITHUB_HOST}/${GITHUB_ORG}"
+          if ! git clone https://git:${GITHUB_PAT}@${GITHUB_HOST}/${GITHUB_ORG}/gitops-envs.git; then
+            echo "ERROR: Failed to clone gitops-envs repository"
+            return 1
+          fi
+          
+          cd gitops-envs || return 1
+          
+          # Configure git user
+          git config user.email "masdevops@ibm.com"
+          git config user.name "MAS DevOps"
           
           # Define file paths
           SUITE_CONFIG="${ACCOUNT_ID}/${CLUSTER_NAME}/${MAS_INSTANCE_ID}/ibm-mas-suite-configs.yaml"
@@ -462,6 +498,7 @@ spec:
             echo "✓ Updated jdbc_type to 'incluster-db2'"
           else
             echo "WARNING: ${SUITE_CONFIG} not found"
+            return 1
           fi
           
           echo "Updating DB2 heap sizes in ${DB_CONFIG}"
@@ -472,14 +509,23 @@ spec:
             echo "✓ Updated APPLHEAPSZ to '2048 Automatic'"
           else
             echo "WARNING: ${DB_CONFIG} not found"
+            return 1
           fi
           
           # Commit and push changes
           git add "$SUITE_CONFIG" "$DB_CONFIG"
-          git commit -m "Post-IVT transition: Update JDBC config for testing - Build ${DEVOPS_BUILD_NUMBER}"
-          git push origin master
+          if ! git commit -m "Post-IVT transition: Update JDBC config for testing - Build ${DEVOPS_BUILD_NUMBER}"; then
+            echo "ERROR: Failed to commit changes"
+            return 1
+          fi
+          
+          if ! git push origin master; then
+            echo "ERROR: Failed to push changes to gitops-envs"
+            return 1
+          fi
           
           echo "✓ GitOps configuration updated successfully"
+          return 0
         }
 
         run_post_transition_ivt_test() {

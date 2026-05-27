@@ -185,6 +185,15 @@ spec:
       type: string
       default: "false"
       description: "Enable post-IVT transition testing for JDBC configuration changes"
+    - name: github_host
+      type: string
+      default: "github.ibm.com"
+    - name: github_org
+      type: string
+      default: "maximoappsuite"
+    - name: github_pat
+      type: string
+      default: ""
 
   tasks:
     - name: mas-launchfvt
@@ -322,6 +331,12 @@ spec:
           value: $(params.jdbc_type)
         - name: enable_transition_testing
           value: $(params.enable_transition_testing)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_pat
+          value: $(params.github_pat)
 
         - name: icn
           value: $(params.sls_license_icn)
