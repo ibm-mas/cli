@@ -1,0 +1,668 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Pre-Install - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/commands/pre-install.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="OpenShift Management">
+    
+      
+  <cds-side-nav-menu-item href="../../guides/provision-roks/">
+    IBM Cloud ROKS
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/provision-aws/">
+    AWS (IPI)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/provision-fyre/">
+    IBM DevIT FYRE
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/configure-airgap/">
+    Airgap Configuration
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Image Mirroring">
+    
+      
+  <cds-side-nav-menu-item href="../../guides/private-registry/">
+    Private Registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-mirroring/">
+    Image Mirroring (IBM)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-redhat-images/">
+    Image Mirroring (Red Hat)
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Install and Configure">
+    
+      
+  <cds-side-nav-menu-item href="../../guides/install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configtool-oidc/">
+    OIDC Config Tool
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/aiservice-install/">
+    AI Service Install
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Update and Upgrade">
+    
+      
+  <cds-side-nav-menu-item href="../../guides/update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Backup and Restore">
+    
+      
+  <cds-side-nav-menu-item href="../../guides/backup/">
+    Backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/restore/">
+    Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Troubleshooting">
+    
+      
+  <cds-side-nav-menu-item href="../debug/">
+    Debug
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../must-gather/">
+    Must-Gather
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260430-amd64/">
+    Apr 30 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260326-amd64/">
+    Mar 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260226-amd64/">
+    Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260129-amd64/">
+    Jan 29 2026
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#pre-install">Pre-Install</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#usage">Usage</cds-select-item>
+    
+      <cds-select-item value="#examples">Examples</cds-select-item>
+    
+      <cds-select-item value="#notes">Notes</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="pre-install">Pre-Install<a class="headerlink" href="#pre-install" title="Permanent link">¶</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
+<p>Usage information can be obtained using <code>mas pre-install --help</code></p>
+<pre><code>usage: mas pre-install [-i MAS_INSTANCE_ID] [--mas-channel MAS_CHANNEL]
+                       [--permission-mode {cluster,namespaced}]
+                       [--apps APPS] [--no-confirm] [-h]
+
+IBM Maximo Application Suite Admin CLI v21.3.0
+Set up pre-install RBAC for MAS.
+Available only for MAS channel 9.2.x and later.
+
+Interactive Mode:
+Omitting required options will trigger an interactive prompt
+
+Target Cluster Arguments:
+Specify the target cluster and MAS instance for which pre-install RBAC should be set up.
+
+  -i, --mas-instance-id MAS_INSTANCE_ID
+                        The MAS instance ID for which pre-install RBAC will be set up
+  --mas-channel MAS_CHANNEL
+                        The MAS channel used to select pre-install RBAC manifests, for example 9.2.x
+  --permission-mode {cluster,namespaced}
+                        The permission mode used to determine which pre-install RBAC manifests are set up
+  --apps APPS           Comma-separated list of apps used to filter which pre-install RBAC manifests are set up (required for namespaced mode), for example core,manage,iot
+
+More:
+Additional options for pre-install.
+
+  --no-confirm          Proceed without prompting for cluster confirmation
+  -h, --help            Show this help message and exit
+</code></pre>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¶</a></h2>
+<h3 id="interactive-pre-install">Interactive Pre-Install<a class="headerlink" href="#interactive-pre-install" title="Permanent link">¶</a></h3>
+<p>Launch an interactive pre-install session that will prompt you for all required configuration:</p>
+<pre><code class="language-bash">mas pre-install
+</code></pre>
+<h3 id="non-interactive-pre-install-for-namespaced-mode">Non-Interactive Pre-Install for Namespaced Mode<a class="headerlink" href="#non-interactive-pre-install-for-namespaced-mode" title="Permanent link">¶</a></h3>
+<p>Set up pre-install RBAC for a MAS instance using namespaced permission mode (apps are required):</p>
+<pre><code class="language-bash">mas pre-install \
+  --mas-instance-id prod1 \
+  --mas-channel 9.2.x \
+  --permission-mode namespaced \
+  --apps core,manage,iot \
+  --no-confirm
+</code></pre>
+<h3 id="pre-install-for-cluster-mode">Pre-Install for Cluster Mode<a class="headerlink" href="#pre-install-for-cluster-mode" title="Permanent link">¶</a></h3>
+<p>Set up pre-install RBAC for cluster permission mode (apps are not required - automatically uses ibm-mas operator):</p>
+<pre><code class="language-bash">mas pre-install \
+  --mas-instance-id test1 \
+  --mas-channel 9.2.x \
+  --permission-mode cluster \
+  --no-confirm
+</code></pre>
+<h3 id="pre-install-with-multiple-applications">Pre-Install with Multiple Applications<a class="headerlink" href="#pre-install-with-multiple-applications" title="Permanent link">¶</a></h3>
+<p>Set up pre-install RBAC for multiple MAS applications:</p>
+<pre><code class="language-bash">mas pre-install \
+  --mas-instance-id prod1 \
+  --mas-channel 9.2.x \
+  --permission-mode namespaced \
+  --apps core,manage,monitor,iot,predict,visualinspection \
+  --no-confirm
+</code></pre>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">¶</a></h2>
+<h3 id="pre-install-process">Pre-Install Process<a class="headerlink" href="#pre-install-process" title="Permanent link">¶</a></h3>
+<p>The pre-install command performs the following operations:</p>
+<ol>
+<li><strong>Validates cluster administrator permissions</strong> - Ensures you have the required permissions to create RBAC resources</li>
+<li><strong>Validates MAS channel</strong> - Confirms the channel is 9.2.x or later</li>
+<li><strong>Validates application selection</strong> - Ensures all specified applications are supported (only in namespaced mode)</li>
+<li><strong>Applies RBAC manifests</strong> - Creates ClusterRoles, ClusterRoleBindings, Roles and RoleBindings based on permission mode and selected applications</li>
+</ol>
+<h3 id="when-to-use-pre-install">When to Use Pre-Install<a class="headerlink" href="#when-to-use-pre-install" title="Permanent link">¶</a></h3>
+<p>The <code>mas pre-install</code> command is used to grant necessary RBAC permissions.</p>
+<p><strong>If you have cluster administrator permissions:</strong>
+- Run <code>mas install</code> directly - it will automatically handle the pre-install RBAC setup</p>
+<p><strong>If you do NOT have cluster administrator permissions:</strong>
+- A cluster administrator must run <code>mas pre-install</code> to grant the necessary permissions
+- Then you can run <code>mas install --skip-preinstall-rbac</code> to proceed with installation</p>
+<h3 id="permission-modes">Permission Modes<a class="headerlink" href="#permission-modes" title="Permanent link">¶</a></h3>
+<p>The following permission modes are supported with <code>mas pre-install</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Permission Mode</th>
+<th>Description</th>
+<th>Apps Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>cluster</strong></td>
+<td>MAS has cluster-level access to manage its applications and resources across the cluster. ClusterRoles are installed for the ibm-mas operator only.</td>
+<td>No - automatically uses ibm-mas operator</td>
+</tr>
+<tr>
+<td><strong>namespaced</strong></td>
+<td>No ClusterRoles are installed. MAS can manage resources only in namespaces prepared by the OpenShift admin. Roles are created for selected applications.</td>
+<td>Yes - must specify apps</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> In minimal permission mode, essential roles are installed by each operator during installation, so <code>mas pre-install</code> is not required.</p>
+<h3 id="supported-applications">Supported Applications<a class="headerlink" href="#supported-applications" title="Permanent link">¶</a></h3>
+<p>The following applications are supported for pre-install RBAC setup:</p>
+<ul>
+<li><code>core</code> - MAS Core</li>
+<li><code>aiservice</code> - AI Service</li>
+<li><code>arcgis</code> - ArcGIS</li>
+<li><code>facilities</code> - Maximo Facilities</li>
+<li><code>iot</code> - Maximo IoT</li>
+<li><code>manage</code> - Maximo Manage</li>
+<li><code>monitor</code> - Maximo Monitor</li>
+<li><code>optimizer</code> - Maximo Optimizer</li>
+<li><code>predict</code> - Maximo Predict</li>
+<li><code>visualinspection</code> - Maximo Visual Inspection</li>
+</ul>
+<p>You can specify multiple applications as a comma-separated list (e.g., <code>core,manage,iot</code>).</p>
+<h3 id="integration-with-mas-install">Integration with MAS Install<a class="headerlink" href="#integration-with-mas-install" title="Permanent link">¶</a></h3>
+<p>After running <code>mas pre-install</code>, proceed with the MAS installation using the <code>--skip-preinstall-rbac</code> flag to avoid re-applying the RBAC resources. Use the same permission mode that was used during pre-install for issuerKind selection:</p>
+<pre><code class="language-bash">mas install \
+  --mas-instance-id prod1 \
+  --permission-mode namespaced \
+  --skip-preinstall-rbac \
+  ... other install parameters ...
+</code></pre>
+<h3 id="workflow-example">Workflow Example<a class="headerlink" href="#workflow-example" title="Permanent link">¶</a></h3>
+<p><strong>Step 1: Cluster Administrator runs <code>mas pre-install</code></strong></p>
+<pre><code class="language-bash">mas pre-install \
+  --mas-instance-id prod1 \
+  --mas-channel 9.2.x \
+  --permission-mode namespaced \
+  --apps core,manage,iot \
+  --no-confirm
+</code></pre>
+<p><strong>Step 2: MAS Installer (with limited permissions) runs <code>mas install</code></strong></p>
+<pre><code class="language-bash">mas install \
+  --mas-instance-id prod1 \
+  --permission-mode namespaced \
+  --skip-preinstall-rbac \
+  ... other parameters ...
+</code></pre>
+<h3 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">¶</a></h3>
+<ul>
+<li>OpenShift cluster administrator permissions</li>
+<li>MAS channel 9.2.x or later</li>
+<li>Access to the target OpenShift cluster</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Administrator Permissions Required</p>
+<p>The <code>mas pre-install</code> command requires cluster administrator permissions. If you do not have these permissions, the command will fail with an error message. Only a cluster administrator can set up pre-install RBAC for MAS.</p>
+</div>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link">¶</a></h3>
+<p>When running without all required options, the command enters interactive mode and will prompt for:</p>
+<ol>
+<li>Target OpenShift cluster connection</li>
+<li>MAS instance ID</li>
+<li>MAS channel (for example 9.2.x)</li>
+<li>Permission mode (cluster or namespaced)</li>
+<li>Applications to include (comma-separated list) - <strong>only for namespaced mode</strong></li>
+</ol>
+<p>The command will display a summary of your selections and ask for confirmation before applying the RBAC resources.</p>
+<p><strong>Note:</strong> In cluster mode, applications are not prompted as the ibm-mas operator is automatically used.</p>
+<h3 id="version-compatibility">Version Compatibility<a class="headerlink" href="#version-compatibility" title="Permanent link">¶</a></h3>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This command is only supported for MAS version 9.2 and later. If you specify an earlier mas version, the command will fail with an error message.</p>
+</div>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#examples" class="md-toc__link" data-md-level="1">
+                  Examples
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#interactive-pre-install" class="md-toc__link" data-md-level="2">
+                          Interactive Pre-Install
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-pre-install-for-namespaced-mode" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Pre-Install for Namespaced Mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#pre-install-for-cluster-mode" class="md-toc__link" data-md-level="2">
+                          Pre-Install for Cluster Mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#pre-install-with-multiple-applications" class="md-toc__link" data-md-level="2">
+                          Pre-Install with Multiple Applications
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#notes" class="md-toc__link" data-md-level="1">
+                  Notes
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#pre-install-process" class="md-toc__link" data-md-level="2">
+                          Pre-Install Process
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#when-to-use-pre-install" class="md-toc__link" data-md-level="2">
+                          When to Use Pre-Install
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#permission-modes" class="md-toc__link" data-md-level="2">
+                          Permission Modes
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#supported-applications" class="md-toc__link" data-md-level="2">
+                          Supported Applications
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#integration-with-mas-install" class="md-toc__link" data-md-level="2">
+                          Integration with MAS Install
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#workflow-example" class="md-toc__link" data-md-level="2">
+                          Workflow Example
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#requirements" class="md-toc__link" data-md-level="2">
+                          Requirements
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#interactive-mode" class="md-toc__link" data-md-level="2">
+                          Interactive Mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#version-compatibility" class="md-toc__link" data-md-level="2">
+                          Version Compatibility
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>
