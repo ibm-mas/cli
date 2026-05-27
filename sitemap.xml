@@ -401,6 +401,18 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/v9-260527-amd64/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/v9-260527-ppc64le/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/v9-260527-s390x/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/analyticsengine-operator/1.0.1/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -769,6 +781,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/db2u-operator/120104.0.0/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/db2u-operator/2.0.0/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -898,6 +914,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-aiservice/9.1.14/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-aiservice/9.1.15/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -1149,6 +1169,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-cert-manager-operator/4.2.21/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-cert-manager-operator/4.2.4/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -1325,6 +1349,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-commonui-operator-app/4.14.0/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-commonui-operator-app/4.2.0/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -1358,6 +1386,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-commonui-operator-app/4.4.17/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-commonui-operator-app/4.4.18/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -2369,6 +2401,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-events-operator/6.1.0/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-iam-operator/3.20.1/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -2425,6 +2461,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-iam-operator/4.17.0/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-iam-operator/4.2.0/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -2462,6 +2502,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-iam-operator/4.5.17/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-iam-operator/4.5.18/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -2821,6 +2865,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas/9.0.26/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas/9.0.3/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -2894,6 +2942,14 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas/9.1.16/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas/9.1.17/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas/9.1.18/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -3001,6 +3057,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-arcgis/9.0.10/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-arcgis/9.0.2/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -3069,6 +3129,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-arcgis/9.1.9/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-assist/8.7.7/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -3110,6 +3174,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-assist/9.0.16/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-assist/9.0.17/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -3157,6 +3225,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-assist/9.1.11/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-assist/9.1.3/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -3194,6 +3266,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-facilities/9.1.10/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-facilities/9.1.11/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -3425,6 +3501,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-iot/9.0.20/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-iot/9.0.3/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -3462,6 +3542,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-iot/9.1.10/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-iot/9.1.11/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -3721,6 +3805,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-manage/9.0.26/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-manage/9.0.3/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -3786,6 +3874,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-manage/9.1.17/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-manage/9.1.18/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -4085,6 +4177,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-monitor/9.1.11/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-monitor/9.1.2/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -4321,6 +4417,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-optimizer/9.0.23/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-optimizer/9.0.3/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -4378,6 +4478,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-optimizer/9.1.11/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-optimizer/9.1.12/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -4581,6 +4685,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-predict/9.0.15/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-predict/9.0.2/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -4642,6 +4750,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-predict/9.1.7/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-predict/9.1.8/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -4765,6 +4877,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-visualinspection/9.0.20/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-visualinspection/9.0.3/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -4822,6 +4938,14 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-visualinspection/9.1.12/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-visualinspection/9.1.16/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-mas-visualinspection/9.1.17/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
@@ -5245,6 +5369,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-watson-discovery-operator/11.2.0/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-watson-discovery-operator/4.0.9/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -5381,6 +5509,10 @@
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-watson-gateway-operator/2.2.2/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/ibm-zen-operator/1.0.1/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
@@ -5478,6 +5610,10 @@
     </url>
     <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/packages/isf-operator/2.12.1/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/packages/isf-operator/2.12.2/</loc>
          <lastmod>2026-05-27</lastmod>
     </url>
     <url>
