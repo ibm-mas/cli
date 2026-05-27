@@ -965,15 +965,27 @@ class InstallApp(
                                 [f"<Green>IngressController '{selectedController}' will be configured before MAS installation begins.</Green>"]
                             )
                         else:
-                            self.printDescription(
-                                [
-                                    "",
-                                    "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
-                                    "MAS will be configured to use subdomain-based routing.",
-                                ]
+                            self.fatalError(
+                                "\n".join(
+                                    [
+                                        "IngressController Configuration Required",
+                                        "",
+                                        "========================================================================",
+                                        "Path-based routing requires IngressController configuration.",
+                                        "",
+                                        "To proceed, you have the following options:",
+                                        "",
+                                        "1. Re-run the installation and agree to configure the IngressController",
+                                        "",
+                                        "2. Manually configure it before installation by running:",
+                                        f"   oc patch ingresscontroller {selectedController} -n openshift-ingress-operator \\",
+                                        "     --type=merge \\",
+                                        '     --patch=\'{"spec":{"routeAdmission":{"namespaceOwnership":"InterNamespaceAllowed"}}}\'',
+                                        "",
+                                        "3. Use subdomain routing mode instead path"
+                                    ]
+                                )
                             )
-                            self.setParam("mas_routing_mode", "subdomain")
-                            self.setParam("mas_ingress_controller_name", "")
             else:
                 self.setParam("mas_routing_mode", "subdomain")
 
