@@ -489,7 +489,8 @@ spec:
           
           echo "Updating jdbc_type in ${SUITE_CONFIG}"
           if [ -f "$SUITE_CONFIG" ]; then
-            yq eval '.spec.config.jdbc_type = "incluster-db2"' -i "$SUITE_CONFIG"
+            # Update jdbc_type
+            yq eval '(.ibm_mas_suite_configs[] | select(.mas_config_kind == "jdbccfgs") | .jdbc_type) = "incluster-db2"' -i "$SUITE_CONFIG"
             echo "✓ Updated jdbc_type to 'incluster-db2'"
           else
             echo "WARNING: ${SUITE_CONFIG} not found"
@@ -498,10 +499,11 @@ spec:
           
           echo "Updating DB2 heap sizes in ${DB_CONFIG}"
           if [ -f "$DB_CONFIG" ]; then
-            yq eval '.spec.config.DB2_FMP_COMM_HEAPSZ = "8192"' -i "$DB_CONFIG"
-            yq eval '.spec.config.APPLHEAPSZ = "2048 Automatic"' -i "$DB_CONFIG"
-            echo "✓ Updated DB2_FMP_COMM_HEAPSZ to 8192"
-            echo "✓ Updated APPLHEAPSZ to '2048 Automatic'"
+            DB2_INSTANCE="db2wh-${MAS_INSTANCE_ID}-manage"
+            yq eval "(.ibm_db2u_databases[] | select(.db2_instance_name == \"${DB2_INSTANCE}\") | .db2_instance_registry.DB2_FMP_COMM_HEAPSZ) = \"8192\"" -i "$DB_CONFIG"
+            yq eval "(.ibm_db2u_databases[] | select(.db2_instance_name == \"${DB2_INSTANCE}\") | .db2_database_db_config.APPLHEAPSZ) = \"2048 AUTOMATIC\"" -i "$DB_CONFIG"
+            echo "✓ Updated DB2_FMP_COMM_HEAPSZ to 8192 for ${DB2_INSTANCE}"
+            echo "✓ Updated APPLHEAPSZ to '2048 AUTOMATIC' for ${DB2_INSTANCE}"
           else
             echo "WARNING: ${DB_CONFIG} not found"
             return 1
@@ -923,15 +925,20 @@ spec:
           
           # Step 4: Trigger ArgoCD sync for affected applications
           echo "Step 4: Triggering ArgoCD sync for affected applications..."
+          
+          # Construct JDBC config app name: ${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-manage.${MAS_INSTANCE_ID}
+          JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-manage.${MAS_INSTANCE_ID}"
+          DB2_DB_APP="db2-db.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.manage"
+          
           argocd app sync "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" --grpc-web || echo "Warning: suite app sync failed"
-          argocd app sync "${MAS_INSTANCE_ID}-jdbc-system.${CLUSTER_NAME}" --grpc-web || echo "Warning: jdbc-system app sync failed"
-          argocd app sync "${MAS_INSTANCE_ID}-db2u-system.${CLUSTER_NAME}" --grpc-web || echo "Warning: db2u-system app sync failed"
+          argocd app sync "${JDBC_CONFIG_APP}" --grpc-web || echo "Warning: JDBC config app sync failed"
+          argocd app sync "${DB2_DB_APP}" --grpc-web || echo "Warning: DB2 database app sync failed"
           
           # Step 5: Wait for applications to be healthy
           echo "Step 5: Waiting for applications to sync and become healthy..."
           check_argo_app_synced "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          check_argo_app_synced "${MAS_INSTANCE_ID}-jdbc-system.${CLUSTER_NAME}"
-          check_argo_app_synced "${MAS_INSTANCE_ID}-db2u-system.${CLUSTER_NAME}"
+          check_argo_app_synced "${JDBC_CONFIG_APP}"
+          check_argo_app_synced "${DB2_DB_APP}"
           
           echo "✓ All applications synced successfully"
           
