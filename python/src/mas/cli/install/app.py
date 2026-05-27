@@ -878,34 +878,52 @@ class InstallApp(
 
     @logMethodCall
     def configRoutingMode(self):
-        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
-            self.printH1("Configure Routing Mode")
-
+        if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
             masDomain = self._getMasDomainForDisplay()
+            
+            # Determine routing mode based on whether we're in advanced mode
+            if self.showAdvancedOptions:
+                # Advanced mode: Show full prompt and let user choose
+                self.printH1("Configure Routing Mode")
 
-            self.printDescription(
-                [
-                    "Maximo Application Suite can be configured in one of two ways:",
-                    "",
-                    "  1. Single domain with path-based routing across the suite",
-                    f"     Example: https://{masDomain}/admin",
-                    "",
-                    "  2. Multi domain with subdomain-based routing across the suite",
-                    f"     Example: https://admin.{masDomain}",
-                    "",
-                    "Path-based routing requires the IngressController to have the routeAdmission policy",
-                    "set to 'InterNamespaceAllowed'. This allows routes to claim the same hostname across",
-                    "different namespaces, which is necessary for path-based routing to function correctly.",
-                    "",
-                    "For more information refer to:",
-                    "https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/ingress_and_load_balancing/routes#nw-route-admission-policy_configuring-routes",
-                ]
-            )
+                self.printDescription(
+                    [
+                        "Maximo Application Suite can be configured in one of two ways:",
+                        "",
+                        "  1. Single domain with path-based routing across the suite",
+                        f"     Example: https://{masDomain}/admin",
+                        "",
+                        "  2. Multi domain with subdomain-based routing across the suite",
+                        f"     Example: https://admin.{masDomain}",
+                        "",
+                        "Path-based routing requires the IngressController to have the routeAdmission policy",
+                        "set to 'InterNamespaceAllowed'. This allows routes to claim the same hostname across",
+                        "different namespaces, which is necessary for path-based routing to function correctly.",
+                        "",
+                        "For more information refer to:",
+                        "https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/ingress_and_load_balancing/routes#nw-route-admission-policy_configuring-routes",
+                    ]
+                )
 
-            routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
-            routingModeOptions = ["path", "subdomain"]
-            selectedMode = routingModeOptions[routingModeInt - 1]
+                routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
+                routingModeOptions = ["path", "subdomain"]
+                selectedMode = routingModeOptions[routingModeInt - 1]
+            else:
+                # Simplified mode: Default to path and inform user
+                selectedMode = "path"
+                self.printDescription(
+                    [
+                        "",
+                        f"<Cyan>Routing mode defaulting to 'path' for MAS 9.2+</Cyan>",
+                        f"  Example: https://{masDomain}/admin",
+                        "",
+                        "<Yellow>Note:</Yellow> Routing mode selection is available in advanced installation mode.",
+                        "For MAS 9.2+ installations, path-based routing is the default if not explicitly configured.",
+                        "",
+                    ]
+                )
 
+            # Now validate the selected/defaulted mode
             if selectedMode == "path":
                 canConfigure = self._checkIngressControllerPermissions()
                 if not canConfigure:
@@ -2516,8 +2534,7 @@ class InstallApp(
         else:
             self.nonInteractiveMode()
 
-        # Set default routing mode to 'path' for MAS 9.2+ if not explicitly configured
-        # This applies to both interactive and non-interactive modes
+        # Set default routing mode to 'path' for MAS 9.2+ in non-interactive mode if not explicitly configured
         if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
             if self.getParam("mas_routing_mode") == "":
                 self.setParam("mas_routing_mode", "path")
