@@ -22,15 +22,71 @@ from ..cli import BaseApp
 from .argParser import updateArgParser
 from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
-from mas.devops.mas import listMasInstances, getCurrentCatalog
+from mas.devops.mas import listMasInstances, getCurrentCatalog, getMasChannel, getInstalledAppsForRBAC
 from mas.devops.aiservice import listAiServiceInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSecrets
+from mas.devops.pre_install import applyPreInstallMASRBAC, shouldApplyPreInstallRBAC
+from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion, isPreReleaseVersion
 from ..install.settings import AdditionalConfigsMixin
 
 logger = logging.getLogger(__name__)
 
 
 class UpdateApp(BaseApp, AdditionalConfigsMixin):
+
+    def shouldApplyRBACForInstance(self, instanceId, currentVersion, targetCatalog) -> bool:
+        """
+        Determine if RBAC should be applied for a specific MAS instance during update.
+        Returns True if the instance is transitioning from pre-release to GA version.
+
+        This method checks:
+        1. Current version is a pre-release (e.g., "9.2.0-pre.stable+21734")
+        2. Target catalog contains a GA version (e.g., "9.2.0") for the instance's channel
+        3. The GA version is >= 9.2.0 (when RBAC was introduced)
+
+        Args:
+            instanceId: The MAS instance ID
+            currentVersion: The current reconciled version (e.g., "9.2.0-pre.stable+21734")
+            targetCatalog: The target catalog dictionary containing version mappings
+
+        Returns:
+            bool: True if RBAC should be applied for pre-release → GA transition, False otherwise
+        """
+        if not currentVersion or not targetCatalog:
+            return False
+
+        # Check if current version is a pre-release
+        if not isPreReleaseVersion(currentVersion):
+            return False
+
+        # Get the channel this instance is subscribed to
+        channel = getMasChannel(self.dynamicClient, instanceId)
+        if not channel:
+            logger.warning(f"Could not determine channel for instance {instanceId}")
+            return False
+
+        # Get the target version from the catalog for this channel
+        targetVersion = targetCatalog.get("mas_core_version", {}).get(channel)
+        if not targetVersion:
+            logger.warning(f"No target version found in catalog for channel {channel}")
+            return False
+
+        # Check if target version is GA (not pre-release)
+        if isPreReleaseVersion(targetVersion):
+            logger.info(f"Instance {instanceId} will stay on pre-release (current: {currentVersion}, target: {targetVersion}). Skipping RBAC.")
+            return False
+
+        # Extract base version from target GA version
+        baseVersion = extractBaseVersion(targetVersion)
+        fullVersion = f"{baseVersion}.0"
+
+        # Only apply RBAC if target GA version is >= 9.2.0
+        if isVersionEqualOrAfter("9.2.0", fullVersion):
+            logger.info(f"Instance {instanceId} will transition from pre-release to GA (current: {currentVersion}, target: {targetVersion}).")
+            return True
+
+        logger.info(f"Instance {instanceId} target version {targetVersion} is < 9.2.0. Skipping RBAC.")
+        return False
 
     def update(self, argv):
         """
@@ -212,6 +268,67 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
+
+            # Apply pre-install RBAC for instances transitioning from pre-release to GA
+            # This handles the 9.2.0-pre.stable → 9.2.0 transition
+            try:
+                masInstances = listMasInstances(self.dynamicClient)
+                instancesNeedingRBAC = []
+
+                for instance in masInstances:
+                    instanceId = instance["metadata"]["name"]
+                    currentVersion = instance.get("status", {}).get("versions", {}).get("reconciled", "")
+
+                    if self.shouldApplyRBACForInstance(instanceId, currentVersion, self.chosenCatalog):
+                        instancesNeedingRBAC.append({"id": instanceId, "version": currentVersion, "channel": getMasChannel(self.dynamicClient, instanceId)})
+
+                if instancesNeedingRBAC:
+                    self.printH1("Apply Pre-Install RBAC for GA Transition")
+                    print_formatted_text(
+                        HTML(f"<Yellow>Detected {len(instancesNeedingRBAC)} MAS instance(s) on pre-release versions that will transition to GA.</Yellow>")
+                    )
+                    print_formatted_text(HTML("<Yellow>Applying RBAC for target GA version before catalog update...</Yellow>"))
+                    print()
+
+                    for instanceInfo in instancesNeedingRBAC:
+                        instanceId = instanceInfo["id"]
+                        currentVersion = instanceInfo["version"]
+
+                        # Extract base version for RBAC using helper
+                        baseVersion = extractBaseVersion(currentVersion)
+
+                        # For pre-release to GA transition, default to cluster mode
+                        # Pre-release versions (9.2.0-pre.stable) were installed before permission modes
+                        # were introduced, so they default to cluster mode
+                        permissionMode = "cluster"
+                        logger.info(f"Using cluster mode for pre-release to GA transition for instance {instanceId}")
+
+                        # Check permissions and apply RBAC (will raise PermissionError if no access)
+                        if shouldApplyPreInstallRBAC(self.dynamicClient, baseVersion, permissionMode):
+                            # Get installed apps for this instance
+                            selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
+
+                            with Halo(text=f"Applying pre-install RBAC for {instanceId} (v{baseVersion}, mode: {permissionMode})", spinner=self.spinner) as h:
+                                applyPreInstallMASRBAC(
+                                    dynClient=self.dynamicClient,
+                                    masVersion=baseVersion,
+                                    masInstanceId=instanceId,
+                                    permissionMode=permissionMode,
+                                    selectedApps=selectedApps,
+                                )
+                                h.stop_and_persist(
+                                    symbol=self.successIcon, text=f"Pre-install RBAC applied for {instanceId} (v{baseVersion}, mode: {permissionMode})"
+                                )
+
+                    print()
+                    print_formatted_text(HTML("<Green>✓ Pre-install RBAC applied successfully for all instances transitioning to GA</Green>"))
+                    print()
+                else:
+                    logger.info("No MAS instances require RBAC update (not transitioning from pre-release to GA)")
+
+            except Exception as e:
+                logger.error(f"Error while applying pre-install RBAC: {e}")
+                self.printWarning(f"Failed to apply pre-install RBAC: {e}\n" f"Continuing with update, but RBAC may need to be applied manually.")
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)

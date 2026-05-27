@@ -23,10 +23,18 @@ from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, verifyAppInstance, getPermissionMode
-from mas.devops.utils import isVersionEqualOrAfter
+from mas.devops.mas import (
+    listMasInstances,
+    getMasChannel,
+    getAppsSubscriptionChannel,
+    getWorkspaceId,
+    verifyAppInstance,
+    getPermissionMode,
+    getInstalledAppsForRBAC,
+)
+from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC, shouldApplyPreInstallRBAC
 
 logger = logging.getLogger(__name__)
 
@@ -129,46 +137,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         except Exception as e:
             logger.warning(f"Could not query ManageWorkspace CR for Civil component check: {e}")
             # Don't fail the upgrade if we can't query - let ansible handle it
-
-    def evaluatePreInstallRBACForUpgrade(self, instanceId, targetChannel) -> bool:
-        """
-        Evaluate if pre-install RBAC should be applied for upgrade.
-        Returns True if RBAC should be applied, False otherwise.
-        """
-        # Only apply for MAS >= 9.2.0
-        if not isVersionEqualOrAfter("9.2.0", targetChannel):
-            return False
-
-        # Check if user has cluster-admin permissions
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-
-        if hasPreInstallRBACAccess:
-            return True
-
-        # If no permissions, warn user but don't block upgrade
-        logger.warning(
-            "Current user does not have cluster-admin permissions to apply pre-install RBAC. " "Assuming RBAC was already applied for this MAS version."
-        )
-        return False
-
-    def getInstalledAppsForUpgrade(self, instanceId) -> list[str]:
-        """
-        Get list of installed apps that will be upgraded.
-        Always includes 'core' since core RBAC is required for all upgrades.
-        getAppsSubscriptionChannel() only returns apps (not core), so we add core explicitly.
-        """
-        # Always include core for RBAC application
-        installedApps = ["core"]
-
-        appsWithSubscriptions = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
-        logger.info(f"Apps with subscriptions detected: {[app.get('appId') for app in appsWithSubscriptions]}")
-
-        for app in appsWithSubscriptions:
-            appId = app.get("appId")
-            if appId:
-                installedApps.append(appId)
-        return installedApps
 
     def upgrade(self, argv):
         """
@@ -329,19 +297,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             # Current channel is 9.2+, detect permission mode
             detectedMode = getPermissionMode(self.dynamicClient, instanceId)
 
-            if detectedMode == "minimal":
-                self.fatalError(
-                    f"Cannot upgrade MAS instance '{instanceId}' with 'minimal' permission mode.\n\n"
-                    f"The instance is currently installed with 'minimal' mode, which does not grant\n"
-                    f"the ibm-mas service account sufficient permissions to manage application resources during upgrade.\n\n"
-                    f"To proceed with the upgrade:\n"
-                    f"1. Temporarily increase permissions by re-applying RBAC with cluster or namespaced mode\n"
-                    f"2. Run the upgrade\n"
-                    f"3. After upgrade completes, you can switch back to minimal mode if desired\n\n"
-                )
-
-            print_formatted_text(HTML(f"<Green> Permission mode check passed (mode: {detectedMode})</Green>"))
-            print()
         elif currentChannel and currentChannel.startswith("9.1") and self.nextChannel and self.nextChannel.startswith("9.2"):
             # Upgrading from 9.1 to 9.2: default to cluster mode (9.1 had no permission modes)
             logger.info("Upgrading from 9.1.x to 9.2.x: defaulting to cluster mode (9.1.x had no permission modes)")
@@ -372,11 +327,11 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     self.fatalError("Installation failed")
 
             # Apply pre-install RBAC for target version (only for nextChannel >= 9.2)
-            if detectedMode and self.evaluatePreInstallRBACForUpgrade(instanceId, self.nextChannel):
+            if detectedMode and shouldApplyPreInstallRBAC(self.dynamicClient, self.nextChannel, detectedMode):
                 with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
-                    targetVersion = ".".join(self.nextChannel.split(".")[:2])  # Extract "9.2" from "9.2-feature"
+                    targetVersion = extractBaseVersion(self.nextChannel)  # Extract "9.2" from "9.2.x" or "9.2-feature"
                     # get list of installed apps that needs to be upgraded
-                    selectedApps = self.getInstalledAppsForUpgrade(instanceId)
+                    selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
                     # Use detected permission mode for RBAC application
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
