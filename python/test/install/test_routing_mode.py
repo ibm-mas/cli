@@ -50,8 +50,10 @@ def create_mock_app():
     app._checkIngressControllerPermissions = InstallApp._checkIngressControllerPermissions.__get__(app, InstallApp)
     app._checkIngressControllerForPathRouting = InstallApp._checkIngressControllerForPathRouting.__get__(app, InstallApp)
     app._promptForIngressController = InstallApp._promptForIngressController.__get__(app, InstallApp)
+    app._promptForIngressConfiguration = InstallApp._promptForIngressConfiguration.__get__(app, InstallApp)
     app._getMasDomainForDisplay = InstallApp._getMasDomainForDisplay.__get__(app, InstallApp)
     app.configRoutingMode = InstallApp.configRoutingMode.__get__(app, InstallApp)
+    app.fatalError = MagicMock(side_effect=SystemExit(1))
 
     return app
 
@@ -183,16 +185,17 @@ class TestInteractivePathRouting:
         assert app.getParam("mas_ingress_controller_name") == "default"
         assert app.getParam("mas_configure_ingress") == "true"
 
-    def test_interactive_path_routing_user_declines_falls_back_to_subdomain(self):
-        """Test fallback to subdomain when user declines to configure IngressController."""
+    def test_interactive_path_routing_user_declines_fails_with_error(self):
+        """Test that installation fails with error when user declines to configure IngressController."""
         app = create_mock_app()
         app.isInteractiveMode = True
         app.showAdvancedOptions = True
         app.setParam("mas_channel", "9.2.0")
         app.setParam("mas_instance_id", "test-inst")
 
-        # User declines to configure ingress
-        app.yesOrNo.return_value = False
+        # User selects path mode (option 1) and declines to configure ingress
+        app.promptForInt.return_value = 1  # Select path mode
+        app.yesOrNo.return_value = False  # Decline configuration
 
         # Mock IngressController not configured
         controller = create_ingress_controller_mock(namespace_ownership="Strict")
@@ -223,11 +226,9 @@ class TestInteractivePathRouting:
 
             # Mock isVersionEqualOrAfter to return True for version check
             with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
-                app.configRoutingMode()
-
-        # Verify fallback to subdomain
-        assert app.getParam("mas_routing_mode") == "subdomain"
-        assert app.getParam("mas_ingress_controller_name") == ""
+                # Should raise SystemExit when user declines configuration
+                with pytest.raises(SystemExit):
+                    app.configRoutingMode()
 
     def test_interactive_path_routing_patch_fails_gracefully(self):
         """Test graceful failure when IngressController patch operation fails."""
@@ -879,6 +880,8 @@ class TestCompleteCliFlow:
             with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
                 # Set up promptForInt to return different values for routing mode and controller selection
                 app.promptForInt.side_effect = [1, 1]  # Path mode, first controller
+                # User agrees to configure IngressController
+                app.yesOrNo.return_value = True
                 app.configRoutingMode()
 
         # Verify all parameters are set correctly
@@ -988,8 +991,8 @@ class TestCompleteCliFlow:
             app.configRoutingMode()
 
         # Routing mode should not be set (method should exit early)
-        # Default is subdomain if not explicitly set
-        assert app.getParam("mas_routing_mode") == ""
+        # Default is path if not explicitly set for 9.2+
+        assert app.getParam("mas_routing_mode") == "path"
 
         # promptForInt should not be called (no routing mode prompt)
         assert app.promptForInt.call_count == 0

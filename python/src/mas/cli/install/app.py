@@ -878,48 +878,69 @@ class InstallApp(
 
     @logMethodCall
     def configRoutingMode(self):
-        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
-            self.printH1("Configure Routing Mode")
+        if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            # For 9.2.x-feature channel, explicitly set subdomain routing mode
+            if self.getParam("mas_channel") == "9.2.x-feature":
+                if self.getParam("mas_routing_mode") == "":
+                    self.setParam("mas_routing_mode", "subdomain")
+                    logger.info("Routing mode set to 'subdomain' for 9.2.x-feature channel")
+                return
 
             masDomain = self._getMasDomainForDisplay()
 
-            self.printDescription(
-                [
-                    "Maximo Application Suite can be configured in one of two ways:",
-                    "",
-                    "  1. Single domain with path-based routing across the suite",
-                    f"     Example: https://{masDomain}/admin",
-                    "",
-                    "  2. Multi domain with subdomain-based routing across the suite",
-                    f"     Example: https://admin.{masDomain}",
-                    "",
-                    "Path-based routing requires the IngressController to have the routeAdmission policy",
-                    "set to 'InterNamespaceAllowed'. This allows routes to claim the same hostname across",
-                    "different namespaces, which is necessary for path-based routing to function correctly.",
-                    "",
-                    "For more information refer to:",
-                    "https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/ingress_and_load_balancing/routes#nw-route-admission-policy_configuring-routes",
-                ]
-            )
+            # Determine routing mode based on whether we're in advanced mode
+            if self.showAdvancedOptions:
+                # Advanced mode: Show full prompt and let user choose
+                self.printH1("Configure Routing Mode")
 
-            routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
-            routingModeOptions = ["path", "subdomain"]
-            selectedMode = routingModeOptions[routingModeInt - 1]
+                self.printDescription(
+                    [
+                        "Maximo Application Suite can be configured in one of two ways:",
+                        "",
+                        "  1. Single domain with path-based routing across the suite",
+                        f"     Example: https://{masDomain}/admin",
+                        "",
+                        "  2. Multi domain with subdomain-based routing across the suite",
+                        f"     Example: https://admin.{masDomain}",
+                        "",
+                        "Path-based routing requires the IngressController to have the routeAdmission policy",
+                        "set to 'InterNamespaceAllowed'. This allows routes to claim the same hostname across",
+                        "different namespaces, which is necessary for path-based routing to function correctly.",
+                        "",
+                        "For more information refer to:",
+                        "https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/ingress_and_load_balancing/routes#nw-route-admission-policy_configuring-routes",
+                    ]
+                )
 
+                routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
+                routingModeOptions = ["path", "subdomain"]
+                selectedMode = routingModeOptions[routingModeInt - 1]
+            else:
+                # Simplified mode: Default to path and inform user
+                selectedMode = "path"
+                self.printDescription(
+                    [
+                        "",
+                        "<Cyan>Routing mode defaulting to 'path' for MAS 9.2+</Cyan>",
+                        f"  Example: https://{masDomain}/admin",
+                        "",
+                        "<Yellow>Note:</Yellow> Routing mode selection is available in advanced installation mode.",
+                        "For MAS 9.2+ installations, path-based routing is the default if not explicitly configured.",
+                        "",
+                    ]
+                )
+
+            # Now validate the selected/defaulted mode
             if selectedMode == "path":
                 canConfigure = self._checkIngressControllerPermissions()
                 if not canConfigure:
                     self.printDescription(
                         [
                             "",
-                            "<Yellow>Your cluster ingress currently does not support path-based routing</Yellow>",
+                            "<Yellow>Insufficient permissions to validate IngressController configuration</Yellow>",
                             "",
-                            "If you wish to configure MAS with path-based routing, contact your OpenShift",
-                            "administrator to apply the following configuration:",
-                            "",
-                            "  <Cyan>spec:",
-                            "    routeAdmission:",
-                            "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
+                            "Path-based routing requires IngressController permissions to validate the configuration.",
+                            "Contact your OpenShift administrator to grant the necessary permissions.",
                             "",
                             "MAS will be configured to use subdomain-based routing.",
                         ]
@@ -937,36 +958,34 @@ class InstallApp(
                         self.setParam("mas_routing_mode", "path")
                         self.printDescription([f"<Green>IngressController '{selectedController}' is configured for path-based routing.</Green>"])
                     else:
-                        self.printDescription(
-                            [
-                                "",
-                                "<Yellow>Your cluster ingress currently does not support path-based routing</Yellow>",
-                                "",
-                                "The following setting needs to be applied to the IngressController:",
-                                "",
-                                "  <Cyan>spec:",
-                                "    routeAdmission:",
-                                "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
-                                "",
-                            ]
-                        )
-
-                        if self.yesOrNo("Configure ingress namespace ownership policy to enable path-based routing for MAS"):
+                        if self._promptForIngressConfiguration(selectedController):
                             self.setParam("mas_routing_mode", "path")
                             self.setParam("mas_configure_ingress", "true")
                             self.printDescription(
                                 [f"<Green>IngressController '{selectedController}' will be configured before MAS installation begins.</Green>"]
                             )
                         else:
-                            self.printDescription(
-                                [
-                                    "",
-                                    "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
-                                    "MAS will be configured to use subdomain-based routing.",
-                                ]
+                            self.fatalError(
+                                "\n".join(
+                                    [
+                                        "IngressController Configuration Required",
+                                        "",
+                                        "========================================================================",
+                                        "Path-based routing requires IngressController configuration.",
+                                        "",
+                                        "To proceed, you have the following options:",
+                                        "",
+                                        "1. Re-run the installation and agree to configure the IngressController",
+                                        "",
+                                        "2. Manually configure it before installation by running:",
+                                        f"   oc patch ingresscontroller {selectedController} -n openshift-ingress-operator \\",
+                                        "     --type=merge \\",
+                                        '     --patch=\'{"spec":{"routeAdmission":{"namespaceOwnership":"InterNamespaceAllowed"}}}\'',
+                                        "",
+                                        "3. Use subdomain routing mode instead path",
+                                    ]
+                                )
                             )
-                            self.setParam("mas_routing_mode", "subdomain")
-                            self.setParam("mas_ingress_controller_name", "")
             else:
                 self.setParam("mas_routing_mode", "subdomain")
 
@@ -1013,6 +1032,179 @@ class InstallApp(
         except Exception as e:
             logger.warning(f"User may not have permissions to configure IngressController '{controllerName}': {e}")
             return False
+
+    def _promptForIngressConfiguration(self, ingressControllerName):
+        """
+        Display IngressController configuration prompt and handle user response.
+
+        Args:
+            ingressControllerName: Name of the IngressController
+
+        Returns:
+            bool: True if user wants to configure, False otherwise
+        """
+        self.printDescription(
+            [
+                "",
+                "<Yellow>IngressController is not configured for path-based routing</Yellow>",
+                "",
+                f"IngressController '{ingressControllerName}' exists but is not properly configured",
+                "for path-based routing.",
+                "",
+                "The following setting needs to be applied to the IngressController:",
+                "",
+                "  <Cyan>spec:",
+                "    routeAdmission:",
+                "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
+                "",
+            ]
+        )
+
+        return self.yesOrNo("Configure ingress namespace ownership policy to enable path-based routing for MAS")
+
+    def _validateAndConfigureIngressControllerForPathRouting(self):
+        """
+        Validate and configure IngressController for path-based routing in non-interactive mode.
+
+        This function:
+        1. Determines the IngressController name (from CLI flag, parameter, or default)
+        2. Checks user permissions
+        3. Validates IngressController existence and configuration
+        4. Prompts user to configure if needed (respects --no-confirm flag)
+        5. Sets mas_configure_ingress parameter if user agrees
+
+        Raises:
+            SystemExit: If validation fails or user declines configuration
+        """
+        # Determine IngressController name
+        ingressControllerName = None
+        if hasattr(self.args, "mas_ingress_controller_name") and self.args.mas_ingress_controller_name:
+            ingressControllerName = self.args.mas_ingress_controller_name
+            logger.info(f"Using IngressController '{ingressControllerName}' from CLI flag")
+        elif self.getParam("mas_ingress_controller_name"):
+            ingressControllerName = self.getParam("mas_ingress_controller_name")
+            logger.info(f"Using IngressController '{ingressControllerName}' from existing parameter")
+        else:
+            ingressControllerName = "default"
+            logger.info("No IngressController specified, defaulting to 'default'")
+
+        self.setParam("mas_ingress_controller_name", ingressControllerName)
+
+        # Check permissions BEFORE attempting to check the IngressController
+        canConfigure = self._checkIngressControllerPermissions()
+        if not canConfigure:
+            self.fatalError(
+                "\n".join(
+                    [
+                        "Insufficient Permissions to Validate IngressController Configuration",
+                        "========================================================================",
+                        "You do not have sufficient permissions to validate the IngressController",
+                        f"configuration for path-based routing (IngressController: '{ingressControllerName}').",
+                        "",
+                        "Path-based routing requires IngressController permissions to validate the configuration.",
+                        "Contact your OpenShift administrator to grant the necessary permissions.",
+                        "",
+                        "Alternatively, you can use subdomain routing mode:",
+                        "   mas install --routing subdomain ...",
+                    ]
+                )
+            )
+
+        exists, isConfigured = self._checkIngressControllerForPathRouting(ingressControllerName)
+
+        if not exists:
+            self.fatalError(
+                "\n".join(
+                    [
+                        "IngressController Not Found",
+                        "",
+                        "========================================================================",
+                        f"You selected IngressController '{ingressControllerName}', but it does not exist",
+                        "in the openshift-ingress-operator namespace.",
+                        "",
+                        "To fix this issue:",
+                        "",
+                        "1. List available IngressControllers:",
+                        "   oc get ingresscontroller -n openshift-ingress-operator",
+                        "",
+                        "2. Use an existing controller name with --ingress-controller-name flag:",
+                        "   mas install --routing path --ingress-controller-name [existing-controller] ...",
+                        "",
+                        "3. Or use the default controller (usually named 'default'):",
+                        "   mas install --routing path --ingress-controller-name default ...",
+                        "",
+                        "Alternatively, you can use subdomain routing mode:",
+                        "   mas install --routing subdomain ...",
+                    ]
+                )
+            )
+        elif not isConfigured:
+            if hasattr(self.args, "mas_configure_ingress") and self.args.mas_configure_ingress:
+                logger.info(f"IngressController '{ingressControllerName}' will be configured for path-based routing before MAS installation")
+                self.setParam("mas_configure_ingress", "true")
+            else:
+                # If --no-confirm is NOT used, prompt user to configure ingress
+                if not self.noConfirm:
+                    if self._promptForIngressConfiguration(ingressControllerName):
+                        self.setParam("mas_configure_ingress", "true")
+                        logger.info(f"IngressController '{ingressControllerName}' will be configured for path-based routing before MAS installation")
+                    else:
+                        self.fatalError(
+                            "\n".join(
+                                [
+                                    "IngressController Configuration Required",
+                                    "",
+                                    "========================================================================",
+                                    "Path-based routing requires IngressController configuration.",
+                                    "",
+                                    "To proceed, you have the following options:",
+                                    "",
+                                    "1. Add the --configure-ingress flag to configure it during installation:",
+                                    f"   mas install --routing path --ingress-controller-name {ingressControllerName} --configure-ingress ...",
+                                    "",
+                                    "2. Manually configure it before installation by running:",
+                                    f"   oc patch ingresscontroller {ingressControllerName} -n openshift-ingress-operator \\",
+                                    "     --type=merge \\",
+                                    '     --patch=\'{"spec":{"routeAdmission":{"namespaceOwnership":"InterNamespaceAllowed"}}}\'',
+                                    "",
+                                    "3. Use subdomain routing mode instead:",
+                                    "   mas install --routing subdomain ...",
+                                ]
+                            )
+                        )
+                else:
+                    # --no-confirm is used, fail immediately with instructions
+                    self.fatalError(
+                        "\n".join(
+                            [
+                                "IngressController Not Configured for Path-Based Routing",
+                                "",
+                                "========================================================================",
+                                f"IngressController '{ingressControllerName}' exists but is not properly configured",
+                                "for path-based routing.",
+                                "",
+                                "Required Configuration:",
+                                "  spec:",
+                                "    routeAdmission:",
+                                "      namespaceOwnership: InterNamespaceAllowed",
+                                "",
+                                "To fix this issue, you have two options:",
+                                "",
+                                "1. Add the --configure-ingress flag to configure it during installation:",
+                                f"   mas install --routing path --ingress-controller-name {ingressControllerName} --configure-ingress --no-confirm ...",
+                                "",
+                                "2. Manually configure it before installation by running:",
+                                f"   oc patch ingresscontroller {ingressControllerName} -n openshift-ingress-operator \\",
+                                "     --type=merge \\",
+                                '     --patch=\'{"spec":{"routeAdmission":{"namespaceOwnership":"InterNamespaceAllowed"}}}\'',
+                                "",
+                                "Alternatively, you can use subdomain routing mode:",
+                                "   mas install --routing subdomain ...",
+                            ]
+                        )
+                    )
+        else:
+            logger.info(f"IngressController '{ingressControllerName}' is already configured for path-based routing")
 
     @logMethodCall
     def configManualRoutesMgmt(self) -> None:
@@ -2389,6 +2581,21 @@ class InstallApp(
             if self.getParam("mas_issuer_kind") == "":
                 self.setParam("mas_issuer_kind", "ClusterIssuer")
 
+        # Set default routing mode for MAS 9.2+ in non-interactive mode if not explicitly configured
+        if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            if self.getParam("mas_routing_mode") == "":
+                # For 9.2.x-feature channel, default to subdomain routing
+                if self.getParam("mas_channel") == "9.2.x-feature":
+                    self.setParam("mas_routing_mode", "subdomain")
+                    logger.info("Routing mode defaulting to 'subdomain' for 9.2.x-feature channel in non-interactive mode")
+                else:
+                    # For other 9.2+ channels, default to path routing
+                    self.setParam("mas_routing_mode", "path")
+                    logger.info("Routing mode defaulting to 'path' for MAS 9.2+ in non-interactive mode")
+                    # Set default ingress controller for path-based routing if not already set
+                    if self.getParam("mas_ingress_controller_name") == "":
+                        self.setParam("mas_ingress_controller_name", "default")
+
         self.evaluatePreInstallRBACAccess()
         self.setDB2DefaultChannel()
 
@@ -2565,109 +2772,7 @@ class InstallApp(
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
-            ingressControllerName = None
-            if hasattr(self.args, "mas_ingress_controller_name") and self.args.mas_ingress_controller_name:
-                ingressControllerName = self.args.mas_ingress_controller_name
-                logger.info(f"Using IngressController '{ingressControllerName}' from CLI flag")
-            elif self.getParam("mas_ingress_controller_name"):
-                ingressControllerName = self.getParam("mas_ingress_controller_name")
-                logger.info(f"Using IngressController '{ingressControllerName}' from existing parameter")
-            else:
-                ingressControllerName = "default"
-                logger.info("No IngressController specified, defaulting to 'default'")
-
-            self.setParam("mas_ingress_controller_name", ingressControllerName)
-
-            # Check permissions BEFORE attempting to check the IngressController
-            canConfigure = self._checkIngressControllerPermissions()
-            if not canConfigure:
-
-                self.fatalError(
-                    "\n".join(
-                        [
-                            "IngressController Configuration Requires Administrator Permissions",
-                            "========================================================================",
-                            "You do not have sufficient permissions to check or configure the",
-                            f"IngressController '{ingressControllerName}'.",
-                            "",
-                            "If you wish to configure MAS with path-based routing, contact your OpenShift",
-                            "administrator to apply the following configuration:",
-                            "",
-                            "  spec:",
-                            "    routeAdmission:",
-                            "      namespaceOwnership: InterNamespaceAllowed",
-                            "",
-                            "Alternatively, you can use subdomain routing mode:",
-                            "   mas install --routing subdomain ...",
-                        ]
-                    )
-                )
-
-            exists, isConfigured = self._checkIngressControllerForPathRouting(ingressControllerName)
-
-            if not exists:
-                self.fatalError(
-                    "\n".join(
-                        [
-                            "IngressController Not Found",
-                            "",
-                            "========================================================================",
-                            f"You selected IngressController '{ingressControllerName}', but it does not exist",
-                            "in the openshift-ingress-operator namespace.",
-                            "",
-                            "To fix this issue:",
-                            "",
-                            "1. List available IngressControllers:",
-                            "   oc get ingresscontroller -n openshift-ingress-operator",
-                            "",
-                            "2. Use an existing controller name with --ingress-controller-name flag:",
-                            "   mas install --routing path --ingress-controller-name [existing-controller] ...",
-                            "",
-                            "3. Or use the default controller (usually named 'default'):",
-                            "   mas install --routing path --ingress-controller-name default ...",
-                            "",
-                            "Alternatively, you can use subdomain routing mode:",
-                            "   mas install --routing subdomain ...",
-                        ]
-                    )
-                )
-            elif not isConfigured:
-                if hasattr(self.args, "mas_configure_ingress") and self.args.mas_configure_ingress:
-                    logger.info(f"IngressController '{ingressControllerName}' will be configured for path-based routing before MAS installation")
-                    self.setParam("mas_configure_ingress", "true")
-                else:
-                    self.fatalError(
-                        "\n".join(
-                            [
-                                "IngressController Not Configured for Path-Based Routing",
-                                "",
-                                "========================================================================",
-                                f"IngressController '{ingressControllerName}' exists but is not properly configured",
-                                "for path-based routing.",
-                                "",
-                                "Required Configuration:",
-                                "  spec:",
-                                "    routeAdmission:",
-                                "      namespaceOwnership: InterNamespaceAllowed",
-                                "",
-                                "To fix this issue, you have two options:",
-                                "",
-                                "1. Add the --configure-ingress flag to configure it during installation:",
-                                f"   (Optionally, you can provide your custom IngressController name instead of {ingressControllerName} )",
-                                f"   mas install --routing path --ingress-controller-name {ingressControllerName} --configure-ingress ...",
-                                "",
-                                "2. Manually configure it before installation by running:",
-                                f"   oc patch ingresscontroller {ingressControllerName} -n openshift-ingress-operator \\",
-                                "     --type=merge \\",
-                                '     --patch=\'{"spec":{"routeAdmission":{"namespaceOwnership":"InterNamespaceAllowed"}}}\'',
-                                "",
-                                "Alternatively, you can use subdomain routing mode:",
-                                "   mas install --routing subdomain ...",
-                            ]
-                        )
-                    )
-            else:
-                logger.info(f"IngressController '{ingressControllerName}' is already configured for path-based routing")
+            self._validateAndConfigureIngressControllerForPathRouting()
 
         # Based on the parameters set the annotations correctly
         self.configAnnotations()
