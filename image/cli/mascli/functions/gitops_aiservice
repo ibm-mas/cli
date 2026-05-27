@@ -395,6 +395,17 @@ function gitops_aiservice() {
     sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca_b64enc"
   else
     echo "IS_GITOPS_FVT_ENV is true - Skipping DRO, S3, and JDBC secret validation"
+
+    export WATSONXAI_APIKEY=${WATSONXAI_APIKEY:-"watsonxai-apikey"}
+    export WATSONXAI_PROJECT_ID=${WATSONXAI_PROJECT_ID:-"watsonxai-project-id"}
+
+    echo "WATSONXAI_APIKEY is set - ${WATSONXAI_APIKEY}"
+    echo "WATSONXAI_PROJECT_ID is set - ${WATSONXAI_PROJECT_ID}"
+
+    export SECRET_NAME_WATSONXAI=${SECRETS_PREFIX}watsonx
+
+    TAGS="[{\"Key\": \"watsonxai_apikey\", \"Value\": \"watsonxai_apikey\"}, {\"Key\": \"watsonxai_project_id\", \"Value\": \"watsonxai_project_id\"}]"
+    sm_update_secret $SECRET_NAME_WATSONXAI "{\"watsonxai_apikey\": \"$WATSONXAI_APIKEY\", \"watsonxai_project_id\": \"$WATSONXAI_PROJECT_ID\"}" "${TAGS}"
   fi
 
     if [ -z $GIT_SSH ]; then
