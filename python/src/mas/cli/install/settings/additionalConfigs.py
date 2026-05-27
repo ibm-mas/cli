@@ -232,12 +232,13 @@ class AdditionalConfigsMixin:
             if not secretName or secretName == "":
                 secretName = "facilities-properties"
 
-            facilitiesPropertiesSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": secretName}}
-            self.setParam("mas_ws_facilities_properties_file", "/workspace/facilities/FACILITIES.properties")
+            facilitiesPropertiesSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-facilities-properties"}}
+            # Set the path in workspace where Ansible will find the file
+            self.setParam("mas_ws_facilities_properties_file_local", "/workspace/facilities/FACILITIES.properties")
             self.setParam("mas_ws_facilities_properties_secret_name", secretName)
             self.facilitiesPropertiesSecret = self.addFilesToSecret(facilitiesPropertiesSecret, facilitiesPropertiesFileLocal, "")
         else:
-            self.setParam("mas_ws_facilities_properties_file", "")
+            self.setParam("mas_ws_facilities_properties_file_local", "")
             self.setParam("mas_ws_facilities_properties_secret_name", "")
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = "") -> dict:
