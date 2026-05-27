@@ -234,11 +234,11 @@ class AdditionalConfigsMixin:
 
             facilitiesPropertiesSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": secretName}}
             self.setParam("mas_ws_facilities_properties_file", "/workspace/facilities/FACILITIES.properties")
-            self.setParam("mas_ws_facilities_properties_secret", secretName)
+            self.setParam("mas_ws_facilities_properties_secret_name", secretName)
             self.facilitiesPropertiesSecret = self.addFilesToSecret(facilitiesPropertiesSecret, facilitiesPropertiesFileLocal, "")
         else:
             self.setParam("mas_ws_facilities_properties_file", "")
-            self.setParam("mas_ws_facilities_properties_secret", "")
+            self.setParam("mas_ws_facilities_properties_secret_name", "")
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = "") -> dict:
         """
