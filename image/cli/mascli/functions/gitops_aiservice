@@ -278,6 +278,44 @@ function gitops_aiservice_noninteractive() {
 
 }
 
+function gitops_aiservice_fvt_prepare() {
+
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
+
+  WATSONXAI_APIKEY=${WATSONXAI_APIKEY:-"watsonxai-apikey"}
+  WATSONXAI_PROJECT_ID=${WATSONXAI_PROJECT_ID:-"watsonxai-project-id"}
+
+  SECRET_NAME_WATSONXAI=${SECRETS_PREFIX}watsonx
+
+  TAGS="[{\"Key\": \"watsonxai_apikey\", \"Value\": \"watsonxai_apikey\"}, {\"Key\": \"watsonxai_project_id\", \"Value\": \"watsonxai_project_id\"}]"
+  
+  sm_update_secret \
+    "$SECRET_NAME_WATSONXAI" \
+    "{\"watsonxai_apikey\":\"$WATSONXAI_APIKEY\",\"watsonxai_project_id\":\"$WATSONXAI_PROJECT_ID\"}" \
+    "$TAGS" || {
+      echo "Failed to update WatsonX secret"
+      return 1
+    }
+
+  SM_S3_ACCESSKEY=${SM_S3_ACCESSKEY:-"sm_s3_accesskey"}
+  SM_S3_SECRETKEY=${SM_S3_SECRETKEY:-"sm_s3_secretkey"}
+  SM_S3_HOST=${SM_S3_HOST:-"sm_s3_host"}
+  SM_S3_REGION=${SM_S3_REGION:-"sm_s3_region"}
+
+  SECRET_NAME_S3=${SECRETS_PREFIX}s3
+  TAGS="[{\"Key\": \"sm_s3_accesskey\", \"Value\": \"sm_s3_accesskey\"}, {\"Key\": \"sm_s3_secretkey\", \"Value\": \"sm_s3_secretkey\"}, {\"Key\": \"sm_s3_host\", \"Value\": \"sm_s3_host\"}, {\"Key\": \"sm_s3_region\", \"Value\": \"sm_s3_region\"}]"
+  
+  sm_update_secret \
+    "$SECRET_NAME_S3" \
+    "{\"sm_s3_accesskey\":\"$SM_S3_ACCESSKEY\",\"sm_s3_secretkey\":\"$SM_S3_SECRETKEY\",\"sm_s3_host\":\"$SM_S3_HOST\",\"sm_s3_region\":\"$SM_S3_REGION\"}" \
+    "$TAGS" || {
+      echo "Failed to update S3 secret"
+      return 1
+    }
+
+  echo "AI Service FVT secret creating function end"
+}
+
 function gitops_aiservice() {
   # Take the first parameter off (it will be create-gitops)
   shift
@@ -396,16 +434,7 @@ function gitops_aiservice() {
   else
     echo "IS_GITOPS_FVT_ENV is true - Skipping DRO, S3, and JDBC secret validation"
 
-    export WATSONXAI_APIKEY=${WATSONXAI_APIKEY:-"watsonxai-apikey"}
-    export WATSONXAI_PROJECT_ID=${WATSONXAI_PROJECT_ID:-"watsonxai-project-id"}
-
-    echo "WATSONXAI_APIKEY is set - ${WATSONXAI_APIKEY}"
-    echo "WATSONXAI_PROJECT_ID is set - ${WATSONXAI_PROJECT_ID}"
-
-    export SECRET_NAME_WATSONXAI=${SECRETS_PREFIX}watsonx
-
-    TAGS="[{\"Key\": \"watsonxai_apikey\", \"Value\": \"watsonxai_apikey\"}, {\"Key\": \"watsonxai_project_id\", \"Value\": \"watsonxai_project_id\"}]"
-    sm_update_secret $SECRET_NAME_WATSONXAI "{\"watsonxai_apikey\": \"$WATSONXAI_APIKEY\", \"watsonxai_project_id\": \"$WATSONXAI_PROJECT_ID\"}" "${TAGS}"
+    gitops_aiservice_fvt_prepare
   fi
 
     if [ -z $GIT_SSH ]; then
