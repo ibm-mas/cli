@@ -12,17 +12,12 @@ try:
     from mas.devops.data import getCatalog, getOCPLifecycleData, getCatalogEditorial, NoSuchCatalogError
 except ImportError:
     # Development fallback: add python-devops to path
-    PYTHON_DEVOPS_PATH = (
-        Path(__file__).parent.parent.parent.parent / "python-devops" / "src"
-    )
+    PYTHON_DEVOPS_PATH = Path(__file__).parent.parent.parent.parent / "python-devops" / "src"
     if PYTHON_DEVOPS_PATH.exists():
         sys.path.insert(0, str(PYTHON_DEVOPS_PATH))
         from mas.devops.data import getCatalog, getOCPLifecycleData, getCatalogEditorial, NoSuchCatalogError
     else:
-        raise ImportError(
-            "Could not import mas.devops.data. "
-            "Please install python-devops package or ensure it's available at ../python-devops/"
-        )
+        raise ImportError("Could not import mas.devops.data. " "Please install python-devops package or ensure it's available at ../python-devops/")
 
 
 class MASCatalogsPlugin(BasePlugin):
@@ -183,9 +178,7 @@ spec:
     <th>Standard Support</th>
     <th>Extended Support</th>
   </tr>
-""".format(
-            len(ocp_versions) + 1
-        )
+""".format(len(ocp_versions) + 1)
 
         # Add rows for each OCP version
         ocp_data = ocp_lifecycle_data.get("ocp_versions", {})

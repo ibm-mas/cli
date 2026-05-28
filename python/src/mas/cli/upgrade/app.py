@@ -23,9 +23,10 @@ from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, verifyAppInstance
+from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, verifyAppInstance, getPermissionMode
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
+from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         if hasMonitor and hasIoT:
             # For upgrade, check the TARGET channel (self.nextChannel), not current channel
             # If upgrading TO 9.2.x or higher, Monitor must upgrade before IoT
-            if self.nextChannel and isVersionEqualOrAfter('9.2.0', self.nextChannel):
+            if self.nextChannel and isVersionEqualOrAfter("9.2.0", self.nextChannel):
                 # Upgrading to Monitor >= 9.2.0: Monitor must upgrade before IoT
                 self.setParam("mas_monitor_install_order", "before-iot")
                 logger.debug(f"Upgrading to MAS {self.nextChannel} (>= 9.2.0): Monitor will upgrade before IoT")
@@ -72,7 +73,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         Warns user and gives option to proceed without Kafka (Defect Detection will not function).
         """
         # Check if upgrading TO Manage 9.2+ (use TARGET channel, not current)
-        if not self.nextChannel or not isVersionEqualOrAfter('9.2.0', self.nextChannel):
+        if not self.nextChannel or not isVersionEqualOrAfter("9.2.0", self.nextChannel):
             return
 
         # Query the ManageWorkspace CR to check if Civil component is installed
@@ -83,14 +84,8 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         try:
             # Query ManageWorkspace CR
-            workspaceAPI = self.dynamicClient.resources.get(
-                api_version="apps.mas.ibm.com/v1",
-                kind="ManageWorkspace"
-            )
-            workspace = workspaceAPI.get(
-                name=f"{instanceId}-{workspaceId}",
-                namespace=f"mas-{instanceId}-manage"
-            )
+            workspaceAPI = self.dynamicClient.resources.get(api_version="apps.mas.ibm.com/v1", kind="ManageWorkspace")
+            workspace = workspaceAPI.get(name=f"{instanceId}-{workspaceId}", namespace=f"mas-{instanceId}-manage")
 
             # Check if Civil component is in the workspace spec
             components = workspace.get("spec", {}).get("components", {})
@@ -106,14 +101,18 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 if not hasKafkaConfig:
                     # Warn user but give option to proceed
                     print_formatted_text(HTML("<Yellow>⚠ Warning: Kafka Configuration Required</Yellow>"))
-                    print_formatted_text(HTML(
-                        f"<LightSlateGrey>Upgrading to Manage {self.nextChannel} with Civil Infrastructure component "
-                        "requires Kafka configuration. Civil versions >= 9.2.0 require a shared system-scope Kafka instance.</LightSlateGrey>"
-                    ))
-                    print_formatted_text(HTML(
-                        "<LightSlateGrey>Without Kafka, the Defect Detection functionality within Civil Infrastructure will not work, "
-                        "but other Civil and Manage components will continue to function.</LightSlateGrey>"
-                    ))
+                    print_formatted_text(
+                        HTML(
+                            f"<LightSlateGrey>Upgrading to Manage {self.nextChannel} with Civil Infrastructure component "
+                            "requires Kafka configuration. Civil versions >= 9.2.0 require a shared system-scope Kafka instance.</LightSlateGrey>"
+                        )
+                    )
+                    print_formatted_text(
+                        HTML(
+                            "<LightSlateGrey>Without Kafka, the Defect Detection functionality within Civil Infrastructure will not work, "
+                            "but other Civil and Manage components will continue to function.</LightSlateGrey>"
+                        )
+                    )
                     print()
 
                     if self.noConfirm:
@@ -130,6 +129,46 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         except Exception as e:
             logger.warning(f"Could not query ManageWorkspace CR for Civil component check: {e}")
             # Don't fail the upgrade if we can't query - let ansible handle it
+
+    def evaluatePreInstallRBACForUpgrade(self, instanceId, targetChannel) -> bool:
+        """
+        Evaluate if pre-install RBAC should be applied for upgrade.
+        Returns True if RBAC should be applied, False otherwise.
+        """
+        # Only apply for MAS >= 9.2.0
+        if not isVersionEqualOrAfter("9.2.0", targetChannel):
+            return False
+
+        # Check if user has cluster-admin permissions
+        permissionResults = permissionCheckForRBAC(self.dynamicClient)
+        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
+
+        if hasPreInstallRBACAccess:
+            return True
+
+        # If no permissions, warn user but don't block upgrade
+        logger.warning(
+            "Current user does not have cluster-admin permissions to apply pre-install RBAC. " "Assuming RBAC was already applied for this MAS version."
+        )
+        return False
+
+    def getInstalledAppsForUpgrade(self, instanceId) -> list[str]:
+        """
+        Get list of installed apps that will be upgraded.
+        Always includes 'core' since core RBAC is required for all upgrades.
+        getAppsSubscriptionChannel() only returns apps (not core), so we add core explicitly.
+        """
+        # Always include core for RBAC application
+        installedApps = ["core"]
+
+        appsWithSubscriptions = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+        logger.info(f"Apps with subscriptions detected: {[app.get('appId') for app in appsWithSubscriptions]}")
+
+        for app in appsWithSubscriptions:
+            appId = app.get("appId")
+            if appId:
+                installedApps.append(appId)
+        return installedApps
 
     def upgrade(self, argv):
         """
@@ -173,27 +212,31 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
             for suite in suites:
                 print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
-                suiteOptions.append(suite['metadata']['name'])
+                suiteOptions.append(suite["metadata"]["name"])
 
             suiteCompleter = WordCompleter(suiteOptions)
             print()
-            instanceId = prompt(HTML('<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False)
+            instanceId = prompt(
+                HTML("<Yellow>Enter MAS instance ID: </Yellow>"), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False
+            )
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
         if currentChannel is not None:
             if self.devMode:
                 # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
-                self.nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+                self.nextChannel = prompt(HTML("<Yellow>Custom channel</Yellow> "))
             else:
                 if self.nextChannel != "":
                     # --next-channel was explicitly provided by the user
                     if self.nextChannel == currentChannel:
                         # Retry scenario: MAS core already on target channel, but some apps may still be behind
-                        print_formatted_text(HTML(
-                            f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
-                            f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
-                        ))
+                        print_formatted_text(
+                            HTML(
+                                f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
+                                f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
+                            )
+                        )
                     elif self.nextChannel == self.upgrade_path.get(currentChannel):
                         # Valid upgrade path: currentChannel -> nextChannel
                         pass
@@ -241,10 +284,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
-            self.printDescription([
-                "To continue with the upgrade, you must accept the license terms:",
-                self.licenses[self.nextChannel]
-            ])
+            self.printDescription(["To continue with the upgrade, you must accept the license terms:", self.licenses[self.nextChannel]])
 
             if self.noConfirm:
                 self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
@@ -261,7 +301,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.installFacilities = False
             self.installManage = True
             self.isManageFoundation = True
-            self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])
+            self.printDescription(
+                [f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."]
+            )
             self.printH1("Configure IBM Container Registry")
             self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
             if self.devMode:
@@ -282,6 +324,29 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         # Validate Kafka requirements for Civil component during upgrade
         self.validateKafkaForCivilUpgrade(instanceId)
 
+        detectedMode = None
+        if currentChannel and (currentChannel.startswith("9.2") or currentChannel.startswith("9.3")):
+            # Current channel is 9.2+, detect permission mode
+            detectedMode = getPermissionMode(self.dynamicClient, instanceId)
+
+            if detectedMode == "minimal":
+                self.fatalError(
+                    f"Cannot upgrade MAS instance '{instanceId}' with 'minimal' permission mode.\n\n"
+                    f"The instance is currently installed with 'minimal' mode, which does not grant\n"
+                    f"the ibm-mas service account sufficient permissions to manage application resources during upgrade.\n\n"
+                    f"To proceed with the upgrade:\n"
+                    f"1. Temporarily increase permissions by re-applying RBAC with cluster or namespaced mode\n"
+                    f"2. Run the upgrade\n"
+                    f"3. After upgrade completes, you can switch back to minimal mode if desired\n\n"
+                )
+
+            print_formatted_text(HTML(f"<Green> Permission mode check passed (mode: {detectedMode})</Green>"))
+            print()
+        elif currentChannel and currentChannel.startswith("9.1") and self.nextChannel and self.nextChannel.startswith("9.2"):
+            # Upgrading from 9.1 to 9.2: default to cluster mode (9.1 had no permission modes)
+            logger.info("Upgrading from 9.1.x to 9.2.x: defaulting to cluster mode (9.1.x had no permission modes)")
+            detectedMode = "cluster"
+
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
@@ -298,7 +363,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.printH1("Launch Upgrade")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
                 successfullyInstalledPipelines = installOpenShiftPipelines(self.dynamicClient)
                 if successfullyInstalledPipelines:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
@@ -306,15 +371,31 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            # Apply pre-install RBAC for target version (only for nextChannel >= 9.2)
+            if detectedMode and self.evaluatePreInstallRBACForUpgrade(instanceId, self.nextChannel):
+                with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
+                    targetVersion = ".".join(self.nextChannel.split(".")[:2])  # Extract "9.2" from "9.2-feature"
+                    # get list of installed apps that needs to be upgraded
+                    selectedApps = self.getInstalledAppsForUpgrade(instanceId)
+                    # Use detected permission mode for RBAC application
+                    applyPreInstallMASRBAC(
+                        dynClient=self.dynamicClient,
+                        masVersion=targetVersion,
+                        masInstanceId=instanceId,
+                        permissionMode=detectedMode,
+                        selectedApps=selectedApps,
+                    )
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for target version {targetVersion} (mode: {detectedMode})")
+
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
+            with Halo(text="Submitting PipelineRun for {instanceId} upgrade", spinner=self.spinner) as h:
                 # Determine masChannel parameter based on scenario:
                 # - Regular upgrade: pass currentChannel so ansible looks up the next channel
                 # - Retry scenario: pass previous channel so ansible upgrades apps to current channel
