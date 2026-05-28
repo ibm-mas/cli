@@ -926,18 +926,15 @@ spec:
           # Step 4: Trigger ArgoCD sync for affected applications
           echo "Step 4: Triggering ArgoCD sync for affected applications..."
           
-          # Construct JDBC config app name: ${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-manage.${MAS_INSTANCE_ID}
-          JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-manage.${MAS_INSTANCE_ID}"
+          # Note: We only sync DB2 app; its postsync job will handle JDBC config update
           DB2_DB_APP="db2-db.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.manage"
           
           argocd app sync "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" --grpc-web || echo "Warning: suite app sync failed"
-          argocd app sync "${JDBC_CONFIG_APP}" --grpc-web || echo "Warning: JDBC config app sync failed"
           argocd app sync "${DB2_DB_APP}" --grpc-web || echo "Warning: DB2 database app sync failed"
           
           # Step 5: Wait for applications to be healthy
           echo "Step 5: Waiting for applications to sync and become healthy..."
           check_argo_app_synced "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          check_argo_app_synced "${JDBC_CONFIG_APP}"
           check_argo_app_synced "${DB2_DB_APP}"
           
           echo "✓ All applications synced successfully"
