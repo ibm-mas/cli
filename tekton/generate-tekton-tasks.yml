@@ -37,6 +37,7 @@
         - kafka
         - mongodb
         - nvidia-gpu
+        - provision-db2
         - ocs
         - rhoai-migration
         - sls-registry-update

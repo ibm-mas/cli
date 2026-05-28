@@ -1,0 +1,185 @@
+#!/bin/bash
+
+function gitops_provision_db2_noninteractive() {
+  # No interactive mode needed for FVT automation
+  echo "DB2 provisioning for AI Service FVT"
+}
+
+function gitops_provision_db2() {
+  # Catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h4 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT}"
+  echo_reset_dim "Cluster Name ................... ${COLOR_MAGENTA}${CLUSTER_NAME}"
+  echo_reset_dim "AI Service Instance ID ......... ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "DB2 Configuration" "    "
+  echo_reset_dim "DB2 Channel .................... ${COLOR_MAGENTA}${DB2_CHANNEL}"
+  echo_reset_dim "DB2 Meta Storage Class ......... ${COLOR_MAGENTA}${DB2_META_STORAGE_CLASS}"
+  echo_reset_dim "DB2 Data Storage Class ......... ${COLOR_MAGENTA}${DB2_DATA_STORAGE_CLASS}"
+  echo_reset_dim "DB2 Backup Storage Class ....... ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_CLASS}"
+  echo_reset_dim "DB2 Logs Storage Class ......... ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_CLASS}"
+  echo_reset_dim "DB2 Temp Storage Class ......... ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_CLASS}"
+  reset_colors
+  echo
+
+  # Set up AWS Secrets Manager connection
+  export SECRET_NAME_JDBC=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}jdbc
+  AVP_TYPE=aws
+  sm_login
+
+  # Create temporary directory for Ansible execution
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-db2
+  rm -rf $TEMP_DIR
+  mkdir -p $TEMP_DIR
+
+  # Set Ansible environment variables for DB2 role
+  export MAS_CONFIG_DIR=$TEMP_DIR
+  export MAS_INSTANCE_ID=${AISERVICE_INSTANCE_ID}
+  export MAS_CONFIG_SCOPE=system
+  export ROLE_NAME=db2
+  
+  # DB2 Installation Parameters
+  export DB2_ACTION=install
+  export DB2_NAMESPACE=db2u
+  export DB2_INSTANCE_NAME=${AISERVICE_INSTANCE_ID}-db2wh
+  export DB2_CHANNEL=${DB2_CHANNEL:-v11.5}
+  export DB2_DBNAME=BLUDB
+  export DB2_TYPE=db2wh
+  export DB2_4K_DEVICE_SUPPORT=ON
+  export DB2_WORKLOAD=ANALYTICS
+  export DB2_TABLE_ORG=ROW
+  export TLS_VERSION=TLSv1.2
+  
+  # Storage Configuration - use the storage classes passed from Tekton
+  export DB2_META_STORAGE_SIZE=10Gi
+  export DB2_META_STORAGE_ACCESSMODE=ReadWriteMany
+  
+  export DB2_DATA_STORAGE_SIZE=50Gi
+  export DB2_DATA_STORAGE_ACCESSMODE=ReadWriteOnce
+  
+  export DB2_BACKUP_STORAGE_SIZE=50Gi
+  export DB2_BACKUP_STORAGE_ACCESSMODE=ReadWriteMany
+  
+  export DB2_LOGS_STORAGE_SIZE=10Gi
+  export DB2_LOGS_STORAGE_ACCESSMODE=ReadWriteOnce
+  
+  export DB2_TEMP_STORAGE_SIZE=10Gi
+  export DB2_TEMP_STORAGE_ACCESSMODE=ReadWriteOnce
+  
+  export DB2_ARCHIVELOGS_STORAGE_CLASS=${DB2_LOGS_STORAGE_CLASS}
+  export DB2_ARCHIVELOGS_STORAGE_SIZE=10Gi
+  export DB2_ARCHIVELOGS_STORAGE_ACCESSMODE=ReadWriteOnce
+  
+  # Resource Configuration
+  export DB2_CPU_REQUESTS=4000m
+  export DB2_CPU_LIMITS=6000m
+  export DB2_MEMORY_REQUESTS=8Gi
+  export DB2_MEMORY_LIMITS=16Gi
+  
+  # DB2 MPP Configuration (single node for AI Service)
+  export DB2_MLN_COUNT=1
+  export DB2_NUM_PODS=1
+  
+  # Use Db2uInstance (recommended, not deprecated Db2uCluster)
+  export DB2U_KIND=db2uinstance
+
+  echo
+  echo_h2 "Provisioning DB2 via Ansible"
+  echo "Executing: ansible-playbook ibm.mas_devops.run_role"
+  echo
+
+  # Execute Ansible playbook to provision DB2
+  ansible-playbook ibm.mas_devops.run_role
+  rc=$?
+  if [ $rc -ne 0 ]; then
+    echo "[ERROR] DB2 provisioning failed with return code $rc"
+    rm -rf $TEMP_DIR
+    exit $rc
+  fi
+
+  echo
+  echo_h2 "Extracting DB2 Connection Details"
+  
+  # Wait for DB2 to be fully ready
+  echo "Waiting for DB2 instance to be ready..."
+  sleep 30
+  
+  # Extract DB2 connection details from Kubernetes
+  echo "Retrieving DB2 password..."
+  DB2_PASSWORD=$(oc get secret c-${DB2_INSTANCE_NAME}-instancepassword -n ${DB2_NAMESPACE} -o jsonpath='{.data.password}' 2>/dev/null | base64 -d)
+  if [[ -z "${DB2_PASSWORD}" ]]; then
+    echo "[ERROR] Failed to retrieve DB2 password from secret c-${DB2_INSTANCE_NAME}-instancepassword"
+    rm -rf $TEMP_DIR
+    exit 1
+  fi
+  
+  echo "Retrieving DB2 TLS certificate..."
+  DB2_CA_CERT=$(oc get secret db2u-certificate-${DB2_INSTANCE_NAME} -n ${DB2_NAMESPACE} -o jsonpath='{.data.ca\.crt}' 2>/dev/null)
+  if [[ -z "${DB2_CA_CERT}" ]]; then
+    echo "[ERROR] Failed to retrieve DB2 CA certificate from secret db2u-certificate-${DB2_INSTANCE_NAME}"
+    rm -rf $TEMP_DIR
+    exit 1
+  fi
+  
+  echo "Retrieving DB2 route..."
+  DB2_HOST=$(oc get route db2u-${DB2_INSTANCE_NAME}-tls-route -n ${DB2_NAMESPACE} -o jsonpath='{.spec.host}' 2>/dev/null)
+  if [[ -z "${DB2_HOST}" ]]; then
+    echo "[ERROR] Failed to retrieve DB2 route db2u-${DB2_INSTANCE_NAME}-tls-route"
+    rm -rf $TEMP_DIR
+    exit 1
+  fi
+  
+  # DB2 TLS port is always 50443
+  DB2_PORT=50443
+  DB2_USERNAME=db2inst1
+  
+  # Construct JDBC URL
+  JDBC_URL="jdbc:db2://${DB2_HOST}:${DB2_PORT}/${DB2_DBNAME}:sslConnection=true;sslVersion=${TLS_VERSION};"
+  
+  echo
+  echo "DB2 Connection Details:"
+  echo "  Host ........... ${DB2_HOST}"
+  echo "  Port ........... ${DB2_PORT}"
+  echo "  Database ....... ${DB2_DBNAME}"
+  echo "  Username ....... ${DB2_USERNAME}"
+  echo "  JDBC URL ....... ${JDBC_URL}"
+  
+  echo
+  echo_h2 "Creating JDBC Secret in AWS Secrets Manager"
+  
+  # Create the JDBC secret in AWS Secrets Manager
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_provision_db2\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}, {\"Key\": \"aiservice_instance\", \"Value\": \"${AISERVICE_INSTANCE_ID}\"}]"
+  
+  sm_update_secret $SECRET_NAME_JDBC "{\"jdbccfg_username\": \"${DB2_USERNAME}\", \"jdbccfg_password\": \"${DB2_PASSWORD}\", \"jdbccfg_url\": \"${JDBC_URL}\", \"jdbccfg_sslenabled\": \"true\", \"jdbccfg_ca_b64enc\": \"${DB2_CA_CERT}\"}" "${TAGS}"
+  
+  if [ $? -eq 0 ]; then
+    echo "✓ JDBC secret created successfully: ${SECRET_NAME_JDBC}"
+  else
+    echo "[ERROR] Failed to create JDBC secret in AWS Secrets Manager"
+    rm -rf $TEMP_DIR
+    exit 1
+  fi
+  
+  # Clean up temporary directory
+  rm -rf $TEMP_DIR
+  
+  echo
+  echo_h2 "DB2 Provisioning Complete"
+  echo "✓ DB2 instance provisioned: ${DB2_INSTANCE_NAME}"
+  echo "✓ JDBC secret created: ${SECRET_NAME_JDBC}"
+  echo "✓ AI Service can now consume the JDBC configuration"
+  echo
+
+  exit 0
+}
