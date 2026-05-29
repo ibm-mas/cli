@@ -201,6 +201,13 @@ otherArgGroup.add_argument(
     default=False,
     help="Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline",
 )
+otherArgGroup.add_argument(
+    "--skip-preinstall-rbac",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Skip CLI application of pre-install MAS RBAC. Use this when an OpenShift administrator has already applied the required RBAC.",
+)
 otherArgGroup.add_argument("--slack-token", required=False, help="Slack bot token for sending pipeline status notifications")
 otherArgGroup.add_argument("--slack-channel", required=False, help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)")
 otherArgGroup.add_argument(

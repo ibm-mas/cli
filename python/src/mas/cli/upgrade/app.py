@@ -34,7 +34,7 @@ from mas.devops.mas import (
 )
 from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
-from mas.devops.pre_install import applyPreInstallMASRBAC, shouldApplyPreInstallRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC, requiresPreInstallRBAC
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +149,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.licenseAccepted = args.accept_license
         self.nextChannel = args.next_channel
         self.devMode = args.dev_mode
+        self.skipPreinstallRbac = args.skip_preinstall_rbac
 
         # Set image_pull_policy if provided
         if args.image_pull_policy and args.image_pull_policy != "":
@@ -327,20 +328,56 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     self.fatalError("Installation failed")
 
             # Apply pre-install RBAC for target version (only for nextChannel >= 9.2)
-            if detectedMode and shouldApplyPreInstallRBAC(self.dynamicClient, self.nextChannel, detectedMode):
-                with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
-                    targetVersion = extractBaseVersion(self.nextChannel)  # Extract "9.2" from "9.2.x" or "9.2-feature"
-                    # get list of installed apps that needs to be upgraded
-                    selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
-                    # Use detected permission mode for RBAC application
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=targetVersion,
-                        masInstanceId=instanceId,
-                        permissionMode=detectedMode,
-                        selectedApps=selectedApps,
+            # requiresPreInstallRBAC checks permissions and raises PermissionError if user lacks access
+            try:
+                if detectedMode and requiresPreInstallRBAC(self.dynamicClient, self.nextChannel, detectedMode, self.skipPreinstallRbac):
+                    with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
+                        targetVersion = extractBaseVersion(self.nextChannel)  # Extract "9.2" from "9.2.x" or "9.2-feature"
+                        # get list of installed apps that needs to be upgraded
+                        selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
+                        # Use detected permission mode for RBAC application
+                        applyPreInstallMASRBAC(
+                            dynClient=self.dynamicClient,
+                            masVersion=targetVersion,
+                            masInstanceId=instanceId,
+                            permissionMode=detectedMode,
+                            selectedApps=selectedApps,
+                        )
+                        h.stop_and_persist(
+                            symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for target version {targetVersion} (mode: {detectedMode})"
+                        )
+            except PermissionError as e:
+                # User doesn't have RBAC permissions - prompt or fail
+                logger.warning(f"Permission error when checking RBAC requirements: {e}")
+                if self.noConfirm:
+                    # Non-interactive mode - fail with clear message
+                    self.fatalError(
+                        f"You are upgrading to MAS {self.nextChannel} with '{detectedMode}' permission mode.\n"
+                        "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.\n"
+                        "This step must be completed by an OpenShift cluster administrator before MAS upgrade can continue.\n"
+                        f"Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {instanceId} --mas-channel {self.nextChannel}' for this upgrade "
+                        "and then rerun 'mas upgrade' with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'."
                     )
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for target version {targetVersion} (mode: {detectedMode})")
+                else:
+                    # Interactive mode - ask if admin already applied RBAC
+                    self.printDescription(
+                        [
+                            "",
+                            f"You are upgrading to MAS {self.nextChannel} with '{detectedMode}' permission mode.",
+                            "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
+                            "This step must be completed by an OpenShift cluster administrator before MAS upgrade can continue.",
+                            f"Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {instanceId} --mas-channel {self.nextChannel}' for this upgrade.",
+                            "If that has already been done, you can continue the upgrade without applying it again.",
+                        ]
+                    )
+
+                    if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this upgrade"):
+                        self.fatalError(
+                            f"Upgrade aborted. Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {instanceId} --mas-channel {self.nextChannel}' "
+                            "and then run 'mas upgrade' again with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'."
+                        )
+                    # User confirmed RBAC was already applied, continue with upgrade
+                    logger.info("User confirmed pre-install RBAC was already applied by administrator, continuing with upgrade")
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)

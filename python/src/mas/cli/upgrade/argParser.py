@@ -51,6 +51,13 @@ otherArgGroup.add_argument(
 )
 otherArgGroup.add_argument("--accept-license", action="store_true", default=False, help="Accept all license terms without prompting")
 otherArgGroup.add_argument(
+    "--skip-preinstall-rbac",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Skip CLI application of pre-install MAS RBAC. Use this when an OpenShift administrator has already applied the required RBAC.",
+)
+otherArgGroup.add_argument(
     "--dev-mode",
     required=False,
     action="store_true",

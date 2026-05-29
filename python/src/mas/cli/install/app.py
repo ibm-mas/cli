@@ -68,7 +68,7 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC, requiresPreInstallRBAC
 
 logger = logging.getLogger(__name__)
 
@@ -118,51 +118,52 @@ class InstallApp(
         return selectedApps
 
     def evaluatePreInstallRBACAccess(self) -> None:
+        """
+        Evaluate if pre-install RBAC should be applied using shouldApplyPreInstallRBAC().
+        Sets self.applyPreInstallMASRBAC flag based on the result.
+        """
         self.applyPreInstallMASRBAC = False
 
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
-            return
+        try:
+            # Use centralized function to check if RBAC should be applied
+            if requiresPreInstallRBAC(self.dynamicClient, self.getParam("mas_channel"), self.mas_permission_mode, self.skip_preinstall_rbac):
+                self.applyPreInstallMASRBAC = True
+                logger.info("Pre-install RBAC will be applied during installation")
+            else:
+                logger.info("Pre-install RBAC will be skipped during installation")
 
-        if self.mas_permission_mode == "minimal":
-            return
-
-        if self.skip_preinstall_rbac:
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        if self.isInteractiveMode:
-            self.printDescription(
-                [
-                    "",
-                    f"You selected the '{self.mas_permission_mode}' permission mode.",
-                    "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
-                    "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS channel, permission mode, and selected apps.",
-                    "If that has already been done, you can continue the installation without applying it again.",
-                ]
-            )
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
+        except PermissionError as e:
+            # User doesn't have RBAC permissions - prompt or fail
+            logger.warning(f"Permission error when checking RBAC requirements: {e}")
+            if not self.isInteractiveMode:
+                # Non-interactive mode - fail with clear message
                 self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run 'mas install' again with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'."
+                    f"You selected the '{self.mas_permission_mode}' permission mode.\n"
+                    "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.\n"
+                    "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.\n"
+                    f"Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {self.getParam('mas_instance_id')} --mas-channel {self.getParam('mas_channel')}' "
+                    "and then rerun 'mas install' with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'."
                 )
-        else:
-            self.fatalError(
-                "\n".join(
+            else:
+                # Interactive mode - ask if admin already applied RBAC
+                self.printDescription(
                     [
+                        "",
                         f"You selected the '{self.mas_permission_mode}' permission mode.",
                         "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                         "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                        "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas install' with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'.",
+                        f"Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {self.getParam('mas_instance_id')} --mas-channel {self.getParam('mas_channel')}'.",
+                        "If that has already been done, you can continue the installation without applying it again.",
                     ]
                 )
-            )
+
+                if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
+                    self.fatalError(
+                        f"Installation aborted. Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {self.getParam('mas_instance_id')} --mas-channel {self.getParam('mas_channel')}' "
+                        "and then run 'mas install' again with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'."
+                    )
+                # User confirmed RBAC was already applied, continue with installation
+                logger.info("User confirmed pre-install RBAC was already applied by administrator, continuing with installation")
 
     @logMethodCall
     def validateCatalogSource(self):
