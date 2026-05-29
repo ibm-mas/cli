@@ -282,7 +282,9 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     currentVersion = instance.get("status", {}).get("versions", {}).get("reconciled", "")
 
                     if self.shouldApplyRBACForInstance(instanceId, currentVersion, self.chosenCatalog):
-                        instancesNeedingRBAC.append({"id": instanceId, "version": currentVersion, "channel": getMasChannel(self.dynamicClient, instanceId)})
+                        channel = getMasChannel(self.dynamicClient, instanceId)
+                        targetVersion = self.chosenCatalog.get("mas_core_version", {}).get(channel, "")
+                        instancesNeedingRBAC.append({"id": instanceId, "currentVersion": currentVersion, "targetVersion": targetVersion, "channel": channel})
 
                 if instancesNeedingRBAC:
                     self.printH1("Apply Pre-Install RBAC for GA Transition")
@@ -294,19 +296,23 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
                     for instanceInfo in instancesNeedingRBAC:
                         instanceId = instanceInfo["id"]
-                        currentVersion = instanceInfo["version"]
+                        currentVersion = instanceInfo["currentVersion"]
+                        targetVersion = instanceInfo["targetVersion"]
 
-                        # Extract base version for RBAC using helper
-                        baseVersion = extractBaseVersion(currentVersion)
+                        # Extract base version from TARGET version for RBAC
+                        baseVersion = extractBaseVersion(targetVersion)
 
-                        # For pre-release to GA transition, default to cluster mode
-                        # Pre-release versions (9.2.0-pre.stable) were installed before permission modes
-                        # were introduced, so they default to cluster mode
+                        # Ensure version has patch number for semver validation (9.2 -> 9.2.0)
+                        fullVersion = f"{baseVersion}.0" if baseVersion.count(".") == 1 else baseVersion
+
+                        # For pre-release to 9.2 GA transition, default to cluster mode
                         permissionMode = "cluster"
-                        logger.info(f"Using cluster mode for pre-release to GA transition for instance {instanceId}")
+                        logger.info(
+                            f"Using cluster mode for pre-release to GA transition for instance {instanceId} (current: {currentVersion}, target: {targetVersion})"
+                        )
 
                         # Check permissions and apply RBAC (will raise PermissionError if no access)
-                        if shouldApplyPreInstallRBAC(self.dynamicClient, baseVersion, permissionMode):
+                        if shouldApplyPreInstallRBAC(self.dynamicClient, fullVersion, permissionMode):
                             # Get installed apps for this instance
                             selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
 
