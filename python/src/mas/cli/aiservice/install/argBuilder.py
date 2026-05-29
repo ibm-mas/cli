@@ -96,9 +96,9 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --dev-mode{newline}"
         if self.getParam("skip_pre_check") is True:
             command += f"  --skip-pre-check{newline}"
-        if self.getParam("permission_mode") != "":
-            command += f"  --permission-mode \"{self.getParam('permission_mode')}\"{newline}"
-        if self.getParam("skip_preinstall_rbac") != "":
+        if self.permission_mode != "":
+            command += f'  --permission-mode "{self.permission_mode}"{newline}'
+        if self.skip_preinstall_rbac:
             command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
@@ -179,12 +179,6 @@ class aiServiceInstallArgBuilderMixin:
         if self.aiserviceTenantSchedulingConfigFileLocal:
             command += f'  --tenant-scheduling-config-file "{self.aiserviceTenantSchedulingConfigFileLocal}"{newline}'
 
-        if self.getParam("rsl_url") != "":
-            command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
-        if self.getParam("rsl_org_id") != "":
-            command += f"  --rsl-org-id \"{self.getParam('rsl_org_id')}\"{newline}"
-        if self.getParam("rsl_token") != "":
-            command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
         if self.getParam("rsl_ca_crt") != "":
             command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 

@@ -123,12 +123,10 @@ class InstallApp(
         if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             return
 
-        # TODO: Sort out the openshift-ingress exception properly.
-        # For now, keep continue pre-install RBAC for minimal mode here.
-        # if self.getParam("mas_permission_mode") == "minimal":
-        # return
+        if self.mas_permission_mode == "minimal":
+            return
 
-        if self.getParam("skip_preinstall_rbac") == "true":
+        if self.skip_preinstall_rbac:
             return
 
         permissionResults = permissionCheckForRBAC(self.dynamicClient)
@@ -142,26 +140,26 @@ class InstallApp(
             self.printDescription(
                 [
                     "",
-                    f"You selected the '{self.getParam('mas_permission_mode')}' permission mode.",
+                    f"You selected the '{self.mas_permission_mode}' permission mode.",
                     "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                     "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS version, permission mode, and selected apps.",
+                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS channel, permission mode, and selected apps.",
                     "If that has already been done, you can continue the installation without applying it again.",
                 ]
             )
 
             if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
                 self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run mas install again with --skip-preinstall-rbac."
+                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run 'mas install' again with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'."
                 )
         else:
             self.fatalError(
                 "\n".join(
                     [
-                        f"You selected the '{self.getParam('mas_permission_mode')}' permission mode.",
+                        f"You selected the '{self.mas_permission_mode}' permission mode.",
                         "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                         "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                        "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas install' with --skip-preinstall-rbac.",
+                        "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas install' with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'.",
                     ]
                 )
             )
@@ -776,9 +774,9 @@ class InstallApp(
 
                 permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
                 permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
-                self.setParam("mas_permission_mode", permissionModeMap[permissionModeInt])
+                self.mas_permission_mode = permissionModeMap[permissionModeInt]
 
-                if self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+                if self.mas_permission_mode in ["namespaced", "minimal"]:
                     self.setParam("mas_issuer_kind", "Issuer")
                 else:
                     self.printDescription(
@@ -795,18 +793,18 @@ class InstallApp(
                     )
                     issuerKindChoice = self.promptForInt("Certificate issuer kind", min=1, max=2, default=2)
                     self.setParam("mas_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")
-            elif self.getParam("mas_permission_mode") == "":
-                self.setParam("mas_permission_mode", "cluster")
+            elif self.mas_permission_mode == "":
+                self.mas_permission_mode = "cluster"
                 self.setParam("mas_issuer_kind", "ClusterIssuer")
 
     def _handleDNSIntegrationRestriction(self):
         if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             return False
 
-        if self.getParam("mas_permission_mode") in ["namespaced", "minimal"]:
+        if self.mas_permission_mode in ["namespaced", "minimal"]:
             self.printDescription(
                 [
-                    f"You are using the {self.getParam('mas_permission_mode')} permission mode.",
+                    f"You are using the {self.mas_permission_mode} permission mode.",
                     "DNS integration is not available in this mode.",
                     "If you use a custom domain, you need to configure DNS manually.",
                 ]
@@ -1898,20 +1896,11 @@ class InstallApp(
                 [
                     "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
                     "",
-                    "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
-                    "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
-                    "Token: Use your IBM entitlement key (same as MAS installation)",
-                    "",
                     "Note: Future versions will auto-configure these from MAS Manage.",
                     "",
                 ]
             )
-            self.promptForString("RSL url", "rsl_url")
-            self.promptForString("ORG Id of RSL", "rsl_org_id")
-            rslToken = self.promptForString("Token for RSL", isPassword=True)
-            if not rslToken.startswith("Bearer "):
-                rslToken = "Bearer " + rslToken
-            self.setParam("rsl_token", rslToken)
+
             if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
                 self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 
@@ -2263,6 +2252,7 @@ class InstallApp(
                 "advanced",
                 "simplified",
                 "mas_configure_ingress",
+                "use_cli_digest",
             ]:
                 pass
 
@@ -2377,17 +2367,17 @@ class InstallApp(
         if self.getParam("mas_issuer_kind") != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--mas-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
 
-        if self.getParam("mas_permission_mode") != "":
+        if self.mas_permission_mode != "":
             if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
                 self.fatalError(f"--permission-mode is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
             else:
                 if self.getParam("mas_issuer_kind") == "":
-                    if self.getParam("mas_permission_mode") == "cluster":
+                    if self.mas_permission_mode == "cluster":
                         self.setParam("mas_issuer_kind", "ClusterIssuer")
                     else:
                         self.setParam("mas_issuer_kind", "Issuer")
 
-                if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.getParam("mas_permission_mode") != "cluster":
+                if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.mas_permission_mode != "cluster":
                     self.fatalError(
                         "\n".join(
                             [
@@ -2398,21 +2388,21 @@ class InstallApp(
                     )
 
                 if self.getParam("dns_provider") != "":
-                    if self.getParam("mas_permission_mode") in [
+                    if self.mas_permission_mode in [
                         "namespaced",
                         "minimal",
                     ]:
                         self.fatalError(
                             "\n".join(
                                 [
-                                    f"Invalid configuration for permission mode '{self.getParam('mas_permission_mode')}'",
+                                    f"Invalid configuration for permission mode '{self.mas_permission_mode}'",
                                     "DNS integration is not available in this mode.",
                                     "Remove DNS integration option --dns-provider, or switch to --permission-mode cluster and use --mas-issuer-kind ClusterIssuer.",
                                 ]
                             )
                         )
 
-                    if self.getParam("mas_permission_mode") == "cluster" and self.getParam("mas_issuer_kind") == "Issuer":
+                    if self.mas_permission_mode == "cluster" and self.getParam("mas_issuer_kind") == "Issuer":
                         self.fatalError(
                             "\n".join(
                                 [
@@ -2423,7 +2413,7 @@ class InstallApp(
                             )
                         )
         elif isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
-            self.setParam("mas_permission_mode", "cluster")
+            self.mas_permission_mode = "cluster"
             if self.getParam("mas_issuer_kind") == "":
                 self.setParam("mas_issuer_kind", "ClusterIssuer")
 
@@ -2501,6 +2491,7 @@ class InstallApp(
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
         self.skipGrafanaInstall = args.skip_grafana_install
+        self.mas_permission_mode = args.mas_permission_mode if args.mas_permission_mode else ""
 
         # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
@@ -2515,8 +2506,29 @@ class InstallApp(
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
-        if hasattr(args, "skip_preinstall_rbac") and args.skip_preinstall_rbac:
-            self.setParam("skip_preinstall_rbac", "true")
+        self.skip_preinstall_rbac = hasattr(args, "skip_preinstall_rbac") and args.skip_preinstall_rbac
+
+        # Handle --use-cli-digest parameter which can be:
+        # - False (not provided)
+        # - True (provided without value, auto-lookup digest)
+        # - "sha256:..." (provided with specific digest value)
+        if hasattr(args, "use_cli_digest"):
+            use_cli_digest_value = args.use_cli_digest
+            if use_cli_digest_value is False:
+                # Flag not provided
+                self.useCliDigest = False
+                self.cliDigest = None
+            elif use_cli_digest_value is True:
+                # Flag provided without value - auto-lookup digest
+                self.useCliDigest = True
+                self.cliDigest = None
+            else:
+                # Flag provided with digest value
+                self.useCliDigest = True
+                self.cliDigest = use_cli_digest_value
+        else:
+            self.useCliDigest = False
+            self.cliDigest = None
 
         if hasattr(args, "mas_configure_ingress") and args.mas_configure_ingress:
             self.setParam("mas_configure_ingress", "true")
@@ -2725,7 +2737,7 @@ class InstallApp(
                         dynClient=self.dynamicClient,
                         masVersion=".".join(self.getParam("mas_channel").split(".")[:2]),
                         masInstanceId=self.getParam("mas_instance_id"),
-                        permissionMode=self.getParam("mas_permission_mode"),
+                        permissionMode=self.mas_permission_mode,
                         selectedApps=self.getSelectedApps(),
                     )
                     h.stop_and_persist(symbol=self.successIcon, text="Pre-install MAS RBAC applied")

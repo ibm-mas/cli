@@ -77,7 +77,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
             return
 
-        if self.getParam("skip_preinstall_rbac") == "true":
+        if self.skip_preinstall_rbac:
             return
 
         permissionResults = permissionCheckForRBAC(self.dynamicClient)
@@ -91,7 +91,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printDescription(
                 [
                     "",
-                    f"You selected the '{self.getParam('permission_mode')}' permission mode.",
+                    f"You selected the '{self.permission_mode}' permission mode.",
                     "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                     "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
                     "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance.",
@@ -107,7 +107,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.fatalError(
                 "\n".join(
                     [
-                        f"You selected the '{self.getParam('permission_mode')}' permission mode.",
+                        f"You selected the '{self.permission_mode}' permission mode.",
                         "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                         "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
                         "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas aiservice-install' with --skip-preinstall-rbac.",
@@ -140,9 +140,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
             permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
-            self.setParam("permission_mode", permissionModeMap[permissionModeInt])
-        elif self.getParam("permission_mode") == "":
-            self.setParam("permission_mode", "cluster")
+            self.permission_mode = permissionModeMap[permissionModeInt]
+        elif self.permission_mode == "":
+            self.permission_mode = "cluster"
 
     @logMethodCall
     def processCatalogChoice(self) -> list:
@@ -466,12 +466,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.validateCatalogSource()
             self.licensePrompt()
 
-        if self.getParam("permission_mode") != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
+        if self.permission_mode != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
             self.fatalError("--permission-mode is supported only for AI Service releases aligned to MAS 9.2.0 and later")
 
         # Set default permission_mode for 9.2.0+ if not provided
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")) and self.getParam("permission_mode") == "":
-            self.setParam("permission_mode", "cluster")
+        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")) and self.permission_mode == "":
+            self.permission_mode = "cluster"
 
     @logMethodCall
     def install(self, argv):
@@ -487,6 +487,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.noConfirm = args.no_confirm
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
+        self.permission_mode = args.permission_mode if args.permission_mode else ""
 
         self.printDescription(
             [
@@ -514,8 +515,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
-        if hasattr(args, "skip_preinstall_rbac") and args.skip_preinstall_rbac:
-            self.setParam("skip_preinstall_rbac", "true")
+        self.skip_preinstall_rbac = hasattr(args, "skip_preinstall_rbac") and args.skip_preinstall_rbac
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -625,7 +625,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                         dynClient=self.dynamicClient,
                         masVersion=".".join(self.getParam("aiservice_channel").split(".")[:2]),
                         masInstanceId=self.getParam("aiservice_instance_id"),
-                        permissionMode=self.getParam("permission_mode"),
+                        permissionMode=self.permission_mode,
                         selectedApps=["aiservice"],
                     )
                     h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for AI Service is ready for {self.getParam('aiservice_instance_id')}")
@@ -812,20 +812,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             [
                 "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
                 "",
-                "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
-                "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
-                "Token: Use your IBM entitlement key (same as MAS installation)",
-                "",
                 "Note: Future versions will auto-configure these from MAS Manage.",
                 "",
             ]
         )
-        self.promptForString("RSL url", "rsl_url")
-        self.promptForString("ORG Id of RSL", "rsl_org_id")
-        rslToken = self.promptForString("Token for RSL", isPassword=True)
-        if not rslToken.startswith("Bearer "):
-            rslToken = "Bearer " + rslToken
-        self.setParam("rsl_token", rslToken)
+
         if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
             self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 
