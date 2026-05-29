@@ -63,7 +63,6 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_cp4d_service
 . $CLI_DIR/functions/gitops_license
 . $CLI_DIR/functions/gitops_mongo
-. $CLI_DIR/functions/gitops_provision_db2
 . $CLI_DIR/functions/gitops_kafka
 . $CLI_DIR/functions/gitops_suite
 . $CLI_DIR/functions/gitops_suite_app_install
@@ -372,14 +371,6 @@ case $1 in
     echo
     reset_colors
     gitops_mongo "$@"
-    ;;
-
-  gitops-provision-db2)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_provision_db2 "$@"
     ;;
 
   gitops-process-mongo-user)

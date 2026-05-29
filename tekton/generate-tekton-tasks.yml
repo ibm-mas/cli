@@ -248,7 +248,6 @@
         - gitops-mongo
         - gitops-nvidia-gpu
         - gitops-process-mongo-user
-        - gitops-provision-db2
         - gitops-rosa
         - gitops-sls
         - gitops-suite-app-install
