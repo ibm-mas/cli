@@ -508,8 +508,8 @@ spec:
           echo "Updating jdbc_type in ${SUITE_CONFIG}"
           if [ -f "$SUITE_CONFIG" ]; then
             # Update jdbc_type
-            yq eval '(.ibm_mas_suite_configs[] | select(.mas_config_kind == "jdbccfgs") | .jdbc_type) = "incluster-db2"' -i "$SUITE_CONFIG"
-            echo "✓ Updated jdbc_type to 'incluster-db2'"
+            yq eval '(.ibm_mas_suite_configs[] | select(.mas_config_kind == "jdbccfgs") | .jdbc_type) = "external-db2"' -i "$SUITE_CONFIG"
+            echo "✓ Updated jdbc_type to 'external-db2'"
           else
             echo "WARNING: ${SUITE_CONFIG} not found"
             return 1
