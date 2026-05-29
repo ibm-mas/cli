@@ -72,11 +72,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             return False
 
         # Check if target version is GA (not pre-release)
-        if isPreReleaseVersion(targetVersion):
-            logger.info(f"Instance {instanceId} will stay on pre-release (current: {currentVersion}, target: {targetVersion}). Skipping RBAC.")
-            return False
+        # COMMENTED OUT FOR TESTING: Force RBAC application even for pre-release targets
+        # if isPreReleaseVersion(targetVersion):
+        #     logger.info(f"Instance {instanceId} will stay on pre-release (current: {currentVersion}, target: {targetVersion}). Skipping RBAC.")
+        #     return False
+        logger.info(f"TEST MODE: Forcing RBAC application (current: {currentVersion}, target: {targetVersion})")
 
-        # Extract base version from target GA version
+        # Extract base version from target version
         baseVersion = extractBaseVersion(targetVersion)
         fullVersion = f"{baseVersion}.0"
 
