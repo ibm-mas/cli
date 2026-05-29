@@ -119,7 +119,7 @@ class InstallApp(
 
     def evaluatePreInstallRBACAccess(self) -> None:
         """
-        Evaluate if pre-install RBAC should be applied using shouldApplyPreInstallRBAC().
+        Evaluate if pre-install RBAC should be applied using requiresPreInstallRBAC().
         Sets self.applyPreInstallMASRBAC flag based on the result.
         """
         self.applyPreInstallMASRBAC = False
