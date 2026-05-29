@@ -587,10 +587,55 @@ spec:
           oc delete pod post-transition-ivt-${DEVOPS_BUILD_NUMBER} -n mas-${MAS_INSTANCE_ID}-pipelines --ignore-not-found=true
         }
 
+        check_argo_app_synced_with_timeout() {
+          # Enhanced version of check_argo_app_synced with timeout and postsync job handling
+          # Args: $1 = app_name, $2 = max_retries (optional, default 20)
+          local APP_NAME=$1
+          local MAX_RETRIES=${2:-20}
+          local RETRY_COUNT=0
+          local WAIT_TIME=30
+          
+          echo "argo:check_argo_app_synced_with_timeout : Checking sync status for ${APP_NAME} (max retries: ${MAX_RETRIES})"
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            SYNC_STATUS=$(argocd app get ${APP_NAME} --grpc-web -o json | jq -r '.status.sync.status')
+            HEALTH_STATUS=$(argocd app get ${APP_NAME} --grpc-web -o json | jq -r '.status.health.status')
+            PHASE=$(argocd app get ${APP_NAME} --grpc-web -o json | jq -r '.status.operationState.phase // "N/A"')
+            
+            echo "argo:check_argo_app_synced_with_timeout : SYNC_STATUS=${SYNC_STATUS} HEALTH_STATUS=${HEALTH_STATUS} PHASE=${PHASE}"
+            
+            # Success conditions:
+            # 1. Synced and Healthy
+            # 2. OutOfSync but Phase=Succeeded and Health=Healthy (postsync job completed and deleted)
+            if [[ "${SYNC_STATUS}" == "Synced" && "${HEALTH_STATUS}" == "Healthy" ]]; then
+              echo "✓ Application ${APP_NAME} is Synced and Healthy"
+              return 0
+            elif [[ "${SYNC_STATUS}" == "OutOfSync" && "${PHASE}" == "Succeeded" && "${HEALTH_STATUS}" == "Healthy" ]]; then
+              echo "✓ Application ${APP_NAME} sync completed successfully (postsync job cleaned up)"
+              return 0
+            fi
+            
+            # Failure conditions
+            if [[ "${HEALTH_STATUS}" == "Degraded" || "${PHASE}" == "Failed" || "${PHASE}" == "Error" ]]; then
+              echo "✗ Application ${APP_NAME} is in a failed state: HEALTH=${HEALTH_STATUS}, PHASE=${PHASE}"
+              return 1
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+              echo "argo:check_argo_app_synced_with_timeout : Waiting ${WAIT_TIME}s before checking again (attempt ${RETRY_COUNT}/${MAX_RETRIES})"
+              sleep ${WAIT_TIME}
+            fi
+          done
+          
+          echo "✗ Timeout: Application ${APP_NAME} did not reach desired state after ${MAX_RETRIES} retries"
+          return 1
+        }
+
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
         export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${MAS_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
 
-        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
+        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
         . $CLI_DIR/functions/gitops_utils
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
@@ -957,8 +1002,8 @@ spec:
           
           # Step 5: Wait for applications to be healthy
           echo "Step 5: Waiting for applications to sync and become healthy..."
-          check_argo_app_synced "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          check_argo_app_synced "${DB2_DB_APP}"
+          check_argo_app_synced_with_timeout "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 20
+          check_argo_app_synced_with_timeout "${DB2_DB_APP}" 20
           
           echo "✓ All applications synced successfully"
           
