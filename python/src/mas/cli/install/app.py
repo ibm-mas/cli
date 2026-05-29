@@ -1562,14 +1562,9 @@ class InstallApp(
                         # Prompt for custom secret name
                         if self.yesOrNo("Specify a custom name for the secret"):
                             customSecretName = self.promptForString(
-                                "Secret name (default: facilities-properties)", "mas_ws_facilities_properties_secret_name", default="facilities-properties"
-                            )
+                                "Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
                             if customSecretName and customSecretName != "":
                                 self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
-                            else:
-                                self.setParam("mas_ws_facilities_properties_secret_name", "facilities-properties")
-                        else:
-                            self.setParam("mas_ws_facilities_properties_secret_name", "facilities-properties")
                     else:
                         print_formatted_text(HTML("<Red>File not found. Default FACILITIES.properties will be used.</Red>"))
                         self.setParam("mas_ws_facilities_custom_properties", "false")
