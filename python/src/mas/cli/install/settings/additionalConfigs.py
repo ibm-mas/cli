@@ -233,11 +233,14 @@ class AdditionalConfigsMixin:
                 secretName = "facilities-properties"
 
             facilitiesPropertiesSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-facilities-properties"}}
+            # Set the flag to indicate custom properties are provided
+            self.setParam("mas_ws_facilities_custom_properties", "true")
             # Set the path in workspace where Ansible will find the file
             self.setParam("mas_ws_facilities_properties_file_local", "/workspace/facilities/FACILITIES.properties")
             self.setParam("mas_ws_facilities_properties_secret_name", secretName)
             self.facilitiesPropertiesSecret = self.addFilesToSecret(facilitiesPropertiesSecret, facilitiesPropertiesFileLocal, "")
         else:
+            self.setParam("mas_ws_facilities_custom_properties", "false")
             self.setParam("mas_ws_facilities_properties_file_local", "")
             self.setParam("mas_ws_facilities_properties_secret_name", "")
 
