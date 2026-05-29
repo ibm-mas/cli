@@ -1561,8 +1561,7 @@ class InstallApp(
 
                         # Prompt for custom secret name
                         if self.yesOrNo("Specify a custom name for the secret"):
-                            customSecretName = self.promptForString(
-                                "Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
+                            customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
                             if customSecretName and customSecretName != "":
                                 self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
                     else:
