@@ -185,6 +185,18 @@ spec:
       type: string
       default: "false"
       description: "Enable post-IVT transition testing for JDBC configuration changes"
+    - name: mas_edition
+      type: string
+      default: ""
+      description: "Current MAS edition (from mas_instance.edition)"
+    - name: transition_from_edition
+      type: string
+      default: ""
+      description: "Source edition for transition testing (from transition_tests.from_edition)"
+    - name: transition_to_edition
+      type: string
+      default: ""
+      description: "Target edition for transition testing (from transition_tests.to_edition)"
     - name: github_host
       type: string
       default: "github.ibm.com"
@@ -328,6 +340,12 @@ spec:
           value: $(params.jdbc_type)
         - name: enable_transition_testing
           value: $(params.enable_transition_testing)
+        - name: mas_edition
+          value: $(params.mas_edition)
+        - name: transition_from_edition
+          value: $(params.transition_from_edition)
+        - name: transition_to_edition
+          value: $(params.transition_to_edition)
         - name: github_host
           value: $(params.github_host)
         - name: github_org

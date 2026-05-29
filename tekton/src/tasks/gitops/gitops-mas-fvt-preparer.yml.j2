@@ -181,6 +181,18 @@ spec:
       type: string
       default: "false"
       description: "Enable post-IVT transition testing for JDBC configuration changes"
+    - name: mas_edition
+      type: string
+      default: ""
+      description: "Current MAS edition (from mas_instance.edition)"
+    - name: transition_from_edition
+      type: string
+      default: ""
+      description: "Source edition for transition testing (from transition_tests.from_edition)"
+    - name: transition_to_edition
+      type: string
+      default: ""
+      description: "Target edition for transition testing (from transition_tests.to_edition)"
     - name: github_host
       type: string
       default: "github.ibm.com"
@@ -339,6 +351,12 @@ spec:
         value: $(params.jdbc_type)
       - name: ENABLE_TRANSITION_TESTING
         value: $(params.enable_transition_testing)
+      - name: MAS_EDITION
+        value: $(params.mas_edition)
+      - name: TRANSITION_FROM_EDITION
+        value: $(params.transition_from_edition)
+      - name: TRANSITION_TO_EDITION
+        value: $(params.transition_to_edition)
       - name: GITHUB_HOST
         value: $(params.github_host)
       - name: GITHUB_ORG
@@ -896,14 +914,19 @@ spec:
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} || exit 1
 
         # Wait for launcher to complete
+        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
 
         # Post-IVT Transition Testing
         # =========================================================================
-        # This section runs AFTER the FVT pipeline completes (which includes IVT-Manage with test_db2_health.py FIRST RUN)
-        # It updates JDBC configs, syncs ArgoCD, and re-runs the test to validate the transition
-        if [[ "$LAUNCHER_ID" == "core" && "${ENABLE_TRANSITION_TESTING:-false}" == "true" ]]; then
+        # This section runs AFTER the FVT-Apps pipeline completes (which includes IVT-Manage with test_db2_health suite FIRST RUN)
+        # It updates JDBC configs to simulate the jdbc_type change, syncs ArgoCD, and re-runs test_db2_health suite to validate
+        # Only runs when: launcher is apps, transition testing is enabled, AND current edition matches FROM edition
+        # After this test passes, transition_test.make_transition() will update GitOps to deploy the TO edition
+        # The next rollout will deploy the TO edition and IVT-Manage will run again (THIRD RUN) with the new edition
+        if [[ "$LAUNCHER_ID" == "apps" && "${ENABLE_TRANSITION_TESTING:-false}" == "true" && "${MAS_EDITION}" == "${TRANSITION_FROM_EDITION}" ]]; then
           echo "=========================================="
           echo "Starting Post-IVT Transition Testing"
+          echo "Current Edition: ${MAS_EDITION}, From Edition: ${TRANSITION_FROM_EDITION}, Target Edition: ${TRANSITION_TO_EDITION}"
           echo "=========================================="
           
           # Step 1: Update GitOps configurations
@@ -955,7 +978,6 @@ spec:
         else
           echo "Post-IVT transition testing is disabled (LAUNCHER_ID=$LAUNCHER_ID, ENABLE_TRANSITION_TESTING=${ENABLE_TRANSITION_TESTING:-false})"
         fi
-        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
 
         # Remove argocd window
         argocd_login
