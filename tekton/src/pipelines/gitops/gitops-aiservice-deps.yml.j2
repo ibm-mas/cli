@@ -187,6 +187,12 @@ spec:
           value: "gp3-csi"
         - name: db2_temp_storage_class
           value: "gp3-csi"
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
       taskRef:
         kind: Task
         name: gitops-provision-db2

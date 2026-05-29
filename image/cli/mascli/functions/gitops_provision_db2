@@ -49,6 +49,43 @@ function gitops_provision_db2() {
   export MAS_CONFIG_SCOPE=system
   export ROLE_NAME=db2
   
+  # IBM Entitlement Key - retrieve from cluster secret
+  # Try multiple namespaces and registry paths
+  export IBM_ENTITLEMENT_KEY=""
+  
+  # Try default namespace with cp.icr.io/cp
+  if [[ -z "${IBM_ENTITLEMENT_KEY}" ]]; then
+    IBM_ENTITLEMENT_KEY=$(oc get secret ibm-entitlement -n default -o jsonpath='{.data.\.dockerconfigjson}' 2>/dev/null | base64 -d | jq -r '.auths."cp.icr.io/cp".password' 2>/dev/null || echo "")
+  fi
+  
+  # Try default namespace with cp.icr.io
+  if [[ -z "${IBM_ENTITLEMENT_KEY}" ]]; then
+    IBM_ENTITLEMENT_KEY=$(oc get secret ibm-entitlement -n default -o jsonpath='{.data.\.dockerconfigjson}' 2>/dev/null | base64 -d | jq -r '.auths."cp.icr.io".password' 2>/dev/null || echo "")
+  fi
+  
+  # Try ibm-common-services namespace
+  if [[ -z "${IBM_ENTITLEMENT_KEY}" ]]; then
+    IBM_ENTITLEMENT_KEY=$(oc get secret ibm-entitlement -n ibm-common-services -o jsonpath='{.data.\.dockerconfigjson}' 2>/dev/null | base64 -d | jq -r '.auths."cp.icr.io".password' 2>/dev/null || echo "")
+  fi
+  
+  # Try openshift-operators namespace
+  if [[ -z "${IBM_ENTITLEMENT_KEY}" ]]; then
+    IBM_ENTITLEMENT_KEY=$(oc get secret ibm-entitlement -n openshift-operators -o jsonpath='{.data.\.dockerconfigjson}' 2>/dev/null | base64 -d | jq -r '.auths."cp.icr.io".password' 2>/dev/null || echo "")
+  fi
+  
+  # Try openshift-marketplace namespace
+  if [[ -z "${IBM_ENTITLEMENT_KEY}" ]]; then
+    IBM_ENTITLEMENT_KEY=$(oc get secret ibm-entitlement -n openshift-marketplace -o jsonpath='{.data.\.dockerconfigjson}' 2>/dev/null | base64 -d | jq -r '.auths."cp.icr.io".password' 2>/dev/null || echo "")
+  fi
+  
+  if [[ -z "${IBM_ENTITLEMENT_KEY}" ]]; then
+    echo "[ERROR] IBM Entitlement Key not found in cluster. Checked namespaces: default, ibm-common-services, openshift-operators, openshift-marketplace"
+    rm -rf $TEMP_DIR
+    exit 1
+  fi
+  
+  echo "✓ IBM Entitlement Key retrieved successfully"
+  
   # DB2 Installation Parameters
   export DB2_ACTION=install
   export DB2_NAMESPACE=db2u
