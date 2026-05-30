@@ -40,8 +40,8 @@ targetArgGroup.add_argument(
 )
 
 targetArgGroup.add_argument(
-    "--permission-mode",
-    dest="permission_mode",
+    "--admin-mode",
+    dest="admin_mode",
     required=False,
     choices=["cluster", "namespaced"],
     help="The permission mode used to determine which pre-install RBAC manifests are set up",
