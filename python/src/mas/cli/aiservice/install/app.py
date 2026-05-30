@@ -85,14 +85,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         if hasPreInstallRBACAccess:
             self.applyPreInstallMASRBAC = True
-            self.printDescription(
-                [
-                    f"Admin mode '{self.admin_mode}' selected.",
-                    "Pre-install RBAC will be applied automatically.",
-                ]
-            )
             return
 
+        self.printH2("Pre-Install RBAC Configuration")
         # User does not have permissions to apply RBAC
         self.printDescription(
             [

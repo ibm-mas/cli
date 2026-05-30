@@ -128,21 +128,15 @@ class InstallApp(
 
         permissionResults = permissionCheckForRBAC(self.dynamicClient)
         hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-
         if hasPreInstallRBACAccess:
             self.applyPreInstallMASRBAC = True
-            self.printDescription(
-                [
-                    f"Admin mode '{self.mas_admin_mode}' selected.",
-                    "Pre-install RBAC will be applied automatically.",
-                ]
-            )
             return
 
+        self.printH1("Pre-Install RBAC Configuration")
         # User does not have permissions to apply RBAC
         self.printDescription(
             [
-                f"Admin mode '{self.mas_admin_mode}' selected.",
+                f"Admin mode '{self.mas_admin_mode}'.",
                 "Pre-install RBAC could not be applied automatically (insufficient permissions).",
             ]
         )
