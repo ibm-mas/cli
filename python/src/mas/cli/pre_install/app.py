@@ -40,7 +40,7 @@ class SetupPreinstallRBACApp(BaseApp):
         self.printH2("Admin Mode")
         self.printDescription(
             [
-                "Choose the permission mode for which pre-install RBAC should be set up:",
+                "Choose the admin mode for which pre-install RBAC should be set up:",
                 "",
                 "  1. cluster",
                 "  2. namespaced",

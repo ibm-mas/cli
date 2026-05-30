@@ -42,9 +42,9 @@ targetArgGroup.add_argument(
 targetArgGroup.add_argument(
     "--admin-mode",
     dest="admin_mode",
-    required=False,
+    required=True,
     choices=["cluster", "namespaced"],
-    help="The permission mode used to determine which pre-install RBAC manifests are set up",
+    help="The admin mode used to determine which pre-install RBAC manifests are set up",
 )
 
 targetArgGroup.add_argument(
