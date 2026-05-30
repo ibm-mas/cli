@@ -146,7 +146,7 @@ class InstallApp(
                 "Pre-install RBAC could not be applied automatically (insufficient permissions).",
             ]
         )
-        
+
         if self.noConfirm:
             self.printDescription(
                 [
@@ -2349,8 +2349,10 @@ class InstallApp(
         if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             # MAS 9.2+: --admin-mode is REQUIRED
             if self.mas_admin_mode == "":
-                self.fatalError(f"--admin-mode is required for MAS 9.2+ (selected channel: {self.getParam('mas_channel')}). Valid options: cluster, namespaced, minimal")
-            
+                self.fatalError(
+                    f"--admin-mode is required for MAS 9.2+ (selected channel: {self.getParam('mas_channel')}). Valid options: cluster, namespaced, minimal"
+                )
+
             # Set issuer kind based on admin mode if not explicitly set
             if self.getParam("mas_issuer_kind") == "":
                 if self.mas_admin_mode == "cluster":

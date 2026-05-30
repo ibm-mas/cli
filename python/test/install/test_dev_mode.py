@@ -281,7 +281,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 10. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
         # 11. Permission mode
-        ".*Permission Mode.*": lambda msg: "1",
+        ".*Mas Admin Mode.*": lambda msg: "1",
         # 12. Internal certificate issuer kind (appears when Permission Mode is cluster)
         ".*Certificate issuer kind.*": lambda msg: "2",  # Select ClusterIssuer
         # 13. Certificate Authority Trust
@@ -409,6 +409,8 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
             "MAS_SUPERUSER_PASSWORD",
             "--mas-channel",
             "9.2.x-dev",
+            "--admin-mode",
+            "cluster",
             "--iot-channel",
             "9.2.x-dev",
             "--db2-system",
@@ -548,6 +550,8 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
             "MAS_SUPERUSER_PASSWORD",
             "--mas-channel",
             "9.2.x-dev",
+            "--admin-mode",
+            "cluster",
             "--routing",
             "path",
             "--ingress-controller-name",
@@ -690,6 +694,8 @@ def test_install_master_dev_mode_non_interactive_with_slack(tmpdir):
             "MAS_SUPERUSER_PASSWORD",
             "--mas-channel",
             "9.2.x-dev",
+            "--admin-mode",
+            "cluster",
             "--iot-channel",
             "9.2.x-dev",
             "--db2-system",

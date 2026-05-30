@@ -100,7 +100,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 "Pre-install RBAC could not be applied automatically (insufficient permissions).",
             ]
         )
-        
+
         if self.noConfirm:
             self.printDescription(
                 [
@@ -264,7 +264,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
         )
         self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
-        # Permission mode prompt (especially in dev mode)
         if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
             self.configAdminMode()
 
@@ -477,8 +476,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Validate admin mode based on AI Service version
         if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
+            # AI Service 9.2+: --admin-mode is REQUIRED
             if self.admin_mode == "":
-                self.admin_mode = "cluster"
+                self.fatalError(
+                    f"--admin-mode is required for AI Service 9.2+ (selected channel: {self.getParam('aiservice_channel')}). Valid options: cluster, namespaced, minimal"
+                )
         else:
             if self.admin_mode != "":
                 self.fatalError(f"--admin-mode is not supported for AI Service 9.1 and earlier (selected channel: {self.getParam('aiservice_channel')})")
@@ -524,7 +526,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
-
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
