@@ -373,7 +373,7 @@ function gitops_aiservice() {
 
   # echo all the variables of gitops+envs
   export MAS_INSTANCE_ID="$AISERVICE_INSTANCE_ID"
-  echo_reset_dim "MAS Instance ID1 ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "AI Service Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   echo_reset_dim "AI Service Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
   echo_reset_dim "AI Service WatsonX Secret ............. ${COLOR_MAGENTA}${AISERVICE_WATSONX_SECRET}"
@@ -469,57 +469,47 @@ function gitops_aiservice() {
     echo "Generating aiservice file ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aiservice.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml
 
-    # Generate DB2U ArgoApp if jdbc.type is incluster-db2
+    # Generate DB2U ArgoApp if USE_AWS_DB2 is false (meaning use in-cluster DB2)
     # ---------------------------------------------------------------------------
     echo
     echo "=========================================="
     echo "DEBUG: DB2 Provisioning Check"
     echo "=========================================="
+    echo "DEBUG: USE_AWS_DB2 environment variable: '${USE_AWS_DB2}'"
+    echo "DEBUG: IS_GITOPS_FVT_ENV environment variable: '${IS_GITOPS_FVT_ENV}'"
     
-    # Check if DB2 should be provisioned by reading the jdbc configuration
-    JDBC_TYPE_FILE="${GITOPS_CLUSTER_DIR}/../aiservice-params.yaml"
-    echo "DEBUG: Looking for JDBC config in: ${JDBC_TYPE_FILE}"
-    
-    if [[ -f "$JDBC_TYPE_FILE" ]]; then
-      echo "DEBUG: Config file found: ${JDBC_TYPE_FILE}"
+    # In FVT environment, if USE_AWS_DB2 is false, provision in-cluster DB2
+    if [[ "${IS_GITOPS_FVT_ENV}" == "true" && "${USE_AWS_DB2}" == "false" ]]; then
+      echo "DEBUG: ✓ FVT environment detected with USE_AWS_DB2=false - DB2 provisioning ENABLED"
+      echo
+      echo_h2 "Generating DB2U operator Application"
+      echo "- DB2U operator (in-cluster DB2 for FVT)"
       
-      # Show the jdbc section from the file
-      echo "DEBUG: JDBC configuration from file:"
-      grep -A 2 "^jdbc:" "$JDBC_TYPE_FILE" || echo "DEBUG: No jdbc: section found"
+      export DB2_NAMESPACE="db2u-${AISERVICE_INSTANCE_ID}"
+      export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
       
-      JDBC_TYPE=$(grep -A 1 "^jdbc:" "$JDBC_TYPE_FILE" | grep "type:" | awk '{print $2}' | tr -d '"' || echo "")
-      echo "DEBUG: Detected JDBC type: '${JDBC_TYPE}'"
+      echo "DEBUG: DB2_NAMESPACE set to: ${DB2_NAMESPACE}"
+      echo "DEBUG: IBM_ENTITLEMENT_KEY: ${IBM_ENTITLEMENT_KEY}"
+      echo "DEBUG: Template path: $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u.yaml.j2"
+      echo "DEBUG: Output file: ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
       
-      if [[ "$JDBC_TYPE" == "incluster-db2" ]]; then
-        echo "DEBUG: ✓ JDBC type matches 'incluster-db2' - DB2 provisioning ENABLED"
-        echo
-        echo_h2 "Generating DB2U operator Application"
-        echo "- DB2U operator (jdbc.type=incluster-db2 detected)"
-        
-        export DB2_NAMESPACE="db2u-${AISERVICE_INSTANCE_ID}"
-        export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
-        
-        echo "DEBUG: DB2_NAMESPACE set to: ${DB2_NAMESPACE}"
-        echo "DEBUG: IBM_ENTITLEMENT_KEY: ${IBM_ENTITLEMENT_KEY}"
-        echo "DEBUG: Template path: $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u.yaml.j2"
-        echo "DEBUG: Output file: ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
-        
-        echo "Generating DB2U file ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
-        jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
-        
-        if [[ -f "${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml" ]]; then
-          echo "DEBUG: ✓ DB2U file successfully generated"
-          echo "DEBUG: File size: $(wc -l < ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml) lines"
-        else
-          echo "DEBUG: ✗ ERROR: DB2U file was NOT generated!"
-        fi
+      echo "Generating DB2U file ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
+      
+      if [[ -f "${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml" ]]; then
+        echo "DEBUG: ✓ DB2U file successfully generated"
+        echo "DEBUG: File size: $(wc -l < ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml) lines"
       else
-        echo "DEBUG: ✗ JDBC type '${JDBC_TYPE}' does not match 'incluster-db2' - DB2 provisioning SKIPPED"
+        echo "DEBUG: ✗ ERROR: DB2U file was NOT generated!"
       fi
     else
-      echo "DEBUG: ✗ Config file NOT found: ${JDBC_TYPE_FILE}"
-      echo "DEBUG: Listing parent directory contents:"
-      ls -la "${GITOPS_CLUSTER_DIR}/../" || echo "DEBUG: Cannot list directory"
+      echo "DEBUG: ✗ DB2 provisioning SKIPPED"
+      if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
+        echo "DEBUG:   Reason: IS_GITOPS_FVT_ENV='${IS_GITOPS_FVT_ENV}' (not 'true')"
+      fi
+      if [[ "${USE_AWS_DB2}" != "false" ]]; then
+        echo "DEBUG:   Reason: USE_AWS_DB2='${USE_AWS_DB2}' (not 'false', using external DB2)"
+      fi
     fi
     
     echo "=========================================="
