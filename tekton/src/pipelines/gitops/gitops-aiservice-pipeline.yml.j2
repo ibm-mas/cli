@@ -107,9 +107,42 @@ spec:
 
   tasks:
 
+    # 1. Per-instance DB2U Operator
+    # -------------------------------------------------------------------------
+    - name: gitops-db2u
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.aiservice_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u
+
     # 2.gitops-odh
     # -------------------------------------------------------------------------
     - name: gitops-odh
+      runAfter:
+        - gitops-db2u
       taskRef:
         name: gitops-odh
       workspaces:
