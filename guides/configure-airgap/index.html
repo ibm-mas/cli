@@ -1,0 +1,966 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Airgap Configuration - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/configure-airgap.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="OpenShift Management" active="" expanded="">
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/">
+    IBM Cloud ROKS
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-aws/">
+    AWS (IPI)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/">
+    IBM DevIT FYRE
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="./" active="" expanded="">
+    Airgap Configuration
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Image Mirroring">
+    
+      
+  <cds-side-nav-menu-item href="../private-registry/">
+    Private Registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-mirroring/">
+    Image Mirroring (IBM)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/">
+    Image Mirroring (Red Hat)
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Install and Configure">
+    
+      
+  <cds-side-nav-menu-item href="../install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/">
+    OIDC Config Tool
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../aiservice-install/">
+    AI Service Install
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Update and Upgrade">
+    
+      
+  <cds-side-nav-menu-item href="../update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Backup and Restore">
+    
+      
+  <cds-side-nav-menu-item href="../backup/">
+    Backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../restore/">
+    Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Troubleshooting">
+    
+      
+  <cds-side-nav-menu-item href="../../commands/debug/">
+    Debug
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/must-gather/">
+    Must-Gather
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260527-amd64/">
+    May 27 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260430-amd64/">
+    Apr 30 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260326-amd64/">
+    Mar 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260226-amd64/">
+    Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>OpenShift Management</cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#configure-openshift-for-airgap-install">Configure OpenShift for Airgap Install</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#overview">Overview</cds-select-item>
+    
+      <cds-select-item value="#understanding-airgap-configuration">Understanding Airgap Configuration</cds-select-item>
+    
+      <cds-select-item value="#preparation">Preparation</cds-select-item>
+    
+      <cds-select-item value="#configuration-process">Configuration Process</cds-select-item>
+    
+      <cds-select-item value="#configuration-examples">Configuration Examples</cds-select-item>
+    
+      <cds-select-item value="#command-reference">Command Reference</cds-select-item>
+    
+      <cds-select-item value="#post-configuration-steps">Post-Configuration Steps</cds-select-item>
+    
+      <cds-select-item value="#troubleshooting">Troubleshooting</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="configure-openshift-for-airgap-install">Configure OpenShift for Airgap Install<a class="headerlink" href="#configure-openshift-for-airgap-install" title="Permanent link">¶</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>The MAS CLI provides automated configuration of airgap (disconnected) OpenShift environments for Maximo Application Suite installations. Airgap configuration enables OpenShift clusters without direct internet access to pull container images from a private registry by configuring ImageDigestMirrorSet (IDMS) resources.</p>
+<p>This guide covers the complete process of configuring an OpenShift cluster to use a private container registry for airgap deployments.</p>
+<div class="admonition warning">
+<p class="admonition-title">ROKS Limitation</p>
+<p>The <code>configure-airgap</code> command does not work on <strong>IBM Cloud ROKS</strong> clusters. This is a limitation of the IBM Cloud ROKS service which disables key parts of OpenShift functionality required to configure and use ImageDigestMirrorSet resources (which is the basis of airgap/image mirroring support in OpenShift).</p>
+</div>
+<h2 id="understanding-airgap-configuration">Understanding Airgap Configuration<a class="headerlink" href="#understanding-airgap-configuration" title="Permanent link">¶</a></h2>
+<h3 id="what-is-airgap">What is Airgap?<a class="headerlink" href="#what-is-airgap" title="Permanent link">¶</a></h3>
+<p>An airgap (or air-gapped) environment is a network security measure where a computer or network is physically isolated from unsecured networks, including the internet. In the context of OpenShift and MAS:</p>
+<ul>
+<li>Cluster has no direct internet connectivity</li>
+<li>Cannot pull images from public registries (quay.io, docker.io, etc.)</li>
+<li>Requires all container images to be available in a private registry</li>
+<li>Uses ImageDigestMirrorSet (IDMS) to redirect image pulls to private registry</li>
+</ul>
+<h3 id="how-airgap-works">How Airgap Works<a class="headerlink" href="#how-airgap-works" title="Permanent link">¶</a></h3>
+<ol>
+<li>Application requests image from <code>quay.io/ibmmas/example:latest</code></li>
+<li>IDMS instructs Kubernetes to redirect request to <code>private-registry.company.com/ibmmas/example:latest</code></li>
+<li>Image is pulled from private registry instead of public registry</li>
+</ol>
+<h3 id="prerequisites-for-airgap">Prerequisites for Airgap<a class="headerlink" href="#prerequisites-for-airgap" title="Permanent link">¶</a></h3>
+<p>Before configuring airgap, you must:</p>
+<ol>
+<li><strong>Mirror Images</strong> - Copy all required images to your private registry</li>
+<li><strong>Private Registry</strong> - Have a functioning private container registry</li>
+<li><strong>Network Access</strong> - Cluster must have network access to private registry</li>
+<li><strong>Registry Credentials</strong> - Authentication credentials for the private registry</li>
+</ol>
+<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¶</a></h2>
+<h3 id="private-container-registry">Private Container Registry<a class="headerlink" href="#private-container-registry" title="Permanent link">¶</a></h3>
+<p>You must have a private container registry accessible from your OpenShift cluster. Supported registries include:</p>
+<ul>
+<li><strong>Red Hat Quay</strong> - Enterprise container registry</li>
+<li><strong>Harbor</strong> - Open source container registry</li>
+<li><strong>Artifactory</strong> - Universal artifact repository</li>
+<li><strong>Docker Registry</strong> - Simple registry implementation</li>
+<li><strong>AWS ECR</strong> - Amazon Elastic Container Registry</li>
+<li><strong>Azure ACR</strong> - Azure Container Registry</li>
+</ul>
+<p>The registry must:
+- Be accessible from the OpenShift cluster network
+- Support Docker Registry HTTP API V2
+- Have sufficient storage for mirrored images
+- Support authentication (username/password or token)</p>
+<h3 id="registry-certificate">Registry Certificate<a class="headerlink" href="#registry-certificate" title="Permanent link">¶</a></h3>
+<p>If your private registry uses TLS with a custom certificate authority (CA):</p>
+<ol>
+<li>Obtain the CA certificate file (<code>.crt</code> or <code>.pem</code> format)</li>
+<li>Save it to a location accessible to the CLI</li>
+<li>Note the file path for use during configuration</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Self-signed certificates are common in private registries. The CLI can configure OpenShift to trust your custom CA.</p>
+</div>
+<h3 id="registry-credentials">Registry Credentials<a class="headerlink" href="#registry-credentials" title="Permanent link">¶</a></h3>
+<p>Prepare authentication credentials for your private registry:</p>
+<ul>
+<li><strong>Username</strong> - Registry username or service account</li>
+<li><strong>Password</strong> - Registry password or access token</li>
+<li><strong>Registry URL</strong> - Full registry hostname and port</li>
+</ul>
+<p>Example registry URLs:
+- <code>registry.company.com:5000</code>
+- <code>harbor.internal.net</code>
+- <code>quay.enterprise.com</code></p>
+<h3 id="mirrored-images">Mirrored Images<a class="headerlink" href="#mirrored-images" title="Permanent link">¶</a></h3>
+<p>Before configuring airgap, ensure all required images are mirrored to your private registry:</p>
+<ul>
+<li><strong>MAS Operator Images</strong> - Core MAS operators and dependencies</li>
+<li><strong>Application Images</strong> - MAS application images (Manage, Monitor, etc.)</li>
+<li><strong>Dependency Images</strong> - MongoDB, Db2, Certificate Manager, etc.</li>
+<li><strong>Red Hat Images</strong> - OpenShift operators and components</li>
+</ul>
+<p>Refer to the <a href="../image-mirroring/">Image Mirroring Guide</a> for detailed mirroring instructions.</p>
+<h2 id="configuration-process">Configuration Process<a class="headerlink" href="#configuration-process" title="Permanent link">¶</a></h2>
+<h3 id="how-airgap-configuration-works">How Airgap Configuration Works<a class="headerlink" href="#how-airgap-configuration-works" title="Permanent link">¶</a></h3>
+<p>The <code>configure-airgap</code> command performs the following steps:</p>
+<ol>
+<li><strong>Validates Registry Access</strong> - Tests connectivity to private registry</li>
+<li><strong>Creates Pull Secret</strong> - Configures registry authentication</li>
+<li><strong>Creates IDMS Resources</strong> - Configures image source redirection</li>
+<li><strong>Trusts CA Certificate</strong> - Adds custom CA to cluster trust (if provided)</li>
+<li><strong>Restarts Machine Config</strong> - Applies configuration to all nodes</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Node restarts are required to apply IDMS configuration. The cluster will experience a rolling restart of all nodes, which may take 30-60 minutes depending on cluster size.</p>
+</div>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link">¶</a></h3>
+<p>Interactive mode guides you through the configuration process with prompts for all required information.</p>
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/local --pull always quay.io/ibmmas/cli mas configure-airgap
+</code></pre>
+<p>The interactive session will:</p>
+<ol>
+<li>Prompt for OpenShift cluster connection</li>
+<li>Request private registry details (hostname, port)</li>
+<li>Request registry credentials (username, password)</li>
+<li>Optionally request CA certificate file path</li>
+<li>Display configuration summary</li>
+<li>Request confirmation before applying changes</li>
+</ol>
+<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link">¶</a></h3>
+<p>Non-interactive mode is ideal for automation and scripting. All required parameters must be provided via command-line arguments.</p>
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/local --pull always quay.io/ibmmas/cli mas configure-airgap \
+  -H registry.company.com \
+  -P 5000 \
+  -u $REGISTRY_USERNAME \
+  -p $REGISTRY_PASSWORD \
+  --ca-file /mnt/local/registry-ca.crt \
+  --no-confirm
+</code></pre>
+<h2 id="configuration-examples">Configuration Examples<a class="headerlink" href="#configuration-examples" title="Permanent link">¶</a></h2>
+<h3 id="basic-configuration-no-custom-ca">Basic Configuration (No Custom CA)<a class="headerlink" href="#basic-configuration-no-custom-ca" title="Permanent link">¶</a></h3>
+<p>Configure airgap with a registry using publicly trusted certificates:</p>
+<pre><code class="language-bash">export REGISTRY_USERNAME=admin
+export REGISTRY_PASSWORD=secure-password
+
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas configure-airgap \
+  -H registry.company.com \
+  -P 443 \
+  -u $REGISTRY_USERNAME \
+  -p $REGISTRY_PASSWORD \
+  --no-confirm
+</code></pre>
+<h3 id="configuration-with-custom-ca-certificate">Configuration with Custom CA Certificate<a class="headerlink" href="#configuration-with-custom-ca-certificate" title="Permanent link">¶</a></h3>
+<p>Configure airgap with a registry using self-signed or custom CA certificates:</p>
+<pre><code class="language-bash"># Save CA certificate to local directory
+cat &gt; ~/registry-ca.crt &lt;&lt;EOF
+-----BEGIN CERTIFICATE-----
+MIIDXTCCAkWgAwIBAgIJAKL0UG+mRKtjMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNV
+...
+-----END CERTIFICATE-----
+EOF
+
+# Configure airgap with CA certificate
+docker run -ti --rm -v ~:/mnt/local --pull always quay.io/ibmmas/cli mas configure-airgap \
+  -H registry.internal.net \
+  -P 5000 \
+  -u $REGISTRY_USERNAME \
+  -p $REGISTRY_PASSWORD \
+  --ca-file /mnt/local/registry-ca.crt \
+  --no-confirm
+</code></pre>
+<h3 id="harbor-registry-configuration">Harbor Registry Configuration<a class="headerlink" href="#harbor-registry-configuration" title="Permanent link">¶</a></h3>
+<p>Configure airgap for Harbor registry:</p>
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/local --pull always quay.io/ibmmas/cli mas configure-airgap \
+  -H harbor.company.com \
+  -P 443 \
+  -u robot-account \
+  -p $HARBOR_TOKEN \
+  --ca-file /mnt/local/harbor-ca.crt \
+  --no-confirm
+</code></pre>
+<h3 id="red-hat-quay-configuration">Red Hat Quay Configuration<a class="headerlink" href="#red-hat-quay-configuration" title="Permanent link">¶</a></h3>
+<p>Configure airgap for Red Hat Quay registry:</p>
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/local --pull always quay.io/ibmmas/cli mas configure-airgap \
+  -H quay.enterprise.com \
+  -P 443 \
+  -u quay-user \
+  -p $QUAY_PASSWORD \
+  --no-confirm
+</code></pre>
+<h3 id="docker-registry-configuration">Docker Registry Configuration<a class="headerlink" href="#docker-registry-configuration" title="Permanent link">¶</a></h3>
+<p>Configure airgap for simple Docker registry:</p>
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/local --pull always quay.io/ibmmas/cli mas configure-airgap \
+  -H docker-registry.local \
+  -P 5000 \
+  -u registry-user \
+  -p $REGISTRY_PASSWORD \
+  --ca-file /mnt/local/docker-ca.crt \
+  --no-confirm
+</code></pre>
+<h2 id="command-reference">Command Reference<a class="headerlink" href="#command-reference" title="Permanent link">¶</a></h2>
+<h3 id="registry-configuration">Registry Configuration<a class="headerlink" href="#registry-configuration" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>-H, --registry-host REGISTRY_HOST</code> - Private registry hostname (required)</li>
+<li><code>-P, --registry-port REGISTRY_PORT</code> - Private registry port (default: 443)</li>
+<li><code>-u, --username REGISTRY_USERNAME</code> - Registry username (required)</li>
+<li><code>-p, --password REGISTRY_PASSWORD</code> - Registry password (required)</li>
+</ul>
+<h3 id="certificate-configuration">Certificate Configuration<a class="headerlink" href="#certificate-configuration" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>--ca-file CA_FILE_PATH</code> - Path to CA certificate file (optional)</li>
+</ul>
+<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>--no-confirm</code> - Skip confirmation prompt</li>
+<li><code>-h, --help</code> - Display help message</li>
+</ul>
+<h2 id="post-configuration-steps">Post-Configuration Steps<a class="headerlink" href="#post-configuration-steps" title="Permanent link">¶</a></h2>
+<h3 id="monitoring-node-restarts">Monitoring Node Restarts<a class="headerlink" href="#monitoring-node-restarts" title="Permanent link">¶</a></h3>
+<p>After applying airgap configuration, OpenShift will perform a rolling restart of all nodes to apply the new configuration. Monitor the process:</p>
+<pre><code class="language-bash"># Watch machine config pools
+watch oc get mcp
+
+# Expected output shows nodes updating
+NAME     CONFIG                                             UPDATED   UPDATING   DEGRADED   MACHINECOUNT   READYMACHINECOUNT   UPDATEDMACHINECOUNT   DEGRADEDMACHINECOUNT   AGE
+master   rendered-master-abc123                             False     True       False      3              2                   2                     0                      10m
+worker   rendered-worker-def456                             False     True       False      3              2                   2                     0                      10m
+</code></pre>
+<p>Wait until all machine config pools show <code>UPDATED=True</code> and <code>UPDATING=False</code>.</p>
+<h3 id="verifying-configuration">Verifying Configuration<a class="headerlink" href="#verifying-configuration" title="Permanent link">¶</a></h3>
+<h4 id="check-idms-resources">Check IDMS Resources<a class="headerlink" href="#check-idms-resources" title="Permanent link">¶</a></h4>
+<pre><code class="language-bash"># List ImageDigestMirrorSet resources
+oc get imagedigestmirrorset
+
+# View IDMS details
+oc describe imagedigestmirrorset &lt;idms-name&gt;
+</code></pre>
+<h4 id="check-pull-secret">Check Pull Secret<a class="headerlink" href="#check-pull-secret" title="Permanent link">¶</a></h4>
+<pre><code class="language-bash"># Verify pull secret includes private registry
+oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | jq
+</code></pre>
+<h4 id="check-ca-trust">Check CA Trust<a class="headerlink" href="#check-ca-trust" title="Permanent link">¶</a></h4>
+<p>If you provided a CA certificate:</p>
+<pre><code class="language-bash"># Verify CA is in cluster trust bundle
+oc get configmap -n openshift-config user-ca-bundle -o yaml
+</code></pre>
+<h4 id="test-image-pull">Test Image Pull<a class="headerlink" href="#test-image-pull" title="Permanent link">¶</a></h4>
+<p>Test pulling an image from your private registry:</p>
+<pre><code class="language-bash"># Create test pod
+oc run test-pull --image=registry.company.com:5000/ibmmas/cli:latest --restart=Never
+
+# Check pod status
+oc get pod test-pull
+
+# Clean up
+oc delete pod test-pull
+</code></pre>
+<h3 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">¶</a></h3>
+<p>With airgap configuration complete, you can proceed to:</p>
+<ul>
+<li><a href="../install/">Install MAS</a> in the airgap environment</li>
+<li>Configure additional registry mirrors if needed</li>
+<li>Set up monitoring for registry connectivity</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¶</a></h2>
+<h3 id="configuration-failures">Configuration Failures<a class="headerlink" href="#configuration-failures" title="Permanent link">¶</a></h3>
+<p><strong>Registry Not Accessible</strong></p>
+<pre><code>Error: Unable to connect to registry
+</code></pre>
+<ul>
+<li>Verify registry hostname and port are correct</li>
+<li>Check network connectivity from cluster to registry</li>
+<li>Ensure firewall rules allow traffic</li>
+<li>Test connectivity: <code>curl -k https://registry.company.com:5000/v2/</code></li>
+</ul>
+<p><strong>Authentication Failed</strong></p>
+<pre><code>Error: Authentication to registry failed
+</code></pre>
+<ul>
+<li>Verify username and password are correct</li>
+<li>Check if credentials have expired</li>
+<li>Ensure user has pull permissions</li>
+<li>Test authentication: <code>docker login registry.company.com:5000</code></li>
+</ul>
+<p><strong>Invalid CA Certificate</strong></p>
+<pre><code>Error: CA certificate validation failed
+</code></pre>
+<ul>
+<li>Verify CA certificate file is in correct format (PEM)</li>
+<li>Ensure certificate is not expired</li>
+<li>Check certificate includes full chain if needed</li>
+<li>Validate certificate: <code>openssl x509 -in ca.crt -text -noout</code></li>
+</ul>
+<h3 id="node-restart-issues">Node Restart Issues<a class="headerlink" href="#node-restart-issues" title="Permanent link">¶</a></h3>
+<p><strong>Nodes Stuck in Updating State</strong></p>
+<pre><code>NAME     UPDATED   UPDATING   DEGRADED
+worker   False     True       False
+</code></pre>
+<ul>
+<li>Check machine config operator logs: <code>oc logs -n openshift-machine-config-operator &lt;pod-name&gt;</code></li>
+<li>Review node status: <code>oc describe node &lt;node-name&gt;</code></li>
+<li>Check for resource constraints or disk space issues</li>
+<li>Wait longer - large clusters may take 60+ minutes</li>
+</ul>
+<p><strong>Nodes in Degraded State</strong></p>
+<pre><code>NAME     UPDATED   UPDATING   DEGRADED
+worker   False     False      True
+</code></pre>
+<ul>
+<li>Check machine config daemon logs: <code>oc logs -n openshift-machine-config-operator &lt;mcd-pod&gt;</code></li>
+<li>Review node events: <code>oc get events -n openshift-machine-config-operator</code></li>
+<li>Check for configuration conflicts</li>
+<li>May require manual intervention or rollback</li>
+</ul>
+<h3 id="image-pull-failures">Image Pull Failures<a class="headerlink" href="#image-pull-failures" title="Permanent link">¶</a></h3>
+<p><strong>Images Not Found in Private Registry</strong></p>
+<pre><code>Error: Failed to pull image: manifest unknown
+</code></pre>
+<ul>
+<li>Verify images are mirrored to private registry</li>
+<li>Check image paths match IDMS configuration</li>
+<li>Ensure registry namespace structure is correct</li>
+<li>Review mirroring logs for errors</li>
+</ul>
+<p><strong>IDMS Not Applied</strong></p>
+<pre><code>Error: Still pulling from public registry
+</code></pre>
+<ul>
+<li>Verify IDMS resources exist: <code>oc get imagedigestmirrorset</code></li>
+<li>Check machine config pools are updated: <code>oc get mcp</code></li>
+<li>Ensure nodes have restarted</li>
+<li>Review IDMS configuration for errors</li>
+</ul>
+<p><strong>Certificate Trust Issues</strong></p>
+<pre><code>Error: x509: certificate signed by unknown authority
+</code></pre>
+<ul>
+<li>Verify CA certificate was provided during configuration</li>
+<li>Check CA is in cluster trust bundle</li>
+<li>Ensure certificate is valid and not expired</li>
+<li>May need to reconfigure with correct CA</li>
+</ul>
+<h3 id="registry-connectivity">Registry Connectivity<a class="headerlink" href="#registry-connectivity" title="Permanent link">¶</a></h3>
+<p><strong>Intermittent Connection Failures</strong></p>
+<pre><code>Error: Timeout connecting to registry
+</code></pre>
+<ul>
+<li>Check network stability between cluster and registry</li>
+<li>Verify registry is not overloaded</li>
+<li>Review registry logs for errors</li>
+<li>Consider increasing timeout values</li>
+</ul>
+<p><strong>DNS Resolution Failures</strong></p>
+<pre><code>Error: Cannot resolve registry hostname
+</code></pre>
+<ul>
+<li>Verify DNS configuration in cluster</li>
+<li>Check if registry hostname is resolvable: <code>oc debug node/&lt;node&gt; -- chroot /host nslookup registry.company.com</code></li>
+<li>Consider using IP address instead of hostname</li>
+<li>Verify DNS servers are accessible</li>
+</ul>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../provision-fyre/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">IBM DevIT FYRE</span>
+      </div>
+    </a>
+    <a href="../private-registry/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Private Registry</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#overview" class="md-toc__link" data-md-level="1">
+                  Overview
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#understanding-airgap-configuration" class="md-toc__link" data-md-level="1">
+                  Understanding Airgap Configuration
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#what-is-airgap" class="md-toc__link" data-md-level="2">
+                          What is Airgap?
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#how-airgap-works" class="md-toc__link" data-md-level="2">
+                          How Airgap Works
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#prerequisites-for-airgap" class="md-toc__link" data-md-level="2">
+                          Prerequisites for Airgap
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#preparation" class="md-toc__link" data-md-level="1">
+                  Preparation
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#private-container-registry" class="md-toc__link" data-md-level="2">
+                          Private Container Registry
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#registry-certificate" class="md-toc__link" data-md-level="2">
+                          Registry Certificate
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#registry-credentials" class="md-toc__link" data-md-level="2">
+                          Registry Credentials
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#mirrored-images" class="md-toc__link" data-md-level="2">
+                          Mirrored Images
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#configuration-process" class="md-toc__link" data-md-level="1">
+                  Configuration Process
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#how-airgap-configuration-works" class="md-toc__link" data-md-level="2">
+                          How Airgap Configuration Works
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#interactive-mode" class="md-toc__link" data-md-level="2">
+                          Interactive Mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-mode" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Mode
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#configuration-examples" class="md-toc__link" data-md-level="1">
+                  Configuration Examples
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#basic-configuration-no-custom-ca" class="md-toc__link" data-md-level="2">
+                          Basic Configuration (No Custom CA)
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#configuration-with-custom-ca-certificate" class="md-toc__link" data-md-level="2">
+                          Configuration with Custom CA Certificate
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#harbor-registry-configuration" class="md-toc__link" data-md-level="2">
+                          Harbor Registry Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#red-hat-quay-configuration" class="md-toc__link" data-md-level="2">
+                          Red Hat Quay Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#docker-registry-configuration" class="md-toc__link" data-md-level="2">
+                          Docker Registry Configuration
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#command-reference" class="md-toc__link" data-md-level="1">
+                  Command Reference
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#registry-configuration" class="md-toc__link" data-md-level="2">
+                          Registry Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#certificate-configuration" class="md-toc__link" data-md-level="2">
+                          Certificate Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#other-options" class="md-toc__link" data-md-level="2">
+                          Other Options
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#post-configuration-steps" class="md-toc__link" data-md-level="1">
+                  Post-Configuration Steps
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#monitoring-node-restarts" class="md-toc__link" data-md-level="2">
+                          Monitoring Node Restarts
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#verifying-configuration" class="md-toc__link" data-md-level="2">
+                          Verifying Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#next-steps" class="md-toc__link" data-md-level="2">
+                          Next Steps
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#troubleshooting" class="md-toc__link" data-md-level="1">
+                  Troubleshooting
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#configuration-failures" class="md-toc__link" data-md-level="2">
+                          Configuration Failures
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#node-restart-issues" class="md-toc__link" data-md-level="2">
+                          Node Restart Issues
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#image-pull-failures" class="md-toc__link" data-md-level="2">
+                          Image Pull Failures
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#registry-connectivity" class="md-toc__link" data-md-level="2">
+                          Registry Connectivity
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>

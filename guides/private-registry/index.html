@@ -1,0 +1,819 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Private Registry - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/private-registry.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="OpenShift Management">
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/">
+    IBM Cloud ROKS
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-aws/">
+    AWS (IPI)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/">
+    IBM DevIT FYRE
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/">
+    Airgap Configuration
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Image Mirroring" active="" expanded="">
+    
+      
+  <cds-side-nav-menu-item href="./" active="" expanded="">
+    Private Registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-mirroring/">
+    Image Mirroring (IBM)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/">
+    Image Mirroring (Red Hat)
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Install and Configure">
+    
+      
+  <cds-side-nav-menu-item href="../install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/">
+    OIDC Config Tool
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../aiservice-install/">
+    AI Service Install
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Update and Upgrade">
+    
+      
+  <cds-side-nav-menu-item href="../update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Backup and Restore">
+    
+      
+  <cds-side-nav-menu-item href="../backup/">
+    Backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../restore/">
+    Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Troubleshooting">
+    
+      
+  <cds-side-nav-menu-item href="../../commands/debug/">
+    Debug
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/must-gather/">
+    Must-Gather
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260527-amd64/">
+    May 27 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260430-amd64/">
+    Apr 30 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260326-amd64/">
+    Mar 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260226-amd64/">
+    Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Image Mirroring</cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#private-container-registry-management">Private Container Registry Management</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#overview">Overview</cds-select-item>
+    
+      <cds-select-item value="#understanding-private-registries">Understanding Private Registries</cds-select-item>
+    
+      <cds-select-item value="#preparation">Preparation</cds-select-item>
+    
+      <cds-select-item value="#registry-deployment">Registry Deployment</cds-select-item>
+    
+      <cds-select-item value="#command-reference">Command Reference</cds-select-item>
+    
+      <cds-select-item value="#post-deployment-steps">Post-Deployment Steps</cds-select-item>
+    
+      <cds-select-item value="#registry-removal">Registry Removal</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="private-container-registry-management">Private Container Registry Management<a class="headerlink" href="#private-container-registry-management" title="Permanent link">¶</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>The MAS CLI provides automated deployment and management of a private container registry within your OpenShift cluster. This in-cluster registry is essential for airgap (disconnected) environments where direct access to public container registries is not available.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This in-cluster private registry is ideal for development and test environments. For production deployments, consider enterprise registry solutions like Red Hat Quay or Harbor.</p>
+</div>
+<h2 id="understanding-private-registries">Understanding Private Registries<a class="headerlink" href="#understanding-private-registries" title="Permanent link">¶</a></h2>
+<h3 id="what-is-a-private-registry">What is a Private Registry?<a class="headerlink" href="#what-is-a-private-registry" title="Permanent link">¶</a></h3>
+<p>A private container registry is a secure repository for storing and distributing container images within your organization. In the context of OpenShift and MAS:</p>
+<ul>
+<li>Stores mirrored container images from public registries</li>
+<li>Provides local image distribution without internet access</li>
+<li>Enables airgap deployments</li>
+<li>Reduces external bandwidth usage</li>
+<li>Improves image pull performance</li>
+</ul>
+<h3 id="when-to-use-in-cluster-registry">When to Use In-Cluster Registry<a class="headerlink" href="#when-to-use-in-cluster-registry" title="Permanent link">¶</a></h3>
+<p>The MAS CLI's in-cluster registry is suitable for:</p>
+<ul>
+<li><strong>Airgap Environments</strong> - Clusters without internet access</li>
+<li><strong>Development and Testing</strong> - Quick setup for non-production environments</li>
+<li><strong>Proof of Concept</strong> - Demonstrating MAS in disconnected scenarios</li>
+<li><strong>Temporary Deployments</strong> - Short-term testing or migration scenarios</li>
+</ul>
+<h3 id="when-to-use-external-registry">When to Use External Registry<a class="headerlink" href="#when-to-use-external-registry" title="Permanent link">¶</a></h3>
+<p>Consider external registry solutions for:</p>
+<ul>
+<li><strong>Production Deployments</strong> - Enterprise-grade reliability and support</li>
+<li><strong>Multi-Cluster Environments</strong> - Shared registry across multiple clusters</li>
+<li><strong>High Availability Requirements</strong> - Redundancy and disaster recovery</li>
+<li><strong>Advanced Features</strong> - Image scanning, replication, access control</li>
+</ul>
+<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¶</a></h2>
+<h3 id="cluster-requirements">Cluster Requirements<a class="headerlink" href="#cluster-requirements" title="Permanent link">¶</a></h3>
+<p>Before deploying a private registry, ensure your cluster meets these requirements:</p>
+<p><strong>Storage:</strong>
+- Available storage class for persistent volumes
+- Sufficient storage capacity (minimum 500 GB, recommended 2000 GB+)
+- Storage class supporting ReadWriteOnce (RWO) access mode</p>
+<p><strong>Network:</strong>
+- LoadBalancer service type support (for external access)
+- Or NodePort service type (alternative for clusters without LoadBalancer)
+- Network connectivity between cluster nodes and registry</p>
+<p><strong>Resources:</strong>
+- Sufficient CPU and memory for registry pods
+- Available namespace for registry deployment</p>
+<h3 id="storage-class-selection">Storage Class Selection<a class="headerlink" href="#storage-class-selection" title="Permanent link">¶</a></h3>
+<p>Choose an appropriate storage class based on your environment:</p>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>Recommended Storage Class</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IBM Cloud ROKS</strong></td>
+<td><code>ibmc-block-gold</code></td>
+<td>High-performance block storage</td>
+</tr>
+<tr>
+<td><strong>AWS</strong></td>
+<td><code>gp3-csi</code> or <code>gp2-csi</code></td>
+<td>General purpose SSD</td>
+</tr>
+<tr>
+<td><strong>Azure</strong></td>
+<td><code>managed-premium</code></td>
+<td>Premium SSD</td>
+</tr>
+<tr>
+<td><strong>On-Premises</strong></td>
+<td><code>nfs-client</code> or <code>local-storage</code></td>
+<td>Depends on infrastructure</td>
+</tr>
+<tr>
+<td><strong>OpenShift Data Foundation</strong></td>
+<td><code>ocs-storagecluster-ceph-rbd</code></td>
+<td>Ceph block storage</td>
+</tr>
+</tbody>
+</table>
+<p>To list available storage classes:</p>
+<pre><code class="language-bash">oc get storageclass
+</code></pre>
+<h3 id="registry-credentials">Registry Credentials<a class="headerlink" href="#registry-credentials" title="Permanent link">¶</a></h3>
+<p>Prepare credentials for registry authentication:</p>
+<ul>
+<li><strong>Username</strong> - Registry admin username</li>
+<li><strong>Password</strong> - Strong password for registry access</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Security</p>
+<p>Use a strong, unique password for the registry. This password will be used to authenticate all image push and pull operations.</p>
+</div>
+<h2 id="registry-deployment">Registry Deployment<a class="headerlink" href="#registry-deployment" title="Permanent link">¶</a></h2>
+<h3 id="how-registry-setup-works">How Registry Setup Works<a class="headerlink" href="#how-registry-setup-works" title="Permanent link">¶</a></h3>
+<p>The <code>setup-registry</code> command performs the following steps:</p>
+<ol>
+<li><strong>Creates Namespace</strong> - Deploys registry in dedicated namespace</li>
+<li><strong>Configures Storage</strong> - Creates PersistentVolumeClaim for image storage</li>
+<li><strong>Deploys Registry</strong> - Installs Docker Registry v2 container</li>
+<li><strong>Generates Certificates</strong> - Creates self-signed TLS certificates</li>
+<li><strong>Creates Service</strong> - Exposes registry via LoadBalancer or NodePort</li>
+<li><strong>Configures Authentication</strong> - Sets up basic authentication with provided credentials</li>
+</ol>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link">¶</a></h3>
+<p>Interactive mode guides you through the deployment process with prompts for all configuration options.</p>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
+</code></pre>
+<p>The interactive session will:</p>
+<ol>
+<li>Prompt for OpenShift cluster connection</li>
+<li>Request registry credentials (username, password)</li>
+<li>Request namespace name (default: <code>airgap-registry</code>)</li>
+<li>Request storage class</li>
+<li>Request storage capacity (default: <code>2000Gi</code>)</li>
+<li>Request service type (LoadBalancer or NodePort)</li>
+<li>Display configuration summary</li>
+<li>Request confirmation before deployment</li>
+</ol>
+<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link">¶</a></h3>
+<p>Non-interactive mode is ideal for automation and scripting. All required parameters must be provided via command-line arguments.</p>
+<pre><code class="language-bash">export REGISTRY_PASSWORD=secure-password
+
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry \
+  -u registry-admin \
+  -p $REGISTRY_PASSWORD \
+  -n airgap-registry \
+  -s ibmc-block-gold \
+  -c 2000Gi \
+  -t loadbalancer \
+  --no-confirm
+</code></pre>
+<h2 id="command-reference">Command Reference<a class="headerlink" href="#command-reference" title="Permanent link">¶</a></h2>
+<h3 id="setup-registry">Setup Registry<a class="headerlink" href="#setup-registry" title="Permanent link">¶</a></h3>
+<h4 id="required-parameters">Required Parameters<a class="headerlink" href="#required-parameters" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>-u, --username REGISTRY_USERNAME</code> - Registry admin username (required)</li>
+<li><code>-p, --password REGISTRY_PASSWORD</code> - Registry admin password (required)</li>
+</ul>
+<h4 id="optional-parameters">Optional Parameters<a class="headerlink" href="#optional-parameters" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>-n, --namespace REGISTRY_NAMESPACE</code> - Registry namespace (default: <code>airgap-registry</code>)</li>
+<li><code>-s, --storage-class STORAGE_CLASS</code> - Storage class for PVC (default: <code>ibmc-block-gold</code>)</li>
+<li><code>-c, --storage-capacity STORAGE_CAPACITY</code> - Storage capacity (default: <code>2000Gi</code>)</li>
+<li><code>-t, --service-type SERVICE_TYPE</code> - Service type: <code>loadbalancer</code> or <code>nodeport</code> (default: <code>loadbalancer</code>)</li>
+</ul>
+<h4 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>--no-confirm</code> - Skip confirmation prompt</li>
+<li><code>-h, --help</code> - Display help message</li>
+</ul>
+<h2 id="post-deployment-steps">Post-Deployment Steps<a class="headerlink" href="#post-deployment-steps" title="Permanent link">¶</a></h2>
+<h3 id="accessing-the-registry">Accessing the Registry<a class="headerlink" href="#accessing-the-registry" title="Permanent link">¶</a></h3>
+<p>After deployment completes, retrieve registry access information:</p>
+<pre><code class="language-bash"># Get registry service details
+oc get svc -n airgap-registry
+
+# Get registry hostname/IP
+oc get svc -n airgap-registry -o jsonpath='{.items[0].status.loadBalancer.ingress[0].hostname}'
+
+# For NodePort service
+oc get svc -n airgap-registry -o jsonpath='{.items[0].spec.ports[0].nodePort}'
+</code></pre>
+<h3 id="retrieving-ca-certificate">Retrieving CA Certificate<a class="headerlink" href="#retrieving-ca-certificate" title="Permanent link">¶</a></h3>
+<p>The registry uses self-signed certificates. Retrieve the CA certificate for client configuration:</p>
+<pre><code class="language-bash"># Extract CA certificate
+oc get secret -n airgap-registry registry-tls -o jsonpath='{.data.ca\.crt}' | base64 -d &gt; registry-ca.crt
+</code></pre>
+<h3 id="testing-registry-access">Testing Registry Access<a class="headerlink" href="#testing-registry-access" title="Permanent link">¶</a></h3>
+<p>Test registry connectivity and authentication:</p>
+<pre><code class="language-bash"># Test with curl (replace with your registry hostname)
+curl -k -u admin:password https://registry.example.com:5000/v2/
+
+# Expected response: {}
+</code></pre>
+<h3 id="configuring-dockerpodman">Configuring Docker/Podman<a class="headerlink" href="#configuring-dockerpodman" title="Permanent link">¶</a></h3>
+<p>Configure your local Docker or Podman to trust the registry:</p>
+<pre><code class="language-bash"># Copy CA certificate to Docker trust store
+sudo mkdir -p /etc/docker/certs.d/registry.example.com:5000
+sudo cp registry-ca.crt /etc/docker/certs.d/registry.example.com:5000/ca.crt
+
+# Test login
+docker login registry.example.com:5000 -u admin -p password
+</code></pre>
+<h3 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">¶</a></h3>
+<p>With your private registry deployed, you can proceed to:</p>
+<ul>
+<li><a href="../image-mirroring/">Mirror images</a> to the registry</li>
+<li><a href="../configure-airgap/">Configure airgap</a> environment</li>
+<li><a href="../install/">Install MAS</a> using the private registry</li>
+</ul>
+<h2 id="registry-removal">Registry Removal<a class="headerlink" href="#registry-removal" title="Permanent link">¶</a></h2>
+<h3 id="understanding-registry-teardown">Understanding Registry Teardown<a class="headerlink" href="#understanding-registry-teardown" title="Permanent link">¶</a></h3>
+<p>The <code>teardown-registry</code> command permanently removes the registry and all its data. This operation:</p>
+<ul>
+<li>Deletes the registry namespace and all resources</li>
+<li>Removes the PersistentVolumeClaim and stored images</li>
+<li>Deletes TLS certificates and authentication secrets</li>
+<li>Cannot be undone - all registry data is lost</li>
+</ul>
+<div class="admonition danger">
+<p class="admonition-title">Data Loss Warning</p>
+<p>The <code>teardown-registry</code> command permanently deletes all registry data, including all stored container images. Ensure you have backups or can re-mirror images before proceeding.</p>
+</div>
+<h3 id="interactive-teardown">Interactive Teardown<a class="headerlink" href="#interactive-teardown" title="Permanent link">¶</a></h3>
+<p>Interactive mode prompts for confirmation before deletion:</p>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas teardown-registry
+</code></pre>
+<h3 id="non-interactive-teardown">Non-Interactive Teardown<a class="headerlink" href="#non-interactive-teardown" title="Permanent link">¶</a></h3>
+<p>Non-interactive mode for automation (use with caution):</p>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas teardown-registry \
+  -n airgap-registry \
+  --no-confirm
+</code></pre>
+<h3 id="teardown-command-reference">Teardown Command Reference<a class="headerlink" href="#teardown-command-reference" title="Permanent link">¶</a></h3>
+<h4 id="optional-parameters_1">Optional Parameters<a class="headerlink" href="#optional-parameters_1" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>-n, --namespace REGISTRY_NAMESPACE</code> - Registry namespace to remove (default: <code>airgap-registry</code>)</li>
+</ul>
+<h4 id="other-options_1">Other Options<a class="headerlink" href="#other-options_1" title="Permanent link">¶</a></h4>
+<ul>
+<li><code>--no-confirm</code> - Skip confirmation prompt (dangerous)</li>
+<li><code>-h, --help</code> - Display help message</li>
+</ul>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../configure-airgap/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Airgap Configuration</span>
+      </div>
+    </a>
+    <a href="../image-mirroring/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Image Mirroring (IBM)</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#overview" class="md-toc__link" data-md-level="1">
+                  Overview
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#understanding-private-registries" class="md-toc__link" data-md-level="1">
+                  Understanding Private Registries
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#what-is-a-private-registry" class="md-toc__link" data-md-level="2">
+                          What is a Private Registry?
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#when-to-use-in-cluster-registry" class="md-toc__link" data-md-level="2">
+                          When to Use In-Cluster Registry
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#when-to-use-external-registry" class="md-toc__link" data-md-level="2">
+                          When to Use External Registry
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#preparation" class="md-toc__link" data-md-level="1">
+                  Preparation
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#cluster-requirements" class="md-toc__link" data-md-level="2">
+                          Cluster Requirements
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#storage-class-selection" class="md-toc__link" data-md-level="2">
+                          Storage Class Selection
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#registry-credentials" class="md-toc__link" data-md-level="2">
+                          Registry Credentials
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#registry-deployment" class="md-toc__link" data-md-level="1">
+                  Registry Deployment
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#how-registry-setup-works" class="md-toc__link" data-md-level="2">
+                          How Registry Setup Works
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#interactive-mode" class="md-toc__link" data-md-level="2">
+                          Interactive Mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-mode" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Mode
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#command-reference" class="md-toc__link" data-md-level="1">
+                  Command Reference
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#setup-registry" class="md-toc__link" data-md-level="2">
+                          Setup Registry
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#post-deployment-steps" class="md-toc__link" data-md-level="1">
+                  Post-Deployment Steps
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#accessing-the-registry" class="md-toc__link" data-md-level="2">
+                          Accessing the Registry
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#retrieving-ca-certificate" class="md-toc__link" data-md-level="2">
+                          Retrieving CA Certificate
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#testing-registry-access" class="md-toc__link" data-md-level="2">
+                          Testing Registry Access
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#configuring-dockerpodman" class="md-toc__link" data-md-level="2">
+                          Configuring Docker/Podman
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#next-steps" class="md-toc__link" data-md-level="2">
+                          Next Steps
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#registry-removal" class="md-toc__link" data-md-level="1">
+                  Registry Removal
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#understanding-registry-teardown" class="md-toc__link" data-md-level="2">
+                          Understanding Registry Teardown
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#interactive-teardown" class="md-toc__link" data-md-level="2">
+                          Interactive Teardown
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-teardown" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Teardown
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#teardown-command-reference" class="md-toc__link" data-md-level="2">
+                          Teardown Command Reference
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>

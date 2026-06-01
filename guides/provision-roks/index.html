@@ -1,0 +1,726 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>IBM Cloud ROKS - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/provision-roks.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="OpenShift Management" active="" expanded="">
+    
+      
+  <cds-side-nav-menu-item href="./" active="" expanded="">
+    IBM Cloud ROKS
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-aws/">
+    AWS (IPI)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/">
+    IBM DevIT FYRE
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/">
+    Airgap Configuration
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Image Mirroring">
+    
+      
+  <cds-side-nav-menu-item href="../private-registry/">
+    Private Registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-mirroring/">
+    Image Mirroring (IBM)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/">
+    Image Mirroring (Red Hat)
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Install and Configure">
+    
+      
+  <cds-side-nav-menu-item href="../install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/">
+    OIDC Config Tool
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../aiservice-install/">
+    AI Service Install
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Update and Upgrade">
+    
+      
+  <cds-side-nav-menu-item href="../update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Backup and Restore">
+    
+      
+  <cds-side-nav-menu-item href="../backup/">
+    Backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../restore/">
+    Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Troubleshooting">
+    
+      
+  <cds-side-nav-menu-item href="../../commands/debug/">
+    Debug
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/must-gather/">
+    Must-Gather
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260527-amd64/">
+    May 27 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260430-amd64/">
+    Apr 30 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260326-amd64/">
+    Mar 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260226-amd64/">
+    Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>OpenShift Management</cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#provision-openshift-on-ibm-cloud-roks">Provision OpenShift on IBM Cloud ROKS</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#overview">Overview</cds-select-item>
+    
+      <cds-select-item value="#preparation">Preparation</cds-select-item>
+    
+      <cds-select-item value="#cluster-configuration">Cluster Configuration</cds-select-item>
+    
+      <cds-select-item value="#provisioning-modes">Provisioning Modes</cds-select-item>
+    
+      <cds-select-item value="#command-reference">Command Reference</cds-select-item>
+    
+      <cds-select-item value="#post-provisioning-steps">Post-Provisioning Steps</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="provision-openshift-on-ibm-cloud-roks">Provision OpenShift on IBM Cloud ROKS<a class="headerlink" href="#provision-openshift-on-ibm-cloud-roks" title="Permanent link">¶</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>The MAS CLI provides automated provisioning of Red Hat OpenShift Kubernetes Service (ROKS) clusters on IBM Cloud. ROKS is IBM's managed OpenShift offering that provides enterprise-grade Kubernetes with integrated IBM Cloud services, automated updates, and built-in security features.</p>
+<p>This guide covers the complete process of provisioning an OpenShift cluster on IBM Cloud ROKS, from obtaining credentials to configuring worker nodes and optional GPU support.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>ROKS clusters are ideal for production deployments with IBM Cloud integration, managed services, and enterprise support.</p>
+</div>
+<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¶</a></h2>
+<h3 id="ibm-cloud-account">IBM Cloud Account<a class="headerlink" href="#ibm-cloud-account" title="Permanent link">¶</a></h3>
+<p>You must have an active IBM Cloud account with appropriate permissions. To get started:</p>
+<ol>
+<li>Create an account at <a href="https://cloud.ibm.com">IBM Cloud</a></li>
+<li>Ensure you have access to create Kubernetes/OpenShift clusters</li>
+<li>Verify billing is configured for your account</li>
+</ol>
+<h3 id="ibm-cloud-api-key">IBM Cloud API Key<a class="headerlink" href="#ibm-cloud-api-key" title="Permanent link">¶</a></h3>
+<p>Generate an API key for authentication:</p>
+<ol>
+<li>Log in to <a href="https://cloud.ibm.com">IBM Cloud</a></li>
+<li>Navigate to <strong>Manage</strong> → <strong>Access (IAM)</strong> → <strong>API keys</strong></li>
+<li>Click <strong>Create an IBM Cloud API key</strong></li>
+<li>Provide a name and description</li>
+<li>Copy and securely store the API key (it will only be shown once)</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Treat your API key as a password. Never commit it to source control or share it publicly.</p>
+</div>
+<h3 id="resource-group">Resource Group<a class="headerlink" href="#resource-group" title="Permanent link">¶</a></h3>
+<p>IBM Cloud uses resource groups to organize and manage resources. You will need:</p>
+<ul>
+<li><strong>Resource Group Name</strong> - The name of an existing resource group (e.g., <code>Default</code>, <code>mas-development</code>)</li>
+<li><strong>Permissions</strong> - Ensure you have Editor or Administrator role on the resource group</li>
+</ul>
+<p>To view available resource groups:</p>
+<pre><code class="language-bash">ibmcloud resource groups
+</code></pre>
+<h3 id="openshift-version-selection">OpenShift Version Selection<a class="headerlink" href="#openshift-version-selection" title="Permanent link">¶</a></h3>
+<p>Choose an OpenShift version supported by both ROKS and your target MAS version. ROKS versions use the format <code>X.Y_openshift</code>.  Refer to the <a href="https://www.ibm.com/docs/en/mas-cd/continuous-delivery">MAS system requirements</a> for version compatibility.</p>
+<h2 id="cluster-configuration">Cluster Configuration<a class="headerlink" href="#cluster-configuration" title="Permanent link">¶</a></h2>
+<h3 id="worker-node-flavors">Worker Node Flavors<a class="headerlink" href="#worker-node-flavors" title="Permanent link">¶</a></h3>
+<p>ROKS offers various worker node flavors optimized for different workloads.  MAS requires a minimum of 3 worker nodes for high availability. We do not recommend running MAS with worker nodes smaller than 8 vCPUs and 32 GB memory.</p>
+<p>To view all available flavors:</p>
+<pre><code class="language-bash">ibmcloud ks flavors --zone &lt;zone&gt;
+</code></pre>
+<h3 id="gpu-support-optional">GPU Support (Optional)<a class="headerlink" href="#gpu-support-optional" title="Permanent link">¶</a></h3>
+<p>ROKS supports GPU-enabled worker nodes for AI/ML workloads. GPU configuration includes:</p>
+<ul>
+<li><strong>GPU Worker Count</strong> - Number of GPU-enabled workers</li>
+<li><strong>GPU Workerpool Name</strong> - Identifier for the GPU worker pool</li>
+<li><strong>GPU Flavor</strong> - GPU-enabled worker flavor (e.g., <code>gx2.16x128.1v100</code>)</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>GPU workers are only required for MAS applications with AI/ML capabilities like Predict or Visual Inspection.</p>
+</div>
+<h2 id="provisioning-modes">Provisioning Modes<a class="headerlink" href="#provisioning-modes" title="Permanent link">¶</a></h2>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link">¶</a></h3>
+<p>Interactive mode guides you through the provisioning process with prompts for all configuration options.</p>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-roks
+</code></pre>
+<p>The interactive session will:</p>
+<ol>
+<li>Prompt for IBM Cloud API key</li>
+<li>Request resource group and cluster name</li>
+<li>Configure OpenShift version</li>
+<li>Set worker node specifications</li>
+<li>Optionally configure GPU workers</li>
+<li>Display a summary and request confirmation</li>
+</ol>
+<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link">¶</a></h3>
+<p>Non-interactive mode is ideal for automation and CI/CD pipelines. All required parameters must be provided via command-line arguments or environment variables.</p>
+<pre><code class="language-bash">export IBMCLOUD_APIKEY=your-api-key
+
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-roks \
+  -a $IBMCLOUD_APIKEY \
+  -r mas-development \
+  -c mas-prod-cluster \
+  -v 4.15_openshift \
+  --worker-count 3 \
+  --worker-flavor b3c.16x64 \
+  --worker-zone dal10 \
+  --no-confirm
+</code></pre>
+<h2 id="command-reference">Command Reference<a class="headerlink" href="#command-reference" title="Permanent link">¶</a></h2>
+<h3 id="ibm-cloud-credentials">IBM Cloud Credentials<a class="headerlink" href="#ibm-cloud-credentials" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>-a, --apikey IBMCLOUD_APIKEY</code> - IBM Cloud API key (required)</li>
+</ul>
+<h3 id="cluster-configuration_1">Cluster Configuration<a class="headerlink" href="#cluster-configuration_1" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>-r, --resource-group IBMCLOUD_RESOURCEGROUP</code> - IBM Cloud resource group (required)</li>
+<li><code>-c, --cluster-name CLUSTER_NAME</code> - Cluster name (required)</li>
+<li><code>-v, --ocp-version OCP_VERSION</code> - OpenShift version, e.g., <code>4.15_openshift</code> (required)</li>
+</ul>
+<h3 id="worker-node-configuration">Worker Node Configuration<a class="headerlink" href="#worker-node-configuration" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>--worker-count ROKS_WORKERS</code> - Number of worker nodes (default: 3)</li>
+<li><code>--worker-flavor ROKS_FLAVOR</code> - Worker node flavor, e.g., <code>b3c.16x64</code> (required)</li>
+<li><code>--worker-zone ROKS_ZONE</code> - IBM Cloud zone, e.g., <code>dal10</code> (required)</li>
+</ul>
+<h3 id="gpu-configuration">GPU Configuration<a class="headerlink" href="#gpu-configuration" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>--gpu-worker-count GPU_WORKERS</code> - Number of GPU worker nodes (optional)</li>
+<li><code>--gpu-workerpool-name GPU_WORKERPOOL_NAME</code> - GPU workerpool name (optional)</li>
+</ul>
+<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>--no-confirm</code> - Skip confirmation prompt</li>
+<li><code>-h, --help</code> - Display help message</li>
+</ul>
+<h2 id="post-provisioning-steps">Post-Provisioning Steps<a class="headerlink" href="#post-provisioning-steps" title="Permanent link">¶</a></h2>
+<h3 id="accessing-your-cluster">Accessing Your Cluster<a class="headerlink" href="#accessing-your-cluster" title="Permanent link">¶</a></h3>
+<p>After provisioning completes, access your cluster through the IBM Cloud console or CLI.</p>
+<h4 id="using-ibm-cloud-console">Using IBM Cloud Console<a class="headerlink" href="#using-ibm-cloud-console" title="Permanent link">¶</a></h4>
+<ol>
+<li>Navigate to <a href="https://cloud.ibm.com/kubernetes/clusters">IBM Cloud Kubernetes Service</a></li>
+<li>Select your cluster</li>
+<li>Click <strong>OpenShift web console</strong> to access the cluster</li>
+</ol>
+<h4 id="using-ibm-cloud-cli">Using IBM Cloud CLI<a class="headerlink" href="#using-ibm-cloud-cli" title="Permanent link">¶</a></h4>
+<pre><code class="language-bash"># Log in to IBM Cloud
+ibmcloud login --apikey $IBMCLOUD_APIKEY
+
+# Set target resource group
+ibmcloud target -g mas-production
+
+# Get cluster configuration
+ibmcloud ks cluster config --cluster mas-prod-cluster
+
+# Verify connection
+oc get nodes
+</code></pre>
+<h3 id="verifying-cluster-health">Verifying Cluster Health<a class="headerlink" href="#verifying-cluster-health" title="Permanent link">¶</a></h3>
+<p>Check that all nodes are ready:</p>
+<pre><code class="language-bash">oc get nodes
+</code></pre>
+<p>Verify storage classes are available:</p>
+<pre><code class="language-bash">oc get storageclass
+</code></pre>
+<p>Expected storage classes on ROKS:</p>
+<ul>
+<li><code>ibmc-block-gold</code> - Block storage (RWO)</li>
+<li><code>ibmc-file-gold</code> - File storage (RWX)</li>
+<li><code>ibmc-file-gold-gid</code> - File storage with GID support</li>
+</ul>
+<h3 id="configuring-cluster-access">Configuring Cluster Access<a class="headerlink" href="#configuring-cluster-access" title="Permanent link">¶</a></h3>
+<p>Set up cluster access for your team:</p>
+<ol>
+<li><strong>IAM Policies</strong> - Configure IBM Cloud IAM for user access</li>
+<li><strong>RBAC</strong> - Set up Kubernetes RBAC for fine-grained permissions</li>
+<li><strong>Service IDs</strong> - Create service IDs for automation</li>
+</ol>
+<h3 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">¶</a></h3>
+<p>With your ROKS cluster provisioned, you can proceed to:</p>
+<ul>
+<li><a href="../install/">Install MAS</a></li>
+<li>Configure IBM Cloud services integration</li>
+<li>Set up monitoring and logging</li>
+<li>Configure backup and disaster recovery</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">ROKS Limitations</p>
+<p>ROKS clusters do not support <code>ImageDigestMirrorSet</code> resources, which limits airgap/image mirroring capabilities. For airgap installations, consider using other OpenShift deployment options.</p>
+</div>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../provision-aws/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">AWS (IPI)</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#overview" class="md-toc__link" data-md-level="1">
+                  Overview
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#preparation" class="md-toc__link" data-md-level="1">
+                  Preparation
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-account" class="md-toc__link" data-md-level="2">
+                          IBM Cloud Account
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-api-key" class="md-toc__link" data-md-level="2">
+                          IBM Cloud API Key
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#resource-group" class="md-toc__link" data-md-level="2">
+                          Resource Group
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#openshift-version-selection" class="md-toc__link" data-md-level="2">
+                          OpenShift Version Selection
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#cluster-configuration" class="md-toc__link" data-md-level="1">
+                  Cluster Configuration
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#worker-node-flavors" class="md-toc__link" data-md-level="2">
+                          Worker Node Flavors
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#gpu-support-optional" class="md-toc__link" data-md-level="2">
+                          GPU Support (Optional)
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#provisioning-modes" class="md-toc__link" data-md-level="1">
+                  Provisioning Modes
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#interactive-mode" class="md-toc__link" data-md-level="2">
+                          Interactive Mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-mode" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Mode
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#command-reference" class="md-toc__link" data-md-level="1">
+                  Command Reference
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-credentials" class="md-toc__link" data-md-level="2">
+                          IBM Cloud Credentials
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#cluster-configuration_1" class="md-toc__link" data-md-level="2">
+                          Cluster Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#worker-node-configuration" class="md-toc__link" data-md-level="2">
+                          Worker Node Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#gpu-configuration" class="md-toc__link" data-md-level="2">
+                          GPU Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#other-options" class="md-toc__link" data-md-level="2">
+                          Other Options
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#post-provisioning-steps" class="md-toc__link" data-md-level="1">
+                  Post-Provisioning Steps
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#accessing-your-cluster" class="md-toc__link" data-md-level="2">
+                          Accessing Your Cluster
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#verifying-cluster-health" class="md-toc__link" data-md-level="2">
+                          Verifying Cluster Health
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#configuring-cluster-access" class="md-toc__link" data-md-level="2">
+                          Configuring Cluster Access
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#next-steps" class="md-toc__link" data-md-level="2">
+                          Next Steps
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>
