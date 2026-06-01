@@ -19,6 +19,8 @@ This guide provides comprehensive information on backing up and restoring IBM Ma
 
 - MAS 9.1.x
 
+Note: MAS 9.0.x (Not supported yet, its in testing)
+
 **User Permissions Required**
 
 - `oc` CLI with cluster admin permissions
