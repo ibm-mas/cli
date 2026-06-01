@@ -64,6 +64,41 @@ class AiSettingsMixin:
 
     def configAi(self, silentMode=False) -> None:
         """Configure AiCfg for MAS installation"""
+
+        # FIRST: Check MAS version - AiCfg is only supported in MAS 9.2+
+        # This must be done BEFORE checking user preferences to prevent errors on 9.1
+        mas_channel = self.getParam("mas_channel")
+        is_mas_92_or_later = False
+
+        if mas_channel:
+            try:
+                # Extract major.minor version (e.g., "9.2" from "9.2.0")
+                version_parts = mas_channel.split(".")
+                if len(version_parts) >= 2:
+                    major = int(version_parts[0])
+                    minor = int(version_parts[1])
+                    is_mas_92_or_later = (major > 9) or (major == 9 and minor >= 2)
+            except (ValueError, IndexError):
+                pass
+
+        # If MAS 9.1 or earlier, force disable AiCfg regardless of user input
+        if not is_mas_92_or_later:
+            if not silentMode:
+                self.printH1("Configure AiCfg")
+                self.printDescription(
+                    [
+                        "⚠️  IMPORTANT: AiCfg is only available in MAS 9.2 and later.",
+                        f"   Your MAS channel is: {mas_channel or 'not set'}",
+                        "",
+                        "AiCfg configuration will be skipped.",
+                        "If you upgrade to MAS 9.2+ in the future, you can configure AiCfg then.",
+                    ]
+                )
+            self.setParam("configure_aiassistant", "none")
+            print_formatted_text("⚠️  AiCfg configuration skipped (requires MAS 9.2+)")
+            return
+
+        # MAS 9.2+ - proceed with normal configuration
         if not silentMode:
             self.printH1("Configure AiCfg")
             self.printDescription(
@@ -165,3 +200,6 @@ class AiSettingsMixin:
             else:
                 self.setParam("configure_aiassistant", "none")
                 print_formatted_text("AiCfg configuration skipped")
+
+
+# Made with Bob
