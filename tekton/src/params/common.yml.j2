@@ -20,6 +20,7 @@
 - name: custom_labels
   type: string
   default: ""
+  description: Optional custom labels, comma separated list of key=value pairs
 
 # Slack Notifications
 - name: slack_token
@@ -30,7 +31,6 @@
   type: string
   default: ""
   description: Slack channel(s) for notifications (comma-separated for multiple channels)
-  description: Optional custom labels, comma separated list of key=value pairs
 
 {% if application is not defined %}
 

@@ -36,14 +36,14 @@ targetArgGroup.add_argument(
 )
 
 targetArgGroup.add_argument(
-    "--mas-version", dest="mas_version", required=False, help="The MAS version in x.y.z format used to select pre-install RBAC manifests, for example 9.2.0"
+    "--mas-channel", dest="mas_channel", required=False, help="The MAS channel used to select pre-install RBAC manifests, for example 9.2.x"
 )
 
 targetArgGroup.add_argument(
     "--permission-mode",
     dest="permission_mode",
     required=False,
-    choices=["cluster", "namespaced", "minimal"],
+    choices=["cluster", "namespaced"],
     help="The permission mode used to determine which pre-install RBAC manifests are set up",
 )
 
@@ -51,7 +51,7 @@ targetArgGroup.add_argument(
     "--apps",
     dest="apps",
     required=False,
-    help="Comma-separated list of apps used to filter which pre-install RBAC manifests are set up, for example core,manage,iot",
+    help="Comma-separated list of apps used to filter which pre-install RBAC manifests are set up (required for namespaced mode), for example core,manage,iot",
 )
 
 otherArgGroup = setupPreinstallRBACArgParser.add_argument_group("More", "Additional options for pre-install.")

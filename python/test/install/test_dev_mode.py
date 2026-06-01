@@ -109,8 +109,7 @@ def test_install_master_dev_mode(tmpdir):
         # 14. Kafka configuration
         ".*Create system Kafka instance.*": lambda msg: "y",
         ".*Kafka version.*": lambda msg: "3.8.0",
-        # 14. AiCfg configuration
-        ".*Do you want to configure AiCfg.*": lambda msg: "n",
+        # 14. AiCfg configuration - SKIPPED for MAS 9.1 (only available in 9.2+)
         # 15. Final confirmation
         ".*Use additional configurations.*": lambda msg: "n",
         ".*Proceed with these settings.*": lambda msg: "y",
@@ -193,8 +192,7 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         # 14. Kafka configuration
         ".*Create system Kafka instance.*": lambda msg: "y",
         ".*Kafka version.*": lambda msg: "3.8.0",
-        # 14. AiCfg configuration
-        ".*Do you want to configure AiCfg.*": lambda msg: "n",
+        # 14. AiCfg configuration - SKIPPED for MAS 9.1 (only available in 9.2+)
         # 15. Final confirmation
         ".*Use additional configurations.*": lambda msg: "n",
         ".*Proceed with these settings.*": lambda msg: "y",
@@ -252,6 +250,8 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 4. Routing Mode Configuration - Select path-based routing
         ".*Routing Mode.*": lambda msg: "1",  # Select path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
+        # 5. Manual Routes Configuration - to use manual route configuration
+        ".*Disable Route Creation.*": lambda msg: "y",  # Select to use service mesh
         # 5. Service Mesh Configuration - to use service mesg
         ".*Use Service Mesh.*": lambda msg: "y",  # Select to use service mesh
         # 5. Configure IngressController for path-based routing

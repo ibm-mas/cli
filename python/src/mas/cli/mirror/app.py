@@ -819,6 +819,7 @@ class MirrorApp(BaseApp):
             # Get version from catalog - handle both direct keys and release-specific keys
             perReleaseVersions = [
                 "aiservice_version",
+                "aiservice_tenant_version",
                 "mas_core_version",
                 "mas_assist_version",
                 "mas_iot_version",

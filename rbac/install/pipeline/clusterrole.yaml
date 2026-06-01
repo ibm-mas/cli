@@ -106,3 +106,56 @@ rules:
       - create
       - patch
       - list
+
+  # Creating routes with custom hostnames requires cluster-wide permission
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes/custom-host
+    verbs:
+      - create
+      - update
+
+  # Nvidia GPU operator ClusterPolicy is cluster-scoped
+  - apiGroups:
+      - nvidia.com
+    resources:
+      - clusterpolicies
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+      - watch
+
+  # Cloud Pak for Data requires wildcard permissions to delegate to namespace roles
+  # This allows CPD operators to create roles with any permissions within their namespaces
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+      - deletecollection
+      - impersonate
+
+  # Allow binding and escalating ClusterRoles (including admin) without having all their permissions
+  # This is required for CPD to assign the admin role to service accounts
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+    verbs:
+      - bind
+      - escalate
+    resourceNames:
+      - admin
+      - edit
+      - view

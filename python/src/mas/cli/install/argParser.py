@@ -167,6 +167,15 @@ masAdvancedArgGroup.add_argument(
     choices=["true", "false"],
 )
 masAdvancedArgGroup.add_argument(
+    "--manual-routes",
+    dest="mas_manual_route_mgmt",
+    required=False,
+    action="store_const",
+    const="true",
+    default="false",
+    help="Disable automatic creation of routes.",
+)
+masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
     help="Path to directory containing the certificates to be applied",
@@ -1031,9 +1040,7 @@ aiServiceTenantArgGroup.add_argument(
     required=False,
     help="End date for AI Service tenant",
 )
-aiServiceTenantArgGroup.add_argument("--rsl-url", dest="rsl_url", required=False, help="rsl url")
-aiServiceTenantArgGroup.add_argument("--rsl-org-id", dest="rsl_org_id", required=False, help="org id for rsl")
-aiServiceTenantArgGroup.add_argument("--rsl-token", dest="rsl_token", required=False, help="token for rsl")
+
 aiServiceTenantArgGroup.add_argument(
     "--rsl-ca-crt",
     dest="rsl_ca_crt",
@@ -1563,6 +1570,15 @@ otherArgGroup.add_argument(
     dest="service_account_name",
     required=False,
     help="Custom service account for install pipeline (disables default 'pipeline' service account creation)",
+)
+otherArgGroup.add_argument(
+    "--use-cli-digest",
+    dest="use_cli_digest",
+    required=False,
+    nargs="?",
+    const=True,
+    default=False,
+    help="Use CLI image digest instead of tag in Tekton pipelines. Optionally provide a specific digest (e.g., sha256:abc123...), or omit the value to auto-lookup the digest.",
 )
 
 otherArgGroup.add_argument("-h", "--help", action="help", default=False, help="Show this help message and exit")

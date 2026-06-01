@@ -23,6 +23,9 @@ spec:
       type: string
     - name: github_host
       type: string
+    - name: aiservice_enable_deprovisioning
+      type: string
+      default: "false"
     - name: aiservice_namespace
       type: string
     - name: aiservice_provision_tenant
@@ -114,6 +117,8 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
+      - name: AISERVICE_ENABLE_DEPROVISIONING
+        value: $(params.aiservice_enable_deprovisioning)
       - name: AISERVICE_NAMESPACE
         value: $(params.aiservice_namespace)
       - name: AISERVICE_PROVISION_TENANT
@@ -201,7 +206,7 @@ spec:
           export CATALOG_CHANNEL=${AISERVICE_CATALOG_CHANNEL}
         fi
         echo "[INFO] CATALOG_CHANNEL=${CATALOG_CHANNEL}"
-        
+
         mas gitops-aiservice-tenant -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
         --dir /tmp/init-aiservice-tenant \

@@ -14,7 +14,11 @@ usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION]
                   [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY]
                   [--backup-manage-app] [--manage-workspace-id MANAGE_WORKSPACE_ID] [--backup-manage-db]
                   [--manage-db2-namespace MANAGE_DB2_NAMESPACE] [--manage-db2-instance-name MANAGE_DB2_INSTANCE_NAME]
-                  [--manage-db2-backup-type {offline,online}] [--include-sls] [--exclude-sls] [--include-mongo] [--exclude-mongo]
+                  [--manage-db2-backup-type {offline,online}]
+                  [--backup-facilities-app] [--facilities-workspace-id FACILITIES_WORKSPACE_ID] [--backup-facilities-db]
+                  [--facilities-db2-namespace FACILITIES_DB2_NAMESPACE] [--facilities-db2-instance-name FACILITIES_DB2_INSTANCE_NAME]
+                  [--facilities-db2-backup-type {offline,online}]
+                  [--include-sls] [--exclude-sls] [--include-mongo] [--exclude-mongo]
                   [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-instance-name MONGODB_INSTANCE_NAME]
                   [--mongodb-provider {community}] [--sls-namespace SLS_NAMESPACE] [--cert-manager-provider {redhat,ibm}]
                   [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm]
@@ -68,6 +72,20 @@ Manage Application Backup:
                         Manage Db2 instance name
   --manage-db2-backup-type {offline,online}
                         Manage Db2 backup type: offline (database unavailable) or online (database remains available)
+
+Facilities Application Backup:
+  --backup-facilities-app
+                        Backup the Facilities application
+  --facilities-workspace-id FACILITIES_WORKSPACE_ID
+                        Facilities workspace ID
+  --backup-facilities-db
+                        Backup the Facilities application database (Db2)
+  --facilities-db2-namespace FACILITIES_DB2_NAMESPACE
+                        Facilities Db2 namespace (default: db2u)
+  --facilities-db2-instance-name FACILITIES_DB2_INSTANCE_NAME
+                        Facilities Db2 instance name
+  --facilities-db2-backup-type {offline,online}
+                        Facilities Db2 backup type: offline (database unavailable) or online (database remains available)
 
 Components:
   --include-mongo       Include Mongo in backup (default: true)
@@ -245,6 +263,32 @@ mas backup \
   --instance-id inst1 \
   --backup-manage-app \
   --manage-workspace-id masdev \
+  --no-confirm
+```
+
+### Backup with Facilities Application
+Backup MAS instance including the Facilities application and its database:
+
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-facilities-app \
+  --facilities-workspace-id masdev \
+  --backup-facilities-db \
+  --facilities-db2-namespace db2u \
+  --facilities-db2-instance-name mas-inst1-masdev-facilities \
+  --facilities-db2-backup-type offline \
+  --no-confirm
+```
+
+### Backup with Facilities Application Only (No Database)
+Backup the Facilities application without backing up its database:
+
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-facilities-app \
+  --facilities-workspace-id masdev \
   --no-confirm
 ```
 
