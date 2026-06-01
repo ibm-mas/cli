@@ -67,8 +67,7 @@ def test_install_interactive_existing_catalog(tmpdir):
         ".*Create MongoDb cluster.*": lambda msg: "y",
         # 14. Db2 configuration
         ".*Create Manage dedicated Db2 instance.*": lambda msg: "y",
-        # 14. AiCfg configuration
-        ".*Do you want to configure AiCfg.*": lambda msg: "n",
+        # 14. AiCfg configuration - SKIPPED for MAS 9.1 (only available in 9.2+)
         # 15. Final confirmation
         ".*Use additional configurations.*": lambda msg: "n",
         ".*Proceed with these settings.*": lambda msg: "y",

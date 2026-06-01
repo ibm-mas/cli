@@ -495,6 +495,8 @@ spec:
 
     # 14.2 Generate AiCfg with auto-detected values
     # -------------------------------------------------------------------------
+    # Note: AiCfg CRD is only available in MAS 9.2+, so we guard this task
+    # to prevent errors on MAS 9.1 clusters
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/gencfg-aiservice.yml.j2') | indent(4) }}
       runAfter:
         - aiservice
@@ -508,6 +510,9 @@ spec:
         - input: "$(params.configure_aiassistant)"
           operator: in
           values: ["pipeline"]
+        - input: "$(params.mas_channel)"
+          operator: notin
+          values: ["", "9.0.*", "9.1.*"]
 
     # 15. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
