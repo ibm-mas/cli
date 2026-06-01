@@ -2,7 +2,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>OIDC Config Tool - Maximo Application Suite CLI</title>
+    <title>configtool-oidc - Maximo Application Suite CLI</title>
 
     <!-- Pure CSS (https://pure-css.github.io/) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
@@ -118,61 +118,19 @@
               <cds-side-nav-items>
                 
                   
-  <cds-side-nav-menu title="OpenShift Management">
-    
-      
-  <cds-side-nav-menu-item href="../../guides/provision-roks/">
-    IBM Cloud ROKS
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../guides/provision-aws/">
-    AWS (IPI)
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../guides/provision-fyre/">
-    IBM DevIT FYRE
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../guides/configure-airgap/">
-    Airgap Configuration
-  </cds-side-nav-menu-item>
-
-    
-  </cds-side-nav-menu>
-
-                
-                  
-  <cds-side-nav-menu title="Image Mirroring">
-    
-      
-  <cds-side-nav-menu-item href="../../guides/private-registry/">
-    Private Registry
-  </cds-side-nav-menu-item>
-
+  <cds-side-nav-menu title="Guides">
     
       
   <cds-side-nav-menu-item href="../../guides/image-mirroring/">
-    Image Mirroring (IBM)
+    Image Mirroring
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../mirror-redhat-images/">
-    Image Mirroring (Red Hat)
+  <cds-side-nav-menu-item href="../../guides/image-validation/">
+    Image Validation
   </cds-side-nav-menu-item>
 
-    
-  </cds-side-nav-menu>
-
-                
-                  
-  <cds-side-nav-menu title="Install and Configure" active="" expanded="">
     
       
   <cds-side-nav-menu-item href="../../guides/install/">
@@ -181,28 +139,10 @@
 
     
       
-  <cds-side-nav-menu-item href="../../guides/uninstall/">
-    Uninstall
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="./" active="" expanded="">
-    OIDC Config Tool
-  </cds-side-nav-menu-item>
-
-    
-      
   <cds-side-nav-menu-item href="../../guides/aiservice-install/">
-    AI Service Install
+    AI Service Standalone Install
   </cds-side-nav-menu-item>
 
-    
-  </cds-side-nav-menu>
-
-                
-                  
-  <cds-side-nav-menu title="Update and Upgrade">
     
       
   <cds-side-nav-menu-item href="../../guides/update/">
@@ -216,39 +156,15 @@
   </cds-side-nav-menu-item>
 
     
-  </cds-side-nav-menu>
-
-                
-                  
-  <cds-side-nav-menu title="Backup and Restore">
-    
       
-  <cds-side-nav-menu-item href="../../guides/backup/">
-    Backup
+  <cds-side-nav-menu-item href="../../guides/uninstall/">
+    Uninstall
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../guides/restore/">
-    Restore
-  </cds-side-nav-menu-item>
-
-    
-  </cds-side-nav-menu>
-
-                
-                  
-  <cds-side-nav-menu title="Troubleshooting">
-    
-      
-  <cds-side-nav-menu-item href="../debug/">
-    Debug
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../must-gather/">
-    Must-Gather
+  <cds-side-nav-menu-item href="../../guides/backup-restore/">
+    Backup and Restore
   </cds-side-nav-menu-item>
 
     
@@ -276,9 +192,81 @@
   </cds-side-nav-menu-item>
 
     
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Command Reference" active="" expanded="">
+    
       
-  <cds-side-nav-menu-item href="../../guides/image-validation/">
-    Image Validation
+  <cds-side-nav-menu-item href="../uninstall/">
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../must-gather/">
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/">
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-redhat-images/">
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../setup-registry/">
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../teardown-registry/">
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/">
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/">
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-rosa/">
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="./" active="" expanded="">
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../backup/">
+    backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../restore/">
+    restore
   </cds-side-nav-menu-item>
 
     
@@ -291,12 +279,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/">
     Overview
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-260527-amd64/">
-    May 27 2026
   </cds-side-nav-menu-item>
 
     
@@ -315,6 +297,12 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-260226-amd64/">
     Feb 26 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260129-amd64/">
+    Jan 29 2026
   </cds-side-nav-menu-item>
 
     
@@ -359,7 +347,7 @@
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
-      <cds-breadcrumb-item>Install and Configure</cds-breadcrumb-item>
+      <cds-breadcrumb-item>Command Reference</cds-breadcrumb-item>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#manage-openid-client-for-configuration-tool">Manage OpenID client for Configuration Tool</cds-breadcrumb-link>
   </cds-breadcrumb-item>
@@ -443,7 +431,7 @@ example: <code>oc login --token=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3
           <!-- Navigation footer (prev/next) -->
 <nav class="md-footer-nav" aria-label="Footer navigation">
   <div class="md-footer-nav__inner">
-    <a href="../../guides/uninstall/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+    <a href="../provision-rosa/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
       <div class="md-footer-nav__direction">
         <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
@@ -451,10 +439,10 @@ example: <code>oc login --token=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3
         <span>Previous</span>
       </div>
       <div class="md-footer-nav__title">
-        <span class="md-footer-nav__title-text">Uninstall</span>
+        <span class="md-footer-nav__title-text">provision-rosa</span>
       </div>
     </a>
-    <a href="../../guides/aiservice-install/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+    <a href="../backup/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
       <div class="md-footer-nav__direction">
         <span>Next</span>
         <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -462,7 +450,7 @@ example: <code>oc login --token=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3
         </svg>
       </div>
       <div class="md-footer-nav__title">
-        <span class="md-footer-nav__title-text">AI Service Install</span>
+        <span class="md-footer-nav__title-text">backup</span>
       </div>
     </a>
   </div>
