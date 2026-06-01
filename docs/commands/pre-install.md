@@ -7,7 +7,7 @@ Usage information can be obtained using `mas pre-install --help`
 
 ```
 usage: mas pre-install [-i MAS_INSTANCE_ID] [--mas-channel MAS_CHANNEL]
-                       [--admin-mode {cluster,namespaced}]
+                       [--admin-mode {cluster,namespaced,minimal}]
                        [--apps APPS] [--no-confirm] [-h]
 
 IBM Maximo Application Suite Admin CLI v21.3.0
@@ -24,8 +24,8 @@ Specify the target cluster and MAS instance for which pre-install RBAC should be
                         The MAS instance ID for which pre-install RBAC will be set up
   --mas-channel MAS_CHANNEL
                         The MAS channel used to select pre-install RBAC manifests, for example 9.2.x
-  --admin-mode {cluster,namespaced}
-                        The admin mode used to determine which pre-install RBAC manifests are set up
+  --admin-mode {cluster,namespaced,minimal}
+                        The admin mode used to determine which pre-install RBAC manifests are set up (minimal mode does not require pre-install)
   --apps APPS           Comma-separated list of apps used to filter which pre-install RBAC manifests are set up (required for namespaced mode), for example core,manage,iot
 
 More:
@@ -80,10 +80,62 @@ mas pre-install \
   --no-confirm
 ```
 
-Notes
+### Minimal Mode (No Pre-Install Required)
+If you specify minimal mode, the command will inform you that pre-install is not required:
+
+```bash
+mas pre-install \
+  --mas-instance-id prod1 \
+  --mas-channel 9.2.x \
+  --admin-mode minimal \
+  --no-confirm
+```
+
+This will display a message explaining that minimal mode does not require pre-install RBAC setup.
+
+Understanding MAS 9.2 Permission Model Changes
 -------------------------------------------------------------------------------
 
+Starting with MAS 9.2, there are significant changes to the permissions model used by Maximo Application Suite related to the ability of the Core Platform to act as a delegated OpenShift administrator.
+
+**By default, MAS operator packages operate in minimal permissions mode.** Compared to previous MAS releases, this means the MAS Core Platform has:
+
+- **No ClusterRoles** - No cluster-wide permissions to access resources across all namespaces
+- **No permissions to create namespaces** - Cannot create new application namespaces
+- **No permissions in openshift-marketplace** - Cannot list PackageManifests, CatalogSources, or manage Subscriptions
+- **No permissions in cert-manager namespace** - Cannot manage Certificates or Issuers outside the core namespace
+- **Limited cross-namespace access** - Only essential namespace-scoped roles for specific operations (e.g., reading Secrets and ConfigMaps in application namespaces for binding)
+
+In this minimal permission mode, when you install Maximo Application Suite applications, each application operator will grant the core platform only the **essential namespace-scoped permissions** required for basic operation (such as binding configuration). This means that the **non-essential** capabilities (installing new applications, managing application lifecycle, and viewing application status outside the core namespace) of the Core Platform's administrative API and UI that were previously enabled by default are now **disabled by default**.
+
+**To enable these administrative capabilities**, you must explicitly configure one of the elevated admin modes (**cluster** or **namespaced**). If you have cluster administrator permissions, you can specify `--admin-mode cluster` or `--admin-mode namespaced` when running `mas install` and the necessary RBAC will be applied automatically. If you do not have cluster administrator permissions, a cluster administrator must first run `mas pre-install` to set up the required RBAC, then you can proceed with `mas install`.
+
+
+### Admin Modes
+
+MAS 9.2 and later supports three admin modes that control the level of permissions granted to the MAS:
+
+| Admin Mode | Description | Application Lifecycle Management |
+|----------------|-------------|---------------------------|
+| **cluster** | ClusterRoles containing all non-essential permissions are created via MAS CLI. Functionally same as previous MAS releases. | Full - MAS Admin can manage application lifecycle across the cluster |
+| **namespaced** | Namespace-scoped Roles containing all non-essential permissions are created via MAS CLI in pre-created application namespaces. No ClusterRoles are installed. | Scoped - MAS Admin can manage application lifecycle within bounds of pre-created namespaces |
+| **minimal** | Only essential Roles and namespace-scoped Roles are created by operators. No ClusterRoles or non-essential namespace-scoped Roles are installed. | None - MAS Admin cannot manage application lifecycle; must be handled by OpenShift Administrator |
+
+### When to Use Pre-Install
+
+The `mas pre-install` command is used to grant elevated RBAC permissions to the MAS Core Platform, enabling administrative capabilities.
+
+**If you want to use minimal mode:**
+- Skip `mas pre-install` entirely
+- Run `mas install` with `--admin-mode minimal` - essential roles will be created automatically during installation
+- Note: You will not be able to install or upgrade applications through the MAS UI or API
+
+**If you want to use cluster or namespaced mode:**
+- **With cluster administrator permissions:** Run `mas install` directly with `--admin-mode cluster` or `--admin-mode namespaced` - it will automatically handle the pre-install RBAC setup
+- **Without cluster administrator permissions:** A cluster administrator must first run `mas pre-install` to grant the necessary permissions, then you can run `mas install` to proceed with installation
+
 ### Pre-Install Process
+
 The pre-install command performs the following operations:
 
 1. **Validates cluster administrator permissions** - Ensures you have the required permissions to create RBAC resources
@@ -91,27 +143,8 @@ The pre-install command performs the following operations:
 3. **Validates application selection** - Ensures all specified applications are supported (only in namespaced mode)
 4. **Applies RBAC manifests** - Creates ClusterRoles, ClusterRoleBindings, Roles and RoleBindings based on admin mode and selected applications
 
-### When to Use Pre-Install
-
-The `mas pre-install` command is used to grant necessary RBAC permissions to mas admin.
-
-**If you have cluster administrator permissions:**
-- Run `mas install` directly - it will automatically handle the pre-install RBAC setup
-
-**If you do NOT have cluster administrator permissions:**
-- A cluster administrator must run `mas pre-install` to grant the necessary permissions
-- Then you can run `mas install` to proceed with installation
-
-### Admin Modes
-
-The following admin modes are supported with `mas pre-install`:
-
-| Admin Mode | Description | Apps Required |
-|----------------|-------------|---------------|
-| **cluster** | MAS has cluster-level access to manage its applications and resources across the cluster. ClusterRoles are installed for the ibm-mas operator only. | No - automatically uses ibm-mas operator |
-| **namespaced** | No ClusterRoles are installed. MAS can manage resources only in namespaces prepared by the OpenShift admin. Roles are created for selected applications. | Yes - must specify apps |
-
-**Note:** In minimal mode, essential roles are installed by each operator during installation, so `mas pre-install` is not required.
+!!! note "Minimal Mode and Pre-Install"
+    If the cluster is intended to run in **minimal** mode, `mas pre-install` is not required as essential roles are installed by each operator during installation. The `mas pre-install` command only supports **cluster** and **namespaced** modes.
 
 ### Supported Applications
 

@@ -103,6 +103,16 @@ class SetupPreinstallRBACApp(BaseApp):
             self.mas_channel = self.args.mas_channel.strip()
             self.admin_mode = self.args.admin_mode.strip()
 
+        if self.admin_mode == "minimal":
+            self.printH1("Minimal Admin Mode")
+            self.printDescription(
+                [
+                    "Minimal admin mode does not require pre-install RBAC setup.",
+                    "",
+                    "In minimal mode, essential roles are installed by each operator during installation.",
+                ]
+            )
+            return
         # Extract major.minor version from channel
         # Channel can be in formats like: 9.2.x, 9.2.0, 9.2.x-pre, etc.
         masVersion = ".".join(self.mas_channel.split(".")[:2])
