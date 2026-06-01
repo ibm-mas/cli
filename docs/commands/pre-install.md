@@ -96,9 +96,9 @@ This will display a message explaining that minimal mode does not require pre-in
 Understanding MAS 9.2 Permission Model Changes
 -------------------------------------------------------------------------------
 
-Starting with MAS 9.2, there are significant changes to the permissions model used by Maximo Application Suite related to the ability of the Core Platform to act as a delegated OpenShift administrator.
+Starting with MAS 9.2, there are significant changes to the permissions model used by Maximo Application Suite related to the ability of MAS to act as a delegated OpenShift administrator.
 
-**By default, MAS operator packages operate in minimal permissions mode.** Compared to previous MAS releases, this means the MAS Core Platform has:
+**By default, MAS operator packages operate in minimal permissions mode.** Compared to previous MAS releases, this means MAS has:
 
 - **No ClusterRoles** - No cluster-wide permissions to access resources across all namespaces
 - **No permissions to create namespaces** - Cannot create new application namespaces
@@ -106,7 +106,7 @@ Starting with MAS 9.2, there are significant changes to the permissions model us
 - **No permissions in cert-manager namespace** - Cannot manage Certificates or Issuers outside the core namespace
 - **Limited cross-namespace access** - Only essential namespace-scoped roles for specific operations (e.g., reading Secrets and ConfigMaps in application namespaces for binding)
 
-In this minimal permission mode, when you install Maximo Application Suite applications, each application operator will grant the core platform only the **essential namespace-scoped permissions** required for basic operation (such as binding configuration). This means that the **non-essential** capabilities (installing new applications, managing application lifecycle, and viewing application status outside the core namespace) of the Core Platform's administrative API and UI that were previously enabled by default are now **disabled by default**.
+In this minimal permission mode, when you install Maximo Application Suite applications, each application operator will grant MAS only the **essential namespace-scoped permissions** required for basic operation (such as binding configuration). This means that the **non-essential** capabilities (installing new applications, managing application lifecycle, and viewing application status outside the core namespace) of the MAS administrative API and UI that were previously enabled by default are now **disabled by default**.
 
 **To enable these administrative capabilities**, you must explicitly configure one of the elevated admin modes (**cluster** or **namespaced**). If you have cluster administrator permissions, you can specify `--admin-mode cluster` or `--admin-mode namespaced` when running `mas install` and the necessary RBAC will be applied automatically. If you do not have cluster administrator permissions, a cluster administrator must first run `mas pre-install` to set up the required RBAC, then you can proceed with `mas install`.
 
