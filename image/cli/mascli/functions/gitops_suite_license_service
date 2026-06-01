@@ -32,7 +32,7 @@ IBM Suite License Service:
   -s  --subscription-id ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}                      Customer subscription id
       --domain ${COLOR_YELLOW}SLS_DOMAIN${TEXT_RESET}                                Domain for SLS to create route
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                        DNS provider for SLS
-      --cis-domain ${COLOR_YELLOW}CIS_DOMAIN${TEXT_RESET}                CIS service name 
+      --cis-domain ${COLOR_YELLOW}CIS_DOMAIN${TEXT_RESET}                            CIS Domain Name 
       --cis-crn ${COLOR_YELLOW}CIS_CRN${TEXT_RESET}                                  CIS CRN
   
 Target Cluster (Optional):
