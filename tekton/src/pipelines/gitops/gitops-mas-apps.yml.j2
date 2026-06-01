@@ -845,6 +845,28 @@ spec:
       default: ""
 
   tasks:
+    # 0. Preprocess Manual Certificates
+    # -------------------------------------------------------------------------
+    - name: preprocess-manual-certs
+      params:
+        - name: mas_manual_certs_yaml
+          value: $(params.mas_manual_certs_yaml)
+      workspaces:
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-process-manual-certs
+      when:
+        - input: "$(params.mas_manual_cert_mgmt)"
+          operator: in
+          values: ["true"]
+        - input: "$(params.mas_manual_certs_yaml)"
+          operator: notin
+          values: [""]
+
     # 2. Kafka
     # -------------------------------------------------------------------------
     - name: gitops-kafka-config

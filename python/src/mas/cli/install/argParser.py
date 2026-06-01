@@ -1571,5 +1571,14 @@ otherArgGroup.add_argument(
     required=False,
     help="Custom service account for install pipeline (disables default 'pipeline' service account creation)",
 )
+otherArgGroup.add_argument(
+    "--use-cli-digest",
+    dest="use_cli_digest",
+    required=False,
+    nargs="?",
+    const=True,
+    default=False,
+    help="Use CLI image digest instead of tag in Tekton pipelines. Optionally provide a specific digest (e.g., sha256:abc123...), or omit the value to auto-lookup the digest.",
+)
 
 otherArgGroup.add_argument("-h", "--help", action="help", default=False, help="Show this help message and exit")
