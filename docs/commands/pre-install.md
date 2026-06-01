@@ -91,7 +91,6 @@ Starting with MAS 9.2, there are significant changes to the permissions model us
 - **No ClusterRoles** - No cluster-wide permissions to access resources across all namespaces
 - **No permissions to create namespaces** - Cannot create new application namespaces
 - **No permissions in openshift-marketplace** - Cannot list PackageManifests, CatalogSources, or manage Subscriptions
-- **No permissions in cert-manager namespace** - Cannot manage Certificates or Issuers outside the core namespace
 - **Limited cross-namespace access** - Only essential namespace-scoped roles for specific operations (e.g., reading Secrets and ConfigMaps in application namespaces for binding)
 
 In this minimal permission mode, when you install Maximo Application Suite applications, each application operator will grant MAS only the **essential namespace-scoped permissions** required for basic operation (such as binding configuration). This means that the **non-essential** capabilities (installing new applications, managing application lifecycle, and viewing application status outside the core namespace) of the MAS administrative API and UI that were previously enabled by default are now **disabled by default**.
