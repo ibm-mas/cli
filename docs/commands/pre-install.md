@@ -123,28 +123,12 @@ MAS 9.2 and later supports three admin modes that control the level of permissio
 
 ### When to Use Pre-Install
 
-The `mas pre-install` command is used to grant elevated RBAC permissions to the MAS Core Platform, enabling administrative capabilities.
+Use `mas pre-install` when you do NOT have cluster administrator permissions and want to use **cluster** or **namespaced** mode. A cluster administrator must run this command first to set up the required RBAC before you can run `mas install`.
 
-**If you want to use minimal mode:**
-- Skip `mas pre-install` entirely
-- Run `mas install` with `--admin-mode minimal` - essential roles will be created automatically during installation
-- Note: You will not be able to install or manage applications lifecycle through the MAS UI or API
+If you have cluster administrator permissions, you can skip `mas pre-install` and run `mas install` directly - it will automatically handle the RBAC setup.
 
-**If you want to use cluster or namespaced mode:**
-- **With cluster administrator permissions:** Run `mas install` directly with `--admin-mode cluster` or `--admin-mode namespaced` - it will automatically handle the pre-install RBAC setup
-- **Without cluster administrator permissions:** A cluster administrator must first run `mas pre-install` to grant the necessary permissions, then you can run `mas install` to proceed with installation
+For **minimal** mode, `mas pre-install` is not required as essential roles are installed by each operator during installation.
 
-### Pre-Install Process
-
-The pre-install command performs the following operations:
-
-1. **Validates cluster administrator permissions** - Ensures you have the required permissions to create RBAC resources
-2. **Validates MAS channel** - Confirms the channel is 9.2.x or later
-3. **Validates application selection** - Ensures all specified applications are supported (only in namespaced mode)
-4. **Applies RBAC manifests** - Creates ClusterRoles, ClusterRoleBindings, Roles and RoleBindings based on admin mode and selected applications
-
-!!! note "Minimal Mode and Pre-Install"
-    If the cluster is intended to run in **minimal** mode, `mas pre-install` is not required as essential roles are installed by each operator during installation.
 
 ### Supported Applications
 
@@ -163,75 +147,11 @@ The following applications are supported for pre-install RBAC setup:
 
 You can specify multiple applications as a comma-separated list (e.g., `core,manage,iot`).
 
-### Installation Workflows
-
-#### With Cluster Administrator Permissions
-
-If you have cluster administrator permissions, you can run `mas install` directly with the desired admin mode. The necessary RBAC will be applied automatically:
-
-```bash
-mas install \
-  --mas-instance-id prod1 \
-  --admin-mode namespaced \
-  --no-confirm \
-  ... other install parameters ...
-```
-
-
-#### Without Cluster Administrator Permissions
-
-If you do NOT have cluster administrator permissions, a two-step process is required:
-
-**Step 1: Cluster Administrator runs `mas pre-install`**
-
-The cluster administrator must first set up the required RBAC:
-
-```bash
-mas pre-install \
-  --mas-instance-id prod1 \
-  --mas-channel 9.2.x \
-  --admin-mode namespaced \
-  --apps core,manage,iot \
-  --no-confirm
-```
-
-**Step 2: MAS Installer (with limited permissions) runs `mas install`**
-
-After the RBAC is set up, you can proceed with the installation using the same admin mode:
-
-```bash
-mas install \
-  --mas-instance-id prod1 \
-  --admin-mode namespaced \
-  --no-confirm \
-  ... other parameters ...
-```
-
 ### Requirements
 
-- **For `mas pre-install`:** OpenShift cluster administrator permissions required
-- **For `mas install` with elevated modes:** Cluster administrator permissions OR pre-install RBAC already set up
+- OpenShift cluster administrator permissions
 - MAS channel 9.2.x or later
 - Access to the target OpenShift cluster
 
 !!! warning "Administrator Permissions Required"
-    The `mas pre-install` command requires cluster administrator permissions. If you do not have these permissions, the command will fail with an error message. Only a cluster administrator can set up pre-install RBAC for MAS.
-
-### Interactive Mode
-
-When running without all required options, the command enters interactive mode and will prompt for:
-
-1. Target OpenShift cluster connection
-2. MAS instance ID
-3. MAS channel (for example 9.2.x)
-4. Admin mode (cluster or namespaced)
-5. Applications to include (comma-separated list) - **only for namespaced mode**
-
-The command will display a summary of your selections and ask for confirmation before applying the RBAC resources.
-
-**Note:** In cluster mode, applications are not prompted as the ibm-mas operator is automatically used.
-
-### Version Compatibility
-
-!!! important
-    This command is only supported for MAS version 9.2 and later. If you specify an earlier mas version, the command will fail with an error message.
+    The `mas pre-install` command requires cluster administrator permissions. If you do not have these permissions, the command will fail with an error message.
