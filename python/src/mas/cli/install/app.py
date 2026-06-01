@@ -1558,10 +1558,7 @@ class InstallApp(
                         self.setParam("mas_ws_facilities_custom_properties", "true")
 
                         # Prompt for custom secret name (optional, with default)
-                        customSecretName = self.promptForString(
-                            "Specify the custom secret name",
-                            "mas_ws_facilities_properties_secret_name"
-                        )
+                        customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
                         # Use default if not provided
                         if not customSecretName or customSecretName.strip() == "":
                             customSecretName = "custom-facilities-properties"
