@@ -28,6 +28,7 @@ ibm_aiservice_tenant(required):
       --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                         Endpoint URL for Watsonx.ai
       --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                           Full URL for Watsonx.ai including API key
       --tenant-scheduling-config-file ${COLOR_YELLOW}TENANT_SCHEDULING_CONFIG_FILE${TEXT_RESET}             Path to tenant scheduling configuration file (tolerations and nodeSelector)
+      --enable-deprovisioning ${COLOR_YELLOW}AISERVICE_ENABLE_DEPROVISIONING${TEXT_RESET}                    When true, the tenant is deprovisioned when its AIServiceTenant CR is deleted
 
 AiService :
 --aiservice-namespace ${COLOR_YELLOW}AISERVICE_NAMESPACE${TEXT_RESET}                                       The namespace where AI Service is deployed
@@ -265,6 +266,10 @@ function gitops_aiservice_tenant_noninteractive() {
         export TENANT_SCHEDULING_CONFIG_YAML=$1 && shift
         ;;
 
+      --enable-deprovisioning)
+        export AISERVICE_ENABLE_DEPROVISIONING=$1 && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -404,6 +409,7 @@ function gitops_aiservice_tenant() {
   echo_reset_dim "AIService Tenant Install Plan Approval . ${COLOR_MAGENTA}${AISERVICE_TENANT_INSTALL_PLAN_APPROVAL}"
   echo_reset_dim "cluster domain ................................................. ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "in SaaS environment ............................................ ${COLOR_MAGENTA}${IN_SAAS_ENV}"
+  echo_reset_dim "deprovisioning enabled ......................................... ${COLOR_MAGENTA}${AISERVICE_ENABLE_DEPROVISIONING}"
 if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" ]]; then
   echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}${TENANT_SCHEDULING_CONFIG_YAML}"
 else
