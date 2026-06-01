@@ -136,7 +136,7 @@ class InstallApp(
         # User does not have permissions to apply RBAC
         self.printDescription(
             [
-                f"Admin mode '{self.mas_admin_mode}'.",
+                f"Admin mode: '{self.mas_admin_mode}'",
                 "Pre-install RBAC could not be applied automatically (insufficient permissions).",
             ]
         )
@@ -2344,7 +2344,7 @@ class InstallApp(
             # MAS 9.2+: --admin-mode is REQUIRED
             if self.mas_admin_mode == "":
                 self.fatalError(
-                    f"--admin-mode is required for MAS 9.2+ (selected channel: {self.getParam('mas_channel')}). Valid options: cluster, namespaced, minimal"
+                    f"--admin-mode is required for MAS version 9.2 or higher (selected channel: {self.getParam('mas_channel')}). Valid options: cluster, namespaced, minimal"
                 )
 
             # Set issuer kind based on admin mode if not explicitly set
@@ -2390,7 +2390,7 @@ class InstallApp(
                     )
         else:
             if self.mas_admin_mode != "":
-                self.fatalError(f"--admin-mode is not supported for MAS 9.1 and earlier (selected channel: {self.getParam('mas_channel')})")
+                self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('mas_channel')})")
 
         self.evaluatePreInstallRBACAccess()
         self.setDB2DefaultChannel()
