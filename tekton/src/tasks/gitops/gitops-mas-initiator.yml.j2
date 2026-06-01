@@ -308,36 +308,6 @@ spec:
         
         echo "AWS secret created/updated successfully: ${SECRET_NAME}"
 
-        # Login to OpenShift cluster before running mas pre-install
-        echo "Logging into OpenShift cluster..."
-        export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-${CLUSTER_NAME}-details.yaml
-        if [ ! -f "$ROSA_CONFIG" ]; then
-          echo "ERROR: ROSA config file not found at $ROSA_CONFIG"
-          exit 1
-        fi
-        
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
-        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq '.data.username')
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq '.data.admin_password')
-        
-        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "ERROR: oc login failed"
-          exit 1
-        fi
-        echo "Successfully logged into OpenShift cluster"
-
-        # Run mas pre-install before copying files
-        echo "Running mas pre-install for instance $MAS_INSTANCE_ID with channel $MAS_CHANNEL"
-        mas pre-install -i $MAS_INSTANCE_ID --mas-channel $MAS_CHANNEL --permission-mode cluster --no-confirm
-        return_code=$?
-        if [ $return_code -ne 0 ]; then
-          echo "mas pre-install failed with error: $return_code"
-          exit $return_code
-        fi
-        echo "mas pre-install completed successfully"
-
         export TARGET_LOCAL_DIR="/tmp/target_repo"
         mkdir -p $TARGET_LOCAL_DIR
         cd $TARGET_LOCAL_DIR

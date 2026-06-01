@@ -114,6 +114,18 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
+        # Run mas pre-install for each instance
+        echo "Running mas pre-install for instances: fvtsaas fvtsaas2"
+        for instance_id in fvtsaas fvtsaas2; do
+          echo "Running mas pre-install for instance $instance_id with channel 9.2.x-dev"
+          mas pre-install -i $instance_id --mas-channel 9.2.x-dev --permission-mode cluster --no-confirm
+          return_code=$?
+          if [ $return_code -ne 0 ]; then
+            echo "mas pre-install failed for instance $instance_id with error: $return_code"
+            exit $return_code
+          fi
+          echo "mas pre-install completed successfully for instance $instance_id"
+        done
 
         echo "Start Bootstrap"
         mas gitops-bootstrap \
