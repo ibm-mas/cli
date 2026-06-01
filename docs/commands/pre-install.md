@@ -7,7 +7,7 @@ Usage information can be obtained using `mas pre-install --help`
 
 ```
 usage: mas pre-install [-i MAS_INSTANCE_ID] [--mas-channel MAS_CHANNEL]
-                       [--admin-mode {cluster,namespaced,minimal}]
+                       [--admin-mode {cluster,namespaced}]
                        [--apps APPS] [--no-confirm] [-h]
 
 IBM Maximo Application Suite Admin CLI v21.3.0
@@ -24,7 +24,7 @@ Specify the target cluster and MAS instance for which pre-install RBAC should be
                         The MAS instance ID for which pre-install RBAC will be set up
   --mas-channel MAS_CHANNEL
                         The MAS channel used to select pre-install RBAC manifests, for example 9.2.x
-  --admin-mode {cluster,namespaced,minimal}
+  --admin-mode {cluster,namespaced}
                         The admin mode used to determine which pre-install RBAC manifests are set up
   --apps APPS           Comma-separated list of apps used to filter which pre-install RBAC manifests are set up (required for namespaced mode), for example core,manage,iot
 
@@ -80,18 +80,6 @@ mas pre-install \
   --no-confirm
 ```
 
-### Minimal Mode (No Pre-Install Required)
-If you specify minimal mode, the command will inform you that pre-install is not required:
-
-```bash
-mas pre-install \
-  --mas-instance-id prod1 \
-  --mas-channel 9.2.x \
-  --admin-mode minimal \
-  --no-confirm
-```
-
-This will display a message explaining that minimal mode does not require pre-install RBAC setup.
 
 Understanding MAS 9.2 Permission Model Changes
 -------------------------------------------------------------------------------
@@ -115,19 +103,20 @@ In this minimal permission mode, when you install Maximo Application Suite appli
 
 MAS 9.2 and later supports three admin modes that control the level of permissions granted to the MAS:
 
-| Admin Mode | Description |
-|----------------|-------------|
-| **cluster** | MAS has cluster-level access to manage its applications and resources across the cluster. ClusterRoles are installed for the ibm-mas operator only. |
-| **namespaced** | No ClusterRoles are installed. MAS can manage resources only in namespaces prepared by the OpenShift admin. Roles are created for selected applications. |
-| **minimal** | Only essential roles are installed by each operator during installation. Provides the minimum required permissions for MAS to function. No application lifecycle management capabilities. |
+| Admin Mode | Description | Apps Required |
+|----------------|-------------|---------------|
+| **cluster** | MAS has cluster-level access to manage its applications and resources across the cluster. ClusterRoles are installed for the ibm-mas operator only. | No - automatically uses ibm-mas operator |
+| **namespaced** | No ClusterRoles are installed. MAS can manage resources only in namespaces prepared by the OpenShift admin. Roles are created for selected applications. | Yes - must specify apps |
+
+**Note:** If the cluster is intended to run in minimal mode, `mas pre-install` is not required as essential roles are installed by each operator during installation.
 
 ### When to Use Pre-Install
 
-Use `mas pre-install` when you do NOT have cluster administrator permissions and want to use **cluster** or **namespaced** mode. A cluster administrator must run this command first to set up the required RBAC before you can run `mas install`.
+The `mas pre-install` command sets up RBAC (Role-Based Access Control) permissions for your MAS instance by creating ClusterRoles, Roles, and RoleBindings based on the selected admin mode and applications. This is required when you do not have cluster administrator permissions and want to use **cluster** or **namespaced** mode.
 
-If you have cluster administrator permissions, you can skip `mas pre-install` and run `mas install` directly - it will automatically handle the RBAC setup.
+When you run `mas install` with **cluster** or **namespaced** mode and you don't have cluster administrator permissions, `mas install` cannot create the required RBAC for these modes. A cluster administrator must first run `mas pre-install` to set up these permissions, then you can proceed with `mas install`.
 
-For **minimal** mode, `mas pre-install` is not required as essential roles are installed by each operator during installation.
+If you have cluster administrator permissions, you can skip `mas pre-install` and run `mas install` directly - it will automatically handle the RBAC setup for **cluster** or **namespaced** mode. For **minimal** mode, `mas pre-install` is not required as essential roles are installed by operators during installation.
 
 
 ### Supported Applications
