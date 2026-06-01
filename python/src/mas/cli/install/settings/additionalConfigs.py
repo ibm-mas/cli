@@ -227,10 +227,8 @@ class AdditionalConfigsMixin:
         facilitiesPropertiesFileLocal = self.getParam("mas_ws_facilities_properties_file_local")
 
         if facilitiesPropertiesFileLocal and facilitiesPropertiesFileLocal != "":
-            # Get custom secret name or use default
+            # Get custom secret name
             secretName = self.getParam("mas_ws_facilities_properties_secret_name")
-            if not secretName or secretName == "":
-                secretName = "facilities-properties"
 
             facilitiesPropertiesSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-facilities-properties"}}
 

@@ -829,7 +829,7 @@ facilitiesArgGroup.add_argument(
     dest="mas_ws_facilities_properties_secret_name",
     required=False,
     help="Custom name for the Facilities properties secret (default: facilities-properties)",
-    default="facilities-properties",
+    default="",
 )
 
 # Open Data Hub
