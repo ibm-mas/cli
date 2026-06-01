@@ -1274,10 +1274,10 @@ function argocd_login() {
 function argocd_sync(){
   APP_NAME=$1
   echo
-  echo "Force Application $APP_NAME to Sync ..."
-  argocd app sync $APP_NAME --timeout 30 --assumeYes --grpc-web
+  echo "Force Application(s) with label app.kubernetes.io/instance=$APP_NAME to Sync ..."
+  argocd app list -l app.kubernetes.io/instance=$APP_NAME -o name | xargs -n1 argocd app sync --timeout 30 --assumeYes --grpc-web
   RC=$?
-  echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
+  echo "ArgoCD response for Force Application(s) with label app.kubernetes.io/instance=$APP_NAME to Sync: $RC"
 }
 
 function argocd_prune_sync(){
