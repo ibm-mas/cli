@@ -486,10 +486,15 @@ function gitops_aiservice() {
       echo "- DB2U operator (in-cluster DB2 for FVT)"
       
       export DB2_NAMESPACE="db2u-${AISERVICE_INSTANCE_ID}"
-      export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
+      export DB2_INSTALL_PLAN="${DB2_INSTALL_PLAN:-Automatic}"
+      # Don't set DB2_CHANNEL - let it use AWS Secrets Manager path from template
+      # export DB2_CHANNEL="${DB2_CHANNEL:-v110508.0}"
       
       echo "DEBUG: DB2_NAMESPACE set to: ${DB2_NAMESPACE}"
-      echo "DEBUG: IBM_ENTITLEMENT_KEY: ${IBM_ENTITLEMENT_KEY}"
+      echo "DEBUG: DB2_INSTALL_PLAN set to: ${DB2_INSTALL_PLAN}"
+      echo "DEBUG: DB2_CHANNEL: Using AWS Secrets Manager path from template"
+      echo "DEBUG: SECRETS_PATH: ${SECRETS_PATH}"
+      echo "DEBUG: SECRET_KEY_DB2_DEFAULT_CHANNEL: ${SECRET_KEY_DB2_DEFAULT_CHANNEL}"
       echo "DEBUG: Template path: $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u.yaml.j2"
       echo "DEBUG: Output file: ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
       
