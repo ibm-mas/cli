@@ -16,7 +16,9 @@
     fvt_digest_ctf: "{{ lookup('env', 'FVT_DIGEST_CTF') }}"
     fvt_digest_monitor: "{{ lookup('env', 'FVT_DIGEST_MONITOR') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
-    fvt_digest_data_dictionary: "{{ lookup('env', 'FVT_DIGEST_DATA_DICTIONARY') }}"
+    # Data Dictionary FVT is only supported for Release versions 8.10, 8.11, and 9.0
+    # For any other version (including 9.1+), the digest will be empty and the task will be skipped
+    fvt_digest_data_dictionary: "{% if '8.10' in mas_app_channel_monitor or '8.11' in mas_app_channel_monitor or '9.0' in mas_app_channel_monitor %}{{ lookup('env', 'FVT_DIGEST_DATA_DICTIONARY') }}{% endif %}"
     # Control the Monitor suite based on Monitor version and presence/absence of Manage
     # For Monitor 9.1.x and above, use version-specific test suites (fvt_91x, fvt_92x)
     # For Monitor 8.x and 9.0.x, use legacy suites based on Manage presence
