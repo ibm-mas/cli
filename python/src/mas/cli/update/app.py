@@ -98,7 +98,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.noConfirm = self.args.no_confirm
         self.devMode = self.args.dev_mode
         self.db2LicenseFileLocal = None
-        self.skipPreinstallRbac = self.args.skip_preinstall_rbac if hasattr(self.args, "skip_preinstall_rbac") else False
         self.noConfirm = self.args.no_confirm if hasattr(self.args, "no_confirm") else False
 
         if self.args.mas_catalog_version:
@@ -141,7 +140,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         self.setParam(key, value)
 
                 # Arguments that we don't need to do anything with
-                elif key in ["no_confirm", "help", "skip_preinstall_rbac"]:
+                elif key in ["no_confirm", "help"]:
                     pass
 
                 # Db2 License file has special handling
@@ -308,7 +307,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         fullVersion = f"{baseVersion}.0" if baseVersion.count(".") == 1 else baseVersion
 
                         # For pre-release to 9.2 GA transition, default to cluster mode
-                        permissionMode = "cluster"
+                        adminMode = "cluster"
                         logger.info(
                             f"Using cluster mode for pre-release to GA transition for instance {instanceId} (current: {currentVersion}, target: {targetVersion})"
                         )
@@ -316,22 +315,20 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         # Check permissions and apply RBAC
                         # requiresPreInstallRBAC checks permissions and raises PermissionError if user lacks access
                         try:
-                            if requiresPreInstallRBAC(self.dynamicClient, fullVersion, permissionMode, self.skipPreinstallRbac):
+                            if requiresPreInstallRBAC(self.dynamicClient, fullVersion, adminMode):
                                 # Get installed apps for this instance
                                 selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
 
-                                with Halo(
-                                    text=f"Applying pre-install RBAC for {instanceId} (v{baseVersion}, mode: {permissionMode})", spinner=self.spinner
-                                ) as h:
+                                with Halo(text=f"Applying pre-install RBAC for {instanceId} (v{baseVersion}, mode: {adminMode})", spinner=self.spinner) as h:
                                     applyPreInstallMASRBAC(
                                         dynClient=self.dynamicClient,
                                         masVersion=baseVersion,
                                         masInstanceId=instanceId,
-                                        permissionMode=permissionMode,
+                                        adminMode=adminMode,
                                         selectedApps=selectedApps,
                                     )
                                     h.stop_and_persist(
-                                        symbol=self.successIcon, text=f"Pre-install RBAC applied for {instanceId} (v{baseVersion}, mode: {permissionMode})"
+                                        symbol=self.successIcon, text=f"Pre-install RBAC applied for {instanceId} (v{baseVersion}, mode: {adminMode})"
                                     )
                         except PermissionError as e:
                             # User doesn't have RBAC permissions - prompt or fail
@@ -340,10 +337,9 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                                 # Non-interactive mode - fail with clear message
                                 self.fatalError(
                                     f"Instance {instanceId} is transitioning from pre-release to GA version {baseVersion}.\n"
-                                    f"The pre-install RBAC required for '{permissionMode}' permission mode has not been applied by your current cluster login.\n"
+                                    f"The pre-install RBAC required for '{adminMode}' admin mode has not been applied by your current cluster login.\n"
                                     "This step must be completed by an OpenShift cluster administrator before MAS update can continue.\n"
-                                    f"Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion}' "
-                                    "and then rerun 'mas update' with --skip-preinstall-rbac."
+                                    f"Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion}'."
                                 )
                             else:
                                 # Interactive mode - ask if admin already applied RBAC
@@ -351,7 +347,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                                     [
                                         "",
                                         f"Instance {instanceId} is transitioning from pre-release to GA version {baseVersion}.",
-                                        f"The pre-install RBAC required for '{permissionMode}' permission mode has not been applied by your current cluster login.",
+                                        f"The pre-install RBAC required for '{adminMode}' admin mode has not been applied by your current cluster login.",
                                         "This step must be completed by an OpenShift cluster administrator before MAS update can continue.",
                                         f"Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion}'.",
                                         "If that has already been done, you can continue the update without applying it again.",
@@ -360,8 +356,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
                                 if not self.yesOrNo(f"Has your OpenShift administrator already run 'mas pre-install' for instance {instanceId}"):
                                     self.fatalError(
-                                        f"Update aborted for instance {instanceId}. Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion}' "
-                                        "and then run 'mas update' again with --skip-preinstall-rbac."
+                                        f"Update aborted for instance {instanceId}. Ask your OpenShift administrator to run 'mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion}'."
                                     )
                                 # User confirmed RBAC was already applied, continue with update
                                 logger.info(
