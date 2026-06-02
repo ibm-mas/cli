@@ -35,6 +35,7 @@ from mas.devops.mas import (
 from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 from mas.devops.pre_install import applyPreInstallMASRBAC
+from ..rbac_utils import check_rbac_permissions, generate_preinstall_command, handle_rbac_permission_denied
 
 logger = logging.getLogger(__name__)
 
@@ -143,9 +144,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         Evaluate if pre-install RBAC should be applied.
         Sets self.applyPreInstallMASRBAC flag and self.selectedAppsForRBAC based on the result.
         """
-        from mas.devops.utils import isVersionEqualOrAfter
-        from mas.devops.pre_install import permissionCheckForRBAC
-
         self.applyPreInstallMASRBAC = False
         self.selectedAppsForRBAC = []
 
@@ -158,15 +156,16 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         # Get installed apps for RBAC
         self.selectedAppsForRBAC = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
 
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
+        # Check if user has permissions to apply RBAC
+        self.applyPreInstallMASRBAC = check_rbac_permissions(self.dynamicClient, self.nextChannel, detectedMode)
+
+        if self.applyPreInstallMASRBAC:
             return
 
         # User does not have permissions - inform them early
-        appsArg = f" --selected-apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
-        preInstallCmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {self.nextChannel} --admin-mode {detectedMode}{appsArg}"
+        preInstallCmd = generate_preinstall_command(
+            instance_id=instanceId, channel=self.nextChannel, admin_mode=detectedMode, selected_apps=self.selectedAppsForRBAC
+        )
 
         self.printH1("Pre-Install RBAC Configuration")
         self.printDescription(
@@ -176,33 +175,15 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             ]
         )
 
-        if self.noConfirm:
-            self.printDescription(
-                [
-                    f"Upgrade will continue to MAS {self.nextChannel} with '{detectedMode}' admin mode.",
-                    "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
-                    "With the --no-confirm flag, the upgrade assumes the required RBAC has already been applied by your OpenShift administrator.",
-                    "If it has not been applied, ensure your OpenShift administrator runs:",
-                    f"  {preInstallCmd}",
-                ]
-            )
-        else:
-            self.printDescription(
-                [
-                    "",
-                    f"You are upgrading to MAS {self.nextChannel} with '{detectedMode}' admin mode.",
-                    "The pre-install RBAC required for this admin mode has not been applied by your current cluster login.",
-                    "This step must be completed by an OpenShift cluster administrator before MAS upgrade can continue.",
-                    "Ask your OpenShift administrator to run:",
-                    f"  {preInstallCmd}",
-                    "If that has already been done, you can continue the upgrade.",
-                ]
-            )
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this upgrade"):
-                self.fatalError(f"Upgrade aborted. Ask your OpenShift administrator to run:\n  {preInstallCmd}")
-            # User confirmed RBAC was already applied
-            logger.info("User confirmed pre-install RBAC was already applied by administrator, continuing with upgrade")
+        handle_rbac_permission_denied(
+            print_func=self.printDescription,
+            yes_or_no_func=self.yesOrNo,
+            fatal_error_func=self.fatalError,
+            no_confirm=self.noConfirm,
+            admin_mode=detectedMode,
+            preinstall_commands=[preInstallCmd],
+            operation="upgrade",
+        )
 
     def upgrade(self, argv):
         """

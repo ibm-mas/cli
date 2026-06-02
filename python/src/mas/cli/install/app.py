@@ -68,7 +68,8 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC
+from ..rbac_utils import check_rbac_permissions, handle_rbac_permission_denied
 
 logger = logging.getLogger(__name__)
 
@@ -118,52 +119,39 @@ class InstallApp(
         return selectedApps
 
     def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
+        version = self.getParam("mas_channel")
+        admin_mode = self.mas_admin_mode
 
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+        # Check if user has permissions to apply RBAC
+        self.applyPreInstallMASRBAC = check_rbac_permissions(self.dynamicClient, version, admin_mode)
+
+        if self.applyPreInstallMASRBAC:
             return
 
-        if self.mas_admin_mode == "minimal":
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
+        # Only show messaging if RBAC is needed but user doesn't have permissions
+        if not isVersionEqualOrAfter("9.2.0", version) or admin_mode == "minimal":
             return
 
         self.printH1("Pre-Install RBAC Configuration")
-        # User does not have permissions to apply RBAC
         self.printDescription(
             [
-                f"Admin mode: '{self.mas_admin_mode}'",
+                f"Admin mode: '{admin_mode}'",
                 "Pre-install RBAC could not be applied automatically (insufficient permissions).",
             ]
         )
 
-        if self.noConfirm:
-            self.printDescription(
-                [
-                    f"Installation will continue with the selected '{self.mas_admin_mode}' admin mode.",
-                    "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
-                    "With the --no-confirm flag, the installation assumes the required RBAC has already been applied by your OpenShift administrator.",
-                    "If it has not been applied, ensure your OpenShift administrator runs 'mas pre-install' with the same admin mode before the installation proceeds.",
-                ]
-            )
-        else:
-            self.printDescription(
-                [
-                    "",
-                    "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS channel, admin mode, and selected apps.",
-                    "If that has already been done, you can continue the installation.",
-                ]
-            )
+        # Generate a generic pre-install command
+        preinstall_cmd = f"mas pre-install --mas-channel {version} --admin-mode {admin_mode}"
 
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
-                self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run 'mas install' again using the same admin mode."
-                )
+        handle_rbac_permission_denied(
+            print_func=self.printDescription,
+            yes_or_no_func=self.yesOrNo,
+            fatal_error_func=self.fatalError,
+            no_confirm=self.noConfirm,
+            admin_mode=admin_mode,
+            preinstall_commands=[preinstall_cmd],
+            operation="installation",
+        )
 
     @logMethodCall
     def validateCatalogSource(self):

@@ -28,6 +28,7 @@ from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelin
 from mas.devops.pre_install import applyPreInstallMASRBAC
 from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion, isPreReleaseVersion
 from ..install.settings import AdditionalConfigsMixin
+from ..rbac_utils import check_rbac_permissions, generate_preinstall_command, handle_rbac_permission_denied
 
 logger = logging.getLogger(__name__)
 
@@ -84,12 +85,11 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         logger.info(f"Instance {instanceId} target version {targetVersion} is < 9.2.0. Skipping RBAC.")
         return False
 
-    def evaluatePreInstallRBACForUpdate(self) -> None:
+    def evaluatePreInstallRBACAccess(self) -> None:
         """
         Evaluate if pre-install RBAC should be applied for instances transitioning from pre-release to GA.
         Sets self.instancesNeedingRBAC list and self.applyPreInstallMASRBAC flag.
         """
-        from mas.devops.pre_install import permissionCheckForRBAC
         from mas.devops.mas import getPermissionMode
 
         self.instancesNeedingRBAC = []
@@ -125,12 +125,20 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 logger.info("No MAS instances require RBAC update (not transitioning from pre-release to GA)")
                 return
 
-            # Check if user has permissions to apply RBAC
-            permissionResults = permissionCheckForRBAC(self.dynamicClient)
-            hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
+            # Filter out instances in minimal mode (they don't need pre-install RBAC)
+            instances_needing_rbac_check = [inst for inst in self.instancesNeedingRBAC if inst["adminMode"] != "minimal"]
 
-            if hasPreInstallRBACAccess:
-                self.applyPreInstallMASRBAC = True
+            if not instances_needing_rbac_check:
+                logger.info("All instances are in minimal mode, no pre-install RBAC needed")
+                return
+
+            # Check if user has permissions to apply RBAC (use first non-minimal instance)
+            first_instance_mode = instances_needing_rbac_check[0]["adminMode"]
+            first_instance_version = instances_needing_rbac_check[0]["targetVersion"]
+
+            self.applyPreInstallMASRBAC = check_rbac_permissions(self.dynamicClient, first_instance_version, first_instance_mode)
+
+            if self.applyPreInstallMASRBAC:
                 return
 
             # User does not have permissions - inform them early
@@ -141,48 +149,27 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             print_formatted_text(HTML("<Yellow>Pre-install RBAC is required but could not be applied automatically (insufficient permissions).</Yellow>"))
             print()
 
-            if self.noConfirm:
-                self.printDescription(
-                    [
-                        "Update will continue for all instances.",
-                        "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
-                        "With the --no-confirm flag, the update assumes the required RBAC has already been applied by your OpenShift administrator.",
-                        "If it has not been applied, ensure your OpenShift administrator runs the following commands:",
-                    ]
-                )
-                for instanceInfo in self.instancesNeedingRBAC:
-                    instanceId = instanceInfo["id"]
-                    targetVersion = instanceInfo["targetVersion"]
-                    baseVersion = extractBaseVersion(targetVersion)
-                    adminMode = instanceInfo["adminMode"]
-                    selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
-                    appsArg = f" --selected-apps {','.join(selectedApps)}" if selectedApps else ""
-                    preInstallCmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion} --admin-mode {adminMode}{appsArg}"
-                    print_formatted_text(HTML(f"  <LightSlateGrey>{preInstallCmd}</LightSlateGrey>"))
-                print()
-            else:
-                self.printDescription(
-                    [
-                        "The pre-install RBAC required for these instances has not been applied by your current cluster login.",
-                        "This step must be completed by an OpenShift cluster administrator before MAS update can continue.",
-                        "Ask your OpenShift administrator to run the following commands:",
-                    ]
-                )
-                for instanceInfo in self.instancesNeedingRBAC:
-                    instanceId = instanceInfo["id"]
-                    targetVersion = instanceInfo["targetVersion"]
-                    baseVersion = extractBaseVersion(targetVersion)
-                    adminMode = instanceInfo["adminMode"]
-                    selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
-                    appsArg = f" --selected-apps {','.join(selectedApps)}" if selectedApps else ""
-                    preInstallCmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion} --admin-mode {adminMode}{appsArg}"
-                    print_formatted_text(HTML(f"  <LightSlateGrey>{preInstallCmd}</LightSlateGrey>"))
-                print()
+            # Generate pre-install commands for all instances
+            preinstall_commands = []
+            for instanceInfo in self.instancesNeedingRBAC:
+                instanceId = instanceInfo["id"]
+                targetVersion = instanceInfo["targetVersion"]
+                baseVersion = extractBaseVersion(targetVersion)
+                adminMode = instanceInfo["adminMode"]
+                selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
 
-                if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for all these instances"):
-                    self.fatalError("Update aborted. Ask your OpenShift administrator to run the commands listed above.")
-                # User confirmed RBAC was already applied
-                logger.info("User confirmed pre-install RBAC was already applied by administrator, continuing with update")
+                preinstall_cmd = generate_preinstall_command(instance_id=instanceId, channel=baseVersion, admin_mode=adminMode, selected_apps=selectedApps)
+                preinstall_commands.append(preinstall_cmd)
+
+            handle_rbac_permission_denied(
+                print_func=self.printDescription,
+                yes_or_no_func=self.yesOrNo,
+                fatal_error_func=self.fatalError,
+                no_confirm=self.noConfirm,
+                admin_mode=first_instance_mode,
+                preinstall_commands=preinstall_commands,
+                operation="update",
+            )
 
         except Exception as e:
             logger.error(f"Error while evaluating pre-install RBAC: {e}")
@@ -315,7 +302,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.detectCP4D()
 
         # Evaluate RBAC access
-        self.evaluatePreInstallRBACForUpdate()
+        self.evaluatePreInstallRBACAccess()
 
         print()
 
