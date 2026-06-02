@@ -1002,8 +1002,8 @@ spec:
           
           # Step 5: Wait for applications to be healthy
           echo "Step 5: Waiting for applications to sync and become healthy..."
-          check_argo_app_synced_with_timeout "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 20
-          check_argo_app_synced_with_timeout "${DB2_DB_APP}" 20
+          check_argo_app_synced_with_timeout "suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 30
+          check_argo_app_synced_with_timeout "${DB2_DB_APP}" 30
           
           echo "✓ All applications synced successfully"
           
@@ -1045,7 +1045,7 @@ spec:
           # wait for the root apps to sync to make sure the setting has been applied everywhere
           check_argo_app_synced "${ACCOUNT_ROOT_APP}"
           check_argo_app_synced "${CLUSTER_ROOT_APP}"
-          check_argo_app_synced "${INSTANCE_ROOT_APP}"
+          check_argo_app_synced_with_timeout "${INSTANCE_ROOT_APP}" 120
 
           if [[ "${USE_SENDGRID}" == "true" ]]; then
             disable_subuser
