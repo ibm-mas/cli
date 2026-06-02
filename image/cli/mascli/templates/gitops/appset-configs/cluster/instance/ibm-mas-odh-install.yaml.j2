@@ -2,6 +2,7 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AISERVICE_INSTANCE_ID }}"
 
 ibm_odh:
+  action: {{ ODH_ACTION }}
   openshift_namespace: {{ OPENSHIFT_NAMESPACE }}
   odh_pipeline_channel: {{ ODH_PIPELINE_CHANNEL }}
   odh_pipeline_installplan: {{ ODH_PIPELINE_INSTALLPLAN }}

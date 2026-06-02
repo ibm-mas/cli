@@ -52,28 +52,32 @@ class MirrorTestConfig:
     def _build_default_argv(self) -> list:
         """Build default command line arguments from config."""
         args = [
-            '--catalog', self.catalog_version,
-            '--release', self.release,
-            '--mode', self.mode,
-            '--dir', self.root_dir,
+            "--catalog",
+            self.catalog_version,
+            "--release",
+            self.release,
+            "--mode",
+            self.mode,
+            "--dir",
+            self.root_dir,
         ]
 
         if self.target_registry:
-            args.extend(['--target-registry', self.target_registry])
+            args.extend(["--target-registry", self.target_registry])
 
         if self.authfile:
-            args.extend(['--authfile', self.authfile])
+            args.extend(["--authfile", self.authfile])
 
         if not self.dest_tls_verify:
-            args.extend(['--dest-tls-verify', 'false'])
+            args.extend(["--dest-tls-verify", "false"])
 
         if self.image_timeout != "20m":
-            args.extend(['--image-timeout', self.image_timeout])
+            args.extend(["--image-timeout", self.image_timeout])
 
         # Add package flags
         for package, enabled in self.packages.items():
             if enabled:
-                args.append(f'--{package}')
+                args.append(f"--{package}")
 
         return args
 
@@ -91,20 +95,21 @@ class MirrorTestHelper:
         """
         self.tmpdir = tmpdir
         self.config = config
-        self.test_failed = {'failed': False, 'message': ''}
-        self.last_activity_time = {'time': time.time()}
+        self.test_failed = {"failed": False, "message": ""}
+        self.last_activity_time = {"time": time.time()}
         self.watchdog_thread = None
         self.oc_mirror_call_count = 0
 
     def start_watchdog(self):
         """Start watchdog thread to detect hanging tests."""
+
         def watchdog():
-            while not self.test_failed['failed']:
+            while not self.test_failed["failed"]:
                 time.sleep(1)
-                elapsed = time.time() - self.last_activity_time['time']
+                elapsed = time.time() - self.last_activity_time["time"]
                 if elapsed > self.config.timeout_seconds:
-                    self.test_failed['failed'] = True
-                    self.test_failed['message'] = f"Test hung: No activity for {self.config.timeout_seconds}s"
+                    self.test_failed["failed"] = True
+                    self.test_failed["message"] = f"Test hung: No activity for {self.config.timeout_seconds}s"
                     break
 
         self.watchdog_thread = threading.Thread(target=watchdog, daemon=True)
@@ -112,11 +117,11 @@ class MirrorTestHelper:
 
     def stop_watchdog(self):
         """Stop the watchdog thread."""
-        self.test_failed['failed'] = True
+        self.test_failed["failed"] = True
 
     def update_activity(self):
         """Update last activity time to prevent watchdog timeout."""
-        self.last_activity_time['time'] = time.time()
+        self.last_activity_time["time"] = time.time()
 
     def create_mock_subprocess(self):
         """
@@ -134,20 +139,17 @@ class MirrorTestHelper:
         # Configure readline to return mock output lines
         if self.config.mock_oc_mirror_output:
             # Add lines one by one, then empty string to signal EOF
-            stdout_lines = [line + '\n' for line in self.config.mock_oc_mirror_output] + ['']
+            stdout_lines = [line + "\n" for line in self.config.mock_oc_mirror_output] + [""]
             mock_stdout.readline.side_effect = stdout_lines
             mock_stdout.fileno.return_value = 1
         else:
             # Default success output
-            default_output = [
-                f"{self.config.mock_image_count} / {self.config.mock_image_count} additional images mirrored successfully\n",
-                ''
-            ]
+            default_output = [f"{self.config.mock_image_count} / {self.config.mock_image_count} additional images mirrored successfully\n", ""]
             mock_stdout.readline.side_effect = default_output
             mock_stdout.fileno.return_value = 1
 
         # Empty stderr
-        mock_stderr.readline.side_effect = ['']
+        mock_stderr.readline.side_effect = [""]
         mock_stderr.fileno.return_value = 2
 
         mock_process.stdout = mock_stdout
@@ -159,13 +161,14 @@ class MirrorTestHelper:
     def setup_mocks(self):
         """Setup all mock objects and return context managers."""
         # Mock prompt_toolkit's print_formatted_text to avoid Windows console issues
-        mock_print = mock.patch('prompt_toolkit.shortcuts.utils.print_formatted_text')
+        mock_print = mock.patch("prompt_toolkit.shortcuts.utils.print_formatted_text")
         mock_print.start()
 
         # Create mock catalog data
         if self.config.mock_catalog_data is None:
             # Default catalog data structure
             self.config.mock_catalog_data = {
+<<<<<<< HEAD
                 'sls_version': '3.10.0',
                 'tsm_version': '1.5.0',
                 'mas_core_version': {'9.1.x': '9.1.0'},
@@ -183,35 +186,50 @@ class MirrorTestHelper:
                 'dd_version': '1.0.0',
                 'mongo_extras_version_default': '6.0.0',
                 'couchdb_version': '1.0.13',
+=======
+                "sls_version": "3.10.0",
+                "tsm_version": "1.5.0",
+                "mas_core_version": {"9.1.x": "9.1.0"},
+                "mas_assist_version": {"9.1.x": "9.1.0"},
+                "mas_iot_version": {"9.1.x": "9.1.0"},
+                "mas_manage_version": {"9.1.x": "9.1.0"},
+                "mas_monitor_version": {"9.1.x": "9.1.0"},
+                "mas_predict_version": {"9.1.x": "9.1.0"},
+                "mas_optimizer_version": {"9.1.x": "9.1.0"},
+                "mas_visualinspection_version": {"9.1.x": "9.1.0"},
+                "mas_facilities_version": {"9.1.x": "9.1.0"},
+                "db2u_version": "11.5.9.0+123",
+                "amlen_extras_version": "1.0.0",
+                "aiservice_version": {"9.1.x": "9.1.0"},
+                "aiservice_tenant_version": {"9.1.x": "9.1.0"},
+                "odh_version": "2.32.0",
+                "dd_version": "1.0.0",
+                "mongo_extras_version_default": "6.0.0",
+                "couchdb_version": "1.0.13",
+>>>>>>> master
                 # CP4D Platform version keys
-                'common_svcs_version': '4.13.0',
-                'ibm_zen_version': '6.2.0+20250530.152516.232',
-                'cp4d_platform_version': '5.2.0+20250709.170324',
-                'ibm_licensing_version': '4.2.17',
-                'ccs_build': '11.0.0+20250605.130237.468',
-                'postgress_version': '5.16.0+20250827.110911.2626',
-                'datarefinery_version': '11.0.0+20250513.203727.232',
-                'elasticsearch_version': '1.1.2667',
-                'opensearch_version': '1.1.2494',
+                "common_svcs_version": "4.13.0",
+                "ibm_zen_version": "6.2.0+20250530.152516.232",
+                "cp4d_platform_version": "5.2.0+20250709.170324",
+                "ibm_licensing_version": "4.2.17",
+                "ccs_build": "11.0.0+20250605.130237.468",
+                "postgress_version": "5.16.0+20250827.110911.2626",
+                "datarefinery_version": "11.0.0+20250513.203727.232",
+                "elasticsearch_version": "1.1.2667",
+                "opensearch_version": "1.1.2494",
                 # CP4D WSL version keys
-                'wsl_version': '11.0.0+20250521.202913.73',
-                'wsl_runtimes_version': '11.0.0+20250515.090949.21',
+                "wsl_version": "11.0.0+20250521.202913.73",
+                "wsl_runtimes_version": "11.0.0+20250515.090949.21",
                 # CP4D WML version key
-                'wml_version': '11.0.0+20250530.193146.282',
+                "wml_version": "11.0.0+20250530.193146.282",
                 # CP4D Spark version key
-                'spark_version': '11.0.0+20250604.163055.2097',
+                "spark_version": "11.0.0+20250604.163055.2097",
                 # CP4D Cognos version key
-                'cognos_version': '28.0.0+20250515.175459.10054',
+                "cognos_version": "28.0.0+20250515.175459.10054",
             }
 
         # Mock YAML config file content
-        mock_yaml_content = {
-            'mirror': {
-                'additionalImages': [
-                    {'name': f'image{i}'} for i in range(self.config.mock_image_count)
-                ]
-            }
-        }
+        mock_yaml_content = {"mirror": {"additionalImages": [{"name": f"image{i}"} for i in range(self.config.mock_image_count)]}}
 
         return mock_yaml_content
 
@@ -230,12 +248,13 @@ class MirrorTestHelper:
         # Create a custom open mock that only affects YAML config files
         original_open = open
 
-        def selective_open(file, mode='r', *args, **kwargs):
+        def selective_open(file, mode="r", *args, **kwargs):
             # Only mock YAML config files, let everything else (including log files) use real open
-            if isinstance(file, str) and ('.yaml' in file or 'auth.json' in file):
-                if mode == 'r' or 'r' in mode:
+            if isinstance(file, str) and (".yaml" in file or "auth.json" in file):
+                if mode == "r" or "r" in mode:
                     # Return mock file with YAML content for reading
                     from io import StringIO
+
                     return StringIO(yaml.dump(mock_yaml_content))
                 else:
                     # For writing (auth.json), return a mock that accepts writes
@@ -248,21 +267,21 @@ class MirrorTestHelper:
 
         with (
             # Mock kubectl check in BaseApp.__init__ (which is imported from shutil)
-            mock.patch('mas.cli.cli.which') as mock_kubectl_which,
+            mock.patch("mas.cli.cli.which") as mock_kubectl_which,
             # Mock oc-mirror availability
-            mock.patch('mas.cli.mirror.app.shutil.which') as mock_which,
-            mock.patch('mas.cli.mirror.app.subprocess.Popen') as mock_popen,
-            mock.patch('mas.cli.mirror.app.getCatalog') as mock_get_catalog,
-            mock.patch('builtins.open', side_effect=selective_open) as mock_file,  # noqa: F841
-            mock.patch('mas.cli.mirror.app.path.exists') as mock_path_exists,
-            mock.patch('mas.cli.mirror.app.makedirs') as mock_makedirs,  # noqa: F841
-            mock.patch('mas.cli.mirror.app.urllib.request.urlopen') as mock_urlopen,
-            mock.patch('mas.cli.mirror.app.environ', self.config.env_vars) as mock_environ,  # noqa: F841
+            mock.patch("mas.cli.mirror.app.shutil.which") as mock_which,
+            mock.patch("mas.cli.mirror.app.subprocess.Popen") as mock_popen,
+            mock.patch("mas.cli.mirror.app.getCatalog") as mock_get_catalog,
+            mock.patch("builtins.open", side_effect=selective_open) as mock_file,  # noqa: F841
+            mock.patch("mas.cli.mirror.app.path.exists") as mock_path_exists,
+            mock.patch("mas.cli.mirror.app.makedirs") as mock_makedirs,  # noqa: F841
+            mock.patch("mas.cli.mirror.app.urllib.request.urlopen") as mock_urlopen,
+            mock.patch("mas.cli.mirror.app.environ", self.config.env_vars) as mock_environ,  # noqa: F841
         ):
             # Configure kubectl mock (for BaseApp.__init__)
-            mock_kubectl_which.return_value = '/usr/local/bin/kubectl'
+            mock_kubectl_which.return_value = "/usr/local/bin/kubectl"
             # Configure oc-mirror mock
-            mock_which.return_value = '/usr/local/bin/oc-mirror'
+            mock_which.return_value = "/usr/local/bin/oc-mirror"
             mock_get_catalog.return_value = self.config.mock_catalog_data
 
             # Configure path.exists based on config
@@ -299,8 +318,8 @@ class MirrorTestHelper:
                 self.stop_watchdog()
 
             # Check if test timed out
-            if self.test_failed['message']:
-                raise TimeoutError(self.test_failed['message'])
+            if self.test_failed["message"]:
+                raise TimeoutError(self.test_failed["message"])
 
             # Verify oc-mirror was called
             assert self.oc_mirror_call_count > 0, "oc-mirror command was not executed"
@@ -308,23 +327,19 @@ class MirrorTestHelper:
             # Verify oc-mirror was called with correct arguments
             if mock_popen.called:
                 call_args = mock_popen.call_args[0][0]  # Get the command list
-                assert 'oc-mirror' in call_args[0] or call_args[0].endswith('oc-mirror'), \
-                    f"Expected oc-mirror in command, got: {call_args[0]}"
-                assert '--v2' in call_args, "Expected --v2 flag"
-                assert '--config' in call_args, "Expected --config flag"
-                assert self.config.mode in ['m2m', 'm2d', 'd2m'], f"Invalid mode: {self.config.mode}"
+                assert "oc-mirror" in call_args[0] or call_args[0].endswith("oc-mirror"), f"Expected oc-mirror in command, got: {call_args[0]}"
+                assert "--v2" in call_args, "Expected --v2 flag"
+                assert "--config" in call_args, "Expected --config flag"
+                assert self.config.mode in ["m2m", "m2d", "d2m"], f"Invalid mode: {self.config.mode}"
 
                 # Verify mode-specific arguments
-                if self.config.mode == 'm2m':
-                    assert f"docker://{self.config.target_registry}" in call_args, \
-                        "Expected target registry in m2m mode"
-                elif self.config.mode == 'm2d':
-                    assert any('file://' in arg for arg in call_args), \
-                        "Expected file:// destination in m2d mode"
-                elif self.config.mode == 'd2m':
-                    assert '--from' in call_args, "Expected --from flag in d2m mode"
-                    assert f"docker://{self.config.target_registry}" in call_args, \
-                        "Expected target registry in d2m mode"
+                if self.config.mode == "m2m":
+                    assert f"docker://{self.config.target_registry}" in call_args, "Expected target registry in m2m mode"
+                elif self.config.mode == "m2d":
+                    assert any("file://" in arg for arg in call_args), "Expected file:// destination in m2d mode"
+                elif self.config.mode == "d2m":
+                    assert "--from" in call_args, "Expected --from flag in d2m mode"
+                    assert f"docker://{self.config.target_registry}" in call_args, "Expected target registry in d2m mode"
 
 
 def run_mirror_test(tmpdir, config: MirrorTestConfig):

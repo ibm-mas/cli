@@ -13,7 +13,11 @@ def invalid_timestamp_key(key: str) -> bool:
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
+=======
+    if "DEVOPS_MONGO_URI" not in os.environ or os.environ["DEVOPS_MONGO_URI"] == "":
+>>>>>>> master
         print("Missing DEVOPS_MONGO_URI environment variable, cannot record timestamp")
         sys.exit(0)
 
@@ -59,11 +63,16 @@ if __name__ == "__main__":
     db.runsv2.find_one_and_update(
         {"_id": runId},
         {
+<<<<<<< HEAD
             '$setOnInsert': {
+=======
+            "$setOnInsert": {
+>>>>>>> master
                 "_id": runId,
                 "target": {
                     "instanceId": instanceId,
                     "buildId": build,
+<<<<<<< HEAD
                 }
             },
             '$set': {
@@ -71,6 +80,15 @@ if __name__ == "__main__":
             }
         },
         upsert=True
+=======
+                },
+            },
+            "$set": {
+                timestampKey: currentTime,
+            },
+        },
+        upsert=True,
+>>>>>>> master
     )
 
     print(f"Recorded timestamp for {timestampKey} at {currentTime} to MongoDb (v2 data model)")

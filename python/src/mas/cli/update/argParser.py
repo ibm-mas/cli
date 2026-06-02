@@ -67,9 +67,9 @@ class UpdateArgumentParser(argparse.ArgumentParser):
         # Get all arguments that were actually provided by the user
         providedArgs = []
         if args is not None:
-            providedArgs = [arg for arg in args if arg.startswith('-')]
+            providedArgs = [arg for arg in args if arg.startswith("-")]
         else:
-            providedArgs = [arg for arg in sys.argv[1:] if arg.startswith('-')]
+            providedArgs = [arg for arg in sys.argv[1:] if arg.startswith("-")]
 
         # Check if any arguments were provided
         hasAnyArgs = len(providedArgs) > 0
@@ -78,7 +78,7 @@ class UpdateArgumentParser(argparse.ArgumentParser):
         hasCatalog = parsedArgs.mas_catalog_version is not None
 
         # Check if only help was requested
-        helpOnly = '--help' in providedArgs or '-h' in providedArgs
+        helpOnly = "--help" in providedArgs or "-h" in providedArgs
 
         # Validation: If any arguments are provided (except help), --catalog must be present
         if hasAnyArgs and not hasCatalog and not helpOnly:
@@ -88,42 +88,47 @@ class UpdateArgumentParser(argparse.ArgumentParser):
 
 
 updateArgParser = UpdateArgumentParser(
-    prog='mas update',
+    prog="mas update",
     description="Update the IBM Maximo Operator Catalog, and related MAS dependencies by configuring and launching the MAS Update Tekton Pipeline.",
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
-    add_help=False
+    add_help=False,
 )
 
-masArgGroup = updateArgParser.add_argument_group(
-    'Catalog Selection',
-    'Select the IBM Maximo Operator Catalog version to update to.'
-)
-masArgGroup.add_argument(
-    '-c', '--catalog',
-    dest='mas_catalog_version',
-    required=False,
-    help="Maximo Operator Catalog Version (e.g. v9-240625-amd64)"
-)
+masArgGroup = updateArgParser.add_argument_group("Catalog Selection", "Select the IBM Maximo Operator Catalog version to update to.")
+masArgGroup.add_argument("-c", "--catalog", dest="mas_catalog_version", required=False, help="Maximo Operator Catalog Version (e.g. v9-240625-amd64)")
 
 depsArgGroup = updateArgParser.add_argument_group(
-    'Update Dependencies',
-    'Configure which MAS dependencies (Db2, MongoDB, Kafka) should be updated and specify their namespaces.'
+    "Update Dependencies", "Configure which MAS dependencies (Db2, MongoDB, Kafka) should be updated and specify their namespaces."
 )
 depsArgGroup.add_argument(
-    '--db2-namespace',
+    "--db2-namespace",
     required=False,
     help="Namespace where Db2u operator and instances will be updated",
 )
 
 depsArgGroup.add_argument(
-    '--mongodb-namespace',
+    "--db2-v12-upgrade",
+    required=False,
+    action="store_const",
+    const="true",
+    help="Required to confirm a major version update for Db2 to version 12",
+)
+
+depsArgGroup.add_argument(
+    "--db2-license-file",
+    required=False,
+    help="Path to a valid Db2 v12 activation license file required for Db2 v11 to v12 upgrades",
+)
+
+depsArgGroup.add_argument(
+    "--mongodb-namespace",
     required=False,
     help="Namespace where MongoCE operator and instances will be updated",
 )
 
 depsArgGroup.add_argument(
-    '--mongodb-v5-upgrade',
+    "--mongodb-v5-upgrade",
     required=False,
     action="store_const",
     const="true",
@@ -131,7 +136,7 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
-    '--mongodb-v6-upgrade',
+    "--mongodb-v6-upgrade",
     required=False,
     action="store_const",
     const="true",
@@ -139,7 +144,7 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
-    '--mongodb-v7-upgrade',
+    "--mongodb-v7-upgrade",
     required=False,
     action="store_const",
     const="true",
@@ -147,7 +152,7 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
-    '--mongodb-v8-upgrade',
+    "--mongodb-v8-upgrade",
     required=False,
     action="store_const",
     const="true",
@@ -155,13 +160,13 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
-    '--kafka-namespace',
+    "--kafka-namespace",
     required=False,
     help="Namespace where Kafka operator and instances will be updated",
 )
 
 depsArgGroup.add_argument(
-    '--kafka-provider',
+    "--kafka-provider",
     required=False,
     choices=["redhat", "strimzi"],
     help="The type of Kakfa operator installed in the target namespace for updte",
@@ -170,19 +175,10 @@ depsArgGroup.add_argument(
 # More Options
 # -----------------------------------------------------------------------------
 otherArgGroup = updateArgParser.add_argument_group(
-    'More',
-    'Additional options including development mode, Artifactory credentials, CP4D version, confirmation prompts, and pre-check control.'
+    "More", "Additional options including development mode, Artifactory credentials, CP4D version, confirmation prompts, and pre-check control."
 )
-otherArgGroup.add_argument(
-    "--artifactory-username",
-    required=False,
-    help="Username for access to development builds on Artifactory"
-)
-otherArgGroup.add_argument(
-    "--artifactory-token",
-    required=False,
-    help="API Token for access to development builds on Artifactory"
-)
+otherArgGroup.add_argument("--artifactory-username", required=False, help="Username for access to development builds on Artifactory")
+otherArgGroup.add_argument("--artifactory-token", required=False, help="API Token for access to development builds on Artifactory")
 otherArgGroup.add_argument(
     "--dev-mode",
     required=False,
@@ -190,47 +186,35 @@ otherArgGroup.add_argument(
     default=False,
     help="Configure installation for development mode",
 )
+otherArgGroup.add_argument("--cp4d-version", dest="cpd_product_version", required=False, help="Product version of CP4D to use")
 otherArgGroup.add_argument(
-    "--cp4d-version",
-    dest="cpd_product_version",
+    "--no-confirm",
     required=False,
-    help="Product version of CP4D to use"
-)
-otherArgGroup.add_argument(
-    '--no-confirm',
-    required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Launch the upgrade without prompting for confirmation",
 )
 otherArgGroup.add_argument(
-    '--skip-pre-check',
+    "--skip-pre-check",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline",
 )
-otherArgGroup.add_argument(
-    '--slack-token',
-    required=False,
-    help="Slack bot token for sending pipeline status notifications"
-)
-otherArgGroup.add_argument(
-    '--slack-channel',
-    required=False,
-    help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)"
-)
+otherArgGroup.add_argument("--slack-token", required=False, help="Slack bot token for sending pipeline status notifications")
+otherArgGroup.add_argument("--slack-channel", required=False, help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)")
 otherArgGroup.add_argument(
     "--image-pull-policy",
     dest="image_pull_policy",
     required=False,
     help="Image pull policy for Tekton Pipeline",
     choices=IMAGE_PULL_POLICIES,
-    metavar="{IfNotPresent,Always}"
+    metavar="{IfNotPresent,Always}",
 )
 otherArgGroup.add_argument(
-    '-h', "--help",
-    action='help',
+    "-h",
+    "--help",
+    action="help",
     default=False,
     help="Show this help message and exit",
 )

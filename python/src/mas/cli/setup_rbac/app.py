@@ -38,15 +38,25 @@ class SetupRBACApp(BaseApp):
         pipelineNamespace = f"mas-{instanceId}-pipelines"
 
         self.printH1("Create RBAC resources for MAS installation")
+<<<<<<< HEAD
         self.printDescription(["This will apply the minimal install RBAC bundle for the target MAS instance."
                                "",
                                "The bundle creates the fine-grained service accounts used to run 'mas install' and the install pipeline."])
+=======
+        self.printDescription(
+            [
+                "This will apply the minimal install RBAC bundle for the target MAS instance." "",
+                "The bundle creates the fine-grained service accounts used to run 'mas install' and the install pipeline.",
+            ]
+        )
+>>>>>>> master
         self.printSummary("Instance ID", instanceId)
         self.printSummary("Install Pipeline Namespace", pipelineNamespace)
         self.printSummary("Install User Service Account", installUserSA)
         self.printSummary("Install Pipeline Service Account", installPipelineSA)
 
         with Halo(text=f"Applying RBAC resources for {instanceId}...", spinner=self.spinner) as h:
+<<<<<<< HEAD
             prepareInstallRBAC(
                 dynClient=self.dynamicClient,
                 namespace=pipelineNamespace,
@@ -62,3 +72,21 @@ class SetupRBACApp(BaseApp):
             f"1. Log in using the '{installUserSA}' service account token",
             f"2. Run 'mas install' with the '--service-account {installPipelineSA}' flag to use the '{installPipelineSA}' service account for the install pipeline"
         ])
+=======
+            prepareInstallRBAC(dynClient=self.dynamicClient, namespace=pipelineNamespace, instanceId=instanceId, installRBACDir=self.installRBACDir)
+            h.stop_and_persist(symbol=self.successIcon, text=f"Install RBAC is ready for {instanceId}")
+
+        self.printH1("Next Steps")
+        self.printDescription(
+            [
+                "The RBAC resources for the install pipeline have been created. "
+                "Use the service accounts created by this command to run MAS install without relying on cluster-admin permissions."
+            ]
+        )
+        self.printHighlight(
+            [
+                f"1. Log in using the '{installUserSA}' service account token",
+                f"2. Run 'mas install' with the '--service-account {installPipelineSA}' flag to use the '{installPipelineSA}' service account for the install pipeline",
+            ]
+        )
+>>>>>>> master

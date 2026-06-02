@@ -29,16 +29,16 @@ class InstallTestConfig:
         self,
         prompt_handlers: Dict[str, Callable[[str], str]],
         current_catalog: Optional[Dict[str, str]] = None,
-        architecture: str = 'amd64',
+        architecture: str = "amd64",
         is_sno: bool = False,
         is_airgap: bool = False,
-        storage_class_name: str = 'nfs-client',
-        storage_provider: str = 'nfs',
-        storage_provider_name: str = 'NFS Client',
-        ocp_version: str = '4.18.0',
+        storage_class_name: str = "nfs-client",
+        storage_provider: str = "nfs",
+        storage_provider_name: str = "NFS Client",
+        ocp_version: str = "4.18.0",
         timeout_seconds: int = 30,
         expect_system_exit: bool = False,
-        argv: Optional[list] = None
+        argv: Optional[list] = None,
     ):
         """
         Initialize test configuration.
@@ -74,7 +74,7 @@ class InstallTestConfig:
 class InstallTestHelper:
     """Helper class to run install tests with minimal code duplication."""
 
-    def __init__(self, tmpdir, config: InstallTestConfig, install_type: str = 'mas'):
+    def __init__(self, tmpdir, config: InstallTestConfig, install_type: str = "mas"):
         """
         Initialize the test helper.
 
@@ -86,27 +86,35 @@ class InstallTestHelper:
         self.tmpdir = tmpdir
         self.config = config
         self.install_type = install_type
-        self.test_failed = {'failed': False, 'message': ''}
-        self.last_prompt_time = {'time': time.time()}
+        self.test_failed = {"failed": False, "message": ""}
+        self.last_prompt_time = {"time": time.time()}
         self.watchdog_thread = None
         self.prompt_tracker = None
 
     def setup_test_files(self):
         """Create test files in tmpdir."""
+<<<<<<< HEAD
         self.tmpdir.join('authorized_entitlement.lic').write('testLicense')
         self.tmpdir.join('mongodb-system.yaml').write('#')
         self.tmpdir.join('cert.crt').write('#')
         self.tmpdir.join('aiservice-tenant-affinity-config.yaml').write('#')
+=======
+        self.tmpdir.join("authorized_entitlement.lic").write("testLicense")
+        self.tmpdir.join("mongodb-system.yaml").write("#")
+        self.tmpdir.join("cert.crt").write("#")
+        self.tmpdir.join("aiservice-tenant-affinity-config.yaml").write("#")
+>>>>>>> master
 
     def start_watchdog(self):
         """Start watchdog thread to detect hanging prompts."""
+
         def watchdog():
-            while not self.test_failed['failed']:
+            while not self.test_failed["failed"]:
                 time.sleep(1)
-                elapsed = time.time() - self.last_prompt_time['time']
+                elapsed = time.time() - self.last_prompt_time["time"]
                 if elapsed > self.config.timeout_seconds:
-                    self.test_failed['failed'] = True
-                    self.test_failed['message'] = f"Test hung: No prompt received for {self.config.timeout_seconds}s"
+                    self.test_failed["failed"] = True
+                    self.test_failed["message"] = f"Test hung: No prompt received for {self.config.timeout_seconds}s"
                     break
 
         self.watchdog_thread = threading.Thread(target=watchdog, daemon=True)
@@ -114,7 +122,7 @@ class InstallTestHelper:
 
     def stop_watchdog(self):
         """Stop the watchdog thread."""
-        self.test_failed['failed'] = True
+        self.test_failed["failed"] = True
 
     def setup_mocks(self):
         """Setup all mock objects and return context managers."""
@@ -122,6 +130,7 @@ class InstallTestHelper:
         dynamic_client = MagicMock(DynamicClient)
         resources = MagicMock()
         dynamic_client.resources = resources
+        dynamic_client.client = MagicMock()
 
         # Create individual API mocks
         routes_api = MagicMock()
@@ -143,85 +152,77 @@ class InstallTestHelper:
 
         # Map resource kinds to APIs
         resource_apis = {
-            'CatalogSource': catalog_api,
-            'Route': routes_api,
-            'CustomResourceDefinition': crd_api,
-            'Namespace': namespace_api,
-            'ClusterRoleBinding': cluster_role_binding_api,
-            'PersistentVolumeClaim': pvc_api,
-            'ConfigMap': configmap_api,
-            'Secret': secret_api,
-            'StorageClass': storage_class_api,
-            'LicenseService': license_api,
-            'Service': service_api,
-            'ClusterVersion': cluster_version_api,
-            'AIServiceTenant': aiservice_tenant_api,
-            'AIService': aiservice_api,
-            'AIServiceApp': aiservice_app_api,
-            'IngressController': ingress_controller_api
+            "CatalogSource": catalog_api,
+            "Route": routes_api,
+            "CustomResourceDefinition": crd_api,
+            "Namespace": namespace_api,
+            "ClusterRoleBinding": cluster_role_binding_api,
+            "PersistentVolumeClaim": pvc_api,
+            "ConfigMap": configmap_api,
+            "Secret": secret_api,
+            "StorageClass": storage_class_api,
+            "LicenseService": license_api,
+            "Service": service_api,
+            "ClusterVersion": cluster_version_api,
+            "AIServiceTenant": aiservice_tenant_api,
+            "AIService": aiservice_api,
+            "AIServiceApp": aiservice_app_api,
+            "IngressController": ingress_controller_api,
         }
-        resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs['kind'], None)
+        resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs["kind"], None)
 
         # Configure route mock
         route = MagicMock()
         route.spec = MagicMock()
-        route.spec.host = 'maximo.ibm.com'
+        route.spec.host = "maximo.ibm.com"
         route.spec.displayName = supportedCatalogs[self.config.architecture][1]
         routes_api.get.return_value = route
 
         # Configure catalog mock
-        catalog_api.get.side_effect = NotFoundError(ApiException(status='404'))
+        catalog_api.get.side_effect = NotFoundError(ApiException(status="404"))
 
         # Configure service mock for image registry
         image_registry_service = MagicMock()
         image_registry_service.metadata = MagicMock()
-        image_registry_service.metadata.name = 'image-registry'
+        image_registry_service.metadata.name = "image-registry"
         service_api.get.return_value = image_registry_service
 
         # Configure AIService mocks (empty lists)
         for api in [aiservice_tenant_api, aiservice_api, aiservice_app_api]:
             mock_list = MagicMock()
-            mock_list.to_dict.return_value = {'items': []}
+            mock_list.to_dict.return_value = {"items": []}
             api.get.return_value = mock_list
 
         # Configure ClusterVersion mock
         cluster_version = MagicMock()
         cluster_version.status = MagicMock()
         history_record = MagicMock()
-        history_record.state = 'Completed'
+        history_record.state = "Completed"
         history_record.version = self.config.ocp_version
         cluster_version.status.history = [history_record]
         cluster_version_api.get.return_value = cluster_version
 
         # Configure IngressController mock only for MAS install (not needed for aiservice)
-        if self.install_type == 'mas':
+        if self.install_type == "mas":
             # NOT configured for path-based routing initially
             # This will trigger the prompt to configure it
             ingress_controller = MagicMock()
             ingress_controller.metadata = MagicMock()
-            ingress_controller.metadata.name = 'default'
+            ingress_controller.metadata.name = "default"
             ingress_controller.status = MagicMock()
-            ingress_controller.status.domain = 'apps.cluster.example.com'
-            ingress_controller.status.conditions = [
-                MagicMock(type='Available', status='True')
-            ]
+            ingress_controller.status.domain = "apps.cluster.example.com"
+            ingress_controller.status.conditions = [MagicMock(type="Available", status="True")]
             ingress_controller.spec = MagicMock()
             ingress_controller.spec.routeAdmission = MagicMock()
             # Set to 'Strict' initially (not configured for path-based routing)
-            ingress_controller.spec.routeAdmission.namespaceOwnership = 'Strict'
+            ingress_controller.spec.routeAdmission.namespaceOwnership = "Strict"
 
             # Support dict-style access for _checkIngressControllerForPathRouting
             # Initially returns 'Strict' (not configured)
             def ingress_controller_get(key, default=None):
-                if key == 'spec':
-                    spec_dict = {
-                        'routeAdmission': {
-                            'namespaceOwnership': 'Strict'  # Not configured for path-based routing
-                        }
-                    }
-                    return type('obj', (object,), {
-                        'get': lambda self, k, d=None: spec_dict.get(k, d)
-                    })()
+                if key == "spec":
+                    spec_dict = {"routeAdmission": {"namespaceOwnership": "Strict"}}  # Not configured for path-based routing
+                    return type("obj", (object,), {"get": lambda self, k, d=None: spec_dict.get(k, d)})()
                 return default
 
             ingress_controller.get = ingress_controller_get
@@ -229,7 +230,7 @@ class InstallTestHelper:
             # Configure get() to return single controller when queried by name
             # and list when queried without name
             def ingress_controller_api_get(**kwargs):
-                if 'name' in kwargs:
+                if "name" in kwargs:
                     # Return single controller when queried by name
                     return ingress_controller
                 else:
@@ -253,11 +254,11 @@ class InstallTestHelper:
         def wrapped_prompt_handler(*args, **kwargs):
             """Handle prompts and update watchdog timer."""
             # Check if test has timed out
-            if self.test_failed['failed']:
-                raise TimeoutError(self.test_failed['message'])
+            if self.test_failed["failed"]:
+                raise TimeoutError(self.test_failed["message"])
 
             # Update last prompt time
-            self.last_prompt_time['time'] = time.time()
+            self.last_prompt_time["time"] = time.time()
 
             # Use the prompt tracker to handle the prompt
             return prompt_handler(*args, **kwargs)
@@ -277,15 +278,16 @@ class InstallTestHelper:
             SystemExit: If expect_system_exit is True and SystemExit is raised
         """
         # Determine which app class and module to use based on install_type
-        if self.install_type == 'aiservice':
+        if self.install_type == "aiservice":
             from mas.cli.aiservice.install.app import AiServiceInstallApp
+
             app_class = AiServiceInstallApp
-            app_module = 'mas.cli.aiservice.install.app'
-            prepare_namespace_func = 'prepareAiServicePipelinesNamespace'
+            app_module = "mas.cli.aiservice.install.app"
+            prepare_namespace_func = "prepareAiServicePipelinesNamespace"
         else:
             app_class = InstallApp
-            app_module = 'mas.cli.install.app'
-            prepare_namespace_func = 'preparePipelinesNamespace'
+            app_module = "mas.cli.install.app"
+            prepare_namespace_func = "preparePipelinesNamespace"
 
         self.setup_test_files()
         self.start_watchdog()
@@ -293,34 +295,34 @@ class InstallTestHelper:
         system_exit_raised = False
         exit_code = None
 
-        with mock.patch('mas.cli.cli.config'):
+        with mock.patch("mas.cli.cli.config"):
             dynamic_client, resource_apis = self.setup_mocks()
 
             with (
-                mock.patch('mas.cli.cli.DynamicClient') as dynamic_client_class,
-                mock.patch('mas.cli.cli.getNodes') as get_nodes,
-                mock.patch('mas.cli.cli.isAirgapInstall') as is_airgap_install,
-                mock.patch(f'{app_module}.getCurrentCatalog') as get_current_catalog,
-                mock.patch(f'{app_module}.installOpenShiftPipelines'),
-                mock.patch(f'{app_module}.updateTektonDefinitions'),
-                mock.patch(f'{app_module}.createNamespace'),
-                mock.patch(f'{app_module}.{prepare_namespace_func}'),
-                mock.patch(f'{app_module}.launchInstallPipeline') as launch_install_pipeline,
-                mock.patch('mas.cli.install.app.configureIngressForPathBasedRouting') as configure_ingress,
-                mock.patch('mas.cli.cli.isSNO') as is_sno,
-                mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
-                mock.patch('mas.cli.displayMixins.PromptSession') as prompt_session_class,
-                mock.patch(f'{app_module}.prompt') as app_prompt,
-                mock.patch(f'{app_module}.getStorageClasses') as get_storage_classes,
-                mock.patch(f'{app_module}.getDefaultStorageClasses') as get_default_storage_classes,
+                mock.patch("mas.cli.cli.DynamicClient") as dynamic_client_class,
+                mock.patch("mas.cli.cli.getNodes") as get_nodes,
+                mock.patch("mas.cli.cli.isAirgapInstall") as is_airgap_install,
+                mock.patch(f"{app_module}.getCurrentCatalog") as get_current_catalog,
+                mock.patch(f"{app_module}.installOpenShiftPipelines"),
+                mock.patch(f"{app_module}.updateTektonDefinitions"),
+                mock.patch(f"{app_module}.createNamespace"),
+                mock.patch(f"{app_module}.{prepare_namespace_func}"),
+                mock.patch(f"{app_module}.launchInstallPipeline") as launch_install_pipeline,
+                mock.patch("mas.cli.install.app.configureIngressForPathBasedRouting") as configure_ingress,
+                mock.patch("mas.cli.cli.isSNO") as is_sno,
+                mock.patch("mas.cli.displayMixins.prompt") as mixins_prompt,
+                mock.patch("mas.cli.displayMixins.PromptSession") as prompt_session_class,
+                mock.patch(f"{app_module}.prompt") as app_prompt,
+                mock.patch(f"{app_module}.getStorageClasses") as get_storage_classes,
+                mock.patch(f"{app_module}.getDefaultStorageClasses") as get_default_storage_classes,
             ):
 
                 # Configure mock return values
                 dynamic_client_class.return_value = dynamic_client
-                get_nodes.return_value = [{'status': {'nodeInfo': {'architecture': self.config.architecture}}}]
+                get_nodes.return_value = [{"status": {"nodeInfo": {"architecture": self.config.architecture}}}]
                 is_airgap_install.return_value = self.config.is_airgap
                 get_current_catalog.return_value = self.config.current_catalog
-                launch_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
+                launch_install_pipeline.return_value = "https://pipeline.test.maximo.ibm.com"
                 is_sno.return_value = self.config.is_sno
                 configure_ingress.return_value = True
 
@@ -356,8 +358,8 @@ class InstallTestHelper:
                     self.stop_watchdog()
 
                 # Check if test timed out
-                if self.test_failed['message']:
-                    raise TimeoutError(self.test_failed['message'])
+                if self.test_failed["message"]:
+                    raise TimeoutError(self.test_failed["message"])
 
                 # Verify SystemExit was raised if expected
                 if self.config.expect_system_exit and not system_exit_raised:
@@ -374,7 +376,7 @@ class InstallTestHelper:
                 self.prompt_tracker.verify_all_prompts_matched()
 
 
-def run_install_test(tmpdir, config: InstallTestConfig, install_type: str = 'mas'):
+def run_install_test(tmpdir, config: InstallTestConfig, install_type: str = "mas"):
     """
     Convenience function to run an install test.
 
@@ -403,4 +405,4 @@ def run_aiservice_install_test(tmpdir, config: InstallTestConfig):
         TimeoutError: If test times out
         AssertionError: If prompt verification fails
     """
-    run_install_test(tmpdir, config, install_type='aiservice')
+    run_install_test(tmpdir, config, install_type="aiservice")

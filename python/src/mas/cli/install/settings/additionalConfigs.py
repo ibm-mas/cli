@@ -15,6 +15,7 @@ from glob import glob
 from prompt_toolkit import print_formatted_text
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
     from prompt_toolkit.validation import Validator
 
 
-class AdditionalConfigsMixin():
+class AdditionalConfigsMixin:
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
@@ -32,38 +33,33 @@ class AdditionalConfigsMixin():
         noConfirm: bool
         templatesDir: str
         slsLicenseFileLocal: str | None
+        db2LicenseFileLocal: str | None
         manualCertsDir: str | None
         showAdvancedOptions: bool
         aiserviceTenantSchedulingConfigFileLocal: str | None
         additionalConfigsSecret: Dict[str, Any] | None
         podTemplatesSecret: Dict[str, Any] | None
         slsLicenseFileSecret: Dict[str, Any] | None
+        db2LicenseFileSecret: Dict[str, Any] | None
         certsSecret: Dict[str, Any] | None
         aiserviceConfigSecret: Dict[str, Any] | None
 
         # Methods from BaseApp
-        def setParam(self, param: str, value: str) -> None:
-            ...
+        def setParam(self, param: str, value: str) -> None: ...
 
-        def getParam(self, param: str) -> str:
-            ...
+        def getParam(self, param: str) -> str: ...
 
-        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:
-            ...
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn: ...
 
         # Methods from PrintMixin
-        def printH1(self, message: str) -> None:
-            ...
+        def printH1(self, message: str) -> None: ...
 
-        def printH2(self, message: str) -> None:
-            ...
+        def printH2(self, message: str) -> None: ...
 
-        def printDescription(self, content: List[str]) -> None:
-            ...
+        def printDescription(self, content: List[str]) -> None: ...
 
         # Methods from PromptMixin
-        def yesOrNo(self, message: str, param: str | None = None) -> bool:
-            ...
+        def yesOrNo(self, message: str, param: str | None = None) -> bool: ...
 
         def promptForString(
             self,
@@ -72,34 +68,25 @@ class AdditionalConfigsMixin():
             default: str = "",
             isPassword: bool = False,
             validator: Validator | None = None,
-            completer: WordCompleter | None = None
-        ) -> str:
-            ...
+            completer: WordCompleter | None = None,
+        ) -> str: ...
 
-        def promptForInt(
-            self,
-            message: str,
-            param: str | None = None,
-            default: int | None = None,
-            min: int | None = None,
-            max: int | None = None
-        ) -> int:
-            ...
+        def promptForInt(self, message: str, param: str | None = None, default: int | None = None, min: int | None = None, max: int | None = None) -> int: ...
 
-        def promptForDir(self, message: str, mustExist: bool = True, default: str = "") -> str:
-            ...
+        def promptForDir(self, message: str, mustExist: bool = True, default: str = "") -> str: ...
 
         # Methods from other mixins
-        def selectLocalConfigDir(self) -> None:
-            ...
+        def selectLocalConfigDir(self) -> None: ...
 
     def additionalConfigs(self) -> None:
         if self.isInteractiveMode:
             self.printH1("Additional Configuration")
-            self.printDescription([
-                "Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step",
-                "The primary purpose of this is to apply configuration for Maximo Application Suite itself, but you can use this to deploy ANY additional resource into your cluster"
-            ])
+            self.printDescription(
+                [
+                    "Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step",
+                    "The primary purpose of this is to apply configuration for Maximo Application Suite itself, but you can use this to deploy ANY additional resource into your cluster",
+                ]
+            )
 
             # If the user already set up BYO MongoDb or Kafka then they have already chosen to use additional configs
             if self.localConfigDir is None:
@@ -110,7 +97,7 @@ class AdditionalConfigsMixin():
         # and generate the secret that will be used in the pipeline
         if self.localConfigDir is not None:
             # Get list of files in localConfigDir
-            configFilesPath = rf'{self.localConfigDir}/*.yaml'
+            configFilesPath = rf"{self.localConfigDir}/*.yaml"
             configFiles = glob(configFilesPath)
             if len(configFiles) == 0:
                 self.fatalError(f"No configuration files (*.yaml) were found in {self.localConfigDir}")
@@ -125,14 +112,7 @@ class AdditionalConfigsMixin():
                     exit(0)
 
             # Generate the secret and apply it to the cluster
-            secret = {
-                "apiVersion": "v1",
-                "kind": "Secret",
-                "type": "Opaque",
-                "metadata": {
-                    "name": "pipeline-additional-configs"
-                }
-            }
+            secret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-additional-configs"}}
             additionalConfigsSecret = self.addFilesToSecret(secret, self.localConfigDir, "yaml")
             logger.debug(additionalConfigsSecret)
             self.additionalConfigsSecret = additionalConfigsSecret
@@ -140,22 +120,18 @@ class AdditionalConfigsMixin():
     def podTemplates(self) -> None:
         if self.isInteractiveMode and self.showAdvancedOptions:
             self.printH1("Configure Pod Templates")
-            self.printDescription([
-                "The CLI supports two pod template profiles out of the box that allow you to reconfigure MAS for either a guaranteed or best effort QoS level",
-                "For more information about the Kubernetes quality of service (QoS) levels, see <Orange><u>https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/</u></Orange>",
-                "You may also choose to use your own customized pod template definitions"
-            ])
+            self.printDescription(
+                [
+                    "The CLI supports two pod template profiles out of the box that allow you to reconfigure MAS for either a guaranteed or best effort QoS level",
+                    "For more information about the Kubernetes quality of service (QoS) levels, see <Orange><u>https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/</u></Orange>",
+                    "You may also choose to use your own customized pod template definitions",
+                ]
+            )
 
             if not self.yesOrNo("Use pod templates"):
                 return
 
-            self.printDescription([
-                "Make a selection from the list below:",
-                "",
-                "1. Guaranteed QoS",
-                "2. Best Effort QoS",
-                "3. Custom"
-            ])
+            self.printDescription(["Make a selection from the list below:", "", "1. Guaranteed QoS", "2. Best Effort QoS", "3. Custom"])
 
             podTemplateChoice = self.promptForInt("Select pod templates profile")
 
@@ -184,14 +160,7 @@ class AdditionalConfigsMixin():
                     exit(0)
 
             # Generate the secret and apply it to the cluster
-            secret = {
-                "apiVersion": "v1",
-                "kind": "Secret",
-                "type": "Opaque",
-                "metadata": {
-                    "name": "pipeline-pod-templates"
-                }
-            }
+            secret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-pod-templates"}}
             podTemplatesSecret = self.addFilesToSecret(secret, self.getParam("mas_pod_templates_dir"), "yml")
             logger.debug(podTemplatesSecret)
             self.podTemplatesSecret = podTemplatesSecret
@@ -199,57 +168,26 @@ class AdditionalConfigsMixin():
     def manualCertificates(self) -> None:
 
         if self.getParam("mas_manual_cert_mgmt").lower() == "true":
-            certsSecret = {
-                "apiVersion": "v1",
-                "kind": "Secret",
-                "type": "Opaque",
-                "metadata": {
-                    "name": "pipeline-certificates"
-                }
-            }
+            certsSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-certificates"}}
 
             extensions = ["key", "crt"]
 
             apps = {
-                "mas_app_channel_assist": {
-                    "dir": self.manualCertsDir + "/assist/",
-                    "keyPrefix": "assist."
-                },
-                "mas_app_channel_manage": {
-                    "dir": self.manualCertsDir + "/manage/",
-                    "keyPrefix": "manage."
-                },
-                "mas_app_channel_iot": {
-                    "dir": self.manualCertsDir + "/iot/",
-                    "keyPrefix": "iot."
-                },
-                "mas_app_channel_monitor": {
-                    "dir": self.manualCertsDir + "/monitor/",
-                    "keyPrefix": "monitor."
-                },
-                "mas_app_channel_predict": {
-                    "dir": self.manualCertsDir + "/predict/",
-                    "keyPrefix": "predict."
-                },
-                "mas_app_channel_visualinspection": {
-                    "dir": self.manualCertsDir + "/visualinspection/",
-                    "keyPrefix": "visualinspection."
-                },
-                "mas_app_channel_optimizer": {
-                    "dir": self.manualCertsDir + "/optimizer/",
-                    "keyPrefix": "optimizer."
-                },
-                "mas_app_channel_facilities": {
-                    "dir": self.manualCertsDir + "/facilities/",
-                    "keyPrefix": "facilities."
-                }
+                "mas_app_channel_assist": {"dir": self.manualCertsDir + "/assist/", "keyPrefix": "assist."},
+                "mas_app_channel_manage": {"dir": self.manualCertsDir + "/manage/", "keyPrefix": "manage."},
+                "mas_app_channel_iot": {"dir": self.manualCertsDir + "/iot/", "keyPrefix": "iot."},
+                "mas_app_channel_monitor": {"dir": self.manualCertsDir + "/monitor/", "keyPrefix": "monitor."},
+                "mas_app_channel_predict": {"dir": self.manualCertsDir + "/predict/", "keyPrefix": "predict."},
+                "mas_app_channel_visualinspection": {"dir": self.manualCertsDir + "/visualinspection/", "keyPrefix": "visualinspection."},
+                "mas_app_channel_optimizer": {"dir": self.manualCertsDir + "/optimizer/", "keyPrefix": "optimizer."},
+                "mas_app_channel_facilities": {"dir": self.manualCertsDir + "/facilities/", "keyPrefix": "facilities."},
             }
 
             for file in ["ca.crt", "tls.crt", "tls.key"]:
-                if file not in map(path.basename, glob(f'{self.manualCertsDir}/core/*')):
-                    self.fatalError(f'{file} is not present in {self.manualCertsDir}/core/')
+                if file not in map(path.basename, glob(f"{self.manualCertsDir}/core/*")):
+                    self.fatalError(f"{file} is not present in {self.manualCertsDir}/core/")
             for ext in extensions:
-                certsSecret = self.addFilesToSecret(certsSecret, self.manualCertsDir + '/core/', ext, "core.")
+                certsSecret = self.addFilesToSecret(certsSecret, self.manualCertsDir + "/core/", ext, "core.")
 
             for app in apps:
                 if self.getParam(app) != "":
@@ -263,21 +201,15 @@ class AdditionalConfigsMixin():
 
     def slsLicenseFile(self) -> None:
         if self.slsLicenseFileLocal:
-            slsLicenseFileSecret = {
-                "apiVersion": "v1",
-                "kind": "Secret",
-                "type": "Opaque",
-                "metadata": {
-                    "name": "pipeline-sls-entitlement"
-                }
-            }
+            slsLicenseFileSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-sls-entitlement"}}
             self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
-            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
+            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, "")
 
     def aiserviceConfig(self) -> None:
         self.aiserviceConfigSecret = None
 
         if self.aiserviceTenantSchedulingConfigFileLocal:
+<<<<<<< HEAD
             aiserviceConfigSecret: dict[str, Any] = {
                 "apiVersion": "v1",
                 "kind": "Secret",
@@ -290,6 +222,21 @@ class AdditionalConfigsMixin():
             self.aiserviceConfigSecret = self.addFilesToSecret(aiserviceConfigSecret, self.aiserviceTenantSchedulingConfigFileLocal, 'yaml')
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:
+=======
+            aiserviceConfigSecret: dict[str, Any] = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-aiservice-config"}}
+            self.setParam("tenant_scheduling_config_file", f"/workspace/aiservice/{path.basename(self.aiserviceTenantSchedulingConfigFileLocal)}")
+            self.aiserviceConfigSecret = self.addFilesToSecret(aiserviceConfigSecret, self.aiserviceTenantSchedulingConfigFileLocal, "yaml")
+
+    def db2LicenseFile(self) -> None:
+        if self.db2LicenseFileLocal:
+            db2LicenseFileSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-db2-license"}}
+            self.setParam("db2_license_file", f"/workspace/db2/{path.basename(self.db2LicenseFileLocal)}")
+            self.db2LicenseFileSecret = self.addFilesToSecret(db2LicenseFileSecret, self.db2LicenseFileLocal, "")
+        else:
+            self.db2LicenseFileSecret = None
+
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = "") -> dict:
+>>>>>>> master
         """
         Add file (or files) to pipeline-additional-configs
         """
@@ -306,12 +253,12 @@ class AdditionalConfigsMixin():
             fileName = path.basename(fileToProcess)
 
             # Load the file
-            with open(fileToProcess, 'r') as file:
+            with open(fileToProcess, "r") as file:
                 data = file.read()
 
             # Add/update an entry to the secret data
             if "data" not in secretDict:
                 secretDict["data"] = {}
-            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode('ascii')).decode("ascii")
+            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode("ascii")).decode("ascii")
 
         return secretDict

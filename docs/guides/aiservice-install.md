@@ -36,9 +36,9 @@ You should already have a target OpenShift cluster ready to install AI Service i
 
 The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
-- [AWS](../commands/provision-rosa.md)
-- [IBM Cloud](../commands/provision-roks.md)
-- [IBM DevIT FYRE (Internal)](../commands/provision-fyre.md)
+- [AWS](provision-aws.md)
+- [IBM Cloud](provision-roks.md)
+- [IBM DevIT FYRE (Internal)](provision-fyre.md)
 
 ### Operator Catalog Selection
 If you have not already determined the catalog version for your installation, refer to the information in the [Operator Catalog](../catalogs/index.md) topic, or contact IBM Support for guidance.
@@ -86,7 +86,7 @@ The interactive install will guide you through the following steps:
         <li><strong>Certificate Issuer (Advanced Mode Only):</strong> Optionally configure a pre-configured certificate issuer for AI Service</li>
         <li><strong>Network configuration (Advanced Mode Only):</strong> Optionally enable IPv6 SingleStack network configuration for AI Service</li>
         <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
-        <li><strong>RSL Configuration:</strong> Configure Red Hat Service Locator integration</li>
+       <li><strong>RSL Configuration:</strong> Optionally provide RSL CA certificate for Reliability Strategies Library integration</li>
         <li><strong>Tenant Configuration:</strong> Set up AI Service tenant(s)</li>
         <li><strong>Customize pod scheduling configuration for AI Workloads (Advanced Mode Only):</strong> Configure tolerations & nodeSelector for AI workloads (Training pipeline & Inference Service). See <a href="#scheduling-configuration-file-format">Scheduling Configuration File Format</a> for file configuration details.</li>
         <li><strong>Operational Mode:</strong> Choose between production or non-production mode</li>
@@ -156,10 +156,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
     --tenant-entitlement-end-date 2026-01-01 \
     --tenant-scheduling-config-file "/mnt/home/aiservice-tenant-affinity.yaml" \
     \
-    --rsl-url http://your-rsl-host:3001/api/v3/vector/query \
-    --rsl-org-id your_org_id \
-    --rsl-token 'Bearer your_rsl_token' \
-    \
+
     --accept-license --no-confirm
 "
 ```
@@ -263,13 +260,59 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 | `--tenant-entitlement-start-date` | Entitlement start date (YYYY-MM-DD) | Yes | `2025-01-01` |
 | `--tenant-entitlement-end-date` | Entitlement end date (YYYY-MM-DD) | Yes | `2026-01-01` |
 
-### RSL (Red Hat Service Locator) Configuration
+### RSL (Reliability Strategies Library) Configuration
 
 | Parameter | Description | Required | Example |
 |-----------|-------------|----------|---------|
-| `--rsl-url` | RSL service URL | Optional | `http://host:3001/api/v3/vector/query` |
-| `--rsl-org-id` | RSL organization ID | Optional | `your_org_id` |
-| `--rsl-token` | RSL authentication token | Optional | `Bearer your_token` |
+| `--rsl-ca-crt` | RSL CA certificate (PEM format) | Optional | `/path/to/ca.crt` |
+
+!!! note
+    The `rsl_url`, `rsl_org_id`, and `rsl_token` parameters are no longer needed to pass inside the install command.
+
+### AI Workload Scheduling Configuration
+
+| Parameter | Description | Required | Example |
+|-----------|-------------|----------|---------|
+| `--aiservice-scheduling-config-file` | Path to YAML file containing scheduling configuration for AI workloads (training pipeline & inference service) | Optional | `/mnt/home/scheduling-config.yaml` |
+
+!!! note "Scheduling Configuration"
+    The scheduling configuration allows you to customize pod placement for AI workloads using tolerations and nodeSelector. This is useful for dedicating specific nodes to AI workloads or ensuring proper resource allocation.
+
+#### Scheduling Configuration File Format
+
+The scheduling configuration file must be a YAML file with the following structure:
+
+```yaml
+pipeline:
+  tolerations:
+    - key: "kmodels"
+      operator: "Equal"
+      value: "pipeline"
+      effect: "NoSchedule"
+  nodeSelector:
+    kmodels: pipeline
+predictor:
+  tolerations:
+    - key: "kmodels"
+      operator: "Equal"
+      value: "inference"
+      effect: "NoSchedule"
+  nodeSelector:
+    kmodels: inference
+```
+
+**Configuration File Structure**:
+
+The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:
+  - `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)
+  - `nodeSelector`: Dictionary of node label key-value pairs
+At least one of `tolerations` or `nodeSelector` must be defined for each non-empty object.
+
+
+!!! tip "Use Cases"
+    - **Dedicated GPU Nodes**: Use nodeSelector to schedule AI workloads on GPU-enabled nodes
+    - **Resource Isolation**: Use tolerations to ensure AI workloads run on dedicated nodes with specific taints
+    - **Multi-tenant Environments**: Separate AI workloads from other cluster workloads using node affinity
 
 ### AI Workload Scheduling Configuration
 
@@ -375,4 +418,4 @@ When installing Manage alongside AI Service using `mas install`:
 
 You can configure the AI Service binding through the Maximo Manage UI.
 
-For more information on integrating AI Service with Manage, see the [Installation Guide](install.md#application-configuration).
+For more information on integrating AI Service with Manage, see the [Installation Guide](install.md).

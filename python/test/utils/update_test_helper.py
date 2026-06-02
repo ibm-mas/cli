@@ -32,6 +32,8 @@ class UpdateTestConfig:
         db2u_namespaces: Optional[List[str]] = None,
         db2u_resource_kind: str = "Db2uCluster",
         db2u_namespace_arg: Optional[str] = None,
+        db2u_version: Optional[str] = None,
+        db2u_target_version: Optional[str] = None,
         kafka_namespaces: Optional[List[str]] = None,
         kafka_namespace_arg: Optional[str] = None,
         kafka_provider: Optional[str] = None,
@@ -39,11 +41,12 @@ class UpdateTestConfig:
         aiservice_instances: Optional[List[Dict]] = None,
         mongodb_namespaces: Optional[List[str]] = None,
         mongodb_namespace_arg: Optional[str] = None,
-        ocp_version: str = '4.18.0',
+        ocp_version: str = "4.18.0",
         timeout_seconds: int = 30,
         expect_system_exit: bool = False,
         expected_exit_code: Optional[int] = None,
-        argv: Optional[list] = None
+        expect_exception: Optional[type] = None,
+        argv: Optional[list] = None,
     ):
         """
         Initialize update test configuration.
@@ -56,6 +59,8 @@ class UpdateTestConfig:
             db2u_namespaces: List of namespaces containing Db2U resources (None = no resources)
             db2u_resource_kind: Type of Db2U resource ("Db2uCluster" or "Db2uInstance")
             db2u_namespace_arg: Value for --db2-namespace CLI argument
+            db2u_version: Current Db2u version (e.g., "11.5.9.0")
+            db2u_target_version: Target Db2u version from catalog (e.g., "v12.0")
             kafka_namespaces: List of namespaces containing Kafka resources
             kafka_namespace_arg: Value for --kafka-namespace CLI argument
             kafka_provider: Kafka provider type ("strimzi" or "redhat")
@@ -67,6 +72,7 @@ class UpdateTestConfig:
             timeout_seconds: Timeout for watchdog (default 30s)
             expect_system_exit: Whether to expect SystemExit to be raised
             expected_exit_code: Expected exit code if SystemExit is raised
+            expect_exception: Expect a specific exception type to be raised (e.g. FileNotFoundError)
             argv: Command line arguments to pass to app.update() (default: [])
         """
         self.prompt_handlers = prompt_handlers
@@ -76,6 +82,8 @@ class UpdateTestConfig:
         self.db2u_namespaces = db2u_namespaces if db2u_namespaces is not None else []
         self.db2u_resource_kind = db2u_resource_kind
         self.db2u_namespace_arg = db2u_namespace_arg
+        self.db2u_version = db2u_version if db2u_version is not None else "11.5.9.0"
+        self.db2u_target_version = db2u_target_version if db2u_target_version is not None else "v11.5"
         self.kafka_namespaces = kafka_namespaces if kafka_namespaces is not None else []
         self.kafka_namespace_arg = kafka_namespace_arg
         self.kafka_provider = kafka_provider
@@ -87,6 +95,7 @@ class UpdateTestConfig:
         self.timeout_seconds = timeout_seconds
         self.expect_system_exit = expect_system_exit
         self.expected_exit_code = expected_exit_code
+        self.expect_exception = expect_exception
         self.argv = argv if argv is not None else []
 
 
@@ -103,8 +112,8 @@ class UpdateTestHelper:
         """
         self.tmpdir = tmpdir
         self.config = config
-        self.test_failed = {'failed': False, 'message': ''}
-        self.last_prompt_time = {'time': time.time()}
+        self.test_failed = {"failed": False, "message": ""}
+        self.last_prompt_time = {"time": time.time()}
         self.watchdog_thread = None
         self.prompt_tracker = None
         self.app = None
@@ -116,13 +125,14 @@ class UpdateTestHelper:
 
     def start_watchdog(self):
         """Start watchdog thread to detect hanging prompts."""
+
         def watchdog():
-            while not self.test_failed['failed']:
+            while not self.test_failed["failed"]:
                 time.sleep(1)
-                elapsed = time.time() - self.last_prompt_time['time']
+                elapsed = time.time() - self.last_prompt_time["time"]
                 if elapsed > self.config.timeout_seconds:
-                    self.test_failed['failed'] = True
-                    self.test_failed['message'] = f"Test hung: No prompt received for {self.config.timeout_seconds}s"
+                    self.test_failed["failed"] = True
+                    self.test_failed["message"] = f"Test hung: No prompt received for {self.config.timeout_seconds}s"
                     break
 
         self.watchdog_thread = threading.Thread(target=watchdog, daemon=True)
@@ -130,76 +140,40 @@ class UpdateTestHelper:
 
     def stop_watchdog(self):
         """Stop the watchdog thread."""
-        self.test_failed['failed'] = True
+        self.test_failed["failed"] = True
 
     def create_db2u_resource(self, kind: str, name: str, namespace: str) -> Dict:
         """Create a mock Db2U resource."""
         return {
-            "metadata": {
-                "name": name,
-                "namespace": namespace
-            },
-            "spec": {
-                "version": "11.5.9.0",
-                "license": {"accept": True}
-            },
-            "status": {
-                "state": "Ready"
-            }
+            "metadata": {"name": name, "namespace": namespace},
+            "spec": {"version": self.config.db2u_version, "license": {"accept": True}},
+            "status": {"state": "Ready"},
         }
 
     def create_kafka_resource(self, name: str, namespace: str) -> Dict:
         """Create a mock Kafka resource."""
         return {
-            "metadata": {
-                "name": name,
-                "namespace": namespace
-            },
-            "spec": {
-                "kafka": {
-                    "version": "3.7.0",
-                    "replicas": 3
-                }
-            },
-            "status": {
-                "conditions": [{"type": "Ready", "status": "True"}]
-            }
+            "metadata": {"name": name, "namespace": namespace},
+            "spec": {"kafka": {"version": "3.7.0", "replicas": 3}},
+            "status": {"conditions": [{"type": "Ready", "status": "True"}]},
         }
 
     def create_mongodb_resource(self, name: str, namespace: str) -> Dict:
         """Create a mock MongoDB resource."""
         return {
-            "metadata": {
-                "name": name,
-                "namespace": namespace
-            },
-            "spec": {
-                "members": 3,
-                "type": "ReplicaSet",
-                "version": "6.0.5"
-            },
-            "status": {
-                "version": "6.0.5",
-                "phase": "Running"
-            }
+            "metadata": {"name": name, "namespace": namespace},
+            "spec": {"members": 3, "type": "ReplicaSet", "version": "6.0.5"},
+            "status": {"version": "6.0.5", "phase": "Running"},
         }
 
     def create_pod_resource(self, name: str, namespace: str) -> Dict:
         """Create a mock pod resource."""
         return {
-            "metadata": {
-                "name": name,
-                "namespace": namespace
-            },
+            "metadata": {"name": name, "namespace": namespace},
             "spec": {
-                "containers": [{
-                    "name": name,
-                    "image": ""
-                }],
+                "containers": [{"name": name, "image": ""}],
             },
-            "status": {
-                "phase": "Running"
-            }
+            "status": {"phase": "Running"},
         }
 
     def setup_mocks(self):
@@ -230,25 +204,25 @@ class UpdateTestHelper:
 
         # Map resource kinds to APIs
         resource_apis = {
-            'CatalogSource': catalog_api,
-            'Route': routes_api,
-            'CustomResourceDefinition': crd_api,
-            'Namespace': namespace_api,
-            'ClusterVersion': cluster_version_api,
-            'Suite': suite_api,
-            'AIServiceApp': aiservice_app_api,
-            'Db2uCluster': db2ucluster_api,
-            'Db2uInstance': db2uinstance_api,
-            'Kafka': kafka_api,
-            'MongoDBCommunity': mongodb_api,
-            'Subscription': subscription_api,
-            'Grafana': grafana_api,
-            'WatsonDiscovery': watson_discovery_api,
-            'WOService': watson_openscale_api,
-            'Ibmcpd': cpd_api,
-            'Pod': pods_api
+            "CatalogSource": catalog_api,
+            "Route": routes_api,
+            "CustomResourceDefinition": crd_api,
+            "Namespace": namespace_api,
+            "ClusterVersion": cluster_version_api,
+            "Suite": suite_api,
+            "AIServiceApp": aiservice_app_api,
+            "Db2uCluster": db2ucluster_api,
+            "Db2uInstance": db2uinstance_api,
+            "Kafka": kafka_api,
+            "MongoDBCommunity": mongodb_api,
+            "Subscription": subscription_api,
+            "Grafana": grafana_api,
+            "WatsonDiscovery": watson_discovery_api,
+            "WOService": watson_openscale_api,
+            "Ibmcpd": cpd_api,
+            "Pod": pods_api,
         }
-        resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs['kind'], None)
+        resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs["kind"], None)
 
         # Configure catalog mock
         catalog = MagicMock()
@@ -260,7 +234,7 @@ class UpdateTestHelper:
         # Configure route mock
         route = MagicMock()
         route.spec = MagicMock()
-        route.spec.host = 'maximo.ibm.com'
+        route.spec.host = "maximo.ibm.com"
         route.spec.displayName = self.config.installed_catalog_id
         routes_api.get.return_value = route
 
@@ -268,19 +242,19 @@ class UpdateTestHelper:
         cluster_version = MagicMock()
         cluster_version.status = MagicMock()
         history_record = MagicMock()
-        history_record.state = 'Completed'
+        history_record.state = "Completed"
         history_record.version = self.config.ocp_version
         cluster_version.status.history = [history_record]
         cluster_version_api.get.return_value = cluster_version
 
         # Configure MAS instances mock
         mas_list = MagicMock()
-        mas_list.to_dict.return_value = {'items': self.config.mas_instances}
+        mas_list.to_dict.return_value = {"items": self.config.mas_instances}
         suite_api.get.return_value = mas_list
 
         # Configure AI Service instances mock
         aiservice_list = MagicMock()
-        aiservice_list.to_dict.return_value = {'items': self.config.aiservice_instances}
+        aiservice_list.to_dict.return_value = {"items": self.config.aiservice_instances}
         aiservice_app_api.get.return_value = aiservice_list
 
         # Configure Db2U mocks
@@ -294,19 +268,19 @@ class UpdateTestHelper:
 
         # Configure dependency check mocks (all return empty/not found)
         grafana_list = MagicMock()
-        grafana_list.to_dict.return_value = {'items': []}
+        grafana_list.to_dict.return_value = {"items": []}
         grafana_api.get.return_value = grafana_list
 
         watson_discovery_list = MagicMock()
-        watson_discovery_list.to_dict.return_value = {'items': []}
+        watson_discovery_list.to_dict.return_value = {"items": []}
         watson_discovery_api.get.return_value = watson_discovery_list
 
         watson_openscale_list = MagicMock()
-        watson_openscale_list.to_dict.return_value = {'items': []}
+        watson_openscale_list.to_dict.return_value = {"items": []}
         watson_openscale_api.get.return_value = watson_openscale_list
 
         cpd_list = MagicMock()
-        cpd_list.to_dict.return_value = {'items': []}
+        cpd_list.to_dict.return_value = {"items": []}
         cpd_api.get.return_value = cpd_list
 
         pods_list = MagicMock()
@@ -325,11 +299,7 @@ class UpdateTestHelper:
             # Create resources in specified namespaces
             resources = []
             for idx, namespace in enumerate(self.config.db2u_namespaces):
-                resource = self.create_db2u_resource(
-                    kind=self.config.db2u_resource_kind,
-                    name=f"db2u-{idx + 1}",
-                    namespace=namespace
-                )
+                resource = self.create_db2u_resource(kind=self.config.db2u_resource_kind, name=f"db2u-{idx + 1}", namespace=namespace)
                 resources.append(resource)
 
             mock_list = MagicMock()
@@ -358,10 +328,7 @@ class UpdateTestHelper:
             # Create Kafka resources
             resources = []
             for idx, namespace in enumerate(self.config.kafka_namespaces):
-                resource = self.create_kafka_resource(
-                    name=f"kafka-{idx + 1}",
-                    namespace=namespace
-                )
+                resource = self.create_kafka_resource(name=f"kafka-{idx + 1}", namespace=namespace)
                 resources.append(resource)
 
             mock_list = MagicMock()
@@ -371,9 +338,7 @@ class UpdateTestHelper:
         # Setup Kafka provider subscription mock
         if self.config.kafka_provider:
             sub_name = "amq-streams" if self.config.kafka_provider == "redhat" else "strimzi-kafka-operator"
-            subscription = {
-                "spec": {"name": sub_name}
-            }
+            subscription = {"spec": {"name": sub_name}}
             sub_list = MagicMock()
             sub_list.to_dict.return_value = {"items": [subscription]}
             subscription_api.get.return_value = sub_list
@@ -393,10 +358,7 @@ class UpdateTestHelper:
             # Create MongoDB resources
             resources = []
             for idx, namespace in enumerate(self.config.mongodb_namespaces):
-                resource = self.create_mongodb_resource(
-                    name=f"mongodb-{idx + 1}",
-                    namespace=namespace
-                )
+                resource = self.create_mongodb_resource(name=f"mongodb-{idx + 1}", namespace=namespace)
                 resources.append(resource)
 
             mock_list = MagicMock()
@@ -411,11 +373,11 @@ class UpdateTestHelper:
         def wrapped_prompt_handler(*args, **kwargs):
             """Handle prompts and update watchdog timer."""
             # Check if test has timed out
-            if self.test_failed['failed']:
-                raise TimeoutError(self.test_failed['message'])
+            if self.test_failed["failed"]:
+                raise TimeoutError(self.test_failed["message"])
 
             # Update last prompt time
-            self.last_prompt_time['time'] = time.time()
+            self.last_prompt_time["time"] = time.time()
 
             # Use the prompt tracker to handle the prompt
             return prompt_handler(*args, **kwargs)
@@ -439,30 +401,31 @@ class UpdateTestHelper:
         system_exit_raised = False
         exit_code = None
 
-        with mock.patch('mas.cli.cli.config'):
+        with mock.patch("mas.cli.cli.config"):
             dynamic_client, resource_apis = self.setup_mocks()
 
             # Use ExitStack to manage all patches dynamically (avoids "too many statically nested blocks" error)
             with contextlib.ExitStack() as stack:
                 # Define all patches
                 patches = [
-                    ('dynamic_client_class', mock.patch('mas.cli.cli.DynamicClient')),
-                    ('get_nodes', mock.patch('mas.cli.cli.getNodes')),
-                    ('get_current_catalog', mock.patch('mas.cli.update.app.getCurrentCatalog')),
-                    ('list_mas_instances', mock.patch('mas.cli.update.app.listMasInstances')),
-                    ('list_aiservice_instances', mock.patch('mas.cli.update.app.listAiServiceInstances')),
-                    ('get_cluster_version', mock.patch('mas.cli.update.app.getClusterVersion')),
-                    ('install_pipelines', mock.patch('mas.cli.update.app.installOpenShiftPipelines')),
-                    ('create_namespace', mock.patch('mas.cli.update.app.createNamespace')),
-                    ('prepare_pipelines_namespace', mock.patch('mas.cli.update.app.preparePipelinesNamespace')),
-                    ('update_tekton_definitions', mock.patch('mas.cli.update.app.updateTektonDefinitions')),
-                    ('launch_update_pipeline', mock.patch('mas.cli.update.app.launchUpdatePipeline')),
-                    ('mixins_prompt', mock.patch('mas.cli.displayMixins.prompt')),
-                    ('prompt_session_class', mock.patch('mas.cli.displayMixins.PromptSession')),
-                    ('get_catalog', mock.patch('mas.cli.update.app.getCatalog')),
-                    ('is_cluster_version_in_range', mock.patch('mas.cli.update.app.isClusterVersionInRange')),
-                    ('is_airgap_install', mock.patch('mas.cli.cli.isAirgapInstall')),
-                    ('is_sno', mock.patch('mas.cli.cli.isSNO'))
+                    ("dynamic_client_class", mock.patch("mas.cli.cli.DynamicClient")),
+                    ("get_nodes", mock.patch("mas.cli.cli.getNodes")),
+                    ("get_current_catalog", mock.patch("mas.cli.update.app.getCurrentCatalog")),
+                    ("list_mas_instances", mock.patch("mas.cli.update.app.listMasInstances")),
+                    ("list_aiservice_instances", mock.patch("mas.cli.update.app.listAiServiceInstances")),
+                    ("get_cluster_version", mock.patch("mas.cli.update.app.getClusterVersion")),
+                    ("install_pipelines", mock.patch("mas.cli.update.app.installOpenShiftPipelines")),
+                    ("create_namespace", mock.patch("mas.cli.update.app.createNamespace")),
+                    ("prepare_pipelines_namespace", mock.patch("mas.cli.update.app.preparePipelinesNamespace")),
+                    ("prepare_update_secrets", mock.patch("mas.cli.update.app.prepareUpdateSecrets")),
+                    ("update_tekton_definitions", mock.patch("mas.cli.update.app.updateTektonDefinitions")),
+                    ("launch_update_pipeline", mock.patch("mas.cli.update.app.launchUpdatePipeline")),
+                    ("mixins_prompt", mock.patch("mas.cli.displayMixins.prompt")),
+                    ("prompt_session_class", mock.patch("mas.cli.displayMixins.PromptSession")),
+                    ("get_catalog", mock.patch("mas.cli.update.app.getCatalog")),
+                    ("is_cluster_version_in_range", mock.patch("mas.cli.update.app.isClusterVersionInRange")),
+                    ("is_airgap_install", mock.patch("mas.cli.cli.isAirgapInstall")),
+                    ("is_sno", mock.patch("mas.cli.cli.isSNO")),
                 ]
 
                 # Enter all context managers and store mocks in a dictionary
@@ -471,47 +434,50 @@ class UpdateTestHelper:
                     mocks[name] = stack.enter_context(patch)
 
                 # Configure mock return values
-                mocks['dynamic_client_class'].return_value = dynamic_client
+                mocks["dynamic_client_class"].return_value = dynamic_client
 
                 # Return the architecture
-                mocks['get_nodes'].return_value = [{'status': {'nodeInfo': {'architecture': self.config.architecture}}}]
+                mocks["get_nodes"].return_value = [{"status": {"nodeInfo": {"architecture": self.config.architecture}}}]
 
                 # getCurrentCatalog returns catalog info
-                mocks['get_current_catalog'].return_value = {
-                    'catalogId': self.config.installed_catalog_id,
-                    'displayName': f'IBM Maximo Operator Catalog ({self.config.installed_catalog_id})',
-                    'image': f'icr.io/cpopen/ibm-maximo-operator-catalog:{self.config.installed_catalog_id}'
+                mocks["get_current_catalog"].return_value = {
+                    "catalogId": self.config.installed_catalog_id,
+                    "displayName": f"IBM Maximo Operator Catalog ({self.config.installed_catalog_id})",
+                    "image": f"icr.io/cpopen/ibm-maximo-operator-catalog:{self.config.installed_catalog_id}",
                 }
 
                 # MAS and AI Service instances
-                mocks['list_mas_instances'].return_value = self.config.mas_instances
-                mocks['list_aiservice_instances'].return_value = self.config.aiservice_instances
+                mocks["list_mas_instances"].return_value = self.config.mas_instances
+                mocks["list_aiservice_instances"].return_value = self.config.aiservice_instances
 
                 # Cluster version
-                mocks['get_cluster_version'].return_value = self.config.ocp_version
-                mocks['is_cluster_version_in_range'].return_value = True
+                mocks["get_cluster_version"].return_value = self.config.ocp_version
+                mocks["is_cluster_version_in_range"].return_value = True
 
                 # Catalog info
-                mocks['get_catalog'].return_value = {
-                    'ocp_compatibility': ['4.16', '4.17', '4.18'],
-                    'mongo_extras_version_default': '6.0.5',
-                    'cpd_product_version_default': '5.2.0'
+                mocks["get_catalog"].return_value = {
+                    "ocp_compatibility": ["4.16", "4.17", "4.18"],
+                    "mongo_extras_version_default": "6.0.5",
+                    "cpd_product_version_default": "5.2.0",
+                    "db2_channel_default": self.config.db2u_target_version,
                 }
 
                 # Pipeline setup
-                mocks['install_pipelines'].return_value = True
-                mocks['launch_update_pipeline'].return_value = 'https://pipeline.test.maximo.ibm.com'
+                mocks["install_pipelines"].return_value = True
+                mocks["launch_update_pipeline"].return_value = "https://pipeline.test.maximo.ibm.com"
 
                 # Cluster checks
-                mocks['is_airgap_install'].return_value = False
-                mocks['is_sno'].return_value = False
+                mocks["is_airgap_install"].return_value = False
+                mocks["is_sno"].return_value = False
 
                 # Configure PromptSession mock
                 prompt_session_instance = MagicMock()
-                mocks['prompt_session_class'].return_value = prompt_session_instance
+                mocks["prompt_session_class"].return_value = prompt_session_instance
 
                 # Setup prompt handler
-                self.setup_prompt_handler(mocks['mixins_prompt'], prompt_session_instance)
+                self.setup_prompt_handler(mocks["mixins_prompt"], prompt_session_instance)
+
+                exception_raised = None
 
                 try:
                     self.app = UpdateApp()
@@ -521,12 +487,20 @@ class UpdateTestHelper:
                     exit_code = e.code
                     if not self.config.expect_system_exit:
                         raise
+                except Exception as e:
+                    exception_raised = e
+                    if self.config.expect_exception is None or not isinstance(e, self.config.expect_exception):
+                        raise
                 finally:
                     self.stop_watchdog()
 
                 # Check if test timed out
-                if self.test_failed['message']:
-                    raise TimeoutError(self.test_failed['message'])
+                if self.test_failed["message"]:
+                    raise TimeoutError(self.test_failed["message"])
+
+                # Verify specific exception was raised if expected
+                if self.config.expect_exception is not None and exception_raised is None:
+                    raise AssertionError(f"Expected {self.config.expect_exception.__name__} to be raised but it was not")
 
                 # Verify SystemExit was raised if expected
                 if self.config.expect_system_exit and not system_exit_raised:
@@ -558,5 +532,6 @@ def run_update_test(tmpdir, config: UpdateTestConfig):
     """
     helper = UpdateTestHelper(tmpdir, config)
     helper.run_update_test()
+
 
 # Made with Bob
