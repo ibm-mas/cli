@@ -102,7 +102,6 @@ class SetupPreinstallRBACApp(BaseApp):
             self.mas_instance_id = self.args.mas_instance_id.strip()
             self.mas_channel = self.args.mas_channel.strip()
             self.admin_mode = self.args.admin_mode.strip()
-
         # Extract major.minor version from channel
         # Channel can be in formats like: 9.2.x, 9.2.0, 9.2.x-pre, etc.
         masVersion = ".".join(self.mas_channel.split(".")[:2])

@@ -91,7 +91,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # User does not have permissions to apply RBAC
         self.printDescription(
             [
-                f"Admin mode '{self.admin_mode}' selected.",
+                f"Admin mod: '{self.admin_mode}'.",
                 "Pre-install RBAC could not be applied automatically (insufficient permissions).",
             ]
         )
@@ -474,11 +474,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             # AI Service 9.2+: --admin-mode is REQUIRED
             if self.admin_mode == "":
                 self.fatalError(
-                    f"--admin-mode is required for AI Service 9.2+ (selected channel: {self.getParam('aiservice_channel')}). Valid options: cluster, namespaced, minimal"
+                    f"--admin-mode is required for MAS version 9.2 or higher (selected channel: {self.getParam('aiservice_channel')}). Valid options: cluster, namespaced, minimal"
                 )
         else:
             if self.admin_mode != "":
-                self.fatalError(f"--admin-mode is not supported for AI Service 9.1 and earlier (selected channel: {self.getParam('aiservice_channel')})")
+                self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('aiservice_channel')})")
 
     @logMethodCall
     def install(self, argv):
