@@ -25,10 +25,10 @@ from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, is
 from mas.devops.mas import listMasInstances, getCurrentCatalog, getMasChannel, getInstalledAppsForRBAC
 from mas.devops.aiservice import listAiServiceInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSecrets
-from mas.devops.pre_install import applyPreInstallMASRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion, isPreReleaseVersion
 from ..install.settings import AdditionalConfigsMixin
-from ..rbac_utils import check_rbac_permissions, generate_preinstall_command, handle_rbac_permission_denied
+from ..rbac_utils import generate_preinstall_command, handle_rbac_permission_denied
 
 logger = logging.getLogger(__name__)
 
@@ -132,14 +132,15 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 logger.info("All instances are in minimal mode, no pre-install RBAC needed")
                 return
 
-            # Check if user has permissions to apply RBAC (use first non-minimal instance)
-            first_instance_mode = instances_needing_rbac_check[0]["adminMode"]
-            first_instance_version = instances_needing_rbac_check[0]["targetVersion"]
-
-            self.applyPreInstallMASRBAC = check_rbac_permissions(self.dynamicClient, first_instance_version, first_instance_mode)
+            # Check if user has permissions to apply RBAC
+            permissionResults = permissionCheckForRBAC(self.dynamicClient)
+            self.applyPreInstallMASRBAC = all(result["allowed"] for result in permissionResults)
 
             if self.applyPreInstallMASRBAC:
                 return
+
+            # Use first non-minimal instance for messaging
+            first_instance_mode = instances_needing_rbac_check[0]["adminMode"]
 
             # User does not have permissions - inform them early
             self.printH1("Pre-Install RBAC Configuration")

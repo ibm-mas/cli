@@ -23,48 +23,6 @@ from halo import Halo
 logger = logging.getLogger(__name__)
 
 
-def check_rbac_permissions(dynamic_client: DynamicClient, version: str, admin_mode: str) -> bool:
-    """
-    Check if user has permissions to apply pre-install RBAC.
-
-    This function performs three checks:
-    1. Version must be >= 9.2.0 (when RBAC was introduced)
-    2. Admin mode must not be "minimal" (minimal mode doesn't need pre-install RBAC)
-    3. User must have cluster-admin level permissions
-
-    Args:
-        dynamic_client: Kubernetes dynamic client
-        version: Target MAS version (e.g., "9.2.0", "9.2.1")
-        admin_mode: Admin mode (cluster, namespaced, minimal)
-
-    Returns:
-        bool: True if user has permissions and RBAC should be applied, False otherwise
-    """
-    from mas.devops.utils import isVersionEqualOrAfter
-    from mas.devops.pre_install import permissionCheckForRBAC
-
-    # Early returns for cases where RBAC not needed
-    if not isVersionEqualOrAfter("9.2.0", version):
-        logger.debug(f"Version {version} is < 9.2.0, RBAC not required")
-        return False
-
-    if admin_mode == "minimal":
-        logger.debug("Admin mode is 'minimal', RBAC not required")
-        return False
-
-    # Check permissions
-    logger.debug(f"Checking RBAC permissions for version {version}, admin mode {admin_mode}")
-    permission_results = permissionCheckForRBAC(dynamic_client)
-    has_permissions = all(result["allowed"] for result in permission_results)
-
-    if has_permissions:
-        logger.info("User has sufficient permissions to apply pre-install RBAC")
-    else:
-        logger.warning("User does not have sufficient permissions to apply pre-install RBAC")
-
-    return has_permissions
-
-
 def generate_preinstall_command(instance_id: str, channel: str, admin_mode: str, selected_apps: Optional[list] = None) -> str:
     """
     Generate the mas pre-install command string.
@@ -122,7 +80,7 @@ def handle_rbac_permission_denied(
         # Non-interactive mode: assume RBAC already applied
         print_func(
             [
-                f"{operation.capitalize()} will continue with the selected '{admin_mode}' admin mode.",
+                f"{operation.capitalize()} will continue with the '{admin_mode}' admin mode.",
                 "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
                 "With the --no-confirm flag, the operation assumes the required RBAC has already been applied by your OpenShift administrator.",
                 "If it has not been applied, ensure your OpenShift administrator runs:",
@@ -130,7 +88,7 @@ def handle_rbac_permission_denied(
         )
         for cmd in preinstall_commands:
             print_func([f"  {cmd}"])
-        logger.warning(f"{operation.capitalize()} continuing with --no-confirm flag. " f"Assuming pre-install RBAC already applied by administrator.")
+        logger.warning(f"{operation.capitalize()} continuing with --no-confirm flag. Assuming pre-install RBAC already applied by administrator.")
     else:
         # Interactive mode: prompt user to confirm
         print_func(

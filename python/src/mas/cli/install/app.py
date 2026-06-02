@@ -68,8 +68,8 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC
-from ..rbac_utils import check_rbac_permissions, handle_rbac_permission_denied
+from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
+from ..rbac_utils import handle_rbac_permission_denied
 
 logger = logging.getLogger(__name__)
 
@@ -122,14 +122,20 @@ class InstallApp(
         version = self.getParam("mas_channel")
         admin_mode = self.mas_admin_mode
 
-        # Check if user has permissions to apply RBAC
-        self.applyPreInstallMASRBAC = check_rbac_permissions(self.dynamicClient, version, admin_mode)
-
-        if self.applyPreInstallMASRBAC:
+        # Early returns for cases where RBAC not needed
+        if not isVersionEqualOrAfter("9.2.0", version):
+            self.applyPreInstallMASRBAC = False
             return
 
-        # Only show messaging if RBAC is needed but user doesn't have permissions
-        if not isVersionEqualOrAfter("9.2.0", version) or admin_mode == "minimal":
+        if admin_mode == "minimal":
+            self.applyPreInstallMASRBAC = False
+            return
+
+        # Check if user has permissions to apply RBAC
+        permissionResults = permissionCheckForRBAC(self.dynamicClient)
+        self.applyPreInstallMASRBAC = all(result["allowed"] for result in permissionResults)
+
+        if self.applyPreInstallMASRBAC:
             return
 
         self.printH1("Pre-Install RBAC Configuration")
