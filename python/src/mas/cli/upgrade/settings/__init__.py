@@ -16,4 +16,5 @@ class UpgradeSettingsMixin(Db2SettingsMixin, ManageSettingsMixin):
     """
     This class collects all the Mixins providing interactive prompts for mas-upgrade
     """
+
     pass

@@ -12,7 +12,6 @@ from os import path
 from typing import TYPE_CHECKING, Dict, List, Any
 from prompt_toolkit import print_formatted_text
 
-
 if TYPE_CHECKING:
     # Type hints for methods and attributes provided by other mixins
     # These are only used during type checking and have no runtime cost
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
     from prompt_toolkit.validation import Validator
 
 
-class AiSettingsMixin():
+class AiSettingsMixin:
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
@@ -32,25 +31,19 @@ class AiSettingsMixin():
         installAIService: bool
 
         # Methods from BaseApp
-        def setParam(self, param: str, value: str) -> None:
-            ...
+        def setParam(self, param: str, value: str) -> None: ...
 
-        def getParam(self, param: str) -> str:
-            ...
+        def getParam(self, param: str) -> str: ...
 
         # Methods from PrintMixin
-        def printH1(self, message: str) -> None:
-            ...
+        def printH1(self, message: str) -> None: ...
 
-        def printH2(self, message: str) -> None:
-            ...
+        def printH2(self, message: str) -> None: ...
 
-        def printDescription(self, content: List[str]) -> None:
-            ...
+        def printDescription(self, content: List[str]) -> None: ...
 
         # Methods from PromptMixin
-        def yesOrNo(self, message: str, param: str | None = None) -> bool:
-            ...
+        def yesOrNo(self, message: str, param: str | None = None) -> bool: ...
 
         def promptForString(
             self,
@@ -59,35 +52,62 @@ class AiSettingsMixin():
             default: str = "",
             isPassword: bool = False,
             validator: Validator | None = None,
-            completer: WordCompleter | None = None
-        ) -> str:
-            ...
+            completer: WordCompleter | None = None,
+        ) -> str: ...
 
-        def promptForListSelect(
-            self,
-            message: str,
-            options: List[str],
-            param: str | None = None,
-            default: int | None = None
-        ) -> str:
-            ...
+        def promptForListSelect(self, message: str, options: List[str], param: str | None = None, default: int | None = None) -> str: ...
 
         # Methods from ConfigGeneratorMixin or InstallSettingsMixin
-        def selectLocalConfigDir(self) -> None:
-            ...
+        def selectLocalConfigDir(self) -> None: ...
 
-        def generateAiCfg(self, instanceId: str, scope: str, destination: str, workspaceId: str = "") -> None:
-            ...
+        def generateAiCfg(self, instanceId: str, scope: str, destination: str, workspaceId: str = "") -> None: ...
 
     def configAi(self, silentMode=False) -> None:
         """Configure AiCfg for MAS installation"""
+
+        # FIRST: Check MAS version - AiCfg is only supported in MAS 9.2+
+        # This must be done BEFORE checking user preferences to prevent errors on 9.1
+        mas_channel = self.getParam("mas_channel")
+        is_mas_92_or_later = False
+
+        if mas_channel:
+            try:
+                # Extract major.minor version (e.g., "9.2" from "9.2.0")
+                version_parts = mas_channel.split(".")
+                if len(version_parts) >= 2:
+                    major = int(version_parts[0])
+                    minor = int(version_parts[1])
+                    is_mas_92_or_later = (major > 9) or (major == 9 and minor >= 2)
+            except (ValueError, IndexError):
+                pass
+
+        # If MAS 9.1 or earlier, force disable AiCfg regardless of user input
+        if not is_mas_92_or_later:
+            if not silentMode:
+                self.printH1("Configure AiCfg")
+                self.printDescription(
+                    [
+                        "⚠️  IMPORTANT: AiCfg is only available in MAS 9.2 and later.",
+                        f"   Your MAS channel is: {mas_channel or 'not set'}",
+                        "",
+                        "AiCfg configuration will be skipped.",
+                        "If you upgrade to MAS 9.2+ in the future, you can configure AiCfg then.",
+                    ]
+                )
+            self.setParam("configure_aiassistant", "none")
+            print_formatted_text("⚠️  AiCfg configuration skipped (requires MAS 9.2+)")
+            return
+
+        # MAS 9.2+ - proceed with normal configuration
         if not silentMode:
             self.printH1("Configure AiCfg")
-            self.printDescription([
-                "The installer can configure AiCfg integration for your MAS instance.",
-                "AiCfg provides AI/ML capabilities for MAS applications like Manage, Monitor, and Predict.",
-                "AiCfg is configured at system scope and available to all workspaces."
-            ])
+            self.printDescription(
+                [
+                    "The installer can configure AiCfg integration for your MAS instance.",
+                    "AiCfg provides AI/ML capabilities for MAS applications like Manage, Monitor, and Predict.",
+                    "AiCfg is configured at system scope and available to all workspaces.",
+                ]
+            )
 
         # Ask if user wants to configure AiCfg
         if not silentMode:
@@ -103,30 +123,32 @@ class AiSettingsMixin():
             print_formatted_text("AiCfg configuration skipped")
             return
 
-        instanceId = self.getParam('mas_instance_id')
-        workspaceId = self.getParam('mas_workspace_id')
+        instanceId = self.getParam("mas_instance_id")
+        workspaceId = self.getParam("mas_workspace_id")
 
         # AiCfg is always configured at system scope
         scope = "system"
         self.setParam("ai_scope", "system")
 
         # Check if AI Service is being installed on the same cluster
-        if hasattr(self, 'installAIService') and self.installAIService:
+        if hasattr(self, "installAIService") and self.installAIService:
             # AI Service will be installed - defer AiCfg generation to pipeline
             if not silentMode:
                 self.printH2("AiCfg Configuration (Automatic)")
-                self.printDescription([
-                    "AI Service is being installed on this cluster.",
-                    "The AiCfg will be automatically generated and applied by the pipeline",
-                    "AFTER AI Service installation completes.",
-                    "",
-                    "The pipeline will:",
-                    "  1. Install AI Service first",
-                    "  2. Auto-detect connection details (URL, API key, certificate)",
-                    "  3. Generate and apply AiCfg automatically",
-                    "",
-                    "No manual configuration needed!"
-                ])
+                self.printDescription(
+                    [
+                        "AI Service is being installed on this cluster.",
+                        "The AiCfg will be automatically generated and applied by the pipeline",
+                        "AFTER AI Service installation completes.",
+                        "",
+                        "The pipeline will:",
+                        "  1. Install AI Service first",
+                        "  2. Auto-detect connection details (URL, API key, certificate)",
+                        "  3. Generate and apply AiCfg automatically",
+                        "",
+                        "No manual configuration needed!",
+                    ]
+                )
 
             # Set action to indicate pipeline should handle it
             self.setParam("configure_aiassistant", "pipeline")
@@ -135,15 +157,17 @@ class AiSettingsMixin():
             # Manual configuration for external AI Service
             if not silentMode:
                 self.printH2("AiCfg Configuration")
-                self.printDescription([
-                    "You can provide connection details for an existing AI Service instance.",
-                    "The installer will generate the AiCfg YAML file with your connection details.",
-                    "",
-                    "IMPORTANT: The AiCfg file must be applied AFTER the MAS Core operator is installed,",
-                    "as the AiCfg CRD is created by the operator (not during initial config phase).",
-                    "Do NOT include this file in the initial configuration directory.",
-                    "Apply it after the operator creates the CRD."
-                ])
+                self.printDescription(
+                    [
+                        "You can provide connection details for an existing AI Service instance.",
+                        "The installer will generate the AiCfg YAML file with your connection details.",
+                        "",
+                        "IMPORTANT: The AiCfg file must be applied AFTER the MAS Core operator is installed,",
+                        "as the AiCfg CRD is created by the operator (not during initial config phase).",
+                        "Do NOT include this file in the initial configuration directory.",
+                        "Apply it after the operator creates the CRD.",
+                    ]
+                )
 
             createAiConfig = True
             if not silentMode:
@@ -176,3 +200,6 @@ class AiSettingsMixin():
             else:
                 self.setParam("configure_aiassistant", "none")
                 print_formatted_text("AiCfg configuration skipped")
+
+
+# Made with Bob

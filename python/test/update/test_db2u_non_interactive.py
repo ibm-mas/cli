@@ -15,7 +15,7 @@ import os
 import pytest
 
 # Add test directory to path for utils import
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
@@ -35,12 +35,9 @@ def test_db2u_one_namespace_no_arg(tmpdir, resource_kind):
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-system"],  # Single namespace
         db2u_resource_kind=resource_kind,
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--no-confirm"],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -64,12 +61,9 @@ def test_db2u_one_namespace_with_arg(tmpdir, resource_kind):
         db2u_namespaces=["db2u-system"],  # Single namespace exists
         db2u_resource_kind=resource_kind,
         db2u_namespace_arg="db2u-system",  # Explicit namespace argument
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=['--catalog', 'v9-260129-amd64', '--db2-namespace', 'db2u-system', '--no-confirm'],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--db2-namespace", "db2u-system", "--no-confirm"],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -92,13 +86,10 @@ def test_db2u_multiple_namespaces_no_arg(tmpdir, resource_kind):
         target_catalog_version="v9-260129-amd64",
         db2u_namespaces=["db2u-ns1", "db2u-ns2", "db2u-ns3"],  # Multiple namespaces
         db2u_resource_kind=resource_kind,
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--no-confirm"],
         expect_system_exit=True,  # Expect failure
-        timeout_seconds=30
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -122,23 +113,23 @@ def test_db2u_multiple_namespaces_with_arg(tmpdir, resource_kind):
         db2u_namespaces=["db2u-ns1", "db2u-ns2", "db2u-ns3"],  # Multiple namespaces
         db2u_resource_kind=resource_kind,
         db2u_namespace_arg="db2u-ns2",  # Explicit namespace argument
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=['--catalog', 'v9-260129-amd64', '--db2-namespace', 'db2u-ns2', '--no-confirm'],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--db2-namespace", "db2u-ns2", "--no-confirm"],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
 
 
-@pytest.mark.parametrize("resource_kind,with_arg", [
-    ("Db2uCluster", False),
-    ("Db2uCluster", True),
-    ("Db2uInstance", False),
-    ("Db2uInstance", True),
-])
+@pytest.mark.parametrize(
+    "resource_kind,with_arg",
+    [
+        ("Db2uCluster", False),
+        ("Db2uCluster", True),
+        ("Db2uInstance", False),
+        ("Db2uInstance", True),
+    ],
+)
 def test_db2u_no_namespaces(tmpdir, resource_kind, with_arg):
     """Test non-interactive update when no Db2U resources found.
 
@@ -148,9 +139,9 @@ def test_db2u_no_namespaces(tmpdir, resource_kind, with_arg):
     - Update continues without error (not a failure condition)
     """
 
-    argv = ['--catalog', 'v9-260129-amd64', '--no-confirm']
+    argv = ["--catalog", "v9-260129-amd64", "--no-confirm"]
     if with_arg:
-        argv.extend(['--db2-namespace', 'db2u-system'])
+        argv.extend(["--db2-namespace", "db2u-system"])
 
     config = UpdateTestConfig(
         prompt_handlers={},  # No prompts in non-interactive mode
@@ -159,12 +150,9 @@ def test_db2u_no_namespaces(tmpdir, resource_kind, with_arg):
         db2u_namespaces=[],  # No resources
         db2u_resource_kind=resource_kind,
         db2u_namespace_arg="db2u-system" if with_arg else None,
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
         argv=argv,
-        timeout_seconds=30
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -189,13 +177,10 @@ def test_db2u_major_version_upgrade_without_flag(tmpdir, resource_kind):
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.9.0",  # Current version
         db2u_target_version="v12.0",  # Target requires upgrade
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--no-confirm"],
         expect_system_exit=True,  # Expect failure
-        timeout_seconds=30
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -224,17 +209,9 @@ def test_db2u_major_version_upgrade_with_flag(tmpdir, resource_kind):
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.9.0",  # Current version
         db2u_target_version="v12.0",  # Target requires upgrade
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=[
-            '--catalog', 'v9-260129-amd64',
-            '--db2-v12-upgrade',
-            '--db2-license-file', valid_license_file,
-            '--no-confirm'
-        ],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--db2-v12-upgrade", "--db2-license-file", valid_license_file, "--no-confirm"],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -252,13 +229,10 @@ def test_db2u_major_version_upgrade_with_flag_without_license_file(tmpdir, resou
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.9.0",
         db2u_target_version="v12.0",
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=['--catalog', 'v9-260129-amd64', '--db2-v12-upgrade', '--no-confirm'],
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--db2-v12-upgrade", "--no-confirm"],
         expect_system_exit=True,
-        timeout_seconds=30
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -285,18 +259,10 @@ def test_db2u_major_version_upgrade_with_flag_invalid_license_file(tmpdir, resou
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.9.0",
         db2u_target_version="v12.0",
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=[
-            '--catalog', 'v9-260129-amd64',
-            '--db2-v12-upgrade',
-            '--db2-license-file', invalid_license_file,
-            '--no-confirm'
-        ],
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--db2-v12-upgrade", "--db2-license-file", invalid_license_file, "--no-confirm"],
         expect_exception=FileNotFoundError,
-        timeout_seconds=30
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -320,12 +286,9 @@ def test_db2u_minor_version_upgrade_no_flag_needed(tmpdir, resource_kind):
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.8.0",  # Current version
         db2u_target_version="v11.5",  # Same major version
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--no-confirm"],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -349,12 +312,9 @@ def test_db2u_same_version_no_upgrade(tmpdir, resource_kind):
         db2u_resource_kind=resource_kind,
         db2u_version="11.5.9.0",  # Current version
         db2u_target_version="v11.5",  # Same version
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=['--catalog', 'v9-260129-amd64', '--no-confirm'],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--no-confirm"],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)
@@ -377,18 +337,9 @@ def test_db2u_combined_namespace_and_version_upgrade(tmpdir, resource_kind):
         db2u_namespace_arg="db2u-ns1",  # Explicit namespace
         db2u_version="11.5.9.0",  # Current version
         db2u_target_version="v12.0",  # Target requires upgrade
-        mas_instances=[{
-            "metadata": {"name": "inst1"},
-            "status": {"versions": {"reconciled": "9.1.7"}}
-        }],
-        argv=[
-            '--catalog', 'v9-260129-amd64',
-            '--db2-namespace', 'db2u-ns1',
-            '--db2-v12-upgrade',
-            '--db2-license-file', valid_license_file,
-            '--no-confirm'
-        ],
-        timeout_seconds=30
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--db2-namespace", "db2u-ns1", "--db2-v12-upgrade", "--db2-license-file", valid_license_file, "--no-confirm"],
+        timeout_seconds=30,
     )
 
     run_update_test(tmpdir, config)

@@ -10,18 +10,78 @@
 
 import logging
 import yaml
+from typing import TYPE_CHECKING
 from prompt_toolkit import print_formatted_text, HTML
 from mas.devops.ocp import getConsoleURL
+
+if TYPE_CHECKING:
+    from typing import Dict
 
 logger = logging.getLogger(__name__)
 
 
-class InstallSummarizerMixin():
+class InstallSummarizerMixin:
+    if TYPE_CHECKING:
+        from typing import List, NoReturn
+        from openshift.dynamic import DynamicClient
+
+        # Attributes from BaseApp and other mixins
+        params: Dict[str, str]
+        enableKafkaImageProcessor: bool
+        architecture: str
+        storageClassProvider: str
+        operationalMode: int
+        manualCertsDir: str | None
+        localConfigDir: str | None
+        slsLicenseFileLocal: str | None
+        aiserviceTenantSchedulingConfigFileLocal: str | None
+        deployCP4D: bool
+        installAssist: bool
+        installIoT: bool
+        installMonitor: bool
+        installManage: bool
+        installPredict: bool
+        installInspection: bool
+        installOptimizer: bool
+        installFacilities: bool
+        installAIService: bool
+        installArcgis: bool
+        dynamicClient: DynamicClient
+
+        # Methods from BaseApp
+        def getParam(self, param: str) -> str: ...
+
+        def isSNO(self) -> bool: ...
+
+        def isAirgap(self) -> bool: ...
+
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn: ...
+
+        # Methods from PrintMixin
+        def printH1(self, message: str) -> None: ...
+
+        def printH2(self, message: str) -> None: ...
+
+        def printDescription(self, content: List[str]) -> None: ...
+
+        def printSummary(self, label: str, value: str | None) -> None: ...
+
+        def printParamSummary(self, label: str, param: str) -> None: ...
+
     def ocpSummary(self) -> None:
         self.printH2("Pipeline Configuration")
         self.printParamSummary("Service Account", "service_account_name")
         self.printParamSummary("Image Pull Policy", "image_pull_policy")
-        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
+        if self.useCliDigest:
+            if self.cliDigest:
+                self.printSummary("Use CLI Digest", self.cliDigest)
+            else:
+                self.printParamSummary("Use CLI Digest", "Yes (auto-lookup)")
+
+        self.printSummary(
+            "Skip Pre-Install Healthcheck",
+            "Yes" if self.getParam("skip_pre_check") == "true" else "No",
+        )
 
         self.printH2("OpenShift Container Platform")
         self.printSummary("Worker Node Architecture", self.architecture)
@@ -47,14 +107,15 @@ class InstallSummarizerMixin():
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
-        if self.getParam("mas_permission_mode") != "":
-            self.printParamSummary("Permission Mode", "mas_permission_mode")
+        if self.mas_permission_mode != "":
+            self.printSummary("Permission Mode", self.mas_permission_mode)
+            # Only show "Apply Pre-Install MAS RBAC" when permission mode is defined
+            self.printSummary(
+                "Apply Pre-Install MAS RBAC",
+                "No" if self.skip_preinstall_rbac else "Yes",
+            )
         if self.getParam("mas_issuer_kind") != "":
             self.printParamSummary("Mas Certificate Issuer Kind", "mas_issuer_kind")
-        self.printSummary(
-            "Apply Pre-Install MAS RBAC",
-            "No" if self.getParam("skip_preinstall_rbac") == "true" else "Yes"
-        )
         if self.isAirgap():
             self.printSummary("Install Mode", "Disconnected Install")
         else:
@@ -66,21 +127,21 @@ class InstallSummarizerMixin():
             self.printParamSummary("DNS Provider", "dns_provider")
             self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
 
-            if self.getParam('ocp_ingress') != "":
+            if self.getParam("ocp_ingress") != "":
                 self.printParamSummary("OCP Ingress", "ocp_ingress")
-            if self.getParam('dns_provider') == "cloudflare":
+            if self.getParam("dns_provider") == "cloudflare":
                 self.printParamSummary("CloudFlare e-mail", "cloudflare_email")
                 self.printParamSummary("CloudFlare API token", "cloudflare_apitoken")
                 self.printParamSummary("CloudFlare zone", "cloudflare_zone")
                 self.printParamSummary("CloudFlare subdomain", "cloudflare_subdomain")
-            elif self.getParam('dns_provider') == "cis":
+            elif self.getParam("dns_provider") == "cis":
                 self.printParamSummary("CIS e-mail", "cis_email")
                 self.printParamSummary("CIS API Key", "cis_apikey")
                 self.printParamSummary("CIS CRN", "cis_crn")
                 self.printParamSummary("CIS subdomain", "cis_subdomain")
-            elif self.getParam('dns_provider') == "route53":
+            elif self.getParam("dns_provider") == "route53":
                 pass
-            elif self.getParam('dns_provider') == "":
+            elif self.getParam("dns_provider") == "":
                 pass
 
         print()
@@ -88,6 +149,9 @@ class InstallSummarizerMixin():
         if self.getParam("mas_routing_mode") == "path":
             self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
+
+        print()
+        self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
 
         print()
         self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
@@ -108,7 +172,7 @@ class InstallSummarizerMixin():
         print()
         self.printParamSummary("Catalog Version", "mas_catalog_version")
         # We only list the digest if it's specified (primary use case is when running development builds in airgap environments)
-        if self.getParam("mas_catalog_digest" != ""):
+        if self.getParam("mas_catalog_digest") != "":
             self.printParamSummary("Catalog Digest", "mas_catalog_digest")
         self.printParamSummary("Subscription Channel", "mas_channel")
 
@@ -141,8 +205,14 @@ class InstallSummarizerMixin():
     def iotSummary(self) -> None:
         if self.installIoT:
             self.printSummary("IoT", self.params["mas_app_channel_iot"])
-            self.printSummary("+ MQTT Broker Storage Class", self.params["mas_app_settings_iot_mqttbroker_pvc_storage_class"])
-            self.printSummary("+ FPL Storage Class", self.params["mas_app_settings_iot_fpl_pvc_storage_class"])
+            self.printSummary(
+                "+ MQTT Broker Storage Class",
+                self.params["mas_app_settings_iot_mqttbroker_pvc_storage_class"],
+            )
+            self.printSummary(
+                "+ FPL Storage Class",
+                self.params["mas_app_settings_iot_fpl_pvc_storage_class"],
+            )
         else:
             self.printSummary("IoT", "Do Not Install")
 
@@ -186,29 +256,47 @@ class InstallSummarizerMixin():
 
     def manageSummary(self) -> None:
         if self.installManage:
-            self.printSummary(f"{'Manage foundation' if self.getParam('mas_appws_components') == '' else 'Manage'}", self.params["mas_app_channel_manage"])
+            self.printSummary(
+                f"{'Manage foundation' if self.getParam('mas_appws_components') == '' else 'Manage'}",
+                self.params["mas_app_channel_manage"],
+            )
             if self.getParam("mas_appws_components") != "":
                 print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
-                self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Civil Infrastructure", "Enabled" if "civil=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Envizi", "Enabled" if "envizi=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Health", "Enabled" if "health=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + HSE", "Enabled" if "hse=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Maximo IT", "Enabled" if "icd=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Nuclear", "Enabled" if "nuclear=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Oil & Gas", "Enabled" if "oilandgas=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Connector for Oracle", "Enabled" if "oracleadapter=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Connector for SAP", "Enabled" if "sapadapter=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Service Provider", "Enabled" if "serviceprovider=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Spatial", "Enabled" if "spatial=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Strategize", "Enabled" if "strategize=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Transportation", "Enabled" if "transportation=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Tririga", "Enabled" if "tririga=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Utilities", "Enabled" if "utilities=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + AIP", "Enabled" if "aip=" in self.getParam("mas_appws_components") else "Disabled")
-                self.printSummary("  + Vegetation Management", "Enabled" if "vegm=" in self.getParam("mas_appws_components") else "Disabled")
+
+                # Define components with their display names and component IDs
+                components = [
+                    ("ACM", "acm"),
+                    ("Aviation", "aviation"),
+                    ("Civil Infrastructure", "civil"),
+                    ("Envizi", "envizi"),
+                    ("Health", "health"),
+                    ("HSE", "hse"),
+                    ("Maximo IT", "icd"),
+                    ("Nuclear", "nuclear"),
+                    ("Oil & Gas", "oilandgas"),
+                    ("Connector for Oracle", "oracleadapter"),
+                    ("Connector for SAP", "sapadapter"),
+                    ("Service Provider", "serviceprovider"),
+                    ("Spatial", "spatial"),
+                    ("Strategize", "strategize"),
+                    ("Transportation", "transportation"),
+                    ("Tririga", "tririga"),
+                    ("Utilities", "utilities"),
+                    ("Workday Applications", "workday"),
+                    ("AIP", "aip"),
+                    ("Vegetation Management", "vegm"),
+                ]
+
+                componentsStr = self.getParam("mas_appws_components")
+                for displayName, componentId in components:
+                    isEnabled = f"{componentId}=" in componentsStr
+                    self.printSummary(f"  + {displayName}", "Enabled" if isEnabled else "Disabled")
+
+                    # Special handling for Civil Infrastructure Kafka Image Processor
+                    if componentId == "civil" and isEnabled:
+                        self.printSummary("    + Kafka Image Processor", "Enabled" if self.enableKafkaImageProcessor else "Disabled")
+                        if self.enableKafkaImageProcessor:
+                            self.printParamSummary("    + Kafka Binding", "mas_appws_bindings_kafka_manage")
 
                 self.printParamSummary("+ Upgrade Type", "mas_appws_upgrade_type")
 
@@ -225,7 +313,10 @@ class InstallSummarizerMixin():
 
             if self.getParam("manage_bind_aiservice_tenant_id") != "":
                 print_formatted_text(HTML("  <SkyBlue>+ AI Service Binding (for Manage)</SkyBlue>"))
-                self.printParamSummary("  + Bound AI Service Instance ID", "manage_bind_aiservice_instance_id")
+                self.printParamSummary(
+                    "  + Bound AI Service Instance ID",
+                    "manage_bind_aiservice_instance_id",
+                )
                 self.printParamSummary("  + Bound AI Service Tenant ID", "manage_bind_aiservice_tenant_id")
         else:
             self.printSummary("Manage", "Do Not Install")
@@ -236,7 +327,10 @@ class InstallSummarizerMixin():
             self.printSummary("Facilities", self.params["mas_app_channel_facilities"])
             print_formatted_text(HTML("  <SkyBlue>+ Maximo Real Estate and Facilities Settings</SkyBlue>"))
             self.printParamSummary("  + Size", "mas_ws_facilities_size")
-            self.printParamSummary("  + Application Object Migration", "mas_ws_facilities_app_om_upgrade_mode")
+            self.printParamSummary(
+                "  + Application Object Migration",
+                "mas_ws_facilities_app_om_upgrade_mode",
+            )
             self.printParamSummary("  + Routes Timeout", "mas_ws_facilities_routes_timeout")
             self.printParamSummary("  + XML Extension", "mas_ws_facilities_liberty_extension_XML")
             self.printParamSummary("  + AES vault secret name", "mas_ws_facilities_vault_secret")
@@ -245,10 +339,16 @@ class InstallSummarizerMixin():
             self.printParamSummary("  + Log Storage Class ", "mas_ws_facilities_storage_log_class")
             self.printParamSummary("  + Log Storage Mode", "mas_ws_facilities_storage_log_mode")
             # self.printParamSummary("  + Log Storage Size", "mas_ws_facilities_storage_log_size")
-            self.printParamSummary("  + Userfiles Storage Class ", "mas_ws_facilities_storage_userfiles_class")
-            self.printParamSummary("  + User files Storage Mode", "mas_ws_facilities_storage_userfiles_mode")
+            self.printParamSummary(
+                "  + Userfiles Storage Class ",
+                "mas_ws_facilities_storage_userfiles_class",
+            )
+            self.printParamSummary(
+                "  + User files Storage Mode",
+                "mas_ws_facilities_storage_userfiles_mode",
+            )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
-            if self.getParam("db2_action_facilities") == 'none':
+            if self.getParam("db2_action_facilities") == "none":
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
                 self.printParamSummary("  + Dedicated DB2 Database", "db2_action_facilities")
@@ -270,7 +370,10 @@ class InstallSummarizerMixin():
             self.printParamSummary("Start Date", "tenant_entitlement_start_date")
             self.printParamSummary("End Date", "tenant_entitlement_end_date")
             if self.aiserviceTenantSchedulingConfigFileLocal:
-                self.printSummary("Scheduling configuration file", self.aiserviceTenantSchedulingConfigFileLocal)
+                self.printSummary(
+                    "Scheduling configuration file",
+                    self.aiserviceTenantSchedulingConfigFileLocal,
+                )
 
             self.printH2("S3 Configuration")
             # self.printParamSummary("Storage provider", "aiservice_s3_provider")
@@ -289,15 +392,17 @@ class InstallSummarizerMixin():
             self.printParamSummary("URL", "aiservice_watsonxai_url")
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
-            self.printH2("RSL")
-            self.printParamSummary("URL", "rsl_url")
-            self.printParamSummary("Organization ID", "rsl_org_id")
-
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
             self.printH2("IBM Db2 Univeral Operator Configuration")
-            self.printSummary("System Instance", "Install" if self.getParam("db2_action_system") == "install" else "Do Not Install")
-            self.printSummary("Dedicated Manage Instance", "Install" if self.getParam("db2_action_manage") == "install" else "Do Not Install")
+            self.printSummary(
+                "System Instance",
+                ("Install" if self.getParam("db2_action_system") == "install" else "Do Not Install"),
+            )
+            self.printSummary(
+                "Dedicated Manage Instance",
+                ("Install" if self.getParam("db2_action_manage") == "install" else "Do Not Install"),
+            )
             self.printParamSummary(" - Type", "db2_type")
             self.printParamSummary(" - Timezone", "db2_timezone")
             print()
@@ -315,13 +420,19 @@ class InstallSummarizerMixin():
             self.printParamSummary("Temp Storage", "db2_temp_storage_size")
             self.printParamSummary("Transaction Logs Storage", "db2_logs_storage_size")
             print()
-            if self.getParam('db2_affinity_key') != "":
-                self.printSummary("Node Affinity", f"{self.getParam('db2_affinity_key')}={self.getParam('db2_affinity_value')}")
+            if self.getParam("db2_affinity_key") != "":
+                self.printSummary(
+                    "Node Affinity",
+                    f"{self.getParam('db2_affinity_key')}={self.getParam('db2_affinity_value')}",
+                )
             else:
                 self.printSummary("Node Affinity", "None")
 
-            if self.getParam('db2_tolerate_key') != "":
-                self.printSummary("Node Tolerations", f"{self.getParam('db2_tolerate_key')}={self.getParam('db2_tolerate_value')} @ {self.getParam('db2_tolerate_effect')}")
+            if self.getParam("db2_tolerate_key") != "":
+                self.printSummary(
+                    "Node Tolerations",
+                    f"{self.getParam('db2_tolerate_key')}={self.getParam('db2_tolerate_value')} @ {self.getParam('db2_tolerate_effect')}",
+                )
             else:
                 self.printSummary("Node Tolerations", "None")
 
@@ -334,11 +445,23 @@ class InstallSummarizerMixin():
                 self.printSummary("Watson Machine Learning", "Install (Required by Maximo Predict)")
                 self.printSummary("Analytics Engine", "Install (Required by Maximo Predict)")
             else:
-                self.printSummary("Watson Studio Local", "Install" if self.getParam("cpd_install_ws") == "true" else "Do Not Install")
-                self.printSummary("Watson Machine Learning", "Install" if self.getParam("cpd_install_wml") == "true" else "Do Not Install")
-                self.printSummary("Analytics Engine", "Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install")
+                self.printSummary(
+                    "Watson Studio Local",
+                    ("Install" if self.getParam("cpd_install_ws") == "true" else "Do Not Install"),
+                )
+                self.printSummary(
+                    "Watson Machine Learning",
+                    ("Install" if self.getParam("cpd_install_wml") == "true" else "Do Not Install"),
+                )
+                self.printSummary(
+                    "Analytics Engine",
+                    ("Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install"),
+                )
 
-            self.printSummary("Cognos Analytics", "Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install")
+            self.printSummary(
+                "Cognos Analytics",
+                ("Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install"),
+            )
 
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")
@@ -437,10 +560,7 @@ class InstallSummarizerMixin():
 
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
-        self.printDescription([
-            "Connected to:",
-            f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
-        ])
+        self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
         logger.debug("PipelineRun parameters:")
         logger.debug(yaml.dump(self.params, default_flow_style=False))
