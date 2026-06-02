@@ -701,7 +701,8 @@ class InstallApp(
         self.configCATrust()
         self.configDNSAndCerts()
         self.configRoutingMode()
-        self.configManualRoutesMgmt()
+        # Manual route management is not ready yet
+        # self.configManualRoutesMgmt()
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -1026,9 +1027,9 @@ class InstallApp(
 
     @logMethodCall
     def configServiceMesh(self) -> None:
-        if self.showAdvancedOptions:
+        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.printH1("Configure Service Mesh")
-            self.printDescription(["By default, Maximo Application Suite does not use Service Mesh for routing."])
+            self.printDescription(["By default, Maximo Application Suite does not use Service Mesh."])
             self.yesOrNo("Use Service Mesh", "mas_use_service_mesh")
         else:
             self.setParam("mas_use_service_mesh", "false")
