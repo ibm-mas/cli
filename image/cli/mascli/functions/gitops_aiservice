@@ -511,8 +511,9 @@ function gitops_aiservice() {
       # Don't set DB2_CHANNEL - let it use AWS Secrets Manager path from template
       # export DB2_CHANNEL="${DB2_CHANNEL:-v110508.0}"
       
-      # Set the AWS Secrets Manager key for DB2 channel
+      # Set the AWS Secrets Manager keys for DB2
       export SECRET_KEY_DB2_DEFAULT_CHANNEL="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel"
+      export SECRET_KEY_IBM_ENTITLEMENT="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64"
       
       echo "DEBUG: DB2_NAMESPACE set to: ${DB2_NAMESPACE}"
       echo "DEBUG: DB2_INSTALL_PLAN set to: ${DB2_INSTALL_PLAN}"
