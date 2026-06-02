@@ -323,7 +323,8 @@ function gitops_aiservice_fvt_prepare() {
     JDBCCFG_PASSWORD=${JDBCCFG_PASSWORD:-"placeholder"} # pragma: allowlist secret
     JDBCCFG_URL=${JDBCCFG_URL:-"jdbc:db2://placeholder:50443/BLUDB:sslConnection=true;"}
     JDBCCFG_SSLENABLED=${JDBCCFG_SSLENABLED:-"true"}
-    JDBCCFG_CA_B64ENC=${JDBCCFG_CA_B64ENC:-"placeholder"}
+    # CA certificate must be base64 encoded (template expects it pre-encoded)
+    JDBCCFG_CA_B64ENC=${JDBCCFG_CA_B64ENC:-$(echo -n "placeholder-certificate" | base64)}
     
     SECRET_NAME_JDBC=${SECRETS_PREFIX}jdbc
     TAGS="[{\"Key\": \"jdbccfg_username\", \"Value\": \"jdbccfg_username\"}, {\"Key\": \"jdbccfg_password\", \"Value\": \"jdbccfg_password\"}, {\"Key\": \"jdbccfg_url\", \"Value\": \"jdbccfg_url\"}, {\"Key\": \"jdbccfg_sslenabled\", \"Value\": \"jdbccfg_sslenabled\"}, {\"Key\": \"jdbccfg_ca_b64enc\", \"Value\": \"jdbccfg_ca_b64enc\"}]"
