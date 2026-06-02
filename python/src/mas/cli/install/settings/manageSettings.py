@@ -325,18 +325,17 @@ class ManageSettingsMixin:
         self.setParam("mas_app_settings_secondary_langs", secondaryLanguages.upper())
 
     def manageSettingsCP4D(self) -> None:
-        if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptions:
-            self.printDescription(
-                [
-                    f"Integration with Cognos Analytics provides additional support for reporting features in Maximo {self.manageAppName}, for more information refer to the documentation online: ",
-                    " - <Orange><u>https://ibm.biz/BdMuxs</u></Orange>",
-                ]
-            )
-            self.yesOrNo("Enable integration with Cognos Analytics", "cpd_install_cognos")
-            self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_flag")
+        self.printDescription(
+            [
+                f"Integration with Cognos Analytics provides additional support for reporting features in Maximo {self.manageAppName}, for more information refer to the documentation online: ",
+                " - <Orange><u>https://ibm.biz/BdMuxs</u></Orange>",
+            ]
+        )
+        self.yesOrNo("Enable integration with Cognos Analytics", "cpd_install_cognos")
+        self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_flag")
 
-            if self.getParam("cpd_install_cognos") == "true" or self.getParam("mas_appws_bindings_health_flag") == "true":
-                self.configCP4D()
+        if self.getParam("cpd_install_cognos") == "true" or self.getParam("mas_appws_bindings_health_flag") == "true":
+            self.configCP4D()
 
     def manageSettingsOther(self) -> None:
         self.printH2(f"Maximo {self.manageAppName} Settings - Other")
