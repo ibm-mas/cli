@@ -313,26 +313,52 @@ function gitops_aiservice_fvt_prepare() {
       return 1
     }
 
-  # Create DB2 default channel secret for FVT environments with in-cluster DB2
-  # if [[ "${IS_GITOPS_FVT_ENV}" == "true" && "${USE_AWS_DB2}" == "false" ]]; then
-  #   echo "Creating DB2 default channel secret for FVT environment..."
+  # Create placeholder JDBC configuration for FVT environments with in-cluster DB2
+  # This will be updated by the DB2 postSync job after DB2 is installed
+  if [[ "${IS_GITOPS_FVT_ENV}" == "true" && "${USE_AWS_DB2}" == "false" ]]; then
+    echo "Creating placeholder JDBC configuration for FVT environment..."
     
-  #   # Default DB2 channel value (can be overridden by environment variable)
-  #   DB2_DEFAULT_CHANNEL=${DB2_DEFAULT_CHANNEL:-"v3.2"}
+    # Placeholder values - will be updated by DB2 postSync job
+    JDBCCFG_USERNAME=${JDBCCFG_USERNAME:-"placeholder"}
+    JDBCCFG_PASSWORD=${JDBCCFG_PASSWORD:-"placeholder"} # pragma: allowlist secret
+    JDBCCFG_URL=${JDBCCFG_URL:-"jdbc:db2://placeholder:50443/BLUDB:sslConnection=true;"}
+    JDBCCFG_SSLENABLED=${JDBCCFG_SSLENABLED:-"true"}
+    JDBCCFG_CA_B64ENC=${JDBCCFG_CA_B64ENC:-"placeholder"}
     
-  #   SECRET_NAME_DB2_CHANNEL=${SECRETS_PREFIX}db2_default_channel
-  #   TAGS="[{\"Key\": \"db2_default_channel\", \"Value\": \"db2_default_channel\"}]"
+    SECRET_NAME_JDBC=${SECRETS_PREFIX}jdbc
+    TAGS="[{\"Key\": \"jdbccfg_username\", \"Value\": \"jdbccfg_username\"}, {\"Key\": \"jdbccfg_password\", \"Value\": \"jdbccfg_password\"}, {\"Key\": \"jdbccfg_url\", \"Value\": \"jdbccfg_url\"}, {\"Key\": \"jdbccfg_sslenabled\", \"Value\": \"jdbccfg_sslenabled\"}, {\"Key\": \"jdbccfg_ca_b64enc\", \"Value\": \"jdbccfg_ca_b64enc\"}]"
     
-  #   sm_update_secret \
-  #     "$SECRET_NAME_DB2_CHANNEL" \
-  #     "{\"db2_default_channel\":\"$DB2_DEFAULT_CHANNEL\"}" \
-  #     "$TAGS" || {
-  #       echo "Failed to update DB2 channel secret"
-  #       return 1
-  #     }
+    sm_update_secret \
+      "$SECRET_NAME_JDBC" \
+      "{\"jdbccfg_username\":\"$JDBCCFG_USERNAME\",\"jdbccfg_password\":\"$JDBCCFG_PASSWORD\",\"jdbccfg_url\":\"$JDBCCFG_URL\",\"jdbccfg_sslenabled\":\"$JDBCCFG_SSLENABLED\",\"jdbccfg_ca_b64enc\":\"$JDBCCFG_CA_B64ENC\"}" \
+      "$TAGS" || {
+        echo "Failed to create placeholder JDBC configuration"
+        return 1
+      }
     
-  #   echo "✓ DB2 default channel secret created successfully"
-  # fi
+    echo "✓ Placeholder JDBC configuration created (will be updated by DB2 postSync job)"
+  fi
+
+  # Create DB2 default channel configuration for FVT environments with in-cluster DB2
+  if [[ "${IS_GITOPS_FVT_ENV}" == "true" && "${USE_AWS_DB2}" == "false" ]]; then
+    echo "Creating DB2 default channel configuration for FVT environment..."
+    
+    # Default DB2 channel value (can be overridden by environment variable)
+    DB2_DEFAULT_CHANNEL=${DB2_DEFAULT_CHANNEL:-"v3.2"}
+    
+    SECRET_NAME_DB2_CHANNEL=${SECRETS_PREFIX}db2_default_channel
+    TAGS="[{\"Key\": \"db2_default_channel\", \"Value\": \"db2_default_channel\"}]"
+    
+    sm_update_secret \
+      "$SECRET_NAME_DB2_CHANNEL" \
+      "{\"db2_default_channel\":\"$DB2_DEFAULT_CHANNEL\"}" \
+      "$TAGS" || {
+        echo "Failed to update DB2 channel configuration"
+        return 1
+      }
+    
+    echo "✓ DB2 default channel configuration created"
+  fi
 
   echo "AI Service FVT secret creating function end"
 }
