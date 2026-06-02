@@ -28,7 +28,7 @@ from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelin
 from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion, isPreReleaseVersion
 from ..install.settings import AdditionalConfigsMixin
-from ..rbac_utils import generate_preinstall_command, handle_rbac_permission_denied
+from ..rbac_utils import handle_rbac_permission_denied
 
 logger = logging.getLogger(__name__)
 
@@ -159,7 +159,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 adminMode = instanceInfo["adminMode"]
                 selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
 
-                preinstall_cmd = generate_preinstall_command(instance_id=instanceId, channel=baseVersion, admin_mode=adminMode, selected_apps=selectedApps)
+                apps_arg = f" --selected-apps {','.join(selectedApps)}" if selectedApps else ""
+                preinstall_cmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion} --admin-mode {adminMode}{apps_arg}"
                 preinstall_commands.append(preinstall_cmd)
 
             handle_rbac_permission_denied(

@@ -134,6 +134,7 @@ class InstallApp(
             return
 
         self.printH1("Pre-Install RBAC Configuration")
+        # User does not have permissions to apply RBAC
         self.printDescription(
             [
                 f"Admin mode: '{self.mas_admin_mode}'",

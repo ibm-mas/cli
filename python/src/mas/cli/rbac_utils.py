@@ -15,36 +15,9 @@ across install, upgrade, and update commands.
 """
 
 import logging
-from typing import Callable, Optional
-
-from openshift.dynamic import DynamicClient
-from halo import Halo
+from typing import Callable
 
 logger = logging.getLogger(__name__)
-
-
-def generate_preinstall_command(instance_id: str, channel: str, admin_mode: str, selected_apps: Optional[list] = None) -> str:
-    """
-    Generate the mas pre-install command string.
-
-    Args:
-        instance_id: MAS instance ID
-        channel: MAS channel/version (e.g., "9.2", "9.2.0")
-        admin_mode: Admin mode (cluster, namespaced, minimal)
-        selected_apps: Optional list of selected apps (e.g., ["manage", "monitor"])
-
-    Returns:
-        str: Complete mas pre-install command
-
-    Example:
-        >>> generate_preinstall_command("inst1", "9.2", "cluster")
-        'mas pre-install --mas-instance-id inst1 --mas-channel 9.2 --admin-mode cluster'
-
-        >>> generate_preinstall_command("inst1", "9.2", "namespaced", ["manage", "monitor"])
-        'mas pre-install --mas-instance-id inst1 --mas-channel 9.2 --admin-mode namespaced --selected-apps manage,monitor'
-    """
-    apps_arg = f" --selected-apps {','.join(selected_apps)}" if selected_apps else ""
-    return f"mas pre-install --mas-instance-id {instance_id} --mas-channel {channel} --admin-mode {admin_mode}{apps_arg}"
 
 
 def handle_rbac_permission_denied(
@@ -110,46 +83,3 @@ def handle_rbac_permission_denied(
 
         # User confirmed RBAC was already applied
         logger.info(f"User confirmed pre-install RBAC was already applied by administrator, continuing with {operation}")
-
-
-def apply_rbac_with_spinner(
-    dynamic_client: DynamicClient, instance_id: str, channel: str, admin_mode: str, selected_apps: Optional[list], spinner, success_icon: str
-) -> None:
-    """
-    Apply pre-install RBAC with spinner feedback.
-
-    This function wraps the applyPreInstallMASRBAC call with a Halo spinner
-    to provide visual feedback during the operation.
-
-    Args:
-        dynamic_client: Kubernetes dynamic client
-        instance_id: MAS instance ID
-        channel: MAS channel (e.g., "9.2.0", "9.2.1")
-        admin_mode: Admin mode (cluster, namespaced, minimal)
-        selected_apps: List of selected apps (e.g., ["manage", "monitor"])
-        spinner: Halo spinner configuration
-        success_icon: Success icon for spinner (e.g., "✔")
-
-    Raises:
-        Any exceptions from applyPreInstallMASRBAC are propagated
-    """
-    from mas.devops.utils import extractBaseVersion
-    from mas.devops.pre_install import applyPreInstallMASRBAC
-
-    with Halo(text=f"Applying pre-install MAS RBAC for {instance_id}", spinner=spinner) as h:
-        target_version = extractBaseVersion(channel)
-        logger.info(f"Applying pre-install RBAC: instance={instance_id}, " f"version={target_version}, mode={admin_mode}, apps={selected_apps}")
-
-        applyPreInstallMASRBAC(
-            dynClient=dynamic_client,
-            masVersion=target_version,
-            masInstanceId=instance_id,
-            adminMode=admin_mode,
-            selectedApps=selected_apps,
-        )
-
-        h.stop_and_persist(symbol=success_icon, text=f"Pre-install MAS RBAC applied for {instance_id} (version: {target_version}, mode: {admin_mode})")
-        logger.info(f"Pre-install RBAC successfully applied for instance {instance_id}")
-
-
-# Made with Bob

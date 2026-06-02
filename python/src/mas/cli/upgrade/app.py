@@ -35,7 +35,7 @@ from mas.devops.mas import (
 from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from ..rbac_utils import generate_preinstall_command, handle_rbac_permission_denied
+from ..rbac_utils import handle_rbac_permission_denied
 
 logger = logging.getLogger(__name__)
 
@@ -164,9 +164,8 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             return
 
         # User does not have permissions - inform them early
-        preInstallCmd = generate_preinstall_command(
-            instance_id=instanceId, channel=self.nextChannel, admin_mode=detectedMode, selected_apps=self.selectedAppsForRBAC
-        )
+        apps_arg = f" --selected-apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
+        preInstallCmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {self.nextChannel} --admin-mode {detectedMode}{apps_arg}"
 
         self.printH1("Pre-Install RBAC Configuration")
         self.printDescription(
