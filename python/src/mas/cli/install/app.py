@@ -56,7 +56,7 @@ from mas.devops.ocp import (
     configureIngressForPathBasedRouting,
 )
 from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
-from mas.devops.utils import isVersionEqualOrAfter
+from mas.devops.utils import extractBaseVersion, isVersionEqualOrAfter
 from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError
 from mas.devops.tekton import (
@@ -119,42 +119,38 @@ class InstallApp(
         return selectedApps
 
     def evaluatePreInstallRBACAccess(self) -> None:
-        version = self.getParam("mas_channel")
-        admin_mode = self.mas_admin_mode
+        self.applyPreInstallMASRBAC = False
 
-        # Early returns for cases where RBAC not needed
-        if not isVersionEqualOrAfter("9.2.0", version):
-            self.applyPreInstallMASRBAC = False
+        if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             return
 
-        if admin_mode == "minimal":
-            self.applyPreInstallMASRBAC = False
+        if self.mas_admin_mode == "minimal":
             return
 
-        # Check if user has permissions to apply RBAC
         permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        self.applyPreInstallMASRBAC = all(result["allowed"] for result in permissionResults)
-
-        if self.applyPreInstallMASRBAC:
+        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
+        if hasPreInstallRBACAccess:
+            self.applyPreInstallMASRBAC = True
             return
 
         self.printH1("Pre-Install RBAC Configuration")
         self.printDescription(
             [
-                f"Admin mode: '{admin_mode}'",
+                f"Admin mode: '{self.mas_admin_mode}'",
                 "Pre-install RBAC could not be applied automatically (insufficient permissions).",
             ]
         )
 
+        version = extractBaseVersion(self.getParam("mas_channel"))
         # Generate a generic pre-install command
-        preinstall_cmd = f"mas pre-install --mas-channel {version} --admin-mode {admin_mode}"
+        preinstall_cmd = f"mas pre-install --mas-channel {version} --admin-mode {self.mas_admin_mode}"
 
         handle_rbac_permission_denied(
             print_func=self.printDescription,
             yes_or_no_func=self.yesOrNo,
             fatal_error_func=self.fatalError,
             no_confirm=self.noConfirm,
-            admin_mode=admin_mode,
+            admin_mode=self.mas_admin_mode,
             preinstall_commands=[preinstall_cmd],
             operation="installation",
         )
