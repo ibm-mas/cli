@@ -88,7 +88,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         """
         Evaluate if pre-install RBAC should be applied for instances transitioning from pre-release to GA.
         Sets self.instancesNeedingRBAC list and self.applyPreInstallMASRBAC flag.
-        This is called BEFORE review settings to inform user early about RBAC status.
         """
         from mas.devops.pre_install import permissionCheckForRBAC
         from mas.devops.mas import getPermissionMode
@@ -199,7 +198,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.db2LicenseFileLocal = None
         self.instancesNeedingRBAC = []
         self.applyPreInstallMASRBAC = False
-        self.noConfirm = self.args.no_confirm if hasattr(self.args, "no_confirm") else False
 
         if self.args.mas_catalog_version:
             # Non-interactive mode
@@ -316,7 +314,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.detectKafka()
         self.detectCP4D()
 
-        # Evaluate RBAC access BEFORE review settings
+        # Evaluate RBAC access
         self.evaluatePreInstallRBACForUpdate()
 
         print()
@@ -376,7 +374,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            # Apply pre-install RBAC if user has permissions (already evaluated before review settings)
+            # Apply pre-install RBAC if user has permissions
             if self.applyPreInstallMASRBAC and self.instancesNeedingRBAC:
                 print()
                 print_formatted_text(HTML(f"<Yellow>Applying RBAC for {len(self.instancesNeedingRBAC)} instance(s) transitioning to GA...</Yellow>"))

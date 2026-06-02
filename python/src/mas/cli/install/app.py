@@ -118,10 +118,6 @@ class InstallApp(
         return selectedApps
 
     def evaluatePreInstallRBACAccess(self) -> None:
-        """
-        Evaluate if pre-install RBAC should be applied using requiresPreInstallRBAC().
-        Sets self.applyPreInstallMASRBAC flag based on the result.
-        """
         self.applyPreInstallMASRBAC = False
 
         if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):

@@ -142,7 +142,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         """
         Evaluate if pre-install RBAC should be applied.
         Sets self.applyPreInstallMASRBAC flag and self.selectedAppsForRBAC based on the result.
-        This is called BEFORE review settings to inform user early about RBAC status.
         """
         from mas.devops.utils import isVersionEqualOrAfter
         from mas.devops.pre_install import permissionCheckForRBAC
@@ -371,7 +370,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             logger.info("Upgrading from 9.1.x to 9.2.x: defaulting to cluster mode (9.1.x had no permission modes)")
             detectedMode = "cluster"
 
-        # Evaluate RBAC access BEFORE review settings
+        # Evaluate RBAC access
         if detectedMode:
             self.evaluatePreInstallRBACAccess(instanceId, detectedMode)
 
@@ -399,7 +398,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            # Apply pre-install RBAC if user has permissions (already evaluated before review settings)
+            # Apply pre-install RBAC if user has permissions
             if self.applyPreInstallMASRBAC and detectedMode:
                 with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
                     targetVersion = extractBaseVersion(self.nextChannel)  # Extract "9.2" from "9.2.x" or "9.2-feature"
