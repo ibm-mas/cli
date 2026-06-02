@@ -97,8 +97,8 @@ optionalParams = [
     "configure_aiassistant",
     # Certificate Issuer
     "aiservice_certificate_issuer",
-    # permission mode
-    "permission_mode",
+    # admin mode
+    "admin_mode",
     # Enable IPv6 networking
     "enable_ipv6",
     # Slack
