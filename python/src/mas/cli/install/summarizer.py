@@ -47,6 +47,7 @@ class InstallSummarizerMixin:
         installAIService: bool
         installArcgis: bool
         dynamicClient: DynamicClient
+        applyPreInstallMASRBAC: bool
 
         # Methods from BaseApp
         def getParam(self, param: str) -> str: ...
@@ -107,12 +108,11 @@ class InstallSummarizerMixin:
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
-        if self.mas_permission_mode != "":
-            self.printSummary("Permission Mode", self.mas_permission_mode)
-            # Only show "Apply Pre-Install MAS RBAC" when permission mode is defined
+        if self.mas_admin_mode != "":
+            self.printSummary("MAS Admin Mode", self.mas_admin_mode)
             self.printSummary(
                 "Apply Pre-Install MAS RBAC",
-                "No" if self.skip_preinstall_rbac else "Yes",
+                "Yes" if self.applyPreInstallMASRBAC else "No",
             )
         if self.getParam("mas_issuer_kind") != "":
             self.printParamSummary("Mas Certificate Issuer Kind", "mas_issuer_kind")
