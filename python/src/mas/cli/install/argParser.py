@@ -260,10 +260,10 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
-    "--permission-mode",
-    dest="mas_permission_mode",
+    "--admin-mode",
+    dest="mas_admin_mode",
     required=False,
-    help="Permission mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
+    help="Admin mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
     choices=["cluster", "namespaced", "minimal"],
     default=None,
 )
@@ -1554,14 +1554,6 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     help="Disable the 'pre-install-check' at the start of the install pipeline",
-)
-
-otherArgGroup.add_argument(
-    "--skip-preinstall-rbac",
-    required=False,
-    action="store_true",
-    default=False,
-    help="Skip CLI application of pre-install MAS RBAC. Use this when an OpenShift administrator has already applied the required RBAC.",
 )
 otherArgGroup.add_argument(
     "--no-confirm",
