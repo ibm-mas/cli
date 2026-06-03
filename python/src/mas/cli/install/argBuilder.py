@@ -92,8 +92,8 @@ class installArgBuilderMixin:
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
-        if self.mas_permission_mode != "":
-            command += f"  --permission-mode {self.mas_permission_mode}{newline}"
+        if self.mas_admin_mode != "":
+            command += f"  --admin-mode {self.mas_admin_mode}{newline}"
 
         if self.getParam("mas_trust_default_cas").lower() == "false":
             command += f"  --disable-ca-trust{newline}"
@@ -608,8 +608,6 @@ class installArgBuilderMixin:
             command += f"  --dev-mode{newline}"
         if self.getParam("skip_pre_check") is True:
             command += f"  --skip-pre-check{newline}"
-        if self.skip_preinstall_rbac:
-            command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam("service_account_name") != "":

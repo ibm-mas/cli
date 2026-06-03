@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-function gitops_odh_help() {
+function gitops_rhoai_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_odh [options]
+  mas gitops_rhoai [options]
 
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 GitOps Configuration:
-  -d, --dir, --gitops-working-dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
@@ -25,27 +25,27 @@ ibm aiservice(required):
       --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
       --aiservice-instance-id ${TEXT_RESET}AISERVICE_INSTANCE_ID${TEXT_RESET}
 
-ODH Configuration:
-      --odh-channel
-      --odh-catalog-source
-      --odh-operator-version
-      --odh-namespace
+RHOAI Configuration:
+      --rhoai-channel
+      --rhoai-catalog-source
+      --rhoai-operator-version
+      --rhoai-namespace
       --pull-secret-name
-      --opendatahub-name
-      --opendatahub-operator-group
-      --odh-install-plan
-      --opendatahub-channel
-      --opendatahub-source
-      --opendatahub-source-namespace
-      --aiservice-odh-model-deployment-type
+      --openshiftai-name
+      --openshiftai-operator-group
+      --rhoai-install-plan
+      --openshiftai-channel
+      --openshiftai-source
+      --openshiftai-source-namespace
+      --aiservice-rhoai-model-deployment-type
 Pipeline Configuration:
-      --odh-pipeline-name
-      --odh-pipeline-namespace
-      --odh-pipeline-operator-name
-      --odh-pipeline-source
-      --odh-pipeline-source-namespace
-      --odh-pipeline-channel
-      --odh-pipeline-installplan
+      --rhoai-pipeline-name
+      --rhoai-pipeline-namespace
+      --rhoai-pipeline-operator-name
+      --rhoai-pipeline-source
+      --rhoai-pipeline-source-namespace
+      --rhoai-pipeline-channel
+      --rhoai-pipeline-installplan
       --pipeline-catalog-source
 
 Service Mesh:
@@ -65,13 +65,13 @@ Authorino:
       --authorino-catalog-source
 
 Storage:
-      --storage-provider, --aiservice-storage-provider
+      --storage-provider
       --storage-accesskey
       --storage-secretkey
       --storage-host
       --storage-port
-      --storage-ssl, --aiservice-storage-ssl
-      --storage-region, --aiservice-storage-region
+      --storage-ssl
+      --storage-region
       --pipelines-bucket
       --primary-storage-class
 
@@ -99,17 +99,17 @@ EOM
 }
 
 
-function gitops_odh_noninteractive() {
+function gitops_rhoai_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir  
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-odh commit"
+  GIT_COMMIT_MSG="gitops-rhoai commit"
 
 
 
-  export ODH_ACTION="${ODH_ACTION:-"install"}"
+  export RHOAI_ACTION="${RHOAI_ACTION:-"uninstall"}"
   export OPENSHIFT_NAMESPACE="${OPENSHIFT_NAMESPACE:-"openshift-operators"}"
-  export ODH_PIPELINE_CHANNEL="${ODH_PIPELINE_CHANNEL:-"latest"}"
-  export ODH_PIPELINE_INSTALLPLAN="${ODH_PIPELINE_INSTALLPLAN:-"manual"}"
+  export RHOAI_PIPELINE_CHANNEL="${RHOAI_PIPELINE_CHANNEL:-"latest"}"
+  export RHOAI_PIPELINE_INSTALLPLAN="${RHOAI_PIPELINE_INSTALLPLAN:-"manual"}"
   export PIPELINE_CATALOG_SOURCE="${PIPELINE_CATALOG_SOURCE:-"redhat-operators"}"
   export SERVICE_MESH_NAMESPACE="${SERVICE_MESH_NAMESPACE:-"openshift-operators"}"
   export SERVICE_MESH_CHANNEL="${SERVICE_MESH_CHANNEL:-"stable"}"
@@ -118,10 +118,10 @@ function gitops_odh_noninteractive() {
   export OPERATOR_NAME="${OPERATOR_NAME:-"openshift-pipelines-operator-rh"}"
   export SERVERLESS_CHANNEL="${SERVERLESS_CHANNEL:-"stable"}"
   export AUTHORINO_CATALOG_SOURCE="${AUTHORINO_CATALOG_SOURCE:-"community-operators"}"
-  export ODH_CHANNEL="${ODH_CHANNEL:-"fast"}"
-  export ODH_CATALOG_SOURCE="${ODH_CATALOG_SOURCE:-"community-operators"}"
-  export ODH_OPERATOR_VERSION="${ODH_OPERATOR_VERSION:-"opendatahub-operator.v2.19.0"}"
-  export ODH_NAMESPACE="${ODH_NAMESPACE:-"opendatahub"}"
+  export RHOAI_CHANNEL="${RHOAI_CHANNEL:-"stable"}"
+  export RHOAI_CATALOG_SOURCE="${RHOAI_CATALOG_SOURCE:-"redhat-operators"}"
+  export RHOAI_OPERATOR_VERSION="${RHOAI_OPERATOR_VERSION:-"rhods-operator.2.25.3"}"
+  export RHOAI_NAMESPACE="${RHOAI_NAMESPACE:-"redhat-ods-operator"}"
 
   export AISERVICE_NAMESPACE="${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}"
 
@@ -130,24 +130,24 @@ function gitops_odh_noninteractive() {
   export SERVERLESS_OPERATOR_SOURCE="${SERVERLESS_OPERATOR_SOURCE:-"redhat-operators"}"
   export SERVERLESS_OPERATOR_SOURCE_NAMESPACE="${SERVERLESS_OPERATOR_SOURCE_NAMESPACE:-"openshift-marketplace"}"
 
-  export OPENDATAHUB_OPERATORGROUP_NAME="${OPENDATAHUB_OPERATORGROUP_NAME:-"opendatahub-operator-group"}"
-  export OPENDATAHUB_NAME="${OPENDATAHUB_NAME:-"opendatahub-operator"}"
-  export OPENDATAHUB_NAMESPACE="${OPENDATAHUB_NAMESPACE:-"opendatahub"}"
-  export ODH_INSTALL_PLAN="${ODH_INSTALL_PLAN:-"Automatic"}"
-  export OPENDATAHUB_CHANNEL="${OPENDATAHUB_CHANNEL:-"fast"}"
-  export OPENDATAHUB_SOURCE="${OPENDATAHUB_SOURCE:-"community-operators"}"
-  export OPENDATAHUB_SOURCE_NAMESPACE="${OPENDATAHUB_SOURCE_NAMESPACE:-"openshift-marketplace"}"
+  export OPENSHIFTAI_OPERATORGROUP_NAME="${RHOAI_OPERATOR_GROUP:-"operatorgroup"}"
+  export OPENSHIFTAI_NAME="${RHOAI_NAME:-"rhods-operator"}"
+  export OPENSHIFTAI_NAMESPACE="${RHOAI_NAMESPACE:-"redhat-ods-operator"}"
+  export RHOAI_INSTALL_PLAN="${RHOAI_INSTALL_PLAN:-"Automatic"}"
+  export OPENSHIFTAI_CHANNEL="${OPENSHIFTAI_CHANNEL:-"stable"}"
+  export OPENSHIFTAI_SOURCE="${OPENSHIFTAI_SOURCE:-"redhat-operators"}"
+  export OPENSHIFTAI_SOURCE_NAMESPACE="${OPENSHIFTAI_SOURCE_NAMESPACE:-"openshift-marketplace"}"
   export AISERVICE_STORAGE_PROVIDER="${AISERVICE_STORAGE_PROVIDER:-"aws"}"
   export AISERVICE_STORAGE_SSL="${AISERVICE_STORAGE_SSL:-"true"}"
   export AISERVICE_STORAGE_REGION="${AISERVICE_STORAGE_REGION:-""}"
   export PRIMARY_STORAGE_CLASS="${PRIMARY_STORAGE_CLASS:-"nfs-client"}"
-  export AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE="${AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE:-"serverless"}"
+  export AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE="${AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE:-"serverless"}"
 
 
   while [[ $# -gt 0 ]]; do
     key="$1"; shift
     case $key in
-      -d|--dir|--gitops-working-dir) export GITOPS_WORKING_DIR="$1"; shift ;;
+      -d|--dir) export GITOPS_WORKING_DIR="$1"; shift ;;
       -a|--account-id) export ACCOUNT_ID="$1"; shift ;;
       -c|--cluster-id) export CLUSTER_ID="$1"; shift ;;
       -m|--aiservice-instance-id) export AISERVICE_INSTANCE_ID="$1"; shift ;;
@@ -192,17 +192,17 @@ function gitops_odh_noninteractive() {
         ;;
 
 
-      --odh-channel)
-        export ODH_CHANNEL=$1 && shift
+      --rhoai-channel)
+        export RHOAI_CHANNEL=$1 && shift
         ;;
-      --odh-catalog-source)
-        export ODH_CATALOG_SOURCE=$1 && shift
+      --rhoai-catalog-source)
+        export RHOAI_CATALOG_SOURCE=$1 && shift
         ;;
-      --odh-operator-version)
-        export ODH_OPERATOR_VERSION=$1 && shift
+      --rhoai-operator-version)
+        export RHOAI_OPERATOR_VERSION=$1 && shift
         ;;
-      --odh-namespace)
-        export ODH_NAMESPACE=$1 && shift
+      --rhoai-namespace)
+        export RHOAI_NAMESPACE=$1 && shift
         ;;
       --openshift-namespace)
         export OPENSHIFT_NAMESPACE=$1 && shift
@@ -211,32 +211,32 @@ function gitops_odh_noninteractive() {
         export PULL_SECRET_NAME=$1 && shift
         ;;
 
-      --opendatahub-name)
-        export OPENDATAHUB_NAME=$1 && shift
+      --openshiftai-name)
+        export OPENSHIFTAI_NAME=$1 && shift
         ;;
-      --opendatahub-operator-group)
-        export OPENDATAHUB_OPERATORGROUP_NAME=$1 && shift
+      --openshiftai-operator-group)
+        export OPENSHIFTAI_OPERATORGROUP_NAME=$1 && shift
         ;;
-      --odh-install-plan)
-        export ODH_INSTALL_PLAN=$1 && shift
+      --rhoai-install-plan)
+        export RHOAI_INSTALL_PLAN=$1 && shift
         ;;
-      --opendatahub-channel)
-        export OPENDATAHUB_CHANNEL=$1 && shift
+      --openshiftai-channel)
+        export OPENSHIFTAI_CHANNEL=$1 && shift
         ;;
-      --opendatahub-source)
-        export OPENDATAHUB_SOURCE=$1 && shift
+      --openshiftai-source)
+        export OPENSHIFTAI_SOURCE=$1 && shift
         ;;
-      --opendatahub-namespace)
-        export OPENDATAHUB_NAMESPACE=$1 && shift
+      --openshiftai-namespace)
+        export OPENSHIFTAI_NAMESPACE=$1 && shift
         ;;
-      --opendatahub-source-namespace)
-        export OPENDATAHUB_SOURCE_NAMESPACE=$1 && shift
+      --openshiftai-source-namespace)
+        export OPENSHIFTAI_SOURCE_NAMESPACE=$1 && shift
         ;;
-      --odh-pipeline-channel)
-        export ODH_PIPELINE_CHANNEL=$1 && shift
+      --rhoai-pipeline-channel)
+        export RHOAI_PIPELINE_CHANNEL=$1 && shift
         ;;
-      --odh-pipeline-installplan)
-        export ODH_PIPELINE_INSTALLPLAN=$1 && shift
+      --rhoai-pipeline-installplan)
+        export RHOAI_PIPELINE_INSTALLPLAN=$1 && shift
         ;;
       --pipeline-catalog-source)
         export PIPELINE_CATALOG_SOURCE=$1 && shift
@@ -279,17 +279,17 @@ function gitops_odh_noninteractive() {
         export AISERVICE_NAMESPACE=$1 && shift
         ;;
 
-      --storage-provider|--aiservice-storage-provider)
+      --storage-provider)
         export AISERVICE_STORAGE_PROVIDER=$1 && shift
         ;;
-      --storage-ssl|--aiservice-storage-ssl)
+      --storage-ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
-      --storage-region|--aiservice-storage-region)
+      --storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
-      --aiservice-odh-model-deployment-type)
-        export AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE=$1 && shift
+      --aiservice-rhoai-model-deployment-type)
+        export AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE=$1 && shift
         ;;
       --primary-storage-class)
         export PRIMARY_STORAGE_CLASS=$1 && shift
@@ -308,32 +308,32 @@ function gitops_odh_noninteractive() {
       -M|--git-commit-msg) export GIT_COMMIT_MSG="$1"; shift ;;
       -S|--github-ssh) export GIT_SSH="$1"; shift ;;
 
-      -h|--help) gitops_odh_help ;;
-      *) gitops_odh_help "Unknown option $key" ;;
+      -h|--help) gitops_rhoai_help ;;
+      *) gitops_rhoai_help "Unknown option $key" ;;
     esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_odh_help "Missing GITOPS_WORKING_DIR"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_odh_help "Missing ACCOUNT_ID"
-  [[ -z "$CLUSTER_ID" ]] && gitops_odh_help "Missing CLUSTER_ID"
-  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_odh_help "Missing AISERVICE_INSTANCE_ID"
-  [[ -z "$OPENDATAHUB_SOURCE" ]] && gitops_odh_help "Missing OPENDATAHUB_SOURCE"
-  [[ -z "$AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE" ]] && gitops_odh_help "Missing AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_rhoai_help "Missing GITOPS_WORKING_DIR"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_rhoai_help "Missing ACCOUNT_ID"
+  [[ -z "$CLUSTER_ID" ]] && gitops_rhoai_help "Missing CLUSTER_ID"
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_rhoai_help "Missing AISERVICE_INSTANCE_ID"
+  [[ -z "$OPENSHIFTAI_SOURCE" ]] && gitops_rhoai_help "Missing OPENSHIFTAI_SOURCE"
+  [[ -z "$AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE" ]] && gitops_rhoai_help "Missing AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_odh_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_odh_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_odh_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_odh_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_rhoai_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_rhoai_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_rhoai_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_rhoai_help "GIT_BRANCH is not set"
   fi
 
 }
 
-function gitops_odh() {
+function gitops_rhoai() {
   # Remove the subcommand (e.g., "create-gitops")
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_odh_noninteractive "$@"
+    gitops_rhoai_noninteractive "$@"
   else
     echo "Interactive mode not implemented."
     exit 1
@@ -356,8 +356,8 @@ function gitops_odh() {
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "AI Service Instance ID ................ ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
-  echo_reset_dim "OpenDataHub Source ................... ${COLOR_MAGENTA}${OPENDATAHUB_SOURCE}"
-  echo_reset_dim "AiService Model Deployment Type ...... ${COLOR_MAGENTA}${AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE}"
+  echo_reset_dim "OpenDataHub Source ................... ${COLOR_MAGENTA}${OPENSHIFTAI_SOURCE}"
+  echo_reset_dim "AiService Model Deployment Type ...... ${COLOR_MAGENTA}${AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE}"
   echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
@@ -368,7 +368,7 @@ function gitops_odh() {
 
   # Set up secret key and fetch secret
   export SECRET_ACCOUNT_PATH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
-  export ODH_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage"
+  export RHOAI_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage"
   export SECRET_KEY_IMAGE_PULL_SECRET_B64="${SECRET_ACCOUNT_PATH}ibm_entitlement#image_pull_secret_b64"
 
   if [ -z $GIT_SSH ]; then
@@ -377,7 +377,7 @@ function gitops_odh() {
 
   sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement "image_pull_secret_b64"
 
-  echo_h2 "ODH Secret Summary"
+  echo_h2 "RHOAI Secret Summary"
   echo_reset_dim "AI Service Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
   echo_reset_dim "STORAGE_HOST ............................. ${COLOR_MAGENTA}${STORAGE_HOST}"
   echo_reset_dim "STORAGE_BUCKET ........................... ${COLOR_MAGENTA}${STORAGE_BUCKET}"
@@ -399,10 +399,10 @@ function gitops_odh() {
   # Render YAML
   echo_h2 "Generating OpenDataHub GitOps YAML"
   echo "${GITOPS_CLUSTER_DIR}"
-  echo "Output: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
+  echo "Output: ${GITOPS_CLUSTER_DIR}/ibm-mas-rhoai-install.yaml"
 
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-odh-install.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
-  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_odh\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-rhoai-install.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-rhoai-install.yaml
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_rhoai\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
 
   # GitHub push
   if [[ "$GITHUB_PUSH" == "true" ]]; then
@@ -412,5 +412,5 @@ function gitops_odh() {
     remove_git_repo_clone "${GITOPS_WORKING_DIR}/${GITHUB_REPO}"
   fi
 
-  echo_h2 "ODH GitOps completed."
+  echo_h2 "RHOAI GitOps completed."
 }
