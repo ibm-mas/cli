@@ -1551,11 +1551,10 @@ class InstallApp(
                             "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
                         ]
                     )
-                    facilitiesPropertiesFile = self.promptForString(
+                    self.promptForString(
                         "Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator()
                     )
 
-                    self.setParam("mas_ws_facilities_properties_file_local", facilitiesPropertiesFile)
                     self.setParam("mas_ws_facilities_custom_properties", "true")
 
                     # Prompt for custom secret name
