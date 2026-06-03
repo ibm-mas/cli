@@ -26,7 +26,7 @@ from mas.devops.mas import listMasInstances, getCurrentCatalog, getMasChannel, g
 from mas.devops.aiservice import listAiServiceInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSecrets
 from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion, isPreReleaseVersion
+from mas.devops.utils import isVersionEqualOrAfter, isPreReleaseVersion
 from ..install.settings import AdditionalConfigsMixin
 from ..rbac_utils import handle_rbac_permission_denied
 
@@ -155,12 +155,11 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             for instanceInfo in self.instancesNeedingRBAC:
                 instanceId = instanceInfo["id"]
                 targetVersion = instanceInfo["targetVersion"]
-                baseVersion = extractBaseVersion(targetVersion)
                 adminMode = instanceInfo["adminMode"]
                 selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
 
                 apps_arg = f" --apps {','.join(selectedApps)}" if selectedApps else ""
-                preinstall_cmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion} --admin-mode {adminMode}{apps_arg}"
+                preinstall_cmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {targetVersion} --admin-mode {adminMode}{apps_arg}"
                 preinstall_commands.append(preinstall_cmd)
 
             handle_rbac_permission_denied(
@@ -266,7 +265,9 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         if not self.devMode:
             self.validateCatalog()
         else:
-            self.chosenCatalog = getCatalog(getNewestCatalogTag())
+            # In dev mode, load the user-specified catalog (or newest if not specified)
+            catalogVersion = self.getParam("mas_catalog_version") if self.args.mas_catalog_version else getNewestCatalogTag()
+            self.chosenCatalog = getCatalog(catalogVersion)
 
         self.printH1("Dependency Update Checks")
         with Halo(text="Checking for IBM Watson Discovery", spinner=self.spinner) as h:
@@ -372,19 +373,18 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 for instanceInfo in self.instancesNeedingRBAC:
                     instanceId = instanceInfo["id"]
                     targetVersion = instanceInfo["targetVersion"]
-                    baseVersion = extractBaseVersion(targetVersion)
                     adminMode = instanceInfo["adminMode"]
                     selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
 
-                    with Halo(text=f"Applying pre-install RBAC for {instanceId} (v{baseVersion}, mode: {adminMode})", spinner=self.spinner) as h:
+                    with Halo(text=f"Applying pre-install RBAC for {instanceId} ({targetVersion}, mode: {adminMode})", spinner=self.spinner) as h:
                         applyPreInstallMASRBAC(
                             dynClient=self.dynamicClient,
-                            masVersion=baseVersion,
+                            masVersion=targetVersion,
                             masInstanceId=instanceId,
                             adminMode=adminMode,
                             selectedApps=selectedApps,
                         )
-                        h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC applied for {instanceId} (v{baseVersion}, mode: {adminMode})")
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC applied for {instanceId} ({targetVersion}, mode: {adminMode})")
 
                 print()
                 print_formatted_text(HTML("<Green>✓ Pre-install RBAC applied successfully for all instances transitioning to GA</Green>"))

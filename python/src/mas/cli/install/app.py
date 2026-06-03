@@ -56,7 +56,7 @@ from mas.devops.ocp import (
     configureIngressForPathBasedRouting,
 )
 from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
-from mas.devops.utils import extractBaseVersion, isVersionEqualOrAfter
+from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError
 from mas.devops.tekton import (
@@ -142,9 +142,8 @@ class InstallApp(
             ]
         )
 
-        version = extractBaseVersion(self.getParam("mas_channel"))
         # Generate a generic pre-install command
-        preinstall_cmd = f"mas pre-install --mas-channel {version} --admin-mode {self.mas_admin_mode}"
+        preinstall_cmd = f"mas pre-install --mas-channel {self.getParam('mas_channel')} --admin-mode {self.mas_admin_mode}"
 
         handle_rbac_permission_denied(
             print_func=self.printDescription,

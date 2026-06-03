@@ -24,7 +24,7 @@ from .argParser import upgradeArgParser
 from mas.devops.ocp import createNamespace
 from mas.devops.aiservice import listAiServiceInstances, getAiserviceChannel
 from mas.devops.mas import getPermissionMode
-from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion
+from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchAiServiceUpgradePipeline
 from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 from ...rbac_utils import handle_rbac_permission_denied
@@ -64,9 +64,8 @@ class AiServiceUpgradeApp(BaseApp):
         if self.applyPreInstallMASRBAC:
             return
 
-        baseVersion = extractBaseVersion(nextChannel)
         apps_arg = f" --apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
-        preInstallCmd = f"mas pre-install --mas-instance-id {aiserviceInstanceId} --mas-channel {baseVersion} --admin-mode {detectedMode}{apps_arg}"
+        preInstallCmd = f"mas pre-install --mas-instance-id {aiserviceInstanceId} --mas-channel {nextChannel} --admin-mode {detectedMode}{apps_arg}"
 
         self.printH1("Pre-Install RBAC Configuration")
         self.printDescription(
@@ -200,16 +199,15 @@ class AiServiceUpgradeApp(BaseApp):
             # Apply pre-install RBAC if user has permissions
             if self.applyPreInstallMASRBAC and detectedMode:
                 with Halo(text="Applying pre-install MAS RBAC for AI Service upgrade", spinner=self.spinner) as h:
-                    targetVersion = extractBaseVersion(nextAiserviceChannel)  # Extract "9.2" from "9.2.x"
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
-                        masVersion=targetVersion,
+                        masVersion=nextAiserviceChannel,
                         masInstanceId=aiserviceInstanceId,
                         adminMode=detectedMode,
                         selectedApps=self.selectedAppsForRBAC,
                     )
                     h.stop_and_persist(
-                        symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for AI Service (version: {targetVersion}, mode: {detectedMode})"
+                        symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for AI Service (version: {nextAiserviceChannel}, mode: {detectedMode})"
                     )
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
