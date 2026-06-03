@@ -1551,9 +1551,7 @@ class InstallApp(
                             "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
                         ]
                     )
-                    self.promptForString(
-                        "Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator()
-                    )
+                    self.promptForString("Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator())
 
                     self.setParam("mas_ws_facilities_custom_properties", "true")
 
