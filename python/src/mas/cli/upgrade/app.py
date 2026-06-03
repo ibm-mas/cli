@@ -164,7 +164,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             return
 
         # User does not have permissions - inform them early
-        apps_arg = f" --selected-apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
+        apps_arg = f" --apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
         preInstallCmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {self.nextChannel} --admin-mode {detectedMode}{apps_arg}"
 
         self.printH1("Pre-Install RBAC Configuration")

@@ -67,7 +67,7 @@ def handle_rbac_permission_denied(
         print_func(
             [
                 "",
-                f"You are performing a {operation} with '{admin_mode}' admin mode.",
+                f"You are performing an {operation} with '{admin_mode}' admin mode.",
                 "The pre-install RBAC required for this admin mode has not been applied by your current cluster login.",
                 "This step must be completed by an OpenShift cluster administrator before the operation can continue.",
                 "Ask your OpenShift administrator to run:",

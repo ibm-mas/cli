@@ -65,7 +65,7 @@ class AiServiceUpgradeApp(BaseApp):
             return
 
         baseVersion = extractBaseVersion(nextChannel)
-        apps_arg = f" --selected-apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
+        apps_arg = f" --apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
         preInstallCmd = f"mas pre-install --mas-instance-id {masInstanceId} --mas-channel {baseVersion} --admin-mode {detectedMode}{apps_arg}"
 
         self.printH1("Pre-Install RBAC Configuration")

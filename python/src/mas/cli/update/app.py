@@ -159,7 +159,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 adminMode = instanceInfo["adminMode"]
                 selectedApps = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
 
-                apps_arg = f" --selected-apps {','.join(selectedApps)}" if selectedApps else ""
+                apps_arg = f" --apps {','.join(selectedApps)}" if selectedApps else ""
                 preinstall_cmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {baseVersion} --admin-mode {adminMode}{apps_arg}"
                 preinstall_commands.append(preinstall_cmd)
 
