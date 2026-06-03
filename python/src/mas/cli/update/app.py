@@ -26,7 +26,7 @@ from mas.devops.mas import listMasInstances, getCurrentCatalog, getMasChannel, g
 from mas.devops.aiservice import listAiServiceInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSecrets
 from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from mas.devops.utils import isVersionEqualOrAfter, isPreReleaseVersion
+from mas.devops.utils import isVersionEqualOrAfter
 from ..install.settings import AdditionalConfigsMixin
 from ..rbac_utils import handle_rbac_permission_denied
 
@@ -57,7 +57,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             return False
 
         # Check if current version is a pre-release
-        if not isPreReleaseVersion(currentVersion):
+        if not (currentVersion and "-pre" in currentVersion):
             return False
 
         # Get the channel this instance is subscribed to
@@ -73,7 +73,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             return False
 
         # Check if target version is GA (not pre-release)
-        if isPreReleaseVersion(targetVersion):
+        if targetVersion and "-pre" in targetVersion:
             logger.info(f"Instance {instanceId} will stay on pre-release (current: {currentVersion}, target: {targetVersion}). Skipping RBAC.")
             return False
 
