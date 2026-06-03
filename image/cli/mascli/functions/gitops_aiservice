@@ -542,8 +542,12 @@ function gitops_aiservice() {
       export SECRET_KEY_DB2_DEFAULT_CHANNEL="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel"
       export SECRET_KEY_IBM_ENTITLEMENT="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64"
       
+      # Read DB2 version from aiservice-params if available
+      export DB2_VERSION=$(yq eval '.db2u.version // "s11.5.9.0-cn2"' ${CONFIG_DIR}/${AISERVICE_INSTANCE_ID}/aiservice-params.yaml)
+      
       echo "DEBUG: DB2_NAMESPACE set to: ${DB2_NAMESPACE}"
       echo "DEBUG: DB2_INSTALL_PLAN set to: ${DB2_INSTALL_PLAN}"
+      echo "DEBUG: DB2_VERSION set to: ${DB2_VERSION}"
       echo "DEBUG: DB2_CHANNEL: Using AWS Secrets Manager path from template"
       echo "DEBUG: SECRETS_PATH: ${SECRETS_PATH}"
       echo "DEBUG: SECRET_KEY_DB2_DEFAULT_CHANNEL: ${SECRET_KEY_DB2_DEFAULT_CHANNEL}"
