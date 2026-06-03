@@ -36,19 +36,19 @@ class SetupPreinstallRBACApp(BaseApp):
         self.printDescription(["Enter the MAS channel", "For example: 9.2.x"])
         self.mas_channel = self.promptForString("MAS Channel", default="9.2.x")
 
-    def promptForPermissionMode(self) -> None:
-        self.printH2("Permission Mode")
+    def promptForAdminMode(self) -> None:
+        self.printH2("Admin Mode")
         self.printDescription(
             [
-                "Choose the permission mode for which pre-install RBAC should be set up:",
+                "Choose the admin mode for which pre-install RBAC should be set up:",
                 "",
                 "  1. cluster",
                 "  2. namespaced",
             ]
         )
-        permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=2)
-        permissionModeMap = {1: "cluster", 2: "namespaced"}
-        self.permission_mode = permissionModeMap[permissionModeInt]
+        adminModeInt = self.promptForInt("Admin Mode", default=1, min=1, max=2)
+        adminModeMap = {1: "cluster", 2: "namespaced"}
+        self.admin_mode = adminModeMap[adminModeInt]
 
     def promptForApps(self) -> None:
         self.printH2("MAS Applications")
@@ -69,7 +69,7 @@ class SetupPreinstallRBACApp(BaseApp):
         """
         self.args = setupPreinstallRBACArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
-        self.interactive_mode = not all([self.args.mas_instance_id, self.args.mas_channel, self.args.permission_mode])
+        self.interactive_mode = not all([self.args.mas_instance_id, self.args.mas_channel, self.args.admin_mode])
 
         self.printH1("Set Target OpenShift Cluster")
         self.connect()
@@ -86,23 +86,22 @@ class SetupPreinstallRBACApp(BaseApp):
             else:
                 self.promptForMASChannel()
 
-            if self.args.permission_mode is not None:
-                self.permission_mode = self.args.permission_mode.strip()
+            if self.args.admin_mode is not None:
+                self.admin_mode = self.args.admin_mode.strip()
             else:
-                self.promptForPermissionMode()
+                self.promptForAdminMode()
         else:
             # Non-interactive mode - validate required parameters
             if not self.args.mas_instance_id or self.args.mas_instance_id.strip() == "":
                 self.fatalError("mas_instance_id must be set")
             if not self.args.mas_channel or self.args.mas_channel.strip() == "":
                 self.fatalError("mas_channel must be set")
-            if not self.args.permission_mode or self.args.permission_mode.strip() == "":
-                self.fatalError("permission_mode must be set")
+            if not self.args.admin_mode or self.args.admin_mode.strip() == "":
+                self.fatalError("admin_mode must be set")
 
             self.mas_instance_id = self.args.mas_instance_id.strip()
             self.mas_channel = self.args.mas_channel.strip()
-            self.permission_mode = self.args.permission_mode.strip()
-
+            self.admin_mode = self.args.admin_mode.strip()
         # Extract major.minor version from channel
         # Channel can be in formats like: 9.2.x, 9.2.0, 9.2.x-pre, etc.
         masVersion = ".".join(self.mas_channel.split(".")[:2])
@@ -113,7 +112,7 @@ class SetupPreinstallRBACApp(BaseApp):
             self.fatalError("mas pre-install is supported only for MAS channel 9.2.x and later")
 
         # Only prompt for apps in namespaced mode
-        if self.permission_mode == "namespaced":
+        if self.admin_mode == "namespaced":
             if self.interactive_mode:
                 if self.args.apps is not None:
                     self.apps = self.args.apps.strip()
@@ -122,7 +121,7 @@ class SetupPreinstallRBACApp(BaseApp):
             else:
                 # In non-interactive mode, apps is required for namespaced mode
                 if not self.args.apps or self.args.apps.strip() == "":
-                    self.fatalError("apps must be set for namespaced permission mode")
+                    self.fatalError("apps must be set for namespaced admin mode")
                 self.apps = self.args.apps.strip()
 
             selectedApps = [app.strip().lower() for app in self.apps.split(",") if app.strip()]
@@ -146,13 +145,13 @@ class SetupPreinstallRBACApp(BaseApp):
                 "This will set up pre-install RBAC for MAS.",
                 "",
                 "This command is supported only for MAS version 9.2 and later.",
-                "The RBAC that is applied is determined by the selected permission mode and apps.",
+                "The RBAC that is applied is determined by the selected Admin mode and apps.",
             ]
         )
         self.printSummary("Instance ID", self.mas_instance_id)
         self.printSummary("MAS Channel", self.mas_channel)
-        self.printSummary("Permission Mode", self.permission_mode)
-        if self.permission_mode == "namespaced":
+        self.printSummary("Admin Mode", self.admin_mode)
+        if self.admin_mode == "namespaced":
             self.printSummary("Selected Apps", ", ".join(selectedApps))
 
         continueWithSetup = True
@@ -169,7 +168,7 @@ class SetupPreinstallRBACApp(BaseApp):
                 dynClient=self.dynamicClient,
                 masVersion=masVersion,
                 masInstanceId=self.mas_instance_id,
-                permissionMode=self.permission_mode,
+                adminMode=self.admin_mode,
                 selectedApps=selectedApps,
             )
             h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for MAS is ready for {self.mas_instance_id}")

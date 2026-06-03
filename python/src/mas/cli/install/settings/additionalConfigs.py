@@ -221,6 +221,31 @@ class AdditionalConfigsMixin:
         else:
             self.db2LicenseFileSecret = None
 
+    def facilitiesPropertiesFile(self) -> None:
+        """Handle Facilities properties file upload"""
+        self.facilitiesPropertiesSecret = None
+        facilitiesPropertiesFileLocal = self.getParam("mas_ws_facilities_properties_file_local")
+
+        if facilitiesPropertiesFileLocal and facilitiesPropertiesFileLocal != "":
+            # Get custom secret name or use default
+            secretName = self.getParam("mas_ws_facilities_properties_secret_name")
+            if not secretName or secretName == "":
+                secretName = "custom-facilities-properties"
+
+            facilitiesPropertiesSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-facilities-properties"}}
+
+            # Read the file from user's local path
+            self.facilitiesPropertiesSecret = self.addFilesToSecret(facilitiesPropertiesSecret, facilitiesPropertiesFileLocal, "")
+
+            # Now update the parameters
+            self.setParam("mas_ws_facilities_custom_properties", "true")
+            self.setParam("mas_ws_facilities_properties_file_local", "/workspace/facilities/FACILITIES.properties")
+            self.setParam("mas_ws_facilities_properties_secret_name", secretName)
+        else:
+            self.setParam("mas_ws_facilities_custom_properties", "false")
+            self.setParam("mas_ws_facilities_properties_file_local", "")
+            self.setParam("mas_ws_facilities_properties_secret_name", "")
+
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = "") -> dict:
         """
         Add file (or files) to pipeline-additional-configs
