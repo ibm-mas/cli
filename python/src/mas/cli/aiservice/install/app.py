@@ -54,7 +54,7 @@ from mas.devops.tekton import (
     launchInstallPipeline,
 )
 from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from mas.devops.utils import isVersionEqualOrAfter, extractBaseVersion
+from mas.devops.utils import isVersionEqualOrAfter
 from ...rbac_utils import handle_rbac_permission_denied
 
 logger = logging.getLogger(__name__)
@@ -97,9 +97,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             ]
         )
 
-        version = extractBaseVersion(self.getParam("mas_channel"))
         # Generate a generic pre-install command
-        preinstall_cmd = f"mas pre-install --mas-channel {version} --admin-mode {self.admin_mode}"
+        preinstall_cmd = f"mas pre-install --mas-channel {self.getParam('aiservice_channel')} --admin-mode {self.admin_mode}"
 
         handle_rbac_permission_denied(
             print_func=self.printDescription,
