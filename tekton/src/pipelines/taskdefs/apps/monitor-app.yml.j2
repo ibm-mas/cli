@@ -1,4 +1,3 @@
-- name: app-install-monitor
   timeout: "0"
   taskRef:
     name: mas-devops-suite-app-install
@@ -29,7 +28,3 @@
   workspaces:
     - name: configs
       workspace: shared-configs
-  when:
-    - input: "$(params.mas_app_channel_monitor)"
-      operator: notin
-      values: [""]
