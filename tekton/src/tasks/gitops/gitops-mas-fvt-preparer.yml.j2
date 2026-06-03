@@ -553,11 +553,12 @@ spec:
           echo "Running test_db2_health.py with TEST_PHASE=post-transition"
           
           # Create a temporary pod to run the test using oc run
+          # Uses the IVT-Core framework with coreivt test suite
           oc run post-transition-ivt-${DEVOPS_BUILD_NUMBER} \
             --image=${FVT_IMAGE} \
             --restart=Never \
             --namespace=mas-${MAS_INSTANCE_ID}-pipelines \
-            --overrides="{\"spec\":{\"serviceAccountName\":\"pipeline\",\"containers\":[{\"name\":\"post-transition-ivt-${DEVOPS_BUILD_NUMBER}\",\"image\":\"${FVT_IMAGE}\",\"command\":[\"/bin/bash\",\"-c\"],\"args\":[\"cd /opt/ibm/test/src && pytest -v test_db2_health.py --junitxml=/tmp/post-transition-results.xml\"],\"env\":[{\"name\":\"TEST_PHASE\",\"value\":\"post-transition\"},{\"name\":\"JDBC_TYPE\",\"value\":\"external-db2\"},{\"name\":\"INSTANCE_ID\",\"value\":\"${MAS_INSTANCE_ID}\"},{\"name\":\"NAMESPACE\",\"value\":\"mas-${MAS_INSTANCE_ID}-manage\"},{\"name\":\"PRODUCT_ID\",\"value\":\"ibm-mas-manage\"},{\"name\":\"WORKSPACE_ID\",\"value\":\"${MAS_WORKSPACE_ID}\"},{\"name\":\"BUILD_NUM\",\"value\":\"${DEVOPS_BUILD_NUMBER}\"},{\"name\":\"DEVOPS_MONGO_URI\",\"valueFrom\":{\"secretKeyRef\":{\"name\":\"mas-devops\",\"key\":\"DEVOPS_MONGO_URI\",\"optional\":true}}}]}]}}"
+            --overrides="{\"spec\":{\"serviceAccountName\":\"pipeline\",\"containers\":[{\"name\":\"post-transition-ivt-${DEVOPS_BUILD_NUMBER}\",\"image\":\"${FVT_IMAGE}\",\"command\":[\"/bin/bash\",\"-c\"],\"args\":[\"cd /opt/ibm/test && PYTEST_ARGS='--junitxml=/tmp/post-transition-ivt-results.xml' ./run-test-suite.sh\"],\"env\":[{\"name\":\"TEST_SUITE\",\"value\":\"coreivt\"},{\"name\":\"TEST_PHASE\",\"value\":\"post-transition\"},{\"name\":\"JDBC_TYPE\",\"value\":\"external-db2\"},{\"name\":\"INSTANCE_ID\",\"value\":\"${MAS_INSTANCE_ID}\"},{\"name\":\"NAMESPACE\",\"value\":\"mas-${MAS_INSTANCE_ID}-core\"},{\"name\":\"PRODUCT_ID\",\"value\":\"ibm-mas-manage\"},{\"name\":\"WORKSPACE_ID\",\"value\":\"${MAS_WORKSPACE_ID}\"},{\"name\":\"BUILD_NUM\",\"value\":\"${DEVOPS_BUILD_NUMBER}\"},{\"name\":\"DEVOPS_MONGO_URI\",\"valueFrom\":{\"secretKeyRef\":{\"name\":\"mas-devops\",\"key\":\"DEVOPS_MONGO_URI\",\"optional\":true}}}]}]}}"
           
           # Wait for pod to complete
           echo "Waiting for post-transition test to complete..."
