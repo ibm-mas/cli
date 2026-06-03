@@ -379,7 +379,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     with Halo(text=f"Applying pre-install RBAC for {instanceId} ({targetVersion}, mode: {adminMode})", spinner=self.spinner) as h:
                         applyPreInstallMASRBAC(
                             dynClient=self.dynamicClient,
-                            masVersion=targetVersion,
+                            masVersion=".".join(targetVersion.split(".")[:2]),
                             masInstanceId=instanceId,
                             adminMode=adminMode,
                             selectedApps=selectedApps,

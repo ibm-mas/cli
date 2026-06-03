@@ -201,7 +201,7 @@ class AiServiceUpgradeApp(BaseApp):
                 with Halo(text="Applying pre-install MAS RBAC for AI Service upgrade", spinner=self.spinner) as h:
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
-                        masVersion=nextAiserviceChannel,
+                        masVersion=".".join(nextAiserviceChannel.split(".")[:2]),
                         masInstanceId=aiserviceInstanceId,
                         adminMode=detectedMode,
                         selectedApps=self.selectedAppsForRBAC,

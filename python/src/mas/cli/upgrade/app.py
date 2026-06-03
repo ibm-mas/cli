@@ -384,7 +384,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
-                        masVersion=self.nextChannel,
+                        masVersion=".".join(self.nextChannel.split(".")[:2]),
                         masInstanceId=instanceId,
                         adminMode=detectedMode,
                         selectedApps=self.selectedAppsForRBAC,
