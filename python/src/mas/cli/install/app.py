@@ -46,6 +46,7 @@ from mas.cli.validators import (
     JsonValidator,
     OptimizerInstallPlanValidator,
     BucketPrefixValidator,
+    FileExistsValidator,
 )
 
 from mas.devops.ocp import (
@@ -1550,23 +1551,16 @@ class InstallApp(
                             "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
                         ]
                     )
-                    facilitiesPropertiesFile = self.promptForString(
-                        "Path to FACILITIES.properties file",
-                        "mas_ws_facilities_properties_file_local",
-                    )
-                    if facilitiesPropertiesFile and path.exists(facilitiesPropertiesFile):
-                        self.setParam("mas_ws_facilities_properties_file_local", facilitiesPropertiesFile)
-                        self.setParam("mas_ws_facilities_custom_properties", "true")
+                    self.promptForString("Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator())
 
-                        # Prompt for custom secret name (optional, with default)
-                        customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
-                        # Use default if not provided
-                        if not customSecretName or customSecretName.strip() == "":
-                            customSecretName = "custom-facilities-properties"
-                        self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
-                    else:
-                        print_formatted_text(HTML("<Red>File not found. Default FACILITIES.properties will be used.</Red>"))
-                        self.setParam("mas_ws_facilities_custom_properties", "false")
+                    self.setParam("mas_ws_facilities_custom_properties", "true")
+
+                    # Prompt for custom secret name
+                    customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
+                    # Use default if not provided
+                    if not customSecretName or customSecretName.strip() == "":
+                        customSecretName = "custom-facilities-properties"
+                    self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
                 else:
                     self.setParam("mas_ws_facilities_custom_properties", "false")
 
