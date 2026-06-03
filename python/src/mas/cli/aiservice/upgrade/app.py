@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 class AiServiceUpgradeApp(BaseApp):
-    def evaluatePreInstallRBACAccess(self, aiserviceInstanceId: str, masInstanceId: str, detectedMode: str, nextChannel: str) -> None:
+    def evaluatePreInstallRBACAccess(self, aiserviceInstanceId: str, detectedMode: str, nextChannel: str) -> None:
         """
         Evaluate if pre-install RBAC should be applied for AI Service upgrade.
         Sets self.applyPreInstallMASRBAC flag and self.selectedAppsForRBAC based on the result.
@@ -66,7 +66,7 @@ class AiServiceUpgradeApp(BaseApp):
 
         baseVersion = extractBaseVersion(nextChannel)
         apps_arg = f" --apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
-        preInstallCmd = f"mas pre-install --mas-instance-id {masInstanceId} --mas-channel {baseVersion} --admin-mode {detectedMode}{apps_arg}"
+        preInstallCmd = f"mas pre-install --mas-instance-id {aiserviceInstanceId} --mas-channel {baseVersion} --admin-mode {detectedMode}{apps_arg}"
 
         self.printH1("Pre-Install RBAC Configuration")
         self.printDescription(
@@ -162,7 +162,7 @@ class AiServiceUpgradeApp(BaseApp):
 
         # Evaluate RBAC access if admin mode was detected
         if detectedMode:
-            self.evaluatePreInstallRBACAccess(aiserviceInstanceId, aiserviceInstanceId, detectedMode, nextAiserviceChannel)
+            self.evaluatePreInstallRBACAccess(aiserviceInstanceId, detectedMode, nextAiserviceChannel)
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
