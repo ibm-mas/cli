@@ -774,6 +774,18 @@
   description: ConfigMap with configurations not supported by Tekton
   type: string
   default: ""
+- name: mas_ws_facilities_custom_properties
+  description: Flag indicating if custom FACILITIES.properties file is provided
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_file_local
+  description: Path to custom FACILITIES.properties file in pipeline workspace
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_secret_name
+  description: Name of the secret containing custom FACILITIES.properties
+  type: string
+  default: ""
 
 #  AI Service Configuration
 # -----------------------------------------------------------------------------

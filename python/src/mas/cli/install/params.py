@@ -45,7 +45,7 @@ optionalParams = [
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
     "mas_app_settings_demodata",
-    "mas_permission_mode",
+    "mas_admin_mode",
     "mas_issuer_kind",
     "mas_app_settings_customization_archive_name",
     "mas_app_settings_customization_archive_url",
@@ -175,6 +175,9 @@ optionalParams = [
     "mas_ws_facilities_server_timezone",
     "mas_ws_facilities_dwfagents",
     "mas_ws_facilities_db_maxconnpoolsize",
+    "mas_ws_facilities_properties_file_local",
+    "mas_ws_facilities_custom_properties",
+    "mas_ws_facilities_properties_secret_name",
     # Special chars
     "mas_special_characters",
     # ODH
