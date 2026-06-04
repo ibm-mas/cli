@@ -1,5 +1,6 @@
 [flake8]
 # These rules are ignored
 # - E501 line too long
-extend-ignore = E501
+# - E203 whitespace before ':' (conflicts with Black)
+extend-ignore = E501, E203
 max-line-length = 160

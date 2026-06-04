@@ -237,43 +237,45 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                                 f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
                             )
                         )
-                    elif self.nextChannel == self.upgrade_path.get(currentChannel):
-                        # Valid upgrade path: currentChannel -> nextChannel
+                    elif self.isCompatibleUpgradePath(currentChannel, self.nextChannel):
+                        # Valid upgrade path: currentChannel -> nextChannel (supports pattern matching)
                         pass
                     else:
                         self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
                 else:
                     # No --next-channel given: derive from upgrade_path
-                    if currentChannel not in self.upgrade_path:
+                    derivedNextChannel = self.getNextChannel(currentChannel)
+                    if derivedNextChannel is None:
                         self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {currentChannel}")
-                    self.nextChannel = self.upgrade_path[currentChannel]
+                    self.nextChannel = derivedNextChannel
 
                 # Validate installed apps compatibility with the target channel
-                if self.nextChannel in self.compatibilityMatrix:
-                    installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
-                    incompatibleApps = []
+                installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+                incompatibleApps = []
 
-                    for installedApp in installedAppsChannel:
-                        appId = installedApp["appId"]
-                        appChannel = installedApp["channel"]
+                for installedApp in installedAppsChannel:
+                    appId = installedApp["appId"]
+                    appChannel = installedApp["channel"]
 
-                        # Check if app is supported in the target channel
-                        if appId not in self.compatibilityMatrix[self.nextChannel]:
+                    # Check if app channel is compatible with target MAS channel (supports pattern matching)
+                    if not self.isAppChannelCompatible(self.nextChannel, appId, appChannel):
+                        # Try to get compatible channels for error message
+                        compatibleChannels = self.getCompatibleVersions(self.nextChannel, appId)
+                        if not compatibleChannels:
+                            # App not supported at all in target channel
                             if "feature" in self.nextChannel:
                                 incompatibleApps.append(f"  - {appId}: Not available in feature channel {self.nextChannel}")
                             else:
                                 incompatibleApps.append(f"  - {appId}: Not supported in {self.nextChannel}")
                         else:
-                            # Check if current app channel is compatible with target MAS channel
-                            compatibleAppChannels = self.compatibilityMatrix[self.nextChannel][appId]
-                            if appChannel not in compatibleAppChannels:
-                                incompatibleApps.append(
-                                    f"  - {appId} (currently on {appChannel}): Must be on one of {compatibleAppChannels} to upgrade to MAS {self.nextChannel}"
-                                )
+                            # App supported but current channel is incompatible
+                            incompatibleApps.append(
+                                f"  - {appId} (currently on {appChannel}): Must be on one of {compatibleChannels} to upgrade to MAS {self.nextChannel}"
+                            )
 
-                    if len(incompatibleApps) > 0:
-                        errorMsg = f"Cannot upgrade to {self.nextChannel}. The following apps have compatibility issues:\n" + "\n".join(incompatibleApps)
-                        self.fatalError(errorMsg)
+                if len(incompatibleApps) > 0:
+                    errorMsg = f"Cannot upgrade to {self.nextChannel}. The following apps have compatibility issues:\n" + "\n".join(incompatibleApps)
+                    self.fatalError(errorMsg)
 
         else:
             # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
