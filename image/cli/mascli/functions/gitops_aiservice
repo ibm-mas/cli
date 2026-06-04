@@ -542,8 +542,8 @@ function gitops_aiservice() {
       export SECRET_KEY_DB2_DEFAULT_CHANNEL="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel"
       export SECRET_KEY_IBM_ENTITLEMENT="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64"
       
-      echo "Generating DB2U file ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
+      echo "Generating DB2U file for AI Service ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u-aiservice.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
     else
       echo "DEBUG: ✗ DB2 provisioning SKIPPED"
       if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
