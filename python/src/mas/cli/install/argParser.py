@@ -260,10 +260,10 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
-    "--permission-mode",
-    dest="mas_permission_mode",
+    "--admin-mode",
+    dest="mas_admin_mode",
     required=False,
-    help="Permission mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
+    help="Admin mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
     choices=["cluster", "namespaced", "minimal"],
     default=None,
 )
@@ -817,6 +817,19 @@ facilitiesArgGroup.add_argument(
     required=False,
     help="Storage size for Facilities user files",
     default=50,
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-properties-file",
+    dest="mas_ws_facilities_properties_file_local",
+    required=False,
+    help="Path to the custom FACILITIES.properties file to upload as secret",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-properties-secret-name",
+    dest="mas_ws_facilities_properties_secret_name",
+    required=False,
+    help="Custom name for the Facilities properties secret (default: facilities-properties)",
+    default="custom-facilities-properties",
 )
 
 # Open Data Hub
@@ -1542,14 +1555,6 @@ otherArgGroup.add_argument(
     action="store_true",
     help="Disable the 'pre-install-check' at the start of the install pipeline",
 )
-
-otherArgGroup.add_argument(
-    "--skip-preinstall-rbac",
-    required=False,
-    action="store_true",
-    default=False,
-    help="Skip CLI application of pre-install MAS RBAC. Use this when an OpenShift administrator has already applied the required RBAC.",
-)
 otherArgGroup.add_argument(
     "--no-confirm",
     required=False,
@@ -1570,6 +1575,15 @@ otherArgGroup.add_argument(
     dest="service_account_name",
     required=False,
     help="Custom service account for install pipeline (disables default 'pipeline' service account creation)",
+)
+otherArgGroup.add_argument(
+    "--use-cli-digest",
+    dest="use_cli_digest",
+    required=False,
+    nargs="?",
+    const=True,
+    default=False,
+    help="Use CLI image digest instead of tag in Tekton pipelines. Optionally provide a specific digest (e.g., sha256:abc123...), or omit the value to auto-lookup the digest.",
 )
 
 otherArgGroup.add_argument("-h", "--help", action="help", default=False, help="Show this help message and exit")
