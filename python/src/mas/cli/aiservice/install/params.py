@@ -92,16 +92,13 @@ optionalParams = [
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
-    "rsl_url",
-    "rsl_org_id",
-    "rsl_token",
     "rsl_ca_crt",
     "environment_type",
     "configure_aiassistant",
     # Certificate Issuer
     "aiservice_certificate_issuer",
-    # permission mode
-    "permission_mode",
+    # admin mode
+    "admin_mode",
     # Enable IPv6 networking
     "enable_ipv6",
     # Slack

@@ -109,8 +109,7 @@ def test_install_master_dev_mode(tmpdir):
         # 14. Kafka configuration
         ".*Create system Kafka instance.*": lambda msg: "y",
         ".*Kafka version.*": lambda msg: "3.8.0",
-        # 14. AiCfg configuration
-        ".*Do you want to configure AiCfg.*": lambda msg: "n",
+        # 14. AiCfg configuration - SKIPPED for MAS 9.1 (only available in 9.2+)
         # 15. Final confirmation
         ".*Use additional configurations.*": lambda msg: "n",
         ".*Proceed with these settings.*": lambda msg: "y",
@@ -193,8 +192,7 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         # 14. Kafka configuration
         ".*Create system Kafka instance.*": lambda msg: "y",
         ".*Kafka version.*": lambda msg: "3.8.0",
-        # 14. AiCfg configuration
-        ".*Do you want to configure AiCfg.*": lambda msg: "n",
+        # 14. AiCfg configuration - SKIPPED for MAS 9.1 (only available in 9.2+)
         # 15. Final confirmation
         ".*Use additional configurations.*": lambda msg: "n",
         ".*Proceed with these settings.*": lambda msg: "y",
@@ -281,7 +279,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 10. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
         # 11. Permission mode
-        ".*Permission Mode.*": lambda msg: "1",
+        ".*Mas Admin Mode.*": lambda msg: "1",
         # 12. Internal certificate issuer kind (appears when Permission Mode is cluster)
         ".*Certificate issuer kind.*": lambda msg: "2",  # Select ClusterIssuer
         # 13. Certificate Authority Trust
@@ -409,6 +407,8 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
             "MAS_SUPERUSER_PASSWORD",
             "--mas-channel",
             "9.2.x-dev",
+            "--admin-mode",
+            "cluster",
             "--iot-channel",
             "9.2.x-dev",
             "--db2-system",
@@ -548,6 +548,8 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
             "MAS_SUPERUSER_PASSWORD",
             "--mas-channel",
             "9.2.x-dev",
+            "--admin-mode",
+            "cluster",
             "--routing",
             "path",
             "--ingress-controller-name",
@@ -690,6 +692,8 @@ def test_install_master_dev_mode_non_interactive_with_slack(tmpdir):
             "MAS_SUPERUSER_PASSWORD",
             "--mas-channel",
             "9.2.x-dev",
+            "--admin-mode",
+            "cluster",
             "--iot-channel",
             "9.2.x-dev",
             "--db2-system",

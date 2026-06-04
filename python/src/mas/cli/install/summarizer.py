@@ -47,6 +47,7 @@ class InstallSummarizerMixin:
         installAIService: bool
         installArcgis: bool
         dynamicClient: DynamicClient
+        applyPreInstallMASRBAC: bool
 
         # Methods from BaseApp
         def getParam(self, param: str) -> str: ...
@@ -72,6 +73,12 @@ class InstallSummarizerMixin:
         self.printH2("Pipeline Configuration")
         self.printParamSummary("Service Account", "service_account_name")
         self.printParamSummary("Image Pull Policy", "image_pull_policy")
+        if self.useCliDigest:
+            if self.cliDigest:
+                self.printSummary("Use CLI Digest", self.cliDigest)
+            else:
+                self.printParamSummary("Use CLI Digest", "Yes (auto-lookup)")
+
         self.printSummary(
             "Skip Pre-Install Healthcheck",
             "Yes" if self.getParam("skip_pre_check") == "true" else "No",
@@ -101,14 +108,14 @@ class InstallSummarizerMixin:
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
-        if self.getParam("mas_permission_mode") != "":
-            self.printParamSummary("Permission Mode", "mas_permission_mode")
+        if self.mas_admin_mode != "":
+            self.printSummary("MAS Admin Mode", self.mas_admin_mode)
+            self.printSummary(
+                "Apply Pre-Install MAS RBAC",
+                "Yes" if self.applyPreInstallMASRBAC else "No",
+            )
         if self.getParam("mas_issuer_kind") != "":
             self.printParamSummary("Mas Certificate Issuer Kind", "mas_issuer_kind")
-        self.printSummary(
-            "Apply Pre-Install MAS RBAC",
-            "No" if self.getParam("skip_preinstall_rbac") == "true" else "Yes",
-        )
         if self.isAirgap():
             self.printSummary("Install Mode", "Disconnected Install")
         else:
@@ -340,6 +347,9 @@ class InstallSummarizerMixin:
                 "mas_ws_facilities_storage_userfiles_mode",
             )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
+            self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
+            self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local")
+            self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")
             if self.getParam("db2_action_facilities") == "none":
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
@@ -383,10 +393,6 @@ class InstallSummarizerMixin:
             self.printH2("IBM WatsonX")
             self.printParamSummary("URL", "aiservice_watsonxai_url")
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
-
-            self.printH2("RSL")
-            self.printParamSummary("URL", "rsl_url")
-            self.printParamSummary("Organization ID", "rsl_org_id")
 
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":

@@ -187,9 +187,7 @@ aiServiceArgGroup.add_argument(
 )
 aiServiceArgGroup.add_argument("--tenant-entitlement-start-date", dest="tenant_entitlement_start_date", required=False, help="Start date for AI Service tenant")
 aiServiceArgGroup.add_argument("--tenant-entitlement-end-date", dest="tenant_entitlement_end_date", required=False, help="End date for AI Service tenant")
-aiServiceArgGroup.add_argument("--rsl-url", dest="rsl_url", required=False, help="rsl url")
-aiServiceArgGroup.add_argument("--rsl-org-id", dest="rsl_org_id", required=False, help="org id for rsl")
-aiServiceArgGroup.add_argument("--rsl-token", dest="rsl_token", required=False, help="token for rsl")
+
 aiServiceArgGroup.add_argument(
     "--rsl-ca-crt", dest="rsl_ca_crt", required=False, help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)"
 )
@@ -209,14 +207,11 @@ aiserviceAdvancedArgGroup.add_argument(
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
 )
 aiserviceAdvancedArgGroup.add_argument(
-    "--permission-mode",
-    dest="permission_mode",
+    "--admin-mode",
+    dest="admin_mode",
     required=False,
     choices=["cluster", "namespaced", "minimal"],
-    help="The permission mode used to determine which pre-install RBAC manifests are applied for AI Service (MAS 9.2+ advanced option)",
-)
-aiserviceAdvancedArgGroup.add_argument(
-    "--skip-preinstall-rbac", dest="skip_preinstall_rbac", required=False, action="store_true", help="Skip pre-install RBAC setup (non-interactive mode only)"
+    help="The admin mode used to determine which pre-install RBAC manifests are applied for AI Service (MAS 9.2+)",
 )
 aiserviceAdvancedArgGroup.add_argument(
     "--enable-ipv6",

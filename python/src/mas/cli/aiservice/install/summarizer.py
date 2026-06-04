@@ -46,9 +46,12 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Release", "aiservice_channel")
         self.printParamSummary("Instance ID", "aiservice_instance_id")
         self.printParamSummary("Environment Type", "environment_type")
-        if self.getParam("permission_mode") not in [None, ""]:
-            self.printParamSummary("Permission Mode", "permission_mode")
-            self.printSummary("Skip Pre-Install RBAC", "Yes" if self.getParam("skip_preinstall_rbac") == "true" else "No")
+        if self.admin_mode not in [None, ""]:
+            self.printSummary("Admin Mode", self.admin_mode)
+            self.printSummary(
+                "Apply Pre-Install RBAC",
+                "Yes" if self.applyPreInstallMASRBAC else "No",
+            )
 
         if "aiservice_certificate_issuer" in self.params:
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
@@ -79,10 +82,6 @@ class aiServiceInstallSummarizerMixin:
         self.printH2("IBM WatsonX")
         self.printParamSummary("URL", "aiservice_watsonxai_url")
         self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
-
-        self.printH2("RSL")
-        self.printParamSummary("URL", "rsl_url")
-        self.printParamSummary("Organization ID", "rsl_org_id")
 
     def db2Summary(self) -> None:
         self.printH2("IBM Db2 Univeral Operator Configuration")
