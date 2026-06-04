@@ -39,35 +39,26 @@ class ManageSettingsMixin:
         supportedLanguages: List[str]
 
         @property
-        def dynamicClient(self) -> DynamicClient:
-            ...
+        def dynamicClient(self) -> DynamicClient: ...
 
         # Methods from BaseApp
-        def setParam(self, param: str, value: str) -> None:
-            ...
+        def setParam(self, param: str, value: str) -> None: ...
 
-        def getParam(self, param: str) -> str:
-            ...
+        def getParam(self, param: str) -> str: ...
 
-        def isSNO(self) -> bool:
-            ...
+        def isSNO(self) -> bool: ...
 
-        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:
-            ...
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn: ...
 
         # Methods from PrintMixin
-        def printH1(self, message: str) -> None:
-            ...
+        def printH1(self, message: str) -> None: ...
 
-        def printH2(self, message: str) -> None:
-            ...
+        def printH2(self, message: str) -> None: ...
 
-        def printDescription(self, content: List[str]) -> None:
-            ...
+        def printDescription(self, content: List[str]) -> None: ...
 
         # Methods from PromptMixin
-        def yesOrNo(self, message: str, param: str | None = None) -> bool:
-            ...
+        def yesOrNo(self, message: str, param: str | None = None) -> bool: ...
 
         def promptForString(
             self,
@@ -76,23 +67,13 @@ class ManageSettingsMixin:
             default: str = "",
             isPassword: bool = False,
             validator: Validator | None = None,
-            completer: WordCompleter | None = None
-        ) -> str:
-            ...
+            completer: WordCompleter | None = None,
+        ) -> str: ...
 
-        def promptForInt(
-            self,
-            message: str,
-            param: str | None = None,
-            default: int | None = None,
-            min: int | None = None,
-            max: int | None = None
-        ) -> int:
-            ...
+        def promptForInt(self, message: str, param: str | None = None, default: int | None = None, min: int | None = None, max: int | None = None) -> int: ...
 
         # Methods from other mixins
-        def configCP4D(self) -> None:
-            ...
+        def configCP4D(self) -> None: ...
 
     def manageSettings(self) -> None:
         if self.installManage:
@@ -133,7 +114,11 @@ class ManageSettingsMixin:
             self.params["mas_appws_components"] = ""
         else:
             self.printH2(f"Maximo {self.manageAppName} Components")
-            self.printDescription([f"The default configuration will install {self.manageAppName} with Health enabled, alternatively choose exactly what industry solutions and add-ons will be configured"])
+            self.printDescription(
+                [
+                    f"The default configuration will install {self.manageAppName} with Health enabled, alternatively choose exactly what industry solutions and add-ons will be configured"
+                ]
+            )
 
             self.params["mas_appws_components"] = "base=latest,health=latest"
             if self.yesOrNo("Select components to enable"):
@@ -193,8 +178,11 @@ class ManageSettingsMixin:
                     self.params["mas_appws_components"] += ",workday=latest"
                 if self.yesOrNo(" - AIP"):
                     self.params["mas_appws_components"] += ",aip=latest"
-                if self.yesOrNo(" - Vegetation Management"):
-                    self.params["mas_appws_components"] += ",vegm=latest"
+                # Vegetation Management is only available in Manage 9.1
+                manageChannel = self.getParam("mas_app_channel_manage")
+                if manageChannel and not isVersionEqualOrAfter("9.2.0", manageChannel):
+                    if self.yesOrNo(" - Vegetation Management"):
+                        self.params["mas_appws_components"] += ",vegm=latest"
                 # Collaborate is only available in Manage 9.2 or higher
                 manageChannel = self.getParam("mas_app_channel_manage")
                 if manageChannel and isVersionEqualOrAfter("9.2.0", manageChannel):
@@ -203,10 +191,12 @@ class ManageSettingsMixin:
                 logger.debug(f"Generated mas_appws_components = {self.params['mas_appws_components']}")
                 if ",icd=" in self.params["mas_appws_components"]:
                     self.printH2("Maximo IT License Terms")
-                    self.printDescription([
-                        "For information about your Maximo IT License, see <Orange><u>https://ibm.biz/MAXIT81-License</u></Orange>",
-                        "To continue with the installation, you must accept these additional license terms"
-                    ])
+                    self.printDescription(
+                        [
+                            "For information about your Maximo IT License, see <Orange><u>https://ibm.biz/MAXIT81-License</u></Orange>",
+                            "To continue with the installation, you must accept these additional license terms",
+                        ]
+                    )
 
                     if not self.yesOrNo("Do you accept the license terms"):
                         exit(1)
@@ -380,23 +370,27 @@ class ManageSettingsMixin:
         ]
         if self.isManageFoundation:
             if self.showAdvancedOptions:
-                self.printDescription([
-                    "Configure additional settings:",
-                    "  - Base and additional languages",
-                    "  - Server timezone",
-                ])
+                self.printDescription(
+                    [
+                        "Configure additional settings:",
+                        "  - Base and additional languages",
+                        "  - Server timezone",
+                    ]
+                )
                 self.manageSettingsTimezone()
                 self.manageSettingsLanguages()
         else:
             if self.showAdvancedOptions:
-                self.printDescription([
-                    "Configure additional settings:",
-                    "  - Demo data",
-                    "  - Base and additional languages",
-                    "  - Server timezone",
-                    "  - Cognos integration (install Cloud Pak for Data)",
-                    "  - Watson Studio Local integration (install Cloud Pak for Data)",
-                ])
+                self.printDescription(
+                    [
+                        "Configure additional settings:",
+                        "  - Demo data",
+                        "  - Base and additional languages",
+                        "  - Server timezone",
+                        "  - Cognos integration (install Cloud Pak for Data)",
+                        "  - Watson Studio Local integration (install Cloud Pak for Data)",
+                    ]
+                )
                 self.manageSettingsDemodata()
                 self.manageSettingsTimezone()
                 self.manageSettingsLanguages()
@@ -424,15 +418,15 @@ class ManageSettingsMixin:
 
         self.printH2(f"Maximo {self.manageAppName} Settings - AI Service Tenant Configuration")
 
-        self.printDescription([
-            "Select an AI Service Tenant ID to bind with Manage:",
-            " - The selected AI Service Tenant will be used in Manage AI Config Application",
-        ])
+        self.printDescription(
+            [
+                "Select an AI Service Tenant ID to bind with Manage:",
+                " - The selected AI Service Tenant will be used in Manage AI Config Application",
+            ]
+        )
 
         if self.installAIService:
-            self.printDescription([
-                " - As AI Service is being installed along with Manage, a default Tenant ID 'user' is available in the list below"
-            ])
+            self.printDescription([" - As AI Service is being installed along with Manage, a default Tenant ID 'user' is available in the list below"])
             # Show only default 'user' tenant when AI Service is being installed
             aiserviceTenantOptions = ["user"]
             print_formatted_text(HTML("- <u>user</u> (default)"))

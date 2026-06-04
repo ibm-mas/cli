@@ -80,9 +80,7 @@ catArgGroup.add_argument(
     required=False,
     help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources",
 )
-catArgGroup.add_argument(
-    "--ibm-entitlement-key", required=False, help="IBM entitlement key"
-)
+catArgGroup.add_argument("--ibm-entitlement-key", required=False, help="IBM entitlement key")
 
 # Basic Configuration
 # -----------------------------------------------------------------------------
@@ -90,21 +88,11 @@ masArgGroup = installArgParser.add_argument_group(
     "Basic Configuration",
     "Core configuration options for your MAS instance including instance ID, workspace settings, subscription channels, and user settings.",
 )
-masArgGroup.add_argument(
-    "-i", "--mas-instance-id", required=False, help="MAS Instance ID"
-)
-masArgGroup.add_argument(
-    "-w", "--mas-workspace-id", required=False, help="MAS Workspace ID"
-)
-masArgGroup.add_argument(
-    "-W", "--mas-workspace-name", required=False, help="MAS Workspace Name"
-)
-masArgGroup.add_argument(
-    "--mas-channel", required=False, help="Subscription channel for the Core Platform"
-)
-masArgGroup.add_argument(
-    "--aiservice-instance-id", required=False, help="AI Service Instance ID"
-)
+masArgGroup.add_argument("-i", "--mas-instance-id", required=False, help="MAS Instance ID")
+masArgGroup.add_argument("-w", "--mas-workspace-id", required=False, help="MAS Workspace ID")
+masArgGroup.add_argument("-W", "--mas-workspace-name", required=False, help="MAS Workspace Name")
+masArgGroup.add_argument("--mas-channel", required=False, help="Subscription channel for the Core Platform")
+masArgGroup.add_argument("--aiservice-instance-id", required=False, help="AI Service Instance ID")
 masArgGroup.add_argument(
     "--configure-ai-assistant",
     dest="configure_aiassistant",
@@ -125,12 +113,8 @@ masAdvancedArgGroup = installArgParser.add_argument_group(
     "Advanced Configuration",
     "Advanced configuration options for MAS including DNS providers, certificates, domain settings, and IPv6 support.",
 )
-masAdvancedArgGroup.add_argument(
-    "--superuser-username", dest="mas_superuser_username", required=False, help=""
-)
-masAdvancedArgGroup.add_argument(
-    "--superuser-password", dest="mas_superuser_password", required=False, help=""
-)
+masAdvancedArgGroup.add_argument("--superuser-username", dest="mas_superuser_username", required=False, help="")
+masAdvancedArgGroup.add_argument("--superuser-password", dest="mas_superuser_password", required=False, help="")
 masAdvancedArgGroup.add_argument(
     "--additional-configs",
     required=False,
@@ -181,6 +165,15 @@ masAdvancedArgGroup.add_argument(
     required=False,
     help="Configure MAS to use Service Mesh networking (default: false)",
     choices=["true", "false"],
+)
+masAdvancedArgGroup.add_argument(
+    "--manual-routes",
+    dest="mas_manual_route_mgmt",
+    required=False,
+    action="store_const",
+    const="true",
+    default="false",
+    help="Disable automatic creation of routes.",
 )
 masAdvancedArgGroup.add_argument(
     "--manual-certificates",
@@ -267,10 +260,10 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
-    "--permission-mode",
-    dest="mas_permission_mode",
+    "--admin-mode",
+    dest="mas_admin_mode",
     required=False,
-    help="Permission mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
+    help="Admin mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
     choices=["cluster", "namespaced", "minimal"],
     default=None,
 )
@@ -448,9 +441,7 @@ ocpArgGroup.add_argument(
 
 # Grafana
 # -----------------------------------------------------------------------------
-grafanaArgGroup = installArgParser.add_argument_group(
-    "Grafana", "Configure Grafana installation, namespace and storage size."
-)
+grafanaArgGroup = installArgParser.add_argument_group("Grafana", "Configure Grafana installation, namespace and storage size.")
 grafanaArgGroup.add_argument(
     "--skip-grafana-install",
     required=False,
@@ -476,21 +467,11 @@ masAppsArgGroup = installArgParser.add_argument_group(
     "MAS Applications",
     "Configure subscription channels for MAS applications including Assist, IoT, Monitor, Optimizer, Predict, and Visual Inspection.",
 )
-masAppsArgGroup.add_argument(
-    "--assist-channel", required=False, help="Subscription channel for Maximo Assist"
-)
-masAppsArgGroup.add_argument(
-    "--iot-channel", required=False, help="Subscription channel for Maximo IoT"
-)
-masAppsArgGroup.add_argument(
-    "--monitor-channel", required=False, help="Subscription channel for Maximo Monitor"
-)
-masAppsArgGroup.add_argument(
-    "--manage-channel", required=False, help="Subscription channel for Maximo Manage"
-)
-masAppsArgGroup.add_argument(
-    "--predict-channel", required=False, help="Subscription channel for Maximo Predict"
-)
+masAppsArgGroup.add_argument("--assist-channel", required=False, help="Subscription channel for Maximo Assist")
+masAppsArgGroup.add_argument("--iot-channel", required=False, help="Subscription channel for Maximo IoT")
+masAppsArgGroup.add_argument("--monitor-channel", required=False, help="Subscription channel for Maximo Monitor")
+masAppsArgGroup.add_argument("--manage-channel", required=False, help="Subscription channel for Maximo Manage")
+masAppsArgGroup.add_argument("--predict-channel", required=False, help="Subscription channel for Maximo Predict")
 masAppsArgGroup.add_argument(
     "--visualinspection-channel",
     required=False,
@@ -520,9 +501,7 @@ masAppsArgGroup.add_argument(
 
 # Arcgis
 # -----------------------------------------------------------------------------
-arcgisArgGroup = installArgParser.add_argument_group(
-    "Maximo Location Services for Esri (arcgis)"
-)
+arcgisArgGroup = installArgParser.add_argument_group("Maximo Location Services for Esri (arcgis)")
 arcgisArgGroup.add_argument(
     "--arcgis-channel",
     dest="mas_arcgis_channel",
@@ -839,6 +818,19 @@ facilitiesArgGroup.add_argument(
     help="Storage size for Facilities user files",
     default=50,
 )
+facilitiesArgGroup.add_argument(
+    "--facilities-properties-file",
+    dest="mas_ws_facilities_properties_file_local",
+    required=False,
+    help="Path to the custom FACILITIES.properties file to upload as secret",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-properties-secret-name",
+    dest="mas_ws_facilities_properties_secret_name",
+    required=False,
+    help="Custom name for the Facilities properties secret (default: facilities-properties)",
+    default="custom-facilities-properties",
+)
 
 # Open Data Hub
 # -----------------------------------------------------------------------------
@@ -1040,9 +1032,7 @@ aiServiceWatsonxArgGroup.add_argument(
 
 # AI Service Tenant
 # -----------------------------------------------------------------------------
-aiServiceTenantArgGroup = installArgParser.add_argument_group(
-    "Maximo AI Service Tenant"
-)
+aiServiceTenantArgGroup = installArgParser.add_argument_group("Maximo AI Service Tenant")
 
 aiServiceTenantArgGroup.add_argument(
     "--tenant-entitlement-type",
@@ -1063,15 +1053,7 @@ aiServiceTenantArgGroup.add_argument(
     required=False,
     help="End date for AI Service tenant",
 )
-aiServiceTenantArgGroup.add_argument(
-    "--rsl-url", dest="rsl_url", required=False, help="rsl url"
-)
-aiServiceTenantArgGroup.add_argument(
-    "--rsl-org-id", dest="rsl_org_id", required=False, help="org id for rsl"
-)
-aiServiceTenantArgGroup.add_argument(
-    "--rsl-token", dest="rsl_token", required=False, help="token for rsl"
-)
+
 aiServiceTenantArgGroup.add_argument(
     "--rsl-ca-crt",
     dest="rsl_ca_crt",
@@ -1162,9 +1144,7 @@ db2ArgGroup.add_argument(
     required=False,
     help="Change namespace where Db2u instances will be created",
 )
-db2ArgGroup.add_argument(
-    "--db2-channel", required=False, help="Subscription channel for Db2u"
-)
+db2ArgGroup.add_argument("--db2-channel", required=False, help="Subscription channel for Db2u")
 db2ArgGroup.add_argument(
     "--db2-system",
     dest="db2_action_system",
@@ -1196,23 +1176,15 @@ db2ArgGroup.add_argument(
     choices=DB2_TYPES,
     metavar="{db2wh,db2oltp}",
 )
-db2ArgGroup.add_argument(
-    "--db2-timezone", required=False, help="Timezone for Db2 instance"
-)
-db2ArgGroup.add_argument(
-    "--db2-license-file", required=False, help="Db2 License File for Db2"
-)
-db2ArgGroup.add_argument(
-    "--db2-affinity-key", required=False, help="Set a node label to declare affinity to"
-)
+db2ArgGroup.add_argument("--db2-timezone", required=False, help="Timezone for Db2 instance")
+db2ArgGroup.add_argument("--db2-license-file", required=False, help="Db2 License File for Db2")
+db2ArgGroup.add_argument("--db2-affinity-key", required=False, help="Set a node label to declare affinity to")
 db2ArgGroup.add_argument(
     "--db2-affinity-value",
     required=False,
     help="Set the value of the node label to affine with",
 )
-db2ArgGroup.add_argument(
-    "--db2-tolerate-key", required=False, help="Set a node taint to tolerate"
-)
+db2ArgGroup.add_argument("--db2-tolerate-key", required=False, help="Set a node taint to tolerate")
 db2ArgGroup.add_argument(
     "--db2-tolerate-value",
     required=False,
@@ -1225,18 +1197,10 @@ db2ArgGroup.add_argument(
     choices=TAINT_EFFECTS,
     metavar="{NoSchedule,PreferNoSchedule,NoExecute}",
 )
-db2ArgGroup.add_argument(
-    "--db2-cpu-requests", required=False, help="Customize Db2 CPU request"
-)
-db2ArgGroup.add_argument(
-    "--db2-cpu-limits", required=False, help="Customize Db2 CPU limit"
-)
-db2ArgGroup.add_argument(
-    "--db2-memory-requests", required=False, help="Customize Db2 memory request"
-)
-db2ArgGroup.add_argument(
-    "--db2-memory-limits", required=False, help="Customize Db2 memory limit"
-)
+db2ArgGroup.add_argument("--db2-cpu-requests", required=False, help="Customize Db2 CPU request")
+db2ArgGroup.add_argument("--db2-cpu-limits", required=False, help="Customize Db2 CPU limit")
+db2ArgGroup.add_argument("--db2-memory-requests", required=False, help="Customize Db2 memory request")
+db2ArgGroup.add_argument("--db2-memory-limits", required=False, help="Customize Db2 memory limit")
 db2ArgGroup.add_argument(
     "--db2-backup-storage",
     dest="db2_backup_storage_size",
@@ -1288,9 +1252,7 @@ eckArgGroup.add_argument(
     action="store_const",
     const="install",
 )
-eckArgGroup.add_argument(
-    "--eck-enable-logstash", required=False, help="", action="store_true"
-)
+eckArgGroup.add_argument("--eck-enable-logstash", required=False, help="", action="store_true")
 eckArgGroup.add_argument("--eck-remote-es-hosts", required=False, help="")
 eckArgGroup.add_argument("--eck-remote-es-username", required=False, help="")
 eckArgGroup.add_argument("--eck-remote-es-password", required=False, help="")
@@ -1458,12 +1420,8 @@ cloudArgGroup = installArgParser.add_argument_group(
     "Cloud Providers",
     "Configure cloud provider settings including AWS region, availability zones, and IBM Cloud API key.",
 )
-cloudArgGroup.add_argument(
-    "--ibmcloud-apikey", required=False, help="Set IBM Cloud API Key"
-)
-cloudArgGroup.add_argument(
-    "--aws-region", required=False, help="Set target AWS region for the MSK instance"
-)
+cloudArgGroup.add_argument("--ibmcloud-apikey", required=False, help="Set IBM Cloud API Key")
+cloudArgGroup.add_argument("--aws-region", required=False, help="Set target AWS region for the MSK instance")
 cloudArgGroup.add_argument(
     "--aws-access-key-id",
     required=False,
@@ -1597,14 +1555,6 @@ otherArgGroup.add_argument(
     action="store_true",
     help="Disable the 'pre-install-check' at the start of the install pipeline",
 )
-
-otherArgGroup.add_argument(
-    "--skip-preinstall-rbac",
-    required=False,
-    action="store_true",
-    default=False,
-    help="Skip CLI application of pre-install MAS RBAC. Use this when an OpenShift administrator has already applied the required RBAC.",
-)
 otherArgGroup.add_argument(
     "--no-confirm",
     required=False,
@@ -1626,7 +1576,14 @@ otherArgGroup.add_argument(
     required=False,
     help="Custom service account for install pipeline (disables default 'pipeline' service account creation)",
 )
-
 otherArgGroup.add_argument(
-    "-h", "--help", action="help", default=False, help="Show this help message and exit"
+    "--use-cli-digest",
+    dest="use_cli_digest",
+    required=False,
+    nargs="?",
+    const=True,
+    default=False,
+    help="Use CLI image digest instead of tag in Tekton pipelines. Optionally provide a specific digest (e.g., sha256:abc123...), or omit the value to auto-lookup the digest.",
 )
+
+otherArgGroup.add_argument("-h", "--help", action="help", default=False, help="Show this help message and exit")

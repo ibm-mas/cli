@@ -47,40 +47,38 @@ class InstallSummarizerMixin:
         installAIService: bool
         installArcgis: bool
         dynamicClient: DynamicClient
+        applyPreInstallMASRBAC: bool
 
         # Methods from BaseApp
-        def getParam(self, param: str) -> str:
-            ...
+        def getParam(self, param: str) -> str: ...
 
-        def isSNO(self) -> bool:
-            ...
+        def isSNO(self) -> bool: ...
 
-        def isAirgap(self) -> bool:
-            ...
+        def isAirgap(self) -> bool: ...
 
-        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:
-            ...
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn: ...
 
         # Methods from PrintMixin
-        def printH1(self, message: str) -> None:
-            ...
+        def printH1(self, message: str) -> None: ...
 
-        def printH2(self, message: str) -> None:
-            ...
+        def printH2(self, message: str) -> None: ...
 
-        def printDescription(self, content: List[str]) -> None:
-            ...
+        def printDescription(self, content: List[str]) -> None: ...
 
-        def printSummary(self, label: str, value: str | None) -> None:
-            ...
+        def printSummary(self, label: str, value: str | None) -> None: ...
 
-        def printParamSummary(self, label: str, param: str) -> None:
-            ...
+        def printParamSummary(self, label: str, param: str) -> None: ...
 
     def ocpSummary(self) -> None:
         self.printH2("Pipeline Configuration")
         self.printParamSummary("Service Account", "service_account_name")
         self.printParamSummary("Image Pull Policy", "image_pull_policy")
+        if self.useCliDigest:
+            if self.cliDigest:
+                self.printSummary("Use CLI Digest", self.cliDigest)
+            else:
+                self.printParamSummary("Use CLI Digest", "Yes (auto-lookup)")
+
         self.printSummary(
             "Skip Pre-Install Healthcheck",
             "Yes" if self.getParam("skip_pre_check") == "true" else "No",
@@ -110,14 +108,14 @@ class InstallSummarizerMixin:
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
-        if self.getParam("mas_permission_mode") != "":
-            self.printParamSummary("Permission Mode", "mas_permission_mode")
+        if self.mas_admin_mode != "":
+            self.printSummary("MAS Admin Mode", self.mas_admin_mode)
+            self.printSummary(
+                "Apply Pre-Install MAS RBAC",
+                "Yes" if self.applyPreInstallMASRBAC else "No",
+            )
         if self.getParam("mas_issuer_kind") != "":
             self.printParamSummary("Mas Certificate Issuer Kind", "mas_issuer_kind")
-        self.printSummary(
-            "Apply Pre-Install MAS RBAC",
-            "No" if self.getParam("skip_preinstall_rbac") == "true" else "Yes",
-        )
         if self.isAirgap():
             self.printSummary("Install Mode", "Disconnected Install")
         else:
@@ -151,6 +149,9 @@ class InstallSummarizerMixin:
         if self.getParam("mas_routing_mode") == "path":
             self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
+
+        print()
+        self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
 
         print()
         self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
@@ -293,10 +294,7 @@ class InstallSummarizerMixin:
 
                     # Special handling for Civil Infrastructure Kafka Image Processor
                     if componentId == "civil" and isEnabled:
-                        self.printSummary(
-                            "    + Kafka Image Processor",
-                            "Enabled" if self.enableKafkaImageProcessor else "Disabled"
-                        )
+                        self.printSummary("    + Kafka Image Processor", "Enabled" if self.enableKafkaImageProcessor else "Disabled")
                         if self.enableKafkaImageProcessor:
                             self.printParamSummary("    + Kafka Binding", "mas_appws_bindings_kafka_manage")
 
@@ -350,6 +348,9 @@ class InstallSummarizerMixin:
                 "mas_ws_facilities_storage_userfiles_mode",
             )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
+            self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
+            self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local")
+            self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")
             if self.getParam("db2_action_facilities") == "none":
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
@@ -393,10 +394,6 @@ class InstallSummarizerMixin:
             self.printH2("IBM WatsonX")
             self.printParamSummary("URL", "aiservice_watsonxai_url")
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
-
-            self.printH2("RSL")
-            self.printParamSummary("URL", "rsl_url")
-            self.printParamSummary("Organization ID", "rsl_org_id")
 
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":

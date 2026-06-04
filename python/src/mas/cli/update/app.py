@@ -27,7 +27,6 @@ from mas.devops.aiservice import listAiServiceInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSecrets
 from ..install.settings import AdditionalConfigsMixin
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -67,8 +66,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 "artifactory_token",
                 # Slack Integration
                 "slack_token",
-                "slack_channel"
-
+                "slack_channel",
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -124,24 +122,30 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             self.chosenCatalog = getCatalog(getNewestCatalogTag())
 
         self.printH1("Dependency Update Checks")
-        with Halo(text='Checking for IBM Watson Discovery', spinner=self.spinner) as h:
+        with Halo(text="Checking for IBM Watson Discovery", spinner=self.spinner) as h:
             if self.isWatsonDiscoveryInstalled():
                 h.stop_and_persist(symbol=self.failureIcon, text="IBM Watson Discovery is installed")
-                self.fatalError("Watson Discovery is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance")
+                self.fatalError(
+                    "Watson Discovery is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance"
+                )
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Watson Discovery is not installed")
 
-        with Halo(text='Checking for IBM Watson Openscale', spinner=self.spinner) as h:
+        with Halo(text="Checking for IBM Watson Openscale", spinner=self.spinner) as h:
             if self.isWatsonOpenscaleInstalled():
                 h.stop_and_persist(symbol=self.failureIcon, text="IBM Watson Openscale is installed")
-                self.fatalError("Watson Openscale is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance")
+                self.fatalError(
+                    "Watson Openscale is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance"
+                )
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Watson Openscale is not installed")
 
-        with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
+        with Halo(text="Checking for IBM Certificate-Manager", spinner=self.spinner) as h:
             if self.isIBMCertManagerInstalled():
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is installed")
-                self.fatalError("IBM Certificate-Manager is currently installed and automatic migration of IBM Certificate-Manager is no longer supported. Please contact IBM support for assistance.")
+                self.fatalError(
+                    "IBM Certificate-Manager is currently installed and automatic migration of IBM Certificate-Manager is no longer supported. Please contact IBM support for assistance."
+                )
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is not installed")
 
@@ -155,10 +159,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         print()
 
         self.printH1("Review Settings")
-        self.printDescription([
-            "Connected to:",
-            f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
-        ])
+        self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
         self.printH2("IBM Maximo Operator Catalog")
         self.printSummary("Installed Catalog", self.installedCatalogId)
@@ -187,13 +188,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
         self.printH2("Required Migrations")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
-        self.printSummary("AI Service Data Science Platform", "Migrate from ODH to RHOAI" if self.getParam("odh_to_rhoai_migration") != "" else "No action required")
+        self.printSummary(
+            "AI Service Data Science Platform", "Migrate from ODH to RHOAI" if self.getParam("odh_to_rhoai_migration") != "" else "No action required"
+        )
 
         if not self.noConfirm:
             print()
-            self.printDescription([
-                "Please carefully review your choices above, correcting mistakes now is much easier than after the update has begun"
-            ])
+            self.printDescription(["Please carefully review your choices above, correcting mistakes now is much easier than after the update has begun"])
             continueWithUpdate = self.yesOrNo("Proceed with these settings")
         # Prepare the namespace and launch the installation pipeline
         if self.noConfirm or continueWithUpdate:
@@ -205,14 +206,14 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             self.printH1("Launch Update")
             pipelinesNamespace = "mas-pipelines"
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 preparePipelinesNamespace(dynClient=self.dynamicClient)
                 prepareUpdateSecrets(
@@ -222,7 +223,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     db2LicenseFile=self.db2LicenseFileSecret,
                 )
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
@@ -245,16 +246,15 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         else:
             self.installedCatalogId = catalogInfo["catalogId"]
             self.printH1("Review Installed Catalog")
-            self.printDescription([
-                f"The currently installed Maximo Operator Catalog is <u>{catalogInfo['displayName']}</u>",
-                f" <u>{catalogInfo['image']}</u>"
-            ])
+            self.printDescription(
+                [f"The currently installed Maximo Operator Catalog is <u>{catalogInfo['displayName']}</u>", f" <u>{catalogInfo['image']}</u>"]
+            )
 
     def reviewMASInstance(self) -> bool:
-        return self.reviewInstances(listMasInstances, 'MAS', 'Suite.core.mas.ibm.com/v1')
+        return self.reviewInstances(listMasInstances, "MAS", "Suite.core.mas.ibm.com/v1")
 
     def reviewAiServiceInstance(self) -> bool:
-        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1', "aiservice_instance_ids")
+        return self.reviewInstances(listAiServiceInstances, "AI Service", "AIServiceApp.aiservice.ibm.com/v1", "aiservice_instance_ids")
 
     def reviewInstances(self, getInstances: Callable, name: str, kind: str, instanceParamKey: str = "") -> bool:
         self.printH1(f"Review {name} Instances")
@@ -285,15 +285,19 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
-        self.printDescription([
-            "Select MAS Catalog",
-            "  1) Apr 30 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
-            "  2) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
-            "  3) Feb 26 2026 Update (MAS 9.1.10, 9.0.21, 8.11.32, &amp; 8.10.35)",
-        ])
+        self.printDescription(
+            [
+                "Select MAS Catalog",
+                "  1) May 27 2026 Update (MAS 9.1.18, 9.0.26, 8.11.34, &amp; 8.10.37)",
+                "  2) Apr 30 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
+                "  3) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
+            ]
+        )
 
         catalogOptions = [
-            "v9-260430-amd64", "v9-260326-amd64", "v9-260226-amd64",
+            "v9-260527-amd64",
+            "v9-260430-amd64",
+            "v9-260326-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -304,15 +308,19 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
         supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
         if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
-            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
+            self.fatalError(
+                f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}"
+            )
 
         if self.installedCatalogId is not None and self.installedCatalogId > self.getParam("mas_catalog_version"):
-            self.fatalError(f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}")
+            self.fatalError(
+                f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}"
+            )
 
     def isWatsonDiscoveryInstalled(self) -> bool:
         try:
             wdAPI = self.dynamicClient.resources.get(api_version="discovery.watson.ibm.com/v1", kind="WatsonDiscovery")
-            wds = wdAPI.get(namespace="ibm-cpd").to_dict()['items']
+            wds = wdAPI.get(namespace="ibm-cpd").to_dict()["items"]
             if len(wds) > 0:
                 return True
             return False
@@ -323,7 +331,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
     def isWatsonOpenscaleInstalled(self) -> bool:
         try:
             wosAPI = self.dynamicClient.resources.get(api_version="wos.cpd.ibm.com/v1", kind="WOService")
-            wos = wosAPI.get(namespace="ibm-cpd").to_dict()['items']
+            wos = wosAPI.get(namespace="ibm-cpd").to_dict()["items"]
             if len(wos) > 0:
                 return True
             return False
@@ -350,7 +358,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             return False
 
     def detectGrafana4(self) -> bool:
-        with Halo(text='Checking for Grafana Operator v4', spinner=self.spinner) as h:
+        with Halo(text="Checking for Grafana Operator v4", spinner=self.spinner) as h:
             try:
                 grafanaAPI = self.dynamicClient.resources.get(api_version="integreatly.org/v1alpha1", kind="Grafana")
                 grafanaVersion4s = grafanaAPI.get().to_dict()["items"]
@@ -359,12 +367,14 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 # grafanaVersion4s = ["hello"]
                 if len(grafanaVersion4s) > 0:
                     h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 instance will be updated to v5")
-                    self.printDescription([
-                        "<u>Dependency Upgrade Notice</u>",
-                        "Grafana Operator v4 is currently installed and will be updated to v5",
-                        "- Grafana v5 instance will have a new URL and admin password",
-                        "- User accounts set up in the v4 instance will not be migrated"
-                    ])
+                    self.printDescription(
+                        [
+                            "<u>Dependency Upgrade Notice</u>",
+                            "Grafana Operator v4 is currently installed and will be updated to v5",
+                            "- Grafana v5 instance will have a new URL and admin password",
+                            "- User accounts set up in the v4 instance will not be migrated",
+                        ]
+                    )
                     self.setParam("grafana_v5_upgrade", "true")
                     return True
                 else:
@@ -379,30 +389,29 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         Detect if ODH (Open Data Hub) is installed and may need migration to RHOAI.
         This is a simplified check - the Ansible role will perform detailed validation.
         """
-        with Halo(text='Checking for Open Data Hub (ODH)', spinner=self.spinner) as h:
+        with Halo(text="Checking for Open Data Hub (ODH)", spinner=self.spinner) as h:
             try:
                 subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
                 subscriptions = subscriptionAPI.get(namespace="openshift-operators").to_dict()["items"]
 
-                odh_installed = any(
-                    sub.get("spec", {}).get("name") == "opendatahub-operator"
-                    for sub in subscriptions
-                )
+                odh_installed = any(sub.get("spec", {}).get("name") == "opendatahub-operator" for sub in subscriptions)
 
                 if odh_installed:
                     h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub detected - migration to RHOAI will be evaluated")
-                    self.printDescription([
-                        "<u>Required Migration Notice</u>",
-                        "Open Data Hub (ODH) is currently installed and will be migrated to Red Hat OpenShift AI (RHOAI)",
-                        "- The update process will automatically handle the migration",
-                        "- ODH will be replaced with RHOAI",
-                        "- This migration is mandatory to continue receiving updates",
-                        "",
-                        "<u>Expected Downtime</u>",
-                        "- AI Service will be unavailable during migration (~10-12 minutes)",
-                        "- Data science workloads will be temporarily interrupted",
-                        "- Deployed models will be preserved"
-                    ])
+                    self.printDescription(
+                        [
+                            "<u>Required Migration Notice</u>",
+                            "Open Data Hub (ODH) is currently installed and will be migrated to Red Hat OpenShift AI (RHOAI)",
+                            "- The update process will automatically handle the migration",
+                            "- ODH will be replaced with RHOAI",
+                            "- This migration is mandatory to continue receiving updates",
+                            "",
+                            "<u>Expected Downtime</u>",
+                            "- AI Service will be unavailable during migration (~10-12 minutes)",
+                            "- Data science workloads will be temporarily interrupted",
+                            "- Deployed models will be preserved",
+                        ]
+                    )
                     # Set parameter to trigger ODH to RHOAI migration
                     self.setParam("odh_to_rhoai_migration", "true")
                     return True
@@ -415,7 +424,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 return False
 
     def detectMongoDb(self) -> None:
-        with Halo(text='Checking for MongoDb CE', spinner=self.spinner) as h:
+        with Halo(text="Checking for MongoDb CE", spinner=self.spinner) as h:
             # TODO: Replace this with a lookup to just use whatever is already set up
             # because we should not be changing the scale of the mongodb cluster during
             # and update
@@ -454,12 +463,16 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                             # The user has chosen not to provide confirmation but has not provided the flag to pre-approve the mongo major version update
                             h.stop_and_persist(symbol=self.failureIcon, text=f"MongoDb CE {currentMongoVersion} needs to be updated to {targetMongoVersion}")
                             self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
-                            self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm MongoDb update to version {targetMongoVersionMajor} using '--mongodb-v{targetMongoVersionMajor}-upgrade' when using '--no-confirm'")
+                            self.fatalError(
+                                f"By choosing {self.getParam('mas_catalog_version')} you must confirm MongoDb update to version {targetMongoVersionMajor} using '--mongodb-v{targetMongoVersionMajor}-upgrade' when using '--no-confirm'"
+                            )
                         elif self.getParam(f"mongodb_v{targetMongoVersionMajor}_upgrade") != "true":
                             # The user has not pre-approved the major version update
                             h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE {currentMongoVersion} needs to be updated to {targetMongoVersion}")
                             self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
-                            if not self.yesOrNo(f"Confirm update from MongoDb {currentMongoVersion} to {targetMongoVersion}", f"mongodb_v{targetMongoVersionMajor}_upgrade"):
+                            if not self.yesOrNo(
+                                f"Confirm update from MongoDb {currentMongoVersion} to {targetMongoVersion}", f"mongodb_v{targetMongoVersionMajor}_upgrade"
+                            ):
                                 # If the user did not approve the update, abort
                                 exit(1)
                             print()
@@ -469,7 +482,9 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     elif targetMongoVersion < currentMongoVersion:
                         h.stop_and_persist(symbol=self.failureIcon, text=f"MongoDb CE {currentMongoVersion} cannot be downgraded to {targetMongoVersion}")
                         self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
-                        self.fatalError(f"Existing MongoDB Community Edition installation at version {currentMongoVersion} cannot be downgraded to version {targetMongoVersion}")
+                        self.fatalError(
+                            f"Existing MongoDB Community Edition installation at version {currentMongoVersion} cannot be downgraded to version {targetMongoVersion}"
+                        )
                     else:
                         h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE is already installed at version {targetMongoVersion}")
                 else:
@@ -480,17 +495,19 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 h.stop_and_persist(symbol=self.successIcon, text="MongoDb CE is not installed")
 
     def showMongoDependencyUpdateNotice(self, currentMongoVersion, targetMongoVersion) -> None:
-        self.printHighlight([
-            "",
-            "<u>Dependency Update Notice</u>",
-            f"MongoDB Community Edition is currently running version {currentMongoVersion} and will be updated to {targetMongoVersion}",
-            "It is recommended that you backup your MongoDB instance before proceeding:",
-            "  <u>https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application</u>",
-            ""
-        ])
+        self.printHighlight(
+            [
+                "",
+                "<u>Dependency Update Notice</u>",
+                f"MongoDB Community Edition is currently running version {currentMongoVersion} and will be updated to {targetMongoVersion}",
+                "It is recommended that you backup your MongoDB instance before proceeding:",
+                "  <u>https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application</u>",
+                "",
+            ]
+        )
 
     def detectCP4D(self) -> None:
-        with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
+        with Halo(text="Checking for IBM Cloud Pak for Data", spinner=self.spinner) as h:
             try:
                 cpdAPI = self.dynamicClient.resources.get(api_version="cpd.ibm.com/v1", kind="Ibmcpd")
                 cpds = cpdAPI.get().to_dict()["items"]
@@ -519,14 +536,19 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     cpdNamespaces = []
                     for cpd in cpds:
                         cpdNamespaces.append(cpd["metadata"]["namespace"])
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Detected multiple instances of Cloud Pak for Data in the cluster, these will NOT be updated: {', '.join(cpdNamespaces)}")
-                    self.printDescription([
-                        "<u>Multiple Cloud Pak for Data Instances</u>",
-                        "The MAS install, update, and upgrade functions are designed to work together and support the Maximo reference deployment topology.",
-                        "Multiple instances of Cloud Pak for Data have been detected on the target cluster, so none will be modified:",
-                        "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
-                        "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli"
-                    ])
+                    h.stop_and_persist(
+                        symbol=self.successIcon,
+                        text=f"Detected multiple instances of Cloud Pak for Data in the cluster, these will NOT be updated: {', '.join(cpdNamespaces)}",
+                    )
+                    self.printDescription(
+                        [
+                            "<u>Multiple Cloud Pak for Data Instances</u>",
+                            "The MAS install, update, and upgrade functions are designed to work together and support the Maximo reference deployment topology.",
+                            "Multiple instances of Cloud Pak for Data have been detected on the target cluster, so none will be modified:",
+                            "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
+                            "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli",
+                        ]
+                    )
                     return
                 elif len(cpds) == 1:
                     cpdUpgradePath = {
@@ -543,23 +565,33 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         cpdTargetVersion = self.chosenCatalog["cpd_product_version_default"]
 
                     if cpdInstanceNamespace != "ibm-cpd":
-                        h.stop_and_persist(symbol=self.successIcon, text=f"Standalone Cloud Pak for Data {cpdInstanceVersion} in namespace {cpdInstanceNamespace} will NOT be updated")
-                        self.printDescription([
-                            "<u>Standalone Cloud Pak for Data</u>",
-                            "The MAS install, update, and upgrade functions are designed to work together and support the Maximo reference deployment topology.",
-                            "This instance of Cloud Pak for Data appears to have been created outside of this, so will not be modified:",
-                            "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
-                            "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli"
-                        ])
+                        h.stop_and_persist(
+                            symbol=self.successIcon,
+                            text=f"Standalone Cloud Pak for Data {cpdInstanceVersion} in namespace {cpdInstanceNamespace} will NOT be updated",
+                        )
+                        self.printDescription(
+                            [
+                                "<u>Standalone Cloud Pak for Data</u>",
+                                "The MAS install, update, and upgrade functions are designed to work together and support the Maximo reference deployment topology.",
+                                "This instance of Cloud Pak for Data appears to have been created outside of this, so will not be modified:",
+                                "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
+                                "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli",
+                            ]
+                        )
                         return
 
                     if cpdInstanceVersion not in cpdUpgradePath:
-                        h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) is too old to update to this catalog")
+                        h.stop_and_persist(
+                            symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) is too old to update to this catalog"
+                        )
                         self.fatalError(
                             "Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nContact IBM support for assistance"
                         )
                     elif cpdUpgradePath[cpdInstanceVersion] != cpdTargetVersion:
-                        h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) can not be updated to {cpdTargetVersion} directly")
+                        h.stop_and_persist(
+                            symbol=self.successIcon,
+                            text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) can not be updated to {cpdTargetVersion} directly",
+                        )
                         self.fatalError(
                             f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{cpdUpgradePath[cpdInstanceVersion]}:\n- https://ibm-mas.github.io/cli/catalogs"
                         )
@@ -569,17 +601,21 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
                     if cpdInstanceVersion < cpdTargetVersion:
                         # We have to update CP4D
-                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) {cpdInstanceVersion} needs to be updated to {cpdTargetVersion}")
+                        h.stop_and_persist(
+                            symbol=self.successIcon,
+                            text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) {cpdInstanceVersion} needs to be updated to {cpdTargetVersion}",
+                        )
 
                         if currentCpdVersionMajorMinor < targetCpdVersionMajorMinor:
                             # We only show the "backup first" notice for minor CP4D updates
-                            self.printHighlight([
-                                ""
-                                "<u>Dependency Update Notice</u>",
-                                f"Cloud Pak For Data ({cpdInstanceNamespace}) is currently running version {cpdInstanceVersion} and will be updated to version {cpdTargetVersion}",
-                                "It is recommended that you backup your Cloud Pak for Data instance before proceeding:",
-                                "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/5.0.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
-                            ])
+                            self.printHighlight(
+                                [
+                                    "" "<u>Dependency Update Notice</u>",
+                                    f"Cloud Pak For Data ({cpdInstanceNamespace}) is currently running version {cpdInstanceVersion} and will be updated to version {cpdTargetVersion}",
+                                    "It is recommended that you backup your Cloud Pak for Data instance before proceeding:",
+                                    "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/5.0.x?topic=administering-backing-up-restoring-cloud-pak-data</u>",
+                                ]
+                            )
 
                         # Lookup the storage classes already used by CP4D
                         # TODO: this should be done by the Ansible role, but isn't
@@ -606,12 +642,14 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         self.setParam("cp4d_update", "true")
                         self.setParam("skip_entitlement_key_flag", "true")
 
-                        self.detectCpdService('WS', 'ws.cpd.ibm.com/v1beta1', 'Watson Studio', "cp4d_update_ws")
-                        self.detectCpdService('WmlBase', 'wml.cpd.ibm.com/v1beta1', 'Watson Machine Learning', "cp4d_update_wml")
-                        self.detectCpdService('AnalyticsEngine', 'ae.cpd.ibm.com/v1', 'Analytics Engine', "cp4d_update_spark")
-                        self.detectCpdService('CAService', 'ca.cpd.ibm.com/v1', 'Cognos Analytics', "cp4d_update_cognos")
+                        self.detectCpdService("WS", "ws.cpd.ibm.com/v1beta1", "Watson Studio", "cp4d_update_ws")
+                        self.detectCpdService("WmlBase", "wml.cpd.ibm.com/v1beta1", "Watson Machine Learning", "cp4d_update_wml")
+                        self.detectCpdService("AnalyticsEngine", "ae.cpd.ibm.com/v1", "Analytics Engine", "cp4d_update_spark")
+                        self.detectCpdService("CAService", "ca.cpd.ibm.com/v1", "Cognos Analytics", "cp4d_update_cognos")
                     else:
-                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already installed at version {cpdTargetVersion}")
+                        h.stop_and_persist(
+                            symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already installed at version {cpdTargetVersion}"
+                        )
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="No IBM Cloud Pak for Data instance found")
             except (ResourceNotFoundError, NotFoundError):
@@ -662,22 +700,27 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
                         if len(namespaces) == 1:
                             # If db2u is only in one namespace, we will update that
-                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kindString} ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated")
+                            h.stop_and_persist(
+                                symbol=self.successIcon,
+                                text=f"{len(instances)} {kindString} ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated",
+                            )
                             logger.debug(f"There is only one namespace containing {kindString} so we will target that one: {namespaces}")
                             self.setParam(paramName, list(namespaces)[0])
                         elif self.noConfirm:
                             # If db2u is in multiple namespaces and user has disabled prompts then we must error
                             namespaceList = ", ".join(list(namespaces))
                             h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kindString} ({apiVersion}) were found in multiple namespaces")
-                            logger.warning(f"There are multiple namespaces containing {kindString} and user has enable --no-confirm without setting --{mode}-namespace: {namespaceList}")
-                            self.fatalError(f"{kindString} are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
+                            logger.warning(
+                                f"There are multiple namespaces containing {kindString} and user has enable --no-confirm without setting --{mode}-namespace: {namespaceList}"
+                            )
+                            self.fatalError(
+                                f"{kindString} are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument"
+                            )
                         else:
                             # Otherwise, provide user the list of namespaces we found and ask them to pick on
                             h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kindString} ({apiVersion}) found in multiple namespaces")
                             logger.debug(f"There are multiple namespaces containing {kindString}, user must choose: {namespaces}")
-                            self.printDescription([
-                                f"{kindString}s were found in multiple namespaces, select the namespace to target from the list below:"
-                            ])
+                            self.printDescription([f"{kindString}s were found in multiple namespaces, select the namespace to target from the list below:"])
                             for index, ns in enumerate(sorted(namespaces), start=1):
                                 self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
@@ -692,7 +735,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                             # Extract target major version (first two digits)
                             # Handle version formats like "11.5.8.0", "12.0.0.0", "v11.5", "v12.0", "s11.5.9.0-cn6"
                             try:
-                                match = re.match(r'^[vs]?(\d{2})[\d.]*', targetDb2uVersion)
+                                match = re.match(r"^[vs]?(\d{2})[\d.]*", targetDb2uVersion)
                                 if match:
                                     targetMajorVersion = int(match.group(1))
                                 else:
@@ -721,9 +764,9 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                                     logger.debug(f"Current Db2u version {instanceName}: {currentVersion}")
 
                                     # Extract major version from current instance
-                                    currentVersionStr = currentVersion.lstrip('s')
+                                    currentVersionStr = currentVersion.lstrip("s")
                                     try:
-                                        currentMajorVersion = int(currentVersionStr.split('.')[0])
+                                        currentMajorVersion = int(currentVersionStr.split(".")[0])
                                         instanceVersions.append((instanceName, currentMajorVersion, currentVersion))
 
                                         # Check if this instance needs upgrade
@@ -746,29 +789,45 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                                         minMajorVersion = minVersion[1]
 
                                         if self.noConfirm and self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
-                                            h.stop_and_persist(symbol=self.failureIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}")
-                                            self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm Db2 update to version {targetMajorVersion} using '--db2-v{targetMajorVersion}-upgrade' when using '--no-confirm'")
+                                            h.stop_and_persist(
+                                                symbol=self.failureIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}"
+                                            )
+                                            self.fatalError(
+                                                f"By choosing {self.getParam('mas_catalog_version')} you must confirm Db2 update to version {targetMajorVersion} using '--db2-v{targetMajorVersion}-upgrade' when using '--no-confirm'"
+                                            )
                                         elif self.getParam(f"db2_v{targetMajorVersion}_upgrade") != "true":
-                                            h.stop_and_persist(symbol=self.successIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}")
-                                            if not self.yesOrNo(f"Confirm update from Db2 {minMajorVersion} to {targetMajorVersion}", f"db2_v{targetMajorVersion}_upgrade"):
+                                            h.stop_and_persist(
+                                                symbol=self.successIcon, text=f"Db2 {minMajorVersion} needs to be updated to {targetMajorVersion}"
+                                            )
+                                            if not self.yesOrNo(
+                                                f"Confirm update from Db2 {minMajorVersion} to {targetMajorVersion}", f"db2_v{targetMajorVersion}_upgrade"
+                                            ):
                                                 exit(1)
                                             print()
                                         else:
-                                            h.stop_and_persist(symbol=self.successIcon, text=f"Db2 will be updated from {minMajorVersion} to {targetMajorVersion}")
+                                            h.stop_and_persist(
+                                                symbol=self.successIcon, text=f"Db2 will be updated from {minMajorVersion} to {targetMajorVersion}"
+                                            )
 
                                         # Db2 v11 to v12 upgrades require a customer-provided Db2 v12 license file.
                                         # Enforce this here so the update is blocked before the Tekton pipeline is launched.
                                         if minMajorVersion == 11 and targetMajorVersion == 12:
                                             # In non-interactive mode we must fail fast because there is no safe way to recover.
                                             if self.noConfirm and self.db2LicenseFileLocal is None:
-                                                self.fatalError("The Db2 v11 to v12 upgrade cannot proceed without a valid '--db2-license-file' argument when using '--no-confirm'")
+                                                self.fatalError(
+                                                    "The Db2 v11 to v12 upgrade cannot proceed without a valid '--db2-license-file' argument when using '--no-confirm'"
+                                                )
                                             elif self.db2LicenseFileLocal is None:
                                                 # In interactive mode, prompt for a valid license file before allowing the upgrade to continue.
-                                                self.printDescription([
-                                                    "Db2 v11 to v12 upgrades require a valid Db2 v12 activation license file.",
-                                                    "If you cannot provide a valid file, the update must be aborted."
-                                                ])
-                                                self.db2LicenseFileLocal = self.promptForFile("Path to a valid Db2 v12 license file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
+                                                self.printDescription(
+                                                    [
+                                                        "Db2 v11 to v12 upgrades require a valid Db2 v12 activation license file.",
+                                                        "If you cannot provide a valid file, the update must be aborted.",
+                                                    ]
+                                                )
+                                                self.db2LicenseFileLocal = self.promptForFile(
+                                                    "Path to a valid Db2 v12 license file", envVar="DB2_LICENSE_FILE", default="", mustExist=False
+                                                )
 
                                         # Set db2_channel when upgrade is confirmed (either via flag or user prompt)
                                         self.setParam("db2_channel", targetDb2uVersion)
@@ -807,22 +866,26 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
                         if len(namespaces) == 1:
                             # If kafka is only in one namespace, we will update that
-                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated")
+                            h.stop_and_persist(
+                                symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated"
+                            )
                             logger.debug(f"There is only one namespace containing {kind}s so we will target that one: {namespaces}")
                             self.setParam(paramName, list(namespaces)[0])
                         elif self.noConfirm:
                             # If kafka is in multiple namespaces and user has disabled prompts then we must error
                             namespaceList = ", ".join(list(namespaces))
                             h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kind}s ({apiVersion}) were found in multiple namespaces")
-                            logger.warning(f"There are multiple namespaces containing {kind}s and user has enable --no-confirm without setting --{mode}-namespace: {namespaceList}")
-                            self.fatalError(f"{kind}s are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
+                            logger.warning(
+                                f"There are multiple namespaces containing {kind}s and user has enable --no-confirm without setting --{mode}-namespace: {namespaceList}"
+                            )
+                            self.fatalError(
+                                f"{kind}s are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument"
+                            )
                         else:
                             # Otherwise, provide user the list of namespaces we found and ask them to pick on
                             h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) found in multiple namespaces")
                             logger.debug(f"There are multiple namespaces containing {kind}s, user must choose: {namespaces}")
-                            self.printDescription([
-                                f"{kind}s were found in multiple namespaces, select the namespace to target from the list below:"
-                            ])
+                            self.printDescription([f"{kind}s were found in multiple namespaces, select the namespace to target from the list below:"])
                             for index, ns in enumerate(sorted(namespaces), start=1):
                                 self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)

@@ -19,6 +19,9 @@ spec:
     - name: shared-db2
     # AIService configurations. Contains Scheduling config file for AI workloads for tenant.
     - name: shared-aiservice-config
+    # Facilities Properties File
+    - name: shared-facilities-properties
+      optional: true
 
   params:
     # 1. Common Parameters
@@ -495,6 +498,8 @@ spec:
 
     # 14.2 Generate AiCfg with auto-detected values
     # -------------------------------------------------------------------------
+    # Note: AiCfg CRD is only available in MAS 9.2+, so we guard this task
+    # to prevent errors on MAS 9.1 clusters
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/gencfg-aiservice.yml.j2') | indent(4) }}
       runAfter:
         - aiservice
@@ -508,6 +513,9 @@ spec:
         - input: "$(params.configure_aiassistant)"
           operator: in
           values: ["pipeline"]
+        - input: "$(params.mas_channel)"
+          operator: notin
+          values: ["", "9.0.*", "9.1.*"]
 
     # 15. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
@@ -560,3 +568,4 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
+
