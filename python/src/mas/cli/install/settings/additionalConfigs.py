@@ -222,11 +222,28 @@ class AdditionalConfigsMixin:
             self.db2LicenseFileSecret = None
 
     def facilitiesPropertiesFile(self) -> None:
-        """Handle Facilities properties file upload"""
+        """Handle Facilities properties file upload (MAS 9.2+ only)"""
         self.facilitiesPropertiesSecret = None
+        
+        # Check MAS version - Custom FACILITIES.properties is only supported in MAS 9.2+
+        mas_channel = self.getParam("mas_channel")
+        is_mas_92_or_later = False
+
+        if mas_channel:
+            try:
+                # Extract major.minor version (e.g., "9.2" from "9.2.0")
+                version_parts = mas_channel.split(".")
+                if len(version_parts) >= 2:
+                    major = int(version_parts[0])
+                    minor = int(version_parts[1])
+                    is_mas_92_or_later = (major > 9) or (major == 9 and minor >= 2)
+            except (ValueError, IndexError):
+                pass
+
+        # Only process custom file if MAS 9.2+ and file is provided
         facilitiesPropertiesFileLocal = self.getParam("mas_ws_facilities_properties_file_local")
 
-        if facilitiesPropertiesFileLocal and facilitiesPropertiesFileLocal != "":
+        if is_mas_92_or_later and facilitiesPropertiesFileLocal and facilitiesPropertiesFileLocal != "":
             # Get custom secret name or use default
             secretName = self.getParam("mas_ws_facilities_properties_secret_name")
             if not secretName or secretName == "":
@@ -242,6 +259,7 @@ class AdditionalConfigsMixin:
             self.setParam("mas_ws_facilities_properties_file_local", "/workspace/facilities/FACILITIES.properties")
             self.setParam("mas_ws_facilities_properties_secret_name", secretName)
         else:
+            # For MAS 9.1 or earlier, or when no file is provided, use default behavior
             self.setParam("mas_ws_facilities_custom_properties", "false")
             self.setParam("mas_ws_facilities_properties_file_local", "")
             self.setParam("mas_ws_facilities_properties_secret_name", "")
