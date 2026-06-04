@@ -46,6 +46,7 @@ from mas.cli.validators import (
     JsonValidator,
     OptimizerInstallPlanValidator,
     BucketPrefixValidator,
+    FileExistsValidator,
 )
 
 from mas.devops.ocp import (
@@ -1541,6 +1542,28 @@ class InstallApp(
                         "mas_ws_facilities_vault_secret",
                     )
 
+                # Prompt for custom FACILITIES.properties file
+                if self.yesOrNo("Upload custom FACILITIES.properties file"):
+                    self.printDescription(
+                        [
+                            "Provide the path to your custom FACILITIES.properties file.",
+                            "This file will be uploaded as a secret in OpenShift.",
+                            "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
+                        ]
+                    )
+                    self.promptForString("Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator())
+
+                    self.setParam("mas_ws_facilities_custom_properties", "true")
+
+                    # Prompt for custom secret name
+                    customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
+                    # Use default if not provided
+                    if not customSecretName or customSecretName.strip() == "":
+                        customSecretName = "custom-facilities-properties"
+                    self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
+                else:
+                    self.setParam("mas_ws_facilities_custom_properties", "false")
+
                 self.promptForString(
                     "Set Real Estate and Facilities Routes Timeout:",
                     "mas_ws_facilities_routes_timeout",
@@ -2551,6 +2574,7 @@ class InstallApp(
         self.podTemplates()
         self.slsLicenseFile()
         self.db2LicenseFile()
+        self.facilitiesPropertiesFile()
         self.manualCertificates()
         self.aiserviceConfig()
 
@@ -2757,6 +2781,7 @@ class InstallApp(
                     namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
                     db2LicenseFile=self.db2LicenseFileSecret,
+                    facilitiesProperties=self.facilitiesPropertiesSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,
