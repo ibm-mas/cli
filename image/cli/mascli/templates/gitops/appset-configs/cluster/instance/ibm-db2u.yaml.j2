@@ -1,11 +1,5 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
-{% if SECRET_KEY_AWS_ACCESS_KEY_ID is defined and SECRET_KEY_AWS_ACCESS_KEY_ID !='' %}
-sm:
-  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_ACCESS_KEY_ID }}>"
-  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_SECRET_ACCESS_KEY }}>" # pragma: allowlist secret
-{% endif %}
-
 ibm_db2u:
   db2_namespace: {{ DB2_NAMESPACE }}
   db2_install_plan: {{ DB2_INSTALL_PLAN }}
@@ -15,6 +9,4 @@ ibm_db2u:
   db2_channel: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_DEFAULT_CHANNEL }}>
 {% endif %}
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
-{% if CLUSTER_DOMAIN is defined and CLUSTER_DOMAIN !='' %}
-  cluster_domain: {{ CLUSTER_DOMAIN }}
-{% endif %}
+
