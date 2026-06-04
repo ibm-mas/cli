@@ -703,7 +703,6 @@ class InstallApp(
         self.configCATrust()
         self.configDNSAndCerts()
         self.configRoutingMode()
-        self.configManualRoutesMgmt()
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -1018,22 +1017,18 @@ class InstallApp(
             return False
 
     @logMethodCall
-    def configManualRoutesMgmt(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Configure Routes Manually")
-            self.printDescription(["Disable automatic route creation."])
-            self.yesOrNo("Disable Route Creation", "mas_manual_route_mgmt")
-        else:
-            self.setParam("mas_manual_route_mgmt", "false")
-
-    @logMethodCall
     def configServiceMesh(self) -> None:
         if self.showAdvancedOptions:
-            self.printH1("Configure Service Mesh")
-            self.printDescription(["By default, Maximo Application Suite does not use Service Mesh for routing."])
-            self.yesOrNo("Use Service Mesh", "mas_use_service_mesh")
+            self.printH1("Service Mesh")
+            self.printDescription(
+                [
+                    "If Red Hat OpenShift Service Mesh is installed in the cluster and configured to monitor the Maximo Application Suite namespaces then the pods in MAS will create sidecars to allow monitoring of traffic via Service Mesh. This is a pre-requisite for using Service Mesh to manage Ingress for MAS."
+                ]
+            )
+            self.yesOrNo("Enable OpenShift Service Mesh support for MAS", "mas_use_service_mesh")
         else:
             self.setParam("mas_use_service_mesh", "false")
+        self.setParam("mas_manual_route_mgmt", "false")
 
     @logMethodCall
     def configAnnotations(self):
