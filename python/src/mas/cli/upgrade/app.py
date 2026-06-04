@@ -286,7 +286,8 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
-            self.printDescription(["To continue with the upgrade, you must accept the license terms:", self.licenses[self.nextChannel]])
+            licenseText = self.getLicenseForChannel(self.nextChannel)
+            self.printDescription(["To continue with the upgrade, you must accept the license terms:", licenseText])
 
             if self.noConfirm:
                 self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")

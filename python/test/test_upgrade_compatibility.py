@@ -49,6 +49,34 @@ class TestUpgradeCompatibility:
         assert base_app.extractVersionPrefix("9.2.x-feature-dev") == "9.2.x-feature"
 
     # =========================================================================
+    # Test getLicenseForChannel
+    # =========================================================================
+
+    def test_get_license_exact_match(self, base_app):
+        """Test getting license for exact channel matches"""
+        license_9_1 = base_app.getLicenseForChannel("9.1.x")
+        assert "https://ibm.biz/MAS91-License" in license_9_1
+
+        license_9_0 = base_app.getLicenseForChannel("9.0.x")
+        assert "https://ibm.biz/MAS90-License" in license_9_0
+
+    def test_get_license_pattern_matching(self, base_app):
+        """Test getting license with pattern matching for suffixes"""
+        # 9.1.x-dev should return license for 9.1.x
+        license_dev = base_app.getLicenseForChannel("9.1.x-dev")
+        assert "https://ibm.biz/MAS91-License" in license_dev
+
+        # 9.2.x-feature-dev should return license for 9.2.x-feature
+        license_feature_dev = base_app.getLicenseForChannel("9.2.x-feature-dev")
+        assert "https://ibm.biz/MAS91-License" in license_feature_dev
+        assert "non-production use only" in license_feature_dev
+
+    def test_get_license_fallback(self, base_app):
+        """Test fallback message for unknown channels"""
+        license_unknown = base_app.getLicenseForChannel("10.0.x-unknown")
+        assert "License information not available" in license_unknown
+
+    # =========================================================================
     # Test isCompatibleUpgradePath - ACCEPTED paths
     # =========================================================================
 

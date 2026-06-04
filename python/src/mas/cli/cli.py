@@ -343,6 +343,34 @@ class BaseApp(PrintMixin, PromptMixin):
             logger.info("Successfully created Tekton definitions with CLI digest")
 
     @logMethodCall
+    def getLicenseForChannel(self, channel: str) -> str:
+        """
+        Get the license text for a channel, using pattern matching if needed.
+
+        Examples:
+            "9.1.x" -> returns license for "9.1.x"
+            "9.1.x-dev" -> returns license for "9.1.x"
+            "9.2.x-feature-dev" -> returns license for "9.2.x-feature"
+
+        Returns:
+            License text string, or a default message if no license found
+        """
+        # Direct lookup
+        if channel in self.licenses:
+            return self.licenses[channel]
+
+        # Pattern matching: try progressively shorter prefixes
+        if "-" in channel:
+            parts = channel.split("-")
+            for i in range(len(parts), 0, -1):
+                prefix = "-".join(parts[:i])
+                if prefix in self.licenses:
+                    return self.licenses[prefix]
+
+        # Fallback: return a generic message
+        return f"License information not available for channel {channel}. Please refer to IBM documentation."
+
+    @logMethodCall
     def extractVersionPrefix(self, channel: str) -> str:
         """
         Extract the version prefix from a channel string by finding the longest
