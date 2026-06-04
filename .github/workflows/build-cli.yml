@@ -490,6 +490,13 @@ jobs:
           else
             echo "Publishing quay.io/ibmmas/cli:$GITHUB_REF_NAME alias"
             docker buildx imagetools create -t quay.io/ibmmas/cli:$GITHUB_REF_NAME quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+            
+            # Preserve digests for master and monthlyupdate branches with build-specific tags
+            if [[ "$GITHUB_REF_NAME" == "master" ]] || [[ "$GITHUB_REF_NAME" == "fix-branch-tag" ]]; then
+              BUILD_TAG="${GITHUB_REF_NAME}-${{ github.run_number }}"
+              echo "Publishing quay.io/ibmmas/cli:${BUILD_TAG} for digest preservation"
+              docker buildx imagetools create -t quay.io/ibmmas/cli:${BUILD_TAG} quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+            fi
           fi
 
 
