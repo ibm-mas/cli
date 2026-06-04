@@ -1568,19 +1568,14 @@ class InstallApp(
                             ]
                         )
                         facilitiesPropertiesFile = self.promptForString(
-                            "Path to FACILITIES.properties file",
-                            "mas_ws_facilities_properties_file_local",
-                            validator=FileExistsValidator()
+                            "Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator()
                         )
                         # FileExistsValidator ensures file exists, so we can proceed directly
                         self.setParam("mas_ws_facilities_properties_file_local", facilitiesPropertiesFile)
                         self.setParam("mas_ws_facilities_custom_properties", "true")
 
                         # Prompt for custom secret name (optional, with default)
-                        customSecretName = self.promptForString(
-                            "Specify the custom secret name",
-                            "mas_ws_facilities_properties_secret_name"
-                        )
+                        customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
                         # Use default if not provided
                         if not customSecretName or customSecretName.strip() == "":
                             customSecretName = "custom-facilities-properties"

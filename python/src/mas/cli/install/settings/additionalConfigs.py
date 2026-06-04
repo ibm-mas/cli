@@ -224,7 +224,7 @@ class AdditionalConfigsMixin:
     def facilitiesPropertiesFile(self) -> None:
         """Handle Facilities properties file upload (MAS 9.2+ only)"""
         self.facilitiesPropertiesSecret = None
-        
+
         # Check MAS version - Custom FACILITIES.properties is only supported in MAS 9.2+
         mas_channel = self.getParam("mas_channel")
         is_mas_92_or_later = False
