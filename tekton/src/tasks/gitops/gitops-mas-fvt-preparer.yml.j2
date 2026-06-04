@@ -778,9 +778,9 @@ spec:
           fi
 
           # wait for the root apps to sync to make sure the setting has been applied everywhere
-          check_argo_app_synced "${ACCOUNT_ROOT_APP}"
-          check_argo_app_synced "${CLUSTER_ROOT_APP}"
-          check_argo_app_synced "${INSTANCE_ROOT_APP}"
+          check_argo_app_synced "${ACCOUNT_ROOT_APP}" "" "" "label"
+          check_argo_app_synced "${CLUSTER_ROOT_APP}" "" "" "label"
+          check_argo_app_synced "${INSTANCE_ROOT_APP}" "" "" "label"
 
           if [[ "${USE_SENDGRID}" == "true" ]]; then
             disable_subuser
