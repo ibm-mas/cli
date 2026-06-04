@@ -1543,22 +1543,10 @@ class InstallApp(
                     )
 
                 # Check MAS version - Custom FACILITIES.properties is only supported in MAS 9.2+
-                mas_channel = self.getParam("mas_channel")
-                is_mas_92_or_later = False
-
-                if mas_channel:
-                    try:
-                        # Extract major.minor version (e.g., "9.2" from "9.2.0")
-                        version_parts = mas_channel.split(".")
-                        if len(version_parts) >= 2:
-                            major = int(version_parts[0])
-                            minor = int(version_parts[1])
-                            is_mas_92_or_later = (major > 9) or (major == 9 and minor >= 2)
-                    except (ValueError, IndexError):
-                        pass
+                mas_facilities_channel = self.getParam("mas_app_channel_facilities")
 
                 # Only prompt for custom FACILITIES.properties file if MAS 9.2+
-                if is_mas_92_or_later:
+                if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
                     if self.yesOrNo("Upload custom FACILITIES.properties file"):
                         self.printDescription(
                             [

@@ -13,6 +13,7 @@ from os import path
 from base64 import b64encode
 from glob import glob
 from prompt_toolkit import print_formatted_text
+from mas.devops.utils import isVersionEqualOrAfter
 
 import logging
 
@@ -226,24 +227,17 @@ class AdditionalConfigsMixin:
         self.facilitiesPropertiesSecret = None
 
         # Check MAS version - Custom FACILITIES.properties is only supported in MAS 9.2+
-        mas_channel = self.getParam("mas_channel")
-        is_mas_92_or_later = False
-
-        if mas_channel:
-            try:
-                # Extract major.minor version (e.g., "9.2" from "9.2.0")
-                version_parts = mas_channel.split(".")
-                if len(version_parts) >= 2:
-                    major = int(version_parts[0])
-                    minor = int(version_parts[1])
-                    is_mas_92_or_later = (major > 9) or (major == 9 and minor >= 2)
-            except (ValueError, IndexError):
-                pass
+        mas_facilities_channel = self.getParam("mas_app_channel_facilities")
 
         # Only process custom file if MAS 9.2+ and file is provided
         facilitiesPropertiesFileLocal = self.getParam("mas_ws_facilities_properties_file_local")
 
-        if is_mas_92_or_later and facilitiesPropertiesFileLocal and facilitiesPropertiesFileLocal != "":
+        if (
+            mas_facilities_channel
+            and isVersionEqualOrAfter("9.2.0", mas_facilities_channel)
+            and facilitiesPropertiesFileLocal
+            and facilitiesPropertiesFileLocal != ""
+        ):
             # Get custom secret name or use default
             secretName = self.getParam("mas_ws_facilities_properties_secret_name")
             if not secretName or secretName == "":
