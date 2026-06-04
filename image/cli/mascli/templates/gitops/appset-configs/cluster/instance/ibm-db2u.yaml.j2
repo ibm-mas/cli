@@ -1,5 +1,11 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
+{% if SECRET_KEY_AWS_ACCESS_KEY_ID is defined and SECRET_KEY_AWS_ACCESS_KEY_ID !='' %}
+sm:
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_ACCESS_KEY_ID }}>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_SECRET_ACCESS_KEY }}>" # pragma: allowlist secret
+{% endif %}
+
 ibm_db2u:
   db2_namespace: {{ DB2_NAMESPACE }}
   db2_install_plan: {{ DB2_INSTALL_PLAN }}
@@ -9,4 +15,54 @@ ibm_db2u:
   db2_channel: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_DEFAULT_CHANNEL }}>
 {% endif %}
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
+{% if CLUSTER_DOMAIN is defined and CLUSTER_DOMAIN !='' %}
+  cluster_domain: {{ CLUSTER_DOMAIN }}
+{% endif %}
 
+# DB2 instance configuration
+db2_instance_name: db2u-{{ MAS_INSTANCE_ID }}
+db2_dbname: BLUDB
+db2_version: {% if DB2_VERSION is defined and DB2_VERSION !='' %}{{ DB2_VERSION }}{% else %}s11.5.9.0-cn2{% endif %}
+
+db2_action: install
+db2_type: db2wh
+db2_mln_count: 1
+db2_num_pods: 1
+db2_table_org: COLUMN
+
+# Resource limits
+db2_cpu_requests: 2000m
+db2_memory_requests: 8Gi
+db2_cpu_limits: 4000m
+db2_memory_limits: 16Gi
+
+# Storage configuration - following fvtsaas pattern adapted for AWS
+# meta & backup use EFS with ReadWriteMany (shared by etcd and db2u pods)
+db2_meta_storage_class: generated(efs)
+db2_meta_storage_accessmode: ReadWriteMany
+db2_meta_storage_size: 20Gi
+
+db2_backup_storage_class: generated(efs)
+db2_backup_storage_accessmode: ReadWriteMany
+db2_backup_storage_size: 100Gi
+
+# data, tempts, logs use gp3 (ReadWriteOnce - per-pod volumes)
+db2_data_storage_class: gp3
+db2_data_storage_accessmode: ReadWriteOnce
+db2_data_storage_size: 100Gi
+
+db2_temp_storage_class: gp3
+db2_temp_storage_accessmode: ReadWriteOnce
+db2_temp_storage_size: 100Gi
+
+db2_logs_storage_class: gp3
+db2_logs_storage_accessmode: ReadWriteOnce
+db2_logs_storage_size: 100Gi
+
+# audit logs use EFS with ReadWriteMany (shared volume)
+db2_audit_logs_storage_class: generated(efs)
+db2_audit_logs_storage_accessmode: ReadWriteMany
+db2_audit_logs_storage_size: 100Gi
+
+# LDAP authentication - AI Service does not require LDAP
+db2_ldap_enabled: false

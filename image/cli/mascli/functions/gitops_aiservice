@@ -541,6 +541,8 @@ function gitops_aiservice() {
       # Set the AWS Secrets Manager keys for DB2
       export SECRET_KEY_DB2_DEFAULT_CHANNEL="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel"
       export SECRET_KEY_IBM_ENTITLEMENT="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64"
+      export SECRET_KEY_AWS_ACCESS_KEY_ID="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws#sm_aws_access_key_id"
+      export SECRET_KEY_AWS_SECRET_ACCESS_KEY="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws#sm_aws_secret_access_key"
       
       # Read DB2 version from aiservice-params if available
       export DB2_VERSION=$(yq eval '.db2u.version // "s11.5.9.0-cn2"' ${CONFIG_DIR}/${AISERVICE_INSTANCE_ID}/aiservice-params.yaml)
