@@ -65,7 +65,7 @@ class UninstallApp(BaseApp):
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
 
         if self.dynamicClient is None:
-            self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
+            self.fatalError("Not successfully connected to a Kubernetes cluster.  See log file for details")
 
         if instanceId is None:
             # Interactive mode
