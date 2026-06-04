@@ -222,12 +222,13 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
         if currentChannel is not None:
-            if self.devMode:
+            if self.devMode and self.nextChannel == "":
+                # Interactive mode: prompt for custom channel only if --next-channel was not provided
                 # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
                 self.nextChannel = prompt(HTML("<Yellow>Custom channel</Yellow> "))
-            else:
-                # Validate that custom channel suffixes require dev mode
+            elif not self.devMode:
+                # Non-dev mode: validate that custom channel suffixes require dev mode
                 if self.nextChannel != "" and self.hasCustomSuffix(self.nextChannel):
                     self.fatalError(
                         f"Channel '{self.nextChannel}' uses a custom suffix which is only allowed in development mode.\n"
@@ -235,27 +236,28 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         f"Standard channels: {', '.join(sorted(set(list(self.upgrade_path.keys()) + list(self.compatibilityMatrix.keys()))))}"
                     )
 
-                if self.nextChannel != "":
-                    # --next-channel was explicitly provided by the user
-                    if self.nextChannel == currentChannel:
-                        # Retry scenario: MAS core already on target channel, but some apps may still be behind
-                        print_formatted_text(
-                            HTML(
-                                f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
-                                f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
-                            )
+            # Process the next channel (whether from --next-channel or prompted)
+            if self.nextChannel != "":
+                # --next-channel was explicitly provided by the user (or prompted in dev mode)
+                if self.nextChannel == currentChannel:
+                    # Retry scenario: MAS core already on target channel, but some apps may still be behind
+                    print_formatted_text(
+                        HTML(
+                            f"<LightSlateGrey>Next Channel {self.nextChannel} equals Current MAS Core Channel {currentChannel}. "
+                            f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
                         )
-                    elif self.isCompatibleUpgradePath(currentChannel, self.nextChannel):
-                        # Valid upgrade path: currentChannel -> nextChannel (supports pattern matching)
-                        pass
-                    else:
-                        self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
+                    )
+                elif self.isCompatibleUpgradePath(currentChannel, self.nextChannel):
+                    # Valid upgrade path: currentChannel -> nextChannel (supports pattern matching)
+                    pass
                 else:
-                    # No --next-channel given: derive from upgrade_path
-                    derivedNextChannel = self.getNextChannel(currentChannel)
-                    if derivedNextChannel is None:
-                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {currentChannel}")
-                    self.nextChannel = derivedNextChannel
+                    self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
+            else:
+                # No --next-channel given and not in dev mode: derive from upgrade_path
+                derivedNextChannel = self.getNextChannel(currentChannel)
+                if derivedNextChannel is None:
+                    self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {currentChannel}")
+                self.nextChannel = derivedNextChannel
 
                 # Validate installed apps compatibility with the target channel
                 installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
