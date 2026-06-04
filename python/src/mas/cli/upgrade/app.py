@@ -227,6 +227,14 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
                 self.nextChannel = prompt(HTML("<Yellow>Custom channel</Yellow> "))
             else:
+                # Validate that custom channel suffixes require dev mode
+                if self.nextChannel != "" and self.hasCustomSuffix(self.nextChannel):
+                    self.fatalError(
+                        f"Channel '{self.nextChannel}' uses a custom suffix which is only allowed in development mode.\n"
+                        f"Please use --dev-mode flag to upgrade to custom channel versions, or use a standard channel.\n"
+                        f"Standard channels: {', '.join(sorted(set(list(self.upgrade_path.keys()) + list(self.compatibilityMatrix.keys()))))}"
+                    )
+
                 if self.nextChannel != "":
                     # --next-channel was explicitly provided by the user
                     if self.nextChannel == currentChannel:

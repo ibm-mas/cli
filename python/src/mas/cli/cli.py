@@ -343,6 +343,42 @@ class BaseApp(PrintMixin, PromptMixin):
             logger.info("Successfully created Tekton definitions with CLI digest")
 
     @logMethodCall
+    def hasCustomSuffix(self, channel: str) -> bool:
+        """
+        Check if a channel has a custom suffix (not in standard channels).
+
+        Standard suffixes that are always allowed:
+        - No suffix (e.g., "9.0.x", "9.1.x")
+        - "-feature" suffix (e.g., "9.1.x-feature", "9.2.x-feature")
+
+        Custom suffixes that require dev mode:
+        - "-dev", "-stable", "-test1", etc.
+
+        Returns:
+            True if channel has a custom suffix, False otherwise
+        """
+        if "-" not in channel:
+            return False
+
+        # Check if it's a standard channel (exists in upgrade_path or compatibilityMatrix)
+        if channel in self.upgrade_path or channel in self.compatibilityMatrix:
+            return False
+
+        # Extract the suffix
+        parts = channel.split("-")
+        if len(parts) < 2:
+            return False
+
+        # Check if base version exists
+        baseVersion = parts[0]  # e.g., "9.0.x"
+        if baseVersion not in self.upgrade_path and baseVersion not in self.compatibilityMatrix:
+            # Base version doesn't exist, so this is invalid regardless
+            return False
+
+        # If we get here, it has a custom suffix
+        return True
+
+    @logMethodCall
     def getLicenseForChannel(self, channel: str) -> str:
         """
         Get the license text for a channel, using pattern matching if needed.
