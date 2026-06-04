@@ -100,7 +100,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             self.connect()
 
         if self.dynamicClient is None:
-            self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
+            self.fatalError("Not successfully connected to a Kubernetes cluster.  See log file for details")
 
         # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
         # deprecated MaximoApplicationSuite ImageContentSourcePolicy instead of the new ImageDigestMirrorSet
@@ -288,16 +288,16 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) Apr 30 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
-                "  2) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
-                "  3) Feb 26 2026 Update (MAS 9.1.10, 9.0.21, 8.11.32, &amp; 8.10.35)",
+                "  1) May 27 2026 Update (MAS 9.1.18, 9.0.26, 8.11.34, &amp; 8.10.37)",
+                "  2) Apr 30 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
+                "  3) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
             ]
         )
 
         catalogOptions = [
+            "v9-260527-amd64",
             "v9-260430-amd64",
             "v9-260326-amd64",
-            "v9-260226-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
