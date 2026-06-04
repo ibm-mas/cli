@@ -22,7 +22,9 @@
       value: {{ verify_ingress | default("True") }}
     - name: ocp_ingress_tls_secret_name
       value: $(params.ocp_ingress_tls_secret_name)
+{% if name != "post-install-verify" %}
   when:
     - input: "$(params.skip_pre_check)"
       operator: notin
       values: ["True", "true"]
+{% endif %}

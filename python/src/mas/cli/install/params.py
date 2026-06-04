@@ -23,7 +23,7 @@ requiredParams = [
     # DRO
     "dro_contact_email",
     "dro_contact_firstname",
-    "dro_contact_lastname"
+    "dro_contact_lastname",
 ]
 
 optionalParams = [
@@ -40,11 +40,12 @@ optionalParams = [
     "mas_routing_mode",
     "mas_use_service_mesh",
     "mas_ingress_controller_name",
+    "mas_manual_route_mgmt",
     "mas_app_settings_server_bundles_size",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
     "mas_app_settings_demodata",
-    "mas_permission_mode",
+    "mas_admin_mode",
     "mas_issuer_kind",
     "mas_app_settings_customization_archive_name",
     "mas_app_settings_customization_archive_url",
@@ -60,6 +61,7 @@ optionalParams = [
     "mas_manage_ws_db_encryptionsecret",
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
+    "mas_appws_bindings_kafka_manage",
     "mas_appws_components",
     "mas_appws_bindings_health_wsl_flag",
     "mas_domain",
@@ -172,6 +174,9 @@ optionalParams = [
     "mas_ws_facilities_storage_userfiles_size",
     "mas_ws_facilities_dwfagents",
     "mas_ws_facilities_db_maxconnpoolsize",
+    "mas_ws_facilities_properties_file_local",
+    "mas_ws_facilities_custom_properties",
+    "mas_ws_facilities_properties_secret_name",
     # Special chars
     "mas_special_characters",
     # ODH
@@ -189,7 +194,6 @@ optionalParams = [
     "aiservice_s3_bucket_prefix",
     "aiservice_s3_tenants_bucket",
     "aiservice_s3_templates_bucket",
-
     "aiservice_watsonxai_apikey",
     "aiservice_watsonxai_url",
     "aiservice_watsonxai_project_id",
@@ -204,29 +208,21 @@ optionalParams = [
     "aiservice_instance_id",
     "aiservice_watsonxai_instance_id",
     "aiservice_watsonxai_verify",
-
     "minio_root_user",
     "minio_root_password",
-
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
-
-    "rsl_url",
-    "rsl_org_id",
-    "rsl_token",
     "rsl_ca_crt",
     "environment_type",
-
+    "configure_aiassistant",
     # Certificate Issuer
     "aiservice_certificate_issuer",
-
     # Grafana
     "skip_grafana_install",
     "grafana_v5_namespace",
     "grafana_instance_storage_size",
-
     # Slack Integration
     "slack_token",
-    "slack_channel"
+    "slack_channel",
 ]

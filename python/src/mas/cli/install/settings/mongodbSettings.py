@@ -12,13 +12,12 @@ from typing import TYPE_CHECKING, Dict, List
 from os import path
 from prompt_toolkit import print_formatted_text
 
-
 if TYPE_CHECKING:
     from prompt_toolkit.completion import WordCompleter
     from prompt_toolkit.validation import Validator
 
 
-class MongoDbSettingsMixin():
+class MongoDbSettingsMixin:
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
@@ -27,22 +26,17 @@ class MongoDbSettingsMixin():
         localConfigDir: str | None
 
         # Methods from BaseApp
-        def setParam(self, param: str, value: str) -> None:
-            ...
+        def setParam(self, param: str, value: str) -> None: ...
 
-        def getParam(self, param: str) -> str:
-            ...
+        def getParam(self, param: str) -> str: ...
 
         # Methods from PrintMixin
-        def printH1(self, message: str) -> None:
-            ...
+        def printH1(self, message: str) -> None: ...
 
-        def printDescription(self, content: List[str]) -> None:
-            ...
+        def printDescription(self, content: List[str]) -> None: ...
 
         # Methods from PromptMixin
-        def yesOrNo(self, message: str, param: str | None = None) -> bool:
-            ...
+        def yesOrNo(self, message: str, param: str | None = None) -> bool: ...
 
         def promptForString(
             self,
@@ -51,24 +45,25 @@ class MongoDbSettingsMixin():
             default: str = "",
             isPassword: bool = False,
             validator: Validator | None = None,
-            completer: WordCompleter | None = None
-        ) -> str:
-            ...
+            completer: WordCompleter | None = None,
+        ) -> str: ...
 
         # Methods from other mixins
-        def selectLocalConfigDir(self) -> None:
-            ...
+        def selectLocalConfigDir(self) -> None: ...
 
-        def generateMongoCfg(self, instanceId: str, destination: str) -> None:
-            ...
+        def generateMongoCfg(self, instanceId: str, destination: str) -> None: ...
 
     def configMongoDb(self) -> None:
         self.printH1("Configure MongoDb")
-        self.printDescription([
-            "The installer can setup mongoce in your OpenShift cluster (available only for amd64) or you may choose to configure MAS to use an existing mongodb"
-        ])
+        self.printDescription(
+            [
+                "The installer can setup mongoce in your OpenShift cluster (available only for amd64) or you may choose to configure MAS to use an existing mongodb"
+            ]
+        )
 
-        if (self.architecture != "s390x" and self.architecture != "ppc64le") and self.yesOrNo("Create MongoDb cluster using MongoDb Community Edition Operator"):
+        if (self.architecture != "s390x" and self.architecture != "ppc64le") and self.yesOrNo(
+            "Create MongoDb cluster using MongoDb Community Edition Operator"
+        ):
             if self.showAdvancedOptions:
                 self.promptForString("MongoDb namespace", "mongodb_namespace", default="mongoce")
             else:
@@ -82,7 +77,7 @@ class MongoDbSettingsMixin():
             self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
             self.selectLocalConfigDir()
 
-            instanceId = self.getParam('mas_instance_id')
+            instanceId = self.getParam("mas_instance_id")
             # Check if a configuration already exists before creating a new one
             assert self.localConfigDir is not None, "localConfigDir must be set"
             mongoCfgFile = path.join(self.localConfigDir, "mongodb-system.yaml")

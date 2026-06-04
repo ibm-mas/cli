@@ -12,7 +12,7 @@ from xmljson import Yahoo
 import glob
 
 if __name__ == "__main__":
-    if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
+    if "DEVOPS_MONGO_URI" not in os.environ or os.environ["DEVOPS_MONGO_URI"] == "":
         sys.exit(0)
 
     print("MongoDb integration enabled (v2 data model)")
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     print(f"Run ID ................. {runId}")
     print(f"Result ID .............. {resultId}")
 
-    resultFiles = glob.glob(f'{junitOutputDir}/*.xml')
+    resultFiles = glob.glob(f"{junitOutputDir}/*.xml")
     for resultfile in resultFiles:
         try:
             tree = ET.parse(resultfile)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
             "productId": productId,
             "channelId": channelId,
             "version": cliVersion,
-            "ansibleDevopsVersion": ansibleDevopsVersion
+            "ansibleDevopsVersion": ansibleDevopsVersion,
         }
 
         # Look for existing summary document
@@ -111,7 +111,7 @@ if __name__ == "__main__":
             "name": suite,
             "skipped": int(resultDoc["testsuites"]["testsuite"]["skipped"]),
             "time": float(resultDoc["testsuites"]["testsuite"]["time"]),
-            "failures": int(resultDoc["testsuites"]["testsuite"]["failures"])
+            "failures": int(resultDoc["testsuites"]["testsuite"]["failures"]),
         }
 
         # Connect to mongoDb
@@ -122,29 +122,25 @@ if __name__ == "__main__":
         result1 = db.runsv2.find_one_and_update(
             {"_id": runId},
             {
-                '$setOnInsert': {
+                "$setOnInsert": {
                     "_id": runId,
                     "timestamp": datetime.now(UTC),
                     "target": {
                         "instanceId": instanceId,
                         "buildId": build,
-                    }
+                    },
                 },
-                '$set': {
+                "$set": {
                     f"products.{productId}.productId": productId,
                     f"products.{productId}.channelId": channelId,
                     f"products.{productId}.version": cliVersion,
                     f"products.{productId}.ansibleDevopsVersion": ansibleDevopsVersion,
-                    f"products.{productId}.results.{suite}": suiteSummary
-                }
+                    f"products.{productId}.results.{suite}": suiteSummary,
+                },
             },
-            upsert=True
+            upsert=True,
         )
 
         # Replace or create result doc
-        result2 = db.resultsv2.replace_one(
-            {"_id": resultId},
-            resultDoc,
-            upsert=True
-        )
+        result2 = db.resultsv2.replace_one({"_id": resultId}, resultDoc, upsert=True)
         print("Pipeline results saved to MongoDb (v2 data model)")

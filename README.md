@@ -1,7 +1,7 @@
 IBM Maximo Application Suite CLI Utility
 ===============================================================================
-[![Code style: PEP8](https://img.shields.io/badge/code%20style-PEP--8-blue.svg)](https://peps.python.org/pep-0008/)
-[![Flake8: checked](https://img.shields.io/badge/Flake8-Checked-blueviolet)](https://flake8.pycqa.org/en/latest/)
+[![Code Style: Black](https://img.shields.io/badge/Code%20Style-Black-000000.svg)](https://github.com/psf/black)
+[![Flake8: Checked](https://img.shields.io/badge/Flake8-Checked-blueviolet)](https://flake8.pycqa.org/en/latest/)
 ![PyPI - Version](https://img.shields.io/pypi/v/mas.cli)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mas.cli)
 
