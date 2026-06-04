@@ -1018,7 +1018,7 @@ class InstallApp(
 
     @logMethodCall
     def configServiceMesh(self) -> None:
-        if self.showAdvancedOptions:
+        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.printH1("Service Mesh")
             self.printDescription(
                 [
