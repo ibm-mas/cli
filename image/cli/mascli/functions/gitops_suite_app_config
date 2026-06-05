@@ -353,42 +353,11 @@ function gitops_suite_app_config() {
   # Resolve ICN for customer-level secrets (required for Facilities MREF password)
   # ---------------------------------------------------------------------------
   # ICN can come from multiple sources (in priority order):
-  # 1. mas-instance-params.yaml (sls.license.icn field)
-  # 2. LICENSE_FILE or SLS_LICENSE_FILE - extract from NOTICE field
-  # 3. STANDALONE_SLS_SERVICE (centralized SLS) - extract from path
-  # 4. SLS_LICENSE_ICN (pre-configured)
-  # 5. Environment variable ICN (if already set)
-  
-  # Try to extract ICN from mas-instance-params.yaml first
-  if [[ -z "${ICN}" ]]; then
-    MAS_INSTANCE_PARAMS_FILE="${GITOPS_INSTANCE_DIR}/mas-instance-params.yaml"
-    echo "- Checking for mas-instance-params.yaml at: ${MAS_INSTANCE_PARAMS_FILE}"
-    if [[ -f "${MAS_INSTANCE_PARAMS_FILE}" ]]; then
-      echo "- File found, attempting to extract ICN from sls.license.icn field"
-      # Extract ICN from sls.license.icn field using yq or grep
-      if command -v yq &> /dev/null; then
-        ICN=$(yq eval '.sls.license.icn' "${MAS_INSTANCE_PARAMS_FILE}" 2>/dev/null)
-        echo "- yq result: '${ICN}'"
-        # Filter out null/empty values
-        if [[ "${ICN}" == "null" ]] || [[ -z "${ICN}" ]]; then
-          ICN=""
-        fi
-      else
-        echo "- yq not available, using grep fallback"
-        # Fallback to grep if yq not available - extract value after 'icn:' including quoted strings
-        ICN=$(grep -A 20 "^sls:" "${MAS_INSTANCE_PARAMS_FILE}" | grep -A 10 "license:" | grep "icn:" | sed -E 's/.*icn:[[:space:]]*"?([^"[:space:]]+)"?.*/\1/' | head -1)
-        echo "- grep result: '${ICN}'"
-      fi
-      if [[ -n "${ICN}" ]] && [[ "${ICN}" != "null" ]]; then
-        echo "- ICN extracted from mas-instance-params.yaml: ${ICN}"
-      else
-        echo "- No valid ICN found in mas-instance-params.yaml"
-        ICN=""
-      fi
-    else
-      echo "- mas-instance-params.yaml not found at expected location"
-    fi
-  fi
+  # 1. LICENSE_FILE or SLS_LICENSE_FILE - extract from NOTICE field
+  # 2. STANDALONE_SLS_SERVICE (centralized SLS) - extract from path
+  # 3. SLS_LICENSE_ICN (pre-configured)
+  # 4. Environment variable ICN (if already set)
+  # 5. mas-instance-params.yaml (sls.license.icn field) - checked after repo clone
   
   # Try to extract ICN from license file
   if [[ -z "${ICN}" ]] && [[ -n "${LICENSE_FILE}" ]] && [[ -f "${LICENSE_FILE}" ]]; then
@@ -431,6 +400,7 @@ function gitops_suite_app_config() {
     echo "- ICN available for customer-level secrets: ${ICN}"
   else
     echo "- WARNING: ICN not available - customer-level secrets cannot be used"
+    echo "- Note: ICN will be checked again from mas-instance-params.yaml after repo clone"
   fi
 
   # Define cluster-level secrets used
@@ -532,6 +502,39 @@ function gitops_suite_app_config() {
     local CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-configs.yaml"
     
     mkdir -p "${GITOPS_INSTANCE_DIR}"
+
+    # Resolve ICN from mas-instance-params.yaml now that repo is cloned
+    # ---------------------------------------------------------------------------
+    if [[ -z "${ICN}" ]]; then
+      MAS_INSTANCE_PARAMS_FILE="${GITOPS_INSTANCE_DIR}/mas-instance-params.yaml"
+      echo "- Checking for mas-instance-params.yaml at: ${MAS_INSTANCE_PARAMS_FILE}"
+      if [[ -f "${MAS_INSTANCE_PARAMS_FILE}" ]]; then
+        echo "- File found, attempting to extract ICN from sls.license.icn field"
+        # Extract ICN from sls.license.icn field using yq or grep
+        if command -v yq &> /dev/null; then
+          ICN=$(yq eval '.sls.license.icn' "${MAS_INSTANCE_PARAMS_FILE}" 2>/dev/null)
+          echo "- yq result: '${ICN}'"
+          # Filter out null/empty values
+          if [[ "${ICN}" == "null" ]] || [[ -z "${ICN}" ]]; then
+            ICN=""
+          fi
+        else
+          echo "- yq not available, using grep fallback"
+          # Fallback to grep if yq not available - extract value after 'icn:' including quoted strings
+          ICN=$(grep -A 20 "^sls:" "${MAS_INSTANCE_PARAMS_FILE}" | grep -A 10 "license:" | grep "icn:" | sed -E 's/.*icn:[[:space:]]*"?([^"[:space:]]+)"?.*/\1/' | head -1)
+          echo "- grep result: '${ICN}'"
+        fi
+        if [[ -n "${ICN}" ]] && [[ "${ICN}" != "null" ]]; then
+          echo "- ICN extracted from mas-instance-params.yaml: ${ICN}"
+          export ICN="${ICN}"
+        else
+          echo "- No valid ICN found in mas-instance-params.yaml"
+          ICN=""
+        fi
+      else
+        echo "- mas-instance-params.yaml not found at expected location"
+      fi
+    fi
 
     if [[ "${MAS_APP_ID}" == "manage" ]]; then
     # The combined YAML file will have mas_app_server_bundles_combined_add_server_config dict with key as secret name and value as  base64 encoded content of server config xml file with which k8s secret will be created
