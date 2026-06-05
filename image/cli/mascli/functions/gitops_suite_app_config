@@ -350,15 +350,47 @@ function gitops_suite_app_config() {
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  # Resolve ICN for customer-level secrets (required for Manage MREF password)
+  # Resolve ICN for customer-level secrets (required for Facilities MREF password)
   # ---------------------------------------------------------------------------
   # ICN can come from multiple sources (in priority order):
-  # 1. LICENSE_FILE or SLS_LICENSE_FILE - extract from NOTICE field
-  # 2. STANDALONE_SLS_SERVICE (centralized SLS) - extract from path
-  # 3. SLS_LICENSE_ICN (pre-configured)
-  # 4. Environment variable ICN (if already set)
+  # 1. mas-instance-params.yaml (sls.license.icn field)
+  # 2. LICENSE_FILE or SLS_LICENSE_FILE - extract from NOTICE field
+  # 3. STANDALONE_SLS_SERVICE (centralized SLS) - extract from path
+  # 4. SLS_LICENSE_ICN (pre-configured)
+  # 5. Environment variable ICN (if already set)
   
-  # Try to extract ICN from license file first
+  # Try to extract ICN from mas-instance-params.yaml first
+  if [[ -z "${ICN}" ]]; then
+    MAS_INSTANCE_PARAMS_FILE="${GITOPS_INSTANCE_DIR}/mas-instance-params.yaml"
+    echo "- Checking for mas-instance-params.yaml at: ${MAS_INSTANCE_PARAMS_FILE}"
+    if [[ -f "${MAS_INSTANCE_PARAMS_FILE}" ]]; then
+      echo "- File found, attempting to extract ICN from sls.license.icn field"
+      # Extract ICN from sls.license.icn field using yq or grep
+      if command -v yq &> /dev/null; then
+        ICN=$(yq eval '.sls.license.icn' "${MAS_INSTANCE_PARAMS_FILE}" 2>/dev/null)
+        echo "- yq result: '${ICN}'"
+        # Filter out null/empty values
+        if [[ "${ICN}" == "null" ]] || [[ -z "${ICN}" ]]; then
+          ICN=""
+        fi
+      else
+        echo "- yq not available, using grep fallback"
+        # Fallback to grep if yq not available - extract value after 'icn:' including quoted strings
+        ICN=$(grep -A 20 "^sls:" "${MAS_INSTANCE_PARAMS_FILE}" | grep -A 10 "license:" | grep "icn:" | sed -E 's/.*icn:[[:space:]]*"?([^"[:space:]]+)"?.*/\1/' | head -1)
+        echo "- grep result: '${ICN}'"
+      fi
+      if [[ -n "${ICN}" ]] && [[ "${ICN}" != "null" ]]; then
+        echo "- ICN extracted from mas-instance-params.yaml: ${ICN}"
+      else
+        echo "- No valid ICN found in mas-instance-params.yaml"
+        ICN=""
+      fi
+    else
+      echo "- mas-instance-params.yaml not found at expected location"
+    fi
+  fi
+  
+  # Try to extract ICN from license file
   if [[ -z "${ICN}" ]] && [[ -n "${LICENSE_FILE}" ]] && [[ -f "${LICENSE_FILE}" ]]; then
     echo "- Attempting to extract ICN from license file: ${LICENSE_FILE}"
     ICN=$(grep -oP 'ICN:\K[0-9]+' "${LICENSE_FILE}" | head -1)
