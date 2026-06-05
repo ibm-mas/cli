@@ -1455,6 +1455,7 @@ function generate_storage_class_name() {
     echo "${INPUT_STORAGE_CLASS_NAME}"
     exit 0
   fi
+
   # Build name dynamically based on available parameters
   STORAGE_CLASS_NAME="${STORAGE_CLASS_TYPE}-${CLUSTER_ID}"
   
