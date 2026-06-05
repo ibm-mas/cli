@@ -47,6 +47,7 @@ class InstallSummarizerMixin:
         installAIService: bool
         installArcgis: bool
         dynamicClient: DynamicClient
+        applyPreInstallMASRBAC: bool
 
         # Methods from BaseApp
         def getParam(self, param: str) -> str: ...
@@ -107,12 +108,11 @@ class InstallSummarizerMixin:
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
-        if self.mas_permission_mode != "":
-            self.printSummary("Permission Mode", self.mas_permission_mode)
-            # Only show "Apply Pre-Install MAS RBAC" when permission mode is defined
+        if self.mas_admin_mode != "":
+            self.printSummary("MAS Admin Mode", self.mas_admin_mode)
             self.printSummary(
                 "Apply Pre-Install MAS RBAC",
-                "No" if self.skip_preinstall_rbac else "Yes",
+                "Yes" if self.applyPreInstallMASRBAC else "No",
             )
         if self.getParam("mas_issuer_kind") != "":
             self.printParamSummary("Mas Certificate Issuer Kind", "mas_issuer_kind")
@@ -150,10 +150,9 @@ class InstallSummarizerMixin:
             self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
-        print()
-        self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
+        if self.getParam("mas_manual_route_mgmt") == "true":
+            self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
 
-        print()
         self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
 
         print()
@@ -348,6 +347,9 @@ class InstallSummarizerMixin:
                 "mas_ws_facilities_storage_userfiles_mode",
             )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
+            self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
+            self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local")
+            self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")
             if self.getParam("db2_action_facilities") == "none":
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
