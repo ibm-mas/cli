@@ -24,6 +24,7 @@ from mas.cli.restore.app import RestoreApp
 from mas.cli.mirror.app import MirrorApp
 from mas.cli.setup_rbac.app import SetupRBACApp
 from mas.cli.pre_install.app import SetupPreinstallRBACApp
+from mas.cli.must_gather.app import MustGatherApp
 
 from prompt_toolkit import HTML, print_formatted_text
 from urllib3.exceptions import MaxRetryError
@@ -58,7 +59,8 @@ def usage():
             + " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade to a new MAS release\n"  # noqa: W503
             + " - <ForestGreen>mas-cli backup</ForestGreen>    Backup a MAS instance\n"  # noqa: W503
             + " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"  # noqa: W503
-            + " - <ForestGreen>mas-cli mirror</ForestGreen>    Mirror container images \n"  # noqa: W503
+            + " - <ForestGreen>mas-cli mirror</ForestGreen>    Mirror container images\n"  # noqa: W503
+            + " - <ForestGreen>mas-cli must-gather</ForestGreen> Collect diagnostic information\n"  # noqa: W503
             + " - <ForestGreen>mas-cli setup-rbac</ForestGreen>  Set up RBAC resources for MAS installation\n"  # noqa: W503
             + " - <ForestGreen>mas-cli pre-install</ForestGreen>  Set up pre-install RBAC for MAS\n"  # noqa: W503
         )
@@ -104,6 +106,9 @@ if __name__ == "__main__":
         elif function == "pre-install":
             app = SetupPreinstallRBACApp()
             app.setupPreinstallRBAC(argv[2:])
+        elif function == "must-gather":
+            app = MustGatherApp()
+            app.mustGather(argv[2:])
         elif function in ["-h", "--help"]:
             usage()
             exit(0)

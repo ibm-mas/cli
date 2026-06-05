@@ -63,8 +63,11 @@ setup(
     ],
     extras_require={
         "dev": [
+            "basedpyright",  # MIT License
             "build",  # MIT License
+            "black",  # MIT License
             "flake8",  # MIT License
+            "flake8-docstrings",  # MIT License
             "pytest",  # MIT License
             "pyinstaller",  # GPL, https://pyinstaller.org/en/stable/license.html & https://github.com/pyinstaller/pyinstaller/wiki/FAQ#license
         ]
