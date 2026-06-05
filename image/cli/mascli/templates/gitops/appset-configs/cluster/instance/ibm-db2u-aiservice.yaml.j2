@@ -16,6 +16,7 @@ ibm_db2u:
 # DB2 database array for AI Service
 ibm_db2u_databases:
   - db2_instance_name: db2u-{{ MAS_INSTANCE_ID }}
+    db2_namespace: {{ DB2_NAMESPACE }}
     db2_dbname: BLUDB
     db2_version: s11.5.9.0-cn2
     db2_table_org: COLUMN
