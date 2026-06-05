@@ -119,6 +119,9 @@ spec:
     - name: cluster_logging_operator_use_syslog_forwarder
       type: string
       default: "false"
+    - name: cluster_logging_operator_additional_exclude_containers
+      type: string
+      default: ""
     - name: cluster_logging_operator_install_plan
       type: string
       default: "Automatic"
@@ -248,6 +251,8 @@ spec:
         value: $(params.cluster_logging_operator_install)
       - name: CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER
         value: $(params.cluster_logging_operator_use_syslog_forwarder)
+      - name: CLUSTER_LOGGING_OPERATOR_ADDITIONAL_EXCLUDE_CONTAINERS
+        value: $(params.cluster_logging_operator_additional_exclude_containers)
       - name: CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN
         value: $(params.cluster_logging_operator_install_plan)
       - name: CLUSTER_LOGGING_OPERATOR_CHANNEL
