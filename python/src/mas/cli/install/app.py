@@ -1542,26 +1542,36 @@ class InstallApp(
                         "mas_ws_facilities_vault_secret",
                     )
 
-                # Prompt for custom FACILITIES.properties file
-                if self.yesOrNo("Upload custom FACILITIES.properties file"):
-                    self.printDescription(
-                        [
-                            "Provide the path to your custom FACILITIES.properties file.",
-                            "This file will be uploaded as a secret in OpenShift.",
-                            "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
-                        ]
-                    )
-                    self.promptForString("Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator())
+                # Check MAS version - Custom FACILITIES.properties is only supported in MAS 9.2+
+                mas_facilities_channel = self.getParam("mas_app_channel_facilities")
 
-                    self.setParam("mas_ws_facilities_custom_properties", "true")
+                # Only prompt for custom FACILITIES.properties file if MAS 9.2+
+                if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
+                    if self.yesOrNo("Upload custom FACILITIES.properties file"):
+                        self.printDescription(
+                            [
+                                "Provide the path to your custom FACILITIES.properties file.",
+                                "This file will be uploaded as a secret in OpenShift.",
+                                "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
+                            ]
+                        )
+                        facilitiesPropertiesFile = self.promptForString(
+                            "Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator()
+                        )
+                        # FileExistsValidator ensures file exists, so we can proceed directly
+                        self.setParam("mas_ws_facilities_properties_file_local", facilitiesPropertiesFile)
+                        self.setParam("mas_ws_facilities_custom_properties", "true")
 
-                    # Prompt for custom secret name
-                    customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
-                    # Use default if not provided
-                    if not customSecretName or customSecretName.strip() == "":
-                        customSecretName = "custom-facilities-properties"
-                    self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
+                        # Prompt for custom secret name (optional, with default)
+                        customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
+                        # Use default if not provided
+                        if not customSecretName or customSecretName.strip() == "":
+                            customSecretName = "custom-facilities-properties"
+                        self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
+                    else:
+                        self.setParam("mas_ws_facilities_custom_properties", "false")
                 else:
+                    # For MAS 9.1 and earlier, skip the prompt and use default behavior
                     self.setParam("mas_ws_facilities_custom_properties", "false")
 
                 self.promptForString(
