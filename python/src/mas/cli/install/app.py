@@ -125,6 +125,10 @@ class InstallApp(
             return
 
         if self.mas_admin_mode == "minimal":
+            # In minimal mode, only apply RBAC if ArcGIS is selected (for cluster roles)
+            # Check if installArcgis flag is set
+            if self.installArcgis:
+                self.applyPreInstallMASRBAC = True
             return
 
         permissionResults = permissionCheckForRBAC(self.dynamicClient)
@@ -1959,7 +1963,6 @@ class InstallApp(
 
         # MAS Core
         self.configAdminMode()
-        self.evaluatePreInstallRBACAccess()
         self.configCertManager()
         self.configMAS()
 
@@ -1979,6 +1982,9 @@ class InstallApp(
 
         # Dependencies
         self.arcgisSettings()  # Will only prompt if Manage (with Spatial) or Facilities is selected
+        
+        # Evaluate RBAC access after all app configurations are complete
+        self.evaluatePreInstallRBACAccess()
         self.configMongoDb()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
