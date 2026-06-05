@@ -505,6 +505,7 @@ function gitops_suite_app_config() {
 
     # Resolve ICN from mas-instance-params.yaml now that repo is cloned
     # ---------------------------------------------------------------------------
+    # This runs for ALL apps (not just Manage) to support Facilities customer-level secrets
     if [[ -z "${ICN}" ]]; then
       MAS_INSTANCE_PARAMS_FILE="${GITOPS_INSTANCE_DIR}/mas-instance-params.yaml"
       echo "- Checking for mas-instance-params.yaml at: ${MAS_INSTANCE_PARAMS_FILE}"
