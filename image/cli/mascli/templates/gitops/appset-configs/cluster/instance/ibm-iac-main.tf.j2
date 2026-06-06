@@ -628,7 +628,7 @@ locals {
 {%- endif %}
 {%- if EFS_MONITOR_MAIN == "true" %}
     monitor-main = {
-      name = "efs"
+      name = join("-", ["efs", var.cluster_name, var.instance_name, "monitor-main"])
       performance_mode = "{{EFS_MONITOR_MAIN_PERFORMANCE_MODE}}"
       throughput_mode = "{{EFS_MONITOR_MAIN_THROUGHPUT_MODE}}"
       efs_mount_count = {{EFS_MONITOR_MAIN_MOUNT_COUNT}}
