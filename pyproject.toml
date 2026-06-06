@@ -76,14 +76,14 @@ version = { attr = "mas.cli.__version__" }
 [tool.black]
 line-length = 160
 target-version = ['py312']
-include = 'python/(src|test|tests)/.*\.py$'
+include = 'python/(src|tests)/.*\.py$'
 
 [tool.flake8]
 max-line-length = 160
 
 [tool.basedpyright]
 # Only check must-gather module during gradual rollout
-include = ["python/tests/must_gather"]
+include = ["python/tests/unit/must_gather"]
 
 # Use "basic" mode - focuses on our code, lenient with untyped dependencies
 # Options: "off", "basic", "standard", "strict"
@@ -96,6 +96,5 @@ pythonVersion = "3.12"
 # This tells basedpyright where to find Python modules
 executionEnvironments = [
   { root = "python/src" },
-  { root = "python/test", extraPaths = ["python/src"] },
   { root = "python/tests", extraPaths = ["python/src"] }
 ]
