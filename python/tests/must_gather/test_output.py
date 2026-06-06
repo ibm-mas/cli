@@ -10,6 +10,7 @@
 
 """Test output directory management for must-gather."""
 
+import logging
 import os
 import tempfile
 import tarfile
@@ -34,19 +35,20 @@ class TestOutputManager:
             assert manager.outputDir.startswith(tmpdir)
             assert manager.timestamp in manager.outputDir
 
-    def test_creates_log_file(self):
-        """Test that output manager creates log file.
+    def test_sets_log_file_path(self):
+        """Test that output manager sets log file path.
 
         GIVEN output manager
         WHEN initialize is called
-        THEN log file is created in output directory.
+        THEN log file path is set.
         """
         with tempfile.TemporaryDirectory() as tmpdir:
             manager = OutputManager(tmpdir)
             manager.initialize()
 
-            logFile = os.path.join(manager.outputDir, "must-gather.log")
-            assert os.path.exists(logFile)
+            assert manager.logFile is not None
+            assert manager.logFile.endswith("must-gather.log")
+            assert manager.outputDir in manager.logFile
 
     def test_creates_tar_archive(self):
         """Test that output manager creates tar.gz archive.
@@ -175,3 +177,169 @@ class TestOutputManager:
             assert filename.startswith("must-gather-")
             assert filename.endswith(".tgz")
             assert manager.timestamp in filename
+
+    def test_setup_logging_creates_file_handler(self):
+        """Test that setupLogging creates and configures file handler.
+
+        GIVEN initialized output manager
+        WHEN setupLogging is called
+        THEN file handler is added to root logger.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = OutputManager(tmpdir)
+            manager.initialize()
+
+            # Get initial handler count
+            rootLogger = logging.getLogger()
+            initialHandlerCount = len(rootLogger.handlers)
+
+            manager.setupLogging()
+
+            # Verify handler was added
+            assert len(rootLogger.handlers) == initialHandlerCount + 1
+            assert manager.logHandler is not None
+            assert isinstance(manager.logHandler, logging.FileHandler)
+
+            # Cleanup
+            manager.cleanup()
+
+    def test_setup_logging_writes_to_must_gather_log(self):
+        """Test that logging writes to must-gather.log file.
+
+        GIVEN output manager with logging configured
+        WHEN log messages are written
+        THEN messages appear in must-gather.log.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = OutputManager(tmpdir)
+            manager.initialize()
+            manager.setupLogging()
+
+            # Write test log message
+            testLogger = logging.getLogger("test.module")
+            testLogger.setLevel(logging.DEBUG)
+            testLogger.info("Test log message for must-gather")
+
+            # Flush handlers to ensure write
+            for handler in logging.getLogger().handlers:
+                handler.flush()
+
+            # Verify log file contains message
+            assert manager.logFile is not None
+            assert os.path.exists(manager.logFile)
+            with open(manager.logFile, "r") as f:
+                content = f.read()
+                assert "Test log message for must-gather" in content
+                assert "test.module" in content
+
+            # Cleanup
+            manager.cleanup()
+
+    def test_setup_logging_requires_initialization(self):
+        """Test that setupLogging requires initialize to be called first.
+
+        GIVEN output manager without initialization
+        WHEN setupLogging is called
+        THEN RuntimeError is raised.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = OutputManager(tmpdir)
+
+            try:
+                manager.setupLogging()
+                assert False, "Expected RuntimeError"
+            except RuntimeError as e:
+                assert "must be initialized" in str(e)
+
+    def test_cleanup_removes_log_handler(self):
+        """Test that cleanup removes log handler from root logger.
+
+        GIVEN output manager with logging configured
+        WHEN cleanup is called
+        THEN log handler is removed from root logger.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = OutputManager(tmpdir)
+            manager.initialize()
+            manager.setupLogging()
+
+            rootLogger = logging.getLogger()
+            handlerCountBefore = len(rootLogger.handlers)
+
+            manager.cleanup()
+
+            # Verify handler was removed
+            assert len(rootLogger.handlers) == handlerCountBefore - 1
+            assert manager.logHandler is None
+
+    def test_logging_format_matches_mas_log(self):
+        """Test that must-gather.log uses same format as mas.log.
+
+        GIVEN output manager with logging configured
+        WHEN log message is written
+        THEN format includes timestamp, level, module name, and line number.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = OutputManager(tmpdir)
+            manager.initialize()
+            manager.setupLogging()
+
+            # Write test log message
+            testLogger = logging.getLogger("test.format.check")
+            testLogger.setLevel(logging.DEBUG)
+            testLogger.warning("Format test message")
+
+            # Flush handlers
+            for handler in logging.getLogger().handlers:
+                handler.flush()
+
+            # Verify format
+            assert manager.logFile is not None
+            with open(manager.logFile, "r") as f:
+                content = f.read()
+                # Check for expected format components
+                assert "WARNING" in content
+                assert "test.format.check" in content
+                assert "Format test message" in content
+                # Format should include timestamp (YYYY-MM-DD HH:MM:SS)
+                assert any(char.isdigit() for char in content)
+
+            # Cleanup
+            manager.cleanup()
+
+    def test_multiple_loggers_write_to_must_gather_log(self):
+        """Test that multiple loggers write to must-gather.log.
+
+        GIVEN output manager with logging configured
+        WHEN multiple loggers write messages
+        THEN all messages appear in must-gather.log.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = OutputManager(tmpdir)
+            manager.initialize()
+            manager.setupLogging()
+
+            # Write from multiple loggers
+            logger1 = logging.getLogger("module.one")
+            logger1.setLevel(logging.DEBUG)
+            logger1.info("Message from logger 1")
+
+            logger2 = logging.getLogger("module.two")
+            logger2.setLevel(logging.DEBUG)
+            logger2.error("Message from logger 2")
+
+            # Flush handlers
+            for handler in logging.getLogger().handlers:
+                handler.flush()
+
+            # Verify both messages in log
+            assert manager.logFile is not None
+            with open(manager.logFile, "r") as f:
+                content = f.read()
+                assert "Message from logger 1" in content
+                assert "module.one" in content
+                assert "Message from logger 2" in content
+                assert "module.two" in content
+
+            # Cleanup
+            manager.cleanup()

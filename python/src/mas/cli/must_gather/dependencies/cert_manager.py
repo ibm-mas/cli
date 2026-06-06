@@ -28,7 +28,7 @@ CERT_MANAGER_RESOURCES = [
 ]
 
 
-def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, genericMustGather=None) -> bool:
+def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
     """Collect Red Hat Certificate Manager resources.
 
     Checks for cert-manager-operator and cert-manager namespaces and collects
@@ -38,6 +38,7 @@ def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool 
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
         noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
@@ -52,7 +53,9 @@ def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool 
             logger.info("Collecting from cert-manager-operator namespace")
             namespaceCount += 1
             if genericMustGather:
-                if genericMustGather(namespace="cert-manager-operator", outputDir=outputDir, noDetail=noDetail, additionalResources=CERT_MANAGER_RESOURCES):
+                if genericMustGather(
+                    namespace="cert-manager-operator", outputDir=outputDir, noDetail=noDetail, noLogs=noLogs, additionalResources=CERT_MANAGER_RESOURCES
+                ):
                     success = True
         else:
             logger.info("cert-manager-operator namespace not found")
@@ -62,7 +65,7 @@ def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool 
             logger.info("Collecting from cert-manager namespace")
             namespaceCount += 1
             if genericMustGather:
-                if genericMustGather(namespace="cert-manager", outputDir=outputDir, noDetail=noDetail):
+                if genericMustGather(namespace="cert-manager", outputDir=outputDir, noDetail=noDetail, noLogs=noLogs):
                     success = True
         else:
             logger.info("cert-manager namespace not found")

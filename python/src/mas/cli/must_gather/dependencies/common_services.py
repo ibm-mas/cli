@@ -17,7 +17,7 @@ from kubernetes.client.exceptions import ApiException
 logger = logging.getLogger(__name__)
 
 
-def collectCommonServices(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, genericMustGather=None) -> bool:
+def collectCommonServices(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
     """Collect IBM Common Services resources.
 
     Checks if ibm-common-services namespace exists and collects resources from it.
@@ -26,6 +26,7 @@ def collectCommonServices(dynClient: DynamicClient, outputDir: str, noDetail: bo
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
         noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
@@ -38,7 +39,7 @@ def collectCommonServices(dynClient: DynamicClient, outputDir: str, noDetail: bo
 
         # Collect resources from the namespace if genericMustGather is provided
         if genericMustGather:
-            result = genericMustGather(namespace="ibm-common-services", outputDir=outputDir, noDetail=noDetail)
+            result = genericMustGather(namespace="ibm-common-services", outputDir=outputDir, noDetail=noDetail, noLogs=noLogs)
             if result:
                 print("✅ IBM CloudPak Foundation Services collected")
             else:

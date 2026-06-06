@@ -105,7 +105,7 @@ class TestCollectClusterResources:
 
         assert success is True
         # Verify storageclasses.md was created
-        summaryFile = os.path.join(self.testDir, "_cluster", "storageclasses.md")
+        summaryFile = os.path.join(self.testDir, "resources", "_cluster", "storageclasses.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_cluster_resources_collects_clusterversions(self):
@@ -128,7 +128,7 @@ class TestCollectClusterResources:
         success, printerColumns, ibmCRDs = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert success is True
-        summaryFile = os.path.join(self.testDir, "_cluster", "clusterversions.md")
+        summaryFile = os.path.join(self.testDir, "resources", "_cluster", "clusterversions.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_cluster_resources_collects_objectbucket(self):
@@ -152,7 +152,7 @@ class TestCollectClusterResources:
 
         assert success is True
         # Should attempt to collect objectbucket
-        summaryFile = os.path.join(self.testDir, "_cluster", "objectbucket.md")
+        summaryFile = os.path.join(self.testDir, "resources", "_cluster", "objectbucket.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_cluster_resources_collects_summary_only_resources(self):
@@ -176,10 +176,10 @@ class TestCollectClusterResources:
 
         assert success is True
         # Verify namespaces.md exists
-        summaryFile = os.path.join(self.testDir, "_cluster", "namespaces.md")
+        summaryFile = os.path.join(self.testDir, "resources", "_cluster", "namespaces.md")
         assert os.path.exists(summaryFile)
         # Verify detailed directory was NOT created (noDetail=True for these resources)
-        detailDir = os.path.join(self.testDir, "_cluster", "namespaces")
+        detailDir = os.path.join(self.testDir, "resources", "_cluster", "namespaces")
         assert not os.path.exists(detailDir)
 
     def test_collect_cluster_resources_respects_no_detail_flag(self):
@@ -203,10 +203,10 @@ class TestCollectClusterResources:
 
         assert success is True
         # Summary file should exist
-        summaryFile = os.path.join(self.testDir, "_cluster", "storageclasses.md")
+        summaryFile = os.path.join(self.testDir, "resources", "_cluster", "storageclasses.md")
         assert os.path.exists(summaryFile)
         # Detail directory should NOT exist
-        detailDir = os.path.join(self.testDir, "_cluster", "storageclasses")
+        detailDir = os.path.join(self.testDir, "resources", "_cluster", "storageclasses")
         assert not os.path.exists(detailDir)
 
     def test_collect_cluster_resources_handles_missing_resources_gracefully(self):

@@ -48,8 +48,12 @@ def collectPods(
         tuple[bool, int]: (success status, count of pods collected)
     """
     try:
+        # Create resources directory
+        resourcesDir = os.path.join(outputDir, "resources")
+        os.makedirs(resourcesDir, exist_ok=True)
+
         # Create namespace directory
-        namespaceDir = os.path.join(outputDir, namespace)
+        namespaceDir = os.path.join(resourcesDir, namespace)
         os.makedirs(namespaceDir, exist_ok=True)
 
         # Create pods directory
@@ -167,8 +171,8 @@ def _writeSummary(pods, outputFile: str, namespace: str, podLogs: bool) -> None:
         f.write("# Pods (v1)\n\n")
 
         if hasattr(pods, "items") and len(pods.items) > 0:
-            f.write("| NAME | READY | STATUS | RESTARTS | AGE | YAML | LOGS |\n")
-            f.write("| --- | --- | --- | --- | --- | --- | --- |\n")
+            f.write("| NAME | READY | STATUS | RESTARTS | LOGS |\n")
+            f.write("| --- | --- | --- | --- | --- |\n")
 
             for pod in pods.items:
                 name = pod.metadata.name
@@ -180,10 +184,24 @@ def _writeSummary(pods, outputFile: str, namespace: str, podLogs: bool) -> None:
                 containerStatuses = status.get("containerStatuses", [])
                 ready = f"{sum(1 for c in containerStatuses if c.get('ready', False))}/{len(containerStatuses)}" if containerStatuses else "0/0"
                 restarts = str(sum(c.get("restartCount", 0) for c in containerStatuses))
-                yamlLink = f"[{name}](pods/{appLabel}/{name}.yaml)"
-                logsLink = "[logs](pods/{}/logs/)".format(appLabel) if podLogs else ""
 
-                f.write(f"| {yamlLink} | {ready} | {phase} | {restarts} |  | [yaml](pods/{appLabel}/{name}.yaml) | {logsLink} |\n")
+                # First column: link to pod YAML
+                nameLink = f"[{name}](pods/{appLabel}/{name}.yaml)"
+
+                # Logs column: individual links for each container's log files
+                logsLinks = []
+                if podLogs and containerStatuses:
+                    for containerStatus in containerStatuses:
+                        containerName = containerStatus.get("name")
+                        if containerName:
+                            # Current log
+                            logsLinks.append(f"[{containerName}](pods/{appLabel}/logs/{name}_{containerName}.log)")
+                            # Previous log (if it exists, we'll create the link anyway)
+                            # Note: We can't check if file exists here, but the link won't break if file is missing
+
+                logsCell = "<br>".join(logsLinks) if logsLinks else ""
+
+                f.write(f"| {nameLink} | {ready} | {phase} | {restarts} | {logsCell} |\n")
         else:
             f.write("No resources found.\n")
 

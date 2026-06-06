@@ -82,7 +82,7 @@ class TestCollectCommonServices:
         result = collectCommonServices(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False, genericMustGather=mockGenericMustGather)
 
         assert result is True
-        mockGenericMustGather.assert_called_once_with(namespace="ibm-common-services", outputDir=self.testDir, noDetail=False)
+        mockGenericMustGather.assert_called_once_with(namespace="ibm-common-services", outputDir=self.testDir, noDetail=False, noLogs=False)
 
     def test_collect_common_services_when_namespace_not_found(self):
         """Test collection when ibm-common-services namespace does not exist.

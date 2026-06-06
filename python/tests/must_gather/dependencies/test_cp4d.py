@@ -84,8 +84,8 @@ class TestCollectCP4D:
 
         assert result is True
         assert mockGenericMustGather.call_count == 2
-        mockGenericMustGather.assert_any_call(namespace="ibm-cpd", outputDir=self.testDir, noDetail=False)
-        mockGenericMustGather.assert_any_call(namespace="ibm-cpd-operators", outputDir=self.testDir, noDetail=False)
+        mockGenericMustGather.assert_any_call(namespace="ibm-cpd", outputDir=self.testDir, noDetail=False, noLogs=False)
+        mockGenericMustGather.assert_any_call(namespace="ibm-cpd-operators", outputDir=self.testDir, noDetail=False, noLogs=False)
 
     def test_collect_cp4d_when_namespace_not_found(self):
         """Test collection when ibm-cpd-operators namespace does not exist.

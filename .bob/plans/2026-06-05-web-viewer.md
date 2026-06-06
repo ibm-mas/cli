@@ -267,11 +267,11 @@ must-gather-output/
 ### Phase 5: Enhanced Features
 **Objective**: Add advanced functionality for better user experience
 
-- [ ] **5.1** Collapsible YAML sections
-  - [ ] Parse YAML with js-yaml
-  - [ ] Render as collapsible tree structure
-  - [ ] Add expand/collapse all buttons
-  - [ ] Preserve syntax highlighting in collapsed view
+- [x] **5.1** Collapsible YAML sections
+  - [x] Parse YAML with js-yaml
+  - [x] Render as collapsible tree structure
+  - [x] Add expand/collapse all buttons
+  - [x] Preserve syntax highlighting in collapsed view
 
 - [ ] **5.2** Resource links
   - [ ] Parse markdown tables, make resource names clickable
@@ -708,6 +708,82 @@ python -m mas.cli.must_gather.web_viewer generate --dir <output-dir> --skip-mani
 - **Preserves Data**: Keeps existing manifest.json intact
 
 **Implementation complete: 2026-06-06 08:56 UTC**
+
+---
+
+# Phase 5.1 Implementation: Collapsible YAML Sections
+
+## Feature
+Added interactive collapsible YAML tree view with syntax highlighting for better navigation of complex Kubernetes resources.
+
+## Implementation Details
+
+### CSS Styling
+- Added `.yaml-controls` for control buttons (Expand All, Collapse All, Toggle Raw View)
+- Added `.yaml-tree` for tree structure container
+- Added `.yaml-node` for collapsible sections
+- Added syntax highlighting classes:
+  - `.yaml-key` - Property names (teal color)
+  - `.yaml-value` - Generic values
+  - `.yaml-string` - String values (orange)
+  - `.yaml-number` - Numeric values (light green)
+  - `.yaml-boolean` - Boolean values (blue)
+  - `.yaml-null` - Null values (gray)
+- Added `.yaml-toggle` for expand/collapse icons (▶/▼)
+- Added `.yaml-collapsed` class to hide collapsed sections
+
+### JavaScript Functions
+
+1. **`renderYAML(content, viewer)`**
+   - Parses YAML using js-yaml library
+   - Creates control buttons for expand/collapse/toggle operations
+   - Renders both tree view and raw view (hidden by default)
+   - Falls back to raw view if YAML parsing fails
+
+2. **`renderYAMLNode(data, container, depth, key)`**
+   - Recursively renders YAML structure as collapsible tree
+   - Handles objects, arrays, and primitive values
+   - Generates unique IDs for each collapsible section
+   - Applies proper indentation based on depth
+   - Adds toggle icons for expandable sections
+
+3. **`formatYAMLValue(value)`**
+   - Formats primitive values with appropriate CSS classes
+   - Handles strings, numbers, booleans, and null values
+   - Escapes HTML to prevent XSS
+
+4. **`toggleYAMLNode(toggleId)`**
+   - Toggles visibility of a specific YAML section
+   - Updates toggle icon (▶ ↔ ▼)
+
+5. **`expandAllYAML()`**
+   - Expands all collapsible sections in the tree
+   - Updates all toggle icons to ▼
+
+6. **`collapseAllYAML()`**
+   - Collapses all sections in the tree
+   - Updates all toggle icons to ▶
+
+7. **`toggleYAMLView()`**
+   - Switches between tree view and raw text view
+   - Useful for copying raw YAML or viewing original formatting
+
+## Benefits
+- **Better Navigation**: Collapse large sections to focus on relevant parts
+- **Syntax Highlighting**: Color-coded keys and values for easier reading
+- **Flexible Viewing**: Toggle between structured tree and raw text
+- **Bulk Operations**: Expand/collapse all sections at once
+- **Preserved Functionality**: Raw view still available for copying/searching
+
+## Usage
+When viewing any `.yaml` or `.yml` file:
+1. File loads in collapsible tree view by default
+2. Click ▶/▼ icons to expand/collapse individual sections
+3. Use "Expand All" to see entire structure
+4. Use "Collapse All" to see only top-level keys
+5. Use "Toggle Raw View" to switch to original text format
+
+**Implementation complete: 2026-06-06 16:27 UTC**
 
 ---
 

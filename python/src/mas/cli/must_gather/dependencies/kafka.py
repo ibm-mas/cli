@@ -24,7 +24,7 @@ KAFKA_RESOURCES = [
 ]
 
 
-def collectKafka(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, genericMustGather=None) -> bool:
+def collectKafka(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
     """Collect Kafka resources.
 
     Discovers Kafka namespaces from Kafka CRs and collects Kafka-specific resources.
@@ -33,6 +33,7 @@ def collectKafka(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
         noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
@@ -49,7 +50,12 @@ def collectKafka(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
 
         # Collect from discovered namespaces with Kafka-specific resources
         result = collectFromNamespaces(
-            namespaces=kafkaNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=KAFKA_RESOURCES
+            namespaces=kafkaNamespaces,
+            outputDir=outputDir,
+            noDetail=noDetail,
+            noLogs=noLogs,
+            genericMustGather=genericMustGather,
+            additionalResources=KAFKA_RESOURCES,
         )
 
         return result

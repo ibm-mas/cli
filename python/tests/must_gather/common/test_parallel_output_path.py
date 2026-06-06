@@ -26,13 +26,13 @@ def test_collectResourcesParallel_writes_to_correct_directory():
     """Test that resources are written to the correct output directory.
 
     GIVEN a mock DynamicClient and a list of resources
-    WHEN collectResourcesParallel is called with outputDir="/tmp/test/resources"
-    THEN resources should be written to "/tmp/test/resources/namespace/" not "/tmp/test/resources/resources/namespace/"
+    WHEN collectResourcesParallel is called with outputDir="/tmp/test"
+    THEN resources should be written to "/tmp/test/resources/namespace/" (collectResourcesParallel adds /resources internally)
     """
     # Create temporary directory
     tempDir = tempfile.mkdtemp()
     try:
-        outputDir = os.path.join(tempDir, "resources")
+        outputDir = tempDir  # Pass base dir, collectResourcesParallel will add /resources
         namespace = "test-namespace"
 
         # Mock DynamicClient
@@ -59,8 +59,8 @@ def test_collectResourcesParallel_writes_to_correct_directory():
             # Verify success
             assert result is True
 
-            # Verify files are in correct location
-            expectedNamespaceDir = os.path.join(outputDir, namespace)
+            # Verify files are in correct location (collectResourcesParallel adds /resources internally)
+            expectedNamespaceDir = os.path.join(outputDir, "resources", namespace)
             expectedMarkdownFile = os.path.join(expectedNamespaceDir, "configmaps.md")
             expectedResourceDir = os.path.join(expectedNamespaceDir, "configmaps")
 
@@ -68,11 +68,11 @@ def test_collectResourcesParallel_writes_to_correct_directory():
             assert os.path.exists(expectedMarkdownFile), f"Markdown file should exist at {expectedMarkdownFile}"
             assert os.path.exists(expectedResourceDir), f"Resource directory should exist at {expectedResourceDir}"
 
-            # Check that files do NOT exist in wrong location (with duplicate /resources/)
-            wrongNamespaceDir = os.path.join(outputDir, "resources", namespace)
+            # Check that files do NOT exist in wrong location (without /resources/)
+            wrongNamespaceDir = os.path.join(outputDir, namespace)
             wrongMarkdownFile = os.path.join(wrongNamespaceDir, "configmaps.md")
 
-            assert not os.path.exists(wrongMarkdownFile), f"Markdown file should NOT exist at {wrongMarkdownFile} (path duplication bug)"
+            assert not os.path.exists(wrongMarkdownFile), f"Markdown file should NOT exist at {wrongMarkdownFile} (missing /resources/ in path)"
 
     finally:
         # Cleanup
@@ -84,12 +84,12 @@ def test_collectResourcesParallel_ibm_resources_correct_path():
 
     GIVEN a list of IBM CRD resources
     WHEN collectResourcesParallel is called
-    THEN IBM resources should be in outputDir/namespace/ not outputDir/resources/namespace/
+    THEN IBM resources should be in outputDir/resources/namespace/ (collectResourcesParallel adds /resources internally)
     """
     # Create temporary directory
     tempDir = tempfile.mkdtemp()
     try:
-        outputDir = os.path.join(tempDir, "resources")
+        outputDir = tempDir  # Pass base dir, collectResourcesParallel will add /resources
         namespace = "mas-core"
 
         # Mock DynamicClient
@@ -124,17 +124,17 @@ def test_collectResourcesParallel_ibm_resources_correct_path():
             # Verify success
             assert result is True
 
-            # Verify IBM resources are in correct location
-            expectedNamespaceDir = os.path.join(outputDir, namespace)
+            # Verify IBM resources are in correct location (collectResourcesParallel adds /resources internally)
+            expectedNamespaceDir = os.path.join(outputDir, "resources", namespace)
             expectedMarkdownFile = os.path.join(expectedNamespaceDir, "suites.md")
             expectedResourceDir = os.path.join(expectedNamespaceDir, "suites")
 
             assert os.path.exists(expectedMarkdownFile), f"Suite markdown should exist at {expectedMarkdownFile}"
             assert os.path.exists(expectedResourceDir), f"Suite directory should exist at {expectedResourceDir}"
 
-            # Verify NOT in wrong location
-            wrongPath = os.path.join(outputDir, "resources", namespace, "suites.md")
-            assert not os.path.exists(wrongPath), f"Suite markdown should NOT exist at {wrongPath}"
+            # Verify NOT in wrong location (without /resources/)
+            wrongPath = os.path.join(outputDir, namespace, "suites.md")
+            assert not os.path.exists(wrongPath), f"Suite markdown should NOT exist at {wrongPath} (missing /resources/ in path)"
 
     finally:
         # Cleanup

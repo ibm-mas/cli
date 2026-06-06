@@ -10,10 +10,12 @@
 
 """Output directory management for must-gather."""
 
+import logging
 import os
 import shutil
 import tarfile
 from datetime import datetime
+from typing import Optional
 
 
 class OutputManager:
@@ -35,21 +37,18 @@ class OutputManager:
         self.timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         self.outputDir = os.path.join(baseDir, self.timestamp)
         self.logFile = None
+        self.logHandler: Optional[logging.FileHandler] = None
 
     def initialize(self) -> None:
         """Initialize output directory structure.
 
-        Creates the timestamped output directory and log file.
+        Creates the timestamped output directory and sets up the log file path.
 
         Raises:
             OSError: If directory creation fails
         """
         os.makedirs(self.outputDir, exist_ok=True)
         self.logFile = os.path.join(self.outputDir, "must-gather.log")
-
-        # Create empty log file
-        with open(self.logFile, "w") as f:
-            f.write("")
 
     def getNamespaceDir(self, namespace: str) -> str:
         """Get directory path for namespace-specific resources.
@@ -103,11 +102,40 @@ class OutputManager:
 
         return archivePath
 
-    def cleanup(self) -> None:
-        """Clean up output directory if keepFiles is False.
+    def setupLogging(self) -> None:
+        """Configure logging to write to must-gather.log in addition to mas.log.
 
-        Removes the output directory and all its contents unless
-        keepFiles was set to True during initialization.
+        Adds a FileHandler to the root logger that writes all log messages
+        to the must-gather.log file within the output directory.
         """
+        if not self.logFile:
+            raise RuntimeError("OutputManager must be initialized before setting up logging")
+
+        # Create formatter matching the mas.log format
+        formatter = logging.Formatter("%(asctime)s  %(levelname)-8s [%(name)s:%(lineno)d] %(message)s")
+
+        # Create file handler for must-gather.log
+        self.logHandler = logging.FileHandler(self.logFile)
+        self.logHandler.setLevel(logging.DEBUG)
+        self.logHandler.setFormatter(formatter)
+
+        # Add handler to root logger
+        rootLogger = logging.getLogger()
+        rootLogger.addHandler(self.logHandler)
+
+    def cleanup(self) -> None:
+        """Clean up output directory and logging handler.
+
+        Removes the log handler from the root logger and optionally removes
+        the output directory and all its contents if keepFiles is False.
+        """
+        # Remove the log handler from root logger
+        if self.logHandler:
+            rootLogger = logging.getLogger()
+            rootLogger.removeHandler(self.logHandler)
+            self.logHandler.close()
+            self.logHandler = None
+
+        # Remove output directory if not keeping files
         if not self.keepFiles and os.path.exists(self.outputDir):
             shutil.rmtree(self.outputDir)

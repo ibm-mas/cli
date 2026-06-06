@@ -84,7 +84,7 @@ class TestMustGatherAppOCP:
         self.app.collectOCP(outputDir=self.testDir, noDetail=True)
 
         # Verify noDetail was passed
-        mockCluster.assert_called_once_with(dynClient=self.app.dynClient, outputDir=f"{self.testDir}/resources", noDetail=True)
+        mockCluster.assert_called_once_with(dynClient=self.app.dynClient, outputDir=self.testDir, noDetail=True)
 
     @patch("mas.cli.must_gather.ocp.collectClusterResources")
     @patch("mas.cli.must_gather.ocp.collectNodes")

@@ -94,11 +94,12 @@ def collectResources(
         # Convert kind to plural lowercase for file naming consistency
         resourceType = _pluralizeKind(kind)
 
-        # Determine namespace directory
+        # Create resources directory and namespace directory
+        resourcesDir = os.path.join(outputDir, "resources")
         if namespace:
-            namespaceDir = os.path.join(outputDir, namespace)
+            namespaceDir = os.path.join(resourcesDir, namespace)
         else:
-            namespaceDir = os.path.join(outputDir, "_cluster")
+            namespaceDir = os.path.join(resourcesDir, "_cluster")
 
         os.makedirs(namespaceDir, exist_ok=True)
 

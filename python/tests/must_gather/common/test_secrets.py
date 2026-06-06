@@ -94,7 +94,7 @@ class TestCollectSecrets:
 
         collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
-        namespaceDir = os.path.join(self.testDir, "test-ns")
+        namespaceDir = os.path.join(self.testDir, "resources", "test-ns")
         assert os.path.exists(namespaceDir)
 
     def test_collect_secrets_creates_secrets_directory(self):
@@ -113,7 +113,7 @@ class TestCollectSecrets:
 
         collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
-        secretsDir = os.path.join(self.testDir, "test-ns", "secrets")
+        secretsDir = os.path.join(self.testDir, "resources", "test-ns", "secrets")
         assert os.path.exists(secretsDir)
 
     def test_collect_secrets_creates_markdown_summary_file(self):
@@ -132,7 +132,7 @@ class TestCollectSecrets:
 
         collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
-        summaryFile = os.path.join(self.testDir, "test-ns", "secrets.md")
+        summaryFile = os.path.join(self.testDir, "resources", "test-ns", "secrets.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_secrets_markdown_summary_links_yaml(self):
@@ -151,7 +151,7 @@ class TestCollectSecrets:
 
         collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
-        summaryFile = os.path.join(self.testDir, "test-ns", "secrets.md")
+        summaryFile = os.path.join(self.testDir, "resources", "test-ns", "secrets.md")
         with open(summaryFile, "r") as f:
             content = f.read()
 
@@ -174,7 +174,7 @@ class TestCollectSecrets:
 
         collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
-        secretFile = os.path.join(self.testDir, "test-ns", "secrets", "test-secret.yaml")
+        secretFile = os.path.join(self.testDir, "resources", "test-ns", "secrets", "test-secret.yaml")
         assert os.path.exists(secretFile)
 
         # Verify it's YAML format without secret data
@@ -202,7 +202,7 @@ class TestCollectSecrets:
 
         collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=True)
 
-        secretFile = os.path.join(self.testDir, "test-ns", "secrets", "test-secret.yaml")
+        secretFile = os.path.join(self.testDir, "resources", "test-ns", "secrets", "test-secret.yaml")
         assert os.path.exists(secretFile)
 
         # Verify it's full YAML format with data
@@ -227,7 +227,7 @@ class TestCollectSecrets:
 
         collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
-        secretsDir = os.path.join(self.testDir, "test-ns", "secrets")
+        secretsDir = os.path.join(self.testDir, "resources", "test-ns", "secrets")
         assert os.path.exists(os.path.join(secretsDir, "secret1.yaml"))
         assert os.path.exists(os.path.join(secretsDir, "secret2.yaml"))
 
@@ -248,7 +248,7 @@ class TestCollectSecrets:
 
         collectSecrets(dynClient=self.mockClient, namespace=None, outputDir=self.testDir, secretData=False, allNamespaces=True)
 
-        secretsDir = os.path.join(self.testDir, "_cluster", "secrets")
+        secretsDir = os.path.join(self.testDir, "resources", "_cluster", "secrets")
         assert os.path.exists(os.path.join(secretsDir, "all-namespaces.yaml"))
 
     def test_collect_secrets_handles_api_error(self):

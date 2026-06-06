@@ -443,7 +443,8 @@ def processCRDs(dynClient: DynamicClient, outputDir: str) -> Tuple[Dict[Tuple[st
             logger.debug(f"CRD: {crdName} | kind={kind} | {storageInfo} | isIBM={isIBM}")
 
         # Write individual CRD files and generate markdown index
-        clusterDir = os.path.join(outputDir, "_cluster")
+        resourcesDir = os.path.join(outputDir, "resources")
+        clusterDir = os.path.join(resourcesDir, "_cluster")
         crdDir = os.path.join(clusterDir, "customresourcedefinitions")
         os.makedirs(crdDir, exist_ok=True)
 

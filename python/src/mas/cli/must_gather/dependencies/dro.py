@@ -27,7 +27,7 @@ DRO_RESOURCES = [
 ]
 
 
-def collectDRO(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, genericMustGather=None) -> bool:
+def collectDRO(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
     """Collect IBM Data Reporter Operator resources.
 
     Discovers DRO namespace from DataReporterConfig CRs and collects DRO-specific resources.
@@ -36,6 +36,7 @@ def collectDRO(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
         noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
@@ -52,7 +53,12 @@ def collectDRO(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
 
         # Collect from discovered namespaces with DRO-specific resources
         result = collectFromNamespaces(
-            namespaces=droNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=DRO_RESOURCES
+            namespaces=droNamespaces,
+            outputDir=outputDir,
+            noDetail=noDetail,
+            noLogs=noLogs,
+            genericMustGather=genericMustGather,
+            additionalResources=DRO_RESOURCES,
         )
 
         return result

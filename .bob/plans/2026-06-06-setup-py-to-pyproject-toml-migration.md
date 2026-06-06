@@ -170,23 +170,23 @@ Use the **new_task** tool to launch a subtask in **code** mode to complete this 
 Test complete build workflow with pyproject.toml in CI/CD pipeline
 ```
 
-- [ ] **5.1** Create test branch with changes
-  - [ ] Push pyproject.toml and updated files
-  - [ ] Trigger build-cli.yml workflow
-- [ ] **5.2** Monitor build-python job
-  - [ ] Verify version injection (lines 102-107)
-  - [ ] Check pip install succeeds (line 111)
-  - [ ] Confirm linting passes (lines 136-140)
-  - [ ] Verify tests pass (lines 143-146)
-  - [ ] Check build succeeds (lines 149-153)
-- [ ] **5.3** Verify artifact creation
-  - [ ] Check `mas_cli.tar.gz` artifact is uploaded
-  - [ ] Download and inspect artifact
-  - [ ] Verify version in filename matches `VERSION_NOPREREL`
-- [ ] **5.4** Test container builds
-  - [ ] Verify all architecture builds succeed
-  - [ ] Check Python package is correctly installed in containers
-  - [ ] Confirm CLI functionality in container
+- [x] **5.1** Create test branch with changes
+  - [x] Push pyproject.toml and updated files
+  - [x] Trigger build-cli.yml workflow
+- [x] **5.2** Monitor build-python job
+  - [x] Verify version injection (lines 102-107)
+  - [x] Check pip install succeeds (line 111)
+  - [X] Confirm linting passes (lines 136-140)
+  - [x] Verify tests pass (lines 143-146)
+  - [x] Check build succeeds (lines 149-153)
+- [X] **5.3** Verify artifact creation
+  - [x] Check `mas_cli.tar.gz` artifact is uploaded
+  - [x] Download and inspect artifact
+  - [x] Verify version in filename matches `VERSION_NOPREREL`
+- [x] **5.4** Test container builds
+  - [x] Verify all architecture builds succeed
+  - [x] Check Python package is correctly installed in containers
+  - [x] Confirm CLI functionality in container
 
 **Validation**: Complete CI/CD pipeline succeeds with pyproject.toml
 
@@ -200,10 +200,10 @@ Use the **new_task** tool to launch a subtask in **code** mode to complete this 
 Remove deprecated setup.py after pyproject.toml is proven stable
 ```
 
-- [ ] **6.1** Remove [`python/setup.py`](python/setup.py)
-- [ ] **6.2** Remove [`python/MANIFEST.in`](python/MANIFEST.in) if no longer needed
-- [ ] **6.3** Update any remaining documentation references
-- [ ] **6.4** Test complete build pipeline one final time
+- [x] **6.1** Remove [`python/setup.py`](python/setup.py)
+- [x] **6.2** Remove [`python/MANIFEST.in`](python/MANIFEST.in) if no longer needed
+- [x] **6.3** Update any remaining documentation references
+- [x] **6.4** Test complete build pipeline one final time
 
 **Validation**: Package builds and deploys successfully without setup.py
 

@@ -19,7 +19,39 @@ def createArgumentParser() -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: Configured argument parser with all must-gather options
     """
-    parser = argparse.ArgumentParser(description="Collect diagnostic information from MAS clusters", formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description="Collect diagnostic information from MAS clusters or serve web viewer", formatter_class=argparse.RawTextHelpFormatter
+    )
+
+    # Add collect arguments directly to main parser for backward compatibility
+    _addCollectArguments(parser)
+
+    # Add serve subcommand
+    _addServeSubparser(parser)
+
+    return parser
+
+
+def _addServeSubparser(parser: argparse.ArgumentParser) -> None:
+    """Add serve subcommand to the parser.
+
+    Args:
+        parser (argparse.ArgumentParser): Main parser to add subcommand to
+    """
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    serveParser = subparsers.add_parser("serve", help="Serve web viewer for existing must-gather output", formatter_class=argparse.RawTextHelpFormatter)
+    serveParser.add_argument("--dir", type=str, required=True, help="Path to must-gather output directory")
+    serveParser.add_argument("--port", type=int, default=8000, help="Port for HTTP server (default: 8000)")
+    serveParser.add_argument("--no-browser", action="store_true", help="Don't automatically open browser")
+
+
+def _addCollectArguments(parser: argparse.ArgumentParser) -> None:
+    """Add arguments for the collect command.
+
+    Args:
+        parser (argparse.ArgumentParser): Parser to add arguments to
+    """
 
     # Destination group
     destGroup = parser.add_argument_group("Destination")
@@ -80,5 +112,3 @@ def createArgumentParser() -> argparse.ArgumentParser:
         default=None,
         help="Working URL to the root directory in Artifactory where the must-gather file should be uploaded",
     )
-
-    return parser

@@ -10,7 +10,6 @@
 
 """IBM custom resource collection utilities for must-gather."""
 
-import os
 import logging
 from typing import List, Optional, Callable
 from kubernetes.dynamic import DynamicClient
@@ -108,10 +107,6 @@ def collectIBMCustomResources(
         bool: True if collection succeeded, False if errors occurred
     """
     try:
-        # Create resources directory
-        resourcesDir = os.path.join(outputDir, "resources")
-        os.makedirs(resourcesDir, exist_ok=True)
-
         # Get IBM CRDs (cached)
         ibmCRDs = getIBMCRDs(dynClient)
 
@@ -128,12 +123,13 @@ def collectIBMCustomResources(
                 pass
 
         # Collect IBM custom resources in parallel
+        # Note: collectResourcesParallel will add /resources internally
         if ibmCRDsWithInstances:
             return collectResourcesParallel(
                 dynClient=dynClient,
                 namespace=namespace,
                 resources=ibmCRDsWithInstances,
-                outputDir=resourcesDir,
+                outputDir=outputDir,
                 noDetail=noDetail,
                 progressCallback=progressCallback,
             )

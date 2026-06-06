@@ -106,7 +106,7 @@ class TestCollectResources:
             noDetail=True,
         )
 
-        namespaceDir = os.path.join(self.testDir, "test-namespace")
+        namespaceDir = os.path.join(self.testDir, "resources", "test-namespace")
         assert os.path.exists(namespaceDir)
 
     def test_collect_resources_creates_cluster_directory_when_no_namespace(self):
@@ -132,7 +132,7 @@ class TestCollectResources:
             noDetail=True,
         )
 
-        clusterDir = os.path.join(self.testDir, "_cluster")
+        clusterDir = os.path.join(self.testDir, "resources", "_cluster")
         assert os.path.exists(clusterDir)
 
     def test_collect_resources_creates_summary_file(self):
@@ -161,7 +161,7 @@ class TestCollectResources:
             noDetail=True,
         )
 
-        summaryFile = os.path.join(self.testDir, "test-ns", "pods.md")
+        summaryFile = os.path.join(self.testDir, "resources", "test-ns", "pods.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_resources_with_no_detail_flag(self):
@@ -186,7 +186,7 @@ class TestCollectResources:
             noDetail=True,
         )
 
-        resourceDir = os.path.join(self.testDir, "test-ns", "pods")
+        resourceDir = os.path.join(self.testDir, "resources", "test-ns", "pods")
         assert not os.path.exists(resourceDir)
 
     def test_collect_resources_creates_detail_directory_when_detail_enabled(self):
@@ -213,7 +213,7 @@ class TestCollectResources:
             noDetail=False,
         )
 
-        resourceDir = os.path.join(self.testDir, "test-ns", "pods")
+        resourceDir = os.path.join(self.testDir, "resources", "test-ns", "pods")
         assert os.path.exists(resourceDir)
 
     def test_collect_resources_creates_yaml_files_for_each_resource(self):
@@ -241,7 +241,7 @@ class TestCollectResources:
             noDetail=False,
         )
 
-        resourceDir = os.path.join(self.testDir, "test-ns", "pods")
+        resourceDir = os.path.join(self.testDir, "resources", "test-ns", "pods")
         assert os.path.exists(os.path.join(resourceDir, "pod1.yaml"))
         assert os.path.exists(os.path.join(resourceDir, "pod2.yaml"))
 
@@ -271,7 +271,7 @@ class TestCollectResources:
             allNamespaces=True,
         )
 
-        resourceDir = os.path.join(self.testDir, "_cluster", "pods")
+        resourceDir = os.path.join(self.testDir, "resources", "_cluster", "pods")
         assert os.path.exists(os.path.join(resourceDir, "all-namespaces.yaml"))
 
     def test_collect_resources_handles_resource_not_found(self):
@@ -344,7 +344,7 @@ class TestCollectResources:
             noDetail=False,
         )
 
-        resourceDir = os.path.join(self.testDir, "test-ns", "pods")
+        resourceDir = os.path.join(self.testDir, "resources", "test-ns", "pods")
         assert os.path.exists(os.path.join(resourceDir, "pod_with_colons.yaml"))
 
     def test_collect_resources_returns_true_on_success(self):

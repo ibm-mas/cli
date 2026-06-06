@@ -91,7 +91,7 @@ class TestCollectNodes:
         result = collectNodes(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        summaryFile = os.path.join(self.testDir, "_cluster", "nodes.md")
+        summaryFile = os.path.join(self.testDir, "resources", "_cluster", "nodes.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_nodes_creates_yaml_files(self):
@@ -110,7 +110,7 @@ class TestCollectNodes:
         result = collectNodes(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        yamlFile = os.path.join(self.testDir, "_cluster", "nodes", "node1.yaml")
+        yamlFile = os.path.join(self.testDir, "resources", "_cluster", "nodes", "node1.yaml")
         assert os.path.exists(yamlFile)
 
     def test_collect_nodes_respects_no_detail_flag(self):
@@ -130,10 +130,10 @@ class TestCollectNodes:
 
         assert result is True
         # Summary should exist
-        summaryFile = os.path.join(self.testDir, "_cluster", "nodes.md")
+        summaryFile = os.path.join(self.testDir, "resources", "_cluster", "nodes.md")
         assert os.path.exists(summaryFile)
         # Detail directory should NOT exist
-        detailDir = os.path.join(self.testDir, "_cluster", "nodes")
+        detailDir = os.path.join(self.testDir, "resources", "_cluster", "nodes")
         assert not os.path.exists(detailDir)
 
     def test_collect_nodes_handles_errors_gracefully(self):

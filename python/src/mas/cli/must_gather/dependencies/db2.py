@@ -44,7 +44,9 @@ def _extractNamespaceFromJdbcUrl(jdbcUrl: str) -> Optional[str]:
     return None
 
 
-def collectDb2(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, masInstanceIds: Optional[List[str]] = None, genericMustGather=None) -> bool:
+def collectDb2(
+    dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, masInstanceIds: Optional[List[str]] = None, genericMustGather=None
+) -> bool:
     """Collect IBM Db2 Universal Operator resources.
 
     Discovers Db2 namespaces either from JdbcCfg resources (when masInstanceIds provided)
@@ -55,6 +57,7 @@ def collectDb2(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
         noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         masInstanceIds (list, optional): List of MAS instance IDs to discover Db2 from JdbcCfg. Defaults to None.
         genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
@@ -100,7 +103,7 @@ def collectDb2(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
             success = True
             for namespace in sorted(db2Namespaces):
                 logger.info(f"Collecting Db2 resources from namespace: {namespace}")
-                if not genericMustGather(namespace=namespace, outputDir=outputDir, noDetail=noDetail):
+                if not genericMustGather(namespace=namespace, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs):
                     success = False
 
             return success

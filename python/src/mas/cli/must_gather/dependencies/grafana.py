@@ -23,7 +23,7 @@ GRAFANA_RESOURCES = [
 ]
 
 
-def collectGrafana(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, genericMustGather=None) -> bool:
+def collectGrafana(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
     """Collect Grafana resources.
 
     Discovers Grafana namespaces from Grafana CRs and collects Grafana-specific resources.
@@ -32,6 +32,7 @@ def collectGrafana(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fa
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
         noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
@@ -48,7 +49,12 @@ def collectGrafana(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fa
 
         # Collect from discovered namespaces with Grafana-specific resources
         result = collectFromNamespaces(
-            namespaces=grafanaNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=GRAFANA_RESOURCES
+            namespaces=grafanaNamespaces,
+            outputDir=outputDir,
+            noDetail=noDetail,
+            noLogs=noLogs,
+            genericMustGather=genericMustGather,
+            additionalResources=GRAFANA_RESOURCES,
         )
 
         return result

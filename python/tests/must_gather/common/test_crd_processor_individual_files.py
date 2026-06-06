@@ -48,7 +48,7 @@ class TestProcessCRDsIndividualFiles:
             processCRDs(mockClient, tmpdir)
 
             # Verify individual CRD files exist
-            crdDir = os.path.join(tmpdir, "_cluster", "customresourcedefinitions")
+            crdDir = os.path.join(tmpdir, "resources", "_cluster", "customresourcedefinitions")
             assert os.path.exists(crdDir)
 
             crd1File = os.path.join(crdDir, "suites.core.mas.ibm.com.yaml")
@@ -98,7 +98,7 @@ class TestProcessCRDsIndividualFiles:
             processCRDs(mockClient, tmpdir)
 
             # Verify markdown index exists
-            indexFile = os.path.join(tmpdir, "_cluster", "customresourcedefinitions.md")
+            indexFile = os.path.join(tmpdir, "resources", "_cluster", "customresourcedefinitions.md")
             assert os.path.exists(indexFile)
 
             # Verify markdown content
@@ -132,5 +132,5 @@ class TestProcessCRDsIndividualFiles:
             processCRDs(mockClient, tmpdir)
 
             # Verify old single file does NOT exist
-            oldFile = os.path.join(tmpdir, "_cluster", "customresourcedefinitions.yaml")
+            oldFile = os.path.join(tmpdir, "resources", "_cluster", "customresourcedefinitions.yaml")
             assert not os.path.exists(oldFile)

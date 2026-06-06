@@ -43,15 +43,13 @@ def collectSecrets(
         tuple[bool, int]: (success status, count of secrets collected)
     """
     try:
-        # Determine namespace directory
+        # Create resources/namespace/secrets directory structure
+        resourcesDir = os.path.join(outputDir, "resources")
         if namespace:
-            namespaceDir = os.path.join(outputDir, namespace)
+            namespaceDir = os.path.join(resourcesDir, namespace)
         else:
-            namespaceDir = os.path.join(outputDir, "_cluster")
+            namespaceDir = os.path.join(resourcesDir, "_cluster")
 
-        os.makedirs(namespaceDir, exist_ok=True)
-
-        # Create secrets directory
         secretsDir = os.path.join(namespaceDir, "secrets")
         os.makedirs(secretsDir, exist_ok=True)
 

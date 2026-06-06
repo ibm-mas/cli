@@ -289,6 +289,70 @@
             text-indent: -6em;
         }
 
+        .yaml-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .yaml-tree {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .yaml-node {
+            margin-left: 20px;
+        }
+
+        .yaml-key {
+            color: #4ec9b0;
+            font-weight: 600;
+        }
+
+        .yaml-value {
+            color: #ce9178;
+        }
+
+        .yaml-string {
+            color: #ce9178;
+        }
+
+        .yaml-number {
+            color: #b5cea8;
+        }
+
+        .yaml-boolean {
+            color: #569cd6;
+        }
+
+        .yaml-null {
+            color: #808080;
+        }
+
+        .yaml-toggle {
+            cursor: pointer;
+            user-select: none;
+            display: inline-block;
+            width: 16px;
+            color: var(--text-secondary);
+        }
+
+        .yaml-toggle:hover {
+            color: var(--primary);
+        }
+
+        .yaml-line {
+            padding: 2px 0;
+        }
+
+        .yaml-collapsed {
+            display: none;
+        }
+
         .loading {
             display: flex;
             justify-content: center;
@@ -477,10 +541,7 @@
                 if (path.endsWith('.md')) {
                     viewer.innerHTML = `<div class="markdown-content">${marked.parse(content)}</div>`;
                 } else if (path.endsWith('.yaml') || path.endsWith('.yml')) {
-                    const lines = content.split('\n').map(line =>
-                        `<div class="code-line">${escapeHtml(line)}</div>`
-                    ).join('');
-                    viewer.innerHTML = `<div class="code-content">${lines}</div>`;
+                    renderYAML(content, viewer);
                 } else if (path.endsWith('.log')) {
                     const lines = content.split('\n').map((line, i) =>
                         `<div class="code-line">${(i + 1).toString().padStart(4, ' ')} | ${escapeHtml(line)}</div>`
@@ -545,6 +606,185 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function renderYAML(content, viewer) {
+            try {
+                const data = jsyaml.load(content);
+
+                const controls = document.createElement('div');
+                controls.className = 'yaml-controls';
+                controls.innerHTML = `
+                    <button class="btn btn-secondary" onclick="expandAllYAML()">Expand All</button>
+                    <button class="btn btn-secondary" onclick="collapseAllYAML()">Collapse All</button>
+                    <button class="btn btn-secondary" onclick="toggleYAMLView()">Toggle Raw View</button>
+                `;
+
+                const treeContainer = document.createElement('div');
+                treeContainer.className = 'code-content yaml-tree';
+                treeContainer.id = 'yamlTree';
+
+                const rawContainer = document.createElement('div');
+                rawContainer.className = 'code-content';
+                rawContainer.id = 'yamlRaw';
+                rawContainer.style.display = 'none';
+                const lines = content.split('\n').map(line =>
+                    `<div class="code-line">${escapeHtml(line)}</div>`
+                ).join('');
+                rawContainer.innerHTML = lines;
+
+                viewer.innerHTML = '';
+                viewer.appendChild(controls);
+                viewer.appendChild(treeContainer);
+                viewer.appendChild(rawContainer);
+
+                renderYAMLNode(data, treeContainer, 0);
+            } catch (error) {
+                // If YAML parsing fails, fall back to raw view
+                const lines = content.split('\n').map(line =>
+                    `<div class="code-line">${escapeHtml(line)}</div>`
+                ).join('');
+                viewer.innerHTML = `<div class="code-content">${lines}</div>`;
+            }
+        }
+
+        function renderYAMLNode(data, container, depth, key = null) {
+            const indent = '  '.repeat(depth);
+
+            if (data === null || data === undefined) {
+                const line = document.createElement('div');
+                line.className = 'yaml-line';
+                line.innerHTML = `${indent}${key ? `<span class="yaml-key">${escapeHtml(key)}</span>: ` : ''}<span class="yaml-null">null</span>`;
+                container.appendChild(line);
+            } else if (typeof data === 'object' && !Array.isArray(data)) {
+                // Object
+                if (key !== null) {
+                    const line = document.createElement('div');
+                    line.className = 'yaml-line';
+                    const toggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
+                    line.innerHTML = `${indent}<span class="yaml-toggle" id="${toggleId}" onclick="toggleYAMLNode('${toggleId}')">▼</span> <span class="yaml-key">${escapeHtml(key)}</span>:`;
+                    container.appendChild(line);
+
+                    const childContainer = document.createElement('div');
+                    childContainer.className = 'yaml-node';
+                    childContainer.id = `node-${toggleId}`;
+                    container.appendChild(childContainer);
+
+                    for (const [k, v] of Object.entries(data)) {
+                        renderYAMLNode(v, childContainer, depth + 1, k);
+                    }
+                } else {
+                    for (const [k, v] of Object.entries(data)) {
+                        renderYAMLNode(v, container, depth, k);
+                    }
+                }
+            } else if (Array.isArray(data)) {
+                // Array
+                if (key !== null) {
+                    const line = document.createElement('div');
+                    line.className = 'yaml-line';
+                    const toggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
+                    line.innerHTML = `${indent}<span class="yaml-toggle" id="${toggleId}" onclick="toggleYAMLNode('${toggleId}')">▼</span> <span class="yaml-key">${escapeHtml(key)}</span>:`;
+                    container.appendChild(line);
+
+                    const childContainer = document.createElement('div');
+                    childContainer.className = 'yaml-node';
+                    childContainer.id = `node-${toggleId}`;
+                    container.appendChild(childContainer);
+
+                    data.forEach((item, index) => {
+                        const itemLine = document.createElement('div');
+                        itemLine.className = 'yaml-line';
+
+                        if (typeof item === 'object' && item !== null) {
+                            const itemToggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
+                            itemLine.innerHTML = `${'  '.repeat(depth + 1)}<span class="yaml-toggle" id="${itemToggleId}" onclick="toggleYAMLNode('${itemToggleId}')">▼</span> -`;
+                            childContainer.appendChild(itemLine);
+
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'yaml-node';
+                            itemContainer.id = `node-${itemToggleId}`;
+                            childContainer.appendChild(itemContainer);
+
+                            if (Array.isArray(item)) {
+                                item.forEach((subItem, subIndex) => {
+                                    renderYAMLNode(subItem, itemContainer, depth + 2, null);
+                                });
+                            } else {
+                                for (const [k, v] of Object.entries(item)) {
+                                    renderYAMLNode(v, itemContainer, depth + 2, k);
+                                }
+                            }
+                        } else {
+                            itemLine.innerHTML = `${'  '.repeat(depth + 1)}- ${formatYAMLValue(item)}`;
+                            childContainer.appendChild(itemLine);
+                        }
+                    });
+                }
+            } else {
+                // Primitive value
+                const line = document.createElement('div');
+                line.className = 'yaml-line';
+                line.innerHTML = `${indent}${key ? `<span class="yaml-key">${escapeHtml(key)}</span>: ` : ''}${formatYAMLValue(data)}`;
+                container.appendChild(line);
+            }
+        }
+
+        function formatYAMLValue(value) {
+            if (typeof value === 'string') {
+                return `<span class="yaml-string">${escapeHtml(value)}</span>`;
+            } else if (typeof value === 'number') {
+                return `<span class="yaml-number">${value}</span>`;
+            } else if (typeof value === 'boolean') {
+                return `<span class="yaml-boolean">${value}</span>`;
+            } else if (value === null) {
+                return `<span class="yaml-null">null</span>`;
+            }
+            return escapeHtml(String(value));
+        }
+
+        function toggleYAMLNode(toggleId) {
+            const toggle = document.getElementById(toggleId);
+            const node = document.getElementById(`node-${toggleId}`);
+
+            if (node.classList.contains('yaml-collapsed')) {
+                node.classList.remove('yaml-collapsed');
+                toggle.textContent = '▼';
+            } else {
+                node.classList.add('yaml-collapsed');
+                toggle.textContent = '▶';
+            }
+        }
+
+        function expandAllYAML() {
+            document.querySelectorAll('.yaml-node').forEach(node => {
+                node.classList.remove('yaml-collapsed');
+            });
+            document.querySelectorAll('.yaml-toggle').forEach(toggle => {
+                toggle.textContent = '▼';
+            });
+        }
+
+        function collapseAllYAML() {
+            document.querySelectorAll('.yaml-node').forEach(node => {
+                node.classList.add('yaml-collapsed');
+            });
+            document.querySelectorAll('.yaml-toggle').forEach(toggle => {
+                toggle.textContent = '▶';
+            });
+        }
+
+        function toggleYAMLView() {
+            const tree = document.getElementById('yamlTree');
+            const raw = document.getElementById('yamlRaw');
+
+            if (tree.style.display === 'none') {
+                tree.style.display = '';
+                raw.style.display = 'none';
+            } else {
+                tree.style.display = 'none';
+                raw.style.display = '';
+            }
         }
 
         document.getElementById('searchInput').addEventListener('input', (e) => {

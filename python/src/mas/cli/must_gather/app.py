@@ -23,7 +23,7 @@ from .timer import Timer
 from .common import collectResourcesParallel, collectSecrets, collectPods, getIBMCRDs
 from . import ocp
 from . import dependencies
-from .sls import license_service as sls
+from .dependencies import sls
 from .mas import core as mas_core
 from .mas import apps as mas_apps
 from .mas import pipelines as mas_pipelines
@@ -65,7 +65,7 @@ class MustGatherApp(BaseApp):
             self.dynClient = DynamicClient(config.new_client_from_config())
 
     def mustGather(self, args):
-        """Execute must-gather collection.
+        """Execute must-gather collection or serve web viewer.
 
         Args:
             args: Command-line arguments list
@@ -77,9 +77,35 @@ class MustGatherApp(BaseApp):
         parser = createArgumentParser()
         parsedArgs = parser.parse_args(args)
 
+        # Handle serve command
+        if parsedArgs.command == "serve":
+            from mas.cli.must_gather.web_viewer.__main__ import serve_viewer
+
+            return serve_viewer(directory=parsedArgs.dir, port=parsedArgs.port, open_browser=not parsedArgs.no_browser)
+
+        # Handle collect command (default) or when no command specified
+        # If no command specified, treat as collect for backward compatibility
+        if parsedArgs.command is None or parsedArgs.command == "collect":
+            return self._collectMustGather(parsedArgs)
+
+        # Unknown command
+        parser.print_help()
+        return 1
+
+    def _collectMustGather(self, parsedArgs):
+        """Execute must-gather collection.
+
+        Args:
+            parsedArgs: Parsed command-line arguments
+
+        Returns:
+            int: Exit code (0 for success, 1 for failure)
+        """
+
         # Initialize output manager
         outputManager = OutputManager(parsedArgs.directory, parsedArgs.keep_files)
         outputManager.initialize()
+        outputManager.setupLogging()
 
         # Print header information
         self.printH1("MAS Must-Gather")
@@ -108,7 +134,7 @@ class MustGatherApp(BaseApp):
                 raise RuntimeError("Kubernetes client not initialized")
 
             logger.info("Processing CRDs for printer columns (--no-ocp mode)")
-            self.printerColumnsCache, self.ibmCRDsList = processCRDs(self.dynClient, f"{outputManager.outputDir}/resources")
+            self.printerColumnsCache, self.ibmCRDsList = processCRDs(self.dynClient, outputManager.outputDir)
             logger.info(f"Processed {len(self.printerColumnsCache)} CRDs, identified {len(self.ibmCRDsList)} IBM CRDs")
 
         # Collect OCP resources (unless --no-ocp flag is set)
@@ -118,6 +144,7 @@ class MustGatherApp(BaseApp):
             ocpTimer.start()
             self.collectOCP(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only)
             elapsed = ocpTimer.stop()
+            print()
             self.printHighlight(f"OCP collection completed in {elapsed} seconds")
 
         # Collect dependency resources (unless --no-dependencies flag is set)
@@ -126,8 +153,11 @@ class MustGatherApp(BaseApp):
             depTimer = Timer()
             depTimer.start()
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
-            self.collectDependencies(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only, masInstanceIds=masInstanceIds)
+            self.collectDependencies(
+                outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only, noLogs=parsedArgs.no_logs, masInstanceIds=masInstanceIds
+            )
             elapsed = depTimer.stop()
+            print()
             self.printHighlight(f"Dependencies collection completed in {elapsed} seconds")
 
         # Collect SLS resources (unless --no-sls flag is set)
@@ -138,6 +168,7 @@ class MustGatherApp(BaseApp):
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
             self.collectSLS(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only, masInstanceIds=masInstanceIds)
             elapsed = slsTimer.stop()
+            print()
             self.printHighlight(f"SLS collection completed in {elapsed} seconds")
 
         # Collect MAS resources
@@ -230,7 +261,7 @@ class MustGatherApp(BaseApp):
         # Print completion message
         elapsed = overallTimer.stop()
         self.printH1("Completion")
-        self.printHighlight(f"Must-gather completed in {elapsed} seconds")
+        print(f"Must-gather completed in {elapsed} seconds")
         self.printHighlight(f"Must gather successfully saved to: {archivePath}")
 
         return 0
@@ -309,7 +340,7 @@ class MustGatherApp(BaseApp):
                             dynClient=self.dynClient,
                             namespace=namespace,
                             resources=ibmCRDsWithInstances,
-                            outputDir=f"{outputDir}/resources",
+                            outputDir=outputDir,
                             noDetail=noDetail,
                             progressCallback=updateProgress,
                         ):
@@ -359,7 +390,7 @@ class MustGatherApp(BaseApp):
                     dynClient=self.dynClient,
                     namespace=namespace,
                     resources=standardResources,
-                    outputDir=f"{outputDir}/resources",
+                    outputDir=outputDir,
                     noDetail=noDetail,
                     progressCallback=updateProgress,
                 ):
@@ -374,7 +405,7 @@ class MustGatherApp(BaseApp):
             with Halo(text=f"Collecting secrets from {namespace} ({dataStatus})", spinner=self.spinner) as h:
                 try:
                     secretSuccess, secretCount = collectSecrets(
-                        dynClient=self.dynClient, namespace=namespace, outputDir=f"{outputDir}/resources", secretData=secretData, allNamespaces=False
+                        dynClient=self.dynClient, namespace=namespace, outputDir=outputDir, secretData=secretData, allNamespaces=False
                     )
                     if secretSuccess:
                         dataStatus = "with data" if secretData else "without data"
@@ -397,7 +428,7 @@ class MustGatherApp(BaseApp):
                 podSuccess, podCount = collectPods(
                     dynClient=self.dynClient,
                     namespace=namespace,
-                    outputDir=f"{outputDir}/resources",
+                    outputDir=outputDir,
                     podLogs=not noLogs,
                     noDetail=noDetail,
                     progressCallback=updateProgress,
@@ -439,9 +470,7 @@ class MustGatherApp(BaseApp):
         totalCount += 1
         with Halo(text="Collecting OCP cluster resources", spinner=self.spinner) as h:
             try:
-                success, printerColumnsCache, ibmCRDsList = ocp.collectClusterResources(
-                    dynClient=self.dynClient, outputDir=f"{outputDir}/resources", noDetail=noDetail
-                )
+                success, printerColumnsCache, ibmCRDsList = ocp.collectClusterResources(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail)
                 if success:
                     # Store CRD processing results for use by other collectors
                     self.printerColumnsCache = printerColumnsCache
@@ -457,7 +486,7 @@ class MustGatherApp(BaseApp):
         totalCount += 1
         with Halo(text="Collecting OCP nodes", spinner=self.spinner) as h:
             try:
-                if ocp.collectNodes(dynClient=self.dynClient, outputDir=f"{outputDir}/resources", noDetail=noDetail):
+                if ocp.collectNodes(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail):
                     h.stop_and_persist(symbol=self.successIcon, text="OCP nodes collected")
                     successCount += 1
                 else:
@@ -469,7 +498,7 @@ class MustGatherApp(BaseApp):
         totalCount += 1
         with Halo(text="Collecting OCP airgap resources", spinner=self.spinner) as h:
             try:
-                if ocp.collectAirgapResources(dynClient=self.dynClient, outputDir=f"{outputDir}/resources", noDetail=noDetail):
+                if ocp.collectAirgapResources(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail):
                     h.stop_and_persist(symbol=self.successIcon, text="OCP airgap resources collected")
                     successCount += 1
                 else:
@@ -481,7 +510,7 @@ class MustGatherApp(BaseApp):
         totalCount += 1
         with Halo(text="Collecting OCP marketplace resources", spinner=self.spinner) as h:
             try:
-                if ocp.collectMarketplaceResources(dynClient=self.dynClient, outputDir=f"{outputDir}/resources", noDetail=noDetail):
+                if ocp.collectMarketplaceResources(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail):
                     h.stop_and_persist(symbol=self.successIcon, text="OCP marketplace resources collected")
                     successCount += 1
                 else:
@@ -494,7 +523,7 @@ class MustGatherApp(BaseApp):
 
         return successCount > 0
 
-    def collectDependencies(self, outputDir: str, noDetail: bool = False, masInstanceIds: Optional[List[str]] = None) -> bool:
+    def collectDependencies(self, outputDir: str, noDetail: bool = False, noLogs: bool = False, masInstanceIds: Optional[List[str]] = None) -> bool:
         """Collect in-cluster dependency resources.
 
         Orchestrates collection of dependency resources including IBM Common Services,
@@ -503,6 +532,7 @@ class MustGatherApp(BaseApp):
         Args:
             outputDir (str): Base output directory for collected resources
             noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+            noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
             masInstanceIds (list, optional): List of MAS instance IDs for Db2 discovery. Defaults to None.
 
         Returns:
@@ -520,12 +550,16 @@ class MustGatherApp(BaseApp):
         totalCount += 2  # Count both Common Services and CP4D
 
         # Collect Common Services (Foundation Services)
-        result = dependencies.collectCommonServices(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        result = dependencies.collectCommonServices(
+            dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs, genericMustGather=self.genericMustGather
+        )
         if result:
             successCount += 1
 
         # Collect CP4D
-        result = dependencies.collectCP4D(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        result = dependencies.collectCP4D(
+            dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs, genericMustGather=self.genericMustGather
+        )
         if result:
             successCount += 1
 
@@ -533,7 +567,12 @@ class MustGatherApp(BaseApp):
         self.printH2("IBM Db2 Universal Operator")
         totalCount += 1
         result = dependencies.collectDb2(
-            dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, masInstanceIds=masInstanceIds, genericMustGather=self.genericMustGather
+            dynClient=self.dynClient,
+            outputDir=outputDir,
+            noDetail=noDetail,
+            noLogs=noLogs,
+            masInstanceIds=masInstanceIds,
+            genericMustGather=self.genericMustGather,
         )
         if result:
             successCount += 1
@@ -541,35 +580,45 @@ class MustGatherApp(BaseApp):
         # IBM Data Reporter Operator
         self.printH2("IBM Data Reporter Operator")
         totalCount += 1
-        result = dependencies.collectDRO(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        result = dependencies.collectDRO(
+            dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs, genericMustGather=self.genericMustGather
+        )
         if result:
             successCount += 1
 
         # Red Hat Certificate Manager
         self.printH2("Red Hat Certificate Manager")
         totalCount += 1
-        result = dependencies.collectCertManager(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        result = dependencies.collectCertManager(
+            dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs, genericMustGather=self.genericMustGather
+        )
         if result:
             successCount += 1
 
         # Kafka
         self.printH2("Kafka")
         totalCount += 1
-        result = dependencies.collectKafka(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        result = dependencies.collectKafka(
+            dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs, genericMustGather=self.genericMustGather
+        )
         if result:
             successCount += 1
 
         # Grafana
         self.printH2("Grafana")
         totalCount += 1
-        result = dependencies.collectGrafana(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        result = dependencies.collectGrafana(
+            dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs, genericMustGather=self.genericMustGather
+        )
         if result:
             successCount += 1
 
         # MongoDB Community
         self.printH2("MongoDB Community")
         totalCount += 1
-        result = dependencies.collectMongoDB(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        result = dependencies.collectMongoDB(
+            dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs, genericMustGather=self.genericMustGather
+        )
         if result:
             successCount += 1
 
@@ -578,13 +627,13 @@ class MustGatherApp(BaseApp):
     def collectSLS(self, outputDir: str, noDetail: bool = False, masInstanceIds: Optional[List[str]] = None) -> bool:
         """Collect IBM Suite License Service resources.
 
-        Discovers SLS namespaces from slscfg CRs (when MAS instance IDs provided) or
-        LicenseService CRs directly, then collects resources from each discovered namespace.
+        Discovers SLS namespaces from LicenseService CRs and collects resources from each namespace.
+        Note: The masInstanceIds parameter is kept for backward compatibility but is not used.
 
         Args:
             outputDir (str): Base output directory for collected resources
             noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
-            masInstanceIds (list, optional): List of MAS instance IDs for slscfg-based discovery. Defaults to None.
+            masInstanceIds (list, optional): Unused - kept for backward compatibility. Defaults to None.
 
         Returns:
             bool: True if any collection succeeded
@@ -718,7 +767,7 @@ class MustGatherApp(BaseApp):
 
             # Generate MAS Quick Summary
             if not noQuickSummary:
-                self.printH2("MAS Quick Summary")
+                self.printHighlight("MAS Quick Summary")
                 try:
                     with Halo(text=f"Generating quick summary for {instanceId}", spinner=self.spinner) as h:
                         if mas_quick_summary.generateMASQuickSummary(dynClient=self.dynClient, masInstanceId=instanceId, outputDir=outputDir):
@@ -729,14 +778,15 @@ class MustGatherApp(BaseApp):
                     print(f"❌ Failed to generate quick summary for {instanceId}: {str(e)}")
 
             elapsed = instanceTimer.stop()
-            print(f"Instance {instanceId} collection completed in {elapsed} seconds")
+            print()
+            self.printHighlight(f"Instance {instanceId} collection completed in {elapsed} seconds")
 
         # Collect cluster-level pipelines namespace if it exists
         # Note: Only collect mas-pipelines here; instance pipelines were already collected above
         try:
             clusterPipelineNamespaces = mas_pipelines.discoverMASPipelineNamespaces(self.dynClient, masInstanceIds=[], includeClusterLevel=True)
             if "mas-pipelines" in clusterPipelineNamespaces:
-                self.printH2("Cluster-Level Pipelines")
+                self.printH2("Cluster-Level MAS Pipelines")
                 try:
                     if not mas_pipelines.collectMASPipelines(
                         dynClient=self.dynClient,

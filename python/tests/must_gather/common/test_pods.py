@@ -96,7 +96,7 @@ class TestCollectPods:
 
         collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        namespaceDir = os.path.join(self.testDir, "test-ns")
+        namespaceDir = os.path.join(self.testDir, "resources", "test-ns")
         assert os.path.exists(namespaceDir)
 
     def test_collect_pods_creates_pods_directory(self):
@@ -115,7 +115,7 @@ class TestCollectPods:
 
         collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        podsDir = os.path.join(self.testDir, "test-ns", "pods")
+        podsDir = os.path.join(self.testDir, "resources", "test-ns", "pods")
         assert os.path.exists(podsDir)
 
     def test_collect_pods_creates_markdown_summary_file(self):
@@ -134,7 +134,7 @@ class TestCollectPods:
 
         success, count = collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        summaryFile = os.path.join(self.testDir, "test-ns", "pods.md")
+        summaryFile = os.path.join(self.testDir, "resources", "test-ns", "pods.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_pods_markdown_summary_links_yaml_and_logs(self):
@@ -153,13 +153,13 @@ class TestCollectPods:
 
         collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=True, noDetail=False)
 
-        summaryFile = os.path.join(self.testDir, "test-ns", "pods.md")
+        summaryFile = os.path.join(self.testDir, "resources", "test-ns", "pods.md")
         with open(summaryFile, "r") as f:
             content = f.read()
 
-        assert "| NAME | READY | STATUS | RESTARTS | AGE | YAML | LOGS |" in content
+        assert "| NAME | READY | STATUS | RESTARTS | LOGS |" in content
         assert "[test-pod](pods/myapp/test-pod.yaml)" in content
-        assert "[logs](pods/myapp/logs/)" in content
+        assert "[container1](pods/myapp/logs/test-pod_container1.log)" in content
 
     def test_collect_pods_markdown_summary_omits_logs_link_when_logs_disabled(self):
         """Test that pod markdown summary omits logs link when logs are disabled.
@@ -177,7 +177,7 @@ class TestCollectPods:
 
         collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        summaryFile = os.path.join(self.testDir, "test-ns", "pods.md")
+        summaryFile = os.path.join(self.testDir, "resources", "test-ns", "pods.md")
         with open(summaryFile, "r") as f:
             content = f.read()
 
@@ -200,7 +200,7 @@ class TestCollectPods:
 
         collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        appDir = os.path.join(self.testDir, "test-ns", "pods", "myapp")
+        appDir = os.path.join(self.testDir, "resources", "test-ns", "pods", "myapp")
         assert os.path.exists(appDir)
 
     def test_collect_pods_creates_yaml_file_when_detail_enabled(self):
@@ -219,7 +219,7 @@ class TestCollectPods:
 
         collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        yamlFile = os.path.join(self.testDir, "test-ns", "pods", "myapp", "test-pod.yaml")
+        yamlFile = os.path.join(self.testDir, "resources", "test-ns", "pods", "myapp", "test-pod.yaml")
         assert os.path.exists(yamlFile)
 
     def test_collect_pods_skips_yaml_when_no_detail(self):
@@ -238,7 +238,7 @@ class TestCollectPods:
 
         collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=True)
 
-        yamlFile = os.path.join(self.testDir, "test-ns", "pods", "myapp", "test-pod.yaml")
+        yamlFile = os.path.join(self.testDir, "resources", "test-ns", "pods", "myapp", "test-pod.yaml")
         assert not os.path.exists(yamlFile)
 
     def test_collect_pods_collects_logs_when_enabled(self):
@@ -262,7 +262,7 @@ class TestCollectPods:
 
         collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=True, noDetail=False)
 
-        logsDir = os.path.join(self.testDir, "test-ns", "pods", "myapp", "logs")
+        logsDir = os.path.join(self.testDir, "resources", "test-ns", "pods", "myapp", "logs")
         assert os.path.exists(logsDir)
 
     def test_collect_pods_skips_logs_when_disabled(self):
@@ -281,7 +281,7 @@ class TestCollectPods:
 
         collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        logsDir = os.path.join(self.testDir, "test-ns", "pods", "myapp", "logs")
+        logsDir = os.path.join(self.testDir, "resources", "test-ns", "pods", "myapp", "logs")
         assert not os.path.exists(logsDir)
 
     def test_collect_pods_handles_api_error(self):

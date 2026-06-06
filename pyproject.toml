@@ -75,6 +75,7 @@ version = { attr = "mas.cli.__version__" }
 
 [tool.black]
 line-length = 160
+target-version = ['py312']
 include = 'python/(src|test|tests)/.*\.py$'
 
 [tool.flake8]

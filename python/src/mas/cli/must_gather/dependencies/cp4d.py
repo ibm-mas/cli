@@ -17,7 +17,7 @@ from kubernetes.client.exceptions import ApiException
 logger = logging.getLogger(__name__)
 
 
-def collectCP4D(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, genericMustGather=None) -> bool:
+def collectCP4D(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
     """Collect IBM CloudPak for Data resources.
 
     Checks if ibm-cpd-operators namespace exists and collects resources from
@@ -27,6 +27,7 @@ def collectCP4D(dynClient: DynamicClient, outputDir: str, noDetail: bool = False
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
         noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
@@ -41,11 +42,11 @@ def collectCP4D(dynClient: DynamicClient, outputDir: str, noDetail: bool = False
         if genericMustGather:
             success = True
             # Collect from ibm-cpd namespace
-            if not genericMustGather(namespace="ibm-cpd", outputDir=outputDir, noDetail=noDetail):
+            if not genericMustGather(namespace="ibm-cpd", outputDir=outputDir, noDetail=noDetail, noLogs=noLogs):
                 success = False
 
             # Collect from ibm-cpd-operators namespace
-            if not genericMustGather(namespace="ibm-cpd-operators", outputDir=outputDir, noDetail=noDetail):
+            if not genericMustGather(namespace="ibm-cpd-operators", outputDir=outputDir, noDetail=noDetail, noLogs=noLogs):
                 success = False
 
             if success:

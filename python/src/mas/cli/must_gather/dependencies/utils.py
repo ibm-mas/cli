@@ -70,7 +70,7 @@ def discoverNamespacesFromCR(dynClient: DynamicClient, kind: str, apiVersion: Op
 
 
 def collectFromNamespaces(
-    namespaces: Set[str], outputDir: str, noDetail: bool, genericMustGather, additionalResources: Optional[List[tuple[str, str]]] = None
+    namespaces: Set[str], outputDir: str, noDetail: bool, noLogs: bool, genericMustGather, additionalResources: Optional[List[tuple[str, str]]] = None
 ) -> bool:
     """Collect resources from multiple namespaces.
 
@@ -78,6 +78,7 @@ def collectFromNamespaces(
         namespaces (set): Set of namespace names to collect from
         outputDir (str): Output directory
         noDetail (bool): Skip detailed collection
+        noLogs (bool): Skip pod log collection
         genericMustGather (callable): Function to perform collection
         additionalResources (list, optional): Additional resource types as (apiVersion, kind) tuples. Defaults to None.
 
@@ -90,7 +91,7 @@ def collectFromNamespaces(
     success = True
     for namespace in sorted(namespaces):
         logger.info(f"Collecting from namespace: {namespace}")
-        kwargs = {"namespace": namespace, "outputDir": outputDir, "noDetail": noDetail}
+        kwargs = {"namespace": namespace, "outputDir": outputDir, "noDetail": noDetail, "noLogs": noLogs}
         if additionalResources:
             kwargs["additionalResources"] = additionalResources
 

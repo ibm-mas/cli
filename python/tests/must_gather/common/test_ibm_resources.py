@@ -52,7 +52,17 @@ class TestCollectIBMCustomResources:
         mockCRD = Mock()
         mockCRD.metadata = Mock()
         mockCRD.metadata.name = name
-        mockCRD.to_dict.return_value = {"metadata": {"name": name}}
+
+        # Extract kind and group from name (e.g., "suites.core.mas.ibm.com" -> kind="Suite", group="core.mas.ibm.com")
+        parts = name.split(".")
+        kind = parts[0].capitalize() if parts[0].endswith("s") else parts[0].capitalize() + "s"
+        kind = kind[:-1] if kind.endswith("s") else kind  # Remove trailing 's'
+        group = ".".join(parts[1:]) if len(parts) > 1 else ""
+
+        mockCRD.to_dict.return_value = {
+            "metadata": {"name": name},
+            "spec": {"group": group, "names": {"kind": kind}, "versions": [{"name": "v1", "served": True, "storage": True}]},
+        }
         return mockCRD
 
     def _createMockCRDList(self, crds: list):
@@ -129,8 +139,13 @@ class TestCollectIBMCustomResources:
             callCount[0] += 1
             if callCount[0] == 1:
                 return mockCRDApi
+            # Return mock with at least one item so collection happens
             mockApi = Mock()
-            mockApi.get.return_value = Mock(items=[])
+            mockResource = Mock()
+            mockResource.metadata = Mock()
+            mockResource.metadata.name = "test-resource"
+            mockResource.to_dict.return_value = {"metadata": {"name": "test-resource"}}
+            mockApi.get.return_value = Mock(items=[mockResource])
             return mockApi
 
         self.mockClient.resources.get.side_effect = sideEffect
@@ -145,7 +160,7 @@ class TestCollectIBMCustomResources:
     def test_collect_ibm_custom_resources_creates_resources_directory(self):
         """Test that resources directory is created.
 
-        GIVEN IBM CRDs exist
+        GIVEN IBM CRDs exist with instances
         WHEN collectIBMCustomResources is called
         THEN resources directory is created.
         """
@@ -161,8 +176,13 @@ class TestCollectIBMCustomResources:
             callCount[0] += 1
             if callCount[0] == 1:
                 return mockCRDApi
+            # Return mock with at least one item so collection happens
             mockApi = Mock()
-            mockApi.get.return_value = Mock(items=[])
+            mockResource = Mock()
+            mockResource.metadata = Mock()
+            mockResource.metadata.name = "test-resource"
+            mockResource.to_dict.return_value = {"metadata": {"name": "test-resource"}}
+            mockApi.get.return_value = Mock(items=[mockResource])
             return mockApi
 
         self.mockClient.resources.get.side_effect = sideEffect
