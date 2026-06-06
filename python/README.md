@@ -1,38 +1,30 @@
-mas.devops
+mas.cli
 -------------------------------------------------------------------------------
+Introduced in 2026, replacing the standalone binary previously built with PyInstaller, `mas-cli` is now compatible with [uv](https://docs.astral.sh/uv/) and is the simplest way run the CLI.
 
-Packaging for this CLI now uses the repository root [`pyproject.toml`](../../pyproject.toml) as the
-single source of truth for package metadata and build configuration.
+- [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
 
+### Ephemeral Execution
+Run the MAS CLI without an install:
 
-Example
-===============================================================================
-```python
-from openshift import dynamic
-from kubernetes import config
-from kubernetes.client import api_client
-
-from mas.devops.ocp import createNamespace
-from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
-
-instanceId = "mymas"
-pipelinesNamespace = f"mas-{instanceId}-pipelines"
-
-# Create an OpenShift client
-dynClient = dynamic.DynamicClient(
-    api_client.ApiClient(configuration=config.load_kube_config())
-)
-
-# Install OpenShift Pipelines Operator
-success = installOpenShiftPipelines(dynamicClient)
-assert success is True
-
-# Create the pipelines namespace and install the MAS tekton definitions
-createNamespace(dynamicClient, pipelinesNamespace)
-updateTektonDefinitions(pipelinesNamespace)
-
-# Launch the upgrade pipeline and print the URL to view the pipeline run
-pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId)
-print(pipelineURL)
+```bash
+uvx mas-cli --help
 ```
 
+### Persistent Installation
+Install the MAS CLI globally:
+
+```bash
+# Install the latest version of mas-cli
+uv tool install mas-cli
+
+# The 'mas-cli' command is available in your PATH
+mas-cli --help
+
+# Upgrade or uninstall the mas-cli
+uv tool upgrade mas-cli
+uv tool uninstall mas-cli
+```
+
+!!! tip "Choosing a specific version"
+    You can use a specific version of mas-cli by with ephemeral execution or installation using `mas-cli@@@CLI_LATEST_VERSION@@`

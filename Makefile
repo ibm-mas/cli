@@ -31,7 +31,6 @@ python: clean-python pytest dist/mas_cli-100.0.0.tar.gz
 
 .PHONY: pytest
 pytest:
-# python/test tests are slow /not proper unit tests so we are not running them here
 ifeq ($(TEST),yes)
 	.venv/bin/pytest python/tests
 endif

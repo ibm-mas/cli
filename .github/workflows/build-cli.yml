@@ -139,7 +139,7 @@ jobs:
       - name: Test
         id: test
         run: |
-          pytest python/test python/tests
+          pytest python/tests
 
       - name: Build
         id: build

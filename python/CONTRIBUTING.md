@@ -15,7 +15,7 @@ uv pip install --editable ../python-devops[dev]
 python mas-cli --help
 
 # Run tests
-pytest python/test python/tests
+pytest python/tests
 ```
 
 ### Must-Gather
