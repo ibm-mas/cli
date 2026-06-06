@@ -110,6 +110,3 @@ class TestCollectCP4D:
         result = collectCP4D(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is False
-
-
-# Made with Bob

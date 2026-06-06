@@ -185,6 +185,3 @@ def collectNodeFiles(dynClient: DynamicClient, outputDir: str, filePath: str) ->
     except Exception as e:
         logger.warning(f"Error collecting node files: {e}")
         return False
-
-
-# Made with Bob

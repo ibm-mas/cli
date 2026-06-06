@@ -1036,6 +1036,3 @@ class MustGatherApp(BaseApp):
             print(f"❌ Error during upload: {e}")
             logger.error(f"Error during upload: {e}")
             return False
-
-
-# Made with Bob

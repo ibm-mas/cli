@@ -388,6 +388,3 @@ class TestGenerateSLSSummary:
 
         summaryFile = os.path.join(self.testDir, "nonexistent-namespace.txt")
         assert os.path.exists(summaryFile)
-
-
-# Made with Bob

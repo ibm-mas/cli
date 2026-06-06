@@ -120,6 +120,3 @@ def getIBMCRDsList() -> List[Tuple[str, str]]:
         list: List of (kind, apiVersion) tuples for IBM CRDs
     """
     return _ibmCRDsList
-
-
-# Made with Bob

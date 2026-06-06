@@ -234,6 +234,3 @@ class TestCollectClusterResources:
 
         # Should still return True (partial success)
         assert success is True
-
-
-# Made with Bob

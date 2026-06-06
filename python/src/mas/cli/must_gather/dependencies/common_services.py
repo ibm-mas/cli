@@ -58,6 +58,3 @@ def collectCommonServices(dynClient: DynamicClient, outputDir: str, noDetail: bo
         logger.warning(f"Error collecting IBM Common Services: {e}")
         print(f"❌ IBM CloudPak Foundation Services - {e}")
         return False
-
-
-# Made with Bob

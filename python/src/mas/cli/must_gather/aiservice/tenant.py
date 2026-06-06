@@ -93,6 +93,3 @@ def collectAIServiceTenant(dynClient: DynamicClient, instanceId: str, tenantId: 
         logger.warning(f"Failed to collect InferenceService resources for tenant {tenantId}: {e}")
 
     return True
-
-
-# Made with Bob

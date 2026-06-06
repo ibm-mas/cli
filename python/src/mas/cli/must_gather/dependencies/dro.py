@@ -61,6 +61,3 @@ def collectDRO(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
         logger.warning(f"Error collecting IBM Data Reporter Operator: {e}")
         print(f"❌ IBM Data Reporter Operator - {e}")
         return False
-
-
-# Made with Bob

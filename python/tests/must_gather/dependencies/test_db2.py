@@ -143,6 +143,3 @@ class TestCollectDb2:
 
         assert result is True
         assert mockGenericMustGather.call_count == 2
-
-
-# Made with Bob

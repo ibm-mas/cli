@@ -336,6 +336,3 @@ def run_mirror_test(tmpdir, config: MirrorTestConfig):
     """
     helper = MirrorTestHelper(tmpdir, config)
     helper.run_mirror_test()
-
-
-# Made with Bob

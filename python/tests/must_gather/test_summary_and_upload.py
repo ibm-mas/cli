@@ -157,6 +157,3 @@ class TestUploadToArtifactory:
                 assert kwargs["headers"]["X-Checksum-Sha1"] == expectedSha1
         finally:
             os.unlink(archivePath)
-
-
-# Made with Bob

@@ -204,6 +204,3 @@ def generateWebViewer(outputDir: str, skipManifest: bool = False) -> bool:
     except Exception as e:
         logger.error(f"Failed to generate web viewer: {e}")
         return False
-
-
-# Made with Bob

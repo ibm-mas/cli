@@ -57,6 +57,3 @@ def collectGrafana(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fa
         logger.warning(f"Error collecting Grafana: {e}")
         print(f"❌ Grafana - {e}")
         return False
-
-
-# Made with Bob

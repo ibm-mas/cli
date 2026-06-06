@@ -86,6 +86,3 @@ def generateMASQuickSummary(dynClient: DynamicClient, masInstanceId: str, output
     except Exception as e:
         logger.error(f"Failed to generate quick summary for {masInstanceId}: {e}")
         return False
-
-
-# Made with Bob

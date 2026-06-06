@@ -197,6 +197,3 @@ def _extractKindAndVersionFromCRD(crdDict: dict) -> tuple:
     except Exception as e:
         logger.debug(f"Error extracting kind and version from CRD: {e}")
         return ("", "")
-
-
-# Made with Bob

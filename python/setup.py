@@ -1,3 +1,4 @@
+# DEPRECATED: This file is maintained for backward compatibility only. Use pyproject.toml.
 # *****************************************************************************
 # Copyright (c) 2024 IBM Corporation and other Contributors.
 #
@@ -71,7 +72,6 @@ setup(
             "flake8",  # MIT License
             "flake8-docstrings",  # MIT License
             "pytest",  # MIT License
-            "pyinstaller",  # GPL, https://pyinstaller.org/en/stable/license.html & https://github.com/pyinstaller/pyinstaller/wiki/FAQ#license
         ]
     },
     classifiers=[

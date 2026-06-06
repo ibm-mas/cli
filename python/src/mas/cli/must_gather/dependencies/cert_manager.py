@@ -77,6 +77,3 @@ def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool 
         logger.warning(f"Error collecting Certificate Manager: {e}")
         print(f"❌ Red Hat Certificate Manager - {e}")
         return False
-
-
-# Made with Bob

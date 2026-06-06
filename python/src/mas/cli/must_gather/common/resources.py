@@ -247,6 +247,3 @@ def _extractStatus(resource) -> str:
             return ""
     except Exception:
         return ""
-
-
-# Made with Bob

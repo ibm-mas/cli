@@ -292,6 +292,3 @@ class TestCollectMASApp:
         )
 
         assert result is False
-
-
-# Made with Bob

@@ -232,6 +232,3 @@ class TestCollectAirgapResources:
 
         assert result is True
         mockCollectNodeFiles.assert_called_once_with(dynClient=self.mockClient, outputDir=self.testDir, filePath="/host/etc/containers/registries.conf")
-
-
-# Made with Bob

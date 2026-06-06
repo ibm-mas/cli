@@ -72,6 +72,3 @@ class Timer:
         else:
             elapsed = int(self.endTime - (self.startTime or 0))
         return f"Collection for {label} completed in {elapsed} seconds"
-
-
-# Made with Bob

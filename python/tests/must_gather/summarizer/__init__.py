@@ -9,5 +9,3 @@
 # *****************************************************************************
 
 """Tests for must-gather summarizer module."""
-
-# Made with Bob

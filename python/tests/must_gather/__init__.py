@@ -9,5 +9,3 @@
 # *****************************************************************************
 
 """Tests for must-gather common utilities."""
-
-# Made with Bob

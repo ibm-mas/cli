@@ -111,6 +111,3 @@ class OutputManager:
         """
         if not self.keepFiles and os.path.exists(self.outputDir):
             shutil.rmtree(self.outputDir)
-
-
-# Made with Bob

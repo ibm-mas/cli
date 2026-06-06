@@ -48,6 +48,3 @@ class TestSlackParameters:
         # Verify both parameters exist
         for param, description in slack_params_doc.items():
             assert param in optionalParams, f"{param} should be in optionalParams. Purpose: {description}"
-
-
-# Made with Bob

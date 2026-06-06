@@ -167,6 +167,3 @@ class TestIBMCRDCaching:
 
         # Verify API was called again
         assert mockCrdApi.get.call_count == 2
-
-
-# Made with Bob

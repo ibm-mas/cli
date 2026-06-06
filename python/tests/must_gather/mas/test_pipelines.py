@@ -223,6 +223,3 @@ class TestCollectMASPipelines:
         result = collectMASPipelines(dynClient=self.mockClient, namespace="mas-inst1-pipelines", outputDir=self.testDir, noDetail=False, noLogs=False)
 
         assert result is True
-
-
-# Made with Bob

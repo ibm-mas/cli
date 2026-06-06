@@ -370,6 +370,3 @@ class TestCollectResources:
         )
 
         assert result is True
-
-
-# Made with Bob

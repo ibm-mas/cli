@@ -274,6 +274,3 @@ class TestArgumentParser:
         assert args.no_logs is True
         assert args.mas_instance_ids == "inst1"
         assert args.no_ocp is True
-
-
-# Made with Bob

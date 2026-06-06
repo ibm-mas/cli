@@ -56,6 +56,3 @@ def collectMongoDB(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fa
         logger.warning(f"Error collecting MongoDB: {e}")
         print(f"❌ MongoDB Community - {e}")
         return False
-
-
-# Made with Bob

@@ -31,5 +31,3 @@ __all__ = [
     "collectMongoDB",
     "collectSLS",
 ]
-
-# Made with Bob

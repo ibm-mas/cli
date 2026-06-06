@@ -67,6 +67,3 @@ def collectCP4D(dynClient: DynamicClient, outputDir: str, noDetail: bool = False
         logger.warning(f"Error collecting IBM CloudPak for Data: {e}")
         print(f"❌ IBM CloudPak for Data - {e}")
         return False
-
-
-# Made with Bob

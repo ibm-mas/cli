@@ -348,6 +348,3 @@ def test_mirror_assist_with_couchdb(tmpdir):
     )
 
     run_mirror_test(tmpdir, config)
-
-
-# Made with Bob

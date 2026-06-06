@@ -139,6 +139,3 @@ def test_collectResourcesParallel_ibm_resources_correct_path():
     finally:
         # Cleanup
         shutil.rmtree(tempDir)
-
-
-# Made with Bob

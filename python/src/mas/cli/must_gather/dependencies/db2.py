@@ -115,6 +115,3 @@ def collectDb2(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
         logger.warning(f"Error collecting IBM Db2: {e}")
         print(f"❌ IBM Db2 Universal Operator - {e}")
         return False
-
-
-# Made with Bob

@@ -55,6 +55,3 @@ def collectMarketplaceResources(dynClient: DynamicClient, outputDir: str, noDeta
             successCount += 1
 
     return successCount > 0
-
-
-# Made with Bob

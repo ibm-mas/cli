@@ -324,6 +324,3 @@ def _collectContainerLogs(dynClient: DynamicClient, namespace: str, podName: str
     except Exception:
         # Previous logs may not exist, which is normal
         pass
-
-
-# Made with Bob

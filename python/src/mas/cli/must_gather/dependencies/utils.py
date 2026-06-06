@@ -98,6 +98,3 @@ def collectFromNamespaces(
             success = False
 
     return success
-
-
-# Made with Bob

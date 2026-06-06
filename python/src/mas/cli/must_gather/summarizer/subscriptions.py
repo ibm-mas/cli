@@ -141,6 +141,3 @@ def summarize(outputDir: str) -> None:
         f.write("# Subscription (operators.coreos.com/v1alpha1)\n\n")
         f.write(str(subscriptionsTable))
         f.write("\n")
-
-
-# Made with Bob

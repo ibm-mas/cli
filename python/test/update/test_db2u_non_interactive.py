@@ -343,6 +343,3 @@ def test_db2u_combined_namespace_and_version_upgrade(tmpdir, resource_kind):
     )
 
     run_update_test(tmpdir, config)
-
-
-# Made with Bob

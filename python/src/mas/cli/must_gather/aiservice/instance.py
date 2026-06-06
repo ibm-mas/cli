@@ -117,6 +117,3 @@ def collectAIServiceInstance(dynClient: DynamicClient, instanceId: str, outputDi
             logger.warning(f"Failed to collect generic resources for AI Service instance {instanceId}: {e}")
 
     return True
-
-
-# Made with Bob

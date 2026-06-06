@@ -197,6 +197,3 @@ class TestUpgradeChannelLogic:
                         with pytest.raises(SystemExit) as exc_info:
                             mock_upgrade_app.upgrade([])
                         assert exc_info.value.code == 1
-
-
-# Made with Bob

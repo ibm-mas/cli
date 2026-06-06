@@ -24,5 +24,3 @@ __all__ = [
     "collectMarketplaceResources",
     "collectOperatorResources",
 ]
-
-# Made with Bob

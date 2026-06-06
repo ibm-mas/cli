@@ -276,6 +276,3 @@ def generateSLSSummary(dynClient: DynamicClient, namespace: str, outputDir: str)
                 f.write(f"Error generating summary: {e}\n")
         except Exception:
             pass
-
-
-# Made with Bob

@@ -200,6 +200,3 @@ class AiSettingsMixin:
             else:
                 self.setParam("configure_aiassistant", "none")
                 print_formatted_text("AiCfg configuration skipped")
-
-
-# Made with Bob

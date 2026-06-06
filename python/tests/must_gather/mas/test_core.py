@@ -281,6 +281,3 @@ class TestGenerateMASCoreSummary:
         with open(summaryFile, "r") as f:
             content = f.read()
             assert "No MAS instances found" in content or "0" in content
-
-
-# Made with Bob

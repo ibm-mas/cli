@@ -175,6 +175,3 @@ class TestOutputManager:
             assert filename.startswith("must-gather-")
             assert filename.endswith(".tgz")
             assert manager.timestamp in filename
-
-
-# Made with Bob

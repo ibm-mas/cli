@@ -91,6 +91,3 @@ def collectResourcesParallel(
                     progressCallback(completedResources, totalResources)
 
     return allSuccess
-
-
-# Made with Bob

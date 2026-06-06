@@ -263,6 +263,3 @@ class TestCollectResourcesParallel:
             assert result is True
             # Progress bar should be called once for each resource
             assert mockProgressBar.call_count == 2
-
-
-# Made with Bob

@@ -79,6 +79,3 @@ def collectArgo(dynClient: DynamicClient, outputDir: str, noDetail: bool = False
     except Exception as e:
         logger.error(f"Failed to collect Argo resources from openshift-gitops: {e}")
         return False
-
-
-# Made with Bob

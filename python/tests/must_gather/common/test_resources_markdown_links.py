@@ -132,6 +132,3 @@ class TestMarkdownLinkGeneration:
 
         finally:
             os.unlink(outputFile)
-
-
-# Made with Bob

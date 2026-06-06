@@ -58,6 +58,3 @@ def collectKafka(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
         logger.warning(f"Error collecting Kafka: {e}")
         print(f"❌ Kafka - {e}")
         return False
-
-
-# Made with Bob

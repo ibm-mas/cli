@@ -41,6 +41,3 @@ def collectNodes(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
         noDetail=noDetail,
         allNamespaces=False,
     )
-
-
-# Made with Bob

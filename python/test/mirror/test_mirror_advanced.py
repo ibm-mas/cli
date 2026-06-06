@@ -87,6 +87,3 @@ def test_mirror_with_custom_image_timeout(tmpdir):
     )
 
     run_mirror_test(tmpdir, config)
-
-
-# Made with Bob

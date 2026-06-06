@@ -134,6 +134,3 @@ class TestCollectArgo:
         result = collectArgo(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-
-
-# Made with Bob

@@ -132,6 +132,3 @@ def test_mirror_invalid_yaml_config(tmpdir):
     except (SystemExit, Exception):
         # Expected to fail
         pass
-
-
-# Made with Bob

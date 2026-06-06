@@ -13,5 +13,3 @@
 from .license_service import discoverSLSNamespaces, collectSLSNamespace, generateSLSSummary  # noqa: F401
 
 __all__ = ["discoverSLSNamespaces", "collectSLSNamespace", "generateSLSSummary"]
-
-# Made with Bob

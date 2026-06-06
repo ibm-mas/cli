@@ -532,6 +532,3 @@ def run_update_test(tmpdir, config: UpdateTestConfig):
     """
     helper = UpdateTestHelper(tmpdir, config)
     helper.run_update_test()
-
-
-# Made with Bob

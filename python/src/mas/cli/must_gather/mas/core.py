@@ -150,6 +150,3 @@ def generateMASCoreSummary(dynClient: DynamicClient, namespaces: Set[str], outpu
         # Create empty file to indicate attempt was made
         with open(outputFile, "w") as f:
             f.write(f"Error generating summary: {e}\n")
-
-
-# Made with Bob

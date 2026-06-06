@@ -107,6 +107,3 @@ def collectMASPipelines(dynClient: DynamicClient, namespace: str, outputDir: str
     except Exception as e:
         logger.error(f"Failed to collect MAS pipelines from namespace {namespace}: {e}")
         return False
-
-
-# Made with Bob

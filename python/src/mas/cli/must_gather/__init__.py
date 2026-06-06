@@ -13,5 +13,3 @@
 from .app import MustGatherApp  # noqa: F401
 
 __all__ = ["MustGatherApp"]
-
-# Made with Bob

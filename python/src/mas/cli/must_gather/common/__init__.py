@@ -17,5 +17,3 @@ from .ibm_resources import collectIBMCustomResources, getIBMCRDs  # noqa: F401
 from .parallel import collectResourcesParallel  # noqa: F401
 
 __all__ = ["collectResources", "collectSecrets", "collectPods", "collectIBMCustomResources", "getIBMCRDs", "collectResourcesParallel"]
-
-# Made with Bob

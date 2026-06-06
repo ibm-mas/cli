@@ -13,5 +13,3 @@
 This module provides functionality to generate cluster-wide summaries,
 specifically a unified subscriptions table across all namespaces.
 """
-
-# Made with Bob

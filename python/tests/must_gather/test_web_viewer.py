@@ -315,6 +315,3 @@ class TestWebViewerGeneration:
             assert "_cluster" in manifest["files"]["resources"]["children"]
             assert "namespace1" in manifest["files"]["resources"]["children"]
             assert "logs" in manifest["files"]
-
-
-# Made with Bob

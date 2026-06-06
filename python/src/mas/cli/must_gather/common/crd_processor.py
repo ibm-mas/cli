@@ -470,6 +470,3 @@ def processCRDs(dynClient: DynamicClient, outputDir: str) -> Tuple[Dict[Tuple[st
     except Exception as e:
         logger.warning(f"Error processing CRDs: {e}")
         return {}, []
-
-
-# Made with Bob

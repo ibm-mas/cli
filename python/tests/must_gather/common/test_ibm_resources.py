@@ -222,6 +222,3 @@ class TestCollectIBMCustomResources:
         result = collectIBMCustomResources(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, noDetail=False)
 
         assert result is True
-
-
-# Made with Bob

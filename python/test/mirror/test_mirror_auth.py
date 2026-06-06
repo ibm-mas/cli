@@ -122,6 +122,3 @@ def test_mirror_auth_file_generation_d2m(tmpdir):
     )
 
     run_mirror_test(tmpdir, config)
-
-
-# Made with Bob

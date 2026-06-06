@@ -105,6 +105,3 @@ class TestMustGatherAppOCP:
         assert result is True
         mockCluster.assert_called_once()
         mockNodes.assert_called_once()
-
-
-# Made with Bob

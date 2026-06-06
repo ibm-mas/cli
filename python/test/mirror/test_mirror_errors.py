@@ -295,6 +295,3 @@ def test_mirror_timeout(tmpdir):
         except (SystemExit, Exception):
             # Expected to fail/timeout
             pass
-
-
-# Made with Bob

@@ -13,5 +13,3 @@
 from .core import discoverMASCoreNamespaces, collectMASCore, generateMASCoreSummary  # noqa: F401
 
 __all__ = ["discoverMASCoreNamespaces", "collectMASCore", "generateMASCoreSummary"]
-
-# Made with Bob

@@ -251,6 +251,3 @@ class TestProcessCRDs:
             # Verify markdown index exists
             indexFile = os.path.join(tmpdir, "_cluster", "customresourcedefinitions.md")
             assert os.path.exists(indexFile)
-
-
-# Made with Bob

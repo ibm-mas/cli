@@ -132,6 +132,3 @@ def _writeYaml(secretDict: dict, outputFile: str, includeData: bool = True) -> N
 
     with open(outputFile, "w") as f:
         yaml.dump(secretDict, f, default_flow_style=False, sort_keys=False)
-
-
-# Made with Bob

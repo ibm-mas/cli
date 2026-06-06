@@ -208,6 +208,3 @@ def test_mirror_with_config_download(tmpdir):
     )
 
     run_mirror_test(tmpdir, config)
-
-
-# Made with Bob

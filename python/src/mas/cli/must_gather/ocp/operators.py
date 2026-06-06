@@ -35,6 +35,3 @@ def collectOperatorResources(dynClient: DynamicClient, outputDir: str, noDetail:
     """
     logger.info("Operator resources (Subscription, InstallPlan, OperatorCondition) are now collected per-namespace")
     return True
-
-
-# Made with Bob

@@ -123,6 +123,3 @@ class TestGenerateMASQuickSummary:
         result = generateMASQuickSummary(dynClient=self.mockClient, masInstanceId="inst1", outputDir=self.testDir)
 
         assert result is True
-
-
-# Made with Bob

@@ -207,6 +207,3 @@ class TestMarkdownIndexGeneration:
 
         finally:
             os.unlink(outputFile)
-
-
-# Made with Bob

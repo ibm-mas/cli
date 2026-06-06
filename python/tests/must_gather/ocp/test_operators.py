@@ -184,6 +184,3 @@ class TestCollectOperatorResources:
         result = collectOperatorResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True  # Partial success
-
-
-# Made with Bob

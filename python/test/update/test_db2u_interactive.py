@@ -334,6 +334,3 @@ def test_db2u_multiple_namespaces_last_selection(tmpdir, resource_kind):
     )
 
     run_update_test(tmpdir, config)
-
-
-# Made with Bob

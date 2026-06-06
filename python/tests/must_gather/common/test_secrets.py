@@ -284,6 +284,3 @@ class TestCollectSecrets:
         success, count = collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
         assert success is True
-
-
-# Made with Bob

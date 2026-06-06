@@ -317,6 +317,3 @@ class TestCollectPods:
         success, count = collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
         assert success is True
-
-
-# Made with Bob

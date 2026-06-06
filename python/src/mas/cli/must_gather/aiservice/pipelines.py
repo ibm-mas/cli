@@ -80,6 +80,3 @@ def collectAIServicePipelines(dynClient: DynamicClient, namespace: str, outputDi
             logger.warning(f"Failed to collect pipeline resources from {namespace}: {e}")
 
     return True
-
-
-# Made with Bob

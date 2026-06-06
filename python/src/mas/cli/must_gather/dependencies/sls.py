@@ -52,6 +52,3 @@ def collectSLS(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
     except Exception as e:
         logger.warning(f"Error collecting IBM Suite License Service: {e}")
         return False
-
-
-# Made with Bob

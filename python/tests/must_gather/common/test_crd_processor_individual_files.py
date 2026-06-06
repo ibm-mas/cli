@@ -134,6 +134,3 @@ class TestProcessCRDsIndividualFiles:
             # Verify old single file does NOT exist
             oldFile = os.path.join(tmpdir, "_cluster", "customresourcedefinitions.yaml")
             assert not os.path.exists(oldFile)
-
-
-# Made with Bob

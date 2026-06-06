@@ -125,6 +125,3 @@ class TestTimer:
         elapsed = timer.getElapsed()
 
         assert elapsed == 0
-
-
-# Made with Bob

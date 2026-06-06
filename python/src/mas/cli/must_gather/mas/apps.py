@@ -112,6 +112,3 @@ def collectMASApp(
     except Exception as e:
         logger.error(f"Failed to collect MAS app {appId} from namespace {namespace}: {e}")
         return False
-
-
-# Made with Bob

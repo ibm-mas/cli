@@ -82,6 +82,3 @@ def createArgumentParser() -> argparse.ArgumentParser:
     )
 
     return parser
-
-
-# Made with Bob
