@@ -196,7 +196,12 @@ def collectSLSNamespace(dynClient: DynamicClient, namespace: str, outputDir: str
 
         # Collect pods with logs
         try:
-            collectPods(dynClient, namespace, f"{outputDir}/pods", podLogs=True)
+            collectPods(
+                dynClient=dynClient,
+                namespace=namespace,
+                outputDir=f"{outputDir}/resources",
+                podLogs=True,
+            )
         except Exception as e:
             logger.warning(f"Error collecting pods from {namespace}: {e}")
             success = False

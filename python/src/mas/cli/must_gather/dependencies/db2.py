@@ -102,12 +102,22 @@ def collectDb2(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
                 logger.info(f"Collecting Db2 resources from namespace: {namespace}")
                 if not genericMustGather(namespace=namespace, outputDir=outputDir, noDetail=noDetail):
                     success = False
+
+            if success:
+                print(f"✅ IBM Db2 Universal Operator collected from {len(db2Namespaces)} namespace(s)")
+            else:
+                print("❌ IBM Db2 Universal Operator collection encountered errors (check logs)")
             return success
+
+        if not db2Namespaces:
+            logger.info("No Db2 namespaces found, skipping collection")
+            print("⏭️  IBM Db2 Universal Operator skipped - no Db2 instances found")
 
         return len(db2Namespaces) > 0
 
     except Exception as e:
         logger.warning(f"Error collecting IBM Db2: {e}")
+        print(f"❌ IBM Db2 Universal Operator - {e}")
         return False
 
 

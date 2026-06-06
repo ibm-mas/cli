@@ -13,17 +13,27 @@
 import os
 import yaml
 import logging
+from typing import Optional, Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from kubernetes.dynamic import DynamicClient
 from kubernetes.client import CoreV1Api
 
 logger = logging.getLogger(__name__)
 
 
-def collectPods(dynClient: DynamicClient, namespace: str, outputDir: str, podLogs: bool = False, noDetail: bool = False) -> bool:
-    """Collect Kubernetes pods from a namespace.
+def collectPods(
+    dynClient: DynamicClient,
+    namespace: str,
+    outputDir: str,
+    podLogs: bool = False,
+    noDetail: bool = False,
+    max_workers: int = 10,
+    progressCallback: Optional[Callable[[int, int], None]] = None,
+) -> tuple[bool, int]:
+    """Collect Kubernetes pods from a namespace with parallel processing.
 
-    Collects pods with describe output, YAML, and optionally container logs.
-    Organizes pods by app label into subdirectories.
+    Collects pods with YAML and optionally container logs using parallel processing
+    for improved performance. Organizes pods by app label into subdirectories.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
@@ -31,9 +41,11 @@ def collectPods(dynClient: DynamicClient, namespace: str, outputDir: str, podLog
         outputDir (str): Base output directory for collected pods
         podLogs (bool, optional): If True, collect container logs (current and previous). Defaults to False.
         noDetail (bool, optional): If True, skip YAML and logs collection. Defaults to False.
+        max_workers (int, optional): Maximum number of parallel threads for pod processing. Defaults to 10.
+        progressCallback (callable, optional): Callback function called with (completed, total) after each pod completion. Defaults to None.
 
     Returns:
-        bool: True if collection succeeded, False if errors occurred
+        tuple[bool, int]: (success status, count of pods collected)
     """
     try:
         # Create namespace directory
@@ -50,39 +62,95 @@ def collectPods(dynClient: DynamicClient, namespace: str, outputDir: str, podLog
         # Collect pods
         pods = api.get(namespace=namespace)
 
+        # Count pods
+        podCount = len(pods.items) if hasattr(pods, "items") else 0
+
         # Generate summary file
         summaryFile = os.path.join(namespaceDir, "pods.txt")
         _writeSummary(pods, summaryFile)
 
-        # Process each pod
-        for pod in pods.items:
-            podName = pod.metadata.name
-            podDict = pod.to_dict()
+        # If no detail needed, we're done
+        if noDetail:
+            return (True, podCount)
 
-            # Determine app label for organization
-            appLabel = _extractAppLabel(pod, namespace)
+        # Process pods in parallel
+        totalPods = len(pods.items)
+        completedPods = 0
+        allSuccess = True
 
-            # Create app directory
-            appDir = os.path.join(podsDir, appLabel)
-            os.makedirs(appDir, exist_ok=True)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all pod processing tasks
+            futures = {}
+            for pod in pods.items:
+                future = executor.submit(
+                    _processPod,
+                    dynClient=dynClient,
+                    namespace=namespace,
+                    pod=pod,
+                    podsDir=podsDir,
+                    podLogs=podLogs,
+                )
+                futures[future] = pod.metadata.name
 
-            # Write describe output
-            describeFile = os.path.join(appDir, f"{podName}.txt")
-            _writeDescribe(pod, describeFile)
+            # Process results as they complete
+            for future in as_completed(futures):
+                podName = futures[future]
+                try:
+                    success = future.result()
+                    if not success:
+                        allSuccess = False
+                except Exception as e:
+                    logger.error(f"Unexpected error processing pod {podName}: {e}")
+                    allSuccess = False
+                finally:
+                    completedPods += 1
+                    # Update progress callback if provided
+                    if progressCallback is not None:
+                        progressCallback(completedPods, totalPods)
 
-            # Write YAML if detail enabled
-            if not noDetail:
-                yamlFile = os.path.join(appDir, f"{podName}.yaml")
-                _writeYaml(podDict, yamlFile)
+        return (allSuccess, podCount)
 
-                # Collect logs if enabled
-                if podLogs:
-                    _collectLogs(dynClient, namespace, podName, podDict, appDir)
+    except Exception as e:
+        logger.warning(f"Error collecting pods: {e}")
+        return (False, 0)
+
+
+def _processPod(dynClient: DynamicClient, namespace: str, pod, podsDir: str, podLogs: bool) -> bool:
+    """Process a single pod: write YAML and collect logs.
+
+    Args:
+        dynClient (DynamicClient): Kubernetes Dynamic Client
+        namespace (str): Pod namespace
+        pod: ResourceInstance from Kubernetes API
+        podsDir (str): Base pods directory
+        podLogs (bool): Whether to collect logs
+
+    Returns:
+        bool: True if processing succeeded, False otherwise
+    """
+    try:
+        podName = pod.metadata.name
+        podDict = pod.to_dict()
+
+        # Determine app label for organization
+        appLabel = _extractAppLabel(pod, namespace)
+
+        # Create app directory
+        appDir = os.path.join(podsDir, appLabel)
+        os.makedirs(appDir, exist_ok=True)
+
+        # Write YAML
+        yamlFile = os.path.join(appDir, f"{podName}.yaml")
+        _writeYaml(podDict, yamlFile)
+
+        # Collect logs if enabled
+        if podLogs:
+            _collectLogs(dynClient, namespace, podName, podDict, appDir)
 
         return True
 
     except Exception as e:
-        logger.warning(f"Error collecting pods: {e}")
+        logger.warning(f"Error processing pod {pod.metadata.name}: {e}")
         return False
 
 
@@ -126,62 +194,26 @@ def _writeYaml(podDict: dict, outputFile: str) -> None:
         yaml.dump(podDict, f, default_flow_style=False, sort_keys=False)
 
 
-def _writeDescribe(pod, outputFile: str) -> None:
-    """Write pod describe output.
-
-    Generates output similar to 'kubectl describe pod' command.
-
-    Args:
-        pod: ResourceInstance from Kubernetes API
-        outputFile (str): Path to output file
-    """
-    with open(outputFile, "w") as f:
-        podDict = pod.to_dict()
-
-        # Write metadata section
-        f.write("Name:         {}\n".format(podDict.get("metadata", {}).get("name", "")))
-        f.write("Namespace:    {}\n".format(podDict.get("metadata", {}).get("namespace", "")))
-        f.write("Labels:       {}\n".format(podDict.get("metadata", {}).get("labels", {})))
-        f.write("Annotations:  {}\n".format(podDict.get("metadata", {}).get("annotations", {})))
-        f.write("\n")
-
-        # Write status section
-        status = podDict.get("status", {})
-        f.write("Status:       {}\n".format(status.get("phase", "Unknown")))
-        f.write("IP:           {}\n".format(status.get("podIP", "")))
-        f.write("\n")
-
-        # Write containers section
-        if "spec" in podDict and "containers" in podDict["spec"]:
-            f.write("Containers:\n")
-            for container in podDict["spec"]["containers"]:
-                f.write(f"  {container.get('name', 'unknown')}:\n")
-                f.write(f"    Image:  {container.get('image', '')}\n")
-
-        # Write conditions
-        if "conditions" in status:
-            f.write("\nConditions:\n")
-            for condition in status["conditions"]:
-                f.write(f"  Type:    {condition.get('type', '')}\n")
-                f.write(f"  Status:  {condition.get('status', '')}\n")
-
-
 def _extractAppLabel(pod, namespace: str) -> str:
     """Extract app label from pod for organization.
 
-    Falls back to deriving from pod name if no app label exists.
+    Prioritizes job-name label for job pods, then app label, then derives from pod name.
 
     Args:
         pod: ResourceInstance from Kubernetes API
         namespace (str): Pod namespace
 
     Returns:
-        str: App label or derived app name
+        str: Job name, app label, or derived app name
     """
     podDict = pod.to_dict()
     labels = podDict.get("metadata", {}).get("labels", {})
 
-    # Try to get app label
+    # First priority: job-name label (for job pods)
+    if "job-name" in labels:
+        return labels["job-name"]
+
+    # Second priority: app label
     if "app" in labels:
         return labels["app"]
 
@@ -205,9 +237,10 @@ def _extractAppLabel(pod, namespace: str) -> str:
 
 
 def _collectLogs(dynClient: DynamicClient, namespace: str, podName: str, podDict: dict, appDir: str) -> None:
-    """Collect container logs for a pod.
+    """Collect container logs for a pod with parallel processing.
 
-    Collects both current and previous logs for each container.
+    Collects both current and previous logs for each container using parallel
+    processing to improve performance when a pod has multiple containers.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client
@@ -224,34 +257,68 @@ def _collectLogs(dynClient: DynamicClient, namespace: str, podName: str, podDict
         # Get container names
         containerStatuses = podDict.get("status", {}).get("containerStatuses", [])
 
-        for containerStatus in containerStatuses:
-            containerName = containerStatus.get("name")
-            if not containerName:
-                continue
+        # Collect logs for all containers in parallel
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = []
+            for containerStatus in containerStatuses:
+                containerName = containerStatus.get("name")
+                if not containerName:
+                    continue
 
-            # Collect current logs
-            try:
-                coreV1 = CoreV1Api(dynClient.client)
-                currentLogs = coreV1.read_namespaced_pod_log(name=podName, namespace=namespace, container=containerName)
-                currentLogFile = os.path.join(logsDir, f"{podName}_{containerName}.log")
-                with open(currentLogFile, "w") as f:
-                    f.write(currentLogs)
-            except Exception as e:
-                logger.debug(f"Could not collect current logs for {podName}/{containerName}: {e}")
+                # Submit log collection tasks for this container
+                future = executor.submit(
+                    _collectContainerLogs,
+                    dynClient=dynClient,
+                    namespace=namespace,
+                    podName=podName,
+                    containerName=containerName,
+                    logsDir=logsDir,
+                )
+                futures.append(future)
 
-            # Collect previous logs
-            try:
-                coreV1 = CoreV1Api(dynClient.client)
-                previousLogs = coreV1.read_namespaced_pod_log(name=podName, namespace=namespace, container=containerName, previous=True)
-                previousLogFile = os.path.join(logsDir, f"{podName}_{containerName}_prev.log")
-                with open(previousLogFile, "w") as f:
-                    f.write(previousLogs)
-            except Exception:
-                # Previous logs may not exist, which is normal
-                pass
+            # Wait for all log collections to complete
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    logger.debug(f"Error in container log collection: {e}")
 
     except Exception as e:
         logger.warning(f"Error collecting logs for pod {podName}: {e}")
+
+
+def _collectContainerLogs(dynClient: DynamicClient, namespace: str, podName: str, containerName: str, logsDir: str) -> None:
+    """Collect logs for a single container.
+
+    Collects both current and previous logs for the specified container.
+
+    Args:
+        dynClient (DynamicClient): Kubernetes Dynamic Client
+        namespace (str): Pod namespace
+        podName (str): Pod name
+        containerName (str): Container name
+        logsDir (str): Directory for log storage
+    """
+    # Collect current logs
+    try:
+        coreV1 = CoreV1Api(dynClient.client)
+        currentLogs = coreV1.read_namespaced_pod_log(name=podName, namespace=namespace, container=containerName)
+        currentLogFile = os.path.join(logsDir, f"{podName}_{containerName}.log")
+        with open(currentLogFile, "w") as f:
+            f.write(currentLogs)
+    except Exception as e:
+        logger.debug(f"Could not collect current logs for {podName}/{containerName}: {e}")
+
+    # Collect previous logs
+    try:
+        coreV1 = CoreV1Api(dynClient.client)
+        previousLogs = coreV1.read_namespaced_pod_log(name=podName, namespace=namespace, container=containerName, previous=True)
+        previousLogFile = os.path.join(logsDir, f"{podName}_{containerName}_prev.log")
+        with open(previousLogFile, "w") as f:
+            f.write(previousLogs)
+    except Exception:
+        # Previous logs may not exist, which is normal
+        pass
 
 
 # Made with Bob

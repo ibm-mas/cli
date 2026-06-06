@@ -25,22 +25,22 @@ def collectSecrets(
     outputDir: str,
     secretData: bool = False,
     allNamespaces: bool = False,
-) -> bool:
+) -> tuple[bool, int]:
     """Collect Kubernetes secrets from a namespace.
 
-    Collects secrets and generates both summary and detailed output. When secretData
-    is False, uses describe format (metadata only). When True, includes full YAML
+    Collects secrets and generates both summary and detailed YAML output. When secretData
+    is False, secret data is excluded from YAML. When True, includes full YAML
     with base64-encoded secret data.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         namespace (str, optional): Target namespace for collection. Use None for cluster-scoped. Defaults to None.
         outputDir (str): Base output directory for collected secrets
-        secretData (bool, optional): If True, include secret data in YAML output. If False, use describe format. Defaults to False.
+        secretData (bool, optional): If True, include secret data in YAML output. If False, exclude secret data. Defaults to False.
         allNamespaces (bool, optional): If True, collect secrets across all namespaces. Defaults to False.
 
     Returns:
-        bool: True if collection succeeded, False if errors occurred
+        tuple[bool, int]: (success status, count of secrets collected)
     """
     try:
         # Determine namespace directory
@@ -66,6 +66,9 @@ def collectSecrets(
         else:
             secrets = api.get()
 
+        # Count secrets
+        secretCount = len(secrets.items) if hasattr(secrets, "items") else 0
+
         # Generate summary file
         summaryFile = os.path.join(namespaceDir, "secrets.txt")
         _writeSummary(secrets, summaryFile)
@@ -74,28 +77,21 @@ def collectSecrets(
         if allNamespaces:
             # For all-namespaces, write single file
             allNamespacesFile = os.path.join(secretsDir, "all-namespaces.yaml")
-            if secretData:
-                _writeYaml(secrets.to_dict(), allNamespacesFile)
-            else:
-                _writeDescribeMultiple(secrets, allNamespacesFile)
+            _writeYaml(secrets.to_dict(), allNamespacesFile, includeData=secretData)
         else:
             # Write individual secret files
             for secret in secrets.items:
                 secretName = secret.metadata.name
 
                 secretFile = os.path.join(secretsDir, f"{secretName}.yaml")
-                if secretData:
-                    # Write full YAML with secret data
-                    _writeYaml(secret.to_dict(), secretFile)
-                else:
-                    # Write describe format (no secret data)
-                    _writeDescribe(secret, secretFile)
+                # Write YAML (with or without secret data based on secretData flag)
+                _writeYaml(secret.to_dict(), secretFile, includeData=secretData)
 
-        return True
+        return (True, secretCount)
 
     except Exception as e:
         logger.warning(f"Error collecting secrets: {e}")
-        return False
+        return (False, 0)
 
 
 def _writeSummary(secrets, outputFile: str) -> None:
@@ -120,70 +116,21 @@ def _writeSummary(secrets, outputFile: str) -> None:
             f.write("No resources found.\n")
 
 
-def _writeYaml(secretDict: dict, outputFile: str) -> None:
-    """Write secret as YAML file with data.
+def _writeYaml(secretDict: dict, outputFile: str, includeData: bool = True) -> None:
+    """Write secret as YAML file.
 
     Args:
         secretDict (dict): Secret dictionary to write
         outputFile (str): Path to output file
+        includeData (bool, optional): If False, remove secret data before writing. Defaults to True.
     """
+    # Remove secret data if not requested
+    if not includeData and "data" in secretDict:
+        secretDict = secretDict.copy()
+        secretDict.pop("data", None)
+
     with open(outputFile, "w") as f:
         yaml.dump(secretDict, f, default_flow_style=False, sort_keys=False)
-
-
-def _writeDescribe(secret, outputFile: str) -> None:
-    """Write secret describe output without data for a single secret.
-
-    Generates output similar to 'kubectl describe secret' command, which shows
-    metadata but not the actual secret data values.
-
-    Args:
-        secret: ResourceInstance from Kubernetes API
-        outputFile (str): Path to output file
-    """
-    with open(outputFile, "w") as f:
-        _writeSecretDescribe(secret, f)
-
-
-def _writeDescribeMultiple(secrets, outputFile: str) -> None:
-    """Write secret describe output for multiple secrets.
-
-    Args:
-        secrets: ResourceList from Kubernetes API
-        outputFile (str): Path to output file
-    """
-    with open(outputFile, "w") as f:
-        for secret in secrets.items:
-            _writeSecretDescribe(secret, f)
-            f.write("\n---\n\n")
-
-
-def _writeSecretDescribe(secret, fileHandle) -> None:
-    """Write describe output for a single secret.
-
-    Args:
-        secret: ResourceInstance from Kubernetes API
-        fileHandle: File handle to write to
-    """
-    secretDict = secret.to_dict()
-
-    # Write metadata section
-    fileHandle.write("Name:         {}\n".format(secretDict.get("metadata", {}).get("name", "")))
-    fileHandle.write("Namespace:    {}\n".format(secretDict.get("metadata", {}).get("namespace", "")))
-    fileHandle.write("Labels:       {}\n".format(secretDict.get("metadata", {}).get("labels", {})))
-    fileHandle.write("Annotations:  {}\n".format(secretDict.get("metadata", {}).get("annotations", {})))
-    fileHandle.write("\n")
-
-    # Write type
-    fileHandle.write("Type:  {}\n".format(secretDict.get("type", "Opaque")))
-    fileHandle.write("\n")
-
-    # Write data keys (but not values)
-    if "data" in secretDict:
-        fileHandle.write("Data\n")
-        fileHandle.write("====\n")
-        for key in secretDict["data"].keys():
-            fileHandle.write(f"{key}:  <redacted>\n")
 
 
 # Made with Bob

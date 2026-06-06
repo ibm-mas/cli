@@ -48,17 +48,24 @@ def collectCP4D(dynClient: DynamicClient, outputDir: str, noDetail: bool = False
             if not genericMustGather(namespace="ibm-cpd-operators", outputDir=outputDir, noDetail=noDetail):
                 success = False
 
+            if success:
+                print("✅ IBM CloudPak for Data collected from 2 namespaces")
+            else:
+                print("❌ IBM CloudPak for Data collection encountered errors (check logs)")
             return success
         return True
 
     except ApiException as e:
         if e.status == 404:
             logger.info("ibm-cpd-operators namespace not found, skipping CP4D collection")
+            print("⏭️  IBM CloudPak for Data skipped - namespace does not exist")
             return False
         logger.warning(f"Error collecting IBM CloudPak for Data: {e}")
+        print(f"❌ IBM CloudPak for Data - {e}")
         return False
     except Exception as e:
         logger.warning(f"Error collecting IBM CloudPak for Data: {e}")
+        print(f"❌ IBM CloudPak for Data - {e}")
         return False
 
 

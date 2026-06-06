@@ -45,10 +45,12 @@ def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool 
     """
     try:
         success = False
+        namespaceCount = 0
 
         # Check and collect from cert-manager-operator namespace
         if checkNamespaceExists(dynClient, "cert-manager-operator"):
             logger.info("Collecting from cert-manager-operator namespace")
+            namespaceCount += 1
             if genericMustGather:
                 if genericMustGather(namespace="cert-manager-operator", outputDir=outputDir, noDetail=noDetail, additionalResources=CERT_MANAGER_RESOURCES):
                     success = True
@@ -58,16 +60,26 @@ def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool 
         # Check and collect from cert-manager namespace
         if checkNamespaceExists(dynClient, "cert-manager"):
             logger.info("Collecting from cert-manager namespace")
+            namespaceCount += 1
             if genericMustGather:
                 if genericMustGather(namespace="cert-manager", outputDir=outputDir, noDetail=noDetail):
                     success = True
         else:
             logger.info("cert-manager namespace not found")
 
+        if namespaceCount == 0:
+            logger.info("No Certificate Manager namespaces found, skipping collection")
+            print("⏭️  Red Hat Certificate Manager skipped - no cert-manager namespaces found")
+        elif success:
+            print(f"✅ Red Hat Certificate Manager collected from {namespaceCount} namespace(s)")
+        else:
+            print("❌ Red Hat Certificate Manager collection encountered errors (check logs)")
+
         return success
 
     except Exception as e:
         logger.warning(f"Error collecting Certificate Manager: {e}")
+        print(f"❌ Red Hat Certificate Manager - {e}")
         return False
 
 

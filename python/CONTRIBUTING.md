@@ -20,6 +20,21 @@ pytest python/tests/
 This will be running using the code in your workspace, when you make a change you don't need to rebuild anything, just restart the cli application.
 
 
+```bash
+# Generate must-gather
+rm mas.log; python python/src/mas-cli must-gather --keep-files -d testing/must-gather
+
+# The following commands are useful for quick development cycles on the
+# post-processing to avoid needing to run the must-gather collectors again
+
+# 1. Re-generate summary files
+python -m mas.cli.must_gather.summarizer testing/must-gather/20260606-002604
+
+# 2. Re-generate web viewer
+python -m mas.cli.must_gather.web_viewer testing/must-gather/20260606-002604
+
+```
+
 Useful Commands
 -------------------------------------------------------------------------------
 ### Print the usage information

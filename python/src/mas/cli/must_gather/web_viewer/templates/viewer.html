@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAS Must-Gather Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4589ff;
+            --primary-hover: #0f62fe;
+            --bg-primary: #161616;
+            --bg-secondary: #262626;
+            --bg-tertiary: #393939;
+            --text-primary: #f4f4f4;
+            --text-secondary: #c6c6c6;
+            --border: #393939;
+            --sidebar-width: 300px;
+            --header-height: 60px;
+            --code-bg: #1e1e1e;
+            --hover-bg: #353535;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            overflow: hidden;
+        }
+
+        .header {
+            height: var(--header-height);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-right: auto;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .search-input:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: -2px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .container {
+            display: flex;
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        .file-tree {
+            padding: 10px;
+        }
+
+        .tree-item {
+            padding: 6px 8px;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tree-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .tree-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tree-item.folder {
+            font-weight: 500;
+        }
+
+        .tree-icon {
+            width: 16px;
+            text-align: center;
+        }
+
+        .tree-children {
+            margin-left: 20px;
+        }
+
+        .tree-children.collapsed {
+            display: none;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .breadcrumb {
+            height: 40px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 8px;
+            overflow-x: auto;
+        }
+
+        .breadcrumb-item {
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .content-viewer {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            background: var(--bg-primary);
+        }
+
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3 {
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .markdown-content h1 {
+            font-size: 2em;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.5em;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .markdown-content p {
+            margin-bottom: 16px;
+        }
+
+        .markdown-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 16px 0;
+        }
+
+        .markdown-content table thead {
+            background: var(--bg-secondary);
+        }
+
+        .markdown-content table th,
+        .markdown-content table td {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .markdown-content table tbody tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .markdown-content code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--text-primary);
+        }
+
+        .markdown-content pre {
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid var(--border);
+        }
+
+        .markdown-content pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .code-content {
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            padding: 20px;
+            background: #3a1f1f;
+            border: 1px solid #ff6b6b;
+            border-radius: 4px;
+            color: #ff8787;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #525252;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MAS Must-Gather Viewer</h1>
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search files...">
+            <button class="btn btn-secondary" id="clearSearch">Clear</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="file-tree" id="fileTree">
+                <div class="loading">Loading file tree...</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="breadcrumb" id="breadcrumb">
+                <span class="breadcrumb-item">Home</span>
+            </div>
+            <div class="content-viewer" id="contentViewer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📁</div>
+                    <p>Select a file from the tree to view its contents</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script>
+        let manifest = null;
+        let currentFile = null;
+
+        async function init() {
+            try {
+                const response = await fetch('manifest.json');
+                manifest = await response.json();
+                renderFileTree(manifest.files);
+            } catch (error) {
+                document.getElementById('fileTree').innerHTML =
+                    '<div class="error">Failed to load manifest.json</div>';
+            }
+        }
+
+        function renderFileTree(files, parentElement = null, path = '') {
+            const container = parentElement || document.getElementById('fileTree');
+            if (!parentElement) container.innerHTML = '';
+
+            for (const [name, item] of Object.entries(files)) {
+                const itemPath = path ? `${path}/${name}` : name;
+                const div = document.createElement('div');
+
+                if (item.type === 'directory') {
+                    div.className = 'tree-item folder';
+                    div.innerHTML = `<span class="tree-icon">▶</span><span>${name}</span>`;
+
+                    const childrenDiv = document.createElement('div');
+                    childrenDiv.className = 'tree-children collapsed';
+
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        childrenDiv.classList.toggle('collapsed');
+                        div.querySelector('.tree-icon').textContent =
+                            childrenDiv.classList.contains('collapsed') ? '▶' : '▼';
+                    };
+
+                    container.appendChild(div);
+                    container.appendChild(childrenDiv);
+                    renderFileTree(item.children, childrenDiv, itemPath);
+                } else {
+                    const icon = getFileIcon(name);
+                    div.className = 'tree-item';
+                    div.innerHTML = `<span class="tree-icon">${icon}</span><span>${name}</span>`;
+                    div.onclick = () => loadFile(itemPath);
+                    container.appendChild(div);
+                }
+            }
+        }
+
+        function getFileIcon(filename) {
+            if (filename.endsWith('.md')) return '📄';
+            if (filename.endsWith('.yaml') || filename.endsWith('.yml')) return '📋';
+            if (filename.endsWith('.log')) return '📝';
+            if (filename.endsWith('.json')) return '📊';
+            return '📄';
+        }
+
+        async function loadFile(path) {
+            currentFile = path;
+            updateBreadcrumb(path);
+
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.tree-item').classList.add('active');
+
+            const viewer = document.getElementById('contentViewer');
+            viewer.innerHTML = '<div class="loading">Loading...</div>';
+
+            try {
+                const response = await fetch(path);
+                const content = await response.text();
+
+                if (path.endsWith('.md')) {
+                    viewer.innerHTML = `<div class="markdown-content">${marked.parse(content)}</div>`;
+                } else if (path.endsWith('.yaml') || path.endsWith('.yml')) {
+                    viewer.innerHTML = `<div class="code-content">${escapeHtml(content)}</div>`;
+                } else if (path.endsWith('.log')) {
+                    const lines = content.split('\n').map((line, i) =>
+                        `${(i + 1).toString().padStart(4, ' ')} | ${escapeHtml(line)}`
+                    ).join('\n');
+                    viewer.innerHTML = `<div class="code-content">${lines}</div>`;
+                } else {
+                    viewer.innerHTML = `<div class="code-content">${escapeHtml(content)}</div>`;
+                }
+            } catch (error) {
+                viewer.innerHTML = `<div class="error">Failed to load file: ${error.message}</div>`;
+            }
+        }
+
+        function updateBreadcrumb(path) {
+            const parts = path.split('/');
+            const breadcrumb = document.getElementById('breadcrumb');
+            breadcrumb.innerHTML = '<span class="breadcrumb-item" onclick="showHome()">Home</span>';
+
+            let currentPath = '';
+            parts.forEach((part, index) => {
+                currentPath += (currentPath ? '/' : '') + part;
+                const isLast = index === parts.length - 1;
+                const separator = document.createElement('span');
+                separator.className = 'breadcrumb-separator';
+                separator.textContent = ' / ';
+                breadcrumb.appendChild(separator);
+
+                const item = document.createElement('span');
+                item.className = 'breadcrumb-item';
+                item.textContent = part;
+                if (!isLast) {
+                    const pathCopy = currentPath;
+                    item.onclick = () => navigateToPath(pathCopy);
+                }
+                breadcrumb.appendChild(item);
+            });
+        }
+
+        function showHome() {
+            document.getElementById('contentViewer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📁</div>
+                    <p>Select a file from the tree to view its contents</p>
+                </div>
+            `;
+            document.getElementById('breadcrumb').innerHTML =
+                '<span class="breadcrumb-item">Home</span>';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.tree-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+
+        document.getElementById('clearSearch').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.style.display = '';
+            });
+        });
+
+        init();
+    </script>
+</body>
+</html>

@@ -55,7 +55,6 @@ def collectResourcesParallel(
         return True
 
     allSuccess = True
-    resourcesOutputDir = f"{outputDir}/resources"
     totalResources = len(resources)
     completedResources = 0
 
@@ -69,9 +68,8 @@ def collectResourcesParallel(
                 namespace=namespace,
                 apiVersion=apiVersion,
                 kind=kind,
-                outputDir=resourcesOutputDir,
+                outputDir=outputDir,
                 noDetail=noDetail,
-                describe=False,
                 allNamespaces=False,
             )
             futures[future] = (apiVersion, kind)

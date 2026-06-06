@@ -161,7 +161,7 @@ class TestCollectResources:
             noDetail=True,
         )
 
-        summaryFile = os.path.join(self.testDir, "test-ns", "pods.txt")
+        summaryFile = os.path.join(self.testDir, "test-ns", "pods.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_resources_with_no_detail_flag(self):
@@ -244,34 +244,6 @@ class TestCollectResources:
         resourceDir = os.path.join(self.testDir, "test-ns", "pods")
         assert os.path.exists(os.path.join(resourceDir, "pod1.yaml"))
         assert os.path.exists(os.path.join(resourceDir, "pod2.yaml"))
-
-    def test_collect_resources_with_describe_flag_creates_txt_files(self):
-        """Test that describe .txt files are created when describe flag is True.
-
-        GIVEN describe flag is True
-        WHEN collectResources is called
-        THEN .txt describe files are created for each resource.
-        """
-        from mas.cli.must_gather.common.resources import collectResources
-
-        mockResource = self._createMockResource("pod1", "test-ns", {"phase": "Running"})
-
-        mockApi = Mock()
-        mockApi.get.return_value = self._createMockResourceList([mockResource])
-        self.mockClient.resources.get.return_value = mockApi
-
-        collectResources(
-            dynClient=self.mockClient,
-            namespace="test-ns",
-            apiVersion="v1",
-            kind="Pod",
-            outputDir=self.testDir,
-            noDetail=False,
-            describe=True,
-        )
-
-        resourceDir = os.path.join(self.testDir, "test-ns", "pods")
-        assert os.path.exists(os.path.join(resourceDir, "pod1.txt"))
 
     def test_collect_resources_with_all_namespaces_flag(self):
         """Test collection across all namespaces.

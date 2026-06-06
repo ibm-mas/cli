@@ -50,7 +50,6 @@ def collectMarketplaceResources(dynClient: DynamicClient, outputDir: str, noDeta
             kind=kind,
             outputDir=outputDir,
             noDetail=noDetail,
-            describe=False,
             allNamespaces=False,
         ):
             successCount += 1

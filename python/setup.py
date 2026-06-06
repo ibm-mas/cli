@@ -60,6 +60,8 @@ setup(
         "openshift",  # Apache Software License
         "kubernetes == 33.1.0",  # Apache Software License, version lock to be removed once https://github.com/kubernetes-client/python/issues/2460 is resolved
         "tabulate",  # MIT License
+        "prettytable",  # BSD License
+        "jsonpath-ng",  # Apache Software License
     ],
     extras_require={
         "dev": [

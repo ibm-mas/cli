@@ -42,15 +42,24 @@ def collectMongoDB(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fa
 
         if not mongoNamespaces:
             logger.info("No MongoDB namespaces found, skipping collection")
+            print("⏭️  MongoDB Community skipped - no MongoDB resources found")
             return False
 
         # Collect from discovered namespaces with MongoDB-specific resources
-        return collectFromNamespaces(
+        result = collectFromNamespaces(
             namespaces=mongoNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=MONGODB_RESOURCES
         )
 
+        if result:
+            print(f"✅ MongoDB Community collected from {len(mongoNamespaces)} namespace(s)")
+        else:
+            print("❌ MongoDB Community collection encountered errors (check logs)")
+
+        return result
+
     except Exception as e:
         logger.warning(f"Error collecting MongoDB: {e}")
+        print(f"❌ MongoDB Community - {e}")
         return False
 
 

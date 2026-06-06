@@ -102,7 +102,6 @@ def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: b
             kind=kind,
             outputDir=outputDir,
             noDetail=noDetail,
-            describe=False,
             allNamespaces=False,
         ):
             successCount += 1
@@ -117,7 +116,6 @@ def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: b
             kind=kind,
             outputDir=outputDir,
             noDetail=noDetail,
-            describe=False,
             allNamespaces=False,
         ):
             successCount += 1

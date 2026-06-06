@@ -13,6 +13,7 @@
 import os
 import tempfile
 import shutil
+import yaml
 from typing import Optional
 from unittest.mock import Mock
 from kubernetes.dynamic import DynamicClient
@@ -134,12 +135,12 @@ class TestCollectSecrets:
         summaryFile = os.path.join(self.testDir, "test-ns", "secrets.txt")
         assert os.path.exists(summaryFile)
 
-    def test_collect_secrets_without_secret_data_creates_describe_files(self):
-        """Test that describe files are created when secretData is False.
+    def test_collect_secrets_without_secret_data_creates_yaml_without_data(self):
+        """Test that YAML files without secret data are created when secretData is False.
 
         GIVEN secretData flag is False
         WHEN collectSecrets is called
-        THEN describe .yaml files are created without secret data.
+        THEN YAML files are created without secret data field.
         """
         from mas.cli.must_gather.common.secrets import collectSecrets
 
@@ -153,11 +154,14 @@ class TestCollectSecrets:
         secretFile = os.path.join(self.testDir, "test-ns", "secrets", "test-secret.yaml")
         assert os.path.exists(secretFile)
 
-        # Verify it's describe format (not full YAML with data)
+        # Verify it's YAML format without secret data
         with open(secretFile, "r") as f:
             content = f.read()
-            assert "Name:" in content
-            assert "Namespace:" in content
+            assert "metadata:" in content
+            assert "name: test-secret" in content
+            # Parse YAML and check that data field is not present
+            secretYaml = yaml.safe_load(content)
+            assert "data" not in secretYaml  # Secret data should be excluded
 
     def test_collect_secrets_with_secret_data_creates_yaml_files(self):
         """Test that YAML files with data are created when secretData is True.
@@ -237,9 +241,9 @@ class TestCollectSecrets:
         mockApi.get.side_effect = Exception("API Error")
         self.mockClient.resources.get.return_value = mockApi
 
-        result = collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
+        success, count = collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
-        assert result is False
+        assert success is False
 
     def test_collect_secrets_returns_true_on_success(self):
         """Test that function returns True on successful collection.
@@ -254,9 +258,9 @@ class TestCollectSecrets:
         mockApi.get.return_value = self._createMockSecretList([])
         self.mockClient.resources.get.return_value = mockApi
 
-        result = collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
+        success, count = collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
-        assert result is True
+        assert success is True
 
 
 # Made with Bob

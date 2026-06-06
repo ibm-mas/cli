@@ -94,28 +94,6 @@ class TestCollectNodes:
         summaryFile = os.path.join(self.testDir, "_cluster", "nodes.txt")
         assert os.path.exists(summaryFile)
 
-    def test_collect_nodes_creates_describe_files(self):
-        """Test that describe files are created for each node.
-
-        GIVEN a cluster with nodes
-        WHEN collectNodes is called with noDetail=False
-        THEN describe .txt files are created for each node.
-        """
-        from mas.cli.must_gather.ocp.nodes import collectNodes
-
-        mockApi = Mock()
-        mockApi.get.return_value = self._createMockResourceList([self._createMockResource("node1"), self._createMockResource("node2")])
-        self.mockClient.resources.get.return_value = mockApi
-
-        result = collectNodes(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
-
-        assert result is True
-        # Check describe files exist
-        node1Describe = os.path.join(self.testDir, "_cluster", "nodes", "node1.txt")
-        node2Describe = os.path.join(self.testDir, "_cluster", "nodes", "node2.txt")
-        assert os.path.exists(node1Describe)
-        assert os.path.exists(node2Describe)
-
     def test_collect_nodes_creates_yaml_files(self):
         """Test that YAML files are created for each node.
 

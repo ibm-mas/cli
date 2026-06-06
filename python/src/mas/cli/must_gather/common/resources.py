@@ -13,8 +13,9 @@
 import os
 import yaml
 import logging
-from typing import Optional
+from typing import Optional, List
 from kubernetes.dynamic import DynamicClient
+from .crd_processor import PrinterColumn, getPrinterColumns, extractValueFromJsonPath
 
 logger = logging.getLogger(__name__)
 
@@ -68,14 +69,12 @@ def collectResources(
     kind: str,
     outputDir: str,
     noDetail: bool = False,
-    describe: bool = False,
     allNamespaces: bool = False,
 ) -> bool:
     """Collect Kubernetes resources of a specific type.
 
     Collects resources and generates both summary (wide output) and detailed YAML files.
-    Supports namespace-scoped and cluster-scoped resources, with options for describe
-    output and all-namespaces collection.
+    Supports namespace-scoped and cluster-scoped resources.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
@@ -84,7 +83,6 @@ def collectResources(
         kind (str): Kind of resource to collect (e.g., "Pod", "StorageClass")
         outputDir (str): Base output directory for collected resources
         noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
-        describe (bool, optional): If True, generate describe output (.txt) for each resource. Defaults to False.
         allNamespaces (bool, optional): If True, collect resources across all namespaces. Defaults to False.
 
     Returns:
@@ -123,9 +121,10 @@ def collectResources(
 
         logger.info(f"{namespaceContext}: {kind} ({apiVersion}) - Successfully collected {resourceCount} resource{'s' if resourceCount != 1 else ''}")
 
-        # Generate summary file (wide output)
-        summaryFile = os.path.join(namespaceDir, f"{resourceType}.txt")
-        _writeSummary(resources, summaryFile)
+        # Generate markdown index file
+        summaryFile = os.path.join(namespaceDir, f"{resourceType}.md")
+        printerColumns = getPrinterColumns(kind, apiVersion)
+        _writeMarkdownIndex(resources, summaryFile, kind, apiVersion, printerColumns)
 
         # Generate detailed reports if requested
         if not noDetail:
@@ -147,11 +146,6 @@ def collectResources(
                     yamlFile = os.path.join(resourceDir, f"{sanitizedName}.yaml")
                     _writeYaml(resource.to_dict(), yamlFile)
 
-                    # Write describe file if requested
-                    if describe:
-                        txtFile = os.path.join(resourceDir, f"{sanitizedName}.txt")
-                        _writeDescribe(resource, txtFile)
-
         return True
 
     except Exception as e:
@@ -159,31 +153,59 @@ def collectResources(
         # "No matches found" means the CRD doesn't exist, which is normal (INFO level)
         if "No matches found" in errorMsg or "not found" in errorMsg.lower():
             logger.info(f"{namespaceContext}: {kind} ({apiVersion}) - CRD does not exist")
+            return True  # Missing CRD is not a failure
         else:
             logger.warning(f"{namespaceContext}: {kind} ({apiVersion}) - {errorMsg}")
-        return False
+            return False
 
 
-def _writeSummary(resources, outputFile: str) -> None:
-    """Write resource summary in wide format.
+def _writeMarkdownIndex(resources, outputFile: str, kind: str, apiVersion: str, printerColumns: List[PrinterColumn]) -> None:
+    """Write resource index as markdown table.
 
-    Generates a text summary similar to 'kubectl get -o wide' output.
+    Generates a markdown file with a table showing resources using printer columns
+    from CRD specifications or fallback columns for built-in resources.
+    The first column (typically resource name) is converted to a markdown link
+    pointing to the resource's YAML file.
 
     Args:
         resources: ResourceList or ResourceInstance from Kubernetes API
-        outputFile (str): Path to output file
+        outputFile (str): Path to output markdown file
+        kind (str): Resource kind (e.g., "Pod", "Suite")
+        apiVersion (str): API version (e.g., "v1", "core.mas.ibm.com/v1")
+        printerColumns (list): List of PrinterColumn objects defining table columns
     """
-    with open(outputFile, "w") as f:
-        if hasattr(resources, "items") and len(resources.items) > 0:
-            # Write header
-            f.write(f"{'NAME':<50} {'NAMESPACE':<30} {'STATUS':<20}\n")
+    # Pluralize kind for directory name (simple pluralization)
+    pluralKind = kind.lower() + "s"
 
-            # Write each resource
+    with open(outputFile, "w") as f:
+        # Write header
+        f.write(f"# {kind} ({apiVersion})\n\n")
+
+        if hasattr(resources, "items") and len(resources.items) > 0:
+            # Write table header
+            columnNames = [col.name for col in printerColumns]
+            f.write("| " + " | ".join(columnNames) + " |\n")
+
+            # Write separator
+            f.write("| " + " | ".join(["---"] * len(columnNames)) + " |\n")
+
+            # Write data rows
             for resource in resources.items:
-                name = resource.metadata.name or ""
-                namespace = getattr(resource.metadata, "namespace", "") or ""
-                status = _extractStatus(resource) or ""
-                f.write(f"{name:<50} {namespace:<30} {status:<20}\n")
+                resourceDict = resource.to_dict()
+                resourceName = resource.metadata.name
+                values = []
+                for idx, col in enumerate(printerColumns):
+                    value = extractValueFromJsonPath(resourceDict, col.jsonPath)
+                    # Escape pipe characters in values to avoid breaking table
+                    value = value.replace("|", "\\|") if value else ""
+
+                    # Convert first column (name) to markdown link
+                    if idx == 0 and value:
+                        value = f"[{value}]({pluralKind}/{resourceName}.yaml)"
+
+                    values.append(value)
+
+                f.write("| " + " | ".join(values) + " |\n")
         else:
             f.write("No resources found.\n")
 
@@ -197,37 +219,6 @@ def _writeYaml(resourceDict: dict, outputFile: str) -> None:
     """
     with open(outputFile, "w") as f:
         yaml.dump(resourceDict, f, default_flow_style=False, sort_keys=False)
-
-
-def _writeDescribe(resource, outputFile: str) -> None:
-    """Write resource describe output.
-
-    Generates output similar to 'kubectl describe' command.
-
-    Args:
-        resource: ResourceInstance from Kubernetes API
-        outputFile (str): Path to output file
-    """
-    with open(outputFile, "w") as f:
-        resourceDict = resource.to_dict()
-
-        # Write metadata section
-        f.write("Name:         {}\n".format(resourceDict.get("metadata", {}).get("name", "")))
-        f.write("Namespace:    {}\n".format(resourceDict.get("metadata", {}).get("namespace", "")))
-        f.write("Labels:       {}\n".format(resourceDict.get("metadata", {}).get("labels", {})))
-        f.write("Annotations:  {}\n".format(resourceDict.get("metadata", {}).get("annotations", {})))
-        f.write("\n")
-
-        # Write spec section if present
-        if "spec" in resourceDict:
-            f.write("Spec:\n")
-            f.write(yaml.dump(resourceDict["spec"], default_flow_style=False, indent=2))
-            f.write("\n")
-
-        # Write status section if present
-        if "status" in resourceDict:
-            f.write("Status:\n")
-            f.write(yaml.dump(resourceDict["status"], default_flow_style=False, indent=2))
 
 
 def _extractStatus(resource) -> str:

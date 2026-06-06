@@ -10,7 +10,12 @@
 
 """Main application class for must-gather command."""
 
+import hashlib
+import logging
+import os
 from typing import Optional, List
+
+import requests
 from mas.cli import BaseApp
 from .arg_parser import createArgumentParser
 from .output import OutputManager
@@ -19,9 +24,20 @@ from .common import collectResourcesParallel, collectSecrets, collectPods, getIB
 from . import ocp
 from . import dependencies
 from .sls import license_service as sls
+from .mas import core as mas_core
+from .mas import apps as mas_apps
+from .mas import pipelines as mas_pipelines
+from .mas import quick_summary as mas_quick_summary
+from .aiservice import instance as aiservice_instance
+from .aiservice import pipelines as aiservice_pipelines
+from .aiservice import tenant as aiservice_tenant
+from .argo import applications as argo
+from . import web_viewer
 from kubernetes import config
 from kubernetes.dynamic import DynamicClient
 from halo import Halo
+
+logger = logging.getLogger(__name__)
 
 
 class MustGatherApp(BaseApp):
@@ -36,6 +52,8 @@ class MustGatherApp(BaseApp):
         """Initialize must-gather application."""
         super().__init__()
         self.dynClient: Optional[DynamicClient] = None
+        self.printerColumnsCache: dict = {}
+        self.ibmCRDsList: list = []
 
     def _initializeKubernetesClient(self):
         """Initialize Kubernetes Dynamic Client.
@@ -80,6 +98,19 @@ class MustGatherApp(BaseApp):
         # Initialize Kubernetes client
         self._initializeKubernetesClient()
 
+        # Process CRDs first (always, even with --no-ocp)
+        # This is needed for printer columns and IBM CRD discovery
+        if parsedArgs.no_ocp:
+            # Process CRDs without collecting other OCP resources
+            from mas.cli.must_gather.common.crd_processor import processCRDs
+
+            if self.dynClient is None:
+                raise RuntimeError("Kubernetes client not initialized")
+
+            logger.info("Processing CRDs for printer columns (--no-ocp mode)")
+            self.printerColumnsCache, self.ibmCRDsList = processCRDs(self.dynClient, f"{outputManager.outputDir}/resources")
+            logger.info(f"Processed {len(self.printerColumnsCache)} CRDs, identified {len(self.ibmCRDsList)} IBM CRDs")
+
         # Collect OCP resources (unless --no-ocp flag is set)
         if not parsedArgs.no_ocp:
             self.printH1("OpenShift Container Platform")
@@ -109,17 +140,96 @@ class MustGatherApp(BaseApp):
             elapsed = slsTimer.stop()
             self.printHighlight(f"SLS collection completed in {elapsed} seconds")
 
+        # Collect MAS resources
+        self.printH1("IBM Maximo Application Suite")
+        masTimer = Timer()
+        masTimer.start()
+        masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
+        masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
+        self.collectMAS(
+            outputDir=outputManager.outputDir,
+            noDetail=parsedArgs.summary_only,
+            noLogs=parsedArgs.no_logs,
+            masInstanceIds=masInstanceIds,
+            masAppIds=masAppIds,
+            noQuickSummary=parsedArgs.no_mas_quick_summary,
+        )
+        elapsed = masTimer.stop()
+        self.printHighlight(f"MAS collection completed in {elapsed} seconds")
+
+        # Collect AI Service resources
+        self.printH1("IBM Maximo AI Service")
+        aiserviceTimer = Timer()
+        aiserviceTimer.start()
+        self.collectAIService(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only, noLogs=parsedArgs.no_logs)
+        elapsed = aiserviceTimer.stop()
+        self.printHighlight(f"AI Service collection completed in {elapsed} seconds")
+
+        # Collect Argo resources
+        self.printH1("Argo CD")
+        argoTimer = Timer()
+        argoTimer.start()
+        self.collectArgo(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only)
+        elapsed = argoTimer.stop()
+        self.printHighlight(f"Argo collection completed in {elapsed} seconds")
+
+        # Collect extra namespaces if specified
+        if parsedArgs.extra_namespaces and not parsedArgs.summary_only:
+            self.printH1("Extra Namespaces")
+            extraTimer = Timer()
+            extraTimer.start()
+            self.collectExtraNamespaces(
+                outputDir=outputManager.outputDir, extraNamespaces=parsedArgs.extra_namespaces, noDetail=parsedArgs.summary_only, noLogs=parsedArgs.no_logs
+            )
+            elapsed = extraTimer.stop()
+            self.printHighlight(f"Extra namespaces collection completed in {elapsed} seconds")
+
+        # Generate cluster-wide subscriptions summary (only if OCP was collected)
+        if not parsedArgs.no_ocp:
+            self.printH1("Generating Subscriptions Summary")
+            summaryTimer = Timer()
+            summaryTimer.start()
+            self.generateSubscriptionsSummary(outputDir=outputManager.outputDir)
+            elapsed = summaryTimer.stop()
+            self.printHighlight(f"Subscriptions summary generated in {elapsed} seconds")
+
+        # Generate web viewer
+        self.printH1("Generating Web Viewer")
+        viewerTimer = Timer()
+        viewerTimer.start()
+        if web_viewer.generateWebViewer(outputManager.outputDir):
+            elapsed = viewerTimer.stop()
+            print(f"Web viewer generated in {elapsed} seconds")
+            self.printHighlight(f"Run must-gather serve --dir {outputManager.outputDir} to view the must-gather")
+        else:
+            elapsed = viewerTimer.stop()
+            print(f"⚠️  Web viewer generation failed after {elapsed} seconds (must-gather data is still available)")
+
         # Create archive
-        self.printH2("Creating Archive")
+        self.printH1("Creating Archive")
         archivePath = outputManager.createArchive()
-        self.printHighlight(f"Archive created: {archivePath}")
+        print(f"Archive created: {archivePath}")
+
+        # Upload to Artifactory if configured
+        if parsedArgs.artifactory_token and parsedArgs.artifactory_upload_dir:
+            self.printH2("Uploading to Artifactory")
+            uploadTimer = Timer()
+            uploadTimer.start()
+            if self.uploadToArtifactory(
+                archivePath=archivePath, artifactoryToken=parsedArgs.artifactory_token, artifactoryUploadDir=parsedArgs.artifactory_upload_dir
+            ):
+                elapsed = uploadTimer.stop()
+                print(f"Upload completed in {elapsed} seconds")
+            else:
+                elapsed = uploadTimer.stop()
+                print(f"❌ Upload failed after {elapsed} seconds")
 
         # Cleanup
         outputManager.cleanup()
 
         # Print completion message
         elapsed = overallTimer.stop()
-        self.printH2("Completion")
+        self.printH1("Completion")
         self.printHighlight(f"Must-gather completed in {elapsed} seconds")
         self.printHighlight(f"Must gather successfully saved to: {archivePath}")
 
@@ -161,9 +271,11 @@ class MustGatherApp(BaseApp):
         # Collect IBM custom resources in parallel with Halo spinner showing progress
         if not podsOnly:
             # Discover IBM CRDs (silently - no UI output, just logging)
+            # Use precomputed list if available from CRD processing
             ibmCRDsWithInstances = []
             try:
-                ibmCRDs = getIBMCRDs(self.dynClient)
+                ibmCRDs = getIBMCRDs(self.dynClient, precomputedList=self.ibmCRDsList if self.ibmCRDsList else None)
+                logger.debug(f"Checking {len(ibmCRDs)} IBM CRDs for instances in namespace {namespace}")
 
                 # Check which IBM CRDs have instances in the namespace
                 for kind, apiVersion in ibmCRDs:
@@ -172,9 +284,15 @@ class MustGatherApp(BaseApp):
                         resources = api.get(namespace=namespace)
                         if resources.items:
                             ibmCRDsWithInstances.append((apiVersion, kind))
-                    except Exception:
-                        pass
+                            logger.debug(f"Found {len(resources.items)} {kind} instances in {namespace}")
+                        else:
+                            logger.debug(f"No {kind} instances in {namespace}")
+                    except Exception as e:
+                        logger.debug(f"Could not check {kind} in {namespace}: {e}")
+
+                logger.info(f"Found {len(ibmCRDsWithInstances)} IBM resource types with instances in {namespace}")
             except Exception as e:
+                logger.error(f"Failed to discover IBM custom resources: {str(e)}")
                 print(f"❌ Failed to discover IBM custom resources: {str(e)}")
                 success = False
 
@@ -220,6 +338,10 @@ class MustGatherApp(BaseApp):
                 ("rbac.authorization.k8s.io/v1", "RoleBinding"),
                 ("networking.k8s.io/v1", "NetworkPolicy"),
                 ("networking.k8s.io/v1", "Ingress"),
+                # Operator resources (namespace-scoped)
+                ("operators.coreos.com/v1alpha1", "Subscription"),
+                ("operators.coreos.com/v1alpha1", "InstallPlan"),
+                ("operators.coreos.com/v2", "OperatorCondition"),
             ]
 
             # Add any additional resources
@@ -237,7 +359,7 @@ class MustGatherApp(BaseApp):
                     dynClient=self.dynClient,
                     namespace=namespace,
                     resources=standardResources,
-                    outputDir=outputDir,
+                    outputDir=f"{outputDir}/resources",
                     noDetail=noDetail,
                     progressCallback=updateProgress,
                 ):
@@ -248,10 +370,15 @@ class MustGatherApp(BaseApp):
 
         # Collect secrets
         if not podsOnly:
-            with Halo(text=f"Collecting secrets from {namespace}", spinner=self.spinner) as h:
+            dataStatus = "with data" if secretData else "without data"
+            with Halo(text=f"Collecting secrets from {namespace} ({dataStatus})", spinner=self.spinner) as h:
                 try:
-                    if collectSecrets(dynClient=self.dynClient, namespace=namespace, outputDir=outputDir, secretData=secretData, allNamespaces=False):
-                        h.stop_and_persist(symbol=self.successIcon, text=f"Secrets collected from {namespace}")
+                    secretSuccess, secretCount = collectSecrets(
+                        dynClient=self.dynClient, namespace=namespace, outputDir=f"{outputDir}/resources", secretData=secretData, allNamespaces=False
+                    )
+                    if secretSuccess:
+                        dataStatus = "with data" if secretData else "without data"
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Collected {secretCount} secrets from {namespace} ({dataStatus})")
                     else:
                         h.stop_and_persist(symbol="❌", text=f"Failed to collect secrets from {namespace} (check logs)")
                         success = False
@@ -259,11 +386,25 @@ class MustGatherApp(BaseApp):
                     h.stop_and_persist(symbol="❌", text=f"Failed to collect secrets from {namespace}: {str(e)}")
                     success = False
 
-        # Collect pods
-        with Halo(text=f"Collecting pods from {namespace}", spinner=self.spinner) as h:
+        # Collect pods with progress tracking
+        logStatus = "without logs" if noLogs else "with logs"
+        with Halo(text=f"Collecting pods from {namespace} ({logStatus})", spinner=self.spinner) as h:
             try:
-                if collectPods(dynClient=self.dynClient, namespace=namespace, outputDir=outputDir, podLogs=not noLogs, noDetail=noDetail):
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Pods collected from {namespace}")
+
+                def updateProgress(completed: int, total: int) -> None:
+                    h.text = f"Collecting {completed}/{total} pods from {namespace} ({logStatus})"
+
+                podSuccess, podCount = collectPods(
+                    dynClient=self.dynClient,
+                    namespace=namespace,
+                    outputDir=f"{outputDir}/resources",
+                    podLogs=not noLogs,
+                    noDetail=noDetail,
+                    progressCallback=updateProgress,
+                )
+                if podSuccess:
+                    logStatus = "without logs" if noLogs else "with logs"
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Collected {podCount} pods from {namespace} ({logStatus})")
                 else:
                     h.stop_and_persist(symbol="❌", text=f"Failed to collect pods from {namespace} (check logs)")
                     success = False
@@ -278,6 +419,7 @@ class MustGatherApp(BaseApp):
 
         Orchestrates collection of OCP-specific resources including cluster resources,
         nodes, airgap configuration, marketplace resources, and operator resources.
+        CRD processing results are stored in instance variables for use by other collectors.
 
         Args:
             outputDir (str): Base output directory for collected resources
@@ -293,11 +435,17 @@ class MustGatherApp(BaseApp):
         successCount = 0
         totalCount = 0
 
-        # Collect cluster resources
+        # Collect cluster resources (includes CRD processing)
         totalCount += 1
         with Halo(text="Collecting OCP cluster resources", spinner=self.spinner) as h:
             try:
-                if ocp.collectClusterResources(dynClient=self.dynClient, outputDir=f"{outputDir}/resources", noDetail=noDetail):
+                success, printerColumnsCache, ibmCRDsList = ocp.collectClusterResources(
+                    dynClient=self.dynClient, outputDir=f"{outputDir}/resources", noDetail=noDetail
+                )
+                if success:
+                    # Store CRD processing results for use by other collectors
+                    self.printerColumnsCache = printerColumnsCache
+                    self.ibmCRDsList = ibmCRDsList
                     h.stop_and_persist(symbol=self.successIcon, text="OCP cluster resources collected")
                     successCount += 1
                 else:
@@ -341,17 +489,8 @@ class MustGatherApp(BaseApp):
             except Exception as e:
                 h.stop_and_persist(symbol="❌", text=f"Failed to collect OCP marketplace resources: {str(e)}")
 
-        # Collect Kubernetes Operators
-        totalCount += 1
-        with Halo(text="Collecting OCP operator resources", spinner=self.spinner) as h:
-            try:
-                if ocp.collectOperatorResources(dynClient=self.dynClient, outputDir=f"{outputDir}/resources", noDetail=noDetail):
-                    h.stop_and_persist(symbol=self.successIcon, text="OCP operator resources collected")
-                    successCount += 1
-                else:
-                    h.stop_and_persist(symbol="❌", text="Failed to collect OCP operator resources (check logs for details)")
-            except Exception as e:
-                h.stop_and_persist(symbol="❌", text=f"Failed to collect OCP operator resources: {str(e)}")
+        # Note: Operator resources (Subscription, InstallPlan, OperatorCondition) are now
+        # collected per-namespace as part of standard resource collection in genericMustGather()
 
         return successCount > 0
 
@@ -376,113 +515,63 @@ class MustGatherApp(BaseApp):
         successCount = 0
         totalCount = 0
 
-        # IBM Common Services
-        self.printH2("IBM CloudPak Foundation Services")  # type: ignore[attr-defined]
-        totalCount += 1
-        try:
-            result = dependencies.collectCommonServices(
-                dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather
-            )
-            if result:
-                print(f"{self.successIcon} IBM CloudPak Foundation Services collected")
-                successCount += 1
-            else:
-                print("⊘ IBM CloudPak Foundation Services skipped (not found)")
-        except Exception as e:
-            print(f"❌ Failed to collect IBM CloudPak Foundation Services: {str(e)}")
+        # IBM CloudPak for Data (includes Common Services / Foundation Services)
+        self.printH2("IBM CloudPak for Data")
+        totalCount += 2  # Count both Common Services and CP4D
 
-        # IBM CloudPak for Data
-        self.printH2("IBM CloudPak for Data")  # type: ignore[attr-defined]
-        totalCount += 1
-        try:
-            result = dependencies.collectCP4D(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
-            if result:
-                print(f"{self.successIcon} IBM CloudPak for Data collected")
-                successCount += 1
-            else:
-                print("⊘ IBM CloudPak for Data skipped (not found)")
-        except Exception as e:
-            print(f"❌ Failed to collect IBM CloudPak for Data: {str(e)}")
+        # Collect Common Services (Foundation Services)
+        result = dependencies.collectCommonServices(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        if result:
+            successCount += 1
+
+        # Collect CP4D
+        result = dependencies.collectCP4D(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        if result:
+            successCount += 1
 
         # IBM Db2 Universal Operator
-        self.printH2("IBM Db2 Universal Operator")  # type: ignore[attr-defined]
+        self.printH2("IBM Db2 Universal Operator")
         totalCount += 1
-        try:
-            result = dependencies.collectDb2(
-                dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, masInstanceIds=masInstanceIds, genericMustGather=self.genericMustGather
-            )
-            if result:
-                print(f"{self.successIcon} IBM Db2 Universal Operator collected")
-                successCount += 1
-            else:
-                print("⊘ IBM Db2 Universal Operator skipped (not found)")
-        except Exception as e:
-            print(f"❌ Failed to collect IBM Db2 Universal Operator: {str(e)}")
+        result = dependencies.collectDb2(
+            dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, masInstanceIds=masInstanceIds, genericMustGather=self.genericMustGather
+        )
+        if result:
+            successCount += 1
 
         # IBM Data Reporter Operator
-        self.printH2("IBM Data Reporter Operator")  # type: ignore[attr-defined]
+        self.printH2("IBM Data Reporter Operator")
         totalCount += 1
-        try:
-            result = dependencies.collectDRO(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
-            if result:
-                print(f"{self.successIcon} IBM Data Reporter Operator collected")
-                successCount += 1
-            else:
-                print("⊘ IBM Data Reporter Operator skipped (not found)")
-        except Exception as e:
-            print(f"❌ Failed to collect IBM Data Reporter Operator: {str(e)}")
+        result = dependencies.collectDRO(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        if result:
+            successCount += 1
 
         # Red Hat Certificate Manager
-        self.printH2("Red Hat Certificate Manager")  # type: ignore[attr-defined]
+        self.printH2("Red Hat Certificate Manager")
         totalCount += 1
-        try:
-            result = dependencies.collectCertManager(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
-            if result:
-                print(f"{self.successIcon} Red Hat Certificate Manager collected")
-                successCount += 1
-            else:
-                print("⊘ Red Hat Certificate Manager skipped (not found)")
-        except Exception as e:
-            print(f"❌ Failed to collect Red Hat Certificate Manager: {str(e)}")
+        result = dependencies.collectCertManager(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        if result:
+            successCount += 1
 
         # Kafka
-        self.printH2("Kafka")  # type: ignore[attr-defined]
+        self.printH2("Kafka")
         totalCount += 1
-        try:
-            result = dependencies.collectKafka(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
-            if result:
-                print(f"{self.successIcon} Kafka collected")
-                successCount += 1
-            else:
-                print("⊘ Kafka skipped (not found)")
-        except Exception as e:
-            print(f"❌ Failed to collect Kafka: {str(e)}")
+        result = dependencies.collectKafka(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        if result:
+            successCount += 1
 
         # Grafana
-        self.printH2("Grafana")  # type: ignore[attr-defined]
+        self.printH2("Grafana")
         totalCount += 1
-        try:
-            result = dependencies.collectGrafana(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
-            if result:
-                print(f"{self.successIcon} Grafana collected")
-                successCount += 1
-            else:
-                print("⊘ Grafana skipped (not found)")
-        except Exception as e:
-            print(f"❌ Failed to collect Grafana: {str(e)}")
+        result = dependencies.collectGrafana(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        if result:
+            successCount += 1
 
         # MongoDB Community
-        self.printH2("MongoDB Community")  # type: ignore[attr-defined]
+        self.printH2("MongoDB Community")
         totalCount += 1
-        try:
-            result = dependencies.collectMongoDB(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
-            if result:
-                print(f"{self.successIcon} MongoDB Community collected")
-                successCount += 1
-            else:
-                print("⊘ MongoDB Community skipped (not found)")
-        except Exception as e:
-            print(f"❌ Failed to collect MongoDB Community: {str(e)}")
+        result = dependencies.collectMongoDB(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather)
+        if result:
+            successCount += 1
 
         return successCount > 0
 
@@ -521,7 +610,7 @@ class MustGatherApp(BaseApp):
         # Collect from each discovered namespace
         successCount = 0
         for namespace in sorted(slsNamespaces):
-            self.printH2(f"Namespace: {namespace}")  # type: ignore[attr-defined]
+            self.printH2(f"Namespace: {namespace}")
             try:
                 with Halo(text=f"Collecting SLS resources from {namespace}", spinner=self.spinner) as h:
                     if sls.collectSLSNamespace(self.dynClient, namespace, outputDir, noDetail=noDetail):
@@ -534,7 +623,419 @@ class MustGatherApp(BaseApp):
 
         return successCount > 0
 
+    def collectMAS(
+        self,
+        outputDir: str,
+        noDetail: bool = False,
+        noLogs: bool = False,
+        masInstanceIds: Optional[List[str]] = None,
+        masAppIds: Optional[List[str]] = None,
+        noQuickSummary: bool = False,
+    ) -> bool:
+        """Collect IBM Maximo Application Suite resources.
+
+        Orchestrates collection of MAS Core, MAS Apps, MAS Pipelines, and generates
+        quick summaries for each discovered MAS instance.
+
+        Args:
+            outputDir (str): Base output directory for collected resources
+            noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+            noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
+            masInstanceIds (list, optional): List of MAS instance IDs to filter. If None, discovers all instances. Defaults to None.
+            masAppIds (list, optional): List of MAS app IDs to collect. Defaults to None.
+            noQuickSummary (bool, optional): If True, skip quick summary generation. Defaults to False.
+
+        Returns:
+            bool: True if any collection succeeded
+        """
+        if not self.dynClient:
+            self._initializeKubernetesClient()
+
+        assert self.dynClient is not None, "Kubernetes client must be initialized"
+
+        # Discover MAS Core namespaces
+        with Halo(text="Discovering MAS instances", spinner=self.spinner) as h:
+            try:
+                coreNamespaces = mas_core.discoverMASCoreNamespaces(self.dynClient, masInstanceIds=masInstanceIds)
+                if coreNamespaces:
+                    instanceCount = len(coreNamespaces)
+                    instanceList = ", ".join([ns.replace("mas-", "").replace("-core", "") for ns in sorted(coreNamespaces)])
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Discovered {instanceCount} MAS instance(s): {instanceList}")
+                else:
+                    h.stop_and_persist(symbol="⚠️", text="No MAS instances found")
+                    return False
+            except Exception as e:
+                h.stop_and_persist(symbol="❌", text=f"Failed to discover MAS instances: {str(e)}")
+                return False
+
+        successCount = 0
+
+        # Process each MAS instance
+        for coreNamespace in sorted(coreNamespaces):
+            # Extract instance ID from namespace (mas-{instance}-core)
+            instanceId = coreNamespace[4:-5]  # Remove "mas-" prefix and "-core" suffix
+
+            self.printH2(f"MAS Instance: {instanceId}")
+
+            instanceTimer = Timer()
+            instanceTimer.start()
+
+            # Collect MAS Core
+            self.printHighlight("Core")
+            try:
+                if self.genericMustGather(namespace=coreNamespace, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs):
+                    successCount += 1
+                else:
+                    print(f"❌ Failed to collect MAS Core resources from {coreNamespace} (check logs)")
+            except Exception as e:
+                print(f"❌ Failed to collect MAS Core from {coreNamespace}: {str(e)}")
+
+            # Collect MAS Apps
+            try:
+                appNamespaces = mas_apps.discoverMASAppNamespaces(self.dynClient, masInstanceId=instanceId, masAppIds=masAppIds)
+                if appNamespaces:
+                    for appNamespace in sorted(appNamespaces):
+                        # Extract app ID from namespace (mas-{instance}-{app})
+                        appId = appNamespace[len(f"mas-{instanceId}-") :]
+                        self.printHighlight(appId.capitalize())
+                        try:
+                            if not mas_apps.collectMASApp(
+                                dynClient=self.dynClient,
+                                namespace=appNamespace,
+                                appId=appId,
+                                outputDir=outputDir,
+                                noDetail=noDetail,
+                                noLogs=noLogs,
+                                genericMustGather=self.genericMustGather,
+                            ):
+                                print(f"❌ Failed to collect {appId} resources from {appNamespace} (check logs)")
+                        except Exception as e:
+                            print(f"❌ Failed to collect {appId} from {appNamespace}: {str(e)}")
+                else:
+                    print("⏭️ No application namespaces found")
+            except Exception as e:
+                print(f"❌ Failed to discover MAS app namespaces for {instanceId}: {str(e)}")
+
+            # Generate MAS Quick Summary
+            if not noQuickSummary:
+                self.printH2("MAS Quick Summary")
+                try:
+                    with Halo(text=f"Generating quick summary for {instanceId}", spinner=self.spinner) as h:
+                        if mas_quick_summary.generateMASQuickSummary(dynClient=self.dynClient, masInstanceId=instanceId, outputDir=outputDir):
+                            h.stop_and_persist(symbol=self.successIcon, text=f"Quick summary generated for {instanceId}")
+                        else:
+                            h.stop_and_persist(symbol="❌", text=f"Failed to generate quick summary for {instanceId} (check logs)")
+                except Exception as e:
+                    print(f"❌ Failed to generate quick summary for {instanceId}: {str(e)}")
+
+            elapsed = instanceTimer.stop()
+            print(f"Instance {instanceId} collection completed in {elapsed} seconds")
+
+        # Collect cluster-level pipelines namespace if it exists
+        # Note: Only collect mas-pipelines here; instance pipelines were already collected above
+        try:
+            clusterPipelineNamespaces = mas_pipelines.discoverMASPipelineNamespaces(self.dynClient, masInstanceIds=[], includeClusterLevel=True)
+            if "mas-pipelines" in clusterPipelineNamespaces:
+                self.printH2("Cluster-Level Pipelines")
+                try:
+                    if not mas_pipelines.collectMASPipelines(
+                        dynClient=self.dynClient,
+                        namespace="mas-pipelines",
+                        outputDir=outputDir,
+                        noDetail=noDetail,
+                        noLogs=noLogs,
+                        genericMustGather=self.genericMustGather,
+                    ):
+                        print("❌ Failed to collect cluster-level pipeline resources from mas-pipelines (check logs)")
+                except Exception as e:
+                    print(f"❌ Failed to collect cluster-level pipelines: {str(e)}")
+        except Exception as e:
+            print(f"❌ Failed to discover cluster-level pipeline namespace: {str(e)}")
+
         return successCount > 0
+
+    def collectAIService(self, outputDir: str, noDetail: bool = False, noLogs: bool = False) -> bool:
+        """Collect IBM AI Service resources.
+
+        Orchestrates collection of AI Service instances, tenants, and pipelines for each
+        discovered AI Service instance.
+
+        Args:
+            outputDir (str): Base output directory for collected resources
+            noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+            noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
+
+        Returns:
+            bool: True if any collection succeeded
+        """
+        if not self.dynClient:
+            self._initializeKubernetesClient()
+
+        assert self.dynClient is not None, "Kubernetes client must be initialized"
+
+        # Discover AI Service instances
+        with Halo(text="Discovering AI Service instances", spinner=self.spinner) as h:
+            try:
+                instanceIds = aiservice_instance.discoverAIServiceInstances(self.dynClient)
+                if instanceIds:
+                    instanceCount = len(instanceIds)
+                    instanceList = ", ".join(sorted(instanceIds))
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Discovered {instanceCount} AI Service instance(s): {instanceList}")
+                else:
+                    h.stop_and_persist(symbol="⏭️", text="No AI Service instances found")
+                    return False
+            except Exception as e:
+                h.stop_and_persist(symbol="❌", text=f"Failed to discover AI Service instances: {str(e)}")
+                return False
+
+        successCount = 0
+
+        # Process each AI Service instance
+        for instanceId in sorted(instanceIds):
+            self.printH2(f"AI Service Instance: {instanceId}")
+
+            instanceTimer = Timer()
+            instanceTimer.start()
+
+            # Collect AI Service Instance
+            self.printH2("AI Service Instance")
+            try:
+                with Halo(text=f"Collecting AI Service instance resources for {instanceId}", spinner=self.spinner) as h:
+                    if aiservice_instance.collectAIServiceInstance(
+                        dynClient=self.dynClient, instanceId=instanceId, outputDir=outputDir, genericMustGather=self.genericMustGather
+                    ):
+                        h.stop_and_persist(symbol=self.successIcon, text=f"AI Service instance resources collected for {instanceId}")
+                        successCount += 1
+                    else:
+                        h.stop_and_persist(symbol="❌", text=f"Failed to collect AI Service instance resources for {instanceId} (check logs)")
+            except Exception as e:
+                print(f"❌ Failed to collect AI Service instance {instanceId}: {str(e)}")
+
+            # Collect AI Service Tenants
+            self.printH2("AI Service Tenants")
+            try:
+                tenantIds = aiservice_tenant.discoverAIServiceTenants(self.dynClient, instanceId=instanceId)
+                if tenantIds:
+                    print(f"Found {len(tenantIds)} tenant(s)")
+                    for tenantId in sorted(tenantIds):
+                        try:
+                            with Halo(text=f"Collecting tenant resources for {tenantId}", spinner=self.spinner) as h:
+                                namespace = f"aiservice-{instanceId}"
+                                if aiservice_tenant.collectAIServiceTenant(
+                                    dynClient=self.dynClient, instanceId=instanceId, tenantId=tenantId, namespace=namespace, outputDir=outputDir
+                                ):
+                                    h.stop_and_persist(symbol=self.successIcon, text=f"Tenant resources collected for {tenantId}")
+                                else:
+                                    h.stop_and_persist(symbol="❌", text=f"Failed to collect tenant resources for {tenantId} (check logs)")
+                        except Exception as e:
+                            print(f"❌ Failed to collect tenant {tenantId}: {str(e)}")
+                else:
+                    print("⏭️ No tenants found")
+            except Exception as e:
+                print(f"❌ Failed to discover AI Service tenants for {instanceId}: {str(e)}")
+
+            # Collect AI Service Pipelines
+            self.printH2("AI Service Pipelines")
+            try:
+                pipelineNamespaces = aiservice_pipelines.discoverAIServicePipelineNamespaces(self.dynClient, instanceIds=[instanceId])
+                if pipelineNamespaces:
+                    for pipelineNamespace in sorted(pipelineNamespaces):
+                        try:
+                            with Halo(text=f"Collecting pipeline resources from {pipelineNamespace}", spinner=self.spinner) as h:
+                                if aiservice_pipelines.collectAIServicePipelines(
+                                    dynClient=self.dynClient, namespace=pipelineNamespace, outputDir=outputDir, genericMustGather=self.genericMustGather
+                                ):
+                                    h.stop_and_persist(symbol=self.successIcon, text=f"Pipeline resources collected from {pipelineNamespace}")
+                                else:
+                                    h.stop_and_persist(symbol="❌", text=f"Failed to collect pipeline resources from {pipelineNamespace} (check logs)")
+                        except Exception as e:
+                            print(f"❌ Failed to collect pipelines from {pipelineNamespace}: {str(e)}")
+                else:
+                    print("⏭️ No pipeline namespaces found")
+            except Exception as e:
+                print(f"❌ Failed to discover AI Service pipeline namespaces for {instanceId}: {str(e)}")
+
+            elapsed = instanceTimer.stop()
+            print(f"Instance {instanceId} collection completed in {elapsed} seconds")
+
+        return successCount > 0
+
+    def collectArgo(self, outputDir: str, noDetail: bool = False) -> bool:
+        """Collect Argo CD resources from openshift-gitops namespace.
+
+        Args:
+            outputDir (str): Base output directory for collected resources
+            noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+
+        Returns:
+            bool: True if collection succeeded, False if namespace not found
+        """
+        if not self.dynClient:
+            self._initializeKubernetesClient()
+
+        assert self.dynClient is not None, "Kubernetes client must be initialized"
+
+        # Check if openshift-gitops namespace exists
+        with Halo(text="Checking for Argo CD (openshift-gitops)", spinner=self.spinner) as h:
+            if argo.checkArgoNamespace(self.dynClient):
+                h.stop_and_persist(symbol=self.successIcon, text="Argo CD namespace found")
+            else:
+                h.stop_and_persist(symbol="⏭️", text="Argo CD not found (openshift-gitops namespace does not exist)")
+                return False
+
+        # Collect Argo resources
+        try:
+            with Halo(text="Collecting Argo CD resources from openshift-gitops", spinner=self.spinner) as h:
+                if argo.collectArgo(dynClient=self.dynClient, outputDir=outputDir, noDetail=noDetail, genericMustGather=self.genericMustGather):
+                    h.stop_and_persist(symbol=self.successIcon, text="Argo CD resources collected from openshift-gitops")
+                    return True
+                else:
+                    h.stop_and_persist(symbol="❌", text="Failed to collect Argo CD resources from openshift-gitops (check logs)")
+                    return False
+        except Exception as e:
+            print(f"❌ Failed to collect Argo CD resources: {str(e)}")
+            return False
+
+    def collectExtraNamespaces(self, outputDir: str, extraNamespaces: str, noDetail: bool = False, noLogs: bool = False) -> bool:
+        """Collect resources from extra namespaces specified by user.
+
+        Args:
+            outputDir (str): Base output directory for collected resources
+            extraNamespaces (str): Comma-separated list of namespace names
+            noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+            noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
+
+        Returns:
+            bool: True if any collection succeeded
+        """
+        if not self.dynClient:
+            self._initializeKubernetesClient()
+
+        assert self.dynClient is not None, "Kubernetes client must be initialized"
+
+        # Parse namespace list
+        namespaceList = [ns.strip() for ns in extraNamespaces.split(",") if ns.strip()]
+
+        if not namespaceList:
+            return False
+
+        successCount = 0
+
+        # Collect from each namespace
+        for namespace in namespaceList:
+            self.printH2(f"Extra Namespace: {namespace}")
+            try:
+                with Halo(text=f"Collecting resources from {namespace}", spinner=self.spinner) as h:
+                    if self.genericMustGather(namespace=namespace, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs):
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Resources collected from {namespace}")
+                        successCount += 1
+                    else:
+                        h.stop_and_persist(symbol="❌", text=f"Failed to collect resources from {namespace} (check logs)")
+            except Exception as e:
+                print(f"❌ Failed to collect from {namespace}: {str(e)}")
+
+        return successCount > 0
+
+    def generateSubscriptionsSummary(self, outputDir: str) -> bool:
+        """Generate cluster-wide subscriptions summary.
+
+        Creates a unified subscriptions table at resources/_cluster/subscriptions.md
+        aggregating subscriptions from all namespaces.
+
+        Args:
+            outputDir (str): Base output directory for must-gather
+
+        Returns:
+            bool: True if summary generation succeeded, False otherwise
+        """
+        logger = logging.getLogger(__name__)
+        outputFile = os.path.join(outputDir, "resources", "_cluster", "subscriptions.md")
+
+        try:
+            with Halo(text="Generating subscriptions summary", spinner=self.spinner) as h:
+                # Import subscriptions summarizer
+                from .summarizer import subscriptions
+
+                # Generate subscriptions summary (writes directly to file)
+                subscriptions.summarize(outputDir)
+
+                h.stop_and_persist(symbol=self.successIcon, text=f"Subscriptions summary generated: {outputFile}")
+                logger.info(f"Successfully generated subscriptions summary: {outputFile}")
+                return True
+
+        except FileNotFoundError as e:
+            print(f"⚠️  Required files not found for subscriptions summary: {e}")
+            logger.debug(f"Subscriptions summary skipped due to missing files: {e}")
+            return False
+        except Exception as e:
+            print(f"❌ Error generating subscriptions summary: {e}")
+            logger.error(f"Error generating subscriptions summary: {e}")
+            return False
+
+    def uploadToArtifactory(self, archivePath: str, artifactoryToken: str, artifactoryUploadDir: str) -> bool:
+        """Upload must-gather archive to Artifactory with checksums.
+
+        Calculates MD5 and SHA1 checksums for the archive and uploads it to
+        Artifactory with the checksums in HTTP headers.
+
+        Args:
+            archivePath (str): Path to the tar.gz archive file
+            artifactoryToken (str): Bearer token for Artifactory authentication
+            artifactoryUploadDir (str): Target URL directory in Artifactory
+
+        Returns:
+            bool: True if upload succeeded, False otherwise
+        """
+        logger = logging.getLogger(__name__)
+
+        if not os.path.exists(archivePath):
+            print(f"❌ Archive file not found: {archivePath}")
+            logger.error(f"Archive file not found: {archivePath}")
+            return False
+
+        try:
+            # Calculate checksums
+            with Halo(text="Calculating checksums", spinner=self.spinner) as h:
+                md5Hash = hashlib.md5()
+                sha1Hash = hashlib.sha1()
+
+                with open(archivePath, "rb") as f:
+                    while chunk := f.read(8192):
+                        md5Hash.update(chunk)
+                        sha1Hash.update(chunk)
+
+                md5Value = md5Hash.hexdigest()
+                sha1Value = sha1Hash.hexdigest()
+                h.stop_and_persist(symbol=self.successIcon, text=f"Checksums calculated (MD5: {md5Value[:8]}..., SHA1: {sha1Value[:8]}...)")
+
+            # Construct target URL
+            archiveFilename = os.path.basename(archivePath)
+            targetUrl = f"{artifactoryUploadDir}/{archiveFilename}"
+
+            # Upload to Artifactory
+            with Halo(text=f"Uploading to {targetUrl}", spinner=self.spinner) as h:
+                headers = {"Authorization": f"Bearer {artifactoryToken}", "X-Checksum-Md5": md5Value, "X-Checksum-Sha1": sha1Value}
+
+                with open(archivePath, "rb") as f:
+                    response = requests.put(targetUrl, data=f, headers=headers, timeout=600)
+
+                if response.status_code in [200, 201]:
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Successfully uploaded to {targetUrl}")
+                    logger.info(f"Successfully uploaded archive to {targetUrl}")
+                    return True
+                else:
+                    h.stop_and_persist(symbol="❌", text=f"Upload failed with status {response.status_code}: {response.text}")
+                    logger.error(f"Upload failed with status {response.status_code}: {response.text}")
+                    return False
+
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Upload failed: {e}")
+            logger.error(f"Upload failed: {e}")
+            return False
+        except Exception as e:
+            print(f"❌ Error during upload: {e}")
+            logger.error(f"Error during upload: {e}")
+            return False
 
 
 # Made with Bob

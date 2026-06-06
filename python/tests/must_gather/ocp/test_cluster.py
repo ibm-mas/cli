@@ -101,11 +101,11 @@ class TestCollectClusterResources:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        result = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
+        success, printerColumns, ibmCRDs = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
-        assert result is True
-        # Verify storageclasses.txt was created
-        summaryFile = os.path.join(self.testDir, "_cluster", "storageclasses.txt")
+        assert success is True
+        # Verify storageclasses.md was created
+        summaryFile = os.path.join(self.testDir, "_cluster", "storageclasses.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_cluster_resources_collects_clusterversions(self):
@@ -125,10 +125,10 @@ class TestCollectClusterResources:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        result = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
+        success, printerColumns, ibmCRDs = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
-        assert result is True
-        summaryFile = os.path.join(self.testDir, "_cluster", "clusterversions.txt")
+        assert success is True
+        summaryFile = os.path.join(self.testDir, "_cluster", "clusterversions.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_cluster_resources_collects_objectbucket(self):
@@ -148,11 +148,11 @@ class TestCollectClusterResources:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        result = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
+        success, printerColumns, ibmCRDs = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
-        assert result is True
+        assert success is True
         # Should attempt to collect objectbucket
-        summaryFile = os.path.join(self.testDir, "_cluster", "objectbucket.txt")
+        summaryFile = os.path.join(self.testDir, "_cluster", "objectbucket.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_cluster_resources_collects_summary_only_resources(self):
@@ -172,11 +172,11 @@ class TestCollectClusterResources:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        result = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
+        success, printerColumns, ibmCRDs = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
-        assert result is True
-        # Verify namespaces.txt exists
-        summaryFile = os.path.join(self.testDir, "_cluster", "namespaces.txt")
+        assert success is True
+        # Verify namespaces.md exists
+        summaryFile = os.path.join(self.testDir, "_cluster", "namespaces.md")
         assert os.path.exists(summaryFile)
         # Verify detailed directory was NOT created (noDetail=True for these resources)
         detailDir = os.path.join(self.testDir, "_cluster", "namespaces")
@@ -199,11 +199,11 @@ class TestCollectClusterResources:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        result = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=True)
+        success, printerColumns, ibmCRDs = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=True)
 
-        assert result is True
+        assert success is True
         # Summary file should exist
-        summaryFile = os.path.join(self.testDir, "_cluster", "storageclasses.txt")
+        summaryFile = os.path.join(self.testDir, "_cluster", "storageclasses.md")
         assert os.path.exists(summaryFile)
         # Detail directory should NOT exist
         detailDir = os.path.join(self.testDir, "_cluster", "storageclasses")
@@ -230,10 +230,10 @@ class TestCollectClusterResources:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        result = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
+        success, printerColumns, ibmCRDs = collectClusterResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         # Should still return True (partial success)
-        assert result is True
+        assert success is True
 
 
 # Made with Bob

@@ -14,8 +14,8 @@ customModes:
       # Python Development Guide
 
       ## Environment Setup
-      Assume that the developer has already set up a working virtual environment in `.venv` and that any
-      python commands should be performed in the context of this venv using `.venv/bin/python`
+      Assume that the developer has already set up a working virtual environment in `{PROJECT_ROOT}/.venv`
+      and that any python commands should be performed in the context of this venv using `.venv/bin/python`
 
       If this virtual environment is not set up, refuse to proceed with any code changes until the
       developer provides the expected development environment required to validate any changes

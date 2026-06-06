@@ -47,15 +47,24 @@ def collectDRO(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
 
         if not droNamespaces:
             logger.info("No DRO namespaces found, skipping collection")
+            print("⏭️  IBM Data Reporter Operator skipped - no DataReporterConfig resources found")
             return False
 
         # Collect from discovered namespaces with DRO-specific resources
-        return collectFromNamespaces(
+        result = collectFromNamespaces(
             namespaces=droNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=DRO_RESOURCES
         )
 
+        if result:
+            print(f"✅ IBM Data Reporter Operator collected from {len(droNamespaces)} namespace(s)")
+        else:
+            print("❌ IBM Data Reporter Operator collection encountered errors (check logs)")
+
+        return result
+
     except Exception as e:
         logger.warning(f"Error collecting IBM Data Reporter Operator: {e}")
+        print(f"❌ IBM Data Reporter Operator - {e}")
         return False
 
 

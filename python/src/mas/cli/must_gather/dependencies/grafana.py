@@ -43,15 +43,24 @@ def collectGrafana(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fa
 
         if not grafanaNamespaces:
             logger.info("No Grafana namespaces found, skipping collection")
+            print("⏭️  Grafana skipped - no Grafana resources found")
             return False
 
         # Collect from discovered namespaces with Grafana-specific resources
-        return collectFromNamespaces(
+        result = collectFromNamespaces(
             namespaces=grafanaNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=GRAFANA_RESOURCES
         )
 
+        if result:
+            print(f"✅ Grafana collected from {len(grafanaNamespaces)} namespace(s)")
+        else:
+            print("❌ Grafana collection encountered errors (check logs)")
+
+        return result
+
     except Exception as e:
         logger.warning(f"Error collecting Grafana: {e}")
+        print(f"❌ Grafana - {e}")
         return False
 
 

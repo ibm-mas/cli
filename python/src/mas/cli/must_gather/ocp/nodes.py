@@ -39,7 +39,6 @@ def collectNodes(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
         kind="Node",
         outputDir=outputDir,
         noDetail=noDetail,
-        describe=True,  # Always generate describe output for nodes
         allNamespaces=False,
     )
 

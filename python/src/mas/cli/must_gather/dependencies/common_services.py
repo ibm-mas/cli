@@ -38,17 +38,25 @@ def collectCommonServices(dynClient: DynamicClient, outputDir: str, noDetail: bo
 
         # Collect resources from the namespace if genericMustGather is provided
         if genericMustGather:
-            return genericMustGather(namespace="ibm-common-services", outputDir=outputDir, noDetail=noDetail)
+            result = genericMustGather(namespace="ibm-common-services", outputDir=outputDir, noDetail=noDetail)
+            if result:
+                print("✅ IBM CloudPak Foundation Services collected")
+            else:
+                print("❌ IBM CloudPak Foundation Services collection encountered errors (check logs)")
+            return result
         return True
 
     except ApiException as e:
         if e.status == 404:
             logger.info("ibm-common-services namespace not found, skipping collection")
+            print("⏭️  IBM CloudPak Foundation Services skipped - namespace does not exist")
             return False
         logger.warning(f"Error collecting IBM Common Services: {e}")
+        print(f"❌ IBM CloudPak Foundation Services - {e}")
         return False
     except Exception as e:
         logger.warning(f"Error collecting IBM Common Services: {e}")
+        print(f"❌ IBM CloudPak Foundation Services - {e}")
         return False
 
 

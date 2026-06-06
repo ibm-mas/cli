@@ -132,7 +132,7 @@ class TestCollectPods:
         mockApi.get.return_value = self._createMockPodList([mockPod])
         self.mockClient.resources.get.return_value = mockApi
 
-        collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
+        success, count = collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
         summaryFile = os.path.join(self.testDir, "test-ns", "pods.txt")
         assert os.path.exists(summaryFile)
@@ -155,25 +155,6 @@ class TestCollectPods:
 
         appDir = os.path.join(self.testDir, "test-ns", "pods", "myapp")
         assert os.path.exists(appDir)
-
-    def test_collect_pods_creates_describe_file(self):
-        """Test that describe .txt file is created for each pod.
-
-        GIVEN pods exist
-        WHEN collectPods is called
-        THEN describe .txt file is created.
-        """
-        from mas.cli.must_gather.common.pods import collectPods
-
-        mockPod = self._createMockPod("test-pod", "test-ns", "myapp")
-        mockApi = Mock()
-        mockApi.get.return_value = self._createMockPodList([mockPod])
-        self.mockClient.resources.get.return_value = mockApi
-
-        collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
-
-        describeFile = os.path.join(self.testDir, "test-ns", "pods", "myapp", "test-pod.txt")
-        assert os.path.exists(describeFile)
 
     def test_collect_pods_creates_yaml_file_when_detail_enabled(self):
         """Test that YAML file is created when noDetail is False.
@@ -269,9 +250,9 @@ class TestCollectPods:
         mockApi.get.side_effect = Exception("API Error")
         self.mockClient.resources.get.return_value = mockApi
 
-        result = collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
+        success, count = collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        assert result is False
+        assert success is False
 
     def test_collect_pods_returns_true_on_success(self):
         """Test that function returns True on successful collection.
@@ -286,9 +267,9 @@ class TestCollectPods:
         mockApi.get.return_value = self._createMockPodList([])
         self.mockClient.resources.get.return_value = mockApi
 
-        result = collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
+        success, count = collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        assert result is True
+        assert success is True
 
 
 # Made with Bob

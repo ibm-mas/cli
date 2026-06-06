@@ -22,19 +22,28 @@ logger = logging.getLogger(__name__)
 _ibmCRDCache: Optional[List[tuple[str, str]]] = None
 
 
-def getIBMCRDs(dynClient: DynamicClient) -> List[tuple[str, str]]:
+def getIBMCRDs(dynClient: DynamicClient, precomputedList: Optional[List[tuple[str, str]]] = None) -> List[tuple[str, str]]:
     """Get list of IBM CRDs in the cluster with caching.
 
     Discovers all IBM CRDs in the cluster and caches the results to avoid
     repeated API calls. The cache persists for the lifetime of the process.
+    If a precomputed list is provided, it will be used and cached instead of
+    fetching from the cluster.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        precomputedList (list, optional): Pre-computed list of IBM CRDs from CRD processing. Defaults to None.
 
     Returns:
         list: List of (kind, apiVersion) tuples for IBM CRDs
     """
     global _ibmCRDCache
+
+    # If precomputed list provided, use it and cache it
+    if precomputedList is not None:
+        logger.debug(f"Using precomputed IBM CRD list ({len(precomputedList)} CRDs)")
+        _ibmCRDCache = precomputedList
+        return precomputedList
 
     # Return cached results if available
     if _ibmCRDCache is not None:

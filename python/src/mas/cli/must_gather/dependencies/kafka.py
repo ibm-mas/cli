@@ -44,15 +44,24 @@ def collectKafka(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
 
         if not kafkaNamespaces:
             logger.info("No Kafka namespaces found, skipping collection")
+            print("⏭️  Kafka skipped - no Kafka resources found")
             return False
 
         # Collect from discovered namespaces with Kafka-specific resources
-        return collectFromNamespaces(
+        result = collectFromNamespaces(
             namespaces=kafkaNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=KAFKA_RESOURCES
         )
 
+        if result:
+            print(f"✅ Kafka collected from {len(kafkaNamespaces)} namespace(s)")
+        else:
+            print("❌ Kafka collection encountered errors (check logs)")
+
+        return result
+
     except Exception as e:
         logger.warning(f"Error collecting Kafka: {e}")
+        print(f"❌ Kafka - {e}")
         return False
 
 

@@ -62,9 +62,8 @@ class TestCollectResourcesParallel:
                     namespace=namespace,
                     apiVersion="v1",
                     kind="ConfigMap",
-                    outputDir=f"{outputDir}/resources",
+                    outputDir=outputDir,
                     noDetail=False,
-                    describe=False,
                     allNamespaces=False,
                 ),
                 call(
@@ -72,9 +71,8 @@ class TestCollectResourcesParallel:
                     namespace=namespace,
                     apiVersion="v1",
                     kind="Service",
-                    outputDir=f"{outputDir}/resources",
+                    outputDir=outputDir,
                     noDetail=False,
-                    describe=False,
                     allNamespaces=False,
                 ),
                 call(
@@ -82,9 +80,8 @@ class TestCollectResourcesParallel:
                     namespace=namespace,
                     apiVersion="apps/v1",
                     kind="Deployment",
-                    outputDir=f"{outputDir}/resources",
+                    outputDir=outputDir,
                     noDetail=False,
-                    describe=False,
                     allNamespaces=False,
                 ),
             ]
@@ -202,9 +199,8 @@ class TestCollectResourcesParallel:
                 namespace=namespace,
                 apiVersion="v1",
                 kind="ConfigMap",
-                outputDir=f"{outputDir}/resources",
+                outputDir=outputDir,
                 noDetail=True,
-                describe=False,
                 allNamespaces=False,
             )
 
