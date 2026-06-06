@@ -20,6 +20,7 @@ def test_root_pyproject_declares_mas_cli_package_metadata() -> None:
 
     assert project["name"] == "mas-cli"
     assert project["dynamic"] == ["version"]
+    assert project["license"] == "EPL-1.0"
     assert project["scripts"]["mas-cli"] == "mas.cli.__main__:main"
     assert setuptools_tool["package-dir"] == {"": "python/src"}
 

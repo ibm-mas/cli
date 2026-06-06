@@ -2,8 +2,7 @@ mas.devops
 -------------------------------------------------------------------------------
 
 Packaging for this CLI now uses the repository root [`pyproject.toml`](../../pyproject.toml) as the
-primary configuration. [`python/setup.py`](python/setup.py) is deprecated and retained temporarily
-for backward compatibility during the migration.
+single source of truth for package metadata and build configuration.
 
 
 Example

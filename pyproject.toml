@@ -11,7 +11,7 @@ dynamic = ["version"]
 description = "Python Admin CLI for Maximo Application Suite"
 readme = { file = "python/README.md", content-type = "text/markdown" }
 requires-python = ">=3.12"
-license = { text = "Eclipse Public License - v1.0" }
+license = "EPL-1.0"
 authors = [
   { name = "David Parker", email = "parkerda@uk.ibm.com" },
 ]
@@ -54,7 +54,6 @@ mas-cli = "mas.cli.__main__:main"
 
 [tool.setuptools]
 # Package metadata is consolidated at the repository root while source files remain in python/src.
-# python/setup.py is deprecated and retained temporarily for backward compatibility during migration.
 package-dir = { "" = "python/src" }
 include-package-data = true
 
@@ -83,7 +82,7 @@ max-line-length = 160
 
 [tool.basedpyright]
 # Only check must-gather module during gradual rollout
-include = ["python/tests/cli/must_gather"]
+include = ["python/tests/must_gather"]
 
 # Use "basic" mode - focuses on our code, lenient with untyped dependencies
 # Options: "off", "basic", "standard", "strict"

@@ -23,26 +23,41 @@ docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-play
 ```
 
 
-Standalone Binary
+Standalone
 -------------------------------------------------------------------------------
-Introduced in Summer 2024, the standalone binary is a new way to use the MAS CLI, you can download version @@CLI_LATEST_VERSION@@ of the CLI for following platforms using the links below:
+Introduced in 2026, replacing the standalone binary previously built with PyInstaller, the MAS CLI is now compatible with [uv](https://docs.astral.sh/uv/) and is the simplest way run the CLI.
 
-- [Windows (amd64)](https://github.com/ibm-mas/cli/releases/download/@@CLI_LATEST_VERSION@@/mas-cli-windows-amd64)
-- [Linux (amd64)](https://github.com/ibm-mas/cli/releases/download/@@CLI_LATEST_VERSION@@/mas-cli-linux-amd64)
-- [MacOS (arm64)](https://github.com/ibm-mas/cli/releases/download/@@CLI_LATEST_VERSION@@/mas-cli-macos-arm64)
+- [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
 
-For example, to install the CLI and launch a MAS install on Linux:
+### Ephemeral Execution
+Run the MAS CLI without an install:
 
 ```bash
-wget https://github.com/ibm-mas/cli/releases/@@CLI_LATEST_VERSION@@/mas-cli-linux-amd64
-cp mas-cli-linux-amd64 /usr/local/bin/mas-cli
-mas-cli install --help
+uvx mas-cli --help
 ```
+
+### Persistent Installation
+Install the MAS CLI globally:
+
+```bash
+# Install the latest version of mas-cli
+uv tool install mas-cli
+
+# The 'mas-cli' command is available in your PATH
+mas-cli --help
+
+# Upgrade or uninstall the mas-cli
+uv tool upgrade mas-cli
+uv tool uninstall mas-cli
+```
+
+!!! tip "Choosing a specific version"
+    You can use a specific version of mas-cli by with ephemeral execution or installation using `mas-cli@@@CLI_LATEST_VERSION@@`
 
 
 Function support
 -------------------------------------------------------------------------------
-Not all functions supported in the container image are available in the standalone CLI binary:
+Not all functions supported in the container image are available in the standalone CLI (yet):
 
 | CLI Function                                                        | Image    | Binary   |
 | ------------------------------------------------------------------- | :------: | :------: |
@@ -51,7 +66,7 @@ Not all functions supported in the container image are available in the standalo
 | [update](guides/update.md)                                          | &#10003; | &#10003; |
 | [upgrade](guides/upgrade.md)                                        | &#10003; | &#10003; |
 | [uninstall](guides/uninstall.md)                                    | &#10003; | &#10003; |
-| [must-gather](commands/must-gather.md)                              | &#10003; | &#10005; |
+| [must-gather](commands/must-gather.md)                              | &#10003; | &#10003; |
 | [configure-airgap](guides/configure-airgap.md)                      | &#10003; | &#10005; |
 | [mirror-images](guides/image-mirroring.md)                          | &#10003; | &#10005; |
 | [mirror-redhat-images](commands/mirror-redhat-images.md)            | &#10003; | &#10005; |
