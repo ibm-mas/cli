@@ -103,10 +103,6 @@ def collectDb2(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
                 if not genericMustGather(namespace=namespace, outputDir=outputDir, noDetail=noDetail):
                     success = False
 
-            if success:
-                print(f"✅ IBM Db2 Universal Operator collected from {len(db2Namespaces)} namespace(s)")
-            else:
-                print("❌ IBM Db2 Universal Operator collection encountered errors (check logs)")
             return success
 
         if not db2Namespaces:

@@ -10,6 +10,8 @@
 
 """Tests for SLS license service collector."""
 
+import os
+
 import tempfile
 import shutil
 from unittest.mock import Mock, MagicMock, patch
@@ -264,6 +266,38 @@ class TestCollectSLSNamespace:
         result = collectSLSNamespace(self.mockClient, "nonexistent-namespace", self.testDir, noDetail=False)
 
         assert result is False
+
+    @patch("mas.cli.must_gather.common.collectIBMCustomResources")
+    @patch("mas.cli.must_gather.common.collectResources")
+    @patch("mas.cli.must_gather.common.collectPods")
+    @patch("mas.cli.must_gather.common.collectSecrets")
+    @patch("mas.cli.must_gather.sls.license_service.generateSLSSummary")
+    def test_collect_sls_namespace_writes_resources_under_single_resources_directory(
+        self, mockGenerateSummary, mockCollectSecrets, mockCollectPods, mockCollectResources, mockCollectIBM
+    ):
+        """Test that SLS namespace collection uses a single resources directory.
+
+        GIVEN an SLS namespace with detailed collection enabled
+        WHEN collectSLSNamespace is called
+        THEN collected resources are written under outputDir/resources without duplicating resources in the path.
+        """
+        namespace = "sls-namespace"
+
+        mockCollectIBM.return_value = True
+        mockCollectResources.return_value = True
+        mockCollectPods.return_value = (True, 1)
+        mockCollectSecrets.return_value = (True, 1)
+
+        result = collectSLSNamespace(self.mockClient, namespace, self.testDir, noDetail=False)
+
+        assert result is True
+        mockGenerateSummary.assert_called_once_with(self.mockClient, namespace, self.testDir)
+        mockCollectIBM.assert_called_once_with(self.mockClient, namespace, os.path.join(self.testDir, "resources"))
+        mockCollectPods.assert_called_once_with(dynClient=self.mockClient, namespace=namespace, outputDir=os.path.join(self.testDir, "resources"), podLogs=True)
+        mockCollectSecrets.assert_called_once_with(self.mockClient, namespace, os.path.join(self.testDir, "resources"), secretData=False)
+
+        for call in mockCollectResources.call_args_list:
+            assert call.args[4] == os.path.join(self.testDir, "resources")
 
 
 class TestGenerateSLSSummary:

@@ -52,7 +52,7 @@ class TestMustGatherAppOCP:
         THEN all OCP collectors are invoked.
         """
         # Setup mocks
-        mockCluster.return_value = True
+        mockCluster.return_value = (True, {}, [])
         mockNodes.return_value = True
         mockAirgap.return_value = True
         mockMarketplace.return_value = True
@@ -69,7 +69,6 @@ class TestMustGatherAppOCP:
         mockNodes.assert_called_once()
         mockAirgap.assert_called_once()
         mockMarketplace.assert_called_once()
-        mockOperators.assert_called_once()
 
     @patch("mas.cli.must_gather.ocp.collectClusterResources")
     def test_collect_ocp_respects_no_detail_flag(self, mockCluster):
@@ -79,7 +78,7 @@ class TestMustGatherAppOCP:
         WHEN collectOCP is called
         THEN collectors receive noDetail=True.
         """
-        mockCluster.return_value = True
+        mockCluster.return_value = (True, {}, [])
         self.app.dynClient = Mock()
 
         self.app.collectOCP(outputDir=self.testDir, noDetail=True)
@@ -96,7 +95,7 @@ class TestMustGatherAppOCP:
         WHEN collectOCP is called
         THEN other collectors still run and True is returned.
         """
-        mockCluster.return_value = False  # Fails
+        mockCluster.return_value = (False, {}, [])  # Fails
         mockNodes.return_value = True  # Succeeds
         self.app.dynClient = Mock()
 

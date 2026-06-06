@@ -592,3 +592,145 @@ except Exception as e:
 7. [`python/src/mas/cli/must_gather/dependencies/dro.py`](python/src/mas/cli/must_gather/dependencies/dro.py) - Added user messages
 
 **Plan complete: 2026-06-06 01:24 UTC**
+
+---
+
+# Additional Cleanup: Remove Manifest Embedding
+
+## Issue
+The `copyViewerTemplate()` function was embedding the manifest JSON directly into the HTML file and patching fetch calls. This was a workaround for when the viewer needed to work without an HTTP server.
+
+## Solution
+Since we now have the HTTP server approach (`serve` command), the viewer can simply fetch `manifest.json` via HTTP. Simplified the implementation:
+
+**Before:**
+- Read template HTML
+- Inject manifest as `EMBEDDED_MANIFEST` constant
+- Patch fetch calls to use embedded data
+- Write modified HTML
+
+**After:**
+- Simply copy template HTML as-is using `shutil.copy2()`
+- Viewer fetches `manifest.json` normally via HTTP
+
+## Changes Made
+- ✅ Simplified [`copyViewerTemplate()`](python/src/mas/cli/must_gather/web_viewer/__init__.py:141-165) - removed manifest parameter and embedding logic
+- ✅ Added `shutil` import
+- ✅ Updated call site to not pass manifest parameter
+- ✅ Code quality checks pass (black, flake8)
+
+## Benefits
+- **Simpler code**: Removed ~30 lines of string manipulation
+- **Cleaner separation**: HTML template is pure, manifest is separate JSON file
+- **Better maintainability**: No need to keep embedding logic in sync with template changes
+- **Consistent with HTTP server approach**: Both `generate` and `serve` commands work the same way
+
+**Cleanup complete: 2026-06-06 08:32 UTC**
+
+---
+
+# CLI Consistency: Standardize on --dir Flag
+
+## Issue
+The `generate` command used a positional argument while `serve` used `--dir` flag:
+- `python -m mas.cli.must_gather.web_viewer generate testing/must-gather/20260606-085110`
+- `python -m mas.cli.must_gather.web_viewer serve --dir testing/must-gather/20260606-085110`
+
+## Solution
+Updated `generate` command to use `--dir` flag for consistency:
+- `python -m mas.cli.must_gather.web_viewer generate --dir testing/must-gather/20260606-085110`
+- `python -m mas.cli.must_gather.web_viewer serve --dir testing/must-gather/20260606-085110`
+
+## Changes Made
+- ✅ Changed `generate` command argument from positional `directory` to `--dir` flag
+- ✅ Removed backward compatibility code that assumed positional argument
+- ✅ Both commands now use identical `--dir` flag syntax
+- ✅ Code quality checks pass (black, flake8)
+
+## Benefits
+- **Consistent CLI**: Both commands use the same flag name
+- **Clearer intent**: `--dir` is more explicit than positional argument
+- **Easier to remember**: Same syntax for both commands
+
+**Update complete: 2026-06-06 08:37 UTC**
+
+---
+
+# Deep Linking Support
+
+## Feature
+Added URL hash-based deep linking to allow bookmarking specific files in the viewer.
+
+## Implementation
+1. **URL Hash Updates**: When a file is selected, the URL hash is updated with the encoded file path
+2. **Initial Load**: On page load, if a hash is present, the corresponding file is automatically loaded
+3. **Browser Navigation**: Added `hashchange` event listener to support back/forward navigation
+4. **Folder Expansion**: Parent folders automatically expand when loading a file from URL
+5. **Active Highlighting**: Selected file is highlighted in the tree view
+
+## Benefits
+- **Bookmarkable**: Users can bookmark specific files (e.g., `http://localhost:8000/#namespace%2Fpod.yaml`)
+- **Shareable**: URLs can be shared with team members to point to specific files
+- **Browser Navigation**: Back/forward buttons work as expected
+- **Better UX**: Direct access to specific files without manual navigation
+
+## Example URLs
+- Home: `http://localhost:8000/`
+- Specific file: `http://localhost:8000/#namespace%2Fpod.yaml`
+- Nested file: `http://localhost:8000/#logs%2Foperator%2Fcontroller.log`
+
+**Implementation complete: 2026-06-06 08:56 UTC**
+
+---
+
+# Fast Regeneration
+
+## Feature
+Added `--skip-manifest` flag to allow fast regeneration of viewer HTML without rebuilding the manifest.
+
+## Implementation
+1. **New Flag**: Added `--skip-manifest` to `generate` command
+2. **Conditional Generation**: Skip manifest generation if `manifest.json` exists
+3. **Always Update HTML**: Always copy the latest viewer template (fast operation)
+
+## Usage
+```bash
+# Full generation (creates manifest.json and index.html)
+python -m mas.cli.must_gather.web_viewer generate --dir <output-dir>
+
+# Fast regeneration (only updates index.html)
+python -m mas.cli.must_gather.web_viewer generate --dir <output-dir> --skip-manifest
+```
+
+## Benefits
+- **Fast Iteration**: Quickly test HTML/CSS/JS changes without waiting for manifest generation
+- **Development Workflow**: Ideal for UI development and testing
+- **Preserves Data**: Keeps existing manifest.json intact
+
+**Implementation complete: 2026-06-06 08:56 UTC**
+
+---
+
+# UI Enhancements
+
+## Scrollbar Improvements
+- Increased scrollbar width from 8px to 14px for better visibility
+- Adjusted border radius to 7px to match new width
+- Easier to grab and use, especially on high-DPI displays
+
+## Dark Theme Link Colors
+Added proper link styling for dark theme:
+- **Default links**: `#4589ff` (IBM blue, matches primary color)
+- **Hover state**: `#0f62fe` (darker blue with underline)
+- **Visited links**: `#8ab4f8` (lighter blue to distinguish visited)
+
+## Line Wrapping with Hanging Indent
+- Changed from `white-space: pre` to per-line `<div>` elements
+- Each line wrapped in `<div class="code-line">` with:
+  - `white-space: pre-wrap` - wraps long lines
+  - `text-indent: -2em` - pulls first line back
+  - `padding-left: 2em` - adds left padding
+- Creates hanging indent effect where wrapped continuation lines are indented
+- Improves readability of long lines in YAML, logs, and other content
+
+**Implementation complete: 2026-06-06 08:56 UTC**

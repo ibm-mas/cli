@@ -80,7 +80,7 @@ class TestCollectNodes:
 
         GIVEN a cluster with nodes
         WHEN collectNodes is called
-        THEN nodes.txt summary file is created.
+        THEN nodes.md summary file is created.
         """
         from mas.cli.must_gather.ocp.nodes import collectNodes
 
@@ -91,7 +91,7 @@ class TestCollectNodes:
         result = collectNodes(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        summaryFile = os.path.join(self.testDir, "_cluster", "nodes.txt")
+        summaryFile = os.path.join(self.testDir, "_cluster", "nodes.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_nodes_creates_yaml_files(self):
@@ -130,7 +130,7 @@ class TestCollectNodes:
 
         assert result is True
         # Summary should exist
-        summaryFile = os.path.join(self.testDir, "_cluster", "nodes.txt")
+        summaryFile = os.path.join(self.testDir, "_cluster", "nodes.md")
         assert os.path.exists(summaryFile)
         # Detail directory should NOT exist
         detailDir = os.path.join(self.testDir, "_cluster", "nodes")

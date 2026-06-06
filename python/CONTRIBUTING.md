@@ -27,11 +27,11 @@ rm mas.log; python python/src/mas-cli must-gather --keep-files -d testing/must-g
 # The following commands are useful for quick development cycles on the
 # post-processing to avoid needing to run the must-gather collectors again
 
-# 1. Re-generate summary files
-python -m mas.cli.must_gather.summarizer testing/must-gather/20260606-002604
+# 1. Re-generate web viewer
+python -m mas.cli.must_gather.web_viewer generate --dir testing/must-gather/20260606-085110
 
-# 2. Re-generate web viewer
-python -m mas.cli.must_gather.web_viewer testing/must-gather/20260606-002604
+# 2. Serve web viewer
+python -m mas.cli.must_gather.web_viewer serve --dir testing/must-gather/20260606-085110
 
 ```
 

@@ -52,11 +52,6 @@ def collectKafka(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
             namespaces=kafkaNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=KAFKA_RESOURCES
         )
 
-        if result:
-            print(f"✅ Kafka collected from {len(kafkaNamespaces)} namespace(s)")
-        else:
-            print("❌ Kafka collection encountered errors (check logs)")
-
         return result
 
     except Exception as e:

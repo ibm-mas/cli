@@ -70,10 +70,6 @@ def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool 
         if namespaceCount == 0:
             logger.info("No Certificate Manager namespaces found, skipping collection")
             print("⏭️  Red Hat Certificate Manager skipped - no cert-manager namespaces found")
-        elif success:
-            print(f"✅ Red Hat Certificate Manager collected from {namespaceCount} namespace(s)")
-        else:
-            print("❌ Red Hat Certificate Manager collection encountered errors (check logs)")
 
         return success
 

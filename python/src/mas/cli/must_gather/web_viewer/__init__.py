@@ -6,6 +6,7 @@ for must-gather output, including manifest generation and template copying.
 
 import json
 import logging
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
@@ -138,12 +139,13 @@ def writeManifest(outputDir: str, manifest: Dict[str, Any]) -> None:
         raise OSError(f"Failed to write manifest: {e}")
 
 
-def copyViewerTemplate(outputDir: str, manifest: Dict[str, Any]) -> None:
-    """Copy viewer.html template and inject manifest data.
+def copyViewerTemplate(outputDir: str) -> None:
+    """Copy viewer.html template to output directory.
+
+    The viewer will fetch manifest.json via HTTP when served.
 
     Args:
         outputDir (str): Path to output directory
-        manifest (Dict[str, Any]): Manifest data to embed in HTML
 
     Raises:
         OSError: If template cannot be found or copied
@@ -158,37 +160,14 @@ def copyViewerTemplate(outputDir: str, manifest: Dict[str, Any]) -> None:
     logger.info(f"Copying viewer template to {targetPath}")
 
     try:
-        # Read template
-        with open(templatePath, "r", encoding="utf-8") as f:
-            htmlContent = f.read()
-
-        # Inject manifest data as embedded JSON
-        manifestJson = json.dumps(manifest, indent=2)
-        injectedHtml = htmlContent.replace(
-            "async function init() {",
-            f"const EMBEDDED_MANIFEST = {manifestJson};\n\n        async function init() {{",
-        )
-
-        # Update the loadManifest call to use embedded data
-        injectedHtml = injectedHtml.replace(
-            "const response = await fetch('manifest.json');",
-            "// Using embedded manifest data instead of fetch\n                // const response = await fetch('manifest.json');",
-        )
-        injectedHtml = injectedHtml.replace(
-            "manifest = await response.json();",
-            "manifest = EMBEDDED_MANIFEST;",
-        )
-
-        # Write modified HTML
-        with open(targetPath, "w", encoding="utf-8") as f:
-            f.write(injectedHtml)
-
+        # Simply copy the template without modification
+        shutil.copy2(templatePath, targetPath)
     except Exception as e:
         logger.error(f"Failed to copy viewer template: {e}")
         raise OSError(f"Failed to copy viewer template: {e}")
 
 
-def generateWebViewer(outputDir: str) -> bool:
+def generateWebViewer(outputDir: str, skipManifest: bool = False) -> bool:
     """Generate complete web viewer for must-gather output.
 
     This is the main entry point that orchestrates manifest generation
@@ -197,6 +176,7 @@ def generateWebViewer(outputDir: str) -> bool:
 
     Args:
         outputDir (str): Path to must-gather output directory
+        skipManifest (bool, optional): Skip manifest generation if manifest.json exists. Defaults to False.
 
     Returns:
         bool: True if viewer was generated successfully, False otherwise
@@ -204,14 +184,19 @@ def generateWebViewer(outputDir: str) -> bool:
     try:
         logger.info("Generating web viewer")
 
-        # Generate manifest
-        manifest = generateManifest(outputDir)
+        manifestPath = Path(outputDir) / "manifest.json"
 
-        # Write manifest.json for reference (optional)
-        writeManifest(outputDir, manifest)
+        # Generate manifest only if needed
+        if skipManifest and manifestPath.exists():
+            logger.info(f"Skipping manifest generation - {manifestPath} already exists")
+        else:
+            # Generate manifest
+            manifest = generateManifest(outputDir)
+            # Write manifest.json
+            writeManifest(outputDir, manifest)
 
-        # Copy viewer template with embedded manifest
-        copyViewerTemplate(outputDir, manifest)
+        # Always copy viewer template (fast operation)
+        copyViewerTemplate(outputDir)
 
         logger.info("Web viewer generated successfully")
         return True

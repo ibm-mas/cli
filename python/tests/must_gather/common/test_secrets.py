@@ -116,12 +116,12 @@ class TestCollectSecrets:
         secretsDir = os.path.join(self.testDir, "test-ns", "secrets")
         assert os.path.exists(secretsDir)
 
-    def test_collect_secrets_creates_summary_file(self):
-        """Test that summary file is created.
+    def test_collect_secrets_creates_markdown_summary_file(self):
+        """Test that markdown summary file is created.
 
         GIVEN secrets exist
         WHEN collectSecrets is called
-        THEN summary .txt file is created.
+        THEN summary secrets.md file is created.
         """
         from mas.cli.must_gather.common.secrets import collectSecrets
 
@@ -132,8 +132,31 @@ class TestCollectSecrets:
 
         collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
 
-        summaryFile = os.path.join(self.testDir, "test-ns", "secrets.txt")
+        summaryFile = os.path.join(self.testDir, "test-ns", "secrets.md")
         assert os.path.exists(summaryFile)
+
+    def test_collect_secrets_markdown_summary_links_yaml(self):
+        """Test that secret markdown summary links YAML files.
+
+        GIVEN secrets exist
+        WHEN collectSecrets is called
+        THEN secrets.md contains markdown links to secret YAML files.
+        """
+        from mas.cli.must_gather.common.secrets import collectSecrets
+
+        mockSecret = self._createMockSecret("test-secret", "test-ns")
+        mockApi = Mock()
+        mockApi.get.return_value = self._createMockSecretList([mockSecret])
+        self.mockClient.resources.get.return_value = mockApi
+
+        collectSecrets(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, secretData=False)
+
+        summaryFile = os.path.join(self.testDir, "test-ns", "secrets.md")
+        with open(summaryFile, "r") as f:
+            content = f.read()
+
+        assert "| NAME | NAMESPACE | TYPE |" in content
+        assert "[test-secret](secrets/test-secret.yaml)" in content
 
     def test_collect_secrets_without_secret_data_creates_yaml_without_data(self):
         """Test that YAML files without secret data are created when secretData is False.

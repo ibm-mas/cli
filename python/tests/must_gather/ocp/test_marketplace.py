@@ -90,7 +90,7 @@ class TestCollectMarketplaceResources:
         result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        summaryFile = os.path.join(self.testDir, "openshift-marketplace", "catalogsources.txt")
+        summaryFile = os.path.join(self.testDir, "openshift-marketplace", "catalogsources.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_marketplace_resources_collects_jobs(self):
@@ -109,7 +109,7 @@ class TestCollectMarketplaceResources:
         result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        summaryFile = os.path.join(self.testDir, "openshift-marketplace", "jobs.txt")
+        summaryFile = os.path.join(self.testDir, "openshift-marketplace", "jobs.md")
         assert os.path.exists(summaryFile)
 
     def test_collect_marketplace_resources_respects_no_detail_flag(self):
@@ -128,7 +128,7 @@ class TestCollectMarketplaceResources:
         result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=True)
 
         assert result is True
-        summaryFile = os.path.join(self.testDir, "openshift-marketplace", "catalogsources.txt")
+        summaryFile = os.path.join(self.testDir, "openshift-marketplace", "catalogsources.md")
         assert os.path.exists(summaryFile)
         # Detail directory should NOT exist
         detailDir = os.path.join(self.testDir, "openshift-marketplace", "catalogsources")

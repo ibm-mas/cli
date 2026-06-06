@@ -70,7 +70,7 @@ def collectSecrets(
         secretCount = len(secrets.items) if hasattr(secrets, "items") else 0
 
         # Generate summary file
-        summaryFile = os.path.join(namespaceDir, "secrets.txt")
+        summaryFile = os.path.join(namespaceDir, "secrets.md")
         _writeSummary(secrets, summaryFile)
 
         # Generate detailed reports
@@ -95,23 +95,24 @@ def collectSecrets(
 
 
 def _writeSummary(secrets, outputFile: str) -> None:
-    """Write secret summary in wide format.
+    """Write secret summary as a markdown table.
 
     Args:
         secrets: ResourceList or ResourceInstance from Kubernetes API
         outputFile (str): Path to output file
     """
     with open(outputFile, "w") as f:
-        if hasattr(secrets, "items") and len(secrets.items) > 0:
-            # Write header
-            f.write(f"{'NAME':<50} {'NAMESPACE':<30} {'TYPE':<30}\n")
+        f.write("# Secrets (v1)\n\n")
 
-            # Write each secret
+        if hasattr(secrets, "items") and len(secrets.items) > 0:
+            f.write("| NAME | NAMESPACE | TYPE |\n")
+            f.write("| --- | --- | --- |\n")
+
             for secret in secrets.items:
                 name = secret.metadata.name
                 namespace = getattr(secret.metadata, "namespace", "")
                 secretType = secret.to_dict().get("type", "")
-                f.write(f"{name:<50} {namespace:<30} {secretType:<30}\n")
+                f.write(f"| [{name}](secrets/{name}.yaml) | {namespace} | {secretType} |\n")
         else:
             f.write("No resources found.\n")
 

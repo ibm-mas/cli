@@ -279,7 +279,7 @@ class TestCollectResources:
 
         GIVEN resource type doesn't exist
         WHEN collectResources is called
-        THEN function handles error gracefully and returns False.
+        THEN function treats the missing resource type as non-fatal and returns True.
         """
         from mas.cli.must_gather.common.resources import collectResources
 
@@ -294,7 +294,7 @@ class TestCollectResources:
             noDetail=True,
         )
 
-        assert result is False
+        assert result is True
 
     def test_collect_resources_handles_api_error(self):
         """Test graceful handling of API errors.

@@ -50,11 +50,6 @@ def collectMongoDB(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fa
             namespaces=mongoNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=MONGODB_RESOURCES
         )
 
-        if result:
-            print(f"✅ MongoDB Community collected from {len(mongoNamespaces)} namespace(s)")
-        else:
-            print("❌ MongoDB Community collection encountered errors (check logs)")
-
         return result
 
     except Exception as e:

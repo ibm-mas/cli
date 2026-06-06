@@ -51,11 +51,6 @@ def collectGrafana(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fa
             namespaces=grafanaNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=GRAFANA_RESOURCES
         )
 
-        if result:
-            print(f"✅ Grafana collected from {len(grafanaNamespaces)} namespace(s)")
-        else:
-            print("❌ Grafana collection encountered errors (check logs)")
-
         return result
 
     except Exception as e:

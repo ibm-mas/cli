@@ -62,7 +62,7 @@ class TestCollectPods:
         podDict = {"metadata": {"name": name, "namespace": namespace, "labels": mockPod.metadata.labels}, "status": {"phase": "Running"}}
 
         if containers:
-            podDict["status"]["containerStatuses"] = [{"name": c} for c in containers]
+            podDict["status"]["containerStatuses"] = [{"name": c, "ready": True, "restartCount": 0} for c in containers]
 
         mockPod.to_dict.return_value = podDict
         return mockPod
@@ -118,12 +118,12 @@ class TestCollectPods:
         podsDir = os.path.join(self.testDir, "test-ns", "pods")
         assert os.path.exists(podsDir)
 
-    def test_collect_pods_creates_summary_file(self):
-        """Test that summary file is created.
+    def test_collect_pods_creates_markdown_summary_file(self):
+        """Test that markdown summary file is created.
 
         GIVEN pods exist
         WHEN collectPods is called
-        THEN summary .txt file is created.
+        THEN summary pods.md file is created.
         """
         from mas.cli.must_gather.common.pods import collectPods
 
@@ -134,8 +134,55 @@ class TestCollectPods:
 
         success, count = collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
 
-        summaryFile = os.path.join(self.testDir, "test-ns", "pods.txt")
+        summaryFile = os.path.join(self.testDir, "test-ns", "pods.md")
         assert os.path.exists(summaryFile)
+
+    def test_collect_pods_markdown_summary_links_yaml_and_logs(self):
+        """Test that pod markdown summary links YAML and logs.
+
+        GIVEN pods exist and pod logs are collected
+        WHEN collectPods is called
+        THEN pods.md contains markdown links for both YAML and log files.
+        """
+        from mas.cli.must_gather.common.pods import collectPods
+
+        mockPod = self._createMockPod("test-pod", "test-ns", "myapp", ["container1"])
+        mockApi = Mock()
+        mockApi.get.return_value = self._createMockPodList([mockPod])
+        self.mockClient.resources.get.return_value = mockApi
+
+        collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=True, noDetail=False)
+
+        summaryFile = os.path.join(self.testDir, "test-ns", "pods.md")
+        with open(summaryFile, "r") as f:
+            content = f.read()
+
+        assert "| NAME | READY | STATUS | RESTARTS | AGE | YAML | LOGS |" in content
+        assert "[test-pod](pods/myapp/test-pod.yaml)" in content
+        assert "[logs](pods/myapp/logs/)" in content
+
+    def test_collect_pods_markdown_summary_omits_logs_link_when_logs_disabled(self):
+        """Test that pod markdown summary omits logs link when logs are disabled.
+
+        GIVEN pods exist and pod logs are not collected
+        WHEN collectPods is called
+        THEN pods.md contains YAML links and an empty logs column.
+        """
+        from mas.cli.must_gather.common.pods import collectPods
+
+        mockPod = self._createMockPod("test-pod", "test-ns", "myapp")
+        mockApi = Mock()
+        mockApi.get.return_value = self._createMockPodList([mockPod])
+        self.mockClient.resources.get.return_value = mockApi
+
+        collectPods(dynClient=self.mockClient, namespace="test-ns", outputDir=self.testDir, podLogs=False, noDetail=False)
+
+        summaryFile = os.path.join(self.testDir, "test-ns", "pods.md")
+        with open(summaryFile, "r") as f:
+            content = f.read()
+
+        assert "[test-pod](pods/myapp/test-pod.yaml)" in content
+        assert "[logs](pods/myapp/logs/)" not in content
 
     def test_collect_pods_organizes_by_app_label(self):
         """Test that pods are organized by app label.

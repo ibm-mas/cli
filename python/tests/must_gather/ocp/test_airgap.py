@@ -176,7 +176,7 @@ class TestCollectAirgapResources:
 
         assert result is True
         # Verify files were created
-        assert os.path.exists(os.path.join(self.testDir, "_cluster", "imagecontentsourcepolicy.txt"))
+        assert os.path.exists(os.path.join(self.testDir, "_cluster", "imagecontentsourcepolicy.md"))
 
     def test_collect_airgap_resources_collects_machineconfig(self):
         """Test that machineconfig resources are collected.
@@ -203,7 +203,7 @@ class TestCollectAirgapResources:
         result = collectAirgapResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        assert os.path.exists(os.path.join(self.testDir, "_cluster", "machineconfig.txt"))
+        assert os.path.exists(os.path.join(self.testDir, "_cluster", "machineconfig.md"))
 
     @patch("mas.cli.must_gather.ocp.airgap.collectNodeFiles")
     def test_collect_airgap_resources_collects_node_files(self, mockCollectNodeFiles):

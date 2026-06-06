@@ -20,7 +20,7 @@
             --text-primary: #f4f4f4;
             --text-secondary: #c6c6c6;
             --border: #393939;
-            --sidebar-width: 300px;
+            --sidebar-width: 400px;
             --header-height: 60px;
             --code-bg: #1e1e1e;
             --hover-bg: #353535;
@@ -33,6 +33,20 @@
             color: var(--text-primary);
             background: var(--bg-secondary);
             overflow: hidden;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        a:visited {
+            color: #8ab4f8;
         }
 
         .header {
@@ -260,12 +274,19 @@
             background: var(--code-bg);
             padding: 16px;
             border-radius: 4px;
-            overflow-x: auto;
+            overflow: auto;
             font-family: 'Courier New', monospace;
             font-size: 13px;
-            white-space: pre;
             border: 1px solid var(--border);
             color: var(--text-primary);
+            max-height: 100%;
+        }
+
+        .code-line {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding-left: 6em;
+            text-indent: -6em;
         }
 
         .loading {
@@ -299,8 +320,8 @@
         }
 
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 14px;
+            height: 14px;
         }
 
         ::-webkit-scrollbar-track {
@@ -309,7 +330,7 @@
 
         ::-webkit-scrollbar-thumb {
             background: var(--bg-tertiary);
-            border-radius: 4px;
+            border-radius: 7px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
@@ -357,6 +378,13 @@
                 const response = await fetch('manifest.json');
                 manifest = await response.json();
                 renderFileTree(manifest.files);
+
+                // Load file from URL hash if present
+                const hash = window.location.hash.slice(1);
+                if (hash) {
+                    const filePath = decodeURIComponent(hash);
+                    await loadFile(filePath);
+                }
             } catch (error) {
                 document.getElementById('fileTree').innerHTML =
                     '<div class="error">Failed to load manifest.json</div>';
@@ -410,10 +438,34 @@
             currentFile = path;
             updateBreadcrumb(path);
 
+            // Update URL hash for deep linking
+            window.location.hash = encodeURIComponent(path);
+
             document.querySelectorAll('.tree-item').forEach(item => {
                 item.classList.remove('active');
             });
-            event.target.closest('.tree-item').classList.add('active');
+
+            // Find and highlight the active tree item
+            const treeItems = Array.from(document.querySelectorAll('.tree-item'));
+            const activeItem = treeItems.find(item => {
+                const itemText = item.querySelector('span:last-child')?.textContent;
+                return path.endsWith(itemText);
+            });
+            if (activeItem) {
+                activeItem.classList.add('active');
+                // Expand parent folders
+                let parent = activeItem.parentElement;
+                while (parent) {
+                    if (parent.classList.contains('tree-children')) {
+                        parent.classList.remove('collapsed');
+                        const folderItem = parent.previousElementSibling;
+                        if (folderItem && folderItem.querySelector('.tree-icon')) {
+                            folderItem.querySelector('.tree-icon').textContent = '▼';
+                        }
+                    }
+                    parent = parent.parentElement;
+                }
+            }
 
             const viewer = document.getElementById('contentViewer');
             viewer.innerHTML = '<div class="loading">Loading...</div>';
@@ -425,14 +477,20 @@
                 if (path.endsWith('.md')) {
                     viewer.innerHTML = `<div class="markdown-content">${marked.parse(content)}</div>`;
                 } else if (path.endsWith('.yaml') || path.endsWith('.yml')) {
-                    viewer.innerHTML = `<div class="code-content">${escapeHtml(content)}</div>`;
+                    const lines = content.split('\n').map(line =>
+                        `<div class="code-line">${escapeHtml(line)}</div>`
+                    ).join('');
+                    viewer.innerHTML = `<div class="code-content">${lines}</div>`;
                 } else if (path.endsWith('.log')) {
                     const lines = content.split('\n').map((line, i) =>
-                        `${(i + 1).toString().padStart(4, ' ')} | ${escapeHtml(line)}`
-                    ).join('\n');
+                        `<div class="code-line">${(i + 1).toString().padStart(4, ' ')} | ${escapeHtml(line)}</div>`
+                    ).join('');
                     viewer.innerHTML = `<div class="code-content">${lines}</div>`;
                 } else {
-                    viewer.innerHTML = `<div class="code-content">${escapeHtml(content)}</div>`;
+                    const lines = content.split('\n').map(line =>
+                        `<div class="code-line">${escapeHtml(line)}</div>`
+                    ).join('');
+                    viewer.innerHTML = `<div class="code-content">${lines}</div>`;
                 }
             } catch (error) {
                 viewer.innerHTML = `<div class="error">Failed to load file: ${error.message}</div>`;
@@ -465,6 +523,10 @@
         }
 
         function showHome() {
+            // Clear URL hash
+            window.location.hash = '';
+            currentFile = null;
+
             document.getElementById('contentViewer').innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">📁</div>
@@ -473,6 +535,10 @@
             `;
             document.getElementById('breadcrumb').innerHTML =
                 '<span class="breadcrumb-item">Home</span>';
+
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.remove('active');
+            });
         }
 
         function escapeHtml(text) {
@@ -494,6 +560,17 @@
             document.querySelectorAll('.tree-item').forEach(item => {
                 item.style.display = '';
             });
+        });
+
+        // Handle browser back/forward navigation
+        window.addEventListener('hashchange', async () => {
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                const filePath = decodeURIComponent(hash);
+                await loadFile(filePath);
+            } else {
+                showHome();
+            }
         });
 
         init();

@@ -204,22 +204,18 @@ class TestViewerTemplateCopying:
         THEN index.html is created with embedded manifest.
         """
         with tempfile.TemporaryDirectory() as tmpDir:
-            # Create sample manifest
-            manifest = {"version": "1.0", "generated": "2024-01-01T00:00:00Z", "files": {"test.md": {"type": "file", "path": "test.md", "size": 100}}}
-
             # Copy template
-            web_viewer.copyViewerTemplate(tmpDir, manifest)
+            web_viewer.copyViewerTemplate(tmpDir)
 
             # Verify file created
             indexPath = Path(tmpDir) / "index.html"
             assert indexPath.exists()
             assert indexPath.stat().st_size > 0
 
-            # Verify manifest is embedded
+            # Verify template content was copied
             with open(indexPath, "r") as f:
                 content = f.read()
-                assert "EMBEDDED_MANIFEST" in content
-                assert '"test.md"' in content
+                assert "<!DOCTYPE html>" in content
 
     def test_copyViewerTemplate_raises_on_missing_template(self):
         """Test that copyViewerTemplate raises error if template missing.
@@ -231,13 +227,12 @@ class TestViewerTemplateCopying:
         # This test verifies error handling, but in normal operation
         # the template should always exist
         with tempfile.TemporaryDirectory() as tmpDir:
-            manifest = {"version": "1.0", "files": {}}
             # Temporarily move template to simulate missing file
             templatePath = Path(web_viewer.__file__).parent / "templates" / "viewer.html"
             if templatePath.exists():
                 # Template exists, so we can't test missing template scenario
                 # Just verify the function works normally
-                web_viewer.copyViewerTemplate(tmpDir, manifest)
+                web_viewer.copyViewerTemplate(tmpDir)
                 assert (Path(tmpDir) / "index.html").exists()
 
 

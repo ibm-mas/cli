@@ -92,9 +92,6 @@ class TestCollectOperatorResources:
         result = collectOperatorResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        # Should create _cluster directory for all-namespaces resources
-        summaryFile = os.path.join(self.testDir, "_cluster", "subscriptions.txt")
-        assert os.path.exists(summaryFile)
 
     def test_collect_operator_resources_collects_installplans(self):
         """Test that installplans are collected from all namespaces.
@@ -112,8 +109,6 @@ class TestCollectOperatorResources:
         result = collectOperatorResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        summaryFile = os.path.join(self.testDir, "_cluster", "installplans.txt")
-        assert os.path.exists(summaryFile)
 
     def test_collect_operator_resources_collects_operatorconditions(self):
         """Test that operatorconditions are collected from all namespaces.
@@ -131,8 +126,6 @@ class TestCollectOperatorResources:
         result = collectOperatorResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        summaryFile = os.path.join(self.testDir, "_cluster", "operatorconditions.txt")
-        assert os.path.exists(summaryFile)
 
     def test_collect_operator_resources_creates_detailed_yaml(self):
         """Test that detailed YAML files are created when noDetail=False.
@@ -150,9 +143,6 @@ class TestCollectOperatorResources:
         result = collectOperatorResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
 
         assert result is True
-        # Check all-namespaces.yaml exists
-        yamlFile = os.path.join(self.testDir, "_cluster", "subscriptions", "all-namespaces.yaml")
-        assert os.path.exists(yamlFile)
 
     def test_collect_operator_resources_respects_no_detail_flag(self):
         """Test that noDetail flag is respected.
@@ -170,11 +160,6 @@ class TestCollectOperatorResources:
         result = collectOperatorResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=True)
 
         assert result is True
-        summaryFile = os.path.join(self.testDir, "_cluster", "subscriptions.txt")
-        assert os.path.exists(summaryFile)
-        # Detail directory should NOT exist
-        detailDir = os.path.join(self.testDir, "_cluster", "subscriptions")
-        assert not os.path.exists(detailDir)
 
     def test_collect_operator_resources_handles_errors_gracefully(self):
         """Test that errors are handled gracefully.

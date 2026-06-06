@@ -27,9 +27,15 @@ def main():
     # Generate command
     generate_parser = subparsers.add_parser("generate", help="Generate web viewer files (index.html and manifest.json)")
     generate_parser.add_argument(
-        "directory",
+        "--dir",
         type=str,
+        required=True,
         help="Path to must-gather output directory",
+    )
+    generate_parser.add_argument(
+        "--skip-manifest",
+        action="store_true",
+        help="Skip manifest generation if manifest.json already exists (fast regeneration)",
     )
 
     # Serve command
@@ -49,18 +55,13 @@ def main():
 
     args = parser.parse_args()
 
-    # Default to serve if no command specified but directory given
+    # Show help if no command specified
     if not args.command:
-        if len(sys.argv) > 1:
-            # Assume it's a directory for backward compatibility
-            args.command = "generate"
-            args.directory = sys.argv[1]
-        else:
-            parser.print_help()
-            return 1
+        parser.print_help()
+        return 1
 
     if args.command == "generate":
-        return generate_viewer(args.directory)
+        return generate_viewer(args.dir, getattr(args, "skip_manifest", False))
     elif args.command == "serve":
         return serve_viewer(args.dir, args.port, not args.no_browser)
     else:
@@ -68,11 +69,12 @@ def main():
         return 1
 
 
-def generate_viewer(directory: str) -> int:
+def generate_viewer(directory: str, skipManifest: bool = False) -> int:
     """Generate web viewer for a must-gather directory.
 
     Args:
         directory (str): Path to must-gather output directory
+        skipManifest (bool, optional): Skip manifest generation if it exists. Defaults to False.
 
     Returns:
         int: Exit code (0 for success, 1 for failure)
@@ -88,8 +90,12 @@ def generate_viewer(directory: str) -> int:
         return 1
 
     # Generate web viewer
-    print(f"Generating web viewer for: {directory}")
-    if web_viewer.generateWebViewer(str(outputDir)):
+    if skipManifest:
+        print(f"Regenerating web viewer (skipping manifest): {directory}")
+    else:
+        print(f"Generating web viewer for: {directory}")
+
+    if web_viewer.generateWebViewer(str(outputDir), skipManifest=skipManifest):
         print("\n✅ Web viewer generated successfully!")
         print("\nTo view the must-gather, run:")
         print(f"  python -m mas.cli.must_gather.web_viewer serve --dir {directory}\n")

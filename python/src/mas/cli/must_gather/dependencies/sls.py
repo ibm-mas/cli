@@ -12,7 +12,9 @@
 
 import logging
 from kubernetes.dynamic import DynamicClient
-from .utils import discoverNamespacesFromCR, collectFromNamespaces
+
+from ..sls.license_service import collectSLSNamespace
+from .utils import discoverNamespacesFromCR
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +41,13 @@ def collectSLS(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
             logger.info("No SLS namespaces found, skipping collection")
             return False
 
-        # Collect from discovered namespaces
-        return collectFromNamespaces(namespaces=slsNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather)
+        # Collect from discovered namespaces directly to avoid duplicating the resources path
+        success = True
+        for namespace in slsNamespaces:
+            if not collectSLSNamespace(dynClient=dynClient, namespace=namespace, outputDir=outputDir, noDetail=noDetail):
+                success = False
+
+        return success
 
     except Exception as e:
         logger.warning(f"Error collecting IBM Suite License Service: {e}")

@@ -66,8 +66,8 @@ def collectPods(
         podCount = len(pods.items) if hasattr(pods, "items") else 0
 
         # Generate summary file
-        summaryFile = os.path.join(namespaceDir, "pods.txt")
-        _writeSummary(pods, summaryFile)
+        summaryFile = os.path.join(namespaceDir, "pods.md")
+        _writeSummary(pods, summaryFile, namespace=namespace, podLogs=podLogs)
 
         # If no detail needed, we're done
         if noDetail:
@@ -154,31 +154,36 @@ def _processPod(dynClient: DynamicClient, namespace: str, pod, podsDir: str, pod
         return False
 
 
-def _writeSummary(pods, outputFile: str) -> None:
-    """Write pod summary in wide format.
+def _writeSummary(pods, outputFile: str, namespace: str, podLogs: bool) -> None:
+    """Write pod summary as a markdown table.
 
     Args:
         pods: ResourceList from Kubernetes API
         outputFile (str): Path to output file
+        namespace (str): Namespace used to derive pod app grouping
+        podLogs (bool): Whether pod logs are being collected
     """
     with open(outputFile, "w") as f:
-        if hasattr(pods, "items") and len(pods.items) > 0:
-            # Write header
-            f.write(f"{'NAME':<50} {'READY':<10} {'STATUS':<15} {'RESTARTS':<10} {'AGE':<10}\n")
+        f.write("# Pods (v1)\n\n")
 
-            # Write each pod
+        if hasattr(pods, "items") and len(pods.items) > 0:
+            f.write("| NAME | READY | STATUS | RESTARTS | AGE | YAML | LOGS |\n")
+            f.write("| --- | --- | --- | --- | --- | --- | --- |\n")
+
             for pod in pods.items:
                 name = pod.metadata.name
                 podDict = pod.to_dict()
                 status = podDict.get("status", {})
+                appLabel = _extractAppLabel(pod, namespace)
 
-                # Extract status info
                 phase = status.get("phase", "Unknown")
                 containerStatuses = status.get("containerStatuses", [])
                 ready = f"{sum(1 for c in containerStatuses if c.get('ready', False))}/{len(containerStatuses)}" if containerStatuses else "0/0"
-                restarts = sum(c.get("restartCount", 0) for c in containerStatuses)
+                restarts = str(sum(c.get("restartCount", 0) for c in containerStatuses))
+                yamlLink = f"[{name}](pods/{appLabel}/{name}.yaml)"
+                logsLink = "[logs](pods/{}/logs/)".format(appLabel) if podLogs else ""
 
-                f.write(f"{name:<50} {ready:<10} {phase:<15} {restarts:<10} {'':<10}\n")
+                f.write(f"| {yamlLink} | {ready} | {phase} | {restarts} |  | [yaml](pods/{appLabel}/{name}.yaml) | {logsLink} |\n")
         else:
             f.write("No resources found.\n")
 

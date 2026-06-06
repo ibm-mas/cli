@@ -55,11 +55,6 @@ def collectDRO(dynClient: DynamicClient, outputDir: str, noDetail: bool = False,
             namespaces=droNamespaces, outputDir=outputDir, noDetail=noDetail, genericMustGather=genericMustGather, additionalResources=DRO_RESOURCES
         )
 
-        if result:
-            print(f"✅ IBM Data Reporter Operator collected from {len(droNamespaces)} namespace(s)")
-        else:
-            print("❌ IBM Data Reporter Operator collection encountered errors (check logs)")
-
         return result
 
     except Exception as e:
