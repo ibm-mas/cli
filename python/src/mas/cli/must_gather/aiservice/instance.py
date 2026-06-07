@@ -7,6 +7,8 @@ from typing import List, Optional, Callable
 
 from kubernetes.dynamic import DynamicClient
 
+from mas.cli.must_gather.common import collectReconcileLogsParallel
+
 logger = logging.getLogger(__name__)
 
 
@@ -91,6 +93,20 @@ def collectAIServiceInstance(dynClient: DynamicClient, instanceId: str, outputDi
 
     # Create output directory
     os.makedirs(instanceOutputDir, exist_ok=True)
+
+    # Collect reconcile logs from AI Service operators
+    operators = [
+        (namespace, "control-plane", "ibm-aiservice"),
+        (namespace, "aiservice.ibm.com/appType", "entitymgr-tenant-operator"),
+        (namespace, "operator", "ibm-truststore-mgr"),
+    ]
+
+    logger.info(f"Collecting reconcile logs from {len(operators)} operators")
+
+    def progressCallback(completed: int, total: int) -> None:
+        logger.info(f"Collecting reconcile logs: {completed}/{total} operators completed")
+
+    collectReconcileLogsParallel(dynClient, operators, outputDir, progressCallback=progressCallback)
 
     # Call mg-summary-aiservice script
     summaryFile = os.path.join(instanceOutputDir, "aiservice-summary.txt")

@@ -19,6 +19,8 @@ import logging
 from typing import Set, Optional, List
 from kubernetes.dynamic import DynamicClient
 
+from mas.cli.must_gather.common import collectReconcileLogsParallel
+
 logger = logging.getLogger(__name__)
 
 
@@ -79,7 +81,40 @@ def collectMASCore(dynClient: DynamicClient, namespace: str, outputDir: str, noD
     Returns:
         bool: True if collection succeeded, False if errors occurred
     """
-    # Stub implementation - will be replaced
+    logger.info(f"Collecting MAS Core resources from {namespace}")
+
+    # Build list of operators to collect reconcile logs from
+    operators = [
+        # Primary Resources
+        (namespace, "control-plane", "ibm-mas"),
+        (namespace, "control-plane", "ibm-mas-ws"),
+        # Internals
+        (namespace, "control-plane", "ibm-mas-coreidp"),
+        # Addons
+        (namespace, "control-plane", "ibm-mas-addons"),
+        # Configurations
+        (namespace, "control-plane", "ibm-mas-cfg-bas"),
+        (namespace, "control-plane", "ibm-mas-cfg-sls"),
+        (namespace, "control-plane", "ibm-mas-cfg-idp"),
+        (namespace, "control-plane", "ibm-mas-cfg-scim"),
+        (namespace, "control-plane", "ibm-mas-cfg-jdbc"),
+        (namespace, "control-plane", "ibm-mas-cfg-mongo"),
+        (namespace, "control-plane", "ibm-mas-cfg-kafka"),
+        (namespace, "control-plane", "ibm-mas-cfg-objectstorage"),
+        (namespace, "control-plane", "ibm-mas-cfg-smtp"),
+        (namespace, "control-plane", "ibm-mas-cfg-ai"),
+        # Truststore
+        (namespace, "operator", "ibm-truststore-mgr"),
+    ]
+
+    # Progress callback for visual feedback
+    def progressCallback(completed: int, total: int) -> None:
+        logger.info(f"Collecting reconcile logs: {completed}/{total} operators completed")
+
+    # Collect reconcile logs from all operators in parallel
+    logger.info(f"Collecting reconcile logs from {len(operators)} operators")
+    collectReconcileLogsParallel(dynClient, operators, outputDir, progressCallback=progressCallback)
+
     return True
 
 

@@ -17,8 +17,10 @@ resource collection.
 """
 
 import logging
-from typing import Set, Optional, List
+from typing import Set, Optional, List, Tuple
 from kubernetes.dynamic import DynamicClient
+
+from mas.cli.must_gather.common import collectReconcileLogsParallel
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +81,69 @@ def discoverMASAppNamespaces(dynClient: DynamicClient, masInstanceId: str, masAp
     return namespaces
 
 
+def getReconcileLogsOperatorsForApp(namespace: str, appId: str) -> List[Tuple[str, str, str]]:
+    """Get list of operators to collect reconcile logs from for a specific app.
+
+    Returns a list of (namespace, labelSelector, labelValue) tuples for all operators
+    that should have reconcile logs collected for the given app.
+
+    Args:
+        namespace (str): MAS app namespace
+        appId (str): MAS application ID (e.g., "manage", "iot", "predict")
+
+    Returns:
+        List[Tuple[str, str, str]]: List of (namespace, labelSelector, labelValue) tuples
+    """
+    operators = []
+
+    if appId == "manage":
+        operators = [
+            (namespace, "control-plane", "ibm-mas-manage"),
+            (namespace, "mas.ibm.com/appType", "imagestitching-entitymgr-operator"),
+            (namespace, "mas.ibm.com/appType", "entitymgr-ws-operator"),
+            (namespace, "mas.ibm.com/appType", "healthext-entitymgr-ws-operator"),
+            (namespace, "mas.ibm.com/appType", "maxinstudb"),
+            (namespace, "operator", "ibm-truststore-mgr"),
+            (namespace, "mas.ibm.com/appType", "serverBundle"),
+        ]
+    elif appId == "iot":
+        operators = [
+            (namespace, "control-plane", "ibm-iot-operator"),
+            (namespace, "control-plane", "workspace-operator"),
+            (namespace, "operator", "ibm-truststore-mgr"),
+        ]
+    elif appId == "optimizer":
+        operators = [
+            (namespace, "control-plane", "ibm-mas-optimizer"),
+            (namespace, "mas.ibm.com/appType", "entitymgr-ws-operator"),
+            (namespace, "mas.ibm.com/applicationId", "optimizer"),
+            (namespace, "mas.ibm.com/appType", "optimizer-adminui"),
+            (namespace, "mas.ibm.com/appType", "optimizer-api"),
+            (namespace, "mas.ibm.com/appType", "optimizer-execution-service"),
+        ]
+    elif appId == "predict":
+        operators = [
+            (namespace, "control-plane", "ibm-mas-predict"),
+            (namespace, "operator", "ibm-truststore-mgr"),
+            (namespace, "app", "aiexpts-service"),
+            (namespace, "io.kompose.service", "mat-service"),
+            (namespace, "mas.ibm.com/appType", "predict-api"),
+            (namespace, "mas.ibm.com/appType", "entitymgr-ws-operator"),
+        ]
+    elif appId == "visualinspection":
+        operators = [
+            (namespace, "control-plane", "ibm-mas-visualinspection"),
+            (namespace, "app", "gpu-operator"),
+            (namespace, "app", "visualinspection"),
+        ]
+    elif appId == "facilities":
+        operators = [
+            (namespace, "control-plane", "ibm-mas-facilities"),
+        ]
+
+    return operators
+
+
 def collectMASApp(
     dynClient: DynamicClient, namespace: str, appId: str, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None
 ) -> bool:
@@ -100,13 +165,27 @@ def collectMASApp(
         bool: True if collection succeeded, False if errors occurred
     """
     try:
+        logger.info(f"Collecting MAS {appId} resources from {namespace}")
+
+        # Collect reconcile logs from app-specific operators
+        operators = getReconcileLogsOperatorsForApp(namespace, appId)
+        if operators:
+            logger.info(f"Collecting reconcile logs from {len(operators)} operators")
+
+            def progressCallback(completed: int, total: int) -> None:
+                logger.info(f"Collecting reconcile logs: {completed}/{total} operators completed")
+
+            collectReconcileLogsParallel(dynClient, operators, outputDir, progressCallback=progressCallback)
+        else:
+            logger.debug(f"No reconcile log operators defined for app {appId}")
+
         # Perform generic resource collection using common utilities
         # Note: External scripts (mg-summary-mas-* and mg-collect-mas-*) are not part of Python migration
         if genericMustGather:
             success = genericMustGather(namespace=namespace, outputDir=outputDir, noDetail=noDetail, podsOnly=False, noLogs=noLogs, additionalResources=[])
             return success
         else:
-            logger.warning(f"No genericMustGather function provided for {namespace}, skipping collection")
+            logger.warning(f"No genericMustGather function provided for {namespace}, skipping generic collection")
             return True
 
     except Exception as e:

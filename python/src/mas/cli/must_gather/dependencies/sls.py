@@ -14,6 +14,7 @@ import logging
 from typing import Set, Optional, List
 from kubernetes.dynamic import DynamicClient
 
+from mas.cli.must_gather.common import collectReconcileLogsParallel
 from .utils import discoverNamespacesFromCR
 
 logger = logging.getLogger(__name__)
@@ -61,6 +62,19 @@ def collectSLSNamespace(dynClient: DynamicClient, namespace: str, outputDir: str
             return True
 
         success = True
+
+        # Collect reconcile logs from SLS operators
+        operators = [
+            (namespace, "control-plane", "controller-manager"),
+            (namespace, "operator", "ibm-truststore-mgr"),
+        ]
+
+        logger.info(f"Collecting reconcile logs from {len(operators)} operators")
+
+        def progressCallback(completed: int, total: int) -> None:
+            logger.info(f"Collecting reconcile logs: {completed}/{total} operators completed")
+
+        collectReconcileLogsParallel(dynClient, operators, outputDir, progressCallback=progressCallback)
 
         # Collect IBM custom resources
         try:
