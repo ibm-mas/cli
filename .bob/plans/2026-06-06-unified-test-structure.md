@@ -148,9 +148,9 @@ pytest --collect-only python/tests/integration/aiservice/install/
 ```
 
 ### Success Criteria
-- [ ] All existing tests pass in new structure
-- [ ] Markers are automatically applied (verify with `--collect-only`)
-- [ ] No manual `@pytest.mark` decorators in test files (except parametrize)
-- [ ] Configuration files updated correctly
-- [ ] Old `python/test/` directory removed
-- [ ] Black, flake8, and basedpyright still work correctly
+- [x] All existing tests pass in new structure
+- [x] Markers are automatically applied (verify with `--collect-only`)
+- [x] No manual `@pytest.mark` decorators in test files (except parametrize)
+- [x] Configuration files updated correctly
+- [x] Old `python/test/` directory removed
+- [x] Black, flake8, and basedpyright still work correctly

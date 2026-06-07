@@ -125,7 +125,7 @@ def collectResources(
         # Generate markdown index file
         summaryFile = os.path.join(namespaceDir, f"{resourceType}.md")
         printerColumns = getPrinterColumns(kind, apiVersion)
-        _writeMarkdownIndex(resources, summaryFile, kind, apiVersion, printerColumns)
+        _writeMarkdownIndex(resources, summaryFile, kind, apiVersion, printerColumns, noDetail)
 
         # Generate detailed reports if requested
         if not noDetail:
@@ -160,13 +160,13 @@ def collectResources(
             return False
 
 
-def _writeMarkdownIndex(resources, outputFile: str, kind: str, apiVersion: str, printerColumns: List[PrinterColumn]) -> None:
+def _writeMarkdownIndex(resources, outputFile: str, kind: str, apiVersion: str, printerColumns: List[PrinterColumn], noDetail: bool = False) -> None:
     """Write resource index as markdown table.
 
     Generates a markdown file with a table showing resources using printer columns
     from CRD specifications or fallback columns for built-in resources.
     The first column (typically resource name) is converted to a markdown link
-    pointing to the resource's YAML file.
+    pointing to the resource's YAML file when noDetail is False.
 
     Args:
         resources: ResourceList or ResourceInstance from Kubernetes API
@@ -174,6 +174,7 @@ def _writeMarkdownIndex(resources, outputFile: str, kind: str, apiVersion: str, 
         kind (str): Resource kind (e.g., "Pod", "Suite")
         apiVersion (str): API version (e.g., "v1", "core.mas.ibm.com/v1")
         printerColumns (list): List of PrinterColumn objects defining table columns
+        noDetail (bool, optional): If True, do not create links to YAML files. Defaults to False.
     """
     # Pluralize kind for directory name (simple pluralization)
     pluralKind = kind.lower() + "s"
@@ -200,8 +201,8 @@ def _writeMarkdownIndex(resources, outputFile: str, kind: str, apiVersion: str, 
                     # Escape pipe characters in values to avoid breaking table
                     value = value.replace("|", "\\|") if value else ""
 
-                    # Convert first column (name) to markdown link
-                    if idx == 0 and value:
+                    # Convert first column (name) to markdown link only if detail files exist
+                    if idx == 0 and value and not noDetail:
                         value = f"[{value}]({pluralKind}/{resourceName}.yaml)"
 
                     values.append(value)

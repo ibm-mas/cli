@@ -27,7 +27,6 @@ from .dependencies import sls
 from .mas import core as mas_core
 from .mas import apps as mas_apps
 from .mas import pipelines as mas_pipelines
-from .mas import quick_summary as mas_quick_summary
 from .aiservice import instance as aiservice_instance
 from .aiservice import pipelines as aiservice_pipelines
 from .aiservice import tenant as aiservice_tenant
@@ -81,7 +80,7 @@ class MustGatherApp(BaseApp):
         if parsedArgs.command == "serve":
             from mas.cli.must_gather.web_viewer.__main__ import serve_viewer
 
-            return serve_viewer(directory=parsedArgs.dir, port=parsedArgs.port, open_browser=not parsedArgs.no_browser)
+            return serve_viewer(directory=parsedArgs.dir, port=parsedArgs.port)
 
         # Handle collect command (default) or when no command specified
         # If no command specified, treat as collect for backward compatibility
@@ -183,7 +182,6 @@ class MustGatherApp(BaseApp):
             noLogs=parsedArgs.no_logs,
             masInstanceIds=masInstanceIds,
             masAppIds=masAppIds,
-            noQuickSummary=parsedArgs.no_mas_quick_summary,
         )
         elapsed = masTimer.stop()
         self.printHighlight(f"MAS collection completed in {elapsed} seconds")
@@ -679,12 +677,10 @@ class MustGatherApp(BaseApp):
         noLogs: bool = False,
         masInstanceIds: Optional[List[str]] = None,
         masAppIds: Optional[List[str]] = None,
-        noQuickSummary: bool = False,
     ) -> bool:
         """Collect IBM Maximo Application Suite resources.
 
-        Orchestrates collection of MAS Core, MAS Apps, MAS Pipelines, and generates
-        quick summaries for each discovered MAS instance.
+        Orchestrates collection of MAS Core, MAS Apps, and MAS Pipelines.
 
         Args:
             outputDir (str): Base output directory for collected resources
@@ -692,7 +688,6 @@ class MustGatherApp(BaseApp):
             noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
             masInstanceIds (list, optional): List of MAS instance IDs to filter. If None, discovers all instances. Defaults to None.
             masAppIds (list, optional): List of MAS app IDs to collect. Defaults to None.
-            noQuickSummary (bool, optional): If True, skip quick summary generation. Defaults to False.
 
         Returns:
             bool: True if any collection succeeded
@@ -764,18 +759,6 @@ class MustGatherApp(BaseApp):
                     print("⏭️ No application namespaces found")
             except Exception as e:
                 print(f"❌ Failed to discover MAS app namespaces for {instanceId}: {str(e)}")
-
-            # Generate MAS Quick Summary
-            if not noQuickSummary:
-                self.printHighlight("MAS Quick Summary")
-                try:
-                    with Halo(text=f"Generating quick summary for {instanceId}", spinner=self.spinner) as h:
-                        if mas_quick_summary.generateMASQuickSummary(dynClient=self.dynClient, masInstanceId=instanceId, outputDir=outputDir):
-                            h.stop_and_persist(symbol=self.successIcon, text=f"Quick summary generated for {instanceId}")
-                        else:
-                            h.stop_and_persist(symbol="❌", text=f"Failed to generate quick summary for {instanceId} (check logs)")
-                except Exception as e:
-                    print(f"❌ Failed to generate quick summary for {instanceId}: {str(e)}")
 
             elapsed = instanceTimer.stop()
             print()

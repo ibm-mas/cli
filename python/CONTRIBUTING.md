@@ -24,15 +24,14 @@ pytest python/tests
 # Generate must-gather
 rm mas.log; mas-cli must-gather --keep-files -d testing/must-gather
 
-# The following commands are useful for quick development cycles on the
+# Serve must-gather viewer
+mas-cli must-gather serve -d testing/must-gather/20260606-085110
+
+# The following command is useful for quick development cycles on the
 # post-processing to avoid needing to run the must-gather collectors again
 
-# 1. Re-generate web viewer
-python -m mas.cli.must_gather.web_viewer generate --dir testing/must-gather/20260606-085110
-
-# 2. Serve web viewer
-python -m mas.cli.must_gather.web_viewer serve --dir testing/must-gather/20260606-085110
-
+# Re-generate web viewer
+python -m mas.cli.must_gather.web_viewer generate -d testing/must-gather/20260606-085110
 ```
 
 Useful Commands

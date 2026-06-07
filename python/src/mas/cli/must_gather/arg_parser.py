@@ -41,9 +41,8 @@ def _addServeSubparser(parser: argparse.ArgumentParser) -> None:
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     serveParser = subparsers.add_parser("serve", help="Serve web viewer for existing must-gather output", formatter_class=argparse.RawTextHelpFormatter)
-    serveParser.add_argument("--dir", type=str, required=True, help="Path to must-gather output directory")
+    serveParser.add_argument("-d", "--dir", type=str, required=True, help="Path to must-gather output directory")
     serveParser.add_argument("--port", type=int, default=8000, help="Port for HTTP server (default: 8000)")
-    serveParser.add_argument("--no-browser", action="store_true", help="Don't automatically open browser")
 
 
 def _addCollectArguments(parser: argparse.ArgumentParser) -> None:
@@ -97,7 +96,6 @@ def _addCollectArguments(parser: argparse.ArgumentParser) -> None:
     disableGroup.add_argument("--no-ocp", action="store_true", default=False, help="Disable must-gather for the OCP cluster itself")
     disableGroup.add_argument("--no-dependencies", action="store_true", default=False, help="Disable must-gather for in-cluster dependencies")
     disableGroup.add_argument("--no-sls", action="store_true", default=False, help="Disable must-gather for IBM Suite License Service")
-    disableGroup.add_argument("--no-mas-quick-summary", action="store_true", default=False, help="Disable MAS quick summary reports")
 
     # Additional Collectors group
     additionalGroup = parser.add_argument_group("Additional Collectors")

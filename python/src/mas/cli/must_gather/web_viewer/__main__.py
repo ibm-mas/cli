@@ -8,7 +8,6 @@ import argparse
 import http.server
 import socketserver
 import sys
-import webbrowser
 from pathlib import Path
 
 from mas.cli.must_gather import web_viewer
@@ -27,6 +26,7 @@ def main():
     # Generate command
     generate_parser = subparsers.add_parser("generate", help="Generate web viewer files (index.html and manifest.json)")
     generate_parser.add_argument(
+        "-d",
         "--dir",
         type=str,
         required=True,
@@ -41,17 +41,13 @@ def main():
     # Serve command
     serve_parser = subparsers.add_parser("serve", help="Generate viewer and start HTTP server")
     serve_parser.add_argument(
+        "-d",
         "--dir",
         type=str,
         required=True,
         help="Path to must-gather output directory",
     )
     serve_parser.add_argument("--port", type=int, default=8000, help="Port for HTTP server (default: 8000)")
-    serve_parser.add_argument(
-        "--no-browser",
-        action="store_true",
-        help="Don't automatically open browser",
-    )
 
     args = parser.parse_args()
 
@@ -63,7 +59,7 @@ def main():
     if args.command == "generate":
         return generate_viewer(args.dir, getattr(args, "skip_manifest", False))
     elif args.command == "serve":
-        return serve_viewer(args.dir, args.port, not args.no_browser)
+        return serve_viewer(args.dir, args.port)
     else:
         parser.print_help()
         return 1
@@ -98,7 +94,7 @@ def generate_viewer(directory: str, skipManifest: bool = False) -> int:
     if web_viewer.generateWebViewer(str(outputDir), skipManifest=skipManifest):
         print("\n✅ Web viewer generated successfully!")
         print("\nTo view the must-gather, run:")
-        print(f"  python -m mas.cli.must_gather.web_viewer serve --dir {directory}\n")
+        print(f"  mas-cli must-gather serve --dir {directory}\n")
         return 0
     else:
         print("\n❌ Failed to generate web viewer", file=sys.stderr)
@@ -106,13 +102,12 @@ def generate_viewer(directory: str, skipManifest: bool = False) -> int:
         return 1
 
 
-def serve_viewer(directory: str, port: int, open_browser: bool) -> int:
+def serve_viewer(directory: str, port: int) -> int:
     """Generate viewer and start HTTP server.
 
     Args:
         directory (str): Path to must-gather output directory
         port (int): Port number for HTTP server
-        open_browser (bool): Whether to automatically open browser
 
     Returns:
         int: Exit code (0 for success, 1 for failure)
@@ -147,10 +142,6 @@ def serve_viewer(directory: str, port: int, open_browser: bool) -> int:
     import os
 
     os.chdir(str(outputDir))
-
-    # Open browser if requested
-    if open_browser:
-        webbrowser.open(f"http://localhost:{port}/")
 
     # Start server
     Handler = http.server.SimpleHTTPRequestHandler

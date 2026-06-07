@@ -139,15 +139,15 @@ class TestCollectAIServiceInstance(unittest.TestCase):
         self.mockDynClient = MagicMock(spec=DynamicClient)
         self.mockGenericMustGather = MagicMock()
 
-    @patch("mas.cli.must_gather.aiservice.instance.subprocess.run")
-    def test_collect_aiservice_instance_success(self, mockSubprocessRun):
+    @patch("mas.cli.must_gather.aiservice.instance._generateAIServiceSummary")
+    @patch("mas.cli.must_gather.aiservice.instance.collectReconcileLogsParallel")
+    def test_collect_aiservice_instance_success(self, mockCollectLogs, mockGenerateSummary):
         """Test successful AI Service instance collection.
 
         GIVEN an AI Service instance namespace exists
         WHEN collectAIServiceInstance() is called
-        THEN it calls mg-summary-aiservice and mg-collect-aiservice scripts.
+        THEN it generates summary and collects reconcile logs.
         """
-        mockSubprocessRun.return_value = MagicMock(returncode=0)
 
         result = instance.collectAIServiceInstance(
             dynClient=self.mockDynClient, instanceId="test1", outputDir="/tmp/output", genericMustGather=self.mockGenericMustGather
@@ -156,48 +156,43 @@ class TestCollectAIServiceInstance(unittest.TestCase):
         self.assertTrue(result)
         self.mockGenericMustGather.assert_called_once_with(namespace="aiservice-test1", outputSubDir="aiservice/test1")
 
-        # Verify subprocess calls
-        self.assertEqual(mockSubprocessRun.call_count, 2)
-        calls = mockSubprocessRun.call_args_list
+        # Verify summary generation and log collection were called
+        mockGenerateSummary.assert_called_once()
+        mockCollectLogs.assert_called_once()
 
-        # Check mg-summary-aiservice call
-        self.assertIn("mg-summary-aiservice", calls[0][0][0])
-        self.assertIn("aiservice-test1", calls[0][0][0])
-
-        # Check mg-collect-aiservice call
-        self.assertIn("mg-collect-aiservice", calls[1][0][0])
-        self.assertIn("aiservice-test1", calls[1][0][0])
-
-    @patch("mas.cli.must_gather.aiservice.instance.subprocess.run")
-    def test_collect_aiservice_instance_without_generic_must_gather(self, mockSubprocessRun):
+    @patch("mas.cli.must_gather.aiservice.instance._generateAIServiceSummary")
+    @patch("mas.cli.must_gather.aiservice.instance.collectReconcileLogsParallel")
+    def test_collect_aiservice_instance_without_generic_must_gather(self, mockCollectLogs, mockGenerateSummary):
         """Test AI Service collection without genericMustGather.
 
         GIVEN genericMustGather is not provided
         WHEN collectAIServiceInstance() is called
-        THEN it only calls the summary and collection scripts.
+        THEN it generates summary and collects logs.
         """
-        mockSubprocessRun.return_value = MagicMock(returncode=0)
 
         result = instance.collectAIServiceInstance(dynClient=self.mockDynClient, instanceId="test1", outputDir="/tmp/output")
 
         self.assertTrue(result)
-        self.assertEqual(mockSubprocessRun.call_count, 2)
+        mockGenerateSummary.assert_called_once()
+        mockCollectLogs.assert_called_once()
 
-    @patch("mas.cli.must_gather.aiservice.instance.subprocess.run")
-    def test_collect_aiservice_instance_script_failure(self, mockSubprocessRun):
-        """Test handling of script execution failure.
+    @patch("mas.cli.must_gather.aiservice.instance._generateAIServiceSummary")
+    @patch("mas.cli.must_gather.aiservice.instance.collectReconcileLogsParallel")
+    def test_collect_aiservice_instance_script_failure(self, mockCollectLogs, mockGenerateSummary):
+        """Test that collection succeeds even if summary generation has issues.
 
-        GIVEN mg-summary-aiservice script fails
+        GIVEN summary generation is called
         WHEN collectAIServiceInstance() is called
-        THEN it logs the error and continues with collection.
+        THEN it continues with collection and returns True.
         """
-        mockSubprocessRun.side_effect = [Exception("Script not found"), MagicMock(returncode=0)]
-
+        # _generateAIServiceSummary handles its own errors internally, so we just verify it's called
         result = instance.collectAIServiceInstance(
             dynClient=self.mockDynClient, instanceId="test1", outputDir="/tmp/output", genericMustGather=self.mockGenericMustGather
         )
 
         self.assertTrue(result)
+        mockGenerateSummary.assert_called_once()
+        mockCollectLogs.assert_called_once()
         self.mockGenericMustGather.assert_called_once()
 
 

@@ -103,8 +103,8 @@ def extractValueFromJsonPath(resource: dict, jsonPath: str) -> str:
             if matches:
                 return str(matches[0].value)
             return ""
-    except (KeyError, IndexError, TypeError, Exception) as e:
-        logger.debug(f"Failed to extract value from JSONPath {jsonPath}: {e}")
+    except (KeyError, IndexError, TypeError, Exception):
+        # Expected for optional fields or empty arrays (e.g., Services without load balancer IPs)
         return ""
 
 
@@ -155,7 +155,7 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
             PrinterColumn("Ready", "string", ".status.containerStatuses[0].ready"),
             PrinterColumn("Status", "string", ".status.phase"),
             PrinterColumn("Restarts", "integer", ".status.containerStatuses[0].restartCount"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("Service", "v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
@@ -163,28 +163,28 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
             PrinterColumn("Cluster-IP", "string", ".spec.clusterIP"),
             PrinterColumn("External-IP", "string", ".status.loadBalancer.ingress[0].ip"),
             PrinterColumn("Port(s)", "string", ".spec.ports[0].port"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("Namespace", "v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Status", "string", ".status.phase"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("ConfigMap", "v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Data", "integer", ".data"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("Secret", "v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Type", "string", ".type"),
             PrinterColumn("Data", "integer", ".data"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("ServiceAccount", "v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Secrets", "integer", ".secrets"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("PersistentVolumeClaim", "v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
@@ -193,7 +193,7 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
             PrinterColumn("Capacity", "string", ".status.capacity.storage"),
             PrinterColumn("Access Modes", "string", ".status.accessModes[0]"),
             PrinterColumn("StorageClass", "string", ".spec.storageClassName"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         # Apps resources
         ("Deployment", "apps/v1"): [
@@ -201,12 +201,12 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
             PrinterColumn("Ready", "string", ".status.readyReplicas"),
             PrinterColumn("Up-to-Date", "integer", ".status.updatedReplicas"),
             PrinterColumn("Available", "integer", ".status.availableReplicas"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("StatefulSet", "apps/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Ready", "string", ".status.readyReplicas"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("DaemonSet", "apps/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
@@ -215,21 +215,21 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
             PrinterColumn("Ready", "integer", ".status.numberReady"),
             PrinterColumn("Up-to-Date", "integer", ".status.updatedNumberScheduled"),
             PrinterColumn("Available", "integer", ".status.numberAvailable"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("ReplicaSet", "apps/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Desired", "integer", ".spec.replicas"),
             PrinterColumn("Current", "integer", ".status.replicas"),
             PrinterColumn("Ready", "integer", ".status.readyReplicas"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         # Batch resources
         ("Job", "batch/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Completions", "string", ".status.succeeded"),
             PrinterColumn("Duration", "string", ".status.completionTime"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("CronJob", "batch/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
@@ -237,26 +237,26 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
             PrinterColumn("Suspend", "boolean", ".spec.suspend"),
             PrinterColumn("Active", "integer", ".status.active"),
             PrinterColumn("Last Schedule", "date", ".status.lastScheduleTime"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         # RBAC resources
         ("Role", "rbac.authorization.k8s.io/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("RoleBinding", "rbac.authorization.k8s.io/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Role", "string", ".roleRef.name"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("ClusterRole", "rbac.authorization.k8s.io/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("ClusterRoleBinding", "rbac.authorization.k8s.io/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Role", "string", ".roleRef.name"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         # Networking resources
         ("Ingress", "networking.k8s.io/v1"): [
@@ -265,7 +265,7 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
             PrinterColumn("Hosts", "string", ".spec.rules[0].host"),
             PrinterColumn("Address", "string", ".status.loadBalancer.ingress[0].ip"),
             PrinterColumn("Ports", "string", ".spec.rules[0].http.paths[0].backend.service.port.number"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         # Storage resources
         ("StorageClass", "storage.k8s.io/v1"): [
@@ -273,14 +273,14 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
             PrinterColumn("Provisioner", "string", ".provisioner"),
             PrinterColumn("Reclaim Policy", "string", ".reclaimPolicy"),
             PrinterColumn("Volume Binding Mode", "string", ".volumeBindingMode"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         # OpenShift specific resources
         ("Node", "v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Status", "string", '.status.conditions[?(@.type=="Ready")].status'),
             PrinterColumn("Roles", "string", ".metadata.labels.node-role\\.kubernetes\\.io/worker"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
             PrinterColumn("Version", "string", ".status.nodeInfo.kubeletVersion"),
         ],
         ("ClusterVersion", "config.openshift.io/v1"): [
@@ -291,20 +291,26 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
             PrinterColumn("Since", "date", '.status.conditions[?(@.type=="Available")].lastTransitionTime'),
             PrinterColumn("Status", "string", '.status.conditions[?(@.type=="Available")].message'),
         ],
+        ("Infrastructure", "config.openshift.io/v1"): [
+            PrinterColumn("Name", "string", ".metadata.name"),
+            PrinterColumn("Platform", "string", ".status.platform"),
+            PrinterColumn("API Server", "string", ".status.apiServerURL"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
+        ],
         # Operator Lifecycle Manager resources
         ("CatalogSource", "operators.coreos.com/v1alpha1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Display", "string", ".spec.displayName"),
             PrinterColumn("Type", "string", ".spec.sourceType"),
             PrinterColumn("Publisher", "string", ".spec.publisher"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("Subscription", "operators.coreos.com/v1alpha1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Package", "string", ".spec.name"),
             PrinterColumn("Source", "string", ".spec.source"),
             PrinterColumn("Channel", "string", ".spec.channel"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
         ("InstallPlan", "operators.coreos.com/v1alpha1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
@@ -322,7 +328,7 @@ def _getFallbackColumns(kind: str, apiVersion: str) -> Optional[List[PrinterColu
         ("PackageManifest", "packages.operators.coreos.com/v1"): [
             PrinterColumn("Name", "string", ".metadata.name"),
             PrinterColumn("Catalog", "string", ".status.catalogSource"),
-            PrinterColumn("Age", "date", ".metadata.creationTimestamp"),
+            PrinterColumn("Created", "date", ".metadata.creationTimestamp"),
         ],
     }
 

@@ -215,17 +215,6 @@ class TestArgumentParser:
         args = parser.parse_args(["--no-sls"])
         assert args.no_sls is True
 
-    def test_parser_accepts_no_mas_quick_summary_flag(self):
-        """Test that --no-mas-quick-summary flag sets no_mas_quick_summary parameter.
-
-        GIVEN argument parser
-        WHEN --no-mas-quick-summary flag is provided
-        THEN no_mas_quick_summary is True.
-        """
-        parser = createArgumentParser()
-        args = parser.parse_args(["--no-mas-quick-summary"])
-        assert args.no_mas_quick_summary is True
-
     def test_parser_accepts_extra_namespaces(self):
         """Test that --extra-namespaces accepts comma-separated list.
 

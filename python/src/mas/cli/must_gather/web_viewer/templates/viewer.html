@@ -353,6 +353,57 @@
             display: none;
         }
 
+        .copy-btn {
+            padding: 4px 8px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .copy-btn:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 4px;
+            border: 1px solid var(--primary);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .resource-link {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .resource-link:hover {
+            color: var(--primary-hover);
+        }
+
         .loading {
             display: flex;
             justify-content: center;
@@ -436,12 +487,24 @@
     <script>
         let manifest = null;
         let currentFile = null;
+        let namespaceManifests = {}; // Cache for loaded namespace manifests
+        let isV2Manifest = false;
 
         async function init() {
             try {
                 const response = await fetch('manifest.json');
                 manifest = await response.json();
-                renderFileTree(manifest.files);
+
+                // Detect manifest version
+                isV2Manifest = manifest.version === '2.0';
+
+                if (isV2Manifest) {
+                    // V2: Render root files and namespace placeholders
+                    renderFileTreeV2();
+                } else {
+                    // V1: Render entire tree at once
+                    renderFileTree(manifest.files);
+                }
 
                 // Load file from URL hash if present
                 const hash = window.location.hash.slice(1);
@@ -455,7 +518,83 @@
             }
         }
 
-        function renderFileTree(files, parentElement = null, path = '') {
+        function renderFileTreeV2() {
+            const container = document.getElementById('fileTree');
+            container.innerHTML = '';
+
+            // Render root-level files first
+            renderFileTree(manifest.files, container, '');
+
+            // Create resources folder with namespace placeholders
+            const resourcesDiv = document.createElement('div');
+            resourcesDiv.className = 'tree-item folder';
+            resourcesDiv.innerHTML = `<span class="tree-icon">▶</span><span>resources</span>`;
+
+            const resourcesChildren = document.createElement('div');
+            resourcesChildren.className = 'tree-children collapsed';
+
+            resourcesDiv.onclick = (e) => {
+                e.stopPropagation();
+                resourcesChildren.classList.toggle('collapsed');
+                resourcesDiv.querySelector('.tree-icon').textContent =
+                    resourcesChildren.classList.contains('collapsed') ? '▶' : '▼';
+            };
+
+            container.appendChild(resourcesDiv);
+            container.appendChild(resourcesChildren);
+
+            // Add namespace folders as lazy-loadable items
+            for (const namespace of manifest.namespaces) {
+                const nsDiv = document.createElement('div');
+                nsDiv.className = 'tree-item folder';
+                nsDiv.innerHTML = `<span class="tree-icon">▶</span><span>${namespace}</span>`;
+                nsDiv.dataset.namespace = namespace;
+
+                const nsChildren = document.createElement('div');
+                nsChildren.className = 'tree-children collapsed';
+                nsChildren.dataset.namespace = namespace;
+
+                nsDiv.onclick = async (e) => {
+                    e.stopPropagation();
+                    const isCollapsed = nsChildren.classList.contains('collapsed');
+
+                    if (isCollapsed) {
+                        // Expanding - load namespace manifest if not cached
+                        if (!namespaceManifests[namespace]) {
+                            nsDiv.querySelector('.tree-icon').textContent = '⏳';
+                            await loadNamespaceManifest(namespace);
+
+                            // Render namespace content
+                            if (namespaceManifests[namespace]) {
+                                renderFileTree(namespaceManifests[namespace].files, nsChildren, `resources/${namespace}`, namespace);
+                            }
+                        }
+                        nsChildren.classList.remove('collapsed');
+                        nsDiv.querySelector('.tree-icon').textContent = '▼';
+                    } else {
+                        // Collapsing
+                        nsChildren.classList.add('collapsed');
+                        nsDiv.querySelector('.tree-icon').textContent = '▶';
+                    }
+                };
+
+                resourcesChildren.appendChild(nsDiv);
+                resourcesChildren.appendChild(nsChildren);
+            }
+        }
+
+        async function loadNamespaceManifest(namespace) {
+            try {
+                const response = await fetch(`resources/${namespace}.json`);
+                const nsManifest = await response.json();
+                namespaceManifests[namespace] = nsManifest;
+            } catch (error) {
+                console.error(`Failed to load namespace manifest for ${namespace}:`, error);
+                namespaceManifests[namespace] = { files: {} };
+            }
+        }
+
+        function renderFileTree(files, parentElement = null, path = '', namespacePrefix = null) {
             const container = parentElement || document.getElementById('fileTree');
             if (!parentElement) container.innerHTML = '';
 
@@ -479,12 +618,16 @@
 
                     container.appendChild(div);
                     container.appendChild(childrenDiv);
-                    renderFileTree(item.children, childrenDiv, itemPath);
+                    renderFileTree(item.children, childrenDiv, itemPath, namespacePrefix);
                 } else {
                     const icon = getFileIcon(name);
                     div.className = 'tree-item';
                     div.innerHTML = `<span class="tree-icon">${icon}</span><span>${name}</span>`;
-                    div.onclick = () => loadFile(itemPath);
+                    // If we have a namespace prefix and item.path is relative, prepend the prefix
+                    const filePath = (namespacePrefix && item.path && !item.path.startsWith('resources/'))
+                        ? `resources/${namespacePrefix}/${item.path}`
+                        : (item.path || itemPath);
+                    div.onclick = () => loadFile(filePath);
                     container.appendChild(div);
                 }
             }
@@ -504,6 +647,46 @@
 
             // Update URL hash for deep linking
             window.location.hash = encodeURIComponent(path);
+
+            // For V2 manifests, check if we need to load a namespace manifest first
+            if (isV2Manifest && path.startsWith('resources/')) {
+                const pathParts = path.split('/');
+                if (pathParts.length >= 2) {
+                    const namespace = pathParts[1];
+                    if (!namespaceManifests[namespace]) {
+                        // Load namespace manifest and expand the folder
+                        await loadNamespaceManifest(namespace);
+
+                        // Find and expand the namespace folder
+                        const nsFolders = document.querySelectorAll('[data-namespace]');
+                        for (const folder of nsFolders) {
+                            if (folder.dataset.namespace === namespace && folder.classList.contains('tree-item')) {
+                                const childrenDiv = folder.nextElementSibling;
+                                if (childrenDiv && childrenDiv.classList.contains('collapsed')) {
+                                    // Render namespace content
+                                    renderFileTree(namespaceManifests[namespace].files, childrenDiv, `resources/${namespace}`);
+                                    childrenDiv.classList.remove('collapsed');
+                                    folder.querySelector('.tree-icon').textContent = '▼';
+                                }
+                                break;
+                            }
+                        }
+
+                        // Also expand resources folder if needed
+                        const resourcesFolders = document.querySelectorAll('.tree-item.folder');
+                        for (const folder of resourcesFolders) {
+                            if (folder.textContent.includes('resources')) {
+                                const childrenDiv = folder.nextElementSibling;
+                                if (childrenDiv && childrenDiv.classList.contains('collapsed')) {
+                                    childrenDiv.classList.remove('collapsed');
+                                    folder.querySelector('.tree-icon').textContent = '▼';
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 
             document.querySelectorAll('.tree-item').forEach(item => {
                 item.classList.remove('active');
@@ -540,6 +723,8 @@
 
                 if (path.endsWith('.md')) {
                     viewer.innerHTML = `<div class="markdown-content">${marked.parse(content)}</div>`;
+                    // Make resource links clickable after rendering
+                    makeResourceLinksClickable();
                 } else if (path.endsWith('.yaml') || path.endsWith('.yml')) {
                     renderYAML(content, viewer);
                 } else if (path.endsWith('.log')) {
@@ -581,6 +766,13 @@
                 }
                 breadcrumb.appendChild(item);
             });
+
+            // Add copy path button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = '📋 Copy Path';
+            copyBtn.onclick = copyBreadcrumbPath;
+            breadcrumb.appendChild(copyBtn);
         }
 
         function showHome() {
@@ -618,6 +810,7 @@
                     <button class="btn btn-secondary" onclick="expandAllYAML()">Expand All</button>
                     <button class="btn btn-secondary" onclick="collapseAllYAML()">Collapse All</button>
                     <button class="btn btn-secondary" onclick="toggleYAMLView()">Toggle Raw View</button>
+                    <button class="btn btn-secondary" onclick="copyYAMLContent()">📋 Copy YAML</button>
                 `;
 
                 const treeContainer = document.createElement('div');
@@ -648,8 +841,9 @@
             }
         }
 
-        function renderYAMLNode(data, container, depth, key = null) {
+        function renderYAMLNode(data, container, depth, key = null, parentPath = '') {
             const indent = '  '.repeat(depth);
+            const currentPath = parentPath ? `${parentPath}.${key}` : key || '';
 
             if (data === null || data === undefined) {
                 const line = document.createElement('div');
@@ -662,20 +856,27 @@
                     const line = document.createElement('div');
                     line.className = 'yaml-line';
                     const toggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
-                    line.innerHTML = `${indent}<span class="yaml-toggle" id="${toggleId}" onclick="toggleYAMLNode('${toggleId}')">▼</span> <span class="yaml-key">${escapeHtml(key)}</span>:`;
+
+                    // Check if this should be collapsed by default
+                    const collapseByDefault = currentPath === 'metadata.annotations' ||
+                                             currentPath === 'metadata.labels' ||
+                                             currentPath === 'metadata.managedFields';
+                    const icon = collapseByDefault ? '▶' : '▼';
+
+                    line.innerHTML = `${indent}<span class="yaml-toggle" id="${toggleId}" onclick="toggleYAMLNode('${toggleId}')">${icon}</span> <span class="yaml-key">${escapeHtml(key)}</span>:`;
                     container.appendChild(line);
 
                     const childContainer = document.createElement('div');
-                    childContainer.className = 'yaml-node';
+                    childContainer.className = collapseByDefault ? 'yaml-node yaml-collapsed' : 'yaml-node';
                     childContainer.id = `node-${toggleId}`;
                     container.appendChild(childContainer);
 
                     for (const [k, v] of Object.entries(data)) {
-                        renderYAMLNode(v, childContainer, depth + 1, k);
+                        renderYAMLNode(v, childContainer, depth + 1, k, currentPath);
                     }
                 } else {
                     for (const [k, v] of Object.entries(data)) {
-                        renderYAMLNode(v, container, depth, k);
+                        renderYAMLNode(v, container, depth, k, parentPath);
                     }
                 }
             } else if (Array.isArray(data)) {
@@ -684,11 +885,18 @@
                     const line = document.createElement('div');
                     line.className = 'yaml-line';
                     const toggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
-                    line.innerHTML = `${indent}<span class="yaml-toggle" id="${toggleId}" onclick="toggleYAMLNode('${toggleId}')">▼</span> <span class="yaml-key">${escapeHtml(key)}</span>:`;
+
+                    // Check if this should be collapsed by default
+                    const collapseByDefault = currentPath === 'metadata.annotations' ||
+                                             currentPath === 'metadata.labels' ||
+                                             currentPath === 'metadata.managedFields';
+                    const icon = collapseByDefault ? '▶' : '▼';
+
+                    line.innerHTML = `${indent}<span class="yaml-toggle" id="${toggleId}" onclick="toggleYAMLNode('${toggleId}')">${icon}</span> <span class="yaml-key">${escapeHtml(key)}</span>:`;
                     container.appendChild(line);
 
                     const childContainer = document.createElement('div');
-                    childContainer.className = 'yaml-node';
+                    childContainer.className = collapseByDefault ? 'yaml-node yaml-collapsed' : 'yaml-node';
                     childContainer.id = `node-${toggleId}`;
                     container.appendChild(childContainer);
 
@@ -708,11 +916,11 @@
 
                             if (Array.isArray(item)) {
                                 item.forEach((subItem, subIndex) => {
-                                    renderYAMLNode(subItem, itemContainer, depth + 2, null);
+                                    renderYAMLNode(subItem, itemContainer, depth + 2, null, currentPath);
                                 });
                             } else {
                                 for (const [k, v] of Object.entries(item)) {
-                                    renderYAMLNode(v, itemContainer, depth + 2, k);
+                                    renderYAMLNode(v, itemContainer, depth + 2, k, currentPath);
                                 }
                             }
                         } else {
@@ -787,8 +995,154 @@
             }
         }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
+        // Copy functionality
+        function copyToClipboard(text, message = 'Copied to clipboard') {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(message);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showToast('Failed to copy', true);
+            });
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            if (isError) {
+                toast.style.borderColor = '#ff6b6b';
+                toast.style.background = '#3a1f1f';
+            }
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function copyBreadcrumbPath() {
+            if (currentFile) {
+                copyToClipboard(currentFile, 'Path copied to clipboard');
+            }
+        }
+
+        function copyTableAsMarkdown(table) {
+            const rows = Array.from(table.querySelectorAll('tr'));
+            const markdown = rows.map(row => {
+                const cells = Array.from(row.querySelectorAll('th, td'));
+                return '| ' + cells.map(cell => cell.textContent.trim()).join(' | ') + ' |';
+            }).join('\n');
+
+            // Add separator after header
+            if (rows.length > 1) {
+                const headerCells = rows[0].querySelectorAll('th, td').length;
+                const separator = '| ' + Array(headerCells).fill('---').join(' | ') + ' |';
+                const lines = markdown.split('\n');
+                lines.splice(1, 0, separator);
+                copyToClipboard(lines.join('\n'), 'Table copied as markdown');
+            } else {
+                copyToClipboard(markdown, 'Table copied as markdown');
+            }
+        }
+
+        function copyYAMLContent() {
+            const rawView = document.getElementById('yamlRaw');
+            if (rawView) {
+                // Get text content from raw view
+                const lines = Array.from(rawView.querySelectorAll('.code-line'));
+                const content = lines.map(line => line.textContent).join('\n');
+                copyToClipboard(content, 'YAML copied to clipboard');
+            }
+        }
+
+        // Resource link functionality
+        function makeResourceLinksClickable() {
+            const viewer = document.getElementById('contentViewer');
+            const tables = viewer.querySelectorAll('.markdown-content table');
+
+            tables.forEach(table => {
+                // Add copy button to table
+                if (!table.previousElementSibling || !table.previousElementSibling.classList.contains('copy-btn')) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.textContent = '📋 Copy Table';
+                    copyBtn.onclick = () => copyTableAsMarkdown(table);
+                    table.parentNode.insertBefore(copyBtn, table);
+                }
+
+                // Make resource names in first column clickable
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const firstCell = row.querySelector('td:first-child');
+                    if (firstCell) {
+                        const text = firstCell.textContent.trim();
+                        // Check if it looks like a resource name (not empty, not a status/number)
+                        if (text && !text.match(/^\d+$/) && !text.match(/^(Running|Pending|Failed|Succeeded|Unknown|True|False)$/i)) {
+                            // Try to find corresponding YAML file
+                            const resourceName = text;
+                            firstCell.innerHTML = `<span class="resource-link" onclick="navigateToResource('${escapeHtml(resourceName)}')">${escapeHtml(resourceName)}</span>`;
+                        }
+                    }
+                });
+            });
+        }
+
+        async function navigateToResource(resourceName) {
+            if (!currentFile) return;
+
+            // Determine the directory of the current file
+            const currentDir = currentFile.substring(0, currentFile.lastIndexOf('/'));
+
+            // Common patterns for resource YAML files
+            const possiblePaths = [
+                `${currentDir}/${resourceName}.yaml`,
+                `${currentDir}/${resourceName}.yml`,
+                `${currentDir}/${resourceName}/${resourceName}.yaml`,
+                `${currentDir}/${resourceName}/${resourceName}.yml`,
+            ];
+
+            // Try each possible path
+            for (const path of possiblePaths) {
+                try {
+                    const response = await fetch(path, { method: 'HEAD' });
+                    if (response.ok) {
+                        await loadFile(path);
+                        return;
+                    }
+                } catch (e) {
+                    // Continue to next path
+                }
+            }
+
+            // If no file found, show error
+            showToast(`Resource file not found: ${resourceName}`, true);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', async (e) => {
             const query = e.target.value.toLowerCase();
+
+            // For V2 manifests with search query, load all namespace manifests
+            if (isV2Manifest && query && manifest.namespaces) {
+                for (const namespace of manifest.namespaces) {
+                    if (!namespaceManifests[namespace]) {
+                        await loadNamespaceManifest(namespace);
+
+                        // Find the namespace folder and render its content
+                        const nsFolders = document.querySelectorAll('[data-namespace]');
+                        for (const folder of nsFolders) {
+                            if (folder.dataset.namespace === namespace && folder.classList.contains('tree-item')) {
+                                const childrenDiv = folder.nextElementSibling;
+                                if (childrenDiv && namespaceManifests[namespace]) {
+                                    renderFileTree(namespaceManifests[namespace].files, childrenDiv, `resources/${namespace}`);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Perform search
             document.querySelectorAll('.tree-item').forEach(item => {
                 const text = item.textContent.toLowerCase();
                 item.style.display = text.includes(query) ? '' : 'none';

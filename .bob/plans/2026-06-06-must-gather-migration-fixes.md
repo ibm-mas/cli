@@ -219,12 +219,12 @@ Fix bugs in the Python must-gather migration:
   - [x] Fixed Black warning by adding `target-version = ['py312']` to pyproject.toml
   - [x] No formatting or linting issues found
 
-[ ] **3.5** Manual testing (optional - for final verification)
-  - [ ] Execute: `mas-cli must-gather --directory testing`
-  - [ ] Verify SLS resources are in correct path (single "resources")
-  - [ ] Verify all namespace indexes use `.md` format
-  - [ ] Check pods.md includes both YAML and log links
-  - [ ] Test web viewer: `mas-cli must-gather serve --dir testing/must-gather/{timestamp}`
+[x] **3.5** Manual testing (optional - for final verification)
+  - [x] Execute: `mas-cli must-gather --directory testing`
+  - [x] Verify SLS resources are in correct path (single "resources")
+  - [x] Verify all namespace indexes use `.md` format
+  - [x] Check pods.md includes both YAML and log links
+  - [x] Test web viewer: `mas-cli must-gather serve --dir testing/must-gather/{timestamp}`
 
 ## Final Validation
 

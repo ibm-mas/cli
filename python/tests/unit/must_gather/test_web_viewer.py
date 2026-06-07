@@ -38,8 +38,9 @@ class TestManifestGeneration:
             assert "version" in manifest
             assert "generated" in manifest
             assert "files" in manifest
-            assert manifest["version"] == "1.0"
-            assert "resources" in manifest["files"]
+            assert manifest["version"] == "2.0"
+            # In version 2.0, resources directory creates split manifests, so files dict may be empty
+            # or contain non-namespace directories
 
     def test_generateManifest_handles_nested_directories(self):
         """Test that generateManifest handles nested directory structures.
@@ -57,10 +58,10 @@ class TestManifestGeneration:
             # Generate manifest
             manifest = web_viewer.generateManifest(tmpDir)
 
-            # Verify nested structure
-            assert "resources" in manifest["files"]
-            assert manifest["files"]["resources"]["type"] == "directory"
-            assert "namespace1" in manifest["files"]["resources"]["children"]
+            # Verify nested structure - in v2.0, namespace directories create split manifests
+            assert "namespaces" in manifest
+            assert "namespace1" in manifest["namespaces"]
+            # Resources directory itself is not in files since all its subdirectories are namespaces
 
     def test_generateManifest_excludes_hidden_files(self):
         """Test that generateManifest excludes hidden files.
@@ -311,7 +312,10 @@ class TestWebViewerGeneration:
             with open(Path(tmpDir) / "manifest.json", "r") as f:
                 manifest = json.load(f)
 
-            assert "resources" in manifest["files"]
-            assert "_cluster" in manifest["files"]["resources"]["children"]
-            assert "namespace1" in manifest["files"]["resources"]["children"]
+            # In v2.0, namespace directories under resources/ create split manifests
+            assert "namespaces" in manifest
+            assert "_cluster" in manifest["namespaces"]
+            assert "namespace1" in manifest["namespaces"]
+            assert "namespace2" in manifest["namespaces"]
+            # Non-namespace directories like logs are in files
             assert "logs" in manifest["files"]

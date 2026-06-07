@@ -284,17 +284,6 @@ must-gather-output/
   - [ ] Add "Copy path" button for breadcrumb
   - [ ] Show toast notification on copy
 
-- [ ] **5.4** Performance optimizations
-  - [ ] Implement lazy loading for large files (>1MB)
-  - [ ] Add "Load more" button for truncated content
-  - [ ] Cache loaded files in memory
-  - [ ] Add loading spinner for slow operations
-
-- [ ] **5.5** Validation
-  - [ ] Test collapsible YAML with complex resources
-  - [ ] Test resource links with various markdown tables
-  - [ ] Test copy functionality in different browsers
-  - [ ] Test performance with large files (10MB+ logs)
 
 ### Phase 6: Documentation and Testing ✅
 **Objective**: Document viewer usage and create comprehensive tests

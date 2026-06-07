@@ -9,34 +9,35 @@ import logging
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Set
 
 logger = logging.getLogger(__name__)
 
 
 def generateManifest(outputDir: str) -> Dict[str, Any]:
-    """Generate manifest.json with file tree structure and metadata.
+    """Generate split manifest files with per-namespace manifests.
 
-    Walks the output directory tree and builds a nested structure representing
-    all files and directories. Excludes binary files and includes metadata
-    about the collection.
+    Creates a root manifest.json with metadata and namespace list, plus
+    individual manifest files for each namespace in resources/{namespace}.json.
+    This enables lazy loading in the web viewer for better performance.
 
     Args:
         outputDir (str): Path to the must-gather output directory
 
     Returns:
-        Dict[str, Any]: Manifest dictionary containing file tree and metadata
+        Dict[str, Any]: Root manifest dictionary containing metadata and namespace list
 
     Raises:
-        OSError: If directory cannot be read or manifest cannot be written
+        OSError: If directory cannot be read or manifests cannot be written
     """
-    logger.info(f"Generating manifest for {outputDir}")
+    logger.info(f"Generating split manifests for {outputDir}")
 
     outputPath = Path(outputDir)
     if not outputPath.exists():
         raise OSError(f"Output directory does not exist: {outputDir}")
 
-    manifest = {"version": "1.0", "generated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "files": {}}
+    # Initialize root manifest
+    manifest = {"version": "2.0", "generated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "namespaces": [], "files": {}}
 
     # Add cluster metadata if available
     clusterInfoPath = outputPath / "resources" / "_cluster" / "clusterversions.md"
@@ -44,27 +45,45 @@ def generateManifest(outputDir: str) -> Dict[str, Any]:
         try:
             with open(clusterInfoPath, "r", encoding="utf-8") as f:
                 f.read()  # Read to verify file is accessible
-                # Extract cluster version from markdown if possible
                 manifest["cluster"] = {"info_available": True}
         except Exception as e:
             logger.warning(f"Could not read cluster info: {e}")
 
-    # Build file tree
-    manifest["files"] = _buildFileTree(outputPath, outputPath)
+    # Identify namespaces in resources directory
+    resourcesPath = outputPath / "resources"
+    namespaces = []
+    if resourcesPath.exists() and resourcesPath.is_dir():
+        for item in sorted(resourcesPath.iterdir()):
+            if item.is_dir():
+                namespaces.append(item.name)
+                logger.info(f"Found namespace: {item.name}")
+
+    manifest["namespaces"] = namespaces
+
+    # Build file tree for root level (excluding resources directory)
+    manifest["files"] = _buildFileTree(outputPath, outputPath, excludeDirs={"resources"})
+
+    # Generate per-namespace manifests
+    for namespace in namespaces:
+        _generateNamespaceManifest(outputPath, namespace)
 
     return manifest
 
 
-def _buildFileTree(basePath: Path, currentPath: Path) -> Dict[str, Any]:
+def _buildFileTree(basePath: Path, currentPath: Path, excludeDirs: Optional[Set[str]] = None) -> Dict[str, Any]:
     """Recursively build file tree structure.
 
     Args:
         basePath (Path): Base output directory path
         currentPath (Path): Current directory being processed
+        excludeDirs (Optional[Set[str]], optional): Set of directory names to exclude from tree. Defaults to None.
 
     Returns:
         Dict[str, Any]: Nested dictionary representing file tree
     """
+    if excludeDirs is None:
+        excludeDirs = set()
+
     tree = {}
 
     try:
@@ -78,10 +97,14 @@ def _buildFileTree(basePath: Path, currentPath: Path) -> Dict[str, Any]:
         if item.name.startswith(".") or item.name in ["manifest.json", "index.html"]:
             continue
 
+        # Skip excluded directories (only at root level)
+        if item.is_dir() and currentPath == basePath and item.name in excludeDirs:
+            continue
+
         relativePath = item.relative_to(basePath)
 
         if item.is_dir():
-            children = _buildFileTree(basePath, item)
+            children = _buildFileTree(basePath, item, excludeDirs)
             if children:  # Only include non-empty directories
                 tree[item.name] = {"type": "directory", "children": children}
         else:
@@ -92,6 +115,40 @@ def _buildFileTree(basePath: Path, currentPath: Path) -> Dict[str, Any]:
             tree[item.name] = {"type": "file", "path": str(relativePath).replace("\\", "/"), "size": item.stat().st_size}
 
     return tree
+
+
+def _generateNamespaceManifest(outputPath: Path, namespace: str) -> None:
+    """Generate manifest file for a specific namespace.
+
+    Creates a manifest file at resources/{namespace}.json containing
+    the file tree for that namespace only.
+
+    Args:
+        outputPath (Path): Base output directory path
+        namespace (str): Namespace name
+
+    Raises:
+        OSError: If manifest cannot be written
+    """
+    namespacePath = outputPath / "resources" / namespace
+    if not namespacePath.exists():
+        logger.warning(f"Namespace directory does not exist: {namespacePath}")
+        return
+
+    logger.info(f"Generating manifest for namespace: {namespace}")
+
+    # Build file tree for this namespace
+    namespaceManifest = {"namespace": namespace, "files": _buildFileTree(namespacePath, namespacePath)}
+
+    # Write namespace manifest
+    manifestPath = outputPath / "resources" / f"{namespace}.json"
+    try:
+        with open(manifestPath, "w", encoding="utf-8") as f:
+            json.dump(namespaceManifest, f, indent=2)
+        logger.info(f"Wrote namespace manifest: {manifestPath}")
+    except Exception as e:
+        logger.error(f"Failed to write namespace manifest for {namespace}: {e}")
+        raise OSError(f"Failed to write namespace manifest: {e}")
 
 
 def _isBinaryFile(filePath: Path) -> bool:

@@ -2,7 +2,6 @@
 
 import logging
 import os
-import subprocess
 from typing import List, Optional, Callable
 
 from kubernetes.dynamic import DynamicClient
@@ -70,11 +69,63 @@ def discoverAIServiceInstances(dynClient: DynamicClient, instanceIds: Optional[s
     return sorted(instances)
 
 
+def _generateAIServiceSummary(dynClient: DynamicClient, namespace: str, outputFile: str) -> None:
+    """Generate AI Service summary for a namespace.
+
+    Collects AIServiceApp and AIServiceTenant resources and writes them to a summary file.
+
+    Args:
+        dynClient (DynamicClient): Kubernetes Dynamic Client
+        namespace (str): Namespace to collect from
+        outputFile (str): Path to output summary file
+    """
+    try:
+        with open(outputFile, "w") as f:
+            # AIServiceApp resources
+            f.write("IBM Maximo AI Service Application\n")
+            f.write("-" * 80 + "\n")
+            try:
+                api = dynClient.resources.get(api_version="aiservice.ibm.com/v1", kind="AIServiceApp")
+                apps = api.get(namespace=namespace)
+                if apps.items:
+                    for app in apps.items:
+                        f.write(f"Name: {app.metadata.name}\n")
+                        f.write(f"Namespace: {app.metadata.namespace}\n")
+                        if hasattr(app, "status") and app.status:
+                            f.write(f"Status: {app.status}\n")
+                        f.write("\n")
+                else:
+                    f.write("No AIServiceApp resources found\n\n")
+            except Exception as e:
+                f.write(f"Error collecting AIServiceApp: {e}\n\n")
+
+            # AIServiceTenant resources
+            f.write("IBM Maximo AI Service - AI Service Tenant Configuration\n")
+            f.write("-" * 80 + "\n")
+            try:
+                api = dynClient.resources.get(api_version="aiservice.ibm.com/v1", kind="AIServiceTenant")
+                tenants = api.get(namespace=namespace)
+                if tenants.items:
+                    for tenant in tenants.items:
+                        f.write(f"Name: {tenant.metadata.name}\n")
+                        f.write(f"Namespace: {tenant.metadata.namespace}\n")
+                        if hasattr(tenant, "status") and tenant.status:
+                            f.write(f"Status: {tenant.status}\n")
+                        f.write("\n")
+                else:
+                    f.write("No AIServiceTenant resources found\n\n")
+            except Exception as e:
+                f.write(f"Error collecting AIServiceTenant: {e}\n\n")
+
+        logger.debug(f"Generated AI Service summary: {outputFile}")
+    except Exception as e:
+        logger.warning(f"Failed to generate AI Service summary: {e}")
+
+
 def collectAIServiceInstance(dynClient: DynamicClient, instanceId: str, outputDir: str, genericMustGather: Optional[Callable] = None) -> bool:
     """Collect resources from an AI Service instance namespace.
 
-    Calls mg-summary-aiservice and mg-collect-aiservice scripts for the instance,
-    then uses genericMustGather to collect standard resources.
+    Collects AI Service summary, reconcile logs, and standard resources using Python Kubernetes client.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client
@@ -94,7 +145,12 @@ def collectAIServiceInstance(dynClient: DynamicClient, instanceId: str, outputDi
     # Create output directory
     os.makedirs(instanceOutputDir, exist_ok=True)
 
+    # Generate AI Service summary
+    summaryFile = os.path.join(instanceOutputDir, "aiservice-summary.txt")
+    _generateAIServiceSummary(dynClient, namespace, summaryFile)
+
     # Collect reconcile logs from AI Service operators
+    # Note: mg-collect-aiservice only collected reconcile logs, which is now handled here
     operators = [
         (namespace, "control-plane", "ibm-aiservice"),
         (namespace, "aiservice.ibm.com/appType", "entitymgr-tenant-operator"),
@@ -107,22 +163,6 @@ def collectAIServiceInstance(dynClient: DynamicClient, instanceId: str, outputDi
         logger.info(f"Collecting reconcile logs: {completed}/{total} operators completed")
 
     collectReconcileLogsParallel(dynClient, operators, outputDir, progressCallback=progressCallback)
-
-    # Call mg-summary-aiservice script
-    summaryFile = os.path.join(instanceOutputDir, "aiservice-summary.txt")
-    try:
-        with open(summaryFile, "w") as f:
-            subprocess.run(["mg-summary-aiservice", namespace], stdout=f, stderr=subprocess.STDOUT, check=False, timeout=300)
-        logger.debug(f"Generated AI Service summary for {instanceId}")
-    except Exception as e:
-        logger.warning(f"Failed to generate AI Service summary for {instanceId}: {e}")
-
-    # Call mg-collect-aiservice script
-    try:
-        subprocess.run(["mg-collect-aiservice", namespace, instanceOutputDir], check=False, timeout=600)
-        logger.debug(f"Collected AI Service resources for {instanceId}")
-    except Exception as e:
-        logger.warning(f"Failed to collect AI Service resources for {instanceId}: {e}")
 
     # Use genericMustGather for standard resource collection
     if genericMustGather:

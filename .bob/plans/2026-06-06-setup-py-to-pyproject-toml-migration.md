@@ -94,8 +94,8 @@ Update Makefile and build workflow to work from repository root
 
 - [x] **2.1** Update [`python/Makefile`](python/Makefile)
   - [x] Update paths to work from python/ subdirectory but reference root pyproject.toml
-  - [ ] Test editable install: `pip install -e .[dev]` from root
-  - [ ] Ensure all targets (install, build, test, lint) function correctly
+  - [x] Test editable install: `pip install -e .[dev]` from root
+  - [x] Ensure all targets (install, build, test, lint) function correctly
 - [x] **2.2** Update [`.github/workflows/build-cli.yml`](.github/workflows/build-cli.yml)
   - [x] **CRITICAL**: Change `cd $GITHUB_WORKSPACE/python` to work from root (line 101)
   - [x] Update version injection sed commands (lines 102-107) to use `python/src/` paths
@@ -119,26 +119,26 @@ Use the **new_task** tool to launch a subtask in **code** mode to complete this 
 Test root pyproject.toml build alongside python/setup.py to ensure compatibility
 ```
 
-- [ ] **3.1** Build package with root pyproject.toml
-  - [ ] Run `python -m build` from repository root
-  - [ ] Verify wheel and sdist are created in `dist/`
-  - [ ] Extract and inspect wheel contents
-  - [ ] Compare with python/setup.py-built package
-- [ ] **3.2** Verify package contents
-  - [ ] Check `mas.cli` module is present (from python/src/)
-  - [ ] Verify all template files are included
-  - [ ] Confirm `mas-cli` script is in wheel
-  - [ ] Verify package structure matches python/setup.py build
-- [ ] **3.3** Test installation scenarios
-  - [ ] Fresh venv: `pip install dist/mas_cli-*.whl`
-  - [ ] Editable install from root: `pip install -e .[dev]`
-  - [ ] Verify `mas-cli --help` works
-  - [ ] Run existing tests: `pytest`
-- [ ] **3.4** Test version injection mechanism
-  - [ ] Manually run sed commands with updated paths (python/src/)
-  - [ ] Build package after version injection
-  - [ ] Verify version appears correctly in built package
-  - [ ] Check both `__version__` and `self.version` are updated
+- [x] **3.1** Build package with root pyproject.toml
+  - [x] Run `python -m build` from repository root
+  - [x] Verify wheel and sdist are created in `dist/`
+  - [x] Extract and inspect wheel contents
+  - [x] Compare with python/setup.py-built package
+- [x] **3.2** Verify package contents
+  - [x] Check `mas.cli` module is present (from python/src/)
+  - [x] Verify all template files are included
+  - [x] Confirm `mas-cli` script is in wheel
+  - [x] Verify package structure matches python/setup.py build
+- [x] **3.3** Test installation scenarios
+  - [x] Fresh venv: `pip install dist/mas_cli-*.whl`
+  - [x] Editable install from root: `pip install -e .[dev]`
+  - [x] Verify `mas-cli --help` works
+  - [x] Run existing tests: `pytest`
+- [x] **3.4** Test version injection mechanism
+  - [x] Manually run sed commands with updated paths (python/src/)
+  - [x] Build package after version injection
+  - [x] Verify version appears correctly in built package
+  - [x] Check both `__version__` and `self.version` are updated
 
 **Validation**: Package installs and functions identically to python/setup.py-built version
 
