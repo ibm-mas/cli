@@ -30,6 +30,10 @@ class TestUpgradeChannelLogic:
             app.skipPreCheck = False
             app.licenseAccepted = True
             app.devMode = False
+            # Initialize install flags
+            app.installMonitor = False
+            app.installIoT = False
+            app.installFacilities = False
             # Mock the underlying _dynClient attribute (dynamicClient is a property)
             mock_client = Mock()
             # Create a function to return different mocks based on the kind parameter
@@ -185,18 +189,19 @@ class TestUpgradeChannelLogic:
             mock_apps = [{"appId": "manage", "channel": "8.7.x"}]
             with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=mock_apps):
                 with patch("mas.cli.upgrade.app.verifyAppInstance", return_value=False):
-                    # Mock args
-                    mock_args = Mock()
-                    mock_args.mas_instance_id = "test-inst"
-                    mock_args.no_confirm = True
-                    mock_args.skip_pre_check = False
-                    mock_args.accept_license = True
-                    mock_args.dev_mode = False
-                    mock_args.next_channel = "9.1.x"
-                    with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
-                        with pytest.raises(SystemExit) as exc_info:
-                            mock_upgrade_app.upgrade([])
-                        assert exc_info.value.code == 1
+                    with patch("mas.cli.upgrade.app.getWorkspaceId", return_value="test-ws"):
+                        # Mock args - no next_channel so it will be auto-derived and validation will run
+                        mock_args = Mock()
+                        mock_args.mas_instance_id = "test-inst"
+                        mock_args.no_confirm = True
+                        mock_args.skip_pre_check = False
+                        mock_args.accept_license = True
+                        mock_args.dev_mode = False
+                        mock_args.next_channel = ""  # Empty to trigger auto-derivation and validation
+                        with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
+                            with pytest.raises(SystemExit) as exc_info:
+                                mock_upgrade_app.upgrade([])
+                            assert exc_info.value.code == 1
 
 
 # Made with Bob

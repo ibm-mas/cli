@@ -317,11 +317,12 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.printDescription(
                 [f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."]
             )
-            self.printH1("Configure IBM Container Registry")
-            self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
-            if self.devMode:
-                self.promptForString("Artifactory username", "artifactory_username")
-                self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
+            if not self.noConfirm:
+                self.printH1("Configure IBM Container Registry")
+                self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+                if self.devMode:
+                    self.promptForString("Artifactory username", "artifactory_username")
+                    self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
             self.setParam("should_install_manage_foundation", "true")
             self.setParam("mas_appws_components", "")
             self.setParam("mas_app_settings_aio_flag", "false")
