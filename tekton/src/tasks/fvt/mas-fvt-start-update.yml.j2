@@ -6,28 +6,13 @@ metadata:
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
-  volumes:
-    - name: mas-fvt-update
-      secret:
-        secretName: mas-fvt-update
-        items:
-          - key: DB2_LICENSE
-            path: db2_license.lic
+
   steps:
     - name: start-update
-      volumeMounts:
-        - name: mas-fvt-update
-          mountPath: /etc/mas-fvt-update
-          readOnly: true
       script: |
         #!/usr/bin/env bash
-        if [[ -f "/etc/mas-fvt-update/db2_license.lic" && "$CLI_UPDATE_EXTRA_FLAGS" == *"--db2-v12-upgrade"* ]]; then
-          mas update --catalog "$MAS_CATALOG_VERSION_UPDATE" $CLI_UPDATE_EXTRA_FLAGS --db2-license-file "/etc/mas-fvt-update/db2_license.lic" --no-confirm
-        else
-          mas update --catalog "$MAS_CATALOG_VERSION_UPDATE" $CLI_UPDATE_EXTRA_FLAGS --no-confirm
-        fi
-
-        RESULT=$?
+        mas update --catalog $MAS_CATALOG_VERSION_UPDATE $CLI_UPDATE_EXTRA_FLAGS --no-confirm
+        RESULT=$1
         echo 'MAS LOG'
         echo '--------------------------------------------------------------------------------'
         cat mas.log

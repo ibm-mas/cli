@@ -250,8 +250,10 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 4. Routing Mode Configuration - Select path-based routing
         ".*Routing Mode.*": lambda msg: "1",  # Select path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
+        # 5. Manual Routes Configuration - to use manual route configuration
+        ".*Disable Route Creation.*": lambda msg: "y",  # Select to use service mesh
         # 5. Service Mesh Configuration - to use service mesg
-        ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",  # Select to use service mesh
+        ".*Use Service Mesh.*": lambda msg: "y",  # Select to use service mesh
         # 5. Configure IngressController for path-based routing
         ".*Configure ingress namespace ownership.*": lambda msg: "y",  # Agree to configure
         # 5. Storage classes
@@ -277,7 +279,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 10. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
         # 11. Permission mode
-        ".*Mas Admin Mode.*": lambda msg: "1",
+        ".*Permission Mode.*": lambda msg: "1",
         # 12. Internal certificate issuer kind (appears when Permission Mode is cluster)
         ".*Certificate issuer kind.*": lambda msg: "2",  # Select ClusterIssuer
         # 13. Certificate Authority Trust
@@ -405,8 +407,6 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
             "MAS_SUPERUSER_PASSWORD",
             "--mas-channel",
             "9.2.x-dev",
-            "--admin-mode",
-            "cluster",
             "--iot-channel",
             "9.2.x-dev",
             "--db2-system",
@@ -546,8 +546,6 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
             "MAS_SUPERUSER_PASSWORD",
             "--mas-channel",
             "9.2.x-dev",
-            "--admin-mode",
-            "cluster",
             "--routing",
             "path",
             "--ingress-controller-name",
@@ -690,8 +688,6 @@ def test_install_master_dev_mode_non_interactive_with_slack(tmpdir):
             "MAS_SUPERUSER_PASSWORD",
             "--mas-channel",
             "9.2.x-dev",
-            "--admin-mode",
-            "cluster",
             "--iot-channel",
             "9.2.x-dev",
             "--db2-system",

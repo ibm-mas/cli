@@ -69,21 +69,6 @@ spec:
               key: DEVOPS_BUILD_NUMBER
               optional: true
 
-        # Black and white listing
-        - name: FVT_BLACKLIST
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-iot
-              key: FVT_BLACKLIST
-              optional: false
-        - name: FVT_WHITELIST
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-iot
-              key: FVT_WHITELIST
-              optional: false
-
-
         - name: NAMESPACE
           value: "mas-$(params.mas_instance_id)-core"
         - name: INSTANCE_ID

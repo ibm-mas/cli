@@ -81,21 +81,6 @@ spec:
               key: DEVOPS_BUILD_NUMBER
               optional: true
 
-        # Black and white listing
-        - name: FVT_BLACKLIST
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: FVT_BLACKLIST
-              optional: false
-        - name: FVT_WHITELIST
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: FVT_WHITELIST
-              optional: false
-
-
         # Test Data
         - name: FVT_TEST_SUITE
           value: $(params.fvt_test_suite)

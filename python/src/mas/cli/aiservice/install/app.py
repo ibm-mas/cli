@@ -77,7 +77,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
             return
 
-        if self.admin_mode == "minimal":
+        if self.skip_preinstall_rbac:
             return
 
         permissionResults = permissionCheckForRBAC(self.dynamicClient)
@@ -87,42 +87,37 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.applyPreInstallMASRBAC = True
             return
 
-        self.printH2("Pre-Install RBAC Configuration")
-        # User does not have permissions to apply RBAC
-        self.printDescription(
-            [
-                f"Admin mod: '{self.admin_mode}'.",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        if self.noConfirm:
-            self.printDescription(
-                [
-                    f"Installation will continue with the selected '{self.admin_mode}' admin mode.",
-                    "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
-                    "With the --no-confirm flag, the installation assumes the required RBAC has already been applied by your OpenShift administrator.",
-                    "If it has not been applied, ensure your OpenShift administrator runs 'mas pre-install' with the same admin mode before the installation proceeds.",
-                ]
-            )
-        else:
+        if self.isInteractiveMode:
             self.printDescription(
                 [
                     "",
+                    f"You selected the '{self.permission_mode}' permission mode.",
+                    "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
                     "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance, channel, admin mode, and selected apps.",
-                    "If that has already been done, you can continue the installation.",
+                    "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance.",
+                    "If that has already been done, you can continue the installation without applying it again.",
                 ]
             )
 
             if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this AI Service installation"):
                 self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again using the same admin mode."
+                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again with --skip-preinstall-rbac."
                 )
+        else:
+            self.fatalError(
+                "\n".join(
+                    [
+                        f"You selected the '{self.permission_mode}' permission mode.",
+                        "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
+                        "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
+                        "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas aiservice-install' with --skip-preinstall-rbac.",
+                    ]
+                )
+            )
 
-    def configAdminMode(self) -> None:
+    def configPermissionMode(self) -> None:
         if self.showAdvancedOptions:
-            self.printH1("Configure Admin Mode")
+            self.printH1("Configure Permission Mode")
             self.printDescription(
                 [
                     "Choose how AI Service should be installed with respect to permissions:",
@@ -143,11 +138,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 ]
             )
 
-            adminModeInt = self.promptForInt("Admin Mode", default=1, min=1, max=3)
-            adminModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
-            self.admin_mode = adminModeMap[adminModeInt]
-        elif self.admin_mode == "":
-            self.admin_mode = "cluster"
+            permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
+            permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
+            self.permission_mode = permissionModeMap[permissionModeInt]
+        elif self.permission_mode == "":
+            self.permission_mode = "cluster"
 
     @logMethodCall
     def processCatalogChoice(self) -> list:
@@ -259,8 +254,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
         )
         self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
+        # Permission mode prompt (especially in dev mode)
         if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            self.configAdminMode()
+            self.configPermissionMode()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -428,6 +424,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 "accept_license",
                 "dev_mode",
                 "skip_pre_check",
+                "skip_preinstall_rbac",
                 "skip_grafana_install",
                 "no_confirm",
                 "help",
@@ -469,16 +466,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.validateCatalogSource()
             self.licensePrompt()
 
-        # Validate admin mode based on AI Service version
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            # AI Service 9.2+: --admin-mode is REQUIRED
-            if self.admin_mode == "":
-                self.fatalError(
-                    f"--admin-mode is required for MAS version 9.2 or higher (selected channel: {self.getParam('aiservice_channel')}). Valid options: cluster, namespaced, minimal"
-                )
-        else:
-            if self.admin_mode != "":
-                self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('aiservice_channel')})")
+        if self.permission_mode != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
+            self.fatalError("--permission-mode is supported only for AI Service releases aligned to MAS 9.2.0 and later")
+
+        # Set default permission_mode for 9.2.0+ if not provided
+        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")) and self.permission_mode == "":
+            self.permission_mode = "cluster"
 
     @logMethodCall
     def install(self, argv):
@@ -494,7 +487,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.noConfirm = args.no_confirm
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
-        self.admin_mode = args.admin_mode if args.admin_mode else ""
+        self.permission_mode = args.permission_mode if args.permission_mode else ""
 
         self.printDescription(
             [
@@ -522,6 +515,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
+        self.skip_preinstall_rbac = hasattr(args, "skip_preinstall_rbac") and args.skip_preinstall_rbac
+
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
@@ -531,7 +526,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
-            print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
+            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
             exit(1)
 
         # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
@@ -630,7 +625,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                         dynClient=self.dynamicClient,
                         masVersion=".".join(self.getParam("aiservice_channel").split(".")[:2]),
                         masInstanceId=self.getParam("aiservice_instance_id"),
-                        adminMode=self.admin_mode,
+                        permissionMode=self.permission_mode,
                         selectedApps=["aiservice"],
                     )
                     h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for AI Service is ready for {self.getParam('aiservice_instance_id')}")

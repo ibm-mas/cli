@@ -29,7 +29,6 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-cfg-mongo $OUTPU
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-cfg-kafka $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-cfg-objectstorage $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-cfg-smtp $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-cfg-ai $OUTPUT_DIR
 
 #Truststore
 $DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR

@@ -638,12 +638,10 @@ class BaseApp(PrintMixin, PromptMixin):
         if architecture is not None:
             self.architecture = architecture
             logger.debug(f"Target architecture (overridden): {self.architecture}")
-        elif self.dynamicClient is not None:
+        else:
             nodes = getNodes(self.dynamicClient)
             self.architecture = nodes[0]["status"]["nodeInfo"]["architecture"]
             logger.debug(f"Target architecture: {self.architecture}")
-        else:
-            return
 
         if self.architecture not in ["amd64", "s390x", "ppc64le"]:
             self.fatalError(f"Unsupported worker node architecture: {self.architecture}")

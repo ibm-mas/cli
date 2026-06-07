@@ -232,14 +232,3 @@ class BucketPrefixValidator(Validator):
 
         if not match(r"^.{1,4}$", bucketPrefix):
             raise ValidationError(message="Bucket prefix does not meet the requirement", cursor_position=len(bucketPrefix))
-
-
-class NotEmptyValidator(Validator):
-    def validate(self, document: Document) -> None:
-        """
-        Validate that the input value is not empty
-        """
-        value = document.text
-
-        if not match(r"^.+$", value):
-            raise ValidationError(message="Enter a value", cursor_position=0)

@@ -13,7 +13,6 @@ from os import path
 from base64 import b64encode
 from glob import glob
 from prompt_toolkit import print_formatted_text
-from mas.devops.utils import isVersionEqualOrAfter
 
 import logging
 
@@ -221,42 +220,6 @@ class AdditionalConfigsMixin:
             self.db2LicenseFileSecret = self.addFilesToSecret(db2LicenseFileSecret, self.db2LicenseFileLocal, "")
         else:
             self.db2LicenseFileSecret = None
-
-    def facilitiesPropertiesFile(self) -> None:
-        """Handle Facilities properties file upload (MAS 9.2+ only)"""
-        self.facilitiesPropertiesSecret = None
-
-        # Check MAS version - Custom FACILITIES.properties is only supported in MAS 9.2+
-        mas_facilities_channel = self.getParam("mas_app_channel_facilities")
-
-        # Only process custom file if MAS 9.2+ and file is provided
-        facilitiesPropertiesFileLocal = self.getParam("mas_ws_facilities_properties_file_local")
-
-        if (
-            mas_facilities_channel
-            and isVersionEqualOrAfter("9.2.0", mas_facilities_channel)
-            and facilitiesPropertiesFileLocal
-            and facilitiesPropertiesFileLocal != ""
-        ):
-            # Get custom secret name or use default
-            secretName = self.getParam("mas_ws_facilities_properties_secret_name")
-            if not secretName or secretName == "":
-                secretName = "custom-facilities-properties"
-
-            facilitiesPropertiesSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-facilities-properties"}}
-
-            # Read the file from user's local path
-            self.facilitiesPropertiesSecret = self.addFilesToSecret(facilitiesPropertiesSecret, facilitiesPropertiesFileLocal, "")
-
-            # Now update the parameters
-            self.setParam("mas_ws_facilities_custom_properties", "true")
-            self.setParam("mas_ws_facilities_properties_file_local", "/workspace/facilities/FACILITIES.properties")
-            self.setParam("mas_ws_facilities_properties_secret_name", secretName)
-        else:
-            # For MAS 9.1 or earlier, or when no file is provided, use default behavior
-            self.setParam("mas_ws_facilities_custom_properties", "false")
-            self.setParam("mas_ws_facilities_properties_file_local", "")
-            self.setParam("mas_ws_facilities_properties_secret_name", "")
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = "") -> dict:
         """

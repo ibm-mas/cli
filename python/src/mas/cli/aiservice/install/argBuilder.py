@@ -96,8 +96,10 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --dev-mode{newline}"
         if self.getParam("skip_pre_check") is True:
             command += f"  --skip-pre-check{newline}"
-        if self.admin_mode != "":
-            command += f'  --admin-mode "{self.admin_mode}"{newline}'
+        if self.permission_mode != "":
+            command += f'  --permission-mode "{self.permission_mode}"{newline}'
+        if self.skip_preinstall_rbac:
+            command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam("service_account_name") != "":
