@@ -59,6 +59,7 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
     detailedResources = [
         ("storage.k8s.io/v1", "StorageClass"),
         ("config.openshift.io/v1", "ClusterVersion"),
+        ("config.openshift.io/v1", "Infrastructure"),
         ("objectbucket.io/v1alpha1", "ObjectBucket"),
         ("objectbucket.io/v1alpha1", "ObjectBucketClaim"),
         ("ocs.ibm.io/v1", "ObjectStorageCfg"),

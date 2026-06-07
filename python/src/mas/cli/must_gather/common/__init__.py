@@ -15,5 +15,15 @@ from .secrets import collectSecrets  # noqa: F401
 from .pods import collectPods  # noqa: F401
 from .ibm_resources import collectIBMCustomResources, getIBMCRDs  # noqa: F401
 from .parallel import collectResourcesParallel  # noqa: F401
+from .reconcile_logs import collectReconcileLogs, collectReconcileLogsParallel  # noqa: F401
 
-__all__ = ["collectResources", "collectSecrets", "collectPods", "collectIBMCustomResources", "getIBMCRDs", "collectResourcesParallel"]
+__all__ = [
+    "collectResources",
+    "collectSecrets",
+    "collectPods",
+    "collectIBMCustomResources",
+    "getIBMCRDs",
+    "collectResourcesParallel",
+    "collectReconcileLogs",
+    "collectReconcileLogsParallel",
+]
