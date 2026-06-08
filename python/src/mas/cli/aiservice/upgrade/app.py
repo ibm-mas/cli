@@ -23,7 +23,6 @@ from .argParser import upgradeArgParser
 
 from mas.devops.ocp import createNamespace
 from mas.devops.aiservice import listAiServiceInstances, getAiserviceChannel
-from mas.devops.mas import getPermissionMode
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchAiServiceUpgradePipeline
 from openshift.dynamic.exceptions import ResourceNotFoundError
 
@@ -91,17 +90,6 @@ class AiServiceUpgradeApp(BaseApp):
                 if currentAiserviceChannel not in self.upgrade_path:
                     self.fatalError(f"No upgrade available, {aiserviceInstanceId} is are already on the latest release {currentAiserviceChannel}")
                 nextAiserviceChannel = self.upgrade_path[currentAiserviceChannel]
-
-        # Detect admin mode based on current and next AI Service channels
-        detectedMode = None
-        if currentAiserviceChannel and currentAiserviceChannel.startswith("9.2"):
-            # Current channel is 9.2+, detect permission mode
-            detectedMode = getPermissionMode(self.dynamicClient, aiserviceInstanceId)
-            logger.info(f"Detected admin mode '{detectedMode}' for AI Service instance {aiserviceInstanceId}")
-        elif currentAiserviceChannel and currentAiserviceChannel.startswith("9.1") and nextAiserviceChannel and nextAiserviceChannel.startswith("9.2"):
-            # Upgrading from 9.1 to 9.2: default to cluster mode (9.1 had no permission modes)
-            logger.info("Upgrading AI Service from 9.1.x to 9.2.x: defaulting to cluster mode")
-            detectedMode = "cluster"
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")

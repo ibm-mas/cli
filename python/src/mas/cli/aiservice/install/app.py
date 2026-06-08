@@ -53,7 +53,6 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.utils import isVersionEqualOrAfter
 
 logger = logging.getLogger(__name__)
 
@@ -69,35 +68,6 @@ def logMethodCall(func):
 
 
 class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, InstallSettingsMixin, ConfigGeneratorMixin):
-
-    def configAdminMode(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Configure Admin Mode")
-            self.printDescription(
-                [
-                    "Choose how AI Service should be installed with respect to permissions:",
-                    "",
-                    "  1. <b>cluster</b> - Install with ClusterRoles (default)",
-                    "     - AI Service has cluster-level access to manage its resources across the cluster",
-                    "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to AI Service service accounts",
-                    "",
-                    "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
-                    "     - No ClusterRoles are installed in this mode",
-                    "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
-                    "     - AI Service can manage resources only in namespaces prepared by the OpenShift admin",
-                    "",
-                    "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
-                    "     - No ClusterRoles are installed in this mode",
-                    "     - Only essential permissions required for AI Service are applied",
-                    "     - AI Service can manage only the resources covered by these essential permissions",
-                ]
-            )
-
-            adminModeInt = self.promptForInt("Admin Mode", default=1, min=1, max=3)
-            adminModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
-            self.admin_mode = adminModeMap[adminModeInt]
-        elif self.admin_mode == "":
-            self.admin_mode = "cluster"
 
     @logMethodCall
     def processCatalogChoice(self) -> list:
@@ -209,8 +179,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
         )
         self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            self.configAdminMode()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -419,17 +387,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.validateCatalogSource()
             self.licensePrompt()
 
-        # Validate admin mode based on AI Service version
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            # AI Service 9.2+: --admin-mode is REQUIRED
-            if self.admin_mode == "":
-                self.fatalError(
-                    f"--admin-mode is required for MAS version 9.2 or higher (selected channel: {self.getParam('aiservice_channel')}). Valid options: cluster, namespaced, minimal"
-                )
-        else:
-            if self.admin_mode != "":
-                self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('aiservice_channel')})")
-
     @logMethodCall
     def install(self, argv):
         """
@@ -444,7 +401,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.noConfirm = args.no_confirm
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
-        self.admin_mode = args.admin_mode if args.admin_mode else ""
 
         self.printDescription(
             [
