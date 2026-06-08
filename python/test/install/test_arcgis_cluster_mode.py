@@ -12,10 +12,10 @@
 from utils.install_test_helper import InstallTestConfig, run_install_test
 import sys
 import os
-import pytest
 
 # Add test directory to path for utils import
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 
 def test_install_dev_mode_arcgis_with_manage_spatial_cluster_mode(tmpdir):
     """Test installation with Manage Spatial and ArcGIS requiring cluster admin mode.
