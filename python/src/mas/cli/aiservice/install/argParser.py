@@ -207,13 +207,6 @@ aiserviceAdvancedArgGroup.add_argument(
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
 )
 aiserviceAdvancedArgGroup.add_argument(
-    "--admin-mode",
-    dest="admin_mode",
-    required=False,
-    choices=["cluster", "namespaced", "minimal"],
-    help="The admin mode used to determine which pre-install RBAC manifests are applied for AI Service (MAS 9.2+)",
-)
-aiserviceAdvancedArgGroup.add_argument(
     "--enable-ipv6",
     dest="enable_ipv6",
     required=False,
