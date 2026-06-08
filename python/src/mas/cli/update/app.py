@@ -88,7 +88,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
     def evaluatePreinstallRBACAccessForUpdate(self) -> None:
         """
         Evaluate if pre-install RBAC should be applied for instances transitioning from pre-release to GA.
-        Handles both MAS and AI Service instances.
         Sets self.instancesNeedingRBAC list and self.applyPreInstallMASRBAC flag.
 
         This method identifies instances needing RBAC and calls the shared evaluatePreinstallRBACAccess()
@@ -122,10 +121,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     self.instancesNeedingRBAC.append(
                         {"id": instanceId, "currentVersion": currentVersion, "targetVersion": targetVersion, "channel": channel, "adminMode": detectedMode}
                     )
-
-            # Check AI Service instances (skip for now as per user request)
-            # aiServiceInstances = listAiServiceInstances(self.dynamicClient)
-            # ... AI Service logic removed as no RBAC needed for AI Service
 
             if not self.instancesNeedingRBAC:
                 logger.info("No MAS instances require RBAC update (not transitioning from pre-release to GA)")
