@@ -28,62 +28,67 @@ def test_install_dev_mode_arcgis_with_manage_spatial_cluster_mode(tmpdir):
     prompt_handlers = {
         # 1. Cluster connection
         ".*Proceed with this cluster?.*": lambda msg: "y",
-        # 2. Install flavour (advanced mode required)
+        # 2. Install flavour (advanced options) - MUST be 'y' to enable routing mode
         ".*Show advanced installation options.*": lambda msg: "y",
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
-        ".*Select channel.*": lambda msg: "9.2.x-dev",
-        # 4. Routing Mode
-        ".*Routing Mode.*": lambda msg: "2",
-        # 5. Service Mesh
-        ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "n",
-        # 6. Storage classes
+        ".*Select channel.*": lambda msg: "9.2.x-dev",  # Use 9.2.x-dev channel
+        # 4. Routing Mode Configuration - Select path-based routing
+        ".*Routing Mode.*": lambda msg: "1",  # Select path-based routing
+        # Note: IngressController selection prompt does NOT appear because there's only one controller
+        # 5. Service Mesh Configuration
+        ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",
+        # 6. Configure IngressController for path-based routing
+        ".*Configure ingress namespace ownership.*": lambda msg: "y",  # Agree to configure
+        # 5. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: "y",
-        # 7. SLS configuration
-        ".*SLS Mode.*": lambda msg: "1",
+        # 6. SLS configuration
+        ".*SLS Mode.*": lambda msg: "1",  # SLS Mode prompt (appears with advanced options)
         ".*SLS channel.*": lambda msg: "1.x-stable",
-        ".*License file.*": lambda msg: f"{tmpdir}/authorized_entitlement.lic",
-        ".*Db2 License file.*": lambda msg: "",
-        # 8. DRO configuration
-        ".*DRO.*Namespace.*": lambda msg: "",
-        ".*Contact e-mail address.*": lambda msg: "test@ibm.com",
+        ".*>License file<.*": lambda msg: f"{tmpdir}/authorized_entitlement.lic",  # SLS License (exact match with HTML tags)
+        ".*>Db2 License file<.*": lambda msg: "",  # Db2 License (exact match with HTML tags)
+        # 7. DRO configuration
+        ".*DRO.*Namespace.*": lambda msg: "",  # DRO Namespace prompt (appears with advanced options)
+        ".*Contact e-mail address.*": lambda msg: "maximo@ibm.com",
         ".*Contact first name.*": lambda msg: "Test",
-        ".*Contact last name.*": lambda msg: "User",
-        # 9. ICR & Artifactory credentials
+        ".*Contact last name.*": lambda msg: "Test",
+        # 8. ICR & Artifactory credentials
         ".*IBM entitlement key.*": lambda msg: "testEntitlementKey",
-        ".*Artifactory username.*": lambda msg: "testUsernamed@us.ibm.com",
-        ".*Artifactory token.*": lambda msg: "testArtifactoryToken",
-        # 10. MAS Instance configuration
-        ".*Instance ID.*": lambda msg: "dev92",
-        ".*Workspace ID.*": lambda msg: "main",
-        ".*Workspace.*name.*": lambda msg: "main",
-        # 11. Operational mode
+        ".*Artifactory username.*": lambda msg: "testUsername",
+        ".*Artifactory token.*": lambda msg: "testToken",
+        # 9. MAS Instance configuration
+        ".*Instance ID.*": lambda msg: "testinst",
+        ".*Workspace ID.*": lambda msg: "testws",
+        ".*Workspace.*name.*": lambda msg: "Test Workspace",
+        # 10. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
-        # 12. Admin mode - MUST be cluster for ArcGIS
-        ".*Mas Admin Mode.*": lambda msg: "1",
-        # 13. Certificate issuer kind
-        ".*Certificate issuer kind.*": lambda msg: "2",
-        # 14. Certificate Authority Trust
+        # 11. Permission mode
+        ".*Mas Admin Mode.*": lambda msg: "1",  # Cluster mode
+        # 12. Internal certificate issuer kind (appears when Permission Mode is cluster)
+        ".*Certificate issuer kind.*": lambda msg: "2",  # Select ClusterIssuer
+        # 13. Certificate Authority Trust
         ".*Trust default CAs.*": lambda msg: "y",
-        # 15. Cluster ingress certificate
-        ".*Cluster ingress certificate secret name.*": lambda msg: "",
-        # 16. Domain & certificate management
-        ".*Configure domain.*certificate management.*": lambda msg: "n",
-        # 17. SSO properties
-        ".*Configure SSO properties.*": lambda msg: "n",
-        # 18. Special characters
+        # 14. Cluster ingress certificate secret name
+        ".*Cluster ingress certificate secret name.*": lambda msg: "",  # Leave empty for auto-detection
+        # 15. Domain & certificate management
+        ".*Configure domain.*certificate management.*": lambda msg: "n",  # Skip domain/cert config for simplicity
+        # 16. SSO properties
+        ".*Configure SSO properties.*": lambda msg: "n",  # Skip SSO config
+        # 17. Special characters for user IDs
         ".*Allow special characters for user IDs and usernames.*": lambda msg: "n",
-        # 19. Guided Tour
+        # 18. Guided Tour
         ".*Enable Guided Tour.*": lambda msg: "y",
-        # 20. Feature adoption metrics
+        # 19. Feature adoption metrics
         ".*Enable feature adoption metrics.*": lambda msg: "y",
-        # 21. Deployment progression metrics
+        # 20. Deployment progression metrics
         ".*Enable deployment progression metrics.*": lambda msg: "y",
-        # 22. Usability metrics
+        # 21. Usability metrics
         ".*Enable usability metrics.*": lambda msg: "y",
-        # 23. Application selection
-        ".*Install IoT.*": lambda msg: "n",
-        ".*Install Monitor.*": lambda msg: "n",
+        # 22. Application selection
+        ".*Install IoT.*": lambda msg: "y",
+        ".*Custom channel for iot.*": lambda msg: "9.2.x-dev",
+        ".*Install Monitor.*": lambda msg: "y",
+        ".*Custom channel for monitor.*": lambda msg: "9.2.x-dev",
         ".*Install Manage.*": lambda msg: "y",
         ".*Custom channel for manage.*": lambda msg: "9.2.x-dev",
         ".*Select a server bundle configuration.*": lambda msg: "1",
@@ -98,8 +103,8 @@ def test_install_dev_mode_arcgis_with_manage_spatial_cluster_mode(tmpdir):
         ".*Aviation.*": lambda msg: "n",
         ".*Civil Infrastructure.*": lambda msg: "n",
         ".*Envizi.*": lambda msg: "n",
-        ".*Health.*": lambda msg: "n",
-        ".*Health, Safety and Environment.*": lambda msg: "n",
+        ".*Health\\?.*": lambda msg: "n",  # Match "Health?" exactly
+        ".*Health, Safety and Environment.*": lambda msg: "n",  # Match HSE
         ".*Maximo IT.*": lambda msg: "n",
         ".*Nuclear.*": lambda msg: "n",
         ".*Oil.*Gas.*": lambda msg: "n",
@@ -115,41 +120,40 @@ def test_install_dev_mode_arcgis_with_manage_spatial_cluster_mode(tmpdir):
         ".*AIP.*": lambda msg: "n",
         ".*Collaborate.*": lambda msg: "n",
         ".*Include customization archive.*": lambda msg: "n",
+        ".*Install Predict.*": lambda msg: "n",
         ".*Install Assist.*": lambda msg: "n",
         ".*Install Optimizer.*": lambda msg: "n",
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
-        # 24. ArcGIS prompt (appears because Spatial is enabled)
         ".*Include IBM Maximo Location Services for Esri.*": lambda msg: "y",
-        ".*Do you accept the license terms.*": lambda msg: "y",
-        # 25. Grafana
+        ".*Do you accept the license terms?.*": lambda msg: "y",
+        # 23. Grafana configuration (appears when advanced options are enabled)
         ".*Install Grafana.*": lambda msg: "y",
-        # 26. MongoDB
-        ".*MongoDb namespace.*": lambda msg: "mongoce",
+        # 24. MongoDB configuration
+        ".*MongoDb namespace.*": lambda msg: "mongoce",  # Use default MongoDB namespace
         ".*Create MongoDb cluster.*": lambda msg: "y",
-        # 27. Db2 configuration
+        # 25. Db2 configuration
         ".*Create system Db2 instance.*": lambda msg: "y",
         ".*Re-use System Db2 instance for Manage application.*": lambda msg: "n",
         ".*Create Manage dedicated Db2 instance.*": lambda msg: "y",
-        ".*Select the Manage dedicated DB2 instance type.*": lambda msg: "1",
-        ".*Install namespace.*": lambda msg: "db2u",
-        ".*Configure node affinity.*": lambda msg: "n",
-        ".*Configure node tolerations.*": lambda msg: "n",
-        ".*Customize CPU and memory request/limit.*": lambda msg: "n",
-        ".*Customize storage capacity.*": lambda msg: "n",
-        r".*Select Db2 Custom Resource\(CR\).*": lambda msg: "n",
-        ".*Select Kafka provider.*": lambda msg: "1",
-        ".*Strimzi namespace.*": lambda msg: "strimzi",
-        ".*Use pod templates.*": lambda msg: "n",
-        # 28. Kafka
+        ".*Select the Manage dedicated DB2 instance type.*": lambda msg: "1",  # Select default DB2 type
+        ".*Install namespace.*": lambda msg: "db2u",  # DB2 install namespace
+        ".*Configure node affinity.*": lambda msg: "n",  # Skip node affinity configuration
+        ".*Configure node tolerations.*": lambda msg: "n",  # Skip node tolerations configuration
+        ".*Customize CPU and memory request/limit.*": lambda msg: "n",  # Skip CPU/memory customization
+        ".*Customize storage capacity.*": lambda msg: "n",  # Skip storage capacity customization
+        r".*Select Db2 Custom Resource\(CR\).*": lambda msg: "n",  # Skip Db2 CR selection
+        ".*Select Kafka provider.*": lambda msg: "1",  # Select default Kafka provider
+        ".*Strimzi namespace.*": lambda msg: "strimzi",  # Strimzi namespace
+        ".*Use pod templates.*": lambda msg: "n",  # Skip pod templates
+        # 26. Kafka configuration
         ".*Create system Kafka instance.*": lambda msg: "y",
         ".*Kafka version.*": lambda msg: "3.8.0",
-        # 29. AiCfg
+        # 24. AiCfg configuration
         ".*Do you want to configure AiCfg.*": lambda msg: "n",
-        # 30. Additional configurations
+        # 27. Final confirmation
         ".*Use additional configurations.*": lambda msg: "n",
-        # 31. Final confirmation
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
@@ -170,6 +174,3 @@ def test_install_dev_mode_arcgis_with_manage_spatial_cluster_mode(tmpdir):
 
     # Run the test
     run_install_test(tmpdir, config)
-
-
-# Made with Bob
