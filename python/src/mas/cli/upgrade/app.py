@@ -167,7 +167,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
-            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
+            print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
             sys.exit(1)
 
         if instanceId is None:
