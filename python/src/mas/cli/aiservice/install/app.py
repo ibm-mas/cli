@@ -53,8 +53,6 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from mas.devops.utils import isVersionEqualOrAfter
 
 logger = logging.getLogger(__name__)
 
@@ -70,84 +68,6 @@ def logMethodCall(func):
 
 
 class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, InstallSettingsMixin, ConfigGeneratorMixin):
-
-    def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
-
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            return
-
-        if self.admin_mode == "minimal":
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        self.printH2("Pre-Install RBAC Configuration")
-        # User does not have permissions to apply RBAC
-        self.printDescription(
-            [
-                f"Admin mod: '{self.admin_mode}'.",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        if self.noConfirm:
-            self.printDescription(
-                [
-                    f"Installation will continue with the selected '{self.admin_mode}' admin mode.",
-                    "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
-                    "With the --no-confirm flag, the installation assumes the required RBAC has already been applied by your OpenShift administrator.",
-                    "If it has not been applied, ensure your OpenShift administrator runs 'mas pre-install' with the same admin mode before the installation proceeds.",
-                ]
-            )
-        else:
-            self.printDescription(
-                [
-                    "",
-                    "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance, channel, admin mode, and selected apps.",
-                    "If that has already been done, you can continue the installation.",
-                ]
-            )
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this AI Service installation"):
-                self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again using the same admin mode."
-                )
-
-    def configAdminMode(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Configure Admin Mode")
-            self.printDescription(
-                [
-                    "Choose how AI Service should be installed with respect to permissions:",
-                    "",
-                    "  1. <b>cluster</b> - Install with ClusterRoles (default)",
-                    "     - AI Service has cluster-level access to manage its resources across the cluster",
-                    "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to AI Service service accounts",
-                    "",
-                    "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
-                    "     - No ClusterRoles are installed in this mode",
-                    "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
-                    "     - AI Service can manage resources only in namespaces prepared by the OpenShift admin",
-                    "",
-                    "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
-                    "     - No ClusterRoles are installed in this mode",
-                    "     - Only essential permissions required for AI Service are applied",
-                    "     - AI Service can manage only the resources covered by these essential permissions",
-                ]
-            )
-
-            adminModeInt = self.promptForInt("Admin Mode", default=1, min=1, max=3)
-            adminModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
-            self.admin_mode = adminModeMap[adminModeInt]
-        elif self.admin_mode == "":
-            self.admin_mode = "cluster"
 
     @logMethodCall
     def processCatalogChoice(self) -> list:
@@ -259,8 +179,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
         )
         self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            self.configAdminMode()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -469,17 +387,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.validateCatalogSource()
             self.licensePrompt()
 
-        # Validate admin mode based on AI Service version
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            # AI Service 9.2+: --admin-mode is REQUIRED
-            if self.admin_mode == "":
-                self.fatalError(
-                    f"--admin-mode is required for MAS version 9.2 or higher (selected channel: {self.getParam('aiservice_channel')}). Valid options: cluster, namespaced, minimal"
-                )
-        else:
-            if self.admin_mode != "":
-                self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('aiservice_channel')})")
-
     @logMethodCall
     def install(self, argv):
         """
@@ -494,7 +401,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.noConfirm = args.no_confirm
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
-        self.admin_mode = args.admin_mode if args.admin_mode else ""
 
         self.printDescription(
             [
@@ -563,8 +469,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.nonInteractiveMode()
 
-        self.evaluatePreInstallRBACAccess()
-
         # Set up the sls and db2 license file
         self.slsLicenseFile()
         self.db2LicenseFile()
@@ -623,17 +527,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 self.setupApprovals(pipelinesNamespace)
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
-
-            if self.applyPreInstallMASRBAC:
-                with Halo(text=f"Setting up pre-install RBAC for AI Service instance {self.getParam('aiservice_instance_id')}...", spinner=self.spinner) as h:
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=".".join(self.getParam("aiservice_channel").split(".")[:2]),
-                        masInstanceId=self.getParam("aiservice_instance_id"),
-                        adminMode=self.admin_mode,
-                        selectedApps=["aiservice"],
-                    )
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for AI Service is ready for {self.getParam('aiservice_instance_id')}")
 
             with Halo(text="Testing availability of MAS CLI image in cluster", spinner=self.spinner) as h:
                 testCLI()
