@@ -22,15 +22,136 @@ from ..cli import BaseApp
 from .argParser import updateArgParser
 from mas.devops.data import getCatalog, getNewestCatalogTag
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
-from mas.devops.mas import listMasInstances, getCurrentCatalog
+from mas.devops.mas import listMasInstances, getCurrentCatalog, getMasChannel, getInstalledApps, getPermissionMode
 from mas.devops.aiservice import listAiServiceInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSecrets
+from mas.devops.pre_install import applyPreInstallMASRBAC
+from mas.devops.utils import isVersionEqualOrAfter
 from ..install.settings import AdditionalConfigsMixin
+from ..rbac_utils import evaluatePreinstallRBACAccess
 
 logger = logging.getLogger(__name__)
 
 
 class UpdateApp(BaseApp, AdditionalConfigsMixin):
+
+    def shouldApplyRBACForInstance(self, instanceId, currentVersion, targetCatalog) -> bool:
+        """
+        Determine if RBAC should be applied for a specific MAS instance during update.
+        Returns True if the instance is transitioning from pre-release to GA version.
+
+        This method checks:
+        1. Current version is a pre-release (e.g., "9.2.0-pre.stable+21734")
+        2. Target catalog contains a GA version (e.g., "9.2.0") for the instance's channel
+        3. The GA version is >= 9.2.0 (when RBAC was introduced)
+
+        Args:
+            instanceId: The MAS instance ID
+            currentVersion: The current reconciled version (e.g., "9.2.0-pre.stable+21734")
+            targetCatalog: The target catalog dictionary containing version mappings
+
+        Returns:
+            bool: True if RBAC should be applied for pre-release → GA transition, False otherwise
+        """
+        if not currentVersion or not targetCatalog:
+            return False
+
+        # Check if current version is a pre-release
+        if "-pre" not in currentVersion:
+            return False
+
+        # Get the channel this instance is subscribed to
+        channel = getMasChannel(self.dynamicClient, instanceId)
+        if not channel:
+            logger.warning(f"Could not determine channel for instance {instanceId}")
+            return False
+
+        # Get the target version from the catalog for this channel
+        targetVersion = targetCatalog.get("mas_core_version", {}).get(channel)
+        if not targetVersion:
+            logger.warning(f"No target version found in catalog for channel {channel}")
+            return False
+
+        # Check if target version is GA (not pre-release)
+        if "-pre" in targetVersion:
+            logger.info(f"Instance {instanceId} will stay on pre-release (current: {currentVersion}, target: {targetVersion}). Skipping RBAC.")
+            return False
+
+        # Only apply RBAC if target GA version is >= 9.2.0
+        if isVersionEqualOrAfter("9.2.0", targetVersion):
+            logger.info(f"Instance {instanceId} will transition from pre-release to GA (current: {currentVersion}, target: {targetVersion}).")
+            return True
+
+        logger.info(f"Instance {instanceId} target version {targetVersion} is < 9.2.0. Skipping RBAC.")
+        return False
+
+    def evaluatePreinstallRBACAccessForUpdate(self) -> None:
+        """
+        Evaluate if pre-install RBAC should be applied for instances transitioning from pre-release to GA.
+        Sets self.instancesNeedingRBAC list and self.applyPreInstallMASRBAC flag.
+
+        This method identifies instances needing RBAC and calls the shared evaluatePreinstallRBACAccess()
+        function from rbac_utils to check permissions for each instance needing RBAC.
+        """
+        self.instancesNeedingRBAC = []
+        self.applyPreInstallMASRBAC = False
+
+        try:
+            masInstances = listMasInstances(self.dynamicClient)
+
+            for instance in masInstances:
+                instanceId = instance["metadata"]["name"]
+                currentVersion = instance.get("status", {}).get("versions", {}).get("reconciled", "")
+
+                if self.shouldApplyRBACForInstance(instanceId, currentVersion, self.chosenCatalog):
+                    channel = getMasChannel(self.dynamicClient, instanceId)
+                    targetVersion = self.chosenCatalog.get("mas_core_version", {}).get(channel, "")
+
+                    # Detect admin mode for this instance based on target version
+                    detectedMode = None
+                    if targetVersion == "9.2.0":
+                        # Transitioning to 9.2.0 GA (first release with admin modes): default to cluster mode
+                        detectedMode = "cluster"
+                        logger.info(msg=f"MAS instance {instanceId} transitioning to 9.2.0 GA: defaulting to cluster mode")
+                    elif isVersionEqualOrAfter("9.3.0", targetVersion):
+                        # Transitioning to 9.3.0 GA or later: detect existing mode
+                        detectedMode = getPermissionMode(self.dynamicClient, instanceId)
+                        logger.info(f"Detected admin mode '{detectedMode}' for MAS instance {instanceId} (target: {targetVersion})")
+
+                    self.instancesNeedingRBAC.append(
+                        {"id": instanceId, "currentVersion": currentVersion, "targetVersion": targetVersion, "channel": channel, "adminMode": detectedMode}
+                    )
+
+            if not self.instancesNeedingRBAC:
+                logger.info("No MAS instances require RBAC update (not transitioning from pre-release to GA)")
+                return
+
+            # Filter out instances in minimal mode (they don't need pre-install RBAC)
+            instancesNeedingRbacCheck = [inst for inst in self.instancesNeedingRBAC if inst["adminMode"] != "minimal"]
+
+            if not instancesNeedingRbacCheck:
+                logger.info("All instances are in minimal mode, no pre-install RBAC needed")
+                return
+
+            # Use common function to check permissions for first instance
+            # This will handle the permission check and user prompting
+            firstInstance = instancesNeedingRbacCheck[0]
+            self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+                dynamicClient=self.dynamicClient,
+                masChannel=firstInstance["targetVersion"],
+                adminMode=firstInstance["adminMode"],
+                instanceId=firstInstance["id"],
+                noConfirm=self.noConfirm,
+                printH1Func=self.printH1,
+                printDescriptionFunc=self.printDescription,
+                yesOrNoFunc=self.yesOrNo,
+                fatalErrorFunc=self.fatalError,
+                operation="update",
+            )
+
+        except Exception as e:
+            logger.error(f"Error while evaluating pre-install RBAC: {e}")
+            self.printWarning(f"Failed to evaluate pre-install RBAC: {e}\nContinuing with update, but RBAC may need to be applied manually.")
 
     def update(self, argv):
         """
@@ -40,6 +161,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.noConfirm = self.args.no_confirm
         self.devMode = self.args.dev_mode
         self.db2LicenseFileLocal = None
+        self.instancesNeedingRBAC = []
+        self.applyPreInstallMASRBAC = False
 
         if self.args.mas_catalog_version:
             # Non-interactive mode
@@ -119,7 +242,9 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         if not self.devMode:
             self.validateCatalog()
         else:
-            self.chosenCatalog = getCatalog(getNewestCatalogTag())
+            # In dev mode, load the user-specified catalog (or newest if not specified)
+            catalogVersion = self.getParam("mas_catalog_version") if self.args.mas_catalog_version else getNewestCatalogTag()
+            self.chosenCatalog = getCatalog(catalogVersion)
 
         self.printH1("Dependency Update Checks")
         with Halo(text="Checking for IBM Watson Discovery", spinner=self.spinner) as h:
@@ -155,6 +280,9 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.detectDb2u()
         self.detectKafka()
         self.detectCP4D()
+
+        # Evaluate RBAC access
+        self.evaluatePreinstallRBACAccessForUpdate()
 
         print()
 
@@ -212,6 +340,33 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
+
+            # Apply pre-install RBAC if user has permissions
+            if self.applyPreInstallMASRBAC and self.instancesNeedingRBAC:
+                print()
+                print_formatted_text(HTML(f"<Yellow>Applying RBAC for {len(self.instancesNeedingRBAC)} instance(s) transitioning to GA...</Yellow>"))
+                print()
+
+                for instanceInfo in self.instancesNeedingRBAC:
+                    instanceId = instanceInfo["id"]
+                    targetVersion = instanceInfo["targetVersion"]
+                    adminMode = instanceInfo["adminMode"]
+
+                    selectedApps = getInstalledApps(self.dynamicClient, instanceId)
+
+                    with Halo(text=f"Applying pre-install RBAC for instance: {instanceId} ({targetVersion}, mode: {adminMode})", spinner=self.spinner) as h:
+                        applyPreInstallMASRBAC(
+                            dynClient=self.dynamicClient,
+                            masVersion=".".join(targetVersion.split(".")[:2]),
+                            masInstanceId=instanceId,
+                            adminMode=adminMode,
+                            selectedApps=selectedApps,
+                        )
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC applied for {instanceId} ({targetVersion}, mode: {adminMode})")
+
+                print()
+                print_formatted_text(HTML("<Green>✓ Pre-install RBAC applied successfully for all instances transitioning to GA</Green>"))
+                print()
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
