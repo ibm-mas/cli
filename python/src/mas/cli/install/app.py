@@ -70,7 +70,8 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC
+from ..rbac_utils import evaluatePreinstallRBACAccess
 
 logger = logging.getLogger(__name__)
 
@@ -118,54 +119,6 @@ class InstallApp(
             selectedApps.append("arcgis")
 
         return selectedApps
-
-    def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
-
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
-            return
-
-        if self.mas_admin_mode == "minimal":
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        self.printH1("Pre-Install RBAC Configuration")
-        # User does not have permissions to apply RBAC
-        self.printDescription(
-            [
-                f"Admin mode: '{self.mas_admin_mode}'",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        if self.noConfirm:
-            self.printDescription(
-                [
-                    f"Installation will continue with the selected '{self.mas_admin_mode}' admin mode.",
-                    "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
-                    "With the --no-confirm flag, the installation assumes the required RBAC has already been applied by your OpenShift administrator.",
-                    "If it has not been applied, ensure your OpenShift administrator runs 'mas pre-install' with the same admin mode before the installation proceeds.",
-                ]
-            )
-        else:
-            self.printDescription(
-                [
-                    "",
-                    "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS channel, admin mode, and selected apps.",
-                    "If that has already been done, you can continue the installation.",
-                ]
-            )
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
-                self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run 'mas install' again using the same admin mode."
-                )
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -1974,7 +1927,17 @@ class InstallApp(
 
         # MAS Core
         self.configAdminMode()
-        self.evaluatePreInstallRBACAccess()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.configCertManager()
         self.configMAS()
 
@@ -2430,7 +2393,17 @@ class InstallApp(
             if self.mas_admin_mode != "":
                 self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('mas_channel')})")
 
-        self.evaluatePreInstallRBACAccess()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
