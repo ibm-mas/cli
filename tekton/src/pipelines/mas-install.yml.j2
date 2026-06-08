@@ -19,6 +19,9 @@ spec:
     - name: shared-db2
     # AIService configurations. Contains Scheduling config file for AI workloads for tenant.
     - name: shared-aiservice-config
+    # Facilities Properties File
+    - name: shared-facilities-properties
+      optional: true
 
   params:
     # 1. Common Parameters
@@ -131,7 +134,7 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
-        - cert-manager
+        - db2-manage
 
     # 2.4 IBM SLS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | indent(4) }}
