@@ -15,7 +15,6 @@ from operator pods. These logs are stored in /tmp/ansible-operator/runner/ insid
 operator pods and contain detailed information about operator reconciliation cycles.
 """
 
-import io
 import logging
 import os
 import re
@@ -115,56 +114,8 @@ def _findReconcileLogFiles(coreV1Api: client.CoreV1Api, namespace: str, podName:
         return []
 
 
-def _createTarArchive(coreV1Api: client.CoreV1Api, namespace: str, podName: str, logFiles: list[str]) -> Optional[bytes]:
-    """Create tar.gz archive of log files from pod.
-
-    Args:
-        coreV1Api (CoreV1Api): Kubernetes core API client
-        namespace (str): Pod namespace
-        podName (str): Pod name
-        logFiles (list[str]): List of log file paths to archive
-
-    Returns:
-        bytes: Tar.gz archive data, or None on error
-    """
-    try:
-        # Build tar command with all log files
-        tarCommand = ["tar", "-czf", "-"] + logFiles
-        resp = stream(
-            coreV1Api.connect_get_namespaced_pod_exec,
-            podName,
-            namespace,
-            command=tarCommand,
-            stderr=True,
-            stdin=False,
-            stdout=True,
-            tty=False,
-            _preload_content=False,
-        )
-
-        # Handle both real stream objects and mocked bytes (for testing)
-        if isinstance(resp, bytes):
-            return resp if resp else None
-
-        # Read binary data from stream
-        tarData = b""
-        while resp.is_open():
-            resp.update(timeout=1)
-            if resp.peek_stdout():
-                tarData += resp.read_stdout()
-            if resp.peek_stderr():
-                stderr = resp.read_stderr()
-                if stderr:
-                    logger.debug(f"Tar stderr: {stderr}")
-
-        return tarData if tarData else None
-    except Exception as e:
-        logger.warning(f"Error creating tar archive in pod {podName}: {e}")
-        return None
-
-
-def _extractAndOrganizeLogs(tarData: bytes, namespace: str, outputDir: str) -> bool:
-    """Extract tar archive and organize logs by kind/instance/timestamp.
+def _extractAndOrganizeTarBuffer(tarBuffer: Any, namespace: str, podName: str, outputDir: str) -> bool:
+    """Extract tar buffer and organize logs by kind/instance/timestamp.
 
     The tar archive contains logs in structure:
     /tmp/ansible-operator/runner/{api}/{version}/{kind}/{namespace}/{instance}/artifacts/{reconcile_id}/stdout
@@ -173,23 +124,28 @@ def _extractAndOrganizeLogs(tarData: bytes, namespace: str, outputDir: str) -> b
     {outputDir}/reconcile-logs/{namespace}/{kind}/{instance}/{timestamp}.log
 
     Args:
-        tarData (bytes): Tar.gz archive data
+        tarBuffer: File-like object containing tar.gz data
         namespace (str): Namespace being collected
+        podName (str): Pod name (for logging)
         outputDir (str): Base output directory
 
     Returns:
         bool: True if successful, False otherwise
     """
     try:
-        with tarfile.open(fileobj=io.BytesIO(tarData), mode="r:gz") as tar:
-            # Extract to temporary directory
+        with tarfile.open(fileobj=tarBuffer, mode="r:gz") as tar:
+            # Extract to temporary directory first
             with tempfile.TemporaryDirectory() as tmpDir:
-                tar.extractall(path=tmpDir, filter="data")
+                try:
+                    tar.extractall(path=tmpDir, filter="data")
+                except Exception as e:
+                    logger.warning(f"Failed to extract tar archive from pod {podName}: {e}")
+                    return False
 
                 # Walk through extracted structure
                 runnerPath = os.path.join(tmpDir, "tmp", "ansible-operator", "runner")
                 if not os.path.exists(runnerPath):
-                    logger.warning("No ansible-operator runner directory found in archive")
+                    logger.debug(f"No ansible-operator runner directory found in archive from pod {podName}")
                     return False
 
                 # Process each API directory
@@ -240,24 +196,96 @@ def _extractAndOrganizeLogs(tarData: bytes, namespace: str, outputDir: str) -> b
                                         stdoutPath = os.path.join(reconcilePath, "stdout")
 
                                         if os.path.isfile(stdoutPath):
-                                            # Get timestamp from file
-                                            timestamp = _getTimestampFromFile(stdoutPath)
-                                            if not timestamp:
-                                                timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+                                            try:
+                                                # Get timestamp from file
+                                                timestamp = _getTimestampFromFile(stdoutPath)
+                                                if not timestamp:
+                                                    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-                                            # Read log content and strip ANSI codes
-                                            with open(stdoutPath, "r", errors="replace") as f:
-                                                content = f.read()
-                                            cleanContent = _stripAnsiCodes(content)
+                                                # Read log content and strip ANSI codes
+                                                with open(stdoutPath, "r", errors="replace") as f:
+                                                    content = f.read()
+                                                cleanContent = _stripAnsiCodes(content)
 
-                                            # Write to output file
-                                            outputLogPath = os.path.join(outputInstanceDir, f"{timestamp}.log")
-                                            with open(outputLogPath, "w") as f:
-                                                f.write(cleanContent)
+                                                # Write to output file
+                                                outputLogPath = os.path.join(outputInstanceDir, f"{timestamp}.log")
+                                                with open(outputLogPath, "w") as f:
+                                                    f.write(cleanContent)
+                                            except Exception as e:
+                                                logger.warning(f"Failed to process log file {stdoutPath}: {e}")
+                                                continue
 
                 return True
-    except Exception as e:
-        logger.warning(f"Error extracting and organizing logs: {e}")
+    except tarfile.TarError as e:
+        logger.warning(f"Failed to open tar archive from pod {podName}: {e}")
+        return False
+
+
+def _downloadAndExtractReconcileLogs(coreV1Api: client.CoreV1Api, namespace: str, podName: str, logFiles: list[str], outputDir: str) -> bool:
+    """Download reconcile logs from pod and extract them to output directory.
+
+    Creates a tar archive of log files in the pod, streams it to a temporary file,
+    then extracts and organizes the logs by kind/instance/timestamp.
+
+    Args:
+        coreV1Api (CoreV1Api): Kubernetes core API client
+        namespace (str): Pod namespace
+        podName (str): Pod name
+        logFiles (list[str]): List of log file paths to archive
+        outputDir (str): Base output directory
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    # Build tar command with all log files
+    tarCommand = ["tar", "-czf", "-"] + logFiles
+
+    try:
+        # Use TemporaryFile in binary mode ('w+b')
+        with tempfile.TemporaryFile(mode="w+b") as tarBuffer:
+            # Execute the command
+            try:
+                execStream = stream(
+                    coreV1Api.connect_get_namespaced_pod_exec,
+                    podName,
+                    namespace,
+                    command=tarCommand,
+                    stderr=True,
+                    stdin=False,
+                    stdout=True,
+                    tty=False,
+                    _preload_content=False,
+                    binary=True,
+                )
+            except Exception as e:
+                logger.warning(f"Failed to execute tar command in pod {podName}: {e}")
+                return False
+
+            # Read the output into the buffer
+            try:
+                while execStream.is_open():
+                    execStream.update(timeout=1)
+                    if execStream.peek_stdout():
+                        out = execStream.read_stdout()
+                        tarBuffer.write(out)
+                    if execStream.peek_stderr():
+                        stderr = execStream.read_stderr()
+                        if stderr:
+                            logger.debug(f"Tar stderr: {stderr}")
+            except Exception as e:
+                logger.warning(f"Error reading tar stream from pod {podName}: {e}")
+                return False
+            finally:
+                execStream.close()
+
+            tarBuffer.flush()
+            tarBuffer.seek(0)
+
+            # Extract and organize the logs
+            return _extractAndOrganizeTarBuffer(tarBuffer, namespace, podName, outputDir)
+
+    except OSError as e:
+        logger.warning(f"Failed to create temporary file for tar archive: {e}")
         return False
 
 
@@ -305,18 +333,10 @@ def collectReconcileLogs(
 
     logger.debug(f"Found {len(logFiles)} reconcile log files")
 
-    # Create tar archive
-    tarData = _createTarArchive(coreV1Api, namespace, podName, logFiles)
-    if not tarData:
-        logger.warning(f"Error creating tar archive in pod {podName}")
-        return True  # Graceful handling
-
-    logger.debug(f"Created tar archive ({len(tarData)} bytes)")
-
-    # Extract and organize logs
-    success = _extractAndOrganizeLogs(tarData, namespace, outputDir)
+    # Download and extract logs directly to output directory
+    success = _downloadAndExtractReconcileLogs(coreV1Api, namespace, podName, logFiles, outputDir)
     if not success:
-        logger.warning(f"Error extracting logs from pod {podName}")
+        logger.warning(f"Error downloading and extracting logs from pod {podName}")
         return True  # Graceful handling
 
     logger.info(f"Successfully collected reconcile logs from {podName}")
@@ -327,7 +347,7 @@ def collectReconcileLogsParallel(
     dynClient: DynamicClient,
     operators: List[Tuple[str, str, str]],
     outputDir: str,
-    max_workers: int = 10,
+    max_workers: int = 20,
     progressCallback: Optional[Callable[[int, int], None]] = None,
 ) -> bool:
     """Collect reconcile logs from multiple operators in parallel.

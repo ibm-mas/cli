@@ -189,7 +189,7 @@ class TestCollectReconcileLogs:
         with tempfile.TemporaryDirectory() as tmpDir:
             with patch("mas.cli.must_gather.common.reconcile_logs.client.CoreV1Api", return_value=mockCoreV1Api):
                 with patch("mas.cli.must_gather.common.reconcile_logs.stream") as mockStream:
-                    # Mock find command returning log paths
+                    # Mock find command returning log paths, then tar command fails
                     mockStream.side_effect = [
                         "/tmp/ansible-operator/runner/mas.ibm.com/v1/Suite/test-ns/test-instance/artifacts/123/stdout\n",
                         Exception("Tar command failed"),
@@ -204,7 +204,7 @@ class TestCollectReconcileLogs:
                     )
 
         assert result is True
-        assert "Error creating tar archive" in caplog.text
+        assert "Failed to execute tar command" in caplog.text or "Error downloading and extracting" in caplog.text
 
     def test_collect_reconcile_logs_successful_collection(self):
         """Test successful reconcile log collection.
@@ -240,10 +240,18 @@ class TestCollectReconcileLogs:
         with tempfile.TemporaryDirectory() as tmpDir:
             with patch("mas.cli.must_gather.common.reconcile_logs.client.CoreV1Api", return_value=mockCoreV1Api):
                 with patch("mas.cli.must_gather.common.reconcile_logs.stream") as mockStream:
-                    # Mock find command returning log paths
+                    # Create mock stream object for tar command
+                    mockTarStream = Mock()
+                    mockTarStream.is_open.side_effect = [True, False]  # Open then closed
+                    mockTarStream.peek_stdout.return_value = True
+                    mockTarStream.read_stdout.return_value = tarData
+                    mockTarStream.peek_stderr.return_value = False
+                    mockTarStream.close = Mock()
+
+                    # Mock find command returning log paths, then tar stream
                     mockStream.side_effect = [
                         "/tmp/ansible-operator/runner/mas.ibm.com/v1/Suite/test-ns/test-instance/artifacts/123/stdout\n",
-                        tarData,
+                        mockTarStream,
                     ]
 
                     result = collectReconcileLogs(
@@ -311,10 +319,18 @@ class TestCollectReconcileLogs:
         with tempfile.TemporaryDirectory() as tmpDir:
             with patch("mas.cli.must_gather.common.reconcile_logs.client.CoreV1Api", return_value=mockCoreV1Api):
                 with patch("mas.cli.must_gather.common.reconcile_logs.stream") as mockStream:
+                    # Create mock stream object for tar command
+                    mockTarStream = Mock()
+                    mockTarStream.is_open.side_effect = [True, False]
+                    mockTarStream.peek_stdout.return_value = True
+                    mockTarStream.read_stdout.return_value = tarData
+                    mockTarStream.peek_stderr.return_value = False
+                    mockTarStream.close = Mock()
+
                     mockStream.side_effect = [
                         "/tmp/ansible-operator/runner/mas.ibm.com/v1/Workspace/test-ns/instance1/artifacts/123/stdout\n"
                         "/tmp/ansible-operator/runner/mas.ibm.com/v1/Workspace/test-ns/instance2/artifacts/456/stdout\n",
-                        tarData,
+                        mockTarStream,
                     ]
 
                     result = collectReconcileLogs(
@@ -368,9 +384,17 @@ class TestCollectReconcileLogs:
         with tempfile.TemporaryDirectory() as tmpDir:
             with patch("mas.cli.must_gather.common.reconcile_logs.client.CoreV1Api", return_value=mockCoreV1Api):
                 with patch("mas.cli.must_gather.common.reconcile_logs.stream") as mockStream:
+                    # Create mock stream object for tar command
+                    mockTarStream = Mock()
+                    mockTarStream.is_open.side_effect = [True, False]
+                    mockTarStream.peek_stdout.return_value = True
+                    mockTarStream.read_stdout.return_value = tarData
+                    mockTarStream.peek_stderr.return_value = False
+                    mockTarStream.close = Mock()
+
                     mockStream.side_effect = [
                         "/tmp/ansible-operator/runner/config.mas.ibm.com/v1/BASCfg/test-ns/test-bas/artifacts/123/stdout\n",
-                        tarData,
+                        mockTarStream,
                     ]
 
                     result = collectReconcileLogs(
@@ -440,6 +464,17 @@ class TestCollectReconcileLogsParallel:
         with tempfile.TemporaryDirectory() as tmpDir:
             with patch("mas.cli.must_gather.common.reconcile_logs.client.CoreV1Api", return_value=mockCoreV1Api):
                 with patch("mas.cli.must_gather.common.reconcile_logs.stream") as mockStream:
+                    # Create tar archive
+                    tarBuffer = io.BytesIO()
+                    with tarfile.open(fileobj=tarBuffer, mode="w:gz") as tar:
+                        logContent = b"Test reconciliation\n"
+                        logInfo = tarfile.TarInfo(name="tmp/ansible-operator/runner/mas.ibm.com/v1/Suite/test-ns/instance/artifacts/123/stdout")
+                        logInfo.size = len(logContent)
+                        logInfo.mtime = datetime(2026, 6, 6, 12, 0, 0).timestamp()
+                        tar.addfile(logInfo, io.BytesIO(logContent))
+                    tarBuffer.seek(0)
+                    tarData = tarBuffer.read()
+
                     # Create a function that returns appropriate response based on command
                     def streamSideEffect(*args, **kwargs):
                         command = kwargs.get("command", [])
@@ -447,16 +482,14 @@ class TestCollectReconcileLogsParallel:
                             # Return find results for any operator
                             return "/tmp/ansible-operator/runner/mas.ibm.com/v1/Suite/test-ns/instance/artifacts/123/stdout\n"
                         elif command[0] == "tar":
-                            # Return tar archive
-                            tarBuffer = io.BytesIO()
-                            with tarfile.open(fileobj=tarBuffer, mode="w:gz") as tar:
-                                logContent = b"Test reconciliation\n"
-                                logInfo = tarfile.TarInfo(name="tmp/ansible-operator/runner/mas.ibm.com/v1/Suite/test-ns/instance/artifacts/123/stdout")
-                                logInfo.size = len(logContent)
-                                logInfo.mtime = datetime(2026, 6, 6, 12, 0, 0).timestamp()
-                                tar.addfile(logInfo, io.BytesIO(logContent))
-                            tarBuffer.seek(0)
-                            return tarBuffer.read()
+                            # Return mock stream object
+                            mockTarStream = Mock()
+                            mockTarStream.is_open.side_effect = [True, False]
+                            mockTarStream.peek_stdout.return_value = True
+                            mockTarStream.read_stdout.return_value = tarData
+                            mockTarStream.peek_stderr.return_value = False
+                            mockTarStream.close = Mock()
+                            return mockTarStream
                         return ""
 
                     mockStream.side_effect = streamSideEffect
@@ -524,10 +557,19 @@ class TestCollectReconcileLogsParallel:
                         logInfo.mtime = datetime(2026, 6, 6, 12, 0, 0).timestamp()
                         tar.addfile(logInfo, io.BytesIO(logContent))
                     tarBuffer.seek(0)
+                    tarData = tarBuffer.read()
+
+                    # Create mock stream object for tar command
+                    mockTarStream = Mock()
+                    mockTarStream.is_open.side_effect = [True, False]
+                    mockTarStream.peek_stdout.return_value = True
+                    mockTarStream.read_stdout.return_value = tarData
+                    mockTarStream.peek_stderr.return_value = False
+                    mockTarStream.close = Mock()
 
                     mockStream.side_effect = [
                         "/tmp/ansible-operator/runner/mas.ibm.com/v1/Suite/test-ns-1/instance/artifacts/123/stdout\n",
-                        tarBuffer.read(),
+                        mockTarStream,
                     ]
 
                     result = collectReconcileLogsParallel(

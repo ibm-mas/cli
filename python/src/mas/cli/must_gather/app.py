@@ -141,10 +141,11 @@ class MustGatherApp(BaseApp):
             self.printH1("OpenShift Container Platform")
             ocpTimer = Timer()
             ocpTimer.start()
-            self.collectOCP(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only)
+            collectionResult = self.collectOCP(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only)
             elapsed = ocpTimer.stop()
-            print()
-            self.printHighlight(f"OCP collection completed in {elapsed} seconds")
+            if collectionResult:
+                print()
+                self.printHighlight(f"OCP collection completed in {elapsed} seconds")
 
         # Collect dependency resources (unless --no-dependencies flag is set)
         if not parsedArgs.no_dependencies:
@@ -152,12 +153,13 @@ class MustGatherApp(BaseApp):
             depTimer = Timer()
             depTimer.start()
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
-            self.collectDependencies(
+            collectionResult = self.collectDependencies(
                 outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only, noLogs=parsedArgs.no_logs, masInstanceIds=masInstanceIds
             )
             elapsed = depTimer.stop()
-            print()
-            self.printHighlight(f"Dependencies collection completed in {elapsed} seconds")
+            if collectionResult:
+                print()
+                self.printHighlight(f"Dependencies collection completed in {elapsed} seconds")
 
         # Collect SLS resources (unless --no-sls flag is set)
         if not parsedArgs.no_sls:
@@ -165,10 +167,11 @@ class MustGatherApp(BaseApp):
             slsTimer = Timer()
             slsTimer.start()
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
-            self.collectSLS(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only, masInstanceIds=masInstanceIds)
+            collectionResult = self.collectSLS(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only, masInstanceIds=masInstanceIds)
             elapsed = slsTimer.stop()
-            print()
-            self.printHighlight(f"SLS collection completed in {elapsed} seconds")
+            if collectionResult:
+                print()
+                self.printHighlight(f"SLS collection completed in {elapsed} seconds")
 
         # Collect MAS resources
         self.printH1("IBM Maximo Application Suite")
@@ -176,7 +179,7 @@ class MustGatherApp(BaseApp):
         masTimer.start()
         masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
         masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
-        self.collectMAS(
+        collectionResult = self.collectMAS(
             outputDir=outputManager.outputDir,
             noDetail=parsedArgs.summary_only,
             noLogs=parsedArgs.no_logs,
@@ -184,34 +187,42 @@ class MustGatherApp(BaseApp):
             masAppIds=masAppIds,
         )
         elapsed = masTimer.stop()
-        self.printHighlight(f"MAS collection completed in {elapsed} seconds")
+        if collectionResult:
+            print()
+            self.printHighlight(f"MAS collection completed in {elapsed} seconds")
 
         # Collect AI Service resources
         self.printH1("IBM Maximo AI Service")
         aiserviceTimer = Timer()
         aiserviceTimer.start()
-        self.collectAIService(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only, noLogs=parsedArgs.no_logs)
+        collectionResult = self.collectAIService(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only, noLogs=parsedArgs.no_logs)
         elapsed = aiserviceTimer.stop()
-        self.printHighlight(f"AI Service collection completed in {elapsed} seconds")
+        if collectionResult:
+            print()
+            self.printHighlight(f"AI Service collection completed in {elapsed} seconds")
 
         # Collect Argo resources
         self.printH1("Argo CD")
         argoTimer = Timer()
         argoTimer.start()
-        self.collectArgo(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only)
+        collectionResult = self.collectArgo(outputDir=outputManager.outputDir, noDetail=parsedArgs.summary_only)
         elapsed = argoTimer.stop()
-        self.printHighlight(f"Argo collection completed in {elapsed} seconds")
+        if collectionResult:
+            print()
+            self.printHighlight(f"Argo collection completed in {elapsed} seconds")
 
         # Collect extra namespaces if specified
         if parsedArgs.extra_namespaces and not parsedArgs.summary_only:
             self.printH1("Extra Namespaces")
             extraTimer = Timer()
             extraTimer.start()
-            self.collectExtraNamespaces(
+            collectionResult = self.collectExtraNamespaces(
                 outputDir=outputManager.outputDir, extraNamespaces=parsedArgs.extra_namespaces, noDetail=parsedArgs.summary_only, noLogs=parsedArgs.no_logs
             )
             elapsed = extraTimer.stop()
-            self.printHighlight(f"Extra namespaces collection completed in {elapsed} seconds")
+            if collectionResult:
+                print()
+                self.printHighlight(f"Extra namespaces collection completed in {elapsed} seconds")
 
         # Generate cluster-wide subscriptions summary (only if OCP was collected)
         if not parsedArgs.no_ocp:
@@ -727,10 +738,14 @@ class MustGatherApp(BaseApp):
             # Collect MAS Core
             self.printHighlight("Core")
             try:
+                # Collect standard resources
                 if self.genericMustGather(namespace=coreNamespace, outputDir=outputDir, noDetail=noDetail, noLogs=noLogs):
                     successCount += 1
                 else:
                     print(f"❌ Failed to collect MAS Core resources from {coreNamespace} (check logs)")
+
+                # Collect reconcile logs from MAS Core operators
+                mas_core.collectMASCore(dynClient=self.dynClient, namespace=coreNamespace, outputDir=outputDir, noDetail=noDetail)
             except Exception as e:
                 print(f"❌ Failed to collect MAS Core from {coreNamespace}: {str(e)}")
 
@@ -889,6 +904,7 @@ class MustGatherApp(BaseApp):
                 print(f"❌ Failed to discover AI Service pipeline namespaces for {instanceId}: {str(e)}")
 
             elapsed = instanceTimer.stop()
+            print()
             print(f"Instance {instanceId} collection completed in {elapsed} seconds")
 
         return successCount > 0

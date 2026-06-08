@@ -18,18 +18,6 @@ from prompt_toolkit import HTML, print_formatted_text
 from urllib3.exceptions import MaxRetryError
 
 from mas.cli import __version__ as VERSION
-from mas.cli.aiservice.install.app import AiServiceInstallApp
-from mas.cli.aiservice.upgrade.app import AiServiceUpgradeApp
-from mas.cli.backup.app import BackupApp
-from mas.cli.install.app import InstallApp
-from mas.cli.mirror.app import MirrorApp
-from mas.cli.must_gather.app import MustGatherApp
-from mas.cli.pre_install.app import SetupPreinstallRBACApp
-from mas.cli.restore.app import RestoreApp
-from mas.cli.setup_rbac.app import SetupRBACApp
-from mas.cli.uninstall.app import UninstallApp
-from mas.cli.update.app import UpdateApp
-from mas.cli.upgrade.app import UpgradeApp
 
 logger = logging.getLogger(__name__)
 
@@ -74,46 +62,73 @@ def main() -> None:
     try:
         function = argv[1]
 
+        # Lazy-load app modules to optimize startup time.
+        # Only import and instantiate the specific app module needed for the requested function,
+        # rather than loading all app modules upfront. This significantly reduces initial load time.
         if function == "install":
+            from mas.cli.install.app import InstallApp
+
             app = InstallApp()
             raise SystemExit(app.install(argv[2:]))
         if function == "aiservice-install":
+            from mas.cli.aiservice.install.app import AiServiceInstallApp
+
             app = AiServiceInstallApp()
             raise SystemExit(app.install(argv[2:]))
         if function == "aiservice-upgrade":
+            from mas.cli.aiservice.upgrade.app import AiServiceUpgradeApp
+
             app = AiServiceUpgradeApp()
             raise SystemExit(app.upgrade(argv[2:]))
         if function == "uninstall":
+            from mas.cli.uninstall.app import UninstallApp
+
             app = UninstallApp()
             raise SystemExit(app.uninstall(argv[2:]))
         if function == "update":
+            from mas.cli.update.app import UpdateApp
+
             app = UpdateApp()
             raise SystemExit(app.update(argv[2:]))
         if function == "upgrade":
+            from mas.cli.upgrade.app import UpgradeApp
+
             app = UpgradeApp()
             app.upgrade(argv[2:])
             return
         if function == "backup":
+            from mas.cli.backup.app import BackupApp
+
             app = BackupApp()
             app.backup(argv[2:])
             return
         if function == "restore":
+            from mas.cli.restore.app import RestoreApp
+
             app = RestoreApp()
             app.restore(argv[2:])
             return
         if function == "mirror":
+            from mas.cli.mirror.app import MirrorApp
+
             app = MirrorApp()
             app.mirror(argv[2:])
             return
         if function == "setup-rbac":
+            from mas.cli.setup_rbac.app import SetupRBACApp
+
             app = SetupRBACApp()
             app.setupRBAC(argv[2:])
             return
         if function == "pre-install":
+            from mas.cli.pre_install.app import SetupPreinstallRBACApp
+
             app = SetupPreinstallRBACApp()
             app.setupPreinstallRBAC(argv[2:])
             return
         if function == "must-gather":
+            from mas.cli.must_gather.app import MustGatherApp
+
             app = MustGatherApp()
             app.mustGather(argv[2:])
             return

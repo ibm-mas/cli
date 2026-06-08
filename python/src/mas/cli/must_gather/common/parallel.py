@@ -29,7 +29,7 @@ def collectResourcesParallel(
     resources: List[tuple[str, str]],
     outputDir: str,
     noDetail: bool = False,
-    max_workers: int = 10,
+    max_workers: int = 20,
     progressCallback: Optional[Callable[[int, int], None]] = None,
 ) -> bool:
     """Collect multiple resource types in parallel using threads.

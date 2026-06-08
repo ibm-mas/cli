@@ -27,7 +27,7 @@ def collectPods(
     outputDir: str,
     podLogs: bool = False,
     noDetail: bool = False,
-    max_workers: int = 10,
+    max_workers: int = 20,
     progressCallback: Optional[Callable[[int, int], None]] = None,
 ) -> tuple[bool, int]:
     """Collect Kubernetes pods from a namespace with parallel processing.
@@ -281,7 +281,7 @@ def _collectLogs(dynClient: DynamicClient, namespace: str, podName: str, podDict
         containerStatuses = podDict.get("status", {}).get("containerStatuses", [])
 
         # Collect logs for all containers in parallel
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        with ThreadPoolExecutor(max_workers=20) as executor:
             futures = []
             for containerStatus in containerStatuses:
                 containerName = containerStatus.get("name")
