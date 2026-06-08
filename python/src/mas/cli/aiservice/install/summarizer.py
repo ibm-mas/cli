@@ -46,8 +46,6 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Release", "aiservice_channel")
         self.printParamSummary("Instance ID", "aiservice_instance_id")
         self.printParamSummary("Environment Type", "environment_type")
-        if self.admin_mode not in [None, ""]:
-            self.printSummary("Admin Mode", self.admin_mode)
 
         if "aiservice_certificate_issuer" in self.params:
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
