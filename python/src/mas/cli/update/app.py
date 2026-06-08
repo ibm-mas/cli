@@ -85,11 +85,14 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         logger.info(f"Instance {instanceId} target version {targetVersion} is < 9.2.0. Skipping RBAC.")
         return False
 
-    def evaluatePreinstallRBACAccess(self) -> None:
+    def evaluatePreinstallRBACAccessForUpdate(self) -> None:
         """
         Evaluate if pre-install RBAC should be applied for instances transitioning from pre-release to GA.
         Handles both MAS and AI Service instances.
         Sets self.instancesNeedingRBAC list and self.applyPreInstallMASRBAC flag.
+
+        This method identifies instances needing RBAC and calls the shared evaluatePreinstallRBACAccess()
+        function from rbac_utils to check permissions for each instance needing RBAC.
         """
         self.instancesNeedingRBAC = []
         self.applyPreInstallMASRBAC = False
@@ -284,7 +287,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.detectCP4D()
 
         # Evaluate RBAC access
-        self.evaluatePreinstallRBACAccess()
+        self.evaluatePreinstallRBACAccessForUpdate()
 
         print()
 

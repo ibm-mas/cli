@@ -296,13 +296,17 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.validateKafkaForCivilUpgrade(instanceId)
 
         detectedMode = None
-        if currentChannel and (currentChannel.startswith("9.2") or currentChannel.startswith("9.3")):
-            # Current channel is 9.2+, detect permission mode
+
+        # Determine admin mode based on upgrade path
+        if self.nextChannel and isVersionEqualOrAfter("9.3.0", self.nextChannel) and currentChannel and isVersionEqualOrAfter("9.2.0", currentChannel):
+            # Upgrading TO 9.3.x+ FROM 9.2.x+: detect existing permission mode
+            logger.info(f"Upgrading from {currentChannel} to {self.nextChannel}: detecting existing permission mode")
             detectedMode = getPermissionMode(self.dynamicClient, instanceId)
 
-        elif currentChannel and currentChannel.startswith("9.1") and self.nextChannel and self.nextChannel.startswith("9.2"):
-            # Upgrading from 9.1 to 9.2: default to cluster mode (9.1 had no permission modes)
-            logger.info("Upgrading from 9.1.x to 9.2.x: defaulting to cluster mode (9.1.x had no permission modes)")
+        elif self.nextChannel and self.nextChannel.startswith("9.2"):
+            # Upgrading TO 9.2.x: default to cluster mode
+            # (covers both 9.1.x→9.2.x and 9.2.x-feature→9.2.x)
+            logger.info("Upgrading to 9.2.x: defaulting to cluster mode")
             detectedMode = "cluster"
 
         # Evaluate RBAC access
