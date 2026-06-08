@@ -333,9 +333,9 @@ class ManageSettingsMixin:
                 ]
             )
             self.yesOrNo("Enable integration with Cognos Analytics", "cpd_install_cognos")
-            self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_flag")
+            self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_wsl_flag")
 
-            if self.getParam("cpd_install_cognos") == "true" or self.getParam("mas_appws_bindings_health_flag") == "true":
+            if self.getParam("cpd_install_cognos") == "true" or self.getParam("mas_appws_bindings_health_wsl_flag") == "true":
                 self.configCP4D()
 
     def manageSettingsOther(self) -> None:
