@@ -53,9 +53,7 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
 from mas.devops.utils import isVersionEqualOrAfter
-from ...rbac_utils import handle_rbac_permission_denied
 
 logger = logging.getLogger(__name__)
 
@@ -71,44 +69,6 @@ def logMethodCall(func):
 
 
 class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, InstallSettingsMixin, ConfigGeneratorMixin):
-
-    def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
-
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            return
-
-        if self.admin_mode == "minimal":
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        self.printH2("Pre-Install RBAC Configuration")
-        # User does not have permissions to apply RBAC
-        self.printDescription(
-            [
-                f"Admin mod: '{self.admin_mode}'.",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        # Generate a generic pre-install command
-        preinstall_cmd = f"mas pre-install --mas-channel {self.getParam('aiservice_channel')} --admin-mode {self.admin_mode}"
-
-        handle_rbac_permission_denied(
-            print_func=self.printDescription,
-            yes_or_no_func=self.yesOrNo,
-            fatal_error_func=self.fatalError,
-            no_confirm=self.noConfirm,
-            admin_mode=self.admin_mode,
-            preinstall_commands=[preinstall_cmd],
-            operation="installation",
-        )
 
     def configAdminMode(self) -> None:
         if self.showAdvancedOptions:
@@ -553,8 +513,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.nonInteractiveMode()
 
-        self.evaluatePreInstallRBACAccess()
-
         # Set up the sls and db2 license file
         self.slsLicenseFile()
         self.db2LicenseFile()
@@ -613,17 +571,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 self.setupApprovals(pipelinesNamespace)
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
-
-            if self.applyPreInstallMASRBAC:
-                with Halo(text=f"Setting up pre-install RBAC for AI Service instance {self.getParam('aiservice_instance_id')}...", spinner=self.spinner) as h:
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=".".join(self.getParam("aiservice_channel").split(".")[:2]),
-                        masInstanceId=self.getParam("aiservice_instance_id"),
-                        adminMode=self.admin_mode,
-                        selectedApps=["aiservice"],
-                    )
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for AI Service is ready for {self.getParam('aiservice_instance_id')}")
 
             with Halo(text="Testing availability of MAS CLI image in cluster", spinner=self.spinner) as h:
                 testCLI()

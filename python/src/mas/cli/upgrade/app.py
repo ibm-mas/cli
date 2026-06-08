@@ -30,12 +30,12 @@ from mas.devops.mas import (
     getWorkspaceId,
     verifyAppInstance,
     getPermissionMode,
-    getInstalledAppsForRBAC,
+    getInstalledApps,
 )
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from ..rbac_utils import handle_rbac_permission_denied
+from mas.devops.pre_install import applyPreInstallMASRBAC
+from ..rbac_utils import evaluatePreinstallRBACAccess
 
 logger = logging.getLogger(__name__)
 
@@ -138,52 +138,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         except Exception as e:
             logger.warning(f"Could not query ManageWorkspace CR for Civil component check: {e}")
             # Don't fail the upgrade if we can't query - let ansible handle it
-
-    def evaluatePreInstallRBACAccess(self, instanceId: str, detectedMode: str) -> None:
-        """
-        Evaluate if pre-install RBAC should be applied.
-        Sets self.applyPreInstallMASRBAC flag and self.selectedAppsForRBAC based on the result.
-        """
-        self.applyPreInstallMASRBAC = False
-        self.selectedAppsForRBAC = []
-
-        if not self.nextChannel or not isVersionEqualOrAfter("9.2.0", self.nextChannel):
-            return
-
-        if detectedMode == "minimal":
-            return
-
-        # Get installed apps for RBAC
-        self.selectedAppsForRBAC = getInstalledAppsForRBAC(self.dynamicClient, instanceId)
-
-        # Check if user has permissions to apply RBAC
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        self.applyPreInstallMASRBAC = all(result["allowed"] for result in permissionResults)
-
-        if self.applyPreInstallMASRBAC:
-            return
-
-        # User does not have permissions - inform them early
-        apps_arg = f" --apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
-        preInstallCmd = f"mas pre-install --mas-instance-id {instanceId} --mas-channel {self.nextChannel} --admin-mode {detectedMode}{apps_arg}"
-
-        self.printH1("Pre-Install RBAC Configuration")
-        self.printDescription(
-            [
-                f"Admin mode: '{detectedMode}'",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        handle_rbac_permission_denied(
-            print_func=self.printDescription,
-            yes_or_no_func=self.yesOrNo,
-            fatal_error_func=self.fatalError,
-            no_confirm=self.noConfirm,
-            admin_mode=detectedMode,
-            preinstall_commands=[preInstallCmd],
-            operation="upgrade",
-        )
 
     def upgrade(self, argv):
         """
@@ -353,7 +307,18 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         # Evaluate RBAC access
         if detectedMode:
-            self.evaluatePreInstallRBACAccess(instanceId, detectedMode)
+            self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+                dynamicClient=self.dynamicClient,
+                masChannel=self.nextChannel,
+                adminMode=detectedMode,
+                instanceId=instanceId,
+                noConfirm=self.noConfirm,
+                printH1Func=self.printH1,
+                printDescriptionFunc=self.printDescription,
+                yesOrNoFunc=self.yesOrNo,
+                fatalErrorFunc=self.fatalError,
+                operation="upgrade",
+            )
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
@@ -381,6 +346,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
             # Apply pre-install RBAC if user has permissions
             if self.applyPreInstallMASRBAC and detectedMode:
+                self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
                 with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,

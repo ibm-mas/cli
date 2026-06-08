@@ -24,67 +24,13 @@ from .argParser import upgradeArgParser
 from mas.devops.ocp import createNamespace
 from mas.devops.aiservice import listAiServiceInstances, getAiserviceChannel
 from mas.devops.mas import getPermissionMode
-from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchAiServiceUpgradePipeline
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from ...rbac_utils import handle_rbac_permission_denied
 from openshift.dynamic.exceptions import ResourceNotFoundError
 
 logger = logging.getLogger(__name__)
 
 
 class AiServiceUpgradeApp(BaseApp):
-    def evaluatePreInstallRBACAccess(self, aiserviceInstanceId: str, detectedMode: str, nextChannel: str) -> None:
-        """
-        Evaluate if pre-install RBAC should be applied for AI Service upgrade.
-        Sets self.applyPreInstallMASRBAC flag and self.selectedAppsForRBAC based on the result.
-
-        Args:
-            aiserviceInstanceId: AI Service instance ID
-            masInstanceId: Associated MAS instance ID
-            detectedMode: Admin mode (cluster, namespaced, minimal)
-            nextChannel: Target AI Service channel/version
-        """
-        self.applyPreInstallMASRBAC = False
-        self.selectedAppsForRBAC = []
-
-        if not nextChannel or not isVersionEqualOrAfter("9.2.0", nextChannel):
-            return
-
-        if detectedMode == "minimal":
-            return
-
-        # For AI Service, we only need to include "aiservice" in selected apps
-        self.selectedAppsForRBAC = ["aiservice"]
-
-        # Check if user has permissions to apply RBAC
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        self.applyPreInstallMASRBAC = all(result["allowed"] for result in permissionResults)
-
-        if self.applyPreInstallMASRBAC:
-            return
-
-        apps_arg = f" --apps {','.join(self.selectedAppsForRBAC)}" if self.selectedAppsForRBAC else ""
-        preInstallCmd = f"mas pre-install --mas-instance-id {aiserviceInstanceId} --mas-channel {nextChannel} --admin-mode {detectedMode}{apps_arg}"
-
-        self.printH1("Pre-Install RBAC Configuration")
-        self.printDescription(
-            [
-                f"Admin mode: '{detectedMode}'",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        handle_rbac_permission_denied(
-            print_func=self.printDescription,
-            yes_or_no_func=self.yesOrNo,
-            fatal_error_func=self.fatalError,
-            no_confirm=self.noConfirm,
-            admin_mode=detectedMode,
-            preinstall_commands=[preInstallCmd],
-            operation="AI Service upgrade",
-        )
-
     def upgrade(self, argv):
         """
         Upgrade AI Service instance
@@ -95,8 +41,6 @@ class AiServiceUpgradeApp(BaseApp):
         self.skipPreCheck = args.skip_pre_check
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
-        self.applyPreInstallMASRBAC = False
-        self.selectedAppsForRBAC = []
 
         if aiserviceInstanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -159,10 +103,6 @@ class AiServiceUpgradeApp(BaseApp):
             logger.info("Upgrading AI Service from 9.1.x to 9.2.x: defaulting to cluster mode")
             detectedMode = "cluster"
 
-        # Evaluate RBAC access if admin mode was detected
-        if detectedMode:
-            self.evaluatePreInstallRBACAccess(aiserviceInstanceId, detectedMode, nextAiserviceChannel)
-
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
             self.printDescription(["To continue with the upgrade, you must accept the license terms:", self.licenses[nextAiserviceChannel]])
@@ -195,20 +135,6 @@ class AiServiceUpgradeApp(BaseApp):
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
-
-            # Apply pre-install RBAC if user has permissions
-            if self.applyPreInstallMASRBAC and detectedMode:
-                with Halo(text="Applying pre-install MAS RBAC for AI Service upgrade", spinner=self.spinner) as h:
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=".".join(nextAiserviceChannel.split(".")[:2]),
-                        masInstanceId=aiserviceInstanceId,
-                        adminMode=detectedMode,
-                        selectedApps=self.selectedAppsForRBAC,
-                    )
-                    h.stop_and_persist(
-                        symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for AI Service (version: {nextAiserviceChannel}, mode: {detectedMode})"
-                    )
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)

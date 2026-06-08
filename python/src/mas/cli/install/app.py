@@ -69,8 +69,8 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from ..rbac_utils import handle_rbac_permission_denied
+from mas.devops.pre_install import applyPreInstallMASRBAC
+from ..rbac_utils import evaluatePreinstallRBACAccess
 
 logger = logging.getLogger(__name__)
 
@@ -118,43 +118,6 @@ class InstallApp(
             selectedApps.append("arcgis")
 
         return selectedApps
-
-    def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
-
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
-            return
-
-        if self.mas_admin_mode == "minimal":
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        self.printH1("Pre-Install RBAC Configuration")
-        # User does not have permissions to apply RBAC
-        self.printDescription(
-            [
-                f"Admin mode: '{self.mas_admin_mode}'",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        # Generate a generic pre-install command
-        preinstall_cmd = f"mas pre-install --mas-channel {self.getParam('mas_channel')} --admin-mode {self.mas_admin_mode}"
-
-        handle_rbac_permission_denied(
-            print_func=self.printDescription,
-            yes_or_no_func=self.yesOrNo,
-            fatal_error_func=self.fatalError,
-            no_confirm=self.noConfirm,
-            admin_mode=self.mas_admin_mode,
-            preinstall_commands=[preinstall_cmd],
-            operation="installation",
-        )
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -1949,7 +1912,17 @@ class InstallApp(
 
         # MAS Core
         self.configAdminMode()
-        self.evaluatePreInstallRBACAccess()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.configCertManager()
         self.configMAS()
 
@@ -2405,7 +2378,17 @@ class InstallApp(
             if self.mas_admin_mode != "":
                 self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('mas_channel')})")
 
-        self.evaluatePreInstallRBACAccess()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
