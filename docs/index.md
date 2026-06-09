@@ -1,36 +1,34 @@
 IBM Maximo Application Suite CLI Utility
 ===============================================================================
-The CLI comes in two flavours; **container image** and **standalone binary**.
-
-The standalone CLI is available for three platforms, and available from the downloads page on each [GitHub release](https://github.com/ibm-mas/cli/releases/tag/@@CLI_LATEST_VERSION@@).
+The CLI comes in two flavours; **container image** and **standalone uvx tool**.
 
 
 Container Image
 -------------------------------------------------------------------------------
-The best way to use the MAS CLI is to use the container image we publish to quay.io:
+The MAS CLI container image is published to quay.io:
 
 ```bash
-docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli mas install --help
+podman run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli mas install --help
 ```
 
 !!! tip
     If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: `docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@`
 
-The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see [cli-base](https://github.com/ibm-mas/cli-base) for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directly the CLI image can be a useful tool:
+The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see [cli-base](https://github.com/ibm-mas/cli-base) for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directly, the CLI image can be a useful tool:
 
 ```bash
-docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.mas_install_core
+podman run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.mas_install_core
 ```
 
 
 Standalone
 -------------------------------------------------------------------------------
-Introduced in 2026, replacing the standalone binary previously built with PyInstaller, the MAS CLI is now compatible with [uv](https://docs.astral.sh/uv/) and is the simplest way run the CLI.
+Introduced in 2026, replacing the standalone binary built with PyInstaller, the mas-cli is now compatible with [uv](https://docs.astral.sh/uv/) and is the easiest way run the CLI yet.
 
 - [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ### Ephemeral Execution
-Run the MAS CLI without an install:
+Run the MAS CLI without any install:
 
 ```bash
 uvx mas-cli --help
@@ -59,22 +57,22 @@ Function support
 -------------------------------------------------------------------------------
 Not all functions supported in the container image are available in the standalone CLI (yet):
 
-| CLI Function                                                        | Image    | Binary   |
-| ------------------------------------------------------------------- | :------: | :------: |
-| [install](guides/install.md)                                        | &#10003; | &#10003; |
-| [aiservice-install](guides/aiservice-install.md)                    | &#10003; | &#10003; |
-| [update](guides/update.md)                                          | &#10003; | &#10003; |
-| [upgrade](guides/upgrade.md)                                        | &#10003; | &#10003; |
-| [uninstall](guides/uninstall.md)                                    | &#10003; | &#10003; |
-| [must-gather](commands/must-gather.md)                              | &#10003; | &#10003; |
-| [configure-airgap](guides/configure-airgap.md)                      | &#10003; | &#10005; |
-| [mirror-images](guides/image-mirroring.md)                          | &#10003; | &#10005; |
-| [mirror-redhat-images](commands/mirror-redhat-images.md)            | &#10003; | &#10005; |
-| [setup-registry](guides/private-registry.md#registry-removal)       | &#10003; | &#10005; |
-| [teardown-registry](guides/private-registry.md#registry-deployment) | &#10003; | &#10005; |
-| [provision-aws](guides/provision-aws.md)                            | &#10003; | &#10005; |
-| [provision-fyre](guides/provision-fyre.md)                          | &#10003; | &#10005; |
-| [provision-roks](guides/provision-roks.md)                          | &#10003; | &#10005; |
-| [configtool-oidc](commands/configtool-oidc.md)                      | &#10003; | &#10005; |
-| [backup](guides/backup.md)                                          | &#10003; | &#10003; |
-| [restore](guides/restore.md)                                        | &#10003; | &#10003; |
+| CLI Function                                                        | container |  uvx |
+| ------------------------------------------------------------------- | :-------: | :---: |
+| [install](guides/install.md)                                        |    ✅    |   ✅  |
+| [aiservice-install](guides/aiservice-install.md)                    |    ✅    |   ✅  |
+| [update](guides/update.md)                                          |    ✅    |   ✅  |
+| [upgrade](guides/upgrade.md)                                        |    ✅    |   ✅  |
+| [uninstall](guides/uninstall.md)                                    |    ✅    |   ✅  |
+| [must-gather](commands/must-gather.md)                              |    ✅    |   ✅  |
+| [backup](guides/backup.md)                                          |    ✅    |   ✅  |
+| [restore](guides/restore.md)                                        |    ✅    |   ✅  |
+| [configure-airgap](guides/configure-airgap.md)                      |    ✅    |   ❌  |
+| [mirror-images](guides/image-mirroring.md)                          |    ✅    |   ❌  |
+| [mirror-redhat-images](commands/mirror-redhat-images.md)            |    ✅    |   ❌  |
+| [setup-registry](guides/private-registry.md#registry-removal)       |    ✅    |   ❌  |
+| [teardown-registry](guides/private-registry.md#registry-deployment) |    ✅    |   ❌  |
+| [provision-aws](guides/provision-aws.md)                            |    ✅    |   ❌  |
+| [provision-fyre](guides/provision-fyre.md)                          |    ✅    |   ❌  |
+| [provision-roks](guides/provision-roks.md)                          |    ✅    |   ❌  |
+| [configtool-oidc](commands/configtool-oidc.md)                      |    ✅    |   ❌  |

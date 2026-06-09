@@ -69,23 +69,7 @@
             margin-right: auto;
         }
 
-        .search-container {
-            display: flex;
-            gap: 10px;
-        }
 
-        .search-input {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 14px;
-            width: 300px;
-        }
-
-        .search-input:focus {
-            outline: 2px solid var(--primary);
-            outline-offset: -2px;
-        }
 
         .btn {
             padding: 8px 16px;
@@ -456,10 +440,6 @@
 <body>
     <div class="header">
         <h1>MAS Must-Gather Viewer</h1>
-        <div class="search-container">
-            <input type="text" class="search-input" id="searchInput" placeholder="Search files...">
-            <button class="btn btn-secondary" id="clearSearch">Clear</button>
-        </div>
     </div>
 
     <div class="container">
@@ -1118,43 +1098,7 @@
             showToast(`Resource file not found: ${resourceName}`, true);
         }
 
-        document.getElementById('searchInput').addEventListener('input', async (e) => {
-            const query = e.target.value.toLowerCase();
 
-            // For V2 manifests with search query, load all namespace manifests
-            if (isV2Manifest && query && manifest.namespaces) {
-                for (const namespace of manifest.namespaces) {
-                    if (!namespaceManifests[namespace]) {
-                        await loadNamespaceManifest(namespace);
-
-                        // Find the namespace folder and render its content
-                        const nsFolders = document.querySelectorAll('[data-namespace]');
-                        for (const folder of nsFolders) {
-                            if (folder.dataset.namespace === namespace && folder.classList.contains('tree-item')) {
-                                const childrenDiv = folder.nextElementSibling;
-                                if (childrenDiv && namespaceManifests[namespace]) {
-                                    renderFileTree(namespaceManifests[namespace].files, childrenDiv, `resources/${namespace}`);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Perform search
-            document.querySelectorAll('.tree-item').forEach(item => {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(query) ? '' : 'none';
-            });
-        });
-
-        document.getElementById('clearSearch').addEventListener('click', () => {
-            document.getElementById('searchInput').value = '';
-            document.querySelectorAll('.tree-item').forEach(item => {
-                item.style.display = '';
-            });
-        });
 
         // Handle browser back/forward navigation
         window.addEventListener('hashchange', async () => {

@@ -19,7 +19,7 @@ import logging
 from typing import Set, Optional, List
 from kubernetes.dynamic import DynamicClient
 
-from mas.cli.must_gather.common import collectReconcileLogsParallel
+from mas.cli.must_gather.common.reconcile_logs import collectReconcileLogs
 
 logger = logging.getLogger(__name__)
 
@@ -69,53 +69,106 @@ def discoverMASCoreNamespaces(dynClient: DynamicClient, masInstanceIds: Optional
     return namespaces
 
 
-def collectMASCore(dynClient: DynamicClient, namespace: str, outputDir: str, noDetail: bool = False) -> bool:
-    """Collect MAS Core resources from a namespace.
+def generateMASCoreCollectionTasks(
+    dynClient: DynamicClient,
+    namespace: str,
+    outputDir: str,
+    noDetail: bool = False,
+    noLogs: bool = False,
+    ibmCRDs: Optional[List[tuple]] = None,
+):
+    """Generate collection tasks for MAS Core namespace.
+
+    Creates a list of tasks for parallel execution that collect all MAS Core resources
+    including IBM CRDs, standard Kubernetes resources, secrets, pods, and reconcile logs.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         namespace (str): MAS Core namespace to collect from
         outputDir (str): Base output directory
         noDetail (bool, optional): If True, skip detailed YAML collection. Defaults to False.
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
+        ibmCRDs (list, optional): List of IBM CRD tuples (api_version, kind). Defaults to None.
 
     Returns:
-        bool: True if collection succeeded, False if errors occurred
+        list: List of task tuples (task_name, function, *args)
     """
-    logger.info(f"Collecting MAS Core resources from {namespace}")
+    from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
 
-    # Build list of operators to collect reconcile logs from
-    operators = [
-        # Primary Resources
-        (namespace, "control-plane", "ibm-mas"),
-        (namespace, "control-plane", "ibm-mas-ws"),
-        # Internals
-        (namespace, "control-plane", "ibm-mas-coreidp"),
-        # Addons
-        (namespace, "control-plane", "ibm-mas-addons"),
-        # Configurations
-        (namespace, "control-plane", "ibm-mas-cfg-bas"),
-        (namespace, "control-plane", "ibm-mas-cfg-sls"),
-        (namespace, "control-plane", "ibm-mas-cfg-idp"),
-        (namespace, "control-plane", "ibm-mas-cfg-scim"),
-        (namespace, "control-plane", "ibm-mas-cfg-jdbc"),
-        (namespace, "control-plane", "ibm-mas-cfg-mongo"),
-        (namespace, "control-plane", "ibm-mas-cfg-kafka"),
-        (namespace, "control-plane", "ibm-mas-cfg-objectstorage"),
-        (namespace, "control-plane", "ibm-mas-cfg-smtp"),
-        (namespace, "control-plane", "ibm-mas-cfg-ai"),
-        # Truststore
-        (namespace, "operator", "ibm-truststore-mgr"),
-    ]
+    # Use the standard namespace collection tasks (IBM resources, standard resources, secrets, pods)
+    tasks = generateNamespaceCollectionTasks(
+        dynClient=dynClient,
+        namespace=namespace,
+        outputDir=outputDir,
+        noDetail=noDetail,
+        noLogs=noLogs,
+        includeSecrets=True,  # MAS Core includes secrets
+        secretData=False,  # MAS Core does not include secret data
+        customResources=None,  # No MAS-specific CRDs to add
+        ibmCRDs=ibmCRDs,
+    )
 
-    # Progress callback for visual feedback
-    def progressCallback(completed: int, total: int) -> None:
-        logger.info(f"Collecting reconcile logs: {completed}/{total} operators completed")
+    # Add MAS Core-specific task: Collect reconcile logs from MAS operator
+    def collectMASOperatorReconcileLogs():
+        return collectReconcileLogs(
+            namespace=namespace,
+            labelSelector="app.kubernetes.io/name",
+            labelValue="ibm-mas-operator",
+            outputDir=outputDir,
+        )
 
-    # Collect reconcile logs from all operators in parallel
-    logger.info(f"Collecting reconcile logs from {len(operators)} operators")
-    collectReconcileLogsParallel(dynClient, operators, outputDir, progressCallback=progressCallback)
+    tasks.append(("reconcile_logs", collectMASOperatorReconcileLogs))
 
-    return True
+    return tasks
+
+
+def addMASCoreToCollectionPlan(
+    plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list, masInstanceIds: Optional[List[str]] = None
+):
+    """Add MAS Core collection tasks to the collection plan.
+
+    Discovers MAS Core namespaces and adds collection groups for each instance
+    to the provided collection plan. Returns the list of discovered core namespaces
+    for use by MAS Apps discovery.
+
+    Args:
+        plan (CollectionPlan): Collection plan to add tasks to
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        outputDir (str): Base output directory for collected resources
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
+        masInstanceIds (list, optional): List of MAS instance IDs to filter discovery. Defaults to None.
+
+    Returns:
+        set: Set of discovered MAS Core namespace names
+    """
+    logger.info("Discovering MAS instances")
+    try:
+        if masInstanceIds:
+            logger.debug(f"Filtering MAS discovery by instance IDs: {', '.join(masInstanceIds)}")
+
+        coreNamespaces = discoverMASCoreNamespaces(dynClient, masInstanceIds=masInstanceIds)
+        if coreNamespaces:
+            logger.info(f"Discovered {len(coreNamespaces)} MAS instance(s): {', '.join([ns[4:-5] for ns in sorted(coreNamespaces)])}")
+            for coreNamespace in sorted(coreNamespaces):
+                instanceId = coreNamespace[4:-5]  # Remove "mas-" prefix and "-core" suffix
+                tasks = generateMASCoreCollectionTasks(
+                    dynClient=dynClient,
+                    namespace=coreNamespace,
+                    outputDir=outputDir,
+                    noDetail=noDetail,
+                    noLogs=noLogs,
+                    ibmCRDs=ibmCRDs,
+                )
+                plan.addGroup(f"MAS Core ({instanceId})", tasks)
+                logger.debug(f"Added {len(tasks)} MAS Core collection tasks for instance {instanceId}")
+        else:
+            logger.info("No MAS instances discovered")
+        return coreNamespaces
+    except Exception as e:
+        logger.warning(f"MAS discovery failed: {e}")
+        return set()
 
 
 def generateMASCoreSummary(dynClient: DynamicClient, namespaces: Set[str], outputFile: str) -> None:

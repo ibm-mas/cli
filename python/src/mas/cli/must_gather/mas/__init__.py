@@ -10,6 +10,6 @@
 
 """MAS collectors for must-gather."""
 
-from .core import discoverMASCoreNamespaces, collectMASCore, generateMASCoreSummary  # noqa: F401
+from .core import discoverMASCoreNamespaces, generateMASCoreSummary
 
-__all__ = ["discoverMASCoreNamespaces", "collectMASCore", "generateMASCoreSummary"]
+__all__ = ["discoverMASCoreNamespaces", "generateMASCoreSummary"]

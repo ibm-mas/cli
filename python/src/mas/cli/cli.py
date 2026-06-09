@@ -105,7 +105,7 @@ def logMethodCall(func: Callable) -> Callable:
 class BaseApp(PrintMixin, PromptMixin):
     def __init__(self) -> None:
         # Set up a log formatter with module name and line number
-        chFormatter = logging.Formatter("%(asctime)s  %(levelname)-8s [%(name)s:%(lineno)d] %(message)s")
+        chFormatter = logging.Formatter("%(asctime)s | %(name)-45s [%(lineno)-3d] | %(levelname)-8s %(message)s")
 
         # Set up a log handler (5mb rotating log file)
         ch = logging.handlers.RotatingFileHandler("mas.log", maxBytes=(1048576 * 5), backupCount=2)

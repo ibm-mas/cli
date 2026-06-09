@@ -20,7 +20,8 @@ import logging
 from typing import Set, Optional, List, Tuple
 from kubernetes.dynamic import DynamicClient
 
-from mas.cli.must_gather.common import collectReconcileLogsParallel
+from mas.cli.must_gather.common import generateReconcileLogsCollectionTasks
+from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
 
 logger = logging.getLogger(__name__)
 
@@ -144,13 +145,19 @@ def getReconcileLogsOperatorsForApp(namespace: str, appId: str) -> List[Tuple[st
     return operators
 
 
-def collectMASApp(
-    dynClient: DynamicClient, namespace: str, appId: str, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None
-) -> bool:
-    """Collect MAS application resources from a namespace.
+def generateMASAppCollectionTasks(
+    dynClient: DynamicClient,
+    namespace: str,
+    appId: str,
+    outputDir: str,
+    noDetail: bool = False,
+    noLogs: bool = False,
+    ibmCRDs: Optional[List[Tuple[str, str]]] = None,
+) -> List[Tuple]:
+    """Generate collection tasks for a MAS application namespace.
 
-    Calls app-specific summary and collection scripts if they exist, then performs
-    generic resource collection using common utilities.
+    Creates a list of collection tasks that can be executed in parallel
+    for collecting MAS app resources from a specific namespace.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
@@ -159,35 +166,79 @@ def collectMASApp(
         outputDir (str): Base output directory
         noDetail (bool, optional): If True, skip detailed YAML collection. Defaults to False.
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
+        ibmCRDs (list, optional): List of IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
 
     Returns:
-        bool: True if collection succeeded, False if errors occurred
+        list: List of task tuples in format (task_name, func, *args)
     """
-    try:
-        logger.info(f"Collecting MAS {appId} resources from {namespace}")
+    # Use common namespace collection task generation
+    tasks = generateNamespaceCollectionTasks(
+        dynClient=dynClient,
+        namespace=namespace,
+        outputDir=outputDir,
+        noDetail=noDetail,
+        noLogs=noLogs,
+        includeSecrets=True,
+        secretData=False,
+        customResources=None,
+        ibmCRDs=ibmCRDs,
+    )
 
-        # Collect reconcile logs from app-specific operators
+    # Add app-specific reconcile logs tasks
+    if not noDetail:
         operators = getReconcileLogsOperatorsForApp(namespace, appId)
         if operators:
-            logger.info(f"Collecting reconcile logs from {len(operators)} operators")
+            tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
 
-            def progressCallback(completed: int, total: int) -> None:
-                logger.info(f"Collecting reconcile logs: {completed}/{total} operators completed")
+    return tasks
 
-            collectReconcileLogsParallel(dynClient, operators, outputDir, progressCallback=progressCallback)
-        else:
-            logger.debug(f"No reconcile log operators defined for app {appId}")
 
-        # Perform generic resource collection using common utilities
-        # Note: External scripts (mg-summary-mas-* and mg-collect-mas-*) are not part of Python migration
-        if genericMustGather:
-            success = genericMustGather(namespace=namespace, outputDir=outputDir, noDetail=noDetail, podsOnly=False, noLogs=noLogs, additionalResources=[])
-            return success
-        else:
-            logger.warning(f"No genericMustGather function provided for {namespace}, skipping generic collection")
-            return True
+def addMASAppsToCollectionPlan(
+    plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list, coreNamespaces: Set[str], masAppIds: Optional[List[str]] = None
+):
+    """Add MAS Apps collection tasks to the collection plan.
 
-    except Exception as e:
-        logger.error(f"Failed to collect MAS app {appId} from namespace {namespace}: {e}")
-        return False
+    For each MAS Core namespace provided, discovers and adds MAS Apps collection groups
+    to the provided collection plan.
+
+    Args:
+        plan (CollectionPlan): Collection plan to add tasks to
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        outputDir (str): Base output directory for collected resources
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
+        coreNamespaces (set): Set of MAS Core namespace names to discover apps for
+        masAppIds (list, optional): List of MAS app IDs to filter. Defaults to None.
+    """
+    if masAppIds:
+        logger.debug(f"Filtering MAS app discovery by app IDs: {', '.join(masAppIds)}")
+
+    for coreNamespace in sorted(coreNamespaces):
+        instanceId = coreNamespace[4:-5]  # Remove "mas-" prefix and "-core" suffix
+
+        # Discover MAS Apps for this instance
+        logger.debug(f"Discovering MAS apps for instance {instanceId}")
+        try:
+            appNamespaces = discoverMASAppNamespaces(dynClient, masInstanceId=instanceId, masAppIds=masAppIds)
+            if appNamespaces:
+                logger.info(
+                    f"Discovered {len(appNamespaces)} MAS app(s) for instance {instanceId}: {', '.join([ns.split('-')[-1] for ns in sorted(appNamespaces)])}"
+                )
+                for appNamespace in sorted(appNamespaces):
+                    appId = appNamespace[len(f"mas-{instanceId}-") :]
+                    tasks = generateMASAppCollectionTasks(
+                        dynClient=dynClient,
+                        namespace=appNamespace,
+                        appId=appId,
+                        outputDir=outputDir,
+                        noDetail=noDetail,
+                        noLogs=noLogs,
+                        ibmCRDs=ibmCRDs,
+                    )
+                    plan.addGroup(f"MAS App ({instanceId}/{appId})", tasks)
+                    logger.debug(f"Added {len(tasks)} MAS App collection tasks for {instanceId}/{appId}")
+            else:
+                logger.info(f"No MAS apps discovered for instance {instanceId}")
+        except Exception as e:
+            logger.warning(f"MAS Apps discovery failed for {instanceId}: {e}")

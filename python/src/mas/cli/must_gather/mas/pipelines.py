@@ -16,8 +16,10 @@ mas-pipelines), and collects pipeline resources including PipelineRuns with logs
 """
 
 import logging
-from typing import Set, Optional, List
+from typing import Set, Optional, List, Tuple
 from kubernetes.dynamic import DynamicClient
+
+from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
 
 logger = logging.getLogger(__name__)
 
@@ -77,11 +79,18 @@ def discoverMASPipelineNamespaces(dynClient: DynamicClient, masInstanceIds: Opti
     return namespaces
 
 
-def collectMASPipelines(dynClient: DynamicClient, namespace: str, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
-    """Collect MAS pipeline resources from a namespace.
+def generateMASPipelinesCollectionTasks(
+    dynClient: DynamicClient,
+    namespace: str,
+    outputDir: str,
+    noDetail: bool = False,
+    noLogs: bool = False,
+    ibmCRDs: Optional[List[Tuple[str, str]]] = None,
+) -> List[Tuple]:
+    """Generate collection tasks for a MAS pipelines namespace.
 
-    Collects pipeline resources including PipelineRuns with logs using the generic
-    must-gather collection function.
+    Creates a list of collection tasks that can be executed in parallel
+    for collecting MAS pipeline resources from a specific namespace.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
@@ -89,21 +98,58 @@ def collectMASPipelines(dynClient: DynamicClient, namespace: str, outputDir: str
         outputDir (str): Base output directory
         noDetail (bool, optional): If True, skip detailed YAML collection. Defaults to False.
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
+        ibmCRDs (list, optional): List of IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
 
     Returns:
-        bool: True if collection succeeded, False if errors occurred
+        list: List of task tuples in format (task_name, func, *args)
     """
-    try:
-        # Perform generic resource collection using common utilities
-        # Note: genericMustGather will create the proper directory structure under outputDir/resources/{namespace}
-        if genericMustGather:
-            success = genericMustGather(namespace=namespace, outputDir=outputDir, noDetail=noDetail, podsOnly=False, noLogs=noLogs, additionalResources=[])
-            return success
-        else:
-            logger.warning(f"No genericMustGather function provided for {namespace}, skipping generic collection")
-            return True
+    # Use common namespace collection task generation
+    # Pipelines collect standard resources and pods
+    tasks = generateNamespaceCollectionTasks(
+        dynClient=dynClient,
+        namespace=namespace,
+        outputDir=outputDir,
+        noDetail=noDetail,
+        noLogs=noLogs,
+        includeSecrets=True,
+        secretData=False,
+        customResources=None,
+        ibmCRDs=ibmCRDs,
+    )
 
+    return tasks
+
+
+def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+    """Add MAS Pipelines collection tasks to the collection plan.
+
+    Discovers cluster-level MAS pipelines namespace and adds collection group
+    to the provided collection plan.
+
+    Args:
+        plan (CollectionPlan): Collection plan to add tasks to
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        outputDir (str): Base output directory for collected resources
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
+    """
+    logger.debug("Discovering cluster-level MAS pipelines")
+    try:
+        clusterPipelineNamespaces = discoverMASPipelineNamespaces(dynClient, masInstanceIds=[], includeClusterLevel=True)
+        if "mas-pipelines" in clusterPipelineNamespaces:
+            logger.info("Discovered cluster-level MAS pipelines namespace")
+            tasks = generateMASPipelinesCollectionTasks(
+                dynClient=dynClient,
+                namespace="mas-pipelines",
+                outputDir=outputDir,
+                noDetail=noDetail,
+                noLogs=noLogs,
+                ibmCRDs=ibmCRDs,
+            )
+            plan.addGroup("MAS Pipelines (cluster)", tasks)
+            logger.debug(f"Added {len(tasks)} MAS Pipelines collection tasks for cluster-level pipelines")
+        else:
+            logger.info("No cluster-level MAS pipelines namespace found")
     except Exception as e:
-        logger.error(f"Failed to collect MAS pipelines from namespace {namespace}: {e}")
-        return False
+        logger.warning(f"MAS Pipelines discovery failed: {e}")

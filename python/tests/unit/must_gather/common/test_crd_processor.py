@@ -175,7 +175,7 @@ class TestProcessCRDs:
 
             # Verify IBM CRD identified
             assert len(ibmCRDsList) == 1
-            assert ibmCRDsList[0] == ("Suite", "core.mas.ibm.com/v1")
+            assert ibmCRDsList[0] == ("core.mas.ibm.com/v1", "Suite")
 
             # Verify printer columns cached
             assert ("Suite", "core.mas.ibm.com/v1") in printerColumnsCache

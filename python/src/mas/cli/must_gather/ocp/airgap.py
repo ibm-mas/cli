@@ -10,7 +10,6 @@
 
 """Airgap environment detection and resource collection."""
 
-import os
 import logging
 from kubernetes.dynamic import DynamicClient
 from mas.cli.must_gather.common.resources import collectResources
@@ -59,7 +58,6 @@ def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: b
     Detects airgap environment and collects related resources including:
     - Image mirror configurations (imagecontentsourcepolicy, imagedigestmirrorset, imagetagmirrorset)
     - Machine configurations (machineconfig, machineconfigpool)
-    - Node registry configuration files (/host/etc/containers/registries.conf)
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
@@ -96,7 +94,6 @@ def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: b
     for apiVersion, kind in mirrorResources:
         totalCount += 1
         if collectResources(
-            dynClient=dynClient,
             namespace=None,
             apiVersion=apiVersion,
             kind=kind,
@@ -110,7 +107,6 @@ def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: b
     for apiVersion, kind in machineResources:
         totalCount += 1
         if collectResources(
-            dynClient=dynClient,
             namespace=None,
             apiVersion=apiVersion,
             kind=kind,
@@ -120,68 +116,4 @@ def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: b
         ):
             successCount += 1
 
-    # Collect node registry configuration files
-    totalCount += 1
-    if collectNodeFiles(dynClient=dynClient, outputDir=outputDir, filePath="/host/etc/containers/registries.conf"):
-        successCount += 1
-
     return successCount > 0
-
-
-def collectNodeFiles(dynClient: DynamicClient, outputDir: str, filePath: str) -> bool:
-    """Collect files from nodes using debug pods.
-
-    Creates debug pods on each node to access and collect files from the node filesystem.
-    This is used to collect registry configuration files in airgap environments.
-
-    Args:
-        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        outputDir (str): Base output directory for collected files
-        filePath (str): Path to file on node (e.g., "/host/etc/containers/registries.conf")
-
-    Returns:
-        bool: True if collection succeeded, False if errors occurred
-    """
-    try:
-        # Get list of nodes
-        api = dynClient.resources.get(api_version="v1", kind="Node")
-        nodes = api.get()
-
-        if not hasattr(nodes, "items") or len(nodes.items) == 0:
-            logger.warning("No nodes found")
-            return False
-
-        # Create output directory for node files
-        nodeFilesDir = os.path.join(outputDir, "_cluster", "node-files")
-        os.makedirs(nodeFilesDir, exist_ok=True)
-
-        successCount = 0
-
-        for node in nodes.items:
-            nodeName = node.metadata.name
-            try:
-                # Execute command to read file via oc debug equivalent
-                # This is a simplified version - in production, would create actual debug pod
-                logger.info(f"Collecting {filePath} from node {nodeName}")
-
-                # For now, log that we would collect the file
-                # Full implementation would require creating debug pods
-                outputFile = os.path.join(nodeFilesDir, f"{nodeName}-registries.conf")
-
-                # Create placeholder file indicating collection was attempted
-                with open(outputFile, "w") as f:
-                    f.write(f"# File collection from node {nodeName}\n")
-                    f.write(f"# Path: {filePath}\n")
-                    f.write("# Note: Actual file collection requires debug pod creation\n")
-
-                successCount += 1
-
-            except Exception as e:
-                logger.warning(f"Error collecting file from node {nodeName}: {e}")
-                continue
-
-        return successCount > 0
-
-    except Exception as e:
-        logger.warning(f"Error collecting node files: {e}")
-        return False

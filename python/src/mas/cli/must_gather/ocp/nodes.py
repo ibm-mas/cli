@@ -33,7 +33,6 @@ def collectNodes(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
         bool: True if collection succeeded, False if errors occurred
     """
     return collectResources(
-        dynClient=dynClient,
         namespace=None,
         apiVersion="v1",
         kind="Node",

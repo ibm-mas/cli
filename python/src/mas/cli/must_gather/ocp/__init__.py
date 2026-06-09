@@ -10,11 +10,10 @@
 
 """OCP resource collectors for must-gather."""
 
-from .cluster import collectClusterResources  # noqa: F401
-from .nodes import collectNodes  # noqa: F401
-from .airgap import collectAirgapResources, detectAirgapEnvironment  # noqa: F401
-from .marketplace import collectMarketplaceResources  # noqa: F401
-from .operators import collectOperatorResources  # noqa: F401
+from .cluster import collectClusterResources
+from .nodes import collectNodes
+from .airgap import collectAirgapResources, detectAirgapEnvironment
+from .marketplace import collectMarketplaceResources
 
 __all__ = [
     "collectClusterResources",
@@ -22,5 +21,4 @@ __all__ = [
     "collectAirgapResources",
     "detectAirgapEnvironment",
     "collectMarketplaceResources",
-    "collectOperatorResources",
 ]

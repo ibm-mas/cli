@@ -14,8 +14,9 @@ import os
 import yaml
 import logging
 from typing import Optional, List
-from kubernetes.dynamic import DynamicClient
+
 from .crd_processor import PrinterColumn, getPrinterColumns, extractValueFromJsonPath
+from .thread_safe_client import createThreadLocalDynamicClient
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,6 @@ def _pluralizeKind(kind: str) -> str:
 
 
 def collectResources(
-    dynClient: DynamicClient,
     namespace: Optional[str],
     apiVersion: str,
     kind: str,
@@ -77,7 +77,6 @@ def collectResources(
     Supports namespace-scoped and cluster-scoped resources.
 
     Args:
-        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         namespace (str, optional): Target namespace for collection. Use None for cluster-scoped resources. Defaults to None.
         apiVersion (str): API version of the resource (e.g., "v1", "storage.k8s.io/v1")
         kind (str): Kind of resource to collect (e.g., "Pod", "StorageClass")
@@ -103,7 +102,8 @@ def collectResources(
 
         os.makedirs(namespaceDir, exist_ok=True)
 
-        # Get API resource
+        # Create thread-local DynamicClient for thread-safety
+        dynClient = createThreadLocalDynamicClient()
         api = dynClient.resources.get(api_version=apiVersion, kind=kind)
 
         # Collect resources
@@ -117,10 +117,11 @@ def collectResources(
         # Log result based on resource count
         resourceCount = len(resources.items) if resources.items else 0
         if resourceCount == 0:
-            logger.info(f"{namespaceContext}: {kind} ({apiVersion}) - No resources to collect")
+            # We don't want to flood the logs with debug that doesn't help
+            # logger.debug(f"{namespaceContext}: {kind} ({apiVersion}) - No resources to collect")
             return True
 
-        logger.info(f"{namespaceContext}: {kind} ({apiVersion}) - Successfully collected {resourceCount} resource{'s' if resourceCount != 1 else ''}")
+        logger.info(f"✅ {namespaceContext}: {kind} ({apiVersion}) - Successfully collected {resourceCount} resource{'s' if resourceCount != 1 else ''}")
 
         # Generate markdown index file
         summaryFile = os.path.join(namespaceDir, f"{resourceType}.md")
@@ -151,10 +152,8 @@ def collectResources(
 
     except Exception as e:
         errorMsg = str(e)
-        # "No matches found" means the CRD doesn't exist, which is normal (INFO level)
         if "No matches found" in errorMsg or "not found" in errorMsg.lower():
-            logger.info(f"{namespaceContext}: {kind} ({apiVersion}) - CRD does not exist")
-            return True  # Missing CRD is not a failure
+            return True  # No resources of this type in the namespace
         else:
             logger.warning(f"{namespaceContext}: {kind} ({apiVersion}) - {errorMsg}")
             return False
@@ -221,31 +220,3 @@ def _writeYaml(resourceDict: dict, outputFile: str) -> None:
     """
     with open(outputFile, "w") as f:
         yaml.dump(resourceDict, f, default_flow_style=False, sort_keys=False)
-
-
-def _extractStatus(resource) -> str:
-    """Extract status information from resource.
-
-    Attempts to extract meaningful status from various resource types.
-
-    Args:
-        resource: ResourceInstance from Kubernetes API
-
-    Returns:
-        str: Status string or empty string if not available
-    """
-    try:
-        resourceDict = resource.to_dict()
-        status = resourceDict.get("status", {})
-
-        # Try common status fields
-        if "phase" in status:
-            return status["phase"]
-        elif "conditions" in status and len(status["conditions"]) > 0:
-            # Get last condition
-            lastCondition = status["conditions"][-1]
-            return f"{lastCondition.get('type', '')}: {lastCondition.get('status', '')}"
-        else:
-            return ""
-    except Exception:
-        return ""

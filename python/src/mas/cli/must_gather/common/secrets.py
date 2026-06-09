@@ -13,18 +13,16 @@
 import os
 import yaml
 import logging
-from typing import Optional
-from kubernetes.dynamic import DynamicClient
+
+from .thread_safe_client import createThreadLocalDynamicClient
 
 logger = logging.getLogger(__name__)
 
 
 def collectSecrets(
-    dynClient: DynamicClient,
-    namespace: Optional[str],
+    namespace: str,
     outputDir: str,
     secretData: bool = False,
-    allNamespaces: bool = False,
 ) -> tuple[bool, int]:
     """Collect Kubernetes secrets from a namespace.
 
@@ -33,11 +31,9 @@ def collectSecrets(
     with base64-encoded secret data.
 
     Args:
-        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        namespace (str, optional): Target namespace for collection. Use None for cluster-scoped. Defaults to None.
+        namespace (str): Target namespace for collection
         outputDir (str): Base output directory for collected secrets
         secretData (bool, optional): If True, include secret data in YAML output. If False, exclude secret data. Defaults to False.
-        allNamespaces (bool, optional): If True, collect secrets across all namespaces. Defaults to False.
 
     Returns:
         tuple[bool, int]: (success status, count of secrets collected)
@@ -45,24 +41,16 @@ def collectSecrets(
     try:
         # Create resources/namespace/secrets directory structure
         resourcesDir = os.path.join(outputDir, "resources")
-        if namespace:
-            namespaceDir = os.path.join(resourcesDir, namespace)
-        else:
-            namespaceDir = os.path.join(resourcesDir, "_cluster")
-
+        namespaceDir = os.path.join(resourcesDir, namespace)
         secretsDir = os.path.join(namespaceDir, "secrets")
         os.makedirs(secretsDir, exist_ok=True)
 
-        # Get API resource
+        # Create thread-local DynamicClient for thread-safety
+        dynClient = createThreadLocalDynamicClient()
         api = dynClient.resources.get(kind="Secret")
 
-        # Collect secrets
-        if allNamespaces:
-            secrets = api.get()
-        elif namespace:
-            secrets = api.get(namespace=namespace)
-        else:
-            secrets = api.get()
+        # Collect secrets from namespace
+        secrets = api.get(namespace=namespace)
 
         # Count secrets
         secretCount = len(secrets.items) if hasattr(secrets, "items") else 0
@@ -71,24 +59,17 @@ def collectSecrets(
         summaryFile = os.path.join(namespaceDir, "secrets.md")
         _writeSummary(secrets, summaryFile)
 
-        # Generate detailed reports
-        if allNamespaces:
-            # For all-namespaces, write single file
-            allNamespacesFile = os.path.join(secretsDir, "all-namespaces.yaml")
-            _writeYaml(secrets.to_dict(), allNamespacesFile, includeData=secretData)
-        else:
-            # Write individual secret files
-            for secret in secrets.items:
-                secretName = secret.metadata.name
-
-                secretFile = os.path.join(secretsDir, f"{secretName}.yaml")
-                # Write YAML (with or without secret data based on secretData flag)
-                _writeYaml(secret.to_dict(), secretFile, includeData=secretData)
+        # Write individual secret files
+        for secret in secrets.items:
+            secretName = secret.metadata.name
+            secretFile = os.path.join(secretsDir, f"{secretName}.yaml")
+            # Write YAML (with or without secret data based on secretData flag)
+            _writeYaml(secret.to_dict(), secretFile, includeData=secretData)
 
         return (True, secretCount)
 
     except Exception as e:
-        logger.warning(f"Error collecting secrets: {e}")
+        logger.warning(f"Error collecting secrets from namespace {namespace}: {type(e).__name__}: {e}", exc_info=True)
         return (False, 0)
 
 

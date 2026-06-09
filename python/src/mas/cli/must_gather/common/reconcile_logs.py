@@ -20,13 +20,13 @@ import os
 import re
 import tarfile
 import tempfile
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
-from typing import Optional, List, Callable, Tuple, Any
+from typing import Optional, List, Tuple, Any
 
 from kubernetes import client
-from kubernetes.dynamic import DynamicClient
 from kubernetes.stream import stream
+
+from .thread_safe_client import createThreadLocalDynamicClient
 
 logger = logging.getLogger(__name__)
 
@@ -60,11 +60,10 @@ def _getTimestampFromFile(filePath: str) -> Optional[str]:
         return None
 
 
-def _findPodByLabel(dynClient: DynamicClient, namespace: str, labelSelector: str, labelValue: str) -> Optional[Any]:
+def _findPodByLabel(namespace: str, labelSelector: str, labelValue: str) -> Optional[Any]:
     """Find first pod matching label selector.
 
     Args:
-        dynClient (DynamicClient): Kubernetes dynamic client
         namespace (str): Namespace to search in
         labelSelector (str): Label key to match
         labelValue (str): Label value to match
@@ -73,13 +72,15 @@ def _findPodByLabel(dynClient: DynamicClient, namespace: str, labelSelector: str
         Optional[Any]: Pod object or None if not found
     """
     try:
+        # Create thread-local DynamicClient for thread-safety
+        dynClient = createThreadLocalDynamicClient()
         api = dynClient.resources.get(api_version="v1", kind="Pod")
         pods = api.get(namespace=namespace, label_selector=f"{labelSelector}={labelValue}")
         if pods.items:
             return pods.items[0]
         return None
     except Exception as e:
-        logger.warning(f"Error finding pod with label {labelSelector}={labelValue}: {e}")
+        logger.warning(f"Error finding pod with label {labelSelector}={labelValue} in namespace {namespace}: {type(e).__name__}: {e}", exc_info=True)
         return None
 
 
@@ -268,10 +269,12 @@ def _downloadAndExtractReconcileLogs(coreV1Api: client.CoreV1Api, namespace: str
                     if execStream.peek_stdout():
                         out = execStream.read_stdout()
                         tarBuffer.write(out)
-                    if execStream.peek_stderr():
-                        stderr = execStream.read_stderr()
-                        if stderr:
-                            logger.debug(f"Tar stderr: {stderr}")
+                    # The stderr from tar is not meaningfully useful, it mostly contains
+                    # messages about "stripping leading / from member names"
+                    # if execStream.peek_stderr():
+                    #     stderr = execStream.read_stderr()
+                    #     if stderr:
+                    #         logger.debug(f"Tar stderr: {stderr}")
             except Exception as e:
                 logger.warning(f"Error reading tar stream from pod {podName}: {e}")
                 return False
@@ -290,7 +293,6 @@ def _downloadAndExtractReconcileLogs(coreV1Api: client.CoreV1Api, namespace: str
 
 
 def collectReconcileLogs(
-    dynClient: DynamicClient,
     namespace: str,
     labelSelector: str,
     labelValue: str,
@@ -302,7 +304,6 @@ def collectReconcileLogs(
     /tmp/ansible-operator/runner/, and organizes them by kind/instance/timestamp.
 
     Args:
-        dynClient (DynamicClient): Kubernetes dynamic client
         namespace (str): Namespace containing operator pod
         labelSelector (str): Label key to identify operator pod
         labelValue (str): Label value to identify operator pod
@@ -311,24 +312,25 @@ def collectReconcileLogs(
     Returns:
         bool: True if collection succeeded or gracefully handled, False on critical error
     """
-    logger.info(f"Collecting reconcile logs from {namespace} with label {labelSelector}={labelValue}")
+    logger.info(f"📥 Collecting reconcile logs from {namespace} with label {labelSelector}={labelValue}")
 
     # Find pod by label
-    pod = _findPodByLabel(dynClient, namespace, labelSelector, labelValue)
+    pod = _findPodByLabel(namespace, labelSelector, labelValue)
     if not pod:
-        logger.warning(f"No pods found with label {labelSelector}={labelValue} in namespace {namespace}")
+        logger.warning(f"⚠️ No pods found with label {labelSelector}={labelValue} in namespace {namespace}")
         return True  # Graceful handling
 
     podName = pod.metadata.name
     logger.debug(f"Found pod: {podName}")
 
-    # Create CoreV1Api client
-    coreV1Api = client.CoreV1Api()
+    # Create thread-local CoreV1Api client for thread-safety
+    dynClient = createThreadLocalDynamicClient()
+    coreV1Api = client.CoreV1Api(api_client=dynClient.client)
 
     # Find reconcile log files
     logFiles = _findReconcileLogFiles(coreV1Api, namespace, podName)
     if not logFiles:
-        logger.info(f"No reconcile logs available in pod {podName}")
+        logger.debug(f"No reconcile logs available in pod {podName}")
         return True  # Graceful handling
 
     logger.debug(f"Found {len(logFiles)} reconcile log files")
@@ -336,69 +338,31 @@ def collectReconcileLogs(
     # Download and extract logs directly to output directory
     success = _downloadAndExtractReconcileLogs(coreV1Api, namespace, podName, logFiles, outputDir)
     if not success:
-        logger.warning(f"Error downloading and extracting logs from pod {podName}")
+        logger.error(f"❌ Error downloading and extracting logs from pod {podName}")
         return True  # Graceful handling
 
-    logger.info(f"Successfully collected reconcile logs from {podName}")
+    logger.info(f"✅ Successfully collected reconcile logs from {podName}")
     return True
 
 
-def collectReconcileLogsParallel(
-    dynClient: DynamicClient,
-    operators: List[Tuple[str, str, str]],
-    outputDir: str,
-    max_workers: int = 20,
-    progressCallback: Optional[Callable[[int, int], None]] = None,
-) -> bool:
-    """Collect reconcile logs from multiple operators in parallel.
+def generateReconcileLogsCollectionTasks(operators: List[Tuple[str, str, str]], outputDir: str) -> List[Tuple]:
+    """Generate collection tasks for reconcile logs from multiple operators.
 
-    Uses ThreadPoolExecutor to collect reconcile logs from multiple operator pods
-    simultaneously, significantly reducing collection time for I/O-bound operations.
+    Creates individual tasks for each operator that will be executed by the
+    shared threadpool, eliminating nested parallelism.
 
     Args:
-        dynClient (DynamicClient): Kubernetes dynamic client
         operators (list): List of (namespace, labelSelector, labelValue) tuples
         outputDir (str): Base output directory for must-gather
-        max_workers (int, optional): Maximum number of parallel threads. Defaults to 10.
-        progressCallback (callable, optional): Callback function called with (completed, total) after each completion. Defaults to None.
 
     Returns:
-        bool: True if all collections succeeded or gracefully handled, False on critical error
+        list: List of task tuples (task_name, func, namespace, labelSelector, labelValue, outputDir)
     """
-    if not operators:
-        logger.debug("No operators to collect reconcile logs from")
-        return True
-
-    total = len(operators)
-    logger.info(f"Collecting reconcile logs from {total} operators in parallel (max_workers={max_workers})")
-
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all collection tasks
-        futures = {}
-        for namespace, labelSelector, labelValue in operators:
-            future = executor.submit(collectReconcileLogs, dynClient, namespace, labelSelector, labelValue, outputDir)
-            futures[future] = (namespace, labelSelector, labelValue)
-
-        # Process completed tasks
-        completed = 0
-        success = True
-        for future in as_completed(futures):
-            namespace, labelSelector, labelValue = futures[future]
-            try:
-                result = future.result()
-                if not result:
-                    success = False
-                    logger.warning(f"Failed to collect reconcile logs from {namespace} with label {labelSelector}={labelValue}")
-            except Exception as e:
-                success = False
-                logger.warning(f"Exception collecting reconcile logs from {namespace} with label {labelSelector}={labelValue}: {e}")
-
-            completed += 1
-            if progressCallback:
-                progressCallback(completed, total)
-
-    logger.info(f"Completed parallel reconcile logs collection: {completed}/{total} operators processed")
-    return success
+    tasks = []
+    for namespace, labelSelector, labelValue in operators:
+        taskName = f"reconcile_logs_{namespace}_{labelSelector}_{labelValue}"
+        tasks.append((taskName, collectReconcileLogs, namespace, labelSelector, labelValue, outputDir))
+    return tasks
 
 
 # Made with Bob

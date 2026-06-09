@@ -11,26 +11,22 @@
 """Cluster-level OCP resource collection."""
 
 import logging
-from typing import Tuple, Dict, List
 from kubernetes.dynamic import DynamicClient
 from mas.cli.must_gather.common.resources import collectResources
-from mas.cli.must_gather.common.crd_processor import processCRDs, PrinterColumn
 
 logger = logging.getLogger(__name__)
 
-# Module-level variables to store CRD processing results
-_printerColumnsCache: Dict[Tuple[str, str], List[PrinterColumn]] = {}
-_ibmCRDsList: List[Tuple[str, str]] = []
 
-
-def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: bool = False) -> Tuple[bool, Dict, List]:
+def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: bool = False) -> bool:
     """Collect cluster-level OpenShift resources.
 
-    Collects cluster-scoped resources including CRDs, storage classes, cluster versions,
+    Collects cluster-scoped resources including storage classes, cluster versions,
     object storage resources, namespaces, package manifests, and RBAC resources.
-    CRD processing is performed first to extract printer columns and identify IBM CRDs.
     Some resources (namespaces, packagemanifests, clusterroles, clusterrolebindings)
     are always collected in summary-only mode regardless of the noDetail flag.
+
+    Note: CRD processing is now handled upfront in app.py before the discovery phase,
+    so this function no longer processes CRDs.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
@@ -38,22 +34,10 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
         noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
 
     Returns:
-        tuple: (success, printerColumnsCache, ibmCRDsList)
-            - success: True if collection succeeded, False if errors occurred
-            - printerColumnsCache: Dict mapping (kind, apiVersion) to printer columns
-            - ibmCRDsList: List of (kind, apiVersion) tuples for IBM CRDs
+        bool: True if collection succeeded, False if errors occurred
     """
-    global _printerColumnsCache, _ibmCRDsList
-
     successCount = 0
     totalCount = 0
-
-    # Process CRDs first to extract printer columns and identify IBM CRDs
-    logger.info("Processing CustomResourceDefinitions...")
-    printerColumnsCache, ibmCRDsList = processCRDs(dynClient, outputDir)
-    _printerColumnsCache = printerColumnsCache
-    _ibmCRDsList = ibmCRDsList
-    logger.info(f"Processed {len(printerColumnsCache)} CRDs with printer columns, identified {len(ibmCRDsList)} IBM CRDs")
 
     # Resources to collect with full detail (unless noDetail=True) - (apiVersion, kind)
     detailedResources = [
@@ -77,7 +61,6 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
     for apiVersion, kind in detailedResources:
         totalCount += 1
         if collectResources(
-            dynClient=dynClient,
             namespace=None,
             apiVersion=apiVersion,
             kind=kind,
@@ -91,7 +74,6 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
     for apiVersion, kind in summaryOnlyResources:
         totalCount += 1
         if collectResources(
-            dynClient=dynClient,
             namespace=None,
             apiVersion=apiVersion,
             kind=kind,
@@ -101,23 +83,5 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
         ):
             successCount += 1
 
-    # Return success status along with CRD processing results
-    return successCount > 0, printerColumnsCache, ibmCRDsList
-
-
-def getPrinterColumnsCache() -> Dict[Tuple[str, str], List[PrinterColumn]]:
-    """Get the cached printer columns from CRD processing.
-
-    Returns:
-        dict: Printer columns cache mapping (kind, apiVersion) to printer columns
-    """
-    return _printerColumnsCache
-
-
-def getIBMCRDsList() -> List[Tuple[str, str]]:
-    """Get the list of IBM CRDs identified during processing.
-
-    Returns:
-        list: List of (kind, apiVersion) tuples for IBM CRDs
-    """
-    return _ibmCRDsList
+    # Return success status
+    return successCount > 0

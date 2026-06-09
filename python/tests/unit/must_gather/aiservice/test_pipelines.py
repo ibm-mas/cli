@@ -109,54 +109,5 @@ class TestDiscoverAIServicePipelineNamespaces(unittest.TestCase):
         self.assertEqual(namespaces, [])
 
 
-class TestCollectAIServicePipelines(unittest.TestCase):
-    """Test AI Service pipelines collection."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.mockDynClient = MagicMock(spec=DynamicClient)
-        self.mockGenericMustGather = MagicMock()
-
-    def test_collect_aiservice_pipelines_success(self):
-        """Test successful AI Service pipelines collection.
-
-        GIVEN an AI Service pipeline namespace exists
-        WHEN collectAIServicePipelines() is called
-        THEN it calls genericMustGather for the namespace.
-        """
-        result = pipelines.collectAIServicePipelines(
-            dynClient=self.mockDynClient, namespace="aiservice-inst1-pipelines", outputDir="/tmp/output", genericMustGather=self.mockGenericMustGather
-        )
-
-        self.assertTrue(result)
-        self.mockGenericMustGather.assert_called_once_with(namespace="aiservice-inst1-pipelines", outputSubDir="aiservice/inst1/pipelines")
-
-    def test_collect_aiservice_pipelines_without_generic_must_gather(self):
-        """Test AI Service pipelines collection without genericMustGather.
-
-        GIVEN genericMustGather is not provided
-        WHEN collectAIServicePipelines() is called
-        THEN it returns True without calling genericMustGather.
-        """
-        result = pipelines.collectAIServicePipelines(dynClient=self.mockDynClient, namespace="aiservice-inst1-pipelines", outputDir="/tmp/output")
-
-        self.assertTrue(result)
-
-    def test_collect_aiservice_pipelines_handles_exception(self):
-        """Test handling of collection exception.
-
-        GIVEN genericMustGather raises an exception
-        WHEN collectAIServicePipelines() is called
-        THEN it logs the error and returns True.
-        """
-        self.mockGenericMustGather.side_effect = Exception("Collection failed")
-
-        result = pipelines.collectAIServicePipelines(
-            dynClient=self.mockDynClient, namespace="aiservice-inst1-pipelines", outputDir="/tmp/output", genericMustGather=self.mockGenericMustGather
-        )
-
-        self.assertTrue(result)
-
-
 if __name__ == "__main__":
     unittest.main()

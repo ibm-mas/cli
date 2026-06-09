@@ -11,6 +11,7 @@
 """Red Hat Certificate Manager dependency collector."""
 
 import logging
+from typing import Set
 from kubernetes.dynamic import DynamicClient
 from .utils import checkNamespaceExists
 
@@ -28,55 +29,68 @@ CERT_MANAGER_RESOURCES = [
 ]
 
 
-def collectCertManager(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
-    """Collect Red Hat Certificate Manager resources.
+def discoverCertManagerNamespaces(dynClient: DynamicClient) -> Set[str]:
+    """Discover Certificate Manager namespaces.
 
-    Checks for cert-manager-operator and cert-manager namespaces and collects
-    cert-manager specific resources.
+    Checks for the existence of cert-manager-operator and cert-manager namespaces.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
-        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
-        bool: True if collection succeeded, False if namespaces not found or errors occurred
+        set: Set of namespace names where cert-manager is installed
     """
+    namespaces = set()
+
     try:
-        success = False
-        namespaceCount = 0
-
-        # Check and collect from cert-manager-operator namespace
+        # Check for cert-manager-operator namespace
         if checkNamespaceExists(dynClient, "cert-manager-operator"):
-            logger.info("Collecting from cert-manager-operator namespace")
-            namespaceCount += 1
-            if genericMustGather:
-                if genericMustGather(
-                    namespace="cert-manager-operator", outputDir=outputDir, noDetail=noDetail, noLogs=noLogs, additionalResources=CERT_MANAGER_RESOURCES
-                ):
-                    success = True
-        else:
-            logger.info("cert-manager-operator namespace not found")
+            namespaces.add("cert-manager-operator")
 
-        # Check and collect from cert-manager namespace
+        # Check for cert-manager namespace
         if checkNamespaceExists(dynClient, "cert-manager"):
-            logger.info("Collecting from cert-manager namespace")
-            namespaceCount += 1
-            if genericMustGather:
-                if genericMustGather(namespace="cert-manager", outputDir=outputDir, noDetail=noDetail, noLogs=noLogs):
-                    success = True
-        else:
-            logger.info("cert-manager namespace not found")
-
-        if namespaceCount == 0:
-            logger.info("No Certificate Manager namespaces found, skipping collection")
-            print("⏭️  Red Hat Certificate Manager skipped - no cert-manager namespaces found")
-
-        return success
+            namespaces.add("cert-manager")
 
     except Exception as e:
-        logger.warning(f"Error collecting Certificate Manager: {e}")
-        print(f"❌ Red Hat Certificate Manager - {e}")
-        return False
+        logger.debug(f"Error discovering cert-manager namespaces: {e}")
+
+    return namespaces
+
+
+def addCertManagerToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+    """Add Certificate Manager collection tasks to the collection plan.
+
+    Discovers Certificate Manager namespaces and adds collection groups for each namespace
+    to the provided collection plan.
+
+    Args:
+        plan (CollectionPlan): Collection plan to add tasks to
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        outputDir (str): Base output directory for collected resources
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
+    """
+    from ..common.task_generation import generateNamespaceCollectionTasks
+
+    logger.debug("Discovering Certificate Manager namespaces")
+    certManagerNamespaces = discoverCertManagerNamespaces(dynClient)
+
+    if certManagerNamespaces:
+        logger.info(f"Discovered {len(certManagerNamespaces)} Certificate Manager namespace(s): {', '.join(sorted(certManagerNamespaces))}")
+        for ns in sorted(certManagerNamespaces):
+            tasks = generateNamespaceCollectionTasks(
+                dynClient=dynClient,
+                namespace=ns,
+                outputDir=outputDir,
+                noDetail=noDetail,
+                noLogs=noLogs,
+                includeSecrets=True,
+                secretData=False,
+                customResources=CERT_MANAGER_RESOURCES,
+                ibmCRDs=ibmCRDs,
+            )
+            plan.addGroup(f"Certificate Manager ({ns})", tasks)
+            logger.debug(f"Added {len(tasks)} Certificate Manager collection tasks for namespace {ns}")
+    else:
+        logger.info("No Certificate Manager namespaces discovered")

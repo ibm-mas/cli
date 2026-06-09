@@ -11,10 +11,11 @@
 """IBM Suite License Service dependency collector."""
 
 import logging
-from typing import Set, Optional, List
+from typing import Set, Optional, List, Tuple
 from kubernetes.dynamic import DynamicClient
 
-from mas.cli.must_gather.common import collectReconcileLogsParallel
+from mas.cli.must_gather.common import generateReconcileLogsCollectionTasks
+from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
 from .utils import discoverNamespacesFromCR
 
 logger = logging.getLogger(__name__)
@@ -37,142 +38,89 @@ def discoverSLSNamespaces(dynClient: DynamicClient, masInstanceIds: Optional[Lis
     return discoverNamespacesFromCR(dynClient=dynClient, kind="LicenseService")
 
 
-def collectSLSNamespace(dynClient: DynamicClient, namespace: str, outputDir: str, noDetail: bool = False) -> bool:
-    """Collect SLS resources from a namespace.
+def generateSLSCollectionTasks(
+    dynClient: DynamicClient,
+    namespace: str,
+    outputDir: str,
+    noDetail: bool = False,
+    noLogs: bool = False,
+    ibmCRDs: Optional[List[Tuple[str, str]]] = None,
+) -> List[Tuple]:
+    """Generate collection tasks for an SLS namespace.
 
-    This function is kept for backward compatibility with app.py's collectSLS() method.
-    It uses genericMustGather pattern with hardcoded podLogs=True for SLS namespaces.
+    Creates a list of collection tasks that can be executed in parallel
+    for collecting SLS resources from a specific namespace.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        namespace (str): SLS namespace to collect from
+        namespace (str): Target namespace for collection
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, skip detailed YAML collection. Defaults to False.
+        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
+        ibmCRDs (list, optional): List of IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
 
     Returns:
-        bool: True if collection succeeded, False if errors occurred
+        list: List of task tuples in format (task_name, func, *args)
     """
-    try:
-        # Import here to avoid circular dependency
-        from ..common import collectResources, collectPods, collectSecrets, collectIBMCustomResources
+    # Use common namespace collection task generation
+    # SLS always collects pod logs (podLogs=True)
+    tasks = generateNamespaceCollectionTasks(
+        dynClient=dynClient,
+        namespace=namespace,
+        outputDir=outputDir,
+        noDetail=noDetail,
+        noLogs=noLogs,
+        includeSecrets=True,
+        secretData=False,
+        customResources=None,  # SLS uses IBM CRDs
+        ibmCRDs=ibmCRDs,
+    )
 
-        logger.info(f"Collecting SLS resources from namespace: {namespace}")
-
-        if noDetail:
-            return True
-
-        success = True
-
-        # Collect reconcile logs from SLS operators
+    # Add SLS-specific reconcile logs tasks
+    if not noDetail:
         operators = [
             (namespace, "control-plane", "controller-manager"),
             (namespace, "operator", "ibm-truststore-mgr"),
         ]
+        tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
 
-        logger.info(f"Collecting reconcile logs from {len(operators)} operators")
-
-        def progressCallback(completed: int, total: int) -> None:
-            logger.info(f"Collecting reconcile logs: {completed}/{total} operators completed")
-
-        collectReconcileLogsParallel(dynClient, operators, outputDir, progressCallback=progressCallback)
-
-        # Collect IBM custom resources
-        try:
-            if not collectIBMCustomResources(dynClient, namespace, outputDir):
-                success = False
-        except Exception as e:
-            logger.warning(f"Error collecting IBM custom resources from {namespace}: {e}")
-            success = False
-
-        # Collect standard resources
-        standardResources = [
-            ("v1", "ConfigMap"),
-            ("v1", "Service"),
-            ("v1", "Secret"),
-            ("apps/v1", "Deployment"),
-            ("apps/v1", "StatefulSet"),
-            ("apps/v1", "DaemonSet"),
-            ("batch/v1", "Job"),
-            ("batch/v1", "CronJob"),
-        ]
-
-        for apiVersion, kind in standardResources:
-            try:
-                collectResources(dynClient, namespace, apiVersion, kind, outputDir)
-            except Exception as e:
-                logger.warning(f"Error collecting {kind} from {namespace}: {e}")
-                success = False
-
-        # Collect pods with logs (SLS always collects logs)
-        try:
-            collectPods(
-                dynClient=dynClient,
-                namespace=namespace,
-                outputDir=outputDir,
-                podLogs=True,
-            )
-        except Exception as e:
-            logger.warning(f"Error collecting pods from {namespace}: {e}")
-            success = False
-
-        # Collect secrets (without data)
-        try:
-            collectSecrets(dynClient, namespace, outputDir, secretData=False)
-        except Exception as e:
-            logger.warning(f"Error collecting secrets from {namespace}: {e}")
-            success = False
-
-        return success
-
-    except Exception as e:
-        logger.error(f"Error collecting SLS namespace {namespace}: {e}")
-        return False
+    return tasks
 
 
-def collectSLS(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
-    """Collect IBM Suite License Service resources.
+def addSLSToCollectionPlan(
+    plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list, masInstanceIds: Optional[List[str]] = None
+):
+    """Add SLS collection tasks to the collection plan.
 
-    Discovers SLS namespaces from LicenseService CRs and collects SLS resources.
-    Note: SLS always collects pod logs regardless of the noLogs parameter.
+    Discovers SLS namespaces and adds collection groups for each namespace
+    to the provided collection plan.
 
     Args:
+        plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
-        noLogs (bool, optional): Ignored for SLS - logs are always collected. Defaults to False.
-        genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
-
-    Returns:
-        bool: True if collection succeeded, False if no SLS found or errors occurred
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
+        masInstanceIds (list, optional): List of MAS instance IDs (kept for compatibility, not used). Defaults to None.
     """
+    logger.info("💭 Discovering SLS namespaces")
     try:
-        # Discover SLS namespaces from LicenseService CRs
-        slsNamespaces = discoverNamespacesFromCR(dynClient=dynClient, kind="LicenseService")
-
-        if not slsNamespaces:
-            logger.info("No SLS namespaces found, skipping collection")
-            print("⏭️  IBM Suite License Service skipped - no LicenseService resources found")
-            return False
-
-        # Collect from discovered namespaces
-        # Note: We use collectSLSNamespace directly instead of genericMustGather
-        # because SLS always needs pod logs collected
-        success = True
-        for namespace in sorted(slsNamespaces):
-            if not collectSLSNamespace(dynClient=dynClient, namespace=namespace, outputDir=outputDir, noDetail=noDetail):
-                success = False
-
-        if success:
-            print(f"✅ IBM Suite License Service collected from {len(slsNamespaces)} namespace(s)")
+        slsNamespaces = discoverSLSNamespaces(dynClient, masInstanceIds=masInstanceIds)
+        if slsNamespaces:
+            logger.debug(f"Discovered {len(slsNamespaces)} SLS namespace(s): {', '.join(sorted(slsNamespaces))}")
+            for ns in sorted(slsNamespaces):
+                tasks = generateSLSCollectionTasks(
+                    dynClient=dynClient,
+                    namespace=ns,
+                    outputDir=outputDir,
+                    noDetail=noDetail,
+                    noLogs=noLogs,
+                    ibmCRDs=ibmCRDs,
+                )
+                plan.addGroup(ns, tasks)
+                logger.debug(f"✅ {ns}: Added {len(tasks)} collection tasks")
         else:
-            print("❌ IBM Suite License Service collection encountered errors (check logs)")
-
-        return success
-
+            logger.warning("⚠️ No SLS namespaces discovered")
     except Exception as e:
-        logger.warning(f"Error collecting IBM Suite License Service: {e}")
-        print(f"❌ IBM Suite License Service - {e}")
-        return False
-
-
-# Made with Bob
+        logger.error(f"❌ SLS discovery failed: {e}")

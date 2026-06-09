@@ -10,36 +10,22 @@
 
 """Test IBM CloudPak for Data dependency collector."""
 
-import os
-import tempfile
-import shutil
 from unittest.mock import Mock
 from kubernetes.dynamic import DynamicClient
 from kubernetes.client.exceptions import ApiException
 
 
-class TestCollectCP4D:
-    """Test IBM CloudPak for Data collection functionality."""
+class TestDiscoverCP4DNamespaces:
+    """Test CP4D namespace discovery functionality."""
 
     def setup_method(self):
         """Set up test fixtures.
 
         GIVEN a test environment
         WHEN tests are run
-        THEN create temporary directory and mock Kubernetes client.
+        THEN create mock Kubernetes client.
         """
-        self.testDir = tempfile.mkdtemp()
         self.mockClient = Mock(spec=DynamicClient)
-
-    def teardown_method(self):
-        """Clean up test fixtures.
-
-        GIVEN test completion
-        WHEN teardown is called
-        THEN remove temporary directory.
-        """
-        if os.path.exists(self.testDir):
-            shutil.rmtree(self.testDir)
 
     def _createMockNamespace(self, name: str):
         """Create a mock Kubernetes namespace.
@@ -56,14 +42,14 @@ class TestCollectCP4D:
         mockNamespace.to_dict.return_value = {"metadata": {"name": name}}
         return mockNamespace
 
-    def test_collect_cp4d_when_namespace_exists(self):
-        """Test collection when ibm-cpd-operators namespace exists.
+    def test_discover_cp4d_namespaces_when_operator_namespace_exists(self):
+        """Test CP4D namespace discovery when operator namespace exists.
 
         GIVEN ibm-cpd-operators namespace exists
-        WHEN collectCP4D is called
-        THEN resources are collected from ibm-cpd and ibm-cpd-operators namespaces.
+        WHEN discoverCP4DNamespaces is called
+        THEN both ibm-cpd and ibm-cpd-operators namespaces are returned.
         """
-        from mas.cli.must_gather.dependencies.cp4d import collectCP4D
+        from mas.cli.must_gather.dependencies.cp4d import discoverCP4DNamespaces
 
         # Mock namespace lookup
         mockNamespaceApi = Mock()
@@ -77,24 +63,18 @@ class TestCollectCP4D:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        # Mock genericMustGather
-        mockGenericMustGather = Mock(return_value=True)
+        namespaces = discoverCP4DNamespaces(dynClient=self.mockClient)
 
-        result = collectCP4D(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False, genericMustGather=mockGenericMustGather)
+        assert namespaces == ["ibm-cpd", "ibm-cpd-operators"]
 
-        assert result is True
-        assert mockGenericMustGather.call_count == 2
-        mockGenericMustGather.assert_any_call(namespace="ibm-cpd", outputDir=self.testDir, noDetail=False, noLogs=False)
-        mockGenericMustGather.assert_any_call(namespace="ibm-cpd-operators", outputDir=self.testDir, noDetail=False, noLogs=False)
-
-    def test_collect_cp4d_when_namespace_not_found(self):
-        """Test collection when ibm-cpd-operators namespace does not exist.
+    def test_discover_cp4d_namespaces_when_operator_namespace_not_found(self):
+        """Test CP4D namespace discovery when operator namespace does not exist.
 
         GIVEN ibm-cpd-operators namespace does not exist
-        WHEN collectCP4D is called
-        THEN collection is skipped and returns False.
+        WHEN discoverCP4DNamespaces is called
+        THEN empty list is returned.
         """
-        from mas.cli.must_gather.dependencies.cp4d import collectCP4D
+        from mas.cli.must_gather.dependencies.cp4d import discoverCP4DNamespaces
 
         # Mock namespace lookup to raise NotFoundError
         mockNamespaceApi = Mock()
@@ -107,6 +87,49 @@ class TestCollectCP4D:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        result = collectCP4D(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
+        namespaces = discoverCP4DNamespaces(dynClient=self.mockClient)
 
-        assert result is False
+        assert namespaces == []
+
+
+class TestGenerateCP4DCollectionTasks:
+    """Test CP4D collection task generation."""
+
+    def setup_method(self):
+        """Set up test fixtures.
+
+        GIVEN a test environment
+        WHEN tests are run
+        THEN create mock Kubernetes client.
+        """
+        self.mockClient = Mock(spec=DynamicClient)
+
+    def test_generate_cp4d_collection_tasks_creates_tasks_for_both_namespaces(self):
+        """Test task generation for CP4D namespaces.
+
+        GIVEN CP4D namespaces
+        WHEN generateCP4DCollectionTasks is called
+        THEN tasks are generated for both namespaces.
+        """
+        from mas.cli.must_gather.dependencies.cp4d import generateCP4DCollectionTasks
+
+        namespaces = ["ibm-cpd", "ibm-cpd-operators"]
+        tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noDetail=False, noLogs=False)
+
+        # Each namespace generates multiple tasks (resources, secrets, pods)
+        assert len(tasks) > 0
+        # Verify we have tasks for both namespaces
+        assert len(tasks) >= 2
+
+    def test_generate_cp4d_collection_tasks_returns_empty_for_no_namespaces(self):
+        """Test task generation with no namespaces.
+
+        GIVEN no CP4D namespaces
+        WHEN generateCP4DCollectionTasks is called
+        THEN empty list is returned.
+        """
+        from mas.cli.must_gather.dependencies.cp4d import generateCP4DCollectionTasks
+
+        tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noDetail=False, noLogs=False)
+
+        assert tasks == []

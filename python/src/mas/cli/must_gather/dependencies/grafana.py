@@ -11,8 +11,9 @@
 """Grafana dependency collector."""
 
 import logging
+from typing import Set
 from kubernetes.dynamic import DynamicClient
-from .utils import discoverNamespacesFromCR, collectFromNamespaces
+from .utils import discoverNamespacesFromCR
 
 logger = logging.getLogger(__name__)
 
@@ -23,43 +24,54 @@ GRAFANA_RESOURCES = [
 ]
 
 
-def collectGrafana(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
-    """Collect Grafana resources.
+def discoverGrafanaNamespaces(dynClient: DynamicClient) -> Set[str]:
+    """Discover namespaces containing Grafana resources.
 
-    Discovers Grafana namespaces from Grafana CRs and collects Grafana-specific resources.
+    Discovers namespaces by finding all Grafana custom resources in the cluster.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
-        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
-        bool: True if collection succeeded, False if no Grafana found or errors occurred
+        set: Set of namespace names where Grafana CRs exist
     """
-    try:
-        # Discover Grafana namespaces from Grafana CRs
-        grafanaNamespaces = discoverNamespacesFromCR(dynClient=dynClient, kind="Grafana")
+    return discoverNamespacesFromCR(dynClient=dynClient, kind="Grafana")
 
-        if not grafanaNamespaces:
-            logger.info("No Grafana namespaces found, skipping collection")
-            print("⏭️  Grafana skipped - no Grafana resources found")
-            return False
 
-        # Collect from discovered namespaces with Grafana-specific resources
-        result = collectFromNamespaces(
-            namespaces=grafanaNamespaces,
-            outputDir=outputDir,
-            noDetail=noDetail,
-            noLogs=noLogs,
-            genericMustGather=genericMustGather,
-            additionalResources=GRAFANA_RESOURCES,
-        )
+def addGrafanaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+    """Add Grafana collection tasks to the collection plan.
 
-        return result
+    Discovers Grafana namespaces and adds collection groups for each namespace
+    to the provided collection plan.
 
-    except Exception as e:
-        logger.warning(f"Error collecting Grafana: {e}")
-        print(f"❌ Grafana - {e}")
-        return False
+    Args:
+        plan (CollectionPlan): Collection plan to add tasks to
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        outputDir (str): Base output directory for collected resources
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
+    """
+    from ..common.task_generation import generateNamespaceCollectionTasks
+
+    logger.debug("Discovering Grafana namespaces")
+    grafanaNamespaces = discoverGrafanaNamespaces(dynClient)
+
+    if grafanaNamespaces:
+        logger.info(f"Discovered {len(grafanaNamespaces)} Grafana namespace(s): {', '.join(sorted(grafanaNamespaces))}")
+        for ns in sorted(grafanaNamespaces):
+            tasks = generateNamespaceCollectionTasks(
+                dynClient=dynClient,
+                namespace=ns,
+                outputDir=outputDir,
+                noDetail=noDetail,
+                noLogs=noLogs,
+                includeSecrets=True,
+                secretData=False,
+                customResources=GRAFANA_RESOURCES,
+                ibmCRDs=ibmCRDs,
+            )
+            plan.addGroup(f"Grafana ({ns})", tasks)
+            logger.debug(f"Added {len(tasks)} Grafana collection tasks for namespace {ns}")
+    else:
+        logger.info("No Grafana namespaces discovered")

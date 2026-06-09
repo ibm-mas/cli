@@ -11,7 +11,7 @@
 """Utility functions for dependency collectors."""
 
 import logging
-from typing import Set, List, Optional
+from typing import Set, Optional
 from kubernetes.dynamic import DynamicClient
 from kubernetes.client.exceptions import ApiException
 
@@ -64,38 +64,6 @@ def discoverNamespacesFromCR(dynClient: DynamicClient, kind: str, apiVersion: Op
             if namespace:
                 namespaces.add(namespace)
     except Exception as e:
-        logger.debug(f"Could not discover namespaces from {kind}: {e}")
+        logger.error(f"❌ Could not discover namespaces from {kind}: {e}")
 
     return namespaces
-
-
-def collectFromNamespaces(
-    namespaces: Set[str], outputDir: str, noDetail: bool, noLogs: bool, genericMustGather, additionalResources: Optional[List[tuple[str, str]]] = None
-) -> bool:
-    """Collect resources from multiple namespaces.
-
-    Args:
-        namespaces (set): Set of namespace names to collect from
-        outputDir (str): Output directory
-        noDetail (bool): Skip detailed collection
-        noLogs (bool): Skip pod log collection
-        genericMustGather (callable): Function to perform collection
-        additionalResources (list, optional): Additional resource types as (apiVersion, kind) tuples. Defaults to None.
-
-    Returns:
-        bool: True if all collections succeeded
-    """
-    if not namespaces or not genericMustGather:
-        return len(namespaces) > 0
-
-    success = True
-    for namespace in sorted(namespaces):
-        logger.info(f"Collecting from namespace: {namespace}")
-        kwargs = {"namespace": namespace, "outputDir": outputDir, "noDetail": noDetail, "noLogs": noLogs}
-        if additionalResources:
-            kwargs["additionalResources"] = additionalResources
-
-        if not genericMustGather(**kwargs):
-            success = False
-
-    return success

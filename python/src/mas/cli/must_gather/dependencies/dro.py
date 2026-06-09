@@ -11,8 +11,6 @@
 """IBM Data Reporter Operator dependency collector."""
 
 import logging
-from kubernetes.dynamic import DynamicClient
-from .utils import discoverNamespacesFromCR, collectFromNamespaces
 
 logger = logging.getLogger(__name__)
 
@@ -25,45 +23,3 @@ DRO_RESOURCES = [
     ("marketplace.redhat.com/v1alpha1", "RazeeDeployment"),
     ("marketplace.redhat.com/v1beta1", "MeterDefinition"),
 ]
-
-
-def collectDRO(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
-    """Collect IBM Data Reporter Operator resources.
-
-    Discovers DRO namespace from DataReporterConfig CRs and collects DRO-specific resources.
-
-    Args:
-        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
-        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
-
-    Returns:
-        bool: True if collection succeeded, False if namespace not found or errors occurred
-    """
-    try:
-        # Discover DRO namespaces from DataReporterConfig
-        droNamespaces = discoverNamespacesFromCR(dynClient=dynClient, kind="DataReporterConfig")
-
-        if not droNamespaces:
-            logger.info("No DRO namespaces found, skipping collection")
-            print("⏭️  IBM Data Reporter Operator skipped - no DataReporterConfig resources found")
-            return False
-
-        # Collect from discovered namespaces with DRO-specific resources
-        result = collectFromNamespaces(
-            namespaces=droNamespaces,
-            outputDir=outputDir,
-            noDetail=noDetail,
-            noLogs=noLogs,
-            genericMustGather=genericMustGather,
-            additionalResources=DRO_RESOURCES,
-        )
-
-        return result
-
-    except Exception as e:
-        logger.warning(f"Error collecting IBM Data Reporter Operator: {e}")
-        print(f"❌ IBM Data Reporter Operator - {e}")
-        return False

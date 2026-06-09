@@ -11,8 +11,9 @@
 """Kafka dependency collector."""
 
 import logging
+from typing import Set
 from kubernetes.dynamic import DynamicClient
-from .utils import discoverNamespacesFromCR, collectFromNamespaces
+from .utils import discoverNamespacesFromCR
 
 logger = logging.getLogger(__name__)
 
@@ -24,43 +25,54 @@ KAFKA_RESOURCES = [
 ]
 
 
-def collectKafka(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
-    """Collect Kafka resources.
+def discoverKafkaNamespaces(dynClient: DynamicClient) -> Set[str]:
+    """Discover namespaces containing Kafka resources.
 
-    Discovers Kafka namespaces from Kafka CRs and collects Kafka-specific resources.
+    Discovers namespaces by finding all Kafka custom resources in the cluster.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
-        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
-        bool: True if collection succeeded, False if no Kafka found or errors occurred
+        set: Set of namespace names where Kafka CRs exist
     """
-    try:
-        # Discover Kafka namespaces from Kafka CRs
-        kafkaNamespaces = discoverNamespacesFromCR(dynClient=dynClient, kind="Kafka")
+    return discoverNamespacesFromCR(dynClient=dynClient, kind="Kafka")
 
-        if not kafkaNamespaces:
-            logger.info("No Kafka namespaces found, skipping collection")
-            print("⏭️  Kafka skipped - no Kafka resources found")
-            return False
 
-        # Collect from discovered namespaces with Kafka-specific resources
-        result = collectFromNamespaces(
-            namespaces=kafkaNamespaces,
-            outputDir=outputDir,
-            noDetail=noDetail,
-            noLogs=noLogs,
-            genericMustGather=genericMustGather,
-            additionalResources=KAFKA_RESOURCES,
-        )
+def addKafkaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+    """Add Kafka collection tasks to the collection plan.
 
-        return result
+    Discovers Kafka namespaces and adds collection groups for each namespace
+    to the provided collection plan.
 
-    except Exception as e:
-        logger.warning(f"Error collecting Kafka: {e}")
-        print(f"❌ Kafka - {e}")
-        return False
+    Args:
+        plan (CollectionPlan): Collection plan to add tasks to
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        outputDir (str): Base output directory for collected resources
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
+    """
+    from ..common.task_generation import generateNamespaceCollectionTasks
+
+    logger.debug("Discovering Kafka namespaces")
+    kafkaNamespaces = discoverKafkaNamespaces(dynClient)
+
+    if kafkaNamespaces:
+        logger.info(f"Discovered {len(kafkaNamespaces)} Kafka namespace(s): {', '.join(sorted(kafkaNamespaces))}")
+        for ns in sorted(kafkaNamespaces):
+            tasks = generateNamespaceCollectionTasks(
+                dynClient=dynClient,
+                namespace=ns,
+                outputDir=outputDir,
+                noDetail=noDetail,
+                noLogs=noLogs,
+                includeSecrets=True,
+                secretData=False,
+                customResources=KAFKA_RESOURCES,
+                ibmCRDs=ibmCRDs,
+            )
+            plan.addGroup(f"Kafka ({ns})", tasks)
+            logger.debug(f"Added {len(tasks)} Kafka collection tasks for namespace {ns}")
+    else:
+        logger.info("No Kafka namespaces discovered")

@@ -11,8 +11,9 @@
 """MongoDB Community dependency collector."""
 
 import logging
+from typing import Set
 from kubernetes.dynamic import DynamicClient
-from .utils import discoverNamespacesFromCR, collectFromNamespaces
+from .utils import discoverNamespacesFromCR
 
 logger = logging.getLogger(__name__)
 
@@ -22,43 +23,54 @@ MONGODB_RESOURCES = [
 ]
 
 
-def collectMongoDB(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, noLogs: bool = False, genericMustGather=None) -> bool:
-    """Collect MongoDB Community resources.
+def discoverMongoDBNamespaces(dynClient: DynamicClient) -> Set[str]:
+    """Discover namespaces containing MongoDB Community resources.
 
-    Discovers MongoDB namespaces from MongoDBCommunity CRs and collects MongoDB-specific resources.
+    Discovers namespaces by finding all MongoDBCommunity custom resources in the cluster.
 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
-        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
 
     Returns:
-        bool: True if collection succeeded, False if no MongoDB found or errors occurred
+        set: Set of namespace names where MongoDBCommunity CRs exist
     """
-    try:
-        # Discover MongoDB namespaces from MongoDBCommunity CRs
-        mongoNamespaces = discoverNamespacesFromCR(dynClient=dynClient, kind="MongoDBCommunity")
+    return discoverNamespacesFromCR(dynClient=dynClient, kind="MongoDBCommunity")
 
-        if not mongoNamespaces:
-            logger.info("No MongoDB namespaces found, skipping collection")
-            print("⏭️  MongoDB Community skipped - no MongoDB resources found")
-            return False
 
-        # Collect from discovered namespaces with MongoDB-specific resources
-        result = collectFromNamespaces(
-            namespaces=mongoNamespaces,
-            outputDir=outputDir,
-            noDetail=noDetail,
-            noLogs=noLogs,
-            genericMustGather=genericMustGather,
-            additionalResources=MONGODB_RESOURCES,
-        )
+def addMongoDBToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+    """Add MongoDB collection tasks to the collection plan.
 
-        return result
+    Discovers MongoDB namespaces and adds collection groups for each namespace
+    to the provided collection plan.
 
-    except Exception as e:
-        logger.warning(f"Error collecting MongoDB: {e}")
-        print(f"❌ MongoDB Community - {e}")
-        return False
+    Args:
+        plan (CollectionPlan): Collection plan to add tasks to
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        outputDir (str): Base output directory for collected resources
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
+    """
+    from ..common.task_generation import generateNamespaceCollectionTasks
+
+    logger.debug("Discovering MongoDB namespaces")
+    mongoNamespaces = discoverMongoDBNamespaces(dynClient)
+
+    if mongoNamespaces:
+        logger.info(f"Discovered {len(mongoNamespaces)} MongoDB namespace(s): {', '.join(sorted(mongoNamespaces))}")
+        for ns in sorted(mongoNamespaces):
+            tasks = generateNamespaceCollectionTasks(
+                dynClient=dynClient,
+                namespace=ns,
+                outputDir=outputDir,
+                noDetail=noDetail,
+                noLogs=noLogs,
+                includeSecrets=True,
+                secretData=False,
+                customResources=MONGODB_RESOURCES,
+                ibmCRDs=ibmCRDs,
+            )
+            plan.addGroup(f"MongoDB ({ns})", tasks)
+            logger.debug(f"Added {len(tasks)} MongoDB collection tasks for namespace {ns}")
+    else:
+        logger.info("No MongoDB namespaces discovered")

@@ -1,12 +1,9 @@
 """AI Service instance discovery and collection."""
 
 import logging
-import os
-from typing import List, Optional, Callable
+from typing import List, Optional
 
 from kubernetes.dynamic import DynamicClient
-
-from mas.cli.must_gather.common import collectReconcileLogsParallel
 
 logger = logging.getLogger(__name__)
 
@@ -122,54 +119,103 @@ def _generateAIServiceSummary(dynClient: DynamicClient, namespace: str, outputFi
         logger.warning(f"Failed to generate AI Service summary: {e}")
 
 
-def collectAIServiceInstance(dynClient: DynamicClient, instanceId: str, outputDir: str, genericMustGather: Optional[Callable] = None) -> bool:
-    """Collect resources from an AI Service instance namespace.
+def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+    """Add AI Service collection tasks to the collection plan.
 
-    Collects AI Service summary, reconcile logs, and standard resources using Python Kubernetes client.
+    Discovers AI Service instances and for each instance, adds collection groups for:
+    - The instance namespace (mas-{instance}-aiservice)
+    - Tenant namespaces (mas-{instance}-aiservice-{tenant})
+    - Pipeline namespaces (aiservice-{instance}-pipelines)
 
     Args:
-        dynClient (DynamicClient): Kubernetes Dynamic Client
-        instanceId (str): AI Service instance ID
-        outputDir (str): Base output directory for must-gather
-        genericMustGather (Callable, optional): Function to call for generic resource collection. Defaults to None.
-
-    Returns:
-        bool: True if collection succeeded, False otherwise
+        plan (CollectionPlan): Collection plan to add tasks to
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        outputDir (str): Base output directory for collected resources
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
     """
-    namespace = f"aiservice-{instanceId}"
-    outputSubDir = f"aiservice/{instanceId}"
-    instanceOutputDir = os.path.join(outputDir, outputSubDir)
+    from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
+    from mas.cli.must_gather.aiservice import tenant as aiservice_tenant
+    from mas.cli.must_gather.aiservice import pipelines as aiservice_pipelines
 
-    logger.info(f"Collecting AI Service instance: {instanceId} from namespace: {namespace}")
+    logger.info("Discovering AI Service instances")
+    try:
+        instanceIds = discoverAIServiceInstances(dynClient)
+        if instanceIds:
+            logger.info(f"Discovered {len(instanceIds)} AI Service instance(s): {', '.join(sorted(instanceIds))}")
+            for instanceId in sorted(instanceIds):
+                # Generate tasks for AI Service instance namespace
+                instanceNamespace = f"mas-{instanceId}-aiservice"
+                tasks = generateNamespaceCollectionTasks(
+                    dynClient=dynClient,
+                    namespace=instanceNamespace,
+                    outputDir=outputDir,
+                    noDetail=noDetail,
+                    noLogs=noLogs,
+                    includeSecrets=True,
+                    secretData=False,
+                    customResources=None,
+                    ibmCRDs=ibmCRDs,
+                )
+                plan.addGroup(f"AI Service Instance ({instanceId})", tasks)
+                logger.debug(f"Added {len(tasks)} AI Service instance collection tasks for {instanceId}")
 
-    # Create output directory
-    os.makedirs(instanceOutputDir, exist_ok=True)
+                # Discover tenants for this instance
+                logger.debug(f"Discovering AI Service tenants for instance {instanceId}")
+                try:
+                    tenantIds = aiservice_tenant.discoverAIServiceTenants(dynClient, instanceId=instanceId)
+                    if tenantIds:
+                        logger.info(f"Discovered {len(tenantIds)} AI Service tenant(s) for instance {instanceId}: {', '.join(sorted(tenantIds))}")
+                        for tenantId in sorted(tenantIds):
+                            tenantNamespace = f"mas-{instanceId}-aiservice-{tenantId}"
+                            # Generate tasks for AI Service tenant namespace
+                            tasks = generateNamespaceCollectionTasks(
+                                dynClient=dynClient,
+                                namespace=tenantNamespace,
+                                outputDir=outputDir,
+                                noDetail=noDetail,
+                                noLogs=noLogs,
+                                includeSecrets=True,
+                                secretData=False,
+                                customResources=None,
+                                ibmCRDs=ibmCRDs,
+                            )
+                            plan.addGroup(f"AI Service Tenant ({instanceId}/{tenantId})", tasks)
+                            logger.debug(f"Added {len(tasks)} AI Service tenant collection tasks for {instanceId}/{tenantId}")
+                    else:
+                        logger.info(f"No AI Service tenants discovered for instance {instanceId}")
+                except Exception as e:
+                    logger.warning(f"AI Service Tenants discovery failed for {instanceId}: {e}")
 
-    # Generate AI Service summary
-    summaryFile = os.path.join(instanceOutputDir, "aiservice-summary.txt")
-    _generateAIServiceSummary(dynClient, namespace, summaryFile)
-
-    # Collect reconcile logs from AI Service operators
-    # Note: mg-collect-aiservice only collected reconcile logs, which is now handled here
-    operators = [
-        (namespace, "control-plane", "ibm-aiservice"),
-        (namespace, "aiservice.ibm.com/appType", "entitymgr-tenant-operator"),
-        (namespace, "operator", "ibm-truststore-mgr"),
-    ]
-
-    logger.info(f"Collecting reconcile logs from {len(operators)} operators")
-
-    def progressCallback(completed: int, total: int) -> None:
-        logger.info(f"Collecting reconcile logs: {completed}/{total} operators completed")
-
-    collectReconcileLogsParallel(dynClient, operators, outputDir, progressCallback=progressCallback)
-
-    # Use genericMustGather for standard resource collection
-    if genericMustGather:
-        try:
-            genericMustGather(namespace=namespace, outputSubDir=outputSubDir)
-            logger.debug(f"Collected generic resources for AI Service instance {instanceId}")
-        except Exception as e:
-            logger.warning(f"Failed to collect generic resources for AI Service instance {instanceId}: {e}")
-
-    return True
+                # Discover pipelines for this instance
+                logger.debug(f"Discovering AI Service pipelines for instance {instanceId}")
+                try:
+                    pipelineNamespaces = aiservice_pipelines.discoverAIServicePipelineNamespaces(dynClient, instanceIds=[instanceId])
+                    if pipelineNamespaces:
+                        logger.info(
+                            f"Discovered {len(pipelineNamespaces)} AI Service pipeline namespace(s) for instance {instanceId}: {', '.join(sorted(pipelineNamespaces))}"
+                        )
+                        for pipelineNamespace in sorted(pipelineNamespaces):
+                            # Generate tasks for AI Service pipelines namespace
+                            tasks = generateNamespaceCollectionTasks(
+                                dynClient=dynClient,
+                                namespace=pipelineNamespace,
+                                outputDir=outputDir,
+                                noDetail=noDetail,
+                                noLogs=noLogs,
+                                includeSecrets=True,
+                                secretData=False,
+                                customResources=None,
+                                ibmCRDs=ibmCRDs,
+                            )
+                            plan.addGroup(f"AI Service Pipelines ({pipelineNamespace})", tasks)
+                            logger.debug(f"Added {len(tasks)} AI Service pipelines collection tasks for {pipelineNamespace}")
+                    else:
+                        logger.info(f"No AI Service pipeline namespaces discovered for instance {instanceId}")
+                except Exception as e:
+                    logger.warning(f"AI Service Pipelines discovery failed for {instanceId}: {e}")
+        else:
+            logger.info("No AI Service instances discovered")
+    except Exception as e:
+        logger.warning(f"AI Service discovery failed: {e}")

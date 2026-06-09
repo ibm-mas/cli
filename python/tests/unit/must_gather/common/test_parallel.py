@@ -58,7 +58,6 @@ class TestCollectResourcesParallel:
             # Verify all resources were collected (order may vary due to parallel execution)
             expectedCalls = [
                 call(
-                    dynClient=mockDynClient,
                     namespace=namespace,
                     apiVersion="v1",
                     kind="ConfigMap",
@@ -67,7 +66,6 @@ class TestCollectResourcesParallel:
                     allNamespaces=False,
                 ),
                 call(
-                    dynClient=mockDynClient,
                     namespace=namespace,
                     apiVersion="v1",
                     kind="Service",
@@ -76,7 +74,6 @@ class TestCollectResourcesParallel:
                     allNamespaces=False,
                 ),
                 call(
-                    dynClient=mockDynClient,
                     namespace=namespace,
                     apiVersion="apps/v1",
                     kind="Deployment",
@@ -195,7 +192,6 @@ class TestCollectResourcesParallel:
 
             # Verify
             mockCollectResources.assert_called_once_with(
-                dynClient=mockDynClient,
                 namespace=namespace,
                 apiVersion="v1",
                 kind="ConfigMap",

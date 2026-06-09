@@ -30,7 +30,7 @@ def generateManifest(outputDir: str) -> Dict[str, Any]:
     Raises:
         OSError: If directory cannot be read or manifests cannot be written
     """
-    logger.info(f"Generating split manifests for {outputDir}")
+    logger.info(f"📦 Generating manifests for {outputDir}")
 
     outputPath = Path(outputDir)
     if not outputPath.exists():
@@ -47,7 +47,7 @@ def generateManifest(outputDir: str) -> Dict[str, Any]:
                 f.read()  # Read to verify file is accessible
                 manifest["cluster"] = {"info_available": True}
         except Exception as e:
-            logger.warning(f"Could not read cluster info: {e}")
+            logger.warning(f"⚠️ Could not read cluster info: {e}")
 
     # Identify namespaces in resources directory
     resourcesPath = outputPath / "resources"
@@ -56,7 +56,6 @@ def generateManifest(outputDir: str) -> Dict[str, Any]:
         for item in sorted(resourcesPath.iterdir()):
             if item.is_dir():
                 namespaces.append(item.name)
-                logger.info(f"Found namespace: {item.name}")
 
     manifest["namespaces"] = namespaces
 
@@ -89,7 +88,7 @@ def _buildFileTree(basePath: Path, currentPath: Path, excludeDirs: Optional[Set[
     try:
         items = sorted(currentPath.iterdir(), key=lambda x: (not x.is_dir(), x.name))
     except PermissionError:
-        logger.warning(f"Permission denied reading directory: {currentPath}")
+        logger.warning(f"⚠️ Permission denied reading directory: {currentPath}")
         return tree
 
     for item in items:
@@ -132,10 +131,8 @@ def _generateNamespaceManifest(outputPath: Path, namespace: str) -> None:
     """
     namespacePath = outputPath / "resources" / namespace
     if not namespacePath.exists():
-        logger.warning(f"Namespace directory does not exist: {namespacePath}")
+        logger.warning(f"⚠️ Namespace directory does not exist: {namespacePath}")
         return
-
-    logger.info(f"Generating manifest for namespace: {namespace}")
 
     # Build file tree for this namespace
     namespaceManifest = {"namespace": namespace, "files": _buildFileTree(namespacePath, namespacePath)}
@@ -145,9 +142,9 @@ def _generateNamespaceManifest(outputPath: Path, namespace: str) -> None:
     try:
         with open(manifestPath, "w", encoding="utf-8") as f:
             json.dump(namespaceManifest, f, indent=2)
-        logger.info(f"Wrote namespace manifest: {manifestPath}")
+        logger.info(f"✅ Generated manifest: {manifestPath}")
     except Exception as e:
-        logger.error(f"Failed to write namespace manifest for {namespace}: {e}")
+        logger.error(f"❌ Failed to write manifest for {namespace}: {e}")
         raise OSError(f"Failed to write namespace manifest: {e}")
 
 

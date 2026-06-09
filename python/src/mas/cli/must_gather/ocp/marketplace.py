@@ -44,7 +44,6 @@ def collectMarketplaceResources(dynClient: DynamicClient, outputDir: str, noDeta
     for apiVersion, kind in marketplaceResources:
         totalCount += 1
         if collectResources(
-            dynClient=dynClient,
             namespace="openshift-marketplace",
             apiVersion=apiVersion,
             kind=kind,

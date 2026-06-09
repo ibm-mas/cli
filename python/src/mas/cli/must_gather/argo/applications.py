@@ -14,7 +14,6 @@ This module provides functionality to collect Argo CD resources from the
 openshift-gitops namespace if it exists.
 """
 
-import os
 import logging
 from kubernetes.dynamic import DynamicClient
 
@@ -49,33 +48,40 @@ def checkArgoNamespace(dynClient: DynamicClient) -> bool:
         return False
 
 
-def collectArgo(dynClient: DynamicClient, outputDir: str, noDetail: bool = False, genericMustGather=None) -> bool:
-    """Collect Argo CD resources from openshift-gitops namespace.
+def addArgoToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+    """Add Argo CD collection tasks to the collection plan.
+
+    Checks for openshift-gitops namespace and adds collection group if it exists.
 
     Args:
+        plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        outputDir (str): Base output directory
-        noDetail (bool, optional): If True, skip detailed YAML collection. Defaults to False.
-        genericMustGather (callable, optional): Function to perform generic must-gather collection. Defaults to None.
-
-    Returns:
-        bool: True if collection succeeded, False if errors occurred
+        outputDir (str): Base output directory for collected resources
+        noDetail (bool): If True, skip detailed resource collection
+        noLogs (bool): If True, skip pod log collection
+        ibmCRDs (list): List of IBM CRD information for collection
     """
+    from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
+
+    logger.info("Checking for Argo CD")
     try:
-        # Create Argo output directory
-        argoOutputDir = os.path.join(outputDir, "openshift-gitops")
-        os.makedirs(argoOutputDir, exist_ok=True)
-
-        # Perform generic resource collection using common utilities
-        if genericMustGather:
-            success = genericMustGather(
-                namespace="openshift-gitops", outputDir=argoOutputDir, noDetail=noDetail, podsOnly=False, noLogs=False, additionalResources=[]
+        if checkArgoNamespace(dynClient):
+            logger.info("Discovered Argo CD (openshift-gitops namespace exists)")
+            # Generate tasks for Argo CD namespace
+            tasks = generateNamespaceCollectionTasks(
+                dynClient=dynClient,
+                namespace="openshift-gitops",
+                outputDir=outputDir,
+                noDetail=noDetail,
+                noLogs=noLogs,
+                includeSecrets=True,
+                secretData=False,
+                customResources=None,
+                ibmCRDs=ibmCRDs,
             )
-            return success
+            plan.addGroup("Argo CD (openshift-gitops)", tasks)
+            logger.debug(f"Added {len(tasks)} Argo CD collection tasks")
         else:
-            logger.warning("No genericMustGather function provided for openshift-gitops, skipping generic collection")
-            return True
-
+            logger.info("Argo CD not found (openshift-gitops namespace does not exist)")
     except Exception as e:
-        logger.error(f"Failed to collect Argo resources from openshift-gitops: {e}")
-        return False
+        logger.warning(f"Argo discovery failed: {e}")

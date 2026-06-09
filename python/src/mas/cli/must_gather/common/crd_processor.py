@@ -393,7 +393,7 @@ def processCRDs(dynClient: DynamicClient, outputDir: str) -> Tuple[Dict[Tuple[st
     crdDicts = []
 
     try:
-        logger.debug("Loading CRDs from cluster")
+        logger.info("🔍 Processing CRDs for printer columns and IBM CRD identification")
         crdApi = dynClient.resources.get(kind="CustomResourceDefinition")
         crds = crdApi.get()
 
@@ -442,7 +442,7 @@ def processCRDs(dynClient: DynamicClient, outputDir: str) -> Tuple[Dict[Tuple[st
 
                     # Add to IBM CRD list if applicable
                     if isIBM and isStorage:
-                        ibmCRDsList.append((kind, apiVersion))
+                        ibmCRDsList.append((apiVersion, kind))
 
             # Log one line per CRD with all key information
             storageInfo = f"storage={','.join(storageVersions)}" if storageVersions else "storage=none"
@@ -465,9 +465,9 @@ def processCRDs(dynClient: DynamicClient, outputDir: str) -> Tuple[Dict[Tuple[st
         indexFile = os.path.join(clusterDir, "customresourcedefinitions.md")
         _writeCRDMarkdownIndex(crdDicts, indexFile)
 
-        logger.info(f"Processed {len(crdDicts)} CRDs, identified {len(ibmCRDsList)} IBM CRDs")
+        logger.info(f"✅ Processed {len(crdDicts)} CRDs, identified {len(ibmCRDsList)} IBM CRDs")
         if ibmCRDsList:
-            logger.info(f"IBM CRDs found: {', '.join([f'{kind} ({apiVersion})' for kind, apiVersion in ibmCRDsList])}")
+            logger.debug(f"IBM CRDs found: {', '.join([f'{kind} ({apiVersion})' for apiVersion, kind in ibmCRDsList])}")
 
         # Update global cache
         _printerColumnsCache.update(printerColumnsCache)

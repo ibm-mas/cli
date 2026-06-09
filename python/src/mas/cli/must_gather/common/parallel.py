@@ -64,7 +64,6 @@ def collectResourcesParallel(
         for apiVersion, kind in resources:
             future = executor.submit(
                 collectResources,
-                dynClient=dynClient,
                 namespace=namespace,
                 apiVersion=apiVersion,
                 kind=kind,
