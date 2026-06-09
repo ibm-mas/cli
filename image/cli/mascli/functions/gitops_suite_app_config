@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-
+# Source gitops_utils for manage_customer_mref_password function
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "${DIR}/gitops_utils"
 
 function gitops_suite_app_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
