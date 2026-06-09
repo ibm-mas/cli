@@ -49,18 +49,20 @@ class TestProcessCRDsIndividualFiles:
 
             # Verify individual CRD files exist
             crdDir = os.path.join(tmpdir, "resources", "_cluster", "customresourcedefinitions")
-            assert os.path.exists(crdDir)
+            assert os.path.exists(crdDir), f"CRD directory should be created at {crdDir}, but does not exist"
 
             crd1File = os.path.join(crdDir, "suites.core.mas.ibm.com.yaml")
-            assert os.path.exists(crd1File)
+            assert os.path.exists(crd1File), f"Individual CRD file should be created at {crd1File}, but does not exist"
 
             crd2File = os.path.join(crdDir, "kafkas.kafka.strimzi.io.yaml")
-            assert os.path.exists(crd2File)
+            assert os.path.exists(crd2File), f"Individual CRD file should be created at {crd2File}, but does not exist"
 
             # Verify content of first CRD file
             with open(crd1File, "r") as f:
                 loadedCRD = yaml.safe_load(f)
-                assert loadedCRD["metadata"]["name"] == "suites.core.mas.ibm.com"
+                assert (
+                    loadedCRD["metadata"]["name"] == "suites.core.mas.ibm.com"
+                ), f"Loaded CRD should have name 'suites.core.mas.ibm.com', but got: {loadedCRD['metadata']['name']}"
 
     def test_process_crds_generates_markdown_index(self):
         """Test that a markdown index file is generated for CRDs.
@@ -99,15 +101,19 @@ class TestProcessCRDsIndividualFiles:
 
             # Verify markdown index exists
             indexFile = os.path.join(tmpdir, "resources", "_cluster", "customresourcedefinitions.md")
-            assert os.path.exists(indexFile)
+            assert os.path.exists(indexFile), f"Markdown index file should be created at {indexFile}, but does not exist"
 
             # Verify markdown content
             with open(indexFile, "r") as f:
                 content = f.read()
-                assert "# CustomResourceDefinition" in content
-                assert "| Name |" in content
-                assert "[suites.core.mas.ibm.com](customresourcedefinitions/suites.core.mas.ibm.com.yaml)" in content
-                assert "[kafkas.kafka.strimzi.io](customresourcedefinitions/kafkas.kafka.strimzi.io.yaml)" in content
+                assert "# CustomResourceDefinition" in content, f"Markdown should contain '# CustomResourceDefinition' header, but content is: {content[:200]}"
+                assert "| Name |" in content, f"Markdown should contain table header '| Name |', but content is: {content[:200]}"
+                assert (
+                    "[suites.core.mas.ibm.com](customresourcedefinitions/suites.core.mas.ibm.com.yaml)" in content
+                ), f"Markdown should contain link to suites.core.mas.ibm.com.yaml, but content is: {content}"
+                assert (
+                    "[kafkas.kafka.strimzi.io](customresourcedefinitions/kafkas.kafka.strimzi.io.yaml)" in content
+                ), f"Markdown should contain link to kafkas.kafka.strimzi.io.yaml, but content is: {content}"
 
     def test_process_crds_does_not_create_single_yaml_file(self):
         """Test that the old single YAML file is not created.
@@ -133,4 +139,4 @@ class TestProcessCRDsIndividualFiles:
 
             # Verify old single file does NOT exist
             oldFile = os.path.join(tmpdir, "resources", "_cluster", "customresourcedefinitions.yaml")
-            assert not os.path.exists(oldFile)
+            assert not os.path.exists(oldFile), f"Old single YAML file should not be created at {oldFile}, but it exists"

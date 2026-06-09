@@ -52,8 +52,10 @@ class TestCollectResourcesParallel:
             )
 
             # Verify
-            assert result is True
-            assert mockCollectResources.call_count == 3
+            assert result is True, f"Parallel collection should succeed when all resources collect successfully, but got: {result}"
+            assert (
+                mockCollectResources.call_count == 3
+            ), f"Should collect all 3 resources in parallel, but collectResources was called {mockCollectResources.call_count} times"
 
             # Verify all resources were collected (order may vary due to parallel execution)
             expectedCalls = [
@@ -80,7 +82,9 @@ class TestCollectResourcesParallel:
                 ),
             ]
             for expectedCall in expectedCalls:
-                assert expectedCall in mockCollectResources.call_args_list
+                assert (
+                    expectedCall in mockCollectResources.call_args_list
+                ), f"Expected call {expectedCall} should be in call list, but got: {mockCollectResources.call_args_list}"
 
     def test_collectResourcesParallel_handles_errors_gracefully(self):
         """Test error handling when some collections fail.
@@ -117,8 +121,10 @@ class TestCollectResourcesParallel:
             )
 
             # Verify
-            assert result is False  # Should return False because one collection failed
-            assert mockCollectResources.call_count == 3  # All collections attempted
+            assert result is False, f"Parallel collection should return False when any resource collection fails, but got: {result}"
+            assert (
+                mockCollectResources.call_count == 3
+            ), f"Should attempt to collect all 3 resources even when one fails, but collectResources was called {mockCollectResources.call_count} times"
 
     def test_collectResourcesParallel_respects_max_workers(self):
         """Test that max_workers parameter is respected.
@@ -160,7 +166,9 @@ class TestCollectResourcesParallel:
                     )
 
                     # Verify
-                    mockExecutor.assert_called_once_with(max_workers=maxWorkers)
+                    mockExecutor.assert_called_once_with(
+                        max_workers=maxWorkers
+                    ), f"ThreadPoolExecutor should be created with max_workers={maxWorkers}, but got: {mockExecutor.call_args}"
 
     def test_collectResourcesParallel_with_empty_resources_list(self):
         """Test handling of empty resources list.
@@ -185,8 +193,8 @@ class TestCollectResourcesParallel:
             )
 
             # Verify
-            assert result is True
-            mockCollectResources.assert_not_called()
+            assert result is True, f"Parallel collection should return True when resources list is empty, but got: {result}"
+            mockCollectResources.assert_not_called(), "collectResources should not be called when resources list is empty"
 
     def test_collectResourcesParallel_updates_progress_bar(self):
         """Test that progress bar is updated as resources are collected.
@@ -218,6 +226,7 @@ class TestCollectResourcesParallel:
             )
 
             # Verify
-            assert result is True
-            # Progress bar should be called once for each resource
-            assert mockProgressBar.call_count == 2
+            assert result is True, f"Parallel collection should succeed when all resources collect successfully, but got: {result}"
+            assert (
+                mockProgressBar.call_count == 2
+            ), f"Progress callback should be called once for each of the 2 resources collected, but was called {mockProgressBar.call_count} times"

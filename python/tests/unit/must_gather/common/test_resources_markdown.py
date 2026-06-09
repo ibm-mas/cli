@@ -57,20 +57,22 @@ class TestMarkdownIndexGeneration:
                 content = f.read()
 
             # Verify header
-            assert "# Suite (core.mas.ibm.com/v1)" in content
+            assert (
+                "# Suite (core.mas.ibm.com/v1)" in content
+            ), f"Markdown should contain header '# Suite (core.mas.ibm.com/v1)', but content is: {content[:200]}"
 
             # Verify table header
-            assert "| Name |" in content
-            assert "| Status |" in content
+            assert "| Name |" in content, f"Markdown should contain '| Name |' column header, but content is: {content[:200]}"
+            assert "| Status |" in content, f"Markdown should contain '| Status |' column header, but content is: {content[:200]}"
 
             # Verify separator
-            assert "|---|" in content or "| --- |" in content
+            assert "|---|" in content or "| --- |" in content, f"Markdown should contain table separator, but content is: {content[:200]}"
 
             # Verify data rows
-            assert "test-suite-1" in content
-            assert "test-suite-2" in content
-            assert "Ready" in content
-            assert "Pending" in content
+            assert "test-suite-1" in content, f"Markdown should contain resource name 'test-suite-1', but content is: {content}"
+            assert "test-suite-2" in content, f"Markdown should contain resource name 'test-suite-2', but content is: {content}"
+            assert "Ready" in content, f"Markdown should contain status 'Ready', but content is: {content}"
+            assert "Pending" in content, f"Markdown should contain status 'Pending', but content is: {content}"
 
         finally:
             os.unlink(outputFile)
@@ -101,9 +103,11 @@ class TestMarkdownIndexGeneration:
             with open(outputFile, "r") as f:
                 content = f.read()
 
-            assert "# CustomResource (example.com/v1)" in content
-            assert "| Name |" in content
-            assert "test-resource" in content
+            assert (
+                "# CustomResource (example.com/v1)" in content
+            ), f"Markdown should contain header '# CustomResource (example.com/v1)', but content is: {content[:200]}"
+            assert "| Name |" in content, f"Markdown should contain '| Name |' column header, but content is: {content[:200]}"
+            assert "test-resource" in content, f"Markdown should contain resource name 'test-resource', but content is: {content}"
 
         finally:
             os.unlink(outputFile)
@@ -129,8 +133,8 @@ class TestMarkdownIndexGeneration:
             with open(outputFile, "r") as f:
                 content = f.read()
 
-            assert "# Pod (v1)" in content
-            assert "no resources found" in content.lower()
+            assert "# Pod (v1)" in content, f"Markdown should contain header '# Pod (v1)', but content is: {content[:200]}"
+            assert "no resources found" in content.lower(), f"Markdown should indicate no resources found when list is empty, but content is: {content}"
 
         finally:
             os.unlink(outputFile)
@@ -167,9 +171,9 @@ class TestMarkdownIndexGeneration:
             with open(outputFile, "r") as f:
                 content = f.read()
 
-            assert "test-pod" in content
-            assert "True" in content
-            assert "Running" in content
+            assert "test-pod" in content, f"Markdown should contain pod name 'test-pod', but content is: {content}"
+            assert "True" in content, f"Markdown should contain extracted Ready status 'True' from complex JSONPath, but content is: {content}"
+            assert "Running" in content, f"Markdown should contain phase 'Running', but content is: {content}"
 
         finally:
             os.unlink(outputFile)
@@ -202,8 +206,9 @@ class TestMarkdownIndexGeneration:
             with open(outputFile, "r") as f:
                 content = f.read()
 
-            assert "incomplete-resource" in content
-            # Should handle missing status gracefully
+            assert (
+                "incomplete-resource" in content
+            ), f"Markdown should contain resource name 'incomplete-resource' even when fields are missing, but content is: {content}"
 
         finally:
             os.unlink(outputFile)

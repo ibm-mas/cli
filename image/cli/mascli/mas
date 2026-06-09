@@ -319,9 +319,10 @@ case $1 in
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! must-gather                                                               !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Must-Gather Tool (v${VERSION})${TEXT_RESET}"
-    echo
-    mustgather "$@"
+    # Take the first parameter off (it will be "must-gather")
+    shift
+    # Run the new Python-based must-gather
+    mas-cli must-gather "$@"
     ;;
 
   debug)
@@ -345,7 +346,7 @@ case $1 in
     # Run the new Python-based install
     mas-cli backup "$@"
     ;;
-  
+
   restore)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! restore                                                                    !!" >> $LOGFILE

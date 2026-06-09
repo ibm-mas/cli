@@ -53,12 +53,18 @@ class TestMarkdownLinkGeneration:
                 content = f.read()
 
             # Verify markdown links are created for resource names
-            assert "[test-suite-1](suites/test-suite-1.yaml)" in content
-            assert "[test-suite-2](suites/test-suite-2.yaml)" in content
+            assert (
+                "[test-suite-1](suites/test-suite-1.yaml)" in content
+            ), f"Markdown should contain link '[test-suite-1](suites/test-suite-1.yaml)' for first resource, but content is: {content}"
+            assert (
+                "[test-suite-2](suites/test-suite-2.yaml)" in content
+            ), f"Markdown should contain link '[test-suite-2](suites/test-suite-2.yaml)' for second resource, but content is: {content}"
 
             # Verify status values are NOT links
-            assert "[Ready]" not in content or "Ready" in content
-            assert "[Pending]" not in content or "Pending" in content
+            assert "[Ready]" not in content or "Ready" in content, f"Status values should not be converted to links, but found '[Ready]' in content: {content}"
+            assert (
+                "[Pending]" not in content or "Pending" in content
+            ), f"Status values should not be converted to links, but found '[Pending]' in content: {content}"
 
         finally:
             os.unlink(outputFile)
@@ -89,7 +95,9 @@ class TestMarkdownLinkGeneration:
                 content = f.read()
 
             # Should use plural form
-            assert "[my-catalog](catalogsources/my-catalog.yaml)" in content
+            assert (
+                "[my-catalog](catalogsources/my-catalog.yaml)" in content
+            ), f"Markdown link should use plural directory name 'catalogsources', but content is: {content}"
 
         finally:
             os.unlink(outputFile)
@@ -124,11 +132,13 @@ class TestMarkdownLinkGeneration:
                 content = f.read()
 
             # First column should be a link
-            assert "[test-pod](pods/test-pod.yaml)" in content
+            assert (
+                "[test-pod](pods/test-pod.yaml)" in content
+            ), f"First column (Name) should be converted to link '[test-pod](pods/test-pod.yaml)', but content is: {content}"
 
             # Other columns should NOT be links
-            assert "[Running]" not in content
-            assert "[worker-1]" not in content
+            assert "[Running]" not in content, f"Status column should not be converted to link, but found '[Running]' in content: {content}"
+            assert "[worker-1]" not in content, f"Node column should not be converted to link, but found '[worker-1]' in content: {content}"
 
         finally:
             os.unlink(outputFile)

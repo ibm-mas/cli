@@ -34,11 +34,11 @@ class TestPrinterColumn:
         """
         column = PrinterColumn(name="Status", type="string", jsonPath=".status.phase", description="Current status", priority=0)
 
-        assert column.name == "Status"
-        assert column.type == "string"
-        assert column.jsonPath == ".status.phase"
-        assert column.description == "Current status"
-        assert column.priority == 0
+        assert column.name == "Status", f"PrinterColumn name should be 'Status', but got: {column.name}"
+        assert column.type == "string", f"PrinterColumn type should be 'string', but got: {column.type}"
+        assert column.jsonPath == ".status.phase", f"PrinterColumn jsonPath should be '.status.phase', but got: {column.jsonPath}"
+        assert column.description == "Current status", f"PrinterColumn description should be 'Current status', but got: {column.description}"
+        assert column.priority == 0, f"PrinterColumn priority should be 0, but got: {column.priority}"
 
 
 class TestCRDInfo:
@@ -54,11 +54,11 @@ class TestCRDInfo:
         printerColumns = [PrinterColumn("Status", "string", ".status.phase", "Status", 0)]
         crdInfo = CRDInfo(kind="Suite", apiVersion="core.mas.ibm.com/v1", group="core.mas.ibm.com", printerColumns=printerColumns, isIBM=True)
 
-        assert crdInfo.kind == "Suite"
-        assert crdInfo.apiVersion == "core.mas.ibm.com/v1"
-        assert crdInfo.group == "core.mas.ibm.com"
-        assert len(crdInfo.printerColumns) == 1
-        assert crdInfo.isIBM is True
+        assert crdInfo.kind == "Suite", f"CRDInfo kind should be 'Suite', but got: {crdInfo.kind}"
+        assert crdInfo.apiVersion == "core.mas.ibm.com/v1", f"CRDInfo apiVersion should be 'core.mas.ibm.com/v1', but got: {crdInfo.apiVersion}"
+        assert crdInfo.group == "core.mas.ibm.com", f"CRDInfo group should be 'core.mas.ibm.com', but got: {crdInfo.group}"
+        assert len(crdInfo.printerColumns) == 1, f"CRDInfo should have 1 printer column, but got: {len(crdInfo.printerColumns)}"
+        assert crdInfo.isIBM is True, f"CRDInfo isIBM should be True for IBM CRD, but got: {crdInfo.isIBM}"
 
 
 class TestExtractValueFromJsonPath:
@@ -73,7 +73,7 @@ class TestExtractValueFromJsonPath:
         """
         resource = {"metadata": {"name": "test-resource"}}
         value = extractValueFromJsonPath(resource, ".metadata.name")
-        assert value == "test-resource"
+        assert value == "test-resource", f"Should extract 'test-resource' from simple field path, but got: {value}"
 
     def test_extract_nested_field(self):
         """Test extracting a nested field.
@@ -84,7 +84,7 @@ class TestExtractValueFromJsonPath:
         """
         resource = {"status": {"conditions": [{"type": "Ready", "status": "True"}]}}
         value = extractValueFromJsonPath(resource, ".status.conditions[0].status")
-        assert value == "True"
+        assert value == "True", f"Should extract 'True' from nested field path, but got: {value}"
 
     def test_extract_missing_field_returns_empty(self):
         """Test extracting a missing field returns empty string.
@@ -95,7 +95,7 @@ class TestExtractValueFromJsonPath:
         """
         resource = {"metadata": {"name": "test"}}
         value = extractValueFromJsonPath(resource, ".status.phase")
-        assert value == ""
+        assert value == "", f"Should return empty string for missing field, but got: {value}"
 
     def test_extract_with_filter_expression(self):
         """Test extracting with JSONPath filter expression.
@@ -106,7 +106,7 @@ class TestExtractValueFromJsonPath:
         """
         resource = {"status": {"conditions": [{"type": "Ready", "status": "True"}, {"type": "Available", "status": "False"}]}}
         value = extractValueFromJsonPath(resource, '.status.conditions[?(@.type=="Ready")].status')
-        assert value == "True"
+        assert value == "True", f"Should extract 'True' using JSONPath filter expression, but got: {value}"
 
 
 class TestGetPrinterColumns:
@@ -120,9 +120,9 @@ class TestGetPrinterColumns:
         THEN a single Name column is returned.
         """
         columns = getPrinterColumns("UnknownKind", "v1")
-        assert len(columns) == 1
-        assert columns[0].name == "Name"
-        assert columns[0].jsonPath == ".metadata.name"
+        assert len(columns) == 1, f"Should return single Name column for unknown resource, but got {len(columns)} columns"
+        assert columns[0].name == "Name", f"Default column name should be 'Name', but got: {columns[0].name}"
+        assert columns[0].jsonPath == ".metadata.name", f"Default column jsonPath should be '.metadata.name', but got: {columns[0].jsonPath}"
 
 
 class TestProcessCRDs:
@@ -174,11 +174,14 @@ class TestProcessCRDs:
             printerColumnsCache, ibmCRDsList = processCRDs(mockClient, tmpdir)
 
             # Verify IBM CRD identified
-            assert len(ibmCRDsList) == 1
-            assert ibmCRDsList[0] == ("core.mas.ibm.com/v1", "Suite")
+            assert len(ibmCRDsList) == 1, f"Should identify 1 IBM CRD from test data, but got: {len(ibmCRDsList)}"
+            assert ibmCRDsList[0] == ("core.mas.ibm.com/v1", "Suite"), f"IBM CRD should be ('core.mas.ibm.com/v1', 'Suite'), but got: {ibmCRDsList[0]}"
 
             # Verify printer columns cached
-            assert ("Suite", "core.mas.ibm.com/v1") in printerColumnsCache
+            assert (
+                "Suite",
+                "core.mas.ibm.com/v1",
+            ) in printerColumnsCache, f"Printer columns should be cached for Suite CRD, but cache keys are: {list(printerColumnsCache.keys())}"
 
     def test_process_crds_extracts_printer_columns(self):
         """Test that printer columns are extracted from CRDs.
@@ -217,10 +220,10 @@ class TestProcessCRDs:
             printerColumnsCache, _ = processCRDs(mockClient, tmpdir)
 
             columns = printerColumnsCache[("Suite", "core.mas.ibm.com/v1")]
-            assert len(columns) == 2
-            assert columns[0].name == "Status"
-            assert columns[0].jsonPath == ".status.phase"
-            assert columns[1].name == "Age"
+            assert len(columns) == 2, f"Should extract 2 printer columns from CRD, but got: {len(columns)}"
+            assert columns[0].name == "Status", f"First column name should be 'Status', but got: {columns[0].name}"
+            assert columns[0].jsonPath == ".status.phase", f"First column jsonPath should be '.status.phase', but got: {columns[0].jsonPath}"
+            assert columns[1].name == "Age", f"Second column name should be 'Age', but got: {columns[1].name}"
 
     def test_process_crds_writes_individual_files_and_index(self):
         """Test that CRDs are written to individual files with markdown index.
@@ -246,8 +249,8 @@ class TestProcessCRDs:
 
             # Verify individual CRD file exists
             crdFile = os.path.join(tmpdir, "resources", "_cluster", "customresourcedefinitions", "suites.core.mas.ibm.com.yaml")
-            assert os.path.exists(crdFile)
+            assert os.path.exists(crdFile), f"Individual CRD file should be created at {crdFile}, but file does not exist"
 
             # Verify markdown index exists
             indexFile = os.path.join(tmpdir, "resources", "_cluster", "customresourcedefinitions.md")
-            assert os.path.exists(indexFile)
+            assert os.path.exists(indexFile), f"Markdown index file should be created at {indexFile}, but file does not exist"
