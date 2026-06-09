@@ -21,6 +21,7 @@ repos:
           - pyyaml
           - requests
           - halo
+          - alive-progress
           - jsonpath-ng
           - prettytable
   - repo: https://github.com/ibm/detect-secrets
