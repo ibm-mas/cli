@@ -246,9 +246,10 @@ class MobVer(object):
         self.download_mobile_packages(podName=maxinst_pod)
 
         # navigator has been moved to manage and should no longer be downloaded from mobileapi pod
-        if "9.1" not in mas_ver:
+        # Only download from mobileapi pod for versions in mobile_core list
+        mobile_core = ["8.10", "8.11", "9.0"]
+        if mas_ver and any(version in mas_ver for version in mobile_core):
             self.download_navigator_package(podName=mobileapi_pod)
-
         self.extract_build_json_from_zip_files(source_zip_files_path=".")
 
         graphite_ver = self.extract_build_info_from_json_files(source_json_files_path=".")

@@ -46,9 +46,6 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Release", "aiservice_channel")
         self.printParamSummary("Instance ID", "aiservice_instance_id")
         self.printParamSummary("Environment Type", "environment_type")
-        if self.permission_mode not in [None, ""]:
-            self.printSummary("Permission Mode", self.permission_mode)
-            self.printSummary("Skip Pre-Install RBAC", "Yes" if self.skip_preinstall_rbac else "No")
 
         if "aiservice_certificate_issuer" in self.params:
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
