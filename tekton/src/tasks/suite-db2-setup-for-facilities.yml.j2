@@ -44,7 +44,7 @@ spec:
     - name: db2_type
       type: string
       default: ""
-    - name: db2_timezone
+    - name: db2_facilities_timezone
       type: string
       default: ""
     - name: db2_workload
@@ -203,7 +203,7 @@ spec:
       - name: DB2_TYPE
         value: $(params.db2_type)
       - name: DB2_TIMEZONE
-        value: $(params.db2_timezone)
+        value: $(params.db2_facilities_timezone)
       - name: DB2_WORKLOAD
         value: $(params.db2_workload)
       - name: DB2_4K_DEVICE_SUPPORT

@@ -178,6 +178,8 @@ optionalParams = [
     "mas_ws_facilities_properties_file_local",
     "mas_ws_facilities_custom_properties",
     "mas_ws_facilities_properties_secret_name",
+    # DB2 for Facilities
+    "db2_facilities_timezone",    
     # Special chars
     "mas_special_characters",
     # ODH

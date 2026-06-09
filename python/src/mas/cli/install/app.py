@@ -1678,14 +1678,13 @@ class InstallApp(
                         default=30,
                     )
 
-                if self.yesOrNo("Does your Real Estate and Facilities DB use a timezone other than UTC"):
+                if self.yesOrNo("Do you want set Real Estate and Facilities server timezone (Set only if the Facilities DB uses a timezone other than UTC)"):
                     self.promptForString(
                         "Provide server timezone:",
                         "mas_ws_facilities_server_timezone",
                         default="UTC",
                     )
-                    # Set Manage dedicated Db2 instance timezone to be same as Facilities server timezone
-                    self.setParam("db2_timezone", self.getParam("mas_ws_facilities_server_timezone"))
+                    self.setParam("db2_facilities_timezone", self.getParam("mas_ws_facilities_server_timezone"))
 
                 if self.yesOrNo("Supply configuration for dedicated workflow agents"):
                     print_formatted_text(

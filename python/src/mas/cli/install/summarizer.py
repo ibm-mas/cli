@@ -397,7 +397,7 @@ class InstallSummarizerMixin:
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
     def db2Summary(self) -> None:
-        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install" or self.getParam("db2_action_facilities") == "install":
             self.printH2("IBM Db2 Univeral Operator Configuration")
             self.printSummary(
                 "System Instance",
@@ -407,8 +407,15 @@ class InstallSummarizerMixin:
                 "Dedicated Manage Instance",
                 ("Install" if self.getParam("db2_action_manage") == "install" else "Do Not Install"),
             )
+            self.printSummary(
+                "Dedicated Facilities Instance",
+                ("Install" if self.getParam("db2_action_facilities") == "install" else "Do Not Install"),
+            )            
             self.printParamSummary(" - Type", "db2_type")
-            self.printParamSummary(" - Timezone", "db2_timezone")
+            if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+                self.printParamSummary(" - Timezone for system and manage instances", "db2_timezone")
+            if self.getParam("db2_action_facilities") == "install":
+                self.printParamSummary(" - Timezone for facilities instance", "db2_facilities_timezone")                
             print()
             self.printParamSummary("Install Namespace", "db2_namespace")
             self.printParamSummary("Subscription Channel", "db2_channel")

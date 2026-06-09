@@ -1184,7 +1184,8 @@ db2ArgGroup.add_argument(
     choices=DB2_TYPES,
     metavar="{db2wh,db2oltp}",
 )
-db2ArgGroup.add_argument("--db2-timezone", required=False, help="Timezone for Db2 instance")
+db2ArgGroup.add_argument("--db2-timezone", required=False, help="Timezone for system and manage DB2 instances")
+db2ArgGroup.add_argument("--db2-facilities-timezone", required=False, help="Timezone for facilities DB2 instance")
 db2ArgGroup.add_argument("--db2-license-file", required=False, help="Db2 License File for Db2")
 db2ArgGroup.add_argument("--db2-affinity-key", required=False, help="Set a node label to declare affinity to")
 db2ArgGroup.add_argument(
