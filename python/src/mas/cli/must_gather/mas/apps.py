@@ -150,7 +150,6 @@ def generateMASAppCollectionTasks(
     namespace: str,
     appId: str,
     outputDir: str,
-    noDetail: bool = False,
     noLogs: bool = False,
     ibmCRDs: Optional[List[Tuple[str, str]]] = None,
 ) -> List[Tuple]:
@@ -164,7 +163,6 @@ def generateMASAppCollectionTasks(
         namespace (str): MAS app namespace to collect from
         appId (str): MAS application ID (e.g., "manage", "iot")
         outputDir (str): Base output directory
-        noDetail (bool, optional): If True, skip detailed YAML collection. Defaults to False.
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         ibmCRDs (list, optional): List of IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
 
@@ -176,25 +174,22 @@ def generateMASAppCollectionTasks(
         dynClient=dynClient,
         namespace=namespace,
         outputDir=outputDir,
-        noDetail=noDetail,
         noLogs=noLogs,
-        includeSecrets=True,
         secretData=False,
         customResources=None,
         ibmCRDs=ibmCRDs,
     )
 
     # Add app-specific reconcile logs tasks
-    if not noDetail:
-        operators = getReconcileLogsOperatorsForApp(namespace, appId)
-        if operators:
-            tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
+    operators = getReconcileLogsOperatorsForApp(namespace, appId)
+    if operators:
+        tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
 
     return tasks
 
 
 def addMASAppsToCollectionPlan(
-    plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list, coreNamespaces: Set[str], masAppIds: Optional[List[str]] = None
+    plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list, coreNamespaces: Set[str], masAppIds: Optional[List[str]] = None
 ):
     """Add MAS Apps collection tasks to the collection plan.
 
@@ -205,7 +200,6 @@ def addMASAppsToCollectionPlan(
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
         coreNamespaces (set): Set of MAS Core namespace names to discover apps for
@@ -232,7 +226,6 @@ def addMASAppsToCollectionPlan(
                         namespace=appNamespace,
                         appId=appId,
                         outputDir=outputDir,
-                        noDetail=noDetail,
                         noLogs=noLogs,
                         ibmCRDs=ibmCRDs,
                     )

@@ -119,7 +119,7 @@ def _generateAIServiceSummary(dynClient: DynamicClient, namespace: str, outputFi
         logger.warning(f"Failed to generate AI Service summary: {e}")
 
 
-def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list):
     """Add AI Service collection tasks to the collection plan.
 
     Discovers AI Service instances and for each instance, adds collection groups for:
@@ -131,7 +131,6 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
     """
@@ -151,9 +150,7 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
                     dynClient=dynClient,
                     namespace=instanceNamespace,
                     outputDir=outputDir,
-                    noDetail=noDetail,
                     noLogs=noLogs,
-                    includeSecrets=True,
                     secretData=False,
                     customResources=None,
                     ibmCRDs=ibmCRDs,
@@ -174,9 +171,7 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
                                 dynClient=dynClient,
                                 namespace=tenantNamespace,
                                 outputDir=outputDir,
-                                noDetail=noDetail,
                                 noLogs=noLogs,
-                                includeSecrets=True,
                                 secretData=False,
                                 customResources=None,
                                 ibmCRDs=ibmCRDs,
@@ -202,9 +197,7 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
                                 dynClient=dynClient,
                                 namespace=pipelineNamespace,
                                 outputDir=outputDir,
-                                noDetail=noDetail,
                                 noLogs=noLogs,
-                                includeSecrets=True,
                                 secretData=False,
                                 customResources=None,
                                 ibmCRDs=ibmCRDs,

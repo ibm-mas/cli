@@ -17,7 +17,7 @@ from mas.cli.must_gather.common.resources import collectResources
 logger = logging.getLogger(__name__)
 
 
-def collectMarketplaceResources(dynClient: DynamicClient, outputDir: str, noDetail: bool = False) -> bool:
+def collectMarketplaceResources(dynClient: DynamicClient, outputDir: str) -> bool:
     """Collect OpenShift Marketplace resources.
 
     Collects resources from the openshift-marketplace namespace including:
@@ -27,7 +27,6 @@ def collectMarketplaceResources(dynClient: DynamicClient, outputDir: str, noDeta
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
 
     Returns:
         bool: True if collection succeeded, False if errors occurred
@@ -48,7 +47,6 @@ def collectMarketplaceResources(dynClient: DynamicClient, outputDir: str, noDeta
             apiVersion=apiVersion,
             kind=kind,
             outputDir=outputDir,
-            noDetail=noDetail,
             allNamespaces=False,
         ):
             successCount += 1

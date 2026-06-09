@@ -114,7 +114,7 @@ class TestGenerateCP4DCollectionTasks:
         from mas.cli.must_gather.dependencies.cp4d import generateCP4DCollectionTasks
 
         namespaces = ["ibm-cpd", "ibm-cpd-operators"]
-        tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noDetail=False, noLogs=False)
+        tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noLogs=False)
 
         # Each namespace generates multiple tasks (resources, secrets, pods)
         assert len(tasks) > 0
@@ -130,6 +130,6 @@ class TestGenerateCP4DCollectionTasks:
         """
         from mas.cli.must_gather.dependencies.cp4d import generateCP4DCollectionTasks
 
-        tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noDetail=False, noLogs=False)
+        tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noLogs=False)
 
         assert tasks == []

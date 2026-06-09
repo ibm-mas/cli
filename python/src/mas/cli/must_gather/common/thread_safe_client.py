@@ -14,6 +14,7 @@ import os
 import tempfile
 import threading
 from kubernetes import client, config
+from kubernetes.client import Configuration
 from kubernetes.dynamic import DynamicClient
 
 
@@ -36,6 +37,14 @@ def createThreadLocalDynamicClient() -> DynamicClient:
     kubeConfig = config.load_kube_config()
 
     # Create a new ApiClient for this thread
+    if "KUBERNETES_SERVICE_HOST" in os.environ:
+        config.load_incluster_config()
+        k8s_config = Configuration.get_default_copy()
+        apiClient = client.ApiClient(configuration=k8s_config)
+    else:
+        config.load_kube_config()
+        apiClient = client.ApiClient()
+
     apiClient = client.ApiClient(configuration=kubeConfig)
 
     # Create unique cache file path for this thread

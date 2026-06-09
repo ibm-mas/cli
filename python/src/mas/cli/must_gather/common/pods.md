@@ -49,7 +49,6 @@ Pod collection uses a two-phase approach: **discovery** (during planning) and **
 - `namespace`: Target namespace
 - `outputDir`: Base output directory
 - `podLogs`: Whether to collect container logs
-- `noDetail`: If True, skip YAML/logs (summary only)
 
 **Returns**: List of task tuples, one per pod
 

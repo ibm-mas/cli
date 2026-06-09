@@ -45,7 +45,6 @@ class TestAddGrafanaToCollectionPlan:
             plan=plan,
             dynClient=mockClient,
             outputDir="/tmp/output",
-            noDetail=False,
             noLogs=False,
             ibmCRDs=ibmCRDs,
         )
@@ -74,7 +73,6 @@ class TestAddGrafanaToCollectionPlan:
             plan=plan,
             dynClient=mockClient,
             outputDir="/tmp/output",
-            noDetail=False,
             noLogs=False,
             ibmCRDs=ibmCRDs,
         )

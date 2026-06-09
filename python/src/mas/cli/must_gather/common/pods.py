@@ -11,6 +11,7 @@
 """Pod collection utilities for must-gather."""
 
 import os
+import json
 import yaml
 import logging
 from typing import List, Tuple
@@ -25,7 +26,6 @@ def generatePodCollectionTasks(
     namespace: str,
     outputDir: str,
     podLogs: bool = False,
-    noDetail: bool = False,
 ) -> List[Tuple]:
     """Generate individual collection tasks for each pod in a namespace.
 
@@ -37,7 +37,6 @@ def generatePodCollectionTasks(
         namespace (str): Target namespace for collection
         outputDir (str): Base output directory for collected pods
         podLogs (bool, optional): If True, collect container logs. Defaults to False.
-        noDetail (bool, optional): If True, skip YAML and logs collection. Defaults to False.
 
     Returns:
         list: List of task tuples in format (task_name, func, *args), one per pod
@@ -51,23 +50,25 @@ def generatePodCollectionTasks(
         podsDir = os.path.join(namespaceDir, "pods")
         os.makedirs(podsDir, exist_ok=True)
 
-        # Use CoreV1Api to list pods (thread-safe, no DynamicClient.resources cache)
+        # Use CoreV1Api to list pods with raw JSON response (preserves Kubernetes field names)
         coreV1 = CoreV1Api(dynClient.client)
-        pods = coreV1.list_namespaced_pod(namespace=namespace)
+        rawResponse = coreV1.list_namespaced_pod(namespace=namespace, _preload_content=False)
+        rawJson = rawResponse.data
+        podListDict = json.loads(rawJson)
 
         # Generate summary file
-        _writeSummary(pods, os.path.join(namespaceDir, "pods.md"), namespace=namespace, podLogs=podLogs)
-
-        # If no detail needed, return empty task list
-        if noDetail:
-            return []
+        _writeSummary(podListDict, os.path.join(namespaceDir, "pods.md"), namespace=namespace, podLogs=podLogs)
 
         # Generate one task per pod
         tasks = []
-        for pod in pods.items:
-            podName = pod.metadata.name
-            # Convert pod to dict here to preserve full status information
-            podDict = pod.to_dict()
+        podItems = podListDict.get("items", [])
+        for podDict in podItems:
+            podName = podDict.get("metadata", {}).get("name", "unknown")
+            # Add apiVersion and kind (omitted from list items by Kubernetes API)
+            if "apiVersion" not in podDict:
+                podDict["apiVersion"] = "v1"
+            if "kind" not in podDict:
+                podDict["kind"] = "Pod"
             tasks.append(
                 (
                     f"pod_{podName}",
@@ -133,11 +134,11 @@ def _processPod(dynClient: DynamicClient, namespace: str, podName: str, podDict:
         return False
 
 
-def _writeSummary(pods, outputFile: str, namespace: str, podLogs: bool) -> None:
+def _writeSummary(podListDict: dict, outputFile: str, namespace: str, podLogs: bool) -> None:
     """Write pod summary as a markdown table.
 
     Args:
-        pods: ResourceList from Kubernetes API
+        podListDict (dict): Pod list dictionary from Kubernetes API (raw JSON)
         outputFile (str): Path to output file
         namespace (str): Namespace used to derive pod app grouping
         podLogs (bool): Whether pod logs are being collected
@@ -145,18 +146,19 @@ def _writeSummary(pods, outputFile: str, namespace: str, podLogs: bool) -> None:
     with open(outputFile, "w") as f:
         f.write("# Pods (v1)\n\n")
 
-        if hasattr(pods, "items") and len(pods.items) > 0:
+        items = podListDict.get("items", [])
+        if len(items) > 0:
             f.write("| NAME | READY | STATUS | RESTARTS | LOGS |\n")
             f.write("| --- | --- | --- | --- | --- |\n")
 
-            for pod in pods.items:
-                name = pod.metadata.name
-                podDict = pod.to_dict()
+            for podDict in items:
+                metadata = podDict.get("metadata", {})
+                name = metadata.get("name", "")
                 status = podDict.get("status", {})
                 appLabel = _extractAppLabel(podDict, namespace)
 
                 phase = status.get("phase", "Unknown")
-                containerStatuses = status.get("container_statuses", [])
+                containerStatuses = status.get("containerStatuses", [])
                 ready = f"{sum(1 for c in containerStatuses if c.get('ready', False))}/{len(containerStatuses)}" if containerStatuses else "0/0"
                 restarts = str(sum(c.get("restartCount", 0) for c in containerStatuses))
 
@@ -253,7 +255,7 @@ def _collectLogs(dynClient: DynamicClient, namespace: str, podName: str, podDict
         os.makedirs(logsDir, exist_ok=True)
 
         # Get container names
-        containerStatuses = podDict.get("status", {}).get("container_statuses", [])
+        containerStatuses = podDict.get("status", {}).get("containerStatuses", [])
         if not containerStatuses:
             logger.warning(f"⚠️ {namespace}: Pod {podName} has no containerStatuses - cannot collect logs")
             return

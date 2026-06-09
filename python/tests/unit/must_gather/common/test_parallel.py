@@ -62,7 +62,6 @@ class TestCollectResourcesParallel:
                     apiVersion="v1",
                     kind="ConfigMap",
                     outputDir=outputDir,
-                    noDetail=False,
                     allNamespaces=False,
                 ),
                 call(
@@ -70,7 +69,6 @@ class TestCollectResourcesParallel:
                     apiVersion="v1",
                     kind="Service",
                     outputDir=outputDir,
-                    noDetail=False,
                     allNamespaces=False,
                 ),
                 call(
@@ -78,7 +76,6 @@ class TestCollectResourcesParallel:
                     apiVersion="apps/v1",
                     kind="Deployment",
                     outputDir=outputDir,
-                    noDetail=False,
                     allNamespaces=False,
                 ),
             ]
@@ -164,41 +161,6 @@ class TestCollectResourcesParallel:
 
                     # Verify
                     mockExecutor.assert_called_once_with(max_workers=maxWorkers)
-
-    def test_collectResourcesParallel_with_noDetail_flag(self):
-        """Test that noDetail flag is passed to collectResources.
-
-        GIVEN noDetail=True
-        WHEN collectResourcesParallel is called
-        THEN collectResources is called with noDetail=True.
-        """
-        # Setup
-        mockDynClient = Mock()
-        namespace = "test-namespace"
-        resources = [("v1", "ConfigMap")]
-        outputDir = "/tmp/output"
-
-        with patch("mas.cli.must_gather.common.parallel.collectResources") as mockCollectResources:
-            mockCollectResources.return_value = True
-
-            # Execute
-            collectResourcesParallel(
-                dynClient=mockDynClient,
-                namespace=namespace,
-                resources=resources,
-                outputDir=outputDir,
-                noDetail=True,
-            )
-
-            # Verify
-            mockCollectResources.assert_called_once_with(
-                namespace=namespace,
-                apiVersion="v1",
-                kind="ConfigMap",
-                outputDir=outputDir,
-                noDetail=True,
-                allNamespaces=False,
-            )
 
     def test_collectResourcesParallel_with_empty_resources_list(self):
         """Test handling of empty resources list.

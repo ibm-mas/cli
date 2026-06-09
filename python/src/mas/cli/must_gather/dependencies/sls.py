@@ -42,7 +42,6 @@ def generateSLSCollectionTasks(
     dynClient: DynamicClient,
     namespace: str,
     outputDir: str,
-    noDetail: bool = False,
     noLogs: bool = False,
     ibmCRDs: Optional[List[Tuple[str, str]]] = None,
 ) -> List[Tuple]:
@@ -55,7 +54,6 @@ def generateSLSCollectionTasks(
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         namespace (str): Target namespace for collection
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         ibmCRDs (list, optional): List of IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
 
@@ -68,28 +66,23 @@ def generateSLSCollectionTasks(
         dynClient=dynClient,
         namespace=namespace,
         outputDir=outputDir,
-        noDetail=noDetail,
         noLogs=noLogs,
-        includeSecrets=True,
         secretData=False,
         customResources=None,  # SLS uses IBM CRDs
         ibmCRDs=ibmCRDs,
     )
 
     # Add SLS-specific reconcile logs tasks
-    if not noDetail:
-        operators = [
-            (namespace, "control-plane", "controller-manager"),
-            (namespace, "operator", "ibm-truststore-mgr"),
-        ]
-        tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
+    operators = [
+        (namespace, "control-plane", "controller-manager"),
+        (namespace, "operator", "ibm-truststore-mgr"),
+    ]
+    tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
 
     return tasks
 
 
-def addSLSToCollectionPlan(
-    plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list, masInstanceIds: Optional[List[str]] = None
-):
+def addSLSToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list, masInstanceIds: Optional[List[str]] = None):
     """Add SLS collection tasks to the collection plan.
 
     Discovers SLS namespaces and adds collection groups for each namespace
@@ -99,7 +92,6 @@ def addSLSToCollectionPlan(
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
         masInstanceIds (list, optional): List of MAS instance IDs (kept for compatibility, not used). Defaults to None.
@@ -114,7 +106,6 @@ def addSLSToCollectionPlan(
                     dynClient=dynClient,
                     namespace=ns,
                     outputDir=outputDir,
-                    noDetail=noDetail,
                     noLogs=noLogs,
                     ibmCRDs=ibmCRDs,
                 )

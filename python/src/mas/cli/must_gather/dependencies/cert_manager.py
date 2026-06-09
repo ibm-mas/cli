@@ -57,7 +57,7 @@ def discoverCertManagerNamespaces(dynClient: DynamicClient) -> Set[str]:
     return namespaces
 
 
-def addCertManagerToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+def addCertManagerToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list):
     """Add Certificate Manager collection tasks to the collection plan.
 
     Discovers Certificate Manager namespaces and adds collection groups for each namespace
@@ -67,7 +67,6 @@ def addCertManagerToCollectionPlan(plan, dynClient: DynamicClient, outputDir: st
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
     """
@@ -83,9 +82,7 @@ def addCertManagerToCollectionPlan(plan, dynClient: DynamicClient, outputDir: st
                 dynClient=dynClient,
                 namespace=ns,
                 outputDir=outputDir,
-                noDetail=noDetail,
                 noLogs=noLogs,
-                includeSecrets=True,
                 secretData=False,
                 customResources=CERT_MANAGER_RESOURCES,
                 ibmCRDs=ibmCRDs,

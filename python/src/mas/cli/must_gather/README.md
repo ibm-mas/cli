@@ -163,18 +163,15 @@ mas must-gather --mas-instance-id inst1
 # Specific applications
 mas must-gather --mas-app-id manage,monitor
 
-# Skip dependencies
-mas must-gather --no-dependencies
+# Collect only specific components
+mas must-gather --collectors mas,sls
 
-# Skip OCP resources
-mas must-gather --no-ocp
+# Collect only MAS (skip OCP and dependencies)
+mas must-gather --collectors mas
 ```
 
 ### Advanced Options
 ```bash
-# Summary only (no detailed YAML)
-mas must-gather --summary-only
-
 # Skip pod logs
 mas must-gather --no-logs
 
@@ -204,7 +201,6 @@ def generateMyResourceCollectionTasks(
     dynClient: DynamicClient,
     namespace: str,
     outputDir: str,
-    noDetail: bool
 ) -> List[Tuple[str, Callable, ...]]:
     """Generate collection tasks for MyResource namespace."""
     return [

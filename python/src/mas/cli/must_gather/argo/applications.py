@@ -48,7 +48,7 @@ def checkArgoNamespace(dynClient: DynamicClient) -> bool:
         return False
 
 
-def addArgoToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+def addArgoToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list):
     """Add Argo CD collection tasks to the collection plan.
 
     Checks for openshift-gitops namespace and adds collection group if it exists.
@@ -57,7 +57,6 @@ def addArgoToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDe
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
     """
@@ -72,9 +71,7 @@ def addArgoToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDe
                 dynClient=dynClient,
                 namespace="openshift-gitops",
                 outputDir=outputDir,
-                noDetail=noDetail,
                 noLogs=noLogs,
-                includeSecrets=True,
                 secretData=False,
                 customResources=None,
                 ibmCRDs=ibmCRDs,

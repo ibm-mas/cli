@@ -37,7 +37,7 @@ def discoverMongoDBNamespaces(dynClient: DynamicClient) -> Set[str]:
     return discoverNamespacesFromCR(dynClient=dynClient, kind="MongoDBCommunity")
 
 
-def addMongoDBToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+def addMongoDBToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list):
     """Add MongoDB collection tasks to the collection plan.
 
     Discovers MongoDB namespaces and adds collection groups for each namespace
@@ -47,7 +47,6 @@ def addMongoDBToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, n
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
     """
@@ -63,9 +62,7 @@ def addMongoDBToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, n
                 dynClient=dynClient,
                 namespace=ns,
                 outputDir=outputDir,
-                noDetail=noDetail,
                 noLogs=noLogs,
-                includeSecrets=True,
                 secretData=False,
                 customResources=MONGODB_RESOURCES,
                 ibmCRDs=ibmCRDs,

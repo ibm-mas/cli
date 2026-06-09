@@ -39,7 +39,7 @@ def discoverKafkaNamespaces(dynClient: DynamicClient) -> Set[str]:
     return discoverNamespacesFromCR(dynClient=dynClient, kind="Kafka")
 
 
-def addKafkaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+def addKafkaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list):
     """Add Kafka collection tasks to the collection plan.
 
     Discovers Kafka namespaces and adds collection groups for each namespace
@@ -49,7 +49,6 @@ def addKafkaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noD
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
     """
@@ -65,9 +64,7 @@ def addKafkaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noD
                 dynClient=dynClient,
                 namespace=ns,
                 outputDir=outputDir,
-                noDetail=noDetail,
                 noLogs=noLogs,
-                includeSecrets=True,
                 secretData=False,
                 customResources=KAFKA_RESOURCES,
                 ibmCRDs=ibmCRDs,

@@ -52,7 +52,7 @@ def detectAirgapEnvironment(dynClient: DynamicClient) -> bool:
     return False
 
 
-def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: bool = False) -> bool:
+def collectAirgapResources(dynClient: DynamicClient, outputDir: str) -> bool:
     """Collect airgap environment resources.
 
     Detects airgap environment and collects related resources including:
@@ -62,7 +62,6 @@ def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: b
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
 
     Returns:
         bool: True if collection succeeded or not airgap, False if errors occurred
@@ -98,7 +97,6 @@ def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: b
             apiVersion=apiVersion,
             kind=kind,
             outputDir=outputDir,
-            noDetail=noDetail,
             allNamespaces=False,
         ):
             successCount += 1
@@ -111,7 +109,6 @@ def collectAirgapResources(dynClient: DynamicClient, outputDir: str, noDetail: b
             apiVersion=apiVersion,
             kind=kind,
             outputDir=outputDir,
-            noDetail=noDetail,
             allNamespaces=False,
         ):
             successCount += 1

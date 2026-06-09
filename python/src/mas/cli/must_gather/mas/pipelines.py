@@ -83,7 +83,6 @@ def generateMASPipelinesCollectionTasks(
     dynClient: DynamicClient,
     namespace: str,
     outputDir: str,
-    noDetail: bool = False,
     noLogs: bool = False,
     ibmCRDs: Optional[List[Tuple[str, str]]] = None,
 ) -> List[Tuple]:
@@ -96,7 +95,6 @@ def generateMASPipelinesCollectionTasks(
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         namespace (str): MAS pipeline namespace to collect from
         outputDir (str): Base output directory
-        noDetail (bool, optional): If True, skip detailed YAML collection. Defaults to False.
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         ibmCRDs (list, optional): List of IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
 
@@ -109,9 +107,7 @@ def generateMASPipelinesCollectionTasks(
         dynClient=dynClient,
         namespace=namespace,
         outputDir=outputDir,
-        noDetail=noDetail,
         noLogs=noLogs,
-        includeSecrets=True,
         secretData=False,
         customResources=None,
         ibmCRDs=ibmCRDs,
@@ -120,7 +116,7 @@ def generateMASPipelinesCollectionTasks(
     return tasks
 
 
-def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list):
     """Add MAS Pipelines collection tasks to the collection plan.
 
     Discovers cluster-level MAS pipelines namespace and adds collection group
@@ -130,7 +126,6 @@ def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: s
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
     """
@@ -143,7 +138,6 @@ def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: s
                 dynClient=dynClient,
                 namespace="mas-pipelines",
                 outputDir=outputDir,
-                noDetail=noDetail,
                 noLogs=noLogs,
                 ibmCRDs=ibmCRDs,
             )

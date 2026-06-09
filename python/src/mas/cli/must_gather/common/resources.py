@@ -68,7 +68,6 @@ def collectResources(
     apiVersion: str,
     kind: str,
     outputDir: str,
-    noDetail: bool = False,
     allNamespaces: bool = False,
 ) -> bool:
     """Collect Kubernetes resources of a specific type.
@@ -81,7 +80,6 @@ def collectResources(
         apiVersion (str): API version of the resource (e.g., "v1", "storage.k8s.io/v1")
         kind (str): Kind of resource to collect (e.g., "Pod", "StorageClass")
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
         allNamespaces (bool, optional): If True, collect resources across all namespaces. Defaults to False.
 
     Returns:
@@ -126,27 +124,25 @@ def collectResources(
         # Generate markdown index file
         summaryFile = os.path.join(namespaceDir, f"{resourceType}.md")
         printerColumns = getPrinterColumns(kind, apiVersion)
-        _writeMarkdownIndex(resources, summaryFile, kind, apiVersion, printerColumns, noDetail)
+        _writeMarkdownIndex(resources, summaryFile, kind, apiVersion, printerColumns)
 
-        # Generate detailed reports if requested
-        if not noDetail:
-            resourceDir = os.path.join(namespaceDir, resourceType)
-            os.makedirs(resourceDir, exist_ok=True)
+        resourceDir = os.path.join(namespaceDir, resourceType)
+        os.makedirs(resourceDir, exist_ok=True)
 
-            if allNamespaces:
-                # For all-namespaces, write single YAML file
-                allNamespacesFile = os.path.join(resourceDir, "all-namespaces.yaml")
-                _writeYaml(resources.to_dict(), allNamespacesFile)
-            else:
-                # Write individual resource files
-                for resource in resources.items:
-                    resourceName = resource.metadata.name
-                    # Sanitize resource name (replace colons with underscores)
-                    sanitizedName = resourceName.replace(":", "_")
+        if allNamespaces:
+            # For all-namespaces, write single YAML file
+            allNamespacesFile = os.path.join(resourceDir, "all-namespaces.yaml")
+            _writeYaml(resources.to_dict(), allNamespacesFile)
+        else:
+            # Write individual resource files
+            for resource in resources.items:
+                resourceName = resource.metadata.name
+                # Sanitize resource name (replace colons with underscores)
+                sanitizedName = resourceName.replace(":", "_")
 
-                    # Write YAML file
-                    yamlFile = os.path.join(resourceDir, f"{sanitizedName}.yaml")
-                    _writeYaml(resource.to_dict(), yamlFile)
+                # Write YAML file
+                yamlFile = os.path.join(resourceDir, f"{sanitizedName}.yaml")
+                _writeYaml(resource.to_dict(), yamlFile)
 
         return True
 
@@ -159,13 +155,13 @@ def collectResources(
             return False
 
 
-def _writeMarkdownIndex(resources, outputFile: str, kind: str, apiVersion: str, printerColumns: List[PrinterColumn], noDetail: bool = False) -> None:
+def _writeMarkdownIndex(resources, outputFile: str, kind: str, apiVersion: str, printerColumns: List[PrinterColumn]) -> None:
     """Write resource index as markdown table.
 
     Generates a markdown file with a table showing resources using printer columns
     from CRD specifications or fallback columns for built-in resources.
     The first column (typically resource name) is converted to a markdown link
-    pointing to the resource's YAML file when noDetail is False.
+    pointing to the resource's YAML file.
 
     Args:
         resources: ResourceList or ResourceInstance from Kubernetes API
@@ -173,7 +169,6 @@ def _writeMarkdownIndex(resources, outputFile: str, kind: str, apiVersion: str, 
         kind (str): Resource kind (e.g., "Pod", "Suite")
         apiVersion (str): API version (e.g., "v1", "core.mas.ibm.com/v1")
         printerColumns (list): List of PrinterColumn objects defining table columns
-        noDetail (bool, optional): If True, do not create links to YAML files. Defaults to False.
     """
     # Pluralize kind for directory name (simple pluralization)
     pluralKind = kind.lower() + "s"
@@ -201,7 +196,7 @@ def _writeMarkdownIndex(resources, outputFile: str, kind: str, apiVersion: str, 
                     value = value.replace("|", "\\|") if value else ""
 
                     # Convert first column (name) to markdown link only if detail files exist
-                    if idx == 0 and value and not noDetail:
+                    if idx == 0 and value:
                         value = f"[{value}]({pluralKind}/{resourceName}.yaml)"
 
                     values.append(value)

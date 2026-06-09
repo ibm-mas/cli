@@ -87,7 +87,7 @@ class TestCollectMarketplaceResources:
         mockApi.get.return_value = self._createMockResourceList([self._createMockResource("redhat-operators"), self._createMockResource("certified-operators")])
         self.mockClient.resources.get.return_value = mockApi
 
-        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
+        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir)
 
         assert result is True
         summaryFile = os.path.join(self.testDir, "resources", "openshift-marketplace", "catalogsources.md")
@@ -106,33 +106,11 @@ class TestCollectMarketplaceResources:
         mockApi.get.return_value = self._createMockResourceList([self._createMockResource("catalog-import-job")])
         self.mockClient.resources.get.return_value = mockApi
 
-        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
+        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir)
 
         assert result is True
         summaryFile = os.path.join(self.testDir, "resources", "openshift-marketplace", "jobs.md")
         assert os.path.exists(summaryFile)
-
-    def test_collect_marketplace_resources_respects_no_detail_flag(self):
-        """Test that noDetail flag is respected.
-
-        GIVEN noDetail=True
-        WHEN collectMarketplaceResources is called
-        THEN only summary files are created.
-        """
-        from mas.cli.must_gather.ocp.marketplace import collectMarketplaceResources
-
-        mockApi = Mock()
-        mockApi.get.return_value = self._createMockResourceList([self._createMockResource("redhat-operators")])
-        self.mockClient.resources.get.return_value = mockApi
-
-        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=True)
-
-        assert result is True
-        summaryFile = os.path.join(self.testDir, "resources", "openshift-marketplace", "catalogsources.md")
-        assert os.path.exists(summaryFile)
-        # Detail directory should NOT exist
-        detailDir = os.path.join(self.testDir, "resources", "openshift-marketplace", "catalogsources")
-        assert not os.path.exists(detailDir)
 
     def test_collect_marketplace_resources_handles_errors_gracefully(self):
         """Test that errors are handled gracefully.
@@ -154,6 +132,6 @@ class TestCollectMarketplaceResources:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir, noDetail=False)
+        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir)
 
         assert result is True  # Partial success

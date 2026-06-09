@@ -35,12 +35,9 @@ class TestPlanCollection(unittest.TestCase):
         """
         # Create mock parsed args
         parsedArgs = Mock()
-        parsedArgs.no_ocp = False
-        parsedArgs.no_dependencies = False
-        parsedArgs.no_sls = False
+        parsedArgs.collectors = "ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,aiservice"
         parsedArgs.mas_instance_ids = None
         parsedArgs.mas_app_ids = None
-        parsedArgs.summary_only = False
         parsedArgs.no_logs = False
         parsedArgs.extra_namespaces = None
 
@@ -66,12 +63,9 @@ class TestPlanCollection(unittest.TestCase):
         mockMongoDiscovery.return_value = {"mongo-ns"}
 
         parsedArgs = Mock()
-        parsedArgs.no_ocp = True  # Skip OCP to focus on dependencies
-        parsedArgs.no_dependencies = False
-        parsedArgs.no_sls = True
+        parsedArgs.collectors = "kafka,mongodb"  # Only dependencies, skip OCP and SLS
         parsedArgs.mas_instance_ids = None
         parsedArgs.mas_app_ids = None
-        parsedArgs.summary_only = False
         parsedArgs.no_logs = False
         parsedArgs.extra_namespaces = None
 
@@ -88,20 +82,17 @@ class TestPlanCollection(unittest.TestCase):
         self.assertGreater(plan.total_groups, 0)
         self.assertGreater(plan.total_tasks, 0)
 
-    def test_planCollection_respects_no_dependencies_flag(self):
-        """Test that planCollection skips dependencies when --no-dependencies is set.
+    def test_planCollection_respects_collectors_without_dependencies(self):
+        """Test that planCollection skips dependencies when not in collectors list.
 
-        GIVEN --no-dependencies flag is set
+        GIVEN collectors list without dependency collectors
         WHEN planCollection is called
         THEN no dependency discovery occurs.
         """
         parsedArgs = Mock()
-        parsedArgs.no_ocp = True
-        parsedArgs.no_dependencies = True
-        parsedArgs.no_sls = True
+        parsedArgs.collectors = "mas"  # Only MAS, no OCP, dependencies, or SLS
         parsedArgs.mas_instance_ids = None
         parsedArgs.mas_app_ids = None
-        parsedArgs.summary_only = False
         parsedArgs.no_logs = False
         parsedArgs.extra_namespaces = None
 

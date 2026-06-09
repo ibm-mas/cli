@@ -53,7 +53,6 @@ def generateCP4DCollectionTasks(
     dynClient: DynamicClient,
     namespaces: List[str],
     outputDir: str,
-    noDetail: bool = False,
     noLogs: bool = False,
     ibmCRDs: Optional[List[Tuple[str, str]]] = None,
 ) -> List[Tuple]:
@@ -63,7 +62,6 @@ def generateCP4DCollectionTasks(
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         namespaces (list): List of CP4D namespaces to collect from
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         ibmCRDs (list, optional): Additional IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
 
@@ -78,9 +76,7 @@ def generateCP4DCollectionTasks(
             dynClient=dynClient,
             namespace=namespace,
             outputDir=outputDir,
-            noDetail=noDetail,
             noLogs=noLogs,
-            includeSecrets=True,
             secretData=False,
             customResources=None,  # CP4D doesn't have specific CRDs to collect
             ibmCRDs=ibmCRDs,
@@ -89,7 +85,7 @@ def generateCP4DCollectionTasks(
     return allTasks
 
 
-def addCP4DToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list):
+def addCP4DToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list):
     """Add CP4D collection tasks to the collection plan.
 
     Discovers CP4D namespaces and adds a collection group with all CP4D tasks
@@ -99,7 +95,6 @@ def addCP4DToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDe
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
     """
@@ -112,7 +107,6 @@ def addCP4DToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noDe
             dynClient=dynClient,
             namespaces=cp4dNamespaces,
             outputDir=outputDir,
-            noDetail=noDetail,
             noLogs=noLogs,
             ibmCRDs=ibmCRDs,
         )

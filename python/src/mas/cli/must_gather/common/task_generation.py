@@ -25,9 +25,7 @@ def generateNamespaceCollectionTasks(
     dynClient: DynamicClient,
     namespace: str,
     outputDir: str,
-    noDetail: bool = False,
     noLogs: bool = False,
-    includeSecrets: bool = True,
     secretData: bool = False,
     customResources: Optional[List[Tuple[str, str]]] = None,
     ibmCRDs: Optional[List[Tuple[str, str]]] = None,
@@ -42,9 +40,7 @@ def generateNamespaceCollectionTasks(
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         namespace (str): Target namespace for collection
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        includeSecrets (bool, optional): If True, include secrets collection. Defaults to True.
         secretData (bool, optional): If True, include secret data in YAML. Defaults to False.
         customResources (list, optional): Custom CRD tuples (apiVersion, kind) specific to this namespace type. Defaults to None.
         ibmCRDs (list, optional): Additional IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
@@ -72,7 +68,6 @@ def generateNamespaceCollectionTasks(
                     apiVersion,
                     kind,
                     outputDir,
-                    noDetail,
                     False,  # allNamespaces
                 )
             )
@@ -108,22 +103,24 @@ def generateNamespaceCollectionTasks(
                 apiVersion,
                 kind,
                 outputDir,
-                noDetail,
                 False,  # allNamespaces
             )
         )
 
-    # Secrets (optional, without data by default)
-    if includeSecrets:
-        tasks.append(
-            (
-                "secrets",
-                collectSecrets,
-                namespace,
-                outputDir,
-                secretData,
-            )
+    # Secrets
+    from kubernetes.client import CoreV1Api
+
+    coreV1 = CoreV1Api(dynClient.client)
+    tasks.append(
+        (
+            "secrets",
+            collectSecrets,
+            coreV1,
+            namespace,
+            outputDir,
+            secretData,
         )
+    )
 
     # Pods (with or without logs based on noLogs flag)
     # Generate individual tasks for each pod
@@ -132,7 +129,6 @@ def generateNamespaceCollectionTasks(
         namespace=namespace,
         outputDir=outputDir,
         podLogs=not noLogs,
-        noDetail=noDetail,
     )
     tasks.extend(podTasks)
 

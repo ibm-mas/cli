@@ -15,7 +15,7 @@ in parallel while maintaining sequential display order for user feedback.
 """
 
 import logging
-from typing import Optional, Callable
+from typing import Optional, Callable, Any
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .collection_plan import CollectionPlan
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 def executeCollection(
     plan: CollectionPlan,
     maxWorkers: int = 50,
-    displayCallback: Optional[Callable[[str, str, int, int], None]] = None,
+    displayCallback: Optional[Callable[[str, str, int, int, Any], None]] = None,
 ) -> bool:
     """Execute all collection tasks in parallel with sequential display.
 
@@ -38,7 +38,7 @@ def executeCollection(
         plan (CollectionPlan): The collection plan containing all tasks
         maxWorkers (int, optional): Maximum number of parallel threads. Defaults to 50.
         displayCallback (callable, optional): Callback for progress display.
-            Called with (groupName, taskType, completed, total). Defaults to None.
+            Called with (groupName, taskType, completed, total, progressBar). Defaults to None.
 
     Returns:
         bool: True if execution completed (even if some tasks failed)
@@ -74,11 +74,11 @@ def executeCollection(
                         future.result()
                         completed += 1
                         if displayCallback:
-                            displayCallback(group.name, taskType, completed, total)
+                            displayCallback(group.name, taskType, completed, total, None)
                     except Exception as e:
                         logger.error(f"❌ Task failed in {group.name}/{taskType}: {e}")
                         completed += 1
                         if displayCallback:
-                            displayCallback(group.name, taskType, completed, total)
+                            displayCallback(group.name, taskType, completed, total, None)
 
     return True

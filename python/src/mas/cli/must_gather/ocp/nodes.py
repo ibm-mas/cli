@@ -17,7 +17,7 @@ from mas.cli.must_gather.common.resources import collectResources
 logger = logging.getLogger(__name__)
 
 
-def collectNodes(dynClient: DynamicClient, outputDir: str, noDetail: bool = False) -> bool:
+def collectNodes(dynClient: DynamicClient, outputDir: str) -> bool:
     """Collect node resources with describe output.
 
     Collects node information including both summary and detailed describe output
@@ -27,7 +27,6 @@ def collectNodes(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed output. Defaults to False.
 
     Returns:
         bool: True if collection succeeded, False if errors occurred
@@ -37,6 +36,5 @@ def collectNodes(dynClient: DynamicClient, outputDir: str, noDetail: bool = Fals
         apiVersion="v1",
         kind="Node",
         outputDir=outputDir,
-        noDetail=noDetail,
         allNamespaces=False,
     )

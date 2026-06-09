@@ -17,7 +17,7 @@ from typing import Optional
 
 import requests
 from mas.cli import BaseApp
-from .arg_parser import createArgumentParser
+from .arg_parser import mustGatherArgParser
 from .output import OutputManager
 from .timer import Timer
 from . import ocp
@@ -49,6 +49,17 @@ class MustGatherApp(BaseApp):
         self.printerColumnsCache: dict = {}
         self.ibmCRDsList: list = []
 
+    def _parseCollectors(self, collectorsStr: str) -> set:
+        """Parse comma-separated collectors string into a set.
+
+        Args:
+            collectorsStr (str): Comma-separated list of collector names
+
+        Returns:
+            set: Set of enabled collector names (lowercase, stripped)
+        """
+        return {c.strip().lower() for c in collectorsStr.split(",") if c.strip()}
+
     def _initializeKubernetesClient(self):
         """Initialize Kubernetes Dynamic Client.
 
@@ -68,8 +79,7 @@ class MustGatherApp(BaseApp):
             int: Exit code (0 for success, 1 for failure)
         """
         # Parse arguments
-        parser = createArgumentParser()
-        parsedArgs = parser.parse_args(args)
+        parsedArgs = mustGatherArgParser.parse_args(args)
 
         # Handle serve command
         if parsedArgs.command == "serve":
@@ -83,7 +93,7 @@ class MustGatherApp(BaseApp):
             return self._collectMustGather(parsedArgs)
 
         # Unknown command
-        parser.print_help()
+        mustGatherArgParser.print_help()
         return 1
 
     def _collectMustGather(self, parsedArgs):
@@ -170,7 +180,7 @@ class MustGatherApp(BaseApp):
         summaryTimer.start()
 
         # Generate subscriptions summary (only if OCP was collected)
-        if not parsedArgs.no_ocp:
+        if "ocp" in self._parseCollectors(parsedArgs.collectors):
             self.generateSubscriptionsSummary(outputDir=outputManager.outputDir)
 
         # Generate web viewer
@@ -243,156 +253,171 @@ class MustGatherApp(BaseApp):
         logger.info("🔍 Starting collection plan discovery")
         plan = CollectionPlan()
 
+        # Parse enabled collectors
+        enabledCollectors = self._parseCollectors(parsedArgs.collectors)
+
         # OCP Discovery
-        logger.info("💭 Planning OCP resource collection")
-        ocpTasks = [
-            ("cluster_resources", ocp.collectClusterResources, self.dynClient, outputDir, parsedArgs.summary_only),
-            ("nodes", ocp.collectNodes, self.dynClient, outputDir, parsedArgs.summary_only),
-            ("airgap_resources", ocp.collectAirgapResources, self.dynClient, outputDir, parsedArgs.summary_only),
-            ("marketplace_resources", ocp.collectMarketplaceResources, self.dynClient, outputDir, parsedArgs.summary_only),
-        ]
-        plan.addGroup("OpenShift Container Platform", ocpTasks)
-        logger.debug("Added OCP collection group with 4 tasks to plan")
+        if "ocp" in enabledCollectors:
+            logger.info("💭 Planning OCP resource collection")
+            ocpTasks = [
+                ("cluster_resources", ocp.collectClusterResources, self.dynClient, outputDir, False),
+                ("nodes", ocp.collectNodes, self.dynClient, outputDir, False),
+                ("airgap_resources", ocp.collectAirgapResources, self.dynClient, outputDir, False),
+                ("marketplace_resources", ocp.collectMarketplaceResources, self.dynClient, outputDir, False),
+            ]
+            plan.addGroup("OpenShift Container Platform", ocpTasks)
+            logger.debug("Added OCP collection group with 4 tasks to plan")
+        else:
+            logger.debug("Skipping OCP collection (not in collectors list)")
 
-        # Dependencies Discovery
-        if not parsedArgs.no_dependencies:
-            logger.debug("Discovering dependency namespaces")
-
-            # Kafka
+        # Kafka
+        if "kafka" in enabledCollectors:
             kafka.addKafkaToCollectionPlan(
                 plan=plan,
                 dynClient=self.dynClient,
                 outputDir=outputDir,
-                noDetail=parsedArgs.summary_only,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
             )
+        else:
+            logger.debug("Skipping Kafka collection (not in collectors list)")
 
-            # MongoDB
+        # MongoDB
+        if "mongodb" in enabledCollectors:
             mongodb.addMongoDBToCollectionPlan(
                 plan=plan,
                 dynClient=self.dynClient,
                 outputDir=outputDir,
-                noDetail=parsedArgs.summary_only,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
             )
+        else:
+            logger.debug("Skipping MongoDB collection (not in collectors list)")
 
-            # Grafana
+        # Grafana
+        if "grafana" in enabledCollectors:
             grafana.addGrafanaToCollectionPlan(
                 plan=plan,
                 dynClient=self.dynClient,
                 outputDir=outputDir,
-                noDetail=parsedArgs.summary_only,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
             )
+        else:
+            logger.debug("Skipping Grafana collection (not in collectors list)")
 
-            # Certificate Manager
+        # Certificate Manager
+        if "cert-manager" in enabledCollectors:
             cert_manager.addCertManagerToCollectionPlan(
                 plan=plan,
                 dynClient=self.dynClient,
                 outputDir=outputDir,
-                noDetail=parsedArgs.summary_only,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
             )
+        else:
+            logger.debug("Skipping Certificate Manager collection (not in collectors list)")
 
-            # DB2
+        # DB2
+        if "db2" in enabledCollectors:
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
             db2.addDb2ToCollectionPlan(
                 plan=plan,
                 dynClient=self.dynClient,
                 outputDir=outputDir,
-                noDetail=parsedArgs.summary_only,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
                 masInstanceIds=masInstanceIds,
             )
+        else:
+            logger.debug("Skipping DB2 collection (not in collectors list)")
 
-            # CP4D
+        # CP4D
+        if "cp4d" in enabledCollectors:
             cp4d.addCP4DToCollectionPlan(
                 plan=plan,
                 dynClient=self.dynClient,
                 outputDir=outputDir,
-                noDetail=parsedArgs.summary_only,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
             )
         else:
-            logger.debug("Skipping dependency discovery (--no-dependencies flag set)")
+            logger.debug("Skipping CP4D collection (not in collectors list)")
 
         # SLS
-        masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
-        sls.addSLSToCollectionPlan(
-            plan=plan,
-            dynClient=self.dynClient,
-            outputDir=outputDir,
-            noDetail=parsedArgs.summary_only,
-            noLogs=parsedArgs.no_logs,
-            ibmCRDs=self.ibmCRDsList,
-            masInstanceIds=masInstanceIds,
-        )
-
-        # MAS Discovery
-        try:
+        if "sls" in enabledCollectors:
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
-            masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
-
-            # Add MAS Core collection tasks
-            coreNamespaces = mas_core.addMASCoreToCollectionPlan(
+            sls.addSLSToCollectionPlan(
                 plan=plan,
                 dynClient=self.dynClient,
                 outputDir=outputDir,
-                noDetail=parsedArgs.summary_only,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
                 masInstanceIds=masInstanceIds,
             )
+        else:
+            logger.debug("Skipping SLS collection (not in collectors list)")
 
-            if coreNamespaces:
-                # Add MAS Apps collection tasks for discovered instances
-                mas_apps.addMASAppsToCollectionPlan(
+        # MAS Discovery
+        if "mas" in enabledCollectors:
+            try:
+                masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
+                masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
+
+                # Add MAS Core collection tasks
+                coreNamespaces = mas_core.addMASCoreToCollectionPlan(
                     plan=plan,
                     dynClient=self.dynClient,
                     outputDir=outputDir,
-                    noDetail=parsedArgs.summary_only,
                     noLogs=parsedArgs.no_logs,
                     ibmCRDs=self.ibmCRDsList,
-                    coreNamespaces=coreNamespaces,
-                    masAppIds=masAppIds,
+                    masInstanceIds=masInstanceIds,
                 )
 
-                # Add MAS Pipelines collection tasks
-                mas_pipelines.addMASPipelinesToCollectionPlan(
-                    plan=plan,
-                    dynClient=self.dynClient,
-                    outputDir=outputDir,
-                    noDetail=parsedArgs.summary_only,
-                    noLogs=parsedArgs.no_logs,
-                    ibmCRDs=self.ibmCRDsList,
-                )
-            else:
-                logger.debug("No MAS instances discovered")
-        except Exception as e:
-            logger.warning(f"⚠️ MAS discovery failed: {e}")
+                if coreNamespaces:
+                    # Add MAS Apps collection tasks for discovered instances
+                    mas_apps.addMASAppsToCollectionPlan(
+                        plan=plan,
+                        dynClient=self.dynClient,
+                        outputDir=outputDir,
+                        noLogs=parsedArgs.no_logs,
+                        ibmCRDs=self.ibmCRDsList,
+                        coreNamespaces=coreNamespaces,
+                        masAppIds=masAppIds,
+                    )
+
+                    # Add MAS Pipelines collection tasks
+                    mas_pipelines.addMASPipelinesToCollectionPlan(
+                        plan=plan,
+                        dynClient=self.dynClient,
+                        outputDir=outputDir,
+                        noLogs=parsedArgs.no_logs,
+                        ibmCRDs=self.ibmCRDsList,
+                    )
+                else:
+                    logger.debug("No MAS instances discovered")
+            except Exception as e:
+                logger.warning(f"⚠️ MAS discovery failed: {e}")
+        else:
+            logger.debug("Skipping MAS collection (not in collectors list)")
 
         # AI Service Discovery
-        aiservice_instance.addAIServiceToCollectionPlan(
-            plan=plan,
-            dynClient=self.dynClient,
-            outputDir=outputDir,
-            noDetail=parsedArgs.summary_only,
-            noLogs=parsedArgs.no_logs,
-            ibmCRDs=self.ibmCRDsList,
-        )
+        if "aiservice" in enabledCollectors:
+            aiservice_instance.addAIServiceToCollectionPlan(
+                plan=plan,
+                dynClient=self.dynClient,
+                outputDir=outputDir,
+                noLogs=parsedArgs.no_logs,
+                ibmCRDs=self.ibmCRDsList,
+            )
+        else:
+            logger.debug("Skipping AI Service collection (not in collectors list)")
 
         # Argo Discovery
         argo.addArgoToCollectionPlan(
             plan=plan,
             dynClient=self.dynClient,
             outputDir=outputDir,
-            noDetail=parsedArgs.summary_only,
             noLogs=parsedArgs.no_logs,
             ibmCRDs=self.ibmCRDsList,
         )
@@ -407,9 +432,7 @@ class MustGatherApp(BaseApp):
                     dynClient=self.dynClient,
                     namespace=namespace,
                     outputDir=outputDir,
-                    noDetail=parsedArgs.summary_only,
                     noLogs=parsedArgs.no_logs,
-                    includeSecrets=True,
                     secretData=False,
                     customResources=None,
                     ibmCRDs=self.ibmCRDsList,
@@ -423,10 +446,10 @@ class MustGatherApp(BaseApp):
         return plan
 
     def executeCollectionPlan(self, plan):
-        """Execute all collection tasks in parallel with sequential display.
+        """Execute all collection tasks in parallel with a single progress bar.
 
         This method executes all tasks from the collection plan using a shared
-        threadpool, displaying progress sequentially by group with Halo spinners.
+        threadpool, displaying a single progress bar for all tasks.
 
         Args:
             plan (CollectionPlan): The collection plan containing all tasks
@@ -435,20 +458,26 @@ class MustGatherApp(BaseApp):
             bool: True if execution completed (even if some tasks failed)
         """
         from .parallel_executor import executeCollection
+        from alive_progress import alive_bar
 
         # Handle empty plan
         if not plan.groups:
             return True
 
-        # Define display callback for Halo spinner updates
-        def displayCallback(groupName: str, taskType: str, completed: int, total: int):
-            """Update progress display (placeholder for Halo integration)."""
-            # This will be enhanced with Halo spinner integration
-            logger.info(f"✅ {groupName}: {taskType} ({completed}/{total})")
-            print(f"✅ {groupName}: {taskType} ({completed}/{total})")
+        # Create a single progress bar for all tasks
+        totalTasks = plan.total_tasks
+        with alive_bar(totalTasks, title="Collecting resources", enrich_print=False) as bar:
 
-        # Execute collection with parallel executor
-        return executeCollection(plan=plan, maxWorkers=50, displayCallback=displayCallback)
+            # Define display callback for progress bar updates
+            def displayCallback(groupName: str, taskType: str, completed: int, total: int, progressBar):
+                """Update progress display with alive-progress bar."""
+                # Update the bar for each completed task
+                bar()
+                logger.debug(f"✅ {groupName}: {taskType} ({completed}/{total})")
+
+            # Execute collection with parallel executor
+            result = executeCollection(plan=plan, maxWorkers=50, displayCallback=displayCallback)
+            return result
 
     def packageResults(self, parsedArgs, outputManager):
         """Package results into archive and optionally upload.

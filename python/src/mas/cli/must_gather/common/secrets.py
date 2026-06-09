@@ -11,15 +11,17 @@
 """Secret collection utilities for must-gather."""
 
 import os
+import json
 import yaml
 import logging
 
-from .thread_safe_client import createThreadLocalDynamicClient
+from kubernetes.client import CoreV1Api
 
 logger = logging.getLogger(__name__)
 
 
 def collectSecrets(
+    coreV1: CoreV1Api,
     namespace: str,
     outputDir: str,
     secretData: bool = False,
@@ -31,6 +33,7 @@ def collectSecrets(
     with base64-encoded secret data.
 
     Args:
+        coreV1 (CoreV1Api): Kubernetes CoreV1Api client instance
         namespace (str): Target namespace for collection
         outputDir (str): Base output directory for collected secrets
         secretData (bool, optional): If True, include secret data in YAML output. If False, exclude secret data. Defaults to False.
@@ -45,26 +48,30 @@ def collectSecrets(
         secretsDir = os.path.join(namespaceDir, "secrets")
         os.makedirs(secretsDir, exist_ok=True)
 
-        # Create thread-local DynamicClient for thread-safety
-        dynClient = createThreadLocalDynamicClient()
-        api = dynClient.resources.get(kind="Secret")
+        # Collect secrets from namespace using CoreV1Api with raw JSON response
+        rawResponse = coreV1.list_namespaced_secret(namespace=namespace, _preload_content=False)
+        rawJson = rawResponse.data
+        secretListDict = json.loads(rawJson)
 
-        # Collect secrets from namespace
-        secrets = api.get(namespace=namespace)
-
-        # Count secrets
-        secretCount = len(secrets.items) if hasattr(secrets, "items") else 0
+        # Extract items from the response
+        secretItems = secretListDict.get("items", [])
+        secretCount = len(secretItems)
 
         # Generate summary file
         summaryFile = os.path.join(namespaceDir, "secrets.md")
-        _writeSummary(secrets, summaryFile)
+        _writeSummary(secretListDict, summaryFile)
 
         # Write individual secret files
-        for secret in secrets.items:
-            secretName = secret.metadata.name
+        for secretDict in secretItems:
+            secretName = secretDict.get("metadata", {}).get("name", "unknown")
             secretFile = os.path.join(secretsDir, f"{secretName}.yaml")
+            # Add apiVersion and kind (omitted from list items by Kubernetes API)
+            if "apiVersion" not in secretDict:
+                secretDict["apiVersion"] = "v1"
+            if "kind" not in secretDict:
+                secretDict["kind"] = "Secret"
             # Write YAML (with or without secret data based on secretData flag)
-            _writeYaml(secret.to_dict(), secretFile, includeData=secretData)
+            _writeYaml(secretDict, secretFile, includeData=secretData)
 
         return (True, secretCount)
 
@@ -73,24 +80,26 @@ def collectSecrets(
         return (False, 0)
 
 
-def _writeSummary(secrets, outputFile: str) -> None:
+def _writeSummary(secretListDict: dict, outputFile: str) -> None:
     """Write secret summary as a markdown table.
 
     Args:
-        secrets: ResourceList or ResourceInstance from Kubernetes API
+        secretListDict (dict): Secret list dictionary from Kubernetes API (raw JSON)
         outputFile (str): Path to output file
     """
     with open(outputFile, "w") as f:
         f.write("# Secrets (v1)\n\n")
 
-        if hasattr(secrets, "items") and len(secrets.items) > 0:
+        items = secretListDict.get("items", [])
+        if len(items) > 0:
             f.write("| NAME | NAMESPACE | TYPE |\n")
             f.write("| --- | --- | --- |\n")
 
-            for secret in secrets.items:
-                name = secret.metadata.name
-                namespace = getattr(secret.metadata, "namespace", "")
-                secretType = secret.to_dict().get("type", "")
+            for secret in items:
+                metadata = secret.get("metadata", {})
+                name = metadata.get("name", "")
+                namespace = metadata.get("namespace", "")
+                secretType = secret.get("type", "")
                 f.write(f"| [{name}](secrets/{name}.yaml) | {namespace} | {secretType} |\n")
         else:
             f.write("No resources found.\n")

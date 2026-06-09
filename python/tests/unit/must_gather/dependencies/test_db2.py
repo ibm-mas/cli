@@ -165,7 +165,7 @@ class TestGenerateDb2CollectionTasks:
         from mas.cli.must_gather.dependencies.db2 import generateDb2CollectionTasks
 
         namespaces = ["db2u-ns1", "db2u-ns2"]
-        tasks = generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noDetail=False, noLogs=False)
+        tasks = generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noLogs=False)
 
         # Each namespace generates multiple tasks (resources, secrets, pods)
         assert len(tasks) > 0
@@ -181,6 +181,6 @@ class TestGenerateDb2CollectionTasks:
         """
         from mas.cli.must_gather.dependencies.db2 import generateDb2CollectionTasks
 
-        tasks = generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noDetail=False, noLogs=False)
+        tasks = generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noLogs=False)
 
         assert tasks == []

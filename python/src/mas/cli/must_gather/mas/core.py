@@ -73,7 +73,6 @@ def generateMASCoreCollectionTasks(
     dynClient: DynamicClient,
     namespace: str,
     outputDir: str,
-    noDetail: bool = False,
     noLogs: bool = False,
     ibmCRDs: Optional[List[tuple]] = None,
 ):
@@ -86,7 +85,6 @@ def generateMASCoreCollectionTasks(
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         namespace (str): MAS Core namespace to collect from
         outputDir (str): Base output directory
-        noDetail (bool, optional): If True, skip detailed YAML collection. Defaults to False.
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         ibmCRDs (list, optional): List of IBM CRD tuples (api_version, kind). Defaults to None.
 
@@ -100,9 +98,7 @@ def generateMASCoreCollectionTasks(
         dynClient=dynClient,
         namespace=namespace,
         outputDir=outputDir,
-        noDetail=noDetail,
         noLogs=noLogs,
-        includeSecrets=True,  # MAS Core includes secrets
         secretData=False,  # MAS Core does not include secret data
         customResources=None,  # No MAS-specific CRDs to add
         ibmCRDs=ibmCRDs,
@@ -122,9 +118,7 @@ def generateMASCoreCollectionTasks(
     return tasks
 
 
-def addMASCoreToCollectionPlan(
-    plan, dynClient: DynamicClient, outputDir: str, noDetail: bool, noLogs: bool, ibmCRDs: list, masInstanceIds: Optional[List[str]] = None
-):
+def addMASCoreToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list, masInstanceIds: Optional[List[str]] = None):
     """Add MAS Core collection tasks to the collection plan.
 
     Discovers MAS Core namespaces and adds collection groups for each instance
@@ -135,7 +129,6 @@ def addMASCoreToCollectionPlan(
         plan (CollectionPlan): Collection plan to add tasks to
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool): If True, skip detailed resource collection
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
         masInstanceIds (list, optional): List of MAS instance IDs to filter discovery. Defaults to None.
@@ -157,7 +150,6 @@ def addMASCoreToCollectionPlan(
                     dynClient=dynClient,
                     namespace=coreNamespace,
                     outputDir=outputDir,
-                    noDetail=noDetail,
                     noLogs=noLogs,
                     ibmCRDs=ibmCRDs,
                 )

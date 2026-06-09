@@ -28,7 +28,6 @@ def collectResourcesParallel(
     namespace: str,
     resources: List[tuple[str, str]],
     outputDir: str,
-    noDetail: bool = False,
     max_workers: int = 20,
     progressCallback: Optional[Callable[[int, int], None]] = None,
 ) -> bool:
@@ -43,7 +42,6 @@ def collectResourcesParallel(
         namespace (str): Target namespace for collection
         resources (list): List of (apiVersion, kind) tuples to collect
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
         max_workers (int, optional): Maximum number of parallel threads. Defaults to 10.
         progressCallback (callable, optional): Callback function called with (completed, total) after each completion. Defaults to None.
 
@@ -68,7 +66,6 @@ def collectResourcesParallel(
                 apiVersion=apiVersion,
                 kind=kind,
                 outputDir=outputDir,
-                noDetail=noDetail,
                 allNamespaces=False,
             )
             futures[future] = (apiVersion, kind)

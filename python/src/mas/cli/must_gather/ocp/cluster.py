@@ -17,13 +17,11 @@ from mas.cli.must_gather.common.resources import collectResources
 logger = logging.getLogger(__name__)
 
 
-def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: bool = False) -> bool:
+def collectClusterResources(dynClient: DynamicClient, outputDir: str) -> bool:
     """Collect cluster-level OpenShift resources.
 
     Collects cluster-scoped resources including storage classes, cluster versions,
     object storage resources, namespaces, package manifests, and RBAC resources.
-    Some resources (namespaces, packagemanifests, clusterroles, clusterrolebindings)
-    are always collected in summary-only mode regardless of the noDetail flag.
 
     Note: CRD processing is now handled upfront in app.py before the discovery phase,
     so this function no longer processes CRDs.
@@ -31,7 +29,6 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
     Args:
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
-        noDetail (bool, optional): If True, only collect summary without detailed YAML. Defaults to False.
 
     Returns:
         bool: True if collection succeeded, False if errors occurred
@@ -39,7 +36,7 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
     successCount = 0
     totalCount = 0
 
-    # Resources to collect with full detail (unless noDetail=True) - (apiVersion, kind)
+    # Resources to collect with full detail - (apiVersion, kind)
     detailedResources = [
         ("storage.k8s.io/v1", "StorageClass"),
         ("config.openshift.io/v1", "ClusterVersion"),
@@ -49,7 +46,7 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
         ("ocs.ibm.io/v1", "ObjectStorageCfg"),
     ]
 
-    # Resources to collect summary only (always noDetail=True) - (apiVersion, kind)
+    # Resources to collect summary only - (apiVersion, kind)
     summaryOnlyResources = [
         ("v1", "Namespace"),
         ("packages.operators.coreos.com/v1", "PackageManifest"),
@@ -65,7 +62,6 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
             apiVersion=apiVersion,
             kind=kind,
             outputDir=outputDir,
-            noDetail=noDetail,
             allNamespaces=False,
         ):
             successCount += 1
@@ -78,7 +74,6 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str, noDetail: 
             apiVersion=apiVersion,
             kind=kind,
             outputDir=outputDir,
-            noDetail=True,  # Always summary only
             allNamespaces=False,
         ):
             successCount += 1
