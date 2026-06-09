@@ -117,7 +117,6 @@ class MustGatherApp(BaseApp):
         outputManager.setupLogging()
 
         # Print header information
-        self.printH1("MAS Must-Gather")
         self.printDescription(
             [
                 f"Must gather will be saved to: {outputManager.getArchivePath()}",
@@ -130,18 +129,6 @@ class MustGatherApp(BaseApp):
         overallTimer = Timer()
         overallTimer.start()
 
-        # Initialize Kubernetes client
-        self._initializeKubernetesClient()
-
-        # Process CRDs first (always, before discovery phase)
-        # This is needed for printer columns and IBM CRD discovery
-        from mas.cli.must_gather.common.crd_processor import processCRDs
-
-        if self.dynClient is None:
-            raise RuntimeError("Kubernetes client not initialized")
-
-        self.printerColumnsCache, self.ibmCRDsList = processCRDs(self.dynClient, outputManager.outputDir)
-
         # ============================================================
         # PHASE 1: DISCOVERY
         # ============================================================
@@ -150,6 +137,18 @@ class MustGatherApp(BaseApp):
         discoveryTimer.start()
 
         with Halo(text="Discovering resources to collect", spinner=self.spinner) as h:
+            # Initialize Kubernetes client
+            self._initializeKubernetesClient()
+
+            # Process CRDs first (always, before discovery phase)
+            # This is needed for printer columns and IBM CRD discovery
+            from mas.cli.must_gather.common.crd_processor import processCRDs
+
+            if self.dynClient is None:
+                raise RuntimeError("Kubernetes client not initialized")
+
+            self.printerColumnsCache, self.ibmCRDsList = processCRDs(self.dynClient, outputManager.outputDir)
+
             plan = self.planCollection(parsedArgs, outputManager.outputDir)
             h.stop_and_persist(symbol="✅", text=f"Discovered {plan.total_tasks} collection tasks across {plan.total_groups} groups")
 
@@ -187,11 +186,11 @@ class MustGatherApp(BaseApp):
         with Halo(text="Generating web viewer", spinner=self.spinner) as h:
             if web_viewer.generateWebViewer(outputManager.outputDir):
                 h.stop_and_persist(symbol="✅", text="Web viewer generated")
-                self.printHighlight(f"Run must-gather serve --dir {outputManager.outputDir} to view the must-gather")
             else:
                 h.stop_and_persist(symbol="⚠️", text="Web viewer generation failed (must-gather data is still available)")
 
         elapsed = summaryTimer.stop()
+        print()
         self.printHighlight(f"Summary generation completed in {elapsed} seconds")
 
         # ============================================================
@@ -217,6 +216,7 @@ class MustGatherApp(BaseApp):
                     h.stop_and_persist(symbol="❌", text="Upload failed")
 
         elapsed = packagingTimer.stop()
+        print()
         self.printHighlight(f"Packaging completed in {elapsed} seconds")
 
         # Cleanup
@@ -227,6 +227,9 @@ class MustGatherApp(BaseApp):
         self.printH1("Completion")
         print(f"Must-gather completed in {elapsed} seconds")
         self.printHighlight(f"Must gather successfully saved to: {archivePath}")
+        if outputManager.keepFiles:
+            print()
+            self.printHighlight(f"Run mas-cli must-gather serve --dir {outputManager.outputDir} to browse the must-gather")
 
         return 0
 
@@ -541,7 +544,7 @@ class MustGatherApp(BaseApp):
                 # Generate subscriptions summary (writes directly to file)
                 subscriptions.summarize(outputDir)
 
-                h.stop_and_persist(symbol=self.successIcon, text=f"Subscriptions summary generated: {outputFile}")
+                h.stop_and_persist(symbol=self.successIcon, text="Subscriptions summary generated")
                 logger.info(f"✅ Successfully generated subscriptions summary: {outputFile}")
                 return True
 
