@@ -2,6 +2,34 @@
 . $CLI_DIR/functions/help/mirror_images_help
 
 
+function validate_cli_version() {
+  local version=$1
+  
+  # First check format
+  if [[ "$version" != "latest" ]] && ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
+    echo "false"
+    return 1
+  fi
+  
+  # Check if version exists on Quay.io
+  echo "${TEXT_DIM}Validating version ${version} exists on Quay.io...${TEXT_RESET}"
+  
+  local http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+    --connect-timeout 5 \
+    --max-time 10 \
+    "https://quay.io/v2/ibmmas/cli/manifests/${version}")
+  
+  if [[ "$http_code" == "200" ]]; then
+    echo "true"
+    return 0
+  else
+    echo "false"
+    return 1
+  fi
+}
+
+
+
 function mirror_everything() {
     # Core
     MIRROR_CATALOG=true
@@ -37,6 +65,9 @@ function mirror_everything() {
     MIRROR_WML=true
     MIRROR_SPARK=true
     MIRROR_COGNOS=true
+    
+    # CLI
+    MIRROR_CLI=true
 
 }
 
@@ -71,6 +102,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_SPARK=false
   MIRROR_COGNOS=false
   MIRROR_ODF=false
+  MIRROR_CLI=false
 
   while [[ $# -gt 0 ]]
   do
@@ -210,6 +242,9 @@ function mirror_to_registry_noninteractive() {
       --mirror-cognos)
         MIRROR_COGNOS=true
         ;;
+      --mirror-cli)
+        MIRROR_CLI=true
+        ;;
       --mirror-everything)
         MIRROR_EVERYTHING=true
         ;;
@@ -335,6 +370,41 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Cognos Analytics" MIRROR_COGNOS
 
     prompt_for_confirm "Red Hat ODF" MIRROR_ODF
+    
+    # CLI mirroring prompt
+    if prompt_for_confirm "IBM Maximo Application Suite CLI"; then
+      MIRROR_CLI=true
+      echo
+      
+      # Get default CLI version from environment or use "latest"
+      DEFAULT_CLI_VERSION="${VERSION:-latest}"
+      
+      # Loop until valid version is provided
+      while true; do
+        prompt_for_input "Enter CLI version to mirror" CLI_VERSION "$DEFAULT_CLI_VERSION"
+        
+        # Validate the version
+        if validate_cli_version "$CLI_VERSION"; then
+          echo_highlight "✅ Version ${CLI_VERSION} found on Quay.io"
+          echo
+          break
+        else
+          echo_warning "❌ Version ${CLI_VERSION} not found on Quay.io or invalid format"
+          echo_warning "Expected format: X.Y.Z (e.g., 21.5.0) or 'latest'"
+          echo
+          
+          if ! prompt_for_confirm "Try another version?"; then
+            echo_warning "Skipping CLI mirroring"
+            MIRROR_CLI=false
+            CLI_VERSION=""
+            break
+          fi
+        fi
+      done
+    else
+      MIRROR_CLI=false
+      CLI_VERSION=""
+    fi
 
   fi
 
@@ -377,6 +447,8 @@ function mirror_to_registry() {
   export MIRROR_COGNOS
   export MIRROR_ODF
   export MIRROR_MAS_ICD
+  export MIRROR_CLI
+  export CLI_VERSION
 
 
   if [[ "$MIRROR_CATALOG" == true ||
@@ -393,7 +465,8 @@ function mirror_to_registry() {
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
     "$MIRROR_SPARK" == true ||
-    "$MIRROR_COGNOS" == true ]]
+    "$MIRROR_COGNOS" == true ||
+    "$MIRROR_CLI" == true ]]
   then
     MIRROR_DEPS=true
   else
@@ -446,6 +519,7 @@ function mirror_to_registry() {
   show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
   show_mirror_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
   show_mirror_status "OpenShiftAi ........................." $MIRROR_OPENSHIFTAI
+  show_mirror_status "IBM Maximo CLI ......................" $MIRROR_CLI
 
   confirm_mirror
 
@@ -459,4 +533,5 @@ function mirror_to_registry() {
   mirror_one_thing $MIRROR_MAS_VISUALINSPECTION "IBM Maximo Visual Inspection"          "$LOG_PREFIX-visualinspection.log" mirror_add_visualinspection
   mirror_one_thing $MIRROR_MAS_FACILITIES       "IBM Maximo Facilities"                 "$LOG_PREFIX-facilities.log"       mirror_add_facilities
   mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
+  mirror_one_thing $MIRROR_CLI                  "IBM Maximo CLI"                        "$LOG_PREFIX-cli.log"              mirror_cli
 }
