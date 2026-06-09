@@ -154,6 +154,8 @@ class TestGenerateDb2CollectionTasks:
         THEN create mock Kubernetes client.
         """
         self.mockClient = Mock(spec=DynamicClient)
+        # Mock the client attribute needed by CoreV1Api
+        self.mockClient.client = Mock()
 
     def test_generate_db2_collection_tasks_creates_tasks_for_each_namespace(self):
         """Test task generation for multiple Db2 namespaces.

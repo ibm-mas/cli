@@ -103,6 +103,8 @@ class TestGenerateCP4DCollectionTasks:
         THEN create mock Kubernetes client.
         """
         self.mockClient = Mock(spec=DynamicClient)
+        # Mock the client attribute needed by CoreV1Api
+        self.mockClient.client = Mock()
 
     def test_generate_cp4d_collection_tasks_creates_tasks_for_both_namespaces(self):
         """Test task generation for CP4D namespaces.

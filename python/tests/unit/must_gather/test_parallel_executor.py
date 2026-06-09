@@ -102,8 +102,8 @@ def test_executeCollection_calls_display_callback_for_each_group():
 
     displayCalls = []
 
-    def displayCallback(groupName, taskType, completed, total):
-        displayCalls.append((groupName, taskType, completed, total))
+    def displayCallback(groupName, taskType, completed, total, error):
+        displayCalls.append((groupName, taskType, completed, total, error))
 
     executeCollection(plan, maxWorkers=10, displayCallback=displayCallback)
 
