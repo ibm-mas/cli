@@ -64,15 +64,16 @@ Not all functions supported in the container image are available in the standalo
 | [update](guides/update.md)                                          |    ✅    |   ✅  |
 | [upgrade](guides/upgrade.md)                                        |    ✅    |   ✅  |
 | [uninstall](guides/uninstall.md)                                    |    ✅    |   ✅  |
-| [must-gather](commands/must-gather.md)                              |    ✅    |   ✅  |
+| [must-gather](guides/must-gather.md)                                |    ✅    |   ✅  |
 | [backup](guides/backup.md)                                          |    ✅    |   ✅  |
 | [restore](guides/restore.md)                                        |    ✅    |   ✅  |
-| [configure-airgap](guides/configure-airgap.md)                      |    ✅    |   ❌  |
-| [mirror-images](guides/image-mirroring.md)                          |    ✅    |   ❌  |
+| [mirror](guides/image-mirroring.md)                                 |    ✅    |   ✅  |
+| [mirror-images](guides/image-mirroring.md) (deprecated)             |    ✅    |   ❌  |
 | [mirror-redhat-images](commands/mirror-redhat-images.md)            |    ✅    |   ❌  |
+| [configure-airgap](guides/configure-airgap.md)                      |    ✅    |   ❌  |
 | [setup-registry](guides/private-registry.md#registry-removal)       |    ✅    |   ❌  |
 | [teardown-registry](guides/private-registry.md#registry-deployment) |    ✅    |   ❌  |
+| [configtool-oidc](commands/configtool-oidc.md)                      |    ✅    |   ❌  |
 | [provision-aws](guides/provision-aws.md)                            |    ✅    |   ❌  |
 | [provision-fyre](guides/provision-fyre.md)                          |    ✅    |   ❌  |
 | [provision-roks](guides/provision-roks.md)                          |    ✅    |   ❌  |
-| [configtool-oidc](commands/configtool-oidc.md)                      |    ✅    |   ❌  |
