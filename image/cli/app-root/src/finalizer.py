@@ -391,7 +391,10 @@ if __name__ == "__main__":
         treatedComponents = {}
         for key, value in mobileComponents.items():
             if "mobileVersion" in value:
-                treatedComponents[key] = {"enabled": True, "version": (value["mobileVersion"] + " | " + value["buildToolsVersion"] +" | " + value["appProcessorVersion"])}
+                treatedComponents[key] = {
+                    "enabled": True,
+                    "version": (value["mobileVersion"] + " | " + value["buildToolsVersion"] + " | " + value["appProcessorVersion"]),
+                }
 
         setObject["products.ibm-mas-mobile.buildId"] = "NA"
         setObject["products.ibm-mas-mobile.buildNumber"] = "NA"
