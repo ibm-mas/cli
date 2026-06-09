@@ -478,7 +478,7 @@ class installArgBuilderMixin:
                     command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
             if self.getParam("db2_action_facilities") == "install":
                 if self.getParam("db2_facilities_timezone") != "":
-                    command += f"  --db2-facilities-timezone \"{self.getParam('db2_facilities_timezone')}\"{newline}"                    
+                    command += f"  --db2-facilities-timezone \"{self.getParam('db2_facilities_timezone')}\"{newline}"
             if self.db2LicenseFileLocal != "":
                 command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
 
