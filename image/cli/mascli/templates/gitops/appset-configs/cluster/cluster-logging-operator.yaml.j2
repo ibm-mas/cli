@@ -7,7 +7,7 @@ cluster_logging_operator:
   channel: "{{ CLUSTER_LOGGING_OPERATOR_CHANNEL }}"
   use_syslog_forwarder: "{{ CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER }}"
   additional_exclude_containers:
-{{ CLUSTER_LOGGING_OPERATOR_ADDITIONAL_EXCLUDE_CONTAINERS | to_nice_yaml | indent(4, first=True) }}
+{{ CLUSTER_LOGGING_OPERATOR_ADDITIONAL_EXCLUDE_CONTAINERS | toYaml | to_nice_yaml | indent(4, first=True) }}
   {% if CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN is defined and CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN != "" %}
   install_plan: "{{ CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN }}"
   {% endif %}
