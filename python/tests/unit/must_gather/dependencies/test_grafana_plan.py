@@ -49,8 +49,10 @@ class TestAddGrafanaToCollectionPlan:
             ibmCRDs=ibmCRDs,
         )
 
-        assert plan.total_groups == 2
-        assert plan.total_tasks > 0
+        assert (
+            plan.total_groups == 2
+        ), f"Collection plan should add one group per Grafana namespace (2 namespaces discovered), but got {plan.total_groups} group(s)"
+        assert plan.total_tasks > 0, "Collection plan should generate tasks for Grafana namespaces, but no tasks were generated"
 
     def test_addGrafanaToCollectionPlan_handles_no_namespaces(self):
         """Test that no groups are added when no Grafana namespaces exist.
@@ -77,5 +79,5 @@ class TestAddGrafanaToCollectionPlan:
             ibmCRDs=ibmCRDs,
         )
 
-        assert plan.total_groups == 0
-        assert plan.total_tasks == 0
+        assert plan.total_groups == 0, f"Collection plan should not add groups when no Grafana namespaces exist, but got {plan.total_groups} group(s)"
+        assert plan.total_tasks == 0, f"Collection plan should not generate tasks when no Grafana namespaces exist, but got {plan.total_tasks} task(s)"

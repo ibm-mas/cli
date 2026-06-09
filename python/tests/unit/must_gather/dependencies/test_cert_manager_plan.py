@@ -46,8 +46,10 @@ class TestAddCertManagerToCollectionPlan:
             ibmCRDs=ibmCRDs,
         )
 
-        assert plan.total_groups == 2
-        assert plan.total_tasks > 0
+        assert (
+            plan.total_groups == 2
+        ), f"Collection plan should add one group per Certificate Manager namespace (2 namespaces discovered), but got {plan.total_groups} group(s)"
+        assert plan.total_tasks > 0, "Collection plan should generate tasks for Certificate Manager namespaces, but no tasks were generated"
 
     def test_addCertManagerToCollectionPlan_handles_no_namespaces(self):
         """Test that no groups are added when no Certificate Manager namespaces exist.
@@ -75,5 +77,9 @@ class TestAddCertManagerToCollectionPlan:
             ibmCRDs=ibmCRDs,
         )
 
-        assert plan.total_groups == 0
-        assert plan.total_tasks == 0
+        assert (
+            plan.total_groups == 0
+        ), f"Collection plan should not add groups when no Certificate Manager namespaces exist, but got {plan.total_groups} group(s)"
+        assert (
+            plan.total_tasks == 0
+        ), f"Collection plan should not generate tasks when no Certificate Manager namespaces exist, but got {plan.total_tasks} task(s)"

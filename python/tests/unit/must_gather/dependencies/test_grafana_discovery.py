@@ -28,7 +28,7 @@ def test_discoverGrafanaNamespaces_returns_empty_set_when_no_grafana_found():
 
     result = discoverGrafanaNamespaces(dynClient)
 
-    assert result == set()
+    assert result == set(), f"Grafana discovery should return empty set when no Grafana CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="Grafana")
 
 
@@ -55,7 +55,7 @@ def test_discoverGrafanaNamespaces_returns_namespaces_from_grafana_crs():
 
     result = discoverGrafanaNamespaces(dynClient)
 
-    assert result == {"grafana", "monitoring"}
+    assert result == {"grafana", "monitoring"}, f"Grafana discovery should return namespaces where Grafana CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="Grafana")
 
 
@@ -71,7 +71,7 @@ def test_discoverGrafanaNamespaces_handles_api_exception():
 
     result = discoverGrafanaNamespaces(dynClient)
 
-    assert result == set()
+    assert result == set(), f"Grafana discovery should handle API exceptions gracefully and return empty set, but got: {result}"
 
 
 def test_discoverGrafanaNamespaces_ignores_cluster_scoped_resources():
@@ -94,4 +94,4 @@ def test_discoverGrafanaNamespaces_ignores_cluster_scoped_resources():
 
     result = discoverGrafanaNamespaces(dynClient)
 
-    assert result == {"grafana"}
+    assert result == {"grafana"}, f"Grafana discovery should ignore cluster-scoped resources and only return namespaced ones, but got: {result}"

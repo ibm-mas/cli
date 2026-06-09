@@ -35,7 +35,10 @@ def test_discoverCertManagerNamespaces_returns_both_namespaces_when_exist():
 
     result = discoverCertManagerNamespaces(dynClient)
 
-    assert result == {"cert-manager-operator", "cert-manager"}
+    assert result == {
+        "cert-manager-operator",
+        "cert-manager",
+    }, f"Certificate Manager discovery should find both cert-manager-operator and cert-manager namespaces when they exist, but got: {result}"
 
 
 def test_discoverCertManagerNamespaces_returns_only_operator_namespace():
@@ -61,7 +64,9 @@ def test_discoverCertManagerNamespaces_returns_only_operator_namespace():
 
     result = discoverCertManagerNamespaces(dynClient)
 
-    assert result == {"cert-manager-operator"}
+    assert result == {
+        "cert-manager-operator"
+    }, f"Certificate Manager discovery should find only cert-manager-operator namespace when cert-manager namespace does not exist, but got: {result}"
 
 
 def test_discoverCertManagerNamespaces_returns_only_cert_manager_namespace():
@@ -87,7 +92,9 @@ def test_discoverCertManagerNamespaces_returns_only_cert_manager_namespace():
 
     result = discoverCertManagerNamespaces(dynClient)
 
-    assert result == {"cert-manager"}
+    assert result == {
+        "cert-manager"
+    }, f"Certificate Manager discovery should find only cert-manager namespace when cert-manager-operator namespace does not exist, but got: {result}"
 
 
 def test_discoverCertManagerNamespaces_returns_empty_when_none_exist():
@@ -110,7 +117,7 @@ def test_discoverCertManagerNamespaces_returns_empty_when_none_exist():
 
     result = discoverCertManagerNamespaces(dynClient)
 
-    assert result == set()
+    assert result == set(), f"Certificate Manager discovery should return empty set when no cert-manager namespaces exist, but got: {result}"
 
 
 def test_discoverCertManagerNamespaces_handles_api_exception():
@@ -125,4 +132,4 @@ def test_discoverCertManagerNamespaces_handles_api_exception():
 
     result = discoverCertManagerNamespaces(dynClient)
 
-    assert result == set()
+    assert result == set(), f"Certificate Manager discovery should handle API exceptions gracefully and return empty set, but got: {result}"

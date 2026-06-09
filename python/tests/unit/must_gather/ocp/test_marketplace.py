@@ -13,7 +13,7 @@
 import os
 import tempfile
 import shutil
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from kubernetes.dynamic import DynamicClient
 
 
@@ -74,7 +74,8 @@ class TestCollectMarketplaceResources:
         mockList.to_dict.return_value = {"items": [r.to_dict() for r in resources]}
         return mockList
 
-    def test_collect_marketplace_resources_collects_catalogsources(self):
+    @patch("mas.cli.must_gather.common.resources.createThreadLocalDynamicClient")
+    def test_collect_marketplace_resources_collects_catalogsources(self, mockCreateClient):
         """Test that catalogsources are collected from openshift-marketplace.
 
         GIVEN a cluster with catalogsources in openshift-marketplace
@@ -86,14 +87,16 @@ class TestCollectMarketplaceResources:
         mockApi = Mock()
         mockApi.get.return_value = self._createMockResourceList([self._createMockResource("redhat-operators"), self._createMockResource("certified-operators")])
         self.mockClient.resources.get.return_value = mockApi
+        mockCreateClient.return_value = self.mockClient
 
         result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir)
 
-        assert result is True
+        assert result is True, "collectMarketplaceResources should return True when resources are collected successfully"
         summaryFile = os.path.join(self.testDir, "resources", "openshift-marketplace", "catalogsources.md")
-        assert os.path.exists(summaryFile)
+        assert os.path.exists(summaryFile), f"Summary file should exist at {summaryFile}"
 
-    def test_collect_marketplace_resources_collects_jobs(self):
+    @patch("mas.cli.must_gather.common.resources.createThreadLocalDynamicClient")
+    def test_collect_marketplace_resources_collects_jobs(self, mockCreateClient):
         """Test that jobs are collected from openshift-marketplace.
 
         GIVEN a cluster with jobs in openshift-marketplace
@@ -105,14 +108,16 @@ class TestCollectMarketplaceResources:
         mockApi = Mock()
         mockApi.get.return_value = self._createMockResourceList([self._createMockResource("catalog-import-job")])
         self.mockClient.resources.get.return_value = mockApi
+        mockCreateClient.return_value = self.mockClient
 
         result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir)
 
-        assert result is True
+        assert result is True, "collectMarketplaceResources should return True when jobs are collected successfully"
         summaryFile = os.path.join(self.testDir, "resources", "openshift-marketplace", "jobs.md")
-        assert os.path.exists(summaryFile)
+        assert os.path.exists(summaryFile), f"Summary file should exist at {summaryFile}"
 
-    def test_collect_marketplace_resources_handles_errors_gracefully(self):
+    @patch("mas.cli.must_gather.common.resources.createThreadLocalDynamicClient")
+    def test_collect_marketplace_resources_handles_errors_gracefully(self, mockCreateClient):
         """Test that errors are handled gracefully.
 
         GIVEN an error occurs during collection
@@ -131,7 +136,8 @@ class TestCollectMarketplaceResources:
             return mockApi
 
         self.mockClient.resources.get.side_effect = mockGetResource
+        mockCreateClient.return_value = self.mockClient
 
         result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir)
 
-        assert result is True  # Partial success
+        assert result is True, "collectMarketplaceResources should return True for partial success when some resources are collected"

@@ -29,7 +29,7 @@ def test_discoverKafkaNamespaces_returns_empty_set_when_no_kafka_found():
 
     result = discoverKafkaNamespaces(dynClient)
 
-    assert result == set()
+    assert result == set(), f"Kafka discovery should return empty set when no Kafka CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="Kafka")
 
 
@@ -57,7 +57,7 @@ def test_discoverKafkaNamespaces_returns_namespaces_from_kafka_crs():
 
     result = discoverKafkaNamespaces(dynClient)
 
-    assert result == {"strimzi", "kafka-prod"}
+    assert result == {"strimzi", "kafka-prod"}, f"Kafka discovery should return namespaces where Kafka CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="Kafka")
 
 
@@ -73,7 +73,7 @@ def test_discoverKafkaNamespaces_handles_api_exception():
 
     result = discoverKafkaNamespaces(dynClient)
 
-    assert result == set()
+    assert result == set(), f"Kafka discovery should handle API exceptions gracefully and return empty set, but got: {result}"
 
 
 def test_discoverKafkaNamespaces_ignores_cluster_scoped_resources():
@@ -97,4 +97,4 @@ def test_discoverKafkaNamespaces_ignores_cluster_scoped_resources():
 
     result = discoverKafkaNamespaces(dynClient)
 
-    assert result == {"strimzi"}
+    assert result == {"strimzi"}, f"Kafka discovery should ignore cluster-scoped resources and only return namespaced ones, but got: {result}"

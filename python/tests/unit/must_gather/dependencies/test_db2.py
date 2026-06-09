@@ -90,7 +90,10 @@ class TestDiscoverDb2Namespaces:
 
         namespaces = discoverDb2Namespaces(dynClient=self.mockClient, masInstanceIds=["inst1"])
 
-        assert namespaces == ["another-db2", "db2u-namespace"]
+        assert namespaces == [
+            "another-db2",
+            "db2u-namespace",
+        ], f"Db2 namespace discovery should find namespaces from JdbcCfg resources for the specified MAS instance, but got: {namespaces}"
 
     def test_discover_db2_namespaces_from_db2ucluster(self):
         """Test Db2 namespace discovery from Db2uCluster resources.
@@ -117,7 +120,10 @@ class TestDiscoverDb2Namespaces:
 
         namespaces = discoverDb2Namespaces(dynClient=self.mockClient, masInstanceIds=None)
 
-        assert namespaces == ["db2u-ns1", "db2u-ns2"]
+        assert namespaces == [
+            "db2u-ns1",
+            "db2u-ns2",
+        ], f"Db2 namespace discovery should find namespaces from Db2uCluster resources when no MAS instance IDs are specified, but got: {namespaces}"
 
     def test_discover_db2_namespaces_returns_empty_when_none_found(self):
         """Test discovery returns empty list when no Db2 found.
@@ -140,7 +146,7 @@ class TestDiscoverDb2Namespaces:
 
         namespaces = discoverDb2Namespaces(dynClient=self.mockClient, masInstanceIds=None)
 
-        assert namespaces == []
+        assert namespaces == [], f"Db2 namespace discovery should return empty list when no Db2 resources exist, but got: {namespaces}"
 
 
 class TestGenerateDb2CollectionTasks:
@@ -170,9 +176,11 @@ class TestGenerateDb2CollectionTasks:
         tasks = generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noLogs=False)
 
         # Each namespace generates multiple tasks (resources, secrets, pods)
-        assert len(tasks) > 0
+        assert len(tasks) > 0, "Task generation should create collection tasks for Db2 namespaces, but no tasks were generated"
         # Verify we have tasks for both namespaces (each namespace generates multiple tasks)
-        assert len(tasks) >= 2
+        assert (
+            len(tasks) >= 2
+        ), f"Task generation should create at least one task per namespace (2 namespaces provided), but only {len(tasks)} task(s) were generated"
 
     def test_generate_db2_collection_tasks_returns_empty_for_no_namespaces(self):
         """Test task generation with no namespaces.
@@ -185,4 +193,4 @@ class TestGenerateDb2CollectionTasks:
 
         tasks = generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noLogs=False)
 
-        assert tasks == []
+        assert tasks == [], "Task generation should return empty list when no Db2 namespaces are provided, " f"but got {len(tasks)} task(s)"

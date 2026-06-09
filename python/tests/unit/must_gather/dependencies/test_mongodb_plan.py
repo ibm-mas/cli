@@ -51,8 +51,10 @@ class TestAddMongoDBToCollectionPlan:
         )
 
         # Should have added 2 groups (one per namespace)
-        assert plan.total_groups == 2
-        assert plan.total_tasks > 0
+        assert (
+            plan.total_groups == 2
+        ), f"Collection plan should add one group per MongoDB namespace (2 namespaces discovered), but got {plan.total_groups} group(s)"
+        assert plan.total_tasks > 0, "Collection plan should generate tasks for MongoDB namespaces, but no tasks were generated"
 
     def test_addMongoDBToCollectionPlan_handles_no_namespaces(self):
         """Test that no groups are added when no MongoDB namespaces exist.
@@ -81,5 +83,5 @@ class TestAddMongoDBToCollectionPlan:
         )
 
         # Should have added no groups
-        assert plan.total_groups == 0
-        assert plan.total_tasks == 0
+        assert plan.total_groups == 0, f"Collection plan should not add groups when no MongoDB namespaces exist, but got {plan.total_groups} group(s)"
+        assert plan.total_tasks == 0, f"Collection plan should not generate tasks when no MongoDB namespaces exist, but got {plan.total_tasks} task(s)"

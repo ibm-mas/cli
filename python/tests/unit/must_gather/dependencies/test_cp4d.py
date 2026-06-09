@@ -65,7 +65,10 @@ class TestDiscoverCP4DNamespaces:
 
         namespaces = discoverCP4DNamespaces(dynClient=self.mockClient)
 
-        assert namespaces == ["ibm-cpd", "ibm-cpd-operators"]
+        assert namespaces == [
+            "ibm-cpd",
+            "ibm-cpd-operators",
+        ], f"CP4D namespace discovery should return both ibm-cpd and ibm-cpd-operators when operator namespace exists, but got: {namespaces}"
 
     def test_discover_cp4d_namespaces_when_operator_namespace_not_found(self):
         """Test CP4D namespace discovery when operator namespace does not exist.
@@ -89,7 +92,7 @@ class TestDiscoverCP4DNamespaces:
 
         namespaces = discoverCP4DNamespaces(dynClient=self.mockClient)
 
-        assert namespaces == []
+        assert namespaces == [], f"CP4D namespace discovery should return empty list when operator namespace does not exist, but got: {namespaces}"
 
 
 class TestGenerateCP4DCollectionTasks:
@@ -119,9 +122,11 @@ class TestGenerateCP4DCollectionTasks:
         tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noLogs=False)
 
         # Each namespace generates multiple tasks (resources, secrets, pods)
-        assert len(tasks) > 0
+        assert len(tasks) > 0, "Task generation should create collection tasks for CP4D namespaces, but no tasks were generated"
         # Verify we have tasks for both namespaces
-        assert len(tasks) >= 2
+        assert (
+            len(tasks) >= 2
+        ), f"Task generation should create at least one task per namespace (2 namespaces provided), but only {len(tasks)} task(s) were generated"
 
     def test_generate_cp4d_collection_tasks_returns_empty_for_no_namespaces(self):
         """Test task generation with no namespaces.
@@ -134,4 +139,4 @@ class TestGenerateCP4DCollectionTasks:
 
         tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noLogs=False)
 
-        assert tasks == []
+        assert tasks == [], f"Task generation should return empty list when no CP4D namespaces are provided, but got {len(tasks)} task(s)"
