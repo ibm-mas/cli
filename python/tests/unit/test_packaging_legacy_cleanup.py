@@ -35,7 +35,7 @@ def test_root_pyproject_remains_the_single_packaging_source() -> None:
     WHEN packaging metadata is inspected after cleanup
     THEN the project metadata and setuptools package data remain defined at the root.
     """
-    pyproject_path = Path(__file__).resolve().parents[2] / "pyproject.toml"
+    pyproject_path = Path(__file__).resolve().parents[3] / "pyproject.toml"
     pyproject_data = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
 
     assert pyproject_data["project"]["name"] == "mas-cli"

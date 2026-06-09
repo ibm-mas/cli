@@ -22,7 +22,7 @@ def test_root_pyproject_declares_mas_cli_package_metadata() -> None:
     WHEN the packaging metadata is inspected
     THEN it declares the mas-cli project, root-based package discovery, and CLI entry point.
     """
-    pyproject_path = Path(__file__).resolve().parents[2] / "pyproject.toml"
+    pyproject_path = Path(__file__).resolve().parents[3] / "pyproject.toml"
     pyproject_data = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
 
     project = pyproject_data["project"]
@@ -42,7 +42,7 @@ def test_root_pyproject_console_script_targets_importable_main() -> None:
     WHEN the mas-cli console script target is resolved
     THEN it points to a module and callable that can be imported by installers such as uvx.
     """
-    pyproject_path = Path(__file__).resolve().parents[2] / "pyproject.toml"
+    pyproject_path = Path(__file__).resolve().parents[3] / "pyproject.toml"
     pyproject_data = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
 
     module_name, function_name = pyproject_data["project"]["scripts"]["mas-cli"].split(":")
