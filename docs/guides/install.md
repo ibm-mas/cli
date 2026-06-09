@@ -283,6 +283,36 @@ The interactive install will guide you through a series of questioned designed t
         <li>Whether Guided Tours are enabled</li>
         <li>Network Routing Mode (path or subdomain)</li>
       </ul>
+      <h4>Admin Mode</h4>
+      <p>Admin mode configuration is only available in MAS 9.2 and later. It controls how much delegated OpenShift administrative capability is granted to MAS.</p>
+      <ul>
+        <li><strong>cluster</strong> - Install with ClusterRoles <strong>(default)</strong>
+          <ul>
+            <li>MAS has cluster-level access to manage its applications and resources across the cluster</li>
+            <li>The CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts</li>
+            <li>This is the closest behavior to releases before MAS 9.2</li>
+          </ul>
+        </li>
+        <li><strong>namespaced</strong> - Install with namespace-scoped Roles only
+          <ul>
+            <li>No ClusterRoles are installed in this mode</li>
+            <li>The CLI pre-installs namespace-scoped Roles in namespaces prepared by the OpenShift administrator</li>
+            <li>MAS can manage applications only in those prepared namespaces</li>
+            <li>DNS integration is not available in this mode; if you use a custom domain, DNS must be configured manually</li>
+          </ul>
+        </li>
+        <li><strong>minimal</strong> - Install with essential namespace-scoped Roles only
+          <ul>
+            <li>No ClusterRoles are installed in this mode</li>
+            <li>Only the essential permissions required for MAS applications are applied</li>
+            <li>MAS UI and API cannot manage application lifecycle; OpenShift administrators must manage applications outside MAS</li>
+            <li>DNS integration is not available in this mode; if you use a custom domain, DNS must be configured manually</li>
+          </ul>
+        </li>
+      </ul>
+      <p>If the user running <code>mas install</code> has cluster administrator permissions, the CLI can automatically apply the required RBAC for the selected admin mode during installation.</p>
+      <p>If the user running <code>mas install</code> does not have cluster administrator permissions and selects <strong>cluster</strong> or <strong>namespaced</strong> mode, an OpenShift administrator must first run <code>mas pre-install</code> for the same MAS instance, channel, admin mode, and selected applications before the installation can continue.</p>
+      <p>For <strong>minimal</strong> mode, <code>mas pre-install</code> is not required because the operators create the essential roles during installation.</p>
       <h4>Routing Mode</h4>
       <p>Starting from MAS 9.2.0, you can configure how Maximo Application Suite is accessed through URLs:</p>
       <ul>
