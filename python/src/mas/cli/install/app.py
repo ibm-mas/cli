@@ -46,6 +46,7 @@ from mas.cli.validators import (
     JsonValidator,
     OptimizerInstallPlanValidator,
     BucketPrefixValidator,
+    NotEmptyValidator,
     FileExistsValidator,
 )
 
@@ -69,7 +70,8 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC
+from ..rbac_utils import evaluatePreinstallRBACAccess
 
 logger = logging.getLogger(__name__)
 
@@ -117,54 +119,6 @@ class InstallApp(
             selectedApps.append("arcgis")
 
         return selectedApps
-
-    def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
-
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
-            return
-
-        if self.mas_admin_mode == "minimal":
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        self.printH1("Pre-Install RBAC Configuration")
-        # User does not have permissions to apply RBAC
-        self.printDescription(
-            [
-                f"Admin mode: '{self.mas_admin_mode}'",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        if self.noConfirm:
-            self.printDescription(
-                [
-                    f"Installation will continue with the selected '{self.mas_admin_mode}' admin mode.",
-                    "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
-                    "With the --no-confirm flag, the installation assumes the required RBAC has already been applied by your OpenShift administrator.",
-                    "If it has not been applied, ensure your OpenShift administrator runs 'mas pre-install' with the same admin mode before the installation proceeds.",
-                ]
-            )
-        else:
-            self.printDescription(
-                [
-                    "",
-                    "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS channel, admin mode, and selected apps.",
-                    "If that has already been done, you can continue the installation.",
-                ]
-            )
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
-                self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run 'mas install' again using the same admin mode."
-                )
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -560,6 +514,11 @@ class InstallApp(
                     self.setParam("mas_arcgis_channel", channel)
                     self.installArcgis = True
 
+                    # ArcGIS requires cluster admin mode for MAS 9.2.0+
+                    if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+                        if self.mas_admin_mode != "cluster":
+                            self.fatalError(f"--arcgis-channel requires --admin-mode cluster (current: {self.mas_admin_mode})")
+
                     self.printDescription(
                         [
                             "",
@@ -702,7 +661,6 @@ class InstallApp(
         self.configCATrust()
         self.configDNSAndCerts()
         self.configRoutingMode()
-        self.configManualRoutesMgmt()
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -1017,22 +975,18 @@ class InstallApp(
             return False
 
     @logMethodCall
-    def configManualRoutesMgmt(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Configure Routes Manually")
-            self.printDescription(["Disable automatic route creation."])
-            self.yesOrNo("Disable Route Creation", "mas_manual_route_mgmt")
-        else:
-            self.setParam("mas_manual_route_mgmt", "false")
-
-    @logMethodCall
     def configServiceMesh(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Configure Service Mesh")
-            self.printDescription(["By default, Maximo Application Suite does not use Service Mesh for routing."])
-            self.yesOrNo("Use Service Mesh", "mas_use_service_mesh")
+        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            self.printH1("Service Mesh")
+            self.printDescription(
+                [
+                    "If Red Hat OpenShift Service Mesh is installed in the cluster and configured to monitor the Maximo Application Suite namespaces then the pods in MAS will create sidecars to allow monitoring of traffic via Service Mesh. This is a pre-requisite for using Service Mesh to manage Ingress for MAS."
+                ]
+            )
+            self.yesOrNo("Enable OpenShift Service Mesh support for MAS", "mas_use_service_mesh")
         else:
             self.setParam("mas_use_service_mesh", "false")
+        self.setParam("mas_manual_route_mgmt", "false")
 
     @logMethodCall
     def configAnnotations(self):
@@ -1347,7 +1301,11 @@ class InstallApp(
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
         if len(versions) == 0:
-            self.params[f"mas_app_channel_{appId}"] = prompt(HTML(f"<Yellow>Custom channel for {appId}</Yellow>"))
+            self.promptForString(
+                f"Custom channel for {appId}",
+                f"mas_app_channel_{appId}",
+                validator=NotEmptyValidator(),
+            )
         else:
             self.params[f"mas_app_channel_{appId}"] = versions[0]
 
@@ -1542,26 +1500,36 @@ class InstallApp(
                         "mas_ws_facilities_vault_secret",
                     )
 
-                # Prompt for custom FACILITIES.properties file
-                if self.yesOrNo("Upload custom FACILITIES.properties file"):
-                    self.printDescription(
-                        [
-                            "Provide the path to your custom FACILITIES.properties file.",
-                            "This file will be uploaded as a secret in OpenShift.",
-                            "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
-                        ]
-                    )
-                    self.promptForString("Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator())
+                # Check MAS version - Custom FACILITIES.properties is only supported in MAS 9.2+
+                mas_facilities_channel = self.getParam("mas_app_channel_facilities")
 
-                    self.setParam("mas_ws_facilities_custom_properties", "true")
+                # Only prompt for custom FACILITIES.properties file if MAS 9.2+
+                if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
+                    if self.yesOrNo("Upload custom FACILITIES.properties file"):
+                        self.printDescription(
+                            [
+                                "Provide the path to your custom FACILITIES.properties file.",
+                                "This file will be uploaded as a secret in OpenShift.",
+                                "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
+                            ]
+                        )
+                        facilitiesPropertiesFile = self.promptForString(
+                            "Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator()
+                        )
+                        # FileExistsValidator ensures file exists, so we can proceed directly
+                        self.setParam("mas_ws_facilities_properties_file_local", facilitiesPropertiesFile)
+                        self.setParam("mas_ws_facilities_custom_properties", "true")
 
-                    # Prompt for custom secret name
-                    customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
-                    # Use default if not provided
-                    if not customSecretName or customSecretName.strip() == "":
-                        customSecretName = "custom-facilities-properties"
-                    self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
+                        # Prompt for custom secret name (optional, with default)
+                        customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
+                        # Use default if not provided
+                        if not customSecretName or customSecretName.strip() == "":
+                            customSecretName = "custom-facilities-properties"
+                        self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
+                    else:
+                        self.setParam("mas_ws_facilities_custom_properties", "false")
                 else:
+                    # For MAS 9.1 and earlier, skip the prompt and use default behavior
                     self.setParam("mas_ws_facilities_custom_properties", "false")
 
                 self.promptForString(
@@ -1967,7 +1935,17 @@ class InstallApp(
 
         # MAS Core
         self.configAdminMode()
-        self.evaluatePreInstallRBACAccess()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.configCertManager()
         self.configMAS()
 
@@ -2423,7 +2401,17 @@ class InstallApp(
             if self.mas_admin_mode != "":
                 self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('mas_channel')})")
 
-        self.evaluatePreInstallRBACAccess()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
@@ -2455,6 +2443,11 @@ class InstallApp(
             arcgis_channel = self.getParam("mas_arcgis_channel")
             if arcgis_channel and not isVersionEqualOrAfter("9.0.0", arcgis_channel):
                 self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
+
+            # ArcGIS requires cluster admin mode
+            if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+                if self.mas_admin_mode != "cluster":
+                    self.fatalError(f"--arcgis-channel requires --admin-mode cluster (current: {self.mas_admin_mode})")
 
         # Validate Kafka requirements for IoT installation in non-interactive mode
         if self.installIoT:
@@ -2546,7 +2539,7 @@ class InstallApp(
             self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
-            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
+            print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
             exit(1)
 
         # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
