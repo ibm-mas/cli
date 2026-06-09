@@ -69,6 +69,9 @@ namespaces = true
   "templates/pod-templates/guaranteed/*.yml",
   "templates/pod-templates/saas-essentials/*.yml",
 ]
+"mas.cli.must_gather.web_viewer" = [
+  "templates/*.html",
+]
 
 [tool.setuptools.dynamic]
 version = { attr = "mas.cli.__version__" }
