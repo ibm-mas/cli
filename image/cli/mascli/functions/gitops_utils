@@ -491,6 +491,7 @@ function sm_get_secret_arn() {
    fi
 
    eval "$2=${_SECRET_ARN}"
+}
 
 
 # Manage customer-level MREF AES keystore password for Maximo Manage
@@ -583,8 +584,6 @@ function manage_customer_mref_password() {
     echo "ERROR: Failed to store customer-level MREF password"
     return 1
   fi
-}
-
 }
 
 function clone_target_git_repo() {
