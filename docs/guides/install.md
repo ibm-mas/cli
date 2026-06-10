@@ -281,6 +281,7 @@ The interactive install will guide you through a series of questioned designed t
         <li>Single Sign-On (SSO)</li>
         <li>Whether to allow special character in User IDs and Usernames</li>
         <li>Whether Guided Tours are enabled</li>
+        <li>Admin Mode</li>
         <li>Network Routing Mode (path or subdomain)</li>
       </ul>
       <h4>Admin Mode</h4>
