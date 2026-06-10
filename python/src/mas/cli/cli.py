@@ -104,8 +104,8 @@ def logMethodCall(func: Callable) -> Callable:
 
 class BaseApp(PrintMixin, PromptMixin):
     def __init__(self) -> None:
-        # Set up a log formatter
-        chFormatter = logging.Formatter("%(asctime)-25s" + " %(levelname)-8s %(message)s")
+        # Set up a log formatter with module name and line number
+        chFormatter = logging.Formatter("%(asctime)s | %(name)-45s [%(lineno)-3d] | %(levelname)-8s %(message)s")
 
         # Set up a log handler (5mb rotating log file)
         ch = logging.handlers.RotatingFileHandler("mas.log", maxBytes=(1048576 * 5), backupCount=2)
@@ -115,8 +115,15 @@ class BaseApp(PrintMixin, PromptMixin):
         # Configure the root logger
         rootLogger = logging.getLogger()
         rootLogger.addHandler(ch)
-        rootLogger.setLevel(logging.DEBUG)
+        rootLogger.setLevel(logging.INFO)
+
+        # Set MAS CLI loggers to DEBUG for detailed logging
+        logging.getLogger("mas").setLevel(logging.DEBUG)
+
+        # Keep third-party libraries at INFO to avoid verbose HTTP logs
         logging.getLogger("asyncio").setLevel(logging.INFO)
+        logging.getLogger("kubernetes").setLevel(logging.INFO)
+        logging.getLogger("urllib3").setLevel(logging.INFO)
 
         # Supports extended semver, unlike mas.cli.__version__
         self.version: str = "100.0.0-pre.local"
@@ -461,10 +468,12 @@ class BaseApp(PrintMixin, PromptMixin):
         if architecture is not None:
             self.architecture = architecture
             logger.debug(f"Target architecture (overridden): {self.architecture}")
-        else:
+        elif self.dynamicClient is not None:
             nodes = getNodes(self.dynamicClient)
             self.architecture = nodes[0]["status"]["nodeInfo"]["architecture"]
             logger.debug(f"Target architecture: {self.architecture}")
+        else:
+            return
 
         if self.architecture not in ["amd64", "s390x", "ppc64le"]:
             self.fatalError(f"Unsupported worker node architecture: {self.architecture}")

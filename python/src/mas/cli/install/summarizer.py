@@ -150,10 +150,9 @@ class InstallSummarizerMixin:
             self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
-        print()
-        self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
+        if self.getParam("mas_manual_route_mgmt") == "true":
+            self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
 
-        print()
         self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
 
         print()
@@ -348,6 +347,9 @@ class InstallSummarizerMixin:
                 "mas_ws_facilities_storage_userfiles_mode",
             )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
+            self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
+            self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local")
+            self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")
             if self.getParam("db2_action_facilities") == "none":
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
