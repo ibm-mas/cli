@@ -344,10 +344,6 @@ spec:
         # Update the operationalmode in the mas-instance-params.yaml.
         yq -i '.mas_instance.annotations."mas.ibm.com/operationalMode" = env(MAS_OPERATIONALMODE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
 
-        # Update CP4D WML URL with the correct domain in mas-instance-params.yaml
-        export CPD_WML_URL="https://cpd-ibm-cpd-$MAS_INSTANCE_ID-instance.apps.$DOMAIN:443"
-        yq -i '(.cp4d.wml_url) = env(CPD_WML_URL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
-
         # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
         if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
           yq -i 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
