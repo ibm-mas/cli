@@ -559,7 +559,14 @@ function manage_customer_mref_password() {
   else
     echo "- No existing password found, generating new secure password"
     # Generate secure alphanumeric password (no special characters to avoid escaping issues)
-    MREF_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 32)
+    # Use a loop to ensure we get exactly 32 characters after filtering
+    while true; do
+      MREF_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 64)
+      if [[ ${#MREF_PASSWORD} -ge 32 ]]; then
+        MREF_PASSWORD=${MREF_PASSWORD:0:32}
+        break
+      fi
+    done
     local MIGRATION_NOTE="Generated for first deployment"
   fi
   
