@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# Source gitops_utils for manage_customer_mref_password function
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "${DIR}/gitops_utils"
-
 function gitops_suite_app_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -216,6 +212,12 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       esac
   done
+
+  # Source gitops_utils if not already loaded (for standalone execution)
+  if ! type manage_customer_mref_password &>/dev/null; then
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    source "${DIR}/gitops_utils"
+  fi
 
   [[ -z "${ACCOUNT_ID}" ]] && gitops_suite_app_config_help "ACCOUNT_ID is not set"
   [[ -z "$REGION" ]] && gitops_suite_app_config_help "REGION is not set"
