@@ -1,3 +1,12 @@
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
 import os
 import sys
 from datetime import datetime, UTC
@@ -391,7 +400,10 @@ if __name__ == "__main__":
         treatedComponents = {}
         for key, value in mobileComponents.items():
             if "mobileVersion" in value:
-                treatedComponents[key] = {"enabled": True, "version": (value["mobileVersion"] + " || " + value["buildToolsVersion"])}
+                treatedComponents[key] = {
+                    "enabled": True,
+                    "version": (value["mobileVersion"] + " | " + value["buildToolsVersion"] + " | " + value["appProcessorVersion"]),
+                }
 
         setObject["products.ibm-mas-mobile.buildId"] = "NA"
         setObject["products.ibm-mas-mobile.buildNumber"] = "NA"
