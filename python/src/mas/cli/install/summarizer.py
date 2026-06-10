@@ -416,9 +416,9 @@ class InstallSummarizerMixin:
             )
             self.printParamSummary(" - Type", "db2_type")
             if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
-                self.printParamSummary(" - Timezone for system and manage instances", "db2_timezone")
+                self.printParamSummary(" - Timezone for System and Dedicated Manage Instances", "db2_timezone")
             if self.getParam("db2_action_facilities") == "install":
-                self.printParamSummary(" - Timezone for facilities instance", "db2_facilities_timezone")
+                self.printParamSummary(" - Timezone for Dedicated Facilities Instance", "db2_facilities_timezone")
             print()
             self.printParamSummary("Install Namespace", "db2_namespace")
             self.printParamSummary("Subscription Channel", "db2_channel")
