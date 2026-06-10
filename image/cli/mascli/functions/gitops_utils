@@ -561,9 +561,9 @@ function manage_customer_mref_password() {
     # Generate secure alphanumeric password (no special characters to avoid escaping issues)
     # Use a loop to ensure we get exactly 32 characters after filtering
     while true; do
-      MREF_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 64)
+      MREF_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 64) #pragma: allowlist secret
       if [[ ${#MREF_PASSWORD} -ge 32 ]]; then
-        MREF_PASSWORD=${MREF_PASSWORD:0:32}
+        MREF_PASSWORD=${MREF_PASSWORD:0:32} #pragma: allowlist secret
         break
       fi
     done
