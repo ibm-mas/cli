@@ -296,7 +296,7 @@ The interactive install will guide you through a series of questioned designed t
         </li>
         <li><strong>namespaced</strong> - Install with namespace-scoped Roles only
           <ul>
-            <li>No ClusterRoles are installed in this mode</li>
+            <li>No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)</li>
             <li>The CLI pre-installs namespace-scoped Roles in namespaces prepared by the OpenShift administrator</li>
             <li>MAS can manage applications only in those prepared namespaces</li>
             <li>DNS integration is not available in this mode; if you use a custom domain, DNS must be configured manually</li>
@@ -304,7 +304,7 @@ The interactive install will guide you through a series of questioned designed t
         </li>
         <li><strong>minimal</strong> - Install with essential namespace-scoped Roles only
           <ul>
-            <li>No ClusterRoles are installed in this mode</li>
+            <li>No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)</li>
             <li>Only the essential permissions required for MAS applications are applied</li>
             <li>MAS UI and API cannot manage application lifecycle; OpenShift administrators must manage applications outside MAS</li>
             <li>DNS integration is not available in this mode; if you use a custom domain, DNS must be configured manually</li>
