@@ -1,57 +1,33 @@
 # Python Code Development Guide
 
-## Black and Flake8
-All changes made to Python code must be validated by running `black` and `flake8` against the changed files:
+## Key Rules
+- **Modern Python:** Python 3.12 with type hints and dataclasses
+- Use a **virtual environment** in `.venv`
+- **Formatting:** Black with 160 character width
+- **No Code Smells:** Flake8
+- **Modular:** Break implmentation into small, reusable modules - limiting files to no more than **600** lines of code
+- **Test-Driven Development:** Write tests **before** the implementation using the [test-driven-development](.bob/skills/test-driven-development) skill
+- **pytest** with **pytest-coverage** is mandatory
+- Test code **must also be documentated**: Each test function must have a docstring in the Given-When-Then format
 
-```bash
-black src/mas/toolchain/github/issues.py src/mas/toolchain/github/utils.py && \
-flake8 src/mas/toolchain/github/issues.py src/mas/toolchain/github/utils.py
-```
+## Virtual Environments
+**CRITICAL:** Most Python commands (pytest, pip, python, etc.) MUST be run from within the project's virtual environment. **Exceptions:** black and flake8 are installed globally and do NOT require venv.
 
-**If either of these tools are unavailable you must refuse to continue until the developer makes them available in your environment**
+### Command Format
+- **For commands requiring venv (pytest, pip, python):** `.venv/bin/<COMMAND>`
+- **For black and flake8 (no venv needed):** `<COMMAND>`
 
-
-## Variable, Function, and Class Naming
-Use `camelCase` for variable and function names, and `PascalCase` for class names.
-
-
-## Copyright Headers
-**Product Code** must carry a copyright header as follows:
-
-```python
-# -----------------------------------------------------------
-# Licensed Materials - Property of IBM
-# <PID1>, <PID2>
-# (C) Copyright IBM Corp. <YEAR> All Rights Reserved.
-# US Government Users Restricted Rights - Use, duplication, or disclosure
-# restricted by GSA ADP Schedule Contract with IBM Corp.
-# -----------------------------------------------------------
-```
-
-Where `<PID>` is an IBM product ID, and `<YEAR>` is one of the following:
-- If the file was created in the current year, use the current year, e.g. `2026`
-- If the file was created and updated in different years, record both e.g. `2020, 2026`
-
-**Important:** When updating any source file, update the copyright year if it does not match the current year - otherwise it will result in a build error in the CI/CD pipeline.
-
-Use the `.copyright.yml` configuration file to determine the PID(s) for copyright headers, and guide where copyright headers are required.
-
-```yaml
-copyright:
-  validate: true
-  pid: 5737-M66, 5900-AAA
-  ignore:
-    - tests/*
-```
-
-Note:
-- In most cases copyright headers are not required for test files, and will be listed in the `.copyright.yml` file's `ignore` list.
-- In non-product code copyright headers are not required, in this case validate will be set to `false` in the `.copyright.yml` file.
-- Never modify the `.copyright.yml` file without explicit instruction to do so.
-- This file must always exist in the repository root directory. If it is missing, help the developer create it.
+**Why this matters:** Most Python packages (pytest, etc.) are installed in the venv, not globally. Black and flake8 are exceptions - they're installed globally for consistency across projects.
 
 
-## Import Organization
+## Style Guide
+### Naming Conventions
+- Use `snake_case` for file names
+- Use `snake_case` for module names
+- Use `camelCase` for variable and function names
+- Use `PascalCase` for class names.
+
+### Import Organization
 Organize imports in three groups:
 
 ```python
@@ -73,59 +49,46 @@ from mas.utils import violations
 
 **Do not use inline imports**, all imports must be listed at the top of the file.
 
-
-## Logger Declaration
-Declare logger after imports:
-
-```python
-import logging
-
-from mas.utils import exceptions
-
-logger = logging.getLogger(__name__)
-```
-
-
-## Type Hints
-Always include type hints in function signatures:
+### Multiline Strings
+For simple concatenation, use parentheses with implicit string joining:
 
 ```python
-# ✅ CORRECT
-def process_user(
-    user_id: str,
-    options: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
-    """Process user data."""
-    pass
-
-# ❌ INCORRECT - Missing type hints
-def process_user(user_id, options=None):
-    """Process user data."""
-    pass
+def function():
+    message = (
+        "This is a long message that spans multiple lines. "
+        "Use parentheses for implicit string concatenation "
+        "following PEP-8 style guidelines."
+    )
 ```
 
-## Constants
-Use uppercase for constants:
+Use `textwrap.dedent()` for multiline strings to maintain newlines, while preserving indentation:
 
 ```python
-# ✅ CORRECT
-DEFAULT_TIMEOUT = 30
-MAX_RETRIES = 3
-API_VERSION = "v1"
+import textwrap
 
-# ❌ INCORRECT
-default_timeout = 30
-maxRetries = 3
+def function():
+    configContent = textwrap.dedent(
+        """\
+        maximoappsuite:
+          test-repo:
+            branches:
+              - main
+              - develop
+            rulesets:
+              - python
+        """
+    )
 ```
 
+### Copyright Headers
+If `.copyright.yml` contains `validate: true` refer to the instructions in [copyright-statements.md](copyright-statements.md) to properly maintain copyright headers in all Python source files.
 
-## No Sensitive Data in Logs
-```python
-# ✅ CORRECT
-logger.info(f"User {user_id} authenticated successfully")
-logger.debug(f"Processing request for user {user_id}")
+### Validation
+After completing any significant unit of work use the [black-and-flake8](.bob/skills/black-and-flake8) skill command to format and lint the code
 
-# ❌ INCORRECT - Logging sensitive data
-logger.info(f"User password: {password}")
-logger.debug(f"API key: {api_key}")
-```
+### Test Organization
+- Name test files `tests/src/<module>/test_<module>_<feature>.py` (pytest requires unique file names across all directories)
+- Limit individual test files to a maximum of **600** lines of code
+- Place test data in `tests/resources/<module>`
+- Use `conftest.py` for shared fixtures
+- Use `pytest.mark` decorators for to denote tests requiring external dependencies that are not mocked, e.g. `mongodb`, `kafka`, `db2`

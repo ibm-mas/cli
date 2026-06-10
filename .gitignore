@@ -64,3 +64,5 @@ rbac-install.yaml
 
 .venv
 /.bob/notes
+pytest.log
+/dist
