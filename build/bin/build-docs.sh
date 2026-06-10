@@ -21,7 +21,7 @@ else
   echo "Installing latest release of mas-devops from PyPi"
   python3 -m pip install mas-devops
 fi
-python3 -m pip install -e python
+python3 -m pip install -e .
 
 
 #Fetch CLI repo version
