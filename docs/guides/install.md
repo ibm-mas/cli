@@ -314,6 +314,11 @@ The interactive install will guide you through a series of questioned designed t
       <p>If the user running <code>mas install</code> has cluster administrator permissions, the CLI can automatically apply the required RBAC for the selected admin mode during installation.</p>
       <p>If the user running <code>mas install</code> does not have cluster administrator permissions and selects <strong>cluster</strong> or <strong>namespaced</strong> mode, an OpenShift administrator must first run <code>mas pre-install</code> for the same MAS instance, channel, admin mode, and selected applications before the installation can continue.</p>
       <p>For <strong>minimal</strong> mode, <code>mas pre-install</code> is not required because the operators create the essential roles during installation.</p>
+      <p><strong>Application limitations:</strong></p>
+      <ul>
+        <li><strong>ArcGIS:</strong> Only works in <strong>cluster</strong> mode and requires cluster role permissions.</li>
+        <li><strong>Visual Inspection (MVI):</strong> In <strong>minimal</strong> and <strong>namespaced</strong> modes, MVI requires cluster role permissions specifically to manage the SecurityContextConstraints resource named <code>ibm-mas-visualinspection-scc</code>. These modes are designed to avoid cluster-level permissions, but MVI requires this specific exception for SCC management.</li>
+      </ul>
       <h4>Routing Mode</h4>
       <p>Starting from MAS 9.2.0, you can configure how Maximo Application Suite is accessed through URLs:</p>
       <ul>
