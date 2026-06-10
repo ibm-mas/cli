@@ -106,6 +106,7 @@ function gitops_odh_noninteractive() {
 
 
 
+  export ODH_ACTION="${ODH_ACTION:-"install"}"
   export OPENSHIFT_NAMESPACE="${OPENSHIFT_NAMESPACE:-"openshift-operators"}"
   export ODH_PIPELINE_CHANNEL="${ODH_PIPELINE_CHANNEL:-"latest"}"
   export ODH_PIPELINE_INSTALLPLAN="${ODH_PIPELINE_INSTALLPLAN:-"manual"}"

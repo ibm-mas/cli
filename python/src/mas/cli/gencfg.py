@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -14,7 +14,7 @@ from base64 import b64encode
 from json import loads
 
 
-class ConfigGeneratorMixin():
+class ConfigGeneratorMixin:
     def generateJDBCCfg(self, instanceId: str, scope: str, destination: str, appId: str = "", workspaceId: str = "") -> None:
         templateFile = path.join(self.templatesDir, "jdbccfg.yml.j2")
         with open(templateFile) as tFile:
@@ -41,24 +41,20 @@ class ConfigGeneratorMixin():
 
         cfg = template.render(
             scope=scope,
-
             mas_instance_id=instanceId,
             mas_workspace_id=workspaceId,
             mas_application_id=appId,
-
             cfg_display_name=name,
-
             jdbc_url=url,
             jdbc_username=username,
             jdbc_password=password,
-
             jdbc_ssl_enabled=sslEnabled,
-            jdbc_cert_local_file_content=certLocalFileContent
+            jdbc_cert_local_file_content=certLocalFileContent,
         )
 
-        with open(destination, 'w') as f:
+        with open(destination, "w") as f:
             f.write(cfg)
-            f.write('\n')
+            f.write("\n")
 
     def generateAiCfg(self, instanceId: str, scope: str, destination: str, workspaceId: str = "") -> None:
         templateFile = path.join(self.templatesDir, "aicfg.yml.j2")
@@ -86,25 +82,21 @@ class ConfigGeneratorMixin():
 
         cfg = template.render(
             scope=scope,
-
             mas_instance_id=instanceId,
             mas_workspace_id=workspaceId,
-
             cfg_display_name=name,
-
             ai_url=url,
             ai_tenant_id=tenantId,
             ai_apikey=apikey,
             ai_enabled=enabled,
             ai_assistant_enabled=aiAssistantEnabled,
-
             ai_ssl_enabled=sslEnabled,
-            ai_cert_local_file_content=certLocalFileContent
+            ai_cert_local_file_content=certLocalFileContent,
         )
 
-        with open(destination, 'w') as f:
+        with open(destination, "w") as f:
             f.write(cfg)
-            f.write('\n')
+            f.write("\n")
 
     def generateMongoCfg(self, instanceId: str, destination: str) -> None:
         templateFile = path.join(self.templatesDir, "suite_mongocfg.yml.j2")
@@ -117,8 +109,8 @@ class ConfigGeneratorMixin():
 
         username = self.promptForString("MongoDb Username")
         password = self.promptForString("MongoDb Password", isPassword=True)
-        encoded_username = b64encode(username.encode('ascii')).decode("ascii")
-        encoded_password = b64encode(password.encode('ascii')).decode("ascii")
+        encoded_username = b64encode(username.encode("ascii")).decode("ascii")
+        encoded_password = b64encode(password.encode("ascii")).decode("ascii")
         sslCertFile = self.promptForFile("Path to certificate file")
         with open(sslCertFile) as cFile:
             certLocalFileContent = cFile.read()
@@ -129,12 +121,12 @@ class ConfigGeneratorMixin():
             mongodb_hosts=hosts,
             mongodb_admin_username=encoded_username,
             mongodb_admin_password=encoded_password,
-            mongodb_ca_pem_local_file=certLocalFileContent
+            mongodb_ca_pem_local_file=certLocalFileContent,
         )
 
-        with open(destination, 'w') as f:
+        with open(destination, "w") as f:
             f.write(cfg)
-            f.write('\n')
+            f.write("\n")
 
     def generateFacilitiesCfg(self, destination: str) -> None:
         templateFile = path.join(self.templatesDir, "facilities-configs.yml.j2")
@@ -151,9 +143,9 @@ class ConfigGeneratorMixin():
             mas_ws_facilities_storage_log_size=log_size if log_size != "" else 30,
             mas_ws_facilities_storage_userfiles_size=userfiles_size if userfiles_size != "" else 50,
             mas_ws_facilities_db_maxconnpoolsize=maxconnpoolsize if maxconnpoolsize != "" else 200,
-            mas_ws_facilities_dwfagents=loads(dwfagents) if dwfagents != '' else ''
+            mas_ws_facilities_dwfagents=loads(dwfagents) if dwfagents != "" else "",
         )
 
-        with open(destination, 'w') as f:
+        with open(destination, "w") as f:
             f.write(cfg)
-            f.write('\n')
+            f.write("\n")

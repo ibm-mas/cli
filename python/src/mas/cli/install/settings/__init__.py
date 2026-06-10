@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -20,4 +20,5 @@ class InstallSettingsMixin(Db2SettingsMixin, MongoDbSettingsMixin, KafkaSettings
     """
     This class collects all the Mixins providing interactive prompts for mas-install
     """
+
     pass

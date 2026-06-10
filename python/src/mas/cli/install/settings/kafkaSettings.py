@@ -11,15 +11,13 @@
 from typing import TYPE_CHECKING, Dict, List, NoReturn
 from os import path
 from prompt_toolkit import print_formatted_text
-from mas.devops.utils import isVersionEqualOrAfter
-
 
 if TYPE_CHECKING:
     from prompt_toolkit.completion import WordCompleter
     from prompt_toolkit.validation import Validator
 
 
-class KafkaSettingsMixin():
+class KafkaSettingsMixin:
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
@@ -27,27 +25,22 @@ class KafkaSettingsMixin():
         installManage: bool
         showAdvancedOptions: bool
         localConfigDir: str | None
+        enableKafkaImageProcessor: bool
 
         # Methods from BaseApp
-        def setParam(self, param: str, value: str) -> None:
-            ...
+        def setParam(self, param: str, value: str) -> None: ...
 
-        def getParam(self, param: str) -> str:
-            ...
+        def getParam(self, param: str) -> str: ...
 
-        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:
-            ...
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn: ...
 
         # Methods from PrintMixin
-        def printH1(self, message: str) -> None:
-            ...
+        def printH1(self, message: str) -> None: ...
 
-        def printDescription(self, content: List[str]) -> None:
-            ...
+        def printDescription(self, content: List[str]) -> None: ...
 
         # Methods from PromptMixin
-        def yesOrNo(self, message: str, param: str | None = None) -> bool:
-            ...
+        def yesOrNo(self, message: str, param: str | None = None) -> bool: ...
 
         def promptForString(
             self,
@@ -56,40 +49,23 @@ class KafkaSettingsMixin():
             default: str = "",
             isPassword: bool = False,
             validator: Validator | None = None,
-            completer: WordCompleter | None = None
-        ) -> str:
-            ...
+            completer: WordCompleter | None = None,
+        ) -> str: ...
 
-        def promptForListSelect(
-            self,
-            message: str,
-            options: List[str],
-            param: str | None = None,
-            default: int | None = None
-        ) -> str:
-            ...
+        def promptForListSelect(self, message: str, options: List[str], param: str | None = None, default: int | None = None) -> str: ...
 
         # Methods from other mixins
-        def selectLocalConfigDir(self) -> None:
-            ...
+        def selectLocalConfigDir(self) -> None: ...
 
     def _requiresKafkaIoT(self) -> bool:
         return self.installIoT
-
-    def _requiresKafkaCivil(self) -> bool:
-        isCivilEnabled = self.installManage and "civil=" in self.getParam("mas_appws_components")
-        if isCivilEnabled:
-            manageChannel = self.getParam("mas_app_channel_manage")
-            if manageChannel and isVersionEqualOrAfter('9.2.0', manageChannel):
-                return True
-        return False
 
     def _getKafkaRequirements(self) -> List[str]:
         requirements = []
         if self._requiresKafkaIoT():
             requirements.append("Maximo IoT")
-        if self._requiresKafkaCivil():
-            requirements.append("Manage Civil Infrastructure (9.2+) Defect Detection")
+        if self.enableKafkaImageProcessor:
+            requirements.append("Manage Civil Infrastructure (9.2+) Kafka Image Processor")
         return requirements
 
     def configKafka(self) -> None:
@@ -100,58 +76,66 @@ class KafkaSettingsMixin():
 
             # Build description based on what requires Kafka
             hasIoT = self._requiresKafkaIoT()
-            hasCivil = self._requiresKafkaCivil()
+            hasImageProcessor = self.enableKafkaImageProcessor
 
             description = []
-            if hasIoT and hasCivil:
-                description.append("Maximo IoT and Manage Civil Infrastructure (9.2+) Defect Detection require a shared system-scope Kafka instance")
+            if hasIoT and hasImageProcessor:
+                description.append("Maximo IoT and Manage Civil Infrastructure Kafka Image Processor require a shared system-scope Kafka instance")
             elif hasIoT:
                 description.append("Maximo IoT requires a shared system-scope Kafka instance")
-            elif hasCivil:
-                description.append("Manage Civil Infrastructure (9.2+) Defect Detection functionality requires a shared system-scope Kafka instance")
+            elif hasImageProcessor:
+                description.append("Manage Civil Infrastructure Kafka Image Processor requires a shared system-scope Kafka instance")
 
-            description.extend([
-                "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
-                "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
-            ])
+            description.extend(
+                [
+                    "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
+                    "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file",
+                ]
+            )
 
             self.printDescription(description)
             if self.yesOrNo("Create system Kafka instance using one of the supported providers"):
                 self.setParam("kafka_action_system", "install")
 
                 if self.showAdvancedOptions:
-                    self.printDescription([
-                        "",
-                        "Kafka Provider:",
-                        "  1. Strimzi (opensource)",
-                        "  2. Red Hat AMQ Streams (requires a separate license)",
-                        "  3. IBM Cloud Event Streams (paid IBM Cloud service)",
-                        "  4. AWS MSK (paid AWS service)"
-                    ])
+                    self.printDescription(
+                        [
+                            "",
+                            "Kafka Provider:",
+                            "  1. Strimzi (opensource)",
+                            "  2. Red Hat AMQ Streams (requires a separate license)",
+                            "  3. IBM Cloud Event Streams (paid IBM Cloud service)",
+                            "  4. AWS MSK (paid AWS service)",
+                        ]
+                    )
                     self.promptForListSelect("Select Kafka provider", ["strimzi", "redhat", "ibm", "aws"], "kafka_provider")
                 else:
                     self.setParam("kafka_provider", "strimzi")
 
                 if self.getParam("kafka_provider") == "strimzi":
-                    self.printDescription([
-                        "",
-                        "Strimzi: Cluster Version",
-                        "The version of the Strimzi operator available on your cluster will determine the supported versions of Kafka that can be deployed.",
-                        " - If you are using the latest available operator catalog then the default version below can be accepted",
-                        " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
-                    ])
+                    self.printDescription(
+                        [
+                            "",
+                            "Strimzi: Cluster Version",
+                            "The version of the Strimzi operator available on your cluster will determine the supported versions of Kafka that can be deployed.",
+                            " - If you are using the latest available operator catalog then the default version below can be accepted",
+                            " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub",
+                        ]
+                    )
                     if self.showAdvancedOptions:
                         self.promptForString("Strimzi namespace", "kafka_namespace", default="strimzi")
                     self.promptForString("Kafka version", "kafka_version", default="3.9.0")
 
                 elif self.getParam("kafka_provider") == "redhat":
-                    self.printDescription([
-                        "",
-                        "Red Hat AMQ Streams: Cluster Version",
-                        "The version of the Red Hat AMQ Streams operator available on your cluster will determine the supported versions of Kafka that can be deployed.",
-                        " - If you are using the latest available operator catalog then the default version below can be accepted",
-                        " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
-                    ])
+                    self.printDescription(
+                        [
+                            "",
+                            "Red Hat AMQ Streams: Cluster Version",
+                            "The version of the Red Hat AMQ Streams operator available on your cluster will determine the supported versions of Kafka that can be deployed.",
+                            " - If you are using the latest available operator catalog then the default version below can be accepted",
+                            " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub",
+                        ]
+                    )
                     self.promptForString("Install namespace", "kafka_namespace", default="amq-streams")
                     self.promptForString("Kafka version", "kafka_version", default="3.8.0")
 
@@ -163,13 +147,15 @@ class KafkaSettingsMixin():
                     self.promptForString("IBM Event Streams location", "eventstreams_location", default="us-east")
 
                 elif self.getParam("kafka_provider") == "aws":
-                    self.printDescription([
-                        "",
-                        "While provisioning the AWS MSK instance, you will be required to provide the AWS Virtual Private Cloud ID and subnet details",
-                        "where your instance will be deployed to properly configure inbound and outbound connectivity.",
-                        "You should be able to find these information inside your VPC and subnet configurations in the target AWS account.",
-                        "For more details about AWS subnet/CIDR configuration, refer: <Orange><u>https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html</u></Orange>"
-                    ])
+                    self.printDescription(
+                        [
+                            "",
+                            "While provisioning the AWS MSK instance, you will be required to provide the AWS Virtual Private Cloud ID and subnet details",
+                            "where your instance will be deployed to properly configure inbound and outbound connectivity.",
+                            "You should be able to find these information inside your VPC and subnet configurations in the target AWS account.",
+                            "For more details about AWS subnet/CIDR configuration, refer: <Orange><u>https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html</u></Orange>",
+                        ]
+                    )
                     self.promptForString("AWS Access Key ID", "aws_access_key_id", isPassword=True)
                     self.promptForString("AWS Secret Access Key" "aws_secret_access_key", isPassword=True)
                     self.promptForString("AWS Region", "aws_region", default="us-east-1")
@@ -187,7 +173,7 @@ class KafkaSettingsMixin():
             else:
                 self.setParam("kafka_action_system", "byo")
                 self.selectLocalConfigDir()
-                instanceId = self.getParam('mas_instance_id')
+                instanceId = self.getParam("mas_instance_id")
 
                 # Check if a configuration already exists
                 assert self.localConfigDir is not None, "localConfigDir must be set"
@@ -196,4 +182,6 @@ class KafkaSettingsMixin():
                 if path.exists(kafkaCfgFile):
                     print_formatted_text(f"Provided Kafka configuration file {kafkaCfgFile} will be applied")
                 else:
-                    self.fatalError(f"Kafka configuration file does not exist: '{kafkaCfgFile}'.  In order to continue, provide an existing Kafka configuration file or choose one of the supported Kafka providers to be installed")
+                    self.fatalError(
+                        f"Kafka configuration file does not exist: '{kafkaCfgFile}'.  In order to continue, provide an existing Kafka configuration file or choose one of the supported Kafka providers to be installed"
+                    )

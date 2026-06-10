@@ -113,6 +113,10 @@ spec:
       type: string
       description: Components to configure in the workspace
       default: ""
+    - name: mas_appws_bindings_kafka
+      type: string
+      description: Components to configure in the workspace
+      default: ""
 
     # Application Workspace - Operand (Manage)
     - name: mas_appws_bindings_health_wsl_flag
@@ -349,6 +353,18 @@ spec:
       type: string
       description: ConfigMap with configurations not supported by Tekton
       default: ""
+    - name: mas_ws_facilities_custom_properties
+      type: string
+      description: Flag indicating if custom FACILITIES.properties file is provided
+      default: ""
+    - name: mas_ws_facilities_properties_file_local
+      type: string
+      description: Local path to custom FACILITIES.properties file in workspace
+      default: ""
+    - name: mas_ws_facilities_properties_secret_name
+      type: string
+      description: Name of the secret containing custom FACILITIES.properties
+      default: ""
 
   stepTemplate:
     image: quay.io/ibmmas/cli:latest
@@ -439,6 +455,8 @@ spec:
         # Application Workspace - Operand
         - name: MAS_APPWS_BINDINGS_JDBC
           value: $(params.mas_appws_bindings_jdbc)
+        - name: MAS_APPWS_BINDINGS_KAFKA
+          value: $(params.mas_appws_bindings_kafka)
         - name: MAS_APPWS_COMPONENTS
           value: $(params.mas_appws_components)
 
@@ -566,6 +584,12 @@ spec:
           value: $(params.mas_ws_facilities_config_map_name)
         - name: MAS_FACILITIES_APP_OM_UPGRADE_MODE
           value: $(params.mas_ws_facilities_app_om_upgrade_mode)
+        - name: MAS_FACILITIES_CUSTOM_PROPERTIES
+          value: $(params.mas_ws_facilities_custom_properties)
+        - name: MAS_FACILITIES_PROPERTIES_FILE_LOCAL
+          value: $(params.mas_ws_facilities_properties_file_local)
+        - name: MAS_FACILITIES_PROPERTIES_SECRET_NAME
+          value: $(params.mas_ws_facilities_properties_secret_name)
 
     - name: app-wait-for-approval
       # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
@@ -602,4 +626,6 @@ spec:
   workspaces:
     - name: configs
     - name: pod-templates
+      optional: true
+    - name: facilities
       optional: true

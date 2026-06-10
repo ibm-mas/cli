@@ -12,7 +12,7 @@ set -e
 # Structure in CLI image:
 #   /opt/app-root/rbac/maximo-operator-catalog/operators/<operator>/rbac/<mas_version>/*.yml
 #   /opt/app-root/rbac/openshift-platform/operators/<operator>/rbac/<mas_version>/*.yml
-export GITHUB_REF_NAME="${GITHUB_REF_NAME:-ds.rbac}"
+export GITHUB_REF_NAME="${GITHUB_REF_NAME:-master}"
 export GITHUB_REF_TYPE="${GITHUB_REF_TYPE:-branch}"
 echo "========================================"
 echo "Installing Operator RBAC Files"

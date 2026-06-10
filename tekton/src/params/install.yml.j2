@@ -458,6 +458,9 @@
 - name: mas_use_service_mesh
   type: string
   default: ""
+- name: mas_manual_route_mgmt
+  type: string
+  default: ""
 - name: mas_ingress_controller_name
   type: string
   default: ""
@@ -558,6 +561,10 @@
   type: string
   description: Select the JDBC configuration to bind to
   default: system
+- name: mas_appws_bindings_kafka_manage
+  type: string
+  description: Select the Kafka configuration to bind to Manage
+  default: ""
 - name: mas_appws_components
   type: string
   description: Manage components to configure in the workspace
@@ -763,7 +770,20 @@
   description: ConfigMap with configurations not supported by Tekton
   type: string
   default: ""
+- name: mas_ws_facilities_custom_properties
+  description: Flag indicating if custom FACILITIES.properties file is provided
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_file_local
+  description: Path to custom FACILITIES.properties file in pipeline workspace
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_secret_name
+  description: Name of the secret containing custom FACILITIES.properties
+  type: string
+  default: ""
 
 #  AI Service Configuration
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') }}
+

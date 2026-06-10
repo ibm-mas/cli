@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -16,51 +16,40 @@ from ..cli import getHelpFormatter
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
 
 upgradeArgParser = argparse.ArgumentParser(
-    prog='mas upgrade',
-    description="\n".join([
-        f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Upgrade MAS by configuring and launching the MAS Upgrade Tekton Pipeline.\n",
-        "Interactive Mode:",
-        "Omitting the --instance-id option will trigger an interactive prompt"
-    ]),
+    prog="mas upgrade",
+    description="\n".join(
+        [
+            f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
+            "Upgrade MAS by configuring and launching the MAS Upgrade Tekton Pipeline.\n",
+            "Interactive Mode:",
+            "Omitting the --instance-id option will trigger an interactive prompt",
+        ]
+    ),
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
-    add_help=False
+    add_help=False,
 )
 
-masArgGroup = upgradeArgParser.add_argument_group(
-    'MAS Instance Selection',
-    'Select the MAS instance to upgrade to the next available release.'
-)
-masArgGroup.add_argument(
-    '--mas-instance-id',
-    required=False,
-    help="The MAS instance ID to be upgraded"
-)
+masArgGroup = upgradeArgParser.add_argument_group("MAS Instance Selection", "Select the MAS instance to upgrade to the next available release.")
+masArgGroup.add_argument("--mas-instance-id", required=False, help="The MAS instance ID to be upgraded")
 otherArgGroup = upgradeArgParser.add_argument_group(
-    'More',
-    'Additional options including pre-check control, confirmation prompts, license acceptance, and development mode.'
+    "More", "Additional options including pre-check control, confirmation prompts, license acceptance, and development mode."
 )
 otherArgGroup.add_argument(
-    '--skip-pre-check',
+    "--skip-pre-check",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
-    help="Disable the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline"
+    help="Disable the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline",
 )
 otherArgGroup.add_argument(
-    '--no-confirm',
+    "--no-confirm",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Launch the upgrade without prompting for confirmation",
 )
-otherArgGroup.add_argument(
-    "--accept-license",
-    action="store_true",
-    default=False,
-    help="Accept all license terms without prompting"
-)
+otherArgGroup.add_argument("--accept-license", action="store_true", default=False, help="Accept all license terms without prompting")
 otherArgGroup.add_argument(
     "--dev-mode",
     required=False,
@@ -68,33 +57,21 @@ otherArgGroup.add_argument(
     default=False,
     help="Configure upgrade for development mode",
 )
-masArgGroup.add_argument(
-    '--next-channel',
-    required=False,
-    default="",
-    help="The Target Mas channel to Upgrade on"
-)
-otherArgGroup.add_argument(
-    '--slack-token',
-    required=False,
-    help="Slack bot token for sending pipeline status notifications"
-)
-otherArgGroup.add_argument(
-    '--slack-channel',
-    required=False,
-    help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)"
-)
+masArgGroup.add_argument("--next-channel", required=False, default="", help="The Target Mas channel to Upgrade on")
+otherArgGroup.add_argument("--slack-token", required=False, help="Slack bot token for sending pipeline status notifications")
+otherArgGroup.add_argument("--slack-channel", required=False, help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)")
 otherArgGroup.add_argument(
     "--image-pull-policy",
     dest="image_pull_policy",
     required=False,
     help="Image pull policy for Tekton Pipeline",
     choices=IMAGE_PULL_POLICIES,
-    metavar="{IfNotPresent,Always}"
+    metavar="{IfNotPresent,Always}",
 )
 otherArgGroup.add_argument(
-    '-h', "--help",
-    action='help',
+    "-h",
+    "--help",
+    action="help",
     default=False,
     help="Show this help message and exit",
 )

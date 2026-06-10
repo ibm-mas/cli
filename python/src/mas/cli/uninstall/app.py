@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -24,7 +24,6 @@ from .argParser import uninstallArgParser
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUninstallPipeline
-
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +65,7 @@ class UninstallApp(BaseApp):
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
 
         if self.dynamicClient is None:
-            self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
+            self.fatalError("Not successfully connected to a Kubernetes cluster.  See log file for details")
 
         if instanceId is None:
             # Interactive mode
@@ -78,7 +77,7 @@ class UninstallApp(BaseApp):
                 suites = listMasInstances(self.dynamicClient)
                 for suite in suites:
                     self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
-                    suiteOptions.append(suite['metadata']['name'])
+                    suiteOptions.append(suite["metadata"]["name"])
             except ResourceNotFoundError:
                 self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
 
@@ -90,10 +89,12 @@ class UninstallApp(BaseApp):
             instanceId = self.promptForString("MAS instance ID", completer=suiteCompleter, validator=InstanceIDValidator())
 
             self.printH1("Uninstall MAS Dependencies")
-            self.printDescription([
-                "If you choose to uninstall Certificate Manager, all other options will be automatically set to uninstall",
-                "Other workload on the cluster may be dependant on the Certificate Manager installation, so proceed with caution when choosing 'Yes'"
-            ])
+            self.printDescription(
+                [
+                    "If you choose to uninstall Certificate Manager, all other options will be automatically set to uninstall",
+                    "Other workload on the cluster may be dependant on the Certificate Manager installation, so proceed with caution when choosing 'Yes'",
+                ]
+            )
             uninstallCertManager = self.yesOrNo("Uninstall Certificate Manager")
             if uninstallCertManager:
                 # If you choose to uninstall Cert-Manager, everything will be uninstalled
@@ -112,7 +113,11 @@ class UninstallApp(BaseApp):
                     uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
 
                 uninstallGrafana = self.yesOrNo("Uninstall Grafana")
-                self.printDescription(["If you choose to uninstall the IBM Operator Catalog, IBM Common Services, IBM User Data Services, &amp; IBM Suite License Service will be automatically set to uninstall as well"])
+                self.printDescription(
+                    [
+                        "If you choose to uninstall the IBM Operator Catalog, IBM Common Services, IBM User Data Services, &amp; IBM Suite License Service will be automatically set to uninstall as well"
+                    ]
+                )
                 uninstallIBMCatalog = self.yesOrNo("Uninstall IBM operator Catalog")
                 if uninstallIBMCatalog:
                     # If you choose to uninstall IBM Operator Catalog, everything from the catalog will be uninstalled
@@ -161,22 +166,22 @@ class UninstallApp(BaseApp):
             self.printH1("Launch uninstall")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text=f'Submitting PipelineRun for {instanceId} uninstall', spinner=self.spinner) as h:
+            with Halo(text=f"Submitting PipelineRun for {instanceId} uninstall", spinner=self.spinner) as h:
                 pipelineURL = launchUninstallPipeline(
                     dynClient=self.dynamicClient,
                     instanceId=instanceId,
@@ -186,7 +191,7 @@ class UninstallApp(BaseApp):
                     uninstallDRO=uninstallDRO,
                     uninstallMongoDb=uninstallMongoDb,
                     uninstallSLS=uninstallSLS,
-                    droNamespace=droNamespace
+                    droNamespace=droNamespace,
                 )
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} uninstall submitted")

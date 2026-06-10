@@ -16,40 +16,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Init tekton build system
-        id: init
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml jsonschema pytest
+
+      - name: Build Tekton definitions
         run: |
           chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
-          chmod u+x $GITHUB_WORKSPACE/tekton/test.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
+          $GITHUB_WORKSPACE/build/bin/build-tekton.sh
 
-      - name: Tekton tests
-        id: tekton-tests
-        env:
-          OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
-          OCP_SERVER: ${{ secrets.OCP_SERVER }}
+      - name: Validate Tekton definitions
         run: |
-          set +e
-          NAMESPACE=$(echo "cli-tekton-test-pr${{ github.event.pull_request.number }}")
-          kubectl config set-cluster my-cluster --server=$OCP_SERVER
-          kubectl config set-credentials my-user --token=$OCP_TOKEN
-          kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=default
-          kubectl config use-context my-context
-          kubectl get namespace $NAMESPACE &>/dev/null
-          rc=$?
-          if [[ $rc -ne "O" ]]; then
-            kubectl create namespace $NAMESPACE
-          fi
-          kubectl config set-context --current --namespace=$NAMESPACE
-          $GITHUB_WORKSPACE/build/bin/build-tekton.sh &>/dev/null
-          rc=$?
-          if [[ $rc -ne "0" ]]; then
-            echo "Fail to build Tekton files"
-            exit 1
-          fi
-          $GITHUB_WORKSPACE/tekton/test.sh
-          rc=$?
-          if [[ $rc -ne "0" ]]; then
-            echo "Test failed"
-            exit 1
-          fi
+          pytest tekton/test_schema.py -v --tb=short
