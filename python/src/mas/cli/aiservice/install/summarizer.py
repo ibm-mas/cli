@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -46,12 +46,6 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Release", "aiservice_channel")
         self.printParamSummary("Instance ID", "aiservice_instance_id")
         self.printParamSummary("Environment Type", "environment_type")
-        if self.admin_mode not in [None, ""]:
-            self.printSummary("Admin Mode", self.admin_mode)
-            self.printSummary(
-                "Apply Pre-Install RBAC",
-                "Yes" if self.applyPreInstallMASRBAC else "No",
-            )
 
         if "aiservice_certificate_issuer" in self.params:
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")

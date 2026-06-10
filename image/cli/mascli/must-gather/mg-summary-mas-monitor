@@ -1,8 +1,0 @@
-#!/bin/bash
-
-echo "IBM Maximo Application Suite - Monitor Application"
-echo "--------------------------------------------------------------------------------"
-oc get monitorapp -n $1
-echo ""
-
-exit 0
