@@ -161,6 +161,17 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture: str | None = None
 
         self.compatibilityMatrix: Dict[str, Dict[str, List[str]]] = {
+            "9.2.x": {
+                "aiservice_tenant": ["9.2.x", "9.2.x-feature"],
+                "aiservice": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "manage": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "optimizer": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "visualinspection": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "iot": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "monitor": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "predict": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "facilities": ["9.2.x", "9.2.x-feature", "9.1.x"],
+            },
             "9.2.x-feature": {
                 "aibroker": ["9.2.x-feature", "9.1.x"],
                 "manage": ["9.2.x-feature", "9.1.x"],
