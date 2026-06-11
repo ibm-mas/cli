@@ -9,12 +9,19 @@ spec:
     - name: shared-configs
     # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
     - name: shared-additional-configs
-    # The SLS entitlement key file that will be installed during install-sls.
+    # The SLS entitlement key and Db2 license file that will be installed during install-sls and db2.
     - name: shared-entitlement
     # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
     - name: shared-certificates
     # PodTemplates configurations
     - name: shared-pod-templates
+    # Db2 License File
+    - name: shared-db2
+    # AIService configurations. Contains Scheduling config file for AI workloads for tenant.
+    - name: shared-aiservice-config
+    # Facilities Properties File
+    - name: shared-facilities-properties
+      optional: true
 
   params:
     # 1. Common Parameters
@@ -114,20 +121,20 @@ spec:
 
     # 2.3 Db2
     # 2.3.1 System Db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
         - cert-manager
 
     # 2.3.2 Dedicated Manage Db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
         - db2-system
 
     # 2.3.3 Install Dedicated Db2 for AI Service
     # -------------------------------------------------------------------------
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice', 'db2_license_workspace': 'true'}) | indent(4) }}
       runAfter:
-        - cert-manager
+        - db2-manage
 
     # 2.4 IBM SLS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | indent(4) }}
@@ -245,6 +252,7 @@ spec:
         - dro
         - gencfg-workspace
         - suite-certs
+        - aiservice
       when:
         - input: "$(params.mas_instance_id)"
           operator: notin
@@ -254,6 +262,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
+        - gencfg-aiservice
       when:
         - input: "$(params.mas_instance_id)"
           operator: notin
@@ -487,6 +496,27 @@ spec:
         - aiservice-odh
         - aiservice-rhoai
 
+    # 14.2 Generate AiCfg with auto-detected values
+    # -------------------------------------------------------------------------
+    # Note: AiCfg CRD is only available in MAS 9.2+, so we guard this task
+    # to prevent errors on MAS 9.1 clusters
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/gencfg-aiservice.yml.j2') | indent(4) }}
+      runAfter:
+        - aiservice
+      when:
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
+        - input: "$(params.aiservice_channel)"
+          operator: notin
+          values: [""]
+        - input: "$(params.configure_aiassistant)"
+          operator: in
+          values: ["pipeline"]
+        - input: "$(params.mas_channel)"
+          operator: notin
+          values: ["", "9.0.*", "9.1.*"]
+
     # 15. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
@@ -538,3 +568,4 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
+

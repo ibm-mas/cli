@@ -202,6 +202,21 @@ function prompt_for_secret(){
 }
 
 
+function validate_registry_prefix() {
+  registryPrefix=$1
+
+  if [[ -z "$registryPrefix" ]]; then
+    return 0
+  fi
+
+  if [[ ! "$registryPrefix" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ ]]; then
+    echo_warning "Invalid registry prefix '$registryPrefix'"
+    echo_warning "REGISTRY_PREFIX must be a lowercase RFC 1123 subdomain containing only lowercase alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character"
+    echo_warning "Examples: test, test.dev, abc-123"
+    exit 1
+  fi
+}
+
 function prompt_for_input(){
   msg=$1
   varname=$2
@@ -426,10 +441,27 @@ def resolve_path(obj, path):
             value = value[t]
     return value
 
+def strip_quotes_recursive(obj):
+    """Recursively strip quotes from strings in nested structures"""
+    if isinstance(obj, str):
+        # Remove surrounding quotes if present
+        if obj.startswith('"') and obj.endswith('"') and len(obj) > 1:
+            return obj[1:-1]
+        return obj
+    elif isinstance(obj, list):
+        return [strip_quotes_recursive(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {k: strip_quotes_recursive(v) for k, v in obj.items()}
+    else:
+        return obj
+
 data = unwrap_singleton_lists(load_hcl(file_path))
 
 try:
     result = resolve_path(data, dot_path)
+    # Strip quotes from result (handles strings, lists, dicts recursively)
+    result = strip_quotes_recursive(result)
+    
     if isinstance(result, (list, dict)):
         print(json.dumps(result))
     else:

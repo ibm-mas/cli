@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -17,6 +17,7 @@ from typing import List, Union, Optional
 from .validators import YesNoValidator, IntValidator, FileExistsValidator, DirectoryExistsValidator
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 H1COLOR = "SkyBlue"
@@ -27,7 +28,7 @@ UNDEFINEDPARAMCOLOR = "LightSlateGrey"
 PROMPTCOLOR = "Yellow"
 
 
-class PrintMixin():
+class PrintMixin:
     def printTitle(self, message: str) -> None:
         print_formatted_text(HTML(f"<b><u>{message.replace(' & ', ' &amp; ')}</u></b>"))
 
@@ -45,7 +46,7 @@ class PrintMixin():
     def printDescription(self, content: List[str]) -> None:
         content[0] = f"<{DESCRIPTIONCOLOR}>{content[0]}"
         content[len(content) - 1] = f"{content[len(content) - 1]}</{DESCRIPTIONCOLOR}>"
-        print_formatted_text(HTML("\n".join(content).replace(' & ', ' &amp; ')))
+        print_formatted_text(HTML("\n".join(content).replace(" & ", " &amp; ")))
 
     def printHighlight(self, message: Union[str, List[str]]) -> None:
         if isinstance(message, list):
@@ -69,7 +70,7 @@ class PrintMixin():
             logger.debug(f"Parameter Summary: {param} = undefined")
             self.printSummary(message, f"<{UNDEFINEDPARAMCOLOR}>Undefined</{UNDEFINEDPARAMCOLOR}>")
         elif self.getParam(param) == "":  # type: ignore
-            logger.debug(f"Parameter Summary: {param} = \"\"")
+            logger.debug(f'Parameter Summary: {param} = ""')
             self.printSummary(message, f"<{UNDEFINEDPARAMCOLOR}>Default</{UNDEFINEDPARAMCOLOR}>")
         else:
             logger.debug(f"Parameter Summary: {param} = {self.getParam(param)}")  # type: ignore
@@ -115,7 +116,7 @@ def masPromptValue(message: str) -> HTML:
     return HTML(f"<{PROMPTCOLOR}>{message.replace(' & ', ' &amp; ')}</{PROMPTCOLOR}> ")
 
 
-class PromptMixin():
+class PromptMixin:
     def yesOrNo(self, message: str, param: Optional[str] = None) -> bool:
         response = prompt(message=masPromptYesOrNo(message), validator=YesNoValidator(), validate_while_typing=False)
         responseAsBool = response.lower() in ["y", "yes"]
@@ -124,21 +125,41 @@ class PromptMixin():
             self.params[param] = "true" if responseAsBool else "false"  # type: ignore
         return responseAsBool
 
-    def promptForString(self, message: str, param: Optional[str] = None, default: str = "", isPassword: bool = False, validator: Optional[Validator] = None, completer: Optional[WordCompleter] = None) -> str:
+    def promptForString(
+        self,
+        message: str,
+        param: Optional[str] = None,
+        default: str = "",
+        isPassword: bool = False,
+        validator: Optional[Validator] = None,
+        completer: Optional[WordCompleter] = None,
+    ) -> str:
         if param is not None and default == "":
             default = getenv(param.upper(), default="")
 
         if completer is not None:
             promptSession = PromptSession()
-            response = promptSession.prompt(message=masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False, pre_run=promptSession.default_buffer.start_completion)
+            response = promptSession.prompt(
+                message=masPromptValue(message),
+                is_password=isPassword,
+                default=default,
+                completer=completer,
+                validator=validator,
+                validate_while_typing=False,
+                pre_run=promptSession.default_buffer.start_completion,
+            )
         else:
-            response = prompt(message=masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False)
+            response = prompt(
+                message=masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False
+            )
 
         if param is not None:
             self.params[param] = response  # type: ignore
         return response
 
-    def promptForInt(self, message: str, param: Optional[str] = None, default: Optional[int] = None, min: Optional[int] = None, max: Optional[int] = None) -> int:
+    def promptForInt(
+        self, message: str, param: Optional[str] = None, default: Optional[int] = None, min: Optional[int] = None, max: Optional[int] = None
+    ) -> int:
         if param is not None and default is None:
             default = getenv(param.upper(), default=None)  # type: ignore
 

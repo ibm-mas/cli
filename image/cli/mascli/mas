@@ -49,8 +49,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/configure_airgap
 # Manage OIDC for configtool
 . $CLI_DIR/functions/configtool_oidc
-# Must Gather
-. $CLI_DIR/functions/must_gather
+# Debug
 . $CLI_DIR/functions/debug
 # GitOps
 . $CLI_DIR/functions/gitops
@@ -100,6 +99,8 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u
 . $CLI_DIR/functions/gitops_deprovision_odh
 . $CLI_DIR/functions/gitops_odh
+. $CLI_DIR/functions/gitops_deprovision_rhoai
+. $CLI_DIR/functions/gitops_rhoai
 . $CLI_DIR/functions/gitops_aiservice
 . $CLI_DIR/functions/gitops_aiservice_tenant
 . $CLI_DIR/functions/gitops_deprovision_aiservice_tenant
@@ -317,9 +318,10 @@ case $1 in
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! must-gather                                                               !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Must-Gather Tool (v${VERSION})${TEXT_RESET}"
-    echo
-    mustgather "$@"
+    # Take the first parameter off (it will be "must-gather")
+    shift
+    # Run the new Python-based must-gather
+    mas-cli must-gather "$@"
     ;;
 
   debug)
@@ -343,7 +345,7 @@ case $1 in
     # Run the new Python-based install
     mas-cli backup "$@"
     ;;
-  
+
   restore)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! restore                                                                    !!" >> $LOGFILE
@@ -611,6 +613,13 @@ case $1 in
     reset_colors
     gitops_odh "$@"
     ;;
+  gitops-rhoai)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_rhoai "$@"
+    ;;
   gitops-db2u-database)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -679,6 +688,13 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_odh "$@"
+    ;;
+  gitops-deprovision-rhoai)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_rhoai "$@"
     ;;
 
   gitops-aiservice)
@@ -827,6 +843,15 @@ case $1 in
     mas-cli setup-rbac "$@"
     ;;
 
+  pre-install)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! pre-install                                                               !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "pre-install")
+    shift
+    # Run the new Python-based pre-install command
+    mas-cli pre-install "$@"
+    ;;
 
   gitops)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Functions (v${VERSION})${TEXT_RESET}"

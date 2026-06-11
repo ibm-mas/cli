@@ -1,7 +1,15 @@
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
 # This script allows you to record the a timestamp  in a MongoDb database whenever invoked in task or worker.
 # To enable this capability you must set additional environment variables as follows:
-#
-#
+
 import os
 import sys
 from datetime import datetime, UTC
@@ -13,7 +21,7 @@ def invalid_timestamp_key(key: str) -> bool:
 
 
 if __name__ == "__main__":
-    if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
+    if "DEVOPS_MONGO_URI" not in os.environ or os.environ["DEVOPS_MONGO_URI"] == "":
         print("Missing DEVOPS_MONGO_URI environment variable, cannot record timestamp")
         sys.exit(0)
 
@@ -59,18 +67,18 @@ if __name__ == "__main__":
     db.runsv2.find_one_and_update(
         {"_id": runId},
         {
-            '$setOnInsert': {
+            "$setOnInsert": {
                 "_id": runId,
                 "target": {
                     "instanceId": instanceId,
                     "buildId": build,
-                }
+                },
             },
-            '$set': {
+            "$set": {
                 timestampKey: currentTime,
-            }
+            },
         },
-        upsert=True
+        upsert=True,
     )
 
     print(f"Recorded timestamp for {timestampKey} at {currentTime} to MongoDb (v2 data model)")

@@ -18,7 +18,7 @@ module "db2rds-{{RDS_APP}}" {
   sre_prefix                          = join("-", [var.cluster_name, var.instance_name, "{{RDS_APP}}"])
   secret_prefix                       = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "jdbc",join("-", ["rds", var.instance_name, "{{RDS_APP}}"]) ])
   admin_secret_prefix                 = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "admin",join("-", ["rds", var.instance_name, "{{RDS_APP}}"]) ])
-  ssp_secret_prefix                   = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "db2rds-ssp"])
+  ssp_secret_prefix                   = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "db2rds-ssp", "{{RDS_APP}}"])
   engine                              = "db2-ae"
   vpc_id                              = var.vpc_id
   ibm_customer_id                     = local.ibm_customer_id_{{RDS_APP}}
@@ -35,7 +35,6 @@ module "db2rds-{{RDS_APP}}" {
   db2_enabled_cloudwatch_logs_exports = ["diag.log", "notify.log"]
   db2_additional_security_groups      = local.cluster.security_groups
   region_name                         = "{{REGION_NAME}}"
-  db_name                             = "BLUDB"
   db2_identifier                      = "rds"
   engine_version                      = var.engine_version
   multi_az                            = false

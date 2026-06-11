@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -23,7 +23,6 @@ from .argParser import backupArgParser
 from mas.devops.ocp import createNamespace, getConsoleURL, getStorageClasses
 from mas.devops.mas import listMasInstances, getDefaultStorageClasses, getWorkspaceId
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchBackupPipeline
-
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +80,15 @@ class BackupApp(BaseApp):
                 "manage_db2_namespace",
                 "manage_db2_instance_name",
                 "manage_db2_backup_type",
-                "manage_db2_backup_vendor"
+                "manage_db2_backup_vendor",
+                # Facilities App Backup
+                "facilities_workspace_id",
+                "backup_facilities_app",
+                "backup_facilities_db",
+                "facilities_db2_namespace",
+                "facilities_db2_instance_name",
+                "facilities_db2_backup_type",
+                "facilities_db2_backup_vendor",
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -111,7 +118,7 @@ class BackupApp(BaseApp):
             self.connect()
 
         if self.dynamicClient is None:
-            self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
+            self.fatalError("Not successfully connected to a Kubernetes cluster.  See log file for details")
 
         # Perform a check whether the cluster is set up for airgap install
         self.isAirgap()
@@ -144,6 +151,9 @@ class BackupApp(BaseApp):
             # Prompt for Manage app backup
             self.promptForManageAppBackup()
 
+            # Prompt for Facilities app backup
+            self.promptForFacilitiesAppBackup()
+
             self.promptForUploadConfiguration()
             # Prompt for clean backup option if not provided
             self.promptForCleanBackup()
@@ -154,10 +164,7 @@ class BackupApp(BaseApp):
         print()
 
         self.printH1("Review Settings")
-        self.printDescription([
-            "Connected to:",
-            f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
-        ])
+        self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
         self.printH2("MAS Instance")
         self.printSummary("Instance ID", self.getParam("mas_instance_id"))
@@ -186,12 +193,20 @@ class BackupApp(BaseApp):
                 self.printSummary("Db2 Instance Name", self.getParam("manage_db2_instance_name"))
                 self.printSummary("Db2 Backup Type", self.getParam("manage_db2_backup_type"))
 
+        if self.getParam("backup_facilities_app") == "true":
+            self.printH2("Facilities Application Backup")
+            self.printSummary("Backup Facilities App", "Yes")
+            self.printSummary("Workspace ID", self.getParam("facilities_workspace_id"))
+            self.printSummary("Backup Facilities incluster Db2 Database", "Yes" if self.getParam("backup_facilities_db") == "true" else "No")
+            if self.getParam("backup_facilities_db") == "true":
+                self.printSummary("Db2 Namespace", self.getParam("facilities_db2_namespace"))
+                self.printSummary("Db2 Instance Name", self.getParam("facilities_db2_instance_name"))
+                self.printSummary("Db2 Backup Type", self.getParam("facilities_db2_backup_type"))
+
         continueWithBackup = True
         if not self.noConfirm:
             print()
-            self.printDescription([
-                "Please carefully review your choices above, correcting mistakes now is much easier than after the backup has begun"
-            ])
+            self.printDescription(["Please carefully review your choices above, correcting mistakes now is much easier than after the backup has begun"])
             continueWithBackup = self.yesOrNo("Proceed with these settings")
 
         # Prepare the namespace and launch the backup pipeline
@@ -203,18 +218,22 @@ class BackupApp(BaseApp):
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
             if self.getParam("backup_storage_class") is None or self.getParam("backup_storage_class") == "":
-                self.fatalError("No storage class specified for 'backup-pvc' pvc, please specify a storage class for the backup storage using --backup-storage-class")
+                self.fatalError(
+                    "No storage class specified for 'backup-pvc' pvc, please specify a storage class for the backup storage using --backup-storage-class"
+                )
             if self.getParam("backup_storage_access_mode") is None or self.getParam("backup_storage_access_mode") == "":
-                self.fatalError("No storage access mode specified for 'backup-pvc' pvc, please specify a storage access mode for the backup storage using --backup-storage-access-mode")
+                self.fatalError(
+                    "No storage access mode specified for 'backup-pvc' pvc, please specify a storage access mode for the backup storage using --backup-storage-access-mode"
+                )
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 backupStorageSize = self.getParam("backup_storage_size") if self.getParam("backup_storage_size") else "20Gi"
                 preparePipelinesNamespace(
@@ -224,11 +243,11 @@ class BackupApp(BaseApp):
                     accessMode=self.getParam("backup_storage_access_mode"),
                     createConfigPVC=False,
                     createBackupPVC=True,
-                    backupStorageSize=backupStorageSize
+                    backupStorageSize=backupStorageSize,
                 )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
@@ -260,14 +279,14 @@ class BackupApp(BaseApp):
             if len(instances) == 0:
                 self.fatalError("No MAS instances found on the cluster")
             elif len(instances) == 1:
-                instanceId = instances[0]['metadata']['name']
+                instanceId = instances[0]["metadata"]["name"]
                 self.setParam("mas_instance_id", instanceId)
                 self.printDescription([f"Using MAS instance: <u>{instanceId}</u>"])
             else:
                 instanceOptions = []
                 for instance in instances:
                     self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
-                    instanceOptions.append(instance['metadata']['name'])
+                    instanceOptions.append(instance["metadata"]["name"])
 
                 instanceCompleter = WordCompleter(instanceOptions)
                 print()
@@ -284,19 +303,25 @@ class BackupApp(BaseApp):
         isSNOCluster = self.isSNO()
 
         if isSNOCluster:
-            self.printDescription([
-                " - <Yellow>Single Node OpenShift detected</Yellow>",
-                " - You can use ReadWriteOnce storage class to create <Yellow>backup-pvc</Yellow> pvc for backup pipeline.",
-            ])
+            self.printDescription(
+                [
+                    " - <Yellow>Single Node OpenShift detected</Yellow>",
+                    " - You can use ReadWriteOnce storage class to create <Yellow>backup-pvc</Yellow> pvc for backup pipeline.",
+                ]
+            )
         else:
-            self.printDescription([
-                " - Select a storage class to use to create <Yellow>backup-pvc</Yellow> pvc for backup pipeline(Recommended access mode ReadWriteMany).",
-            ])
-        self.printDescription([
-            " - Make sure to have enough storage accomodate archives and tar the contents.",
-            " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
-            " - Note: There's option to clean up the archives in the end."
-        ])
+            self.printDescription(
+                [
+                    " - Select a storage class to use to create <Yellow>backup-pvc</Yellow> pvc for backup pipeline(Recommended access mode ReadWriteMany).",
+                ]
+            )
+        self.printDescription(
+            [
+                " - Make sure to have enough storage accomodate archives and tar the contents.",
+                " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
+                " - Note: There's option to clean up the archives in the end.",
+            ]
+        )
 
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         pipelineStorageClass = None
@@ -322,31 +347,30 @@ class BackupApp(BaseApp):
 
         if pipelineStorageClass is None or pipelineStorageClass == "" or customSC:
             if isSNOCluster:
-                self.printDescription([
-                    "Select ReadWriteOnce storage class to use from the list below:"
-                ])
+                self.printDescription(["Select ReadWriteOnce storage class to use from the list below:"])
                 for storageClass in getStorageClasses(self.dynamicClient):
                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
                 pipelineStorageAccessMode = "ReadWriteOnce"
-                pipelineStorageClass = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-            else:
-                self.printDescription([
-                    "Choose Storage class access mode:",
-                    " 1. ReadWriteOnce (RWO)",
-                    " 2. ReadWriteMany (RWX)",
-                ])
-                pipelineStorageAccessMode = self.promptForListSelect(
-                    "Select Storage class access mode",
-                    ["ReadWriteOnce", "ReadWriteMany"],
-                    "backup_storage_access_mode",
-                    default=1
+                pipelineStorageClass = prompt(
+                    HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
                 )
-                self.printDescription([
-                    "Select storage class to use from the list below:"
-                ])
+            else:
+                self.printDescription(
+                    [
+                        "Choose Storage class access mode:",
+                        " 1. ReadWriteOnce (RWO)",
+                        " 2. ReadWriteMany (RWX)",
+                    ]
+                )
+                pipelineStorageAccessMode = self.promptForListSelect(
+                    "Select Storage class access mode", ["ReadWriteOnce", "ReadWriteMany"], "backup_storage_access_mode", default=1
+                )
+                self.printDescription(["Select storage class to use from the list below:"])
                 for storageClass in getStorageClasses(self.dynamicClient):
                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                pipelineStorageClass = prompt(HTML(f'<Yellow>Enter {pipelineStorageAccessMode} storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+                pipelineStorageClass = prompt(
+                    HTML(f"<Yellow>Enter {pipelineStorageAccessMode} storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
+                )
 
         self.setParam("backup_storage_class", pipelineStorageClass)
         self.setParam("backup_storage_access_mode", pipelineStorageAccessMode)
@@ -356,11 +380,13 @@ class BackupApp(BaseApp):
 
     def promptForBackupVersion(self) -> None:
         self.printH1("Backup Version Configuration")
-        self.printDescription([
-            "<Green>Please Read:</Green>",
-            "<Green>When you use custom backup version, You are responsible to ensure you choose the right one</Green>",
-            "<Green>and any mistake may result in loss of prior backups with same versions because they will be overwritten.</Green>",
-        ])
+        self.printDescription(
+            [
+                "<Green>Please Read:</Green>",
+                "<Green>When you use custom backup version, You are responsible to ensure you choose the right one</Green>",
+                "<Green>and any mistake may result in loss of prior backups with same versions because they will be overwritten.</Green>",
+            ]
+        )
         useAutoGenerated = self.yesOrNo("Use autogenerated backup_version based on timestamp")
 
         if useAutoGenerated:
@@ -375,10 +401,12 @@ class BackupApp(BaseApp):
 
     def promptForCleanBackup(self) -> None:
         self.printH1("Backup Cleanup Configuration")
-        self.printDescription([
-            "After the backup completes, the backup and config workspaces can be cleaned to free up space.",
-            "This is recommended unless you need to inspect the workspace contents for troubleshooting."
-        ])
+        self.printDescription(
+            [
+                "After the backup completes, the backup and config workspaces can be cleaned to free up space.",
+                "This is recommended unless you need to inspect the workspace contents for troubleshooting.",
+            ]
+        )
         cleanBackup = self.yesOrNo("Clean backup and config workspaces after completion")
 
         if cleanBackup:
@@ -389,10 +417,7 @@ class BackupApp(BaseApp):
     def promptForSLSConfiguration(self) -> None:
         """Prompt user for SLS (Suite License Service) configuration"""
         self.printH1("SLS Configuration")
-        self.printDescription([
-            "Suite License Service (SLS) can be included in the backup.",
-            "If included, you will need to specify the SLS namespace."
-        ])
+        self.printDescription(["Suite License Service (SLS) can be included in the backup.", "If included, you will need to specify the SLS namespace."])
 
         includeSLS = self.yesOrNo("Include SLS in backup")
 
@@ -408,10 +433,12 @@ class BackupApp(BaseApp):
     def promptForMongoDBConfiguration(self) -> None:
         """Prompt user for MongoDB configuration"""
         self.printH1("MongoDB Configuration")
-        self.printDescription([
-            " - You can skip Mongo backup if you have external MongoDB.",
-            " - If included, you will need to specify the MongoDB namespace and instance name used in cluster"
-        ])
+        self.printDescription(
+            [
+                " - You can skip Mongo backup if you have external MongoDB.",
+                " - If included, you will need to specify the MongoDB namespace and instance name used in cluster",
+            ]
+        )
 
         includeMongo = self.yesOrNo("Include MongoDB in backup")
 
@@ -463,17 +490,14 @@ class BackupApp(BaseApp):
         if uploadBackup:
             self.setParam("upload_backup", "true")
 
-            self.printDescription([
-                "Choose upload destination:",
-                " 1. S3",
-                " 2. Artifactory",
-            ])
-            uploadDestination = self.promptForListSelect(
-                "Select upload destination",
-                ["S3", "Artifactory"],
-                "upload_destination",
-                default=1
+            self.printDescription(
+                [
+                    "Choose upload destination:",
+                    " 1. S3",
+                    " 2. Artifactory",
+                ]
             )
+            uploadDestination = self.promptForListSelect("Select upload destination", ["S3", "Artifactory"], "upload_destination", default=1)
 
             if uploadDestination == "S3":
                 # Prompt for S3 credentials
@@ -516,10 +540,12 @@ class BackupApp(BaseApp):
     def promptForManageAppBackup(self) -> None:
         """Prompt user for Manage application backup configuration"""
         self.printH1("Manage Application Backup")
-        self.printDescription([
-            "In addition to backing up the MAS Suite, you can also backup the Manage application.",
-            "This includes the Manage namespace resources and persistent volume data."
-        ])
+        self.printDescription(
+            [
+                "In addition to backing up the MAS Suite, you can also backup the Manage application.",
+                "This includes the Manage namespace resources and persistent volume data.",
+            ]
+        )
 
         backupManageApp = self.yesOrNo("Do you want to backup the Manage application")
 
@@ -547,10 +573,12 @@ class BackupApp(BaseApp):
 
             # Ask about DB2 backup
             self.printH2("Manage Database Backup")
-            self.printDescription([
-                "The Manage application uses a Db2 database that should also be backed up.",
-                "This will backup the incluster Db2 database associated with the Manage workspace."
-            ])
+            self.printDescription(
+                [
+                    "The Manage application uses a Db2 database that should also be backed up.",
+                    "This will backup the incluster Db2 database associated with the Manage workspace.",
+                ]
+            )
             backupDb2 = self.yesOrNo("Do you want to backup the Manage database (Db2)")
 
             if backupDb2:
@@ -581,19 +609,69 @@ class BackupApp(BaseApp):
         self.setParam(f"{appId}_db2_instance_name", db2InstanceName)
 
         # Backup type
-        self.printDescription([
-            "Db2 backup can be performed online (database remains available) or offline (database unavailable during backup).",
-            "Note: If your Db2 instance uses circular logging (default), you must use offline backup.",
-            "Backup Types:",
-            " 1. offline",
-            " 2. online",
-        ])
-        self.promptForListSelect(
-            message="Select backup type",
-            options=["offline", "online"],
-            param=f"{appId}_db2_backup_type",
-            default=1
+        self.printDescription(
+            [
+                "Db2 backup can be performed online (database remains available) or offline (database unavailable during backup).",
+                "Note: If your Db2 instance uses circular logging (default), you must use offline backup.",
+                "Backup Types:",
+                " 1. offline",
+                " 2. online",
+            ]
         )
+        self.promptForListSelect(message="Select backup type", options=["offline", "online"], param=f"{appId}_db2_backup_type", default=1)
 
         # Always set to disk for pipeline as s3 upload is handled for the whole pipeline
         self.setParam(f"{appId}_db2_backup_vendor", "disk")
+
+    def promptForFacilitiesAppBackup(self) -> None:
+        """Prompt user for Facilities application backup configuration"""
+        self.printH1("Facilities Application Backup")
+        self.printDescription(
+            [
+                "In addition to backing up the MAS Suite, you can also backup the Facilities application.",
+                "This includes the Facilities namespace resources and persistent volume data.",
+            ]
+        )
+
+        backupFacilitiesApp = self.yesOrNo("Do you want to backup the Facilities application")
+
+        if backupFacilitiesApp:
+            self.setParam("backup_facilities_app", "true")
+
+            # Get workspace ID - try to auto-detect first
+            try:
+                instanceId = self.getParam("mas_instance_id")
+                workspaceId = getWorkspaceId(self.dynamicClient, instanceId)
+                if workspaceId:
+                    self.printDescription([f"Detected Facilities workspace: <u>{workspaceId}</u>"])
+                    useDetected = self.yesOrNo("Use this workspace")
+                    if useDetected:
+                        self.setParam("facilities_workspace_id", workspaceId)
+                    else:
+                        workspaceId = self.promptForString("Enter Facilities workspace ID")
+                        self.setParam("facilities_workspace_id", workspaceId)
+                else:
+                    workspaceId = self.promptForString("Enter Facilities workspace ID")
+                    self.setParam("facilities_workspace_id", workspaceId)
+            except Exception:
+                workspaceId = self.promptForString("Enter Facilities workspace ID")
+                self.setParam("facilities_workspace_id", workspaceId)
+
+            # Ask about DB2 backup
+            self.printH2("Facilities Database Backup")
+            self.printDescription(
+                [
+                    "The Facilities application uses a Db2 database that should also be backed up.",
+                    "This will backup the incluster Db2 database associated with the Facilities workspace.",
+                ]
+            )
+            backupDb2 = self.yesOrNo("Do you want to backup the Facilities database (Db2)")
+
+            if backupDb2:
+                self.setParam("backup_facilities_db", "true")
+                self.promptForDb2BackupConfiguration("facilities")
+            else:
+                self.setParam("backup_facilities_db", "false")
+        else:
+            self.setParam("backup_facilities_app", "false")
+            self.setParam("backup_facilities_db", "false")
