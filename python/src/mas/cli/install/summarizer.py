@@ -267,6 +267,7 @@ class InstallSummarizerMixin:
                     ("ACM", "acm"),
                     ("Aviation", "aviation"),
                     ("Civil Infrastructure", "civil"),
+                    ("Collaborate", "collaborate"),
                     ("Envizi", "envizi"),
                     ("Health", "health"),
                     ("HSE", "hse"),
