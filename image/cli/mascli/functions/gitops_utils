@@ -497,6 +497,7 @@ function sm_get_secret_arn() {
 # Manage customer-level MREF AES keystore password for Maximo Manage
 # Manages customer-level MREF (Maximo Real Estate and Facilities) AES keystore password
 # to ensure all environments for a customer share the same encryption password.
+# Updated: 2026-06-11 - Template separator fix included in this build
 # This prevents backflow issues when moving data between prod/dev/test environments.
 #
 # The function:
