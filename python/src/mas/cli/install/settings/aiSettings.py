@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
+# Copyright (c) 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -200,6 +200,3 @@ class AiSettingsMixin:
             else:
                 self.setParam("configure_aiassistant", "none")
                 print_formatted_text("AiCfg configuration skipped")
-
-
-# Made with Bob
