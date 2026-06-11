@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -172,11 +172,14 @@ optionalParams = [
     "mas_ws_facilities_storage_userfiles_class",
     "mas_ws_facilities_storage_userfiles_mode",
     "mas_ws_facilities_storage_userfiles_size",
+    "mas_ws_facilities_server_timezone",
     "mas_ws_facilities_dwfagents",
     "mas_ws_facilities_db_maxconnpoolsize",
     "mas_ws_facilities_properties_file_local",
     "mas_ws_facilities_custom_properties",
     "mas_ws_facilities_properties_secret_name",
+    # DB2 for Facilities
+    "db2_facilities_timezone",
     # Special chars
     "mas_special_characters",
     # ODH
