@@ -819,6 +819,14 @@ facilitiesArgGroup.add_argument(
     default=50,
 )
 facilitiesArgGroup.add_argument(
+    "--facilities-server-timezone",
+    dest="mas_ws_facilities_server_timezone",
+    required=False,
+    help="Facilities servers timezone",
+    type=str,
+    default="UTC",
+)
+facilitiesArgGroup.add_argument(
     "--facilities-properties-file",
     dest="mas_ws_facilities_properties_file_local",
     required=False,
@@ -1176,7 +1184,8 @@ db2ArgGroup.add_argument(
     choices=DB2_TYPES,
     metavar="{db2wh,db2oltp}",
 )
-db2ArgGroup.add_argument("--db2-timezone", required=False, help="Timezone for Db2 instance")
+db2ArgGroup.add_argument("--db2-timezone", required=False, help="Timezone for System and Dedicated Manage Instances")
+db2ArgGroup.add_argument("--db2-facilities-timezone", required=False, help="Timezone for Dedicated Facilities Instance")
 db2ArgGroup.add_argument("--db2-license-file", required=False, help="Db2 License File for Db2")
 db2ArgGroup.add_argument("--db2-affinity-key", required=False, help="Set a node label to declare affinity to")
 db2ArgGroup.add_argument(
