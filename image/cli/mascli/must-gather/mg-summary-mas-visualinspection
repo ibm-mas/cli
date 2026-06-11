@@ -1,8 +1,0 @@
-#!/bin/bash
-
-echo "IBM Maximo Application Suite - Visual Inspection Application"
-echo "--------------------------------------------------------------------------------"
-oc get visualinspectionapp -n $1
-echo ""
-
-exit 0

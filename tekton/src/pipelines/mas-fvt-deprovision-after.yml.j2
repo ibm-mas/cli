@@ -90,9 +90,9 @@ spec:
         - name: name
           value: $(params.pipelinerun_name)
         - name: delay
-          value: 1200  # 20 minutes between checking the status of the pipelinerun
+          value: "1200"  # 20 minutes between checking the status of the pipelinerun
         - name: max_retries
-          value: 60  # attempts before giving up (approximately 20 hours)
+          value: "60"  # attempts before giving up (approximately 20 hours)
         - name: ignore_failure
           value: $(params.ignore_failure)
 

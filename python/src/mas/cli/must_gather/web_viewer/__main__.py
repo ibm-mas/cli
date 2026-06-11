@@ -1,0 +1,174 @@
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
+"""Command-line interface for generating and serving web viewer for must-gather output.
+
+This module provides commands to generate the web viewer and optionally
+serve it via HTTP for easy viewing in a browser.
+"""
+
+import argparse
+import http.server
+import socketserver
+import sys
+from pathlib import Path
+
+from mas.cli.must_gather import web_viewer
+
+
+def main():
+    """Generate and optionally serve web viewer for must-gather output."""
+    parser = argparse.ArgumentParser(
+        prog="python -m mas.cli.must_gather.web_viewer",
+        description="Generate and serve web viewer for must-gather output",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Generate command
+    generate_parser = subparsers.add_parser("generate", help="Generate web viewer files (index.html and manifest.json)")
+    generate_parser.add_argument(
+        "-d",
+        "--dir",
+        type=str,
+        required=True,
+        help="Path to must-gather output directory",
+    )
+    generate_parser.add_argument(
+        "--skip-manifest",
+        action="store_true",
+        help="Skip manifest generation if manifest.json already exists (fast regeneration)",
+    )
+
+    # Serve command
+    serve_parser = subparsers.add_parser("serve", help="Generate viewer and start HTTP server")
+    serve_parser.add_argument(
+        "-d",
+        "--dir",
+        type=str,
+        required=True,
+        help="Path to must-gather output directory",
+    )
+    serve_parser.add_argument("--port", type=int, default=8000, help="Port for HTTP server (default: 8000)")
+
+    args = parser.parse_args()
+
+    # Show help if no command specified
+    if not args.command:
+        parser.print_help()
+        return 1
+
+    if args.command == "generate":
+        return generate_viewer(args.dir, getattr(args, "skip_manifest", False))
+    elif args.command == "serve":
+        return serve_viewer(args.dir, args.port)
+    else:
+        parser.print_help()
+        return 1
+
+
+def generate_viewer(directory: str, skipManifest: bool = False) -> int:
+    """Generate web viewer for a must-gather directory.
+
+    Args:
+        directory (str): Path to must-gather output directory
+        skipManifest (bool, optional): Skip manifest generation if it exists. Defaults to False.
+
+    Returns:
+        int: Exit code (0 for success, 1 for failure)
+    """
+    # Validate directory exists
+    outputDir = Path(directory)
+    if not outputDir.exists():
+        print(f"Error: Directory does not exist: {directory}", file=sys.stderr)
+        return 1
+
+    if not outputDir.is_dir():
+        print(f"Error: Path is not a directory: {directory}", file=sys.stderr)
+        return 1
+
+    # Generate web viewer
+    if skipManifest:
+        print(f"Regenerating web viewer (skipping manifest): {directory}")
+    else:
+        print(f"Generating web viewer for: {directory}")
+
+    if web_viewer.generateWebViewer(str(outputDir), skipManifest=skipManifest):
+        print("\n✅ Web viewer generated successfully!")
+        print("\nTo view the must-gather, run:")
+        print(f"  mas-cli must-gather serve --dir {directory}\n")
+        return 0
+    else:
+        print("\n❌ Failed to generate web viewer", file=sys.stderr)
+        print("   Check the logs for details", file=sys.stderr)
+        return 1
+
+
+def serve_viewer(directory: str, port: int) -> int:
+    """Generate viewer and start HTTP server.
+
+    Args:
+        directory (str): Path to must-gather output directory
+        port (int): Port number for HTTP server
+
+    Returns:
+        int: Exit code (0 for success, 1 for failure)
+    """
+    # Validate directory
+    outputDir = Path(directory)
+    if not outputDir.exists():
+        print(f"Error: Directory does not exist: {directory}", file=sys.stderr)
+        return 1
+
+    if not outputDir.is_dir():
+        print(f"Error: Path is not a directory: {directory}", file=sys.stderr)
+        return 1
+
+    # Generate viewer if needed
+    indexPath = outputDir / "index.html"
+    if not indexPath.exists():
+        print(f"Generating web viewer for: {directory}")
+        if not web_viewer.generateWebViewer(str(outputDir)):
+            print("\n❌ Failed to generate web viewer", file=sys.stderr)
+            return 1
+        print("✅ Web viewer generated\n")
+    else:
+        print(f"Using existing web viewer in: {directory}\n")
+
+    # Start HTTP server
+    print(f"Starting HTTP server on port {port}...")
+    print(f"View must-gather at: http://localhost:{port}/")
+    print("Press Ctrl+C to stop the server\n")
+
+    # Change to the output directory
+    import os
+
+    os.chdir(str(outputDir))
+
+    # Start server
+    Handler = http.server.SimpleHTTPRequestHandler
+    Handler.extensions_map.update({".yaml": "text/plain", ".yml": "text/plain", ".log": "text/plain"})
+
+    try:
+        with socketserver.TCPServer(("", port), Handler) as httpd:
+            httpd.serve_forever()
+            return 0  # This line is never reached but satisfies type checker
+    except KeyboardInterrupt:
+        print("\n\nServer stopped.")
+        return 0
+    except OSError as e:
+        print(f"\n❌ Failed to start server: {e}", file=sys.stderr)
+        print(f"   Port {port} may already be in use", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
