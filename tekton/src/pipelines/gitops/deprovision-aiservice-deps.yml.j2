@@ -57,7 +57,7 @@ spec:
       type: string
     - name: aws_docdb_instance_number
       type: string
-      default: 3
+      default: "3"
     - name: jdbc_type_aiservice
       type: string
     - name: jdbc_instance_name_aiservice
@@ -121,9 +121,9 @@ spec:
         - name: name
           value: $(params.pipelinerun_name)
         - name: delay
-          value: 120  # seconds between checking the status of the pipelinerun
+          value: "120"  # seconds between checking the status of the pipelinerun
         - name: max_retries
-          value: 120  # attempts before giving up
+          value: "120"  # attempts before giving up
         - name: ignore_failure
           value: $(params.ignore_failure)  # fails and exit once the first failure is detected
 {% endif %}
