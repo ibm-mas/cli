@@ -9,7 +9,7 @@
 #
 # *****************************************************************************
 
-from utils import UpdateTestConfig, run_update_test
+from utils import UpdateTestConfig, UpdateTestHelper, run_update_test
 import sys
 import os
 import pytest
@@ -318,6 +318,35 @@ def test_db2u_same_version_no_upgrade(tmpdir, resource_kind):
     )
 
     run_update_test(tmpdir, config)
+
+
+@pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
+def test_db2u_same_major_version_sets_db2_channel(tmpdir, resource_kind):
+    """Test that same-major-version updates still set db2_channel.
+
+    GIVEN a Db2 instance already on the target major version
+    WHEN update runs in non-interactive mode
+    THEN db2_channel is set to the catalog default channel.
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind=resource_kind,
+        db2u_version="11.5.9.0",
+        db2u_target_version="v11.5",
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--no-confirm"],
+        timeout_seconds=30,
+    )
+
+    helper = UpdateTestHelper(tmpdir, config)
+    helper.run_update_test()
+
+    assert helper.app is not None
+    assert helper.app.getParam("db2_channel") == "v11.5"
 
 
 @pytest.mark.parametrize("resource_kind", ["Db2uCluster", "Db2uInstance"])
