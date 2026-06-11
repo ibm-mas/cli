@@ -518,46 +518,14 @@ function gitops_aiservice() {
     echo "Generating aiservice file ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aiservice.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml
 
-    # Generate DB2U ArgoApp if USE_AWS_DB2 is false (meaning use in-cluster DB2)
+    # Generate DB2U configuration for AI Service if in-cluster DB2 is needed
     # ---------------------------------------------------------------------------
-    echo
-    echo "=========================================="
-    echo "DEBUG: DB2 Provisioning Check"
-    echo "=========================================="
-    echo "DEBUG: USE_AWS_DB2 environment variable: '${USE_AWS_DB2}'"
-    echo "DEBUG: IS_GITOPS_FVT_ENV environment variable: '${IS_GITOPS_FVT_ENV}'"
-    
-    # In FVT environment, if USE_AWS_DB2 is false, provision in-cluster DB2
     if [[ "${IS_GITOPS_FVT_ENV}" == "true" && "${USE_AWS_DB2}" == "false" ]]; then
-      echo "DEBUG: ✓ FVT environment detected with USE_AWS_DB2=false - DB2 provisioning ENABLED"
-      echo
-      echo_h2 "Generating DB2U operator Application"
-      echo "- DB2U operator (in-cluster DB2 for FVT)"
-      
-      export DB2_NAMESPACE="db2u-${AISERVICE_INSTANCE_ID}"
-      export DB2_INSTALL_PLAN="${DB2_INSTALL_PLAN:-Automatic}"
-      # Don't set DB2_CHANNEL - let it use AWS Secrets Manager path from template
-      # export DB2_CHANNEL="${DB2_CHANNEL:-v110508.0}"
-      
-      # Set the AWS Secrets Manager keys for DB2
-      export SECRET_KEY_DB2_DEFAULT_CHANNEL="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel"
-      export SECRET_KEY_IBM_ENTITLEMENT="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64"
-      
-      echo "Generating DB2U file for AI Service ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u-aiservice.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
+      # Call dedicated function for DB2 provisioning
+      gitops_db2u_aiservice
     else
-      echo "DEBUG: ✗ DB2 provisioning SKIPPED"
-      if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
-        echo "DEBUG:   Reason: IS_GITOPS_FVT_ENV='${IS_GITOPS_FVT_ENV}' (not 'true')"
-      fi
-      if [[ "${USE_AWS_DB2}" != "false" ]]; then
-        echo "DEBUG:   Reason: USE_AWS_DB2='${USE_AWS_DB2}' (not 'false', using external DB2)"
-      fi
+      echo "DB2 provisioning skipped (IS_GITOPS_FVT_ENV=${IS_GITOPS_FVT_ENV}, USE_AWS_DB2=${USE_AWS_DB2})"
     fi
-    
-    echo "=========================================="
-    echo "DEBUG: DB2 Check Complete"
-    echo "=========================================="
     echo
 
     # Commit and push to github target repo

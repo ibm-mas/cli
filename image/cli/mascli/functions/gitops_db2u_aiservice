@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+function gitops_db2u_aiservice() {
+  # Generate DB2U configuration for AI Service
+  # This function is called by gitops_aiservice when in-cluster DB2 is needed
+  # 
+  # Prerequisites:
+  #   - IS_GITOPS_FVT_ENV must be "true"
+  #   - USE_AWS_DB2 must be "false"
+  #   - AISERVICE_INSTANCE_ID must be set
+  #   - ACCOUNT_ID, CLUSTER_ID must be set
+  #   - GITOPS_CLUSTER_DIR must be set
+  #   - SECRETS_PATH, SECRETS_KEY_SEPERATOR must be set
+  #
+  # Optional environment variables:
+  #   - DB2_CHANNEL: Override DB2 operator channel (default: from AWS Secrets Manager)
+  #   - DB2_INSTALL_PLAN: Install plan approval (default: Automatic)
+  #   - CLUSTER_DOMAIN: Cluster domain (optional)
+  
+  echo_h2 "Generating DB2U Configuration for AI Service"
+  
+  # Validate prerequisites
+  if [[ -z "${AISERVICE_INSTANCE_ID}" ]]; then
+    echo "ERROR: AISERVICE_INSTANCE_ID is not set"
+    exit 1
+  fi
+  
+  if [[ -z "${GITOPS_CLUSTER_DIR}" ]]; then
+    echo "ERROR: GITOPS_CLUSTER_DIR is not set"
+    exit 1
+  fi
+  
+  # Export DB2 configuration
+  export DB2_NAMESPACE="db2u-${AISERVICE_INSTANCE_ID}"
+  export DB2_INSTALL_PLAN="${DB2_INSTALL_PLAN:-Automatic}"
+  
+  # DB2_CHANNEL can be set via environment variable to override AWS Secrets Manager default
+  # If not set, template will use: <path:aws/secretsmanager:account/cluster/db2_default_channel#db2_default_channel>
+  # Example: export DB2_CHANNEL="v4.0" to use a specific version
+  
+  # Set AWS Secrets Manager keys for DB2
+  export SECRET_KEY_DB2_DEFAULT_CHANNEL="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel"
+  export SECRET_KEY_IBM_ENTITLEMENT="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64"
+  
+  # Display configuration
+  echo "DB2 Configuration:"
+  echo "  - Namespace: ${DB2_NAMESPACE}"
+  echo "  - Channel: ${DB2_CHANNEL:-<from AWS Secrets Manager: ${SECRET_KEY_DB2_DEFAULT_CHANNEL}>}"
+  echo "  - Install Plan: ${DB2_INSTALL_PLAN}"
+  if [[ -n "${CLUSTER_DOMAIN}" ]]; then
+    echo "  - Cluster Domain: ${CLUSTER_DOMAIN}"
+  fi
+  
+  # Generate DB2 configuration file
+  local db2_config_file="${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
+  echo "Generating ${db2_config_file}"
+  
+  jinjanate_commmon \
+    $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u-aiservice.yaml.j2 \
+    "${db2_config_file}"
+  
+  # Validate generated configuration
+  if [[ ! -f "${db2_config_file}" ]]; then
+    echo "ERROR: Failed to generate DB2 configuration file"
+    exit 1
+  fi
+  
+  if ! grep -q "db2_namespace:" "${db2_config_file}"; then
+    echo "ERROR: DB2 configuration missing required field: db2_namespace"
+    exit 1
+  fi
+  
+  if ! grep -q "ibm_db2u_databases:" "${db2_config_file}"; then
+    echo "ERROR: DB2 configuration missing required field: ibm_db2u_databases"
+    exit 1
+  fi
+  
+  echo "✓ DB2 configuration generated and validated successfully"
+  echo "  File: ${db2_config_file}"
+}
