@@ -348,6 +348,7 @@ class InstallSummarizerMixin:
                 "mas_ws_facilities_storage_userfiles_mode",
             )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
+            self.printParamSummary("  + Server Timezone", "mas_ws_facilities_server_timezone")
             self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
             self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local")
             self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")
@@ -396,7 +397,11 @@ class InstallSummarizerMixin:
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
     def db2Summary(self) -> None:
-        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+        if (
+            self.getParam("db2_action_system") == "install"
+            or self.getParam("db2_action_manage") == "install"
+            or self.getParam("db2_action_facilities") == "install"
+        ):
             self.printH2("IBM Db2 Univeral Operator Configuration")
             self.printSummary(
                 "System Instance",
@@ -406,8 +411,15 @@ class InstallSummarizerMixin:
                 "Dedicated Manage Instance",
                 ("Install" if self.getParam("db2_action_manage") == "install" else "Do Not Install"),
             )
+            self.printSummary(
+                "Dedicated Facilities Instance",
+                ("Install" if self.getParam("db2_action_facilities") == "install" else "Do Not Install"),
+            )
             self.printParamSummary(" - Type", "db2_type")
-            self.printParamSummary(" - Timezone", "db2_timezone")
+            if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+                self.printParamSummary(" - Timezone for System and Dedicated Manage Instances", "db2_timezone")
+            if self.getParam("db2_action_facilities") == "install":
+                self.printParamSummary(" - Timezone for Dedicated Facilities Instance", "db2_facilities_timezone")
             print()
             self.printParamSummary("Install Namespace", "db2_namespace")
             self.printParamSummary("Subscription Channel", "db2_channel")
