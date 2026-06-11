@@ -178,15 +178,13 @@ class ManageSettingsMixin:
                     self.params["mas_appws_components"] += ",workday=latest"
                 if self.yesOrNo(" - AIP"):
                     self.params["mas_appws_components"] += ",aip=latest"
+                if self.yesOrNo(" - Collaborate"):
+                    self.params["mas_appws_components"] += ",collaborate=latest"
                 # Vegetation Management is only available in Manage 9.1
                 manageChannel = self.getParam("mas_app_channel_manage")
                 if manageChannel and not isVersionEqualOrAfter("9.2.0", manageChannel):
                     if self.yesOrNo(" - Vegetation Management"):
                         self.params["mas_appws_components"] += ",vegm=latest"
-                # Collaborate is only available in Manage 9.2 or higher
-                manageChannel = self.getParam("mas_app_channel_manage")
-                if self.yesOrNo(" - Collaborate"):
-                    self.params["mas_appws_components"] += ",collaborate=latest"
                 logger.debug(f"Generated mas_appws_components = {self.params['mas_appws_components']}")
                 if ",icd=" in self.params["mas_appws_components"]:
                     self.printH2("Maximo IT License Terms")
