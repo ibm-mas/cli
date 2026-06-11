@@ -719,13 +719,13 @@ class InstallApp(
                         "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts",
                         "",
                         "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
-                        "     - No ClusterRoles are installed in this mode",
+                        "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
                         "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
                         "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
                         "",
                         "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
-                        "     - No ClusterRoles are installed in this mode",
+                        "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - Only essential permissions required for MAS applications are applied",
                         "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
                         "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
@@ -1645,6 +1645,14 @@ class InstallApp(
                         "mas_ws_facilities_storage_log_size",
                         default=30,
                     )
+
+                if self.yesOrNo("Do you want set Real Estate and Facilities server timezone (Set only if the Facilities DB uses a timezone other than UTC)"):
+                    self.promptForString(
+                        "Provide server timezone:",
+                        "mas_ws_facilities_server_timezone",
+                        default="UTC",
+                    )
+                    self.setParam("db2_facilities_timezone", self.getParam("mas_ws_facilities_server_timezone"))
 
                 if self.yesOrNo("Supply configuration for dedicated workflow agents"):
                     print_formatted_text(
