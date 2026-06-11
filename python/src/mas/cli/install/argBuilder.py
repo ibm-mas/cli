@@ -348,6 +348,9 @@ class installArgBuilderMixin:
             if self.getParam("mas_ws_facilities_storage_userfiles_size") != "":
                 command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
 
+            if self.getParam("mas_ws_facilities_server_timezone") != "":
+                command += f"  --facilities-server-timezone \"{self.getParam('mas_ws_facilities_server_timezone')}\"{newline}"
+
             if self.getParam("mas_ws_facilities_properties_file_local") != "":
                 command += f"  --facilities-properties-file \"{self.getParam('mas_ws_facilities_properties_file_local')}\"{newline}"
             if self.getParam("mas_ws_facilities_properties_secret_name") != "":
@@ -470,8 +473,12 @@ class installArgBuilderMixin:
 
             if self.getParam("db2_type") != "":
                 command += f"  --db2-type \"{self.getParam('db2_type')}\"{newline}"
-            if self.getParam("db2_timezone") != "":
-                command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+            if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+                if self.getParam("db2_timezone") != "":
+                    command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+            if self.getParam("db2_action_facilities") == "install":
+                if self.getParam("db2_facilities_timezone") != "":
+                    command += f"  --db2-facilities-timezone \"{self.getParam('db2_facilities_timezone')}\"{newline}"
             if self.db2LicenseFileLocal != "":
                 command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
 
