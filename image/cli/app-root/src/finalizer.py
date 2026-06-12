@@ -286,6 +286,12 @@ if __name__ == "__main__":
             "apiVersion": "apps.mas.ibm.com/v1",
             "kind": "ManageApp",
         },
+        "ibm-mas-facilities": {
+            "deployment": "ibm-mas-facilities-operator",
+            "namespace": f"mas-{instanceId}-facilities",
+            "apiVersion": "apps.mas.ibm.com/v1",
+            "kind": "FacilitiesApp",
+        },
         "ibm-mas-monitor": {
             "deployment": "ibm-mas-monitor-operator",
             "namespace": f"mas-{instanceId}-monitor",
@@ -326,6 +332,7 @@ if __name__ == "__main__":
         "ibm-mas-assist": "S04PPFYUJG5",
         "ibm-mas-iot": "S04PBTG77JB",
         "ibm-mas-manage": "S05QB03HNTU",
+        "ibm-mas-facilities": "S08U8MQTZKP",
         "ibm-mas-monitor": "S04QG3R30SC",
         "ibm-mas-optimizer": "S04PSB1R8DR",
         "ibm-mas-predict": "S04Q53TT5S5",
