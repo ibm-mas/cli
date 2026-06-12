@@ -269,6 +269,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.manageAppName = "Manage foundation"
             self.showAdvancedOptions = False
             self.installIoT = False
+            self.installMonitor = False
             self.installFacilities = False
             self.installManage = True
             self.isManageFoundation = True

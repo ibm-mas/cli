@@ -25,6 +25,7 @@ class Db2SettingsMixin:
         params: Dict[str, str]
         devMode: bool
         installIoT: bool
+        installMonitor: bool
         installManage: bool
         installFacilities: bool
         manageAppName: str
