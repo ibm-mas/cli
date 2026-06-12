@@ -854,3 +854,4 @@ function gitops_suite_app_config() {
   rm -rf $TEMP_DIR
 
 }
+#smtg
