@@ -465,8 +465,7 @@ function mirror_to_registry() {
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
     "$MIRROR_SPARK" == true ||
-    "$MIRROR_COGNOS" == true ||
-    "$MIRROR_CLI" == true ]]
+    "$MIRROR_COGNOS" == true ]]
   then
     MIRROR_DEPS=true
   else
