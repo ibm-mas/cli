@@ -59,6 +59,9 @@ spec:
     - name: mas_instance_id
       type: string
       description: Instance ID of the target test environment
+    - name: manage_svc
+      type: string
+      description: "Manage service name to test against. It must be something like: https://masdev.manage.optidev.apps.masopti-32106946.cp.fyre.ibm.com/"
 
   stepTemplate:
     name: 'fvt-manage-pytest'
@@ -119,6 +122,9 @@ spec:
             name: mas-devops
             key: ARTIFACTORY_UPLOAD_DIR
             optional: true
+      
+      - name: MANAGE_SVC
+        value: $(params.manage_svc)
 
       # Black and white listing
       - name: FVT_BLACKLIST
