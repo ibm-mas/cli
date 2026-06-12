@@ -373,7 +373,6 @@ spec:
     # -------------------------------------------------------------------------
     # Wait for IoT installation to complete before launching IoT FVT
     # Runs after Manage approval to ensure proper sequencing
-    # Also waits when Monitor FVT is enabled to ensure IoT installation completes before Monitor FVT starts
     - name: waitfor-iot
       timeout: "0"
       taskRef:
@@ -399,9 +398,9 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: $(params.launchfvt_iot)$(params.launchfvt_monitor)
-          operator: notin
-          values: ["falsefalse", "FalseFalse"]
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -635,7 +634,6 @@ spec:
     # -------------------------------------------------------------------------
     # Wait for Monitor installation to complete before launching Monitor FVT
     # Runs after Manage approval to ensure proper sequencing
-    # Also waits when IoT FVT is enabled to ensure Monitor installation completes before IoT FVT starts
     - name: waitfor-monitor
       timeout: "0"
       taskRef:
@@ -661,9 +659,9 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: $(params.launchfvt_iot)$(params.launchfvt_monitor)
-          operator: notin
-          values: ["falsefalse", "FalseFalse"]
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -708,8 +706,7 @@ spec:
         - approval-iot
         - approval-monitor
 
-    # Launch Monitor FVT after both IoT and Monitor installations complete
-    # Waits for IoT FVT if enabled, otherwise waits for IoT approval
+    # Launch Monitor FVT after IoT FVT
     - name: launchfvt-monitor
       timeout: "0"
       params:
@@ -726,7 +723,6 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-iot
-        - approval-iot
 
 
     # 8. Application FVT - Optimizer
