@@ -12,7 +12,7 @@ module "msk" {
   broker_volume_size        = each.value.broker_volume_size
   number_of_broker_nodes    = each.value.broker_nodes
   msk_egress_subnet_ids     = local.cluster.external_subnet_ids
-  msk_ingress_subnet_ids    = local.cluster.internal_subnet_ids
+  msk_ingress_subnet_ids    = local.cluster.external_subnet_ids
   msk_worker_subnet_id_list = local.cluster.internal_subnet_ids
 
   # id of additional security group to associate with cluster
