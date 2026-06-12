@@ -461,7 +461,7 @@ try:
     result = resolve_path(data, dot_path)
     # Strip quotes from result (handles strings, lists, dicts recursively)
     result = strip_quotes_recursive(result)
-    
+
     if isinstance(result, (list, dict)):
         print(json.dumps(result))
     else:
