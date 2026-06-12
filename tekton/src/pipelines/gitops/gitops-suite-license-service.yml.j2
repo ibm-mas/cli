@@ -87,7 +87,7 @@ spec:
       type: string
       default: ""
 
-    - name: cis_service_name
+    - name: cis_domain
       type: string
       default: ""
     
@@ -242,8 +242,8 @@ spec:
           value: $(params.ocp_cluster_domain)
         - name: dns_provider
           value: $(params.dns_provider)
-        - name: cis_service_name
-          value: $(params.cis_service_name)
+        - name: cis_domain
+          value: $(params.cis_domain)
         - name: cis_crn
           value: $(params.cis_crn)
 
