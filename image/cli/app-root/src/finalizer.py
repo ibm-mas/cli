@@ -324,7 +324,7 @@ if __name__ == "__main__":
         },
         "ibm-sls": {
             "deployment": "ibm-sls-controller-manager",
-            "namespace": f"sls-{instanceId}",
+            "namespace": f"mas-{instanceId}-core",
             "apiVersion": "config.mas.ibm.com/v1",
             "kind": "SlsCfg",
         },
@@ -365,7 +365,12 @@ if __name__ == "__main__":
         # Lookup version
         try:
             crs = dynClient.resources.get(api_version=apiVersion, kind=kind)
-            cr = crs.get(name=instanceId, namespace=deploymentNamespace)
+            # Special handling for ibm-sls SlsCfg which has a different naming pattern
+            if productId == "ibm-sls" and kind == "SlsCfg":
+                resourceName = f"{instanceId}-sls-system"
+            else:
+                resourceName = instanceId
+            cr = crs.get(name=resourceName, namespace=deploymentNamespace)
             if cr.status and cr.status.versions:
                 productVersion = cr.status.versions.reconciled
 
