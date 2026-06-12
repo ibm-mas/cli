@@ -689,22 +689,6 @@ case $1 in
     reset_colors
     gitops_deprovision_odh "$@"
     ;;
-    
-  gitops-kmodel)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_kmodel "$@"
-    ;;
-
-  gitops-deprovision-kmodel)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel deprovision Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_deprovision_kmodel "$@"
-  ;;
   
   gitops-deprovision-rhoai)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
@@ -876,14 +860,6 @@ case $1 in
     echo
     reset_colors
     gitops
-    ;;
-
-  gitops-kmodel)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_kmodel "$@"
     ;;
 
   *)

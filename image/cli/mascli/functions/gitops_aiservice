@@ -313,54 +313,6 @@ function gitops_aiservice_fvt_prepare() {
       return 1
     }
 
-  # Create placeholder JDBC configuration for FVT environments with in-cluster DB2
-  # This will be updated by the DB2 postSync job after DB2 is installed
-  # if [[ "${IS_GITOPS_FVT_ENV}" == "true" && "${USE_AWS_DB2}" == "false" ]]; then
-  #   echo "Creating placeholder JDBC configuration for FVT environment..."
-    
-  #   # Placeholder values - will be updated by DB2 postSync job
-  #   JDBCCFG_USERNAME=${JDBCCFG_USERNAME:-"placeholder"}
-  #   JDBCCFG_PASSWORD=${JDBCCFG_PASSWORD:-"placeholder"} # pragma: allowlist secret
-  #   JDBCCFG_URL=${JDBCCFG_URL:-"jdbc:db2://placeholder:50443/BLUDB:sslConnection=true;"}
-  #   JDBCCFG_SSLENABLED=${JDBCCFG_SSLENABLED:-"true"}
-  #   # CA certificate must be base64 encoded (template expects it pre-encoded)
-  #   JDBCCFG_CA_B64ENC=${JDBCCFG_CA_B64ENC:-$(echo -n "placeholder-certificate" | base64)}
-    
-  #   SECRET_NAME_JDBC=${SECRETS_PREFIX}jdbc
-  #   TAGS="[{\"Key\": \"jdbccfg_username\", \"Value\": \"jdbccfg_username\"}, {\"Key\": \"jdbccfg_password\", \"Value\": \"jdbccfg_password\"}, {\"Key\": \"jdbccfg_url\", \"Value\": \"jdbccfg_url\"}, {\"Key\": \"jdbccfg_sslenabled\", \"Value\": \"jdbccfg_sslenabled\"}, {\"Key\": \"jdbccfg_ca_b64enc\", \"Value\": \"jdbccfg_ca_b64enc\"}]"
-    
-  #   sm_update_secret \
-  #     "$SECRET_NAME_JDBC" \
-  #     "{\"jdbccfg_username\":\"$JDBCCFG_USERNAME\",\"jdbccfg_password\":\"$JDBCCFG_PASSWORD\",\"jdbccfg_url\":\"$JDBCCFG_URL\",\"jdbccfg_sslenabled\":\"$JDBCCFG_SSLENABLED\",\"jdbccfg_ca_b64enc\":\"$JDBCCFG_CA_B64ENC\"}" \
-  #     "$TAGS" || {
-  #       echo "Failed to create placeholder JDBC configuration"
-  #       return 1
-  #     }
-    
-  #   echo "✓ Placeholder JDBC configuration created (will be updated by DB2 postSync job)"
-  # fi
-
-  # Create DB2 default channel configuration for FVT environments with in-cluster DB2
-  # if [[ "${IS_GITOPS_FVT_ENV}" == "true" && "${USE_AWS_DB2}" == "false" ]]; then
-  #   echo "Creating DB2 default channel configuration for FVT environment..."
-    
-  #   # Default DB2 channel value (can be overridden by environment variable)
-  #   # DB2_DEFAULT_CHANNEL=${DB2_DEFAULT_CHANNEL:-"v3.2"}
-    
-  #   SECRET_NAME_DB2_CHANNEL=${SECRETS_PREFIX}db2_default_channel
-  #   TAGS="[{\"Key\": \"db2_default_channel\", \"Value\": \"db2_default_channel\"}]"
-    
-  #   sm_update_secret \
-  #     "$SECRET_NAME_DB2_CHANNEL" \
-  #     "{\"db2_default_channel\":\"$DB2_DEFAULT_CHANNEL\"}" \
-  #     "$TAGS" || {
-  #       echo "Failed to update DB2 channel configuration"
-  #       return 1
-  #     }
-    
-  #   echo "DB2 default channel configuration created"
-  # fi
-
   echo "AI Service FVT secret creating function end"
 }
 
@@ -517,26 +469,17 @@ function gitops_aiservice() {
     echo "Generating aiservice file ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aiservice.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml
 
-    # Generate DB2U ArgoApp if USE_AWS_DB2 is false (meaning use in-cluster DB2)
+    # Generate DB2U ArgoApp if USE_AWS_DB2 is false
     # ---------------------------------------------------------------------------
     echo
-    echo "=========================================="
-    echo "DEBUG: DB2 Provisioning Check"
-    echo "=========================================="
-    echo "DEBUG: USE_AWS_DB2 environment variable: '${USE_AWS_DB2}'"
-    echo "DEBUG: IS_GITOPS_FVT_ENV environment variable: '${IS_GITOPS_FVT_ENV}'"
+    echo_h2 "DB2 Provisioning Check"
     
     # In FVT environment, if USE_AWS_DB2 is false, provision in-cluster DB2
     if [[ "${IS_GITOPS_FVT_ENV}" == "true" && "${USE_AWS_DB2}" == "false" ]]; then
-      echo "DEBUG: ✓ FVT environment detected with USE_AWS_DB2=false - DB2 provisioning ENABLED"
-      echo
       echo_h2 "Generating DB2U operator Application"
-      echo "- DB2U operator (in-cluster DB2 for FVT)"
       
       export DB2_NAMESPACE="db2u-${AISERVICE_INSTANCE_ID}"
       export DB2_INSTALL_PLAN="${DB2_INSTALL_PLAN:-Automatic}"
-      # Don't set DB2_CHANNEL - let it use AWS Secrets Manager path from template
-      # export DB2_CHANNEL="${DB2_CHANNEL:-v110508.0}"
       
       # Set the AWS Secrets Manager keys for DB2
       export SECRET_KEY_DB2_DEFAULT_CHANNEL="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel"
@@ -544,20 +487,7 @@ function gitops_aiservice() {
       
       echo "Generating DB2U file for AI Service ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u-aiservice.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
-    else
-      echo "DEBUG: ✗ DB2 provisioning SKIPPED"
-      if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
-        echo "DEBUG:   Reason: IS_GITOPS_FVT_ENV='${IS_GITOPS_FVT_ENV}' (not 'true')"
-      fi
-      if [[ "${USE_AWS_DB2}" != "false" ]]; then
-        echo "DEBUG:   Reason: USE_AWS_DB2='${USE_AWS_DB2}' (not 'false', using external DB2)"
-      fi
     fi
-    
-    echo "=========================================="
-    echo "DEBUG: DB2 Check Complete"
-    echo "=========================================="
-    echo
 
     # Commit and push to github target repo
     # ---------------------------------------------------------------------------
