@@ -123,7 +123,7 @@ function gitops_odh_noninteractive() {
   export ODH_OPERATOR_VERSION="${ODH_OPERATOR_VERSION:-"opendatahub-operator.v2.19.0"}"
   export ODH_NAMESPACE="${ODH_NAMESPACE:-"opendatahub"}"
 
-  export AISERVICE_NAMESPACE="${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aiservice"}"
+  export AISERVICE_NAMESPACE="${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}"
 
   export ODH_PIPELINE_NAME="${ODH_PIPELINE_NAME:-"openshift-pipelines-operator"}"
   export ODH_PIPELINE_NAMESPACE="${ODH_PIPELINE_NAMESPACE:-"openshift-operators"}"
