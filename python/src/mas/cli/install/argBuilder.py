@@ -368,11 +368,11 @@ class installArgBuilderMixin:
                 "wffutureagent",
                 "wfnotificationagent",
                 "reservesmtpagent",
-                "scheduleragent"
+                "scheduleragent",
             ]
             for agent in facilitiesagents:
                 if self.getParam(f"mas_ws_facilities_{agent}_deploymentmode") != "":
-                    command += f"  --facilities-{agent}-deploymentmode \"{self.getParam(f"mas_ws_facilities_{agent}_deploymentmode")}\"{newline}"              
+                    command += f'  --facilities-{agent}-deploymentmode "{self.getParam(f"mas_ws_facilities_{agent}_deploymentmode")}"{newline}'              
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
         if self.installAIService:

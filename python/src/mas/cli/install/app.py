@@ -1472,7 +1472,7 @@ class InstallApp(
             if self.showAdvancedOptions:
                 # Check MAS version - Custom FACILITIES.properties and Agents Deployment Flexibility are only supported in MAS 9.2+
                 mas_facilities_channel = self.getParam("mas_app_channel_facilities")
-                
+
                 self.printH2("Maximo Real Estate and Facilities Settings - Advanced")
                 self.printDescription(
                     ["Advanced configurations for Real Estate and Facilities are added through an additional file called facilities-configs.yaml"]
@@ -1679,7 +1679,7 @@ class InstallApp(
                         "wffutureagent",
                         "wfnotificationagent",
                         "reservesmtpagent",
-                        "scheduleragent"
+                        "scheduleragent",
                     ]
                 # Only prompt for Agents Deployments Flexibility file if MAS 9.2+
                 if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
@@ -1691,7 +1691,7 @@ class InstallApp(
                                 "  2. shared - the agent is activated in the shared multiagents POD",
                                 "  3. disabled - the agent is not activated at all (not applicable for wfagent and reportqueueagent)",
                                 "Warning: the Agents Deployments Flexibility is activated only if deplyment mode is defined for at least one agent.",
-                                "In this case, if deployment mode is left empty for an agent, it will be activated in the multiagents POD."
+                                "In this case, if deployment mode is left empty for an agent, it will be activated in the multiagents POD.",
                             ]   
                         ) 
                         for agent in facilitiesagents:

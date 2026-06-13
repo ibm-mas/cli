@@ -25,7 +25,7 @@ ATTACHMENT_PROVIDERS = ["filestorage", "ibm", "aws"]
 ATTACHMENT_MODES = ["cr", "db"]
 FACILITIES_SIZES = ["small", "medium", "large"]
 FACILITIES_APPOMUPGRADEMODE = ["manual", "load-only", "automatic"]
-FACILITIES_AGENTDEPLOYMENT_MODES = ["", "shared", "dedicated", "disabled"] 
+FACILITIES_AGENTDEPLOYMENT_MODES = ["", "shared", "dedicated", "disabled"]
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
 
 
@@ -853,7 +853,7 @@ facilitiesagents = [
         "wffutureagent",
         "wfnotificationagent",
         "reservesmtpagent",
-        "scheduleragent"
+        "scheduleragent",
     ]
 for agent in facilitiesagents:
     facilitiesArgGroup.add_argument(
