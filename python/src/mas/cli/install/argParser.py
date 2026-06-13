@@ -841,20 +841,20 @@ facilitiesArgGroup.add_argument(
     default="custom-facilities-properties",
 )
 facilitiesagents = [
-        "dataconnectagent",
-        "extendedformulaagent",
-        "formularecalcagent",
-        "incomingmailagent",
-        "objectmigrationagent",
-        "objectpublishagent",
-        "maintenanceagent",
-        "reportqueueagent",
-        "wfagent",
-        "wffutureagent",
-        "wfnotificationagent",
-        "reservesmtpagent",
-        "scheduleragent",
-    ]
+    "dataconnectagent",
+    "extendedformulaagent",
+    "formularecalcagent",
+    "incomingmailagent",
+    "objectmigrationagent",
+    "objectpublishagent",
+    "maintenanceagent",
+    "reportqueueagent",
+    "wfagent",
+    "wffutureagent",
+    "wfnotificationagent",
+    "reservesmtpagent",
+    "scheduleragent",
+]
 for agent in facilitiesagents:
     facilitiesArgGroup.add_argument(
         f"--facilities-{agent}-deploymentmode",
