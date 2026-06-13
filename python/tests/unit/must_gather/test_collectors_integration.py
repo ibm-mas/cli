@@ -40,7 +40,7 @@ class TestCollectorsIntegration:
         THEN app is configured with mock dependencies.
         """
         app = MustGatherApp()
-        app.dynClient = mockDynClient
+        app._dynClient = mockDynClient
         return app
 
     def test_ocp_collector_enabled_by_default(self, mustGatherApp):
