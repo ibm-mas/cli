@@ -50,3 +50,10 @@ spec:
               name: mas-devops
               key: MAS_INSTANCE_ID
               optional: false
+        # Service Account for FVT Pipeline (supports RBAC mode)
+        - name: SERVICE_ACCOUNT_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: SERVICE_ACCOUNT_NAME
+              optional: true
