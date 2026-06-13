@@ -1470,6 +1470,9 @@ class InstallApp(
             )
 
             if self.showAdvancedOptions:
+                # Check MAS version - Custom FACILITIES.properties and Agents Deployment Flexibility are only supported in MAS 9.2+
+                mas_facilities_channel = self.getParam("mas_app_channel_facilities")
+                
                 self.printH2("Maximo Real Estate and Facilities Settings - Advanced")
                 self.printDescription(
                     ["Advanced configurations for Real Estate and Facilities are added through an additional file called facilities-configs.yaml"]
@@ -1499,9 +1502,6 @@ class InstallApp(
                         "Real Estate and Facilities AES Vault Secret Name",
                         "mas_ws_facilities_vault_secret",
                     )
-
-                # Check MAS version - Custom FACILITIES.properties is only supported in MAS 9.2+
-                mas_facilities_channel = self.getParam("mas_app_channel_facilities")
 
                 # Only prompt for custom FACILITIES.properties file if MAS 9.2+
                 if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
@@ -1665,6 +1665,48 @@ class InstallApp(
                         "mas_ws_facilities_dwfagents",
                         validator=JsonValidator(),
                     )
+
+                facilitiesagents = [
+                        "dataconnectagent",
+                        "extendedformulaagent",
+                        "formularecalcagent",
+                        "incomingmailagent",
+                        "objectmigrationagent",
+                        "objectpublishagent",
+                        "maintenanceagent",
+                        "reportqueueagent",
+                        "wfagent",
+                        "wffutureagent",
+                        "wfnotificationagent",
+                        "reservesmtpagent",
+                        "scheduleragent"
+                    ]
+                # Only prompt for Agents Deployments Flexibility file if MAS 9.2+
+                if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
+                    if self.yesOrNo("Configure Agents Deployments Flexibility"):
+                        self.printDescription(
+                            [
+                                "Define deployment mode for each Facilities Agents define if it should be activated in the shared multiagents POD, in a dedicated POD or disables:",
+                                "  1. dedicated - the agent is activated in a dedicated POD",
+                                "  2. shared - the agent is activated in the shared multiagents POD",
+                                "  3. disabled - the agent is not activated at all (not applicable for wfagent and reportqueueagent)",
+                                "Warning: the Agents Deployments Flexibility is activated only if deplyment mode is defined for at least one agent.",
+                                "In this case, if deployment mode is left empty for an agent, it will be activated in the multiagents POD."
+                            ]   
+                        ) 
+                        for agent in facilitiesagents:
+                            self.promptForListSelect(
+                                f"Select {agent} deployment mode:",
+                                ["shared", "dedicated", "disabled"],
+                                f"mas_ws_facilities_{agent}_deploymentmode",
+                            )
+                    else:
+                        for agent in facilitiesagents:
+                            self.setParam(f"mas_ws_facilities_{agent}_deploymentmode", "")
+                else:
+                    # For MAS 9.1 and earlier, skip the prompt and use default behavior
+                    for agent in facilitiesagents:
+                        self.setParam(f"mas_ws_facilities_{agent}_deploymentmode", "")
 
                 # If advanced options is selected, we need to create a file to add props not supported by Tekton
                 self.selectLocalConfigDir()

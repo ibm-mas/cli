@@ -355,7 +355,24 @@ class installArgBuilderMixin:
                 command += f"  --facilities-properties-file \"{self.getParam('mas_ws_facilities_properties_file_local')}\"{newline}"
             if self.getParam("mas_ws_facilities_properties_secret_name") != "":
                 command += f"  --facilities-properties-secret-name \"{self.getParam('mas_ws_facilities_properties_secret_name')}\"{newline}"
-
+            facilitiesagents = [
+                "dataconnectagent",
+                "extendedformulaagent",
+                "formularecalcagent",
+                "incomingmailagent",
+                "objectmigrationagent",
+                "objectpublishagent",
+                "maintenanceagent",
+                "reportqueueagent",
+                "wfagent",
+                "wffutureagent",
+                "wfnotificationagent",
+                "reservesmtpagent",
+                "scheduleragent"
+            ]
+            for agent in facilitiesagents:
+                if self.getParam(f"mas_ws_facilities_{agent}_deploymentmode") != "":
+                    command += f"  --facilities-{agent}-deploymentmode \"{self.getParam(f"mas_ws_facilities_{agent}_deploymentmode")}\"{newline}"              
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
         if self.installAIService:

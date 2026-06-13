@@ -25,6 +25,7 @@ ATTACHMENT_PROVIDERS = ["filestorage", "ibm", "aws"]
 ATTACHMENT_MODES = ["cr", "db"]
 FACILITIES_SIZES = ["small", "medium", "large"]
 FACILITIES_APPOMUPGRADEMODE = ["manual", "load-only", "automatic"]
+FACILITIES_AGENTDEPLOYMENT_MODES = ["", "shared", "dedicated", "disabled"] 
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
 
 
@@ -839,7 +840,30 @@ facilitiesArgGroup.add_argument(
     help="Custom name for the Facilities properties secret (default: facilities-properties)",
     default="custom-facilities-properties",
 )
-
+facilitiesagents = [
+        "dataconnectagent",
+        "extendedformulaagent",
+        "formularecalcagent",
+        "incomingmailagent",
+        "objectmigrationagent",
+        "objectpublishagent",
+        "maintenanceagent",
+        "reportqueueagent",
+        "wfagent",
+        "wffutureagent",
+        "wfnotificationagent",
+        "reservesmtpagent",
+        "scheduleragent"
+    ]
+for agent in facilitiesagents:
+    facilitiesArgGroup.add_argument(
+        f"--facilities-{agent}-deploymentmode",
+        dest=f"mas_ws_facilities_{agent}_deploymentmode",
+        required=False,
+        help=f"Facilities agent {agent} deployment mode",
+        default="",
+        choices=FACILITIES_AGENTDEPLOYMENT_MODES,
+    )
 # Open Data Hub
 # -----------------------------------------------------------------------------
 odhArgGroup = installArgParser.add_argument_group("Open Data Hub")
