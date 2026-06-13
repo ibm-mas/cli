@@ -324,9 +324,9 @@ if __name__ == "__main__":
         },
         "ibm-sls": {
             "deployment": "ibm-sls-controller-manager",
-            "namespace": f"mas-{instanceId}-core",
-            "apiVersion": "config.mas.ibm.com/v1",
-            "kind": "SlsCfg",
+            "namespace": f"sls-{instanceId}",
+            "apiVersion": "sls.ibm.com/v1",
+            "kind": "LicenseService",
         },
         "ibm-mas-data-dictionary": {
             "deployment": "ibm-data-dictionary-datadictionary",
@@ -366,8 +366,8 @@ if __name__ == "__main__":
         try:
             crs = dynClient.resources.get(api_version=apiVersion, kind=kind)
             # Special handling for ibm-sls SlsCfg which has a different naming pattern
-            if productId == "ibm-sls" and kind == "SlsCfg":
-                resourceName = f"{instanceId}-sls-system"
+            if productId == "ibm-sls" and kind == "LicenseService":
+                resourceName = "sls"
             else:
                 resourceName = instanceId
             cr = crs.get(name=resourceName, namespace=deploymentNamespace)
