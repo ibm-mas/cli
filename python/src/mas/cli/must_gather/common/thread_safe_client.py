@@ -33,19 +33,16 @@ def createThreadLocalDynamicClient() -> DynamicClient:
         DynamicClient: A new thread-local DynamicClient instance with isolated cache
     """
 
-    # Load kubernetes configuration
-    kubeConfig = config.load_kube_config()
-
     # Create a new ApiClient for this thread
     if "KUBERNETES_SERVICE_HOST" in os.environ:
+        # Running in-cluster, use in-cluster config
         config.load_incluster_config()
         k8s_config = Configuration.get_default_copy()
         apiClient = client.ApiClient(configuration=k8s_config)
     else:
+        # Running outside cluster, use kubeconfig
         config.load_kube_config()
         apiClient = client.ApiClient()
-
-    apiClient = client.ApiClient(configuration=kubeConfig)
 
     # Create unique cache file path for this thread
     threadId = threading.get_ident()
