@@ -1687,9 +1687,10 @@ class InstallApp(
                         self.printDescription(
                             [
                                 "Define deployment mode for each Facilities Agents define if it should be activated in the shared multiagents POD, in a dedicated POD or disables:",
-                                "  1. dedicated - the agent is activated in a dedicated POD",
-                                "  2. shared - the agent is activated in the shared multiagents POD",
-                                "  3. disabled - the agent is not activated at all (not applicable for wfagent and reportqueueagent)",
+                                "  1. empty string - do not define deployment mode for the agent",
+                                "  2. dedicated - the agent is activated in a dedicated POD",
+                                "  3. disabled - the agent is not activated at all (not applicable for wfagent and reportqueueagent)",                                
+                                "  4. shared - the agent is activated in the shared multiagents POD",
                                 "Warning: the Agents Deployments Flexibility is activated only if deplyment mode is defined for at least one agent.",
                                 "In this case, if deployment mode is left empty for an agent, it will be activated in the multiagents POD.",
                             ]
@@ -1697,8 +1698,9 @@ class InstallApp(
                         for agent in facilitiesagents:
                             self.promptForListSelect(
                                 f"Select {agent} deployment mode:",
-                                ["shared", "dedicated", "disabled"],
+                                ["", "dedicated", "disabled", "shared"],
                                 f"mas_ws_facilities_{agent}_deploymentmode",
+                                default=1,
                             )
                     else:
                         for agent in facilitiesagents:
