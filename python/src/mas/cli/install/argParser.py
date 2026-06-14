@@ -840,22 +840,10 @@ facilitiesArgGroup.add_argument(
     help="Custom name for the Facilities properties secret (default: facilities-properties)",
     default="custom-facilities-properties",
 )
-facilitiesagents = [
-    "dataconnectagent",
-    "extendedformulaagent",
-    "formularecalcagent",
-    "incomingmailagent",
-    "objectmigrationagent",
-    "objectpublishagent",
-    "maintenanceagent",
-    "reportqueueagent",
-    "wfagent",
-    "wffutureagent",
-    "wfnotificationagent",
-    "reservesmtpagent",
-    "scheduleragent",
-]
-for agent in facilitiesagents:
+
+from .facilities.agents import facilitiesAgents
+
+for agent in facilitiesAgents:
     facilitiesArgGroup.add_argument(
         f"--facilities-{agent}-deploymentmode",
         dest=f"mas_ws_facilities_{agent}_deploymentmode",

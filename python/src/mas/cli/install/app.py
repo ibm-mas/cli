@@ -1452,6 +1452,8 @@ class InstallApp(
 
     @logMethodCall
     def facilitiesSettings(self) -> None:
+
+        
         if self.installFacilities:
             self.printH1("Configure Maximo Real Estate and Facilities")
             self.printDescription(["Real Estate and Facilities custom configurations"])
@@ -1666,21 +1668,8 @@ class InstallApp(
                         validator=JsonValidator(),
                     )
 
-                facilitiesagents = [
-                    "dataconnectagent",
-                    "extendedformulaagent",
-                    "formularecalcagent",
-                    "incomingmailagent",
-                    "objectmigrationagent",
-                    "objectpublishagent",
-                    "maintenanceagent",
-                    "reportqueueagent",
-                    "wfagent",
-                    "wffutureagent",
-                    "wfnotificationagent",
-                    "reservesmtpagent",
-                    "scheduleragent",
-                ]
+                from .facilities.agents import facilitiesAgents
+
                 # Only prompt for Agents Deployments Flexibility file if MAS 9.2+
                 if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
                     if self.yesOrNo("Configure Agents Deployments Flexibility"):
@@ -1695,7 +1684,7 @@ class InstallApp(
                                 "In this case, if deployment mode is left empty for an agent, it will be activated in the multiagents POD.",
                             ]
                         )
-                        for agent in facilitiesagents:
+                        for agent in facilitiesAgents:
                             self.promptForListSelect(
                                 f"Select {agent} deployment mode:",
                                 ["", "dedicated", "disabled", "shared"],
@@ -1703,11 +1692,11 @@ class InstallApp(
                                 default=1,
                             )
                     else:
-                        for agent in facilitiesagents:
+                        for agent in facilitiesAgents:
                             self.setParam(f"mas_ws_facilities_{agent}_deploymentmode", "")
                 else:
                     # For MAS 9.1 and earlier, skip the prompt and use default behavior
-                    for agent in facilitiesagents:
+                    for agent in facilitiesAgents:
                         self.setParam(f"mas_ws_facilities_{agent}_deploymentmode", "")
 
                 # If advanced options is selected, we need to create a file to add props not supported by Tekton
