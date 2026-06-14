@@ -324,9 +324,7 @@ class InstallSummarizerMixin:
 
     def facilitiesSummary(self) -> None:
         # TODO: Fix type for storage sizes and max conn pool size
-        from mas.devops.utils import isVersionEqualOrAfter
         from .facilities.agents import facilitiesAgents
-
 
         if self.installFacilities:
             mas_facilities_channel = self.params["mas_app_channel_facilities"]
