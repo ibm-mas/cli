@@ -1452,8 +1452,6 @@ class InstallApp(
 
     @logMethodCall
     def facilitiesSettings(self) -> None:
-
-        
         if self.installFacilities:
             self.printH1("Configure Maximo Real Estate and Facilities")
             self.printDescription(["Real Estate and Facilities custom configurations"])

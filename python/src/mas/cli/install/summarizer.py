@@ -328,7 +328,6 @@ class InstallSummarizerMixin:
 
         if self.installFacilities:
             mas_facilities_channel = self.params["mas_app_channel_facilities"]
-           
             self.printSummary("Facilities", mas_facilities_channel)
             print_formatted_text(HTML("  <SkyBlue>+ Maximo Real Estate and Facilities Settings</SkyBlue>"))
             self.printParamSummary("  + Size", "mas_ws_facilities_size")

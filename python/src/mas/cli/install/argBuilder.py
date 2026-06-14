@@ -356,6 +356,7 @@ class installArgBuilderMixin:
             if self.getParam("mas_ws_facilities_properties_secret_name") != "":
                 command += f"  --facilities-properties-secret-name \"{self.getParam('mas_ws_facilities_properties_secret_name')}\"{newline}"
             from .facilities.agents import facilitiesAgents
+
             for agent in facilitiesAgents:
                 if self.getParam(f"mas_ws_facilities_{agent}_deploymentmode") != "":
                     command += f'  --facilities-{agent}-deploymentmode "{self.getParam(f"mas_ws_facilities_{agent}_deploymentmode")}"{newline}'

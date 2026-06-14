@@ -13,6 +13,7 @@ from os import path
 
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
+from .facilities.agents import facilitiesAgents
 
 # Constants for argument choices
 DNS_PROVIDERS = ["cloudflare", "cis", "route53"]
@@ -840,7 +841,6 @@ facilitiesArgGroup.add_argument(
     help="Custom name for the Facilities properties secret (default: facilities-properties)",
     default="custom-facilities-properties",
 )
-from .facilities.agents import facilitiesAgents
 for agent in facilitiesAgents:
     facilitiesArgGroup.add_argument(
         f"--facilities-{agent}-deploymentmode",
