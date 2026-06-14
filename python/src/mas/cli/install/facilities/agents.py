@@ -8,6 +8,8 @@
 #
 # *****************************************************************************
 
+FACILITIES_AGENTDEPLOYMENT_MODES = ["", "dedicated", "disabled", "shared"]
+
 facilitiesAgents = [
     "dataconnectagent",
     "extendedformulaagent",
@@ -23,3 +25,5 @@ facilitiesAgents = [
     "reservesmtpagent",
     "scheduleragent",
 ]
+
+

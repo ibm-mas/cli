@@ -1666,7 +1666,7 @@ class InstallApp(
                         validator=JsonValidator(),
                     )
 
-                from .facilities.agents import facilitiesAgents
+                from .facilities.agents import facilitiesAgents, FACILITIES_AGENTDEPLOYMENT_MODES
 
                 # Only prompt for Agents Deployments Flexibility file if MAS 9.2+
                 if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
@@ -1685,7 +1685,7 @@ class InstallApp(
                         for agent in facilitiesAgents:
                             self.promptForListSelect(
                                 f"Select {agent} deployment mode:",
-                                ["", "dedicated", "disabled", "shared"],
+                                FACILITIES_AGENTDEPLOYMENT_MODES,
                                 f"mas_ws_facilities_{agent}_deploymentmode",
                                 default=1,
                             )

@@ -13,7 +13,7 @@ from os import path
 
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
-from .facilities.agents import facilitiesAgents
+from .facilities.agents import facilitiesAgents, FACILITIES_AGENTDEPLOYMENT_MODES
 
 # Constants for argument choices
 DNS_PROVIDERS = ["cloudflare", "cis", "route53"]
@@ -26,7 +26,6 @@ ATTACHMENT_PROVIDERS = ["filestorage", "ibm", "aws"]
 ATTACHMENT_MODES = ["cr", "db"]
 FACILITIES_SIZES = ["small", "medium", "large"]
 FACILITIES_APPOMUPGRADEMODE = ["manual", "load-only", "automatic"]
-FACILITIES_AGENTDEPLOYMENT_MODES = ["", "dedicated", "disabled", "shared"]
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
 
 
