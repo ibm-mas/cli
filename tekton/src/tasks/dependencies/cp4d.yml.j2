@@ -29,8 +29,6 @@ spec:
       default: ""
 
     # Entitlement
-    - name: ibm_entitlement_key
-      type: string
     - name: skip_entitlement_key_flag
       type: string
       default: ""
@@ -57,7 +55,11 @@ spec:
 
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
+        valueFrom:
+          secretKeyRef:
+            name: pipeline-additional-configs
+            key: IBM_ENTITLEMENT_KEY
+            optional: true
       - name: SKIP_ENTITLEMENT_KEY_FLAG
         value: $(params.skip_entitlement_key_flag)
   steps:

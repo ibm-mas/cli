@@ -2868,6 +2868,7 @@ class InstallApp(
                     aiserviceConfig=self.aiserviceConfigSecret,
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel"),
+                    ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
                 )
 
                 self.setupApprovals(pipelinesNamespace)

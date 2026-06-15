@@ -7,11 +7,6 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
-    # Entitlement
-    - name: ibm_entitlement_key
-      type: string
-      default: ""
-
     - name: db2_action_facilities
       type: string
       description: Set to 'install' to set up Db2 instance for Facilities
@@ -183,7 +178,11 @@ spec:
 
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
+        valueFrom:
+          secretKeyRef:
+            name: pipeline-additional-configs
+            key: IBM_ENTITLEMENT_KEY
+            optional: true
 
       # Db2u Operator
       - name: DB2_CHANNEL
