@@ -19,7 +19,7 @@ class EnvDefault(argparse.Action):
 
     def __init__(self, envvar, required=False, default=None, **kwargs):
         """Initialize action with environment variable name.
-        
+
         Args:
             envvar (str): Name of environment variable to use as default
             required (bool, optional): Whether argument is required. Defaults to False.
@@ -35,7 +35,7 @@ class EnvDefault(argparse.Action):
 
     def __call__(self, parser, namespace, values, option_string=None):
         """Set the attribute value.
-        
+
         Args:
             parser: ArgumentParser instance
             namespace: Namespace object to populate
