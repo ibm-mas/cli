@@ -202,6 +202,12 @@ spec:
             name: mas-fvt-core
             key: KEYCLOAK_REALM_NAME
             optional: false
+      - name: OIDC_DISCOVERY_ENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: OIDC_DISCOVERY_ENDPOINT
+            optional: false
 
   steps:
     - name: fvt-core
