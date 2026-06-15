@@ -247,7 +247,7 @@
 
     
       
-  <cds-side-nav-menu-item href="../must-gather/">
+  <cds-side-nav-menu-item href="../../guides/must-gather/">
     Must-Gather
   </cds-side-nav-menu-item>
 
@@ -371,7 +371,7 @@
     
       <cds-select-item value="#examples">Examples</cds-select-item>
     
-      <cds-select-item value="#notes">Notes</cds-select-item>
+      <cds-select-item value="#understanding-mas-92-permission-model-changes">Understanding MAS 9.2 Permission Model Changes</cds-select-item>
     
     </cds-select>
   </cds-breadcrumb-item>
@@ -385,7 +385,7 @@
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
 <p>Usage information can be obtained using <code>mas pre-install --help</code></p>
 <pre><code>usage: mas pre-install [-i MAS_INSTANCE_ID] [--mas-channel MAS_CHANNEL]
-                       [--permission-mode {cluster,namespaced}]
+                       [--admin-mode {cluster,namespaced}]
                        [--apps APPS] [--no-confirm] [-h]
 
 IBM Maximo Application Suite Admin CLI v21.3.0
@@ -402,8 +402,8 @@ Specify the target cluster and MAS instance for which pre-install RBAC should be
                         The MAS instance ID for which pre-install RBAC will be set up
   --mas-channel MAS_CHANNEL
                         The MAS channel used to select pre-install RBAC manifests, for example 9.2.x
-  --permission-mode {cluster,namespaced}
-                        The permission mode used to determine which pre-install RBAC manifests are set up
+  --admin-mode {cluster,namespaced}
+                        The admin mode used to determine which pre-install RBAC manifests are set up
   --apps APPS           Comma-separated list of apps used to filter which pre-install RBAC manifests are set up (required for namespaced mode), for example core,manage,iot
 
 More:
@@ -418,20 +418,20 @@ Additional options for pre-install.
 <pre><code class="language-bash">mas pre-install
 </code></pre>
 <h3 id="non-interactive-pre-install-for-namespaced-mode">Non-Interactive Pre-Install for Namespaced Mode<a class="headerlink" href="#non-interactive-pre-install-for-namespaced-mode" title="Permanent link">¶</a></h3>
-<p>Set up pre-install RBAC for a MAS instance using namespaced permission mode (apps are required):</p>
+<p>Set up pre-install RBAC for a MAS instance using namespaced admin mode (apps are required):</p>
 <pre><code class="language-bash">mas pre-install \
   --mas-instance-id prod1 \
   --mas-channel 9.2.x \
-  --permission-mode namespaced \
+  --admin-mode namespaced \
   --apps core,manage,iot \
   --no-confirm
 </code></pre>
 <h3 id="pre-install-for-cluster-mode">Pre-Install for Cluster Mode<a class="headerlink" href="#pre-install-for-cluster-mode" title="Permanent link">¶</a></h3>
-<p>Set up pre-install RBAC for cluster permission mode (apps are not required - automatically uses ibm-mas operator):</p>
+<p>Set up pre-install RBAC for cluster admin mode (apps are not required - automatically uses ibm-mas operator):</p>
 <pre><code class="language-bash">mas pre-install \
   --mas-instance-id test1 \
   --mas-channel 9.2.x \
-  --permission-mode cluster \
+  --admin-mode cluster \
   --no-confirm
 </code></pre>
 <h3 id="pre-install-with-multiple-applications">Pre-Install with Multiple Applications<a class="headerlink" href="#pre-install-with-multiple-applications" title="Permanent link">¶</a></h3>
@@ -439,32 +439,27 @@ Additional options for pre-install.
 <pre><code class="language-bash">mas pre-install \
   --mas-instance-id prod1 \
   --mas-channel 9.2.x \
-  --permission-mode namespaced \
+  --admin-mode namespaced \
   --apps core,manage,monitor,iot,predict,visualinspection \
   --no-confirm
 </code></pre>
-<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">¶</a></h2>
-<h3 id="pre-install-process">Pre-Install Process<a class="headerlink" href="#pre-install-process" title="Permanent link">¶</a></h3>
-<p>The pre-install command performs the following operations:</p>
-<ol>
-<li><strong>Validates cluster administrator permissions</strong> - Ensures you have the required permissions to create RBAC resources</li>
-<li><strong>Validates MAS channel</strong> - Confirms the channel is 9.2.x or later</li>
-<li><strong>Validates application selection</strong> - Ensures all specified applications are supported (only in namespaced mode)</li>
-<li><strong>Applies RBAC manifests</strong> - Creates ClusterRoles, ClusterRoleBindings, Roles and RoleBindings based on permission mode and selected applications</li>
-</ol>
-<h3 id="when-to-use-pre-install">When to Use Pre-Install<a class="headerlink" href="#when-to-use-pre-install" title="Permanent link">¶</a></h3>
-<p>The <code>mas pre-install</code> command is used to grant necessary RBAC permissions.</p>
-<p><strong>If you have cluster administrator permissions:</strong>
-- Run <code>mas install</code> directly - it will automatically handle the pre-install RBAC setup</p>
-<p><strong>If you do NOT have cluster administrator permissions:</strong>
-- A cluster administrator must run <code>mas pre-install</code> to grant the necessary permissions
-- Then you can run <code>mas install --skip-preinstall-rbac</code> to proceed with installation</p>
-<h3 id="permission-modes">Permission Modes<a class="headerlink" href="#permission-modes" title="Permanent link">¶</a></h3>
-<p>The following permission modes are supported with <code>mas pre-install</code>:</p>
+<h2 id="understanding-mas-92-permission-model-changes">Understanding MAS 9.2 Permission Model Changes<a class="headerlink" href="#understanding-mas-92-permission-model-changes" title="Permanent link">¶</a></h2>
+<p>Starting with MAS 9.2, there are significant changes to the permissions model used by Maximo Application Suite related to the ability of MAS to act as a delegated OpenShift administrator.</p>
+<p><strong>By default, MAS operator packages operate in minimal permissions mode.</strong> Compared to previous MAS releases, this means MAS has:</p>
+<ul>
+<li><strong>No ClusterRoles</strong> - No cluster-wide permissions to access resources across all namespaces</li>
+<li><strong>No permissions to create namespaces</strong> - Cannot create new application namespaces</li>
+<li><strong>No permissions in openshift-marketplace</strong> - Cannot list PackageManifests, CatalogSources, or manage Subscriptions</li>
+<li><strong>Limited cross-namespace access</strong> - Only essential namespace-scoped roles for specific operations (e.g., reading Secrets and ConfigMaps in application namespaces for binding)</li>
+</ul>
+<p>In this minimal permission mode, when you install Maximo Application Suite applications, each application operator will grant MAS only the <strong>essential namespace-scoped permissions</strong> required for basic operation (such as binding configuration). This means that the <strong>non-essential</strong> capabilities (installing new applications, managing application lifecycle, and viewing application status outside the core namespace) of the MAS administrative API and UI that were previously enabled by default are now <strong>disabled by default</strong>.</p>
+<p><strong>To enable these administrative capabilities</strong>, you must explicitly configure one of the elevated admin modes (<strong>cluster</strong> or <strong>namespaced</strong>). If you have cluster administrator permissions, you can specify <code>--admin-mode cluster</code> or <code>--admin-mode namespaced</code> when running <code>mas install</code> and the necessary RBAC will be applied automatically. If you do not have cluster administrator permissions, a cluster administrator must first run <code>mas pre-install</code> to set up the required RBAC, then you can proceed with <code>mas install</code>.</p>
+<h3 id="admin-modes">Admin Modes<a class="headerlink" href="#admin-modes" title="Permanent link">¶</a></h3>
+<p>MAS 9.2 and later supports three admin modes that control the level of permissions granted to the MAS:</p>
 <table>
 <thead>
 <tr>
-<th>Permission Mode</th>
+<th>Admin Mode</th>
 <th>Description</th>
 <th>Apps Required</th>
 </tr>
@@ -482,7 +477,11 @@ Additional options for pre-install.
 </tr>
 </tbody>
 </table>
-<p><strong>Note:</strong> In minimal permission mode, essential roles are installed by each operator during installation, so <code>mas pre-install</code> is not required.</p>
+<p><strong>Note:</strong> If the cluster is intended to run in minimal mode, <code>mas pre-install</code> is not required as essential roles are installed by each operator during installation.</p>
+<h3 id="when-to-use-pre-install">When to Use Pre-Install<a class="headerlink" href="#when-to-use-pre-install" title="Permanent link">¶</a></h3>
+<p>The <code>mas pre-install</code> command sets up RBAC (Role-Based Access Control) permissions for your MAS instance by creating ClusterRoles, Roles, and RoleBindings based on the selected admin mode and applications. This is required when you do not have cluster administrator permissions and want to use <strong>cluster</strong> or <strong>namespaced</strong> mode.</p>
+<p>When you run <code>mas install</code> with <strong>cluster</strong> or <strong>namespaced</strong> mode and you don't have cluster administrator permissions, <code>mas install</code> cannot create the required RBAC for these modes. A cluster administrator must first run <code>mas pre-install</code> to set up these permissions, then you can proceed with <code>mas install</code>.</p>
+<p>If you have cluster administrator permissions, you can skip <code>mas pre-install</code> and run <code>mas install</code> directly - it will automatically handle the RBAC setup for <strong>cluster</strong> or <strong>namespaced</strong> mode. For <strong>minimal</strong> mode, <code>mas pre-install</code> is not required as essential roles are installed by operators during installation.</p>
 <h3 id="supported-applications">Supported Applications<a class="headerlink" href="#supported-applications" title="Permanent link">¶</a></h3>
 <p>The following applications are supported for pre-install RBAC setup:</p>
 <ul>
@@ -498,30 +497,6 @@ Additional options for pre-install.
 <li><code>visualinspection</code> - Maximo Visual Inspection</li>
 </ul>
 <p>You can specify multiple applications as a comma-separated list (e.g., <code>core,manage,iot</code>).</p>
-<h3 id="integration-with-mas-install">Integration with MAS Install<a class="headerlink" href="#integration-with-mas-install" title="Permanent link">¶</a></h3>
-<p>After running <code>mas pre-install</code>, proceed with the MAS installation using the <code>--skip-preinstall-rbac</code> flag to avoid re-applying the RBAC resources. Use the same permission mode that was used during pre-install for issuerKind selection:</p>
-<pre><code class="language-bash">mas install \
-  --mas-instance-id prod1 \
-  --permission-mode namespaced \
-  --skip-preinstall-rbac \
-  ... other install parameters ...
-</code></pre>
-<h3 id="workflow-example">Workflow Example<a class="headerlink" href="#workflow-example" title="Permanent link">¶</a></h3>
-<p><strong>Step 1: Cluster Administrator runs <code>mas pre-install</code></strong></p>
-<pre><code class="language-bash">mas pre-install \
-  --mas-instance-id prod1 \
-  --mas-channel 9.2.x \
-  --permission-mode namespaced \
-  --apps core,manage,iot \
-  --no-confirm
-</code></pre>
-<p><strong>Step 2: MAS Installer (with limited permissions) runs <code>mas install</code></strong></p>
-<pre><code class="language-bash">mas install \
-  --mas-instance-id prod1 \
-  --permission-mode namespaced \
-  --skip-preinstall-rbac \
-  ... other parameters ...
-</code></pre>
 <h3 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">¶</a></h3>
 <ul>
 <li>OpenShift cluster administrator permissions</li>
@@ -530,23 +505,7 @@ Additional options for pre-install.
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Administrator Permissions Required</p>
-<p>The <code>mas pre-install</code> command requires cluster administrator permissions. If you do not have these permissions, the command will fail with an error message. Only a cluster administrator can set up pre-install RBAC for MAS.</p>
-</div>
-<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link">¶</a></h3>
-<p>When running without all required options, the command enters interactive mode and will prompt for:</p>
-<ol>
-<li>Target OpenShift cluster connection</li>
-<li>MAS instance ID</li>
-<li>MAS channel (for example 9.2.x)</li>
-<li>Permission mode (cluster or namespaced)</li>
-<li>Applications to include (comma-separated list) - <strong>only for namespaced mode</strong></li>
-</ol>
-<p>The command will display a summary of your selections and ask for confirmation before applying the RBAC resources.</p>
-<p><strong>Note:</strong> In cluster mode, applications are not prompted as the ibm-mas operator is automatically used.</p>
-<h3 id="version-compatibility">Version Compatibility<a class="headerlink" href="#version-compatibility" title="Permanent link">¶</a></h3>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>This command is only supported for MAS version 9.2 and later. If you specify an earlier mas version, the command will fail with an error message.</p>
+<p>The <code>mas pre-install</code> command requires cluster administrator permissions. If you do not have these permissions, the command will fail with an error message.</p>
 </div>
             
           </div>
@@ -600,13 +559,13 @@ Additional options for pre-install.
                   </ul>
               </li>
               <li class="md-toc__item">
-                <a href="#notes" class="md-toc__link" data-md-level="1">
-                  Notes
+                <a href="#understanding-mas-92-permission-model-changes" class="md-toc__link" data-md-level="1">
+                  Understanding MAS 9.2 Permission Model Changes
                 </a>
                   <ul class="md-toc__list">
                       <li class="md-toc__item">
-                        <a href="#pre-install-process" class="md-toc__link" data-md-level="2">
-                          Pre-Install Process
+                        <a href="#admin-modes" class="md-toc__link" data-md-level="2">
+                          Admin Modes
                         </a>
                       </li>
                       <li class="md-toc__item">
@@ -615,38 +574,13 @@ Additional options for pre-install.
                         </a>
                       </li>
                       <li class="md-toc__item">
-                        <a href="#permission-modes" class="md-toc__link" data-md-level="2">
-                          Permission Modes
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
                         <a href="#supported-applications" class="md-toc__link" data-md-level="2">
                           Supported Applications
                         </a>
                       </li>
                       <li class="md-toc__item">
-                        <a href="#integration-with-mas-install" class="md-toc__link" data-md-level="2">
-                          Integration with MAS Install
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
-                        <a href="#workflow-example" class="md-toc__link" data-md-level="2">
-                          Workflow Example
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
                         <a href="#requirements" class="md-toc__link" data-md-level="2">
                           Requirements
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
-                        <a href="#interactive-mode" class="md-toc__link" data-md-level="2">
-                          Interactive Mode
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
-                        <a href="#version-compatibility" class="md-toc__link" data-md-level="2">
-                          Version Compatibility
                         </a>
                       </li>
                   </ul>

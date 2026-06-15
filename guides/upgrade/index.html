@@ -247,7 +247,7 @@
 
     
       
-  <cds-side-nav-menu-item href="../../commands/must-gather/">
+  <cds-side-nav-menu-item href="../must-gather/">
     Must-Gather
   </cds-side-nav-menu-item>
 
@@ -511,7 +511,7 @@
 <p>This command can also be run non-interactively. For full details refer to the <a href="../image-mirroring/">image mirroring</a> guide.</p>
 <pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-260527-amd64 -C 9.1.x \
+  -c  -C 9.1.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \

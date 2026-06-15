@@ -247,7 +247,7 @@
 
     
       
-  <cds-side-nav-menu-item href="../../commands/must-gather/">
+  <cds-side-nav-menu-item href="../must-gather/">
     Must-Gather
   </cds-side-nav-menu-item>
 
@@ -485,13 +485,13 @@
 </tr>
 <tr>
 <td><strong>IBM MAS Catalog</strong></td>
-<td><code>v9-260527-amd64</code></td>
+<td>``</td>
 <td>Specify exact catalog version</td>
 <td>Use immutable catalog version</td>
 </tr>
 <tr>
 <td><strong>MAS CLI Version</strong></td>
-<td><code>21.5.0</code></td>
+<td><code>null</code></td>
 <td>Use specific image tag</td>
 <td>Document exact version used</td>
 </tr>
@@ -538,8 +538,8 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <li><strong>All four pinned versions</strong>:</li>
 <li>OpenShift version (e.g., <code>4.18.3</code>)</li>
 <li>Red Hat catalog digests (all catalogs with full SHA256)</li>
-<li>IBM MAS catalog version (e.g., <code>v9-260527-amd64</code>)</li>
-<li>MAS CLI version (e.g., <code>21.5.0</code>)</li>
+<li>IBM MAS catalog version (e.g., ``)</li>
+<li>MAS CLI version (e.g., <code>null</code>)</li>
 <li><strong>Reason for pinning</strong>: Business justification and requirements</li>
 <li><strong>Planned review date</strong>: When the configuration will be reviewed for updates</li>
 <li><strong>Responsible contact</strong>: Person or team responsible for maintenance</li>
@@ -676,7 +676,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <li><strong>Standalone Installation</strong>: For standalone AI Service installation, use the dedicated <code>mas aiservice-install</code> command to install AI Service independently of the main MAS installation.</li>
 </ul>
 </div>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:21.5.0 mas install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:null mas install
 </code></pre>
 <p>The interactive install will guide you through a series of questioned designed to help you arrive at the best configuration for your scenario, it can be broken down as below:</p>
 <div>
@@ -721,7 +721,43 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
         <li>Single Sign-On (SSO)</li>
         <li>Whether to allow special character in User IDs and Usernames</li>
         <li>Whether Guided Tours are enabled</li>
+        <li>Admin Mode</li>
         <li>Network Routing Mode (path or subdomain)</li>
+      </ul>
+      <h4>Admin Mode</h4>
+      <p>Admin mode configuration is only available in MAS 9.2 and later. It controls how much delegated OpenShift administrative capability is granted to MAS.</p>
+      <ul>
+        <li><strong>cluster</strong> - Install with ClusterRoles <strong>(default)</strong>
+          <ul>
+            <li>MAS has cluster-level access to manage its applications and resources across the cluster</li>
+            <li>The CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts</li>
+            <li>This is the closest behavior to releases before MAS 9.2</li>
+          </ul>
+        </li>
+        <li><strong>namespaced</strong> - Install with namespace-scoped Roles only
+          <ul>
+            <li>No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)</li>
+            <li>The CLI pre-installs namespace-scoped Roles in namespaces prepared by the OpenShift administrator</li>
+            <li>MAS can manage applications only in those prepared namespaces</li>
+            <li>DNS integration is not available in this mode; if you use a custom domain, DNS must be configured manually</li>
+          </ul>
+        </li>
+        <li><strong>minimal</strong> - Install with essential namespace-scoped Roles only
+          <ul>
+            <li>No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)</li>
+            <li>Only the essential permissions required for MAS applications are applied</li>
+            <li>MAS UI and API cannot manage application lifecycle; OpenShift administrators must manage applications outside MAS</li>
+            <li>DNS integration is not available in this mode; if you use a custom domain, DNS must be configured manually</li>
+          </ul>
+        </li>
+      </ul>
+      <p>If the user running <code>mas install</code> has cluster administrator permissions, the CLI can automatically apply the required RBAC for the selected admin mode during installation.</p>
+      <p>If the user running <code>mas install</code> does not have cluster administrator permissions and selects <strong>cluster</strong> or <strong>namespaced</strong> mode, an OpenShift administrator must first run <code>mas pre-install</code> for the same MAS instance, channel, admin mode, and selected applications before the installation can continue.</p>
+      <p>For <strong>minimal</strong> mode, <code>mas pre-install</code> is not required because the operators create the essential roles during installation.</p>
+      <p><strong>Application limitations:</strong></p>
+      <ul>
+        <li><strong>ArcGIS:</strong> Only works in <strong>cluster</strong> mode and requires cluster role permissions.</li>
+        <li><strong>Visual Inspection (MVI):</strong> In <strong>minimal</strong> and <strong>namespaced</strong> modes, MVI requires cluster role permissions specifically to manage the SecurityContextConstraints resource named <code>ibm-mas-visualinspection-scc</code>. These modes are designed to avoid cluster-level permissions, but MVI requires this specific exception for SCC management.</li>
       </ul>
       <h4>Routing Mode</h4>
       <p>Starting from MAS 9.2.0, you can configure how Maximo Application Suite is accessed through URLs:</p>
@@ -789,10 +825,10 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 SUPERUSER_PASSWORD=xxx
 
-docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:21.5.0  bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:null  bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas install \
-    --mas-catalog-version v9-260527-amd64 \
+    --mas-catalog-version  \
     --mas-instance-id mas1 \
     --mas-workspace-id ws1 \
     --mas-workspace-name "My Workspace"
@@ -1071,10 +1107,10 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td>Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6</td>
     </tr>
     <tr>
-      <td><code>--permission-mode</code></td>
+      <td><code>--admin-mode</code></td>
       <td><code>{cluster, namespaced, minimal}</code></td>
       <td>-</td>
-      <td>Permission mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)</td>
+      <td>Admin mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)</td>
     </tr>
   </tbody>
 </table>
@@ -1793,6 +1829,24 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td><code>50</code></td>
       <td>Storage size for Facilities user files</td>
     </tr>
+    <tr>
+      <td><code>--facilities-server-timezone</code></td>
+      <td><code>str</code></td>
+      <td><code>UTC</code></td>
+      <td>Facilities servers timezone</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-properties-file</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Path to the custom FACILITIES.properties file to upload as secret</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-properties-secret-name</code></td>
+      <td><code>string</code></td>
+      <td><code>custom-facilities-properties</code></td>
+      <td>Custom name for the Facilities properties secret (default: facilities-properties)</td>
+    </tr>
   </tbody>
 </table>
 
@@ -2226,7 +2280,13 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td><code>--db2-timezone</code></td>
       <td><code>string</code></td>
       <td>-</td>
-      <td>Timezone for Db2 instance</td>
+      <td>Timezone for System and Dedicated Manage Instances</td>
+    </tr>
+    <tr>
+      <td><code>--db2-facilities-timezone</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Timezone for Dedicated Facilities Instance</td>
     </tr>
     <tr>
       <td><code>--db2-license-file</code></td>
@@ -2811,12 +2871,6 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td>flag</td>
       <td><code>false</code></td>
       <td>Disable the 'pre-install-check' at the start of the install pipeline</td>
-    </tr>
-    <tr>
-      <td><code>--skip-preinstall-rbac</code></td>
-      <td>flag</td>
-      <td><code>false</code></td>
-      <td>Skip CLI application of pre-install MAS RBAC. Use this when an OpenShift administrator has already applied the required RBAC.</td>
     </tr>
     <tr>
       <td><code>--no-confirm</code></td>
