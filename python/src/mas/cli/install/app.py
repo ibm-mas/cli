@@ -660,7 +660,7 @@ class InstallApp(
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
-        self.configRoutingMode()
+        # self.configRoutingMode()  # Hidden - routing mode configuration disabled
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -2232,7 +2232,7 @@ class InstallApp(
                 "help",
                 "advanced",
                 "simplified",
-                "mas_configure_ingress",
+                # "mas_configure_ingress",
                 "use_cli_digest",
             ]:
                 pass
@@ -2527,8 +2527,8 @@ class InstallApp(
             self.useCliDigest = False
             self.cliDigest = None
 
-        if hasattr(args, "mas_configure_ingress") and args.mas_configure_ingress:
-            self.setParam("mas_configure_ingress", "true")
+        # if hasattr(args, "mas_configure_ingress") and args.mas_configure_ingress:
+        #     self.setParam("mas_configure_ingress", "true")
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -2590,7 +2590,8 @@ class InstallApp(
         )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
-        if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
+        # Hidden - routing mode configuration disabled
+        if False:  # not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
             ingressControllerName = None
             if hasattr(self.args, "mas_ingress_controller_name") and self.args.mas_ingress_controller_name:
                 ingressControllerName = self.args.mas_ingress_controller_name
@@ -2750,7 +2751,7 @@ class InstallApp(
                     )
                     # Note: This is non-fatal as the plugin can be enabled manually
 
-            if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
+            if False # self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
                 with Halo(
                     text="Configuring cluster for path-based routing",
                     spinner=self.spinner,

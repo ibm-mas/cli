@@ -101,14 +101,15 @@ class installArgBuilderMixin:
         if self.getParam("mas_manual_cert_mgmt").lower() == "true":
             command += f'  --manual-certificates "{self.manualCertsDir}"{newline}'
 
-        if self.getParam("mas_routing_mode") != "":
-            command += f"  --routing \"{self.getParam('mas_routing_mode')}\"{newline}"
+        # Hidden - routing mode configuration disabled
+        # if self.getParam("mas_routing_mode") != "":
+        #     command += f"  --routing \"{self.getParam('mas_routing_mode')}\"{newline}"
 
-        if self.getParam("mas_ingress_controller_name") != "":
-            command += f"  --ingress-controller \"{self.getParam('mas_ingress_controller_name')}\"{newline}"
+        # if self.getParam("mas_ingress_controller_name") != "":
+        #     command += f"  --ingress-controller \"{self.getParam('mas_ingress_controller_name')}\"{newline}"
 
-        if self.getParam("mas_configure_ingress").lower() == "true":
-            command += f"  --configure-ingress{newline}"
+        # if self.getParam("mas_configure_ingress").lower() == "true":
+        #     command += f"  --configure-ingress{newline}"
 
         if self.getParam("mas_use_service_mesh") != "":
             command += f"  --servicemesh \"{self.getParam('mas_use_service_mesh')}\"{newline}"

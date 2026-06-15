@@ -145,10 +145,11 @@ class InstallSummarizerMixin:
                 pass
 
         print()
-        self.printParamSummary("Network Routing Mode", "mas_routing_mode")
-        if self.getParam("mas_routing_mode") == "path":
-            self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
-            self.printParamSummary("Configure IngressController", "mas_configure_ingress")
+        # Hidden - routing mode configuration disabled
+        # self.printParamSummary("Network Routing Mode", "mas_routing_mode")
+        # if self.getParam("mas_routing_mode") == "path":
+        #     self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
+        #     self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
         if self.getParam("mas_manual_route_mgmt") == "true":
             self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")

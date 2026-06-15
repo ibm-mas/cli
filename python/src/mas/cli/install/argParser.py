@@ -139,26 +139,27 @@ masAdvancedArgGroup.add_argument(
     action="store_const",
     const="false",
 )
-masAdvancedArgGroup.add_argument(
-    "--routing",
-    dest="mas_routing_mode",
-    required=False,
-    help="Configure MAS with path or subdomain routing",
-    choices=["path", "subdomain"],
-)
-masAdvancedArgGroup.add_argument(
-    "--configure-ingress",
-    dest="mas_configure_ingress",
-    required=False,
-    action="store_true",
-    help="Automatically configure IngressController to allow InterNamespaceAllowed for path-based routing",
-)
-masAdvancedArgGroup.add_argument(
-    "--ingress-controller-name",
-    dest="mas_ingress_controller_name",
-    required=False,
-    help="Name of the IngressController to use for path-based routing (default: 'default')",
-)
+# Hidden - routing mode configuration disabled
+# masAdvancedArgGroup.add_argument(
+#     "--routing",
+#     dest="mas_routing_mode",
+#     required=False,
+#     help="Configure MAS with path or subdomain routing",
+#     choices=["path", "subdomain"],
+# )
+# masAdvancedArgGroup.add_argument(
+#     "--configure-ingress",
+#     dest="mas_configure_ingress",
+#     required=False,
+#     action="store_true",
+#     help="Automatically configure IngressController to allow InterNamespaceAllowed for path-based routing",
+# )
+# masAdvancedArgGroup.add_argument(
+#     "--ingress-controller-name",
+#     dest="mas_ingress_controller_name",
+#     required=False,
+#     help="Name of the IngressController to use for path-based routing (default: 'default')",
+# )
 masAdvancedArgGroup.add_argument(
     "--servicemesh",
     dest="mas_use_service_mesh",
