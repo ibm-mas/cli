@@ -76,7 +76,7 @@ EOM
 
 function gitops_suite_app_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
+  export SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-suite-app-config commit"
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
@@ -376,7 +376,7 @@ function gitops_suite_app_config() {
   # Try to extract ICN from license file
   if [[ -z "${ICN}" ]] && [[ -n "${LICENSE_FILE}" ]] && [[ -f "${LICENSE_FILE}" ]]; then
     echo "- Attempting to extract ICN from license file: ${LICENSE_FILE}"
-    ICN=$(grep -oP 'ICN:\K[0-9]+' "${LICENSE_FILE}" | head -1)
+    ICN=$(grep -oP 'ICN:\K[0-9A-Za-z]+' "${LICENSE_FILE}" | head -1)
     if [[ -n "${ICN}" ]]; then
       echo "- ICN extracted from license file: ${ICN}"
     fi
@@ -385,7 +385,7 @@ function gitops_suite_app_config() {
   # Try SLS_LICENSE_FILE if LICENSE_FILE didn't work
   if [[ -z "${ICN}" ]] && [[ -n "${SLS_LICENSE_FILE}" ]] && [[ -f "${SLS_LICENSE_FILE}" ]]; then
     echo "- Attempting to extract ICN from SLS license file: ${SLS_LICENSE_FILE}"
-    ICN=$(grep -oP 'ICN:\K[0-9]+' "${SLS_LICENSE_FILE}" | head -1)
+    ICN=$(grep -oP 'ICN:\K[0-9A-Za-z]+' "${SLS_LICENSE_FILE}" | head -1)
     if [[ -n "${ICN}" ]]; then
       echo "- ICN extracted from SLS license file: ${ICN}"
     fi
