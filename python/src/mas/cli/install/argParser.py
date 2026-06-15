@@ -13,7 +13,7 @@ from os import path
 
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
-from .facilities.agents import facilitiesAgents, FACILITIES_AGENTDEPLOYMENT_MODES
+from .facilities.agents import facilitiesAgents, facilitiesAgentsDeploymentModes
 
 # Constants for argument choices
 DNS_PROVIDERS = ["cloudflare", "cis", "route53"]
@@ -847,7 +847,7 @@ for agent in facilitiesAgents:
         required=False,
         help=f"Facilities agent {agent} deployment mode",
         default="",
-        choices=FACILITIES_AGENTDEPLOYMENT_MODES,
+        choices=facilitiesAgentsDeploymentModes[agent],
     )
 # Open Data Hub
 # -----------------------------------------------------------------------------

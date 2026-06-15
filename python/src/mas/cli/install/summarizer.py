@@ -353,12 +353,13 @@ class InstallSummarizerMixin:
             )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
             self.printParamSummary("  + Server Timezone", "mas_ws_facilities_server_timezone")
-            self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
-            self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local")
-            self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")
             if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
+                self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
+                self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local")
+                self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")                
                 for agent in facilitiesAgents:
-                    self.printParamSummary(f"  + Agent {agent} deployment mode", f"mas_ws_facilities_{agent}_deploymentmode")
+                    if self.getParam(f"mas_ws_facilities_{agent}_deploymentmode") != "":
+                        self.printParamSummary(f"  + Agent {agent} deployment mode", f"mas_ws_facilities_{agent}_deploymentmode")
             if self.getParam("db2_action_facilities") == "none":
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
