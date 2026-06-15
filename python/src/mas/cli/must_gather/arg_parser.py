@@ -11,6 +11,7 @@
 """Argument parser for must-gather command."""
 
 import argparse
+import os
 
 # Define all available collectors
 ALL_COLLECTORS = ["ocp", "db2", "kafka", "mongodb", "cp4d", "cert-manager", "grafana", "sls", "mas", "aiservice"]
@@ -104,12 +105,17 @@ additionalGroup.add_argument("--extra-namespaces", type=str, default=None, help=
 
 # Artifactory Upload group
 artifactoryGroup = mustGatherArgParser.add_argument_group("Artifactory Upload")
-artifactoryGroup.add_argument("--artifactory-token", type=str, default=None, help="Provide a token for Artifactory to automatically upload the file")
+artifactoryGroup.add_argument(
+    "--artifactory-token",
+    type=str,
+    default=os.environ.get("ARTIFACTORY_TOKEN"),
+    help="Provide a token for Artifactory to automatically upload the file (can also be set via ARTIFACTORY_TOKEN environment variable)",
+)
 artifactoryGroup.add_argument(
     "--artifactory-upload-dir",
     type=str,
-    default=None,
-    help="Working URL to the root directory in Artifactory where the must-gather file should be uploaded",
+    default=os.environ.get("ARTIFACTORY_UPLOAD_DIR"),
+    help="Working URL to the root directory in Artifactory where the must-gather file should be uploaded (can also be set via ARTIFACTORY_UPLOAD_DIR environment variable)",
 )
 
 # Add serve subcommand
