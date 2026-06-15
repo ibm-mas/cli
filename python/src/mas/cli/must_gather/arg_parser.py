@@ -26,11 +26,7 @@ class EnvDefault(argparse.Action):
             default: Default value if env var not set. Defaults to None.
             **kwargs: Additional arguments passed to Action
         """
-        if envvar:
-            if envvar in os.environ:
-                default = os.environ[envvar]
-        if required and default:
-            required = False
+        self.envvar = envvar
         super(EnvDefault, self).__init__(default=default, required=required, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -43,6 +39,34 @@ class EnvDefault(argparse.Action):
             option_string: Option string used
         """
         setattr(namespace, self.dest, values)
+
+
+def _get_env_default(parser, namespace):
+    """Apply environment variable defaults after parsing.
+    
+    This is called as a post-processing step to apply environment variable
+    defaults for arguments that weren't provided on the command line.
+    
+    Args:
+        parser: ArgumentParser instance
+        namespace: Parsed namespace object
+    """
+    for action in parser._actions:
+        if isinstance(action, EnvDefault) and getattr(namespace, action.dest) is None:
+            env_value = os.environ.get(action.envvar)
+            if env_value is not None:
+                setattr(namespace, action.dest, env_value)
+    return namespace
+
+
+# Wrap parse_args to apply environment defaults
+_original_parse_args = None
+
+
+def _parse_args_wrapper(args=None, namespace=None):
+    """Wrapper for parse_args that applies environment variable defaults."""
+    parsed = _original_parse_args(args, namespace)
+    return _get_env_default(mustGatherArgParser, parsed)
 
 
 # Define all available collectors
@@ -157,3 +181,7 @@ subparsers = mustGatherArgParser.add_subparsers(dest="command", help="Available 
 serveParser = subparsers.add_parser("serve", help="Serve web viewer for existing must-gather output", formatter_class=argparse.RawTextHelpFormatter)
 serveParser.add_argument("-d", "--dir", type=str, required=True, help="Path to must-gather output directory")
 serveParser.add_argument("--port", type=int, default=8000, help="Port for HTTP server (default: 8000)")
+
+# Wrap parse_args to apply environment variable defaults at parse time
+_original_parse_args = mustGatherArgParser.parse_args
+mustGatherArgParser.parse_args = _parse_args_wrapper
