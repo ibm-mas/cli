@@ -13,6 +13,38 @@
 import argparse
 import os
 
+
+class EnvDefault(argparse.Action):
+    """Custom action to use environment variable as default if argument not provided."""
+
+    def __init__(self, envvar, required=False, default=None, **kwargs):
+        """Initialize action with environment variable name.
+        
+        Args:
+            envvar (str): Name of environment variable to use as default
+            required (bool, optional): Whether argument is required. Defaults to False.
+            default: Default value if env var not set. Defaults to None.
+            **kwargs: Additional arguments passed to Action
+        """
+        if envvar:
+            if envvar in os.environ:
+                default = os.environ[envvar]
+        if required and default:
+            required = False
+        super(EnvDefault, self).__init__(default=default, required=required, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        """Set the attribute value.
+        
+        Args:
+            parser: ArgumentParser instance
+            namespace: Namespace object to populate
+            values: Parsed values
+            option_string: Option string used
+        """
+        setattr(namespace, self.dest, values)
+
+
 # Define all available collectors
 ALL_COLLECTORS = ["ocp", "db2", "kafka", "mongodb", "cp4d", "cert-manager", "grafana", "sls", "mas", "aiservice"]
 
@@ -107,14 +139,16 @@ additionalGroup.add_argument("--extra-namespaces", type=str, default=None, help=
 artifactoryGroup = mustGatherArgParser.add_argument_group("Artifactory Upload")
 artifactoryGroup.add_argument(
     "--artifactory-token",
+    action=EnvDefault,
+    envvar="ARTIFACTORY_TOKEN",
     type=str,
-    default=os.environ.get("ARTIFACTORY_TOKEN"),
     help="Provide a token for Artifactory to automatically upload the file (can also be set via ARTIFACTORY_TOKEN environment variable)",
 )
 artifactoryGroup.add_argument(
     "--artifactory-upload-dir",
+    action=EnvDefault,
+    envvar="ARTIFACTORY_UPLOAD_DIR",
     type=str,
-    default=os.environ.get("ARTIFACTORY_UPLOAD_DIR"),
     help="Working URL to the root directory in Artifactory where the must-gather file should be uploaded (can also be set via ARTIFACTORY_UPLOAD_DIR environment variable)",
 )
 
