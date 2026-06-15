@@ -76,6 +76,9 @@ spec:
     - name: manage_update_schedule
       type: string
       default: ""
+    - name: sls_license_icn
+      type: string
+      default: ""
 
   stepTemplate:
     name: gitops-suite-app-config
@@ -136,6 +139,8 @@ spec:
         value: $(params.run_sanity_test)
       - name: MANAGE_UPDATE_SCHEDULE
         value: $(params.manage_update_schedule)
+      - name: SLS_LICENSE_ICN
+        value: $(params.sls_license_icn)
     envFrom:
       - configMapRef:
           name: environment-properties
