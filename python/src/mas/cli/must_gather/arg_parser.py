@@ -12,6 +12,7 @@
 
 import argparse
 import os
+from typing import Callable, Optional
 
 
 class EnvDefault(argparse.Action):
@@ -43,10 +44,10 @@ class EnvDefault(argparse.Action):
 
 def _get_env_default(parser, namespace):
     """Apply environment variable defaults after parsing.
-    
+
     This is called as a post-processing step to apply environment variable
     defaults for arguments that weren't provided on the command line.
-    
+
     Args:
         parser: ArgumentParser instance
         namespace: Parsed namespace object
@@ -60,11 +61,12 @@ def _get_env_default(parser, namespace):
 
 
 # Wrap parse_args to apply environment defaults
-_original_parse_args = None
+_original_parse_args: Optional[Callable] = None
 
 
 def _parse_args_wrapper(args=None, namespace=None):
     """Wrapper for parse_args that applies environment variable defaults."""
+    assert _original_parse_args is not None, "parse_args must be initialized before calling wrapper"
     parsed = _original_parse_args(args, namespace)
     return _get_env_default(mustGatherArgParser, parsed)
 
