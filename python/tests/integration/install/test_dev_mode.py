@@ -217,6 +217,7 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
     run_install_test(tmpdir, config)
 
 
+@pytest.mark.skip(reason="Routing mode configuration is disabled")
 def test_install_master_dev_mode_with_path_routing(tmpdir):
     """Test interactive installation with 9.2.0 channel including path-based routing mode configuration.
 
@@ -504,6 +505,7 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
     run_install_test(tmpdir, config)
 
 
+@pytest.mark.skip(reason="Routing mode configuration is disabled")
 def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
     """Test non-interactive installation with path-based routing mode using CLI flags.
 

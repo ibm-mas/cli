@@ -2751,7 +2751,7 @@ class InstallApp(
                     )
                     # Note: This is non-fatal as the plugin can be enabled manually
 
-            if False # self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
+            if False:  # self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
                 with Halo(
                     text="Configuring cluster for path-based routing",
                     spinner=self.spinner,
