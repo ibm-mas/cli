@@ -496,7 +496,8 @@ spec:
           enable_subuser
         fi
       
-        if [[ "$LAUNCHER_ID" == "core" ]]; then
+        if [[ "$LAUNCHER_ID" == "mas" ]]; then
+          # Core infrastructure checks
           MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}"
           BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${CLUSTER_NAME}"
           SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${CLUSTER_NAME}"
@@ -524,96 +525,153 @@ spec:
           SUITE_APP_NAME="suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
 
+          # First wave (has to include the prereqs cp4d, db2)
           check_argo_app_healthy "${SLS_APP_NAME}" 180 #90 minutes
-          check_argo_app_healthy "${MONGO_CONFIG_APP}" 60 #30 minutes
-          check_argo_app_healthy "${SLS_CONFIG_APP}" 30
+          check_argo_app_healthy "${MONGO_CONFIG_APP}" 240 #2 hours
+          check_argo_app_healthy "${SLS_CONFIG_APP}" 60
           check_argo_app_healthy "${BAS_CONFIG_APP}" 30
           check_argo_app_healthy "${SUITE_APP_NAME}" 30
           check_argo_app_healthy "${WORKSPACE_APP}" 30
-        fi
 
-        # NOTE: verified that subuser teardown (including deletion of its API keys, authenticated domains and DNS records) still works as expected against a disabled subuser
-        #       so there is no need to re-enable the subuser before attempting to deprovision the MAS instance.
-      
-        if [[ "$LAUNCHER_ID" == "apps" ]]; then
+          # Extract major.minor version from MAS_CHANNEL (e.g., "9.2" from "9.2.x-dev")
+          MAS_VERSION=$(echo "${MAS_CHANNEL}" | cut -d'.' -f1,2)
+          
+          # Version comparison flags
+          if [[ "$(printf '%s\n' "${MAS_VERSION}" "9.2" | sort -V | head -n1)" == "${MAS_VERSION}" ]] && [[ "${MAS_VERSION}" != "9.2" ]]; then
+            MAS_VERSION_LT_92=true
+          else
+            MAS_VERSION_LT_92=false
+          fi
+          
+          if [[ "$(printf '%s\n' "${MAS_VERSION}" "9.2" | sort -V | head -n1)" == "9.2" || "${MAS_VERSION}" == "9.2" ]]; then
+            MAS_VERSION_GTE_92=true
+          else
+            MAS_VERSION_GTE_92=false
+          fi
+          
           # The following order is defined by the sync wave order in https://github.com/ibm-mas/gitops/tree/main/root-applications/ibm-mas-instance-root/templates
-          # First wave (has to include the prereqs cp4d, db2)
-          if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
-            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 240
+          # Pre-9.2 version checks
+          if [[ "${MAS_VERSION_LT_92}" == "true" ]]; then
+            if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
+              check_argo_app_healthy "manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 240
+            fi
+            if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
+              check_argo_app_healthy "manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 240
+            fi
+            # Second wave
+            if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+              check_argo_app_healthy "facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+              check_argo_app_healthy "assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
+              check_argo_app_healthy "visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+              check_argo_app_healthy "iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 240
+            fi
+            if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 1260
+            fi
+            if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 840
+            fi
+            if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 480
+            fi
+            # Third wave
+            if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 20
+            fi
+            # Fourth wave
+            if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+              check_argo_app_healthy "monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 150
+            fi
+            if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+              check_argo_app_healthy "optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 60
+            fi
+            # Fifth wave
+            if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 180
+            fi
+            if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 60
+            fi
+            # Sixth wave
+            if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
+              check_argo_app_healthy "predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+          else
+            # Post-9.2 version checks
+            # First wave (has to include the prereqs cp4d, db2)
+            if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
+              check_argo_app_healthy "manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 240
+            fi
+            if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
+              check_argo_app_healthy "manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 240
+            fi
+            # Second wave
+            if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+              check_argo_app_healthy "facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+              check_argo_app_healthy "assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
+              check_argo_app_healthy "visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+              check_argo_app_healthy "monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 150
+            fi
+            if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 1260
+            fi
+            if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 840
+            fi
+            if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 480
+            fi
+            # Third wave
+            if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
+            if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 180
+            fi
+            # Fourth wave
+            if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+              check_argo_app_healthy "iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 240
+            fi
+            if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+              check_argo_app_healthy "optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 60
+            fi
+            # Fifth wave
+            if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 20
+            fi
+            if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 60
+            fi
+            # Sixth wave
+            if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
+              check_argo_app_healthy "predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+              check_argo_app_healthy "${MAS_WORKSPACE_ID}.predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
+            fi
           fi
-          if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
-            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 240
-          fi
-          # Second wave
-          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
-            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 120
-          fi
-          if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
-            MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 120
-          fi
-          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
-            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 120
-          fi
-          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
-            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 240
-          fi
-          if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
-            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 1260
-          fi
-          if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
-            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 840
-          fi
-          # Third wave
-          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
-            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
-          fi
-          if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
-            MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
-          fi
-          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
-            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 20
-          fi
-          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
-            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 480
-          fi
-          # Fourth wave
-          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
-            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 80
-          fi
-          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
-            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 60
-          fi
-          # Fifth wave
-          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
-            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 180
-          fi
-          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
-            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 60
-          fi
-          # Sixth wave
-          if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
-            MASAPP_APP="predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 120
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
-          fi
-
         fi
+
 
         # If use_sendgrid: true, disable the subuser so we do not accidentally send out real emails when running tests against the instance
         # NOTE: Many of the FVT suites will fail unless the suite is configured to use Mailhog for SMTP, so we only plan to have smtp.use_sendgrid: true set for fvtsaastran
@@ -757,7 +815,7 @@ spec:
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} || exit 1
 
         # Wait for launcher to complete
-        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
+        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 160 --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
 
         # Remove argocd window
         argocd_login
@@ -766,7 +824,7 @@ spec:
         argocd proj windows delete mas $ARGOWINDOW --grpc-web
 
         # Set auto_delete: true, to allow ArgoCD to automatically delete resources when the deprovision pipelines run
-        if [[ "$LAUNCHER_ID" == "apps" ]]; then
+        if [[ "$LAUNCHER_ID" == "mas" ]]; then
           ACCOUNT_ROOT_APP="root.${ACCOUNT_ID}"
           CLUSTER_ROOT_APP="cluster.${CLUSTER_NAME}"
           INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
@@ -778,9 +836,9 @@ spec:
           fi
 
           # wait for the root apps to sync to make sure the setting has been applied everywhere
-          check_argo_app_synced "${ACCOUNT_ROOT_APP}"
-          check_argo_app_synced "${CLUSTER_ROOT_APP}"
-          check_argo_app_synced "${INSTANCE_ROOT_APP}"
+          check_argo_app_synced "${ACCOUNT_ROOT_APP}" "" "" "label"
+          check_argo_app_synced "${CLUSTER_ROOT_APP}" "" "" "label"
+          check_argo_app_synced "${INSTANCE_ROOT_APP}" "" "" "label"
 
           if [[ "${USE_SENDGRID}" == "true" ]]; then
             disable_subuser

@@ -92,8 +92,8 @@ class installArgBuilderMixin:
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
-        if self.mas_permission_mode != "":
-            command += f"  --permission-mode {self.mas_permission_mode}{newline}"
+        if self.mas_admin_mode != "":
+            command += f"  --admin-mode {self.mas_admin_mode}{newline}"
 
         if self.getParam("mas_trust_default_cas").lower() == "false":
             command += f"  --disable-ca-trust{newline}"
@@ -348,6 +348,14 @@ class installArgBuilderMixin:
             if self.getParam("mas_ws_facilities_storage_userfiles_size") != "":
                 command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
 
+            if self.getParam("mas_ws_facilities_server_timezone") != "":
+                command += f"  --facilities-server-timezone \"{self.getParam('mas_ws_facilities_server_timezone')}\"{newline}"
+
+            if self.getParam("mas_ws_facilities_properties_file_local") != "":
+                command += f"  --facilities-properties-file \"{self.getParam('mas_ws_facilities_properties_file_local')}\"{newline}"
+            if self.getParam("mas_ws_facilities_properties_secret_name") != "":
+                command += f"  --facilities-properties-secret-name \"{self.getParam('mas_ws_facilities_properties_secret_name')}\"{newline}"
+
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
         if self.installAIService:
@@ -465,8 +473,12 @@ class installArgBuilderMixin:
 
             if self.getParam("db2_type") != "":
                 command += f"  --db2-type \"{self.getParam('db2_type')}\"{newline}"
-            if self.getParam("db2_timezone") != "":
-                command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+            if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+                if self.getParam("db2_timezone") != "":
+                    command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+            if self.getParam("db2_action_facilities") == "install":
+                if self.getParam("db2_facilities_timezone") != "":
+                    command += f"  --db2-facilities-timezone \"{self.getParam('db2_facilities_timezone')}\"{newline}"
             if self.db2LicenseFileLocal != "":
                 command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
 
@@ -608,12 +620,15 @@ class installArgBuilderMixin:
             command += f"  --dev-mode{newline}"
         if self.getParam("skip_pre_check") is True:
             command += f"  --skip-pre-check{newline}"
-        if self.skip_preinstall_rbac:
-            command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam("service_account_name") != "":
             command += f"  --service-account {self.getParam('service_account_name')}{newline}"
+        if self.useCliDigest:
+            if self.cliDigest:
+                command += f"  --use-cli-digest {self.cliDigest}{newline}"
+            else:
+                command += f"  --use-cli-digest{newline}"
 
         command += "  --accept-license --no-confirm"
         return command
