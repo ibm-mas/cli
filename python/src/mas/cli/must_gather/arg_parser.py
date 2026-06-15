@@ -11,6 +11,65 @@
 """Argument parser for must-gather command."""
 
 import argparse
+import os
+from typing import Callable, Optional
+
+
+class EnvDefault(argparse.Action):
+    """Custom action to use environment variable as default if argument not provided."""
+
+    def __init__(self, envvar, required=False, default=None, **kwargs):
+        """Initialize action with environment variable name.
+
+        Args:
+            envvar (str): Name of environment variable to use as default
+            required (bool, optional): Whether argument is required. Defaults to False.
+            default: Default value if env var not set. Defaults to None.
+            **kwargs: Additional arguments passed to Action
+        """
+        self.envvar = envvar
+        super(EnvDefault, self).__init__(default=default, required=required, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        """Set the attribute value.
+
+        Args:
+            parser: ArgumentParser instance
+            namespace: Namespace object to populate
+            values: Parsed values
+            option_string: Option string used
+        """
+        setattr(namespace, self.dest, values)
+
+
+def _get_env_default(parser, namespace):
+    """Apply environment variable defaults after parsing.
+
+    This is called as a post-processing step to apply environment variable
+    defaults for arguments that weren't provided on the command line.
+
+    Args:
+        parser: ArgumentParser instance
+        namespace: Parsed namespace object
+    """
+    for action in parser._actions:
+        if isinstance(action, EnvDefault) and getattr(namespace, action.dest) is None:
+            env_value = os.environ.get(action.envvar)
+            if env_value is not None:
+                setattr(namespace, action.dest, env_value)
+    return namespace
+
+
+# Wrap parse_args to apply environment defaults
+_original_parse_args: Optional[Callable] = None
+
+
+def _parse_args_wrapper(args=None, namespace=None):
+    """Wrapper for parse_args that applies environment variable defaults."""
+    assert _original_parse_args is not None, "parse_args must be initialized before calling wrapper"
+    parsed = _original_parse_args(args, namespace)
+    return _get_env_default(mustGatherArgParser, parsed)
+
 
 # Define all available collectors
 ALL_COLLECTORS = ["ocp", "db2", "kafka", "mongodb", "cp4d", "cert-manager", "grafana", "sls", "mas", "aiservice"]
@@ -104,12 +163,19 @@ additionalGroup.add_argument("--extra-namespaces", type=str, default=None, help=
 
 # Artifactory Upload group
 artifactoryGroup = mustGatherArgParser.add_argument_group("Artifactory Upload")
-artifactoryGroup.add_argument("--artifactory-token", type=str, default=None, help="Provide a token for Artifactory to automatically upload the file")
+artifactoryGroup.add_argument(
+    "--artifactory-token",
+    action=EnvDefault,
+    envvar="ARTIFACTORY_TOKEN",
+    type=str,
+    help="Provide a token for Artifactory to automatically upload the file (can also be set via ARTIFACTORY_TOKEN environment variable)",
+)
 artifactoryGroup.add_argument(
     "--artifactory-upload-dir",
+    action=EnvDefault,
+    envvar="ARTIFACTORY_UPLOAD_DIR",
     type=str,
-    default=None,
-    help="Working URL to the root directory in Artifactory where the must-gather file should be uploaded",
+    help="Working URL to the root directory in Artifactory where the must-gather file should be uploaded (can also be set via ARTIFACTORY_UPLOAD_DIR environment variable)",
 )
 
 # Add serve subcommand
@@ -117,3 +183,7 @@ subparsers = mustGatherArgParser.add_subparsers(dest="command", help="Available 
 serveParser = subparsers.add_parser("serve", help="Serve web viewer for existing must-gather output", formatter_class=argparse.RawTextHelpFormatter)
 serveParser.add_argument("-d", "--dir", type=str, required=True, help="Path to must-gather output directory")
 serveParser.add_argument("--port", type=int, default=8000, help="Port for HTTP server (default: 8000)")
+
+# Wrap parse_args to apply environment variable defaults at parse time
+_original_parse_args = mustGatherArgParser.parse_args
+mustGatherArgParser.parse_args = _parse_args_wrapper
