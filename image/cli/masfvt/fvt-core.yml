@@ -32,6 +32,7 @@
     keycloak_admin_password: "{{ lookup('env', 'KEYCLOAK_ADMIN_PASSWORD') }}"
     keycloak_base_url: "{{ lookup('env', 'KEYCLOAK_BASE_URL') }}"
     keycloak_realm_name: "{{ lookup('env', 'KEYCLOAK_REALM_NAME') }}"
+    oidc_discovery_endpoint: "{{ lookup('env', 'OIDC_DISCOVERY_ENDPOINT') }}"
 
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
@@ -66,6 +67,7 @@
           - "keycloak_admin_password ..... ********"
           - "keycloak_base_url ........... {{ keycloak_base_url }}"
           - "keycloak_realm_name ......... {{ keycloak_realm_name }}"
+          - "oidc_discovery_endpoint ..... {{ oidc_discovery_endpoint }}"
 
     - name: "Start FVT-core pipeline"
       kubernetes.core.k8s:
