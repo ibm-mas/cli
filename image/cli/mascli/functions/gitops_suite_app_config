@@ -368,44 +368,54 @@ function gitops_suite_app_config() {
   # Resolve ICN for customer-level secrets (required for Facilities MREF password)
   # ---------------------------------------------------------------------------
   # ICN must be provided via environment variables from the saas-deploy-py pipeline:
-  # 1. LICENSE_FILE or SLS_LICENSE_FILE - extract from NOTICE field
-  # 2. STANDALONE_SLS_SERVICE (centralized SLS) - extract from path
-  # 3. SLS_LICENSE_ICN (pre-configured)
+  # 1. SLS_LICENSE_ICN (pre-configured) - highest priority
+  # 2. CENTRALIZED_SLS_SERVICE (centralized SLS) - extract from path
+  # 3. LICENSE_FILE or SLS_LICENSE_FILE - extract from license file content
   # 4. Environment variable ICN (if already set)
   
-  # Try to extract ICN from license file
+  # Use SLS_LICENSE_ICN if available (highest priority)
+  if [[ -z "${ICN}" ]] && [[ -n "${SLS_LICENSE_ICN}" ]]; then
+    echo "- Using SLS_LICENSE_ICN: ${SLS_LICENSE_ICN}"
+    ICN="${SLS_LICENSE_ICN}"
+  fi
+  
+  # Try CENTRALIZED_SLS_SERVICE if ICN not yet resolved (for centralized SLS)
+  if [[ -z "${ICN}" ]] && [[ -n "${CENTRALIZED_SLS_SERVICE}" ]]; then
+    echo "- Resolving ICN from CENTRALIZED_SLS_SERVICE: ${CENTRALIZED_SLS_SERVICE}"
+    CLEAN_PATH=$(echo "$CENTRALIZED_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+    IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+    if [ ${#PARTS[@]} -ge 5 ]; then
+      ICN="${PARTS[3]}"
+      echo "- ICN resolved from centralized SLS service path: ${ICN}"
+    fi
+  fi
+  
+  # Try to extract ICN from license file (for standard SLS with license file)
   if [[ -z "${ICN}" ]] && [[ -n "${LICENSE_FILE}" ]] && [[ -f "${LICENSE_FILE}" ]]; then
     echo "- Attempting to extract ICN from license file: ${LICENSE_FILE}"
-    ICN=$(grep -oP 'ICN:\K[0-9A-Za-z]+' "${LICENSE_FILE}" | head -1)
-    if [[ -n "${ICN}" ]]; then
-      echo "- ICN extracted from license file: ${ICN}"
+    FILE_SIZE=$(stat -c%s "${LICENSE_FILE}" 2>/dev/null || stat -f%z "${LICENSE_FILE}" 2>/dev/null || echo "0")
+    if [[ "${FILE_SIZE}" -gt 0 ]]; then
+      ICN=$(grep -oP 'ICN:\K[0-9A-Za-z]+' "${LICENSE_FILE}" 2>/dev/null | head -1 || true)
+      if [[ -n "${ICN}" ]]; then
+        echo "- ICN extracted from license file: ${ICN}"
+      fi
+    else
+      echo "- WARNING: License file is empty (${FILE_SIZE} bytes), skipping extraction"
     fi
   fi
   
   # Try SLS_LICENSE_FILE if LICENSE_FILE didn't work
   if [[ -z "${ICN}" ]] && [[ -n "${SLS_LICENSE_FILE}" ]] && [[ -f "${SLS_LICENSE_FILE}" ]]; then
     echo "- Attempting to extract ICN from SLS license file: ${SLS_LICENSE_FILE}"
-    ICN=$(grep -oP 'ICN:\K[0-9A-Za-z]+' "${SLS_LICENSE_FILE}" | head -1)
-    if [[ -n "${ICN}" ]]; then
-      echo "- ICN extracted from SLS license file: ${ICN}"
+    FILE_SIZE=$(stat -c%s "${SLS_LICENSE_FILE}" 2>/dev/null || stat -f%z "${SLS_LICENSE_FILE}" 2>/dev/null || echo "0")
+    if [[ "${FILE_SIZE}" -gt 0 ]]; then
+      ICN=$(grep -oP 'ICN:\K[0-9A-Za-z]+' "${SLS_LICENSE_FILE}" 2>/dev/null | head -1 || true)
+      if [[ -n "${ICN}" ]]; then
+        echo "- ICN extracted from SLS license file: ${ICN}"
+      fi
+    else
+      echo "- WARNING: SLS license file is empty (${FILE_SIZE} bytes), skipping extraction"
     fi
-  fi
-  
-  # Try STANDALONE_SLS_SERVICE if ICN not yet resolved
-  if [[ -z "${ICN}" ]] && [[ -n "${STANDALONE_SLS_SERVICE}" ]]; then
-    echo "- Resolving ICN from STANDALONE_SLS_SERVICE: ${STANDALONE_SLS_SERVICE}"
-    CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
-    IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
-    if [ ${#PARTS[@]} -ge 5 ]; then
-      ICN="${PARTS[3]}"
-      echo "- ICN resolved from SLS service path: ${ICN}"
-    fi
-  fi
-  
-  # Use SLS_LICENSE_ICN if available and ICN not yet resolved
-  if [[ -z "${ICN}" ]] && [[ -n "${SLS_LICENSE_ICN}" ]]; then
-    echo "- Using SLS_LICENSE_ICN: ${SLS_LICENSE_ICN}"
-    ICN="${SLS_LICENSE_ICN}"
   fi
   
   export ICN=${ICN:-""}
