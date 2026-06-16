@@ -13,7 +13,6 @@
 import hashlib
 import logging
 import os
-from typing import Optional
 
 import requests
 from mas.cli import BaseApp
@@ -27,8 +26,6 @@ from .aiservice import instance as aiservice_instance
 from .argo import applications as argo
 from .common.task_generation import generateNamespaceCollectionTasks
 from . import web_viewer
-from kubernetes import config
-from kubernetes.dynamic import DynamicClient
 from halo import Halo
 
 logger = logging.getLogger(__name__)
@@ -45,7 +42,6 @@ class MustGatherApp(BaseApp):
     def __init__(self):
         """Initialize must-gather application."""
         super().__init__()
-        self.dynClient: Optional[DynamicClient] = None
         self.printerColumnsCache: dict = {}
         self.ibmCRDsList: list = []
 
@@ -59,15 +55,6 @@ class MustGatherApp(BaseApp):
             set: Set of enabled collector names (lowercase, stripped)
         """
         return {c.strip().lower() for c in collectorsStr.split(",") if c.strip()}
-
-    def _initializeKubernetesClient(self):
-        """Initialize Kubernetes Dynamic Client.
-
-        Loads kubeconfig and creates a DynamicClient for API access.
-        """
-        if not self.dynClient:
-            config.load_kube_config()
-            self.dynClient = DynamicClient(config.new_client_from_config())
 
     def mustGather(self, args):
         """Execute must-gather collection or serve web viewer.
@@ -125,6 +112,10 @@ class MustGatherApp(BaseApp):
             ]
         )
 
+        # Accessing the dynamicClient alone is enough to initialize it - refer to: BaseApp.dynamicClient()
+        if self.dynamicClient is None:
+            self.fatalError("Not successfully connected to a Kubernetes cluster. See log file for details")
+
         # Start overall timer
         overallTimer = Timer()
         overallTimer.start()
@@ -137,17 +128,12 @@ class MustGatherApp(BaseApp):
         discoveryTimer.start()
 
         with Halo(text="Discovering resources to collect", spinner=self.spinner) as h:
-            # Initialize Kubernetes client
-            self._initializeKubernetesClient()
 
             # Process CRDs first (always, before discovery phase)
             # This is needed for printer columns and IBM CRD discovery
             from mas.cli.must_gather.common.crd_processor import processCRDs
 
-            if self.dynClient is None:
-                raise RuntimeError("Kubernetes client not initialized")
-
-            self.printerColumnsCache, self.ibmCRDsList = processCRDs(self.dynClient, outputManager.outputDir)
+            self.printerColumnsCache, self.ibmCRDsList = processCRDs(self.dynamicClient, outputManager.outputDir)
 
             plan = self.planCollection(parsedArgs, outputManager.outputDir)
             h.stop_and_persist(symbol="✅", text=f"Discovered {plan.total_tasks} collection tasks across {plan.total_groups} groups")
@@ -250,8 +236,8 @@ class MustGatherApp(BaseApp):
         from .collection_plan import CollectionPlan
         from .dependencies import kafka, mongodb, grafana, cert_manager, db2, cp4d
 
-        # Type assertion: dynClient is guaranteed to be non-None by _initializeKubernetesClient()
-        assert self.dynClient is not None, "Kubernetes client must be initialized before planning collection"
+        # Type assertion: dynClient is guaranteed to be non-None by connect()
+        assert self.dynamicClient is not None, "Kubernetes client must be initialized before planning collection"
 
         logger.info("🔍 Starting collection plan discovery")
         plan = CollectionPlan()
@@ -263,10 +249,10 @@ class MustGatherApp(BaseApp):
         if "ocp" in enabledCollectors:
             logger.info("💭 Planning OCP resource collection")
             ocpTasks = [
-                ("cluster_resources", ocp.collectClusterResources, self.dynClient, outputDir, False),
-                ("nodes", ocp.collectNodes, self.dynClient, outputDir, False),
-                ("airgap_resources", ocp.collectAirgapResources, self.dynClient, outputDir, False),
-                ("marketplace_resources", ocp.collectMarketplaceResources, self.dynClient, outputDir, False),
+                ("cluster_resources", ocp.collectClusterResources, self.dynamicClient, outputDir, False),
+                ("nodes", ocp.collectNodes, self.dynamicClient, outputDir, False),
+                ("airgap_resources", ocp.collectAirgapResources, self.dynamicClient, outputDir, False),
+                ("marketplace_resources", ocp.collectMarketplaceResources, self.dynamicClient, outputDir, False),
             ]
             plan.addGroup("OpenShift Container Platform", ocpTasks)
             logger.debug("Added OCP collection group with 4 tasks to plan")
@@ -277,7 +263,7 @@ class MustGatherApp(BaseApp):
         if "kafka" in enabledCollectors:
             kafka.addKafkaToCollectionPlan(
                 plan=plan,
-                dynClient=self.dynClient,
+                dynClient=self.dynamicClient,
                 outputDir=outputDir,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
@@ -289,7 +275,7 @@ class MustGatherApp(BaseApp):
         if "mongodb" in enabledCollectors:
             mongodb.addMongoDBToCollectionPlan(
                 plan=plan,
-                dynClient=self.dynClient,
+                dynClient=self.dynamicClient,
                 outputDir=outputDir,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
@@ -301,7 +287,7 @@ class MustGatherApp(BaseApp):
         if "grafana" in enabledCollectors:
             grafana.addGrafanaToCollectionPlan(
                 plan=plan,
-                dynClient=self.dynClient,
+                dynClient=self.dynamicClient,
                 outputDir=outputDir,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
@@ -313,7 +299,7 @@ class MustGatherApp(BaseApp):
         if "cert-manager" in enabledCollectors:
             cert_manager.addCertManagerToCollectionPlan(
                 plan=plan,
-                dynClient=self.dynClient,
+                dynClient=self.dynamicClient,
                 outputDir=outputDir,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
@@ -326,7 +312,7 @@ class MustGatherApp(BaseApp):
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
             db2.addDb2ToCollectionPlan(
                 plan=plan,
-                dynClient=self.dynClient,
+                dynClient=self.dynamicClient,
                 outputDir=outputDir,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
@@ -339,7 +325,7 @@ class MustGatherApp(BaseApp):
         if "cp4d" in enabledCollectors:
             cp4d.addCP4DToCollectionPlan(
                 plan=plan,
-                dynClient=self.dynClient,
+                dynClient=self.dynamicClient,
                 outputDir=outputDir,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
@@ -352,7 +338,7 @@ class MustGatherApp(BaseApp):
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
             sls.addSLSToCollectionPlan(
                 plan=plan,
-                dynClient=self.dynClient,
+                dynClient=self.dynamicClient,
                 outputDir=outputDir,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
@@ -370,7 +356,7 @@ class MustGatherApp(BaseApp):
                 # Add MAS Core collection tasks
                 coreNamespaces = mas_core.addMASCoreToCollectionPlan(
                     plan=plan,
-                    dynClient=self.dynClient,
+                    dynClient=self.dynamicClient,
                     outputDir=outputDir,
                     noLogs=parsedArgs.no_logs,
                     ibmCRDs=self.ibmCRDsList,
@@ -381,7 +367,7 @@ class MustGatherApp(BaseApp):
                     # Add MAS Apps collection tasks for discovered instances
                     mas_apps.addMASAppsToCollectionPlan(
                         plan=plan,
-                        dynClient=self.dynClient,
+                        dynClient=self.dynamicClient,
                         outputDir=outputDir,
                         noLogs=parsedArgs.no_logs,
                         ibmCRDs=self.ibmCRDsList,
@@ -392,7 +378,7 @@ class MustGatherApp(BaseApp):
                     # Add MAS Pipelines collection tasks
                     mas_pipelines.addMASPipelinesToCollectionPlan(
                         plan=plan,
-                        dynClient=self.dynClient,
+                        dynClient=self.dynamicClient,
                         outputDir=outputDir,
                         noLogs=parsedArgs.no_logs,
                         ibmCRDs=self.ibmCRDsList,
@@ -408,7 +394,7 @@ class MustGatherApp(BaseApp):
         if "aiservice" in enabledCollectors:
             aiservice_instance.addAIServiceToCollectionPlan(
                 plan=plan,
-                dynClient=self.dynClient,
+                dynClient=self.dynamicClient,
                 outputDir=outputDir,
                 noLogs=parsedArgs.no_logs,
                 ibmCRDs=self.ibmCRDsList,
@@ -419,7 +405,7 @@ class MustGatherApp(BaseApp):
         # Argo Discovery
         argo.addArgoToCollectionPlan(
             plan=plan,
-            dynClient=self.dynClient,
+            dynClient=self.dynamicClient,
             outputDir=outputDir,
             noLogs=parsedArgs.no_logs,
             ibmCRDs=self.ibmCRDsList,
@@ -432,7 +418,7 @@ class MustGatherApp(BaseApp):
             for namespace in namespaceList:
                 # Generate tasks for extra namespace using common task generation
                 tasks = generateNamespaceCollectionTasks(
-                    dynClient=self.dynClient,
+                    dynClient=self.dynamicClient,
                     namespace=namespace,
                     outputDir=outputDir,
                     noLogs=parsedArgs.no_logs,
