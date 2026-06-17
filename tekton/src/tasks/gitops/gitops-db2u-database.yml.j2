@@ -7,12 +7,9 @@ spec:
   params:
     - name: cluster_name
       type: string
-    - name: cluster_url
-      type: string
-      default: ""
     - name: account
       type: string
-    - name: secrets_path
+    - name: aiservice_instance_id
       type: string
     - name: git_branch
       type: string
@@ -22,131 +19,21 @@ spec:
       type: string
     - name: github_host
       type: string
+    - name: secrets_path
+      type: string
     - name: avp_aws_secret_region
       type: string
-    - name: db2_meta_storage_class
-      type: string
-    - name: db2_temp_storage_class
-      type: string
-    - name: db2_logs_storage_class
-      type: string
-    - name: db2_audit_logs_storage_class
-      type: string
-    - name: db2_archivelogs_storage_class
-      type: string
-    - name: db2_data_storage_class
-      type: string
-    - name: db2_backup_storage_class
-      type: string
-    - name: db2_meta_storage_size
-      type: string
-    - name: db2_temp_storage_size
-      type: string
-    - name: db2_logs_storage_size
-      type: string
-    - name: db2_audit_logs_storage_size
-      type: string
-    - name: db2_archivelogs_storage_size
-      type: string
-    - name: db2_data_storage_size
-      type: string
-    - name: db2_backup_storage_size
-      type: string
-    - name: db2_version
-      type: string
-    - name: db2_instance_registry_yaml
-      type: string
-    - name: db2_instance_dbm_config_yaml
-      type: string
-    - name: db2_addons_audit_config_yaml
-      type: string
-    - name: db2_database_db_config_yaml
-      type: string
-    - name: db2_table_org
-      type: string
-    - name: db2_mln_count
-      type: string
-    - name: db2_num_pods
-      type: string
-    - name: db2_meta_storage_accessmode
-      type: string
-    - name: db2_data_storage_accessmode
-      type: string
-    - name: db2_backup_storage_accessmode
-      type: string
-    - name: db2_logs_storage_accessmode
-      type: string
-    - name: db2_audit_logs_storage_accessmode
-      type: string
-    - name: db2_temp_storage_accessmode
-      type: string
-    - name: db2_archivelogs_storage_accessmode
-      type: string
-    - name: db2_cpu_requests
-      type: string
-    - name: db2_cpu_limits
-      type: string
-    - name: db2_memory_requests
-      type: string
-    - name: db2_memory_limits
-      type: string
-    - name: db2_affinity_key
-      type: string
-    - name: db2_affinity_value
-      type: string
-    - name: db2_tolerate_key
-      type: string
-    - name: db2_tolerate_value
-      type: string
-    - name: db2_tolerate_effect
-      type: string
-    - name: db2_timezone
-      type: string
-    - name: db2_tls_version
-      type: string
-    - name: mas_instance_id
-      type: string
-    - name: mas_app_id
-      type: string
-    - name: jdbc_route
-      type: string
-      default: ""
-    - name: jdbc_connection_url_additional_params
-      type: string
-      default: ""
-    - name: db2_backup_notify_slack_url
-      type: string
-      default: ""
-    - name: auto_backup
-      type: string
-      default: ""
-    - name: replica_db
-      type: string
-      default: "false"
-    - name: is_replica_task
-      type: string
-      default: "false"
-    - name: mas_annotations
-      type: string
-      default: ""
-    - name: manually_set_enhanced_hadr
-      type: string
-      default: "false"
-    - name: allow_list
-      type: string
-      default: ""
-    - name: production_database_access_type
-      type: string
-      default: ""
   stepTemplate:
-    name: gitops-db2u-database
+    name: gitops-db2u-aiservice
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
-      - name: CLUSTER_URL
-        value: $(params.cluster_url)
       - name: ACCOUNT
         value: $(params.account)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
       - name: SECRET_PATH
         value: $(params.secrets_path)
       - name: GIT_BRANCH
@@ -155,114 +42,8 @@ spec:
         value: $(params.github_org)
       - name: GITHUB_HOST
         value: $(params.github_host)
-      - name: GITHUB_REPO
-        value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-      - name: DB2_META_STORAGE_CLASS
-        value: $(params.db2_meta_storage_class)
-      - name: DB2_TEMP_STORAGE_CLASS
-        value: $(params.db2_temp_storage_class)
-      - name: DB2_LOGS_STORAGE_CLASS
-        value: $(params.db2_logs_storage_class)
-      - name: DB2_AUDIT_LOGS_STORAGE_CLASS
-        value: $(params.db2_audit_logs_storage_class)
-      - name: DB2_ARCHIVELOGS_STORAGE_CLASS
-        value: $(params.db2_archivelogs_storage_class)
-      - name: DB2_DATA_STORAGE_CLASS
-        value: $(params.db2_data_storage_class)
-      - name: DB2_BACKUP_STORAGE_CLASS
-        value: $(params.db2_backup_storage_class)
-      - name: DB2_META_STORAGE_SIZE
-        value: $(params.db2_meta_storage_size)
-      - name: DB2_TEMP_STORAGE_SIZE
-        value: $(params.db2_temp_storage_size)
-      - name: DB2_LOGS_STORAGE_SIZE
-        value: $(params.db2_logs_storage_size)
-      - name: DB2_AUDIT_LOGS_STORAGE_SIZE
-        value: $(params.db2_audit_logs_storage_size)
-      - name: DB2_ARCHIVELOGS_STORAGE_SIZE
-        value: $(params.db2_archivelogs_storage_size)
-      - name: DB2_DATA_STORAGE_SIZE
-        value: $(params.db2_data_storage_size)
-      - name: DB2_BACKUP_STORAGE_SIZE
-        value: $(params.db2_backup_storage_size)
-      - name: DB2_VERSION
-        value: $(params.db2_version)
-      - name: DB2_INSTANCE_REGISTRY_YAML
-        value: $(params.db2_instance_registry_yaml)
-      - name: DB2_INSTANCE_DBM_CONFIG_YAML
-        value: $(params.db2_instance_dbm_config_yaml)
-      - name: DB2_ADDONS_AUDIT_CONFIG_YAML
-        value: $(params.db2_addons_audit_config_yaml)
-      - name: DB2_DATABASE_DB_CONFIG_YAML
-        value: $(params.db2_database_db_config_yaml)
-      - name: DB2_TABLE_ORG
-        value: $(params.db2_table_org)
-      - name: DB2_MLN_COUNT
-        value: $(params.db2_mln_count)
-      - name: DB2_NUM_PODS
-        value: $(params.db2_num_pods)
-      - name: DB2_META_STORAGE_ACCESSMODE
-        value: $(params.db2_meta_storage_accessmode)
-      - name: DB2_DATA_STORAGE_ACCESSMODE
-        value: $(params.db2_data_storage_accessmode)
-      - name: DB2_BACKUP_STORAGE_ACCESSMODE
-        value: $(params.db2_backup_storage_accessmode)
-      - name: DB2_LOGS_STORAGE_ACCESSMODE
-        value: $(params.db2_logs_storage_accessmode)
-      - name: DB2_AUDIT_LOGS_STORAGE_ACCESSMODE
-        value: $(params.db2_audit_logs_storage_accessmode)
-      - name: DB2_TEMP_STORAGE_ACCESSMODE
-        value: $(params.db2_temp_storage_accessmode)
-      - name: DB2_ARCHIVELOGS_STORAGE_ACCESSMODE
-        value: $(params.db2_archivelogs_storage_accessmode)
-      - name: DB2_CPU_REQUESTS
-        value: $(params.db2_cpu_requests)
-      - name: DB2_CPU_LIMITS
-        value: $(params.db2_cpu_limits)
-      - name: DB2_MEMORY_REQUESTS
-        value: $(params.db2_memory_requests)
-      - name: DB2_MEMORY_LIMITS
-        value: $(params.db2_memory_limits)
-      - name: DB2_AFFINITY_KEY
-        value: $(params.db2_affinity_key)
-      - name: DB2_AFFINITY_VALUE
-        value: $(params.db2_affinity_value)
-      - name: DB2_TOLERATE_KEY
-        value: $(params.db2_tolerate_key)
-      - name: DB2_TOLERATE_VALUE
-        value: $(params.db2_tolerate_value)
-      - name: DB2_TOLERATE_EFFECT
-        value: $(params.db2_tolerate_effect)
-      - name: DB2_TIMEZONE
-        value: $(params.db2_timezone)
-      - name: DB2_TLS_VERSION
-        value: $(params.db2_tls_version)
-      - name: MAS_APP_ID
-        value: $(params.mas_app_id)
-      - name: JDBC_ROUTE
-        value: $(params.jdbc_route)
-      - name: JDBC_CONNECTION_URL_ADDITIONAL_PARAMS
-        value: $(params.jdbc_connection_url_additional_params)
-      - name: DB2_BACKUP_NOTIFY_SLACK_URL
-        value: $(params.db2_backup_notify_slack_url)
-      - name: AUTO_BACKUP
-        value: $(params.auto_backup)
-      - name: PRODUCTION_DATABASE_ACCESS_TYPE
-        value: $(params.production_database_access_type)
-      - name: REPLICA_DB
-        value: $(params.replica_db)
-      - name: IS_REPLICA_TASK
-        value: $(params.is_replica_task)
-      - name: MAS_ANNOTATIONS
-        value: $(params.mas_annotations)
-      - name: MANUALLY_SET_ENHANCED_HADR
-        value: $(params.manually_set_enhanced_hadr)
-      - name: ALLOW_LIST
-        value: $(params.allow_list)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -272,27 +53,71 @@ spec:
   steps:
     - args:
       - |-
+        set -e
+        
+        echo "=========================================="
+        echo "Generating DB2 Database Configuration for AI Service"
+        echo "=========================================="
+        
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-
-        mkdir -p /tmp/init-db2u-database-$MAS_APP_ID
-        mas gitops-db2u-database -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/init-db2u-database-$MAS_APP_ID \
-        --secrets-path $SECRET_PATH \
-        --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org  $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
-
-        exit $?
+        
+        # Clone the gitops-envs repository
+        export GITOPS_WORKING_DIR="/tmp/gitops-db2u-aiservice"
+        mkdir -p $GITOPS_WORKING_DIR
+        cd $GITOPS_WORKING_DIR
+        
+        echo "Cloning repository: https://$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO"
+        git clone https://$GITHUB_PAT@$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO -b $GIT_BRANCH
+        cd $GITHUB_REPO
+        
+        # Set up paths
+        export GITOPS_CLUSTER_DIR="$GITOPS_WORKING_DIR/$GITHUB_REPO/gitops/$ACCOUNT/$CLUSTER_NAME"
+        export CLI_DIR="/mascli"
+        export SECRETS_KEY_SEPERATOR="/"
+        
+        # Export DB2 configuration for AI Service
+        export DB2_NAMESPACE="db2u-${AISERVICE_INSTANCE_ID}"
+        export DB2_INSTALL_PLAN="Automatic"
+        export INSTANCE_ID="$AISERVICE_INSTANCE_ID"
+        export CLUSTER_ID="$CLUSTER_NAME"
+        export ACCOUNT_ID="$ACCOUNT"
+        
+        # Set the AWS Secrets Manager keys for DB2
+        export SECRET_KEY_DB2_DEFAULT_CHANNEL="${ACCOUNT}/${CLUSTER_NAME}/db2_default_channel#db2_default_channel"
+        export SECRET_KEY_IBM_ENTITLEMENT="${ACCOUNT}/${CLUSTER_NAME}/ibm_entitlement#image_pull_secret_b64"
+        
+        echo "Generating DB2U database configuration file..."
+        echo "  Output: ${GITOPS_CLUSTER_DIR}/ibm-db2u-databases.yaml"
+        echo "  Template: ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-db2u-databases-aiservice.yaml.j2"
+        
+        # Generate the DB2 database configuration file (separate from operator config)
+        jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-db2u-databases-aiservice.yaml.j2 \
+          -o ${GITOPS_CLUSTER_DIR}/ibm-db2u-databases.yaml
+        
+        echo "DB2U database configuration generated successfully"
+        
+        # Commit and push changes
+        echo "Committing and pushing changes to GitHub..."
+        git add ${GITOPS_CLUSTER_DIR}/ibm-db2u-databases.yaml
+        git commit -m "Add DB2 database configuration for AI Service instance ${AISERVICE_INSTANCE_ID}" || echo "No changes to commit"
+        git push origin $GIT_BRANCH
+        
+        echo "=========================================="
+        echo "DB2 Database Configuration Complete"
+        echo "=========================================="
+        
+        # Cleanup
+        cd /
+        rm -rf $GITOPS_WORKING_DIR
+        
+        exit 0
       command:
         - /bin/sh
         - -c
-      name: gitops-db2u-database
-      imagePullPolicy: Always
+      name: gitops-db2u-aiservice
+      imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:latest
   workspaces:
     - name: configs
-    - name: shared-gitops-configs

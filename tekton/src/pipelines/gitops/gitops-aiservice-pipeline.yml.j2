@@ -127,9 +127,13 @@ spec:
 
   tasks:
 
-    # 1. Per-instance DB2U Operator
+    # 1. Per-instance DB2U Operator (FVT only)
     # -------------------------------------------------------------------------
     - name: gitops-db2u
+      when:
+        - input: "$(params.is_gitops_fvt_env)"
+          operator: in
+          values: ["true"]
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -160,7 +164,11 @@ spec:
 
     # 1.5. DB2 Database Configuration for AI Service (FVT only)
     # -------------------------------------------------------------------------
-    - name: gitops-db2u-aiservice
+    - name: gitops-db2u-database
+      when:
+        - input: "$(params.is_gitops_fvt_env)"
+          operator: in
+          values: ["true"]
       runAfter:
         - gitops-db2u
       params:
@@ -187,13 +195,13 @@ spec:
           workspace: configs
       taskRef:
         kind: Task
-        name: gitops-db2u-aiservice
+        name: gitops-db2u-database
 
     # 2.gitops-odh
     # -------------------------------------------------------------------------
     - name: gitops-odh
       runAfter:
-        - gitops-db2u-aiservice
+        - gitops-db2u-database
       when:
         - input: "$(params.ai_platform)"
           operator: in
