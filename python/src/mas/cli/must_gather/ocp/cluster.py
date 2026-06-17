@@ -11,13 +11,12 @@
 """Cluster-level OCP resource collection."""
 
 import logging
-from kubernetes.dynamic import DynamicClient
 from mas.cli.must_gather.common.resources import collectResources
 
 logger = logging.getLogger(__name__)
 
 
-def collectClusterResources(dynClient: DynamicClient, outputDir: str) -> bool:
+def collectClusterResources(outputDir: str) -> bool:
     """Collect cluster-level OpenShift resources.
 
     Collects cluster-scoped resources including storage classes, cluster versions,
@@ -27,7 +26,6 @@ def collectClusterResources(dynClient: DynamicClient, outputDir: str) -> bool:
     so this function no longer processes CRDs.
 
     Args:
-        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
 
     Returns:

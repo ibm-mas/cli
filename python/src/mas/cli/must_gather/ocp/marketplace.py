@@ -11,13 +11,12 @@
 """OpenShift Marketplace resource collection."""
 
 import logging
-from kubernetes.dynamic import DynamicClient
 from mas.cli.must_gather.common.resources import collectResources
 
 logger = logging.getLogger(__name__)
 
 
-def collectMarketplaceResources(dynClient: DynamicClient, outputDir: str) -> bool:
+def collectMarketplaceResources(outputDir: str) -> bool:
     """Collect OpenShift Marketplace resources.
 
     Collects resources from the openshift-marketplace namespace including:
@@ -25,7 +24,6 @@ def collectMarketplaceResources(dynClient: DynamicClient, outputDir: str) -> boo
     - jobs: Catalog import and refresh jobs
 
     Args:
-        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
 
     Returns:
