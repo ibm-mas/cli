@@ -15,14 +15,21 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
-  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                    AI Service instance ID  
+
+  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                             AI Service instance ID  
+      --sm-aws-secret-region ${TEXT_RESET}SM_AWS_REGION${TEXT_RESET}                                         AWS Region
+      --sm-aws-access-key ${TEXT_RESET}SM_AWS_ACCESS_KEY${TEXT_RESET}                                        AWS Access key ID
+      --sm-aws-secret-key ${TEXT_RESET}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}                                 AWS Secreat Access key ID
 
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
-      
+Target Cluster (Optional):
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+
+     
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -43,8 +50,8 @@ function gitops_deprovision_odh_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-deprovision-odh commit"
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
 
-  
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -61,6 +68,13 @@ function gitops_deprovision_odh_noninteractive() {
         export CLUSTER_ID=$1 && shift
         ;;
 
+      # Target Cluster (Optional)
+      --cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
         export SM_AWS_REGION=$1
@@ -120,6 +134,8 @@ function gitops_deprovision_odh_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_odh_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_odh_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_deprovision_odh_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$CLUSTER_URL" ]] && gitops_deprovision_odh_help "CLUSTER_URL is not set"
+
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_odh_help "GITHUB_HOST is not set"
@@ -128,7 +144,7 @@ function gitops_deprovision_odh_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_odh_help "GIT_BRANCH is not set"
   fi
 
-  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_odh_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --AISERVICE_INSTANCE_ID."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_odh_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Service instance ID using --aiservice_instance_id."
 }
 
 function gitops_deprovision_odh() {
@@ -156,10 +172,12 @@ function gitops_deprovision_odh() {
   echo_h2 "Review Settings"
 
   echo "${TEXT_DIM}"
-  echo_h2 "Target" "    "
+  echo_h2 "Target" 
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
+
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
 
@@ -188,79 +206,101 @@ function gitops_deprovision_odh() {
   reset_colors
 
   # echo all the variables of gitops envs
-  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
-  
+  echo_reset_dim "AI Service Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}" 
 
   #secrets path in aws 
 
-  export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage
-  export SECRET_NAME_MARIADB_AUTH1=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb
+  export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}s3
   export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
 
-  
+
   echo -e "login aws"
 
   AVP_TYPE=aws
   sm_login
 
- echo "${TEXT_DIM}"
-  echo_h2 "Deleting odh related secrets"
 
-  #deleting secreats from aws
-  #  echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
-  #  sm_delete_secret $SECRET_NAME_STORAGE_AUTH
-  #  echo -e "Deleting mariadb secreat $SECRET_NAME_MARIADB_AUTH1"
-  #  sm_delete_secret $SECRET_NAME_MARIADB_AUTH1
-  #  echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
-  #  sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
+  export OCP_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocp_login
+  export OAUTH_ADMIN_USERNAME=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_USERNAME")
+  export OAUTH_ADMIN_PWD=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_PWD")
+  export OCP_DISABLE_TLS_VERIFY=$(sm_get_secret_value "$OCP_SECRET_NAME" "OCP_DISABLE_TLS_VERIFY")
+  echo "TLS verification is : $OCP_DISABLE_TLS_VERIFY"
 
 
+   echo "${TEXT_DIM}"
+   echo_h2 "Deleting odh related secrets"
+
+  deleting secreats from aws
+   echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
+   sm_delete_secret $SECRET_NAME_STORAGE_AUTH
+   echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
+   sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
+
+  
    if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
   fi
 
-  #Clone github target repo
-  # ---------------------------------------------------------------------------
+ #Clone github target repo
+ # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
    echo
    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
 
-  echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
-  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
-  
-  echo "connecting to openshift............. ${COLOR_MAGENTA}"
-  
-  #load_config
-  #connect
-  
-  #echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
-  #oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators --wait=true --timeout=5m 2>/dev/null
-  #oc delete $(oc get crd -o name | grep authorino) 2>/dev/null; \
-  #oc delete deployment $(oc get deployment -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null
 
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   
-  echo "connecting to openshift............. ${COLOR_MAGENTA}"
-  
-  #load_config
-  #connect
-  
-  #echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
-  #oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators --wait=true --timeout=5m 2>/dev/null
-  #oc delete $(oc get crd -o name | grep authorino) 2>/dev/null; \
-  #oc delete deployment $(oc get deployment -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null
-
-
-
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    cd /tmp || { echo "Failed to cd to /tmp"; exit 1; }
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+
+    echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
+    sleep 900
   fi
 
-   
-}
+
+  echo "PWD before login: $(pwd)"
+  oc login $CLUSTER_URL -u $OAUTH_ADMIN_USERNAME -p $OAUTH_ADMIN_PWD --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
+
+  echo "Successfully logged in to OpenShift."
+
+  namespace="openshift-operators"
+  subs_to_check=("authorino-operator" "servicemeshoperator")
+
+  echo "Checking for Subscriptions in namespace '$namespace'..."
+
+  subscriptions_exist=false
+
+  # Initial check
+  for sub in "${subs_to_check[@]}"; do
+    if oc get subscription "$sub" -n "$namespace" &>/dev/null; then
+      echo "Subscription '$sub' is still present."
+      subscriptions_exist=true
+    else
+      echo "Subscription '$sub' is not present."
+    fi
+  done
+
+  # If any subscription is present, wait 5 minutes
+  if [ "$subscriptions_exist" = true ]; then
+    echo "subscription is present. Waiting 5 minutes before proceeding..."
+    sleep 300  # 5 minutes
+  fi
+
+
+  if [ "$subscriptions_exist" = false ]; then
+    echo "All subscriptions deleted. Proceeding to delete CSVs..."
+    oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino-operator|servicemeshoperator') -n "$namespace" --wait=true --timeout=5m 2>/dev/null
+    echo "CSV cleanup completed."
+  else
+    echo "Subscriptions still present after waiting. Skipping CSV deletion."
+  fi
+
+    
+  }
