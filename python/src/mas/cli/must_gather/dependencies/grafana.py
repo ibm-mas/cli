@@ -24,7 +24,7 @@ GRAFANA_RESOURCES = [
 ]
 
 
-def discoverGrafanaNamespaces(dynClient: DynamicClient) -> Set[str]:
+def _discoverGrafanaNamespaces(dynClient: DynamicClient) -> Set[str]:
     """Discover namespaces containing Grafana resources.
 
     Discovers namespaces by finding all Grafana custom resources in the cluster.
@@ -54,7 +54,7 @@ def addGrafanaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, n
     from ..common.task_generation import generateNamespaceCollectionTasks
 
     logger.debug("Discovering Grafana namespaces")
-    grafanaNamespaces = discoverGrafanaNamespaces(dynClient)
+    grafanaNamespaces = _discoverGrafanaNamespaces(dynClient)
 
     if grafanaNamespaces:
         logger.info(f"Discovered {len(grafanaNamespaces)} Grafana namespace(s): {', '.join(sorted(grafanaNamespaces))}")

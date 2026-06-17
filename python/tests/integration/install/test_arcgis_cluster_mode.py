@@ -35,12 +35,14 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.2.x-dev",  # Use 9.2.x-dev channel
         # 4. Routing Mode Configuration - Select path-based routing
-        ".*Routing Mode.*": lambda msg: "1",  # Select path-based routing
+        # routing mode currently disabled
+        # ".*Routing Mode.*": lambda msg: "1",  # Select path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
         # 5. Service Mesh Configuration
         ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",
         # 6. Configure IngressController for path-based routing
-        ".*Configure ingress namespace ownership.*": lambda msg: "y",  # Agree to configure
+        # routing mode currently disabled
+        # ".*Configure ingress namespace ownership.*": lambda msg: "y",  # Agree to configure
         # 5. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: "y",
         # 6. SLS configuration

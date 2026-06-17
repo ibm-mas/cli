@@ -49,7 +49,7 @@ class TestDiscoverCP4DNamespaces:
         WHEN discoverCP4DNamespaces is called
         THEN both ibm-cpd and ibm-cpd-operators namespaces are returned.
         """
-        from mas.cli.must_gather.dependencies.cp4d import discoverCP4DNamespaces
+        from mas.cli.must_gather.dependencies.cp4d import _discoverCP4DNamespaces
 
         # Mock namespace lookup
         mockNamespaceApi = Mock()
@@ -63,7 +63,7 @@ class TestDiscoverCP4DNamespaces:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        namespaces = discoverCP4DNamespaces(dynClient=self.mockClient)
+        namespaces = _discoverCP4DNamespaces(dynClient=self.mockClient)
 
         assert namespaces == [
             "ibm-cpd",
@@ -77,7 +77,7 @@ class TestDiscoverCP4DNamespaces:
         WHEN discoverCP4DNamespaces is called
         THEN empty list is returned.
         """
-        from mas.cli.must_gather.dependencies.cp4d import discoverCP4DNamespaces
+        from mas.cli.must_gather.dependencies.cp4d import _discoverCP4DNamespaces
 
         # Mock namespace lookup to raise NotFoundError
         mockNamespaceApi = Mock()
@@ -90,7 +90,7 @@ class TestDiscoverCP4DNamespaces:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        namespaces = discoverCP4DNamespaces(dynClient=self.mockClient)
+        namespaces = _discoverCP4DNamespaces(dynClient=self.mockClient)
 
         assert namespaces == [], f"CP4D namespace discovery should return empty list when operator namespace does not exist, but got: {namespaces}"
 
@@ -116,10 +116,10 @@ class TestGenerateCP4DCollectionTasks:
         WHEN generateCP4DCollectionTasks is called
         THEN tasks are generated for both namespaces.
         """
-        from mas.cli.must_gather.dependencies.cp4d import generateCP4DCollectionTasks
+        from mas.cli.must_gather.dependencies.cp4d import _generateCP4DCollectionTasks
 
         namespaces = ["ibm-cpd", "ibm-cpd-operators"]
-        tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noLogs=False)
+        tasks = _generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noLogs=False)
 
         # Each namespace generates multiple tasks (resources, secrets, pods)
         assert len(tasks) > 0, "Task generation should create collection tasks for CP4D namespaces, but no tasks were generated"
@@ -135,8 +135,8 @@ class TestGenerateCP4DCollectionTasks:
         WHEN generateCP4DCollectionTasks is called
         THEN empty list is returned.
         """
-        from mas.cli.must_gather.dependencies.cp4d import generateCP4DCollectionTasks
+        from mas.cli.must_gather.dependencies.cp4d import _generateCP4DCollectionTasks
 
-        tasks = generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noLogs=False)
+        tasks = _generateCP4DCollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noLogs=False)
 
         assert tasks == [], f"Task generation should return empty list when no CP4D namespaces are provided, but got {len(tasks)} task(s)"
