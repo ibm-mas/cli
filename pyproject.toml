@@ -17,7 +17,7 @@ authors = [
 ]
 urls = { Homepage = "https://github.com/ibm-mas/cli" }
 dependencies = [
-  "mas-devops >= 5.2.0",
+  "mas-devops >= 10.0.0",
   "alive-progress",
   "halo",
   "prompt_toolkit",
