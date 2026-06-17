@@ -1,21 +1,8 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
-
-ibm_db2u:
-  db2_namespace: {{ DB2_NAMESPACE }}
-  db2_install_plan: {{ DB2_INSTALL_PLAN }}
-{% if DB2_CHANNEL is defined and DB2_CHANNEL !='' %}
-  db2_channel: {{ DB2_CHANNEL }}
-{% else %}
-  db2_channel: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_DEFAULT_CHANNEL }}>
-{% endif %}
-  ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
-{% if CLUSTER_DOMAIN is defined and CLUSTER_DOMAIN !='' %}
-  cluster_domain: {{ CLUSTER_DOMAIN }}
-{% endif %}
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ INSTANCE_ID }}"
 
 # DB2 database array for AI Service
 ibm_db2u_databases:
-  - db2_instance_name: db2u-{{ MAS_INSTANCE_ID }}
+  - db2_instance_name: db2u-{{ INSTANCE_ID }}
     db2_namespace: {{ DB2_NAMESPACE }}
     should_execute: true
     db2_dbname: BLUDB
