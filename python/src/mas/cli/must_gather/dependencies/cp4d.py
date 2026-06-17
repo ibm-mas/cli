@@ -18,7 +18,7 @@ from kubernetes.client.exceptions import ApiException
 logger = logging.getLogger(__name__)
 
 
-def discoverCP4DNamespaces(dynClient: DynamicClient) -> List[str]:
+def _discoverCP4DNamespaces(dynClient: DynamicClient) -> List[str]:
     """Discover CloudPak for Data namespaces.
 
     Checks if ibm-cpd-operators namespace exists and returns both
@@ -49,7 +49,7 @@ def discoverCP4DNamespaces(dynClient: DynamicClient) -> List[str]:
         return []
 
 
-def generateCP4DCollectionTasks(
+def _generateCP4DCollectionTasks(
     dynClient: DynamicClient,
     namespaces: List[str],
     outputDir: str,
@@ -99,11 +99,11 @@ def addCP4DToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLo
         ibmCRDs (list): List of IBM CRD information for collection
     """
     logger.debug("Discovering CP4D namespaces")
-    cp4dNamespaces = discoverCP4DNamespaces(dynClient)
+    cp4dNamespaces = _discoverCP4DNamespaces(dynClient)
 
     if cp4dNamespaces:
         logger.info(f"Discovered {len(cp4dNamespaces)} CP4D namespace(s): {', '.join(sorted(cp4dNamespaces))}")
-        tasks = generateCP4DCollectionTasks(
+        tasks = _generateCP4DCollectionTasks(
             dynClient=dynClient,
             namespaces=cp4dNamespaces,
             outputDir=outputDir,

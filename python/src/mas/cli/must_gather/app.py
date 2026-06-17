@@ -249,10 +249,10 @@ class MustGatherApp(BaseApp):
         if "ocp" in enabledCollectors:
             logger.info("💭 Planning OCP resource collection")
             ocpTasks = [
-                ("cluster_resources", ocp.collectClusterResources, self.dynamicClient, outputDir, False),
-                ("nodes", ocp.collectNodes, self.dynamicClient, outputDir, False),
+                ("cluster_resources", ocp.collectClusterResources, outputDir, False),
+                ("nodes", ocp.collectNodes, outputDir, False),
                 ("airgap_resources", ocp.collectAirgapResources, self.dynamicClient, outputDir, False),
-                ("marketplace_resources", ocp.collectMarketplaceResources, self.dynamicClient, outputDir, False),
+                ("marketplace_resources", ocp.collectMarketplaceResources, outputDir, False),
             ]
             plan.addGroup("OpenShift Container Platform", ocpTasks)
             logger.debug("Added OCP collection group with 4 tasks to plan")
@@ -467,45 +467,6 @@ class MustGatherApp(BaseApp):
             # Execute collection with parallel executor
             result = executeCollection(plan=plan, maxWorkers=50, displayCallback=displayCallback)
             return result
-
-    def packageResults(self, parsedArgs, outputManager):
-        """Package results into archive and optionally upload.
-
-        This method creates the final archive, optionally uploads to Artifactory,
-        and performs cleanup.
-
-        Args:
-            parsedArgs: Parsed command-line arguments
-            outputManager (OutputManager): Output manager instance
-
-        Returns:
-            str: Path to the created archive
-        """
-        # Create archive
-        self.printH1("Creating Archive")
-        archivePath = outputManager.createArchive()
-        print(f"Archive created: {archivePath}")
-
-        # Upload to Artifactory if configured
-        if parsedArgs.artifactory_token and parsedArgs.artifactory_upload_dir:
-            self.printH2("Uploading to Artifactory")
-            uploadTimer = Timer()
-            uploadTimer.start()
-            if self.uploadToArtifactory(
-                archivePath=archivePath,
-                artifactoryToken=parsedArgs.artifactory_token,
-                artifactoryUploadDir=parsedArgs.artifactory_upload_dir,
-            ):
-                elapsed = uploadTimer.stop()
-                print(f"Upload completed in {elapsed} seconds")
-            else:
-                elapsed = uploadTimer.stop()
-                print(f"❌ Upload failed after {elapsed} seconds")
-
-        # Cleanup
-        outputManager.cleanup()
-
-        return archivePath
 
     def generateSubscriptionsSummary(self, outputDir: str) -> bool:
         """Generate cluster-wide subscriptions summary.
