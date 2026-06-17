@@ -241,6 +241,9 @@ class AdditionalConfigsMixin:
             and facilitiesPropertiesFileLocal
             and facilitiesPropertiesFileLocal != ""
         ):
+            # Store the user's local path in instance variable before overwriting
+            self.facilitiesPropertiesFileLocal = facilitiesPropertiesFileLocal
+
             # Get custom secret name or use default
             secretName = self.getParam("mas_ws_facilities_properties_secret_name")
             if not secretName or secretName == "":
@@ -251,7 +254,7 @@ class AdditionalConfigsMixin:
             # Read the file from user's local path
             self.facilitiesPropertiesSecret = self.addFilesToSecret(facilitiesPropertiesSecret, facilitiesPropertiesFileLocal, "")
 
-            # Now update the parameters
+            # Now update the parameters - set workspace path for pipeline use
             self.setParam("mas_ws_facilities_custom_properties", "true")
             self.setParam("mas_ws_facilities_properties_file_local", "/workspace/facilities/FACILITIES.properties")
             self.setParam("mas_ws_facilities_properties_secret_name", secretName)

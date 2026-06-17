@@ -1938,6 +1938,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.facilitiesPropertiesFileLocal = None
 
         if simplified:
             self.showAdvancedOptions = False
@@ -2029,6 +2030,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.facilitiesPropertiesFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
             "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed

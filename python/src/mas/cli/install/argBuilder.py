@@ -351,8 +351,8 @@ class installArgBuilderMixin:
             if self.getParam("mas_ws_facilities_server_timezone") != "":
                 command += f"  --facilities-server-timezone \"{self.getParam('mas_ws_facilities_server_timezone')}\"{newline}"
 
-            if self.getParam("mas_ws_facilities_properties_file_local") != "":
-                command += f"  --facilities-properties-file \"{self.getParam('mas_ws_facilities_properties_file_local')}\"{newline}"
+            if self.facilitiesPropertiesFileLocal:
+                command += f'  --facilities-properties-file "{self.facilitiesPropertiesFileLocal}"{newline}'
             if self.getParam("mas_ws_facilities_properties_secret_name") != "":
                 command += f"  --facilities-properties-secret-name \"{self.getParam('mas_ws_facilities_properties_secret_name')}\"{newline}"
             from .facilities.agents import facilitiesAgents
