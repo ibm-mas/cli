@@ -11,7 +11,7 @@
 """Tests for Grafana discovery functions."""
 
 from unittest.mock import Mock
-from mas.cli.must_gather.dependencies.grafana import discoverGrafanaNamespaces
+from mas.cli.must_gather.dependencies.grafana import _discoverGrafanaNamespaces
 
 
 def test_discoverGrafanaNamespaces_returns_empty_set_when_no_grafana_found():
@@ -26,7 +26,7 @@ def test_discoverGrafanaNamespaces_returns_empty_set_when_no_grafana_found():
     grafanaApi.get.return_value = Mock(items=[])
     dynClient.resources.get.return_value = grafanaApi
 
-    result = discoverGrafanaNamespaces(dynClient)
+    result = _discoverGrafanaNamespaces(dynClient)
 
     assert result == set(), f"Grafana discovery should return empty set when no Grafana CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="Grafana")
@@ -53,7 +53,7 @@ def test_discoverGrafanaNamespaces_returns_namespaces_from_grafana_crs():
     grafanaApi.get.return_value = Mock(items=[grafana1, grafana2, grafana3])
     dynClient.resources.get.return_value = grafanaApi
 
-    result = discoverGrafanaNamespaces(dynClient)
+    result = _discoverGrafanaNamespaces(dynClient)
 
     assert result == {"grafana", "monitoring"}, f"Grafana discovery should return namespaces where Grafana CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="Grafana")
@@ -69,7 +69,7 @@ def test_discoverGrafanaNamespaces_handles_api_exception():
     dynClient = Mock()
     dynClient.resources.get.side_effect = Exception("API error")
 
-    result = discoverGrafanaNamespaces(dynClient)
+    result = _discoverGrafanaNamespaces(dynClient)
 
     assert result == set(), f"Grafana discovery should handle API exceptions gracefully and return empty set, but got: {result}"
 
@@ -92,6 +92,6 @@ def test_discoverGrafanaNamespaces_ignores_cluster_scoped_resources():
     grafanaApi.get.return_value = Mock(items=[grafana_namespaced, grafana_cluster_scoped])
     dynClient.resources.get.return_value = grafanaApi
 
-    result = discoverGrafanaNamespaces(dynClient)
+    result = _discoverGrafanaNamespaces(dynClient)
 
     assert result == {"grafana"}, f"Grafana discovery should ignore cluster-scoped resources and only return namespaced ones, but got: {result}"
