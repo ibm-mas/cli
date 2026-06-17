@@ -21,7 +21,7 @@ from .utils import discoverNamespacesFromCR
 logger = logging.getLogger(__name__)
 
 
-def discoverSLSNamespaces(dynClient: DynamicClient, masInstanceIds: Optional[List[str]] = None) -> Set[str]:
+def _discoverSLSNamespaces(dynClient: DynamicClient, masInstanceIds: Optional[List[str]] = None) -> Set[str]:
     """Discover SLS namespaces from LicenseService CRs.
 
     Note: The masInstanceIds parameter is kept for backward compatibility but is not used.
@@ -38,7 +38,7 @@ def discoverSLSNamespaces(dynClient: DynamicClient, masInstanceIds: Optional[Lis
     return discoverNamespacesFromCR(dynClient=dynClient, kind="LicenseService")
 
 
-def generateSLSCollectionTasks(
+def _generateSLSCollectionTasks(
     dynClient: DynamicClient,
     namespace: str,
     outputDir: str,
@@ -98,11 +98,11 @@ def addSLSToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLog
     """
     logger.info("💭 Discovering SLS namespaces")
     try:
-        slsNamespaces = discoverSLSNamespaces(dynClient, masInstanceIds=masInstanceIds)
+        slsNamespaces = _discoverSLSNamespaces(dynClient, masInstanceIds=masInstanceIds)
         if slsNamespaces:
             logger.debug(f"Discovered {len(slsNamespaces)} SLS namespace(s): {', '.join(sorted(slsNamespaces))}")
             for ns in sorted(slsNamespaces):
-                tasks = generateSLSCollectionTasks(
+                tasks = _generateSLSCollectionTasks(
                     dynClient=dynClient,
                     namespace=ns,
                     outputDir=outputDir,
