@@ -340,7 +340,7 @@ function gitops_bootstrap() {
     echo "argocd cluster add failed with $rc, try again"
     echo
     sleep 10
-    argocd cluster add $K8S_AUTH_CONTEXT -y
+    argocd cluster add $K8S_AUTH_CONTEXT --system-namespace ${ARGOCLUSTER_NAMESPACE} -y
   fi
 
   echo "${COLOR_GREEN}ArgoCD is now available at https://${ARGOCD_URL} username is: admin and password: ${ARGOCD_PASSWORD} ${COLOR_RESET}"

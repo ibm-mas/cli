@@ -54,8 +54,8 @@ The tekton defintions can be built locally using `build/bin/build-tekton.sh`:
 # Build, and install the MAS Pipeline & Task definitions
 DEV_MODE=true VERSION=100.0.0-pre.local build/bin/build-tekton.sh && oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
 
-# Build, and install the MAS Pipeline & Task definitions 1-by-1
-DEV_MODE=true VERSION=100.0.0-pre.local build/bin/build-tekton.sh && tekton/test.sh
+# Build and validate the MAS Pipeline & Task definitions
+DEV_MODE=true VERSION=100.0.0-pre.local build/bin/build-tekton.sh && pytest tekton/test_schema.py -v
 ```
 
 Note that we use the version `100.0.0-pre.local` as this is the version that is defaulted into the CLI Python code before it's modifyed during the build.
@@ -75,7 +75,7 @@ source .venv-docs/bin/activate
 
 # We need to install the python-devops and cli packages because we generate documentation from their code using mkdocs directives
 python -m pip install -e ../python-devops
-python -m pip install -e ../python
+python -m pip install -e .
 
 # Install mkdocs and the various plugins that we use, including our custom plugins
 python -m pip install -q mkdocs mkdocs-carbon mkdocs-glightbox mkdocs-redirects
