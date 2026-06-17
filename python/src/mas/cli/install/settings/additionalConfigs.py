@@ -232,6 +232,9 @@ class AdditionalConfigsMixin:
         # Only process custom file if MAS 9.2+ and file is provided
         facilitiesPropertiesFileLocal = self.getParam("mas_ws_facilities_properties_file_local")
 
+        #Set the summarizer path variable before updating
+        self.setParam("mas_ws_facilities_properties_file_local_summarizer", "mas_ws_facilities_properties_file_local")
+
         if (
             mas_facilities_channel
             and isVersionEqualOrAfter("9.2.0", mas_facilities_channel)

@@ -355,7 +355,7 @@ class InstallSummarizerMixin:
             self.printParamSummary("  + Server Timezone", "mas_ws_facilities_server_timezone")
             if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
                 self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
-                self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local")
+                self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local_summarizer")
                 self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")
                 for agent in facilitiesAgents:
                     if self.getParam(f"mas_ws_facilities_{agent}_deploymentmode") != "":
