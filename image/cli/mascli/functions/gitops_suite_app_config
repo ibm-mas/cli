@@ -369,9 +369,16 @@ function gitops_suite_app_config() {
   # ---------------------------------------------------------------------------
   # ICN must be provided via environment variables from the saas-deploy-py pipeline:
   # 1. SLS_LICENSE_ICN (pre-configured) - highest priority
-  # 2. CENTRALIZED_SLS_SERVICE (centralized SLS) - extract from path
+  # 2. SLS_SERVICE (centralized SLS) - extract from path
   # 3. LICENSE_FILE or SLS_LICENSE_FILE - extract from license file content
   # 4. Environment variable ICN (if already set)
+  
+  echo "=== ICN EXTRACTION DEBUG ==="
+  echo "SLS_LICENSE_ICN=${SLS_LICENSE_ICN}"
+  echo "SLS_SERVICE=${SLS_SERVICE}"
+  echo "LICENSE_FILE=${LICENSE_FILE}"
+  echo "Current ICN value: ${ICN}"
+  echo "=== END DEBUG ==="
   
   # Use SLS_LICENSE_ICN if available (highest priority)
   if [[ -z "${ICN}" ]] && [[ -n "${SLS_LICENSE_ICN}" ]]; then
@@ -379,14 +386,20 @@ function gitops_suite_app_config() {
     ICN="${SLS_LICENSE_ICN}"
   fi
   
-  # Try CENTRALIZED_SLS_SERVICE if ICN not yet resolved (for centralized SLS)
-  if [[ -z "${ICN}" ]] && [[ -n "${CENTRALIZED_SLS_SERVICE}" ]]; then
-    echo "- Resolving ICN from CENTRALIZED_SLS_SERVICE: ${CENTRALIZED_SLS_SERVICE}"
-    CLEAN_PATH=$(echo "$CENTRALIZED_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+  # Try SLS_SERVICE if ICN not yet resolved (for centralized SLS)
+  if [[ -z "${ICN}" ]] && [[ -n "${SLS_SERVICE}" ]]; then
+    echo "- Resolving ICN from SLS_SERVICE: ${SLS_SERVICE}"
+    CLEAN_PATH=$(echo "$SLS_SERVICE" | sed 's#<ref:##; s#>##')
+    echo "- Cleaned path: ${CLEAN_PATH}"
     IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+    echo "- Path parts count: ${#PARTS[@]}"
+    echo "- Path parts: ${PARTS[*]}"
     if [ ${#PARTS[@]} -ge 5 ]; then
       ICN="${PARTS[3]}"
-      echo "- ICN resolved from centralized SLS service path: ${ICN}"
+      echo "- ICN extracted from position 3: ${ICN}"
+      echo "✓ ICN resolved from SLS service path: ${ICN}"
+    else
+      echo "⚠ Warning: SLS_SERVICE path does not have expected format (need at least 5 parts)"
     fi
   fi
   
@@ -420,12 +433,22 @@ function gitops_suite_app_config() {
   
   export ICN=${ICN:-""}
   
+  echo
+  echo "=== ICN RESOLUTION SUMMARY ==="
   if [[ -n "${ICN}" ]]; then
-    echo "- ICN available for customer-level secrets: ${ICN}"
+    echo "✓ ICN successfully resolved: ${ICN}"
+    echo "  This ICN will be used for customer-level secrets:"
+    echo "  - ibm-customer/${ICN}/facilities/manage_mref_keystore_password"
+    echo "  - ibm-customer/${ICN}/<app>/..."
   else
-    echo "- WARNING: ICN not available - customer-level secrets cannot be used"
-    echo "- Note: ICN must be provided via LICENSE_FILE, STANDALONE_SLS_SERVICE, or SLS_LICENSE_ICN"
+    echo "⚠ WARNING: ICN not available - customer-level secrets cannot be used"
+    echo "  ICN must be provided via one of:"
+    echo "  - SLS_LICENSE_ICN environment variable"
+    echo "  - SLS_SERVICE path (centralized SLS)"
+    echo "  - LICENSE_FILE content (standard SLS)"
   fi
+  echo "=== END SUMMARY ==="
+  echo
 
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
@@ -646,7 +669,7 @@ function gitops_suite_app_config() {
       # Ensure ICN is available for customer-level secrets
       if [[ -z "${ICN}" ]]; then
         echo "ERROR: ICN is required for Facilities customer-level secrets"
-        echo "Please configure ICN via license file, STANDALONE_SLS_SERVICE, or SLS_LICENSE_ICN"
+        echo "Please configure ICN via SLS_LICENSE_ICN, CENTRALIZED_SLS_SERVICE, or LICENSE_FILE"
         exit 1
       fi
       
