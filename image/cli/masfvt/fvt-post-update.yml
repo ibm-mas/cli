@@ -127,7 +127,7 @@
             kind: OperatorCondition
             namespace: "mas-{{ mas_instance_id }}-facilities"
             label_selectors:
-              - "operators.coreos.com/ibm-mas-manage.mas-{{ mas_instance_id }}-facilities"
+              - "operators.coreos.com/ibm-mas-facilities.mas-{{ mas_instance_id }}-facilities"
           register: updated_opcon
           retries: 10
           delay: 120 # 2 minutes
@@ -140,7 +140,7 @@
           debug:
             var: updated_opcon
 
-        - name: "upgrade : Lookup operator version for Manage"
+        - name: "upgrade : Lookup operator version for Facilities"
           set_fact:
             updated_opcon_version: "{{ updated_opcon.resources[0].metadata.name.split('.v')[1] | ibm.mas_devops.format_pre_version_with_buildid }}"
 
