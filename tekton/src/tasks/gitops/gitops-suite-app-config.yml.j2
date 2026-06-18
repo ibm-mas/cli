@@ -79,7 +79,7 @@ spec:
     - name: sls_license_icn
       type: string
       default: ""
-    - name: sls_service
+    - name: centralized_sls_service
       type: string
       default: ""
 
@@ -144,8 +144,8 @@ spec:
         value: $(params.manage_update_schedule)
       - name: SLS_LICENSE_ICN
         value: $(params.sls_license_icn)
-      - name: SLS_SERVICE
-        value: $(params.sls_service)
+      - name: CENTRALIZED_SLS_SERVICE
+        value: $(params.centralized_sls_service)
     envFrom:
       - configMapRef:
           name: environment-properties

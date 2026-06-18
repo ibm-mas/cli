@@ -669,7 +669,7 @@ function gitops_suite_app_config() {
       # Ensure ICN is available for customer-level secrets
       if [[ -z "${ICN}" ]]; then
         echo "ERROR: ICN is required for Facilities customer-level secrets"
-        echo "Please configure ICN via SLS_LICENSE_ICN, CENTRALIZED_SLS_SERVICE, or LICENSE_FILE"
+        echo "Please configure ICN via SLS_LICENSE_ICN, SLS_SERVICE, or LICENSE_FILE"
         exit 1
       fi
       
