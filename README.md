@@ -12,7 +12,7 @@ IBM Maximo Application Suite CLI Utility
 
 Documentation
 -------------------------------------------------------------------------------
-[https://ibm-mas.github.io/cli/](https://ibm-mas.github.io/cli/) 
+[https://ibm-mas.github.io/cli/](https://ibm-mas.github.io/cli/)
 
 
 Want to contribute to MAS Command Line Interface?
