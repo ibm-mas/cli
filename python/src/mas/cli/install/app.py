@@ -70,7 +70,8 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC
+from ..rbac_utils import evaluatePreinstallRBACAccess
 
 logger = logging.getLogger(__name__)
 
@@ -118,54 +119,6 @@ class InstallApp(
             selectedApps.append("arcgis")
 
         return selectedApps
-
-    def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
-
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
-            return
-
-        if self.mas_admin_mode == "minimal":
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        self.printH1("Pre-Install RBAC Configuration")
-        # User does not have permissions to apply RBAC
-        self.printDescription(
-            [
-                f"Admin mode: '{self.mas_admin_mode}'",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        if self.noConfirm:
-            self.printDescription(
-                [
-                    f"Installation will continue with the selected '{self.mas_admin_mode}' admin mode.",
-                    "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
-                    "With the --no-confirm flag, the installation assumes the required RBAC has already been applied by your OpenShift administrator.",
-                    "If it has not been applied, ensure your OpenShift administrator runs 'mas pre-install' with the same admin mode before the installation proceeds.",
-                ]
-            )
-        else:
-            self.printDescription(
-                [
-                    "",
-                    "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS channel, admin mode, and selected apps.",
-                    "If that has already been done, you can continue the installation.",
-                ]
-            )
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
-                self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run 'mas install' again using the same admin mode."
-                )
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -561,6 +514,11 @@ class InstallApp(
                     self.setParam("mas_arcgis_channel", channel)
                     self.installArcgis = True
 
+                    # ArcGIS requires cluster admin mode for MAS 9.2.0+
+                    if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+                        if self.mas_admin_mode != "cluster":
+                            self.fatalError(f"--arcgis-channel requires --admin-mode cluster (current: {self.mas_admin_mode})")
+
                     self.printDescription(
                         [
                             "",
@@ -702,7 +660,11 @@ class InstallApp(
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
-        self.configRoutingMode()
+
+        # temporarily disabiliing configuring routing mode
+        # self.configRoutingMode()
+        self.setParam("mas_routing_mode", "subdomain")
+
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -761,13 +723,13 @@ class InstallApp(
                         "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts",
                         "",
                         "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
-                        "     - No ClusterRoles are installed in this mode",
+                        "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
                         "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
                         "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
                         "",
                         "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
-                        "     - No ClusterRoles are installed in this mode",
+                        "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - Only essential permissions required for MAS applications are applied",
                         "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
                         "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
@@ -1688,6 +1650,14 @@ class InstallApp(
                         default=30,
                     )
 
+                if self.yesOrNo("Do you want set Real Estate and Facilities server timezone (Set only if the Facilities DB uses a timezone other than UTC)"):
+                    self.promptForString(
+                        "Provide server timezone:",
+                        "mas_ws_facilities_server_timezone",
+                        default="UTC",
+                    )
+                    self.setParam("db2_facilities_timezone", self.getParam("mas_ws_facilities_server_timezone"))
+
                 if self.yesOrNo("Supply configuration for dedicated workflow agents"):
                     print_formatted_text(
                         HTML(
@@ -1969,7 +1939,17 @@ class InstallApp(
 
         # MAS Core
         self.configAdminMode()
-        self.evaluatePreInstallRBACAccess()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.configCertManager()
         self.configMAS()
 
@@ -2425,7 +2405,17 @@ class InstallApp(
             if self.mas_admin_mode != "":
                 self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('mas_channel')})")
 
-        self.evaluatePreInstallRBACAccess()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
@@ -2457,6 +2447,11 @@ class InstallApp(
             arcgis_channel = self.getParam("mas_arcgis_channel")
             if arcgis_channel and not isVersionEqualOrAfter("9.0.0", arcgis_channel):
                 self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
+
+            # ArcGIS requires cluster admin mode
+            if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+                if self.mas_admin_mode != "cluster":
+                    self.fatalError(f"--arcgis-channel requires --admin-mode cluster (current: {self.mas_admin_mode})")
 
         # Validate Kafka requirements for IoT installation in non-interactive mode
         if self.installIoT:
@@ -2597,6 +2592,22 @@ class InstallApp(
                 self.buildCommand(),
             ]
         )
+
+        # Currently no 9.2.x patch support path based routing as that changes this will need to change
+        # to filter on the specific patch version
+        if self.getParam("mas_routing_mode") == "path":
+            self.fatalError(
+                "\n".join(
+                    [
+                        "Path based routing mode not supported",
+                        "========================================================================",
+                        "Path based routing is not currently supported",
+                        "",
+                        "Use subdomain routing mode:",
+                        "   mas install --routing subdomain ...",
+                    ]
+                )
+            )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
@@ -2821,7 +2832,7 @@ class InstallApp(
                 text=f"Installing latest Tekton definitions (v{self.version})",
                 spinner=self.spinner,
             ) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(
                     symbol=self.successIcon,
                     text=f"Latest Tekton definitions are installed (v{self.version})",

@@ -54,6 +54,9 @@ spec:
     - name: rds_db2_config_manage_yaml
       type: string
       default: ""
+    - name: rds_manage_db2_engine_version
+      type: string
+      default: ""
 
     - name: rds_iot_db2_instance_class
       type: string
@@ -73,6 +76,9 @@ spec:
     - name: rds_db2_config_iot_yaml
       type: string
       default: ''
+    - name: rds_iot_db2_engine_version
+      type: string
+      default: ""
 
     - name: rds_monitor_db2_instance_class
       type: string
@@ -92,7 +98,9 @@ spec:
     - name: rds_db2_config_monitor_yaml
       type: string
       default: ''
-
+    - name: rds_monitor_db2_engine_version
+      type: string
+      default: ""
 
     - name: rds_facilities_db2_instance_class
       type: string
@@ -112,6 +120,9 @@ spec:
     - name: rds_db2_config_facilities_yaml
       type: string
       default: ''
+    - name: rds_facilities_db2_engine_version
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -153,6 +164,8 @@ spec:
         value: $(params.rds_manage_replica_db)
       - name: RDS_DB2_CONFIG_MANAGE_YAML
         value: $(params.rds_db2_config_manage_yaml)
+      - name: RDS_MANAGE_DB2_ENGINE_VERSION
+        value: $(params.rds_manage_db2_engine_version)
 
       - name: RDS_IOT_DB2_INSTANCE_CLASS
         value: $(params.rds_iot_db2_instance_class)
@@ -166,6 +179,8 @@ spec:
         value: $(params.rds_iot_replica_db)
       - name: RDS_DB2_CONFIG_IOT_YAML
         value: $(params.rds_db2_config_iot_yaml)
+      - name: RDS_IOT_DB2_ENGINE_VERSION
+        value: $(params.rds_iot_db2_engine_version)
 
       - name: RDS_MONITOR_DB2_INSTANCE_CLASS
         value: $(params.rds_monitor_db2_instance_class)
@@ -179,6 +194,8 @@ spec:
         value: $(params.rds_monitor_replica_db)
       - name: RDS_DB2_CONFIG_MONITOR_YAML
         value: $(params.rds_db2_config_monitor_yaml)
+      - name: RDS_MONITOR_DB2_ENGINE_VERSION
+        value: $(params.rds_monitor_db2_engine_version)
 
       - name: RDS_FACILITIES_DB2_INSTANCE_CLASS
         value: $(params.rds_facilities_db2_instance_class)
@@ -192,6 +209,8 @@ spec:
         value: $(params.rds_facilities_replica_db)
       - name: RDS_DB2_CONFIG_FACILITIES_YAML
         value: $(params.rds_db2_config_facilities_yaml)
+      - name: RDS_FACILITIES_DB2_ENGINE_VERSION
+        value: $(params.rds_facilities_db2_engine_version)
     envFrom:
       - configMapRef:
           name: environment-properties
