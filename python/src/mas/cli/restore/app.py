@@ -87,6 +87,7 @@ class RestoreApp(BaseApp):
                 "artifactory_repository",
                 # Manage App Restore
                 "restore_manage_app",
+                "restore_manage_include_pvc",
                 "restore_manage_db",
                 "manage_app_override_storageclass",
                 "manage_app_storage_class_rwx",
@@ -96,6 +97,7 @@ class RestoreApp(BaseApp):
                 "manage_db_storage_class_rwo",
                 # Facilities App Restore
                 "restore_facilities_app",
+                "restore_facilities_include_pvc",
                 "restore_facilities_db",
                 "facilities_app_override_storageclass",
                 "facilities_app_storage_class_rwx",
@@ -229,11 +231,13 @@ class RestoreApp(BaseApp):
         if self.getParam("restore_manage_app") == "true":
             self.printH2("Manage Application Restore")
             self.printSummary("Restore Manage App", "Yes")
+            self.printSummary("Include PVC Restore", "Yes" if self.getParam("restore_manage_include_pvc") == "true" else "No")
             self.printSummary("Restore Manage incluster Db2 Database", "Yes" if self.getParam("restore_manage_db") == "true" else "No")
 
         if self.getParam("restore_facilities_app") == "true":
             self.printH2("Facilities Application Restore")
             self.printSummary("Restore Facilities App", "Yes")
+            self.printSummary("Include PVC Restore", "Yes" if self.getParam("restore_facilities_include_pvc") == "true" else "No")
             self.printSummary("Restore Facilities incluster Db2 Database", "Yes" if self.getParam("restore_facilities_db") == "true" else "No")
 
         if self.getParam("sls_domain") is not None and self.getParam("sls_domain") != "":
@@ -626,6 +630,21 @@ class RestoreApp(BaseApp):
         if restoreManageApp:
             self.setParam("restore_manage_app", "true")
 
+            # Ask about PVC restore
+            self.printH2("Manage PVC Restore")
+            self.printDescription(
+                [
+                    "The Manage application uses persistent volumes that can be restored.",
+                    "This will restore PVC data from the backup.",
+                ]
+            )
+            restorePvc = self.yesOrNo("Do you want to include PVC restore for Manage")
+
+            if restorePvc:
+                self.setParam("restore_manage_include_pvc", "true")
+            else:
+                self.setParam("restore_manage_include_pvc", "false")
+
             # Ask about DB2 restore
             self.printH2("Manage Database Restore")
             self.printDescription(
@@ -808,6 +827,21 @@ class RestoreApp(BaseApp):
 
         if restoreFacilitiesApp:
             self.setParam("restore_facilities_app", "true")
+
+            # Ask about PVC restore
+            self.printH2("Facilities PVC Restore")
+            self.printDescription(
+                [
+                    "The Facilities application uses persistent volumes that can be restored.",
+                    "This will restore PVC data from the backup.",
+                ]
+            )
+            restorePvc = self.yesOrNo("Do you want to include PVC restore for Facilities")
+
+            if restorePvc:
+                self.setParam("restore_facilities_include_pvc", "true")
+            else:
+                self.setParam("restore_facilities_include_pvc", "false")
 
             # Ask about DB2 restore
             self.printH2("Facilities Database Restore")

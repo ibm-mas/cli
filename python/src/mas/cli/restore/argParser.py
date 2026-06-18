@@ -152,6 +152,22 @@ manageAppArgGroup.add_argument(
     "--restore-manage-app", dest="restore_manage_app", required=False, action="store_const", const="true", help="Restore the Manage application"
 )
 manageAppArgGroup.add_argument(
+    "--restore-manage-include-pvc",
+    dest="restore_manage_include_pvc",
+    required=False,
+    action="store_const",
+    const="true",
+    help="Include PVC restore for Manage application",
+)
+manageAppArgGroup.add_argument(
+    "--restore-manage-exclude-pvc",
+    dest="restore_manage_include_pvc",
+    required=False,
+    action="store_const",
+    const="false",
+    help="Exclude PVC restore for Manage application",
+)
+manageAppArgGroup.add_argument(
     "--restore-manage-db", dest="restore_manage_db", required=False, action="store_const", const="true", help="Restore the Manage application database (Db2)"
 )
 
@@ -190,6 +206,22 @@ facilitiesAppArgGroup = restoreArgParser.add_argument_group(
 )
 facilitiesAppArgGroup.add_argument(
     "--restore-facilities-app", dest="restore_facilities_app", required=False, action="store_const", const="true", help="Restore the Facilities application"
+)
+facilitiesAppArgGroup.add_argument(
+    "--restore-facilities-include-pvc",
+    dest="restore_facilities_include_pvc",
+    required=False,
+    action="store_const",
+    const="true",
+    help="Include PVC restore for Facilities application",
+)
+facilitiesAppArgGroup.add_argument(
+    "--restore-facilities-exclude-pvc",
+    dest="restore_facilities_include_pvc",
+    required=False,
+    action="store_const",
+    const="false",
+    help="Exclude PVC restore for Facilities application",
 )
 facilitiesAppArgGroup.add_argument(
     "--restore-facilities-db",
