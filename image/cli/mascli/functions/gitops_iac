@@ -173,6 +173,66 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
+      --efs-monitor-db2-performance-mode)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MONITOR_DB2_PERFORMANCE_MODE=$1
+          shift
+        else
+          export EFS_MONITOR_DB2_PERFORMANCE_MODE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --efs-monitor-db2-mount-count)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MONITOR_DB2_MOUNT_COUNT=$1
+          shift
+        else
+          export EFS_MONITOR_DB2_MOUNT_COUNT=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --efs-monitor-db2-throughput-mode)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MONITOR_DB2_THROUGHPUT_MODE=$1
+          shift
+        else
+          export EFS_MONITOR_DB2_THROUGHPUT_MODE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --efs-monitor-main-performance-mode)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MONITOR_MAIN_PERFORMANCE_MODE=$1
+          shift
+        else
+          export EFS_MONITOR_MAIN_PERFORMANCE_MODE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --efs-monitor-main-mount-count)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MONITOR_MAIN_MOUNT_COUNT=$1
+          shift
+        else
+          export EFS_MONITOR_MAIN_MOUNT_COUNT=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --efs-monitor-main-throughput-mode)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MONITOR_MAIN_THROUGHPUT_MODE=$1
+          shift
+        else
+          export EFS_MONITOR_MAIN_THROUGHPUT_MODE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
       --efs-facilities-db2-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_DB2_PERFORMANCE_MODE=$1
@@ -471,6 +531,16 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
+      --rds-manage-db2-engine-version)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export RDS_MANAGE_DB2_ENGINE_VERSION=$1
+          shift
+        else
+          export RDS_MANAGE_DB2_ENGINE_VERSION=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
       --rds-iot-db2-instance-class)
         if [[ -n "$1" && "$1" != --* ]]; then
           export RDS_IOT_DB2_INSTANCE_CLASS=$1
@@ -531,6 +601,16 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
+      --rds-iot-db2-engine-version)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export RDS_IOT_DB2_ENGINE_VERSION=$1
+          shift
+        else
+          export RDS_IOT_DB2_ENGINE_VERSION=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
       --rds-facilities-db2-instance-class)
         if [[ -n "$1" && "$1" != --* ]]; then
           export RDS_FACILITIES_DB2_INSTANCE_CLASS=$1
@@ -587,6 +667,16 @@ function gitops_iac_noninteractive() {
           shift
         else
           export RDS_DB2_CONFIG_FACILITIES_YAML=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --rds-facilities-db2-engine-version)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export RDS_FACILITIES_DB2_ENGINE_VERSION=$1
+          shift
+        else
+          export RDS_FACILITIES_DB2_ENGINE_VERSION=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
@@ -707,7 +797,23 @@ function compute_efs_variables() {
     export EFS_IOT_DB2=false
     echo "  EFS_IOT: false"
   fi
-  
+
+  if [[ -n "$EFS_MONITOR_DB2_PERFORMANCE_MODE" && -n "$EFS_MONITOR_DB2_MOUNT_COUNT" && -n "$EFS_MONITOR_DB2_THROUGHPUT_MODE" ]]; then
+    export EFS_MONITOR_DB2=true
+    echo "  EFS_MONITOR_DB2: true"
+  else
+    export EFS_MONITOR_DB2=false
+    echo "  EFS_MONITOR_DB2: false"
+  fi
+
+  if [[ -n "$EFS_MONITOR_MAIN_PERFORMANCE_MODE" && -n "$EFS_MONITOR_MAIN_MOUNT_COUNT" && -n "$EFS_MONITOR_MAIN_THROUGHPUT_MODE" ]]; then
+    export EFS_MONITOR_MAIN=true
+    echo "  EFS_MONITOR_MAIN: true"
+  else
+    export EFS_MONITOR_MAIN=false
+    echo "  EFS_MONITOR_MAIN: false"
+  fi
+
   if [[ -n "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" && -n "$EFS_FACILITIES_DB2_MOUNT_COUNT" && -n "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" ]]; then
     export EFS_FACILITIES_DB2=true
     echo "  EFS_FACILITIES: true"
@@ -1259,7 +1365,39 @@ function gitops_iac_provision_rdsdb2(){
       export RDS_APP="$app"
       export RDS_S3_APP_NAME="$app"
       export RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$(set_ssl_params "$additional_params")
+      
+      # Set engine version based on app type
+      case "$app" in
+        manage)
+          export RDS_DB2_ENGINE_VERSION="${RDS_MANAGE_DB2_ENGINE_VERSION}"
+          ;;
+        iot)
+          export RDS_DB2_ENGINE_VERSION="${RDS_IOT_DB2_ENGINE_VERSION}"
+          ;;
+        facilities)
+          export RDS_DB2_ENGINE_VERSION="${RDS_FACILITIES_DB2_ENGINE_VERSION}"
+          ;;
+      esac
+      
+      # Extract major version (first two numbers, e.g., "11.5" from "11.5.9.0")
+      if [[ -n "${RDS_DB2_ENGINE_VERSION}" ]]; then
+        export RDS_DB2_MAJOR_ENGINE_VERSION=$(echo "${RDS_DB2_ENGINE_VERSION}" | cut -d'.' -f1,2)
+        # Create parameter group family (e.g., "db2-ae-11.5")
+        export RDS_DB2_PARAMETER_GROUP_FAMILY="db2-ae-${RDS_DB2_MAJOR_ENGINE_VERSION}"
+        # Create option group suffix (e.g., "11-5" from "11.5")
+        export RDS_DB2_OPTION_GROUP_SUFFIX=$(echo "${RDS_DB2_MAJOR_ENGINE_VERSION}" | tr '.' '-')
+      else
+        # Default to previous hardcoded values for backwards compatibility
+        export RDS_DB2_MAJOR_ENGINE_VERSION="11.5"
+        export RDS_DB2_PARAMETER_GROUP_FAMILY="db2-ae-11.5"
+        export RDS_DB2_OPTION_GROUP_SUFFIX="11-5"
+      fi
+      
       echo "Additional params for $app - ${RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS}"
+      echo "Engine version for $app - ${RDS_DB2_ENGINE_VERSION}"
+      echo "Major engine version for $app - ${RDS_DB2_MAJOR_ENGINE_VERSION}"
+      echo "Parameter group family for $app - ${RDS_DB2_PARAMETER_GROUP_FAMILY}"
+      echo "Option group suffix for $app - ${RDS_DB2_OPTION_GROUP_SUFFIX}"
       echo "Generating rds-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/rds-db2-$app.tf"
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.tf.j2 ${GITOPS_CLUSTER_DIR}/db2rds-$app.tf
 

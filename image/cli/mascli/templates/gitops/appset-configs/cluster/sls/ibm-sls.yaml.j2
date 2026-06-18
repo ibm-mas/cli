@@ -19,8 +19,8 @@ ibm_sls_standalone:
   sls_domain: {{ SLS_DOMAIN }}
 {%- if DNS_PROVIDER|lower == "cis" %}
   dns_provider: "{{ DNS_PROVIDER }}"
-{%- if CIS_SERVICE_NAME is defined and CIS_SERVICE_NAME != '' and CIS_CRN is defined and CIS_CRN != '' %}
-  cis_service_name: "{{ CIS_SERVICE_NAME }}"
+{%- if CIS_DOMAIN is defined and CIS_DOMAIN != '' and CIS_CRN is defined and CIS_CRN != '' %}
+  cis_domain: "{{ CIS_DOMAIN }}"
   cis_crn: "{{ CIS_CRN }}"
 {%- endif %}
 {%- endif %}

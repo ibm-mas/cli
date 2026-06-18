@@ -25,7 +25,7 @@ spec:
       type: string
     - name: dns_provider
       type: string
-    - name: cis_service_name
+    - name: cis_domain
       type: string
     - name: cis_crn
       type: string
@@ -84,8 +84,8 @@ spec:
         value: $(params.ocp_cluster_domain)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
-      - name: CIS_SERVICE_NAME
-        value: $(params.cis_service_name)
+      - name: CIS_DOMAIN
+        value: $(params.cis_domain)
       - name: CIS_CRN
         value: $(params.cis_crn)
       - name: SECRETS_PATH

@@ -11,7 +11,7 @@
 """Tests for Kafka discovery functions."""
 
 from unittest.mock import Mock
-from mas.cli.must_gather.dependencies.kafka import discoverKafkaNamespaces
+from mas.cli.must_gather.dependencies.kafka import _discoverKafkaNamespaces
 
 
 def test_discoverKafkaNamespaces_returns_empty_set_when_no_kafka_found():
@@ -27,7 +27,7 @@ def test_discoverKafkaNamespaces_returns_empty_set_when_no_kafka_found():
     kafkaApi.get.return_value = Mock(items=[])
     dynClient.resources.get.return_value = kafkaApi
 
-    result = discoverKafkaNamespaces(dynClient)
+    result = _discoverKafkaNamespaces(dynClient)
 
     assert result == set(), f"Kafka discovery should return empty set when no Kafka CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="Kafka")
@@ -55,7 +55,7 @@ def test_discoverKafkaNamespaces_returns_namespaces_from_kafka_crs():
     kafkaApi.get.return_value = Mock(items=[kafka1, kafka2, kafka3])
     dynClient.resources.get.return_value = kafkaApi
 
-    result = discoverKafkaNamespaces(dynClient)
+    result = _discoverKafkaNamespaces(dynClient)
 
     assert result == {"strimzi", "kafka-prod"}, f"Kafka discovery should return namespaces where Kafka CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="Kafka")
@@ -71,7 +71,7 @@ def test_discoverKafkaNamespaces_handles_api_exception():
     dynClient = Mock()
     dynClient.resources.get.side_effect = Exception("API error")
 
-    result = discoverKafkaNamespaces(dynClient)
+    result = _discoverKafkaNamespaces(dynClient)
 
     assert result == set(), f"Kafka discovery should handle API exceptions gracefully and return empty set, but got: {result}"
 
@@ -95,6 +95,6 @@ def test_discoverKafkaNamespaces_ignores_cluster_scoped_resources():
     kafkaApi.get.return_value = Mock(items=[kafka_namespaced, kafka_cluster_scoped])
     dynClient.resources.get.return_value = kafkaApi
 
-    result = discoverKafkaNamespaces(dynClient)
+    result = _discoverKafkaNamespaces(dynClient)
 
     assert result == {"strimzi"}, f"Kafka discovery should ignore cluster-scoped resources and only return namespaced ones, but got: {result}"

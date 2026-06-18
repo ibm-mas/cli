@@ -22,7 +22,7 @@ class TestPlanCollection(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.app = MustGatherApp()
-        self.app.dynClient = Mock()
+        self.app._dynClient = Mock()
         self.app.printerColumnsCache = {}
         self.app.ibmCRDsList = []
 
@@ -49,8 +49,8 @@ class TestPlanCollection(unittest.TestCase):
         # Verify result
         self.assertIsInstance(plan, CollectionPlan)
 
-    @patch("mas.cli.must_gather.dependencies.kafka.discoverKafkaNamespaces")
-    @patch("mas.cli.must_gather.dependencies.mongodb.discoverMongoDBNamespaces")
+    @patch("mas.cli.must_gather.dependencies.kafka._discoverKafkaNamespaces")
+    @patch("mas.cli.must_gather.dependencies.mongodb._discoverMongoDBNamespaces")
     def test_planCollection_discovers_dependencies(self, mockMongoDiscovery, mockKafkaDiscovery):
         """Test that planCollection discovers dependency namespaces.
 
@@ -75,8 +75,8 @@ class TestPlanCollection(unittest.TestCase):
         plan = self.app.planCollection(parsedArgs, outputDir)
 
         # Verify discovery was called
-        mockKafkaDiscovery.assert_called_once_with(self.app.dynClient)
-        mockMongoDiscovery.assert_called_once_with(self.app.dynClient)
+        mockKafkaDiscovery.assert_called_once_with(self.app.dynamicClient)
+        mockMongoDiscovery.assert_called_once_with(self.app.dynamicClient)
 
         # Verify plan has groups
         self.assertGreater(plan.total_groups, 0)
