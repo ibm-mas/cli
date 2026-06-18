@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class InstallSummarizerMixin:
     if TYPE_CHECKING:
         from typing import List, NoReturn
-        from openshift.dynamic import DynamicClient
+        from kubernetes.dynamic import DynamicClient
 
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]

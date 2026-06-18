@@ -16,7 +16,7 @@ from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
-from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser

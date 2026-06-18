@@ -17,7 +17,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import re
 import calendar
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError
 
 from typing import Dict, Any
 

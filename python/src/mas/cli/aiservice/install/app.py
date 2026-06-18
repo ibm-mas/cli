@@ -17,7 +17,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from sys import exit
 from os import path, getenv
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 from tabulate import tabulate
