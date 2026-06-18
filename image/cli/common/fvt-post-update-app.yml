@@ -4,7 +4,7 @@
 #
 # Required Variables:
 #   - mas_instance_id: MAS instance identifier
-#   - app_name: Application name (e.g., 'manage', 'facilities', 'health', etc.)
+#   - app_name: Application name (e.g., 'manage', 'facilities')
 #   - app_kind: Kubernetes kind for the app (e.g., 'ManageApp', 'FacilitiesApp')
 #   - workspace_kind: Kubernetes kind for workspaces (e.g., 'ManageWorkspace', 'FacilitiesWorkspace')
 #   - operator_label: Operator label selector (e.g., 'ibm-mas-manage', 'ibm-mas-facilities')
@@ -13,14 +13,14 @@
 - hosts: localhost
   any_errors_fatal: true
   vars:
-    # Default retry/delay values (can be overridden by caller or environment variables)
-    # Priority: caller vars > environment vars > defaults
-    app_check_retries: "{{ app_check_retries | default(lookup('env', 'APP_CHECK_RETRIES') | default(20, true), true) }}"
-    app_check_delay: "{{ app_check_delay | default(lookup('env', 'APP_CHECK_DELAY') | default(120, true), true) }}"
-    workspace_version_retries: "{{ workspace_version_retries | default(lookup('env', 'WORKSPACE_VERSION_RETRIES') | default(30, true), true) }}"
-    workspace_version_delay: "{{ workspace_version_delay | default(lookup('env', 'WORKSPACE_VERSION_DELAY') | default(120, true), true) }}"
-    workspace_ready_retries: "{{ workspace_ready_retries | default(lookup('env', 'WORKSPACE_READY_RETRIES') | default(60, true), true) }}"
-    workspace_ready_delay: "{{ workspace_ready_delay | default(lookup('env', 'WORKSPACE_READY_DELAY') | default(120, true), true) }}"
+    # Default retry/delay values
+    # Priority: passed from caller > environment vars > built-in defaults
+    _app_check_retries: "{{ app_check_retries if app_check_retries is defined else (lookup('env', 'APP_CHECK_RETRIES') | default(20, true)) }}"
+    _app_check_delay: "{{ app_check_delay if app_check_delay is defined else (lookup('env', 'APP_CHECK_DELAY') | default(120, true)) }}"
+    _workspace_version_retries: "{{ workspace_version_retries if workspace_version_retries is defined else (lookup('env', 'WORKSPACE_VERSION_RETRIES') | default(30, true)) }}"
+    _workspace_version_delay: "{{ workspace_version_delay if workspace_version_delay is defined else (lookup('env', 'WORKSPACE_VERSION_DELAY') | default(120, true)) }}"
+    _workspace_ready_retries: "{{ workspace_ready_retries if workspace_ready_retries is defined else (lookup('env', 'WORKSPACE_READY_RETRIES') | default(60, true)) }}"
+    _workspace_ready_delay: "{{ workspace_ready_delay if workspace_ready_delay is defined else (lookup('env', 'WORKSPACE_READY_DELAY') | default(120, true)) }}"
     
   tasks:
     # 1. Validate required variables
@@ -96,13 +96,13 @@
 
         # 3.2 Check that the Application CR meets the required state
         # -------------------------------------------------------------------------
-        - name: "Check if {{ app_kind }} CR is updated to latest version and Ready ({{ app_check_delay }}s delay)"
+        - name: "Check if {{ app_kind }} CR is updated to latest version and Ready ({{ _app_check_delay }}s delay)"
           kubernetes.core.k8s_info:
             kind: "{{ app_kind }}"
             name: "{{ mas_instance_id }}"
             namespace: "mas-{{ mas_instance_id }}-{{ app_name }}"
-          retries: "{{ app_check_retries }}"
-          delay: "{{ app_check_delay }}"
+          retries: "{{ _app_check_retries }}"
+          delay: "{{ _app_check_delay }}"
           until:
             - updated_app_info.resources is defined
             - updated_app_info.resources[0].status is defined
@@ -116,27 +116,27 @@
 
         # 3.3 Check that the Application Workspaces meet the required state
         # -------------------------------------------------------------------------
-        - name: "Check if {{ workspace_kind }} CR reconciled version is updated to target version ({{ workspace_version_delay }}s delay)"
+        - name: "Check if {{ workspace_kind }} CR reconciled version is updated to target version ({{ _workspace_version_delay }}s delay)"
           kubernetes.core.k8s_info:
             kind: "{{ workspace_kind }}"
             namespace: "mas-{{ mas_instance_id }}-{{ app_name }}"
             label_selectors:
               - mas.ibm.com/instanceId={{ mas_instance_id }}
-          retries: "{{ workspace_version_retries }}"
-          delay: "{{ workspace_version_delay }}"
+          retries: "{{ _workspace_version_retries }}"
+          delay: "{{ _workspace_version_delay }}"
           until:
             - app_ws_cr_version.resources is defined
             - app_ws_cr_version.resources[0].status.versions.reconciled == updated_opcon_version
           register: app_ws_cr_version
 
-        - name: "Check if {{ workspace_kind }} CR is Ready ({{ workspace_ready_delay }}s delay)"
+        - name: "Check if {{ workspace_kind }} CR is Ready ({{ _workspace_ready_delay }}s delay)"
           kubernetes.core.k8s_info:
             kind: "{{ workspace_kind }}"
             namespace: "mas-{{ mas_instance_id }}-{{ app_name }}"
             label_selectors:
               - mas.ibm.com/instanceId={{ mas_instance_id }}
-          retries: "{{ workspace_ready_retries }}"
-          delay: "{{ workspace_ready_delay }}"
+          retries: "{{ _workspace_ready_retries }}"
+          delay: "{{ _workspace_ready_delay }}"
           until:
             - app_ws_cr_lookup.resources is defined
             - app_ws_cr_lookup.resources | json_query('[*].status.conditions[?type==`Ready`][].reason') | select ('in', ['Ready', 'WorkspaceReady']) | list | length == app_ws_cr_lookup.resources | length

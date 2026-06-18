@@ -1,7 +1,6 @@
 ---
 # FVT Post-Update Validation for MAS Applications
-# This playbook orchestrates post-update validation for multiple MAS applications
-# by calling the generic validation task for each installed application
+# This orchestrates post-update validation for MAS applications by calling the generic validation task for each installed application
 
 - hosts: localhost
   any_errors_fatal: true
@@ -39,13 +38,13 @@
         app_kind: "{{ item.app_kind }}"
         workspace_kind: "{{ item.workspace_kind }}"
         operator_label: "{{ item.operator_label }}"
-        # Pass app-specific retry/delay settings if defined
-        app_check_retries: "{{ item.app_check_retries | default(omit) }}"
-        app_check_delay: "{{ item.app_check_delay | default(omit) }}"
-        workspace_version_retries: "{{ item.workspace_version_retries | default(omit) }}"
-        workspace_version_delay: "{{ item.workspace_version_delay | default(omit) }}"
-        workspace_ready_retries: "{{ item.workspace_ready_retries | default(omit) }}"
-        workspace_ready_delay: "{{ item.workspace_ready_delay | default(omit) }}"
+        # Pass app-specific retry/delay settings if defined in the app config
+        app_check_retries: "{{ item.app_check_retries if item.app_check_retries is defined else omit }}"
+        app_check_delay: "{{ item.app_check_delay if item.app_check_delay is defined else omit }}"
+        workspace_version_retries: "{{ item.workspace_version_retries if item.workspace_version_retries is defined else omit }}"
+        workspace_version_delay: "{{ item.workspace_version_delay if item.workspace_version_delay is defined else omit }}"
+        workspace_ready_retries: "{{ item.workspace_ready_retries if item.workspace_ready_retries is defined else omit }}"
+        workspace_ready_delay: "{{ item.workspace_ready_delay if item.workspace_ready_delay is defined else omit }}"
       loop: "{{ mas_applications }}"
       loop_control:
         label: "{{ item.name }}"
