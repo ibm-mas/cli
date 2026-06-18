@@ -389,7 +389,7 @@
 </code></pre>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: <code>docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:21.6.0</code></p>
+<p>If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: <code>docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:21.7.0</code></p>
 </div>
 <p>The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see <a href="https://github.com/ibm-mas/cli-base">cli-base</a> for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directly, the CLI image can be a useful tool:</p>
 <pre><code class="language-bash">podman run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.mas_install_core
@@ -417,7 +417,7 @@ uv tool uninstall mas-cli
 </code></pre>
 <div class="admonition tip">
 <p class="admonition-title">Choosing a specific version</p>
-<p>You can use a specific version of mas-cli by with ephemeral execution or installation using <code>mas-cli@21.6.0</code></p>
+<p>You can use a specific version of mas-cli by with ephemeral execution or installation using <code>mas-cli@21.7.0</code></p>
 </div>
 <h2 id="function-support">Function support<a class="headerlink" href="#function-support" title="Permanent link">¶</a></h2>
 <p>Not all functions supported in the container image are available in the standalone CLI (yet):</p>
