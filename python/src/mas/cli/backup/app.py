@@ -76,6 +76,7 @@ class BackupApp(BaseApp):
                 # Manage App Backup
                 "manage_workspace_id",
                 "backup_manage_app",
+                "backup_manage_include_pvc",
                 "backup_manage_db",
                 "manage_db2_namespace",
                 "manage_db2_instance_name",
@@ -84,6 +85,7 @@ class BackupApp(BaseApp):
                 # Facilities App Backup
                 "facilities_workspace_id",
                 "backup_facilities_app",
+                "backup_facilities_include_pvc",
                 "backup_facilities_db",
                 "facilities_db2_namespace",
                 "facilities_db2_instance_name",
@@ -187,6 +189,7 @@ class BackupApp(BaseApp):
             self.printH2("Manage Application Backup")
             self.printSummary("Backup Manage App", "Yes")
             self.printSummary("Workspace ID", self.getParam("manage_workspace_id"))
+            self.printSummary("Include PVC Backup", "Yes" if self.getParam("backup_manage_include_pvc") == "true" else "No")
             self.printSummary("Backup Manage incluster Db2 Database", "Yes" if self.getParam("backup_manage_db") == "true" else "No")
             if self.getParam("backup_manage_db") == "true":
                 self.printSummary("Db2 Namespace", self.getParam("manage_db2_namespace"))
@@ -197,6 +200,7 @@ class BackupApp(BaseApp):
             self.printH2("Facilities Application Backup")
             self.printSummary("Backup Facilities App", "Yes")
             self.printSummary("Workspace ID", self.getParam("facilities_workspace_id"))
+            self.printSummary("Include PVC Backup", "Yes" if self.getParam("backup_facilities_include_pvc") == "true" else "No")
             self.printSummary("Backup Facilities incluster Db2 Database", "Yes" if self.getParam("backup_facilities_db") == "true" else "No")
             if self.getParam("backup_facilities_db") == "true":
                 self.printSummary("Db2 Namespace", self.getParam("facilities_db2_namespace"))
@@ -571,6 +575,21 @@ class BackupApp(BaseApp):
                 workspaceId = self.promptForString("Enter Manage workspace ID")
                 self.setParam("manage_workspace_id", workspaceId)
 
+            # Ask about PVC backup
+            self.printH2("Manage PVC Backup")
+            self.printDescription(
+                [
+                    "The Manage application uses persistent volumes that can be backed up.",
+                    "This will include PVC data in the backup.",
+                ]
+            )
+            backupPvc = self.yesOrNo("Do you want to include PVC backup for Manage")
+
+            if backupPvc:
+                self.setParam("backup_manage_include_pvc", "true")
+            else:
+                self.setParam("backup_manage_include_pvc", "false")
+
             # Ask about DB2 backup
             self.printH2("Manage Database Backup")
             self.printDescription(
@@ -656,6 +675,21 @@ class BackupApp(BaseApp):
             except Exception:
                 workspaceId = self.promptForString("Enter Facilities workspace ID")
                 self.setParam("facilities_workspace_id", workspaceId)
+
+            # Ask about PVC backup
+            self.printH2("Facilities PVC Backup")
+            self.printDescription(
+                [
+                    "The Facilities application uses persistent volumes that can be backed up.",
+                    "This will include PVC data in the backup.",
+                ]
+            )
+            backupPvc = self.yesOrNo("Do you want to include PVC backup for Facilities")
+
+            if backupPvc:
+                self.setParam("backup_facilities_include_pvc", "true")
+            else:
+                self.setParam("backup_facilities_include_pvc", "false")
 
             # Ask about DB2 backup
             self.printH2("Facilities Database Backup")
