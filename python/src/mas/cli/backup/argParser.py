@@ -70,6 +70,22 @@ manageAppArgGroup.add_argument(
 )
 manageAppArgGroup.add_argument("--manage-workspace-id", dest="manage_workspace_id", required=False, help="Manage workspace ID")
 manageAppArgGroup.add_argument(
+    "--backup-manage-include-pvc",
+    dest="backup_manage_include_pvc",
+    required=False,
+    action="store_const",
+    const="true",
+    help="Include PVC backup for Manage application",
+)
+manageAppArgGroup.add_argument(
+    "--backup-manage-exclude-pvc",
+    dest="backup_manage_include_pvc",
+    required=False,
+    action="store_const",
+    const="false",
+    help="Exclude PVC backup for Manage application",
+)
+manageAppArgGroup.add_argument(
     "--backup-manage-db", dest="backup_manage_db", required=False, action="store_const", const="true", help="Backup the Manage application database (Db2)"
 )
 manageAppArgGroup.add_argument("--manage-db2-namespace", dest="manage_db2_namespace", required=False, help="Manage Db2 namespace (default: db2u)")
@@ -87,6 +103,22 @@ facilitiesAppArgGroup.add_argument(
     "--backup-facilities-app", dest="backup_facilities_app", required=False, action="store_const", const="true", help="Backup the Facilities application"
 )
 facilitiesAppArgGroup.add_argument("--facilities-workspace-id", dest="facilities_workspace_id", required=False, help="Facilities workspace ID")
+facilitiesAppArgGroup.add_argument(
+    "--backup-facilities-include-pvc",
+    dest="backup_facilities_include_pvc",
+    required=False,
+    action="store_const",
+    const="true",
+    help="Include PVC backup for Facilities application",
+)
+facilitiesAppArgGroup.add_argument(
+    "--backup-facilities-exclude-pvc",
+    dest="backup_facilities_include_pvc",
+    required=False,
+    action="store_const",
+    const="false",
+    help="Exclude PVC backup for Facilities application",
+)
 facilitiesAppArgGroup.add_argument(
     "--backup-facilities-db",
     dest="backup_facilities_db",
