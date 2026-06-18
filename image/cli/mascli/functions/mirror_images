@@ -128,6 +128,15 @@ function mirror_to_registry_noninteractive() {
       -C|--channel)
         MAS_CHANNEL=$1 && shift
         ;;
+      -a|--arch)
+        MIRROR_ARCH=$1 && shift
+        # Validate architecture
+        if [[ "$MIRROR_ARCH" != "amd64" && "$MIRROR_ARCH" != "ppc64le" && "$MIRROR_ARCH" != "s390x" ]]; then
+          echo -e "${COLOR_RED}Usage Error: Invalid architecture \"${MIRROR_ARCH}\". Must be one of: amd64, ppc64le, s390x${TEXT_RESET}\n"
+          mirror_to_registry_help
+          exit 1
+        fi
+        ;;
 
       # Content Selection (Core Platform)
       --mirror-catalog)

@@ -40,6 +40,49 @@ function mirror_to_registry_interactive_common() {
   # DEFAULT_REGISTRY_PREFIX=${MAS_CATALOG_VERSION#*-}  # removes the "v9-" prefix
   # DEFAULT_REGISTRY_PREFIX="mas-${DEFAULT_REGISTRY_PREFIX%%-*}"  # removes the -arch suffix
 
+  # Prompt for target architecture
+  echo
+  echo_h2 "Configure Target Architecture"
+  
+  # Try to detect architecture from catalog version for default
+  DEFAULT_ARCH=""
+  if [[ "$MAS_CATALOG_VERSION" == *"amd64"* ]]; then
+    DEFAULT_ARCH="1"
+  elif [[ "$MAS_CATALOG_VERSION" == *"ppc64le"* ]]; then
+    DEFAULT_ARCH="2"
+  elif [[ "$MAS_CATALOG_VERSION" == *"s390x"* ]]; then
+    DEFAULT_ARCH="3"
+  fi
+
+  echo -e "${COLOR_YELLOW}Target Architecture:"
+  echo "  1. amd64 (x86_64)"
+  echo "  2. ppc64le (IBM Power)"
+  echo "  3. s390x (IBM Z)"
+  reset_colors
+  echo
+  
+  if [[ -n "$DEFAULT_ARCH" ]]; then
+    prompt_for_input "Select Target Architecture" ARCH_SELECTION "$DEFAULT_ARCH"
+  else
+    prompt_for_input "Select Target Architecture" ARCH_SELECTION
+  fi
+
+  case $ARCH_SELECTION in
+    1|amd64)
+      MIRROR_ARCH="amd64"
+      ;;
+    2|ppc64le)
+      MIRROR_ARCH="ppc64le"
+      ;;
+    3|s390x)
+      MIRROR_ARCH="s390x"
+      ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+
   echo
   echo_h2 "Configure Mirror Mode"
   prompt_for_input "Working Directory" MIRROR_WORKING_DIR
@@ -92,6 +135,7 @@ function mirror_to_registry_common() {
   export MIRROR_WORKING_DIR
   export MAS_CATALOG_VERSION
   export MAS_CHANNEL
+  export MIRROR_ARCH
 
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
@@ -160,14 +204,35 @@ function confirm_mirror() {
 }
 
 function set_target_arch() {
+  # Extract architecture from catalog version if present
+  CATALOG_ARCH=""
   if [[ "$MAS_CATALOG_VERSION" == *"amd64"* ]]; then
-    export MIRROR_SINGLE_ARCH="amd64"
+    CATALOG_ARCH="amd64"
   elif [[ "$MAS_CATALOG_VERSION" == *"ppc64le"* ]]; then
-    export MIRROR_SINGLE_ARCH="ppc64le"
+    CATALOG_ARCH="ppc64le"
   elif [[ "$MAS_CATALOG_VERSION" == *"s390x"* ]]; then
-    export MIRROR_SINGLE_ARCH="s390x"
+    CATALOG_ARCH="s390x"
+  fi
+
+  # Determine which architecture to use
+  if [[ -n "$MIRROR_ARCH" ]]; then
+    # User explicitly specified architecture via --arch or interactive prompt
+    if [[ -n "$CATALOG_ARCH" && "$CATALOG_ARCH" != "$MIRROR_ARCH" ]]; then
+      # Warn if catalog version has different architecture
+      echo
+      echo_warning "Architecture mismatch detected:"
+      echo "  Catalog version suggests: $CATALOG_ARCH"
+      echo "  Using specified architecture: $MIRROR_ARCH"
+      echo
+    fi
+    export MIRROR_SINGLE_ARCH="$MIRROR_ARCH"
+  elif [[ -n "$CATALOG_ARCH" ]]; then
+    # Use architecture from catalog version
+    export MIRROR_SINGLE_ARCH="$CATALOG_ARCH"
   else
-    echo -e "${COLOR_RED}Usage Error: Could not determine target architecture from catalog version: $MAS_CATALOG_VERSION${TEXT_RESET}\n"
+    # Cannot determine architecture
+    echo -e "${COLOR_RED}Usage Error: Could not determine target architecture.${TEXT_RESET}"
+    echo -e "${COLOR_RED}Please specify architecture using --arch parameter or use a catalog version with architecture suffix.${TEXT_RESET}\n"
     exit 1
   fi
 }

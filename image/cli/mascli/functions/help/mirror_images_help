@@ -32,6 +32,7 @@ Source Registry Entitlements (Required based on what content you choose to mirro
 Maximo Operator Catalog Selection (Optional):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)
   -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 9.1.x)
+  -a, --arch ${COLOR_YELLOW}MIRROR_ARCH${TEXT_RESET}                          Target architecture (amd64, ppc64le, s390x). Overrides catalog version architecture if specified.
 EOM
 }
 
@@ -76,6 +77,16 @@ Content Selection (All images included):
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
   -h, --help                                      Show this help message
+
+Examples:
+  # Mirror with explicit architecture (overrides catalog version architecture)
+  mas mirror-images --mode direct --arch amd64 --catalog v9-260527-amd64 ...
+
+  # Mirror for different architecture than catalog suggests (will show warning)
+  mas mirror-images --mode direct --arch ppc64le --catalog v9-260527-amd64 ...
+
+  # Mirror with catalog version without architecture suffix
+  mas mirror-images --mode direct --arch s390x --catalog v9-260527 ...
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
