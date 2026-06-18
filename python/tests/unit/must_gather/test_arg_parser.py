@@ -193,6 +193,68 @@ class TestArgumentParser:
         args = parser.parse_args(["--artifactory-upload-dir", "https://example.com/upload"])
         assert args.artifactory_upload_dir == "https://example.com/upload"
 
+    def test_parser_uses_artifactory_token_from_env(self, monkeypatch):
+        """Test that ARTIFACTORY_TOKEN environment variable is used as default.
+
+        GIVEN ARTIFACTORY_TOKEN environment variable is set
+        WHEN no --artifactory-token flag is provided
+        THEN artifactory_token uses the environment variable value.
+        """
+        monkeypatch.setenv("ARTIFACTORY_TOKEN", "env-token-456")
+        parser = mustGatherArgParser
+        args = parser.parse_args([])
+        assert args.artifactory_token == "env-token-456"
+
+    def test_parser_uses_artifactory_upload_dir_from_env(self, monkeypatch):
+        """Test that ARTIFACTORY_UPLOAD_DIR environment variable is used as default.
+
+        GIVEN ARTIFACTORY_UPLOAD_DIR environment variable is set
+        WHEN no --artifactory-upload-dir flag is provided
+        THEN artifactory_upload_dir uses the environment variable value.
+        """
+        monkeypatch.setenv("ARTIFACTORY_UPLOAD_DIR", "https://env.example.com/upload")
+        parser = mustGatherArgParser
+        args = parser.parse_args([])
+        assert args.artifactory_upload_dir == "https://env.example.com/upload"
+
+    def test_parser_cli_arg_overrides_env_for_token(self, monkeypatch):
+        """Test that --artifactory-token CLI argument overrides environment variable.
+
+        GIVEN ARTIFACTORY_TOKEN environment variable is set
+        WHEN --artifactory-token flag is provided
+        THEN CLI argument value takes precedence over environment variable.
+        """
+        monkeypatch.setenv("ARTIFACTORY_TOKEN", "env-token")
+        parser = mustGatherArgParser
+        args = parser.parse_args(["--artifactory-token", "cli-token"])
+        assert args.artifactory_token == "cli-token"
+
+    def test_parser_cli_arg_overrides_env_for_upload_dir(self, monkeypatch):
+        """Test that --artifactory-upload-dir CLI argument overrides environment variable.
+
+        GIVEN ARTIFACTORY_UPLOAD_DIR environment variable is set
+        WHEN --artifactory-upload-dir flag is provided
+        THEN CLI argument value takes precedence over environment variable.
+        """
+        monkeypatch.setenv("ARTIFACTORY_UPLOAD_DIR", "https://env.example.com")
+        parser = mustGatherArgParser
+        args = parser.parse_args(["--artifactory-upload-dir", "https://cli.example.com"])
+        assert args.artifactory_upload_dir == "https://cli.example.com"
+
+    def test_parser_both_artifactory_params_from_env(self, monkeypatch):
+        """Test that both artifactory parameters can be set via environment variables.
+
+        GIVEN both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR are set
+        WHEN no CLI flags are provided
+        THEN both parameters use environment variable values.
+        """
+        monkeypatch.setenv("ARTIFACTORY_TOKEN", "env-token-789")
+        monkeypatch.setenv("ARTIFACTORY_UPLOAD_DIR", "https://env.artifactory.com/repo")
+        parser = mustGatherArgParser
+        args = parser.parse_args([])
+        assert args.artifactory_token == "env-token-789"
+        assert args.artifactory_upload_dir == "https://env.artifactory.com/repo"
+
     def test_parser_accepts_multiple_flags_together(self):
         """Test that multiple flags can be combined.
 

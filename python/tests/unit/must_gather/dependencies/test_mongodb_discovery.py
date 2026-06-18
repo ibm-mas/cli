@@ -11,7 +11,7 @@
 """Tests for MongoDB discovery functions."""
 
 from unittest.mock import Mock
-from mas.cli.must_gather.dependencies.mongodb import discoverMongoDBNamespaces
+from mas.cli.must_gather.dependencies.mongodb import _discoverMongoDBNamespaces
 
 
 def test_discoverMongoDBNamespaces_returns_empty_set_when_no_mongodb_found():
@@ -27,7 +27,7 @@ def test_discoverMongoDBNamespaces_returns_empty_set_when_no_mongodb_found():
     mongoApi.get.return_value = Mock(items=[])
     dynClient.resources.get.return_value = mongoApi
 
-    result = discoverMongoDBNamespaces(dynClient)
+    result = _discoverMongoDBNamespaces(dynClient)
 
     assert result == set(), f"MongoDB discovery should return empty set when no MongoDBCommunity CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="MongoDBCommunity")
@@ -55,7 +55,7 @@ def test_discoverMongoDBNamespaces_returns_namespaces_from_mongodb_crs():
     mongoApi.get.return_value = Mock(items=[mongo1, mongo2, mongo3])
     dynClient.resources.get.return_value = mongoApi
 
-    result = discoverMongoDBNamespaces(dynClient)
+    result = _discoverMongoDBNamespaces(dynClient)
 
     assert result == {"mongoce", "mongodb-prod"}, f"MongoDB discovery should return namespaces where MongoDBCommunity CRs exist, but got: {result}"
     dynClient.resources.get.assert_called_once_with(kind="MongoDBCommunity")
@@ -71,7 +71,7 @@ def test_discoverMongoDBNamespaces_handles_api_exception():
     dynClient = Mock()
     dynClient.resources.get.side_effect = Exception("API error")
 
-    result = discoverMongoDBNamespaces(dynClient)
+    result = _discoverMongoDBNamespaces(dynClient)
 
     assert result == set(), f"MongoDB discovery should handle API exceptions gracefully and return empty set, but got: {result}"
 
@@ -95,6 +95,6 @@ def test_discoverMongoDBNamespaces_ignores_cluster_scoped_resources():
     mongoApi.get.return_value = Mock(items=[mongo_namespaced, mongo_cluster_scoped])
     dynClient.resources.get.return_value = mongoApi
 
-    result = discoverMongoDBNamespaces(dynClient)
+    result = _discoverMongoDBNamespaces(dynClient)
 
     assert result == {"mongoce"}, f"MongoDB discovery should ignore cluster-scoped resources and only return namespaced ones, but got: {result}"

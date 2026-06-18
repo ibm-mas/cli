@@ -379,7 +379,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 )
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text="Submitting PipelineRun for MAS update", spinner=self.spinner) as h:
@@ -443,16 +443,16 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) May 27 2026 Update (MAS 9.1.18, 9.0.26, 8.11.34, &amp; 8.10.37)",
-                "  2) Apr 30 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
-                "  3) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
+                "  1) Jun 25 2026 Update (MAS 9.1.19, 9.0.27, 8.11.34, &amp; 8.10.37)",
+                "  2) May 27 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
+                "  3) Apr 30 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
             ]
         )
 
         catalogOptions = [
+            "v9-260625-amd64",
             "v9-260527-amd64",
             "v9-260430-amd64",
-            "v9-260326-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -847,6 +847,11 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
                 kindString = "/".join([kind + "s" for kind in kinds])
                 if len(instances) > 0:
+                    # Set db2_channel immediately after confirming instances exist and target version is available
+                    if targetDb2uVersion:
+                        self.setParam("db2_channel", targetDb2uVersion)
+                        logger.debug(f"Setting db2_channel to {targetDb2uVersion}")
+
                     # If the user provided the namespace using --db2-namespace then we don't have any work to do here
                     if self.getParam(paramName) == "":
                         namespaces = set()
@@ -879,7 +884,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                             for index, ns in enumerate(sorted(namespaces), start=1):
                                 self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
-                            self.setParam("db2_channel", self.chosenCatalog["db2_channel_default"])
 
                     # Version comparison logic - check if Db2u needs major version upgrade
                     if len(instances) > 0:
@@ -984,8 +988,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                                                     "Path to a valid Db2 v12 license file", envVar="DB2_LICENSE_FILE", default="", mustExist=False
                                                 )
 
-                                        # Set db2_channel when upgrade is confirmed (either via flag or user prompt)
-                                        self.setParam("db2_channel", targetDb2uVersion)
                                         logger.debug(f"Db2u major version upgrade required: {minMajorVersion} -> {targetMajorVersion}")
                                     else:
                                         self.setParam(f"db2_v{targetMajorVersion}_upgrade", "false")
