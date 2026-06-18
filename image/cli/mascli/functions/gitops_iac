@@ -1387,9 +1387,10 @@ function gitops_iac_provision_rdsdb2(){
         # Create option group suffix (e.g., "11-5" from "11.5")
         export RDS_DB2_OPTION_GROUP_SUFFIX=$(echo "${RDS_DB2_MAJOR_ENGINE_VERSION}" | tr '.' '-')
       else
-        export RDS_DB2_MAJOR_ENGINE_VERSION=""
-        export RDS_DB2_PARAMETER_GROUP_FAMILY=""
-        export RDS_DB2_OPTION_GROUP_SUFFIX=""
+        # Default to previous hardcoded values for backwards compatibility
+        export RDS_DB2_MAJOR_ENGINE_VERSION="11.5"
+        export RDS_DB2_PARAMETER_GROUP_FAMILY="db2-ae-11.5"
+        export RDS_DB2_OPTION_GROUP_SUFFIX="11-5"
       fi
       
       echo "Additional params for $app - ${RDS_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS}"
