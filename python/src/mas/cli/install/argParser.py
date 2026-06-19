@@ -124,7 +124,7 @@ masAdvancedArgGroup.add_argument(
 masAdvancedArgGroup.add_argument(
     "--pod-templates",
     required=False,
-    help="Path to directory containing custom podTemplates configuration files to be applied",
+    help="Pod templates to apply. Use 'guaranteed' or 'best-effort' for built-in templates, or provide a path to a directory containing custom podTemplates configuration files",
 )
 masAdvancedArgGroup.add_argument(
     "--non-prod",
