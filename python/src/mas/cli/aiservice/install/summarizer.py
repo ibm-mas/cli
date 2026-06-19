@@ -78,10 +78,43 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
     def db2Summary(self) -> None:
-        self.printH2("IBM Db2 Univeral Operator Configuration")
-        self.printParamSummary("Action", "db2_action_aiservice")
-        self.printParamSummary("Install Namespace", "db2_namespace")
-        self.printParamSummary("Subscription Channel", "db2_channel")
+        self.printH2("Database Configuration")
+        
+        db2_action = self.getParam("db2_action_aiservice")
+        install_db2 = self.getParam("install_db2")
+        
+        if db2_action == "install" or install_db2 == "true":
+            # In-cluster DB2 deployment
+            self.printParamSummary("Database Type", "In-cluster DB2 (deployed)")
+            self.printParamSummary("DB2 Action", "db2_action_aiservice")
+            self.printParamSummary("Install Namespace", "db2_namespace")
+            self.printParamSummary("Subscription Channel", "db2_channel")
+        elif db2_action == "none" or install_db2 == "false":
+            # External database
+            jdbc_url = self.getParam("aiservice_db_jdbc_url")
+            if jdbc_url:
+                # Determine database type from JDBC URL
+                if "oracle" in jdbc_url.lower():
+                    db_type = "External Database (Oracle)"
+                elif "sqlserver" in jdbc_url.lower():
+                    db_type = "External Database (SQL Server)"
+                elif "db2" in jdbc_url.lower():
+                    db_type = "External Database (DB2)"
+                else:
+                    db_type = "External Database"
+                
+                self.printParamSummary("Database Type", db_type)
+                self.printParamSummary("JDBC URL", "aiservice_db_jdbc_url")
+                self.printParamSummary("Username", "aiservice_db_username")
+                # Don't print password for security
+                if self.getParam("aiservice_db_ca_cert"):
+                    self.printParamSummary("CA Certificate", "Provided")
+        else:
+            # Fallback - default is in-cluster DB2 deployment
+            self.printParamSummary("Database Type", "In-cluster DB2 (default)")
+            self.printParamSummary("DB2 Action", "db2_action_aiservice")
+            self.printParamSummary("Install Namespace", "db2_namespace")
+            self.printParamSummary("Subscription Channel", "db2_channel")
 
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")
