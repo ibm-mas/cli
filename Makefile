@@ -74,3 +74,7 @@ endif
 
 tekton/target:
 	DEV_MODE=true build/bin/build-tekton.sh
+
+.PHONY: run
+run:
+	podman run --rm -it quay.io/ibmmas/cli:k8sclient -- bash

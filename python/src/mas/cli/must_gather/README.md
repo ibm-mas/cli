@@ -210,6 +210,54 @@ def generateMyResourceCollectionTasks(
     ]
 ```
 
+### Task Format Requirements
+
+**CRITICAL**: Tasks must use the tuple format `(task_name, function, *args)` to execute in the thread pool.
+
+**✅ Correct Format:**
+```python
+tasks.append((
+    "task_name",
+    myFunction,
+    arg1,
+    arg2,
+    arg3,
+))
+```
+
+**❌ Incorrect Format (blocks main thread):**
+```python
+# DO NOT USE WRAPPER FUNCTIONS
+def wrapper():
+    return myFunction(arg1, arg2, arg3)
+
+tasks.append(("task_name", wrapper))  # This executes in main thread!
+```
+
+**Why this matters:**
+- The parallel executor unpacks task tuples as `(name, func, *args)`
+- Wrapper functions `(name, func)` get called immediately when unpacked
+- This blocks the main thread and prevents progress updates
+- Direct function references with args execute properly in thread pool
+
+**Example from codebase:**
+```python
+# Correct - executes in thread pool
+tasks.append((
+    "reconcile_logs_mas_operator",
+    collectReconcileLogs,
+    namespace,
+    "app.kubernetes.io/name",
+    "ibm-mas-operator",
+    outputDir,
+))
+
+# Wrong - blocks main thread
+def collectMASOperatorReconcileLogs():
+    return collectReconcileLogs(namespace, "app.kubernetes.io/name", "ibm-mas-operator", outputDir)
+tasks.append(("reconcile_logs", collectMASOperatorReconcileLogs))
+```
+
 ### Testing
 
 Run tests:
