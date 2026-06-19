@@ -254,7 +254,7 @@ def test_install_interactive_advanced(tmpdir):
                     return "2027-02-16"
                 if re.match(".*Configure Scheduling policies for AI Service tenant.*", message):
                     return "y"
-                if re.match(".*Scheduling constraints YAML file.*", message):
+                if re.match(".*Scheduling configuration YAML file.*", message):
                     return f"{tmpdir}/aiservice-tenant-affinity-config.yaml"
                 if re.match(".*Watsonxai api key.*", message):
                     return "testWxApiKey"
