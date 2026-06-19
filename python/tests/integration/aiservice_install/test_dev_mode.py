@@ -72,7 +72,6 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         ".*Contact e-mail address.*": lambda msg: "maximo@ibm.com",
         ".*Contact first name.*": lambda msg: "Test",
         ".*Contact last name.*": lambda msg: "Test",
-        ".*IBM Data Reporter Operator \(DRO\) Namespace.*": lambda msg: "redhat-marketplace",
         # 7. ICR & Artifactory credentials
         ".*IBM entitlement key.*": lambda msg: "testEntitlementKey",
         ".*Artifactory username.*": lambda msg: "testUsername",
@@ -144,7 +143,6 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Contact e-mail address.*": lambda msg: "maximo@ibm.com",
         ".*Contact first name.*": lambda msg: "Test",
         ".*Contact last name.*": lambda msg: "Test",
-        ".*IBM Data Reporter Operator \(DRO\) Namespace.*": lambda msg: "redhat-marketplace",
         # 7. ICR & Artifactory credentials
         ".*IBM entitlement key.*": lambda msg: "testEntitlementKey",
         ".*Artifactory username.*": lambda msg: "testUsername",

@@ -244,16 +244,30 @@ def test_install_interactive_advanced(tmpdir):
                     return "Test"
                 if re.match(".*Contact last name.*", message):
                     return "Test"
-                if re.match(".*IBM Data Reporter Operator \(DRO\) Namespace.*", message):
+                if re.match(r".*IBM Data Reporter Operator \(DRO\) Namespace.*", message):
                     return "redhat-marketplace"
                 if re.match(".*IBM entitlement key.*", message):
                     return "testEntitlementKey"
                 if re.match(".*Instance ID.*", message):
                     return "apmdevops"
+                if re.match(".*Entitlement end date.*", message):
+                    return "2027-02-16"
                 if re.match(".*Configure Scheduling policies for AI Service tenant.*", message):
                     return "y"
                 if re.match(".*Scheduling constraints YAML file.*", message):
                     return f"{tmpdir}/aiservice-tenant-affinity-config.yaml"
+                if re.match(".*Watsonxai api key.*", message):
+                    return "testWxApiKey"
+                if re.match(".*Watsonxai machine learning url.*", message):
+                    return "https://us-south.ml.cloud.ibm.com"
+                if re.match(".*Watsonxai project id.*", message):
+                    return "testProjectId"
+                if re.match(".*Does the Watsonxai AI use a self-signed certificate.*", message):
+                    return "n"
+                if re.match(".*Watsonxai Deployment ID.*", message):
+                    return ""
+                if re.match(".*Watsonxai Space ID.*", message):
+                    return ""
                 if re.match(".*Operational Mode.*", message):
                     return "1"
                 if re.match(".*Install Minio.*", message):
@@ -262,7 +276,7 @@ def test_install_interactive_advanced(tmpdir):
                     return "username"
                 if re.match(".*minio root password.*", message):
                     return "password"
-                if re.match(".*Configure certificate issuer?.*", message):
+                if re.match(r".*Configure certificate issuer\?.*", message):
                     return "y"
                 if re.match(".*Certificate issuer name.*", message):
                     return "cert-issuer"
@@ -400,7 +414,7 @@ def test_install_interactive_simplified(tmpdir):
                     return "Test"
                 if re.match(".*Contact last name.*", message):
                     return "Test"
-                if re.match(".*IBM Data Reporter Operator \(DRO\) Namespace.*", message):
+                if re.match(r".*IBM Data Reporter Operator \(DRO\) Namespace.*", message):
                     return "redhat-marketplace"
                 if re.match(".*IBM entitlement key.*", message):
                     return "testEntitlementKey"
@@ -414,6 +428,20 @@ def test_install_interactive_simplified(tmpdir):
                     return "username"
                 if re.match(".*minio root password.*", message):
                     return "password"
+                if re.match(".*Entitlement end date.*", message):
+                    return "2027-02-16"
+                if re.match(".*Watsonxai api key.*", message):
+                    return "testWxApiKey"
+                if re.match(".*Watsonxai machine learning url.*", message):
+                    return "https://us-south.ml.cloud.ibm.com"
+                if re.match(".*Watsonxai project id.*", message):
+                    return "testProjectId"
+                if re.match(".*Does the Watsonxai AI use a self-signed certificate.*", message):
+                    return "n"
+                if re.match(".*Watsonxai Deployment ID.*", message):
+                    return ""
+                if re.match(".*Watsonxai Space ID.*", message):
+                    return ""
                 if re.match(".*RSL url.*", message):
                     return "https://rls.maximo.test.ibm.com"
                 if re.match(".*ORG Id of RSL.*", message):
