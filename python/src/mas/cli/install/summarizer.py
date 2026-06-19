@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 from prompt_toolkit import print_formatted_text, HTML
 from mas.devops.ocp import getConsoleURL
 from mas.devops.utils import isVersionEqualOrAfter
+from .facilities.agents import facilitiesAgents
 
 if TYPE_CHECKING:
     from typing import Dict
@@ -325,7 +326,6 @@ class InstallSummarizerMixin:
 
     def facilitiesSummary(self) -> None:
         # TODO: Fix type for storage sizes and max conn pool size
-        from .facilities.agents import facilitiesAgents
 
         if self.installFacilities:
             mas_facilities_channel = self.params["mas_app_channel_facilities"]

@@ -72,6 +72,7 @@ from mas.devops.tekton import (
 )
 from mas.devops.pre_install import applyPreInstallMASRBAC
 from ..rbac_utils import evaluatePreinstallRBACAccess
+from .facilities.agents import facilitiesAgents, facilitiesAgentsDeploymentModes
 
 logger = logging.getLogger(__name__)
 
@@ -1669,8 +1670,6 @@ class InstallApp(
                         "mas_ws_facilities_dwfagents",
                         validator=JsonValidator(),
                     )
-
-                from .facilities.agents import facilitiesAgents, facilitiesAgentsDeploymentModes
 
                 # Only prompt for Agents Deployments Flexibility file if MAS 9.2+
                 if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):

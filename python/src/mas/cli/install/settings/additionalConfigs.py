@@ -230,17 +230,14 @@ class AdditionalConfigsMixin:
         mas_facilities_channel = self.getParam("mas_app_channel_facilities")
 
         # Only process custom file if MAS 9.2+ and file is provided
-        facilitiesPropertiesFileLocal = self.getParam("mas_ws_facilities_properties_file_local")
+        self.facilitiesPropertiesFileLocal = self.getParam("mas_ws_facilities_properties_file_local")
 
         if (
             mas_facilities_channel
             and isVersionEqualOrAfter("9.2.0", mas_facilities_channel)
-            and facilitiesPropertiesFileLocal
-            and facilitiesPropertiesFileLocal != ""
+            and self.facilitiesPropertiesFileLocal
+            and self.facilitiesPropertiesFileLocal != ""
         ):
-            # Store the user's local path in instance variable before overwriting
-            self.facilitiesPropertiesFileLocal = facilitiesPropertiesFileLocal
-
             # Get custom secret name or use default
             secretName = self.getParam("mas_ws_facilities_properties_secret_name")
             if not secretName or secretName == "":
@@ -249,7 +246,7 @@ class AdditionalConfigsMixin:
             facilitiesPropertiesSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-facilities-properties"}}
 
             # Read the file from user's local path
-            self.facilitiesPropertiesSecret = self.addFilesToSecret(facilitiesPropertiesSecret, facilitiesPropertiesFileLocal, "")
+            self.facilitiesPropertiesSecret = self.addFilesToSecret(facilitiesPropertiesSecret, self.facilitiesPropertiesFileLocal, "")
 
             # Now update the parameters - set workspace path for pipeline use
             self.setParam("mas_ws_facilities_custom_properties", "true")
