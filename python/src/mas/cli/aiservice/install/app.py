@@ -698,8 +698,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.printH1("Database Configuration")
         self.printDescription(
             [
-                "AI Service requires a relational database.",
-                "",
                 "By default, DB2 will be installed in-cluster (suitable for development and testing).",
                 "Alternatively, you can connect to an external database (Oracle, SQL Server, or DB2).",
                 "",
