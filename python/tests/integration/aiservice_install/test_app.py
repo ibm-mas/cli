@@ -238,6 +238,12 @@ def test_install_interactive_advanced(tmpdir):
                     return f"{tmpdir}/authorized_entitlement.lic"
                 if re.match(".*>Db2 License file<.*", message):
                     return ""
+                if re.match(".*Contact e-mail address.*", message):
+                    return "maximo@ibm.com"
+                if re.match(".*Contact first name.*", message):
+                    return "Test"
+                if re.match(".*Contact last name.*", message):
+                    return "Test"
                 if re.match(".*Instance ID.*", message):
                     return "apmdevops"
                 if re.match(".*Configure Scheduling policies for AI Service tenant.*", message):
@@ -384,6 +390,12 @@ def test_install_interactive_simplified(tmpdir):
                     return f"{tmpdir}/authorized_entitlement.lic"
                 if re.match(".*>Db2 License file<.*", message):
                     return ""
+                if re.match(".*Contact e-mail address.*", message):
+                    return "maximo@ibm.com"
+                if re.match(".*Contact first name.*", message):
+                    return "Test"
+                if re.match(".*Contact last name.*", message):
+                    return "Test"
                 if re.match(".*Instance ID.*", message):
                     return "apmdevops"
                 if re.match(".*Operational Mode.*", message):
