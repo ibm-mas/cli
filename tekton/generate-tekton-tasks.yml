@@ -141,6 +141,7 @@
         - clean-workspaces
         - prepare-backup-workspace
         - download-backup-archive
+        - gencfg-aiservice
         - gencfg-workspace
         - must-gather
         - suite-app-backup
@@ -263,6 +264,8 @@
         - gitops-suite
         - gitops-odh
         - gitops-deprovision-odh
+        - gitops-rhoai
+        - gitops-deprovision-rhoai
         - gitops-aiservice
         - gitops-aiservice-tenant
         - gitops-deprovision-aiservice-tenant
@@ -277,4 +280,3 @@
         - gitops-iac-provision-msk
         - gitops-rds-db2-database
         - gitops-iac-provision-rdsdb2
-

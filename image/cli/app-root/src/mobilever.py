@@ -1,3 +1,12 @@
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
 import os
 import threading
 import zipfile
@@ -42,16 +51,12 @@ class MobVer(object):
         else:
             self.dynClient = dynClient
 
-        self.instanceId = (
-            instanceId if instanceId is not None else os.getenv("INSTANCE_ID")
-        )
+        self.instanceId = instanceId if instanceId is not None else os.getenv("INSTANCE_ID")
         self.uploadFile = os.getenv("UPLOAD_FILE")
         self.buildNum = os.getenv("BUILD_NUM")
         self.artKey = os.getenv("ARTIFACTORY_TOKEN")
         self.artDir = os.getenv("ARTIFACTORY_UPLOAD_DIR")
-        self.output_filename = (
-            f"{self.instanceId}-{self.buildNum}-mobile-is-versions.json"
-        )
+        self.output_filename = f"{self.instanceId}-{self.buildNum}-mobile-is-versions.json"
 
     def run_cmd(self, cmdArray, timeout=630):
         """
@@ -108,9 +113,7 @@ class MobVer(object):
                 podName.append(podList.items[0].metadata.name)
 
         except Exception as e:
-            print(
-                f"Unable to download mobileapi navigator package from mobileapi pod: {e}"
-            )
+            print(f"Unable to download mobileapi navigator package from mobileapi pod: {e}")
             sys.exit(1)
 
         return podName
@@ -189,22 +192,14 @@ class MobVer(object):
                 except KeyError:
                     print(f"There is no build.json file in {app_zip_file}")
                     with open("build.json", "w", encoding="utf-8") as dummy_file:
-                        warn_json = {
-                            "WARN": {
-                                str(
-                                    app_zip_file
-                                ): "File does not contain version information"
-                            }
-                        }
+                        warn_json = {"WARN": {str(app_zip_file): "File does not contain version information"}}
                         json.dump(warn_json, dummy_file, indent=4)
                 except zipfile.BadZipFile:
                     print(f"This is not a zip file: {app_zip_file}")
                 zip_ref.close()
 
             zip_file_prefix = zip_file_path.split(".zip")
-            os.rename(
-                f"{source_zip_files_path}/build.json", f"{zip_file_prefix[0]}.json"
-            )
+            os.rename(f"{source_zip_files_path}/build.json", f"{zip_file_prefix[0]}.json")
             os.remove(zip_file_path)
 
     def extract_build_info_from_json_files(self, source_json_files_path):
@@ -229,9 +224,7 @@ class MobVer(object):
                             "applicationTitle": json_object.get("applicationTitle"),
                             "mobileVersion": json_object.get("mobileVersion"),
                             "buildToolsVersion": json_object.get("buildToolsVersion"),
-                            "appProcessorVersion": json_object.get(
-                                "appProcessorVersion"
-                            ),
+                            "appProcessorVersion": json_object.get("appProcessorVersion"),
                         }
                     }
                 )
@@ -242,9 +235,7 @@ class MobVer(object):
 
                 # removing empty title from apps with no title
                 if json_object.get("applicationTitle") is None:
-                    del graphite_json[json_object.get("applicationId")][
-                        "applicationTitle"
-                    ]
+                    del graphite_json[json_object.get("applicationId")]["applicationTitle"]
 
             # delete build.json file
             os.remove(path_in_str)
@@ -264,14 +255,13 @@ class MobVer(object):
         self.download_mobile_packages(podName=maxinst_pod)
 
         # navigator has been moved to manage and should no longer be downloaded from mobileapi pod
-        if '9.1' not in mas_ver:
+        # Only download from mobileapi pod for versions in mobile_core list
+        mobile_core = ["8.10", "8.11", "9.0"]
+        if mas_ver and any(version in mas_ver for version in mobile_core):
             self.download_navigator_package(podName=mobileapi_pod)
-
         self.extract_build_json_from_zip_files(source_zip_files_path=".")
 
-        graphite_ver = self.extract_build_info_from_json_files(
-            source_json_files_path="."
-        )
+        graphite_ver = self.extract_build_info_from_json_files(source_json_files_path=".")
 
         return graphite_ver
 
@@ -380,9 +370,7 @@ if __name__ == "__main__":
 
     print("Generating output file with versions")
     mobile_is_versions = {}
-    mobile_is_versions.update(
-        {"graphite_versions": graphite_versions, "images_versions": img_versions}
-    )
+    mobile_is_versions.update({"graphite_versions": graphite_versions, "images_versions": img_versions})
 
     with open(MobVersion.output_filename, "w", encoding="utf-8") as outfile:
         json.dump(mobile_is_versions, outfile, indent=4)

@@ -20,6 +20,10 @@
   type: string
   description: Environment type
   default: ""
+- name: configure_aiassistant
+  type: string
+  description: Configure AI Assistant integration
+  default: ""
 
 # MAS Application Configuration - IBM Maximo AI Service - S3
 # -----------------------------------------------------------------------------
@@ -96,6 +100,10 @@
   type: string
   description: define end date for tenant
   default: ""
+- name: tenant_scheduling_cfg_file
+  type: string
+  description: Path to YAML file that contains scheduling constraints for AI workloads for tenant
+  default: ""
 
 # MAS Application Configuration - IBM Maximo AI Service - Watstonx
 # -----------------------------------------------------------------------------
@@ -150,18 +158,11 @@
 
 # MAS Application Configuration - IBM Maximo AI Service - RSL
 # -----------------------------------------------------------------------------
-- name: rsl_url
+- name: rsl_ca_crt
   type: string
-  description: url of RSL
+  description: ca certificate for RSL
   default: ""
-- name: rsl_org_id
-  type: string
-  description: org id for RSL
-  default: ""
-- name: rsl_token
-  type: string
-  description: token for RSL
-  default: ""
+
 
 # MAS Application Configuration - IBM Maximo AI Service - Certificate Issuer
 # -----------------------------------------------------------------------------

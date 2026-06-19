@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -16,114 +16,100 @@ from ..cli import getHelpFormatter
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
 
 uninstallArgParser = argparse.ArgumentParser(
-    prog='mas uninstall',
-    description="\n".join([
-        f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Uninstall MAS by configuring and launching the MAS Uninstall Tekton Pipeline.\n",
-        "Interactive Mode:",
-        "Omitting the --instance-id option will trigger an interactive prompt"
-    ]),
+    prog="mas uninstall",
+    description="\n".join(
+        [
+            f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
+            "Uninstall MAS by configuring and launching the MAS Uninstall Tekton Pipeline.\n",
+            "Interactive Mode:",
+            "Omitting the --instance-id option will trigger an interactive prompt",
+        ]
+    ),
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
-    add_help=False
+    add_help=False,
 )
 
-masArgGroup = uninstallArgParser.add_argument_group('MAS Instance Selection')
-masArgGroup.add_argument(
-    '--mas-instance-id',
-    required=False,
-    help="The MAS instance ID to be uninstalled"
-)
+masArgGroup = uninstallArgParser.add_argument_group("MAS Instance Selection")
+masArgGroup.add_argument("--mas-instance-id", required=False, help="The MAS instance ID to be uninstalled")
 
-masArgGroup.add_argument(
-    '--dro-namespace',
-    required=False,
-    default='redhat-marketplace',
-    help="The DRO namespace to be uninstalled"
-)
+masArgGroup.add_argument("--dro-namespace", required=False, default="redhat-marketplace", help="The DRO namespace to be uninstalled")
 
-depsArgGroup = uninstallArgParser.add_argument_group('MAS Dependencies Selection')
+depsArgGroup = uninstallArgParser.add_argument_group("MAS Dependencies Selection")
 depsArgGroup.add_argument(
-    '--uninstall-all-deps',
+    "--uninstall-all-deps",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Uninstall all MAS-related dependencies from the target cluster",
 )
 
 depsArgGroup.add_argument(
-    '--uninstall-cert-manager',
+    "--uninstall-cert-manager",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Uninstall Certificate Manager from the target cluster",
 )
 
 depsArgGroup.add_argument(
-    '--uninstall-grafana',
+    "--uninstall-grafana",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Uninstall Grafana from the target cluster",
 )
 depsArgGroup.add_argument(
-    '--uninstall-ibm-catalog',
+    "--uninstall-ibm-catalog",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Uninstall the IBM Maximo Operator Catalog Source (ibm-operator-catalog) from the target cluster",
 )
 depsArgGroup.add_argument(
-    '--uninstall-mongodb',
+    "--uninstall-mongodb",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Uninstall MongoDb from the target cluster",
 )
 depsArgGroup.add_argument(
-    '--uninstall-sls',
+    "--uninstall-sls",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Uninstall IBM Suite License Service from the target cluster",
 )
 depsArgGroup.add_argument(
-    '--uninstall-dro',
+    "--uninstall-dro",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Uninstall IBM User Data Services from the target cluster",
 )
 
-otherArgGroup = uninstallArgParser.add_argument_group('More')
+otherArgGroup = uninstallArgParser.add_argument_group("More")
 otherArgGroup.add_argument(
-    '--no-confirm',
+    "--no-confirm",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Launch the upgrade without prompting for confirmation",
 )
-otherArgGroup.add_argument(
-    '--slack-token',
-    required=False,
-    help="Slack bot token for sending pipeline status notifications"
-)
-otherArgGroup.add_argument(
-    '--slack-channel',
-    required=False,
-    help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)"
-)
+otherArgGroup.add_argument("--slack-token", required=False, help="Slack bot token for sending pipeline status notifications")
+otherArgGroup.add_argument("--slack-channel", required=False, help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)")
 otherArgGroup.add_argument(
     "--image-pull-policy",
     dest="image_pull_policy",
     required=False,
     help="Image pull policy for Tekton Pipeline",
     choices=IMAGE_PULL_POLICIES,
-    metavar="{IfNotPresent,Always}"
+    metavar="{IfNotPresent,Always}",
 )
 otherArgGroup.add_argument(
-    '-h', "--help",
-    action='help',
+    "-h",
+    "--help",
+    action="help",
     default=False,
     help="Show this help message and exit",
 )

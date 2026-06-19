@@ -24,6 +24,10 @@
   type: string
   description: The timezone of the database created
   default: ""
+- name: db2_facilities_timezone
+  type: string
+  description: The timezone of the database created
+  default: ""  
 - name: db2_workload
   type: string
   description: The workload profile for the db2 instance ('PUREDATA_OLAP' or 'ANALYTICS')
@@ -39,6 +43,10 @@
 - name: db2u_kind
   type: string
   description: Db2 Openshift Custom Resource (db2ucluster or db2uinstance). Defaults to db2ucluster if not specified.
+  default: ""
+- name: db2_license_file
+  type: string
+  description: Db2 activation license file
   default: ""
 
 # Dependences - Db2 - Node scheduling
@@ -162,3 +170,4 @@
   type: string
   description: Define the password of the db2 user in the local LDAP registry. Must define when db2_ldap_username is used.
   default: ""
+

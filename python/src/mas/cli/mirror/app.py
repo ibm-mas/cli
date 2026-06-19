@@ -32,7 +32,6 @@ from ..cli import BaseApp
 from .argParser import mirrorArgParser
 from .config import PACKAGE_CONFIGS
 
-
 logger = logging.getLogger(__name__)
 
 # Constants
@@ -45,12 +44,14 @@ def logMethodCall(func):
         result = func(self, *args, **kwargs)
         logger.debug(f"<<< MirrorApp.{func.__name__}")
         return result
+
     return wrapper
 
 
 @dataclass
 class MirrorResult:
     """Result of a mirror operation."""
+
     images: int
     mirrored: int
     name: str = ""  # Name of the package/catalog being mirrored
@@ -92,11 +93,11 @@ def stripLogPrefix(line: str) -> str:
     """
     # Check if line starts with a timestamp pattern (with or without ANSI codes)
     # If it does, find the first ": " after a log level and remove everything before it
-    if re.match(r'^.*?\d{4}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2}', line):
+    if re.match(r"^.*?\d{4}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2}", line):
         # Find position of ": " after the log level
         # Split on first occurrence of ": " that comes after a bracket
-        parts = line.split(': ', 1)
-        if len(parts) == 2 and '[' in parts[0]:
+        parts = line.split(": ", 1)
+        if len(parts) == 2 and "[" in parts[0]:
             return parts[1]
 
     return line
@@ -113,10 +114,10 @@ def countImagesInConfig(configPath: str) -> int:
         Number of images to be mirrored, or 0 if parsing fails
     """
     try:
-        with open(configPath, 'r') as f:
+        with open(configPath, "r") as f:
             config = yaml.safe_load(f)
 
-        additionalImages = config.get('mirror', {}).get('additionalImages', [])
+        additionalImages = config.get("mirror", {}).get("additionalImages", [])
         imageCount = len(additionalImages)
         logger.debug(f"Found {imageCount} images in {configPath}")
         return imageCount
@@ -149,12 +150,12 @@ def getISC(configPath: str) -> str:
         FileNotFoundError: If the file doesn't exist and cannot be downloaded
     """
     # Get home directory
-    homeDir = environ.get('HOME') or environ.get('USERPROFILE') or ''
+    homeDir = environ.get("HOME") or environ.get("USERPROFILE") or ""
     if not homeDir:
         raise FileNotFoundError("Could not determine home directory")
 
     # Construct full local path with .ibm-mas prefix
-    localPath = path.join(homeDir, '.ibm-mas', 'image-set-configs', configPath)
+    localPath = path.join(homeDir, ".ibm-mas", "image-set-configs", configPath)
 
     # If file exists, return it
     if path.exists(localPath):
@@ -180,7 +181,7 @@ def getISC(configPath: str) -> str:
             content = response.read()
 
         # Write to local file
-        with open(localPath, 'wb') as f:
+        with open(localPath, "wb") as f:
             f.write(content)
 
         logger.info(f"Successfully downloaded config file to: {localPath}")
@@ -214,25 +215,21 @@ def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=Non
         return
 
     # Compile filter patterns into a single case-insensitive regex for performance
-    filterPatterns = [
-        "Hello, welcome to oc-mirror",
-        "setting up the environment for you...",
-        "using digest to pull, but tag only for mirroring"
-    ]
+    filterPatterns = ["Hello, welcome to oc-mirror", "setting up the environment for you...", "using digest to pull, but tag only for mirroring"]
     # Escape special regex characters and join with OR operator
-    filterRegex = re.compile('|'.join(re.escape(pattern) for pattern in filterPatterns), re.IGNORECASE)
+    filterRegex = re.compile("|".join(re.escape(pattern) for pattern in filterPatterns), re.IGNORECASE)
 
     # Set up selector for non-blocking I/O
     sel = selectors.DefaultSelector()
-    sel.register(process.stdout, selectors.EVENT_READ, data='stdout')
-    sel.register(process.stderr, selectors.EVENT_READ, data='stderr')
+    sel.register(process.stdout, selectors.EVENT_READ, data="stdout")
+    sel.register(process.stderr, selectors.EVENT_READ, data="stderr")
 
     # Track which streams are still open (store file objects, not selectors)
     streamsOpen = {process.stdout.fileno(), process.stderr.fileno()}
 
     # Initialize failed_images list in resultData if not present
-    if 'failed_images' not in resultData:
-        resultData['failed_images'] = []
+    if "failed_images" not in resultData:
+        resultData["failed_images"] = []
 
     while streamsOpen:
         # Wait for data to be available on any stream
@@ -242,7 +239,7 @@ def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=Non
             streamType = key.data
 
             # Get the actual file object from the key
-            if streamType == 'stdout':
+            if streamType == "stdout":
                 stream = process.stdout
             else:
                 stream = process.stderr
@@ -263,14 +260,14 @@ def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=Non
             # Capture result information BEFORE stripping prefix
             # Match both success case: "X / Y additional images mirrored successfully"
             # And partial failure case: "X / Y additional images mirrored: Some additional images failed"
-            resultMatch = re.search(r'(\d+)\s+/\s+(\d+)\s+additional images mirrored', lineStripped)
+            resultMatch = re.search(r"(\d+)\s+/\s+(\d+)\s+additional images mirrored", lineStripped)
             if resultMatch:
-                resultData['mirrored'] = int(resultMatch.group(1))
-                resultData['images'] = int(resultMatch.group(2))
+                resultData["mirrored"] = int(resultMatch.group(1))
+                resultData["images"] = int(resultMatch.group(2))
                 logger.debug(f"Captured result: {resultData['mirrored']}/{resultData['images']}")
 
             # Detect "Success copying" and update progress bar
-            successMatch = re.search(r'Success copying .+ ➡️', lineStripped)
+            successMatch = re.search(r"Success copying .+ ➡️", lineStripped)
             if successMatch and progressBar is not None:
                 progressBar()  # Increment progress bar
                 logger.debug("Progress bar incremented")
@@ -278,11 +275,11 @@ def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=Non
             # Capture failed image URLs from error messages
             # Pattern matches lines like: "Failed to copy generic gcr.io/kubebuilder/kube-rbac-proxy:1.1.3@sha256:..."
             # The image URL is at the end of the line after "Failed to copy" and optional type (generic, etc.)
-            failedImageMatch = re.search(r'Failed to copy\s+(?:\w+\s+)?(.+)$', lineStripped)
+            failedImageMatch = re.search(r"Failed to copy\s+(?:\w+\s+)?(.+)$", lineStripped)
             if failedImageMatch:
                 imageUrl = failedImageMatch.group(1).strip()
-                if imageUrl and imageUrl not in resultData['failed_images']:
-                    resultData['failed_images'].append(imageUrl)
+                if imageUrl and imageUrl not in resultData["failed_images"]:
+                    resultData["failed_images"].append(imageUrl)
                     logger.debug(f"Captured failed image: {imageUrl}")
 
             # Strip duplicate timestamp/level prefix from command output
@@ -291,7 +288,7 @@ def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=Non
             # Skip lines matching the filter regex (case-insensitive)
             if not filterRegex.search(lineStripped):
                 # Log to appropriate level based on stream
-                if streamType == 'stdout':
+                if streamType == "stdout":
                     logger.debug(cleanLine)
                 else:
                     logger.error(cleanLine)
@@ -316,13 +313,7 @@ def runCommand(cmd: List[str], progressBar=None) -> tuple[int, Dict]:
     resultData = {}
 
     try:
-        with subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            bufsize=1  # Line buffered for real-time output
-        ) as process:
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1) as process:  # Line buffered for real-time output
             # Process streams using selectors for efficient non-blocking I/O
             _processStreams(process, resultData, progressBar)
 
@@ -339,10 +330,18 @@ def runCommand(cmd: List[str], progressBar=None) -> tuple[int, Dict]:
         return 1, {}
 
 
-def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: str,
-                   targetRegistry: str = "", ocMirrorPath: str = "oc-mirror",
-                   authFilePath: Optional[str] = None, rootDir: str = "",
-                   destTlsVerify: bool = True, imageTimeout: str = "20m") -> MirrorResult:
+def _executeMirror(
+    configPath: str,
+    displayName: str,
+    workspacePath: str,
+    mode: str,
+    targetRegistry: str = "",
+    ocMirrorPath: str = "oc-mirror",
+    authFilePath: Optional[str] = None,
+    rootDir: str = "",
+    destTlsVerify: bool = True,
+    imageTimeout: str = "20m",
+) -> MirrorResult:
     """
     Execute the mirror operation for a given configuration.
 
@@ -368,8 +367,8 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
 
     # Set default auth file path if not provided
     if authFilePath is None:
-        homeDir = environ.get('HOME') or environ.get('USERPROFILE') or ''
-        authFilePath = path.join(homeDir, '.ibm-mas', 'auth.json')
+        homeDir = environ.get("HOME") or environ.get("USERPROFILE") or ""
+        authFilePath = path.join(homeDir, ".ibm-mas", "auth.json")
 
     # Count images in config file
     totalImages = countImagesInConfig(configPath)
@@ -385,23 +384,45 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
 
     if mode == "m2m":
         cmd = [
-            ocMirrorPath, "--v2", "--config", configPath, "--authfile", authFilePath,
-            "--workspace", f"file://{rootDir}/{workspacePath}",
-            tlsVerifyFlag, "--image-timeout", imageTimeout,
-            f"docker://{targetRegistry}"
+            ocMirrorPath,
+            "--v2",
+            "--config",
+            configPath,
+            "--authfile",
+            authFilePath,
+            "--workspace",
+            f"file://{rootDir}/{workspacePath}",
+            tlsVerifyFlag,
+            "--image-timeout",
+            imageTimeout,
+            f"docker://{targetRegistry}",
         ]
     elif mode == "m2d":
         cmd = [
-            ocMirrorPath, "--v2", "--config", configPath, "--authfile", authFilePath,
-            "--image-timeout", imageTimeout,
+            ocMirrorPath,
+            "--v2",
+            "--config",
+            configPath,
+            "--authfile",
+            authFilePath,
+            "--image-timeout",
+            imageTimeout,
             f"file://{rootDir}/{workspacePath}",
         ]
     elif mode == "d2m":
         cmd = [
-            ocMirrorPath, "--v2", "--config", configPath, "--authfile", authFilePath,
-            "--from", f"file://{rootDir}/{workspacePath}",
-            tlsVerifyFlag, "--image-timeout", imageTimeout,
-            f"docker://{targetRegistry}"
+            ocMirrorPath,
+            "--v2",
+            "--config",
+            configPath,
+            "--authfile",
+            authFilePath,
+            "--from",
+            f"file://{rootDir}/{workspacePath}",
+            tlsVerifyFlag,
+            "--image-timeout",
+            imageTimeout,
+            f"docker://{targetRegistry}",
         ]
     else:
         logger.error(f"Unsupported mirror mode: {mode}")
@@ -420,18 +441,15 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
             bar.title = f"{barTitleBase} ❌"
             logger.error(f"Mirror operation failed with exit code {exitCode}")
             # Use mirrored count from resultData if available, otherwise 0
-            mirrored = resultData.get('mirrored', 0)
+            mirrored = resultData.get("mirrored", 0)
             # Use images count from resultData if available, otherwise totalImages
-            images = resultData.get('images', totalImages)
-            return MirrorResult(images=images, mirrored=mirrored, name=displayName, failed_images=resultData.get('failed_images', []))
+            images = resultData.get("images", totalImages)
+            return MirrorResult(images=images, mirrored=mirrored, name=displayName, failed_images=resultData.get("failed_images", []))
 
         # Create result object from captured data
-        if 'images' in resultData and 'mirrored' in resultData:
+        if "images" in resultData and "mirrored" in resultData:
             result = MirrorResult(
-                images=resultData['images'],
-                mirrored=resultData['mirrored'],
-                name=displayName,
-                failed_images=resultData.get('failed_images', [])
+                images=resultData["images"], mirrored=resultData["mirrored"], name=displayName, failed_images=resultData.get("failed_images", [])
             )
             logger.info(f"Mirror operation completed: {result.mirrored}/{result.images} images mirrored (success={result.success})")
 
@@ -445,15 +463,23 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
             bar.title = f"{barTitleBase} ⚠️"
             logger.warning("Mirror operation completed but could not parse result statistics")
             # Use mirrored count from resultData if available, otherwise 0
-            mirrored = resultData.get('mirrored', 0)
-            return MirrorResult(images=totalImages, mirrored=mirrored, name=displayName, failed_images=resultData.get('failed_images', []))
+            mirrored = resultData.get("mirrored", 0)
+            return MirrorResult(images=totalImages, mirrored=mirrored, name=displayName, failed_images=resultData.get("failed_images", []))
 
 
-def mirrorPackage(package: str, version: str, arch: str, mode: str,
-                  targetRegistry: str = "", flag: bool = True,
-                  ocMirrorPath: str = "oc-mirror", authFilePath: Optional[str] = None,
-                  rootDir: str = "", destTlsVerify: bool = True,
-                  imageTimeout: str = "20m") -> MirrorResult:
+def mirrorPackage(
+    package: str,
+    version: str,
+    arch: str,
+    mode: str,
+    targetRegistry: str = "",
+    flag: bool = True,
+    ocMirrorPath: str = "oc-mirror",
+    authFilePath: Optional[str] = None,
+    rootDir: str = "",
+    destTlsVerify: bool = True,
+    imageTimeout: str = "20m",
+) -> MirrorResult:
     """
     Mirror a package and return the result.
 
@@ -475,7 +501,7 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
         Returns images=0, mirrored=0, success=False if operation failed or results couldn't be parsed.
     """
     # Extract major.minor version (first two components)
-    versionParts = version.split('.')
+    versionParts = version.split(".")
 
     # Validate version format
     if len(versionParts) < 2:
@@ -507,14 +533,19 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
     displayName = f"{package} v{version} ({arch})"
     workspacePath = f"{package}/{arch}/{version}"
 
-    return _executeMirror(configPath, displayName, workspacePath, mode, targetRegistry,
-                          ocMirrorPath, authFilePath, rootDir, destTlsVerify, imageTimeout)
+    return _executeMirror(configPath, displayName, workspacePath, mode, targetRegistry, ocMirrorPath, authFilePath, rootDir, destTlsVerify, imageTimeout)
 
 
-def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
-                  ocMirrorPath: str = "oc-mirror", authFilePath: Optional[str] = None,
-                  rootDir: str = "", destTlsVerify: bool = True,
-                  imageTimeout: str = "20m") -> MirrorResult:
+def mirrorCatalog(
+    version: str,
+    mode: str,
+    targetRegistry: str = "",
+    ocMirrorPath: str = "oc-mirror",
+    authFilePath: Optional[str] = None,
+    rootDir: str = "",
+    destTlsVerify: bool = True,
+    imageTimeout: str = "20m",
+) -> MirrorResult:
     """
     Mirror a catalog and return the result.
 
@@ -539,7 +570,7 @@ def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
 
     # Validate catalog version - extract date portion (e.g., "260129" from "v9-260129-amd64")
     # Expected format: v{major}-{YYMMDD}-{arch}
-    versionMatch = re.match(r'v\d+-(\d{6})-\w+', version)
+    versionMatch = re.match(r"v\d+-(\d{6})-\w+", version)
     if versionMatch:
         catalogDate = int(versionMatch.group(1))
         if catalogDate < 260129:
@@ -562,8 +593,7 @@ def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
     displayName = f"catalog {version}"
     workspacePath = f"catalog/{version}"
 
-    return _executeMirror(configPath, displayName, workspacePath, mode, targetRegistry,
-                          ocMirrorPath, authFilePath, rootDir, destTlsVerify, imageTimeout)
+    return _executeMirror(configPath, displayName, workspacePath, mode, targetRegistry, ocMirrorPath, authFilePath, rootDir, destTlsVerify, imageTimeout)
 
 
 def validateEnvironmentVariables(mode: str, targetRegistry: str) -> None:
@@ -581,15 +611,15 @@ def validateEnvironmentVariables(mode: str, targetRegistry: str) -> None:
 
     # Check for target registry credentials (m2m or d2m)
     if mode in ["m2m", "d2m"]:
-        if not environ.get('REGISTRY_USERNAME'):
-            missingVars.append('REGISTRY_USERNAME')
-        if not environ.get('REGISTRY_PASSWORD'):
-            missingVars.append('REGISTRY_PASSWORD')
+        if not environ.get("REGISTRY_USERNAME"):
+            missingVars.append("REGISTRY_USERNAME")
+        if not environ.get("REGISTRY_PASSWORD"):
+            missingVars.append("REGISTRY_PASSWORD")
 
     # Check for IBM Entitlement Key (m2m or m2d)
     if mode in ["m2m", "m2d"]:
-        if not environ.get('IBM_ENTITLEMENT_KEY'):
-            missingVars.append('IBM_ENTITLEMENT_KEY')
+        if not environ.get("IBM_ENTITLEMENT_KEY"):
+            missingVars.append("IBM_ENTITLEMENT_KEY")
 
     if missingVars:
         raise ValueError(f"Missing required environment variables: {', '.join(missingVars)}")
@@ -613,12 +643,12 @@ def generateAuthFile(mode: str, targetRegistry: str) -> str:
     validateEnvironmentVariables(mode, targetRegistry)
 
     # Get home directory
-    homeDir = environ.get('HOME') or environ.get('USERPROFILE') or ''
+    homeDir = environ.get("HOME") or environ.get("USERPROFILE") or ""
     if not homeDir:
         raise ValueError("Could not determine home directory")
 
     # Create auth file path
-    authFilePath = path.join(homeDir, '.ibm-mas', 'auth.json')
+    authFilePath = path.join(homeDir, ".ibm-mas", "auth.json")
     authDir = path.dirname(authFilePath)
 
     # Create directory if it doesn't exist
@@ -629,29 +659,23 @@ def generateAuthFile(mode: str, targetRegistry: str) -> str:
 
     # Add target registry credentials (m2m or d2m)
     if mode in ["m2m", "d2m"]:
-        registryUsername = environ.get('REGISTRY_USERNAME', '')
-        registryPassword = environ.get('REGISTRY_PASSWORD', '')
+        registryUsername = environ.get("REGISTRY_USERNAME", "")
+        registryPassword = environ.get("REGISTRY_PASSWORD", "")
         authString = f"{registryUsername}:{registryPassword}"
         authBase64 = base64.b64encode(authString.encode()).decode()
-        authConfig[targetRegistry] = {
-            "auth": authBase64
-        }
+        authConfig[targetRegistry] = {"auth": authBase64}
 
     # Add IBM Entitlement Key (m2m or m2d)
     if mode in ["m2m", "m2d"]:
-        ibmEntitlementKey = environ.get('IBM_ENTITLEMENT_KEY', '')
+        ibmEntitlementKey = environ.get("IBM_ENTITLEMENT_KEY", "")
         authString = f"cp:{ibmEntitlementKey}"
         authBase64 = base64.b64encode(authString.encode()).decode()
-        authConfig["cp.icr.io/cp"] = {
-            "auth": authBase64
-        }
+        authConfig["cp.icr.io/cp"] = {"auth": authBase64}
 
-    auths = {
-        "auths": authConfig
-    }
+    auths = {"auths": authConfig}
 
     # Write auth file
-    with open(authFilePath, 'w') as f:
+    with open(authFilePath, "w") as f:
         json.dump(auths, f, indent=2)
 
     logger.info(f"Generated auth file: {authFilePath}")
@@ -729,7 +753,7 @@ class MirrorApp(BaseApp):
 
         # Now validate catalog version (only for valid catalogs)
         # Expected format: v{major}-{YYMMDD}-{arch}
-        versionMatch = re.match(r'v\d+-(\d{6})-\w+', catalogVersion)
+        versionMatch = re.match(r"v\d+-(\d{6})-\w+", catalogVersion)
         if versionMatch:
             catalogDate = int(versionMatch.group(1))
             if catalogDate < 260129:
@@ -770,7 +794,7 @@ class MirrorApp(BaseApp):
                 authFilePath=authFilePath,
                 rootDir=rootDir,
                 destTlsVerify=destTlsVerify,
-                imageTimeout=imageTimeout
+                imageTimeout=imageTimeout,
             )
 
             # Track catalog results
@@ -795,6 +819,7 @@ class MirrorApp(BaseApp):
             # Get version from catalog - handle both direct keys and release-specific keys
             perReleaseVersions = [
                 "aiservice_version",
+                "aiservice_tenant_version",
                 "mas_core_version",
                 "mas_assist_version",
                 "mas_iot_version",
@@ -803,7 +828,7 @@ class MirrorApp(BaseApp):
                 "mas_monitor_version",
                 "mas_predict_version",
                 "mas_optimizer_version",
-                "mas_visualinspection_version"
+                "mas_visualinspection_version",
             ]
             if catalogKey in perReleaseVersions:
                 # Check if the catalogKey exists in the catalog first
@@ -848,7 +873,7 @@ class MirrorApp(BaseApp):
                 authFilePath=authFilePath,
                 rootDir=rootDir,
                 destTlsVerify=destTlsVerify,
-                imageTimeout=imageTimeout
+                imageTimeout=imageTimeout,
             )
 
             # Track package results (only count if flag was enabled)

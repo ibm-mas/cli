@@ -33,7 +33,6 @@ Target Cluster (Optional):
 Operator Catalog (Optional):
       --catalog-version, --mas-catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}                                           Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')
       --catalog-image, --mas-catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}                                                 Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
-      --catalog-action, --mas-catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}                                                    Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
 
 Redhat Cert Manager (Optional):
       --install-redhat-cert-manager ${COLOR_YELLOW}INSTALL_REDHAT_CERT_MANAGER${TEXT_RESET}                                              Install RedHat Cert Manager (default to true)
@@ -193,9 +192,6 @@ function gitops_cluster_noninteractive() {
         ;;
       --catalog-image|--mas-catalog-image)
         export MAS_CATALOG_IMAGE=$1 && shift
-        ;;
-      --catalog-action|--mas-catalog-action)
-        export MAS_CATALOG_ACTION=$1 && shift
         ;;
 
       # Redhat Cert Manager

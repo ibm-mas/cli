@@ -18,17 +18,17 @@ spec:
     - name: mas_app_id
       type: string
       description: Maximo Applicaiton Suite Application Id
-    
+
     - name: manage_bind_aiservice_instance_id
       type: string
       description: AI Service Instance ID to bind with Manage
       default: ""
-    
+
     - name: manage_bind_aiservice_tenant_id
       type: string
       description: AI Service Tenant ID to bind with Manage
       default: ""
-    
+
     - name: aiservice_channel
       type: string
       description: AI Service Channel (independent, same for all apps)
@@ -110,6 +110,10 @@ spec:
       description: Components to configure in the workspace
       default: ""
     - name: mas_appws_bindings_jdbc
+      type: string
+      description: Components to configure in the workspace
+      default: ""
+    - name: mas_appws_bindings_kafka
       type: string
       description: Components to configure in the workspace
       default: ""
@@ -267,6 +271,15 @@ spec:
       type: string
       description: Manage upgrade type
       default: ""
+    - name: mas_manage_kafkaimageprocessor_pvc_size
+      type: string
+      description: PVC size for Manage Kafka Image Processor
+      default: ""
+    - name: storage_class_rwx
+      type: string
+      description: ReadWriteMany storage class
+      default: ""
+
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size
@@ -336,10 +349,78 @@ spec:
       type: string
       description: Define storage mode for userfiles
       default: ""
+    - name: mas_ws_facilities_server_timezone
+      type: string
+      description: Define facilities server timezone. Set this only if the Facilities DB is using a timezone other than UTC. 
+      default: "UTC"       
     - name: mas_ws_facilities_config_map_name
       type: string
       description: ConfigMap with configurations not supported by Tekton
       default: ""
+    - name: mas_ws_facilities_custom_properties
+      type: string
+      description: Flag indicating if custom FACILITIES.properties file is provided
+      default: ""
+    - name: mas_ws_facilities_properties_file_local
+      type: string
+      description: Local path to custom FACILITIES.properties file in workspace
+      default: ""
+    - name: mas_ws_facilities_properties_secret_name
+      type: string
+      description: Name of the secret containing custom FACILITIES.properties
+      default: ""
+    - name: mas_ws_facilities_dataconnectagent_deploymentmode
+      description: Agent dataconnectagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_extendedformulaagent_deploymentmode
+      description: Agent extendedformulaagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_formularecalcagent_deploymentmode
+      description: Agent formularecalcagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_incomingmailagent_deploymentmode
+      description: Agent incomingmailagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_maintenanceagent_deploymentmode
+      description: Agent maintenanceagent deployment mode
+      type: string
+      default: ""  
+    - name: mas_ws_facilities_objectmigrationagent_deploymentmode
+      description: Agent objectmigrationagent deployment mode
+      type: string
+      default: "" 
+    - name: mas_ws_facilities_objectpublishagent_deploymentmode
+      description: Agent objectpublishagent deployment mode
+      type: string
+      default: "" 
+    - name: mas_ws_facilities_reportqueueagent_deploymentmode
+      description: Agent reportqueueagent deployment mode
+      type: string
+      default: "" 
+    - name: mas_ws_facilities_wfagent_deploymentmode
+      description: Agent wfagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_wffutureagent_deploymentmode
+      description: Agent wffutureagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_wfnotificationagent_deploymentmode
+      description: Agent wfnotificationagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_reservesmtpagent_deploymentmode
+      description: Agent reservesmtpagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_scheduleragent_deploymentmode
+      description: Agent scheduleragent deployment mode
+      type: string
+      default: ""      
 
   stepTemplate:
     image: quay.io/ibmmas/cli:latest
@@ -377,6 +458,9 @@ spec:
         # Entitlement
         - name: IBM_ENTITLEMENT_KEY
           value: $(params.ibm_entitlement_key)
+
+        - name: MAS_USE_SERVICE_MESH
+          value: $(params.mas_use_service_mesh)
 
         # Application - Operator
         - name: MAS_APP_CHANNEL
@@ -430,6 +514,8 @@ spec:
         # Application Workspace - Operand
         - name: MAS_APPWS_BINDINGS_JDBC
           value: $(params.mas_appws_bindings_jdbc)
+        - name: MAS_APPWS_BINDINGS_KAFKA
+          value: $(params.mas_appws_bindings_kafka)
         - name: MAS_APPWS_COMPONENTS
           value: $(params.mas_appws_components)
 
@@ -495,7 +581,7 @@ spec:
         - name: MAS_MANAGE_ATTACHMENTS_PROVIDER
           value: $(params.mas_manage_attachments_provider)
         - name: IMAGESTITCHING_STORAGE_CLASS
-          value: $(params.mas_manage_imagestitching_storage_class)  
+          value: $(params.mas_manage_imagestitching_storage_class)
         - name: DB2_NAMESPACE
           value: $(params.db2_namespace)
         - name: IBMCLOUD_RESOURCEGROUP
@@ -512,6 +598,10 @@ spec:
           value: $(params.cos_bucket_name)
         - name: MAS_APPWS_UPGRADE_TYPE
           value: $(params.mas_appws_upgrade_type)
+        - name: MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_SIZE
+          value: $(params.mas_manage_kafkaimageprocessor_pvc_size)
+        - name: MAS_MANAGE_KAFKAIMAGEPROCESSOR_PVC_STORAGECLASS
+          value: $(params.storage_class_rwx)
 
         # Application Workspace - Operand (Predict)
         - name: PREDICT_DEPLOYMENT_SIZE
@@ -553,6 +643,40 @@ spec:
           value: $(params.mas_ws_facilities_config_map_name)
         - name: MAS_FACILITIES_APP_OM_UPGRADE_MODE
           value: $(params.mas_ws_facilities_app_om_upgrade_mode)
+        - name: MAS_FACILITIES_SERVER_TIMEZONE
+          value: $(params.mas_ws_facilities_server_timezone)          
+        - name: MAS_FACILITIES_CUSTOM_PROPERTIES
+          value: $(params.mas_ws_facilities_custom_properties)
+        - name: MAS_FACILITIES_PROPERTIES_FILE_LOCAL
+          value: $(params.mas_ws_facilities_properties_file_local)
+        - name: MAS_FACILITIES_PROPERTIES_SECRET_NAME
+          value: $(params.mas_ws_facilities_properties_secret_name)
+        - name: MAS_FACILITIES_DATACONNECTAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_dataconnectagent_deploymentmode)
+        - name: MAS_FACILITIES_EXTENDEDFORMULAAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_extendedformulaagent_deploymentmode)
+        - name: MAS_FACILITIES_FORMULARECALCAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_formularecalcagent_deploymentmode)
+        - name: MAS_FACILITIES_INCOMINGMAILAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_incomingmailagent_deploymentmode)
+        - name: MAS_FACILITIES_MAINTENANCEAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_maintenanceagent_deploymentmode)  
+        - name: MAS_FACILITIES_OBJECTMIGRATIONAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_objectmigrationagent_deploymentmode) 
+        - name: MAS_WS_FACILITIES_OBJECTPUBLISHAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_objectpublishagent_deploymentmode) 
+        - name: MAS_FACILITIES_REPORTQUEUEAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_reportqueueagent_deploymentmode)
+        - name: MAS_FACILITIES_WFAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_wfagent_deploymentmode)
+        - name: MAS_FACILITIES_WFFUTUREAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_wffutureagent_deploymentmode)
+        - name: MAS_FACILITIES_WFNOTIFICATIONAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_wfnotificationagent_deploymentmode)
+        - name: MAS_FACILITIES_RESERVESMTPAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_reservesmtpagent_deploymentmode)
+        - name: MAS_FACILITIES_SCHEDULERAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_scheduleragent_deploymentmode)          
 
     - name: app-wait-for-approval
       # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
@@ -589,4 +713,6 @@ spec:
   workspaces:
     - name: configs
     - name: pod-templates
+      optional: true
+    - name: facilities
       optional: true

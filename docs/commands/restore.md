@@ -21,10 +21,16 @@ usage: mas restore [-i MAS_INSTANCE_ID] [--restore-version RESTORE_VERSION]
                    [--sls-domain SLS_DOMAIN] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [--contact-email DRO_CONTACT_EMAIL]
                    [--contact-firstname DRO_CONTACT_FIRSTNAME] [--contact-lastname DRO_CONTACT_LASTNAME]
                    [--dro-namespace DRO_NAMESPACE] [--override-mongodb-storageclass] [--mongodb-storageclass-name MONGODB_STORAGECLASS_NAME]
-                   [--restore-manage-app] [--restore-manage-db] [--override-manage-app-storageclass]
+                   [--restore-manage-app] [--restore-manage-include-pvc] [--restore-manage-exclude-pvc]
+                   [--restore-manage-db] [--override-manage-app-storageclass]
                    [--manage-app-storage-class-rwx MANAGE_APP_STORAGE_CLASS_RWX] [--manage-app-storage-class-rwo MANAGE_APP_STORAGE_CLASS_RWO]
                    [--override-manage-db-storageclass]
                    [--manage-db-storage-class-rwx MANAGE_DB_STORAGE_CLASS_RWX] [--manage-db-storage-class-rwo MANAGE_DB_STORAGE_CLASS_RWO]
+                   [--restore-facilities-app] [--restore-facilities-include-pvc] [--restore-facilities-exclude-pvc]
+                   [--restore-facilities-db] [--override-facilities-app-storageclass]
+                   [--facilities-app-storage-class-rwx FACILITIES_APP_STORAGE_CLASS_RWX] [--facilities-app-storage-class-rwo FACILITIES_APP_STORAGE_CLASS_RWO]
+                   [--override-facilities-db-storageclass]
+                   [--facilities-db-storage-class-rwx FACILITIES_DB_STORAGE_CLASS_RWX] [--facilities-db-storage-class-rwo FACILITIES_DB_STORAGE_CLASS_RWO]
                    [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm] [--skip-pre-check] [-h]
 
 IBM Maximo Application Suite Admin CLI
@@ -117,7 +123,11 @@ MongoDB Storage Class Override:
                         MongoDB storage class name (ReadWriteOnce). If not specified, cluster default will be used.
 
 Manage Application Restore:
-  --restore-manage-app  Restore the Manage application including namespace resources and persistent volume data
+  --restore-manage-app  Restore the Manage application including namespace resources
+  --restore-manage-include-pvc
+                        Include PVC restore for Manage application
+  --restore-manage-exclude-pvc
+                        Exclude PVC restore for Manage application
   --restore-manage-db   Restore the Manage incluster Db2 database
   --override-manage-app-storageclass
                         Override storage class for Manage application persistent volumes
@@ -131,6 +141,28 @@ Manage Application Restore:
                         Db2 ReadWriteMany storage class name
   --manage-db-storage-class-rwo MANAGE_DB_STORAGE_CLASS_RWO
                         Db2 ReadWriteOnce storage class name
+
+Facilities Application Restore:
+  --restore-facilities-app
+                        Restore the Facilities application including namespace resources
+  --restore-facilities-include-pvc
+                        Include PVC restore for Facilities application
+  --restore-facilities-exclude-pvc
+                        Exclude PVC restore for Facilities application
+  --restore-facilities-db
+                        Restore the Facilities incluster Db2 database
+  --override-facilities-app-storageclass
+                        Override storage class for Facilities application persistent volumes
+  --facilities-app-storage-class-rwx FACILITIES_APP_STORAGE_CLASS_RWX
+                        Facilities Application ReadWriteMany storage class name
+  --facilities-app-storage-class-rwo FACILITIES_APP_STORAGE_CLASS_RWO
+                        Facilities Application ReadWriteOnce storage class name
+  --override-facilities-db-storageclass
+                        Override storage class for Facilities Db2 database persistent volumes
+  --facilities-db-storage-class-rwx FACILITIES_DB_STORAGE_CLASS_RWX
+                        Facilities Db2 ReadWriteMany storage class name
+  --facilities-db-storage-class-rwo FACILITIES_DB_STORAGE_CLASS_RWO
+                        Facilities Db2 ReadWriteOnce storage class name
 
 More:
   --artifactory-username ARTIFACTORY_USERNAME
@@ -332,6 +364,18 @@ mas restore \
   --no-confirm
 ```
 
+### Restore with Manage Application Excluding PVCs
+Restore the Manage application including persistent volume data:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-manage-app \
+  --restore-manage-exclude-pvc \
+  --no-confirm
+```
+
 ### Restore with Manage Application and Database
 Restore both the Manage application and its incluster Db2 database:
 
@@ -359,6 +403,59 @@ mas restore \
   --override-manage-db-storageclass \
   --manage-db-storage-class-rwx custom-rwx-storage \
   --manage-db-storage-class-rwo custom-rwo-storage \
+  --no-confirm
+```
+
+### Restore with Facilities Application
+Restore the Facilities application including namespace resources and persistent volume data:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-facilities-app \
+  --no-confirm
+```
+
+### Restore with Facilities Application Excluding PVCs
+Restore the Facilities application including persistent volume data:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-facilities-app \
+  --restore-facilities-exclude-pvc \
+  --no-confirm
+```
+
+### Restore with Facilities Application and Database
+Restore both the Facilities application and its incluster Db2 database:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-facilities-app \
+  --restore-facilities-db \
+  --no-confirm
+```
+
+### Restore Facilities with Custom Storage Classes
+Restore Facilities application and database with custom storage class overrides:
+
+```bash
+mas restore \
+  --instance-id inst1 \
+  --restore-version 20260117-191701 \
+  --restore-facilities-app \
+  --restore-facilities-db \
+  --override-facilities-app-storageclass \
+  --facilities-app-storage-class-rwx custom-rwx-storage \
+  --facilities-app-storage-class-rwo custom-rwo-storage \
+  --override-facilities-db-storageclass \
+  --facilities-db-storage-class-rwx custom-rwx-storage \
+  --facilities-db-storage-class-rwo custom-rwo-storage \
   --no-confirm
 ```
 
@@ -487,7 +584,8 @@ This is particularly useful for:
 ### Manage Application Restore
 The restore process can now restore the Manage application in addition to the MAS Suite:
 
-- **Manage Application**: Use `--restore-manage-app` to restore Manage namespace resources and persistent volume data
+- **Manage Application**: Use `--restore-manage-app` to restore Manage namespace resources
+- **Manage PVC Restore**: Use `--restore-manage-include-pvc` or `--restore-manage-exclude-pvc` to restore persistent volume data
 - **Manage Database**: Use `--restore-manage-db` to restore the incluster Db2 database associated with the Manage workspace
 - **Storage Class Overrides**:
   - Use `--override-manage-app-storageclass` to override Manage application storage classes, then specify `--manage-app-storage-class-rwx` and `--manage-app-storage-class-rwo`
@@ -496,6 +594,24 @@ The restore process can now restore the Manage application in addition to the MA
 !!! note
     - Manage database restore is an offline operation - the Manage application will be unavailable during the restore
     - The restore process handles both the application resources and the database data
+    - PVC restore is optional and controlled by the `--restore-manage-include-pvc` or `--restore-manage-exclude-pvc` flag
+    - Storage class overrides are useful when restoring to clusters with different storage infrastructure
+    - A single RWX and RWO storage class is applied across all Db2 persistent volumes (meta, data, backup, logs, temp)
+
+### Facilities Application Restore
+The restore process can restore the Facilities application in addition to the MAS Suite:
+
+- **Facilities Application**: Use `--restore-facilities-app` to restore Facilities namespace resources
+- **Facilities PVC Restore**: Use `--restore-facilities-include-pvc` or `--restore-facilities-exclude-pvc` to restore persistent volume data
+- **Facilities Database**: Use `--restore-facilities-db` to restore the incluster Db2 database associated with the Facilities workspace
+- **Storage Class Overrides**:
+  - Use `--override-facilities-app-storageclass` to override Facilities application storage classes, then specify `--facilities-app-storage-class-rwx` and `--facilities-app-storage-class-rwo`
+  - Use `--override-facilities-db-storageclass` to override Db2 database storage classes, then specify `--facilities-db-storage-class-rwx` and `--facilities-db-storage-class-rwo`
+
+!!! note
+    - Facilities database restore is an offline operation - the Facilities application will be unavailable during the restore
+    - The restore process handles both the application resources and the database data
+    - PVC restore is optional and controlled by the `--restore-facilities-include-pvc` or `--restore-facilities-exclude-pvc`flag
     - Storage class overrides are useful when restoring to clusters with different storage infrastructure
     - A single RWX and RWO storage class is applied across all Db2 persistent volumes (meta, data, backup, logs, temp)
 
