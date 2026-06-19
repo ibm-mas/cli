@@ -15,13 +15,13 @@ module "s3buckets_access_point_{{APP_NAME}}_bucket" {
   name_prefix                    = each.value.name_prefix
   s3_access_point_bucket_id      = each.value.id
   s3_bucket_arn                  = each.value.s3_bucket_arn
-  s3_access_point_name           = can(regex("-log$", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-log"]) : can(regex("-doclinks$", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-doclinks"]) : can(regex("-mvi$", each.value.name))? join("-", [var.cluster_name,var.instance_name,"mvi"]) : can(regex("-facilities$", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"facilities"]) : null
+  s3_access_point_name           = can(regex("-logs$", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-log"]) : can(regex("-doclinks$", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-doclinks"]) : can(regex("-mvi$", each.value.name))? join("-", [var.cluster_name,var.instance_name,"mvi"]) : can(regex("-facilities$", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"facilities"]) : null
   s3_access_point_policy_actions = local.s3_actions[each.value.access_level]
   configure_antivirus            = false
 
   #  Dynamically select correct IAM user based on bucket name
   s3_access_point_user = (
-    can(regex("-log$", each.value.name)) ? (
+    can(regex("-logs$", each.value.name)) ? (
       can(local.iam_user_arns_{{APP_NAME}}["logs_rw"]) ? local.iam_user_arns_{{APP_NAME}}["logs_rw"] :
       local.iam_user_arns_{{APP_NAME}}["logs_ro"]
     ) :
