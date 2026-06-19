@@ -288,6 +288,8 @@ def test_install_interactive_advanced(tmpdir):
                     return "y"
                 if re.match(".*Wait for PVCs to bind.*", message):
                     return "n"
+                # Catch-all for unmatched prompts to help debug
+                raise AssertionError(f"Unmatched prompt in test_install_interactive_advanced: {message}")
 
             mixins_prompt.side_effect = set_mixin_prompt_input
 
@@ -422,6 +424,8 @@ def test_install_interactive_simplified(tmpdir):
                     return "y"
                 if re.match(".*Wait for PVCs to bind.*", message):
                     return "n"
+                # Catch-all for unmatched prompts to help debug
+                raise AssertionError(f"Unmatched prompt in test_install_interactive_simplified: {message}")
 
             mixins_prompt.side_effect = set_mixin_prompt_input
 
