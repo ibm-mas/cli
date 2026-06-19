@@ -13,6 +13,7 @@ from os import path
 
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
+from .facilities.agents import facilitiesAgents, facilitiesAgentsDeploymentModes
 
 # Constants for argument choices
 DNS_PROVIDERS = ["cloudflare", "cis", "route53"]
@@ -839,7 +840,15 @@ facilitiesArgGroup.add_argument(
     help="Custom name for the Facilities properties secret (default: facilities-properties)",
     default="custom-facilities-properties",
 )
-
+for agent in facilitiesAgents:
+    facilitiesArgGroup.add_argument(
+        f"--facilities-{agent}-deploymentmode",
+        dest=f"mas_ws_facilities_{agent}_deploymentmode",
+        required=False,
+        help=f"Facilities agent {agent} deployment mode",
+        default="",
+        choices=facilitiesAgentsDeploymentModes[agent],
+    )
 # Open Data Hub
 # -----------------------------------------------------------------------------
 odhArgGroup = installArgParser.add_argument_group("Open Data Hub")

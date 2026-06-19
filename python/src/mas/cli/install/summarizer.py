@@ -13,6 +13,8 @@ import yaml
 from typing import TYPE_CHECKING
 from prompt_toolkit import print_formatted_text, HTML
 from mas.devops.ocp import getConsoleURL
+from mas.devops.utils import isVersionEqualOrAfter
+from .facilities.agents import facilitiesAgents
 
 if TYPE_CHECKING:
     from typing import Dict
@@ -35,6 +37,7 @@ class InstallSummarizerMixin:
         localConfigDir: str | None
         slsLicenseFileLocal: str | None
         aiserviceTenantSchedulingConfigFileLocal: str | None
+        facilitiesPropertiesFileLocal: str | None
         deployCP4D: bool
         installAssist: bool
         installIoT: bool
@@ -323,8 +326,10 @@ class InstallSummarizerMixin:
 
     def facilitiesSummary(self) -> None:
         # TODO: Fix type for storage sizes and max conn pool size
+
         if self.installFacilities:
-            self.printSummary("Facilities", self.params["mas_app_channel_facilities"])
+            mas_facilities_channel = self.params["mas_app_channel_facilities"]
+            self.printSummary("Facilities", mas_facilities_channel)
             print_formatted_text(HTML("  <SkyBlue>+ Maximo Real Estate and Facilities Settings</SkyBlue>"))
             self.printParamSummary("  + Size", "mas_ws_facilities_size")
             self.printParamSummary(
@@ -349,9 +354,14 @@ class InstallSummarizerMixin:
             )
             # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
             self.printParamSummary("  + Server Timezone", "mas_ws_facilities_server_timezone")
-            self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
-            self.printParamSummary("  + Custom FACILITIES.properties File path", "mas_ws_facilities_properties_file_local")
-            self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")
+            if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
+                self.printParamSummary("  + Custom FACILITIES.properties", "mas_ws_facilities_custom_properties")
+                if self.facilitiesPropertiesFileLocal:
+                    self.printSummary("  + Custom FACILITIES.properties File path", self.facilitiesPropertiesFileLocal)
+                self.printParamSummary("  + Custom FACILITIES.properties Secret Name", "mas_ws_facilities_properties_secret_name")
+                for agent in facilitiesAgents:
+                    if self.getParam(f"mas_ws_facilities_{agent}_deploymentmode") != "":
+                        self.printParamSummary(f"  + Agent {agent} deployment mode", f"mas_ws_facilities_{agent}_deploymentmode")
             if self.getParam("db2_action_facilities") == "none":
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
