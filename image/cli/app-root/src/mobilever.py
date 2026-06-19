@@ -216,11 +216,14 @@ class MobVer(object):
             if json_object.get("WARN") is not None:
                 graphite_json.update({"WARN": json_object.get("WARN")})
             else:
+                application_id = json_object.get("applicationId")
+                application_id = application_id.lower() if application_id else application_id
+
                 graphite_json.update(
                     {
-                        json_object.get("applicationId"): {
+                        application_id: {
                             "version": json_object.get("version"),
-                            "applicationId": json_object.get("applicationId"),
+                            "applicationId": application_id,
                             "applicationTitle": json_object.get("applicationTitle"),
                             "mobileVersion": json_object.get("mobileVersion"),
                             "buildToolsVersion": json_object.get("buildToolsVersion"),
@@ -231,17 +234,21 @@ class MobVer(object):
 
                 # removing empty mobile version or non mobile apps
                 if json_object.get("mobileVersion") is None:
-                    del graphite_json[json_object.get("applicationId")]["mobileVersion"]
+                    del graphite_json[application_id]["mobileVersion"]
 
                 # removing empty title from apps with no title
                 if json_object.get("applicationTitle") is None:
-                    del graphite_json[json_object.get("applicationId")]["applicationTitle"]
+                    del graphite_json[application_id]["applicationTitle"]
 
             # delete build.json file
             os.remove(path_in_str)
 
         # ordering json file
         graphite_json_sorted = OrderedDict(sorted(graphite_json.items()))
+
+        print("*********************************************")
+        print(graphite_json_sorted)
+        print("*********************************************")
 
         return graphite_json_sorted
 
