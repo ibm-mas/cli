@@ -69,7 +69,7 @@ class TestDiscoverDb2Namespaces:
         WHEN discoverDb2Namespaces is called with masInstanceIds
         THEN Db2 namespaces are discovered from JDBC URLs.
         """
-        from mas.cli.must_gather.dependencies.db2 import discoverDb2Namespaces
+        from mas.cli.must_gather.dependencies.db2 import _discoverDb2Namespaces
 
         # Mock JdbcCfg resources with JDBC URLs
         jdbcUrl1 = "jdbc:db2://c-db2u-db2u.db2u-namespace.svc:50001/BLUDB"
@@ -88,7 +88,7 @@ class TestDiscoverDb2Namespaces:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        namespaces = discoverDb2Namespaces(dynClient=self.mockClient, masInstanceIds=["inst1"])
+        namespaces = _discoverDb2Namespaces(dynClient=self.mockClient, masInstanceIds=["inst1"])
 
         assert namespaces == [
             "another-db2",
@@ -102,7 +102,7 @@ class TestDiscoverDb2Namespaces:
         WHEN discoverDb2Namespaces is called without masInstanceIds
         THEN Db2 namespaces are discovered from Db2uCluster resources.
         """
-        from mas.cli.must_gather.dependencies.db2 import discoverDb2Namespaces
+        from mas.cli.must_gather.dependencies.db2 import _discoverDb2Namespaces
 
         # Mock Db2uCluster resources
         db2Cluster1 = self._createMockResource("cluster1", "db2u-ns1")
@@ -118,7 +118,7 @@ class TestDiscoverDb2Namespaces:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        namespaces = discoverDb2Namespaces(dynClient=self.mockClient, masInstanceIds=None)
+        namespaces = _discoverDb2Namespaces(dynClient=self.mockClient, masInstanceIds=None)
 
         assert namespaces == [
             "db2u-ns1",
@@ -132,7 +132,7 @@ class TestDiscoverDb2Namespaces:
         WHEN discoverDb2Namespaces is called
         THEN empty list is returned.
         """
-        from mas.cli.must_gather.dependencies.db2 import discoverDb2Namespaces
+        from mas.cli.must_gather.dependencies.db2 import _discoverDb2Namespaces
 
         mockDb2Api = Mock()
         mockDb2Api.get.return_value = self._createMockResourceList([])
@@ -144,7 +144,7 @@ class TestDiscoverDb2Namespaces:
 
         self.mockClient.resources.get.side_effect = mockGetResource
 
-        namespaces = discoverDb2Namespaces(dynClient=self.mockClient, masInstanceIds=None)
+        namespaces = _discoverDb2Namespaces(dynClient=self.mockClient, masInstanceIds=None)
 
         assert namespaces == [], f"Db2 namespace discovery should return empty list when no Db2 resources exist, but got: {namespaces}"
 
@@ -170,10 +170,10 @@ class TestGenerateDb2CollectionTasks:
         WHEN generateDb2CollectionTasks is called
         THEN tasks are generated for each namespace.
         """
-        from mas.cli.must_gather.dependencies.db2 import generateDb2CollectionTasks
+        from mas.cli.must_gather.dependencies.db2 import _generateDb2CollectionTasks
 
         namespaces = ["db2u-ns1", "db2u-ns2"]
-        tasks = generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noLogs=False)
+        tasks = _generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=namespaces, outputDir="/tmp/output", noLogs=False)
 
         # Each namespace generates multiple tasks (resources, secrets, pods)
         assert len(tasks) > 0, "Task generation should create collection tasks for Db2 namespaces, but no tasks were generated"
@@ -189,8 +189,8 @@ class TestGenerateDb2CollectionTasks:
         WHEN generateDb2CollectionTasks is called
         THEN empty list is returned.
         """
-        from mas.cli.must_gather.dependencies.db2 import generateDb2CollectionTasks
+        from mas.cli.must_gather.dependencies.db2 import _generateDb2CollectionTasks
 
-        tasks = generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noLogs=False)
+        tasks = _generateDb2CollectionTasks(dynClient=self.mockClient, namespaces=[], outputDir="/tmp/output", noLogs=False)
 
         assert tasks == [], "Task generation should return empty list when no Db2 namespaces are provided, " f"but got {len(tasks)} task(s)"

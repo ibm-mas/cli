@@ -49,8 +49,8 @@ class TestPlanCollection(unittest.TestCase):
         # Verify result
         self.assertIsInstance(plan, CollectionPlan)
 
-    @patch("mas.cli.must_gather.dependencies.kafka.discoverKafkaNamespaces")
-    @patch("mas.cli.must_gather.dependencies.mongodb.discoverMongoDBNamespaces")
+    @patch("mas.cli.must_gather.dependencies.kafka._discoverKafkaNamespaces")
+    @patch("mas.cli.must_gather.dependencies.mongodb._discoverMongoDBNamespaces")
     def test_planCollection_discovers_dependencies(self, mockMongoDiscovery, mockKafkaDiscovery):
         """Test that planCollection discovers dependency namespaces.
 

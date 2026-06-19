@@ -25,7 +25,7 @@ KAFKA_RESOURCES = [
 ]
 
 
-def discoverKafkaNamespaces(dynClient: DynamicClient) -> Set[str]:
+def _discoverKafkaNamespaces(dynClient: DynamicClient) -> Set[str]:
     """Discover namespaces containing Kafka resources.
 
     Discovers namespaces by finding all Kafka custom resources in the cluster.
@@ -55,7 +55,7 @@ def addKafkaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noL
     from ..common.task_generation import generateNamespaceCollectionTasks
 
     logger.debug("Discovering Kafka namespaces")
-    kafkaNamespaces = discoverKafkaNamespaces(dynClient)
+    kafkaNamespaces = _discoverKafkaNamespaces(dynClient)
 
     if kafkaNamespaces:
         logger.info(f"Discovered {len(kafkaNamespaces)} Kafka namespace(s): {', '.join(sorted(kafkaNamespaces))}")
