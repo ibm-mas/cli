@@ -126,6 +126,7 @@ destGroup.add_argument(
 destGroup.add_argument(
     "-k", "--keep-files", action="store_true", default=False, help="Do not delete individual files after creating the must-gather compressed tar archive"
 )
+destGroup.add_argument("--no-tar", action="store_true", default=False, help="Skip creation of tar archive (requires --keep-files)")
 
 # General Controls group
 controlsGroup = mustGatherArgParser.add_argument_group("General Controls")
@@ -178,11 +179,17 @@ artifactoryGroup.add_argument(
     help="Working URL to the root directory in Artifactory where the must-gather file should be uploaded (can also be set via ARTIFACTORY_UPLOAD_DIR environment variable)",
 )
 
-# Add serve subcommand
+# Add subcommands
 subparsers = mustGatherArgParser.add_subparsers(dest="command", help="Available commands")
+
+# Serve subcommand
 serveParser = subparsers.add_parser("serve", help="Serve web viewer for existing must-gather output", formatter_class=argparse.RawTextHelpFormatter)
 serveParser.add_argument("-d", "--dir", type=str, required=True, help="Path to must-gather output directory")
 serveParser.add_argument("--port", type=int, default=8000, help="Port for HTTP server (default: 8000)")
+
+# Summarize subcommand
+summarizeParser = subparsers.add_parser("summarize", help="Regenerate summaries for existing must-gather output", formatter_class=argparse.RawTextHelpFormatter)
+summarizeParser.add_argument("-d", "--dir", type=str, required=True, help="Path to must-gather output directory")
 
 # Wrap parse_args to apply environment variable defaults at parse time
 _original_parse_args = mustGatherArgParser.parse_args
