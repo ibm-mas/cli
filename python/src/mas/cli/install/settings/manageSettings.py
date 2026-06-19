@@ -298,7 +298,7 @@ class ManageSettingsMixin():
         self.setParam("mas_app_settings_secondary_langs", secondaryLanguages.upper())
 
     def manageSettingsCP4D(self) -> None:
-        if and self.showAdvancedOptions:
+        if self.showAdvancedOptions:
             self.printDescription([
                 f"Integration with Cognos Analytics provides additional support for reporting features in Maximo {self.manageAppName}, for more information refer to the documentation online: ",
                 " - <Orange><u>https://ibm.biz/BdMuxs</u></Orange>"
