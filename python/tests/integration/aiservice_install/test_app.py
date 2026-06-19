@@ -246,6 +246,8 @@ def test_install_interactive_advanced(tmpdir):
                     return "Test"
                 if re.match(".*IBM Data Reporter Operator \(DRO\) Namespace.*", message):
                     return "redhat-marketplace"
+                if re.match(".*IBM entitlement key.*", message):
+                    return "testEntitlementKey"
                 if re.match(".*Instance ID.*", message):
                     return "apmdevops"
                 if re.match(".*Configure Scheduling policies for AI Service tenant.*", message):
@@ -400,6 +402,8 @@ def test_install_interactive_simplified(tmpdir):
                     return "Test"
                 if re.match(".*IBM Data Reporter Operator \(DRO\) Namespace.*", message):
                     return "redhat-marketplace"
+                if re.match(".*IBM entitlement key.*", message):
+                    return "testEntitlementKey"
                 if re.match(".*Instance ID.*", message):
                     return "apmdevops"
                 if re.match(".*Operational Mode.*", message):
