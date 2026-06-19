@@ -270,6 +270,8 @@ def test_install_interactive_advanced(tmpdir):
                     return "n"
                 if re.match(".*Does the Watsonxai AI use a self-signed certificate.*", message):
                     return "n"
+                if re.match(".*Do you want to use an external database.*", message):
+                    return "n"
                 if re.match(".*Create MongoDb cluster.*", message):
                     return "n"
                 if re.match(".*Select Local configuration directory.*", message):
@@ -401,6 +403,8 @@ def test_install_interactive_simplified(tmpdir):
                 if re.match(".*Does the RSL API use a self-signed certificate.*", message):
                     return "n"
                 if re.match(".*Does the Watsonxai AI use a self-signed certificate.*", message):
+                    return "n"
+                if re.match(".*Do you want to use an external database.*", message):
                     return "n"
                 if re.match(".*Create MongoDb cluster.*", message):
                     return "n"
