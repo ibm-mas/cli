@@ -2111,11 +2111,13 @@ class InstallApp(
             elif key == "pod_templates":
                 # For the named configurations we will convert into the path
                 if value in ["best-effort", "guaranteed"]:
+                    self.podTemplatesKeyword = value
                     self.setParam(
                         "mas_pod_templates_dir",
                         path.join(self.templatesDir, "pod-templates", value),
                     )
                 else:
+                    self.podTemplatesKeyword = None
                     self.setParam("mas_pod_templates_dir", value)
 
             # We check for both None and "" values for the application channel parameters
