@@ -27,6 +27,7 @@ from mas.cli.must_gather.common.reconcile_logs import collectReconcileLogs
 from mas.cli.must_gather.common.pod_exec import execCurlInPod
 from .network_tests import testCoreToManageConnectivity
 from .version import isMAS91OrLater
+from .licensing import collectLicensingInfo
 
 logger = logging.getLogger(__name__)
 
@@ -208,6 +209,7 @@ def _generateMASCoreCollectionTasks(
     outputDir: str,
     noLogs: bool = False,
     ibmCRDs: Optional[List[tuple]] = None,
+    enabledCollectors: Optional[set] = None,
 ):
     """Generate collection tasks for MAS Core namespace.
 
@@ -220,60 +222,91 @@ def _generateMASCoreCollectionTasks(
         outputDir (str): Base output directory
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
         ibmCRDs (list, optional): List of IBM CRD tuples (api_version, kind). Defaults to None.
+        enabledCollectors (set, optional): Set of enabled collector names. Defaults to None.
 
     Returns:
         list: List of task tuples (task_name, function, *args)
     """
 
-    # Use the standard namespace collection tasks (IBM resources, standard resources, secrets, pods)
-    tasks = generateNamespaceCollectionTasks(
-        dynClient=dynClient,
-        namespace=namespace,
-        outputDir=outputDir,
-        noLogs=noLogs,
-        secretData=False,  # MAS Core does not include secret data
-        customResources=None,  # No MAS-specific CRDs to add
-        ibmCRDs=ibmCRDs,
-    )
+    tasks = []
 
-    # Add MAS Core-specific task: Collect reconcile logs from MAS operator
-    tasks.append(
-        (
-            "reconcile_logs_mas_operator",
-            collectReconcileLogs,
-            namespace,
-            "app.kubernetes.io/name",
-            "ibm-mas-operator",
-            outputDir,
-        )
-    )
+    # Determine if we should collect standard MAS resources
+    collectMASResources = enabledCollectors is None or "mas" in enabledCollectors
+    collectLicensing = enabledCollectors is None or "lic" in enabledCollectors
 
-    # Add network connectivity test (Core to Manage)
-    tasks.append(
-        (
-            "network_tests",
-            _runNetworkTests,
-            dynClient,
-            namespace,
-            outputDir,
+    # Only collect standard MAS Core resources if 'mas' collector is enabled
+    if collectMASResources:
+        # Use the standard namespace collection tasks (IBM resources, standard resources, secrets, pods)
+        tasks.extend(
+            generateNamespaceCollectionTasks(
+                dynClient=dynClient,
+                namespace=namespace,
+                outputDir=outputDir,
+                noLogs=noLogs,
+                secretData=False,  # MAS Core does not include secret data
+                customResources=None,  # No MAS-specific CRDs to add
+                ibmCRDs=ibmCRDs,
+            )
         )
-    )
 
-    # Add system information collection
-    tasks.append(
-        (
-            "system_info",
-            _collectSystemInfo,
-            dynClient,
-            namespace,
-            outputDir,
+        # Add MAS Core-specific task: Collect reconcile logs from MAS operator
+        tasks.append(
+            (
+                "reconcile_logs_mas_operator",
+                collectReconcileLogs,
+                namespace,
+                "app.kubernetes.io/name",
+                "ibm-mas-operator",
+                outputDir,
+            )
         )
-    )
+
+        # Add network connectivity test (Core to Manage)
+        tasks.append(
+            (
+                "network_tests",
+                _runNetworkTests,
+                dynClient,
+                namespace,
+                outputDir,
+            )
+        )
+
+        # Add system information collection
+        tasks.append(
+            (
+                "system_info",
+                _collectSystemInfo,
+                dynClient,
+                namespace,
+                outputDir,
+            )
+        )
+
+    # Add licensing information collection (only if lic collector is enabled)
+    if collectLicensing:
+        tasks.append(
+            (
+                "licensing_info",
+                collectLicensingInfo,
+                dynClient,
+                namespace,
+                outputDir,
+            )
+        )
 
     return tasks
 
 
-def addMASCoreToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list, masInstanceIds: Optional[List[str]] = None):
+def addMASCoreToCollectionPlan(
+    plan,
+    dynClient: DynamicClient,
+    outputDir: str,
+    noLogs: bool,
+    ibmCRDs: list,
+    masInstanceIds: Optional[List[str]] = None,
+    enabledCollectors: Optional[set] = None,
+):
     """Add MAS Core collection tasks to the collection plan.
 
     Discovers MAS Core namespaces and adds collection groups for each instance
@@ -287,6 +320,7 @@ def addMASCoreToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, n
         noLogs (bool): If True, skip pod log collection
         ibmCRDs (list): List of IBM CRD information for collection
         masInstanceIds (list, optional): List of MAS instance IDs to filter discovery. Defaults to None.
+        enabledCollectors (set, optional): Set of enabled collector names. Defaults to None.
 
     Returns:
         set: Set of discovered MAS Core namespace names
@@ -307,6 +341,7 @@ def addMASCoreToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, n
                     outputDir=outputDir,
                     noLogs=noLogs,
                     ibmCRDs=ibmCRDs,
+                    enabledCollectors=enabledCollectors,
                 )
                 plan.addGroup(f"MAS Core ({instanceId})", tasks)
                 logger.debug(f"Added {len(tasks)} MAS Core collection tasks for instance {instanceId}")
