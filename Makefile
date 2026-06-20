@@ -77,4 +77,4 @@ tekton/target:
 
 .PHONY: run
 run:
-	podman run --rm -it quay.io/ibmmas/cli:k8sclient -- bash
+	podman run --rm -it -e IBM_ENTITLEMENT_KEY --pull Always quay.io/ibmmas/cli:master bash
