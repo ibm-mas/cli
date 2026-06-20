@@ -31,6 +31,11 @@ spec:
       type: string
       description: Version/timestamp for the MAS app backup
       default: ""
+    
+    - name: backup_app_include_pvc
+      type: string
+      description: Whether to include PVC in backup
+      default: "true"
 
   stepTemplate:
     env:
@@ -51,6 +56,9 @@ spec:
       
       - name: MAS_APP_BACKUP_VERSION
         value: $(params.mas_app_backup_version)
+
+      - name: MAS_APP_BACKUP_INCLUDE_PVC
+        value: $(params.backup_app_include_pvc)
 
   steps:
     - name: suite-app-backup

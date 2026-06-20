@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -15,12 +15,12 @@ from mas.devops.ocp import getConsoleURL
 logger = logging.getLogger(__name__)
 
 
-class aiServiceInstallSummarizerMixin():
+class aiServiceInstallSummarizerMixin:
     def ocpSummary(self) -> None:
         self.printH2("Pipeline Configuration")
         self.printParamSummary("Service Account", "service_account_name")
         self.printParamSummary("Image Pull Policy", "image_pull_policy")
-        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
+        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam("skip_pre_check") == "true" else "No")
 
         self.printH2("OpenShift Container Platform")
         self.printSummary("Worker Node Architecture", self.architecture)
@@ -52,10 +52,13 @@ class aiServiceInstallSummarizerMixin():
 
         self.printParamSummary("Configure AI Service to run in IPv6 mode", "enable_ipv6")
 
-        self.printH2("AI Service Tenant Entitlement")
+        self.printH2("AI Service Tenant Configuration")
         self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
         self.printParamSummary("Start Date", "tenant_entitlement_start_date")
         self.printParamSummary("End Date", "tenant_entitlement_end_date")
+
+        if self.aiserviceTenantSchedulingConfigFileLocal:
+            self.printSummary("Scheduling configuration file", self.aiserviceTenantSchedulingConfigFileLocal)
 
         self.printH2("S3 Configuration")
         # self.printParamSummary("Storage provider", "aiservice_s3_provider")
@@ -73,10 +76,6 @@ class aiServiceInstallSummarizerMixin():
         self.printH2("IBM WatsonX")
         self.printParamSummary("URL", "aiservice_watsonxai_url")
         self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
-
-        self.printH2("RSL")
-        self.printParamSummary("URL", "rsl_url")
-        self.printParamSummary("Organization ID", "rsl_org_id")
 
     def db2Summary(self) -> None:
         self.printH2("IBM Db2 Univeral Operator Configuration")
@@ -119,10 +118,7 @@ class aiServiceInstallSummarizerMixin():
 
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
-        self.printDescription([
-            "Connected to:",
-            f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
-        ])
+        self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
         logger.debug("PipelineRun parameters:")
         logger.debug(yaml.dump(self.params, default_flow_style=False))

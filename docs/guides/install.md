@@ -1,14 +1,6 @@
 Installation
 ===============================================================================
 
-:::mas-cli-usage
-module: mas.cli.install.argParser
-parser: installArgParser
-ignore_description: true
-ignore_epilog: true
-:::
-
-
 Preparation
 -------------------------------------------------------------------------------
 ### IBM Entitlement Key
@@ -34,9 +26,9 @@ The other values can be left at their defaults.  Finally, click **Generate** and
 ### OpenShift Container Platform
 You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index).  The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
-- [AWS](../commands/provision-rosa.md)
-- [IBM Cloud](../commands/provision-roks.md)
-- [IBM DevIT FYRE (Internal)](../commands/provision-fyre.md)
+- [AWS](provision-aws.md)
+- [IBM Cloud](provision-roks.md)
+- [IBM DevIT FYRE (Internal)](provision-fyre.md)
 
 IBM Maximo Application Suite is designed to run on a continuously evolving OpenShift platform. Red Hat regularly updates its operator catalogs (including the Community Operators catalog that provides components such as Grafana), and these updates can sometimes introduce breaking changes. To ensure stable, reproducible installations, it is essential to align the versions of OpenShift, Red Hat operator catalogs, the IBM Maximo operator catalog, and the MAS CLI.
 
@@ -186,7 +178,7 @@ You must have a production grade Docker v2 compatible registry such as [Quay Ent
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
 ```
 
-The registry will be setup running on port 32500.  For more details on this step, refer to the [setup-registry](../commands/setup-registry.md) command's documentation.  Regardless of whether you set up a new registry or already had one, you need to collect the following information about your private registry:
+The registry will be setup running on port 32500.  For more details on this step, refer to the [setup-registry](private-registry.md#registry-deployment) command's documentation.  Regardless of whether you set up a new registry or already had one, you need to collect the following information about your private registry:
 
 | Name                | Detail                                                                                                             |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -210,7 +202,7 @@ For full details on this process review the [image mirroring](image-mirroring.md
 
 
 ### Configure OpenShift to use your Private Registry
-Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An `ImageContentSourcePolicy` named `mas-and-dependencies` will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the `mas install` command.
+Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An `ImageDigestMirrorSet` named `mas-and-dependencies` will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the `mas install` command.
 
 ```bash
 docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap
@@ -221,7 +213,7 @@ docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap --setup-red
 ```
 You will be prompted to provide information about the private registry, including the CA certificate necessary to configure your cluster to trust the private registry.
 
-This command can also be ran non-interactive, for full details refer to the [configure-airgap](../commands/configure-airgap.md) command documentation.
+This command can also be ran non-interactive, for full details refer to the [configure-airgap](configure-airgap.md) command documentation.
 
 ```bash
 mas configure-airgap \
@@ -289,7 +281,43 @@ The interactive install will guide you through a series of questioned designed t
         <li>Single Sign-On (SSO)</li>
         <li>Whether to allow special character in User IDs and Usernames</li>
         <li>Whether Guided Tours are enabled</li>
+        <li>Admin Mode</li>
         <li>Network Routing Mode (path or subdomain)</li>
+      </ul>
+      <h4>Admin Mode</h4>
+      <p>Admin mode configuration is only available in MAS 9.2 and later. It controls how much delegated OpenShift administrative capability is granted to MAS.</p>
+      <ul>
+        <li><strong>cluster</strong> - Install with ClusterRoles <strong>(default)</strong>
+          <ul>
+            <li>MAS has cluster-level access to manage its applications and resources across the cluster</li>
+            <li>The CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts</li>
+            <li>This is the closest behavior to releases before MAS 9.2</li>
+          </ul>
+        </li>
+        <li><strong>namespaced</strong> - Install with namespace-scoped Roles only
+          <ul>
+            <li>No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)</li>
+            <li>The CLI pre-installs namespace-scoped Roles in namespaces prepared by the OpenShift administrator</li>
+            <li>MAS can manage applications only in those prepared namespaces</li>
+            <li>DNS integration is not available in this mode; if you use a custom domain, DNS must be configured manually</li>
+          </ul>
+        </li>
+        <li><strong>minimal</strong> - Install with essential namespace-scoped Roles only
+          <ul>
+            <li>No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)</li>
+            <li>Only the essential permissions required for MAS applications are applied</li>
+            <li>MAS UI and API cannot manage application lifecycle; OpenShift administrators must manage applications outside MAS</li>
+            <li>DNS integration is not available in this mode; if you use a custom domain, DNS must be configured manually</li>
+          </ul>
+        </li>
+      </ul>
+      <p>If the user running <code>mas install</code> has cluster administrator permissions, the CLI can automatically apply the required RBAC for the selected admin mode during installation.</p>
+      <p>If the user running <code>mas install</code> does not have cluster administrator permissions and selects <strong>cluster</strong> or <strong>namespaced</strong> mode, an OpenShift administrator must first run <code>mas pre-install</code> for the same MAS instance, channel, admin mode, and selected applications before the installation can continue.</p>
+      <p>For <strong>minimal</strong> mode, <code>mas pre-install</code> is not required because the operators create the essential roles during installation.</p>
+      <p><strong>Application limitations:</strong></p>
+      <ul>
+        <li><strong>ArcGIS:</strong> Only works in <strong>cluster</strong> mode and requires cluster role permissions.</li>
+        <li><strong>Visual Inspection (MVI):</strong> In <strong>minimal</strong> and <strong>namespaced</strong> modes, MVI requires cluster role permissions specifically to manage the SecurityContextConstraints resource named <code>ibm-mas-visualinspection-scc</code>. These modes are designed to avoid cluster-level permissions, but MVI requires this specific exception for SCC management.</li>
       </ul>
       <h4>Routing Mode</h4>
       <p>Starting from MAS 9.2.0, you can configure how Maximo Application Suite is accessed through URLs:</p>
@@ -386,6 +414,14 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
     \
     --accept-license --no-confirm
 ```
+
+
+:::mas-cli-usage
+module: mas.cli.install.argParser
+parser: installArgParser
+ignore_description: true
+ignore_epilog: true
+:::
 
 
 How It Works

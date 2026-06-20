@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -9,21 +9,21 @@
 # *****************************************************************************
 supportedCatalogs = {
     "amd64": [
+        "v9-260527-amd64",
         "v9-260430-amd64",
         "v9-260326-amd64",
         "v9-260226-amd64",
-        "v9-260216-amd64",
     ],
     "s390x": [
+        "v9-260527-s390x",
         "v9-260430-s390x",
         "v9-260326-s390x",
         "v9-260226-s390x",
-        "v9-260216-s390x",
     ],
     "ppc64le": [
+        "v9-260527-ppc64le",
         "v9-260430-ppc64le",
         "v9-260326-ppc64le",
         "v9-260226-ppc64le",
-        "v9-260216-ppc64le",
     ],
 }

@@ -202,9 +202,16 @@ spec:
             name: mas-fvt-core
             key: KEYCLOAK_REALM_NAME
             optional: false
+      - name: OIDC_DISCOVERY_ENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: OIDC_DISCOVERY_ENDPOINT
+            optional: false
 
   steps:
-    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
+    - name: fvt-core
+      image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 3h0m0s # Ensure bad FVTs don't run forever - want this to be lower, but a couple of suites are now pushing 2 hours as standard :(
       onError: continue # Ensure bad FVTs don't break the pipeline

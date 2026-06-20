@@ -27,6 +27,8 @@
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: mas_use_service_mesh
+      value: $(params.mas_use_service_mesh)
 
     # Workspace
     - name: mas_workspace_id
@@ -36,6 +38,8 @@
       value: "$(params.mas_appws_components)"
     - name: mas_appws_bindings_jdbc
       value: "$(params.mas_appws_bindings_jdbc_manage)"
+    - name: mas_appws_bindings_kafka
+      value: "$(params.mas_appws_bindings_kafka_manage)"
     - name: mas_appws_bindings_health_wsl_flag
       value: $(params.mas_appws_bindings_health_wsl_flag)
     - name: mas_app_settings_aio_flag
@@ -112,6 +116,10 @@
       value: $(params.cos_bucket_name)
     - name: mas_appws_upgrade_type
       value: $(params.mas_appws_upgrade_type)
+    - name: mas_manage_kafkaimageprocessor_pvc_size
+      value: $(params.mas_manage_kafkaimageprocessor_pvc_size)
+    - name: storage_class_rwx
+      value: $(params.storage_class_rwx)
   workspaces:
     - name: configs
       workspace: shared-configs

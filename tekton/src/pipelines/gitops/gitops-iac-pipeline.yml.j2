@@ -64,6 +64,17 @@ spec:
       type: string
       default: ''
 
+    # iac-efs monitor_db2 params
+    - name: efs_monitor_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_monitor_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_monitor_db2_throughput_mode
+      type: string
+      default: ''
+
     # iac-efs facilities-db2 params
     - name: efs_facilities_db2_performance_mode
       type: string
@@ -200,6 +211,10 @@ spec:
       type: string
       default: ''
 
+    - name: rds_manage_db2_engine_version
+      type: string
+      default: ''
+
     # iac-rdsdb2 iot params
     - name: rds_iot_db2_instance_class
       type: string
@@ -222,6 +237,10 @@ spec:
       default: ''
 
     - name: rds_db2_config_iot_yaml
+      type: string
+      default: ''
+
+    - name: rds_iot_db2_engine_version
       type: string
       default: ''
 
@@ -250,7 +269,9 @@ spec:
       type: string
       default: ''
 
-
+    - name: rds_facilities_db2_engine_version
+      type: string
+      default: ''
 
   workspaces:
     - name: configs
@@ -335,6 +356,12 @@ spec:
           value: $(params.efs_iot_db2_mount_count)
         - name: efs_iot_db2_throughput_mode
           value: $(params.efs_iot_db2_throughput_mode)
+        - name: efs_monitor_db2_performance_mode
+          value: $(params.efs_monitor_db2_performance_mode)
+        - name: efs_monitor_db2_mount_count
+          value: $(params.efs_monitor_db2_mount_count)
+        - name: efs_monitor_db2_throughput_mode
+          value: $(params.efs_monitor_db2_throughput_mode)
         - name: efs_facilities_db2_performance_mode
           value: $(params.efs_facilities_db2_performance_mode)
         - name: efs_facilities_db2_mount_count
@@ -509,6 +536,8 @@ spec:
           value: $(params.rds_manage_replica_db)
         - name: rds_db2_config_manage_yaml
           value: $(params.rds_db2_config_manage_yaml)
+        - name: rds_manage_db2_engine_version
+          value: $(params.rds_manage_db2_engine_version)
 
         # iac-rdsdb2 iot params
         - name: rds_iot_db2_instance_class
@@ -523,6 +552,8 @@ spec:
           value: $(params.rds_iot_replica_db)
         - name: rds_db2_config_iot_yaml
           value: $(params.rds_db2_config_iot_yaml)
+        - name: rds_iot_db2_engine_version
+          value: $(params.rds_iot_db2_engine_version)
 
         # iac-rdsdb2 facilities params
         - name: rds_facilities_db2_instance_class
@@ -537,8 +568,8 @@ spec:
           value: $(params.rds_facilities_replica_db)
         - name: rds_db2_config_facilities_yaml
           value: $(params.rds_db2_config_facilities_yaml)
-
-
+        - name: rds_facilities_db2_engine_version
+          value: $(params.rds_facilities_db2_engine_version)
 
     # Task 5: Generate Common Files (Runs after EFS/S3/MSK/RDS-DB2 tasks complete/skip)
     # -------------------------------------------------------------------------
@@ -600,6 +631,12 @@ spec:
           value: $(params.efs_iot_db2_mount_count)
         - name: efs_iot_db2_throughput_mode
           value: $(params.efs_iot_db2_throughput_mode)
+        - name: efs_monitor_db2_performance_mode
+          value: $(params.efs_monitor_db2_performance_mode)
+        - name: efs_monitor_db2_mount_count
+          value: $(params.efs_monitor_db2_mount_count)
+        - name: efs_monitor_db2_throughput_mode
+          value: $(params.efs_monitor_db2_throughput_mode)
         - name: efs_facilities_db2_performance_mode
           value: $(params.efs_facilities_db2_performance_mode)
         - name: efs_facilities_db2_mount_count

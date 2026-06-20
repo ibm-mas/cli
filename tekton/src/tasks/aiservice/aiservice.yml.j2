@@ -48,15 +48,12 @@ spec:
     # WatsonX params
     - name: aiservice_watsonxai_apikey
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_url
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_project_id
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_deployment_id
       type: string
@@ -68,41 +65,33 @@ spec:
       default: ""
     - name: aiservice_watsonx_action
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_ca_crt
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_instance_id
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_username
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_version
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_on_prem
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_verify
       type: string
-      description:
       default: "This option is mandatory"
 
     # AI Service storage
     - name: aiservice_s3_accesskey
       type: string
-      default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_secretkey
       type: string
-      default: "This option is mandatory"
+      default: ""
       default: ""
     - name: aiservice_s3_host
       type: string
@@ -134,8 +123,8 @@ spec:
     - name: environment_type
       type: string
       description: Environment type
-      default: ""    
-    
+      default: ""
+
     # Tenant Entitlement
     - name: tenant_entitlement_type
       type: string
@@ -143,18 +132,18 @@ spec:
       type: string
     - name: tenant_entitlement_end_date
       type: string
+    # Config file for scheduling constraints for AI workloads
+    - name: tenant_scheduling_cfg_file
+      type: string
 
     # RSL
-    - name: rsl_url
+    - name: rsl_ca_crt
       type: string
-    - name: rsl_org_id
-      type: string
-    - name: rsl_token
-      type: string
+
 
     # RHOAI flag
     - name: rhoai
-    
+
     # Certificate Issuer
     - name: aiservice_certificate_issuer
       type: string
@@ -253,21 +242,19 @@ spec:
         value: $(params.tenant_entitlement_start_date)
       - name: AISERVICE_TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
+      - name: AISERVICE_TENANT_SCHEDULING_CONFIG_FILE
+        value: $(params.tenant_scheduling_cfg_file)
 
       # RSL
-      - name: RSL_URL
-        value: $(params.rsl_url)
-      - name: RSL_ORG_ID
-        value: $(params.rsl_org_id)
-      - name: RSL_TOKEN
-        value: $(params.rsl_token)
+      - name: RSL_CA_CRT
+        value: $(params.rsl_ca_crt)
 
       # Certificate Issuer
       - name: AISERVICE_CERTIFICATE_ISSUER
         value: $(params.aiservice_certificate_issuer)
 
       # Enable IPv6
-      - name: ENABLE_IPV6
+      - name: OCP_ENABLE_IPV6
         value: $(params.enable_ipv6)
 
   steps:
@@ -323,4 +310,6 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true
+    - name: aiservice
       optional: true

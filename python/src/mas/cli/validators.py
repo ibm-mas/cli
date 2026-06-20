@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -38,7 +38,7 @@ class InstanceIDFormatValidator(Validator):
         instanceId = document.text
 
         if not match(r"^[a-z][a-z0-9-]{1,10}[a-z0-9]$", instanceId):
-            raise ValidationError(message='MAS instance ID does not meet the requirements', cursor_position=len(instanceId))
+            raise ValidationError(message="MAS instance ID does not meet the requirements", cursor_position=len(instanceId))
 
 
 class WorkspaceIDFormatValidator(Validator):
@@ -49,7 +49,7 @@ class WorkspaceIDFormatValidator(Validator):
         instanceId = document.text
 
         if not match(r"^[a-z][a-z0-9]{2,11}$", instanceId):
-            raise ValidationError(message='Workspace ID does not meet the requirements', cursor_position=len(instanceId))
+            raise ValidationError(message="Workspace ID does not meet the requirements", cursor_position=len(instanceId))
 
 
 class TimeoutFormatValidator(Validator):
@@ -58,7 +58,7 @@ class TimeoutFormatValidator(Validator):
         Validate that a MAS instance ID exists on the target cluster
         """
         string_to_validate = document.text
-        if string_to_validate != "" and not match(r'^([0-9]+)([hm])$', string_to_validate):
+        if string_to_validate != "" and not match(r"^([0-9]+)([hm])$", string_to_validate):
             message = f"Error: Your input: {string_to_validate} does not meet the required pattern. Please use it in hours or minutes format (e.g., 12h, 12m)."
             raise ValidationError(message=message, cursor_position=len(string_to_validate))
 
@@ -71,7 +71,7 @@ class WorkspaceNameFormatValidator(Validator):
         instanceId = document.text
 
         if not match(r"^.{3,300}$", instanceId):
-            raise ValidationError(message='Workspace name does not meet the requirements', cursor_position=len(instanceId))
+            raise ValidationError(message="Workspace name does not meet the requirements", cursor_position=len(instanceId))
 
 
 class InstanceIDValidator(Validator):
@@ -81,11 +81,9 @@ class InstanceIDValidator(Validator):
         """
         instanceId = document.text
 
-        dynClient = dynamic.DynamicClient(
-            api_client.ApiClient(configuration=config.load_kube_config())
-        )
+        dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
         if not verifyMasInstance(dynClient, instanceId):
-            raise ValidationError(message='Not a valid MAS instance ID on this cluster', cursor_position=len(instanceId))
+            raise ValidationError(message="Not a valid MAS instance ID on this cluster", cursor_position=len(instanceId))
 
 
 class AiserviceInstanceIDValidator(Validator):
@@ -95,11 +93,9 @@ class AiserviceInstanceIDValidator(Validator):
         """
         instanceId = document.text
 
-        dynClient = dynamic.DynamicClient(
-            api_client.ApiClient(configuration=config.load_kube_config())
-        )
+        dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
         if not verifyAiServiceInstance(dynClient, instanceId):
-            raise ValidationError(message='Not a valid AI Service instance ID on this cluster', cursor_position=len(instanceId))
+            raise ValidationError(message="Not a valid AI Service instance ID on this cluster", cursor_position=len(instanceId))
 
 
 class AiserviceTeanantIDValidator(Validator):
@@ -120,11 +116,9 @@ class AiserviceTeanantIDValidator(Validator):
         if self.install_aiservice and tenantId == "user":
             return
 
-        dynClient = dynamic.DynamicClient(
-            api_client.ApiClient(configuration=config.load_kube_config())
-        )
+        dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
         if not verifyAiServiceTenantInstance(dynClient, self.manage_bind_aiservice_instance_id, tenantId):
-            raise ValidationError(message='Not a valid AI Service tenant ID on this cluster', cursor_position=len(tenantId))
+            raise ValidationError(message="Not a valid AI Service tenant ID on this cluster", cursor_position=len(tenantId))
 
 
 class StorageClassValidator(Validator):
@@ -134,11 +128,9 @@ class StorageClassValidator(Validator):
         """
         name = document.text
 
-        dynClient = dynamic.DynamicClient(
-            api_client.ApiClient(configuration=config.load_kube_config())
-        )
+        dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
         if getStorageClass(dynClient, name) is None:
-            raise ValidationError(message='Specified storage class is not available on this cluster', cursor_position=len(name))
+            raise ValidationError(message="Specified storage class is not available on this cluster", cursor_position=len(name))
 
 
 class YesNoValidator(Validator):
@@ -148,7 +140,7 @@ class YesNoValidator(Validator):
         """
         response = document.text
         if response.lower() not in ["y", "n", "yes", "no"]:
-            raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
+            raise ValidationError(message="Enter a valid response: y(es), n(o)", cursor_position=len(response))
 
 
 class IntValidator(Validator):
@@ -162,13 +154,13 @@ class IntValidator(Validator):
         """
         response = document.text
         if not str.isdigit(response):
-            raise ValidationError(message='Enter a valid number', cursor_position=len(response))
+            raise ValidationError(message="Enter a valid number", cursor_position=len(response))
 
         if self.min and int(response) < self.min:
-            raise ValidationError(message=f'Enter a number not less than {self.min}', cursor_position=len(response))
+            raise ValidationError(message=f"Enter a number not less than {self.min}", cursor_position=len(response))
 
         if self.max and int(response) > self.max:
-            raise ValidationError(message=f'Enter a number not more than {self.max}', cursor_position=len(response))
+            raise ValidationError(message=f"Enter a number not more than {self.max}", cursor_position=len(response))
 
 
 class FileExistsValidator(Validator):
@@ -198,7 +190,7 @@ class OptimizerInstallPlanValidator(Validator):
         """
         response = document.text
         if response not in ["full", "limited"]:
-            raise ValidationError(message='Enter a valid response: full, limited', cursor_position=len(response))
+            raise ValidationError(message="Enter a valid response: full, limited", cursor_position=len(response))
 
 
 class JsonValidator(Validator):
@@ -210,7 +202,7 @@ class JsonValidator(Validator):
         try:
             loads(inputJson)
         except JSONDecodeError:
-            raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
+            raise (ValidationError(message="Enter a valid JSON", cursor_position=len(inputJson)))
 
 
 class LanguageValidator(Validator):
@@ -228,7 +220,7 @@ class LanguageValidator(Validator):
         languages = document.text
         for language in languages.split(","):
             if language.upper() not in self._language_list:
-                raise (ValidationError(message='Language not supported. Please select value(s) from the list', cursor_position=len(languages)))
+                raise (ValidationError(message="Language not supported. Please select value(s) from the list", cursor_position=len(languages)))
 
 
 class BucketPrefixValidator(Validator):
@@ -240,8 +232,21 @@ class BucketPrefixValidator(Validator):
 
         if not match(r"^.{1,4}$", bucketPrefix):
             raise ValidationError(message='Bucket prefix does not meet the requirement', cursor_position=len(bucketPrefix))
+
+
 class CustomizationArchiveNameValidator(Validator):
     def validate(self, document: Document) -> None:
         name = document.text
         if not match(r"^[0-9a-zA-Z][0-9a-zA-Z\-_.]+$", name):
             raise ValidationError(message='Customization archive name must start with a letter or digit, and contain only letters, digits, hyphens, underscores, and dots', cursor_position=len(name))
+
+
+class NotEmptyValidator(Validator):
+    def validate(self, document: Document) -> None:
+        """
+        Validate that the input value is not empty
+        """
+        value = document.text
+
+        if not match(r"^.+$", value):
+            raise ValidationError(message="Enter a value", cursor_position=0)

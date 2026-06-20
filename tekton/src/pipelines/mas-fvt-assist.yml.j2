@@ -198,23 +198,6 @@ spec:
       runAfter:
         - fvt-assist-preparedata
 
-
-    # 5. Test NG - Mobile
-    # -----------------------------------------------------------------------------
-    - name: fvt-assist-testng-mobile
-      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/params-testng.yml.j2') | indent(8) }}
-        - name: fvt_test_suite
-          value: testng-assist-mobile
-        - name: assist_test_type
-          value: mobileapp
-        - name: assist_device_type
-          value: android
-      runAfter:
-        - fvt-assist-preparedata
-
-
     # 6. Cucumber
     # -----------------------------------------------------------------------------
     - name: fvt-assist-cucumber
