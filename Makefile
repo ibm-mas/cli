@@ -74,3 +74,7 @@ endif
 
 tekton/target:
 	DEV_MODE=true build/bin/build-tekton.sh
+
+.PHONY: run
+run:
+	podman run --rm -it -e IBM_ENTITLEMENT_KEY --pull Always quay.io/ibmmas/cli:master bash
