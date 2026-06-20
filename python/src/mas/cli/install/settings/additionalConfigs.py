@@ -137,10 +137,13 @@ class AdditionalConfigsMixin:
             podTemplateChoice = self.promptForInt("Select pod templates profile")
 
             if podTemplateChoice == 1:
+                self.podTemplatesKeyword = "guaranteed"
                 self.setParam("mas_pod_templates_dir", path.join(self.templatesDir, "pod-templates", "guaranteed"))
             elif podTemplateChoice == 2:
+                self.podTemplatesKeyword = "best-effort"
                 self.setParam("mas_pod_templates_dir", path.join(self.templatesDir, "pod-templates", "best-effort"))
             elif podTemplateChoice == 3:
+                self.podTemplatesKeyword = None
                 self.setParam("mas_pod_templates_dir", self.promptForDir("Pod templates directory", mustExist=True))
             else:
                 self.fatalError(f"Invalid selection: {podTemplateChoice}")
