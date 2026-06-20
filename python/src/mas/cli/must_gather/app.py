@@ -203,10 +203,9 @@ class MustGatherApp(BaseApp):
         summaryTimer = Timer()
         summaryTimer.start()
 
-        # Generate summaries (only if OCP was collected)
-        if "ocp" in self._parseCollectors(parsedArgs.collectors):
-            print()  # Add newline before summary generation
-            self.generateSummary(outputDir=outputManager.outputDir)
+        # Generate summaries (always run, individual summarizers check their own requirements)
+        print()  # Add newline before summary generation
+        self.generateSummary(outputDir=outputManager.outputDir)
 
         # Generate web viewer
         print()  # Add newline before web viewer generation
@@ -395,8 +394,8 @@ class MustGatherApp(BaseApp):
         else:
             logger.debug("Skipping SLS collection (not in collectors list)")
 
-        # MAS Discovery
-        if "mas" in enabledCollectors:
+        # MAS Discovery (triggered by 'mas' or 'lic' collector)
+        if "mas" in enabledCollectors or "lic" in enabledCollectors:
             try:
                 masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
                 masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
@@ -409,28 +408,30 @@ class MustGatherApp(BaseApp):
                     noLogs=parsedArgs.no_logs,
                     ibmCRDs=self.ibmCRDsList,
                     masInstanceIds=masInstanceIds,
+                    enabledCollectors=enabledCollectors,
                 )
 
                 if coreNamespaces:
-                    # Add MAS Apps collection tasks for discovered instances
-                    mas_apps.addMASAppsToCollectionPlan(
-                        plan=plan,
-                        dynClient=self.dynamicClient,
-                        outputDir=outputDir,
-                        noLogs=parsedArgs.no_logs,
-                        ibmCRDs=self.ibmCRDsList,
-                        coreNamespaces=coreNamespaces,
-                        masAppIds=masAppIds,
-                    )
+                    # Add MAS Apps collection tasks only if 'mas' collector is enabled
+                    if "mas" in enabledCollectors:
+                        mas_apps.addMASAppsToCollectionPlan(
+                            plan=plan,
+                            dynClient=self.dynamicClient,
+                            outputDir=outputDir,
+                            noLogs=parsedArgs.no_logs,
+                            ibmCRDs=self.ibmCRDsList,
+                            coreNamespaces=coreNamespaces,
+                            masAppIds=masAppIds,
+                        )
 
-                    # Add MAS Pipelines collection tasks
-                    mas_pipelines.addMASPipelinesToCollectionPlan(
-                        plan=plan,
-                        dynClient=self.dynamicClient,
-                        outputDir=outputDir,
-                        noLogs=parsedArgs.no_logs,
-                        ibmCRDs=self.ibmCRDsList,
-                    )
+                        # Add MAS Pipelines collection tasks
+                        mas_pipelines.addMASPipelinesToCollectionPlan(
+                            plan=plan,
+                            dynClient=self.dynamicClient,
+                            outputDir=outputDir,
+                            noLogs=parsedArgs.no_logs,
+                            ibmCRDs=self.ibmCRDsList,
+                        )
                 else:
                     logger.debug("No MAS instances discovered")
             except Exception as e:
@@ -542,6 +543,10 @@ class MustGatherApp(BaseApp):
         if not self._generateSuiteSummary(outputDir):
             success = False
 
+        # Generate licensing summaries (only if lic collector was enabled)
+        if not self._generateLicensingSummary(outputDir):
+            success = False
+
         return success
 
     def _generateSubscriptionsSummary(self, outputDir: str) -> bool:
@@ -648,6 +653,48 @@ class MustGatherApp(BaseApp):
         except Exception as e:
             print(f"❌  Error generating suite summary: {e}")
             logger.error(f"❌ Error generating suite summary: {e}")
+            return False
+
+    def _generateLicensingSummary(self, outputDir: str) -> bool:
+        """Generate licensing summaries for all MAS instances.
+
+        Creates licensing summary markdown files at licensing/{instance}/_summary.md
+        for each MAS instance with collected licensing data. Only runs if licensing
+        data directory exists (i.e., lic collector was enabled).
+
+        Args:
+            outputDir (str): Base output directory for must-gather
+
+        Returns:
+            bool: True if summary generation succeeded, False otherwise
+        """
+        logger = logging.getLogger(__name__)
+
+        # Check if licensing directory exists (only created if lic collector was enabled)
+        licensingDir = os.path.join(outputDir, "licensing")
+        if not os.path.exists(licensingDir):
+            logger.debug("Licensing directory not found - skipping licensing summary (lic collector not enabled)")
+            return True
+
+        try:
+            with Halo(text="Generating licensing summaries", spinner=self.spinner) as h:
+                # Import licensing summarizer
+                from .summarizer import licensing
+
+                # Generate licensing summaries (writes directly to files)
+                licensing.summarize(outputDir)
+
+                h.stop_and_persist(symbol=self.successIcon, text="Licensing summaries generated")
+                logger.info("✅ Successfully generated licensing summaries")
+                return True
+
+        except FileNotFoundError as e:
+            print(f"⚠️  Required files not found for licensing summary: {e}")
+            logger.warning(f"⚠️ Licensing summary skipped due to missing files: {e}")
+            return False
+        except Exception as e:
+            print(f"❌  Error generating licensing summary: {e}")
+            logger.error(f"❌ Error generating licensing summary: {e}")
             return False
 
     def uploadToArtifactory(self, archivePath: str, artifactoryToken: str, artifactoryUploadDir: str) -> bool:
