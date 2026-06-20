@@ -483,13 +483,36 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.nonInteractiveMode()
             
-            # Set default DB2 installation if neither --install-db2 nor external DB params were provided
+            # Check if external database parameters were provided
             if self.getParam("db2_action_aiservice") == "":
-                # No database configuration provided - default to installing DB2
-                self.setParam("install_db2", "true")
-                self.setParam("db2_action_aiservice", "install")
-                self.setDB2DefaultChannel()
-                self.setDB2DefaultSettings()
+                externalDbProvided = (
+                    vars(self.args).get("aiservice_db_jdbc_url") is not None or
+                    vars(self.args).get("aiservice_db_username") is not None or
+                    vars(self.args).get("aiservice_db_password") is not None
+                )
+                
+                if externalDbProvided:
+                    # External database configuration provided
+                    self.setParam("install_db2", "false")
+                    self.setParam("db2_action_aiservice", "none")
+                    
+                    # Validate required external DB parameters
+                    requiredDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
+                    for dbParam in requiredDbParams:
+                        if vars(self.args).get(dbParam) is None:
+                            self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
+                    
+                    # Set the external DB parameters
+                    for dbParam in ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password", "aiservice_db_ca_cert"]:
+                        value = vars(self.args).get(dbParam)
+                        if value is not None:
+                            self.setParam(dbParam, value)
+                else:
+                    # No database configuration provided - default to installing DB2
+                    self.setParam("install_db2", "true")
+                    self.setParam("db2_action_aiservice", "install")
+                    self.setDB2DefaultChannel()
+                    self.setDB2DefaultSettings()
 
         # Set up the sls and db2 license file
         self.slsLicenseFile()
