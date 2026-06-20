@@ -236,6 +236,7 @@ databaseArgGroup.add_argument(
     "--install-db2",
     dest="install_db2",
     required=False,
+    default="true",
     help="Install DB2 in-cluster for AI Service (default behavior, mutually exclusive with --db-*)",
     action="store_const",
     const="true",
