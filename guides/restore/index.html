@@ -420,7 +420,9 @@
 <li><strong>Suite-level SLSCfg</strong> - Restores or provides custom Suite-level SLS configuration with optional URL override</li>
 <li><strong>Suite-level BASCfg/DROCfg</strong> - Restores or provides custom Suite-level DRO/BAS configuration with optional URL override</li>
 <li><strong>Manage Database</strong> - Optionally restores incluster Db2 database associated with Manage workspace</li>
-<li><strong>Manage Application</strong> - Optionally restores Manage application namespace resources and persistent volume data</li>
+<li><strong>Manage Application</strong> - Optionally restores Manage application namespace resources and optionally persistent volume data</li>
+<li><strong>Facilities Database</strong> - Optionally restores incluster Db2 database associated with Facilities workspace</li>
+<li><strong>Facilities Application</strong> - Optionally restores Facilities application namespace resources and optionally persistent volume data</li>
 <li><strong>Grafana</strong> - Optionally installs Grafana for monitoring (not part of backup)</li>
 <li><strong>Data Reporter Operator (DRO)</strong> - Optionally installs DRO (not part of backup), when DRO is installed, an auto-generated Suite-level BASCfg CR will be applied automatically.</li>
 </ul>
@@ -501,9 +503,19 @@
 <td><code>false</code></td>
 <td>Download the Manage application backup archive</td>
 </tr>
+<tr>
+<td><code>include_facilities_db_archive</code></td>
+<td><code>false</code></td>
+<td>Download the Facilities Db2 database backup archive</td>
+</tr>
+<tr>
+<td><code>include_facilities_app_archive</code></td>
+<td><code>false</code></td>
+<td>Download the Facilities application backup archive</td>
+</tr>
 </tbody>
 </table>
-<p>These parameters are automatically set by the restore pipeline based on the restore configuration (e.g. <code>--restore-manage-app</code>, <code>--restore-manage-db</code>, <code>--include-sls</code>), so you do not need to set them manually when using the <code>mas restore</code> command.</p>
+<p>These parameters are automatically set by the restore pipeline based on the restore configuration (e.g. <code>--restore-manage-app</code>, <code>--restore-manage-db</code>, <code>--restore-facilities-app</code>, <code>--restore-facilities-db</code>, <code>--include-sls</code>), so you do not need to set them manually when using the <code>mas restore</code> command.</p>
 <h3 id="ansible-devops-integration">Ansible DevOps Integration<a class="headerlink" href="#ansible-devops-integration" title="Permanent link">¶</a></h3>
 <p>The <code>mas restore</code> command launches a Tekton pipeline that executes the following Ansible roles from the <a href="https://ibm-mas.github.io/ansible-devops/">IBM MAS DevOps Collection</a>:</p>
 <ul>

@@ -412,7 +412,7 @@
   <tbody>
     <tr>
       <td><code>command</code></td>
-      <td><code>{serve}</code></td>
+      <td><code>{serve, summarize}</code></td>
       <td>-</td>
       <td>Available commands</td>
     </tr>
@@ -448,6 +448,12 @@
       <td><code>false</code></td>
       <td>Do not delete individual files after creating the must-gather compressed tar archive</td>
     </tr>
+    <tr>
+      <td><code>--no-tar</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Skip creation of tar archive (requires --keep-files)</td>
+    </tr>
   </tbody>
 </table>
 
@@ -471,9 +477,9 @@
     <tr>
       <td><code>--collectors</code></td>
       <td><code>validateCollectors</code></td>
-      <td><code>ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,aiservice</code></td>
+      <td><code>ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,aiservice,lic</code></td>
       <td>Comma-separated list of collectors to run (default: all)
-Available collectors: ocp, db2, kafka, mongodb, cp4d, cert-manager, grafana, sls, mas, aiservice</td>
+Available collectors: ocp, db2, kafka, mongodb, cp4d, cert-manager, grafana, sls, mas, aiservice, lic</td>
     </tr>
     <tr>
       <td><code>--no-logs</code></td>

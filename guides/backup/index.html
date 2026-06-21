@@ -603,25 +603,28 @@
 <h3 id="mas-application-backup">MAS Application Backup<a class="headerlink" href="#mas-application-backup" title="Permanent link">¶</a></h3>
 <p>The backup process supports backing up MAS application resources and persistent volume data. Currently supported:</p>
 <ul>
-<li><strong>Manage Application</strong> - Backs up Manage namespace resources and persistent volume data</li>
+<li><strong>Manage Application</strong> - Backs up Manage namespace resources and optionally persistent volume data</li>
+<li><strong>Facilities Application</strong> - Backs up Facilities namespace resources and optionally persistent volume data</li>
 </ul>
-<p>When backing up a Manage application, the following resources are included:</p>
+<p>When backing up a Manage or Facilities application, the following resources are included:</p>
 <p><strong>Namespace Resources</strong>:
-- <code>ManageApp</code> custom resource
-- <code>ManageWorkspace</code> custom resource
-- Encryption secrets (dynamically determined from ManageWorkspace CR)
+- Application custom resource (e.g., <code>ManageApp</code>, <code>FacilitiesApp</code>)
+- Workspace custom resource (e.g., <code>ManageWorkspace</code>, <code>FacilitiesWorkspace</code>)
+- Encryption secrets (dynamically determined from Workspace CR)
 - Certificates with <code>mas.ibm.com/instanceId</code> label
 - Subscription and OperatorGroup
 - IBM entitlement secret
 - All referenced secrets (auto-discovered)</p>
-<p><strong>Persistent Volume Data</strong> (if configured in ManageWorkspace CR):
+<p><strong>Persistent Volume Data</strong> (optional, controlled by flags):
+- Use <code>--backup-manage-include-pvc</code> to include Manage PVC data
+- Use <code>--backup-facilities-include-pvc</code> to include Facilities PVC data
 - All persistent volumes defined in <code>spec.settings.deployment.persistentVolumes</code>
 - Data backed up as compressed tar.gz archives
 - Each PVC's mount path archived separately
 - Common PVCs include JMS server data, custom fonts, and attachments</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Application backup is optional and configured during the interactive backup process or via command-line parameters (<code>--backup-manage-app</code>, <code>--manage-workspace-id</code>).</p>
+<p>Application backup is optional and configured during the interactive backup process or via command-line parameters (<code>--backup-manage-app</code>, <code>--manage-workspace-id</code>, <code>--backup-manage-include-pvc</code> for Manage; <code>--backup-facilities-app</code>, <code>--facilities-workspace-id</code>, <code>--backup-facilities-include-pvc</code> for Facilities).</p>
 </div>
 <h3 id="db2-database-backup">Db2 Database Backup<a class="headerlink" href="#db2-database-backup" title="Permanent link">¶</a></h3>
 <p>The backup process supports backing up Db2 databases used by MAS applications. When backing up a Db2 database, the following are included:</p>
