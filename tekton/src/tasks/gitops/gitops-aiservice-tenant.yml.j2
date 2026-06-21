@@ -4,7 +4,7 @@ kind: Task
 metadata:
   name: gitops-aiservice-tenant
 spec:
-  params: 
+  params:
     - name: cluster_name
       type: string
     - name: account
@@ -223,7 +223,7 @@ spec:
         - -c
       name: gitops-aiservice-tenant
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

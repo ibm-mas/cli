@@ -17,7 +17,7 @@ spec:
     # Additional results can be added here in the future
   steps:
     - name: analyze-config
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       script: |
         #!/bin/bash
