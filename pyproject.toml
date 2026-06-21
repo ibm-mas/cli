@@ -21,7 +21,6 @@ dependencies = [
   "alive-progress",
   "halo",
   "prompt_toolkit",
-  "openshift",
   "kubernetes == 33.1.0",
   "tabulate",
   "prettytable",

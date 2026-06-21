@@ -14,7 +14,7 @@ spec:
     - name: aiservice_instance_id
       type: string
       description: AI Service Instance ID
-      default: "" 
+      default: ""
     - name: custom_labels
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
@@ -180,7 +180,7 @@ spec:
     - name: mongodb
       script: |
         #!/bin/bash
-        
+
         # During a standalone AI Service installation, a mongo-config(fake) must be created by using the AISERVICE_INSTANCE_ID as the MAS_INSTANCE_ID
         if [[ "$MAS_INSTANCE_ID" == "" ]] && [[ "$AISERVICE_INSTANCE_ID" != "" ]]; then
             echo "Setting MAS_INSTANCE_ID based on AISERVICE_INSTANCE_ID for standalone AI Service install"
@@ -188,7 +188,7 @@ spec:
         fi
         /opt/app-root/src/run-role.sh mongodb
 
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: $(params.mas_config_dir)
 

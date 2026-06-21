@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class InstallSummarizerMixin:
     if TYPE_CHECKING:
         from typing import List, NoReturn
-        from openshift.dynamic import DynamicClient
+        from kubernetes.dynamic import DynamicClient
 
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
@@ -157,19 +157,12 @@ class InstallSummarizerMixin:
             self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
 
         self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
-
-        print()
-        self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
-
+        self.printParamSummary("IPV6 Support", "enable_ipv6")
         if self.getParam("mas_manual_cert_mgmt") != "":
-            print()
             self.printSummary("Manual Certificates", self.manualCertsDir)
         else:
-            print()
             self.printSummary("Manual Certificates", "Not Configured")
-
-        print()
-        self.printParamSummary("Enable Guided Tour", "mas_enable_walkme")
+        self.printParamSummary("Trust Default Cert Authorities", "mas_trust_default_cas")
 
         print()
         self.printParamSummary("Catalog Version", "mas_catalog_version")
@@ -183,16 +176,10 @@ class InstallSummarizerMixin:
         self.printParamSummary("IBM Open Registry", "mas_icr_cpopen")
 
         print()
-        self.printParamSummary("Enable feature adoption metrics", "mas_feature_usage")
-
-        print()
-        self.printParamSummary("Enable deployment progression metrics", "mas_deployment_progression")
-
-        print()
-        self.printParamSummary("Enable usability metrics", "mas_usability_metrics")
-
-        print()
-        self.printParamSummary("Trust Default Cert Authorities", "mas_trust_default_cas")
+        self.printParamSummary("Guided Tour", "mas_enable_walkme")
+        self.printParamSummary("Feature adoption metrics", "mas_feature_usage")
+        self.printParamSummary("Deployment progression metrics", "mas_deployment_progression")
+        self.printParamSummary("Usability metrics", "mas_usability_metrics")
 
         print()
         if self.localConfigDir is not None:
@@ -430,11 +417,12 @@ class InstallSummarizerMixin:
                 "Dedicated Facilities Instance",
                 ("Install" if self.getParam("db2_action_facilities") == "install" else "Do Not Install"),
             )
-            self.printParamSummary(" - Type", "db2_type")
+            print()
+            self.printParamSummary("Type", "db2_type")
             if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
-                self.printParamSummary(" - Timezone for System and Dedicated Manage Instances", "db2_timezone")
+                self.printParamSummary("Timezone", "db2_timezone")
             if self.getParam("db2_action_facilities") == "install":
-                self.printParamSummary(" - Timezone for Dedicated Facilities Instance", "db2_facilities_timezone")
+                self.printParamSummary("Timezone (Facilities)", "db2_facilities_timezone")
             print()
             self.printParamSummary("Install Namespace", "db2_namespace")
             self.printParamSummary("Subscription Channel", "db2_channel")
@@ -578,11 +566,11 @@ class InstallSummarizerMixin:
             self.printSummary("Install Grafana", "Do Not Install")
 
     def slackSummary(self) -> None:
-        self.printH2("Slack Integration")
+        self.printH2("Slack Notifications")
         if self.getParam("slack_channel") != "":
-            self.printParamSummary("Slack Channel", "slack_channel")
+            self.printParamSummary("Channel", "slack_channel")
         else:
-            self.printSummary("Slack Channel", "Not Configured")
+            self.printSummary("Channel", "Disabled")
 
     def installSummary(self) -> None:
         pass

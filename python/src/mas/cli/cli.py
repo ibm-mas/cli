@@ -21,12 +21,11 @@ import threading
 import json
 from typing import List, Dict, Any, Callable, Type, NoReturn
 
-# Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from kubernetes import config
 from kubernetes.client.api_client import ApiClient
 from kubernetes.client import Configuration
-from openshift.dynamic import DynamicClient
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic import DynamicClient
+from kubernetes.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 

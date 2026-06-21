@@ -4,7 +4,7 @@ kind: Task
 metadata:
   name: gitops-deprovision-aiservice
 spec:
-  params: 
+  params:
     - name: cluster_name
       type: string
     - name: account
@@ -25,7 +25,7 @@ spec:
       type: string
     - name: aiservice_instance_id
       type: string
-      
+
   stepTemplate:
     name: gitops-deprovision-aiservice
     env:
@@ -63,7 +63,7 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         mkdir -p /tmp/init-aiservice
-        
+
         mas gitops-deprovision-aiservice -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
         --dir /tmp/init-aiservice \
@@ -80,6 +80,6 @@ spec:
         - -c
       name: gitops-deprovision-aiservice
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

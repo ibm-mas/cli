@@ -133,13 +133,13 @@ spec:
           --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-facilities-main" \
           --skip-create-storage-class \
           || exit 1
-        
+
       command:
         - /bin/sh
         - -c
       name: gitops-efs
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
 

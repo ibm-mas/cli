@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Dict, List, NoReturn
 from prompt_toolkit.completion import WordCompleter
 from mas.cli.validators import CustomizationArchiveNameValidator, LanguageValidator
 from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
-from openshift.dynamic.exceptions import ResourceNotFoundError
+from kubernetes.dynamic.exceptions import ResourceNotFoundError
 from ...validators import AiserviceTeanantIDValidator
 from prompt_toolkit import print_formatted_text, HTML
 from mas.devops.utils import isVersionEqualOrAfter
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
-    from openshift.dynamic import DynamicClient
+    from kubernetes.dynamic import DynamicClient
     from prompt_toolkit.validation import Validator
 
 
