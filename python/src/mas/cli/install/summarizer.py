@@ -200,7 +200,12 @@ class InstallSummarizerMixin:
         else:
             self.printSummary("Additional Config", "Not Configured")
         if "mas_pod_templates_dir" in self.params:
-            self.printParamSummary("Pod Templates", "mas_pod_templates_dir")
+            # Display the keyword if it's a built-in template, otherwise show the path
+            podTemplatesKeyword = getattr(self, "podTemplatesKeyword", None)
+            if podTemplatesKeyword:
+                self.printSummary("Pod Templates", podTemplatesKeyword.title())
+            else:
+                self.printParamSummary("Pod Templates", "mas_pod_templates_dir")
         else:
             self.printSummary("Pod Templates", "Not Configured")
 

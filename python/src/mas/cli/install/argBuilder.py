@@ -87,8 +87,12 @@ class installArgBuilderMixin:
 
         if self.localConfigDir is not None:
             command += f'  --additional-configs "{self.localConfigDir}"{newline}'
-        if self.getParam("pod_templates") != "":
-            command += f"  --pod-templates \"{self.getParam('pod_templates')}\"{newline}"
+        if self.getParam("mas_pod_templates_dir") != "":
+            # Use keyword for built-in templates, otherwise use the full path
+            if hasattr(self, "podTemplatesKeyword") and self.podTemplatesKeyword is not None:
+                command += f'  --pod-templates "{self.podTemplatesKeyword}"{newline}'
+            else:
+                command += f"  --pod-templates \"{self.getParam('mas_pod_templates_dir')}\"{newline}"
 
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
