@@ -5,12 +5,10 @@ Contents
 -------------------------------------------------------------------------------
 1. [Detect Secrets](#detect-secrets)
 2. [Pre-Commit Hooks](#pre-commit-hooks)
-3. [Testing Significant Changes](#)
-4. [Building the Tekton definitions](#building-the-tekton-definitions)
-5. [Building the Documentation](#building-the-documentation)
-6. [Using the Docker Image](#using-the-docker-image)
-7. [Working Across Repositories](#working-across-repositories)
-8. [Pull Requests](#pull-requests)
+3. [Local Development](#local-development)
+4. [Building the Documentation](#building-the-documentation)
+5. [Working Across Repositories](#working-across-repositories)
+6. [Pull Requests](#pull-requests)
 
 
 Detect Secrets
@@ -41,10 +39,8 @@ pre-commit run -a
 ```
 
 
-Testing Significant Changes
+Local Development
 -------------------------------------------------------------------------------
-Manual testing for significant changes is sometimes appropriate:
-
 If you don't already have a cluster, provision an appropriately sized OpenShift cluster:
 
 ```bash
@@ -54,38 +50,17 @@ podman run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 
 ```bash
 # Build the tekton definitions that will be installed
-make tekton VERSION=mybranch
+make tekton VERSION=x.y.z-pre.mybranch
 
 # If you are not making any changes that impact what happens inside the containers
 #in the pipeline then you can use the master branch of the CLI
-make tekton VERSION=master
+make tekton VERSION=x.y.z-pre.master
 
 # Run the install/update/upgrade/uninstall
 mas-cli install
 mas-cli update
 mas-cli upgrade
 mas-cli uninstall
-```
-
-
-Building the Tekton definitions
--------------------------------------------------------------------------------
-The tekton defintions can be built locally using `build/bin/build-tekton.sh`:
-
-```bash
-# Build, and install the MAS Pipeline & Task definitions
-DEV_MODE=true VERSION=100.0.0-pre.local build/bin/build-tekton.sh && oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
-
-# Build and validate the MAS Pipeline & Task definitions
-DEV_MODE=true VERSION=100.0.0-pre.local build/bin/build-tekton.sh && pytest tekton/test_schema.py -v
-```
-
-Note that we use the version `100.0.0-pre.local` as this is the version that is defaulted into the CLI Python code before it's modifyed during the build.
-
-Once built, use `tekton/test-install.sh` to apply the definitions to a cluster one-by-one.  This makes it much easier to determine where any problems in the built definition lay versus applying the combined `ibm-mas-tekton.yaml` file directly (although both achieves the same end result):
-
-```bash
-tekton/test-install.sh
 ```
 
 
@@ -104,30 +79,6 @@ python -m pip install -q mkdocs mkdocs-carbon mkdocs-glightbox mkdocs-redirects
 python -m pip install -e mkdocs_plugins
 
 mkdocs serve --livereload
-```
-
-
-Using the docker image
--------------------------------------------------------------------------------
-This is a great way to test in a clean environment (e.g. to ensure the myriad of environment variables that you no doubt have set up are not impacting your test scenarios).  After you commit your changes to the repository a pre-release container image will be built, which contains your in-development version of the collection:
-
-```bash
-podman run -ti --rm --pull always quay.io/ibmmas/cli:mybranch
-
-# Login to a cluster
-oc login --token=xxxx --server=https://myocpserver
-
-# Set up environment variables
-export STUFF
-
-# Run a role
-ansible localhost -m include_role -a name=ibm.mas_devops.ocp_verify
-
-# Run a playbook
-ansible-playbook ibm.mas_devops.mas_install_core
-
-# Run a cli command
-mas install
 ```
 
 
