@@ -26,7 +26,7 @@ if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
   fi
 
   echo "${GITHUB_REF_NAME}" > $VERSION_FILE
-else
+elif [[ "${GITHUB_REF_TYPE}" == "branch" ]]; then
   echo "Branch build for '${GITHUB_REF_TYPE}/${GITHUB_REF_NAME}'"
   # Finds the most recent tag that is reachable from a commit. If the tag points
   # to the commit, then only the tag is shown. Otherwise, it suffixes the tag name with the number
