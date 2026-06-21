@@ -57,68 +57,55 @@ fi
 # 2. Generate ibm-mas-tekton.yaml and ibm-mas-tekton-fvt.yaml
 # -----------------------------------------------------------------------------
 echo "Creating tekton installers"
+
+# Determine the image reference to use
+if [ "$DEV_MODE" == "true" ] && [ "$USE_OCP_REGISTRY" == "true" ]; then
+  IMAGE_REFERENCE="${IMAGE_REGISTRY}/${OCP_PROJECT}/ibmmas-cli:${VERSION}"
+  echo "Updating image references to: ${IMAGE_REFERENCE}"
+else
+  IMAGE_REFERENCE="quay.io/ibmmas/cli:$VERSION"
+fi
+
 echo "" > $TARGET_FILE
 echo "" > $TARGET_FILE_FVT
-
 
 function addToFile() {
   src_file=$1
   dst_file=$2
   printf '[%-23s] %s\n' $(basename $dst_file) $(basename $src_file)
+  
+  # Update the file in-place, then add to combined file
+  sed -i "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" "$src_file"
+  
   echo "# --------------------------------------------------------------------------------" >> $dst_file
   echo "# $src_file" >> $dst_file
   echo "# --------------------------------------------------------------------------------" >> $dst_file
   cat $src_file >> $dst_file
-
 }
 
 for FILE in $TASK_FILES; do
   FILE_NAME=$(basename $FILE)
-
-  if [[ "$FILE_NAME" == fvt-* ]] || [[ "$FILE_NAME" == ivt-* ]] || [[ "$FILE_NAME" == launchfvt-* ]] || [[ "$FILE_NAME" == launchivt-* ]]
-  then addToFile $FILE $TARGET_FILE_FVT
-  else addToFile $FILE $TARGET_FILE
-  fi
+  case "$FILE_NAME" in
+    fvt-*|ivt-*)
+      addToFile $FILE $TARGET_FILE_FVT
+      ;;
+    *)
+      addToFile $FILE $TARGET_FILE
+      ;;
+  esac
 done
 
 for FILE in $PIPELINE_FILES; do
   FILE_NAME=$(basename $FILE)
-
-  if [[ "$FILE_NAME" == fvt-* ]] || [[ "$FILE_NAME" == ivt-* ]] || [[ "$FILE_NAME" == *-after-install.yaml ]] || [[ "$FILE_NAME" == *-with-fvt.yaml ]]
-  then addToFile $FILE $TARGET_FILE_FVT
-  else addToFile $FILE $TARGET_FILE
-  fi
+  case "$FILE_NAME" in
+    fvt-*|ivt-*)
+      addToFile $FILE $TARGET_FILE_FVT
+      ;;
+    *)
+      addToFile $FILE $TARGET_FILE
+      ;;
+  esac
 done
-
-# What a very long winded way of doing in-place sed! I'm sure someone did it this way for a reason?
-if [ "$DEV_MODE" == "true" ] && [ "$USE_OCP_REGISTRY" == "true" ]; then
-  # Use the OCP internal registry image reference
-  echo "Updating image references to: ${IMAGE_REFERENCE}"
-  
-  # Update individual task files
-  for FILE in $TASK_FILES; do
-    sed "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" $FILE > $FILE.tmp
-    mv $FILE.tmp $FILE
-  done
-  
-  # Update individual pipeline files
-  for FILE in $PIPELINE_FILES; do
-    sed "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" $FILE > $FILE.tmp
-    mv $FILE.tmp $FILE
-  done
-  
-  # Update combined files
-  sed "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" $TARGET_FILE > $TARGET_FILE.txt
-  sed "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" $TARGET_FILE_FVT > $TARGET_FILE_FVT.txt
-else
-  # Use the default quay.io image reference
-  sed "s#quay.io/ibmmas/cli:latest#quay.io/ibmmas/cli:$VERSION#g" $TARGET_FILE > $TARGET_FILE.txt
-  sed "s#quay.io/ibmmas/cli:latest#quay.io/ibmmas/cli:$VERSION#g" $TARGET_FILE_FVT > $TARGET_FILE_FVT.txt
-fi
-rm $TARGET_FILE
-rm $TARGET_FILE_FVT
-mv $TARGET_FILE.txt $TARGET_FILE
-mv $TARGET_FILE_FVT.txt $TARGET_FILE_FVT
 
 cp $TARGET_FILE $TARGET_FILE_IN_CLI
 cp $TARGET_FILE $TARGET_FILE_IN_PY
