@@ -5,14 +5,12 @@ Contents
 -------------------------------------------------------------------------------
 1. [Detect Secrets](#detect-secrets)
 2. [Pre-Commit Hooks](#pre-commit-hooks)
-3. [Building the Tekton definitions](#building-the-tekton-definitions)
-4. [Building the Documentation](#building-the-documentation)
-5. [Building the container image locally](#building-the-container-image-locally)
-6. [Building and deploying to OpenShift Container Platform](#building-and-deploying-to-openshift-container-platform)
-7. [Using the docker image](#using-the-docker-image)
-8. [Working Across Repositories](#working-across-repositories)
-9. [Pull Requests](#pull-requests)
-10. [Pulling MAS Ansible Devops into MAS Command Line Interface](#pulling-mas-ansible-devops-into-mas-command-line-interface)
+3. [Testing Significant Changes](#)
+4. [Building the Tekton definitions](#building-the-tekton-definitions)
+5. [Building the Documentation](#building-the-documentation)
+6. [Using the Docker Image](#using-the-docker-image)
+7. [Working Across Repositories](#working-across-repositories)
+8. [Pull Requests](#pull-requests)
 
 
 Detect Secrets
@@ -25,7 +23,7 @@ Pre-Commit Hooks
 -------------------------------------------------------------------------------
 The follow pre-commit hooks are enabled:
 
-- **autopep8**
+- **black**
 - **flake8**
 - **detect-secrets**
 
@@ -34,17 +32,41 @@ These hooks are also executed in a GitHub action in the [pre-commit workflow](.g
 ```bash
 python -m pip install pre-commit --upgrade
 pre-commit install
-```
 
-Manually run the pre-commit hooks against changed files
-```bash
+# Manually run the pre-commit hooks against changed files
 pre-commit run
-```
 
-Manually run the pre-commit hooks against all files
-```bash
+# Manually run the pre-commit hooks against all files
 pre-commit run -a
 ```
+
+
+Testing Significant Changes
+-------------------------------------------------------------------------------
+Manual testing for significant changes is sometimes appropriate:
+
+If you don't already have a cluster, provision an appropriately sized OpenShift cluster:
+
+```bash
+podman run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:mybranch \
+  mas provision-roks -r mas-development -c clitesting -v 4.20_openshift  --worker-count 3 --worker-flavor b3c.8x32 --worker-zone lon02 --no-confirm
+```
+
+```bash
+# Build the tekton definitions that will be installed
+make tekton VERSION=mybranch
+
+# If you are not making any changes that impact what happens inside the containers
+#in the pipeline then you can use the master branch of the CLI
+make tekton VERSION=master
+
+# Run the install/update/upgrade/uninstall
+mas-cli install
+mas-cli update
+mas-cli upgrade
+mas-cli uninstall
+```
+
 
 Building the Tekton definitions
 -------------------------------------------------------------------------------
@@ -85,70 +107,26 @@ mkdocs serve --livereload
 ```
 
 
-Building the container image locally
--------------------------------------------------------------------------------
-Build & install ansible collections and the mas.devops & mas.cli Python packages, save each into image/cli/install, build the docker container, then run the container.
-```bash
-make all
-make run
-```
-
-Building and deploying to OpenShift Container Platform
--------------------------------------------------------------------------------
-When developing locally and testing against an OCP cluster, you can use the OCP-specific build targets to build Tekton definitions that reference your cluster's internal registry and push the container image directly to that registry.
-
-**Prerequisites:**
-- You must be logged into your OCP cluster using `oc login`
-- The cluster's internal image registry must be accessible
-
-### Build Tekton definitions for OCP
-Build Tekton definitions configured to use the OCP internal registry:
-```bash
-make tekton-ocp
-```
-
-This target:
-- Verifies you are logged into an OCP cluster
-- Builds Tekton definitions with `USE_OCP_REGISTRY=true` to reference the internal registry
-- Configures tasks to use `image-registry.openshift-image-registry.svc:5000/<project>/ibmmas-cli:100.0.0-pre.localbuild`
-
-### Push container image to OCP registry
-Push the locally built container image to your OCP cluster's internal registry:
-```bash
-make push-to-ocp
-```
-
-This target:
-- Exposes the OCP internal registry route if not already exposed
-- Authenticates to the registry using your OCP token
-- Tags the local image for the OCP registry
-- Pushes the image to `image-registry.openshift-image-registry.svc:5000/<project>/ibmmas-cli:100.0.0-pre.localbuild`
-- Supports both `podman` and `docker` (with fallback to `skopeo` for TLS issues)
-
-### Complete OCP build and deployment
-Build everything and deploy to OCP in one command:
-```bash
-make all-ocp
-```
-
-This is equivalent to running:
-```bash
-make ansible-devops python tekton-ocp docker push-to-ocp
-```
-
-After completion, your Tekton tasks will be configured to use the image from your cluster's internal registry, making it ideal for local development and testing.
-
-
 Using the docker image
 -------------------------------------------------------------------------------
 This is a great way to test in a clean environment (e.g. to ensure the myriad of environment variables that you no doubt have set up are not impacting your test scenarios).  After you commit your changes to the repository a pre-release container image will be built, which contains your in-development version of the collection:
 
 ```bash
-docker run -ti --rm --pull always quay.io/ibmmas/cli:x.y.z-pre.mybranch
+podman run -ti --rm --pull always quay.io/ibmmas/cli:mybranch
+
+# Login to a cluster
 oc login --token=xxxx --server=https://myocpserver
+
+# Set up environment variables
 export STUFF
+
+# Run a role
 ansible localhost -m include_role -a name=ibm.mas_devops.ocp_verify
+
+# Run a playbook
 ansible-playbook ibm.mas_devops.mas_install_core
+
+# Run a cli command
 mas install
 ```
 
@@ -164,20 +142,24 @@ Pull Requests
 -------------------------------------------------------------------------------
 This repository uses a common build system to enable proper versioning. This build system is triggered when including specific tags at the beginning of your [commits](https://github.com/ibm-mas/cli/commits/master) and [pull requests](https://github.com/ibm-mas/cli/pulls) titles.
 
+
 ### Breaking Changes
 `[major]` - This tag triggers a major pre-release version build out of your branch. Only use this tag when there are breaking or potential disruptive changes being introduced i.e existing ansible roles being removed.
 
 **For example:** Latest MAS Command Line Interface version is at `1.0.0`. When submitting a `[major]` commit/pull request, it will build a pre-release version of MAS Command Line Interface as `2.0.0-pre.your-branch`. When merging it to master branch and releasing a new MAS CLI version, it will become `2.0.0` version.
+
 
 ### New Capability
 `[minor]` - This tag triggers a minor pre-release version build out of your branch. Use this tag when adding new features to existing roles or creating new ansible roles.
 
 **For example:** Latest MAS Command Line Interface version is at `1.0.0`. When submitting a `[minor]` commit/pull request. It will build a pre-release version of MAS Command Line Interface as `1.1.0-pre.your-branch`. When merging it to master branch and releasing a new MAS CLI version, it will become `1.1.0` version.
 
+
 ### Fixes
 `[patch]` - This tag triggers a patch pre-release version build out of your branch. Use this tag when making small changes such as code/documentation fixes and non-disruptive changes.
 
 **For example:** Latest MAS Command Line Interface version is at `1.0.0`. When submitting a `[patch]` commit/pull request, it will build a pre-release version of MAS Command Line Interface as `1.0.1-pre.your-branch`. When merging it to master branch and releasing a new MAS CLI version, it will become `1.0.1` version.
+
 
 ### Pre-requisites for new pull requests
 For `major` and `minor` pull requests mainly, make sure you follow the standard approach new while developing new code:
@@ -206,15 +188,3 @@ git push --set-upstream origin your-new-branch
 When pushing a change with the proper tag in the commit, it will trigger the build system and your pull request will undergo with the proper build checks such as documentation build process and the actual MAS CLI package build. Once they pass all the validations, the PR can be flagged as ready to review.
 
 As part of a successful MAS CLI build, a new pre-release docker image version will be pushed to [`Red Hat quay.io` image registry](https://quay.io/repository/ibmmas/cli?tab=tags)
-
-
-Pulling MAS Ansible Devops into MAS Command Line Interface
--------------------------------------------------------------------------------
-MAS Command line Interface is powered by [Red Hat Openshift Tekton Pipelines](https://docs.openshift.com/container-platform/4.10/cicd/pipelines/understanding-openshift-pipelines.html#understanding-openshift-pipelines) and [MAS Ansible Devops collection](https://github.com/ibm-mas/ansible-devops).
-
-The MAS Ansible Devops collection contains the ansible roles that are used to automate a particular task in the MAS CLI. For example, when you run `mas install` command via MAS CLI, when the installation begins, a tekton pipeline will be triggered in your cluster, and that will orchestrate the execution of a sequence of tasks, each of then invoking a particular MAS Ansible Devops role i.e `suite_install` role will perform the actual MAS installation.
-
-When building a MAS CLI pre-release image version, the build system will embed the MAS Ansible Devops `tar.gz` following the rule:
-
-- By default, MAS CLI will build its pre-release image using [the latest MAS Ansible Devops released version](https://github.com/ibm-mas/ansible-devops/releases).
-- **To use a custom MAS Ansible Devops collection within MAS CLI:**  If you are developing a custom MAS Ansible Devops collection and you want to build a MAS CLI image that will make use of this ansible collection, from the `cli` root folder, you can run `make ansible-build` to build and place your MAS Ansible Devops `tar.gz` into [`cli/image/cli/install`](image/cli/install/), that's the folder that CLI uses to install the MAS Ansible Devops collection that will be used within the MAS CLI container during the image build process.
