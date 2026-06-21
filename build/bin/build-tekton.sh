@@ -73,10 +73,10 @@ function addToFile() {
   src_file=$1
   dst_file=$2
   printf '[%-23s] %s\n' $(basename $dst_file) $(basename $src_file)
-  
+
   # Update the file in-place, then add to combined file
   sed -i "s#quay.io/ibmmas/cli:latest#${IMAGE_REFERENCE}#g" "$src_file"
-  
+
   echo "# --------------------------------------------------------------------------------" >> $dst_file
   echo "# $src_file" >> $dst_file
   echo "# --------------------------------------------------------------------------------" >> $dst_file
@@ -86,7 +86,7 @@ function addToFile() {
 for FILE in $TASK_FILES; do
   FILE_NAME=$(basename $FILE)
   case "$FILE_NAME" in
-    fvt-*|ivt-*)
+    *fvt-*|*ivt-*|aiservice-fvt*|aiservice-launchfvt*)
       addToFile $FILE $TARGET_FILE_FVT
       ;;
     *)
@@ -98,7 +98,7 @@ done
 for FILE in $PIPELINE_FILES; do
   FILE_NAME=$(basename $FILE)
   case "$FILE_NAME" in
-    fvt-*|ivt-*)
+    *fvt-*|*ivt-*|aiservice-fvt*)
       addToFile $FILE $TARGET_FILE_FVT
       ;;
     *)
