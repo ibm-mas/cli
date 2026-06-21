@@ -389,7 +389,7 @@ class TestCollectorsFlag:
         THEN all collectors are accepted.
         """
         parser = mustGatherArgParser
-        all_collectors = "ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,aiservice"
+        all_collectors = "ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,aiservice,lic"
         args = parser.parse_args(["--collectors", all_collectors])
         assert args.collectors == all_collectors
 
