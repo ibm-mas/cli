@@ -115,8 +115,6 @@
         - mas-launchfvt-optimizer
         - mas-launchfvt-predict
         - mas-launchfvt-visualinspection
-        - mas-launchfvt-upgrade-post
-        - mas-launchfvt-upgrade-pre
         - mas-launchfvt-facilities
         - mas-launchivt-manage
 
@@ -147,7 +145,6 @@
         - suite-app-backup
         - suite-app-install
         - suite-app-restore
-        - suite-app-rollback
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-backup
@@ -158,7 +155,6 @@
         - suite-db2-setup-for-facilities
         - suite-dns
         - suite-install
-        - suite-rollback
         - suite-uninstall
         - suite-upgrade
         - suite-verify
