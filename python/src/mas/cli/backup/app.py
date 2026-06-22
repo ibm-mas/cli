@@ -271,14 +271,7 @@ class BackupApp(BaseApp):
             self.printDescription(["The following MAS instances are installed on the target cluster:"])
             for instance in instances:
                 instanceId = instance["metadata"]["name"]
-                reconciledVersion = instance.get("status", {}).get("versions", {}).get("reconciled")
-
-                if not reconciledVersion:
-                    self.fatalError(
-                        f"MAS instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
-                        f"We do not recommend (and thus do not support) backing up MAS on a cluster with unhealthy instances. "
-                        f"Please resolve the instance health issues before attempting to backup."
-                    )
+                reconciledVersion = self.getReconciledVersion(instance)
 
                 self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
             return True
@@ -294,14 +287,7 @@ class BackupApp(BaseApp):
                 self.fatalError("No MAS instances found on the cluster")
             elif len(instances) == 1:
                 instanceId = instances[0]["metadata"]["name"]
-                reconciledVersion = instances[0].get("status", {}).get("versions", {}).get("reconciled")
-
-                if not reconciledVersion:
-                    self.fatalError(
-                        f"MAS instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
-                        f"We do not recommend (and thus do not support) backing up MAS on a cluster with unhealthy instances. "
-                        f"Please resolve the instance health issues before attempting to backup."
-                    )
+                reconciledVersion = self.getReconciledVersion(instances[0])
 
                 self.setParam("mas_instance_id", instanceId)
                 self.printDescription([f"Using MAS instance: <u>{instanceId}</u>"])
@@ -309,14 +295,7 @@ class BackupApp(BaseApp):
                 instanceOptions = []
                 for instance in instances:
                     instanceId = instance["metadata"]["name"]
-                    reconciledVersion = instance.get("status", {}).get("versions", {}).get("reconciled")
-
-                    if not reconciledVersion:
-                        self.fatalError(
-                            f"MAS instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
-                            f"We do not recommend (and thus do not support) backing up MAS on a cluster with unhealthy instances. "
-                            f"Please resolve the instance health issues before attempting to backup."
-                        )
+                    reconciledVersion = self.getReconciledVersion(instance)
 
                     self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
                     instanceOptions.append(instanceId)

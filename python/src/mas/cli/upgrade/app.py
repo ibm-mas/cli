@@ -183,14 +183,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
             for suite in suites:
                 instanceId = suite["metadata"]["name"]
-                reconciledVersion = suite.get("status", {}).get("versions", {}).get("reconciled")
-
-                if not reconciledVersion:
-                    self.fatalError(
-                        f"MAS instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
-                        f"We do not recommend (and thus do not support) upgrading MAS on a cluster with unhealthy instances. "
-                        f"Please resolve the instance health issues before attempting to upgrade."
-                    )
+                reconciledVersion = self.getReconciledVersion(suite)
 
                 print_formatted_text(HTML(f"- <u>{instanceId}</u> v{reconciledVersion}"))
                 suiteOptions.append(instanceId)

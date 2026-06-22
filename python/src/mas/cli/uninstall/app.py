@@ -77,14 +77,7 @@ class UninstallApp(BaseApp):
                 suites = listMasInstances(self.dynamicClient)
                 for suite in suites:
                     instanceId = suite["metadata"]["name"]
-                    reconciledVersion = suite.get("status", {}).get("versions", {}).get("reconciled")
-
-                    if not reconciledVersion:
-                        self.fatalError(
-                            f"MAS instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
-                            f"We do not recommend (and thus do not support) uninstalling MAS on a cluster with unhealthy instances. "
-                            f"Please resolve the instance health issues before attempting to uninstall. See log file for details."
-                        )
+                    reconciledVersion = self.getReconciledVersion(suite)
 
                     self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
                     suiteOptions.append(instanceId)
