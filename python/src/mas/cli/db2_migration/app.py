@@ -56,16 +56,26 @@ class Db2MigrationApp(BaseApp):
             return cluster
 
         # Multiple clusters - prompt for selection
+        #self.printH2("Available Db2uClusters")
+        #options = []
+        #for i, cluster in enumerate(clusters):
+        #    name = cluster.metadata.name
+        #    version = cluster.spec.version if hasattr(cluster.spec, "version") else "unknown"
+        #    status = cluster.status.state if hasattr(cluster, "status") and hasattr(cluster.status, "state") else "unknown"
+        #    options.append(f"{name} (version: {version}, status: {status})")
+
+        #selectedIndex = self.promptForListSelect("Select cluster to migrate", options)
+        #return clusters[selectedIndex]
+
         self.printH2("Available Db2uClusters")
-        options = []
         for i, cluster in enumerate(clusters):
             name = cluster.metadata.name
             version = cluster.spec.version if hasattr(cluster.spec, "version") else "unknown"
             status = cluster.status.state if hasattr(cluster, "status") and hasattr(cluster.status, "state") else "unknown"
-            options.append(f"{name} (version: {version}, status: {status})")
+            print(f"  {i+1}. {name} (version: {version}, status: {status})")
 
-        selectedIndex = self.promptForListSelection("Select cluster to migrate", options)
-        return clusters[selectedIndex]
+        selectedIndex = self.promptForInt("Select cluster to migrate", min=1, max=len(clusters))
+        return clusters[selectedIndex - 1]
 
     def promptForBackup(self) -> bool:
         """Prompt user whether to perform backup before migration.
@@ -176,7 +186,7 @@ class Db2MigrationApp(BaseApp):
             h.succeed(f"Namespace {pipelinesNamespace} is ready")
 
         with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-            updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+            updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
             h.succeed(f"Latest Tekton definitions are installed (v{self.version})")
 
         # Launch pipeline

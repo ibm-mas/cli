@@ -23,6 +23,7 @@
       - mas-upgrade
       - mas-rollback
       - mas-uninstall
+      - mas-devops-db2-migration 
       # MAS FVT Pipelines
       - mas-fvt-assist
       - mas-fvt-core

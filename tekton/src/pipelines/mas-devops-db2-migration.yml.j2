@@ -93,8 +93,3 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-
-  finally:
-    # Notify on completion
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/common/finalize.yml.j2') | indent(4) }}
