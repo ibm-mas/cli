@@ -4,7 +4,6 @@ kind: Task
 metadata:
   name: gitops-rosa
 spec:
-
   params:
     - name: cluster_name
       type: string
@@ -24,7 +23,6 @@ spec:
       type: string
     - name: rosa_compute_machine_type
       type: string
-  stepTemplate:
   steps:
     - args:
       - |-
