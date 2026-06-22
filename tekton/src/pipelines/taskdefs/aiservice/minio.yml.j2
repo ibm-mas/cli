@@ -22,6 +22,9 @@
   taskRef:
     name: mas-devops-minio
     kind: Task
+  workspaces:
+    - name: configs
+      workspace: shared-additional-configs
   when:
     - input: "$(params.minio_root_user)"
       operator: notin

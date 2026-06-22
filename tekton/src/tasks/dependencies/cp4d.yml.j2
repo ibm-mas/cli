@@ -59,7 +59,6 @@ spec:
           secretKeyRef:
             name: pipeline-additional-configs
             key: IBM_ENTITLEMENT_KEY
-            optional: true
       - name: SKIP_ENTITLEMENT_KEY_FLAG
         value: $(params.skip_entitlement_key_flag)
   steps:

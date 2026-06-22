@@ -332,7 +332,12 @@ class RestoreApp(BaseApp):
                 )
 
                 # Apply config file secrets to the namespace
-                prepareRestoreSecrets(dynClient=self.dynamicClient, namespace=pipelinesNamespace, restoreConfigs=self.configSecret)
+                prepareRestoreSecrets(
+                    dynClient=self.dynamicClient,
+                    namespace=pipelinesNamespace,
+                    restoreConfigs=self.configSecret,
+                    ibm_entitlement_key=self.getParam("ibm_entitlement_key") if self.getParam("include_dro") == "true" else None,
+                )
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 

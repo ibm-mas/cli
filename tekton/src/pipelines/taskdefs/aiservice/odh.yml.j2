@@ -26,6 +26,9 @@
   taskRef:
     name: mas-devops-aiservice-odh
     kind: Task
+  workspaces:
+    - name: configs
+      workspace: shared-additional-configs
   when:
     - input: "$(params.aiservice_channel)"
       operator: notin

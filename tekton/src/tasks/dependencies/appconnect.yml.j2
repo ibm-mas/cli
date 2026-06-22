@@ -54,7 +54,6 @@ spec:
           secretKeyRef:
             name: pipeline-additional-configs
             key: IBM_ENTITLEMENT_KEY
-            optional: true
       # Channel
       - name: APPCONNECT_CHANNEL
         value: $(params.appconnect_channel)
