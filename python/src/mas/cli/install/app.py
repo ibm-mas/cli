@@ -18,6 +18,7 @@ from dateutil.relativedelta import relativedelta
 import re
 import calendar
 from kubernetes.dynamic.exceptions import NotFoundError
+from urllib3.exceptions import MaxRetryError
 
 from typing import Dict, Any
 
@@ -181,6 +182,8 @@ class InstallApp(
                     ]
                 )
             )
+        except MaxRetryError:
+            self.fatalError("Unable to connect to the Kubernetes API server. Please verify cluster connectivity and try again.")
 
     @logMethodCall
     def licensePrompt(self):
@@ -1323,8 +1326,11 @@ class InstallApp(
                 "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
                 "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
                 "",
+                "Note: Remote file systems are often slower than local file systems, using a storage class backed by a remote file system (e.g. NFS) as the RWO storage class may result in degraded performance",
+                "",
             ]
         )
+
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         if defaultStorageClasses.provider is not None:
             print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))

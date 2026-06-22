@@ -101,7 +101,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
             for instance in masInstances:
                 instanceId = instance["metadata"]["name"]
-                currentVersion = instance.get("status", {}).get("versions", {}).get("reconciled", "")
+                currentVersion = self.getReconciledVersion(instance)
 
                 if self.shouldApplyRBACForInstance(instanceId, currentVersion, self.chosenCatalog):
                     channel = getMasChannel(self.dynamicClient, instanceId)
@@ -432,7 +432,10 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
-                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+                instanceId = instance["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(instance)
+
+                self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
             return True
         except ResourceNotFoundError:
             if instanceParamKey != "":
