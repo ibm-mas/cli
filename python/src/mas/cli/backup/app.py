@@ -294,13 +294,32 @@ class BackupApp(BaseApp):
                 self.fatalError("No MAS instances found on the cluster")
             elif len(instances) == 1:
                 instanceId = instances[0]["metadata"]["name"]
+                reconciledVersion = instances[0].get("status", {}).get("versions", {}).get("reconciled")
+
+                if not reconciledVersion:
+                    self.fatalError(
+                        f"MAS instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
+                        f"We do not recommend (and thus do not support) backing up MAS on a cluster with unhealthy instances. "
+                        f"Please resolve the instance health issues before attempting to backup."
+                    )
+
                 self.setParam("mas_instance_id", instanceId)
                 self.printDescription([f"Using MAS instance: <u>{instanceId}</u>"])
             else:
                 instanceOptions = []
                 for instance in instances:
-                    self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
-                    instanceOptions.append(instance["metadata"]["name"])
+                    instanceId = instance["metadata"]["name"]
+                    reconciledVersion = instance.get("status", {}).get("versions", {}).get("reconciled")
+
+                    if not reconciledVersion:
+                        self.fatalError(
+                            f"MAS instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
+                            f"We do not recommend (and thus do not support) backing up MAS on a cluster with unhealthy instances. "
+                            f"Please resolve the instance health issues before attempting to backup."
+                        )
+
+                    self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
+                    instanceOptions.append(instanceId)
 
                 instanceCompleter = WordCompleter(instanceOptions)
                 print()

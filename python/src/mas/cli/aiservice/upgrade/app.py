@@ -69,8 +69,18 @@ class AiServiceUpgradeApp(BaseApp):
                 sys.exit(1)
 
             for aiservice in aiserviceInstances:
-                print_formatted_text(HTML(f"- <u>{aiservice['metadata']['name']}</u> v{aiservice['status']['versions']['reconciled']}"))
-                aiserviceOptions.append(aiservice["metadata"]["name"])
+                instanceId = aiservice["metadata"]["name"]
+                reconciledVersion = aiservice.get("status", {}).get("versions", {}).get("reconciled")
+
+                if not reconciledVersion:
+                    self.fatalError(
+                        f"AI Service instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
+                        f"We do not recommend (and thus do not support) upgrading AI Service on a cluster with unhealthy instances. "
+                        f"Please resolve the instance health issues before attempting to upgrade."
+                    )
+
+                print_formatted_text(HTML(f"- <u>{instanceId}</u> v{reconciledVersion}"))
+                aiserviceOptions.append(instanceId)
 
             aiserviceCompleter = WordCompleter(aiserviceOptions)
             print()

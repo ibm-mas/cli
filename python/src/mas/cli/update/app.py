@@ -439,7 +439,17 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
-                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+                instanceId = instance["metadata"]["name"]
+                reconciledVersion = instance.get("status", {}).get("versions", {}).get("reconciled")
+
+                if not reconciledVersion:
+                    self.fatalError(
+                        f"{name} instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
+                        f"We do not recommend (and thus do not support) updating MAS on a cluster with unhealthy instances. "
+                        f"Please resolve the instance health issues before attempting to update."
+                    )
+
+                self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
             return True
         except ResourceNotFoundError:
             if instanceParamKey != "":
