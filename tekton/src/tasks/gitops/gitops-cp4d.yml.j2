@@ -103,7 +103,7 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-        
+
         mkdir -p /tmp/init-cp4d
         mas gitops-cp4d -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --dir /tmp/init-cp4d \
@@ -120,7 +120,7 @@ spec:
         - -c
       name: gitops-cp4d
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

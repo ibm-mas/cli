@@ -10,9 +10,9 @@
 
 from typing import TYPE_CHECKING, Dict, List, NoReturn
 from prompt_toolkit.completion import WordCompleter
-from mas.cli.validators import LanguageValidator
+from mas.cli.validators import CustomizationArchiveNameValidator, LanguageValidator
 from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
-from openshift.dynamic.exceptions import ResourceNotFoundError
+from kubernetes.dynamic.exceptions import ResourceNotFoundError
 from ...validators import AiserviceTeanantIDValidator
 from prompt_toolkit import print_formatted_text, HTML
 from mas.devops.utils import isVersionEqualOrAfter
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
-    from openshift.dynamic import DynamicClient
+    from kubernetes.dynamic import DynamicClient
     from prompt_toolkit.validation import Validator
 
 
@@ -280,7 +280,7 @@ class ManageSettingsMixin:
             self.printDescription([f"Provide a customization archive to be used in the {self.manageAppName} build process"])
 
             if self.yesOrNo("Include customization archive"):
-                self.promptForString("Customization archive name", "mas_app_settings_customization_archive_name")
+                self.promptForString("Customization archive name", "mas_app_settings_customization_archive_name", validator=CustomizationArchiveNameValidator())
                 self.promptForString("Customization archive path/url", "mas_app_settings_customization_archive_url")
                 if self.yesOrNo("Provide authentication to access customization archive URL"):
                     self.promptForString("Username", "mas_app_settings_customization_archive_username")
@@ -325,7 +325,7 @@ class ManageSettingsMixin:
         self.setParam("mas_app_settings_secondary_langs", secondaryLanguages.upper())
 
     def manageSettingsCP4D(self) -> None:
-        if isVersionEqualOrAfter("8.7.0", self.getParam("mas_app_channel_manage")) and self.showAdvancedOptions:
+        if self.showAdvancedOptions:
             self.printDescription(
                 [
                     f"Integration with Cognos Analytics provides additional support for reporting features in Maximo {self.manageAppName}, for more information refer to the documentation online: ",

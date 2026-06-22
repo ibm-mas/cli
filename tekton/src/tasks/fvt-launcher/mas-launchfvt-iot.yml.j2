@@ -15,7 +15,7 @@ spec:
 
   steps:
     - name: start-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
@@ -99,7 +99,7 @@ spec:
               name: mas-fvt-iot
               key: IVT_DIGEST_CORE
               optional: false
-        
+
         # Black and white listing
         - name: FVT_BLACKLIST
           valueFrom:
@@ -117,7 +117,7 @@ spec:
 
 
     - name: wait-for-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       # 15 retries at 5 minute intervals = just over 1 hour
       command:

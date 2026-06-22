@@ -87,14 +87,14 @@ spec:
   steps:
     - args:
       - |-
-        
+
 
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
         # TODO: the calls to remove JDBC config really belong in their own tasks (without the hard-coded appid/wsid/db2_instance_name params)
-        # For now, as I need to limit the impact of the changes under MASCORE-2082 (Replace configs appset with individual Applications), 
+        # For now, as I need to limit the impact of the changes under MASCORE-2082 (Replace configs appset with individual Applications),
         # I'm simply porting our existing code over without changing the interface/layout of our Tekton pipelines
         # The equivalents of the operations performed below were previously handled by the (deprecated) gitops-deprovision-suite-config function
 
@@ -197,7 +197,7 @@ spec:
         - -c
       name: gitops-deprovision-suite-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
 

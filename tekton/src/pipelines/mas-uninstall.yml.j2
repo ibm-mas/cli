@@ -69,7 +69,26 @@ spec:
     # 9. Uninstall Cluster Monitoring
 
 
-    # 0. Wait for approval before we change anything
+    # 0. Pipeline Start - Track pipeline status in MongoDB
+    # -------------------------------------------------------------------------
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
+    # 1. Wait for approval before we change anything
     # -------------------------------------------------------------------------
     - name: waitfor-approval
       timeout: "0"
@@ -89,10 +108,12 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
+      runAfter:
+        - pipeline-start
 
-    # 1. Uninstall IBM Maximo Application Suite Applications
+    # 2. Uninstall IBM Maximo Application Suite Applications
     # -------------------------------------------------------------------------
-    # 1.1 Uninstall Visual Inspection
+    # 2.1 Uninstall Visual Inspection
     - name: app-uninstall-visualinspection
       timeout: "0"
       runAfter:
@@ -109,7 +130,7 @@ spec:
         - name: devops_suite_name
           value: app-visualinspection-uninstall
 
-    # 1.2 Uninstall Assist
+    # 2.2 Uninstall Assist
     - name: app-uninstall-assist
       timeout: "0"
       runAfter:
@@ -126,7 +147,7 @@ spec:
         - name: devops_suite_name
           value: app-assist-uninstall
 
-    # 1.3 Uninstall Optimizer
+    # 2.3 Uninstall Optimizer
     - name: app-uninstall-optimizer
       timeout: "0"
       runAfter:
@@ -143,7 +164,7 @@ spec:
         - name: devops_suite_name
           value: app-optimizer-uninstall
 
-    # 1.4 Uninstall Predict
+    # 2.4 Uninstall Predict
     - name: app-uninstall-predict
       timeout: "0"
       runAfter:
@@ -160,7 +181,7 @@ spec:
         - name: devops_suite_name
           value: app-predict-uninstall
 
-    # 1.5 Uninstall Manage
+    # 2.5 Uninstall Manage
     - name: app-uninstall-manage
       timeout: "0"
       runAfter:
@@ -177,7 +198,7 @@ spec:
         - name: devops_suite_name
           value: app-manage-uninstall
 
-    # 1.6 Uninstall Monitor
+    # 2.6 Uninstall Monitor
     - name: app-uninstall-monitor
       timeout: "0"
       runAfter:
@@ -194,7 +215,7 @@ spec:
         - name: devops_suite_name
           value: app-monitor-uninstall
 
-    # 1.7 Uninstall IoT
+    # 2.7 Uninstall IoT
     - name: app-uninstall-iot
       timeout: "0"
       runAfter:
@@ -211,7 +232,7 @@ spec:
         - name: devops_suite_name
           value: app-iot-uninstall
 
-    # 1.8 Uninstall Facilities
+    # 2.8 Uninstall Facilities
     - name: app-uninstall-facilities
       timeout: "0"
       runAfter:
@@ -229,7 +250,7 @@ spec:
           value: app-facilities-uninstall
 
 
-    # 2. Uninstall IBM Maximo Application Suite
+    # 3. Uninstall IBM Maximo Application Suite
     # -------------------------------------------------------------------------
     - name: uninstall-suite
       timeout: "0"
@@ -253,7 +274,7 @@ spec:
           value: suite-uninstall
 
 
-    # 3. Uninstall IBM Suite Licensing Service
+    # 4. Uninstall IBM Suite Licensing Service
     # -------------------------------------------------------------------------
     - name: uninstall-sls
       timeout: "0"
@@ -274,7 +295,7 @@ spec:
         - uninstall-suite
 
 
-    # 4. Uninstall MongoDB
+    # 5. Uninstall MongoDB
     # -------------------------------------------------------------------------
     - name: uninstall-mongodb
       timeout: "0"
@@ -295,7 +316,7 @@ spec:
         - uninstall-sls
 
 
-    # 5. Uninstall DRO
+    # 6. Uninstall DRO
     # -------------------------------------------------------------------------
     - name: uninstall-dro
       timeout: "0"
@@ -318,7 +339,7 @@ spec:
         - uninstall-mongodb
 
 
-    # 6. Uninstall Cert Manager
+    # 7. Uninstall Cert Manager
     # -------------------------------------------------------------------------
     - name: uninstall-cert-manager
       timeout: "0"
@@ -341,7 +362,7 @@ spec:
         - uninstall-dro
 
 
-    # 7. Uninstall IBM Catalogs
+    # 8. Uninstall IBM Catalogs
     # -------------------------------------------------------------------------
     - name: uninstall-ibm-catalogs
       timeout: "0"
@@ -362,7 +383,7 @@ spec:
         - uninstall-cert-manager
 
 
-    # 8. Uninstall Grafana
+    # 9. Uninstall Grafana
     # -------------------------------------------------------------------------
     - name: uninstall-grafana
       timeout: "0"
@@ -383,6 +404,25 @@ spec:
         - uninstall-ibm-catalogs
 
   finally:
+    # Pipeline Finish - Track final pipeline status in MongoDB
+    # -------------------------------------------------------------------------
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+          
     # Update synchronization configmap
     # -------------------------------------------------------------------------
     - name: sync-uninstall
