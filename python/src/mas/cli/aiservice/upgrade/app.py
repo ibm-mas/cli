@@ -70,14 +70,7 @@ class AiServiceUpgradeApp(BaseApp):
 
             for aiservice in aiserviceInstances:
                 instanceId = aiservice["metadata"]["name"]
-                reconciledVersion = aiservice.get("status", {}).get("versions", {}).get("reconciled")
-
-                if not reconciledVersion:
-                    self.fatalError(
-                        f"AI Service instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
-                        f"We do not recommend (and thus do not support) upgrading AI Service on a cluster with unhealthy instances. "
-                        f"Please resolve the instance health issues before attempting to upgrade."
-                    )
+                reconciledVersion = self.getReconciledVersion(aiservice)
 
                 print_formatted_text(HTML(f"- <u>{instanceId}</u> v{reconciledVersion}"))
                 aiserviceOptions.append(instanceId)
