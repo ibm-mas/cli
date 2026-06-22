@@ -262,7 +262,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - aiservice
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
@@ -270,13 +270,13 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - aiservice_tenant
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
     # If configmap/approval-aiservice exists then set STATUS=pending and wait for it to be changed to "approved"
     - name: app-cfg-post-verify
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/wait-for-configmap.sh

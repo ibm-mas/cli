@@ -85,7 +85,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_restore
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/backups
 

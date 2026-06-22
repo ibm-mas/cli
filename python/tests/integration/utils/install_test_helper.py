@@ -15,8 +15,8 @@ from typing import Dict, Callable, Optional
 from unittest import mock
 from unittest.mock import MagicMock
 from kubernetes.client.rest import ApiException
-from openshift.dynamic import DynamicClient
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic import DynamicClient
+from kubernetes.dynamic.exceptions import NotFoundError
 from mas.cli.install.catalogs import supportedCatalogs
 from mas.cli.install.app import InstallApp
 from utils.prompt_tracker import create_prompt_handler
