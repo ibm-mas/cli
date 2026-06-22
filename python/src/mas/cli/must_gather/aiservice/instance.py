@@ -213,9 +213,7 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
 
                             # Add AI Service tenant specific reconcile logs tasks
                             operators = [
-                                # AI Service operator uses control-plane: ibm-aiservice currently.
-                                # Once it is changed for operator, below labelValue should also be changed.
-                                (tenantId, "control-plane", "ibm-aiservice"),
+                                (tenantId, "control-plane", "ibm-aiservice-tenant"),
                                 (tenantId, "control-plane", "controller-manager"),
                                 (tenantId, "operator", "ibm-truststore-mgr"),
                             ]
