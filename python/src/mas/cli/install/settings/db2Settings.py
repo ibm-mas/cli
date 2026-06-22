@@ -12,6 +12,8 @@ from os import path
 from typing import TYPE_CHECKING, Dict, List, Any
 from prompt_toolkit import print_formatted_text
 
+from mas.devops.utils import isVersionEqualOrAfter
+
 if TYPE_CHECKING:
     # Type hints for methods and attributes provided by other mixins
     # These are only used during type checking and have no runtime cost
@@ -25,6 +27,7 @@ class Db2SettingsMixin:
         params: Dict[str, str]
         devMode: bool
         installIoT: bool
+        installMonitor: bool
         installManage: bool
         installFacilities: bool
         manageAppName: str
@@ -100,8 +103,6 @@ class Db2SettingsMixin:
         # Determine which application requires the system database based on Monitor version
         # For Monitor >= 9.2.0: Monitor requires system Db2
         # For Monitor < 9.2.0: IoT requires system Db2 (original behavior)
-        from mas.devops.utils import isVersionEqualOrAfter
-
         monitorChannel = self.getParam("mas_app_channel_monitor")
         useNewDependency = monitorChannel and isVersionEqualOrAfter("9.2.0", monitorChannel)
         instanceId = self.getParam("mas_instance_id")
