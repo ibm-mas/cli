@@ -8,16 +8,17 @@
 #
 # *****************************************************************************
 
+import logging
 from typing import TYPE_CHECKING, Dict, List, NoReturn
-from prompt_toolkit.completion import WordCompleter
-from mas.cli.validators import CustomizationArchiveNameValidator, LanguageValidator
-from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
+
 from kubernetes.dynamic.exceptions import ResourceNotFoundError
-from ...validators import AiserviceTeanantIDValidator
 from prompt_toolkit import print_formatted_text, HTML
+from prompt_toolkit.completion import WordCompleter
+
+from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
 from mas.devops.utils import isVersionEqualOrAfter
 
-import logging
+from ...validators import CustomizationArchiveNameValidator, LanguageValidator, AiserviceTeanantIDValidator
 
 logger = logging.getLogger(__name__)
 
@@ -80,14 +81,24 @@ class ManageSettingsMixin:
             self.printH1(f"Configure Maximo {self.manageAppName}")
             self.printDescription([f"Customize your {self.manageAppName} installation, refer to the product documentation for more information"])
 
-            self.manageSettingsComponents()
+            self._manageSettingsComponents()
 
-            self.manageSettingsServerBundleConfig()
-            self.manageSettingsJMS()
-            self.manageSettingsDatabase()
-            self.manageSettingsCustomizationArchive()
-            self.manageSettingsAiService()
-            self.manageSettingsOther()
+            self._manageSettingsServerBundleConfig()
+            self._manageSettingsJMS()
+
+            # We hide the database settings in "simple" mode
+            if self.showAdvancedOptions:
+                self._manageSettingsDatabase()
+
+            # Only ask about customization archive in full Manage installation
+            if not self.isManageFoundation:
+                self._manageSettingsCustomizationArchive()
+            self._manageSettingsAiService()
+
+            # We hide the other settings in "simple" mode
+            if self.showAdvancedOptions:
+                self._manageSettingsOther()
+
             self.manageStorageAndAccessMode()
 
     def manageStorageAndAccessMode(self) -> None:
@@ -107,7 +118,7 @@ class ManageSettingsMixin:
         self.setParam("mas_app_settings_bim_pvc_accessmode", accessMode)
         self.setParam("mas_app_settings_jms_queue_pvc_accessmode", accessMode)
 
-    def manageSettingsComponents(self) -> None:
+    def _manageSettingsComponents(self) -> None:
         # Only ask to install Manage components if this is a full Manage installation
         # If this is a Manage Foundation installation, leave mas_appws_components blank
         if self.isManageFoundation:
@@ -201,24 +212,23 @@ class ManageSettingsMixin:
                     if not self.yesOrNo("Do you accept the license terms"):
                         exit(1)
 
-    def manageSettingsDatabase(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH2(f"Maximo {self.manageAppName} Settings - Database")
-            self.printDescription([f"Customise the schema, tablespace, indexspace, and encryption settings used by {self.manageAppName}"])
+    def _manageSettingsDatabase(self) -> None:
+        self.printH2(f"Maximo {self.manageAppName} Settings - Database")
+        self.printDescription([f"Customise the schema, tablespace, indexspace, and encryption settings used by {self.manageAppName}"])
 
-            if self.yesOrNo("Customize database settings"):
-                self.promptForString("Schema", "mas_app_settings_db2_schema", default="maximo")
-                self.promptForString("Tablespace", "mas_app_settings_tablespace", default="MAXDATA")
-                self.promptForString("Indexspace", "mas_app_settings_indexspace", default="MAXINDEX")
+        if self.yesOrNo("Customize database settings"):
+            self.promptForString("Schema", "mas_app_settings_db2_schema", default="maximo")
+            self.promptForString("Tablespace", "mas_app_settings_tablespace", default="MAXDATA")
+            self.promptForString("Indexspace", "mas_app_settings_indexspace", default="MAXINDEX")
 
-                if self.yesOrNo("Customize database encryption settings"):
-                    self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_manage_encryptionsecret_crypto_key")
-                    self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_manage_encryptionsecret_cryptox_key")
-                    self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_manage_encryptionsecret_old_crypto_key")
-                    self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_manage_encryptionsecret_old_cryptox_key")
-                    self.promptForString("Encryption secret name", "mas_manage_ws_db_encryptionsecret")
+            if self.yesOrNo("Customize database encryption settings"):
+                self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_manage_encryptionsecret_crypto_key")
+                self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_manage_encryptionsecret_cryptox_key")
+                self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_manage_encryptionsecret_old_crypto_key")
+                self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_manage_encryptionsecret_old_cryptox_key")
+                self.promptForString("Encryption secret name", "mas_manage_ws_db_encryptionsecret")
 
-    def manageSettingsServerBundleConfig(self) -> None:
+    def _manageSettingsServerBundleConfig(self) -> None:
         if not self.isManageFoundation:
             if self.showAdvancedOptions:
                 self.printH2(f"Maximo {self.manageAppName} Settings - Server Bundles")
@@ -259,7 +269,7 @@ class ManageSettingsMixin:
             else:
                 self.setParam("mas_app_settings_server_bundles_size", "dev")
 
-    def manageSettingsJMS(self) -> None:
+    def _manageSettingsJMS(self) -> None:
         if self.getParam("mas_app_settings_server_bundles_size") in ["jms", "snojms"]:
             self.printDescription(
                 [
@@ -273,23 +283,21 @@ class ManageSettingsMixin:
                 "mas_app_settings_default_jms",
             )
 
-    def manageSettingsCustomizationArchive(self) -> None:
-        # Only ask about customization archive in full Manage installation
-        if not self.isManageFoundation:
-            self.printH2(f"Maximo {self.manageAppName} Settings - Customization")
-            self.printDescription([f"Provide a customization archive to be used in the {self.manageAppName} build process"])
+    def _manageSettingsCustomizationArchive(self) -> None:
+        self.printH2(f"Maximo {self.manageAppName} Settings - Customization")
+        self.printDescription([f"Provide a customization archive to be used in the {self.manageAppName} build process"])
 
-            if self.yesOrNo("Include customization archive"):
-                self.promptForString("Customization archive name", "mas_app_settings_customization_archive_name", validator=CustomizationArchiveNameValidator())
-                self.promptForString("Customization archive path/url", "mas_app_settings_customization_archive_url")
-                if self.yesOrNo("Provide authentication to access customization archive URL"):
-                    self.promptForString("Username", "mas_app_settings_customization_archive_username")
-                    self.promptForString("Password", "mas_app_settings_customization_archive_password", isPassword=True)
+        if self.yesOrNo("Include customization archive"):
+            self.promptForString("Customization archive name", "mas_app_settings_customization_archive_name", validator=CustomizationArchiveNameValidator())
+            self.promptForString("Customization archive path/url", "mas_app_settings_customization_archive_url")
+            if self.yesOrNo("Provide authentication to access customization archive URL"):
+                self.promptForString("Username", "mas_app_settings_customization_archive_username")
+                self.promptForString("Password", "mas_app_settings_customization_archive_password", isPassword=True)
 
-    def manageSettingsDemodata(self) -> None:
+    def _manageSettingsDemodata(self) -> None:
         self.yesOrNo("Create demo data", "mas_app_settings_demodata")
 
-    def manageSettingsTimezone(self) -> None:
+    def _manageSettingsTimezone(self) -> None:
         self.promptForString(
             f"{self.manageAppName} server timezone",
             "mas_app_settings_server_timezone",
@@ -298,7 +306,7 @@ class ManageSettingsMixin:
         # Set Manage dedicated Db2 instance timezone to be same as Manage server timezone
         self.setParam("db2_timezone", self.getParam("mas_app_settings_server_timezone"))
 
-    def manageSettingsLanguages(self) -> None:
+    def _manageSettingsLanguages(self) -> None:
         self.printH2(f"Maximo {self.manageAppName} Settings - Languages")
         self.printDescription([f"Define the base language for Maximo {self.manageAppName}"])
         baseLanguage = self.promptForString(
@@ -324,21 +332,20 @@ class ManageSettingsMixin:
         )
         self.setParam("mas_app_settings_secondary_langs", secondaryLanguages.upper())
 
-    def manageSettingsCP4D(self) -> None:
-        if self.showAdvancedOptions:
-            self.printDescription(
-                [
-                    f"Integration with Cognos Analytics provides additional support for reporting features in Maximo {self.manageAppName}, for more information refer to the documentation online: ",
-                    " - <Orange><u>https://ibm.biz/BdMuxs</u></Orange>",
-                ]
-            )
-            self.yesOrNo("Enable integration with Cognos Analytics", "cpd_install_cognos")
-            self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_wsl_flag")
+    def _manageSettingsCP4D(self) -> None:
+        self.printDescription(
+            [
+                f"Integration with Cognos Analytics provides additional support for reporting features in Maximo {self.manageAppName}, for more information refer to the documentation online: ",
+                " - <Orange><u>https://ibm.biz/BdMuxs</u></Orange>",
+            ]
+        )
+        self.yesOrNo("Enable integration with Cognos Analytics", "cpd_install_cognos")
+        self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_wsl_flag")
 
-            if self.getParam("cpd_install_cognos") == "true" or self.getParam("mas_appws_bindings_health_wsl_flag") == "true":
-                self.configCP4D()
+        if self.getParam("cpd_install_cognos") == "true" or self.getParam("mas_appws_bindings_health_wsl_flag") == "true":
+            self.configCP4D()
 
-    def manageSettingsOther(self) -> None:
+    def _manageSettingsOther(self) -> None:
         self.printH2(f"Maximo {self.manageAppName} Settings - Other")
         self.supportedLanguages = [
             "AR",
@@ -368,35 +375,34 @@ class ManageSettingsMixin:
             "ZH-CN",
             "ZH-TW",
         ]
-        if self.isManageFoundation:
-            if self.showAdvancedOptions:
-                self.printDescription(
-                    [
-                        "Configure additional settings:",
-                        "  - Base and additional languages",
-                        "  - Server timezone",
-                    ]
-                )
-                self.manageSettingsTimezone()
-                self.manageSettingsLanguages()
-        else:
-            if self.showAdvancedOptions:
-                self.printDescription(
-                    [
-                        "Configure additional settings:",
-                        "  - Demo data",
-                        "  - Base and additional languages",
-                        "  - Server timezone",
-                        "  - Cognos integration (install Cloud Pak for Data)",
-                        "  - Watson Studio Local integration (install Cloud Pak for Data)",
-                    ]
-                )
-                self.manageSettingsDemodata()
-                self.manageSettingsTimezone()
-                self.manageSettingsLanguages()
-                self.manageSettingsCP4D()
 
-    def manageSettingsAiService(self) -> None:
+        if self.isManageFoundation:
+            self.printDescription(
+                [
+                    "Configure additional settings:",
+                    "  - Base and additional languages",
+                    "  - Server timezone",
+                ]
+            )
+            self._manageSettingsTimezone()
+            self._manageSettingsLanguages()
+        else:
+            self.printDescription(
+                [
+                    "Configure additional settings:",
+                    "  - Demo data",
+                    "  - Base and additional languages",
+                    "  - Server timezone",
+                    "  - Cognos integration (install Cloud Pak for Data)",
+                    "  - Watson Studio Local integration (install Cloud Pak for Data)",
+                ]
+            )
+            self._manageSettingsDemodata()
+            self._manageSettingsTimezone()
+            self._manageSettingsLanguages()
+            self._manageSettingsCP4D()
+
+    def _manageSettingsAiService(self) -> None:
         try:
             aiserviceTenantInstances = listAiServiceTenantInstances(self.dynamicClient)
             aiserviceInstances = listAiServiceInstances(self.dynamicClient)
