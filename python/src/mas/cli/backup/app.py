@@ -270,7 +270,17 @@ class BackupApp(BaseApp):
             instances = listMasInstances(self.dynamicClient)
             self.printDescription(["The following MAS instances are installed on the target cluster:"])
             for instance in instances:
-                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+                instanceId = instance["metadata"]["name"]
+                reconciledVersion = instance.get("status", {}).get("versions", {}).get("reconciled")
+
+                if not reconciledVersion:
+                    self.fatalError(
+                        f"MAS instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
+                        f"We do not recommend (and thus do not support) backing up MAS on a cluster with unhealthy instances. "
+                        f"Please resolve the instance health issues before attempting to backup."
+                    )
+
+                self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
             return True
         except ResourceNotFoundError:
             self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])

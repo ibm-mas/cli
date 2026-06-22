@@ -103,6 +103,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 instanceId = instance["metadata"]["name"]
                 currentVersion = instance.get("status", {}).get("versions", {}).get("reconciled", "")
 
+                if not currentVersion:
+                    self.fatalError(
+                        f"MAS instance '{instanceId}' is in an unhealthy state (missing reconciled version). "
+                        f"We do not recommend (and thus do not support) updating MAS on a cluster with unhealthy instances. "
+                        f"Please resolve the instance health issues before attempting to update."
+                    )
+
                 if self.shouldApplyRBACForInstance(instanceId, currentVersion, self.chosenCatalog):
                     channel = getMasChannel(self.dynamicClient, instanceId)
                     targetVersion = self.chosenCatalog.get("mas_core_version", {}).get(channel, "")
