@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-mas-provisioner
@@ -62,7 +62,6 @@ spec:
       type: string
 
   stepTemplate:
-    name: gitops-mas-provisioner
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-rosa
@@ -19,7 +19,6 @@ spec:
     - name: aws_region
       type: string
   stepTemplate:
-    name: gitops-deprovision-rosa
   steps:
     - args:
       - |-

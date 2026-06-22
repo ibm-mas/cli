@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-cp4d-service
@@ -35,7 +35,6 @@ spec:
     - name: cp4d_spss_modeler_action
       type: string
   stepTemplate:
-    name: gitops-deprovision-cp4d-service
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

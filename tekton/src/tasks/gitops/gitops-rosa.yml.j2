@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-rosa
@@ -25,7 +25,6 @@ spec:
     - name: rosa_compute_machine_type
       type: string
   stepTemplate:
-    name: gitops-rosa
   steps:
     - args:
       - |-

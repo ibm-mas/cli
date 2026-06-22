@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-suite-dns
@@ -40,7 +40,6 @@ spec:
       default: ""
 
   stepTemplate:
-    name: gitops-suite-dns
     env:
       - name: CLUSTER_URL
         value: $(params.cluster_url)

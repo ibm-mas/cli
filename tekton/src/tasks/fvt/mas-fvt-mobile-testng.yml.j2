@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-mobile-testng
@@ -62,7 +62,7 @@ spec:
       type: string
       description: Mobile UI test device type. Can be android, ios, chrome, edge, firefox or safari.
       default: ""
-    
+
   stepTemplate:
     securityContext:
       privileged: true
@@ -98,7 +98,7 @@ spec:
             name: mas-devops
             key: ARTIFACTORY_UPLOAD_DIR
             optional: true
-      
+
       - name: MANAGECACRT
         valueFrom:
           secretKeyRef:
@@ -130,7 +130,7 @@ spec:
             name: mas-fvt-mobile
             key: FVT_BSTACK_MOBFOUND
             optional: true
-      
+
       - name: FVT_BSTACK_INSP_SR
         valueFrom:
           secretKeyRef:
@@ -143,7 +143,7 @@ spec:
           secretKeyRef:
             name: mas-fvt-mobile
             key: FVT_BSTACK_IC_DESK
-            optional: true     
+            optional: true
 
       - name: FVT_BSTACK_ASSET_TECH
         valueFrom:
@@ -193,7 +193,6 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 3h # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: gitops-mas-cluster
@@ -39,7 +39,7 @@ spec:
     - name: redhat_cert_manager_install_plan
       type: string
       default: "Automatic"
-    
+
     - name: slack_channel_id
       type: string
 
@@ -124,7 +124,7 @@ spec:
     - name: nfd_image
       type: string
       default: "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9@sha256:45192fef5a1250ee573975ced1e897662116d5a30a1f8f4baa4497f64933fba3"
-    
+
     - name: cis_compliance_install_plan
       type: string
       default: "Automatic"
@@ -190,7 +190,7 @@ spec:
     - name: ibm_rbac_binding_to_group
       type: string
       default: ''
-    
+
     - name: falcon_operator_cloud_region
       type: string
       default: ''
@@ -401,7 +401,7 @@ spec:
           value: $(params.cluster_logging_operator_syslog_forwarder_version)
         - name: cluster_logging_operator_dlc_ca_bundle_file
           value: $(params.cluster_logging_operator_dlc_ca_bundle_file)
-        
+
         - name: instana_agent_operator_install
           value: $(params.instana_agent_operator_install)
         - name: instana_agent_operator_endpoint_host
