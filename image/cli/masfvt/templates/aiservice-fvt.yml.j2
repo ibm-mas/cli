@@ -10,7 +10,7 @@ spec:
   pipelineRef:
     name: aiservice-fvt
 
-  serviceAccountName: pipeline
+  serviceAccountName: "{{ service_account_name }}"
   timeouts:
     pipeline: "8h"
 
