@@ -426,6 +426,35 @@ class BaseApp(PrintMixin, PromptMixin):
             logger.exception(e, stack_info=True)
             return None
 
+    def getReconciledVersion(self, instance: Dict[str, Any]) -> str:
+        """
+        Get the reconciled version from an instance's status.
+
+        Checks if the instance is in a healthy state by verifying the presence of a reconciled version.
+        If the instance is unhealthy (missing reconciled version), triggers a fatal error with a clear message.
+
+        Args:
+            instance (dict): The instance resource dictionary containing metadata, kind, and status
+
+        Returns:
+            str: The reconciled version if the instance is healthy
+
+        Raises:
+            SystemExit: Via fatalError if the instance is unhealthy
+        """
+        instanceId = instance["metadata"]["name"]
+        instanceKind = instance.get("kind", "Instance")
+        reconciledVersion = instance.get("status", {}).get("versions", {}).get("reconciled")
+
+        if not reconciledVersion:
+            self.fatalError(
+                f"{instanceKind} '{instanceId}' is in an unhealthy state (missing reconciled version). "
+                f"We do not recommend (and thus do not support) continuing when there are unhealthy instances on the cluster. "
+                f"Please resolve the instance health issues before attempting to proceed."
+            )
+
+        return reconciledVersion
+
     @logMethodCall
     def connect(self) -> None:
         promptForNewServer = False
