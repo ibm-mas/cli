@@ -35,7 +35,7 @@ def discoverAIServiceTenants(dynClient: DynamicClient, instanceId: str, tenantId
 
     try:
         api = dynClient.resources.get(api_version="aiservice.ibm.com/v1", kind="AIServiceTenant")
-        label_selector = f"aiservice.ibm.com/instance={instanceId}"
+        label_selector = f"aiservice.ibm.com/instanceId={instanceId}"
         aiserviceTenants = api.get(label_selector=label_selector)
 
         for tenantCr in aiserviceTenants.items:
