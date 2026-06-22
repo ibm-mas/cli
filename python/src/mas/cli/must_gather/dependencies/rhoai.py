@@ -28,6 +28,7 @@ ODH_RESOURCES = [
     ("services.platform.opendatahub.io/v1alpha1", "Auth"),
 ]
 
+
 def _discoverRHOAINamespaces(dynClient: DynamicClient) -> Set[str]:
     """Discover Red Hat OpenShift AI namespaces.
 
@@ -43,10 +44,7 @@ def _discoverRHOAINamespaces(dynClient: DynamicClient) -> Set[str]:
         set: Set of RHOAI namespace names that exist in the cluster
     """
     # RHOAI namespaces to check
-    candidateNamespaces = [
-        "redhat-ods-operator",
-        "redhat-ods-applications"
-    ]
+    candidateNamespaces = ["redhat-ods-operator", "redhat-ods-applications"]
 
     discoveredNamespaces = set()
     for namespace in candidateNamespaces:
@@ -120,7 +118,7 @@ def addRHOAIToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noL
                     namespace=ns,
                     outputDir=outputDir,
                     noLogs=noLogs,
-                    customResources=ODH_RESOURCES if ns == 'redhat-ods-applications' else None,
+                    customResources=ODH_RESOURCES if ns == "redhat-ods-applications" else None,
                     ibmCRDs=ibmCRDs,
                 )
                 plan.addGroup(f"Red Hat OpenShift AI ({ns})", tasks)

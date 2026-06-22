@@ -210,7 +210,7 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
                                 customResources=ISVC_RESOURCES,
                                 ibmCRDs=ibmCRDs,
                             )
-                            
+
                             # Add AI Service tenant specific reconcile logs tasks
                             operators = [
                                 # AI Service operator uses control-plane: ibm-aiservice currently.
