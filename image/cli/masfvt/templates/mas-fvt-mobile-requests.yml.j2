@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: "{{ pipelinerun_name }}"
@@ -10,7 +10,8 @@ spec:
   pipelineRef:
     name: mas-fvt-mobile-requests
 
-  serviceAccountName: pipeline
+  taskRunTemplate:
+    serviceAccountName: pipeline
   timeouts:
     pipeline: "8h"
 
@@ -18,13 +19,13 @@ spec:
     # Pull Policy
     - name: image_pull_policy
       value: "{{ image_pull_policy }}"
-    
+
     # Registry
     - name: fvt_image_registry
       value: "{{ fvt_image_registry }}"
     - name: fvt_artifactory_token
       value: "{{ fvt_artifactory_token }}"
-    
+
     # MAS Info
     - name: mas_channel
       value: "{{ mas_channel }}"
@@ -38,7 +39,7 @@ spec:
     # manage launcher
     - name: build_num
       value: "{{ devops_build_number }}"
-        
+
     # Digests
     - name: fvt_digest_mobile_pytest
       value: "{{ fvt_digest_mobile_pytest }}"
@@ -48,7 +49,7 @@ spec:
     # Requests run
     - name: launchfvt_mobile_requests
       value: "{{ launchfvt_mobile_requests }}"
-    
+
   workspaces:
     # The generated configuration files
     - name: shared-configs
