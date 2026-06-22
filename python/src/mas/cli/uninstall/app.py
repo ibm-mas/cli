@@ -76,8 +76,11 @@ class UninstallApp(BaseApp):
             try:
                 suites = listMasInstances(self.dynamicClient)
                 for suite in suites:
-                    self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
-                    suiteOptions.append(suite["metadata"]["name"])
+                    instanceId = suite["metadata"]["name"]
+                    reconciledVersion = self.getReconciledVersion(suite)
+
+                    self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
+                    suiteOptions.append(instanceId)
             except ResourceNotFoundError:
                 self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
 
