@@ -31,20 +31,20 @@ class Db2MigrationArgumentParser(argparse.ArgumentParser):
 
     def parse_args(self, args=None, namespace=None):
         parsedArgs = super().parse_args(args, namespace)
-        
+
         providedArgs = []
         if args is not None:
             providedArgs = [arg for arg in args if arg.startswith("-")]
         else:
             providedArgs = [arg for arg in sys.argv[1:] if arg.startswith("-")]
-        
+
         hasAnyArgs = len(providedArgs) > 0
         hasNamespace = parsedArgs.namespace is not None
         helpOnly = "--help" in providedArgs or "-h" in providedArgs
-        
+
         if hasAnyArgs and not hasNamespace and not helpOnly:
             self.error("non-interactive mode requires --namespace parameter")
-        
+
         return parsedArgs
 
 
@@ -56,39 +56,11 @@ db2MigrationArgParser = Db2MigrationArgumentParser(
     add_help=False,
 )
 
-migrationArgGroup = db2MigrationArgParser.add_argument_group(
-    "Migration Configuration",
-    "Configure the DB2 migration parameters."
-)
-migrationArgGroup.add_argument(
-    "--namespace",
-    required=False,
-    help="Namespace containing Db2uCluster instances"
-)
-migrationArgGroup.add_argument(
-    "--cluster-name",
-    required=False,
-    help="Specific Db2uCluster name to migrate"
-)
-migrationArgGroup.add_argument(
-    "--backup",
-    required=False,
-    choices=["true", "false"],
-    help="Enable or disable backup before migration"
-)
+migrationArgGroup = db2MigrationArgParser.add_argument_group("Migration Configuration", "Configure the DB2 migration parameters.")
+migrationArgGroup.add_argument("--namespace", required=False, help="Namespace containing Db2uCluster instances")
+migrationArgGroup.add_argument("--cluster-name", required=False, help="Specific Db2uCluster name to migrate")
+migrationArgGroup.add_argument("--backup", required=False, choices=["true", "false"], help="Enable or disable backup before migration")
 
 otherArgGroup = db2MigrationArgParser.add_argument_group("More", "Additional options.")
-otherArgGroup.add_argument(
-    "--no-confirm",
-    required=False,
-    action="store_true",
-    default=False,
-    help="Launch without prompting for confirmation"
-)
-otherArgGroup.add_argument(
-    "-h",
-    "--help",
-    action="help",
-    default=False,
-    help="Show this help message and exit"
-)
+otherArgGroup.add_argument("--no-confirm", required=False, action="store_true", default=False, help="Launch without prompting for confirmation")
+otherArgGroup.add_argument("-h", "--help", action="help", default=False, help="Show this help message and exit")
