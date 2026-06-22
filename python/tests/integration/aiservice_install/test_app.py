@@ -13,8 +13,8 @@ import re
 from unittest import mock
 from unittest.mock import MagicMock
 from kubernetes.client.rest import ApiException
-from openshift.dynamic import DynamicClient
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic import DynamicClient
+from kubernetes.dynamic.exceptions import NotFoundError
 from mas.cli.install.catalogs import supportedCatalogs
 from mas.cli.aiservice.install.app import AiServiceInstallApp
 

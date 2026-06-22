@@ -134,7 +134,7 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        # mas app install specific 
+        # mas app install specific
         export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
 
         mkdir -p /tmp/suite-app-install
@@ -154,7 +154,7 @@ spec:
         - -c
       name: gitops-suite-app-install
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

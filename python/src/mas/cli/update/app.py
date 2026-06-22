@@ -16,7 +16,7 @@ from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
-from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser
@@ -196,7 +196,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 if key in requiredParams:
                     if value is None:
                         self.fatalError(f"{key} must be set")
-                    self.setParam(key, value)
+                    else:
+                        self.setParam(key, value)
 
                 # These fields we just pass straight through to the parameters
                 elif key in optionalParams:
@@ -290,6 +291,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
         self.printH2("IBM Maximo Operator Catalog")
+        assert self.installedCatalogId is not None, "Catalog ID is not set"
         self.printSummary("Installed Catalog", self.installedCatalogId)
         self.printSummary("Updated Catalog", self.getParam("mas_catalog_version"))
 
