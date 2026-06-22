@@ -9,7 +9,7 @@ spec:
 
   steps:
     - name: rhoai-migration
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/run-role.sh

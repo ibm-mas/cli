@@ -15,7 +15,7 @@ from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
-from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from ..validators import InstanceIDValidator
