@@ -21,7 +21,7 @@ spec:
         - $(params.base_output_dir)
         - --extra-namespaces
         - selenium,kyverno
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}

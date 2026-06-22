@@ -81,7 +81,7 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         mkdir -p /tmp/deprovision-cp4d-service
-        
+
         mas gitops-deprovision-cp4d-service -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/deprovision-cp4d-service \
         --secrets-path $SECRET_PATH \
@@ -97,6 +97,6 @@ spec:
         - -c
       name: gitops-deprovision-cp4d-service
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
