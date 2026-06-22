@@ -182,8 +182,11 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 sys.exit(1)
 
             for suite in suites:
-                print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
-                suiteOptions.append(suite["metadata"]["name"])
+                instanceId = suite["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(suite)
+
+                print_formatted_text(HTML(f"- <u>{instanceId}</u> v{reconciledVersion}"))
+                suiteOptions.append(instanceId)
 
             suiteCompleter = WordCompleter(suiteOptions)
             print()
