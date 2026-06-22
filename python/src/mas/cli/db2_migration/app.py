@@ -56,16 +56,16 @@ class Db2MigrationApp(BaseApp):
             return cluster
 
         # Multiple clusters - prompt for selection
-        #self.printH2("Available Db2uClusters")
-        #options = []
-        #for i, cluster in enumerate(clusters):
+        # self.printH2("Available Db2uClusters")
+        # options = []
+        # for i, cluster in enumerate(clusters):
         #    name = cluster.metadata.name
         #    version = cluster.spec.version if hasattr(cluster.spec, "version") else "unknown"
         #    status = cluster.status.state if hasattr(cluster, "status") and hasattr(cluster.status, "state") else "unknown"
         #    options.append(f"{name} (version: {version}, status: {status})")
 
-        #selectedIndex = self.promptForListSelect("Select cluster to migrate", options)
-        #return clusters[selectedIndex]
+        # selectedIndex = self.promptForListSelect("Select cluster to migrate", options)
+        # return clusters[selectedIndex]
 
         self.printH2("Available Db2uClusters")
         for i, cluster in enumerate(clusters):
