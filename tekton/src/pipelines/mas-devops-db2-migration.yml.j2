@@ -1,0 +1,100 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-devops-db2-migration
+spec:
+  workspaces:
+    - name: shared-configs
+      optional: true
+  
+  params:
+    # Tekton Pipeline Configuration
+    # -------------------------------------------------------------------------
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+    
+    # DB2 Migration Parameters
+    # -------------------------------------------------------------------------
+    - name: db2_action
+      type: string
+      default: "migrate"
+      description: Action for db2 role (must be 'migrate')
+    
+    - name: db2_migration_namespace
+      type: string
+      description: Namespace containing Db2uCluster to migrate
+    
+    - name: db2_migration_cluster_name
+      type: string
+      description: Name of Db2uCluster to migrate
+    
+    - name: db2_migration_backup_enabled
+      type: string
+      default: "true"
+      description: Whether to backup before migration
+    
+    - name: db2_migration_cleanup_old_cluster
+      type: string
+      default: "false"
+      description: Whether to delete old Db2uCluster CR after migration
+    
+    - name: ibm_entitlement_key
+      type: string
+      default: ""
+      description: IBM Entitlement Key
+
+  tasks:
+    # 1. Wait for approval (auto-approved)
+    # -------------------------------------------------------------------------
+    #- name: waitfor-approval
+    #  timeout: "0"
+    #  taskRef:
+    #    kind: Task
+    #    name: mas-devops-wait-for-configmap-v2
+    #  params:
+    #    - name: image_pull_policy
+    #      value: $(params.image_pull_policy)
+    #    - name: configmap_name
+    #      value: approval-db2-migration
+    #    - name: configmap_initial_value
+    #      value: approved                   
+    #    - name: pipeline_status
+    #      value: Started
+    #    - name: pipeline_name
+    #      value: $(context.pipeline.name)
+    #    - name: pipelinerun_name
+    #      value: $(context.pipelineRun.name)
+    #    - name: pipelinerun_namespace
+    #      value: $(context.pipelineRun.namespace)
+
+    # Run DB2 Migration
+    # -------------------------------------------------------------------------
+    - name: db2-migration
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-db2
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        - name: devops_suite_name
+          value: db2-migration
+        - name: db2_action
+          value: $(params.db2_action)
+        - name: db2_migration_namespace
+          value: $(params.db2_migration_namespace)
+        - name: db2_migration_cluster_name
+          value: $(params.db2_migration_cluster_name)
+        - name: db2_migration_backup_enabled
+          value: $(params.db2_migration_backup_enabled)
+        - name: db2_migration_cleanup_old_cluster
+          value: $(params.db2_migration_cleanup_old_cluster)
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+  finally:
+    # Notify on completion
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/common/finalize.yml.j2') | indent(4) }}
