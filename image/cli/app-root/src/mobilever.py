@@ -246,10 +246,6 @@ class MobVer(object):
         # ordering json file
         graphite_json_sorted = OrderedDict(sorted(graphite_json.items()))
 
-        print("*********************************************")
-        print(graphite_json_sorted)
-        print("*********************************************")
-
         return graphite_json_sorted
 
     def get_graphite_versions(self, mas_ver=None):
