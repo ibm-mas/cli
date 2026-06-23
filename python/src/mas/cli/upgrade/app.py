@@ -182,8 +182,11 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 sys.exit(1)
 
             for suite in suites:
-                print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
-                suiteOptions.append(suite["metadata"]["name"])
+                instanceId = suite["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(suite)
+
+                print_formatted_text(HTML(f"- <u>{instanceId}</u> v{reconciledVersion}"))
+                suiteOptions.append(instanceId)
 
             suiteCompleter = WordCompleter(suiteOptions)
             print()
@@ -269,24 +272,27 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.manageAppName = "Manage foundation"
             self.showAdvancedOptions = False
             self.installIoT = False
+            self.installMonitor = False
             self.installFacilities = False
             self.installManage = True
             self.isManageFoundation = True
             self.printDescription(
                 [f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."]
             )
+
+            # TODO: Why do we need to ask the user from their entitlement key, we should look it up from the cluster.
             self.printH1("Configure IBM Container Registry")
-            self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+            self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
             if self.devMode:
                 self.promptForString("Artifactory username", "artifactory_username")
                 self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
+
             self.setParam("should_install_manage_foundation", "true")
             self.setParam("mas_appws_components", "")
             self.setParam("mas_app_settings_aio_flag", "false")
             self.setParam("mas_app_channel_manage", self.nextChannel)
             self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
-            # It has been decided that we don't need to ask for any specific Manage Settings
-            # self.manageSettings()
+
             self.configDb2(silentMode=True)
 
         # Compute Monitor install order for upgrade

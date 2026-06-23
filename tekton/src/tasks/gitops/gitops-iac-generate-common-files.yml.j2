@@ -369,7 +369,7 @@ spec:
           CMD="$CMD --is-s3 ${IS_S3:-false}"
           CMD="$CMD --is-msk ${IS_MSK:-false}"
           CMD="$CMD --is-rds ${IS_RDS:-false}"
-          
+
           echo "Executing: $CMD"
           eval $CMD
           exit $?
@@ -377,7 +377,7 @@ spec:
         - /bin/sh
         - -c
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
 
   workspaces:
     - name: configs
