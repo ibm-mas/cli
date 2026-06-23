@@ -2373,7 +2373,6 @@ class InstallApp(
                 self.fatalError(f"Unknown option: {key} {value}")
 
         if self.installManage:
-
             # Configure Storage and Access mode
             self.manageStorageAndAccessMode()
 
