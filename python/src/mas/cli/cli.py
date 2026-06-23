@@ -126,8 +126,8 @@ class BaseApp(PrintMixin, PromptMixin):
         logging.getLogger("urllib3").setLevel(logging.INFO)
 
         # Supports extended semver, unlike mas.cli.__version__
-        # self.version: str = "100.0.0-pre.local"
-        self.version: str = "21.8.0-pre.mascore-11096"
+        self.version: str = "100.0.0-pre.local"
+        # self.version: str = "21.8.0-pre.mascore-11096"
         self.h1count: int = 0
         self.h2count: int = 0
 
