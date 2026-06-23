@@ -44,6 +44,7 @@ def usage() -> None:
             + " - <ForestGreen>mas-cli install</ForestGreen>   Install IBM Maximo Application Suite\n"
             + " - <ForestGreen>mas-cli update</ForestGreen>    Apply updates and security fixes\n"
             + " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade to a new MAS release\n"
+            + " - <ForestGreen>mas-cli rollback</ForestGreen>  Rollback the IBM Maximo Operator Catalog\n"
             + " - <ForestGreen>mas-cli backup</ForestGreen>    Backup a MAS instance\n"
             + " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"
             + " - <ForestGreen>mas-cli mirror</ForestGreen>    Mirror container images\n"
@@ -106,6 +107,12 @@ def main() -> None:
 
             app = RestoreApp()
             app.restore(argv[2:])
+            return
+        if function == "rollback":
+            from mas.cli.rollback.app import RollbackApp
+
+            app = RollbackApp()
+            app.rollback(argv[2:])
             return
         if function == "mirror":
             from mas.cli.mirror.app import MirrorApp

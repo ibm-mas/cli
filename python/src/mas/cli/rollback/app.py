@@ -41,14 +41,16 @@ class RollbackApp(BaseApp):
         if self.args.mas_catalog_version:
             # Non-interactive mode
             logger.debug("Maximo Operator Catalog version is set, so we assume already connected to the desired OCP")
-            requiredParams = ["mas_catalog_version", "mas_instance_id", "mas_core_version", "mas_app_manage_version", "mas_app_iot_version"]
+            requiredParams = ["mas_catalog_version", "mas_instance_id"]
             optionalParams = [
+                "mas_core_version",
+                "mas_app_manage_version",
+                "mas_app_iot_version",
                 "skip_pre_check",
                 "dev_mode",
                 # Dev Mode
                 "artifactory_username",
-                "artifactory_token"
-
+                "artifactory_token",
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -170,6 +172,23 @@ class RollbackApp(BaseApp):
                 self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
         except ResourceNotFoundError:
             self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
+
+    def chooseCatalog(self) -> None:
+        self.printH1("Select IBM Maximo Operator Catalog Version to Rollback To")
+        self.printDescription(
+            [
+                "Select the catalog version to rollback to:",
+                "  1) May 27 2026 Update (MAS 9.1.18, 9.0.26, 8.11.34, &amp; 8.10.37)",
+                "  2) Apr 30 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
+                "  3) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
+            ]
+        )
+        catalogOptions = [
+            "v9-260527-amd64",
+            "v9-260430-amd64",
+            "v9-260326-amd64",
+        ]
+        self.promptForListSelect("Select catalog version to rollback to", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:
         if self.installedCatalogId is not None and self.installedCatalogId < self.getParam("mas_catalog_version"):
