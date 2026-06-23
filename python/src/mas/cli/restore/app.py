@@ -336,7 +336,7 @@ class RestoreApp(BaseApp):
                     dynClient=self.dynamicClient,
                     namespace=pipelinesNamespace,
                     restoreConfigs=self.configSecret,
-                    ibm_entitlement_key=self.getParam("ibm_entitlement_key") if self.getParam("include_dro") == "true" else None,
+                    ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
                 )
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
