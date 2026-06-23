@@ -661,15 +661,6 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --rds-db2-config-monitor-yaml)
-        if [[ -n "$1" && "$1" != --* ]]; then
-          export RDS_DB2_CONFIG_MONITOR_YAML=$1
-          shift
-        else
-          export RDS_DB2_CONFIG_MONITOR_YAML=""
-          [[ $# -gt 0 ]] && shift
-        fi
-        ;;
 
       --rds-monitor-db2-engine-version)
         if [[ -n "$1" && "$1" != --* ]]; then
@@ -1423,11 +1414,6 @@ function gitops_iac_provision_rdsdb2(){
     echo
     export RDS_DB2_CONFIG_IOT=$(cat ${RDS_DB2_CONFIG_IOT_YAML})
     echo RDS_DB2_CONFIG_IOT
-  fi
-  if [[ -n "$RDS_DB2_CONFIG_MONITOR_YAML" ]]; then
-    echo
-    export RDS_DB2_CONFIG_MONITOR=$(cat ${RDS_DB2_CONFIG_MONITOR_YAML})
-    echo RDS_DB2_CONFIG_MONITOR
   fi
   if [[ -n "$RDS_DB2_CONFIG_FACILITIES_YAML" ]]; then
     echo

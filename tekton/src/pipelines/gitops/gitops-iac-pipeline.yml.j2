@@ -265,10 +265,6 @@ spec:
       type: string
       default: ''
 
-    - name: rds_db2_config_monitor_yaml
-      type: string
-      default: ''
-
     - name: rds_monitor_db2_engine_version
       type: string
       default: ''
@@ -595,8 +591,6 @@ spec:
           value: $(params.rds_monitor_jdbc_connection_url_additional_params)
         - name: rds_monitor_replica_db
           value: $(params.rds_monitor_replica_db)
-        - name: rds_db2_config_monitor_yaml
-          value: $(params.rds_db2_config_monitor_yaml)
         - name: rds_monitor_db2_engine_version
           value: $(params.rds_monitor_db2_engine_version)
 
