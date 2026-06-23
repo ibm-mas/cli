@@ -11,6 +11,7 @@ import logging
 from typing import List, Dict, Any
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
+from kubernetes import client
 from openshift.dynamic.exceptions import NotFoundError
 
 from ..cli import BaseApp
@@ -111,8 +112,27 @@ class Db2MigrationApp(BaseApp):
             # Interactive mode
             self.printH1("DB2 Cluster Migration")
 
-            # Prompt for namespace
-            namespace = self.promptForString("Enter namespace containing Db2uClusters")
+            # List db2u namespaces
+            with Halo(text="Detecting db2u namespaces", spinner=self.spinner) as h:
+                try:
+                    v1 = client.CoreV1Api()
+                    allNamespaces = v1.list_namespace()
+                    db2uNamespaces = [ns.metadata.name for ns in allNamespaces.items 
+                                    if ns.metadata.name.startswith("db2u")]
+
+                    if db2uNamespaces:
+                        h.succeed(f"Found {len(db2uNamespaces)} db2u namespace(s)")
+                        print_formatted_text(HTML("<ansicyan>Available db2u namespaces:</ansicyan>"))
+                        for ns in sorted(db2uNamespaces):
+                            print(f"  - {ns}")
+                        print()
+                    else:
+                        h.info("No db2u namespaces found")
+                except Exception as e:
+                    h.fail(f"Failed to list namespaces: {e}")
+
+            # Prompt for namespace with default
+            namespace = self.promptForString("Enter namespace containing Db2uClusters", default="db2u")
 
             # Detect clusters
             with Halo(text=f"Detecting Db2uClusters in namespace {namespace}", spinner=self.spinner) as h:
