@@ -117,8 +117,7 @@ class Db2MigrationApp(BaseApp):
                 try:
                     v1 = client.CoreV1Api()
                     allNamespaces = v1.list_namespace()
-                    db2uNamespaces = [ns.metadata.name for ns in allNamespaces.items 
-                                    if ns.metadata.name.startswith("db2u")]
+                    db2uNamespaces = [ns.metadata.name for ns in allNamespaces.items if ns.metadata.name.startswith("db2u")]
 
                     if db2uNamespaces:
                         h.succeed(f"Found {len(db2uNamespaces)} db2u namespace(s)")
