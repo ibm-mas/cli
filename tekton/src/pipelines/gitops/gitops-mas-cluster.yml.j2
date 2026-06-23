@@ -7,6 +7,7 @@ spec:
   description: MAS Cluster scope
   workspaces:
     - name: configs
+    - name: gitops-cluster-configs
   params:
     - name: cluster_name
       type: string
@@ -32,6 +33,9 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: avp_type
+      type: string
+      default: "aws"
     - name: redhat_cert_manager_install_plan
       type: string
       default: "Automatic"
@@ -43,6 +47,27 @@ spec:
       type: string
     - name: mas_catalog_image
       type: string
+
+    - name: role_arn
+      type: string
+    - name: efs_catalog_source
+      type: string
+      default: "redhat-operators"
+    - name: efs_catalog_source_namespace
+      type: string
+      default: "openshift-marketplace"
+    - name: efs_channel
+      type: string
+      default: "stable"
+    - name: efs_subscription_source_namespace
+      type: string
+      default: "openshift-cluster-csi-drivers"
+    - name: efs_install_action
+      type: string
+      default: ""
+    - name: default_file_storage_class
+      type: string
+      default: "generated(efs)"
 
     - name: dro_namespace
       type: string
@@ -62,6 +87,12 @@ spec:
     - name: imo_install_plan
       type: string
       default: "Automatic"
+    - name: dro_public_domain
+      type: string
+      default: ""
+    - name: dro_cis_crn
+      type: string
+      default: ""
 
     - name: nvidia_gpu_action
       type: string
@@ -188,6 +219,9 @@ spec:
     - name: cluster_logging_operator_syslog_forwarder_version
       type: string
       default: "1.8-amd64"
+    - name: cluster_logging_operator_dlc_ca_bundle_file
+      type: string
+      default: ""
 
     - name: instana_agent_operator_install
       type: string
@@ -241,8 +275,27 @@ spec:
     - name: provisioner_async_poll_max
       type: string
       default: ''
+    - name: provisioner_csb_client_ca_cert_file
+      type: string
+      default: ''
+    - name: provisioner_recommend_cluster
+      type: string
+      default: 'false'
+    - name: provisioner_storage_class
+      type: string
+      default: ''
+    - name: provisioner_instana_url_prefix
+      type: string
+      default: ''
+    - name: provisioner_git_root_ca_certificate_file
+      type: string
+      default: ''
+    - name: provisioner_mas_annotations_repo_url
+      type: string
+      default: ''
 
   tasks:
+
     - name: gitops-cluster
       params:
         - name: cluster_name
@@ -346,6 +399,8 @@ spec:
           value: $(params.cluster_logging_operator_setup_log_forwarding)
         - name: cluster_logging_operator_syslog_forwarder_version
           value: $(params.cluster_logging_operator_syslog_forwarder_version)
+        - name: cluster_logging_operator_dlc_ca_bundle_file
+          value: $(params.cluster_logging_operator_dlc_ca_bundle_file)
         
         - name: instana_agent_operator_install
           value: $(params.instana_agent_operator_install)
@@ -364,6 +419,54 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: gitops-cluster-configs
+          workspace: gitops-cluster-configs
+
+    - name: gitops-efs-csi-driver
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: role_arn
+          value: $(params.role_arn)
+        - name: efs_catalog_source
+          value: $(params.efs_catalog_source)
+        - name: efs_catalog_source_namespace
+          value: $(params.efs_catalog_source_namespace)
+        - name: efs_channel
+          value: $(params.efs_channel)
+        - name: efs_subscription_source_namespace
+          value: $(params.efs_subscription_source_namespace)
+        - name: default_file_storage_class
+          value: $(params.default_file_storage_class)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_type
+          value: $(params.avp_type)
+      taskRef:
+        kind: Task
+        name: gitops-efs-csi-driver
+      when:
+        - input: "$(params.efs_install_action)"
+          operator: in
+          values: ["install"]
+      workspaces:
+        - name: configs
+          workspace: configs
+
 
     - name: gitops-dro
       runAfter:
@@ -401,6 +504,10 @@ spec:
           value: $(params.dro_install_plan)
         - name: imo_install_plan
           value: $(params.imo_install_plan)
+        - name: dro_public_domain
+          value: $(params.dro_public_domain)
+        - name: dro_cis_crn
+          value: $(params.dro_cis_crn)
       taskRef:
         kind: Task
         name: gitops-dro
@@ -542,12 +649,26 @@ spec:
           value: $(params.provisioner_enable_ocm_alert)
         - name: enable_pd_alert
           value: $(params.provisioner_enable_pd_alert)
+        - name: csb_client_ca_certificate_file
+          value: $(params.provisioner_csb_client_ca_cert_file)
+        - name: recommend_cluster
+          value: $(params.provisioner_recommend_cluster)
+        - name: provisioner_storage_class
+          value: $(params.provisioner_storage_class)
+        - name: instana_url_prefix
+          value: $(params.provisioner_instana_url_prefix)
+        - name: git_root_ca_certificate_file
+          value: $(params.provisioner_git_root_ca_certificate_file)
+        - name: mas_annotations_repo_url
+          value: $(params.provisioner_mas_annotations_repo_url)
       taskRef:
         kind: Task
         name: gitops-mas-provisioner
       workspaces:
         - name: configs
           workspace: configs
+        - name: gitops-cluster-configs
+          workspace: gitops-cluster-configs
       when:
         - input: "$(params.provisioner_status_repo_url)"
           operator: notin

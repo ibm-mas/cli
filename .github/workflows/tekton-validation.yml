@@ -1,0 +1,36 @@
+name: Tekton validation
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+# Ensure only one build at a time for any branch, cancelling any in-progress builds
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tekton-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml jsonschema pytest
+
+      - name: Build Tekton definitions
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+          $GITHUB_WORKSPACE/build/bin/build-tekton.sh
+
+      - name: Validate Tekton definitions
+        run: |
+          pytest tekton/test_schema.py -v --tb=short

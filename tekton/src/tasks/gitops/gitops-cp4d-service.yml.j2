@@ -54,6 +54,9 @@ spec:
     - name: elasticsearch_install_plan
       type: string
       default: "Automatic"
+    - name: opensearch_install_plan
+      type: string
+      default: "Automatic"
     - name: canvasbase_install_plan
       type: string
       default: "Automatic"
@@ -106,6 +109,8 @@ spec:
         value: $(params.rabbitmq_install_plan)
       - name: ELASTICSEARCH_INSTALL_PLAN
         value: $(params.elasticsearch_install_plan)
+      - name: OPENSEARCH_INSTALL_PLAN
+        value: $(params.opensearch_install_plan)
       - name: CANVASBASE_INSTALL_PLAN
         value: $(params.canvasbase_install_plan)
     envFrom:
@@ -124,7 +129,7 @@ spec:
         export MAS_CONFIG_DIR=/workspace/configs/$MAS_INSTANCE_ID-cp4d-service-$CPD_SERVICE_NAME
         mkdir -p /workspace/configs/$MAS_INSTANCE_ID-cp4d-service-$CPD_SERVICE_NAME
         mkdir -p /tmp/init-cp4d-service
-        
+
         mas gitops-cp4d-service -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cp4d-service \
         --secrets-path $SECRET_PATH \
@@ -140,7 +145,7 @@ spec:
         - -c
       name: gitops-cp4d-service
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

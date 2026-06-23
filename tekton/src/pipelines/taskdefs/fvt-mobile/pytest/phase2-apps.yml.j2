@@ -7,7 +7,8 @@
     - name: fvt_test_suite
       value: mobile-api-assetm
   runAfter:
-    - mobile-pytest-requests
+    - mobile-pytest-asset-image
+    - mobile-pytest-download
     
 - name: mobile-pytest-tech
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
@@ -16,7 +17,8 @@
     - name: fvt_test_suite
       value: mobile-api-tech
   runAfter:
-    - mobile-pytest-requests
+    - mobile-pytest-asset-image
+    - mobile-pytest-download
 
 - name: mobile-pytest-supervisor
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
@@ -25,4 +27,5 @@
     - name: fvt_test_suite
       value: mobile-api-supervisor
   runAfter:
-    - mobile-pytest-requests
+    - mobile-pytest-asset-image
+    - mobile-pytest-download

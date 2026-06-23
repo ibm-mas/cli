@@ -5,6 +5,7 @@
 # - fvt-manage-base-ui-user-crud (selenium)
 # - fvt-manage-base-ui-user-consumption (selenium)
 # - fvt-manage-base-ui-communication-temp (selenium)
+# - fvt-manage-base-ui-scheduler-classic (cypress)
 # -------------------------------------------------------------
 
 # Manage FVT Escalation
@@ -25,15 +26,20 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-api-scheduler-qualification
     - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling
 
-# Manage FVT BIRT Reports 
+# Manage FVT BIRT Reports
 - name: fvt-manage-base-ui-birt-report
+  timeout: "0"
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   taskRef:
     kind: Task
-    name: mas-fvt-manage-birt-report  
+    name: mas-fvt-manage-birt-report
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
   when:
@@ -44,8 +50,12 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-api-scheduler-qualification
     - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling
 
 # Manage FVT New User Update/Delete/Verufy
 - name: fvt-manage-base-ui-user-crud
@@ -65,8 +75,12 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-api-scheduler-qualification
     - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling
 
 # Manage FVT User Consumption verification
 - name: fvt-manage-base-ui-user-consumption
@@ -86,8 +100,12 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-api-scheduler-qualification
     - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling
 
 # Manage FVT Communication Template
 - name: fvt-manage-base-ui-communication-temp
@@ -107,5 +125,43 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-api-scheduler-qualification
     - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling
+
+# Scheduler Classic Apps Cypress tests
+- name: fvt-manage-base-ui-scheduler-classic
+  timeout: "0"
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage-cypress
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-classic
+  when:
+    - input: "$(params.fvt_digest_manage_cypress)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-ui-classification
+    - fvt-manage-base-ui-helplinks
+    - fvt-manage-base-ui-wo-basic
+    - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling

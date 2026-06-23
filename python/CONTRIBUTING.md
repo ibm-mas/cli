@@ -3,59 +3,54 @@ Contributing
 
 Development Tips
 -------------------------------------------------------------------------------
-
-Your virtualenv should look something like this:
-
-```
-Package             Version     Editable project location
-------------------- ----------- -----------------------------------------------
-blinker             1.9.0
-cachetools          5.5.0
-certifi             2024.8.30
-charset-normalizer  3.4.0
-click               8.1.7
-colorama            0.4.6
-durationpy          0.9
-Flask               3.1.0
-google-auth         2.35.0
-halo                0.0.31
-idna                3.10
-itsdangerous        2.2.0
-Jinja2              3.1.4
-kubeconfig          1.1.1
-kubernetes          31.0.0
-log-symbols         0.0.14
-MarkupSafe          3.0.2
-mas-cli             100.0.0     /home/x/github/ibm-mas/installer/python
-mas-devops          100.0.0     /home/x/github/ibm-mas/python-devops
-oauthlib            3.2.2
-openshift           0.13.2
-pip                 22.0.2
-prompt_toolkit      3.0.48
-pyasn1              0.6.1
-pyasn1_modules      0.4.1
-python-dateutil     2.9.0.post0
-python-string-utils 1.0.0
-PyYAML              6.0.2
-requests            2.32.3
-requests-oauthlib   2.0.0
-rsa                 4.9
-setuptools          59.6.0
-six                 1.16.0
-spinners            0.0.24
-tabulate            0.9.0
-termcolor           2.5.0
-urllib3             2.2.3
-wcwidth             0.2.13
-websocket-client    1.8.0
-Werkzeug            3.1.3
-```
-
-Then you can run the install using:
+Set up your development environment with an editable install of the package and the mas-devops dependency.
 
 ```bash
-cd python/src
+uv venv
+uv pip install --editable .[dev]
+uv pip install --editable ../python-devops[dev]
+.venv/bin/activate
+
+# Run help command
+python mas-cli --help
+
+# Run tests
+pytest python/tests
+```
+
+### Must-Gather
+
+```bash
+# Generate must-gather
+rm mas.log; mas-cli must-gather --keep-files -d testing/must-gather
+
+# Serve must-gather viewer
+mas-cli must-gather serve -d testing/must-gather/20260606-085110
+
+# The following command is useful for quick development cycles on the
+# post-processing to avoid needing to run the must-gather collectors again
+
+# Re-generate web viewer
+python -m mas.cli.must_gather.web_viewer generate -d testing/must-gather/20260606-085110
+```
+
+Useful Commands
+-------------------------------------------------------------------------------
+### Print the usage information
+```bash
 python mas-cli --help
 ```
 
-This will be running using the code in your workspace, when you make a change you don't need to rebuild anything, just restart the cli application.
+### Simple commands for manual tests
+```bash
+python mas-cli mirror --help
+
+# Check simple m2d mirroring
+python mas-cli mirror --mode m2d --dir /tmp/mirror --catalog v9-260326-amd64 --release  9.1.x --tsm --image-timeout 10m
+
+# Check old catalog exception handling
+python mas-cli mirror --mode m2d --dir /tmp/mirror --catalog v9-251224-amd64 --release  9.1.x --amlen --image-timeout 10m
+
+# Check invalid catalog exception handling
+python mas-cli mirror --mode m2d --dir /tmp/mirror --catalog v9-260101-amd64 --release  9.1.x --amlen --image-timeout 10m
+```

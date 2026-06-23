@@ -1,13 +1,14 @@
-- name: mobile-pytest-sr
+- name: mobile-pytest-crew
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile-api-sr
+      value: mobile-api-crew
   runAfter:
     - mobile-pytest-ic
     - mobile-pytest-ir
     - mobile-pytest-it
+    - mobile-pytest-sr
 
 - name: mobile-pytest-insp
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
@@ -19,3 +20,32 @@
     - mobile-pytest-ic
     - mobile-pytest-ir
     - mobile-pytest-it
+    - mobile-pytest-sr
+
+- name: mobile-pytest-collaborate
+  taskRef:
+    kind: Task
+    name: mas-fvt-mobile-pytest
+  timeout: "0"
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-collaborate
+  runAfter:
+    - mobile-pytest-ic
+    - mobile-pytest-ir
+    - mobile-pytest-it
+    - mobile-pytest-sr
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  when:
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_digest_mobile_pytest)"
+      operator: notin
+      values: [""]
+    - input: "collaborate"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]

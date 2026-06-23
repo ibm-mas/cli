@@ -6,8 +6,8 @@
       value: dependencies-db2-{{ suffix }}
 
     - name: mas_instance_id
-{% if suffix == "aibroker" %}
-      value: $(params.aibroker_instance_id)
+{% if suffix == "aiservice" %}
+      value: $(params.aiservice_instance_id)
 {% else %}
       value: $(params.mas_instance_id)
 {% endif %}
@@ -36,8 +36,8 @@
     - name: db2_timezone
       value: $(params.db2_timezone)
 {% endif %}
-{% if suffix == "aibroker" %}
-      value: aibroker
+{% if suffix == "aiservice" %}
+      value: aiservice-$(params.aiservice_instance_id)
 {% endif %}
     - name: db2_namespace
       value: $(params.db2_namespace)
@@ -52,6 +52,10 @@
       value: $(params.db2_4k_device_support)
     - name: db2_table_org
       value: $(params.db2_table_org)
+    - name: db2u_kind
+      value: $(params.db2u_kind)
+    - name: db2_license_file
+      value: $(params.db2_license_file)
 
     # Node Scheduling
     - name: db2_affinity_key
@@ -142,3 +146,7 @@
   workspaces:
     - name: configs
       workspace: shared-configs
+{% if db2_license_workspace is defined and db2_license_workspace == 'true' %}
+    - name: db2
+      workspace: shared-db2
+{% endif %}

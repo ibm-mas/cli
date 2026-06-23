@@ -1,4 +1,5 @@
 # Cluster config
+# -----------------------------------------------------------------------------
 - name: ocp_ingress_tls_secret_name
   type: string
   default: ""
@@ -15,10 +16,6 @@
 # Dependencies - ECK
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-eck.yml.j2') }}
-
-# Dependencies - Turbonomic
-# -----------------------------------------------------------------------------
-{{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
 
 # Dependencies - SLS
 # -----------------------------------------------------------------------------
@@ -212,6 +209,10 @@
   type: string
   description: Set to 'install' to set up a Db2 instance for Real Estate and Facilities
   default: "none"
+- name: db2_action_aiservice
+  type: string
+  description: Set to 'install' to set up a Db2 instance for AI Service
+  default: "none"
 
 # Dependencies - CP4D
 # -----------------------------------------------------------------------------
@@ -233,9 +234,6 @@
 - name: cpd_product_version
   type: string
   default: ""
-- name: cpd_install_spss
-  type: string
-  default: ""
 - name: cpd_install_cognos
   type: string
   default: ""
@@ -249,21 +247,21 @@
   type: string
   default: ""
 
-# Dependencies - UDS
+# Dependencies - DRO
 # -----------------------------------------------------------------------------
-- name: uds_contact_email
+- name: dro_contact_email
   type: string
   default: ""
-- name: uds_contact_firstname
+- name: dro_contact_firstname
   type: string
   default: ""
-- name: uds_contact_lastname
+- name: dro_contact_lastname
   type: string
   default: ""
-- name: uds_event_scheduler_frequency
+- name: dro_event_scheduler_frequency
   type: string
   default: ""
-- name: uds_action
+- name: dro_action
   type: string
   default: ""
 - name: dro_namespace
@@ -337,6 +335,9 @@
 # MAS DNS Integrations - General
 # -----------------------------------------------------------------------------
 - name: dns_provider
+  type: string
+  default: ""
+- name: ocp_ingress
   type: string
   default: ""
 
@@ -420,6 +421,10 @@
 
 # MAS Configuration
 # -----------------------------------------------------------------------------
+- name: mas_issuer_kind
+  type: string
+  description: Certificate issuer kind for MAS
+  default: ""
 - name: mas_domain
   type: string
   default: ""
@@ -432,9 +437,34 @@
 - name: mas_icr_cpopen
   type: string
   default: ""
+- name: mas_feature_usage
+  type: string
+  description: Flag to control feature adoption metrics used to understand feature usage and improve the product
+  default: "True"
+- name: mas_usability_metrics
+  type: string
+  description: Flag to control user interface interaction metrics to improve usability
+  default: "True"
+- name: mas_deployment_progression
+  type: string
+  description: Flag to control metrics used to understand progression of tasks and workflows within the product
+  default: "True"
 - name: mas_annotations
   type: string
   default: ""
+- name: mas_routing_mode
+  type: string
+  default: ""
+- name: mas_use_service_mesh
+  type: string
+  default: ""
+- name: mas_manual_route_mgmt
+  type: string
+  default: ""
+- name: mas_ingress_controller_name
+  type: string
+  default: ""
+  description: Name of the IngressController to use for path-based routing
 - name: mas_trust_default_cas
   type: string
   default: ""
@@ -531,10 +561,14 @@
   type: string
   description: Select the JDBC configuration to bind to
   default: system
+- name: mas_appws_bindings_kafka_manage
+  type: string
+  description: Select the Kafka configuration to bind to Manage
+  default: ""
 - name: mas_appws_components
   type: string
   description: Manage components to configure in the workspace
-  default: "base=latest,health=latest"
+  default: ""
 - name: mas_app_settings_aio_flag
   type: string
   description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
@@ -587,10 +621,6 @@
   type: string
   description: Provides different flavors of server bundle configuration to handle workload for Manage application.
   default: "dev"
-- name: is_full_manage
-  type: string
-  description: Set to true if full Manage is installed instead of Manage Foundation
-  default: "true"
 - name: mas_app_settings_tablespace
   type: string
   description: Name of the Manage database tablespace
@@ -619,25 +649,25 @@
   type: string
   description: Password to authenticate into Manage custom archive url (if required)
   default: ""
-- name: mas_app_settings_crypto_key
+- name: mas_manage_encryptionsecret_crypto_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_CRYPTO_KEY
   default: ""
-- name: mas_app_settings_cryptox_key
+- name: mas_manage_encryptionsecret_cryptox_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_CRYPTOX_KEY
   default: ""
-- name: mas_app_settings_old_crypto_key
+- name: mas_manage_encryptionsecret_old_crypto_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTO_KEY
   default: ""
-- name: mas_app_settings_old_cryptox_key
+- name: mas_manage_encryptionsecret_old_cryptox_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTOX_KEY
   default: ""
-- name: mas_app_settings_override_encryption_secrets_flag
+- name: mas_manage_ws_db_encryptionsecret
   type: string
-  description: Defines if Manage database encryption secret should be overriden with new values provided
+  description: Name of the Manage database encryption secret
   default: ""
 - name: mas_app_settings_default_jms
   type: string
@@ -655,19 +685,25 @@
   type: string
   description: COS Bucket optionally used to hold attachments in Manage
   default: ""
+- name: mas_appws_upgrade_type
+  type: string
+  description: Manage upgrade type
+  default: "regularUpgrade"
+- name: mas_manage_kafkaimageprocessor_pvc_size
+  type: string
+  description: PVC size for Manage Kafka Image Processor
+  default: ""
+
 
 # MAS Application Configuration - IBM Maximo Location Services for ESRI
 # -----------------------------------------------------------------------------
-- name: install_arcgis
-  type: string
-  description: Flag to control whether to install IBM Maximo Location Services for ESRI
-  default: ""
 - name: mas_arcgis_channel
   type: string
-  description: Default channel for IBM Maximo Location Services for ESRI
+  description: Subscription channel for IBM Maximo Location Services for ESRI. Setting this will trigger ArcGIS installation.
   default: "" # default is handled by ansible-devops
 
 # MAS Application Configuration - Health Application
+# -----------------------------------------------------------------------------
 - name: mas_appws_bindings_health_wsl_flag
   type: string
   description: Boolean value indicating if Watson Studio must installed and bound to Manage/Health.
@@ -687,16 +723,17 @@
   description: controls the workload size of predict containers
   default: "small"
 
-# Dependencies - IBM Maximo AI Service
-# -----------------------------------------------------------------------------
-{{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') }}
-
 # MAS Application Configuration - Facilities
+# -----------------------------------------------------------------------------
 # TODO: Fix type for storage sizes and max conn pool size
 - name: mas_ws_facilities_size
   type: string
   description: Size of the Facilities Deployment
   default: "small"
+- name: mas_ws_facilities_app_om_upgrade_mode
+  type: string
+  description: Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades.
+  default: ""
 - name: mas_ws_facilities_routes_timeout
   type: string
   description: Optional. Connection timeout of the route.
@@ -729,7 +766,80 @@
   type: string
   description: Define storage mode for userfiles
   default: ""
+- name: mas_ws_facilities_server_timezone
+  type: string
+  description: Facilities server timezone
+  default: "UTC"  
 - name: mas_ws_facilities_config_map_name
   description: ConfigMap with configurations not supported by Tekton
   type: string
   default: ""
+- name: mas_ws_facilities_custom_properties
+  description: Flag indicating if custom FACILITIES.properties file is provided
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_file_local
+  description: Path to custom FACILITIES.properties file in pipeline workspace
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_secret_name
+  description: Name of the secret containing custom FACILITIES.properties
+  type: string
+  default: ""
+- name: mas_ws_facilities_dataconnectagent_deploymentmode
+  description: Agent dataconnectagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_extendedformulaagent_deploymentmode
+  description: Agent extendedformulaagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_formularecalcagent_deploymentmode
+  description: Agent formularecalcagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_incomingmailagent_deploymentmode
+  description: Agent incomingmailagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_maintenanceagent_deploymentmode
+  description: Agent maintenanceagent deployment mode
+  type: string
+  default: ""  
+- name: mas_ws_facilities_objectmigrationagent_deploymentmode
+  description: Agent objectmigrationagent deployment mode
+  type: string
+  default: "" 
+- name: mas_ws_facilities_objectpublishagent_deploymentmode
+  description: Agent objectpublishagent deployment mode
+  type: string
+  default: "" 
+- name: mas_ws_facilities_reportqueueagent_deploymentmode
+  description: Agent reportqueueagent deployment mode
+  type: string
+  default: "" 
+- name: mas_ws_facilities_wfagent_deploymentmode
+  description: Agent wfagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_wffutureagent_deploymentmode
+  description: Agent wffutureagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_wfnotificationagent_deploymentmode
+  description: Agent wfnotificationagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_reservesmtpagent_deploymentmode
+  description: Agent reservesmtpagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_scheduleragent_deploymentmode
+  description: Agent scheduleragent deployment mode
+  type: string
+  default: ""
+
+#  AI Service Configuration
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') }}
+

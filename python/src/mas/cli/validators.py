@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -11,16 +11,18 @@
 from re import match
 from os import path
 from json import loads, JSONDecodeError
+from typing import List
 
-# Use of the openshift client rather than the kubernetes client allows us access to "apply"
-from openshift import dynamic
+from kubernetes import dynamic
 from kubernetes import config
 from kubernetes.client import api_client
 
 from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit.document import Document
 
 from mas.devops.ocp import getStorageClass
 from mas.devops.mas import verifyMasInstance
+from mas.devops.aiservice import verifyAiServiceInstance, verifyAiServiceTenantInstance
 
 import logging
 
@@ -28,89 +30,140 @@ logger = logging.getLogger(__name__)
 
 
 class InstanceIDFormatValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
         instanceId = document.text
 
         if not match(r"^[a-z][a-z0-9-]{1,10}[a-z0-9]$", instanceId):
-            raise ValidationError(message='MAS instance ID does not meet the requirements', cursor_position=len(instanceId))
+            raise ValidationError(message="MAS instance ID does not meet the requirements", cursor_position=len(instanceId))
 
 
 class WorkspaceIDFormatValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
         instanceId = document.text
 
         if not match(r"^[a-z][a-z0-9]{2,11}$", instanceId):
-            raise ValidationError(message='Workspace ID does not meet the requirements', cursor_position=len(instanceId))
+            raise ValidationError(message="Workspace ID does not meet the requirements", cursor_position=len(instanceId))
 
 
 class TimeoutFormatValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
         string_to_validate = document.text
-        if string_to_validate != "" and not match(r'^([0-9]+)([hm])$', string_to_validate):
+        if string_to_validate != "" and not match(r"^([0-9]+)([hm])$", string_to_validate):
             message = f"Error: Your input: {string_to_validate} does not meet the required pattern. Please use it in hours or minutes format (e.g., 12h, 12m)."
             raise ValidationError(message=message, cursor_position=len(string_to_validate))
 
 
 class WorkspaceNameFormatValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
         instanceId = document.text
 
         if not match(r"^.{3,300}$", instanceId):
-            raise ValidationError(message='Workspace name does not meet the requirements', cursor_position=len(instanceId))
+            raise ValidationError(message="Workspace name does not meet the requirements", cursor_position=len(instanceId))
 
 
 class InstanceIDValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a MAS instance ID exists on the target cluster
         """
         instanceId = document.text
 
-        dynClient = dynamic.DynamicClient(
-            api_client.ApiClient(configuration=config.load_kube_config())
-        )
+        dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
         if not verifyMasInstance(dynClient, instanceId):
-            raise ValidationError(message='Not a valid MAS instance ID on this cluster', cursor_position=len(instanceId))
+            raise ValidationError(message="Not a valid MAS instance ID on this cluster", cursor_position=len(instanceId))
+
+
+class AiserviceInstanceIDValidator(Validator):
+    def validate(self, document: Document) -> None:
+        """
+        Validate that a AI Service instance ID exists on the target cluster
+        """
+        instanceId = document.text
+
+        dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
+        if not verifyAiServiceInstance(dynClient, instanceId):
+            raise ValidationError(message="Not a valid AI Service instance ID on this cluster", cursor_position=len(instanceId))
+
+
+class AiserviceTeanantIDValidator(Validator):
+    def __init__(self, manage_bind_aiservice_instance_id: str, install_aiservice: bool = False) -> None:
+        """
+        Initialize validator with AI Service instance ID and installation flag
+        """
+        self.manage_bind_aiservice_instance_id: str = manage_bind_aiservice_instance_id
+        self.install_aiservice: bool = install_aiservice
+
+    def validate(self, document: Document) -> None:
+        """
+        Validate that a AI Service tenant ID exists on the target cluster
+        """
+        tenantId = document.text
+
+        # If AI Service is being installed and tenant is 'user', skip cluster verification
+        if self.install_aiservice and tenantId == "user":
+            return
+
+        dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
+        if not verifyAiServiceTenantInstance(dynClient, self.manage_bind_aiservice_instance_id, tenantId):
+            raise ValidationError(message="Not a valid AI Service tenant ID on this cluster", cursor_position=len(tenantId))
 
 
 class StorageClassValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a StorageClass exists on the target cluster
         """
         name = document.text
 
-        dynClient = dynamic.DynamicClient(
-            api_client.ApiClient(configuration=config.load_kube_config())
-        )
+        dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
         if getStorageClass(dynClient, name) is None:
-            raise ValidationError(message='Specified storage class is not available on this cluster', cursor_position=len(name))
+            raise ValidationError(message="Specified storage class is not available on this cluster", cursor_position=len(name))
 
 
 class YesNoValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a response is understandable as a yes/no response
         """
         response = document.text
         if response.lower() not in ["y", "n", "yes", "no"]:
-            raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
+            raise ValidationError(message="Enter a valid response: y(es), n(o)", cursor_position=len(response))
+
+
+class IntValidator(Validator):
+    def __init__(self, min: int | None, max: int | None) -> None:
+        self.min: int | None = min
+        self.max: int | None = max
+
+    def validate(self, document: Document) -> None:
+        """
+        Validate that a response is understandable as a yes/no response
+        """
+        response = document.text
+        if not str.isdigit(response):
+            raise ValidationError(message="Enter a valid number", cursor_position=len(response))
+
+        if self.min and int(response) < self.min:
+            raise ValidationError(message=f"Enter a number not less than {self.min}", cursor_position=len(response))
+
+        if self.max and int(response) > self.max:
+            raise ValidationError(message=f"Enter a number not more than {self.max}", cursor_position=len(response))
 
 
 class FileExistsValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a file exists on the local system
         """
@@ -120,7 +173,7 @@ class FileExistsValidator(Validator):
 
 
 class DirectoryExistsValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a file exists on the local system
         """
@@ -130,17 +183,17 @@ class DirectoryExistsValidator(Validator):
 
 
 class OptimizerInstallPlanValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a response is a valid install plan for Optimizer
         """
         response = document.text
         if response not in ["full", "limited"]:
-            raise ValidationError(message='Enter a valid response: full, limited', cursor_position=len(response))
+            raise ValidationError(message="Enter a valid response: full, limited", cursor_position=len(response))
 
 
 class JsonValidator(Validator):
-    def validate(self, document):
+    def validate(self, document: Document) -> None:
         """
         Validate that a response is a valid JSON
         """
@@ -148,4 +201,54 @@ class JsonValidator(Validator):
         try:
             loads(inputJson)
         except JSONDecodeError:
-            raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
+            raise (ValidationError(message="Enter a valid JSON", cursor_position=len(inputJson)))
+
+
+class LanguageValidator(Validator):
+    def __init__(self, _language_list: List[str]) -> None:
+        """
+        This function was created to give context of the array that will
+        be validated
+        """
+        self._language_list: List[str] = _language_list
+
+    def validate(self, document: Document) -> None:
+        """
+        Validate if an input it's outside of an list
+        """
+        languages = document.text
+        for language in languages.split(","):
+            if language.upper() not in self._language_list:
+                raise (ValidationError(message="Language not supported. Please select value(s) from the list", cursor_position=len(languages)))
+
+
+class BucketPrefixValidator(Validator):
+    def validate(self, document: Document) -> None:
+        """
+        Validate Bucket prefix length
+        """
+        bucketPrefix = document.text
+
+        if not match(r"^.{1,4}$", bucketPrefix):
+            raise ValidationError(message="Bucket prefix does not meet the requirement", cursor_position=len(bucketPrefix))
+
+
+class CustomizationArchiveNameValidator(Validator):
+    def validate(self, document: Document) -> None:
+        name = document.text
+        if not match(r"^[0-9a-zA-Z][0-9a-zA-Z\-_.]+$", name):
+            raise ValidationError(
+                message="Customization archive name must start with a letter or digit, and contain only letters, digits, hyphens, underscores, and dots",
+                cursor_position=len(name),
+            )
+
+
+class NotEmptyValidator(Validator):
+    def validate(self, document: Document) -> None:
+        """
+        Validate that the input value is not empty
+        """
+        value = document.text
+
+        if not match(r"^.+$", value):
+            raise ValidationError(message="Enter a value", cursor_position=0)

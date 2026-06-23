@@ -1,0 +1,134 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-finally
+spec:
+  params:
+    - name: image_pull_policy
+      type: string
+
+    - name: finalize
+      type: string
+      default: "true"
+      description: "Finalize the record in the FVT database"
+
+    - name: deprovision
+      type: string
+      default: "true"
+      description: "Enable deprovision of the target cluster & associated resources following the completion of this pipeline"
+
+    - name: set_finished
+      type: string
+      default: "true"
+      description: "Determines whether to run final tasks or just the data collection task"
+
+  tasks:
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
+    # Delete IBM Cloud services
+    # -------------------------------------------------------------------------
+    # COS
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-cos.yml.j2') | indent(4) }}
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - pipeline-start
+
+    # Event Streams
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-kafka.yml.j2') | indent(4) }}
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - pipeline-start
+
+    # Collect must-gather
+    # -------------------------------------------------------------------------
+    - name: must-gather
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "$(workspaces.mustgather.path)/$(context.pipelineRun.name)"
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather
+      when:
+        - input: $(params.set_finished)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - kafka-deprovision
+        - cos-deprovision
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      timeout: "0"
+      params:
+        - name: set_finished
+          value: $(params.set_finished)
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
+      runAfter:
+        - must-gather
+      when:
+        - input: $(params.finalize)
+          operator: in
+          values: ["true", "True"]
+
+  # Finally section - runs after all tasks complete
+  # ---------------------------------------------------------------------------
+  # Combined task that:
+  # 1. Captures pipeline status (Step 1 - always runs)
+  # 2. Conditionally deprovisions cluster (Step 2 - only if status=Succeeded)
+  # This guarantees sequential execution and preserves cluster on failure for debugging
+  finally:
+    - name: pipeline-finish-and-deprovision
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-pipeline-finish-and-deprovision
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+        - name: deprovision
+          value: $(params.deprovision)
+
+  workspaces:
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+    # The generated configuration files
+    - name: shared-configs

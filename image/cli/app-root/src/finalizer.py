@@ -1,11 +1,20 @@
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, UTC
 from pymongo import MongoClient
 from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
-from slackclient import SlackClient
+from mas.devops.slack import SlackUtil
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
 import threading
@@ -45,7 +54,8 @@ def runCmd(cmdArray, timeout=630):
             output, error = p.communicate(timeout=timeout)
             return RunCmdResult(p.returncode, output, error)
         except TimeoutExpired as e:
-            return RunCmdResult(127, 'TimeoutExpired', str(e))
+            return RunCmdResult(127, "TimeoutExpired", str(e))
+
 
 # Post message to Slack
 # -----------------------------------------------------------------------------
@@ -54,57 +64,21 @@ def runCmd(cmdArray, timeout=630):
 def postMessage(channelName, messageBlocks, threadId=None):
     if threadId is None:
         print(f"Posting {len(messageBlocks)} block message to {channelName} in Slack")
-        response = sc.api_call("chat.postMessage", channel=channelName, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True)
+        response = SlackUtil.postMessageBlocks(channelName, messageBlocks)
     else:
         print(f"Posting {len(messageBlocks)} block message to {channelName} on thread {threadId} in Slack")
-        response = sc.api_call("chat.postMessage", channel=channelName, thread_ts=threadId, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True)
+        response = SlackUtil.postMessageBlocks(channelName, messageBlocks, threadId=threadId)
 
-    if not response['ok']:
+    if not response["ok"]:
         print(response)
         print("Failed to call Slack API")
     return response
 
 
-# Build header block for Slack message
-# -----------------------------------------------------------------------------
-def buildHeader(title):
-    return {
-        "type": "header",
-        "text": {
-            "type": "plain_text",
-                "text": title,
-                "emoji": True
-        }
-    }
-
-
-# Build section block for Slack message
-# -----------------------------------------------------------------------------
-def buildSection(text):
-    return {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": text
-        }
-    }
-
-
-# Build context block for Slack message
-# -----------------------------------------------------------------------------
-def buildContext(texts):
-    elements = []
-    for text in texts:
-        elements.append({"type": "mrkdwn", "text": text})
-
-    return {
-        "type": "context",
-        "elements": elements
-    }
-
-
 # Get Kafka Provider and Version
 # -------------------------------------------------------------------------
+
+
 def getKafkaVersion(namespace):
     try:
         crs = dynClient.resources.get(api_version="kafka.strimzi.io/v1beta2", kind="Kafka")
@@ -118,8 +92,26 @@ def getKafkaVersion(namespace):
     return "unknown"
 
 
+# Get DataScience Version
+# -------------------------------------------------------------------------
+
+
+def getDscVersion():
+    try:
+        crs = dynClient.resources.get(api_version="datasciencecluster.opendatahub.io/v1", kind="DataScienceCluster")
+        cr = crs.get(name="default-dsc", namespace="opendatahub")
+        if cr.status and cr.status.release.version:
+            setObject["target.datascienceVersion"] = cr.status.release.version
+        else:
+            print("Unable to determine Data Science version: status.release.version unavailable")
+    except Exception as e:
+        print(f"Unable to determine Data Science version: {e}")
+
+
 # Get cp4d components versions
 # -------------------------------------------------------------------------
+
+
 def getcp4dCompsVersions():
 
     # Get Analytics Engine Version
@@ -159,19 +151,7 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine WML version: {e}")
 
-    # Get  SPSS Modeler Version
-    # -------------------------------------------------------------------------
-    try:
-        crs = dynClient.resources.get(api_version="spssmodeler.cpd.ibm.com/v1", kind="Spss")
-        cr = crs.get(name="spssmodeler", namespace="ibm-cpd")
-        if cr.status and cr.status.version:
-            setObject["target.SpssVersion"] = cr.status.version
-        else:
-            print("Unable to determine SPSS Modeler version: status.version unavailable")
-    except Exception as e:
-        print(f"Unable to determine SPSS Modeler version: {e}")
-
-    # Get  Cognos Analytics Version
+    # Get Cognos Analytics Version
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="ca.cpd.ibm.com/v1", kind="CAService")
@@ -187,7 +167,7 @@ def getcp4dCompsVersions():
 # Script start
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
-    if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
+    if "DEVOPS_MONGO_URI" not in os.environ or os.environ["DEVOPS_MONGO_URI"] == "":
         sys.exit(0)
 
     DRY_RUN = False
@@ -235,7 +215,7 @@ if __name__ == "__main__":
 
     setObject = {}
     if setFinished.lower() == "true":
-        setObject["timestampFinished"] = datetime.utcnow()
+        setObject["timestampFinished"] = datetime.now(UTC)
 
     # Set CLI and ansible-devops version
     # -------------------------------------------------------------------------
@@ -281,8 +261,8 @@ if __name__ == "__main__":
         crs = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         cr = crs.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
         if cr.status and cr.spec.displayName:
-            catalogVersion = cr.to_dict()['spec']['displayName']
-            version = re.search(r'\((.*?)\)', catalogVersion).group(1)
+            catalogVersion = cr.to_dict()["spec"]["displayName"]
+            version = re.search(r"\((.*?)\)", catalogVersion).group(1)
             setObject["target.catalogVersion"] = version
         else:
             print("Unable to determine IBM Catalog Version: spec.displayName unavailable")
@@ -292,76 +272,87 @@ if __name__ == "__main__":
     # Lookup version and build information for MAS Operators
     # -------------------------------------------------------------------------
     knownProductIds = {
-        "ibm-mas": {
-            "deployment": "ibm-mas-operator",
-            "namespace": f"mas-{instanceId}-core",
-            "apiVersion": "core.mas.ibm.com/v1",
-            "kind": "Suite"
-        },
+        "ibm-mas": {"deployment": "ibm-mas-operator", "namespace": f"mas-{instanceId}-core", "apiVersion": "core.mas.ibm.com/v1", "kind": "Suite"},
         "ibm-mas-assist": {
             "deployment": "ibm-mas-assist-operator",
             "namespace": f"mas-{instanceId}-assist",
             "apiVersion": "apps.mas.ibm.com/v1",
-            "kind": "AssistApp"
+            "kind": "AssistApp",
         },
-        "ibm-mas-iot": {
-            "deployment": "ibm-mas-iot-operator",
-            "namespace": f"mas-{instanceId}-iot",
-            "apiVersion": "iot.ibm.com/v1",
-            "kind": "IoT"
-        },
+        "ibm-mas-iot": {"deployment": "ibm-mas-iot-operator", "namespace": f"mas-{instanceId}-iot", "apiVersion": "iot.ibm.com/v1", "kind": "IoT"},
         "ibm-mas-manage": {
             "deployment": "ibm-mas-manage-operator",
             "namespace": f"mas-{instanceId}-manage",
             "apiVersion": "apps.mas.ibm.com/v1",
-            "kind": "ManageApp"
+            "kind": "ManageApp",
+        },
+        "ibm-mas-facilities": {
+            "deployment": "ibm-mas-facilities-operator",
+            "namespace": f"mas-{instanceId}-facilities",
+            "apiVersion": "apps.mas.ibm.com/v1",
+            "kind": "FacilitiesApp",
         },
         "ibm-mas-monitor": {
             "deployment": "ibm-mas-monitor-operator",
             "namespace": f"mas-{instanceId}-monitor",
             "apiVersion": "apps.mas.ibm.com/v1",
-            "kind": "MonitorApp"
+            "kind": "MonitorApp",
         },
         "ibm-mas-optimizer": {
             "deployment": "ibm-mas-optimizer-operator",
             "namespace": f"mas-{instanceId}-optimizer",
             "apiVersion": "apps.mas.ibm.com/v1",
-            "kind": "OptimizerApp"
+            "kind": "OptimizerApp",
         },
         "ibm-mas-predict": {
             "deployment": "ibm-mas-predict-operator",
             "namespace": f"mas-{instanceId}-predict",
             "apiVersion": "apps.mas.ibm.com/v1",
-            "kind": "PredictApp"
+            "kind": "PredictApp",
         },
         "ibm-mas-visualinspection": {
             "deployment": "ibm-mas-visualinspection-operator",
             "namespace": f"mas-{instanceId}-visualinspection",
             "apiVersion": "apps.mas.ibm.com/v1",
-            "kind": "VisualInspectionApp"
+            "kind": "VisualInspectionApp",
         },
-        "ibm-mas-aibroker": {
-            "deployment": "ibm-mas-aibroker-operator",
-            "namespace": f"mas-{instanceId}-aibroker",
-            "apiVersion": "apps.mas.ibm.com/v1",
-            "kind": "AiBrokerApp",
-        }
+        "ibm-aiservice": {
+            "deployment": "ibm-aiservice-operator",
+            "namespace": f"aiservice-{instanceId}",
+            "apiVersion": "aiservice.ibm.com/v1",
+            "kind": "AIServiceApp",
+        },
+        "ibm-sls": {
+            "deployment": "ibm-sls-controller-manager",
+            "namespace": f"sls-{instanceId}",
+            "apiVersion": "sls.ibm.com/v1",
+            "kind": "LicenseService",
+        },
+        "ibm-mas-data-dictionary": {
+            "deployment": "ibm-data-dictionary-datadictionary",
+            "namespace": f"mas-{instanceId}-add",
+            "apiVersion": "asset-data-dictionary.ibm.com/v1",
+            "kind": "AssetDataDictionary",
+        },
     }
 
     # Associate Mas FVT Focal group with respect to product
     # -------------------------------------------------------------------------
     productFocal = {
         "ibm-mas": "S04PSA1M1RR",
+        "ibm-sls": "S04PSA1M1RR",
         "ibm-mas-devops": "S04PSA1M1RR",
         "ibm-mas-assist": "S04PPFYUJG5",
         "ibm-mas-iot": "S04PBTG77JB",
         "ibm-mas-manage": "S05QB03HNTU",
+        "ibm-mas-facilities": "S08U8MQTZKP",
         "ibm-mas-monitor": "S04QG3R30SC",
+        "ibm-mas-data-dictionary": "S04QG3R30SC",
         "ibm-mas-optimizer": "S04PSB1R8DR",
         "ibm-mas-predict": "S04Q53TT5S5",
         "ibm-mas-visualinspection": "S04PUSAL2A0",
         "ibm-mas-mobile": "S0507GG7V6K",
-        "ibm-mas-aibroker": "S04Q53TT5S5"
+        "ibm-aiservice": "S09DH8BFGA1",
     }
 
     for productId in knownProductIds:
@@ -374,7 +365,12 @@ if __name__ == "__main__":
         # Lookup version
         try:
             crs = dynClient.resources.get(api_version=apiVersion, kind=kind)
-            cr = crs.get(name=instanceId, namespace=deploymentNamespace)
+            # Special handling for ibm-sls SlsCfg which has a different naming pattern
+            if productId == "ibm-sls" and kind == "LicenseService":
+                resourceName = "sls"
+            else:
+                resourceName = instanceId
+            cr = crs.get(name=resourceName, namespace=deploymentNamespace)
             if cr.status and cr.status.versions:
                 productVersion = cr.status.versions.reconciled
 
@@ -383,7 +379,7 @@ if __name__ == "__main__":
 
                 # Lookup build information
                 try:
-                    deployments = dynClient.resources.get(api_version='v1', kind='Deployment')
+                    deployments = dynClient.resources.get(api_version="v1", kind="Deployment")
                     deploymentObj = deployments.get(name=deploymentName, namespace=deploymentNamespace)
                     if deploymentObj is not None:
                         deploymentDict = deploymentObj.to_dict()
@@ -401,6 +397,8 @@ if __name__ == "__main__":
                     print(f"Unable to determine {productId} build information: {e}")
             else:
                 print(f"Unable to determine {productId} version: status.versions.reconciled unavailable")
+            if cr.status and cr.status.settings and cr.status.settings.routingMode:
+                setObject[f"products.{productId}.routingMode"] = cr.status.settings.routingMode
         except Exception as e:
             print(f"Unable to determine {productId} version: {e}")
 
@@ -411,7 +409,7 @@ if __name__ == "__main__":
         crs = dynClient.resources.get(api_version="apps.mas.ibm.com/v1", kind="ManageWorkspace")
         cr = crs.get(name=f"{instanceId}-masdev", namespace=f"mas-{instanceId}-manage")
         if cr.status and cr.status.components:
-            componentsDict = cr.to_dict()['status']['components']
+            componentsDict = cr.to_dict()["status"]["components"]
             setObject["products.ibm-mas-manage.components"] = componentsDict
         else:
             print("Unable to determine Manage installed components: status.components unavailable")
@@ -428,7 +426,10 @@ if __name__ == "__main__":
         treatedComponents = {}
         for key, value in mobileComponents.items():
             if "mobileVersion" in value:
-                treatedComponents[key] = {"enabled": True, "version": (value["mobileVersion"] + " || " + value["buildToolsVersion"])}
+                treatedComponents[key] = {
+                    "enabled": True,
+                    "version": (value["mobileVersion"] + " | " + value["buildToolsVersion"] + " | " + value["appProcessorVersion"]),
+                }
 
         setObject["products.ibm-mas-mobile.buildId"] = "NA"
         setObject["products.ibm-mas-mobile.buildNumber"] = "NA"
@@ -441,7 +442,7 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     try:
         pods = dynClient.resources.get(api_version="v1", kind="Pod")
-        podList = pods.get(namespace=f"mas-{instanceId}-manage", label_selector='mas.ibm.com/appType=maxinstudb')
+        podList = pods.get(namespace=f"mas-{instanceId}-manage", label_selector="mas.ibm.com/appType=maxinstudb")
 
         if podList is None or podList.items is None or len(podList.items) == 0:
             pass
@@ -449,7 +450,7 @@ if __name__ == "__main__":
             podName = podList.items[0].metadata.name
             ocExecCommand = ["oc", "exec", "-n", f"mas-{instanceId}-manage", podName, "--", "cat", "/opt/IBM/SMP/maximo/build.num"]
             result = runCmd(ocExecCommand)
-            maximoBuildNumber = result.out.decode('utf-8')
+            maximoBuildNumber = result.out.decode("utf-8")
             setObject["products.ibm-mas-manage.maximoBuildVersion"] = maximoBuildNumber
     except Exception as e:
         print(f"Unable to determine Maximo Process Automation Engine (MPAE) version: {e}")
@@ -458,56 +459,81 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="db2u.databases.ibm.com/v1", kind="Db2uCluster")
-        cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
-        if cr.status and cr.status.version:
-            db2ClusterVersion = cr.status.version
+        # Try to find DB2 cluster - first try the expected name/namespace
+        db2Found = False
+        try:
+            cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
+            if cr.status and cr.status.version:
+                db2ClusterVersion = cr.status.version
+                setObject["target.db2ClusterVersion"] = db2ClusterVersion
+                db2Found = True
+        except Exception:
+            # If not found in expected location, search all namespaces
+            try:
+                crList = crs.get()
+                if crList and crList.items and len(crList.items) > 0:
+                    # Use the first DB2 cluster found
+                    for item in crList.items:
+                        if item.status and item.status.version:
+                            db2ClusterVersion = item.status.version
+                            setObject["target.db2ClusterVersion"] = db2ClusterVersion
+                            db2Found = True
+                            db2Name = item.metadata.name
+                            db2Ns = item.metadata.namespace
+                            print(f"DB2 cluster found: {db2Name} in namespace {db2Ns}")
+                            break
+            except Exception:
+                pass
 
-            setObject["target.db2ClusterVersion"] = db2ClusterVersion
-        else:
-            print("Unable to determine DB2 cluster version: status.version unavailable")
+        if not db2Found:
+            print("Unable to determine DB2 cluster version: DB2 cluster not found (may not be installed)")
     except Exception as e:
-        print(f"Unable to determine DB2 cluster version: {e}")
+        error_msg = str(e)
+        if "404" in error_msg or "not found" in error_msg.lower():
+            print("Unable to determine DB2 cluster version: DB2 cluster not found (may not be installed)")
+        else:
+            print(f"Unable to determine DB2 cluster version: {e}")
 
     # Lookup DB2 operator version
     # -------------------------------------------------------------------------
     try:
 
         csvl = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="ClusterServiceVersion")
-        csv = csvl.get(namespace="db2u", label_selector='operators.coreos.com/db2u-operator.db2u')
+        csv = csvl.get(namespace="db2u", label_selector="operators.coreos.com/db2u-operator.db2u")
 
         if csv is None or csv.items is None or len(csv.items) == 0:
             print("Unable to determine DB2 operator version: component unavailable")
         else:
-            db2OperatorVersion = (csv.items[0].metadata.name).lstrip('db2u-operator.')
+            db2OperatorVersion = (csv.items[0].metadata.name).lstrip("db2u-operator.")
             setObject["target.db2OperatorVersion"] = db2OperatorVersion
     except Exception as e:
         print(f"Unable to determine DB2 operator version: {e}")
 
     # Get Kafka Provider and Version
     # -------------------------------------------------------------------------
-    namespace = ''
+    namespace = ""
     try:
         crs = dynClient.resources.get(api_version="config.mas.ibm.com/v1", kind="KafkaCfg")
         cr = crs.get(name=f"{instanceId}-kafka-system", namespace=f"mas-{instanceId}-core")
         if cr.status and cr.status.config.hosts:
             firstBroker = cr.status.config.hosts[0].host
-            if firstBroker.find('eventstreams') != -1:
-                setObject["target.kafkaProvider"] = 'IBM'
-            elif firstBroker.find('amazonaws') != -1:
-                setObject["target.kafkaProvider"] = 'AWS'
-            elif firstBroker.find('amq-streams') != -1:
-                setObject["target.kafkaProvider"] = 'AMQ'
+            if firstBroker.find("eventstreams") != -1:
+                setObject["target.kafkaProvider"] = "IBM"
+            elif firstBroker.find("amazonaws") != -1:
+                setObject["target.kafkaProvider"] = "AWS"
+            elif firstBroker.find("amq-streams") != -1:
+                setObject["target.kafkaProvider"] = "AMQ"
                 namespace = "amq-streams"
-            elif firstBroker.find('strimzi') != -1:
-                setObject["target.kafkaProvider"] = 'STRIMZI'
+            elif firstBroker.find("strimzi") != -1:
+                setObject["target.kafkaProvider"] = "STRIMZI"
                 namespace = "strimzi"
             else:
                 print("Unable to determine kafka provider using broker host")
             # check if we need to get the kafka version, this will happen with AMQ and STRIMZI
-            if namespace != '':
+            if namespace != "":
                 setObject["target.kafkaVersion"] = getKafkaVersion(namespace)
             else:
-                setObject["target.kafkaVersion"] = 'unknown'
+                setObject["target.kafkaVersion"] = "unknown"
         else:
             print("Unable to determine kafka provider: status.config.hosts unavailable")
     except Exception as e:
@@ -517,14 +543,46 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
-        cr = crs.get(name="sls", namespace=f"sls-{instanceId}")
-        if cr.status and cr.status.versions:
-            slsVersion = cr.status.versions.reconciled
-            setObject["target.slsVersion"] = slsVersion
-        else:
-            print("Unable to determine SLS version: status.versions unavailable")
+        # Try to find SLS - check multiple possible locations
+        slsFound = False
+        possibleNamespaces = [f"sls-{instanceId}", "ibm-sls", f"mas-{instanceId}-sls"]
+
+        for ns in possibleNamespaces:
+            try:
+                cr = crs.get(name="sls", namespace=ns)
+                if cr.status and cr.status.versions:
+                    slsVersion = cr.status.versions.reconciled
+                    setObject["target.slsVersion"] = slsVersion
+                    slsFound = True
+                    break
+            except Exception:
+                continue
+
+        if not slsFound:
+            # If not found in expected locations, search all namespaces
+            try:
+                crList = crs.get()
+                if crList and crList.items and len(crList.items) > 0:
+                    for item in crList.items:
+                        if item.status and item.status.versions:
+                            slsVersion = item.status.versions.reconciled
+                            setObject["target.slsVersion"] = slsVersion
+                            slsFound = True
+                            slsName = item.metadata.name
+                            slsNs = item.metadata.namespace
+                            print(f"SLS found: {slsName} in namespace {slsNs}")
+                            break
+            except Exception:
+                pass
+
+        if not slsFound:
+            print("Unable to determine SLS version: SLS not found (may not be installed)")
     except Exception as e:
-        print(f"Unable to determine SLS version: {e}")
+        error_msg = str(e)
+        if "404" in error_msg or "not found" in error_msg.lower():
+            print("Unable to determine SLS version: SLS not found (may not be installed)")
+        else:
+            print(f"Unable to determine SLS version: {e}")
 
     # Lookup CP4D version
     # -------------------------------------------------------------------------
@@ -540,6 +598,20 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Unable to determine CP4D version: {e}")
 
+    # Lookup DataScience version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="datasciencecluster.opendatahub.io/v1", kind="DataScienceCluster")
+        cr = crs.get(name="default-dsc", namespace="opendatahub")
+        if cr.status and cr.status.release.version:
+            datascienceVersion = cr.status.release.version
+            setObject["target.datascienceVersion"] = datascienceVersion
+            getDscVersion()
+        else:
+            print("Unable to determine Data Science version: status.release.version unavailable")
+    except Exception as e:
+        print(f"Unable to determine Data Science version: {e}")
+
     # Connect to mongoDb
     # -------------------------------------------------------------------------
     client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
@@ -548,38 +620,38 @@ if __name__ == "__main__":
     # Update the summary document
     # -------------------------------------------------------------------------
     if not DRY_RUN:
-        result1 = db.runsv2.find_one_and_update(
-            {"_id": runId},
-            {'$set': setObject},
-            upsert=False
-        )
+        result1 = db.runsv2.find_one_and_update({"_id": runId}, {"$set": setObject}, upsert=False)
         print(f"Run information updated in MongoDb (v2 data model) {setObject}")
     else:
         print("Run information NOT updated in MongoDb because DRY_RUN is set")
 
     # Check pre-reqs for Slack integration
     # -------------------------------------------------------------------------
-    FVT_SLACK_TOKEN = os.getenv("FVT_SLACK_TOKEN")
-    if FVT_SLACK_TOKEN is None or FVT_SLACK_TOKEN == "":
-        print("FVT_SLACK_TOKEN is not set")
+    SLACK_TOKEN = os.getenv("SLACK_TOKEN")
+    if SLACK_TOKEN is None or SLACK_TOKEN == "":
+        print("SLACK_TOKEN is not set")
         sys.exit(0)
 
     if setFinished.lower() == "false":
         print("FVT Run is not yet completed. Skipping slack message with results to report channel")
         sys.exit(0)
 
-    if instanceId.startswith("fvt"):
-        # To generate the channel name we remove the "fvt" prefix from the instanceId
-        FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId.replace('fvt', '')}"
-    else:
-        FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId}"
+    FVT_SLACK_CHANNEL = os.getenv("SLACK_CHANNEL")
+    if FVT_SLACK_CHANNEL is None or FVT_SLACK_CHANNEL == "":
+        print("FVT_SLACK_CHANNEL is not set, hence generating channel name based on instanceId")
+        if instanceId.startswith("fvt"):
+            # To generate the channel name we remove the "fvt" prefix from the instanceId
+            FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId.replace('fvt', '')}"
+            print(f"Generated FVT_SLACK_CHANNEL name is {FVT_SLACK_CHANNEL}")
+        else:
+            FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId}"
+            print(f"Generated FVT_SLACK_CHANNEL name is {FVT_SLACK_CHANNEL}")
 
     FVT_JIRA_TOKEN = os.getenv("FVT_JIRA_TOKEN")
     if FVT_JIRA_TOKEN is None or FVT_JIRA_TOKEN == "":
         print("FVT_JIRA_TOKEN is not set")
         sys.exit(0)
 
-    sc = SlackClient(FVT_SLACK_TOKEN)
     jira = JIRA(server="https://jsw.ibm.com", token_auth=FVT_JIRA_TOKEN)
 
     # Lookup test results
@@ -588,9 +660,9 @@ if __name__ == "__main__":
 
     # Generate main message
     # -------------------------------------------------------------------------
-    messageBlocks = []
-    messageBlocks.append(buildHeader(f"FVT Report: {instanceId} #{build}"))
-    messageBlocks.append(buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+    message = []
+    message.append(SlackUtil.buildHeader(f"FVT Report: {instanceId} #{build}"))
+    message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
     for product in sorted(result["products"]):
 
@@ -623,10 +695,7 @@ if __name__ == "__main__":
         else:
             icon = ":large_green_square:"
 
-        context = [
-            f"{icon} *{product}* {version}",
-            f"*{tests}* tests"
-        ]
+        context = [f"{icon} *{product}* {version}", f"*{tests}* tests"]
         if skipped > 0:
             context.append(f"*{skipped}* skipped")
         if errors > 0:
@@ -634,10 +703,14 @@ if __name__ == "__main__":
         if failures > 0:
             context.append(f"*{failures}* failures")
 
-        messageBlocks.append(buildContext(context))
+        message.append(SlackUtil.buildContext(context))
 
-    messageBlocks.append(buildSection(f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."))
-    response = postMessage(FVT_SLACK_CHANNEL, messageBlocks)
+    message.append(
+        SlackUtil.buildSection(
+            f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."
+        )
+    )
+    response = postMessage(FVT_SLACK_CHANNEL, message)
     if response["ok"]:
         threadId = response["ts"]
     else:
@@ -647,12 +720,20 @@ if __name__ == "__main__":
     # Generate threaded messages with failure details
     # -------------------------------------------------------------------------
     for product in result["products"]:
-        messageBlocks = []
-        messageBlocks.append(buildHeader(f"{product}"))
-        if (product in productFocal):
-            messageBlocks.append(buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+        message = []
+        message.append(SlackUtil.buildHeader(f"{product}"))
+        if product in productFocal:
+            message.append(
+                SlackUtil.buildSection(
+                    f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"
+                )
+            )
         else:
-            messageBlocks.append(buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(
+                SlackUtil.buildSection(
+                    f"The following testsuites reported one or more failures or errors during *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"
+                )
+            )
 
         if "results" in result["products"][product]:
             for suite in result["products"][product]["results"]:
@@ -671,7 +752,10 @@ if __name__ == "__main__":
 
                     # Find Jira issues
                     openIssues = []
-                    results = jira.search_issues(f'status != "Done" AND status != "Cancelled" AND type = "Bug" AND labels = "masfvt" AND labels="suite:{product}/{suite}" ORDER BY team,severity', maxResults=-1)
+                    results = jira.search_issues(
+                        f'status != "Done" AND status != "Cancelled" AND type = "Bug" AND labels = "masfvt" AND labels="suite:{product}/{suite}" ORDER BY team,severity',
+                        maxResults=-1,
+                    )
                     for issue in results:
                         key = issue.key
                         summary = issue.fields.summary
@@ -710,24 +794,27 @@ if __name__ == "__main__":
                         openIssues.append(f"{statusIcon} <https://jsw.ibm.com/browse/{key}|{key}> {summary} ({assignee})")
 
                     context = [
-                        f"{icon} *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}/testsuite/{product}/{suite}|{product}/{suite}>*",
+                        f"{icon} *<https://dashboard.ibmmas.com/tests/{instanceId}/testsuite/{product}/{suite}|{product}/{suite}>*",
                         f"*{tests}* tests",
                         f"*{skipped}* skipped",
                         f"*{errors}* errors",
-                        f"*{failures}* failures"
+                        f"*{failures}* failures",
                     ]
-                    messageBlocks.append(buildContext(context))
+                    message.append(SlackUtil.buildContext(context))
                     if len(openIssues) > 0:
-                        messageBlocks.append(buildContext(["\n".join(openIssues)]))
+                        message.append(SlackUtil.buildContext(["\n".join(openIssues)]))
                     else:
-                        messageBlocks.append(buildContext(["• No open issues - <https://jsw.ibm.com/secure/CreateIssue!default.jspa|create one>"]))
+                        message.append(SlackUtil.buildContext(["• No open issues - <https://jsw.ibm.com/secure/CreateIssue!default.jspa|create one>"]))
 
-        if len(messageBlocks) > 2 and len(messageBlocks) <= 50:
-            postMessage(FVT_SLACK_CHANNEL, messageBlocks, threadId)
+        if len(message) > 2 and len(message) <= 50:
+            postMessage(FVT_SLACK_CHANNEL, message, threadId)
 
-        if len(messageBlocks) > 50:
-            messageBlocks = []
-            messageBlocks.append(buildHeader(f"{product}"))
-            messageBlocks.append(buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
-            messageBlocks.append(buildSection("Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
-            postMessage(FVT_SLACK_CHANNEL, messageBlocks, threadId)
+        if len(message) > 50:
+            message = []
+            message.append(SlackUtil.buildHeader(f"{product}"))
+            message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection("Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
+            try:
+                postMessage(FVT_SLACK_CHANNEL, message, threadId)
+            except Exception as e:
+                print(f"An exception occured posting the test result summary to Slack: {e}")

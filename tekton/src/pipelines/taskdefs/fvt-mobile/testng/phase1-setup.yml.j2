@@ -31,6 +31,8 @@
     - input: "$(params.fvt_digest_mobile_pytest)"
       operator: notin
       values: [""]
+  runAfter:
+    - fvt-component
 
 ## Verification for Mobile JSON Schema
 - name: fvt-mob-schema-pre
@@ -57,8 +59,6 @@
       value: "MobileSetup4MAS.data"
     - name: output_data_file
       value: "MobileSetup4MAS.data"
-    - name: enable_perf_debug
-      value: "True"
   workspaces:
     - name: configs
       workspace: shared-configs

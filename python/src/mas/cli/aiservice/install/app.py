@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -10,21 +10,21 @@
 # *****************************************************************************
 
 import logging
-from sys import exit
-from os import path, getenv
 import re
 import calendar
 
-from openshift.dynamic.exceptions import NotFoundError
-
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from sys import exit
+from os import path, getenv
+from kubernetes.dynamic.exceptions import NotFoundError
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
-
 from tabulate import tabulate
-
 from halo import Halo
 
 from ...cli import BaseApp
+from ...gencfg import ConfigGeneratorMixin
 from .argBuilder import aiServiceInstallArgBuilderMixin
 from .argParser import aiServiceinstallArgParser
 from .summarizer import aiServiceInstallSummarizerMixin
@@ -32,34 +32,26 @@ from .params import requiredParams, optionalParams
 
 from ...install.catalogs import supportedCatalogs
 
-# AiService relies on SLS, which in turn depends on MongoDB.
+# AI Service relies on SLS, which in turn depends on MongoDB.
 # SLS will utilize the shared MongoDB resource that would be used by MAS if it were deployed within the same OpenShift cluster.
-# AiService utilizes two distinct databases: DB2 is employed by the AiBroker component, while MariaDB supports OpenDataHub (ODH).
+# AI Service utilizes two distinct databases: DB2 is employed by the AiBroker component.
 # By default, AiService will deploy DB2 within the same namespace as MAS (db2u), but it will be configured as a separate DB2 instance.
 
-from ...install.settings.mongodbSettings import MongoDbSettingsMixin
-from ...install.settings.db2Settings import Db2SettingsMixin
-from ...install.settings.additionalConfigs import AdditionalConfigsMixin
+from ...install.settings import InstallSettingsMixin
 
-from mas.cli.validators import (
-    InstanceIDFormatValidator,
-    StorageClassValidator
-)
+from mas.cli.validators import InstanceIDFormatValidator, StorageClassValidator, BucketPrefixValidator
 
 from mas.devops.ocp import createNamespace, getStorageClasses
-from mas.devops.mas import (
-    getCurrentCatalog,
-    getDefaultStorageClasses
-)
+from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
 from mas.devops.sls import findSLSByNamespace
-from mas.devops.data import getCatalog
+from mas.devops.data import getCatalog, NoSuchCatalogError
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
-    preparePipelinesNamespace,
+    prepareAiServicePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
-    launchInstallPipelineForAiservice
+    launchInstallPipeline,
 )
 
 logger = logging.getLogger(__name__)
@@ -71,93 +63,79 @@ def logMethodCall(func):
         result = func(self, *args, **kwargs)
         logger.debug(f"<<< InstallApp.{func.__name__}")
         return result
+
     return wrapper
 
 
-class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin):
+class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, InstallSettingsMixin, ConfigGeneratorMixin):
+
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
         applications = {
-            "Aibroker": "mas_aibroker_version",
+            "AI Service": "aiservice_version",
         }
 
         self.catalogReleases = {}
         self.catalogTable = []
 
         # Dynamically fetch the channels from the chosen catalog
-        # based on mas core
-        for channel in self.chosenCatalog["mas_core_version"]:
-            # {"9.1-feature": "9.1.x-feature"}
-            self.catalogReleases.update({channel.replace('.x', ''): channel})
+        for channel in self.chosenCatalog["aiservice_version"]:
+            self.catalogReleases.update({channel.replace(".x", ""): channel})
 
         # Generate catalogTable
         for application, key in applications.items():
-            # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             tempChosenCatalog = self.chosenCatalog[key].copy()
-            if '9.1.x-feature' not in tempChosenCatalog:
-                tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
-
             self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
-        if self.architecture == "s390x":
-            summary = [
-                "",
-                "<u>Catalog Details</u>",
-                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
-                f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
-            ]
-        else:
-            summary = [
-                "",
-                "<u>Catalog Details</u>",
-                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
-                f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
-            ]
+        summary = [
+            "",
+            "<u>Catalog Details</u>",
+            f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
+            f"Catalog Digest:        {self.catalogDigest}",
+            f"AI Service Releases:   {', '.join(sorted(self.catalogReleases, reverse=True))}",
+            f"MongoDb:               {self.catalogMongoDbVersion}",
+        ]
 
         return summary
 
     @logMethodCall
     def configAibroker(self):
-        self.printH1("Configure Aibroker Instance")
-        self.printDescription([
-            "Instance ID restrictions:",
-            " - Must be 3-12 characters long",
-            " - Must only use lowercase letters, numbers, and hypen (-) symbol",
-            " - Must start with a lowercase letter",
-            " - Must end with a lowercase letter or a number"
-        ])
-        self.promptForString("Instance ID", "aibroker_instance_id", validator=InstanceIDFormatValidator())
+        self.printH1("Configure AI Service Instance")
+        self.printDescription(
+            [
+                "Instance ID restrictions:",
+                " - Must be 3-12 characters long",
+                " - Must only use lowercase letters, numbers, and hypen (-) symbol",
+                " - Must start with a lowercase letter",
+                " - Must end with a lowercase letter or a number",
+            ]
+        )
+        self.promptForString("Instance ID", "aiservice_instance_id", validator=InstanceIDFormatValidator())
 
         if self.slsMode == 2 and not self.getParam("sls_namespace"):
-            self.setParam("sls_namespace", f"mas-{self.getParam('aibroker_instance_id')}-sls")
+            self.setParam("sls_namespace", f"mas-{self.getParam('aiservice_instance_id')}-sls")
 
         self.configOperationMode()
 
     @logMethodCall
+    def chooseInstallFlavour(self) -> None:
+        self.printH1("Choose Install Mode")
+        self.printDescription(
+            [
+                "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
+                " - Configure certificate issuer",
+                " - Enable IPv6 SingleStack networking for services",
+                " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant",
+            ]
+        )
+        self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
+
+    @logMethodCall
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
-        self.interactiveMode = True
-
-        self.storageClassProvider = "custom"
-        self.installAssist = False
-        self.installIoT = False
-        self.installMonitor = False
-        self.installManage = False
-        self.installPredict = False
-        self.installInspection = False
-        self.installOptimizer = False
-        self.installFacilities = False
-        self.installAiBroker = True
-        self.deployCP4D = False
-        self.db2SetAffinity = False
-        self.db2SetTolerations = False
-        self.slsLicenseFileLocal = None
+        self.isInteractiveMode = True
 
         if simplified:
             self.showAdvancedOptions = False
@@ -165,6 +143,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.showAdvancedOptions = True
         else:
             self.chooseInstallFlavour()
+
+        self.storageClassProvider = "custom"
+        self.slsLicenseFileLocal = None
+        self.db2LicenseFileLocal = None
 
         # Catalog
         self.configCatalog()
@@ -183,17 +165,24 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configCertManager()
         self.configAibroker()
         if self.devMode:
-            self.configAppChannel("aibroker")
+            self.configAppChannel()
 
-        self.aibrokerSettings()
+        self.aiServiceSettings()
+        self.aiServiceTenantSettings()
+        self.aiServiceIntegrations()
 
         # Dependencies
         self.configMongoDb()
+        self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
+        self.printDescription(
+            ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
+        )
+        self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
-        self.interactiveMode = False
+        self.isInteractiveMode = False
 
         # Set defaults
         # ---------------------------------------------------------------------
@@ -201,24 +190,16 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("mongodb_action", "install")
 
         self.storageClassProvider = "custom"
-        self.installAssist = False
-        self.installIoT = False
-        self.installMonitor = False
-        self.installManage = False
-        self.installPredict = False
-        self.installInspection = False
-        self.installFacilities = False
-        self.installOptimizer = False
-        self.installAiBroker = True
-        self.deployCP4D = False
-        self.db2SetAffinity = False
-        self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
+        self.db2LicenseFileLocal = None
+
+        self.aiserviceTenantSchedulingConfigFileLocal = None
 
         self.approvals = {
-            "approval_aibroker": {"id": "app-cfg-aibroker"},  # After Aibroker workspace has been configured
+            "approval_aiservice": {"id": "aiservice"},
         }
 
+        self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
@@ -226,6 +207,31 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             if key in requiredParams:
                 if value is None:
                     self.fatalError(f"{key} must be set")
+
+                # Special handling for ibm_entitlement_key: validate it
+                if key == "ibm_entitlement_key":
+                    isValid = self.validateEntitlementKey(value)
+                    if not isValid:
+                        if self.noConfirm:
+                            # Non-interactive with --no-confirm: warn but continue
+                            self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                        else:
+                            # Non-interactive without --no-confirm: offer options
+                            self.printWarning("IBM entitlement key validation failed")
+                            print()
+                            self.printDescription(
+                                [
+                                    "What would you like to do?",
+                                    "  1. Continue anyway (skip validation)",
+                                    "  2. Quit (exit the application)",
+                                ]
+                            )
+                            choice = self.promptForInt("Select an option", min=1, max=2)
+                            if choice == 2:
+                                logger.info("User chose to quit due to invalid entitlement key")
+                                exit(1)
+                            # If choice == 1, continue with the invalid key
+
                 self.setParam(key, value)
 
             # These fields we just pass straight through to the parameters
@@ -233,14 +239,67 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if value is not None:
                     self.setParam(key, value)
 
+            elif key == "install_minio_aiservice":
+                incompatibleWithMinioInstall = [
+                    "aiservice_s3_accesskey",
+                    "aiservice_s3_secretkey",
+                    "aiservice_s3_host",
+                    "aiservice_s3_port",
+                    "aiservice_s3_ssl",
+                    "aiservice_s3_bucket_prefix",
+                    "aiservice_s3_region",
+                ]
+                if value is None:
+                    for uKey in incompatibleWithMinioInstall:
+                        if vars(self.args)[uKey] is None:
+                            self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
+                elif value is not None and value == "true":
+                    # If user is installing Minio in-cluster then we know how to connect to it already
+                    for uKey in incompatibleWithMinioInstall:
+                        if vars(self.args)[uKey] is not None:
+                            self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
+                    for rKey in ["minio_root_user", "minio_root_password"]:
+                        if vars(self.args)[rKey] is None:
+                            self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
+
+                    # self.setParam("aiservice_s3_provider", "minio")
+
+                    self.setParam("aiservice_s3_accesskey", self.args.minio_root_user)
+                    self.setParam("aiservice_s3_secretkey", self.args.minio_root_password)
+
+                    # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
+                    # especially when we don't need them for the tenant?
+                    self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+                    self.setParam("aiservice_s3_port", "9000")
+                    self.setParam("aiservice_s3_ssl", "false")
+                    self.setParam("aiservice_s3_region", "none")
+                    self.setParam("aiservice_s3_bucket_prefix", "s3-")
+                else:
+                    self.fatalError(f"Unsupported value for --install-minio: {value}")
+
+            elif key == "aiservice_s3_bucket_prefix":
+                if len(value) == 0 or len(value) > 4:
+                    self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
+
+            elif key == "tenant_scheduling_config_file":
+                # No need to perform validation if file exist here, as it has been already validated by argParser type check.
+                if value is not None and value != "":
+                    self.aiserviceTenantSchedulingConfigFileLocal = value
+
             elif key == "non_prod":
                 if not value:
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
+                    self.setParam("aiservice_odh_model_deployment_type", "raw")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+                    self.setParam("rhoai", "false")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
+                    self.setParam("aiservice_odh_model_deployment_type", "serverless")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+                    self.setParam("rhoai", "false")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -258,18 +317,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             # We check for both None and "" values for the application channel parameters
             # value = None means the parameter wasn't set at all
-            # value = "" means the paramerter was explicitly set to "don't install this application"
-            elif key == "aibroker_channel":
+            # value = "" means the parameter was explicitly set to "don't install this application"
+            elif key == "aiservice_channel":
                 if value is not None and value != "":
-                    self.setParam("mas_app_channel_aibroker", value)
-                    self.installAiBroker = True
-
-            # Manage advanced settings that need extra processing
-            elif key == "mas_app_settings_server_bundle_size":
-                if value is not None:
-                    self.setParam(key, value)
-                    if value in ["jms", "snojms"]:
-                        self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+                    self.setParam("aiservice_channel", value)
 
             # MongoDB
             elif key == "mongodb_namespace":
@@ -282,9 +333,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if value is not None and value != "":
                     self.slsLicenseFileLocal = value
                     self.setParam("sls_action", "install")
+            elif key == "db2_license_file":
+                if value is not None and value != "":
+                    self.db2LicenseFileLocal = value
             elif key == "dedicated_sls":
                 if value:
-                    self.setParam("sls_namespace", f"mas-{self.args.aibroker_instance_id}-sls")
+                    self.setParam("sls_namespace", f"mas-{self.args.aiservice_instance_id}-sls")
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":
@@ -313,19 +367,28 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help", "advanced", "simplified"]:
+            elif key in [
+                "accept_license",
+                "dev_mode",
+                "skip_pre_check",
+                "skip_grafana_install",
+                "no_confirm",
+                "help",
+                "advanced",
+                "simplified",
+            ]:
                 pass
 
             elif key == "manual_certificates":
                 if value is not None:
-                    self.setParam("mas_manual_cert_mgmt", True)
+                    self.setParam("mas_manual_cert_mgmt", "true")
                     self.manualCertsDir = value
                 else:
-                    self.setParam("mas_manual_cert_mgmt", False)
+                    self.setParam("mas_manual_cert_mgmt", "false")
                     self.manualCertsDir = None
 
             elif key == "enable_ipv6":
-                self.setParam("enable_ipv6", True)
+                self.setParam("enable_ipv6", "true")
 
             # Fail if there's any arguments we don't know how to handle
             else:
@@ -333,12 +396,16 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 self.fatalError(f"Unknown option: {key} {value}")
 
         # Load the catalog information
-        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        try:
+            self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+            catalogSummary = self.processCatalogChoice()
+            self.printDescription(catalogSummary)
+        except NoSuchCatalogError:
+            pass
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
-            if self.getParam("install_sls_aiservice") != "false":
-                self.fatalError("--license-file must be set for new SLS install")
+            self.fatalError("--license-file must be set for new SLS install")
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
         if not self.devMode:
@@ -354,13 +421,24 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not
-        instanceId = args.aibroker_instance_id
-
+        instanceId = args.aiservice_instance_id
         # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
-        self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
+
+        self.printDescription(
+            [
+                "<B><U>AI Broker 9.0 Deprecation Notice</U></B>",
+                "",
+                "Maximo AI Broker (introduced with MAS 9.0) has been replaced with Maximo AI Service as of Aug 1 2025",
+                "To continue using the features that were enabled by the AI broker after that time, you must deploy and use Maximo AI Service 9.1:",
+                " - Maximo AI Service 9.1 is compatible with both Maximo Application Suite 9.0 and 9.1 releases",
+                " - If Maximo AI Service is deployed with Maximo Application Suite 9.0, you can use only the AI features that were included in Maximo Application Suite 9.0",
+                "",
+                "Note: Maximo AI Service 9.1 includes a limited-use license to watsonx.ai and incurs an additional AppPoint cost",
+            ]
+        )
 
         # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
@@ -384,7 +462,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
-            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
+            print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
             exit(1)
 
         # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
@@ -392,14 +470,23 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.isAirgap()
 
         # Configure the installOptions for the appropriate architecture
-        self.catalogOptions = supportedCatalogs[self.architecture]
+        # self.catalogOptions = supportedCatalogs[self.architecture]
+
+        # Once AI Service is supported by all supported catalogs we can remove this
+        # In the meantime we will need to update this as we go
+        self.catalogOptions = []
+        for option in supportedCatalogs[self.architecture]:
+            if option >= "v9-250828-amd64":
+                self.catalogOptions.append(option)
 
         # Basic settings before the user provides any input
         self.configICR()
         self.deployCP4D = False
 
-        # UDS install has not been supported since the January 2024 catalog update
-        self.setParam("uds_action", "install-dro")
+        self.setParam("dro_action", "install")
+
+        # Install Db2 for AI Service
+        self.setParam("db2_action_aiservice", "install")
 
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:
@@ -407,24 +494,23 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.nonInteractiveMode()
 
-        # Set up the sls license file
+        # Set up the sls and db2 license file
         self.slsLicenseFile()
+        self.db2LicenseFile()
+
+        self.aiserviceConfig()
 
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
-        self.printDescription([
-            "Save and re-use the following script to re-run this install without needing to answer the interactive prompts again",
-            "",
-            self.buildCommand()
-        ])
+        self.printDescription(
+            ["Save and re-use the following script to re-run this install without needing to answer the interactive prompts again", "", self.buildCommand()]
+        )
 
         self.displayInstallSummary()
 
         if not self.noConfirm:
             print()
-            self.printDescription([
-                "Please carefully review your choices above, correcting mistakes now is much easier than after the install has begun"
-            ])
+            self.printDescription(["Please carefully review your choices above, correcting mistakes now is much easier than after the install has begun"])
             continueWithInstall = self.yesOrNo("Proceed with these settings")
 
         # Prepare the namespace and launch the installation pipeline
@@ -432,56 +518,59 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Install")
-            pipelinesNamespace = f"mas-{self.getParam('aibroker_instance_id')}-pipelines"
+            pipelinesNamespace = f"aiservice-{self.getParam('aiservice_instance_id')}-pipelines"
 
-            if not self.noConfirm:
-                self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
-                wait = self.yesOrNo("Wait for PVCs to bind")
-            else:
-                wait = False
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
+                if installOpenShiftPipelines(self.dynamicClient, self.getParam("storage_class_rwx")):
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
+                    self.fatalError("Installation failed")
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
-
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
-                preparePipelinesNamespace(
+                prepareAiServicePipelinesNamespace(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aibroker_instance_id"),
+                    instanceId=self.getParam("aiservice_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=wait,
-                    configureRBAC=(self.getParam("service_account_name") == "")
+                    configureRBAC=(self.getParam("service_account_name") == ""),
                 )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aibroker_instance_id"),
+                    namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
+                    db2LicenseFile=self.db2LicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
-                    certs=self.certsSecret
+                    certs=self.certsSecret,
+                    aiserviceConfig=self.aiserviceConfigSecret,
+                    slack_token=self.getParam("slack_token"),
+                    slack_channel=self.getParam("slack_channel"),
                 )
 
                 self.setupApprovals(pipelinesNamespace)
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text='Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
+            with Halo(text="Testing availability of MAS CLI image in cluster", spinner=self.spinner) as h:
                 testCLI()
                 h.stop_and_persist(symbol=self.successIcon, text="MAS CLI image deployment test completed")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text=f"Submitting PipelineRun for {self.getParam('aibroker_instance_id')} install", spinner=self.spinner) as h:
-                pipelineURL = launchInstallPipelineForAiservice(dynClient=self.dynamicClient, params=self.params)
+            with Halo(text=f"Submitting PipelineRun for {self.getParam('aiservice_instance_id')} install", spinner=self.spinner) as h:
+                pipelineURL = launchInstallPipeline(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aibroker_instance_id')} install submitted")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aiservice_instance_id')} install submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
                 else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('aibroker_instance_id')} install, see log file for details")
+                    h.stop_and_persist(
+                        symbol=self.failureIcon,
+                        text=f"Failed to submit PipelineRun for {self.getParam('aiservice_instance_id')} install, see log file for details",
+                    )
                     print()
 
     @logMethodCall
@@ -494,86 +583,165 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         for approval in self.approvals.values():
             if "maxRetries" in approval:
                 # Enable this approval workload
-                logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})")
-                self.initializeApprovalConfigMap(namespace, approval['id'], True, approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
+                logger.debug(
+                    f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})"
+                )
+                self.initializeApprovalConfigMap(namespace, approval["id"], True, approval["maxRetries"], approval["retryDelay"], approval["ignoreFailure"])
 
     @logMethodCall
-    def chooseInstallFlavour(self) -> None:
-        # We don't have any configuration as Advanced options right now in Aibroker settings
-        # we can remove this chooseInstallFlavour - if we want...
-        self.printH1("Choose Install Mode")
-        self.printDescription([
-            "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
-            " - Configure dedicated License (AppPoints)"
-        ])
-        self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
+    def aiServiceSettings(self) -> None:
+        self.printH1("AI Service Settings")
 
-    def aibrokerSettings(self) -> None:
-        if self.installAiBroker:
-            self.printH2("AI Service Settings - Storage, WatsonX, MariaDB details")
-            self.printDescription(["Customise AI Broker details"])
-            self.promptForString("Storage provider", "mas_aibroker_storage_provider")
-            self.promptForString("Storage access key", "mas_aibroker_storage_accesskey")
-            self.promptForString("Storage secret key", "mas_aibroker_storage_secretkey", isPassword=True)
-            self.promptForString("Storage host", "mas_aibroker_storage_host")
-            self.promptForString("Storage port", "mas_aibroker_storage_port")
-            self.promptForString("Storage ssl", "mas_aibroker_storage_ssl")
-            self.promptForString("Storage region", "mas_aibroker_storage_region")
-            self.promptForString("Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
-            self.promptForString("Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
-            self.promptForString("Storage templates bucket", "mas_aibroker_storage_templates_bucket")
+        # Ask about MinIO installation FIRST (moved from aiServiceDependencies)
+        self.printH2("Storage Configuration")
+        self.printDescription(
+            [
+                "AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."
+            ]
+        )
 
-            self.promptForString("Watsonxai api key", "mas_aibroker_watsonxai_apikey", isPassword=True)
-            self.promptForString("Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
-            self.promptForString("Watsonxai project id", "mas_aibroker_watsonxai_project_id")
+        if self.yesOrNo("Install Minio"):
+            # Only ask for MinIO credentials
+            self.promptForString("minio root username", "minio_root_user")
+            self.promptForString("minio root password", "minio_root_password", isPassword=True)
 
-            self.promptForString("Database host", "mas_aibroker_db_host")
-            self.promptForString("Database port", "mas_aibroker_db_port")
-            self.promptForString("Database user", "mas_aibroker_db_user")
-            self.promptForString("Database name", "mas_aibroker_db_database")
-            self.promptForString("Database Secretname", "mas_aibroker_db_secret_name", isPassword=True)
-            self.promptForString("Database password", "mas_aibroker_db_secret_value", isPassword=True)
+            # Auto-set MinIO storage defaults (same as non-interactive mode)
+            self._setMinioStorageDefaults()
+        else:
+            # Ask for external storage configuration
+            self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
+            self.promptForString("Storage access key", "aiservice_s3_accesskey")
+            self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
+            self.promptForString("Storage host", "aiservice_s3_host")
+            self.promptForString("Storage port", "aiservice_s3_port")
+            self.promptForString("Storage ssl", "aiservice_s3_ssl")
+            self.promptForString("Storage region", "aiservice_s3_region")
+            self.printDescription(["", "Storage bucket prefix restrictions:", " - Must be 1-4 characters long"])
+            self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
+            self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
+            self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
-            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
-                self.promptForString("Mariadb username", "mariadb_user")
-                self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
-                self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
-                self.promptForString("Tenant start date", "tenant_entitlement_start_date")
-                self.promptForString("Tenant end date", "tenant_entitlement_end_date")
-                self.promptForString("S3 bucket prefix", "mas_aibroker_s3_bucket_prefix")
-                self.promptForString("S3 endpoint url", "mas_aibroker_s3_endpoint_url")
-                self.promptForString("S3 bucket prefix (tenant level)", "mas_aibroker_tenant_s3_bucket_prefix")
-                self.promptForString("S3 region (tenant level)", "mas_aibroker_tenant_s3_region")
-                self.promptForString("S3 endpoint url (tenant level)", "mas_aibroker_tenant_s3_endpoint_url")
-                self.promptForString("S3 access key (tenant level)", "mas_aibroker_tenant_s3_access_key", isPassword=True)
-                self.promptForString("S3 secret key (tenant level)", "mas_aibroker_tenant_s3_secret_key", isPassword=True)
-                self.promptForString("RSL url", "rsl_url")
-                self.promptForString("ORG Id of RSL", "rsl_org_id")
-                self.promptForString("Token for RSL", "rsl_token", isPassword=True)
-                self.yesOrNo("Install minio", "install_minio_aiservice")
-                if self.getParam("install_minio_aiservice") == "true":
-                    self.promptForString("minio root username", "minio_root_user")
-                    self.promptForString("minio root password", "minio_root_password", isPassword=True)
-                self.yesOrNo("Install SLS", "install_sls_aiservice")
-                if self.getParam("install_sls_aiservice") != "true":
-                    self.promptForString("SLS secret name", "mas_aibroker_sls_secret_name")
-                    self.promptForString("SLS registration key", "mas_aibroker_sls_registration_key")
-                    self.promptForString("SLS URL", "mas_aibroker_sls_url")
-                    self.promptForString("SLS CA certificate", "mas_aibroker_sls_ca_cert")
-                self.yesOrNo("Install DRO", "install_dro_aiservice")
-                if self.getParam("install_dro_aiservice") != "true":
-                    self.promptForString("DRO secret name", "mas_aibroker_dro_secret_name")
-                    self.promptForString("DRO API key", "mas_aibroker_dro_api_key")
-                    self.promptForString("DRO URL", "mas_aibroker_dro_url")
-                    self.promptForString("DRO CA certificate", "mas_aibroker_dro_ca_cert")
-                self.yesOrNo("Install DB2", "install_db2_aiservice")
-                if self.getParam("install_db2_aiservice") != "true":
-                    self.promptForString("DB2 username", "mas_aibroker_db2_username")
-                    self.promptForString("DB2 password", "mas_aibroker_db2_password")
-                    self.promptForString("DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
-                    self.promptForString("DB2 SSL enabled (yes/no)", "mas_aibroker_db2_ssl_enabled")
-                    self.promptForString("DB2 CA certificate", "mas_aibroker_db2_ca_cert")
-                # self.promptForString("Environment type", "environment_type")
+        # Configure Certificate Issuer
+        self.configCertIssuer()
+
+        # Configure Network configuration for services
+        self.configNetworking()
+
+    @logMethodCall
+    def configCertIssuer(self):
+        if self.showAdvancedOptions:
+            self.printH1("Configure Certificate Issuer")
+            configureCertIssuer = self.yesOrNo("Configure certificate issuer")
+            if configureCertIssuer:
+                self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
+
+    @logMethodCall
+    def configNetworking(self):
+        if self.showAdvancedOptions:
+            self.printH1("Network configuration for services")
+            self.yesOrNo("Enable IPv6 SingleStack networking", "enable_ipv6")
+
+    @logMethodCall
+    def aiServiceTenantSettings(self) -> None:
+        self.printH1("AI Service Tenant Settings")
+        self.printDescription(["AI Service will reserve AppPoints for a fixed period of time based on the values you enter:"])
+
+        today = datetime.today()
+        oneyear = datetime.today() + relativedelta(years=1)
+        self.setParam("tenant_entitlement_type", "standard")
+        self.setParam("tenant_entitlement_start_date", today.strftime("%Y-%m-%d"))
+        self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime("%Y-%m-%d"))
+
+        self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.configSchedulingConstraints()
+
+    @logMethodCall
+    def configSchedulingConstraints(self):
+        if self.showAdvancedOptions:
+            self.printH1("Scheduling configuration for AI Workloads")
+            self.printDescription(
+                content=[
+                    "AI Service supports configuring tolerations and nodeSelector per tenant to schedule AI workloads(training pipelines & Inference services) on dedicated nodes.",
+                    "To configure tolerations and nodeSelector, create a YAML configuration file",
+                    "The YAML file must contain `pipeline` and/or `predictor` objects. Each object can have:",
+                    "  `tolerations`: List of Kubernetes tolerations (required fields: `key`, `operator`, `effect`)",
+                    "  `nodeSelector`: Dictionary of node label key-value pairs",
+                ]
+            )
+
+            configSchedulingConstraints = self.yesOrNo("Configure Scheduling policies for AI Service tenant")
+            if configSchedulingConstraints:
+                self.aiserviceTenantSchedulingConfigFileLocal = self.promptForFile(
+                    "Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE"
+                )
+
+    def _setMinioStorageDefaults(self) -> None:
+        """
+        Set MinIO storage defaults when MinIO is being installed in-cluster.
+        This mirrors the logic from non-interactive mode.
+        """
+        # self.setParam("aiservice_s3_provider", "minio")
+        self.setParam("aiservice_s3_accesskey", self.getParam("minio_root_user"))
+        self.setParam("aiservice_s3_secretkey", self.getParam("minio_root_password"))
+        self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+        self.setParam("aiservice_s3_port", "9000")
+        self.setParam("aiservice_s3_ssl", "false")
+        self.setParam("aiservice_s3_region", "none")
+        self.setParam("aiservice_s3_bucket_prefix", "s3-")
+
+        # Set default bucket names
+        self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
+        self.setParam("aiservice_s3_templates_bucket", "km-templates")
+
+    def aiServiceIntegrations(self) -> None:
+        self.printH1("WatsonX Integration")
+        self.printDescription(
+            [
+                "This CLI section configures the integration between the AI Service and IBM watsonx.ai. AI Service",
+                "uses watsonx for model deployment and inferencing.",
+                "",
+                "The WatsonX API key must be a **platform API key** associated with a user that has at least:",
+                "- **Editor permission** for the project",
+                "- **Viewer permission** for the space",
+                "You can generate this key by following IBM's documentation: https://www.ibm.com/docs/en/watsonx/w-and-w/2.2.0?topic=tutorials-generating-api-keys#api-keys__platform__title__1",
+                "",
+                "The endpoint URL is your WatsonX Machine Learning service URL. It can be found in the watsonx.ai",
+                "documentation: https://cloud.ibm.com/apidocs/watsonx-ai-cp/watsonx-ai-cp-2.2.0#endpoint-url",
+                "",
+                "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
+                "",
+                "Optional identifiers:",
+                " - DeploymentId: ID of the model deployment in a **dedicated watsonx runtime**",
+                "   (e.g., granite-3-2-8b-instruct deployed in your dedicated runtime).",
+                " - SpaceId: ID of the **watsonx deployment space** where deployments are managed.",
+                "Provide these only if you already have them; otherwise AI Service can proceed with defaults/workflows",
+                "that do not require pre-existing deployment/space identifiers.",
+                "",
+            ]
+        )
+        self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
+        watsonxUrl = self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
+        self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+        if self.yesOrNo("Does the Watsonxai AI use a self-signed certificate"):
+            self.promptForString("Watsonxai CA certificate (PEM format)", "aiservice_watsonxai_ca_crt")
+        self.promptForString("Watsonxai Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
+        self.promptForString("Watsonxai Space ID (optional)", "aiservice_watsonxai_space_id")
+        if ".ibm.com" not in watsonxUrl:
+            self.promptForString("Watsonxai Instance ID (optional)", "aiservice_watsonxai_instance_id")
+            self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
+            self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
+        self.printH1("RSL Integration")
+        self.printDescription(
+            [
+                "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
+                "",
+                "Note: Future versions will auto-configure these from MAS Manage.",
+                "",
+            ]
+        )
+
+        if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
+            self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 
     # These are all candidates to centralise in a new mixin used by both install and aiservice-install
 
@@ -591,7 +759,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
-        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+        self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
         if self.devMode:
             self.promptForString("Artifactory username", "artifactory_username")
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
@@ -619,12 +787,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             catalogInfo = getCurrentCatalog(self.dynamicClient)
 
             if catalogInfo is None:
-                self.printDescription([
-                    "The catalog you choose dictates the version of everything that is installed, with Maximo Application Suite this is the only version you need to remember; all other versions are determined by this choice.",
-                    "Older catalogs can still be used, but we recommend using an older version of the CLI that aligns with the release date of the catalog.",
-                    " - Learn more: <Orange><u>https://ibm-mas.github.io/cli/catalogs/</u></Orange>",
-                    ""
-                ])
+                self.printDescription(
+                    [
+                        "The catalog you choose dictates the version of everything that is installed, with Maximo Application Suite this is the only version you need to remember; all other versions are determined by this choice.",
+                        "Older catalogs can still be used, but we recommend using an older version of the CLI that aligns with the release date of the catalog.",
+                        " - Learn more: <Orange><u>https://ibm-mas.github.io/cli/catalogs/</u></Orange>",
+                        "",
+                    ]
+                )
                 print("Supported Catalogs:")
                 for catalog in self.catalogOptions:
                     catalogString = self.formatCatalog(catalog)
@@ -635,28 +805,23 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 catalogSelection = self.promptForString("Select catalog", completer=catalogCompleter)
                 self.setParam("mas_catalog_version", catalogSelection)
             else:
-                self.printDescription([
-                    f"The IBM Maximo Operator Catalog is already installed in this cluster ({catalogInfo['catalogId']}).  If you wish to install MAS using a newer version of the catalog please first update the catalog using mas update."
-                ])
+                self.printDescription(
+                    [
+                        f"The IBM Maximo Operator Catalog is already installed in this cluster ({catalogInfo['catalogId']}).  If you wish to install MAS using a newer version of the catalog please first update the catalog using mas update."
+                    ]
+                )
                 self.setParam("mas_catalog_version", catalogInfo["catalogId"])
 
             self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
             catalogSummary = self.processCatalogChoice()
             self.printDescription(catalogSummary)
-            self.printDescription([
-                "",
-                "Two types of release are available:",
-                " - GA releases of Maximo Application Suite are supported under IBM's standard 3+1+3 support lifecycle policy.",
-                " - 'Feature' releases allow early access to new features for evaluation in non-production environments and are only supported through to the next GA release.",
-                ""
-            ])
-
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
-            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
-
-            self.setParam("mas_app_channel_aibroker", self.catalogReleases[releaseSelection])
+            # There's only one release channel, the user doesn't need to be prompted!!
+            # releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
+            # releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
+            # self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
+            self.setParam("aiservice_channel", "9.1.x")
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -673,10 +838,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             elif re.match(r".+v8-amd64", catalogDisplayName):
                 catalogId = "v8-amd64"
             else:
-                self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+                self.fatalError(
+                    f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update"
+                )
 
             if catalogId != self.getParam("mas_catalog_version"):
-                self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+                self.fatalError(
+                    f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update"
+                )
         except NotFoundError:
             # There's no existing catalog installed
             pass
@@ -686,10 +855,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def licensePrompt(self):
         if not self.licenseAccepted:
             self.printH1("License Terms")
-            self.printDescription([
-                "To continue with the installation, you must accept the license terms:",
-                self.licenses[f"aibroker-{self.getParam('mas_app_channel_aibroker')}"]
-            ])
+            self.printDescription(
+                ["To continue with the installation, you must accept the license terms:", self.licenses[f"aibroker-{self.getParam('aiservice_channel')}"]]
+            )
 
             if self.noConfirm:
                 self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
@@ -700,12 +868,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def configStorageClasses(self):
         self.printH1("Configure Storage Class Usage")
-        self.printDescription([
-            "Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:",
-            "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
-            "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
-            ""
-        ])
+        self.printDescription(
+            [
+                "Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:",
+                "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
+                "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
+                "",
+            ]
+        )
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         if defaultStorageClasses.provider is not None:
             print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
@@ -722,15 +892,21 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if "storage_class_rwx" not in self.params or self.params["storage_class_rwx"] == "" or overrideStorageClasses:
             self.storageClassProvider = "custom"
 
-            self.printDescription([
-                "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
-                "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be installed"
-            ])
+            self.printDescription(
+                [
+                    "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
+                    "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be installed",
+                ]
+            )
             for storageClass in getStorageClasses(self.dynamicClient):
                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
-            self.params["storage_class_rwo"] = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-            self.params["storage_class_rwx"] = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            self.params["storage_class_rwo"] = prompt(
+                message=HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
+            )
+            self.params["storage_class_rwx"] = prompt(
+                message=HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
+            )
 
         # Configure storage class for pipeline PVC
         # We prefer to use ReadWriteMany, but we can cope with ReadWriteOnce if necessary
@@ -746,7 +922,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.printH1("Configure AppPoint Licensing")
         self.printDescription(
             [
-                "By default the MAS instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS instances on the cluster.",
+                "By default the AI Service instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS &amp; AI Service instances on the cluster.",
                 "",
             ]
         )
@@ -757,9 +933,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.showAdvancedOptions:
             self.printDescription(
                 [
-                    "Alternatively you may choose to install using a dedicated license only available to this MAS instance.",
-                    "  1. Install MAS with Cluster-Shared License (AppPoints)",
-                    "  2. Install MAS with Dedicated License (AppPoints)",
+                    "Alternatively you may choose to install using a dedicated license only available to this AI Service instance.",
+                    "  1. Install AI Service with Cluster-Shared License (AppPoints)",
+                    "  2. Install AI Service with Dedicated License (AppPoints)",
                 ]
             )
             self.slsMode = self.promptForInt("SLS Mode", default=1)
@@ -781,30 +957,38 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def configDRO(self) -> None:
-        self.promptForString("Contact e-mail address", "uds_contact_email")
-        self.promptForString("Contact first name", "uds_contact_firstname")
-        self.promptForString("Contact last name", "uds_contact_lastname")
+        self.promptForString("Contact e-mail address", "dro_contact_email")
+        self.promptForString("Contact first name", "dro_contact_firstname")
+        self.promptForString("Contact last name", "dro_contact_lastname")
 
         if self.showAdvancedOptions:
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     @logMethodCall
-    def configAppChannel(self, appId):
-        self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
+    def configAppChannel(self):
+        self.params["aiservice_channel"] = prompt(HTML("<Yellow>Custom channel for AI Service</Yellow> "))
 
     @logMethodCall
     def configOperationMode(self):
         self.printH1("Configure Operational Mode")
-        self.printDescription([
-            "Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:",
-            " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations.",
-            " - These specifications are also visible in the metrics that are shared with IBM and in the product UI.",
-            "",
-            "  1. Production",
-            "  2. Non-Production"
-        ])
+        self.printDescription(
+            [
+                "Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:",
+                " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations.",
+                " - These specifications are also visible in the metrics that are shared with IBM and in the product UI.",
+                "",
+                "  1. Production",
+                "  2. Non-Production",
+            ]
+        )
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
+            self.setParam("aiservice_odh_model_deployment_type", "raw")
+            self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+            self.setParam("rhoai", "false")
         else:
             self.setParam("environment_type", "non-production")
+            self.setParam("aiservice_odh_model_deployment_type", "serverless")
+            self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+            self.setParam("rhoai", "false")

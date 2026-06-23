@@ -51,17 +51,17 @@ If you do not have a single system with both access to the public source registr
 In this scenario, we must also transfer the CLI image to your local registry:
 
 ```bash
-oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ file://ibmmas/cli:@@CLI_LATEST_VERSION@@
+oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ file://ibmmas/cli:@@CLI_LATEST_VERSION@@ --filter-by-os='.*'
 ```
 
 Transfer the content of `$LOCAL_DIR/cli` to your system within the private network and transfer the image to your mirror registry.
 
 ```bash
 docker login $REGISTRY_HOST:$REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
-oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:@@CLI_LATEST_VERSION@@ $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:@@CLI_LATEST_VERSION@@
+oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:@@CLI_LATEST_VERSION@@ $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:@@CLI_LATEST_VERSION@@ --filter-by-os='.*'
 ```
 !!! note
-    If you want to mirror Single architecture images, include the variable as explained below depending on your environment. Available list of arch images include "amd64", "ppc64le", "s390x". 
+    For the next steps, if you want to mirror Single architecture images, include the variable as explained below depending on your environment. Available list of arch images include "amd64", "ppc64le", "s390x". 
 ```bash
     export MIRROR_SINGLE_ARCH=amd64
 ```
@@ -145,7 +145,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_
   -m direct -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection --mirror-facilities \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 ```
 
@@ -157,7 +157,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_
   -m to-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection --mirror-facilities \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 ```
 
@@ -169,7 +169,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_
   -m from-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection --mirror-facilities
 ```
 
   </div>
@@ -181,7 +181,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ib
   -m from-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection --mirror-facilities
 ```
 
   </div>
@@ -265,7 +265,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_
   -m direct -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 ```
 
@@ -277,7 +277,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_
   -m to-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 ```
 
@@ -289,7 +289,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2
 ```
 
   </div>
@@ -301,7 +301,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ib
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2
 ```
 
   </div>
@@ -314,18 +314,19 @@ Storage Requirements
 -------------------------------------------------------------------------------
 As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from the IBM Maximo Operator Catalog is approximately **484G**, the following table can be used to determine the approximate storage requirement for your mirrored content based on what content you need to mirror:
 
-| Maximo Application Suite        | Command Flag                | Size    |
-| ------------------------------- | --------------------------- | ------- |
-| Maximo Operator Catalog         | `--mirror-catalog`          | 50M     |
-| Maximo Application Suite Core   | `--mirror-core`             | 4G      |
-| Maximo Assist                   | `--mirror-assist`           | 5G      |
-| Maximo IoT                      | `--mirror-iot`              | 9G      |
-| Maximo Manage                   | `--mirror-manage`           | 8G      |
-| Maximo Monitor                  | `--mirror-monitor`          | 17G     |
-| Maximo Optimizer                | `--mirror-optimizer`        | 3G      |
-| Maximo Predict                  | `--mirror-predict`          | 6G      |
-| Maximo Visual Inspection        | `--mirror-visualinspection` | 40G     |
-| **Total**                       |                             | **92G** |
+| Maximo Application Suite         | Command Flag                | Size    |
+| -------------------------------- | --------------------------- | ------- |
+| Maximo Operator Catalog          | `--mirror-catalog`          | 50M     |
+| Maximo Application Suite Core    | `--mirror-core`             | 4G      |
+| Maximo Assist                    | `--mirror-assist`           | 5G      |
+| Maximo IoT                       | `--mirror-iot`              | 9G      |
+| Maximo Manage                    | `--mirror-manage`           | 8G      |
+| Maximo Monitor                   | `--mirror-monitor`          | 17G     |
+| Maximo Optimizer                 | `--mirror-optimizer`        | 3G      |
+| Maximo Predict                   | `--mirror-predict`          | 6G      |
+| Maximo Visual Inspection         | `--mirror-visualinspection` | 40G     |
+| Maximo Real Estate and Facilities| `--mirror-facilities`.      | TBD     |
+| **Total**                        |                             | **92G** |
 
 | IBM Cloud Pak for Data       | Command Flag                | Size     |
 | ---------------------------- | --------------------------- | -------- |
@@ -341,7 +342,6 @@ As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from
 | IBM Truststore Manager            | `--mirror-tsm`              | 1G       |
 | IBM Suite License Service         | `--mirror-sls`              | 1G       |
 | IBM Cloud Pak Foundation Services | `--mirror-cfs`              | 21G      |
-| IBM AppConnect                    | `--mirror-appconnect`       | 13G      |
 | IBM Db2                           | `--mirror-db2`              | 73G      |
 | **Total**                         |                             | **117G** |
 

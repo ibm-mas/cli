@@ -4,6 +4,9 @@ ibm_mas_suite:
   cert_manager_namespace: "{{ CERT_MANAGER_NAMESPACE }}"
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
   domain: "{{ DOMAIN }}"
+  mas_feature_usage: "{{ MAS_FEATURE_USAGE }}"
+  mas_deployment_progression: "{{ MAS_DEPLOYMENT_PROGRESSION }}"
+  mas_usability_metrics: "{{ MAS_USABILITY_METRICS }}"
 
 {%- if DNS_PROVIDER is defined and DNS_PROVIDER !='' %}
   # suite dns
@@ -14,11 +17,6 @@ ibm_mas_suite:
   ocp_cluster_domain: "{{ OCP_CLUSTER_DOMAIN }}"
 {%- endif %}
 
-{% if INGRESS == 'true' %}
-  ingress: true
-{% else %}
-  ingress: false
-{% endif %}
 
 {%- if DNS_PROVIDER is defined and DNS_PROVIDER == 'cis' %}
   cis_mas_domain: "{{ CIS_MAS_DOMAIN }}"
@@ -45,6 +43,12 @@ ibm_mas_suite:
 {% else %}
   mas_manual_cert_mgmt: false
 {% endif %}
+{%- if MAS_ROUTING_MODE is defined and MAS_ROUTING_MODE !='' %}
+  routing_mode: "{{ MAS_ROUTING_MODE }}"
+{%- endif %}
+{%- if MAS_INGRESS_CONTROLLER_NAME is defined and MAS_INGRESS_CONTROLLER_NAME !='' %}
+  ingress_controller_name: "{{ MAS_INGRESS_CONTROLLER_NAME }}"
+{%- endif %}
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
   mas_annotations:
     {{ MAS_ANNOTATIONS | indent(4) }}
@@ -83,6 +87,7 @@ ibm_mas_suite:
     {{ OIDC_CONFIG_YAML | indent(4) }}
 {% endif %}
 
+
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
   allow_list: {{ALLOW_LIST}}
 {% endif %}
@@ -95,4 +100,14 @@ ibm_mas_suite:
 {% if SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES is defined and SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES != '' %}
   suite_spec_settings_additional_properties:
     {{ SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES | indent(4) }}
+{% endif %}
+
+{% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
+  internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
+{% endif %}
+
+
+{% if WELCOME_MESSAGE is defined and WELCOME_MESSAGE != '' %}
+  welcome_message: |
+    {{ WELCOME_MESSAGE | indent(4) }}
 {% endif %}

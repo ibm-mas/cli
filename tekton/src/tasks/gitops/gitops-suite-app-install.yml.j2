@@ -63,6 +63,9 @@ spec:
     - name: mas_manual_certs_yaml
       type: string
       default: ""
+    - name: cluster_admin_role
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-app-install
     env:
@@ -114,6 +117,8 @@ spec:
         value: $(params.mas_manual_certs_yaml)
       - name: GPU_REQUEST_QUOTA
         value: $(params.gpu_request_quota)
+      - name: CLUSTER_ADMIN_ROLE
+        value: $(params.cluster_admin_role)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -129,7 +134,7 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        # mas app install specific 
+        # mas app install specific
         export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
 
         mkdir -p /tmp/suite-app-install
@@ -149,7 +154,7 @@ spec:
         - -c
       name: gitops-suite-app-install
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

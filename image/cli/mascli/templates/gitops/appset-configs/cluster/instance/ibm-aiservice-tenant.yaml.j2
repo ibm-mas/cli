@@ -1,0 +1,67 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AISERVICE_INSTANCE_ID }}/{{ TENANT_ID }}"
+
+ibm_aiservice_tenant:
+  # aiservice
+  tenant_id: "{{ TENANT_ID }}"
+  aiservice_namespace: "{{ AISERVICE_NAMESPACE }}"
+  aiservice_instance_id: "{{ AISERVICE_INSTANCE_ID }}"
+  catalog_channel: "{{ CATALOG_CHANNEL }}"
+  catalog_source: "{{ CATALOG_SOURCE }}"
+  aiservice_tenant_install_plan_approval: "{{ AISERVICE_TENANT_INSTALL_PLAN_APPROVAL }}"
+  tenantNamespace: "{{ TENANT_NAMESPACE }}"
+{% if AISERVICE_ENABLE_DEPROVISIONING is defined and AISERVICE_ENABLE_DEPROVISIONING != '' %}
+  enable_deprovisioning: {{ AISERVICE_ENABLE_DEPROVISIONING }}
+{% endif %}
+
+  mas_icr_cp: "{{ MAS_ICR_CP }}"
+  mas_icr_cpopen: "{{ MAS_ICR_CPOPEN }}"
+
+  # dro
+  dro_url: "{{ DRO_URL }}"
+  dro_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_API_TOKEN }}>"
+  dro_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ DRO_CA_B64ENC }}>"
+
+  # sls
+  slscfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_CA_B64ENC }}>"
+  {%- if STANDALONE_SLS_SERVICE %}
+  slscfg_url: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_URL }}>
+  {%- else %}
+  slscfg_url: "{{ SLSCFG_URL }}"
+  {%- endif %}
+  slscfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_REGISTRATION_KEY }}>"
+  aiservice_sls_subscription_id: "{{ AISERVICE_SLS_SUBSCRIPTION_ID }}"
+  
+  # RSL - Per MASAIB-1915: Only CA cert needed for self-signed certificates
+  # RSL URL, Org ID, and token are provided during FMEA model creation in the UI
+{% if SECRET_KEY_RSL_CA_CRT is defined and SECRET_KEY_RSL_CA_CRT != '' %}
+  rsl_ca_crt: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_CA_CRT }}>"
+{% endif %}
+
+  #s3 for manage job
+  aiservice_s3_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_ACCESSKEY }}>"
+  aiservice_s3_secretkey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_SECRETKEY }}>"
+  aiservice_s3_region: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_REGION }}>"
+
+  # watsonx
+  aiservice_watsonxai_url: "{{ AISERVICE_WATSONXAI_URL }}"
+  aiservice_watsonxai_project_id: "<path:{{ SECRETS_PATH }}:{{ AISERVICE_WATSONXAI_PROJECT_ID }}>"
+  aiservice_watsonxai_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSONXAI_APIKEY }}>"
+  aiservice_watsonxai_on_prem: "{{ AISERVICE_WATSONXAI_ON_PREM }}"
+{% if SECRET_KEY_WATSONXAI_CA_CRT is defined and SECRET_KEY_WATSONXAI_CA_CRT != '' %}
+  aiservice_watsonxai_ca_crt: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSONXAI_CA_CRT }}>"
+{% endif %}
+  aiservice_watsonxai_instance_id: "{{ AISERVICE_WATSONX_INSTANCE_ID }}"
+  aiservice_watsonxai_username: "{{ AISERVICE_WATSONX_USERNAME }}"
+  aiservice_watsonxai_version: "{{ AISERVICE_WATSONX_VERSION }}"
+  aiservice_watsonxai_verify: "{{ AISERVICE_WATSONXAI_VERIFY }}"
+
+  tenant_entitlement_type: "{{ TENANT_ENTITLEMENT_TYPE }}"
+  tenant_entitlement_start_date: "{{ TENANT_ENTITLEMENT_START_DATE }}"
+  tenant_entitlement_end_date: "{{ TENANT_ENTITLEMENT_END_DATE }}"
+  
+  aiservice_operator_log_level: "{{ AISERVICE_OPERATOR_LOG_LEVEL }}"
+
+{% if TENANT_SCHEDULING_CONFIG is defined and TENANT_SCHEDULING_CONFIG != '' %}
+  tenant_scheduling_config:
+    {{ TENANT_SCHEDULING_CONFIG | indent(4)}}
+{% endif %}

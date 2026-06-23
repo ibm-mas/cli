@@ -111,6 +111,9 @@ spec:
     - name: jdbc_route
       type: string
       default: ""
+    - name: jdbc_connection_url_additional_params
+      type: string
+      default: ""
     - name: db2_backup_notify_slack_url
       type: string
       default: ""
@@ -130,6 +133,9 @@ spec:
       type: string
       default: "false"
     - name: allow_list
+      type: string
+      default: ""
+    - name: production_database_access_type
       type: string
       default: ""
   stepTemplate:
@@ -239,10 +245,14 @@ spec:
         value: $(params.mas_app_id)
       - name: JDBC_ROUTE
         value: $(params.jdbc_route)
+      - name: JDBC_CONNECTION_URL_ADDITIONAL_PARAMS
+        value: $(params.jdbc_connection_url_additional_params)
       - name: DB2_BACKUP_NOTIFY_SLACK_URL
         value: $(params.db2_backup_notify_slack_url)
       - name: AUTO_BACKUP
         value: $(params.auto_backup)
+      - name: PRODUCTION_DATABASE_ACCESS_TYPE
+        value: $(params.production_database_access_type)
       - name: REPLICA_DB
         value: $(params.replica_db)
       - name: IS_REPLICA_TASK
@@ -282,7 +292,7 @@ spec:
         - -c
       name: gitops-db2u-database
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

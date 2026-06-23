@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -15,7 +15,7 @@ from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
-from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from ..validators import InstanceIDValidator
@@ -24,7 +24,6 @@ from .argParser import uninstallArgParser
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUninstallPipeline
-
 
 logger = logging.getLogger(__name__)
 
@@ -39,20 +38,22 @@ class UninstallApp(BaseApp):
         droNamespace = args.dro_namespace
         self.noConfirm = args.no_confirm
 
+        # Set image_pull_policy if provided
+        if args.image_pull_policy and args.image_pull_policy != "":
+            self.setParam("image_pull_policy", args.image_pull_policy)
+
         if args.uninstall_all_deps:
             uninstallGrafana = True
             uninstallIBMCatalog = True
-            uninstallCommonServices = True
             uninstallCertManager = True
-            uninstallUDS = True
+            uninstallDRO = True
             uninstallMongoDb = True
             uninstallSLS = True
         else:
             uninstallGrafana = args.uninstall_grafana
             uninstallIBMCatalog = args.uninstall_ibm_catalog
-            uninstallCommonServices = args.uninstall_common_services
             uninstallCertManager = args.uninstall_cert_manager
-            uninstallUDS = args.uninstall_uds
+            uninstallDRO = args.uninstall_dro
             uninstallMongoDb = args.uninstall_mongodb
             uninstallSLS = args.uninstall_sls
 
@@ -64,7 +65,7 @@ class UninstallApp(BaseApp):
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
 
         if self.dynamicClient is None:
-            self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
+            self.fatalError("Not successfully connected to a Kubernetes cluster.  See log file for details")
 
         if instanceId is None:
             # Interactive mode
@@ -75,8 +76,11 @@ class UninstallApp(BaseApp):
             try:
                 suites = listMasInstances(self.dynamicClient)
                 for suite in suites:
-                    self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
-                    suiteOptions.append(suite['metadata']['name'])
+                    instanceId = suite["metadata"]["name"]
+                    reconciledVersion = self.getReconciledVersion(suite)
+
+                    self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
+                    suiteOptions.append(instanceId)
             except ResourceNotFoundError:
                 self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
 
@@ -88,17 +92,18 @@ class UninstallApp(BaseApp):
             instanceId = self.promptForString("MAS instance ID", completer=suiteCompleter, validator=InstanceIDValidator())
 
             self.printH1("Uninstall MAS Dependencies")
-            self.printDescription([
-                "If you choose to uninstall Certificate Manager, all other options will be automatically set to uninstall",
-                "Other workload on the cluster may be dependant on the Certificate Manager installation, so proceed with caution when choosing 'Yes'"
-            ])
+            self.printDescription(
+                [
+                    "If you choose to uninstall Certificate Manager, all other options will be automatically set to uninstall",
+                    "Other workload on the cluster may be dependant on the Certificate Manager installation, so proceed with caution when choosing 'Yes'",
+                ]
+            )
             uninstallCertManager = self.yesOrNo("Uninstall Certificate Manager")
             if uninstallCertManager:
                 # If you choose to uninstall Cert-Manager, everything will be uninstalled
                 uninstallGrafana = True
                 uninstallIBMCatalog = True
-                uninstallCommonServices = True
-                uninstallUDS = True
+                uninstallDRO = True
                 uninstallMongoDb = True
                 uninstallSLS = True
             else:
@@ -111,16 +116,18 @@ class UninstallApp(BaseApp):
                     uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
 
                 uninstallGrafana = self.yesOrNo("Uninstall Grafana")
-                self.printDescription(["If you choose to uninstall the IBM Operator Catalog, IBM Common Services, IBM User Data Services, &amp; IBM Suite License Service will be automatically set to uninstall as well"])
+                self.printDescription(
+                    [
+                        "If you choose to uninstall the IBM Operator Catalog, IBM Common Services, IBM User Data Services, &amp; IBM Suite License Service will be automatically set to uninstall as well"
+                    ]
+                )
                 uninstallIBMCatalog = self.yesOrNo("Uninstall IBM operator Catalog")
                 if uninstallIBMCatalog:
                     # If you choose to uninstall IBM Operator Catalog, everything from the catalog will be uninstalled
-                    uninstallCommonServices = True
-                    uninstallUDS = True
+                    uninstallDRO = True
                     uninstallSLS = True
                 else:
-                    uninstallCommonServices = self.yesOrNo("Uninstall IBM Common Services")
-                    uninstallUDS = self.yesOrNo("Uninstall IBM User Data Services")
+                    uninstallDRO = self.yesOrNo("Uninstall IBM Data Reporter Operator")
 
         else:
             # Non-interactive mode
@@ -148,8 +155,7 @@ class UninstallApp(BaseApp):
         self.printSummary("Uninstall Cert-Manager", f"{uninstallCertManager} ({certManagerProvider})")
         self.printSummary("Uninstall Grafana", uninstallGrafana)
         self.printSummary("Uninstall IBM Operator Catalog", uninstallIBMCatalog)
-        self.printSummary("Uninstall IBM Common Services", uninstallCommonServices)
-        self.printSummary("Uninstall UDS", uninstallUDS)
+        self.printSummary("Uninstall DRO", uninstallDRO)
         self.printSummary("Uninstall MongoDb", uninstallMongoDb)
         self.printSummary("Uninstall SLS", uninstallSLS)
 
@@ -163,31 +169,32 @@ class UninstallApp(BaseApp):
             self.printH1("Launch uninstall")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
+                if installOpenShiftPipelines(self.dynamicClient):
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
+                    self.fatalError("Installation failed")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text=f'Submitting PipelineRun for {instanceId} uninstall', spinner=self.spinner) as h:
+            with Halo(text=f"Submitting PipelineRun for {instanceId} uninstall", spinner=self.spinner) as h:
                 pipelineURL = launchUninstallPipeline(
                     dynClient=self.dynamicClient,
                     instanceId=instanceId,
-                    certManagerProvider="redhat",
                     uninstallCertManager=uninstallCertManager,
                     uninstallGrafana=uninstallGrafana,
-                    uninstallCatalog=uninstallCommonServices,
-                    uninstallCommonServices=uninstallCommonServices,
-                    uninstallUDS=uninstallUDS,
+                    uninstallCatalog=uninstallIBMCatalog,
+                    uninstallDRO=uninstallDRO,
                     uninstallMongoDb=uninstallMongoDb,
                     uninstallSLS=uninstallSLS,
-                    droNamespace=droNamespace
+                    droNamespace=droNamespace,
                 )
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} uninstall submitted")

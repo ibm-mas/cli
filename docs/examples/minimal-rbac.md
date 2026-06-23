@@ -33,7 +33,7 @@ All **Roles**, **RoleBindings**, **ClusterRoles**, and **ClusterRoleBindings** a
 !!! important
     The RBAC definitions here are only sufficient to install MAS Core Platform & it's dependencies, we are actively working on expanding this to cover the entire suite and all dependencies.
 
-To directly use these definitions you will want to use **kustomize** and **jinja**, following the steps below.  Note the `--service-account` flag passed to the CLI to inform it not to set up the default pipeline RBAC:
+To directly use these definitions you will want to use **kustomize** and **[jinja](https://github.com/kpfleming/jinjanator)**, following the steps below.  Note the `--service-account` flag passed to the CLI to inform it not to set up the default pipeline RBAC:
 
 ```bash
 MAS_INSTANCE_ID=dev1
@@ -55,12 +55,11 @@ oc login --token $INSTALL_TOKEN --server $SERVER
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ bash -c "
   oc login --token $INSTALL_TOKEN --server=$SERVER &&
   mas install --mas-catalog-version @@MAS_LATEST_CATALOG@@ --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
-    --mas-channel 9.1.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name "My Workspace" \
-    --storage-class-rwo "ibmc-block-gold" --storage-class-rwx "ibmc-file-gold-gid" \
-    --storage-pipeline "ibmc-file-gold-gid" --storage-accessmode "ReadWriteMany" \
-    --license-file "/mnt/home/entitlement.lic" \
-    --uds-email "parkerda@uk.ibm.com" --uds-firstname "David" --uds-lastname "Parker" \
-    --mongodb-namespace "mongoce" \
+    --mas-channel 9.1.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name Workspace \
+    --storage-class-rwo ibmc-block-gold --storage-class-rwx ibmc-file-gold-gid \
+    --storage-pipeline ibmc-file-gold-gid --storage-accessmode ReadWriteMany \
+    --license-file /mnt/home/entitlement.lic \
+    --contact-email email@uk.ibm.com --contact-firstname David --contact-lastname Parker \
     --accept-license --no-confirm --service-account mas-${MAS_INSTANCE_ID}-install-pipeline
   "
 ```

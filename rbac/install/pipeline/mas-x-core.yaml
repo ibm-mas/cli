@@ -44,8 +44,8 @@ rules:
       - configmaps
       - secrets
     verbs:
-      - create
       - get
+      - create
       - patch
 
   - apiGroups:
@@ -54,6 +54,7 @@ rules:
       - suites
       - workspaces
     verbs:
+      - get
       - create
       - patch
 
@@ -65,6 +66,9 @@ rules:
       - kafkacfgs
       - slscfgs
       - bascfgs
+      - idpcfgs
+      - smtpcfgs
     verbs:
+      - get
       - create
       - patch

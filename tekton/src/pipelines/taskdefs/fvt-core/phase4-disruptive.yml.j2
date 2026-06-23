@@ -41,7 +41,7 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter: {{ runAfter }}
 
-# authservice ~3m
+# 4. authservice ~3m
 # -----------------------------------------------------------------------------
 - name: authservice
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -54,7 +54,7 @@
     - core-trustcas
     - adoptionusagemetering
 
-# 4. coreidp-ldap
+# 5. coreidp-ldap
 # -------------------------------------------------------------------------
 - name: coreidp-ldap
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -65,7 +65,7 @@
   runAfter:
     - authservice
 
-# 5. coreidp-saml
+# 6. coreidp-saml
 # -------------------------------------------------------------------------
 - name: coreidp-saml
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -76,7 +76,7 @@
   runAfter:
     - coreidp-ldap
 
-# 6. coreidp-saml-ui
+# 7. coreidp-saml-ui
 # -------------------------------------------------------------------------
 - name: coreidp-saml-ui
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -87,7 +87,18 @@
   runAfter:
     - coreidp-saml
 
-# 7. coreidp-ssoconfig
+# 8. coreidp-oidc
+# -------------------------------------------------------------------------
+- name: coreidp-oidc
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-oidc
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreidp-saml-ui
+
+# 9. coreidp-ssoconfig
 # -------------------------------------------------------------------------
 - name: coreidp-ssoconfig
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -96,9 +107,9 @@
       value: coreidp-ssoconfig
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - coreidp-saml-ui
+    - coreidp-oidc
 
-# 8. licensingapi
+# 10. licensingapi
 # -------------------------------------------------------------------------
 - name: licensingapi
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -109,7 +120,7 @@
   runAfter:
     - coreidp-ssoconfig
 
-# 9. usagebilling
+# 11. usagebilling
 # -------------------------------------------------------------------------
 - name: usagebilling
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -125,7 +136,7 @@
     - name: pod-templates
       workspace: shared-pod-templates
 
-# 10. operatormaturity
+# 12. operatormaturity
 # -------------------------------------------------------------------------
 - name: operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}

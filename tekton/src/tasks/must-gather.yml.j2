@@ -20,8 +20,8 @@ spec:
         - --directory
         - $(params.base_output_dir)
         - --extra-namespaces
-        - selenium
-      image: quay.io/ibmmas/cli:latest
+        - selenium,kyverno
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}

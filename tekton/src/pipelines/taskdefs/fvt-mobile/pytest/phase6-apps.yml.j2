@@ -1,0 +1,32 @@
+- name: mobile-pytest-timesheet
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-timesheet
+  runAfter:
+    - mobile-pytest-crew
+    - mobile-pytest-insp
+    - mobile-pytest-collaborate
+
+- name: mobile-pytest-materialrequest
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-materialrequest
+  runAfter:
+    - mobile-pytest-crew
+    - mobile-pytest-insp
+    - mobile-pytest-collaborate
+
+- name: mobile-pytest-requests
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-requests
+  runAfter:
+    - mobile-pytest-crew
+    - mobile-pytest-insp
+    - mobile-pytest-collaborate

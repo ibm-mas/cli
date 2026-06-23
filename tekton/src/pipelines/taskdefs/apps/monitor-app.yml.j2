@@ -1,10 +1,9 @@
-- name: app-install-monitor
   timeout: "0"
+  taskRef:
+    name: mas-devops-suite-app-install
+    kind: Task
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
-    - name: devops_suite_name
-      value: app-monitor-install
-
     - name: artifactory_username
       value: $(params.artifactory_username)
     - name: artifactory_token
@@ -20,12 +19,12 @@
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: mas_use_service_mesh
+      value: $(params.mas_use_service_mesh)
 
-  taskRef:
-    name: mas-devops-suite-app-install
-    kind: Task
-  # Only install Monitor if a channel has been chosen
-  when:
-    - input: "$(params.mas_app_channel_monitor)"
-      operator: notin
-      values: [""]
+    # Workspace
+    - name: mas_workspace_id
+      value: "$(params.mas_workspace_id)"
+  workspaces:
+    - name: configs
+      workspace: shared-configs

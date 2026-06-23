@@ -1,0 +1,44 @@
+#!/bin/bash
+DEBUG_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd "../debug" && pwd )"
+
+function debug_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas debug <command> [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+Commands:
+    help:       displays the list of commands
+    coredump:   generates and collects java coredumps from liberty servers.
+                refer to mas debug coredump --help for futher information
+    
+    threaddump: generates and collects javacore (thread dumps) from a liberty server.
+                refer to mas debug threaddmp --help for futher information
+
+    haproxy-logging: enables and disables logging for the ocp ha proxy and collects correspoding logs.
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function debug() {
+
+  case $2 in
+    help)
+      debug_help
+      ;;
+
+    coredump)
+      $DEBUG_SCRIPT_DIR/coredump "$@"
+      ;;
+    threaddump)
+      $DEBUG_SCRIPT_DIR/threaddump "$@"
+      ;;
+    haproxy-logging)
+      $DEBUG_SCRIPT_DIR/haproxy-logging "$@"
+      ;;
+  esac
+
+}
+

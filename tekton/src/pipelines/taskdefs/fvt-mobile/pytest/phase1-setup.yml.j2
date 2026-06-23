@@ -30,13 +30,23 @@
     - input: "$(params.fvt_digest_mobile_pytest)"
       operator: notin
       values: [""]
+  runAfter:
+    - fvt-component
 
-
-- name: mobile-pytest-requests
+- name: mobile-pytest-asset-image
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile-api-requests
+      value: mobile-api-asset-image
+  runAfter:
+    - mobile-setup-pytest
+
+- name: mobile-pytest-download
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-download
   runAfter:
     - mobile-setup-pytest

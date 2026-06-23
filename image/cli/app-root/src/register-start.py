@@ -1,3 +1,13 @@
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
 # This script allows you to record the results of the pipeline in a MongoDb database.
 # To enable this capability you must set additional environment variables as follows:
 #
@@ -5,11 +15,11 @@
 #
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, UTC
 from pymongo import MongoClient
 
 if __name__ == "__main__":
-    if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
+    if "DEVOPS_MONGO_URI" not in os.environ or os.environ["DEVOPS_MONGO_URI"] == "":
         sys.exit(0)
 
     print("MongoDb integration enabled (v2 data model)")
@@ -55,15 +65,7 @@ if __name__ == "__main__":
     print(f"Result ID .............. {resultId}")
 
     # Generate placeholder that tells us "the test has started"
-    suiteSummary = {
-        "tests": 0,
-        "errors": 0,
-        "name": suite,
-        "skipped": 0,
-        "time": -1,
-        "failures": 0,
-        "startTime": datetime.utcnow()
-    }
+    suiteSummary = {"tests": 0, "errors": 0, "name": suite, "skipped": 0, "time": -1, "failures": 0, "startTime": datetime.now(UTC)}
 
     # Connect to mongoDb
     client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
@@ -73,22 +75,26 @@ if __name__ == "__main__":
     result1 = db.runsv2.find_one_and_update(
         {"_id": runId},
         {
-            '$setOnInsert': {
+            "$setOnInsert": {
                 "_id": runId,
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(UTC),
                 "target": {
                     "instanceId": instanceId,
                     "buildId": build,
-                }
+                },
             },
-            '$set': {
+            "$set": {
                 f"products.{productId}.productId": productId,
                 f"products.{productId}.channelId": channelId,
                 f"products.{productId}.version": cliVersion,
                 f"products.{productId}.ansibleDevopsVersion": ansibleDevopsVersion,
                 f"products.{productId}.gitopsVersion": gitopsVersion,
-                f"products.{productId}.results.{suite}": suiteSummary
-            }
+                f"products.{productId}.results.{suite}": suiteSummary,
+            },
         },
-        upsert=True
+        upsert=True,
     )
+
+    # If the run document already existed before register-start.py was invoked,
+    # we should backfill the run timestamp once and leave it unchanged on later updates.
+    db.runsv2.update_one({"_id": runId, "timestamp": {"$exists": False}}, {"$set": {"timestamp": datetime.now(UTC)}})

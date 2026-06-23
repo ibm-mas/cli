@@ -11,10 +11,18 @@ spec:
       type: string
       description: Instance ID
       default: "" # By default, no config will be generated
+    - name: aiservice_instance_id
+      type: string
+      description: AI Service Instance ID
+      default: ""
     - name: custom_labels
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
+    - name: mas_config_dir
+      type: string
+      description: config directory path
+      default: "/workspace/configs"
 
     - name: sls_namespace
       type: string
@@ -29,6 +37,9 @@ spec:
       type: string
       default: ""
     - name: sls_icr_cpopen
+      type: string
+      default: ""
+    - name: sls_domain
       type: string
       default: ""
 
@@ -57,15 +68,27 @@ spec:
       description: Optional. Used to uninstall SLS
       default: ""
 
+    # Backup/Restore specific parameters
+    - name: sls_backup_version
+      type: string
+      description: Optional. Version/timestamp for the backup
+      default: ""
+    - name: include_sls
+      type: string
+      description: Optional. Set to false to skip SLS backup
+      default: "true"
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
       # General
       - name: MAS_CONFIG_DIR
-        value: /workspace/configs
+        value: $(params.mas_config_dir)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
@@ -97,17 +120,32 @@ spec:
       - name: SLS_ACTION
         value: $(params.sls_action)
 
+      # Backup/Restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: SLS_BACKUP_VERSION
+        value: $(params.sls_backup_version)
+      - name: SLS_DOMAIN
+        value: $(params.sls_domain)
+
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates
 
   steps:
     - name: sls
-      command:
-        - /opt/app-root/src/run-role.sh
-        - sls
-      image: quay.io/ibmmas/cli:latest
+      script: |
+        #!/bin/bash
+
+        # During a standalone AI Service installation, a sls-config(fake) must be created by using the AISERVICE_INSTANCE_ID as the MAS_INSTANCE_ID
+        if [[ "$MAS_INSTANCE_ID" == "" ]] && [[ "$AISERVICE_INSTANCE_ID" != "" ]]; then
+            echo "Setting MAS_INSTANCE_ID based on AISERVICE_INSTANCE_ID for standalone AI Service install"
+            MAS_INSTANCE_ID=$AISERVICE_INSTANCE_ID
+        fi
+        /opt/app-root/src/run-role.sh sls
+
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
-      workingDir: /workspace/configs
+      workingDir: $(params.mas_config_dir)
 
   workspaces:
     - name: configs
@@ -117,4 +155,6 @@ spec:
     - name: entitlement
       optional: true
     - name: pod-templates
+      optional: true
+    - name: backups
       optional: true

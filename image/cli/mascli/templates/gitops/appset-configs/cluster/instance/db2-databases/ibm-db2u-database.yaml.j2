@@ -91,7 +91,12 @@ db2_affinity_value: {{DB2_AFFINITY_VALUE}}
 db2_tolerate_key: {{DB2_TOLERATE_KEY}}
 db2_tolerate_value: {{DB2_TOLERATE_VALUE}}
 db2_tolerate_effect: {{DB2_TOLERATE_EFFECT}}
+{% if CLUSTER_DOMAIN is defined and CLUSTER_DOMAIN !='' %}
+cluster_domain: {{ CLUSTER_DOMAIN }}
+{% else %}
 cluster_domain: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLUSTER_DOMAIN }}>
+{% endif %}
+
 mas_application_id: {{MAS_APP_ID}}
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
 mas_annotations:
@@ -100,6 +105,10 @@ mas_annotations:
     {%- endfilter %}
 {%- endif %}
 jdbc_route: {{JDBC_ROUTE}}
+
+{%- if JDBC_CONNECTION_URL_ADDITIONAL_PARAMS is defined and JDBC_CONNECTION_URL_ADDITIONAL_PARAMS !='' %}
+jdbc_connection_url_additional_params: {{ JDBC_CONNECTION_URL_ADDITIONAL_PARAMS }}
+{%- endif %}
 
 db2_timezone: {{DB2_TIMEZONE}}
 
@@ -116,10 +125,19 @@ db2_backup_bucket_name: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_NAME }}>
 db2_backup_bucket_endpoint: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_ENDPOINT }}>
 db2_backup_bucket_access_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY }}>
 db2_backup_bucket_secret_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY }}>
+
+{% if SKIP_BACKUP_NOTIFICATION != 'true' %}
 db2_backup_notify_slack_url: {{DB2_BACKUP_NOTIFY_SLACK_URL}}
 db2_backup_icd_auth_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY }}>
+{% endif %}
+
 {% endif %}
 
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
 allow_list: {{ALLOW_LIST}}
 {% endif %}
+
+{%- if PRODUCTION_DATABASE_ACCESS_TYPE is defined and PRODUCTION_DATABASE_ACCESS_TYPE != '' %}
+production_database_access:
+  type: {{ PRODUCTION_DATABASE_ACCESS_TYPE }}
+{%- endif %}

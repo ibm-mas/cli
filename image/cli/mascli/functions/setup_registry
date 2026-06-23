@@ -1,6 +1,96 @@
 #!/bin/bash
 
-function setup_mirror_registry() {
+function setup_mirror_registry_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas setup-registry [options]
+
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Registry Credentials (required)
+  -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                    Mirror registry username
+  -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                    Mirror registry password
+
+Registry Cluster Configuration (optional)
+  -n, --namespace ${COLOR_YELLOW}REGISTRY_NAMESPACE${TEXT_RESET}                  Mirror registry namespace (default is airgap-registry)
+  -s, --storage-class ${COLOR_YELLOW}REGISTRY_STORAGE_CLASS${TEXT_RESET}          Mirror registry storage class (default is ibmc-block-gold)
+  -c, --storage-capacity ${COLOR_YELLOW}REGISTRY_STORAGE_CAPACITY${TEXT_RESET}    Mirror registry storage capacity (default is 2000Gi)
+  -t, --service-type ${COLOR_YELLOW}REGISTRY_SERVICE_TYPE${TEXT_RESET}            Mirror registry service type (default is loadbalancer)
+
+Other Commands:
+      --no-confirm                                    Setup private registry without confirmation
+  -h, --help                                          Show this help message
+
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function setup_mirror_registry_non_interactive(){
+  # Default variables
+  if [[ -z "$REGISTRY_NAMESPACE" ]]; then
+    REGISTRY_NAMESPACE=airgap-registry
+  fi
+  if [[ -z "$REGISTRY_STORAGE_CLASS" ]]; then
+    REGISTRY_STORAGE_CLASS=ibmc-block-gold
+  fi
+  if [[ -z "$REGISTRY_STORAGE_CAPACITY" ]]; then
+    REGISTRY_STORAGE_CAPACITY=2000Gi
+  fi
+  if [[ -z "$REGISTRY_SERVICE_TYPE" ]]; then
+    REGISTRY_SERVICE_TYPE=loadbalancer
+  fi
+  
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -u|--username)
+        REGISTRY_USERNAME=$1 && shift
+        ;;
+      -p|--password)
+        REGISTRY_PASSWORD=$1 && shift
+        ;;
+      -n|--namespace)
+        REGISTRY_NAMESPACE=$1 && shift
+        ;;
+      -s|--storage-class)
+        REGISTRY_STORAGE_CLASS=$1 && shift
+        ;;
+      -c|--storage-capacity)
+        REGISTRY_STORAGE_CAPACITY=$1 && shift
+        ;;
+      -t|--service-type)
+        REGISTRY_SERVICE_TYPE=$1 && shift
+        ;;
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        setup_mirror_registry_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
+        setup_mirror_registry_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Verify connection with cluster
+  oc whoami &> $LOGFILE
+  if [ $? != "0" ]; then
+    echo -e "${COLOR_RED}Usage Error: Unable to establish connection with the cluster. Please, run oc login and connect with the cluster. ${TEXT_RESET}\n"
+  fi
+}
+
+function setup_mirror_registry_interactive() {
+  connect
+
   echo
   echo_h2 "Configure Installation"
 
@@ -13,11 +103,57 @@ function setup_mirror_registry() {
   echo_h2 "Configure Authentication"
 
   prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME && export REGISTRY_USERNAME
-  prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?" && export REGISTRY_PASSWORD
+  prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?" && export REGISTRY_PASSWORD  
+}
 
-  prompt_for_confirm "Proceed with these settings" || exit 0
+function setup_mirror_registry() {
+  shift
+  if [[ $# -gt 0 ]]; then
+    setup_mirror_registry_non_interactive "$@"
+  else
+    setup_mirror_registry_interactive
+  fi
+
+  [[ -z "$REGISTRY_USERNAME" ]] && setup_mirror_registry_help "REGISTRY_USERNAME is not set"
+  [[ -z "$REGISTRY_PASSWORD" ]] && setup_mirror_registry_help "REGISTRY_PASSWORD is not set"
+  [[ -z "$REGISTRY_NAMESPACE" ]] && setup_mirror_registry_help "REGISTRY_NAMESPACE is not set"
+  [[ -z "$REGISTRY_STORAGE_CLASS" ]] && setup_mirror_registry_help "REGISTRY_STORAGE_CLASS is not set"
+  [[ -z "$REGISTRY_STORAGE_CAPACITY" ]] && setup_mirror_registry_help "REGISTRY_STORAGE_CAPACITY is not set"
+  [[ -z "$REGISTRY_SERVICE_TYPE" ]] && setup_mirror_registry_help "REGISTRY_SERVICE_TYPE is not set"
+
+  # Ensure that the variables are exported
+  export REGISTRY_USERNAME
+  export REGISTRY_PASSWORD
+  export REGISTRY_NAMESPACE
+  export REGISTRY_STORAGE_CLASS
+  export REGISTRY_STORAGE_CAPACITY
+  export REGISTRY_SERVICE_TYPE
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+  echo "${TEXT_DIM}"
+  echo_h3 "Registry Authentication" "    "
+  echo_reset_dim "Username .................. ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
+  echo_reset_dim "Password .................. ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:4}<snip>"
+  
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h3 "Registry Cluster Configuration " "    "
+  echo_reset_dim "Registry namespace ............................. ${COLOR_MAGENTA}${REGISTRY_NAMESPACE}"
+  echo_reset_dim "Registry storage class ......................... ${COLOR_MAGENTA}${REGISTRY_STORAGE_CLASS}"
+  echo_reset_dim "Registry storage capacity ...................... ${COLOR_MAGENTA}${REGISTRY_STORAGE_CAPACITY}"
+  echo_reset_dim "Registry service type .......................... ${COLOR_MAGENTA}${REGISTRY_SERVICE_TYPE}"
+
+  echo
+  reset_colors
+
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
 
   echo
   echo_h2 "Run Installation"
   ansible-playbook ibm.mas_devops.deploy_private_registry
+  echo
 }

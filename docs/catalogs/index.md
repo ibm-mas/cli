@@ -10,8 +10,10 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 
 
 ### Catalog Directory
+Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: [https://access.redhat.com/support/policy/updates/openshift](https://access.redhat.com/support/policy/updates/openshift).  Also note that support for the non-EUS releases expires before the extended support for the previous EUS release, for example extended support for OCP 4.18 expires on Feb 25, 2027, while standard support for OCP 4.17 expires on April 1, 2026.
 
-<cds-tabs trigger-content="Select an item" value="2025">
+<cds-tabs trigger-content="Select an item" value="2026">
+  <cds-tab id="tab-2026" target="panel-2026" value="2026">2026 Catalogs</cds-tab>
   <cds-tab id="tab-2025" target="panel-2025" value="2025">2025 Catalogs</cds-tab>
   <cds-tab id="tab-2024" target="panel-2024" value="2024">2024 Catalogs</cds-tab>
   <cds-tab id="tab-2023" target="panel-2023" value="2023">2023 Catalogs</cds-tab>
@@ -19,151 +21,222 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 </cds-tabs>
 
 <div class="tab-panel">
+  <div id="panel-2026" role="tabpanel" aria-labelledby="tab-2026" hidden>
+    <table>
+      <thead>
+        <tr>
+          <th style="min-width: 200px;">Catalog</th>
+          <th>OCP</th>
+          <th>CPD</th>
+          <th>MongoDB</th>
+          <th>CLI</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+          <td style="font-style: italic">v9-261224</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+      <tr>
+          <td style="font-style: italic">v9-261126</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-261029</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260924</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260827</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260730</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260625</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">N/A</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-260527</span><br/><a href="v9-260527-amd64/">amd64</a> | <a href="v9-260527-s390x/">s390x</a> | <a href="v9-260527-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-260430</span><br/><a href="v9-260430-amd64/">amd64</a> | <a href="v9-260430-s390x/">s390x</a> | <a href="v9-260430-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-260326</span><br/><a href="v9-260326-amd64/">amd64</a> | <a href="v9-260326-s390x/">s390x</a> | <a href="v9-260326-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest/ 19.4.0</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-260226</span><br/><a href="v9-260226-amd64/">amd64</a> | <a href="v9-260226-s390x/">s390x</a> | <a href="v9-260226-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest/ 18.18.1</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-260129</span><br/><a href="v9-260129-amd64/">amd64</a> | <a href="v9-260129-s390x/">s390x</a> | <a href="v9-260129-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest/ 18.11.0</td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
 
   <div id="panel-2025" role="tabpanel" aria-labelledby="tab-2025" hidden>
     <table>
       <thead>
         <tr>
-          <th colspan="4">Catalog</th>
-          <th>OCP Support</th>
-          <th>CPD Support</th>
-          <th>MongoDB Support (CE or EE)</th>
-          <th>Recommended CLI</th>
-          <th>Support Notes</th>
+          <th style="min-width: 200px;">Catalog</th>
+          <th>OCP</th>
+          <th>CPD</th>
+          <th>MongoDB</th>
+          <th>CLI</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td style="font-style: italic">v9-251224</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+          <td><span style="font-weight: bold">v9-251231</span><br/><a href="v9-251231-amd64/">amd64</a> | <a href="v9-251231-s390x/">s390x</a> | <a href="v9-251231-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>18.5.1</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-251127</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+          <td><span style="font-weight: bold">v9-251224</span><br/><a href="v9-251224-amd64/">amd64</a> | <a href="v9-251224-s390x/">s390x</a> | <a href="v9-251224-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>18.4.0</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-251030</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+          <td><span style="font-weight: bold">v9-251127</span><br/><a href="v9-251127-amd64/">amd64</a> | <a href="v9-251127-s390x/">s390x</a> | <a href="v9-251127-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.1.3</td>
+          <td>7.0 - 8.0</td>
+          <td>17.2.0</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-250925</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-250828</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>
-        <tr>
-          <td style="font-style: italic">v9-250731</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>
-        <tr>
-          <td>v9-250624</td>
-          <td><a href="v9-250624-amd64/">amd64</a></td>
-          <td><a href="v9-250624-s390x/">s390x</a></td>
-          <td><a href="v9-250624-ppc64le/">ppc64le</a></td>
-          <td>4.14 - 4.18</td>
+          <td><span style="font-weight: bold">v9-251030</span><br/><a href="v9-251030-amd64/">amd64</a> | <a href="v9-251030-s390x/">s390x</a> | <a href="v9-251030-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.14 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
-          <td>OCP 4.18 EOS August 25, 2026</td>
+          <td>15.11.0</td>
         </tr>
         <tr>
-          <td>v9-250501</td>
-          <td><a href="v9-250501-amd64/">amd64</a></td>
-          <td><a href="v9-250501-s390x/">s390x</a></td>
-          <td>N/A</td>
-          <td>4.14 - 4.16</td>
+          <td><span style="font-weight: bold">v9-251010</span><br/><a href="v9-251010-amd64/">amd64</a> | <a href="v9-251010-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>15.9.0</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-250925</span><br/><a href="v9-250925-amd64/">amd64</a> | <a href="v9-250925-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>15.7.0</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-250902</span><br/><a href="v9-250902-amd64/">amd64</a> | <a href="v9-250902-s390x/">s390x</a> | <a href="v9-250902-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>15.3.0</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-250828</span><br/><a href="v9-250828-amd64/">amd64</a> | <a href="v9-250828-s390x/">s390x</a> | <a href="v9-250828-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>15.2.0</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-250731</span><br/><a href="v9-250731-amd64/">amd64</a> | <a href="v9-250731-s390x/">s390x</a> | <a href="v9-250731-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>15.1.0</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-250624</span><br/><a href="v9-250624-amd64/">amd64</a> | <a href="v9-250624-s390x/">s390x</a> | <a href="v9-250624-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.14 - 4.18</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>13.26.0</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-250501</span><br/><a href="v9-250501-amd64/">amd64</a> | <a href="v9-250501-s390x/">s390x</a> | N/A</td>
+          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
-          <td>OCP 4.16 EOS December 27, 2025</td>
+          <td>13.20.0</td>
         </tr>
         <tr>
-          <td>v9-250403</td>
-          <td><a href="v9-250403-amd64/">amd64</a></td>
-          <td><a href="v9-250403-s390x/">s390x</a></td>
-          <td>N/A</td>
-          <td>4.14 - 4.16</td>
+          <td><span style="font-weight: bold">v9-250403</span><br/><a href="v9-250403-amd64/">amd64</a> | <a href="v9-250403-s390x/">s390x</a> | N/A</td>
+          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
-          <td>OCP 4.16 EOS December 27, 2025</td>
+          <td>13.15.0</td>
         </tr>
         <tr>
-          <td>v9-250306</td>
-          <td><a href="v9-250306-amd64/">amd64</a></td>
-          <td><a href="v9-250306-s390x/">s390x</a></td>
-          <td>N/A</td>
-          <td>4.14 - 4.16</td>
+          <td><span style="font-weight: bold">v9-250306</span><br/><a href="v9-250306-amd64/">amd64</a> | <a href="v9-250306-s390x/">s390x</a> | N/A</td>
+          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
           <td>13.10.0</td>
-          <td>OCP 4.16 EOS December 27, 2025</td>
         </tr>
         <tr>
-          <td>v9-250206</td>
-          <td><a href="v9-250206-amd64/">amd64</a></td>
-          <td><a href="v9-250206-s390x/">s390x</a></td>
-          <td>N/A</td>
-          <td>4.14 - 4.16</td>
+          <td><span style="font-weight: bold">v9-250206</span><br/><a href="v9-250206-amd64/">amd64</a> | <a href="v9-250206-s390x/">s390x</a> | N/A</td>
+          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
           <td>13.3.0</td>
-          <td>OCP 4.16 EOS December 27, 2025</td>
         </tr>
         <tr>
-          <td>v9-250109</td>
-          <td><a href="v9-250109-amd64/">amd64</a></td>
-          <td><a href="v9-250109-s390x/">s390x</a></td>
-          <td>N/A</td>
-          <td>4.14 - 4.16</td>
+          <td><span style="font-weight: bold">v9-250109</span><br/><a href="v9-250109-amd64/">amd64</a> | <a href="v9-250109-s390x/">s390x</a> | N/A</td>
+          <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
           <td>13.0.0</td>
-          <td>OCP 4.16 EOS December 27, 2025</td>
         </tr>
       </tbody>
     </table>
@@ -173,109 +246,96 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <thead>
     <tr>
     <th>Catalog</th>
-    <th>OCP Support</th>
-    <th>CPD Support</th>
-    <th>MongoDB Support (CE or EE)</th>
-    <th>Recommended CLI</th>
-    <th>Support Notes</th>
+    <th>OCP</th>
+    <th>CPD</th>
+    <th>MongoDB</th>
+    <th>CLI</th>
     </tr>
     </thead>
     <tbody>
     <tr>
-    <td><a href="v9-241205-amd64/">v9-241205-amd64</a>, <a href="v9-241205-s390x/">v9-241205-s390x</a></td>
-    <td>4.14 - 4.16</td>
+    <td><span style="font-weight: bold">v9-241205</span><br/><a href="v9-241205-amd64/">amd64</a> | <a href="v9-241205-s390x/">s390x</a></td>
+    <td><span style="font-weight: bold">4.14 - 4.16</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jun 27, 2026 ↗</a></td>
     <td>5.0.0</td>
     <td>6.0 - 7.0</td>
     <td>11.12.0</td>
-    <td>OCP 4.16 EOS December 27, 2025</td>
     </tr>
     <tr>
-    <td><a href="v9-241107-amd64/">v9-241107-amd64</a>, <a href="v9-241107-s390x/">v9-241107-s390x</a></td>
-    <td>4.12 - 4.15</td>
+    <td><span style="font-weight: bold">v9-241107</span><br/><a href="v9-241107-amd64/">amd64</a> | <a href="v9-241107-s390x/">s390x</a></td>
+    <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>6.0 - 7.0</td>
     <td>11.7.0</td>
-    <td>OCP 4.15 EOS August 27, 2025</td>
     </tr>
     <tr>
-    <td><a href="v9-241003-amd64/">v9-241003-amd64</a></td>
-    <td>4.12 - 4.15</td>
+    <td><a href="v9-241003-amd64/"><span style="font-weight: bold">v9-241003-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
     <td>13.0.0</td>
-    <td>OCP 4.15 EOS August 27, 2025</td>
     </tr>
     <tr>
-    <td><a href="v9-240827-amd64/">v9-240827-amd64</a></td>
-    <td>4.12 - 4.15</td>
+    <td><a href="v9-240827-amd64/"><span style="font-weight: bold">v9-240827-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
     <td>11.11.3</td>
-    <td>OCP 4.15 EOS August 27, 2025</td>
     </tr>
     <tr>
-    <td><a href="v9-240730-amd64/">v9-240730-amd64</a></td>
-    <td>4.12 - 4.15</td>
+    <td><a href="v9-240730-amd64/"><span style="font-weight: bold">v9-240730-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12 - 4.15</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 27, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
     <td>11.5.0</td>
-    <td>OCP 4.15 EOS August 27, 2025</td>
     </tr>
     <tr>
-    <td><a href="v9-240625-amd64/">v9-240625-amd64</a></td>
-    <td>4.12 - 4.14</td>
+    <td><a href="v9-240625-amd64/"><span style="font-weight: bold">v9-240625-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.8.0</td>
     <td>5.0 - 7.0</td>
     <td>10.9.2</td>
-    <td>OCP 4.14 EOS May 1, 2025</td>
     </tr>
     <tr>
-    <td><a href="v8-240528-amd64/">v8-240528-amd64</a></td>
-    <td>4.12 - 4.14</td>
+    <td><a href="v8-240528-amd64/"><span style="font-weight: bold">v8-240528-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
     <td>10.8.1</td>
-    <td>OCP 4.14 EOS May 1, 2025</td>
     </tr>
     <tr>
-    <td><a href="v8-240430-amd64/">v8-240430-amd64</a></td>
-    <td>4.12 - 4.14</td>
+    <td><a href="v8-240430-amd64/"><span style="font-weight: bold">v8-240430-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
     <td>9.4.0</td>
-    <td>OCP 4.14 EOS May 1, 2025</td>
     </tr>
     <tr>
-    <td><a href="v8-240405-amd64/">v8-240405-amd64</a></td>
-    <td>4.12 - 4.14</td>
+    <td><a href="v8-240405-amd64/"><span style="font-weight: bold">v8-240405-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
     <td>9.4.0</td>
-    <td>OCP 4.14 EOS May 1, 2025</td>
     </tr>
     <tr>
-    <td><a href="v8-240326-amd64/">v8-240326-amd64</a></td>
-    <td>4.12 - 4.14</td>
+    <td><a href="v8-240326-amd64/"><span style="font-weight: bold">v8-240326-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12 - 4.14</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 31, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
     <td>9.4.0</td>
-    <td>OCP 4.14 EOS May 1, 2025</td>
     </tr>
     <tr>
-    <td><a href="v8-240227-amd64/">v8-240227-amd64</a></td>
-    <td>4.12</td>
+    <td><a href="v8-240227-amd64/"><span style="font-weight: bold">v8-240227-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jan 17, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
     <td>8.2.2</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
     </tr>
     <tr>
-    <td><a href="v8-240130-amd64/">v8-240130-amd64</a></td>
-    <td>4.12</td>
+    <td><a href="v8-240130-amd64/"><span style="font-weight: bold">v8-240130-amd64</span></a></td>
+    <td><span style="font-weight: bold">4.12</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Jan 17, 2025 ↗</a></td>
     <td>4.6.6</td>
     <td>5.0 - 7.0</td>
     <td>8.2.2</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
     </tr>
     </tbody>
     </table>
@@ -285,8 +345,8 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <thead>
     <tr>
     <th>Catalog</th>
-    <th>OCP Support</th>
-    <th>Recommended CLI</th>
+    <th>OCP</th>
+    <th>CLI</th>
     <th>Support Notes</th>
     </tr>
     </thead>
@@ -295,61 +355,61 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <td><a href="v8-231228-amd64/">v8-231228-amd64</a></td>
     <td>4.11 - 4.12</td>
     <td>8.2.2</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-231128-amd64/">v8-231128-amd64</a></td>
     <td>4.11 - 4.12</td>
     <td>8.2.2</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-231031-amd64/">v8-231031-amd64</a></td>
     <td>4.11 - 4.12</td>
     <td>7.12.1</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-231004-amd64/">v8-231004-amd64</a></td>
     <td>4.11 - 4.12</td>
     <td>7.12.1</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230926-amd64/">v8-230926-amd64</a></td>
     <td>4.11 - 4.12</td>
     <td>7.12.1</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230829-amd64/">v8-230829-amd64</a></td>
     <td>4.10 - 4.12</td>
     <td>7.12.1</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230725-amd64/">v8-230725-amd64</a></td>
     <td>4.10 - 4.12</td>
     <td>7.12.1</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230721-amd64/">v8-230721-amd64</a></td>
     <td>4.10 - 4.12</td>
     <td>7.12.1</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230627-amd64/">v8-230627-amd64</a></td>
     <td>4.10 - 4.12</td>
     <td>5.5.0</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230616-amd64/">v8-230616-amd64</a></td>
     <td>4.10 - 4.12</td>
     <td>5.5.0</td>
-    <td>OCP 4.12 EOS July 17, 2024</td>
+    <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-230526-amd64/">v8-230526-amd64</a></td>
@@ -395,8 +455,8 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <thead>
     <tr>
     <th>Catalog</th>
-    <th>OCP Support</th>
-    <th>Recommended CLI</th>
+    <th>OCP</th>
+    <th>CLI</th>
     <th>Support Notes</th>
     </tr>
     </thead>
@@ -451,7 +511,7 @@ The packages available in the Maximo Operator Catalog are fixed. Multiple instal
 
 We **strongly discourage the use of manual update approval strategy for operator subscriptions** and all IBM-provided automation is designed to work with the automatic update approval strategy only.  In our experience the use of manual subscription approvals leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. We promote a model of **controling when updates are introduced to a cluster at the catalog level**.
 
-Updating the operators is only one aspect of keeping a system up to date, when using the MAS CLI [update](../commands/update.md) function many other additional actions will be performed autoamtically, if you are not using the MAS CLI to drive updates then you should implement your own processes for the non-operator update actions that are part of the MAS update pipeline.
+Updating the operators is only one aspect of keeping a system up to date, when using the MAS CLI [update](../guides/update.md) function many other additional actions will be performed autoamtically, if you are not using the MAS CLI to drive updates then you should implement your own processes for the non-operator update actions that are part of the MAS update pipeline.
 
 #### Repeatable Install
 > I want repeatable installs across multiple OpenShift clusters, for instance in a development, staging, production setup
@@ -461,7 +521,7 @@ The packages available in these catalogs are fixed. Multiple installations at di
 #### Disconnected Install
 > I want to run a disconnected environment using a private mirror registry
 
-The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../commands/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
+The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../guides/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
 
 
 ### Dynamic Catalog

@@ -11,6 +11,10 @@ spec:
     - name: ibm_entitlement_key
       type: string
       default: ""
+    - name: db2_license_file
+      type: string
+      description: Db2 activation license file
+      default: ""
 
     # Db2u Operator
     - name: db2_channel
@@ -49,6 +53,9 @@ spec:
       type: string
       default: ""
     - name: db2_table_org
+      type: string
+      default: ""
+    - name: db2u_kind
       type: string
       default: ""
 
@@ -145,6 +152,10 @@ spec:
       default: ""
 
     # JDBCCfg
+    - name: mas_config_dir
+      type: string
+      description: config directory path
+      default: "/workspace/configs"
     - name: mas_config_scope
       type: string
       default: ""
@@ -165,6 +176,49 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    # Other Db2 parameters
+    - name: db2_v12_upgrade
+      type: string
+      description: Approves the Db2 upgrade to version 12 if needed
+      default: ""
+    # Backup/Restore specific parameters
+    - name: db2_backup_version
+      type: string
+      description: Optional. Version/timestamp for the backup
+      default: ""
+    - name: mas_backup_dir
+      type: string
+      description: Directory to store backup files
+      default: ""
+    - name: backup_type
+      type: string
+      description: Type of backup (online or offline)
+      default: ""
+    - name: override_storageclass
+      type: string
+      description: Override database (Db2) PVC storageclass during restore
+      default: "false"
+    - name: backup_vendor
+      type: string
+      description: Storage backend for database backup files (disk or s3)
+      default: ""
+    - name: backup_s3_endpoint
+      type: string
+      description: S3 endpoint URL for backups
+      default: ""
+    - name: backup_s3_bucket
+      type: string
+      description: S3 bucket name for backups
+      default: ""
+    - name: backup_s3_access_key
+      type: string
+      description: S3 access key for backups
+      default: ""
+    - name: backup_s3_secret_key
+      type: string
+      description: S3 secret key for backups
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -172,6 +226,8 @@ spec:
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
+      - name: DB2_LICENSE_FILE
+        value: $(params.db2_license_file)
 
       # Db2u Operator
       - name: DB2_CHANNEL
@@ -198,6 +254,8 @@ spec:
         value: $(params.db2_4k_device_support)
       - name: DB2_TABLE_ORG
         value: $(params.db2_table_org)
+      - name: DB2U_KIND
+        value: $(params.db2u_kind)
 
       # Db2 - Node Scheduling
       - name: DB2_AFFINITY_KEY
@@ -267,7 +325,7 @@ spec:
 
       # MAS - JdbcCfg
       - name: MAS_CONFIG_DIR
-        value: /workspace/configs
+        value: $(params.mas_config_dir)
       - name: MAS_CONFIG_SCOPE
         value: $(params.mas_config_scope)
       - name: MAS_INSTANCE_ID
@@ -280,15 +338,43 @@ spec:
       # Custom labels support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+
+      # Other parameters
+      - name: DB2_V12_UPGRADE
+        value: $(params.db2_v12_upgrade)
+
+      # Backup/Restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: DB2_BACKUP_VERSION
+        value: $(params.db2_backup_version)
+      - name: DB2_BACKUP_TYPE
+        value: $(params.backup_type)
+      - name: BACKUP_VENDOR
+        value: $(params.backup_vendor)
+      - name: BACKUP_S3_ENDPOINT
+        value: $(params.backup_s3_endpoint)
+      - name: BACKUP_S3_BUCKET
+        value: $(params.backup_s3_bucket)
+      - name: BACKUP_S3_ACCESS_KEY
+        value: $(params.backup_s3_access_key)
+      - name: BACKUP_S3_SECRET_KEY
+        value: $(params.backup_s3_secret_key)
+      - name: OVERRIDE_STORAGECLASS
+        value: $(params.override_storageclass)
   steps:
     - name: db2
       command:
         - /opt/app-root/src/run-role.sh
         - db2
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
-      workingDir: /workspace/configs
+      workingDir: $(params.mas_config_dir)
 
   workspaces:
     - name: configs
+      optional: true
+    - name: backups
+      optional: true
+    - name: db2
       optional: true

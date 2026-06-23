@@ -14,6 +14,7 @@
     mas_app_channel_manage: "{{ lookup('env', 'MAS_APP_CHANNEL_MANAGE') }}"
     mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
     mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
+    mas_appws_components: "{{ lookup('env', 'MANAGE_COMPONENTS') }}"
 
     # Black and white listing
     fvt_blacklist: "{{ lookup('env', 'FVT_BLACKLIST') }}"
@@ -26,7 +27,7 @@
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-mobile-pytest', True) }}-{{ devops_build_number }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
-    
+    service_account_name: "{{ lookup('env', 'SERVICE_ACCOUNT_NAME') | default('pipeline', True) }}"
   tasks:
     - name: "Debug"
       debug:
@@ -38,6 +39,7 @@
           - "mas_app_channel_manage ................... {{ mas_app_channel_manage }}"
           - "mas_instance_id .......................... {{ mas_instance_id }}"
           - "mas_workspace_id ......................... {{ mas_workspace_id }}"
+          - "mas_appws_components ..................... {{ mas_appws_components }}"
           - ""
           - "fvt_image_registry ....................... {{ fvt_image_registry }}"
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"

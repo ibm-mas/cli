@@ -1,44 +1,84 @@
-#!/bin/bash
-
-.PHONY: ansible-build ansible-install ansible python python-devops python-cli tekton docker run clean create delete exec
-
 .DEFAULT_GOAL := all
 
-ansible-build:
-	ansible-galaxy collection build --output-path image/cli/install ../ansible-devops/ibm/mas_devops --force
-	mv image/cli/install/ibm-mas_devops-100.0.0.tar.gz image/cli/install/ibm-mas_devops.tar.gz
-ansible-install:
-	ansible-galaxy collection install image/cli/install/ibm-mas_devops.tar.gz --force --no-deps
-ansible: ansible-build ansible-install
+# Set TEST=no to skip tests, e.g.: make python TEST=no
+# Set CLEAN=no to skip clean, e.g.: make python CLEAN=no
+TEST ?= yes
+CLEAN ?= yes
 
-python-cli:
-	cd python && python -m build
-	cp python/dist/mas_cli-100.0.0.tar.gz image/cli/install/mas_cli.tar.gz
 
-python-devops:
-	cd ../python-devops && make install build
-	cp ../python-devops/dist/mas_devops-100.0.0.tar.gz image/cli/install/mas_devops.tar.gz
+# Clean everything
+# -----------------------------------------------------------------------------
+.PHONY: clean
+clean: clean-python clean-tekton
 
-python: python-devops python-cli
 
-tekton:
+# Build everything
+# -----------------------------------------------------------------------------
+.PHONY: all
+all: python tekton
+
+
+# Python Package
+# -----------------------------------------------------------------------------
+.PHONY: clean-python
+clean-python:
+ifeq ($(CLEAN),yes)
+	rm -rf dist
+endif
+
+.PHONY: python
+python: clean-python pytest dist/mas_cli-100.0.0.tar.gz
+
+.PHONY: pytest
+pytest:
+ifeq ($(TEST),yes)
+	.venv/bin/pytest python/tests
+endif
+
+dist/mas_cli-100.0.0.tar.gz:
+	.venv/bin/python -m build
+
+
+# Python Package Documentation
+# -----------------------------------------------------------------------------
+.venv-docs:
+# We need to install the python-devops and cli packages because we generate documentation from their code using mkdocs directives
+	uv venv .venv-docs
+	uv pip install --python .venv-docs/bin/python setuptools
+	uv pip install --python .venv-docs/bin/python -e ../python-devops -e .
+# Install mkdocs and the various plugins that we use, including our custom plugins
+	uv pip install --python .venv-docs/bin/python -q mkdocs properdocs mkdocs-carbon mkdocs-glightbox mkdocs-redirects
+	uv pip install --python .venv-docs/bin/python -e ./mkdocs_plugins
+
+.PHONY: mkdocs-serve
+mkdocs-serve: .venv-docs
+	.venv-docs/bin/mkdocs serve --livereload --dev-addr localhost:9010
+
+
+# Tekton Definitions
+# -----------------------------------------------------------------------------
+.PHONY: tekton
+tekton: clean-tekton tekton/target pytest-tekton
+
+.PHONY: clean-tekton
+clean-tekton:
+ifeq ($(CLEAN),yes)
+	rm -rf tekton/target
+	rm -f python/src/mas/cli/templates/ibm-mas-tekton.yaml
+endif
+
+tekton/target:
 	DEV_MODE=true build/bin/build-tekton.sh
 
-docker:
-	docker build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
+.PHONY: pytest-tekton
+pytest-tekton:
+ifeq ($(TEST),yes)
+	.venv/bin/pytest tekton/test_schema.py -v
+endif
 
-all: ansible python tekton docker
 
+# Development aid
+# -----------------------------------------------------------------------------
+.PHONY: run
 run:
-	docker run -ti quay.io/ibmmas/cli:100.0.0-pre.local
-
-clean:
-	rm image/cli/install/ibm-mas_devops.tar.gz
-	rm image/cli/bin/templates/ibm-mas-tekton.yaml
-
-create:
-	oc apply -f tmp/deployment.yaml
-delete:
-	oc delete pod $(shell oc get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}")
-exec:
-	oc exec -ti $(shell oc get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}") -- bash
+	podman run --rm -it -e IBM_ENTITLEMENT_KEY --pull Always quay.io/ibmmas/cli:master bash

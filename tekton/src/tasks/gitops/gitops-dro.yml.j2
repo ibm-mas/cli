@@ -28,7 +28,7 @@ spec:
       type: string
     - name: dro_cmm_setup
       type: string
-      default: false
+      default: "false"
     - name: dro_cmm_auth_url
       type: string
       default: ""
@@ -41,6 +41,12 @@ spec:
     - name: imo_install_plan
       type: string
       default: "Automatic"
+    - name: dro_public_domain
+      type: string
+      default: ""
+    - name: dro_cis_crn
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-dro
     env:
@@ -74,6 +80,10 @@ spec:
         value: $(params.dro_install_plan)
       - name: IMO_INSTALL_PLAN
         value: $(params.imo_install_plan)
+      - name: DRO_PUBLIC_DOMAIN
+        value: $(params.dro_public_domain)
+      - name: DRO_CIS_CRN
+        value: $(params.dro_cis_crn)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -103,6 +113,6 @@ spec:
         - -c
       name: gitops-dro
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

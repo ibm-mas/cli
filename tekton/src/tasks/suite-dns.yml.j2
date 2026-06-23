@@ -22,6 +22,12 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
+    - name: mas_channel
+      type: string
+      default: ""
+    - name: ocp_ingress
+      type: string
+      default: ""
 
     # Cloudflare support
     - name: cloudflare_email
@@ -91,6 +97,12 @@ spec:
       description: Optional boolean parameter that when set to True, indicates that manually created certificates will be used to certify MAS and application routes
       default: ""
 
+    # MAS Routing Mode
+    - name: mas_routing_mode
+      type: string
+      description: Optional string parameter, either path or subdomain, defines the network routing mode used for the suite.
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -102,10 +114,14 @@ spec:
         value: $(params.mas_instance_id)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
       - name: MAS_DOMAIN
         value: $(params.mas_domain)
+      - name: OCP_INGRESS
+        value: $(params.ocp_ingress)
 
       - name: CLOUDFLARE_EMAIL
         value: $(params.cloudflare_email)
@@ -147,11 +163,13 @@ spec:
         value: $(route53_subdomain)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
+      - name: MAS_ROUTING_MODE
+        value: $(params.mas_routing_mode)
 
   steps:
     - name: suite-dns
       command:
         - /opt/app-root/src/run-role.sh
         - suite_dns
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)

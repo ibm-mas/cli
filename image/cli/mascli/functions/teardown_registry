@@ -1,21 +1,104 @@
 #!/bin/bash
 
-function teardown_mirror_registry() {
+function teardown_mirror_registry_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas teardown-registry [options]
+
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Registry Cluster Configuration (Required)
+  -n, --namespace ${COLOR_YELLOW}REGISTRY_NAMESPACE${TEXT_RESET}                  Mirror registry namespace (default is airgap-registry)
+
+Other Commands:
+      --no-confirm                                    Setup private registry without confirmation
+  -h, --help                                          Show this help message                                                                    
+
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function teardown_mirror_registry_interactive() {
+  connect
+  
   echo
   echo_h2 "Configure Registry Tear Down"
 
   prompt_for_input "Registry Namespace" REGISTRY_NAMESPACE "airgap-registry" && export REGISTRY_NAMESPACE
   export REGISTRY_ACTION=tear-down
+}
 
-  echo
-
-  prompt_for_confirm "Proceed with these settings" || exit 0
-  echo
+function teardown_mirror_registry_non_interactive() {
+  # Default variables
+  if [[ -z "$REGISTRY_NAMESPACE" ]]; then
+    REGISTRY_NAMESPACE=airgap-registry
+  fi
   
-  prompt_for_confirm "Are you sure you want to permanently delete the registry, all registry data, and the $REGISTRY_NAMESPACE project?" || exit 0
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -n|--namespace)
+        REGISTRY_NAMESPACE=$1 && shift
+        ;;
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        teardown_mirror_registry_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
+        teardown_mirror_registry_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Verify connection with cluster
+  oc whoami &> $LOGFILE
+  if [ $? != "0" ]; then
+    echo -e "${COLOR_RED}Usage Error: Unable to establish connection with the cluster. Please, run oc login and connect with the cluster. ${TEXT_RESET}\n"
+  fi
+}
+
+teardown_mirror_registry() {
+  shift
+  if [[ $# -gt 0 ]]; then
+    teardown_mirror_registry_non_interactive "$@"
+  else
+    teardown_mirror_registry_interactive
+  fi
+
+  [[ -z "$REGISTRY_NAMESPACE" ]] && teardown_mirror_registry_help "REGISTRY_NAMESPACE is not set"
+
+  # Ensure that the variables are exported
+  export REGISTRY_NAMESPACE
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+  echo "${TEXT_DIM}"
+  echo_h3 "Registry Cluster Configuration " "    "
+  echo_reset_dim "Registry namespace ............................. ${COLOR_MAGENTA}${REGISTRY_NAMESPACE}"
+
+  echo
+  reset_colors
+
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+    echo
+    prompt_for_confirm "Are you sure you want to permanently delete the registry, all registry data, and the $REGISTRY_NAMESPACE project?" || exit 0
+  fi
 
   echo
   echo_h2 "Run Registry Tear Down"
   export ROLE_NAME=registry 
   ansible-playbook ibm.mas_devops.run_role
+
 }

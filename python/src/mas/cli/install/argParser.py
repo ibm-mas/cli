@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -13,9 +13,36 @@ from os import path
 
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
+from .facilities.agents import facilitiesAgents, facilitiesAgentsDeploymentModes
+
+# Constants for argument choices
+DNS_PROVIDERS = ["cloudflare", "cis", "route53"]
+STORAGE_ACCESS_MODES = ["ReadWriteMany", "ReadWriteOnce"]
+KAFKA_PROVIDERS = ["strimzi", "redhat", "ibm", "aws"]
+DB2_TYPES = ["db2wh", "db2oltp"]
+TAINT_EFFECTS = ["NoSchedule", "PreferNoSchedule", "NoExecute"]
+UPGRADE_TYPES = ["regularUpgrade", "onlineUpgrade"]
+ATTACHMENT_PROVIDERS = ["filestorage", "ibm", "aws"]
+ATTACHMENT_MODES = ["cr", "db"]
+FACILITIES_SIZES = ["small", "medium", "large"]
+FACILITIES_APPOMUPGRADEMODE = ["manual", "load-only", "automatic"]
+IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
 
 
-def isValidFile(parser, arg) -> str:
+def isValidFile(parser: argparse.ArgumentParser, arg: str) -> str:
+    """
+    Validate that a file exists at the given path.
+
+    Args:
+        parser: The ArgumentParser instance for error reporting
+        arg: The file path to validate
+
+    Returns:
+        The validated file path
+
+    Raises:
+        ArgumentParser.error: If the file does not exist
+    """
     if not path.exists(arg):
         parser.error(f"Error: The file {arg} does not exist")
     else:
@@ -24,132 +51,86 @@ def isValidFile(parser, arg) -> str:
 
 installArgParser = argparse.ArgumentParser(
     prog="mas install",
-    description="\n".join([
-        f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Install MAS by configuring and launching the MAS Uninstall Tekton Pipeline.\n",
-        "Interactive Mode:",
-        "Omitting the --instance-id option will trigger an interactive prompt"
-    ]),
+    description="\n".join(
+        [
+            f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
+            "Install MAS by configuring and launching the MAS Uninstall Tekton Pipeline.\n",
+            "Interactive Mode:",
+            "Omitting the --instance-id option will trigger an interactive prompt",
+        ]
+    ),
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
-    add_help=False
+    add_help=False,
 )
 
 # MAS Catalog Selection & Entitlement
 # -----------------------------------------------------------------------------
-catArgGroup = installArgParser.add_argument_group("MAS Catalog Selection & Entitlement")
+catArgGroup = installArgParser.add_argument_group(
+    "MAS Catalog Selection & Entitlement",
+    "Configure which IBM Maximo Operator Catalog to install and provide your IBM entitlement key for access to container images.",
+)
 catArgGroup.add_argument(
-    "-c", "--mas-catalog-version",
+    "-c",
+    "--mas-catalog-version",
     required=False,
-    help="IBM Maximo Operator Catalog to install"
+    help="IBM Maximo Operator Catalog to install",
 )
 catArgGroup.add_argument(
     "--mas-catalog-digest",
     required=False,
-    help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources"
+    help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources",
 )
-catArgGroup.add_argument(
-    "--ibm-entitlement-key",
-    required=False,
-    help="IBM entitlement key"
-)
+catArgGroup.add_argument("--ibm-entitlement-key", required=False, help="IBM entitlement key")
 
-# MAS Basic Configuration
+# Basic Configuration
 # -----------------------------------------------------------------------------
-masArgGroup = installArgParser.add_argument_group("MAS Basic Configuration")
+masArgGroup = installArgParser.add_argument_group(
+    "Basic Configuration",
+    "Core configuration options for your MAS instance including instance ID, workspace settings, subscription channels, and user settings.",
+)
+masArgGroup.add_argument("-i", "--mas-instance-id", required=False, help="MAS Instance ID")
+masArgGroup.add_argument("-w", "--mas-workspace-id", required=False, help="MAS Workspace ID")
+masArgGroup.add_argument("-W", "--mas-workspace-name", required=False, help="MAS Workspace Name")
+masArgGroup.add_argument("--mas-channel", required=False, help="Subscription channel for the Core Platform")
+masArgGroup.add_argument("--aiservice-instance-id", required=False, help="AI Service Instance ID")
 masArgGroup.add_argument(
-    "-i", "--mas-instance-id",
+    "--configure-ai-assistant",
+    dest="configure_aiassistant",
     required=False,
-    help="MAS Instance ID"
+    help="Configure AI Assistant in silent mode (for example: pipeline, configure, none)",
 )
 masArgGroup.add_argument(
-    "-w", "--mas-workspace-id",
-    required=False,
-    help="MAS Workspace ID"
-)
-masArgGroup.add_argument(
-    "-W", "--mas-workspace-name",
-    required=False,
-    help="MAS Workspace Name"
-)
-masArgGroup.add_argument(
-    "--mas-channel",
-    required=False,
-    help="Subscription channel for the Core Platform"
-)
-# MAS Special characters
-# -----------------------------------------------------------------------------
-masSpecialCharacters = installArgParser.add_argument_group("Mas Special Characters")
-masSpecialCharacters.add_argument(
     "--allow-special-chars",
     dest="mas_special_characters",
     required=False,
-    help="Allow special chars for users username/ID",
-    action="store_true"
-)
-# ECK Integration
-# -----------------------------------------------------------------------------
-eckArgGroup = installArgParser.add_argument_group("ECK Integration")
-eckArgGroup.add_argument(
-    "--eck",
-    dest="eck_action",
-    required=False,
-    help="",
-    action="store_const",
-    const="install"
-)
-eckArgGroup.add_argument(
-    "--eck-enable-logstash",
-    required=False,
-    help="",
-    action="store_true"
-)
-eckArgGroup.add_argument(
-    "--eck-remote-es-hosts",
-    required=False,
-    help=""
-)
-eckArgGroup.add_argument(
-    "--eck-remote-es-username",
-    required=False,
-    help=""
-)
-eckArgGroup.add_argument(
-    "--eck-remote-es-password",
-    required=False,
-    help=""
+    help="Allow special characters for user username/ID",
+    action="store_true",
 )
 
-# MAS Advanced Configuration
+# Advanced Configuration
 # -----------------------------------------------------------------------------
-masAdvancedArgGroup = installArgParser.add_argument_group("MAS Advanced Configuration")
-masAdvancedArgGroup.add_argument(
-    "--superuser-username",
-    dest="mas_superuser_username",
-    required=False,
-    help=""
+masAdvancedArgGroup = installArgParser.add_argument_group(
+    "Advanced Configuration",
+    "Advanced configuration options for MAS including DNS providers, certificates, domain settings, and IPv6 support.",
 )
-masAdvancedArgGroup.add_argument(
-    "--superuser-password",
-    dest="mas_superuser_password",
-    required=False,
-    help=""
-)
+masAdvancedArgGroup.add_argument("--superuser-username", dest="mas_superuser_username", required=False, help="")
+masAdvancedArgGroup.add_argument("--superuser-password", dest="mas_superuser_password", required=False, help="")
 masAdvancedArgGroup.add_argument(
     "--additional-configs",
     required=False,
-    help="Path to a directory containing additional configuration files to be applied"
+    help="Path to a directory containing additional configuration files to be applied",
 )
 masAdvancedArgGroup.add_argument(
     "--pod-templates",
     required=False,
-    help="Path to directory containing custom podTemplates configuration files to be applied"
+    help="Pod templates to apply. Use 'guaranteed' or 'best-effort' for built-in templates, or provide a path to a directory containing custom podTemplates configuration files",
 )
 masAdvancedArgGroup.add_argument(
     "--non-prod",
     required=False,
     help="Install MAS in non-production mode",
-    action="store_true"
+    action="store_true",
 )
 masAdvancedArgGroup.add_argument(
     "--disable-ca-trust",
@@ -157,18 +138,54 @@ masAdvancedArgGroup.add_argument(
     required=False,
     help="Disable built-in trust of well-known CAs",
     action="store_const",
-    const="false"
+    const="false",
+)
+masAdvancedArgGroup.add_argument(
+    "--routing",
+    dest="mas_routing_mode",
+    required=False,
+    help="Configure MAS with path or subdomain routing",
+    choices=["path", "subdomain"],
+)
+masAdvancedArgGroup.add_argument(
+    "--configure-ingress",
+    dest="mas_configure_ingress",
+    required=False,
+    action="store_true",
+    help="Automatically configure IngressController to allow InterNamespaceAllowed for path-based routing",
+)
+masAdvancedArgGroup.add_argument(
+    "--ingress-controller-name",
+    dest="mas_ingress_controller_name",
+    required=False,
+    help="Name of the IngressController to use for path-based routing (default: 'default')",
+)
+masAdvancedArgGroup.add_argument(
+    "--servicemesh",
+    dest="mas_use_service_mesh",
+    required=False,
+    help="Configure MAS to use Service Mesh networking (default: false)",
+    choices=["true", "false"],
+)
+masAdvancedArgGroup.add_argument(
+    "--manual-routes",
+    dest="mas_manual_route_mgmt",
+    required=False,
+    action="store_const",
+    const="true",
+    default="false",
+    help="Disable automatic creation of routes.",
 )
 masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
-    help="Path to directory containing the certificates to be applied"
+    help="Path to directory containing the certificates to be applied",
 )
 masAdvancedArgGroup.add_argument(
     "--domain",
     dest="mas_domain",
     required=False,
-    help="Configure MAS with a custom domain"
+    help="Configure MAS with a custom domain",
 )
 masAdvancedArgGroup.add_argument(
     "--disable-walkme",
@@ -176,15 +193,47 @@ masAdvancedArgGroup.add_argument(
     required=False,
     help="Disable MAS guided tour",
     action="store_const",
-    const="false"
+    const="false",
+)
+masAdvancedArgGroup.add_argument(
+    "--disable-feature-usage",
+    dest="mas_feature_usage",
+    required=False,
+    help="Disable feature adoption metrics reporting",
+    action="store_const",
+    const="false",
+)
+masAdvancedArgGroup.add_argument(
+    "--disable-deployment-progression",
+    dest="mas_deployment_progression",
+    required=False,
+    help="Disable deployment progression metrics reporting",
+    action="store_const",
+    const="false",
+)
+masAdvancedArgGroup.add_argument(
+    "--disable-usability-metrics",
+    dest="mas_usability_metrics",
+    required=False,
+    help="Disable usability metrics reporting",
+    action="store_const",
+    const="false",
 )
 
 masAdvancedArgGroup.add_argument(
     "--dns-provider",
     dest="dns_provider",
     required=False,
-    help="Enable Automatic DNS management (see DNS Configuration options)",
-    choices=["cloudflare", "cis", "route53"]
+    help="Enable automatic DNS management (see DNS Configuration options)",
+    choices=DNS_PROVIDERS,
+    metavar="{cloudflare,cis,route53}",
+)
+
+masAdvancedArgGroup.add_argument(
+    "--ocp-ingress",
+    dest="ocp_ingress",
+    required=False,
+    help="Overwrites Ingress Domain",
 )
 
 masAdvancedArgGroup.add_argument(
@@ -195,204 +244,270 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
+    "--mas-issuer-kind",
+    dest="mas_issuer_kind",
+    required=False,
+    choices=["Issuer", "ClusterIssuer"],
+    help="Specify the certificate issuer kind to configure Mas Certificate",
+)
+
+masAdvancedArgGroup.add_argument(
     "--enable-ipv6",
     dest="enable_ipv6",
     required=False,
     help="Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6",
     action="store_const",
-    const="true"
+    const="true",
 )
 
-# DNS Configuration - IBM CIS
+masAdvancedArgGroup.add_argument(
+    "--admin-mode",
+    dest="mas_admin_mode",
+    required=False,
+    help="Admin mode for MAS installation: 'cluster' (with ClusterRoles, default), 'namespaced' (without ClusterRoles, limited to pre-created namespaces), 'minimal' (essential roles only, no app lifecycle management)",
+    choices=["cluster", "namespaced", "minimal"],
+    default=None,
+)
+
+# DNS Integration - IBM CIS
 # -----------------------------------------------------------------------------
-cisArgGroup = installArgParser.add_argument_group("DNS Configuration - CIS")
+cisArgGroup = installArgParser.add_argument_group("DNS Integration - CIS")
 cisArgGroup.add_argument(
     "--cis-email",
     dest="cis_email",
     required=False,
-    help="Required when DNS provider is CIS and you want to use a Let's Encrypt ClusterIssuer"
+    help="Required when DNS provider is CIS and you want to use a Let's Encrypt ClusterIssuer",
 )
 cisArgGroup.add_argument(
     "--cis-apikey",
     dest="cis_apikey",
     required=False,
-    help="Required when DNS provider is CIS"
+    help="Required when DNS provider is CIS",
 )
 cisArgGroup.add_argument(
     "--cis-crn",
     dest="cis_crn",
     required=False,
-    help="Required when DNS provider is CIS"
+    help="Required when DNS provider is CIS",
 )
 cisArgGroup.add_argument(
     "--cis-subdomain",
     dest="cis_subdomain",
     required=False,
-    help="Optionally setup MAS instance as a subdomain under a multi-tenant CIS DNS record"
+    help="Optionally setup MAS instance as a subdomain under a multi-tenant CIS DNS record",
+)
+
+# DNS Integration - CloudFlare
+# -----------------------------------------------------------------------------
+cloudFlareArgGroup = installArgParser.add_argument_group(
+    "DNS Integration - CloudFlare",
+    "Configuration options for Cloudflare DNS provider, including API credentials, zone, and subdomain settings.",
+)
+cloudFlareArgGroup.add_argument(
+    "--cloudflare-email",
+    dest="cloudflare_email",
+    required=False,
+    help="Required when DNS provider is Cloudflare",
+)
+cloudFlareArgGroup.add_argument(
+    "--cloudflare-apitoken",
+    dest="cloudflare_apitoken",
+    required=False,
+    help="Required when DNS provider is Cloudflare",
+)
+cloudFlareArgGroup.add_argument(
+    "--cloudflare-zone",
+    dest="cloudflare_zone",
+    required=False,
+    help="Required when DNS provider is Cloudflare",
+)
+cloudFlareArgGroup.add_argument(
+    "--cloudflare-subdomain",
+    dest="cloudflare_subdomain",
+    required=False,
+    help="Required when DNS provider is Cloudflare",
 )
 
 # Storage
 # -----------------------------------------------------------------------------
-storageArgGroup = installArgParser.add_argument_group("Storage")
+storageArgGroup = installArgParser.add_argument_group(
+    "Storage",
+    "Configure storage classes for ReadWriteOnce (RWO) and ReadWriteMany (RWX) volumes, and pipeline storage settings.",
+)
 storageArgGroup.add_argument(
     "--storage-class-rwo",
     required=False,
-    help="ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)"
+    help="ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)",
 )
 storageArgGroup.add_argument(
     "--storage-class-rwx",
     required=False,
-    help="ReadWriteMany (RWX) storage class (e.g. ibmc-file-gold-gid)"
+    help="ReadWriteMany (RWX) storage class (e.g. ibmc-file-gold-gid)",
 )
 storageArgGroup.add_argument(
     "--storage-pipeline",
     required=False,
-    help="Install pipeline storage class (e.g. ibmc-file-gold-gid)"
+    help="Install pipeline storage class (e.g. ibmc-file-gold-gid)",
 )
 storageArgGroup.add_argument(
     "--storage-accessmode",
     required=False,
-    help="Install pipeline storage class access mode (ReadWriteMany or ReadWriteOnce)",
-    choices=["ReadWriteMany", "ReadWriteOnce"]
+    help="Install pipeline storage class access mode",
+    choices=STORAGE_ACCESS_MODES,
+    metavar="{ReadWriteMany,ReadWriteOnce}",
 )
 
 # IBM Suite License Service
 # -----------------------------------------------------------------------------
-slsArgGroup = installArgParser.add_argument_group("IBM Suite License Service")
+slsArgGroup = installArgParser.add_argument_group(
+    "IBM Suite License Service",
+    "Configure IBM Suite License Service (SLS) including license file location, namespace, and subscription channel.",
+)
 slsArgGroup.add_argument(
     "--license-file",
     required=False,
     help="Path to MAS license file",
-    type=lambda x: isValidFile(installArgParser, x)
+    type=lambda x: isValidFile(installArgParser, x),
 )
 slsArgGroup.add_argument(
     "--sls-namespace",
     required=False,
     help="Customize the SLS install namespace",
-    default="ibm-sls"
+    default="ibm-sls",
 )
 slsArgGroup.add_argument(
     "--dedicated-sls",
     action="store_true",
     default=False,
-    help="Set the SLS namespace to mas-<instanceid>-sls"
+    help="Set the SLS namespace to mas-<instanceid>-sls",
+)
+slsArgGroup.add_argument(
+    "--sls-channel",
+    required=False,
+    help="Customize the SLS channel when in development mode",
 )
 
-# IBM Data Reporting Operator (DRO)
+# IBM Data Reporting Operator
 # -----------------------------------------------------------------------------
-droArgGroup = installArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
+droArgGroup = installArgParser.add_argument_group(
+    "IBM Data Reporting Operator",
+    "Configure IBM Data Reporting Operator (DRO) with contact information and namespace settings for usage data collection.",
+)
 droArgGroup.add_argument(
+    "--contact-email",
     "--uds-email",
-    dest="uds_contact_email",
+    dest="dro_contact_email",
     required=False,
-    help="Contact e-mail address"
+    help="Contact e-mail address",
 )
 droArgGroup.add_argument(
+    "--contact-firstname",
     "--uds-firstname",
-    dest="uds_contact_firstname",
+    dest="dro_contact_firstname",
     required=False,
-    help="Contact first name"
+    help="Contact first name",
 )
 droArgGroup.add_argument(
+    "--contact-lastname",
     "--uds-lastname",
-    dest="uds_contact_lastname",
+    dest="dro_contact_lastname",
     required=False,
-    help="Contact last name"
+    help="Contact last name",
 )
-droArgGroup.add_argument(
-    "--dro-namespace",
-    required=False,
-    help=""
-)
+droArgGroup.add_argument("--dro-namespace", required=False, help="Namespace for DRO")
 
-# MongoDb Community Operator
+# MongoDB Community Operator
 # -----------------------------------------------------------------------------
-mongoArgGroup = installArgParser.add_argument_group("MongoDb Community Operator")
+mongoArgGroup = installArgParser.add_argument_group(
+    "MongoDB Community Operator",
+    "Configure the namespace for MongoDB Community Operator deployment.",
+)
 mongoArgGroup.add_argument(
     "--mongodb-namespace",
     required=False,
-    help=""
+    help="Namespace for MongoDB Community Operator",
 )
 
 # OCP Configuration
 # -----------------------------------------------------------------------------
-ocpArgGroup = installArgParser.add_argument_group("OCP Configuration")
+ocpArgGroup = installArgParser.add_argument_group(
+    "OCP Configuration",
+    "OpenShift Container Platform specific configuration including ingress certificate settings.",
+)
 ocpArgGroup.add_argument(
     "--ocp-ingress-tls-secret-name",
     required=False,
-    help="Name of the secret holding the cluster's ingress certificates"
+    help="Name of the secret holding the cluster's ingress certificates",
+)
+
+# Grafana
+# -----------------------------------------------------------------------------
+grafanaArgGroup = installArgParser.add_argument_group("Grafana", "Configure Grafana installation, namespace and storage size.")
+grafanaArgGroup.add_argument(
+    "--skip-grafana-install",
+    required=False,
+    action="store_true",
+    help="Skip Grafana installation",
+)
+grafanaArgGroup.add_argument(
+    "--grafana-v5-namespace",
+    required=False,
+    help="Customize the Grafana namespace",
+    default="grafana5",
+)
+grafanaArgGroup.add_argument(
+    "--grafana-instance-storage-size",
+    required=False,
+    help="Customize the Grafana storage size",
+    default="10Gi",
 )
 
 # MAS Applications
 # -----------------------------------------------------------------------------
-masAppsArgGroup = installArgParser.add_argument_group("MAS Applications")
-masAppsArgGroup.add_argument(
-    "--assist-channel",
-    required=False,
-    help="Subscription channel for Maximo Assist"
+masAppsArgGroup = installArgParser.add_argument_group(
+    "MAS Applications",
+    "Configure subscription channels for MAS applications including Assist, IoT, Monitor, Optimizer, Predict, and Visual Inspection.",
 )
-masAppsArgGroup.add_argument(
-    "--iot-channel",
-    required=False,
-    help="Subscription channel for Maximo IoT"
-)
-masAppsArgGroup.add_argument(
-    "--monitor-channel",
-    required=False,
-    help="Subscription channel for Maximo Monitor"
-)
-masAppsArgGroup.add_argument(
-    "--manage-channel",
-    required=False,
-    help="Subscription channel for Maximo Manage"
-)
-masAppsArgGroup.add_argument(
-    "--is-full-manage",
-    required=False,
-    help="Full Manage instead of Manage Foundation"
-)
-masAppsArgGroup.add_argument(
-    "--predict-channel",
-    required=False,
-    help="Subscription channel for Maximo Predict"
-)
+masAppsArgGroup.add_argument("--assist-channel", required=False, help="Subscription channel for Maximo Assist")
+masAppsArgGroup.add_argument("--iot-channel", required=False, help="Subscription channel for Maximo IoT")
+masAppsArgGroup.add_argument("--monitor-channel", required=False, help="Subscription channel for Maximo Monitor")
+masAppsArgGroup.add_argument("--manage-channel", required=False, help="Subscription channel for Maximo Manage")
+masAppsArgGroup.add_argument("--predict-channel", required=False, help="Subscription channel for Maximo Predict")
 masAppsArgGroup.add_argument(
     "--visualinspection-channel",
     required=False,
-    help="Subscription channel for Maximo Visual Inspection"
+    help="Subscription channel for Maximo Visual Inspection",
 )
 masAppsArgGroup.add_argument(
     "--optimizer-channel",
     required=False,
-    help="Subscription channel for Maximo optimizer"
+    help="Subscription channel for Maximo optimizer",
 )
 masAppsArgGroup.add_argument(
     "--optimizer-plan",
     required=False,
     choices=["full", "limited"],
-    help="Install plan for Maximo Optimizer"
+    help="Install plan for Maximo Optimizer",
 )
 masAppsArgGroup.add_argument(
     "--facilities-channel",
     required=False,
-    help="Subscription channel for Maximo Real Estate and Facilities"
+    help="Subscription channel for Maximo Real Estate and Facilities",
+)
+masAppsArgGroup.add_argument(
+    "--aiservice-channel",
+    required=False,
+    help="Subscription channel for Maximo AI Service",
 )
 
 # Arcgis
 # -----------------------------------------------------------------------------
 arcgisArgGroup = installArgParser.add_argument_group("Maximo Location Services for Esri (arcgis)")
 arcgisArgGroup.add_argument(
-    "--install-arcgis",
-    required=False,
-    help="Enables IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial",
-    action="store_const",
-    const="true"
-)
-arcgisArgGroup.add_argument(
     "--arcgis-channel",
     dest="mas_arcgis_channel",
     required=False,
-    help=""
+    help="Subscription channel for IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial or Facilities",
 )
 
 # Manage Advanced Settings
@@ -403,7 +518,7 @@ manageArgGroup.add_argument(
     dest="mas_app_settings_server_bundles_size",
     required=False,
     help="Set Manage server bundle size configuration",
-    choices=["dev", "snojms", "small", "jms"]
+    choices=["dev", "snojms", "small", "jms"],
 )
 manageArgGroup.add_argument(
     "--manage-jms",
@@ -411,7 +526,7 @@ manageArgGroup.add_argument(
     required=False,
     help="Set JMS configuration",
     action="store_const",
-    const="true"
+    const="true",
 )
 manageArgGroup.add_argument(
     "--manage-persistent-volumes",
@@ -419,7 +534,7 @@ manageArgGroup.add_argument(
     required=False,
     help="",
     action="store_const",
-    const="true"
+    const="true",
 )
 
 manageArgGroup.add_argument(
@@ -427,7 +542,14 @@ manageArgGroup.add_argument(
     dest="mas_appws_bindings_jdbc_manage",
     required=False,
     help="",
-    choices=["system", "workspace-application"]
+    choices=["system", "workspace-application"],
+)
+manageArgGroup.add_argument(
+    "--manage-kafka",
+    dest="mas_appws_bindings_kafka_manage",
+    required=False,
+    help="Select the Kafka configuration to bind to Manage (e.g., 'system'). Required for Civil Infrastructure Kafka Image Processor.",
+    default="",
 )
 manageArgGroup.add_argument(
     "--manage-demodata",
@@ -435,14 +557,14 @@ manageArgGroup.add_argument(
     required=False,
     help="",
     action="store_const",
-    const="true"
+    const="true",
 )
 manageArgGroup.add_argument(
     "--manage-components",
     dest="mas_appws_components",
     required=False,
     help="Set Manage Components to be installed (e.g 'base=latest,health=latest,civil=latest')",
-    default="base=latest,health=latest"
+    default="",
 )
 
 manageArgGroup.add_argument(
@@ -451,103 +573,111 @@ manageArgGroup.add_argument(
     required=False,
     help="Set boolean value indicating if Watson Studio must be bound to Manage. It is expected a system level WatsonStudioCfg applied in the cluster.",
     action="store_const",
-    const="true"
+    const="true",
 )
 
 manageArgGroup.add_argument(
     "--manage-customization-archive-name",
     dest="mas_app_settings_customization_archive_name",
     required=False,
-    help="Manage Archive name"
+    help="Manage Archive name",
 )
 manageArgGroup.add_argument(
     "--manage-customization-archive-url",
     dest="mas_app_settings_customization_archive_url",
     required=False,
-    help="Manage Archive url"
+    help="Manage Archive url",
 )
 manageArgGroup.add_argument(
     "--manage-customization-archive-username",
     dest="mas_app_settings_customization_archive_username",
     required=False,
-    help="Manage Archive username (HTTP basic auth)"
+    help="Manage Archive username (HTTP basic auth)",
 )
 manageArgGroup.add_argument(
     "--manage-customization-archive-password",
     dest="mas_app_settings_customization_archive_password",
     required=False,
-    help="Manage Archive password (HTTP basic auth)"
+    help="Manage Archive password (HTTP basic auth)",
 )
 
 manageArgGroup.add_argument(
     "--manage-db-tablespace",
     dest="mas_app_settings_tablespace",
     required=False,
-    help="Database tablespace name that Manage will use to be installed. Default is 'MAXDATA'"
+    help="Database tablespace name that Manage will use to be installed. Default is 'MAXDATA'",
 )
 manageArgGroup.add_argument(
     "--manage-db-indexspace",
     dest="mas_app_settings_indexspace",
     required=False,
-    help="Database indexspace name that Manage will use to be installed. Default is 'MAXINDEX'"
+    help="Database indexspace name that Manage will use to be installed. Default is 'MAXINDEX'",
 )
 manageArgGroup.add_argument(
     "--manage-db-schema",
     dest="mas_app_settings_db2_schema",
     required=False,
-    help="Database schema name that Manage will use to be installed. Default is 'maximo'"
+    help="Database schema name that Manage will use to be installed. Default is 'maximo'",
 )
 
 manageArgGroup.add_argument(
     "--manage-crypto-key",
-    dest="mas_app_settings_crypto_key",
+    dest="mas_manage_encryptionsecret_crypto_key",
     required=False,
-    help="Customize Manage database encryption keys"
+    help="Customize Manage database encryption keys",
 )
 manageArgGroup.add_argument(
     "--manage-cryptox-key",
-    dest="mas_app_settings_cryptox_key",
+    dest="mas_manage_encryptionsecret_cryptox_key",
     required=False,
-    help="Customize Manage database encryption keys"
+    help="Customize Manage database encryption keys",
 )
 manageArgGroup.add_argument(
     "--manage-old-crypto-key",
-    dest="mas_app_settings_old_crypto_key",
+    dest="mas_manage_encryptionsecret_old_crypto_key",
     required=False,
-    help="Customize Manage database encryption keys"
+    help="Customize Manage database encryption keys",
 )
 manageArgGroup.add_argument(
     "--manage-old-cryptox-key",
-    dest="mas_app_settings_old_cryptox_key",
+    dest="mas_manage_encryptionsecret_old_cryptox_key",
     required=False,
-    help="Customize Manage database encryption keys"
+    help="Customize Manage database encryption keys",
 )
 manageArgGroup.add_argument(
-    "--manage-override-encryption-secrets",
-    dest="mas_app_settings_override_encryption_secrets_flag",
+    "--manage-encryption-secret-name",
+    dest="mas_manage_ws_db_encryptionsecret",
     required=False,
-    help="Override any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys",
-    action="store_const",
-    const="true"
+    help="Name of the Manage database encryption secret",
 )
 
 manageArgGroup.add_argument(
     "--manage-base-language",
     dest="mas_app_settings_base_lang",
     required=False,
-    help="Manage base language to be installed. Default is `EN` (English)"
+    help="Manage base language to be installed. Default is `EN` (English)",
 )
 manageArgGroup.add_argument(
     "--manage-secondary-languages",
     dest="mas_app_settings_secondary_langs",
     required=False,
-    help="Comma-separated list of Manage secondary languages to be installed (e.g. 'JA,DE,AR')"
+    help="Comma-separated list of Manage secondary languages to be installed (e.g. 'JA,DE,AR')",
 )
 manageArgGroup.add_argument(
     "--manage-server-timezone",
     dest="mas_app_settings_server_timezone",
     required=False,
-    help="Manage server timezone. Default is `GMT`"
+    help="Manage server timezone. Default is `GMT`",
+)
+
+manageArgGroup.add_argument(
+    "--manage-upgrade-type",
+    dest="mas_appws_upgrade_type",
+    required=False,
+    help="Set Manage upgrade type (default: regularUpgrade)",
+    default="regularUpgrade",
+    choices=UPGRADE_TYPES,
+    metavar="{regularUpgrade,onlineUpgrade}",
 )
 
 # Manage Attachments
@@ -556,120 +686,436 @@ manageArgGroup.add_argument(
     "--manage-attachments-provider",
     dest="mas_manage_attachments_provider",
     required=False,
-    help="Defines the storage provider type to be used to store attachments in Maximo Manage. Supported options are `filestorage`, `ibm` and `aws`.",
-    choices=["filestorage", "ibm", "aws"]
+    help="Storage provider type for Maximo Manage attachments",
+    choices=ATTACHMENT_PROVIDERS,
+    metavar="{filestorage,ibm,aws}",
 )
 manageArgGroup.add_argument(
     "--manage-attachments-mode",
     dest="mas_manage_attachment_configuration_mode",
     required=False,
-    help="Defines how attachment properties will be configured in Manage. Possible values are: cr and db",
-    choices=["cr", "db"]
+    help="How attachment properties will be configured in Manage",
+    choices=ATTACHMENT_MODES,
+    metavar="{cr,db}",
+)
+
+manageArgGroup.add_argument(
+    "--manage-aiservice-instance-id",
+    dest="manage_bind_aiservice_instance_id",
+    required=False,
+    help="AI Service Instance ID to bind with Manage",
+)
+manageArgGroup.add_argument(
+    "--manage-aiservice-tenant-id",
+    dest="manage_bind_aiservice_tenant_id",
+    required=False,
+    help="AI Service Tenant ID to bind with Manage",
 )
 
 # Facilities Advanced Settings
-# TODO: Fix type for storage sizes and max conn pool size
-facilitiesArgGroup = installArgParser.add_argument_group("Facilities Advanced Configuration")
+# -----------------------------------------------------------------------------
+facilitiesArgGroup = installArgParser.add_argument_group(
+    "Advanced Settings - Facilities",
+    "Advanced configuration for Maximo Real Estate and Facilities including deployment size, image pull policy, routes timeout, Liberty extensions, vault secrets, workflow agents, connection pool size, and storage settings.",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-app-om-upgrade-mode",
+    dest="mas_ws_facilities_app_om_upgrade_mode",
+    required=False,
+    help="Sets the Application Object Migration Mode",
+    default="manual",
+    choices=FACILITIES_APPOMUPGRADEMODE,
+    metavar="{manual,load-only,automatic}",
+)
 facilitiesArgGroup.add_argument(
     "--facilities-size",
     dest="mas_ws_facilities_size",
     required=False,
-    help="Defines the size of Facilities deployment",
-    choices=['small', 'medium', 'large'],
+    help="Size of Facilities deployment",
+    default="small",
+    choices=FACILITIES_SIZES,
+    metavar="{small,medium,large}",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-pull-policy",
     dest="mas_ws_facilities_pull_policy",
     required=False,
-    help="Defines the pull policy for the images",
-    choices=["IfNotPresent", "Always"],
+    help="Image pull policy for Facilities",
+    default="IfNotPresent",
+    choices=IMAGE_PULL_POLICIES,
+    metavar="{IfNotPresent,Always}",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-routes-timeout",
     dest="mas_ws_facilities_routes_timeout",
     required=False,
-    help="Defines the timeout for the routes",
+    help="Timeout for Facilities routes (default: 600s)",
     default="600s",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-xml-extension",
     dest="mas_ws_facilities_liberty_extension_XML",
     required=False,
-    help="Defines the name of the secret that holds the extensions for Liberty server",
+    help="Secret name containing Liberty server extensions",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-vault-secret",
     dest="mas_ws_facilities_vault_secret",
     required=False,
-    help="Defines the name of the secret that holds the AES Encryption password",
+    help="Secret name containing AES encryption password",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-dwfagent",
     dest="mas_ws_facilities_dwfagents",
     required=False,
-    help="Defines the list of dedicates workflow agents",
-    type=str
+    help="List of dedicated workflow agents",
+    type=str,
 )
 facilitiesArgGroup.add_argument(
     "--facilities-maxconnpoolsize",
     dest="mas_ws_facilities_db_maxconnpoolsize",
     required=False,
-    help="Defines the maximum connection pool size",
+    help="Maximum database connection pool size (default: 200)",
+    type=int,
     default=200,
 )
 facilitiesArgGroup.add_argument(
     "--facilities-log-storage-class",
     dest="mas_ws_facilities_storage_log_class",
     required=False,
-    help="Defines the log storage class",
+    help="Storage class for Facilities logs",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-log-storage-mode",
     dest="mas_ws_facilities_storage_log_mode",
     required=False,
-    help="Defines the log storage mode",
+    help="Storage mode for Facilities logs",
+    default="ReadWriteMany",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-log-storage-size",
     dest="mas_ws_facilities_storage_log_size",
     required=False,
-    help="Defines the logs storage size",
+    help="Storage size for Facilities logs",
+    default=30,
 )
 facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-class",
     dest="mas_ws_facilities_storage_userfiles_class",
     required=False,
-    help="Defines the user files storage class",
+    help="Storage class for Facilities user files",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-mode",
     dest="mas_ws_facilities_storage_userfiles_mode",
     required=False,
-    help="Defines the user files storage mode",
+    help="Storage mode for Facilities user files",
+    default="ReadWriteMany",
 )
 facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-size",
     dest="mas_ws_facilities_storage_userfiles_size",
     required=False,
-    help="Defines the user files storage size",
+    help="Storage size for Facilities user files",
+    default=50,
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-server-timezone",
+    dest="mas_ws_facilities_server_timezone",
+    required=False,
+    help="Facilities servers timezone",
+    type=str,
+    default="UTC",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-properties-file",
+    dest="mas_ws_facilities_properties_file_local",
+    required=False,
+    help="Path to the custom FACILITIES.properties file to upload as secret",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-properties-secret-name",
+    dest="mas_ws_facilities_properties_secret_name",
+    required=False,
+    help="Custom name for the Facilities properties secret (default: facilities-properties)",
+    default="custom-facilities-properties",
+)
+for agent in facilitiesAgents:
+    facilitiesArgGroup.add_argument(
+        f"--facilities-{agent}-deploymentmode",
+        dest=f"mas_ws_facilities_{agent}_deploymentmode",
+        required=False,
+        help=f"Facilities agent {agent} deployment mode",
+        default="",
+        choices=facilitiesAgentsDeploymentModes[agent],
+    )
+# Open Data Hub
+# -----------------------------------------------------------------------------
+odhArgGroup = installArgParser.add_argument_group("Open Data Hub")
+
+odhArgGroup.add_argument(
+    "--odh-model-deployment-type",
+    dest="aiservice_odh_model_deployment_type",
+    required=False,
+    default="raw",
+    help="Model deployment type for ODH",
+)
+
+# Red Hat Openshift AI
+# -----------------------------------------------------------------------------
+rhoaiArgGroup = installArgParser.add_argument_group("RedHat Openshift AI")
+
+rhoaiArgGroup.add_argument(
+    "--rhoai-model-deployment-type",
+    dest="aiservice_rhoai_model_deployment_type",
+    required=False,
+    default="raw",
+    help="Model deployment type for RedHat Openshift AI",
+)
+
+rhoaiArgGroup.add_argument(
+    "--rhoai",
+    dest="rhoai",
+    required=False,
+    help="temporary flag to install Redhat Openshift AI instead of Opendatahub",
+    action="store_const",
+    const="true",
+)
+# S3 Storage
+# -----------------------------------------------------------------------------
+aiServiceS3ArgGroup = installArgParser.add_argument_group(
+    "S3 Storage",
+    "Configure S3-compatible object storage for AI Service including Minio installation or external S3 connection details (host, port, SSL, credentials, bucket, and region).",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--install-minio",
+    dest="install_minio_aiservice",
+    required=False,
+    help="Install Minio and configure it as the S3 provider for AI Service",
+    action="store_const",
+    const="true",
+)
+
+# S3 - Minio
+# -----------------------------------------------------------------------------
+aiServiceS3ArgGroup.add_argument(
+    "--minio-root-user",
+    dest="minio_root_user",
+    required=False,
+    help="Root user for minio",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--minio-root-password",
+    dest="minio_root_password",
+    required=False,
+    help="Password for minio root user",
+)
+
+# S3 - External Connection
+# -----------------------------------------------------------------------------
+aiServiceS3ArgGroup.add_argument(
+    "--s3-host",
+    dest="aiservice_s3_host",
+    required=False,
+    help="Hostname or IP address of the S3 storage service",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--s3-port",
+    dest="aiservice_s3_port",
+    required=False,
+    help="Port number for the S3 storage service",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--s3-ssl",
+    dest="aiservice_s3_ssl",
+    required=False,
+    help="Enable or disable SSL for S3 connection (true/false)",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--s3-accesskey",
+    dest="aiservice_s3_accesskey",
+    required=False,
+    help="Access key for authenticating with the S3 storage service",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--s3-secretkey",
+    dest="aiservice_s3_secretkey",
+    required=False,
+    help="Secret key for authenticating with the S3 storage service",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--s3-region",
+    dest="aiservice_s3_region",
+    required=False,
+    help="Region for the S3 storage service",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--s3-bucket-prefix",
+    dest="aiservice_s3_bucket_prefix",
+    required=False,
+    help="Bucket prefix configured with S3 storage service",
+)
+
+# S3 - Bucket Naming
+# -----------------------------------------------------------------------------
+aiServiceS3ArgGroup.add_argument(
+    "--s3-tenants-bucket",
+    dest="aiservice_s3_tenants_bucket",
+    required=False,
+    default="km-tenants",
+    help="Name of the S3 bucket for tenants storage",
+)
+aiServiceS3ArgGroup.add_argument(
+    "--s3-templates-bucket",
+    dest="aiservice_s3_templates_bucket",
+    required=False,
+    default="km-templates",
+    help="Name of the S3 bucket for templates storage",
+)
+
+# Watsonx
+# -----------------------------------------------------------------------------
+aiServiceWatsonxArgGroup = installArgParser.add_argument_group(
+    "Watsonx",
+    "Configure IBM Watsonx integration for AI Service including API key, instance ID, project ID, and service URL.",
+)
+
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-apikey",
+    dest="aiservice_watsonxai_apikey",
+    required=False,
+    help="API key for WatsonX",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-url",
+    dest="aiservice_watsonxai_url",
+    required=False,
+    help="URL endpoint for WatsonX",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-project-id",
+    dest="aiservice_watsonxai_project_id",
+    required=False,
+    help="Project ID for WatsonX",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonx-action",
+    dest="aiservice_watsonx_action",
+    required=False,
+    help="Action to perform with WatsonX (install/remove)",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-ca-crt",
+    dest="aiservice_watsonxai_ca_crt",
+    required=False,
+    help="CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-deployment-id",
+    dest="aiservice_watsonxai_deployment_id",
+    required=False,
+    help="WatsonX deployment ID",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-space-id",
+    dest="aiservice_watsonxai_space_id",
+    required=False,
+    help="WatsonX space ID",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-instance-id",
+    dest="aiservice_watsonxai_instance_id",
+    required=False,
+    help="WatsonX instance ID",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-username",
+    dest="aiservice_watsonxai_username",
+    required=False,
+    help="WatsonX username",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-version",
+    dest="aiservice_watsonxai_version",
+    required=False,
+    help="WatsonX version",
+)
+aiServiceWatsonxArgGroup.add_argument(
+    "--watsonxai-onprem",
+    dest="aiservice_watsonxai_on_prem",
+    required=False,
+    help="WatsonX deployed on prem",
+)
+
+# AI Service Tenant
+# -----------------------------------------------------------------------------
+aiServiceTenantArgGroup = installArgParser.add_argument_group("Maximo AI Service Tenant")
+
+aiServiceTenantArgGroup.add_argument(
+    "--tenant-entitlement-type",
+    dest="tenant_entitlement_type",
+    required=False,
+    default="standard",
+    help="Entitlement type for AI Service tenant",
+)
+aiServiceTenantArgGroup.add_argument(
+    "--tenant-entitlement-start-date",
+    dest="tenant_entitlement_start_date",
+    required=False,
+    help="Start date for AI Service tenant",
+)
+aiServiceTenantArgGroup.add_argument(
+    "--tenant-entitlement-end-date",
+    dest="tenant_entitlement_end_date",
+    required=False,
+    help="End date for AI Service tenant",
+)
+
+aiServiceTenantArgGroup.add_argument(
+    "--rsl-ca-crt",
+    dest="rsl_ca_crt",
+    required=False,
+    help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)",
+)
+
+# AI Service Configuration
+# -----------------------------------------------------------------------------
+aiServiceArgGroup = installArgParser.add_argument_group(
+    "Maximo AI Service",
+    "Maximo AI Service configuration such as certificate Issuer, environment type",
+)
+aiServiceArgGroup.add_argument(
+    "--environment-type",
+    dest="environment_type",
+    required=False,
+    default="non-production",
+    help="Environment type (default: non-production)",
+)
+aiServiceArgGroup.add_argument(
+    "--aiservice-certificate-issuer",
+    dest="aiservice_certificate_issuer",
+    required=False,
+    help="Provide the name of the Issuer to configure AI Service to issue certificates",
+)
+aiServiceArgGroup.add_argument(
+    "--tenant-scheduling-config-file",
+    dest="tenant_scheduling_config_file",
+    required=False,
+    help="Path to the YAML file that contains the scheduling configuration for tenant",
+    type=lambda x: isValidFile(installArgParser, x),
 )
 
 # IBM Cloud Pak for Data
 # -----------------------------------------------------------------------------
-cpdAppsArgGroup = installArgParser.add_argument_group("IBM Cloud Pak for Data")
+cpdAppsArgGroup = installArgParser.add_argument_group(
+    "IBM Cloud Pak for Data",
+    "Configure IBM Cloud Pak for Data applications including Watson Studio, Watson Machine Learning, Watson Discovery, Analytics Engine (Spark), Cognos Analytics, SPSS Modeler, and Canvas Base.",
+)
 cpdAppsArgGroup.add_argument(
     "--cp4d-version",
     dest="cpd_product_version",
     required=False,
-    help="Product version of CP4D to use"
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-spss",
-    dest="cpd_install_spss",
-    required=False,
-    help="Add SPSS Modeler as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
+    help="Product version of CP4D to use",
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-install-cognos",
@@ -677,7 +1123,7 @@ cpdAppsArgGroup.add_argument(
     required=False,
     help="Add Cognos as part of Cloud Pak for Data",
     action="store_const",
-    const="install"
+    const="install",
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-install-ws",
@@ -685,7 +1131,7 @@ cpdAppsArgGroup.add_argument(
     required=False,
     help="Add Watson Studio as part of Cloud Pak for Data",
     action="store_const",
-    const="install"
+    const="install",
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-install-wml",
@@ -693,7 +1139,7 @@ cpdAppsArgGroup.add_argument(
     required=False,
     help="Add Watson Machine Learning as part of Cloud Pak for Data",
     action="store_const",
-    const="install"
+    const="install",
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-install-ae",
@@ -701,29 +1147,28 @@ cpdAppsArgGroup.add_argument(
     required=False,
     help="Add Spark Analytics Engine as part of Cloud Pak for Data",
     action="store_const",
-    const="install"
+    const="install",
 )
 
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
-db2ArgGroup = installArgParser.add_argument_group("IBM Db2 Universal Operator")
+db2ArgGroup = installArgParser.add_argument_group(
+    "IBM Db2 Universal Operator",
+    "Configure IBM Db2 instances including namespace, channel, installation options for system/manage/facilities databases, database type, timezone, affinity, tolerations, resource limits, and storage capacity.",
+)
 db2ArgGroup.add_argument(
     "--db2-namespace",
     required=False,
-    help="Change namespace where Db2u instances will be created"
+    help="Change namespace where Db2u instances will be created",
 )
-db2ArgGroup.add_argument(
-    "--db2-channel",
-    required=False,
-    help="Subscription channel for Db2u"
-)
+db2ArgGroup.add_argument("--db2-channel", required=False, help="Subscription channel for Db2u")
 db2ArgGroup.add_argument(
     "--db2-system",
     dest="db2_action_system",
     required=False,
     help="Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)",
     action="store_const",
-    const="install"
+    const="install",
 )
 db2ArgGroup.add_argument(
     "--db2-manage",
@@ -731,7 +1176,7 @@ db2ArgGroup.add_argument(
     required=False,
     help="Install a dedicated Db2u instance for Maximo Manage (supported by Manage)",
     action="store_const",
-    const="install"
+    const="install",
 )
 db2ArgGroup.add_argument(
     "--db2-facilities",
@@ -739,200 +1184,216 @@ db2ArgGroup.add_argument(
     required=False,
     help="Install a dedicated Db2u instance for Maximo Real Estate and Facilities (supported by Facilities)",
     action="store_const",
-    const="install"
+    const="install",
 )
 db2ArgGroup.add_argument(
     "--db2-type",
     required=False,
-    help="Choose the type of the Manage dedicated Db2u instance. Available options are `db2wh` (default) or `db2oltp`"
+    help="Type of Manage dedicated Db2u instance (default: db2wh)",
+    choices=DB2_TYPES,
+    metavar="{db2wh,db2oltp}",
 )
-db2ArgGroup.add_argument(
-    "--db2-timezone",
-    required=False,
-    help=""
-)
-db2ArgGroup.add_argument(
-    "--db2-affinity-key",
-    required=False,
-    help="Set a node label to declare affinity to"
-)
+db2ArgGroup.add_argument("--db2-timezone", required=False, help="Timezone for System and Dedicated Manage Instances")
+db2ArgGroup.add_argument("--db2-facilities-timezone", required=False, help="Timezone for Dedicated Facilities Instance")
+db2ArgGroup.add_argument("--db2-license-file", required=False, help="Db2 License File for Db2")
+db2ArgGroup.add_argument("--db2-affinity-key", required=False, help="Set a node label to declare affinity to")
 db2ArgGroup.add_argument(
     "--db2-affinity-value",
     required=False,
-    help="Set the value of the node label to affine with"
+    help="Set the value of the node label to affine with",
 )
-db2ArgGroup.add_argument(
-    "--db2-tolerate-key",
-    required=False,
-    help="Set a node taint to tolerate"
-)
+db2ArgGroup.add_argument("--db2-tolerate-key", required=False, help="Set a node taint to tolerate")
 db2ArgGroup.add_argument(
     "--db2-tolerate-value",
     required=False,
-    help="Set the value of the taint to tolerate"
+    help="Set the value of the taint to tolerate",
 )
 db2ArgGroup.add_argument(
     "--db2-tolerate-effect",
     required=False,
-    help="Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)"
+    help="Taint effect to tolerate",
+    choices=TAINT_EFFECTS,
+    metavar="{NoSchedule,PreferNoSchedule,NoExecute}",
 )
-db2ArgGroup.add_argument(
-    "--db2-cpu-requests",
-    required=False,
-    help="Customize Db2 CPU request"
-)
-db2ArgGroup.add_argument(
-    "--db2-cpu-limits",
-    required=False,
-    help="Customize Db2 CPU limit"
-)
-db2ArgGroup.add_argument(
-    "--db2-memory-requests",
-    required=False,
-    help="Customize Db2 memory request"
-)
-db2ArgGroup.add_argument(
-    "--db2-memory-limits",
-    required=False,
-    help="Customize Db2 memory limit"
-)
+db2ArgGroup.add_argument("--db2-cpu-requests", required=False, help="Customize Db2 CPU request")
+db2ArgGroup.add_argument("--db2-cpu-limits", required=False, help="Customize Db2 CPU limit")
+db2ArgGroup.add_argument("--db2-memory-requests", required=False, help="Customize Db2 memory request")
+db2ArgGroup.add_argument("--db2-memory-limits", required=False, help="Customize Db2 memory limit")
 db2ArgGroup.add_argument(
     "--db2-backup-storage",
     dest="db2_backup_storage_size",
     required=False,
-    help="Customize Db2 storage capacity"
+    help="Db2 backup storage capacity",
 )
 db2ArgGroup.add_argument(
     "--db2-data-storage",
     dest="db2_data_storage_size",
     required=False,
-    help="Customize Db2 storage capacity"
+    help="Db2 data storage capacity",
 )
 db2ArgGroup.add_argument(
     "--db2-logs-storage",
     dest="db2_logs_storage_size",
     required=False,
-    help="Customize Db2 storage capacity"
+    help="Db2 logs storage capacity",
 )
 db2ArgGroup.add_argument(
     "--db2-meta-storage",
     dest="db2_meta_storage_size",
     required=False,
-    help="Customize Db2 storage capacity"
+    help="Db2 metadata storage capacity",
 )
 db2ArgGroup.add_argument(
     "--db2-temp-storage",
     dest="db2_temp_storage_size",
     required=False,
-    help="Customize Db2 storage capacity"
+    help="Db2 temporary storage capacity",
 )
+db2ArgGroup.add_argument(
+    "--db2u-kind",
+    dest="db2u_kind",
+    required=False,
+    help="Db2 resource kind in the cluster",
+)
+
+# ECK Integration
+# -----------------------------------------------------------------------------
+eckArgGroup = installArgParser.add_argument_group(
+    "ECK Integration",
+    "Configure Elastic Cloud on Kubernetes (ECK) integration for logging and monitoring capabilities.",
+)
+eckArgGroup.add_argument(
+    "--eck",
+    dest="eck_action",
+    required=False,
+    help="",
+    action="store_const",
+    const="install",
+)
+eckArgGroup.add_argument("--eck-enable-logstash", required=False, help="", action="store_true")
+eckArgGroup.add_argument("--eck-remote-es-hosts", required=False, help="")
+eckArgGroup.add_argument("--eck-remote-es-username", required=False, help="")
+eckArgGroup.add_argument("--eck-remote-es-password", required=False, help="")
 
 # Kafka - Common
 # -----------------------------------------------------------------------------
-kafkaCommonArgGroup = installArgParser.add_argument_group("Kafka - Common")
+kafkaCommonArgGroup = installArgParser.add_argument_group(
+    "Kafka - Common",
+    "Common Kafka configuration options including provider selection (Strimzi, Red Hat AMQ Streams, IBM Event Streams, or AWS MSK) and authentication credentials.",
+)
 kafkaCommonArgGroup.add_argument(
     "--kafka-provider",
     required=False,
-    help="Set Kafka provider.  Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams) and `aws` (AWS MSK)",
-    choices=["strimzi", "redhat", "ibm", "aws"]
+    help="Kafka provider: redhat (Red Hat AMQ Streams), strimzi, ibm (IBM Event Streams), or aws (AWS MSK)",
+    choices=KAFKA_PROVIDERS,
+    metavar="{strimzi,redhat,ibm,aws}",
 )
 kafkaCommonArgGroup.add_argument(
     "--kafka-username",
     required=False,
-    help="Set Kafka instance username. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)"
+    help="Kafka instance username (applicable for redhat, strimzi, or aws providers)",
 )
 kafkaCommonArgGroup.add_argument(
     "--kafka-password",
     required=False,
-    help="Set Kafka instance password. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)"
+    help="Kafka instance password (applicable for redhat, strimzi, or aws providers)",
 )
 
 # Kafka - Strimzi & AMQ Streams
 # -----------------------------------------------------------------------------
-kafkaOCPArgGroup = installArgParser.add_argument_group("Kafka - Strimzi and AMQ Streams")
+kafkaOCPArgGroup = installArgParser.add_argument_group(
+    "Kafka - Strimzi and AMQ Streams",
+    "Configuration options specific to Strimzi and Red Hat AMQ Streams Kafka deployments including namespace and cluster version.",
+)
 kafkaCommonArgGroup.add_argument(
     "--kafka-namespace",
     required=False,
-    help="Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`"
+    help="Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`",
 )
 kafkaOCPArgGroup.add_argument(
     "--kafka-version",
     required=False,
-    help="Set version of the Kafka cluster that the Strimzi or AMQ Streams operator will create"
+    help="Set version of the Kafka cluster that the Strimzi or AMQ Streams operator will create",
 )
 
-# Kafka - MSK
+# Kafka - AWS MSK
 # -----------------------------------------------------------------------------
-mskArgGroup = installArgParser.add_argument_group("Kafka - AWS MSK")
+mskArgGroup = installArgParser.add_argument_group(
+    "Kafka - AWS MSK",
+    "Configuration options for Amazon Managed Streaming for Apache Kafka (MSK) including instance type, node count, volume size, CIDR subnets for availability zones, and egress settings.",
+)
 mskArgGroup.add_argument(
     "--msk-instance-type",
     dest="aws_msk_instance_type",
     required=False,
-    help="Set the MSK instance type"
+    help="Set the MSK instance type",
 )
 mskArgGroup.add_argument(
     "--msk-instance-nodes",
     dest="aws_msk_instance_number",
     required=False,
-    help="Set total number of MSK instance nodes"
+    help="Set total number of MSK instance nodes",
 )
 mskArgGroup.add_argument(
     "--msk-instance-volume-size",
     dest="aws_msk_volume_size",
     required=False,
-    help="Set storage/volume size for the MSK instance"
+    help="Set storage/volume size for the MSK instance",
 )
 mskArgGroup.add_argument(
     "--msk-cidr-az1",
     dest="aws_msk_cidr_az1",
     required=False,
-    help="Set the CIDR subnet for availability zone 1 for the MSK instance"
+    help="Set the CIDR subnet for availability zone 1 for the MSK instance",
 )
 mskArgGroup.add_argument(
     "--msk-cidr-az2",
     dest="aws_msk_cidr_az2",
     required=False,
-    help="Set the CIDR subnet for availability zone 2 for the MSK instance"
+    help="Set the CIDR subnet for availability zone 2 for the MSK instance",
 )
 mskArgGroup.add_argument(
     "--msk-cidr-az3",
     dest="aws_msk_cidr_az3",
     required=False,
-    help="Set the CIDR subnet for availability zone 3 for the MSK instance"
+    help="Set the CIDR subnet for availability zone 3 for the MSK instance",
 )
 mskArgGroup.add_argument(
     "--msk-cidr-egress",
     dest="aws_msk_egress_cidr",
     required=False,
-    help="Set the CIDR for egress connectivity"
+    help="Set the CIDR for egress connectivity",
 )
 mskArgGroup.add_argument(
     "--msk-cidr-ingress",
     dest="aws_msk_ingress_cidr",
     required=False,
-    help="Set the CIDR for ingress connectivity"
+    help="Set the CIDR for ingress connectivity",
 )
 
 # Kafka - Event Streams
 # -----------------------------------------------------------------------------
-eventstreamsArgGroup = installArgParser.add_argument_group("Kafka - Event Streams")
+eventstreamsArgGroup = installArgParser.add_argument_group(
+    "Kafka - Event Streams",
+    "Configuration options for IBM Event Streams including resource group, instance name, and location.",
+)
 eventstreamsArgGroup.add_argument(
     "--eventstreams-resource-group",
     dest="eventstreams_resourcegroup",
     required=False,
-    help="Set IBM Cloud resource group to target the Event Streams instance provisioning"
+    help="Set IBM Cloud resource group to target the Event Streams instance provisioning",
 )
 eventstreamsArgGroup.add_argument(
     "--eventstreams-instance-name",
     dest="eventstreams_name",
     required=False,
-    help="Set IBM Event Streams instance name"
+    help="Set IBM Event Streams instance name",
 )
 eventstreamsArgGroup.add_argument(
     "--eventstreams-instance-location",
     dest="eventstreams_location",
     required=False,
-    help="Set IBM Event Streams instance location"
+    help="Set IBM Event Streams instance location",
 )
 
 # COS
@@ -943,181 +1404,161 @@ cosArgGroup.add_argument(
     dest="cos_type",
     required=False,
     help="Set cloud object storage provider.  Supported options are `ibm` and `ocs`",
-    choices=["ibm", "ocs"]
+    choices=["ibm", "ocs"],
 )
 cosArgGroup.add_argument(
     "--cos-resourcegroup",
     dest="cos_resourcegroup",
     required=False,
-    help="When using IBM COS, set the resource group where the instance will run"
+    help="When using IBM COS, set the resource group where the instance will run",
 )
 cosArgGroup.add_argument(
     "--cos-apikey",
     dest="cos_apikey",
     required=False,
-    help="When using IBM COS, set COS priviledged apikey for IBM Cloud"
+    help="When using IBM COS, set COS priviledged apikey for IBM Cloud",
 )
 cosArgGroup.add_argument(
     "--cos-instance-name",
     dest="cos_instance_name",
     required=False,
-    help="When using IBM COS, set COS instance name to be used/created"
+    help="When using IBM COS, set COS instance name to be used/created",
 )
 cosArgGroup.add_argument(
     "--cos-bucket-name",
     dest="cos_bucket_name",
     required=False,
-    help="When using IBM COS, set COS bucket name to be used/created"
+    help="When using IBM COS, set COS bucket name to be used/created",
 )
 
-# Turbonomic Integration
-# -----------------------------------------------------------------------------
-turboArgGroup = installArgParser.add_argument_group("Turbonomic Integration")
-turboArgGroup.add_argument(
-    "--turbonomic-name",
-    dest="turbonomic_target_name",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-url",
-    dest="turbonomic_server_url",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-version",
-    dest="turbonomic_server_version",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-username",
-    dest="turbonomic_username",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-password",
-    dest="turbonomic_password",
-    required=False,
-    help=""
-)
 
 # Cloud Providers
 # -----------------------------------------------------------------------------
-cloudArgGroup = installArgParser.add_argument_group("Cloud Providers")
-cloudArgGroup.add_argument(
-    "--ibmcloud-apikey",
-    required=False,
-    help="Set IBM Cloud API Key"
+cloudArgGroup = installArgParser.add_argument_group(
+    "Cloud Providers",
+    "Configure cloud provider settings including AWS region, availability zones, and IBM Cloud API key.",
 )
-cloudArgGroup.add_argument(
-    "--aws-region",
-    required=False,
-    help="Set target AWS region for the MSK instance"
-)
+cloudArgGroup.add_argument("--ibmcloud-apikey", required=False, help="Set IBM Cloud API Key")
+cloudArgGroup.add_argument("--aws-region", required=False, help="Set target AWS region for the MSK instance")
 cloudArgGroup.add_argument(
     "--aws-access-key-id",
     required=False,
-    help="Set AWS access key ID for the target AWS account"
+    help="Set AWS access key ID for the target AWS account",
 )
 cloudArgGroup.add_argument(
     "--secret-access-key",
     required=False,
-    help="Set AWS secret access key for the target AWS account"
+    help="Set AWS secret access key for the target AWS account",
 )
 cloudArgGroup.add_argument(
     "--aws-vpc-id",
     required=False,
-    help="Set target Virtual Private Cloud ID for the MSK instance"
-)
-
-# Development Mode
-# -----------------------------------------------------------------------------
-devArgGroup = installArgParser.add_argument_group("Development Mode")
-devArgGroup.add_argument(
-    "--artifactory-username",
-    required=False,
-    help="Username for access to development builds on Artifactory"
-)
-devArgGroup.add_argument(
-    "--artifactory-token",
-    required=False,
-    help="API Token for access to development builds on Artifactory"
+    help="Set target Virtual Private Cloud ID for the MSK instance",
 )
 
 # Approvals
 # -----------------------------------------------------------------------------
-approvalsGroup = installArgParser.add_argument_group("Integrated Approval Workflow (MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
+approvalsGroup = installArgParser.add_argument_group(
+    "Integrated Approval Workflow",
+    "Configure approval checkpoints during installation for Core Platform and each MAS application workspace (Assist, IoT, Manage, Monitor, Optimizer, Predict, Visual Inspection, Facilities, and AI Service). Format: MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE",
+)
 approvalsGroup.add_argument(
     "--approval-core",
     default="",
-    help="Require approval after the Core Platform has been configured"
+    help="Require approval after the Core Platform has been configured",
 )
 approvalsGroup.add_argument(
     "--approval-assist",
     default="",
-    help="Require approval after the Maximo Assist workspace has been configured"
+    help="Require approval after the Maximo Assist workspace has been configured",
 )
 approvalsGroup.add_argument(
     "--approval-iot",
     default="",
-    help="Require approval after the Maximo IoT workspace has been configured"
+    help="Require approval after the Maximo IoT workspace has been configured",
 )
 approvalsGroup.add_argument(
     "--approval-manage",
     default="",
-    help="Require approval after the Maximo Manage workspace has been configured"
+    help="Require approval after the Maximo Manage workspace has been configured",
 )
 approvalsGroup.add_argument(
     "--approval-monitor",
     default="",
-    help="Require approval after the Maximo Monitor workspace has been configured"
+    help="Require approval after the Maximo Monitor workspace has been configured",
 )
 approvalsGroup.add_argument(
     "--approval-optimizer",
     default="",
-    help="Require approval after the Maximo Optimizer workspace has been configured"
+    help="Require approval after the Maximo Optimizer workspace has been configured",
 )
 approvalsGroup.add_argument(
     "--approval-predict",
     default="",
-    help="Require approval after the Maximo Predict workspace has been configured"
+    help="Require approval after the Maximo Predict workspace has been configured",
 )
 approvalsGroup.add_argument(
     "--approval-visualinspection",
     default="",
-    help="Require approval after the Maximo Visual Inspection workspace has been configured"
+    help="Require approval after the Maximo Visual Inspection workspace has been configured",
 )
 approvalsGroup.add_argument(
     "--approval-facilities",
     default="",
-    help="Require approval after the Maximo Real Estate and Facilities workspace has been configured"
+    help="Require approval after the Maximo Real Estate and Facilities workspace has been configured",
 )
-
+approvalsGroup.add_argument(
+    "--approval-aiservice",
+    default="",
+    help="Require approval after the AI Service has been configured",
+)
 
 # More Options
 # -----------------------------------------------------------------------------
-otherArgGroup = installArgParser.add_argument_group("More")
+otherArgGroup = installArgParser.add_argument_group(
+    "More",
+    "Additional options including advanced/simplified mode toggles, license acceptance, development mode, Artifactory credentials, PVC wait control, pre-check skip, confirmation prompts, image pull policy, and custom service account.",
+)
+otherArgGroup.add_argument(
+    "--artifactory-username",
+    required=False,
+    help="Username for access to development builds on Artifactory",
+)
+otherArgGroup.add_argument(
+    "--artifactory-token",
+    required=False,
+    help="API Token for access to development builds on Artifactory",
+)
 otherArgGroup.add_argument(
     "--advanced",
     action="store_true",
     default=False,
-    help="Show advanced install options (in interactve mode)"
+    help="Show advanced install options (in interactive mode)",
 )
 otherArgGroup.add_argument(
     "--simplified",
     action="store_true",
     default=False,
-    help="Don't show advanced install options (in interactve mode)"
+    help="Don't show advanced install options (in interactive mode)",
+)
+otherArgGroup.add_argument(
+    "--slack-token",
+    dest="slack_token",
+    required=False,
+    help="Slack bot token for sending pipeline notifications",
+)
+otherArgGroup.add_argument(
+    "--slack-channel",
+    dest="slack_channel",
+    required=False,
+    help="Slack channel(s) for notifications (comma-separated for multiple channels)",
 )
 
 otherArgGroup.add_argument(
     "--accept-license",
     action="store_true",
     default=False,
-    help="Accept all license terms without prompting"
+    help="Accept all license terms without prompting",
 )
 otherArgGroup.add_argument(
     "--dev-mode",
@@ -1127,46 +1568,40 @@ otherArgGroup.add_argument(
     help="Configure installation for development mode",
 )
 otherArgGroup.add_argument(
-    "--no-wait-for-pvc",
-    required=False,
-    action="store_true",
-    help="Disable the wait for pipeline PVC to bind before starting the pipeline"
-)
-otherArgGroup.add_argument(
     "--skip-pre-check",
     required=False,
     action="store_true",
-    help="Disable the 'pre-install-check' at the start of the install pipeline"
-)
-otherArgGroup.add_argument(
-    "--skip-grafana-install",
-    required=False,
-    action="store_true",
-    help="Skips Grafana install action"
+    help="Disable the 'pre-install-check' at the start of the install pipeline",
 )
 otherArgGroup.add_argument(
     "--no-confirm",
     required=False,
     action="store_true",
     default=False,
-    help="Launch the upgrade without prompting for confirmation",
+    help="Launch the installation without prompting for confirmation",
 )
 otherArgGroup.add_argument(
     "--image-pull-policy",
     dest="image_pull_policy",
     required=False,
-    help="Manually set the image pull policy used in the Tekton Pipeline",
+    help="Image pull policy for Tekton Pipeline",
+    choices=IMAGE_PULL_POLICIES,
+    metavar="{IfNotPresent,Always}",
 )
 otherArgGroup.add_argument(
     "--service-account",
     dest="service_account_name",
     required=False,
-    help="Run the install pipeline under a custom service account (also disables creation of the default 'pipeline' service account)",
+    help="Custom service account for install pipeline (disables default 'pipeline' service account creation)",
+)
+otherArgGroup.add_argument(
+    "--use-cli-digest",
+    dest="use_cli_digest",
+    required=False,
+    nargs="?",
+    const=True,
+    default=False,
+    help="Use CLI image digest instead of tag in Tekton pipelines. Optionally provide a specific digest (e.g., sha256:abc123...), or omit the value to auto-lookup the digest.",
 )
 
-otherArgGroup.add_argument(
-    "-h", "--help",
-    action="help",
-    default=False,
-    help="Show this help message and exit",
-)
+otherArgGroup.add_argument("-h", "--help", action="help", default=False, help="Show this help message and exit")

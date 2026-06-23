@@ -1,0 +1,55 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-fvt-components
+spec:
+  params:
+    # Test Container Information
+    # -------------------------------------------------------------------------
+    - name: mas_appws_components
+      type: string
+      description: List of Manage components i.e. base=Latest,health=latest
+  results:
+    - name: component_names
+      type: array
+      description: Extracted component names as a JSON array
+  steps:
+    - name: extract
+      image: "quay.io/ibmmas/cli:latest"
+      script: |
+        #!/bin/sh
+        echo "Hello.. Start extraction for $(params.mas_appws_components)"
+
+        component_input="$(params.mas_appws_components)"
+
+        if [[ $component_input =~ "civil" ]]; then
+          echo "Civil component is present. Adding HSE and Spatial to the list of components"
+          component_input="$component_input,spatial=latest,hse=latest"
+        fi
+
+        if [[ $component_input =~ "aviation" ]]; then
+          echo "Aviation component is present. Adding HSE, Service Provider, ACM and Transportation to the list of components"
+          component_input="$component_input,hse=latest,serviceprovider=latest,acm=latest,transportation=latest"
+        fi
+
+        if [[ $component_input =~ "icd" ]]; then
+          echo "ICD component is present. Adding Service Provider to the list of components"
+          component_input="$component_input,serviceprovider=latest"
+        fi
+
+        if [ -z "$component_input" ]; then
+          echo '["foundation"]' > "$(results.component_names.path)"
+          echo "Component list was empty. Defaulted to ['foundation']"
+        else
+          component_var=$(echo "$component_input" \
+            | tr ',' '\n' \
+            | cut -d'=' -f1 \
+            | jq -R . \
+            | jq -s .)
+          echo "$component_var" > "$(results.component_names.path)"
+          echo "Extracted components are $component_var"
+        fi
+
+        echo "End of the extraction"
+        cat "$(results.component_names.path)"

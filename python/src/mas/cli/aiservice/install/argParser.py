@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -23,678 +23,232 @@ def isValidFile(parser, arg) -> str:
 
 
 aiServiceinstallArgParser = argparse.ArgumentParser(
-    prog="mas install-aiservice",
-    description="\n".join([
-        f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Install Aiservice by configuring and launching the Tekton Pipeline.\n",
-        "Interactive Mode:",
-        "Omitting the --instance-id option will trigger an interactive prompt"
-    ]),
+    prog="mas aiservice-install",
+    description="\n".join(
+        [
+            f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
+            "Install Aiservice by configuring and launching the Tekton Pipeline.\n",
+            "Interactive Mode:",
+            "Omitting the --instance-id option will trigger an interactive prompt",
+        ]
+    ),
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
-    add_help=False
+    add_help=False,
 )
 
 # MAS Catalog Selection & Entitlement
 # -----------------------------------------------------------------------------
 catArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Catalog Selection & Entitlement")
+catArgGroup.add_argument("-c", "--mas-catalog-version", required=False, help="IBM Maximo Operator Catalog to install")
 catArgGroup.add_argument(
-    "-c", "--mas-catalog-version",
-    required=False,
-    help="IBM Maximo Operator Catalog to install"
+    "--mas-catalog-digest", required=False, help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources"
 )
-catArgGroup.add_argument(
-    "--mas-catalog-digest",
-    required=False,
-    help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources"
-)
-catArgGroup.add_argument(
-    "--ibm-entitlement-key",
-    required=False,
-    help="IBM entitlement key"
-)
+catArgGroup.add_argument("--ibm-entitlement-key", required=False, help="IBM entitlement key")
 
-# Aibroker Basic Configuration
+# AI Service Basic Configuration
 # -----------------------------------------------------------------------------
-masArgGroup = aiServiceinstallArgParser.add_argument_group("Aibroker Basic Configuration")
-masArgGroup.add_argument(
-    "-i", "--aibroker-instance-id",
-    required=False,
-    help="Aibroker Instance ID"
-)
+masArgGroup = aiServiceinstallArgParser.add_argument_group("AI Service Basic Configuration")
+masArgGroup.add_argument("-i", "--aiservice-instance-id", required=False, help="AI Service Instance ID")
 
 # MAS Advanced Configuration
 # -----------------------------------------------------------------------------
 masAdvancedArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Advanced Configuration")
-masAdvancedArgGroup.add_argument(
-    "--additional-configs",
-    required=False,
-    help="Path to a directory containing additional configuration files to be applied"
-)
-masAdvancedArgGroup.add_argument(
-    "--non-prod",
-    required=False,
-    help="Install MAS in non-production mode",
-    action="store_true"
-)
+masAdvancedArgGroup.add_argument("--additional-configs", required=False, help="Path to a directory containing additional configuration files to be applied")
+masAdvancedArgGroup.add_argument("--non-prod", required=False, help="Install MAS in non-production mode", action="store_true")
 
 # Storage
 # -----------------------------------------------------------------------------
 storageArgGroup = aiServiceinstallArgParser.add_argument_group("Storage")
-storageArgGroup.add_argument(
-    "--storage-class-rwo",
-    required=False,
-    help="ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)"
-)
-storageArgGroup.add_argument(
-    "--storage-class-rwx",
-    required=False,
-    help="ReadWriteMany (RWX) storage class (e.g. ibmc-file-gold-gid)"
-)
-storageArgGroup.add_argument(
-    "--storage-pipeline",
-    required=False,
-    help="Install pipeline storage class (e.g. ibmc-file-gold-gid)"
-)
+storageArgGroup.add_argument("--storage-class-rwo", required=False, help="ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)")
+storageArgGroup.add_argument("--storage-class-rwx", required=False, help="ReadWriteMany (RWX) storage class (e.g. ibmc-file-gold-gid)")
+storageArgGroup.add_argument("--storage-pipeline", required=False, help="Install pipeline storage class (e.g. ibmc-file-gold-gid)")
 storageArgGroup.add_argument(
     "--storage-accessmode",
     required=False,
     help="Install pipeline storage class access mode (ReadWriteMany or ReadWriteOnce)",
-    choices=["ReadWriteMany", "ReadWriteOnce"]
+    choices=["ReadWriteMany", "ReadWriteOnce"],
 )
 
 # IBM Suite License Service
 # -----------------------------------------------------------------------------
 slsArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Suite License Service")
-slsArgGroup.add_argument(
-    "--license-file",
-    required=False,
-    help="Path to MAS license file",
-    type=lambda x: isValidFile(aiServiceinstallArgParser, x)
-)
-slsArgGroup.add_argument(
-    "--sls-namespace",
-    required=False,
-    help="Customize the SLS install namespace",
-    default="ibm-sls"
-)
-slsArgGroup.add_argument(
-    "--dedicated-sls",
-    action="store_true",
-    default=False,
-    help="Set the SLS namespace to mas-<instanceid>-sls"
-)
+slsArgGroup.add_argument("--license-file", required=False, help="Path to MAS license file", type=lambda x: isValidFile(aiServiceinstallArgParser, x))
+slsArgGroup.add_argument("--sls-namespace", required=False, help="Customize the SLS install namespace", default="ibm-sls")
+slsArgGroup.add_argument("--dedicated-sls", action="store_true", default=False, help="Set the SLS namespace to mas-<instanceid>-sls")
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------
 droArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
-droArgGroup.add_argument(
-    "--uds-email",
-    dest="uds_contact_email",
-    required=False,
-    help="Contact e-mail address"
-)
-droArgGroup.add_argument(
-    "--uds-firstname",
-    dest="uds_contact_firstname",
-    required=False,
-    help="Contact first name"
-)
-droArgGroup.add_argument(
-    "--uds-lastname",
-    dest="uds_contact_lastname",
-    required=False,
-    help="Contact last name"
-)
-droArgGroup.add_argument(
-    "--dro-namespace",
-    required=False,
-    help=""
-)
+droArgGroup.add_argument("--contact-email", "--uds-email", dest="dro_contact_email", required=False, help="Contact e-mail address")
+droArgGroup.add_argument("--contact-firstname", "--uds-firstname", dest="dro_contact_firstname", required=False, help="Contact first name")
+droArgGroup.add_argument("--contact-lastname", "--uds-lastname", dest="dro_contact_lastname", required=False, help="Contact last name")
+droArgGroup.add_argument("--dro-namespace", required=False, help="Namespace for the Data Reporting Operator")
 
 # MongoDb Community Operator
 # -----------------------------------------------------------------------------
 mongoArgGroup = aiServiceinstallArgParser.add_argument_group("MongoDb Community Operator")
-mongoArgGroup.add_argument(
-    "--mongodb-namespace",
-    required=False,
-    help=""
-)
+mongoArgGroup.add_argument("--mongodb-namespace", required=False, help="Namespace for the MongoDB Community Operator")
 
 # MAS Applications
 # -----------------------------------------------------------------------------
 masAppsArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Applications")
 
-masAppsArgGroup.add_argument(
-    "--aibroker-channel",
-    required=False,
-    help="Subscription channel for Maximo Ai Broker"
+masAppsArgGroup.add_argument("--aiservice-channel", required=False, help="Subscription channel for Maximo AI Service")
+
+# ODH
+# -----------------------------------------------------------------------------
+odhArgGroup = aiServiceinstallArgParser.add_argument_group("Opendatahub")
+
+odhArgGroup.add_argument(
+    "--odh-model-deployment-type", dest="aiservice_odh_model_deployment_type", required=False, default="raw", help="Model deployment type for ODH"
 )
 
-# AI Broker
+# Red Hat Openshift AI
 # -----------------------------------------------------------------------------
-aibrokerArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Broker")
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-provider",
-    dest="mas_aibroker_storage_provider",
+rhoaiArgGroup = aiServiceinstallArgParser.add_argument_group("RedHat Openshift AI")
+
+rhoaiArgGroup.add_argument(
+    "--rhoai-model-deployment-type",
+    dest="aiservice_rhoai_model_deployment_type",
     required=False,
-    help="Customize Manage database encryption keys"
+    default="raw",
+    help="Model deployment type for RedHat Openshift AI",
 )
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-accesskey",
-    dest="mas_aibroker_storage_accesskey",
-    required=False,
-    help="Customize Manage database encryption keys"
+
+rhoaiArgGroup.add_argument(
+    "--rhoai", dest="rhoai", required=False, help="temporary flag to install Redhat Openshift AI instead of Opendatahub", action="store_const", const="true"
 )
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-secretkey",
-    dest="mas_aibroker_storage_secretkey",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-host",
-    dest="mas_aibroker_storage_host",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-port",
-    dest="mas_aibroker_storage_port",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-ssl",
-    dest="mas_aibroker_storage_ssl",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-region",
-    dest="mas_aibroker_storage_region",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-pipelines-bucket",
-    dest="mas_aibroker_storage_pipelines_bucket",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-tenants-bucket",
-    dest="mas_aibroker_storage_tenants_bucket",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-templates-bucket",
-    dest="mas_aibroker_storage_templates_bucket",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-name",
-    dest="mas_aibroker_tenant_name",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-watsonxai-apikey",
-    dest="mas_aibroker_watsonxai_apikey",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-watsonxai-url",
-    dest="mas_aibroker_watsonxai_url",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-watsonxai-project-id",
-    dest="mas_aibroker_watsonxai_project_id",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-watsonx-action",
-    dest="mas_aibroker_watsonx_action",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-host",
-    dest="mas_aibroker_db_host",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-port",
-    dest="mas_aibroker_db_port",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-user",
-    dest="mas_aibroker_db_user",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-database",
-    dest="mas_aibroker_db_database",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-secret-name",
-    dest="mas_aibroker_db_secret_name",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-secret-key",
-    dest="mas_aibroker_db_secret_key",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-secret-value",
-    dest="mas_aibroker_db_secret_value",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--minio-root-user",
-    dest="minio_root_user",
-    required=False,
-    help="Root user for minio"
-)
-aibrokerArgGroup.add_argument(
-    "--minio-root-password",
-    dest="minio_root_password",
-    required=False,
-    help="Password for minio rootuser"
-)
-aibrokerArgGroup.add_argument(
-    "--mariadb-user",
-    dest="mariadb_user",
-    required=False,
-    help="Mariadb user name"
-)
-aibrokerArgGroup.add_argument(
-    "--mariadb-password",
-    dest="mariadb_password",
-    required=False,
-    help="Password for mariadb user"
-)
-aibrokerArgGroup.add_argument(
-    "--tenant-entitlement-type",
-    dest="tenant_entitlement_type",
-    required=False,
-    help="Type of aibroker tenant"
-)
-aibrokerArgGroup.add_argument(
-    "--tenant-entitlement-start-date",
-    dest="tenant_entitlement_start_date",
-    required=False,
-    help="Start date for Aibroker tenant"
-)
-aibrokerArgGroup.add_argument(
-    "--tenant-entitlement-end-date",
-    dest="tenant_entitlement_end_date",
-    required=False,
-    help="End date for Aibroker tenant"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-s3-bucket-prefix",
-    dest="mas_aibroker_s3_bucket_prefix",
-    required=False,
-    help="s3 bucker prefix"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-s3-endpoint-url",
-    dest="mas_aibroker_s3_endpoint_url",
-    required=False,
-    help="endpoint url for s3"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-s3-region",
-    dest="mas_aibroker_s3_region",
-    required=False,
-    help="region for s3"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-bucket-prefix",
-    dest="mas_aibroker_tenant_s3_bucket_prefix",
-    required=False,
-    help="s3 bucker prefix ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-region",
-    dest="mas_aibroker_tenant_s3_region",
-    required=False,
-    help="s3 region ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-endpoint-url",
-    dest="mas_aibroker_tenant_s3_endpoint_url",
-    required=False,
-    help="endpoint url for s3 ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-access-key",
-    dest="mas_aibroker_tenant_s3_access_key",
-    required=False,
-    help="access key for s3 ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-secret-key",
-    dest="mas_aibroker_tenant_s3_secret_key",
-    required=False,
-    help="secret key for s3 ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--rsl-url",
-    dest="rsl_url",
-    required=False,
-    help="rsl url"
-)
-aibrokerArgGroup.add_argument(
-    "--rsl-org-id",
-    dest="rsl_org_id",
-    required=False,
-    help="org id for rsl"
-)
-aibrokerArgGroup.add_argument(
-    "--rsl-token",
-    dest="rsl_token",
-    required=False,
-    help="token for rsl"
-)
-aibrokerArgGroup.add_argument(
-    "--install-minio-aiservice",
+
+# S3 - General
+# -----------------------------------------------------------------------------
+s3ArgGroup = aiServiceinstallArgParser.add_argument_group("S3 Storage")
+
+# S3 - Minio
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--install-minio",
     dest="install_minio_aiservice",
     required=False,
-    help="flag for install minio"
-)
-aibrokerArgGroup.add_argument(
-    "--install-sls-aiservice",
-    dest="install_sls_aiservice",
-    required=False,
-    help="flag for install sls"
-)
-aibrokerArgGroup.add_argument(
-    "--install-dro-aiservice",
-    dest="install_dro_aiservice",
-    required=False,
-    help="flag for install dro"
-)
-aibrokerArgGroup.add_argument(
-    "--install-db2-aiservice",
-    dest="install_db2_aiservice",
-    required=False,
-    help="flag for install db2"
+    help="Install Minio and configure it as the S3 provider for AI Service",
+    action="store_const",
+    const="true",
 )
 
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-dro-secret-name",
-    dest="mas_aibroker_dro_secret_name",
-    required=False,
-    help="DRO secret name"
+s3ArgGroup.add_argument("--minio-root-user", dest="minio_root_user", required=False, help="Root user for minio")
+s3ArgGroup.add_argument("--minio-root-password", dest="minio_root_password", required=False, help="Password for minio root user")
+
+# S3 - External Connection
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument("--s3-host", dest="aiservice_s3_host", required=False, help="Hostname or IP address of the S3 storage service")
+s3ArgGroup.add_argument("--s3-port", dest="aiservice_s3_port", required=False, help="Port number for the S3 storage service")
+s3ArgGroup.add_argument("--s3-ssl", dest="aiservice_s3_ssl", required=False, help="Enable or disable SSL for S3 connection (true/false)")
+s3ArgGroup.add_argument("--s3-accesskey", dest="aiservice_s3_accesskey", required=False, help="Access key for authenticating with the S3 storage service")
+s3ArgGroup.add_argument("--s3-secretkey", dest="aiservice_s3_secretkey", required=False, help="Secret key for authenticating with the S3 storage service")
+s3ArgGroup.add_argument("--s3-region", dest="aiservice_s3_region", required=False, help="Region for the S3 storage service")
+s3ArgGroup.add_argument("--s3-bucket-prefix", dest="aiservice_s3_bucket_prefix", required=False, help="Bucket prefix configured with S3 storage service")
+
+# S3 - Bucket Naming
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--s3-tenants-bucket", dest="aiservice_s3_tenants_bucket", required=False, default="km-tenants", help="Name of the S3 bucket for tenants storage"
 )
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-dro-api-key",
-    dest="mas_aibroker_dro_api_key",
-    required=False,
-    help="DRO API key"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-dro-url",
-    dest="mas_aibroker_dro_url",
-    required=False,
-    help="DRO URL"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-dro-ca-cert",
-    dest="mas_aibroker_dro_ca_cert",
-    required=False,
-    help="DRO CA certificate"
+s3ArgGroup.add_argument(
+    "--s3-templates-bucket", dest="aiservice_s3_templates_bucket", required=False, default="km-templates", help="Name of the S3 bucket for templates storage"
 )
 
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db2-username",
-    dest="mas_aibroker_db2_username",
+# Watsonx
+# -----------------------------------------------------------------------------
+watsonxArgGroup = aiServiceinstallArgParser.add_argument_group("Watsonx")
+
+watsonxArgGroup.add_argument("--watsonxai-apikey", dest="aiservice_watsonxai_apikey", required=False, help="API key for WatsonX")
+watsonxArgGroup.add_argument("--watsonxai-url", dest="aiservice_watsonxai_url", required=False, help="URL endpoint for WatsonX")
+watsonxArgGroup.add_argument("--watsonxai-project-id", dest="aiservice_watsonxai_project_id", required=False, help="Project ID for WatsonX")
+watsonxArgGroup.add_argument("--watsonx-action", dest="aiservice_watsonx_action", required=False, help="Action to perform with WatsonX (install/remove)")
+watsonxArgGroup.add_argument(
+    "--watsonxai-ca-crt",
+    dest="aiservice_watsonxai_ca_crt",
     required=False,
-    help="DB2 username"
+    help="CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)",
 )
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db2-password",
-    dest="mas_aibroker_db2_password",
-    required=False,
-    help="DB2 password"
+watsonxArgGroup.add_argument("--watsonxai-deployment-id", dest="aiservice_watsonxai_deployment_id", required=False, help="WatsonX deployment ID")
+watsonxArgGroup.add_argument("--watsonxai-space-id", dest="aiservice_watsonxai_space_id", required=False, help="WatsonX space ID")
+watsonxArgGroup.add_argument("--watsonxai-instance-id", dest="aiservice_watsonxai_instance_id", required=False, help="WatsonX instance ID")
+watsonxArgGroup.add_argument("--watsonxai-username", dest="aiservice_watsonxai_username", required=False, help="WatsonX username")
+watsonxArgGroup.add_argument("--watsonxai-version", dest="aiservice_watsonxai_version", required=False, help="WatsonX version")
+watsonxArgGroup.add_argument("--watsonxai-onprem", dest="aiservice_watsonxai_on_prem", required=False, help="WatsonX deployed on prem")
+
+# AI Service
+# -----------------------------------------------------------------------------
+aiServiceArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Service")
+
+aiServiceArgGroup.add_argument(
+    "--tenant-entitlement-type", dest="tenant_entitlement_type", required=False, default="standard", help="Entitlement type for AI Service tenant"
 )
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db2-jdbc-url",
-    dest="mas_aibroker_db2_jdbc_url",
-    required=False,
-    help="DB2 JDBC URL"
+aiServiceArgGroup.add_argument("--tenant-entitlement-start-date", dest="tenant_entitlement_start_date", required=False, help="Start date for AI Service tenant")
+aiServiceArgGroup.add_argument("--tenant-entitlement-end-date", dest="tenant_entitlement_end_date", required=False, help="End date for AI Service tenant")
+
+aiServiceArgGroup.add_argument(
+    "--rsl-ca-crt", dest="rsl_ca_crt", required=False, help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)"
 )
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db2-ssl-enabled",
-    dest="mas_aibroker_db2_ssl_enabled",
-    required=False,
-    help="DB2 SSL enabled"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db2-ca-cert",
-    dest="mas_aibroker_db2_ca_cert",
-    required=False,
-    help="DB2 CA certificate"
+aiServiceArgGroup.add_argument(
+    "--environment-type", dest="environment_type", required=False, default="non-production", help="Environment type (default: non-production)"
 )
 
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-sls-secret-name",
-    dest="mas_aibroker_sls_secret_name",
-    required=False,
-    help="SLS secret name"
+# AI Service advanced configuration
+# -----------------------------------------------------------------------------
+aiserviceAdvancedArgGroup = aiServiceinstallArgParser.add_argument_group(
+    "Advanced configuration for AI Service", "Advanced configuration options for AI Service including certificates issuer and IPv6 support"
 )
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-sls-registration-key",
-    dest="mas_aibroker_sls_registration_key",
+aiserviceAdvancedArgGroup.add_argument(
+    "--aiservice-certificate-issuer",
+    dest="aiservice_certificate_issuer",
     required=False,
-    help="SLS registration key"
+    help="Provide the name of the Issuer to configure AI Service to issue certificates",
 )
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-sls-url",
-    dest="mas_aibroker_sls_url",
+aiserviceAdvancedArgGroup.add_argument(
+    "--enable-ipv6",
+    dest="enable_ipv6",
     required=False,
-    help="SLS URL"
+    default="false",
+    help="Configure AI Service to run in IPv6. Before setting this option, be sure your cluster is configured in IPv6",
+    action="store_const",
+    const="true",
 )
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-sls-ca-cert",
-    dest="mas_aibroker_sls_ca_cert",
+aiserviceAdvancedArgGroup.add_argument(
+    "--tenant-scheduling-config-file",
+    dest="tenant_scheduling_config_file",
     required=False,
-    help="SLS CA certificate"
+    help="Path to the YAML file that contains the scheduling configuration for tenant",
+    type=lambda x: isValidFile(aiServiceinstallArgParser, x),
 )
 
-aibrokerArgGroup.add_argument(
-    "--environment-type",
-    dest="environment_type",
-    required=False,
-    default="non-production",
-    help="Environment type (default: non-production)"
-)
+
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
 db2ArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Db2 Universal Operator")
-db2ArgGroup.add_argument(
-    "--db2-namespace",
-    required=False,
-    help="Change namespace where Db2u instances will be created"
-)
-db2ArgGroup.add_argument(
-    "--db2-channel",
-    required=False,
-    help="Subscription channel for Db2u"
-)
-db2ArgGroup.add_argument(
-    "--db2-system",
-    dest="db2_action_system",
-    required=False,
-    help="Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)",
-    action="store_const",
-    const="install"
-)
-db2ArgGroup.add_argument(
-    "--db2-manage",
-    dest="db2_action_manage",
-    required=False,
-    help="Install a dedicated Db2u instance for Maximo Manage (supported by Manage)",
-    action="store_const",
-    const="install"
-)
-db2ArgGroup.add_argument(
-    "--db2-facilities",
-    dest="db2_action_facilities",
-    required=False,
-    help="Install a dedicated Db2u instance for Maximo Real Estate and Facilities (supported by Facilities)",
-    action="store_const",
-    const="install"
-)
-db2ArgGroup.add_argument(
-    "--db2-type",
-    required=False,
-    help="Choose the type of the Manage dedicated Db2u instance. Available options are `db2wh` (default) or `db2oltp`"
-)
-db2ArgGroup.add_argument(
-    "--db2-timezone",
-    required=False,
-    help=""
-)
-db2ArgGroup.add_argument(
-    "--db2-affinity-key",
-    required=False,
-    help="Set a node label to declare affinity to"
-)
-db2ArgGroup.add_argument(
-    "--db2-affinity-value",
-    required=False,
-    help="Set the value of the node label to affine with"
-)
-db2ArgGroup.add_argument(
-    "--db2-tolerate-key",
-    required=False,
-    help="Set a node taint to tolerate"
-)
-db2ArgGroup.add_argument(
-    "--db2-tolerate-value",
-    required=False,
-    help="Set the value of the taint to tolerate"
-)
-db2ArgGroup.add_argument(
-    "--db2-tolerate-effect",
-    required=False,
-    help="Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)"
-)
-db2ArgGroup.add_argument(
-    "--db2-cpu-requests",
-    required=False,
-    help="Customize Db2 CPU request"
-)
-db2ArgGroup.add_argument(
-    "--db2-cpu-limits",
-    required=False,
-    help="Customize Db2 CPU limit"
-)
-db2ArgGroup.add_argument(
-    "--db2-memory-requests",
-    required=False,
-    help="Customize Db2 memory request"
-)
-db2ArgGroup.add_argument(
-    "--db2-memory-limits",
-    required=False,
-    help="Customize Db2 memory limit"
-)
-db2ArgGroup.add_argument(
-    "--db2-backup-storage",
-    dest="db2_backup_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
-)
-db2ArgGroup.add_argument(
-    "--db2-data-storage",
-    dest="db2_data_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
-)
-db2ArgGroup.add_argument(
-    "--db2-logs-storage",
-    dest="db2_logs_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
-)
-db2ArgGroup.add_argument(
-    "--db2-meta-storage",
-    dest="db2_meta_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
-)
-db2ArgGroup.add_argument(
-    "--db2-temp-storage",
-    dest="db2_temp_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
-)
 
+db2ArgGroup.add_argument("--db2-namespace", required=False, help="Change namespace where Db2u instances will be created")
+db2ArgGroup.add_argument("--db2-channel", required=False, help="Subscription channel for Db2u")
+db2ArgGroup.add_argument("--db2-license-file", required=False, help="Db2 License File for Db2")
 
 # Development Mode
 # -----------------------------------------------------------------------------
 devArgGroup = aiServiceinstallArgParser.add_argument_group("Development Mode")
-devArgGroup.add_argument(
-    "--artifactory-username",
-    required=False,
-    help="Username for access to development builds on Artifactory"
-)
-devArgGroup.add_argument(
-    "--artifactory-token",
-    required=False,
-    help="API Token for access to development builds on Artifactory"
-)
+devArgGroup.add_argument("--artifactory-username", required=False, help="Username for access to development builds on Artifactory")
+devArgGroup.add_argument("--artifactory-token", required=False, help="API Token for access to development builds on Artifactory")
 
 # Approvals
 # -----------------------------------------------------------------------------
 approvalsGroup = aiServiceinstallArgParser.add_argument_group("Integrated Approval Workflow (MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
-approvalsGroup.add_argument(
-    "--approval-aibroker",
-    default="",
-    help="Require approval after the Aibroker has been configured"
-)
+approvalsGroup.add_argument("--approval-aiservice", default="", help="Require approval after the AI Service has been configured")
 
 # More Options
 # -----------------------------------------------------------------------------
 otherArgGroup = aiServiceinstallArgParser.add_argument_group("More")
-otherArgGroup.add_argument(
-    "--advanced",
-    action="store_true",
-    default=False,
-    help="Show advanced install options (in interactve mode)"
-)
-otherArgGroup.add_argument(
-    "--simplified",
-    action="store_true",
-    default=False,
-    help="Don't show advanced install options (in interactve mode)"
-)
-otherArgGroup.add_argument(
-    "--accept-license",
-    action="store_true",
-    default=False,
-    help="Accept all license terms without prompting"
-)
+otherArgGroup.add_argument("--advanced", action="store_true", default=False, help="Show advanced install options (in interactve mode)")
+otherArgGroup.add_argument("--simplified", action="store_true", default=False, help="Don't show advanced install options (in interactve mode)")
+otherArgGroup.add_argument("--accept-license", action="store_true", default=False, help="Accept all license terms without prompting")
 otherArgGroup.add_argument(
     "--dev-mode",
     required=False,
@@ -702,18 +256,7 @@ otherArgGroup.add_argument(
     default=False,
     help="Configure installation for development mode",
 )
-otherArgGroup.add_argument(
-    "--no-wait-for-pvc",
-    required=False,
-    action="store_true",
-    help="Disable the wait for pipeline PVC to bind before starting the pipeline"
-)
-otherArgGroup.add_argument(
-    "--skip-pre-check",
-    required=False,
-    action="store_true",
-    help="Disable the 'pre-install-check' at the start of the install pipeline"
-)
+otherArgGroup.add_argument("--skip-pre-check", required=False, action="store_true", help="Disable the 'pre-install-check' at the start of the install pipeline")
 otherArgGroup.add_argument(
     "--no-confirm",
     required=False,
@@ -733,9 +276,14 @@ otherArgGroup.add_argument(
     required=False,
     help="Run the install pipeline under a custom service account (also disables creation of the default 'pipeline' service account)",
 )
+otherArgGroup.add_argument("--slack-token", dest="slack_token", required=False, help="Slack bot token for sending pipeline notifications")
+otherArgGroup.add_argument(
+    "--slack-channel", dest="slack_channel", required=False, help="Slack channel(s) for notifications (comma-separated for multiple channels)"
+)
 
 otherArgGroup.add_argument(
-    "-h", "--help",
+    "-h",
+    "--help",
     action="help",
     default=False,
     help="Show this help message and exit",

@@ -12,6 +12,9 @@ spec:
       default: ""
     - name: mas_instance_id
       type: string
+    - name: mas_channel
+      type: string
+      default: ""
     - name: mas_workspace_id
       type: string
       default: ""
@@ -22,6 +25,12 @@ spec:
     - name: mas_manual_cert_mgmt
       type: string
       description: Optional boolean parameter that when set to True, indicates that manually created certificates will be used to certify MAS and application routes
+      default: ""
+
+    # MAS Routing Mode
+    - name: mas_routing_mode
+      type: string
+      description: Optional string parameter, either path or subdomain, defines the network routing mode used for the suite.
       default: ""
 
     # IBM Cloud Internet Services support
@@ -72,11 +81,15 @@ spec:
 
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
 
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
+      - name: MAS_ROUTING_MODE
+        value: $(params.mas_routing_mode)
 
       # IBM Cloud Internet Services support
       - name: CIS_CRN
@@ -106,7 +119,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_certs
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
 
   workspaces:

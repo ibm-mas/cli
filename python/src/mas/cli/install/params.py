@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -21,9 +21,9 @@ requiredParams = [
     # Entitlement
     "ibm_entitlement_key",
     # DRO
-    "uds_contact_email",
-    "uds_contact_firstname",
-    "uds_contact_lastname"
+    "dro_contact_email",
+    "dro_contact_firstname",
+    "dro_contact_lastname",
 ]
 
 optionalParams = [
@@ -37,11 +37,16 @@ optionalParams = [
     "mas_superuser_username",
     "mas_superuser_password",
     "mas_trust_default_cas",
+    "mas_routing_mode",
+    "mas_use_service_mesh",
+    "mas_ingress_controller_name",
+    "mas_manual_route_mgmt",
     "mas_app_settings_server_bundles_size",
-    "is_full_manage",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
     "mas_app_settings_demodata",
+    "mas_admin_mode",
+    "mas_issuer_kind",
     "mas_app_settings_customization_archive_name",
     "mas_app_settings_customization_archive_url",
     "mas_app_settings_customization_archive_username",
@@ -49,30 +54,37 @@ optionalParams = [
     "mas_app_settings_tablespace",
     "mas_app_settings_indexspace",
     "mas_app_settings_db2_schema",
-    "mas_app_settings_crypto_key",
-    "mas_app_settings_cryptox_key",
-    "mas_app_settings_old_crypto_key",
-    "mas_app_settings_old_cryptox_key",
-    "mas_app_settings_override_encryption_secrets_flag",
-    "mas_app_settings_base_lang",
-    "mas_app_settings_secondary_langs",
+    "mas_manage_encryptionsecret_crypto_key",
+    "mas_manage_encryptionsecret_cryptox_key",
+    "mas_manage_encryptionsecret_old_crypto_key",
+    "mas_manage_encryptionsecret_old_cryptox_key",
+    "mas_manage_ws_db_encryptionsecret",
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
+    "mas_appws_bindings_kafka_manage",
     "mas_appws_components",
     "mas_appws_bindings_health_wsl_flag",
     "mas_domain",
+    "mas_appws_upgrade_type",
     # IPV6
     "enable_ipv6",
     # SLS
     "sls_namespace",
     # DNS Providers
-    # TODO: Add CloudFlare and Route53 support
+    # TODO: Route53 support
     "dns_provider",
+    "mas_cluster_issuer",
+    "ocp_ingress",
+    # CIS
     "cis_email",
     "cis_apikey",
     "cis_crn",
     "cis_subdomain",
-    "mas_cluster_issuer",
+    # CloudFlare
+    "cloudflare_email",
+    "cloudflare_apitoken",
+    "cloudflare_zone",
+    "cloudflare_subdomain",
     # DRO
     "dro_namespace",
     # Db2
@@ -97,10 +109,10 @@ optionalParams = [
     "db2_logs_storage_size",
     "db2_meta_storage_size",
     "db2_temp_storage_size",
+    "db2u_kind",
     # CP4D
     "cpd_product_version",
     "cpd_install_cognos",
-    "cpd_install_spss",
     "cpd_install_ws",
     "cpd_install_wml",
     "cpd_install_ae",
@@ -133,12 +145,6 @@ optionalParams = [
     "eck_remote_es_hosts",
     "eck_remote_es_username",
     "eck_remote_es_password",
-    # Turbonomic
-    "turbonomic_target_name",
-    "turbonomic_server_url",
-    "turbonomic_server_version",
-    "turbonomic_username",
-    "turbonomic_password",
     # Cloud Providers
     "ibmcloud_apikey",
     "aws_region",
@@ -148,36 +154,14 @@ optionalParams = [
     # Dev Mode
     "artifactory_username",
     "artifactory_token",
-    # TODO: The way arcgis has been implemented needs to be fixed
-    "install_arcgis",
-    "mas_arcgis_channel",
     # Guided Tour
     "mas_enable_walkme",
-    # Aibroker
-    "mas_aibroker_storage_provider",
-    "mas_aibroker_storage_accesskey",
-    "mas_aibroker_storage_secretkey",
-    "mas_aibroker_storage_host",
-    "mas_aibroker_storage_port",
-    "mas_aibroker_storage_ssl",
-    "mas_aibroker_storage_region",
-    "mas_aibroker_storage_pipelines_bucket",
-    "mas_aibroker_storage_tenants_bucket",
-    "mas_aibroker_storage_templates_bucket",
-    "mas_aibroker_tenant_name",
-    "mas_aibroker_watsonxai_apikey",
-    "mas_aibroker_watsonxai_url",
-    "mas_aibroker_watsonxai_project_id",
-    "mas_aibroker_watsonx_action",
-    "mas_aibroker_db_host",
-    "mas_aibroker_db_port",
-    "mas_aibroker_db_user",
-    "mas_aibroker_db_database",
-    "mas_aibroker_db_secret_name",
-    "mas_aibroker_db_secret_key",
-    "mas_aibroker_db_secret_value",
+    "mas_feature_usage",
+    "mas_usability_metrics",
+    "mas_deployment_progression",
     # Facilities
     "mas_ws_facilities_size",
+    "mas_ws_facilities_app_om_upgrade_mode",
     "mas_ws_facilities_routes_timeout",
     "mas_ws_facilities_liberty_extension_XML",
     "mas_ws_facilities_vault_secret",
@@ -188,8 +172,73 @@ optionalParams = [
     "mas_ws_facilities_storage_userfiles_class",
     "mas_ws_facilities_storage_userfiles_mode",
     "mas_ws_facilities_storage_userfiles_size",
+    "mas_ws_facilities_server_timezone",
     "mas_ws_facilities_dwfagents",
     "mas_ws_facilities_db_maxconnpoolsize",
+    "mas_ws_facilities_properties_file_local",
+    "mas_ws_facilities_custom_properties",
+    "mas_ws_facilities_properties_secret_name",
+    "mas_ws_facilities_dataconnectagent_deploymentmode",
+    "mas_ws_facilities_extendedformulaagent_deploymentmode",
+    "mas_ws_facilities_formularecalcagent_deploymentmode",
+    "mas_ws_facilities_incomingmailagent_deploymentmode",
+    "mas_ws_facilities_objectmigrationagent_deploymentmode",
+    "mas_ws_facilities_objectpublishagent_deploymentmode",
+    "mas_ws_facilities_maintenanceagent_deploymentmode",
+    "mas_ws_facilities_reportqueueagent_deploymentmode",
+    "mas_ws_facilities_wfagent_deploymentmode",
+    "mas_ws_facilities_wffutureagent_deploymentmode",
+    "mas_ws_facilities_wfnotificationagent_deploymentmode",
+    "mas_ws_facilities_reservesmtpagent_deploymentmode",
+    "mas_ws_facilities_scheduleragent_deploymentmode",
+    # DB2 for Facilities
+    "db2_facilities_timezone",
     # Special chars
-    "mas_special_characters"
+    "mas_special_characters",
+    # ODH
+    "aiservice_odh_model_deployment_type",
+    # RHOAI
+    "aiservice_rhoai_model_deployment_type",
+    "rhoai",
+    # AI Service
+    "aiservice_s3_accesskey",
+    "aiservice_s3_secretkey",
+    "aiservice_s3_host",
+    "aiservice_s3_port",
+    "aiservice_s3_ssl",
+    "aiservice_s3_region",
+    "aiservice_s3_bucket_prefix",
+    "aiservice_s3_tenants_bucket",
+    "aiservice_s3_templates_bucket",
+    "aiservice_watsonxai_apikey",
+    "aiservice_watsonxai_url",
+    "aiservice_watsonxai_project_id",
+    "aiservice_watsonx_action",
+    "aiservice_watsonxai_ca_crt",
+    "aiservice_watsonxai_deployment_id",
+    "aiservice_watsonxai_space_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_username",
+    "aiservice_watsonxai_version",
+    "aiservice_watsonxai_on_prem",
+    "aiservice_instance_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_verify",
+    "minio_root_user",
+    "minio_root_password",
+    "tenant_entitlement_type",
+    "tenant_entitlement_start_date",
+    "tenant_entitlement_end_date",
+    "rsl_ca_crt",
+    "environment_type",
+    "configure_aiassistant",
+    # Certificate Issuer
+    "aiservice_certificate_issuer",
+    # Grafana
+    "skip_grafana_install",
+    "grafana_v5_namespace",
+    "grafana_instance_storage_size",
+    # Slack Integration
+    "slack_token",
+    "slack_channel",
 ]

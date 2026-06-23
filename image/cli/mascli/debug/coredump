@@ -1,0 +1,282 @@
+#!/bin/bash
+
+MAS_INSTANCE_ID=""
+SERVER_PATH="/opt/ibm/wlp/bin/server"
+POD_SELECTOR=""
+GENERATE=false
+COLLECT=false
+REMOVE=false
+OUTPUT_DIR=/tmp
+
+function coredump_help() {
+  cat << EOM
+Usage:
+  mas debug coredump [options]
+define Liberty pod where the coredump is generated:
+  --namespace            : specify which namespace the java application server runs in (required)
+  --liberty-server-path :path to the server file, default is /opt/ibm/wlp/bin/server
+  -s, --pod-selector     : pod-selector can be serverBundle, <bundle name>, coreidp
+  -p, --pod-name         : gives the pod where the java dump needs to be created, this overwrites -s if specified.
+actions:
+  -g, --generate         : generate a coredump for the liberty server according to the pod selector then copies it to the local machine where the script is running
+  -c, --collect          : copy all the coredump files from the node to where the liberty server specified is running to the local machine where the script is running
+  -r, --rm               : remove all the coredump files from the node where the liberty server specified is running
+                           This command will remove the content of /var/lib/systemd/coredump/ on the node
+Other Options:
+  -d, --dir              : folder where the file is copied locally
+  -h, --help    Show this help message
+Examples:
+  generate a coredump for a particular pod in the manage namespace:
+  mas debug coredump  --namespace mas-test-manage -p test-testws-foundation-54956ff9d7-bzmgb -g -d /tmp
+  generate a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:
+  mas debug coredump --namespace mas-test-manage -s ui -g -d /mnt/home
+  collect all the coredumps present on the node where ui server bundle is running:
+  mas debug coredump --namespace mas-test-manage -s ui -c
+  remove all the coredumps present on the node where the ui server bundle is running:
+  mas debug coredump --namespace mas-test-manage -s ui -r
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+
+    --namespace)
+      NAMESPACE=$1; shift
+      ;;
+
+    --liberty-server-path)
+      SERVER_PATH=$1; shift
+      ;;
+
+    -d|--dir)
+      OUTPUT_DIR=$1; shift
+      ;;
+
+    -s|--pod-selector)
+      # pod-selector can be "serverBundle, <bundle name>, coreidp"
+      POD_SELECTOR=$1; shift
+      ;;
+
+    -p|--pod-name)
+      # pod-selector can be "serverBundle, <bundle name>, coreidp"
+      POD_NAME=$1; shift
+      ;;
+
+    -g|--generate)
+      GENERATE=true
+      ;;
+
+    -c|--collect)
+      COLLECT=true
+      ;;
+
+    -r|--rm)
+      REMOVE=true
+      ;;
+
+    -h|--help)
+      coredump_help
+      exit 0
+  esac
+done
+
+
+COMMAND="$SERVER_PATH javadump defaultServer --include=system"
+
+if [ "$NAMESPACE" != "" ]; then 
+  MAS_INSTANCE_ID=$(oc get pods -n $NAMESPACE --show-labels | grep -o mas.ibm.com/instanceId=[^,]* | cut -d "=" -f 2 | uniq)
+else
+  echo "you need to specify --namespace"
+  exit 1
+fi
+
+DEBUG_NAMESPACE="mas-${MAS_INSTANCE_ID}-debug"
+mkdir -p $OUTPUT_DIR
+
+LOG_FILE=${OUTPUT_DIR}/mas-debug.log
+exec > >(tee ${LOG_FILE}) 2>&1
+
+# using pod labels mas.ibm.com/appType and mas.ibm.com/appTypeName
+if [ "$POD_NAME" != "" ]; then
+  echo "command specified pod: $POD_NAME"
+  SERVER_POD_NAMES="pod/$POD_NAME"
+elif [ "$POD_SELECTOR" = "serverBundle" ]; then
+  echo "select all server bundle pods"
+  SERVER_POD_NAMES=$(oc get pods -n $NAMESPACE -l "mas.ibm.com/appType=$POD_SELECTOR" -oname)
+elif [ "$POD_SELECTOR" = "coreidp" ]; then
+  echo "select coreidp pod"
+  SERVER_POD_NAMES=$(oc get pods -n $NAMESPACE -l "mas.ibm.com/provider-core-coreidp=true" -oname)
+  COMMAND="/opt/was/liberty/wlp/bin/server javadump default --include=system"
+else
+  echo "select $POD_SELECTOR pods"
+  SERVER_POD_NAMES=$(oc get pods -n $NAMESPACE -l "mas.ibm.com/appTypeName=$POD_SELECTOR" -oname)
+fi
+
+echo $COMMAND
+echo $SERVER_POD_NAMES
+
+NODE_NAMES=""
+if [ "$GENERATE" = "true" ]; then
+  for SERVER_POD in ${SERVER_POD_NAMES}
+  do
+    POD_OUTPUT_DIR=$OUTPUT_DIR/$SERVER_POD
+    mkdir -p $POD_OUTPUT_DIR
+    JAVACORE_FILE=""
+
+    ## get the name of the node where the coredump will be generated
+    echo "processing $SERVER_POD"
+    NODE_NAME=$(oc get $SERVER_POD -n $NAMESPACE -o jsonpath="{.spec.nodeName}")
+    echo $NODE_NAME
+
+    ## create a project to collect the coredump
+    oc new-project $DEBUG_NAMESPACE > /dev/null
+    echo "project $DEBUG_NAMESPACE created"
+    oc project $DEBUG_NAMESPACE
+
+    ## remove any debug pod that exist in the debug namespace
+    for pod in $(oc get pods -oname); do
+      oc delete $pod
+    done
+
+    ## create a debug pod
+    oc debug node/$NODE_NAME --to-namespace="$DEBUG_NAMESPACE" -- sleep 3600 &
+
+    OLD_NUM_POD=0
+    NEW_NUM_POD=0
+    ITERATION=0
+        
+    while [[ $OLD_NUM_POD -eq $NEW_NUM_POD ]] && [[ $ITERATION -lt 20 ]]
+    do
+      sleep 2
+      NEW_NUM_POD=$(oc get pods | grep 1/1 | wc -l)
+      ITERATION=$((ITERATION+1))
+      echo "NEW_NUM_POD: $NEW_NUM_POD; $ITERATION"
+    done
+
+    DEBUG_POD=$(oc get pods -oname)
+
+    ## get the content of /var/lib/systemd/coredump/ before generation
+    LS_BEFORE=$(oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- ls -ltr /host/var/lib/systemd/coredump/)
+    echo "content of /host/var/lib/systemd/coredump/ before generating coredump:"
+    echo "$LS_BEFORE"
+
+
+    ## Generate the coredump
+    for CONTAINER in $(oc get $SERVER_POD -n $NAMESPACE -o jsonpath='{.spec.containers[*].name}')
+    do 
+      if [ "$CONTAINER" != "monitoragent" ] && [ "$CONTAINER" != "coreidp-init" ]
+      then
+        echo "generate the core dump for container $CONTAINER in pod $SERVER_POD "
+        echo "oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- $COMMAND" > $POD_OUTPUT_DIR/cmd.txt
+        oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- $COMMAND >> $POD_OUTPUT_DIR/cmd.txt
+        cat $POD_OUTPUT_DIR/cmd.txt
+        JAVACORE_FILE=$(cat $POD_OUTPUT_DIR/cmd.txt | grep -o "/.*.txt")
+        oc rsync $SERVER_POD:$JAVACORE_FILE $POD_OUTPUT_DIR/. -n $NAMESPACE -c $CONTAINER
+
+      fi
+    done
+
+    ## get the name of the generated file on the node
+    echo "content of /host/var/lib/systemd/coredump/ after generating coredump:"
+    LS_AFTER=$(oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- ls -ltr /host/var/lib/systemd/coredump/)
+    echo "$LS_AFTER"
+    COREDUMP_FILE=$(echo "$LS_AFTER" | tail -n1 | grep -o "core.*")
+    echo "last file created: $COREDUMP_FILE"
+
+    ## collect the coredump file
+    echo "collecting coredump file $COREDUMP_FILE from pod $DEBUG_POD"
+    oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- ls /host/var/lib/systemd/coredump/
+    oc rsync -n $DEBUG_NAMESPACE $DEBUG_POD:/host/var/lib/systemd/coredump/${COREDUMP_FILE} $POD_OUTPUT_DIR/.
+
+    ## remove the coredump file
+    echo "removing coredump $COREDUMP_FILE using pod $DEBUG_POD"
+    oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- rm /host/var/lib/systemd/coredump/${COREDUMP_FILE}
+
+    oc delete project $DEBUG_NAMESPACE
+
+  done
+
+elif [ "$COLLECT" = "true" ] || [ "$REMOVE" = "true" ]; then
+
+  for SERVER_POD in ${SERVER_POD_NAMES}
+  do
+    echo "processing $SERVER_POD"
+    NODE_NAME=$(oc get $SERVER_POD -n $NAMESPACE -o jsonpath="{.spec.nodeName}")
+
+    echo "Node: $NODE_NAME"
+    NODE_NAMES="$NODE_NAMES $NODE_NAME"
+
+  done
+  export unique_nodes=$(echo "$NODE_NAMES" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+  echo $unique_nodes
+  # create project for debug pods:
+  oc new-project $DEBUG_NAMESPACE > /dev/null
+  echo "project $DEBUG_NAMESPACE created"
+
+  for NODE in ${unique_nodes}
+  do
+      OLD_NUM_POD=$(oc get pods -o name| wc -l)
+      echo "Connecting to: $NODE"
+      # starting debug pod
+      oc debug node/$NODE --to-namespace="$DEBUG_NAMESPACE" -- sleep 3600 &
+
+      echo "OLD_NUM_POD: $OLD_NUM_POD"
+
+
+      NEW_NUM_POD=$(oc get pods -o name| wc -l)
+      ITERATION=0
+      echo "NEW_NUM_POD: $NEW_NUM_POD"
+
+      while [[ $OLD_NUM_POD -eq $NEW_NUM_POD ]] && [[ $ITERATION -lt 20 ]]
+      do
+        sleep 2
+        NEW_NUM_POD=$(oc get pods -o name| wc -l)
+        ITERATION=$((ITERATION+1))
+        echo "NEW_NUM_POD: $NEW_NUM_POD; $ITERATION"
+      done
+
+  done
+
+  # copy the content of /var/lib/systemd/coredump for each of the debug pods:
+  for DEBUG_POD in $(oc get pod -n $DEBUG_NAMESPACE -oname)
+  do
+
+    if [ "$COLLECT" = "true" ]; then
+      echo "collecting content of coredump folder using pod $DEBUG_POD"
+      oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- ls /host/var/lib/systemd/coredump/
+      oc rsync -n $DEBUG_NAMESPACE $DEBUG_POD:/host/var/lib/systemd/coredump $OUTPUT_DIR/.
+    fi
+
+    if [ "$REMOVE" = "true" ]; then
+
+    #   oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- rm -rf /host/var/lib/systemd/coredump/*
+      oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- ls /host/var/lib/systemd/coredump/
+      echo "removing coredump files on pod $DEBUG_POD"
+      oc rsh $DEBUG_POD bash -c "rm -rf /host/var/lib/systemd/coredump/*" 
+      oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- ls /host/var/lib/systemd/coredump/
+
+      for CONTAINER in $(oc get $SERVER_POD -n $NAMESPACE -o jsonpath='{.spec.containers[*].name}')
+      do 
+        if [ "$CONTAINER" != "monitoragent" ] && [ "$CONTAINER" != "coreidp-init" ]
+        then
+          echo "removing all javacores in $CONTAINER in pod $SERVER_POD "
+          oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- find / -name "*javacore*.txt" -delete 2> /dev/null >> $OUTPUT_DIR/cmd.txt
+
+        fi
+      done
+    fi 
+
+  done
+
+  oc delete project $DEBUG_NAMESPACE
+
+else
+  echo "no action specified, you need to specify at least one action -g -c or -r,. Use -h for more information"
+fi
+
+
+exit 0

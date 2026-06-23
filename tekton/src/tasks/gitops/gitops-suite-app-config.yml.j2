@@ -70,9 +70,6 @@ spec:
     - name: mas_manual_certs_yaml
       type: string
       default: ""
-    - name: ingress
-      type: string
-      default: "false"
     - name: run_sanity_test
       type: string
       default: "false"
@@ -95,11 +92,11 @@ spec:
         value: $(params.mas_appws_api_version)
       - name: MAS_APPWS_KIND
         value: $(params.mas_appws_kind)
-      - name: MAS_APPWS_SPEC_YAML 
+      - name: MAS_APPWS_SPEC_YAML
         value: $(params.mas_appws_spec_yaml)
-      - name: MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML 
+      - name: MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML
         value: $(params.mas_app_server_bundles_combined_add_server_config_yaml)
-      - name: MAS_APP_GLOBAL_SECRETS_YAML 
+      - name: MAS_APP_GLOBAL_SECRETS_YAML
         value: $(params.mas_app_global_secrets_yaml_manage)
       - name: DEFAULT_FILE_STORAGE_CLASS
         value: $(params.default_file_storage_class)
@@ -135,8 +132,6 @@ spec:
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_MANUAL_CERTS_YAML
         value: $(params.mas_manual_certs_yaml)
-      - name: INGRESS
-        value: $(params.ingress)
       - name: RUN_SANITY_TEST
         value: $(params.run_sanity_test)
       - name: MANAGE_UPDATE_SCHEDULE
@@ -156,7 +151,7 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        # mas app install specific 
+        # mas app install specific
         export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
 
         # Any external config is stored here
@@ -179,7 +174,7 @@ spec:
         - -c
       name: gitops-suite-app-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

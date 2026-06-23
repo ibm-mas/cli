@@ -3,7 +3,10 @@ Application Dependencies
 
 <div>
   <cds-accordion>
-    <cds-accordion-item title="Maximo Application Suite 9.0" open>
+    <cds-accordion-item title="Maximo Application Suite 9.1" open>
+      <img src="../../img/mas-91-dependencies.png" style="max-width: 120%">
+    </cds-accordion-item>
+    <cds-accordion-item title="Maximo Application Suite 9.0">
       <img src="../../img/mas-90-dependencies.svg" style="max-width: 120%">
     </cds-accordion-item>
     <cds-accordion-item title="Maximo Application Suite 8.11">

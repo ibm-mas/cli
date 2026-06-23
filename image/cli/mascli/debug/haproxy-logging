@@ -1,0 +1,119 @@
+#!/bin/bash
+
+OUTPUT_DIR=/tmp
+ENABLE=false
+DISABLE=false
+COLLECT=false
+
+function threaddump_help() {
+  cat << EOM
+This command automates the steps described in this redhat document:
+https://access.redhat.com/solutions/7009025
+Usage:
+  mas debug haproxy-logging [options]
+  --enable               : Enables haproxy logging on the cluster
+  --disable              : Removes haproxy logging configuration from the ingresscontroller resource
+  -c, --collect          : Collects the logs from the logs container in the router pods
+  -d, --dir              : Folder where the log files are copied locally
+  -h, --help             : Show this help message
+
+Examples:
+  enable haproxy logging:
+  mas debug haproxy-logging --enable
+  collect the haproxy logs and remove logging configuration from the ingressController:
+  mas debug haproxy-logging --disable --collect -d /mnt/home
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+    --enable)
+      ENABLE=true
+      ;;
+
+    --disable)
+      DISABLE=true
+      ;;
+
+    -c|--collect)
+      COLLECT=true
+      ;;
+
+    -d|--dir)
+      OUTPUT_DIR=$1; shift
+      ;;
+
+    -h|--help)
+      threaddump_help
+      exit 0
+  esac
+done
+
+# oc get ingresscontroller/default -o yaml -n openshift-ingress-operator
+
+if [[ "$ENABLE" = true ]]; then
+
+    # backup ingresscontroller yaml 
+
+    echo "backup ingresscontroller yaml to $(pwd)"
+    oc get ingresscontroller default -o yaml -n openshift-ingress-operator > ingresscontroller-default.yaml
+    # enable haproxy logging
+
+    echo "patching ingresscontroller/default"
+    oc patch ingresscontroller/default -n openshift-ingress-operator --type='merge' -p '{"spec":{"logging":{"access":{"destination":{"type": "Container"},"httpLogFormat": "log_source=\"haproxy-default\" log_type=\"http\" c_ip=\"%ci\" c_port=\"%cp\" req_date=\"%tr\" fe_name_transport=\"%ft\" be_name=\"%b\" server_name=\"%s\" res_time=\"%TR\" tot_wait_q=\"%Tw\" Tc=\"%Tc\" Tr=\"%Tr\" Ta=\"%Ta\" status_code=\"%ST\" bytes_read=\"%B\" bytes_uploaded=\"%U\" captrd_req_cookie=\"%CC\" captrd_res_cookie=\"%CS\" term_state=\"%tsc\" actconn=\"%ac\" feconn=\"%fc\" beconn=\"%bc\" srv_conn=\"%sc\" retries=\"%rc\" srv_queue=\"%sq\" backend_queue=\"%bq\" captrd_req_headers=\"%hr\" captrd_res_headers=\"%hs\" http_request=\"%r\""}}}}'
+
+    for (( i=20; i > 0; --i)); do
+        sleep 30
+        if [ "$(oc get ingresscontroller/default -n openshift-ingress-operator -ojsonpath="{.status.availableReplicas}")" == "$(oc get ingresscontroller/default -n openshift-ingress-operator -ojsonpath="{.spec.replicas}")" ]; then
+            echo "ingresscontroller is ready"
+            break
+        fi
+        echo "ingresscontroller not ready, retries in 30s ($i)"
+    done 
+
+    if [ "$(oc get ingresscontroller/default -n openshift-ingress-operator -ojsonpath="{.status.availableReplicas}")" != "$(oc get ingresscontroller/default -n openshift-ingress-operator -ojsonpath="{.spec.replicas}")" ]; then
+        echo "ingresscontroller is not ready after 10 minutes"
+        exit 1
+    fi
+    exit 0
+fi
+
+
+## collect logs 
+if [[ "$COLLECT" = true ]]; then
+
+    if [[ $(oc get pods -n openshift-ingress -o jsonpath='{.items[*].spec.containers[*].name}' | grep logs | wc -l) == 0 ]]; then
+        echo "haproxy logging does not appear to be enabled, not logs containers were found"
+        exit 1
+    fi 
+    mkdir -p $OUTPUT_DIR
+    for POD in $(oc get pod -n openshift-ingress -ojsonpath="{.items[*].metadata.name}"); do
+      echo "collecting logs for $POD"
+      oc logs -c logs $POD -n openshift-ingress > $OUTPUT_DIR/$POD.txt
+    done
+fi
+
+# disable haproxy logging
+if [[ "$DISABLE" = true ]]; then
+
+    oc patch ingresscontroller/default -n openshift-ingress-operator --type='json' -p '[{"op": "remove", "path": "/spec/logging"}]'
+
+    for (( i=20; i > 0; --i)); do
+        sleep 30
+        if [ "$(oc get ingresscontroller/default -n openshift-ingress-operator -ojsonpath="{.status.availableReplicas}")" == "$(oc get ingresscontroller/default -n openshift-ingress-operator -ojsonpath="{.spec.replicas}")" ]; then
+            echo "ingresscontroller is ready"
+            break
+        fi
+        echo "ingresscontroller not ready, retries in 30s ($i)"
+    done 
+
+    if [ "$(oc get ingresscontroller/default -n openshift-ingress-operator -ojsonpath="{.status.availableReplicas}")" != "$(oc get ingresscontroller/default -n openshift-ingress-operator -ojsonpath="{.spec.replicas}")" ]; then
+        echo "ingresscontroller is not ready after 10 minutes"
+        exit 1
+    fi
+    exit 0
+fi

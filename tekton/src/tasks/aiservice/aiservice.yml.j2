@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-devops-aibroker
+  name: mas-devops-aiservice
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -21,26 +21,15 @@ spec:
     - name: ibm_entitlement_key
       type: string
 
-    # MAS Details
-    - name: mas_instance_id
+    # AI Service Details
+    - name: aiservice_instance_id
       type: string
-      description: Instance ID
+      description: AI Service Instance ID
 
     # Application - Operator
-    # - name: mas_aibroker_channel
-    - name: mas_app_channel
+    - name: aiservice_channel
       type: string
-      description: Catalog channel for the application operator subscription
-
-    # Application - Operand
-    - name: mas_app_bindings_jdbc
-      default: ""
-      type: string
-      
-    - name: mas_app_plan
-      type: string
-      description: Application installation plan
-      default: ""
+      description: Catalog channel for the AI Service operator subscription
 
     # Artifactory details
     - name: mas_icr_cp
@@ -56,159 +45,115 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
-    # AI Broker actions 
-    - name: mas_aibroker_s3_action      
-      type: string
-      description: 
-      default: "This option is optional"
-    - name: mas_aibroker_apikey_action      
-      type: string
-      description: 
-      default: "This option is optional"
-
     # WatsonX params
-    - name: mas_aibroker_watsonxai_apikey      
+    - name: aiservice_watsonxai_apikey
       type: string
-      description: 
       default: "This option is mandatory"
-    - name: mas_aibroker_watsonxai_url
+    - name: aiservice_watsonxai_url
       type: string
-      description: 
-      default: "This option is mandatory"   
-    - name: mas_aibroker_watsonxai_project_id
-      type: string
-      description: 
       default: "This option is mandatory"
-    - name: mas_aibroker_watsonx_action
+    - name: aiservice_watsonxai_project_id
       type: string
-      description: 
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_deployment_id
+      type: string
+      description: WatsonX deployment ID for IBM Maximo AI Service
+      default: ""
+    - name: aiservice_watsonxai_space_id
+      type: string
+      description: WatsonX space ID for IBM Maximo AI Service
+      default: ""
+    - name: aiservice_watsonx_action
+      type: string
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_ca_crt
+      type: string
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_instance_id
+      type: string
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_username
+      type: string
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_version
+      type: string
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_on_prem
+      type: string
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_verify
+      type: string
       default: "This option is mandatory"
 
-    # AI Broker storage 
-    - name: mas_aibroker_storage_provider
+    # AI Service storage
+    - name: aiservice_s3_accesskey
+      type: string
+      default: ""
+    - name: aiservice_s3_secretkey
+      type: string
+      default: ""
+      default: ""
+    - name: aiservice_s3_host
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_accesskey
+    - name: aiservice_s3_port
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_secretkey
+    - name: aiservice_s3_ssl
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_host
+    - name: aiservice_s3_region
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_port
+    - name: aiservice_s3_bucket_prefix
+      type: string
+      default: ""
+    - name: aiservice_s3_tenants_bucket
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_ssl
+    - name: aiservice_s3_templates_bucket
       type: string
       default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_storage_region
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_storage_pipelines_bucket
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_storage_tenants_bucket
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_storage_templates_bucket
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_s3_bucket_prefix
-      type: string
-      default: ""
-    - name: mas_aibroker_s3_endpoint_url
-      type: string
-      default: ""
-    - name: mas_aibroker_db_host
-      type: string
-      default: ""
-    - name: mas_aibroker_db_port
-      type: string
-      default: ""
-    - name: mas_aibroker_db_user
-      type: string
-      default: ""
-    - name: mas_aibroker_db_database
-      type: string
-      default: ""
-    - name: mas_aibroker_db_secret_name
-      type: string
-      default: ""
-    - name: mas_aibroker_db_secret_key
-      type: string
-      default: ""
-    - name: mas_aibroker_db_secret_value
-      type: string
-      default: ""
-    - name: mas_aibroker_dro_secret_name
-      type: string
-      description: DRO secret name
-      default: ""
-    - name: mas_aibroker_dro_api_key
-      type: string
-      description: DRO API key
-      default: ""
-    - name: mas_aibroker_dro_url
-      type: string
-      description: DRO URL
-      default: ""
-    - name: mas_aibroker_dro_ca_cert
-      type: string
-      description: DRO CA certificate
-      default: ""
-    - name: mas_aibroker_db2_username
-      type: string
-      description: DB2 username
-      default: ""
-    - name: mas_aibroker_db2_password
-      type: string
-      description: DB2 password
-      default: ""
-    - name: mas_aibroker_db2_jdbc_url
-      type: string
-      description: DB2 JDBC URL
-      default: ""
-    - name: mas_aibroker_db2_ssl_enabled
-      type: string
-      description: DB2 SSL enabled
-      default: "false"
-    - name: mas_aibroker_db2_ca_cert
-      type: string
-      description: DB2 CA certificate
-      default: ""
-    - name: mas_aibroker_sls_secret_name
-      type: string
-      description: SLS secret name
-      default: ""
-    - name: mas_aibroker_sls_registration_key
-      type: string
-      description: SLS registration key
-      default: ""
-    - name: mas_aibroker_sls_url
-      type: string
-      description: SLS URL
-      default: ""
-    - name: mas_aibroker_sls_ca_cert
-      type: string
-      description: SLS CA certificate
       default: ""
     - name: environment_type
       type: string
       description: Environment type
       default: ""
-    
+
+    # Tenant Entitlement
+    - name: tenant_entitlement_type
+      type: string
+    - name: tenant_entitlement_start_date
+      type: string
+    - name: tenant_entitlement_end_date
+      type: string
+    # Config file for scheduling constraints for AI workloads
+    - name: tenant_scheduling_cfg_file
+      type: string
+
+    # RSL
+    - name: rsl_ca_crt
+      type: string
+
+
+    # RHOAI flag
+    - name: rhoai
+
+    # Certificate Issuer
+    - name: aiservice_certificate_issuer
+      type: string
+
+    # Enable IPv6 networking
+    - name: enable_ipv6
+      type: string
+      description: Optional boolean parameter that when set to True, configures services in SingleStack IPv6 networking
+      default: "False"
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -223,19 +168,13 @@ spec:
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
 
-      # MAS Details
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-
-      # Application - Operator
-      # - name: MAS_AIBROKER_CHANNEL
-      #   value: $(params.mas_aibroker_channel)
-      - name: MAS_APP_CHANNEL
-        value: $(params.mas_app_channel)
+      # AI Service Details
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
+      - name: AISERVICE_CHANNEL
+        value: $(params.aiservice_channel)
       - name: MAS_CONFIG_DIR
         value: /workspace/configs
-      - name: MAS_APP_ID
-        value: aibroker
 
       # Artifactory Details
       - name: MAS_ICR_CP
@@ -246,114 +185,131 @@ spec:
       # Custom Label Support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
-      
-      # AI Broker action for create/delete s3 secret 
-      - name: MAS_AIBROKER_S3_ACTION
-        value: $(params.mas_aibroker_s3_action)
 
-      # AI Broker action for create/delete api key 
-      - name: MAS_AIBROKER_APIKEY_ACTION
-        value: $(params.mas_aibroker_apikey_action)
+      # Watsonx
+      - name: AISERVICE_WATSONXAI_APIKEY
+        value: $(params.aiservice_watsonxai_apikey)
+      - name: AISERVICE_WATSONXAI_URL
+        value: $(params.aiservice_watsonxai_url)
+      - name: AISERVICE_WATSONXAI_PROJECT_ID
+        value: $(params.aiservice_watsonxai_project_id)
+      - name: AISERVICE_WATSONXAI_DEPLOYMENT_ID
+        value: $(params.aiservice_watsonxai_deployment_id)
+      - name: AISERVICE_WATSONXAI_SPACE_ID
+        value: $(params.aiservice_watsonxai_space_id)
+      - name: AISERVICE_WATSONX_ACTION
+        value: $(params.aiservice_watsonx_action)
+      - name: AISERVICE_WATSONXAI_CA_CRT
+        value: $(params.aiservice_watsonxai_ca_crt)
+      - name: AISERVICE_WATSONXAI_USERNAME
+        value: $(params.aiservice_watsonxai_username)
+      - name: AISERVICE_WATSONXAI_VERSION
+        value: $(params.aiservice_watsonxai_version)
+      - name: AISERVICE_WATSONXAI_INSTANCE_ID
+        value: $(params.aiservice_watsonxai_instance_id)
+      - name: AISERVICE_WATSONXAI_ON_PREM
+        value: $(params.aiservice_watsonxai_on_prem)
+      - name: AISERVICE_WATSONXAI_VERIFY
+        value: $(params.aiservice_watsonxai_verify)
 
-      # WatsonX api key
-      - name: MAS_AIBROKER_WATSONXAI_APIKEY
-        value: $(params.mas_aibroker_watsonxai_apikey)
-
-      # WatsonX url
-      - name: MAS_AIBROKER_WATSONXAI_URL
-        value: $(params.mas_aibroker_watsonxai_url)
-      
-      # WatsonX project id
-      - name: MAS_AIBROKER_WATSONXAI_PROJECT_ID
-        value: $(params.mas_aibroker_watsonxai_project_id)
-      
-      # WatsonX action
-      - name: MAS_AIBROKER_WATSONX_ACTION
-        value: $(params.mas_aibroker_watsonx_action)
-      
       # Opendatahub storage details
-      - name: MAS_AIBROKER_STORAGE_PROVIDER
-        value: $(params.mas_aibroker_storage_provider)
-      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
-        value: $(params.mas_aibroker_storage_accesskey)
-      - name: MAS_AIBROKER_STORAGE_SECRETKEY
-        value: $(params.mas_aibroker_storage_secretkey)
-      - name: MAS_AIBROKER_STORAGE_HOST
-        value: $(params.mas_aibroker_storage_host)
-      - name: MAS_AIBROKER_STORAGE_PORT
-        value: $(params.mas_aibroker_storage_port)
-      - name: MAS_AIBROKER_STORAGE_SSL
-        value: $(params.mas_aibroker_storage_ssl)
-      - name: MAS_AIBROKER_STORAGE_REGION
-        value: $(params.mas_aibroker_storage_region)
-      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
-        value: $(params.mas_aibroker_storage_pipelines_bucket)
-      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
-        value: $(params.mas_aibroker_storage_tenants_bucket)
-      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
-        value: $(params.mas_aibroker_storage_templates_bucket)
-      - name: MAS_AIBROKER_S3_BUCKET_PREFIX
-        value: $(params.mas_aibroker_s3_bucket_prefix)
-      - name: MAS_AIBROKER_S3_ENDPOINT_URL
-        value: $(params.mas_aibroker_s3_endpoint_url)
+      - name: AISERVICE_S3_ACCESSKEY
+        value: $(params.aiservice_s3_accesskey)
+      - name: AISERVICE_S3_SECRETKEY
+        value: $(params.aiservice_s3_secretkey)
+      - name: AISERVICE_S3_HOST
+        value: $(params.aiservice_s3_host)
+      - name: AISERVICE_S3_PORT
+        value: $(params.aiservice_s3_port)
+      - name: AISERVICE_S3_SSL
+        value: $(params.aiservice_s3_ssl)
+      - name: AISERVICE_S3_REGION
+        value: $(params.aiservice_s3_region)
+      - name: AISERVICE_S3_BUCKET_PREFIX
+        value: $(params.aiservice_s3_bucket_prefix)
+      - name: AISERVICE_S3_TENANTS_BUCKET
+        value: $(params.aiservice_s3_tenants_bucket)
+      - name: AISERVICE_S3_TEMPLATES_BUCKET
+        value: $(params.aiservice_s3_templates_bucket)
 
-      # Ai Broker Saas
-      - name: MAS_AIBROKER_SAAS
-        value: 'true'
-
-      # MariaDB details
-      - name: MAS_AIBROKER_DB_HOST
-        value: $(params.mas_aibroker_db_host)
-      - name: MAS_AIBROKER_DB_PORT
-        value: $(params.mas_aibroker_db_port)
-      - name: MAS_AIBROKER_DB_USER
-        value: $(params.mas_aibroker_db_user)
-      - name: MAS_AIBROKER_DB_DATABASE
-        value: $(params.mas_aibroker_db_database)
-      - name: MAS_AIBROKER_DB_SECRET_NAME
-        value: $(params.mas_aibroker_db_secret_name)
-      - name: MAS_AIBROKER_DB_SECRET_VALUE
-        value: $(params.mas_aibroker_db_secret_value)
-
-      # DRO, DB2, SLS vars
-      - name: MAS_AIBROKER_DRO_SECRET_NAME
-        value: $(params.mas_aibroker_dro_secret_name)
-      - name: MAS_AIBROKER_DRO_API_KEY
-        value: $(params.mas_aibroker_dro_api_key)
-      - name: MAS_AIBROKER_DRO_URL
-        value: $(params.mas_aibroker_dro_url)
-      - name: MAS_AIBROKER_DRO_CA_CERT
-        value: $(params.mas_aibroker_dro_ca_cert)
-      - name: MAS_AIBROKER_DB2_USERNAME
-        value: $(params.mas_aibroker_db2_username)
-      - name: MAS_AIBROKER_DB2_PASSWORD
-        value: $(params.mas_aibroker_db2_password)
-      - name: MAS_AIBROKER_DB2_JDBC_URL
-        value: $(params.mas_aibroker_db2_jdbc_url)
-      - name: MAS_AIBROKER_DB2_SSL_ENABLED
-        value: $(params.mas_aibroker_db2_ssl_enabled)
-      - name: MAS_AIBROKER_DB2_CA_CERT
-        value: $(params.mas_aibroker_db2_ca_cert)
-      - name: MAS_AIBROKER_SLS_SECRET_NAME
-        value: $(params.mas_aibroker_sls_secret_name)
-      - name: MAS_AIBROKER_SLS_REGISTRATION_KEY
-        value: $(params.mas_aibroker_sls_registration_key)
-      - name: MAS_AIBROKER_SLS_URL
-        value: $(params.mas_aibroker_sls_url)
-      - name: MAS_AIBROKER_SLS_CA_CERT
-        value: $(params.mas_aibroker_sls_ca_cert)
       - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
 
+      # Tenant Entitlement
+      - name: AISERVICE_TENANT_ENTITLEMENT_TYPE
+        value: $(params.tenant_entitlement_type)
+      - name: AISERVICE_TENANT_ENTITLEMENT_START_DATE
+        value: $(params.tenant_entitlement_start_date)
+      - name: AISERVICE_TENANT_ENTITLEMENT_END_DATE
+        value: $(params.tenant_entitlement_end_date)
+      - name: AISERVICE_TENANT_SCHEDULING_CONFIG_FILE
+        value: $(params.tenant_scheduling_cfg_file)
+
+      # RSL
+      - name: RSL_CA_CRT
+        value: $(params.rsl_ca_crt)
+
+      # Certificate Issuer
+      - name: AISERVICE_CERTIFICATE_ISSUER
+        value: $(params.aiservice_certificate_issuer)
+
+      # Enable IPv6
+      - name: OCP_ENABLE_IPV6
+        value: $(params.enable_ipv6)
+
   steps:
-    - name: aibroker
+    - name: aiservice
       command:
         - /opt/app-root/src/run-role.sh
-        - aibroker
-      image: quay.io/ibmmas/cli:latest
+        - aiservice
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
+    - name: aiservice-tenant
+      command:
+        - /opt/app-root/src/run-role.sh
+        - aiservice_tenant
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+
+    # If configmap/approval-aiservice exists then set STATUS=pending and wait for it to be changed to "approved"
+    - name: app-cfg-post-verify
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: CONFIGMAP_NAME
+          value: approval-aiservice
+        - name: CONFIGMAP_INITIAL_VALUE
+          value: pending
+        - name: CONFIGMAP_TARGET_VALUE
+          value: approved
+        - name: DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-aiservice
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: approval-aiservice
+              key: MAX_RETRIES
+              optional: true
+        - name: IGNORE_FAILURE
+          valueFrom:
+            configMapKeyRef:
+              name: approval-aiservice
+              key: IGNORE_FAILURE
+              optional: true
+
   workspaces:
     - name: configs
+      optional: true
+    - name: aiservice
       optional: true

@@ -6,7 +6,7 @@
   default: IfNotPresent
   description: Pull policy for pipeline container images
 
-# Development Build Support 
+# Development Build Support
 - name: artifactory_username
   default: ""
   type: string
@@ -22,6 +22,18 @@
   default: ""
   description: Optional custom labels, comma separated list of key=value pairs
 
+# Slack Notifications
+- name: slack_token
+  type: string
+  default: ""
+  description: Slack bot token for sending pipeline notifications
+- name: slack_channel
+  type: string
+  default: ""
+  description: Slack channel(s) for notifications (comma-separated for multiple channels)
+
+{% if application is not defined %}
+
 # MAS Configuration
 - name: mas_channel
   type: string
@@ -29,3 +41,4 @@
 - name: mas_instance_id
   type: string
   default: ""
+{% endif %}

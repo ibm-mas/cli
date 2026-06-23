@@ -25,7 +25,7 @@ spec:
       - |-
         export ROSA_TOKEN=$(params.rosa_token)
         export OCP_VERSION=$(params.ocp_version)
-  
+
         aws configure set aws_access_key_id $(params.aws_access_key_id)
         aws configure set aws_secret_access_key $(params.aws_secret_access_key)
         aws configure set default.region $(params.aws_region)
@@ -45,7 +45,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-deprovision-rosa
-      imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: Always
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

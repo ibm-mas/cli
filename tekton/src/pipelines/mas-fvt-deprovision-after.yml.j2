@@ -1,0 +1,134 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-deprovision-after
+spec:
+  params:
+    # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+
+    - name: ignore_failure
+      type: string
+      default: "True"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    # MAS config
+    - name: mas_instance_id
+      type: string
+      default: ""
+
+    # Cluster to deprovision
+    - name: cluster_name
+      type: string
+      default: ""
+    - name: cluster_type
+      type: string
+      default: "roks"
+
+    # IBM Cloud
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      default: ""
+
+    # COS
+    - name: cos_resourcegroup
+      type: string
+      default: ""
+    - name: cos_apikey
+      type: string
+      default: ""
+    - name: cos_instance_name
+      type: string
+      default: ""
+    - name: cos_type
+      type: string
+      default: ""
+    - name: cos_action
+      type: string
+      default: ""
+    - name: cos_use_hmac
+      type: string
+      default: ""
+
+    # IBM Event Streams
+    - name: eventstreams_resourcegroup
+      type: string
+      default: ""
+    - name: eventstreams_name
+      type: string
+      default: ""
+    - name: eventstreams_location
+      type: string
+      default: ""
+    - name: kafka_provider
+      type: string
+      default: ""
+    - name: kafka_action_system
+      type: string
+      default: ""
+
+  tasks:
+    # 0. Wait for the named pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-pipelinerun
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.pipelinerun_name)
+        - name: delay
+          value: "1200"  # 20 minutes between checking the status of the pipelinerun
+        - name: max_retries
+          value: "60"  # attempts before giving up (approximately 20 hours)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+
+    # 1. Delete IBM Cloud services
+    # -------------------------------------------------------------------------
+
+    # COS
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-cos.yml.j2') | indent(4) }}
+      runAfter:
+        - wait-for-pipelinerun
+      when:
+        - input: "$(params.cos_type)"
+          operator: in
+          values: ["ibm"]
+        - input: "$(params.cos_action)"
+          operator: in
+          values: ["deprovision"]
+
+    # Event Streams
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-kafka.yml.j2') | indent(4) }}
+      runAfter:
+        - wait-for-pipelinerun
+      when:
+        - input: "$(params.kafka_provider)"
+          operator: in
+          values: ["ibm"]
+        - input: "$(params.kafka_action_system)"
+          operator: in
+          values: ["uninstall"]
+
+    # 2. Delete the named cluster
+    # -------------------------------------------------------------------------
+    - name: deprovision-cluster
+      taskRef:
+        kind: Task
+        name: mas-fvt-deprovision-ocp
+      runAfter:
+        - cos-deprovision
+        - kafka-deprovision

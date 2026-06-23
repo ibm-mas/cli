@@ -25,12 +25,12 @@
         - arcgis
         - appconnect
         - cert-manager
-        - common-services
         - cos
         - cp4d-service
         - cp4d-service-update
         - cp4d
         - db2
+        - dro
         - eck
         - grafana
         - ibm-catalogs
@@ -38,26 +38,24 @@
         - mongodb
         - nvidia-gpu
         - ocs
-        - sls-registry-update
+        - rhoai-migration
         - sls
         - turbonomic
-        - uds
 
-    # 3. Generate Tasks (AI Broker)
+    # 3. Generate Tasks (AI Service)
     # -------------------------------------------------------------------------
-    - name: Generate Tasks (AI Broker)
+    - name: Generate Tasks (AI Service)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - minio
-        - mariadb
         - aiservice
-        - kmodels
         - odh
-        - aiservice-tenant
-        - aiservice-post-verify
-        
+        - rhoai
+        - aiservice-upgrade
+        - aiservice-migration
+
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (FVT)
@@ -65,54 +63,61 @@
         src: "{{ task_src_dir }}/fvt/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - fvt-assist-desktop
-        - fvt-assist
-        - fvt-core
-        - fvt-components
-        - fvt-data-dictionary
-        - fvt-deprovision-ocp
-        - fvt-deprovision-cos
-        - fvt-deprovision-kafka
-        - fvt-finalize
-        - fvt-iot
-        - fvt-manage
-        - fvt-mobile-testng
-        - fvt-mobile-pytest
-        - fvt-manage-directprint
-        - fvt-manage-adhoc-report
-        - fvt-manage-birt-report
-        - fvt-manage-last-phase
-        - fvt-manage-pytest
-        - fvt-monitor
-        - fvt-run-suite
-        - fvt-sls
-        - fvt-start-update
-        - fvt-start-upgrade
-        - fvt-start-uninstall
+        - aiservice-fvt
+        - aiservice-fvt-start-upgrade
+        - mas-fvt-assist-desktop
+        - mas-fvt-assist
+        - mas-fvt-core
+        - mas-fvt-components
+        - mas-fvt-data-dictionary
+        - mas-fvt-deprovision-ocp
+        - mas-fvt-deprovision-cos
+        - mas-fvt-deprovision-kafka
+        - mas-fvt-finalize
+        - mas-fvt-pipeline-finish-and-deprovision
+        - mas-fvt-iot
+        - mas-fvt-manage
+        - mas-fvt-mobile-testng
+        - mas-fvt-mobile-pytest
+        - mas-fvt-manage-directprint
+        - mas-fvt-manage-adhoc-report
+        - mas-fvt-manage-birt-report
+        - mas-fvt-manage-last-phase
+        - mas-fvt-manage-pytest
+        - mas-fvt-manage-cypress
+        - mas-fvt-monitor
+        - mas-fvt-run-suite
+        - mas-fvt-sls
+        - mas-fvt-start-update
+        - mas-fvt-start-upgrade
+        - mas-fvt-start-uninstall
+        - mas-fvt-pre-update
+        - mas-fvt-pre-upgrade
+        - mas-fvt-post-update
+        - mas-fvt-config-helper
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/fvt-launcher/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - launchfvt-assist
-        - launchfvt-core
-        - launchfvt-sls
-        - launchfvt-finally
-        - launchfvt-iot
-        - launchfvt-manage
-        - launchfvt-manage-is
-        - launchfvt-mobile
-        - launchfvt-mobile-upgrade-pre
-        - launchfvt-mobile-upgrade-post
-        - launchfvt-monitor
-        - launchfvt-optimizer
-        - launchfvt-predict
-        - launchfvt-aiservice
-        - launchfvt-visualinspection
-        - launchfvt-upgrade-post
-        - launchfvt-upgrade-pre
-        - launchivt-manage
+        - aiservice-launchfvt
+        - mas-launchfvt-assist
+        - mas-launchfvt-core
+        - mas-launchfvt-sls
+        - mas-launchfvt-finally
+        - mas-launchfvt-iot
+        - mas-launchfvt-manage
+        - mas-launchfvt-manage-ai
+        - mas-launchfvt-manage-is
+        - mas-launchfvt-mobile
+        - mas-launchfvt-monitor
+        - mas-launchfvt-optimizer
+        - mas-launchfvt-predict
+        - mas-launchfvt-visualinspection
+        - mas-launchfvt-facilities
+        - mas-launchivt-manage
+
 
     # 5. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -131,28 +136,33 @@
         src: "{{ task_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - clean-workspaces
+        - prepare-backup-workspace
+        - download-backup-archive
+        - gencfg-aiservice
         - gencfg-workspace
         - must-gather
-        - suite-app-config
+        - suite-app-backup
         - suite-app-install
+        - suite-app-restore
         - suite-app-uninstall
         - suite-app-upgrade
-        - suite-app-rollback
-        - suite-app-verify
+        - suite-backup
+        - suite-restore
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
         - suite-db2-setup-for-facilities
         - suite-dns
         - suite-install
-        - suite-rollback
         - suite-uninstall
         - suite-upgrade
         - suite-verify
+        - upload-backup-archive
 
     # 7. Generate Tasks (OCP)
     # -------------------------------------------------------------------------
-    - name: Generate Tasks (Suite)
+    - name: Generate Tasks (OCP)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/ocp/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
@@ -168,6 +178,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - update-configmap
+        - update-pipeline-status
         - wait-for-configmap
         - wait-for-configmap-v2
         - wait-for-tekton
@@ -192,6 +203,7 @@
         - gitops-deprovision-app-config
         - gitops-deprovision-app-install
         - gitops-deprovision-cluster
+        - gitops-deprovision-customer-subscription
         - gitops-deprovision-cos
         - gitops-deprovision-cp4d
         - gitops-deprovision-cp4d-service
@@ -211,6 +223,7 @@
         - gitops-deprovision-suite
         - gitops-dro
         - gitops-efs
+        - gitops-efs-csi-driver
         - gitops-jdbc-config
         - gitops-kafka
         - gitops-kafka-config
@@ -223,6 +236,7 @@
         - gitops-nvidia-gpu
         - gitops-process-mongo-user
         - gitops-rosa
+        - gitops-sls
         - gitops-suite-app-install
         - gitops-suite-app-config
         - gitops-suite-certs
@@ -235,3 +249,21 @@
         - gitops-suite-watson-studio-config
         - gitops-suite-workspace
         - gitops-suite
+        - gitops-odh
+        - gitops-deprovision-odh
+        - gitops-rhoai
+        - gitops-deprovision-rhoai
+        - gitops-aiservice
+        - gitops-aiservice-tenant
+        - gitops-deprovision-aiservice-tenant
+        - gitops-deprovision-aiservice
+        - gitops-app-config
+        - gitops-delete-app-config
+        - gitops-iac-create-branch
+        - gitops-iac-generate-common-files
+        - gitops-iac-manage-pr
+        - gitops-iac-provision-efs
+        - gitops-iac-provision-s3
+        - gitops-iac-provision-msk
+        - gitops-rds-db2-database
+        - gitops-iac-provision-rdsdb2

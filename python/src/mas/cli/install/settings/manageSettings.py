@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -9,49 +9,96 @@
 # *****************************************************************************
 
 import logging
+from typing import TYPE_CHECKING, Dict, List, NoReturn
+
+from kubernetes.dynamic.exceptions import ResourceNotFoundError
+from prompt_toolkit import print_formatted_text, HTML
+from prompt_toolkit.completion import WordCompleter
+
+from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
+from mas.devops.utils import isVersionEqualOrAfter
+
+from ...validators import CustomizationArchiveNameValidator, LanguageValidator, AiserviceTeanantIDValidator
+
 logger = logging.getLogger(__name__)
 
 
-class ManageSettingsMixin():
+if TYPE_CHECKING:
+    from kubernetes.dynamic import DynamicClient
+    from prompt_toolkit.validation import Validator
 
-    def arcgisSettings(self) -> None:
-        # If Spatial is selected, then prompt to choose to add IBM Maximo Location Services for Esri, and prompt license
-        if "spatial=" in self.getParam("mas_appws_components") and self.getParam("mas_app_channel_manage").startswith("9."):
-            self.printDescription([
-                "",
-                "Maximo Spatial requires a map server provider in order to enable geospatial capabilities",
-                "You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now",
-                f"This includes ArcGIS Enterprise as part of the {self.manageAppName} and Maximo Spatial bundle (Additional AppPoints required)."
-            ])
 
-            if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
-                self.setParam("install_arcgis", "true")
-                self.setParam("mas_arcgis_channel", self.getParam("mas_app_channel_manage"))
+class ManageSettingsMixin:
+    if TYPE_CHECKING:
+        # Attributes from BaseApp and other mixins
+        params: Dict[str, str]
+        manageAppName: str
+        showAdvancedOptions: bool
+        isManageFoundation: bool
+        installManage: bool
+        installAIService: bool
+        supportedLanguages: List[str]
 
-                self.printDescription([
-                    "",
-                    "IBM Maximo Location Services for Esri License Terms",
-                    "For information about your IBM Maximo Location Services for Esri License visit: ",
-                    " - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>",
-                    "To continue with the installation, you must accept these additional license terms"
-                ])
+        @property
+        def dynamicClient(self) -> DynamicClient: ...
 
-                if not self.yesOrNo("Do you accept the license terms"):
-                    exit(1)
+        # Methods from BaseApp
+        def setParam(self, param: str, value: str) -> None: ...
+
+        def getParam(self, param: str) -> str: ...
+
+        def isSNO(self) -> bool: ...
+
+        def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn: ...
+
+        # Methods from PrintMixin
+        def printH1(self, message: str) -> None: ...
+
+        def printH2(self, message: str) -> None: ...
+
+        def printDescription(self, content: List[str]) -> None: ...
+
+        # Methods from PromptMixin
+        def yesOrNo(self, message: str, param: str | None = None) -> bool: ...
+
+        def promptForString(
+            self,
+            message: str,
+            param: str | None = None,
+            default: str = "",
+            isPassword: bool = False,
+            validator: Validator | None = None,
+            completer: WordCompleter | None = None,
+        ) -> str: ...
+
+        def promptForInt(self, message: str, param: str | None = None, default: int | None = None, min: int | None = None, max: int | None = None) -> int: ...
+
+        # Methods from other mixins
+        def configCP4D(self) -> None: ...
 
     def manageSettings(self) -> None:
         if self.installManage:
             self.printH1(f"Configure Maximo {self.manageAppName}")
             self.printDescription([f"Customize your {self.manageAppName} installation, refer to the product documentation for more information"])
 
-            self.manageSettingsComponents()
-            self.arcgisSettings()
+            self._manageSettingsComponents()
 
-            self.manageSettingsServerBundleConfig()
-            self.manageSettingsJMS()
-            self.manageSettingsDatabase()
-            self.manageSettingsCustomizationArchive()
-            self.manageSettingsOther()
+            self._manageSettingsServerBundleConfig()
+            self._manageSettingsJMS()
+
+            # We hide the database settings in "simple" mode
+            if self.showAdvancedOptions:
+                self._manageSettingsDatabase()
+
+            # Only ask about customization archive in full Manage installation
+            if not self.isManageFoundation:
+                self._manageSettingsCustomizationArchive()
+            self._manageSettingsAiService()
+
+            # We hide the other settings in "simple" mode
+            if self.showAdvancedOptions:
+                self._manageSettingsOther()
+
             self.manageStorageAndAccessMode()
 
     def manageStorageAndAccessMode(self) -> None:
@@ -71,14 +118,18 @@ class ManageSettingsMixin():
         self.setParam("mas_app_settings_bim_pvc_accessmode", accessMode)
         self.setParam("mas_app_settings_jms_queue_pvc_accessmode", accessMode)
 
-    def manageSettingsComponents(self) -> None:
+    def _manageSettingsComponents(self) -> None:
         # Only ask to install Manage components if this is a full Manage installation
         # If this is a Manage Foundation installation, leave mas_appws_components blank
         if self.isManageFoundation:
             self.params["mas_appws_components"] = ""
         else:
             self.printH2(f"Maximo {self.manageAppName} Components")
-            self.printDescription([f"The default configuration will install {self.manageAppName} with Health enabled, alternatively choose exactly what industry solutions and add-ons will be configured"])
+            self.printDescription(
+                [
+                    f"The default configuration will install {self.manageAppName} with Health enabled, alternatively choose exactly what industry solutions and add-ons will be configured"
+                ]
+            )
 
             self.params["mas_appws_components"] = "base=latest,health=latest"
             if self.yesOrNo("Select components to enable"):
@@ -89,6 +140,23 @@ class ManageSettingsMixin():
                     self.params["mas_appws_components"] += ",aviation=latest"
                 if self.yesOrNo(" - Civil Infrastructure"):
                     self.params["mas_appws_components"] += ",civil=latest"
+
+                    # Check if Manage version supports Kafka Image Processor (9.2+)
+                    manageChannel = self.getParam("mas_app_channel_manage")
+                    if manageChannel and isVersionEqualOrAfter("9.2.0", manageChannel):
+                        self.printDescription(
+                            [
+                                "",
+                                "Civil Infrastructure Defect Detection with Kafka Image Processor:",
+                                "The Kafka Image Processor enables advanced defect detection capabilities.",
+                                "This requires a Kafka instance and uses 10GB of storage for image processing.",
+                            ]
+                        )
+
+                        if self.yesOrNo("Enable Kafka Image Processor for Civil Infrastructure"):
+                            self.enableKafkaImageProcessor = True
+                            # Bind Manage to system Kafka (similar to JDBC binding pattern)
+                            self.setParam("mas_appws_bindings_kafka_manage", "system")
                 if self.yesOrNo(" - Envizi"):
                     self.params["mas_appws_components"] += ",envizi=latest"
                 if self.yesOrNo(" - Health"):
@@ -121,54 +189,68 @@ class ManageSettingsMixin():
                     self.params["mas_appws_components"] += ",workday=latest"
                 if self.yesOrNo(" - AIP"):
                     self.params["mas_appws_components"] += ",aip=latest"
+                # Vegetation Management is only available in Manage 9.1
+                manageChannel = self.getParam("mas_app_channel_manage")
+                if manageChannel and not isVersionEqualOrAfter("9.2.0", manageChannel):
+                    if self.yesOrNo(" - Vegetation Management"):
+                        self.params["mas_appws_components"] += ",vegm=latest"
+                # Collaborate is only available in Manage 9.2 or higher
+                manageChannel = self.getParam("mas_app_channel_manage")
+                if manageChannel and isVersionEqualOrAfter("9.2.0", manageChannel):
+                    if self.yesOrNo(" - Collaborate"):
+                        self.params["mas_appws_components"] += ",collaborate=latest"
                 logger.debug(f"Generated mas_appws_components = {self.params['mas_appws_components']}")
-
                 if ",icd=" in self.params["mas_appws_components"]:
                     self.printH2("Maximo IT License Terms")
-                    self.printDescription([
-                        "For information about your Maximo IT License, see <Orange><u>https://ibm.biz/MAXIT81-License</u></Orange>",
-                        "To continue with the installation, you must accept these additional license terms"
-                    ])
+                    self.printDescription(
+                        [
+                            "For information about your Maximo IT License, see <Orange><u>https://ibm.biz/MAXIT81-License</u></Orange>",
+                            "To continue with the installation, you must accept these additional license terms",
+                        ]
+                    )
 
                     if not self.yesOrNo("Do you accept the license terms"):
                         exit(1)
 
-    def manageSettingsDatabase(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH2(f"Maximo {self.manageAppName} Settings - Database")
-            self.printDescription([f"Customise the schema, tablespace, indexspace, and encryption settings used by {self.manageAppName}"])
+    def _manageSettingsDatabase(self) -> None:
+        self.printH2(f"Maximo {self.manageAppName} Settings - Database")
+        self.printDescription([f"Customise the schema, tablespace, indexspace, and encryption settings used by {self.manageAppName}"])
 
-            if self.yesOrNo("Customize database settings"):
-                self.promptForString("Schema", "mas_app_settings_db2_schema", default="maximo")
-                self.promptForString("Tablespace", "mas_app_settings_tablespace", default="MAXDATA")
-                self.promptForString("Indexspace", "mas_app_settings_indexspace", default="MAXINDEX")
+        if self.yesOrNo("Customize database settings"):
+            self.promptForString("Schema", "mas_app_settings_db2_schema", default="maximo")
+            self.promptForString("Tablespace", "mas_app_settings_tablespace", default="MAXDATA")
+            self.promptForString("Indexspace", "mas_app_settings_indexspace", default="MAXINDEX")
 
-                if self.yesOrNo("Customize database encryption settings"):
-                    self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_app_settings_crypto_key")
-                    self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_app_settings_cryptox_key")
-                    self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_app_settings_old_crypto_key")
-                    self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_app_settings_old_cryptox_key")
-                    self.yesOrNo("Override database encryption secrets with provided keys", "mas_app_settings_override_encryption_secrets_flag")
+            if self.yesOrNo("Customize database encryption settings"):
+                self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_manage_encryptionsecret_crypto_key")
+                self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_manage_encryptionsecret_cryptox_key")
+                self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_manage_encryptionsecret_old_crypto_key")
+                self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_manage_encryptionsecret_old_cryptox_key")
+                self.promptForString("Encryption secret name", "mas_manage_ws_db_encryptionsecret")
 
-    def manageSettingsServerBundleConfig(self) -> None:
+    def _manageSettingsServerBundleConfig(self) -> None:
         if not self.isManageFoundation:
             if self.showAdvancedOptions:
                 self.printH2(f"Maximo {self.manageAppName} Settings - Server Bundles")
-                self.printDescription([
-                    f"Define how you want to configure {self.manageAppName} servers:",
-                    f" - You can have one or multiple {self.manageAppName} servers distributing workload",
-                    " - Additionally, you can choose to include JMS server for messaging queues",
-                    "",
-                    "Configurations:",
-                    "  1. Deploy the 'all' server pod only (workload is concentrated in just one server pod but consumes less resource)",
-                    "  2. Deploy the 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and includes jms server)"
-                ])
+                self.printDescription(
+                    [
+                        f"Define how you want to configure {self.manageAppName} servers:",
+                        f" - You can have one or multiple {self.manageAppName} servers distributing workload",
+                        " - Additionally, you can choose to include JMS server for messaging queues",
+                        "",
+                        "Configurations:",
+                        "  1. Deploy the 'all' server pod only (workload is concentrated in just one server pod but consumes less resource)",
+                        "  2. Deploy the 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and includes jms server)",
+                    ]
+                )
 
                 if not self.isSNO():
-                    self.printDescription([
-                        "  3. Deploy the 'mea', 'report', 'ui' and 'cron' bundle pods (workload is distributed across multiple server pods)",
-                        "  4. Deploy the 'mea', 'report', 'ui', 'cron' and 'jms' bundle pods (workload is distributed across multiple server pods and includes jms server)"
-                    ])
+                    self.printDescription(
+                        [
+                            "  3. Deploy the 'mea', 'report', 'ui' and 'cron' bundle pods (workload is distributed across multiple server pods)",
+                            "  4. Deploy the 'mea', 'report', 'ui', 'cron' and 'jms' bundle pods (workload is distributed across multiple server pods and includes jms server)",
+                        ]
+                    )
 
                 manageServerBundleSelection = self.promptForString("Select a server bundle configuration")
 
@@ -187,87 +269,189 @@ class ManageSettingsMixin():
             else:
                 self.setParam("mas_app_settings_server_bundles_size", "dev")
 
-    def manageSettingsJMS(self) -> None:
+    def _manageSettingsJMS(self) -> None:
         if self.getParam("mas_app_settings_server_bundles_size") in ["jms", "snojms"]:
-            self.printDescription([
-                f"Only {self.manageAppName} JMS sequential queues (sqin and sqout) are enabled by default.",
-                "However, you can enable both sequential (sqin and sqout) and continuous queues (cqin and cqout)"
-            ])
+            self.printDescription(
+                [
+                    f"Only {self.manageAppName} JMS sequential queues (sqin and sqout) are enabled by default.",
+                    "However, you can enable both sequential (sqin and sqout) and continuous queues (cqin and cqout)",
+                ]
+            )
 
-            self.yesOrNo(f"Enable both {self.manageAppName} JMS sequential and continuous queues", "mas_app_settings_default_jms")
+            self.yesOrNo(
+                f"Enable both {self.manageAppName} JMS sequential and continuous queues",
+                "mas_app_settings_default_jms",
+            )
 
-    def manageSettingsCustomizationArchive(self) -> None:
-        # Only ask about customization archive in full Manage installation
-        if not self.isManageFoundation:
-            self.printH2(f"Maximo {self.manageAppName} Settings - Customization")
-            self.printDescription([
-                f"Provide a customization archive to be used in the {self.manageAppName} build process"
-            ])
+    def _manageSettingsCustomizationArchive(self) -> None:
+        self.printH2(f"Maximo {self.manageAppName} Settings - Customization")
+        self.printDescription([f"Provide a customization archive to be used in the {self.manageAppName} build process"])
 
-            if self.yesOrNo("Include customization archive"):
-                self.promptForString("Customization archive name", "mas_app_settings_customization_archive_name")
-                self.promptForString("Customization archive path/url", "mas_app_settings_customization_archive_url")
-                if self.yesOrNo("Provide authentication to access customization archive URL"):
-                    self.promptForString("Username", "mas_app_settings_customization_archive_username")
-                    self.promptForString("Password", "mas_app_settings_customization_archive_password", isPassword=True)  # pragma: allowlist secret
+        if self.yesOrNo("Include customization archive"):
+            self.promptForString("Customization archive name", "mas_app_settings_customization_archive_name", validator=CustomizationArchiveNameValidator())
+            self.promptForString("Customization archive path/url", "mas_app_settings_customization_archive_url")
+            if self.yesOrNo("Provide authentication to access customization archive URL"):
+                self.promptForString("Username", "mas_app_settings_customization_archive_username")
+                self.promptForString("Password", "mas_app_settings_customization_archive_password", isPassword=True)
 
-    def manageSettingsDemodata(self) -> None:
+    def _manageSettingsDemodata(self) -> None:
         self.yesOrNo("Create demo data", "mas_app_settings_demodata")
 
-    def manageSettingsTimezone(self) -> None:
-        self.promptForString(f"{self.manageAppName} server timezone", "mas_app_settings_server_timezone", default="GMT")
+    def _manageSettingsTimezone(self) -> None:
+        self.promptForString(
+            f"{self.manageAppName} server timezone",
+            "mas_app_settings_server_timezone",
+            default="GMT",
+        )
         # Set Manage dedicated Db2 instance timezone to be same as Manage server timezone
         self.setParam("db2_timezone", self.getParam("mas_app_settings_server_timezone"))
 
-    def manageSettingsLanguages(self) -> None:
+    def _manageSettingsLanguages(self) -> None:
         self.printH2(f"Maximo {self.manageAppName} Settings - Languages")
-        self.printDescription([
-            f"Define the base language for Maximo {self.manageAppName}"
-        ])
-        self.promptForString("Base language", "mas_app_settings_base_lang", default="EN")
+        self.printDescription([f"Define the base language for Maximo {self.manageAppName}"])
+        baseLanguage = self.promptForString(
+            "Base language",
+            validator=LanguageValidator(self.supportedLanguages),
+            completer=WordCompleter(self.supportedLanguages),
+        )
 
-        self.printDescription([
-            f"Define the additional languages to be configured in Maximo {self.manageAppName}. provide a comma-separated list of supported languages codes, for example: 'JA,DE,AR'",
-            "A complete list of available language codes is available online:",
-            "    <Orange><u>https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support</u></Orange>"
-        ])
+        self.setParam("mas_app_settings_base_lang", baseLanguage.upper())
 
-        self.promptForString("Secondary languages", "mas_app_settings_secondary_langs")
+        self.printDescription(
+            [
+                f"Define the additional languages to be configured in Maximo {self.manageAppName}. Provide a comma-separated list of the supported languages indexes, for example: 'DA,EN,ZH-TW'",
+                "A complete list of available language codes is available online:",
+                "    <Orange><u>https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support</u></Orange>",
+            ]
+        )
 
-    def manageSettingsCP4D(self) -> None:
-        if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptions:
-            self.printDescription([
+        secondaryLanguages = self.promptForString(
+            "Secondary language",
+            validator=LanguageValidator(self.supportedLanguages),
+            completer=WordCompleter(self.supportedLanguages),
+        )
+        self.setParam("mas_app_settings_secondary_langs", secondaryLanguages.upper())
+
+    def _manageSettingsCP4D(self) -> None:
+        self.printDescription(
+            [
                 f"Integration with Cognos Analytics provides additional support for reporting features in Maximo {self.manageAppName}, for more information refer to the documentation online: ",
-                " - <Orange><u>https://ibm.biz/BdMuxs</u></Orange>"
-            ])
-            self.yesOrNo("Enable integration with Cognos Analytics", "cpd_install_cognos")
-            self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_flag")
+                " - <Orange><u>https://ibm.biz/BdMuxs</u></Orange>",
+            ]
+        )
+        self.yesOrNo("Enable integration with Cognos Analytics", "cpd_install_cognos")
+        self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_wsl_flag")
 
-            if self.getParam("cpd_install_cognos") == "true" or self.getParam("mas_appws_bindings_health_flag") == "true":
-                self.configCP4D()
+        if self.getParam("cpd_install_cognos") == "true" or self.getParam("mas_appws_bindings_health_wsl_flag") == "true":
+            self.configCP4D()
 
-    def manageSettingsOther(self) -> None:
+    def _manageSettingsOther(self) -> None:
         self.printH2(f"Maximo {self.manageAppName} Settings - Other")
+        self.supportedLanguages = [
+            "AR",
+            "CS",
+            "DA",
+            "DE",
+            "EN",
+            "ES",
+            "FI",
+            "FR",
+            "HE",
+            "HR",
+            "HU",
+            "IT",
+            "JA",
+            "KO",
+            "NL",
+            "NO",
+            "PL",
+            "PT-BR",
+            "RU",
+            "SK",
+            "SL",
+            "SV",
+            "TR",
+            "UK",
+            "ZH-CN",
+            "ZH-TW",
+        ]
+
         if self.isManageFoundation:
-            self.printDescription([
-                "Configure additional settings:",
-                "  - Base and additional languages",
-                "  - Server timezone"
-            ])
-            if self.yesOrNo("Configure Additional Settings"):
-                self.manageSettingsTimezone()
-                self.manageSettingsLanguages()
+            self.printDescription(
+                [
+                    "Configure additional settings:",
+                    "  - Base and additional languages",
+                    "  - Server timezone",
+                ]
+            )
+            self._manageSettingsTimezone()
+            self._manageSettingsLanguages()
         else:
-            self.printDescription([
-                "Configure additional settings:",
-                "  - Demo data",
-                "  - Base and additional languages",
-                "  - Server timezone",
-                "  - Cognos integration (install Cloud Pak for Data)",
-                "  - Watson Studio Local integration (install Cloud Pak for Data)"
-            ])
-            if self.yesOrNo("Configure Additional Settings"):
-                self.manageSettingsDemodata()
-                self.manageSettingsTimezone()
-                self.manageSettingsLanguages()
-                self.manageSettingsCP4D()
+            self.printDescription(
+                [
+                    "Configure additional settings:",
+                    "  - Demo data",
+                    "  - Base and additional languages",
+                    "  - Server timezone",
+                    "  - Cognos integration (install Cloud Pak for Data)",
+                    "  - Watson Studio Local integration (install Cloud Pak for Data)",
+                ]
+            )
+            self._manageSettingsDemodata()
+            self._manageSettingsTimezone()
+            self._manageSettingsLanguages()
+            self._manageSettingsCP4D()
+
+    def _manageSettingsAiService(self) -> None:
+        try:
+            aiserviceTenantInstances = listAiServiceTenantInstances(self.dynamicClient)
+            aiserviceInstances = listAiServiceInstances(self.dynamicClient)
+        except ResourceNotFoundError:
+            aiserviceTenantInstances = []
+            aiserviceInstances = []
+
+        if self.installAIService:
+            # if aiservice is being installed along with manage, add default tenant instance
+            aiserviceTenantInstances.append("user")
+            # Set aiservice instance id from the provided aiservice_instance_id parameter
+            if self.getParam("aiservice_instance_id"):
+                self.setParam("manage_bind_aiservice_instance_id", self.getParam("aiservice_instance_id"))
+        elif len(aiserviceTenantInstances) == 0 or len(aiserviceInstances) == 0:
+            return
+        else:
+            # Set aiservice instance id from the first instance fetched from cluster
+            self.setParam("manage_bind_aiservice_instance_id", aiserviceInstances[0]["metadata"]["name"])
+
+        self.printH2(f"Maximo {self.manageAppName} Settings - AI Service Tenant Configuration")
+
+        self.printDescription(
+            [
+                "Select an AI Service Tenant ID to bind with Manage:",
+                " - The selected AI Service Tenant will be used in Manage AI Config Application",
+            ]
+        )
+
+        if self.installAIService:
+            self.printDescription([" - As AI Service is being installed along with Manage, a default Tenant ID 'user' is available in the list below"])
+            # Show only default 'user' tenant when AI Service is being installed
+            aiserviceTenantOptions = ["user"]
+            print_formatted_text(HTML("- <u>user</u> (default)"))
+        else:
+            # Show all available tenants from cluster
+            aiserviceTenantOptions = []
+            for aiserviceTenant in aiserviceTenantInstances:
+                print_formatted_text(HTML(f"- <u>{aiserviceTenant['metadata']['name'].split('-')[-1]}</u>"))
+                aiserviceTenantOptions.append(aiserviceTenant["metadata"]["name"].split("-")[-1])
+
+        aiserviceTenantCompleter = WordCompleter(aiserviceTenantOptions)
+        print()
+
+        aiserviceTenantInstanceId = self.promptForString(
+            "Enter AI Service Tenant ID to bind with Manage: ",
+            completer=aiserviceTenantCompleter,
+            validator=AiserviceTeanantIDValidator(
+                self.getParam("manage_bind_aiservice_instance_id"),
+                self.installAIService,
+            ),
+        )
+        self.setParam("manage_bind_aiservice_tenant_id", aiserviceTenantInstanceId)
