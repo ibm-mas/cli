@@ -300,9 +300,9 @@ spec:
       taskRef:
         name: gitops-aiservice
       runAfter:
+        - gitops-db2u 
         - gitops-odh
         - gitops-rhoai
-        - gitops-db2u
       workspaces:
         - name: configs
           workspace: configs
