@@ -368,6 +368,38 @@ class InstallSummarizerMixin:
 
             if "aiservice_certificate_issuer" in self.params:
                 self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
+            
+            # Database configuration - matches standalone aiservice-install pattern
+            self.printH2("AI Service Database Configuration")
+            db2_action = self.getParam("db2_action_aiservice")
+            
+            if db2_action == "byo":
+                # External database
+                jdbc_url = self.getParam("aiservice_db_jdbc_url")
+                if jdbc_url:
+                    # Determine database type from JDBC URL
+                    if "oracle" in jdbc_url.lower():
+                        db_type = "External Database (Oracle)"
+                    elif "sqlserver" in jdbc_url.lower():
+                        db_type = "External Database (SQL Server)"
+                    elif "db2" in jdbc_url.lower():
+                        db_type = "External Database (DB2)"
+                    else:
+                        db_type = "External Database"
+                    
+                    self.printSummary("Database Type", db_type)
+                    self.printParamSummary("JDBC URL", "aiservice_db_jdbc_url")
+                    self.printParamSummary("Username", "aiservice_db_username")
+                    # Don't print password for security
+                    if self.getParam("aiservice_db_ca_cert"):
+                        self.printSummary("CA Certificate", "Provided")
+            else:
+                # In-cluster DB2 deployment (default when db2_action="install" or not set)
+                self.printSummary("Database Type", "In-cluster DB2")
+                if self.getParam("db2_namespace") != "":
+                    self.printParamSummary("Install Namespace", "db2_namespace")
+                if self.getParam("db2_channel") != "":
+                    self.printParamSummary("Subscription Channel", "db2_channel")
 
             self.printH2("AI Service Tenant Configuration")
             self.printParamSummary("Entitlement Type", "tenant_entitlement_type")

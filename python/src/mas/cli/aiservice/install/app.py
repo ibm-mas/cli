@@ -264,7 +264,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                         self.fatalError(f"Cannot use --install-db2 with external database parameters. Use either --install-db2 for in-cluster DB2 OR --db-jdbc-url for external database (Oracle/SQL Server/DB2), not both.")
                     
                     self.setParam("install_db2", "false")
-                    self.setParam("db2_action_aiservice", "none")
+                    self.setParam("db2_action_aiservice", "byo")
                     for dbParam in externalDbParams:
                         if vars(self.args)[dbParam] is None:
                             self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
@@ -494,7 +494,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if externalDbProvided:
                     # External database configuration provided
                     self.setParam("install_db2", "false")
-                    self.setParam("db2_action_aiservice", "none")
+                    self.setParam("db2_action_aiservice", "byo")
                     
                     # Validate required external DB parameters
                     requiredDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
@@ -730,7 +730,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.yesOrNo("Do you want to use an external database"):
             # Use external database
             self.setParam("install_db2", "false")
-            self.setParam("db2_action_aiservice", "none")
+            self.setParam("db2_action_aiservice", "byo")
             
             self.printH2("External Database Configuration")
             self.printDescription(

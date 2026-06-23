@@ -1714,7 +1714,7 @@ class InstallApp(
         if self.yesOrNo("Do you want to use an external database"):
             # Configure external database
             self.setParam("install_db2", "false")
-            self.setParam("db2_action_aiservice", "none")
+            self.setParam("db2_action_aiservice", "byo")
             
             self.printDescription(
                 [
@@ -2196,7 +2196,7 @@ class InstallApp(
                     if hasExternalDb:
                         # Using external database - validate all required parameters
                         self.setParam("install_db2", "false")
-                        self.setParam("db2_action_aiservice", "none")
+                        self.setParam("db2_action_aiservice", "byo")
                         for dbParam in externalDbParams:
                             if vars(self.args)[dbParam] is None:
                                 self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")

@@ -81,15 +81,8 @@ class aiServiceInstallSummarizerMixin:
         self.printH2("Database Configuration")
         
         db2_action = self.getParam("db2_action_aiservice")
-        install_db2 = self.getParam("install_db2")
         
-        if db2_action == "install" or install_db2 == "true":
-            # In-cluster DB2 deployment
-            self.printParamSummary("Database Type", "In-cluster DB2 (deployed)")
-            self.printParamSummary("DB2 Action", "db2_action_aiservice")
-            self.printParamSummary("Install Namespace", "db2_namespace")
-            self.printParamSummary("Subscription Channel", "db2_channel")
-        elif db2_action == "none" or install_db2 == "false":
+        if db2_action == "byo":
             # External database
             jdbc_url = self.getParam("aiservice_db_jdbc_url")
             if jdbc_url:
@@ -103,16 +96,15 @@ class aiServiceInstallSummarizerMixin:
                 else:
                     db_type = "External Database"
                 
-                self.printParamSummary("Database Type", db_type)
+                self.printSummary("Database Type", db_type)
                 self.printParamSummary("JDBC URL", "aiservice_db_jdbc_url")
                 self.printParamSummary("Username", "aiservice_db_username")
                 # Don't print password for security
                 if self.getParam("aiservice_db_ca_cert"):
-                    self.printParamSummary("CA Certificate", "Provided")
+                    self.printSummary("CA Certificate", "Provided")
         else:
-            # Fallback - default is in-cluster DB2 deployment
-            self.printParamSummary("Database Type", "In-cluster DB2 (default)")
-            self.printParamSummary("DB2 Action", "db2_action_aiservice")
+            # In-cluster DB2 deployment (default when db2_action="install" or not set)
+            self.printSummary("Database Type", "In-cluster DB2")
             self.printParamSummary("Install Namespace", "db2_namespace")
             self.printParamSummary("Subscription Channel", "db2_channel")
 
