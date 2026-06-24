@@ -25,8 +25,8 @@ from typing import List, Dict, Any, Callable, Type, NoReturn
 from kubernetes import config
 from kubernetes.client.api_client import ApiClient
 from kubernetes.client import Configuration
-from openshift.dynamic import DynamicClient
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic import DynamicClient
+from kubernetes.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
@@ -127,7 +127,6 @@ class BaseApp(PrintMixin, PromptMixin):
 
         # Supports extended semver, unlike mas.cli.__version__
         self.version: str = "100.0.0-pre.local"
-        # self.version: str = "21.8.0-pre.mascore-11096"
         self.h1count: int = 0
         self.h2count: int = 0
 
