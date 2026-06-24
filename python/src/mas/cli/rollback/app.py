@@ -23,9 +23,7 @@ from mas.devops.ocp import createNamespace, getConsoleURL
 from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchRollbackPipeline
 
-
 logger = logging.getLogger(__name__)
-
 
 class RollbackApp(BaseApp):
 
