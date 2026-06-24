@@ -178,6 +178,9 @@ spec:
         - input: "$(params.db2_action)"
           operator: notin
           values: [""]
+        - input: "$(params.is_gitops_fvt_env)"
+          operator: in
+          values: ["true"]  
 
     # 2.gitops-odh
     # -------------------------------------------------------------------------
