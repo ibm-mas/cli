@@ -55,7 +55,7 @@ class Db2MigrationApp(BaseApp):
             self.printHighlight(f"Found 1 Db2uCluster: {clusterName}")
             return cluster
 
-        # Multiple clusters - prompt for selection
+        # Multiple clusters - Prompt for selection
         # self.printH2("Available Db2uClusters")
         # options = []
         # for i, cluster in enumerate(clusters):
