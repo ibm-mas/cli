@@ -11,7 +11,7 @@ import logging
 from typing import List, Dict, Any
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
-from kubernetes import client
+# from kubernetes import client
 from openshift.dynamic.exceptions import NotFoundError
 
 from ..cli import BaseApp
@@ -115,9 +115,12 @@ class Db2MigrationApp(BaseApp):
             # List db2u namespaces
             with Halo(text="Detecting db2u namespaces", spinner=self.spinner) as h:
                 try:
-                    v1 = client.CoreV1Api()
-                    allNamespaces = v1.list_namespace()
+                    namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
+                    allNamespaces = namespaceAPI.get()
                     db2uNamespaces = [ns.metadata.name for ns in allNamespaces.items if ns.metadata.name.startswith("db2u")]
+                    # v1 = client.CoreV1Api()
+                    # allNamespaces = v1.list_namespace()
+                    # db2uNamespaces = [ns.metadata.name for ns in allNamespaces.items if ns.metadata.name.startswith("db2u")]
 
                     if db2uNamespaces:
                         h.succeed(f"Found {len(db2uNamespaces)} db2u namespace(s)")
