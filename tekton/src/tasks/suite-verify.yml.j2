@@ -28,6 +28,12 @@ spec:
       image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
 
+    # configure service mesh domain routing
+    - name: servicemesh-domain-config
+      command:
+        - /opt/app-root/src/run-role.sh
+        - servicemesh_domain_config
+
     # If configmap/approval-suite-verify exists then set STATUS=pending and wait for it to be changed to "approved"
     - name: suite-wait-for-approval
       image: "quay.io/ibmmas/cli:latest"

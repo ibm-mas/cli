@@ -130,6 +130,9 @@ function provision_roks_noninteractive() {
       esac
   done
 
+  INSTALL_SERVICE_MESH=true
+  INSTALL_KIALI=true
+
   # Check all args have been set
   [[ -z "$IBMCLOUD_APIKEY" ]] && provision_roks_help "IBMCLOUD_APIKEY is not set"
   [[ -z "$IBMCLOUD_RESOURCEGROUP" ]] && provision_roks_help "IBMCLOUD_RESOURCEGROUP is not set"

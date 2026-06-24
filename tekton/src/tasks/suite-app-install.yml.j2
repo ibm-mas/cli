@@ -678,6 +678,12 @@ spec:
         - name: MAS_FACILITIES_SCHEDULERAGENT_DEPLOYMENTMODE
           value: $(params.mas_ws_facilities_scheduleragent_deploymentmode)
 
+    # configure service mesh domain routing
+    - name: servicemesh-domain-config
+      command:
+        - /opt/app-root/src/run-role.sh
+        - servicemesh_domain_config
+
     - name: app-wait-for-approval
       # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
       command:
