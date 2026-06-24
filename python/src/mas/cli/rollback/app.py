@@ -17,7 +17,6 @@ from prompt_toolkit import print_formatted_text, HTML
 from openshift.dynamic.exceptions import ResourceNotFoundError
 
 from ..cli import BaseApp
-from ..validators import StorageClassValidator
 from .argParser import rollbackArgParser
 
 from mas.devops.ocp import createNamespace, getConsoleURL

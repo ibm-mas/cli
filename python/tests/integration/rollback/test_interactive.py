@@ -15,7 +15,7 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from rollback_test_helper import RollbackTestConfig, run_rollback_test
+from rollback_test_helper import RollbackTestConfig, run_rollback_test  # noqa: E402
 
 
 def test_interactive_rollback_select_catalog_and_confirm(tmpdir):
