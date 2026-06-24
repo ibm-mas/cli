@@ -69,8 +69,11 @@ class AiServiceUpgradeApp(BaseApp):
                 sys.exit(1)
 
             for aiservice in aiserviceInstances:
-                print_formatted_text(HTML(f"- <u>{aiservice['metadata']['name']}</u> v{aiservice['status']['versions']['reconciled']}"))
-                aiserviceOptions.append(aiservice["metadata"]["name"])
+                instanceId = aiservice["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(aiservice)
+
+                print_formatted_text(HTML(f"- <u>{instanceId}</u> v{reconciledVersion}"))
+                aiserviceOptions.append(instanceId)
 
             aiserviceCompleter = WordCompleter(aiserviceOptions)
             print()
