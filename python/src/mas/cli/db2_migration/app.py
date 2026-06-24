@@ -11,7 +11,6 @@ import logging
 from typing import List, Dict, Any
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
-# from kubernetes import client
 from openshift.dynamic.exceptions import NotFoundError
 
 from ..cli import BaseApp
