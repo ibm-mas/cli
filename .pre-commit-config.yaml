@@ -10,14 +10,13 @@ repos:
     hooks:
       - id: flake8
   - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
-    rev: 1.39.6
+    rev: 1.39.8
     hooks:
       - id: basedpyright
         name: basedpyright (must-gather only)
         files: ^python/(src/mas/cli/must_gather|tests/cli/must_gather)/.*\.py$
         additional_dependencies:
           - kubernetes==33.1.0
-          - openshift
           - pyyaml
           - requests
           - halo

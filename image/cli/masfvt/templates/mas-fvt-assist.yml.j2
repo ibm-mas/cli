@@ -10,7 +10,7 @@ spec:
   pipelineRef:
     name: mas-fvt-assist
 
-  serviceAccountName: pipeline
+  serviceAccountName: "{{ service_account_name }}"
   timeouts:
     pipeline: "8h"
 

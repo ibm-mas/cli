@@ -80,6 +80,25 @@ spec:
       type: string
       default: ""
 
+    - name: rds_monitor_db2_instance_class
+      type: string
+      default: ""
+    - name: rds_monitor_db2_storage_type
+      type: string
+      default: ""
+    - name: rds_monitor_allocated_storage
+      type: string
+      default: ""
+    - name: rds_monitor_jdbc_connection_url_additional_params
+      type: string
+      default: ""
+    - name: rds_monitor_replica_db
+      type: string
+      default: ""
+    - name: rds_monitor_db2_engine_version
+      type: string
+      default: ""
+
     - name: rds_facilities_db2_instance_class
       type: string
       default: ""
@@ -160,6 +179,19 @@ spec:
       - name: RDS_IOT_DB2_ENGINE_VERSION
         value: $(params.rds_iot_db2_engine_version)
 
+      - name: RDS_MONITOR_DB2_INSTANCE_CLASS
+        value: $(params.rds_monitor_db2_instance_class)
+      - name: RDS_MONITOR_DB2_STORAGE_TYPE
+        value: $(params.rds_monitor_db2_storage_type)
+      - name: RDS_MONITOR_ALLOCATED_STORAGE
+        value: $(params.rds_monitor_allocated_storage)
+      - name: RDS_MONITOR_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS
+        value: $(params.rds_monitor_jdbc_connection_url_additional_params)
+      - name: RDS_MONITOR_REPLICA_DB
+        value: $(params.rds_monitor_replica_db)
+      - name: RDS_MONITOR_DB2_ENGINE_VERSION
+        value: $(params.rds_monitor_db2_engine_version)
+
       - name: RDS_FACILITIES_DB2_INSTANCE_CLASS
         value: $(params.rds_facilities_db2_instance_class)
       - name: RDS_FACILITIES_DB2_STORAGE_TYPE
@@ -198,7 +230,7 @@ spec:
         - /bin/sh
         - -c
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
 
   workspaces:
     - name: configs

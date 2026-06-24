@@ -21,7 +21,7 @@ spec:
 
   steps:
     - name: start-pytest-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
@@ -49,6 +49,13 @@ spec:
               name: mas-devops
               key: MAS_INSTANCE_ID
               optional: false
+        # Service Account for FVT Pipeline (supports RBAC mode)
+        - name: SERVICE_ACCOUNT_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: SERVICE_ACCOUNT_NAME
+              optional: true
 
         # Lookups from mas-fvt
         # -----------------------------------------------------------------------
@@ -107,7 +114,7 @@ spec:
               optional: false
 
     - name: wait-for-pytest-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       # 50 retries at 10 minute intervals = just over 8 hours
       command:
@@ -133,7 +140,7 @@ spec:
           value: "True"
 
     - name: start-testng-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
@@ -231,7 +238,7 @@ spec:
               optional: false
 
     - name: wait-for-testng-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       # 50 retries at 10 minute intervals = just over 8 hours
       command:
@@ -255,9 +262,9 @@ spec:
           value: "50"
         - name: IGNORE_FAILURE
           value: "True"
-    
+
     - name: start-requests-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
@@ -329,7 +336,7 @@ spec:
               name: mas-fvt-mobile
               key: MAS_WORKSPACE_ID
               optional: false
-        
+
         # Digests
         - name: FVT_DIGEST_MOBILE_PYTEST
           valueFrom:
@@ -343,9 +350,9 @@ spec:
               name: mas-fvt-mobile
               key: FVT_DIGEST_MOBILE_TESTNG
               optional: false
-    
+
     - name: wait-for-requests-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       # 50 retries at 10 minute intervals = just over 8 hours
       command:
@@ -369,4 +376,3 @@ spec:
           value: "50"
         - name: IGNORE_FAILURE
           value: "True"
-        

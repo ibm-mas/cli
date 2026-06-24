@@ -48,6 +48,7 @@ spec:
       type: string
       default: ""
   stepTemplate:
+    name: gitops-dro
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -112,6 +113,6 @@ spec:
         - -c
       name: gitops-dro
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

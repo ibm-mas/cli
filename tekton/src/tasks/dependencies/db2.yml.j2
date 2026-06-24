@@ -338,7 +338,7 @@ spec:
       # Custom labels support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
-      
+
       # Other parameters
       - name: DB2_V12_UPGRADE
         value: $(params.db2_v12_upgrade)
@@ -367,7 +367,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - db2
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: $(params.mas_config_dir)
 
