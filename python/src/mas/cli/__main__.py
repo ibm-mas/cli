@@ -12,7 +12,6 @@ import logging
 from sys import argv
 
 from jinja2.exceptions import TemplateNotFound
-from kubeconfig.exceptions import KubectlCommandError
 from kubernetes.client.exceptions import ApiException
 from prompt_toolkit import HTML, print_formatted_text
 from urllib3.exceptions import MaxRetryError
@@ -167,12 +166,6 @@ def main() -> None:
             app.fatalError("Could not find template", exception=exception)
         else:
             logger.error("Could not find template", exc_info=exception)
-            raise SystemExit(1) from exception
-    except KubectlCommandError as exception:
-        if app:
-            app.fatalError("Could not execute kubectl command", exception=exception)
-        else:
-            logger.error("Could not execute kubectl command", exc_info=exception)
             raise SystemExit(1) from exception
 
 

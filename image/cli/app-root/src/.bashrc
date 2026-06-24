@@ -16,6 +16,9 @@ TEXT_UNDERLINE=$(tput smul)
 TEXT_RESET=$(tput sgr0)
 arch=$(uname -i)
 
+# Enable bash auto-completion
+. /etc/profile.d/bash_completion.sh
+
 echo "${TEXT_UNDERLINE}IBM Maximo Application Suite CLI Container ${TEXT_BOLD}v${VERSION}${TEXT_RESET}"
 echo
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops${TEXT_RESET}"
