@@ -14,7 +14,7 @@ import logging.handlers
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
-from openshift.dynamic.exceptions import ResourceNotFoundError
+from kubernetes.dynamic.exceptions import ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import rollbackArgParser
