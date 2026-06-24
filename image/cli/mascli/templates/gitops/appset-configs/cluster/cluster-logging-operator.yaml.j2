@@ -6,9 +6,7 @@ cluster_logging_operator:
   aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLOUDWATCH_AWS_ACCESS_KEY_ID }}>"
   channel: "{{ CLUSTER_LOGGING_OPERATOR_CHANNEL }}"
   use_syslog_forwarder: "{{ CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER }}"
-  {% if CLUSTER_LOGGING_OPERATOR_ENVIRONMENT_TYPE is defined and CLUSTER_LOGGING_OPERATOR_ENVIRONMENT_TYPE != "" %}
   environment_type: "{{ CLUSTER_LOGGING_OPERATOR_ENVIRONMENT_TYPE }}"
-  {% endif %}
   {% if CLUSTER_LOGGING_OPERATOR_ADDITIONAL_EXCLUDE_CONTAINERS is defined and CLUSTER_LOGGING_OPERATOR_ADDITIONAL_EXCLUDE_CONTAINERS != "" %}
   additional_exclude_containers:
 {{ CLUSTER_LOGGING_OPERATOR_ADDITIONAL_EXCLUDE_CONTAINERS | toYaml | to_nice_yaml | indent(4, first=True) }}
