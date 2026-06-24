@@ -55,9 +55,7 @@ class RollbackTestConfig:
         """
         self.prompt_handlers = prompt_handlers if prompt_handlers is not None else {}
         self.installed_catalog_id = installed_catalog_id
-        self.mas_instances = mas_instances if mas_instances is not None else [
-            {"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.4"}}}
-        ]
+        self.mas_instances = mas_instances if mas_instances is not None else [{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.4"}}}]
         self.architecture = architecture
         self.ocp_version = ocp_version
         self.timeout_seconds = timeout_seconds
@@ -95,9 +93,7 @@ class RollbackTestHelper:
                 elapsed = time.time() - self.last_prompt_time["time"]
                 if elapsed > self.config.timeout_seconds:
                     self.test_failed["failed"] = True
-                    self.test_failed["message"] = (
-                        f"Test hung: No prompt received for {self.config.timeout_seconds}s"
-                    )
+                    self.test_failed["message"] = f"Test hung: No prompt received for {self.config.timeout_seconds}s"
                     break
 
         self.watchdog_thread = threading.Thread(target=watchdog, daemon=True)
@@ -164,9 +160,7 @@ class RollbackTestHelper:
 
                 # Configure mock return values
                 mocks["dynamic_client_class"].return_value = dynamic_client
-                mocks["get_nodes"].return_value = [
-                    {"status": {"nodeInfo": {"architecture": self.config.architecture}}}
-                ]
+                mocks["get_nodes"].return_value = [{"status": {"nodeInfo": {"architecture": self.config.architecture}}}]
                 mocks["cli_prompt"].return_value = ""
                 mocks["get_console_url"].return_value = "https://console.test.maximo.ibm.com"
                 mocks["get_current_catalog"].return_value = {
@@ -210,9 +204,7 @@ class RollbackTestHelper:
 
                 # Verify exception was raised if expected
                 if self.config.expect_exception is not None and exception_raised is None:
-                    raise AssertionError(
-                        f"Expected {self.config.expect_exception.__name__} to be raised but it was not"
-                    )
+                    raise AssertionError(f"Expected {self.config.expect_exception.__name__} to be raised but it was not")
 
                 # Verify SystemExit was raised if expected
                 if self.config.expect_system_exit and not system_exit_raised:
@@ -221,17 +213,13 @@ class RollbackTestHelper:
                 # Verify exit code
                 if self.config.expect_system_exit and self.config.expected_exit_code is not None:
                     if exit_code != self.config.expected_exit_code:
-                        raise AssertionError(
-                            f"Expected exit code {self.config.expected_exit_code} but got {exit_code}"
-                        )
+                        raise AssertionError(f"Expected exit code {self.config.expected_exit_code} but got {exit_code}")
                 elif self.config.expect_system_exit and exit_code == 0:
                     raise AssertionError(f"Expected non-zero exit code but got {exit_code}")
 
                 # Verify all prompts were matched
                 if len(self.config.prompt_handlers) > 0:
-                    self.prompt_tracker.verify_all_prompts_matched(
-                        allow_unmatched=self.config.expect_system_exit
-                    )
+                    self.prompt_tracker.verify_all_prompts_matched(allow_unmatched=self.config.expect_system_exit)
 
 
 def run_rollback_test(tmpdir, config: RollbackTestConfig):

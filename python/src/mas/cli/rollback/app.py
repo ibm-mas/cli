@@ -98,10 +98,7 @@ class RollbackApp(BaseApp):
         print()
 
         self.printH1("Review Settings")
-        self.printDescription([
-            "Connected to:",
-            f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
-        ])
+        self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
         self.printH2("IBM Maximo Operator Catalog")
         self.printSummary("Installed Catalog", self.installedCatalogId)
@@ -111,13 +108,11 @@ class RollbackApp(BaseApp):
 
         self.printSummary("Rollback Channel for Maximo Manage", self.getParam("mas_app_manage_version"))
 
-        self.printSummary("Rollback Channel for Maximo IoT", self.getParam("mas_app_iot_version"))        
-        
+        self.printSummary("Rollback Channel for Maximo IoT", self.getParam("mas_app_iot_version"))
+
         if not self.noConfirm:
             print()
-            self.printDescription([
-                "Please carefully review your choices above, correcting mistakes now is much easier than after the update has begun"
-            ])
+            self.printDescription(["Please carefully review your choices above, correcting mistakes now is much easier than after the update has begun"])
             continueWithUpdate = self.yesOrNo("Proceed with these settings")
         # Prepare the namespace and launch the installation pipeline
         if self.noConfirm or continueWithUpdate:
@@ -126,16 +121,16 @@ class RollbackApp(BaseApp):
             self.printH1("Launch Rollback")
             pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
                 installOpenShiftPipelines(self.dynamicClient)
                 h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 preparePipelinesNamespace(dynClient=self.dynamicClient)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
@@ -158,10 +153,9 @@ class RollbackApp(BaseApp):
         else:
             self.installedCatalogId = catalogInfo["catalogId"]
             self.printH1("Review Installed Catalog")
-            self.printDescription([
-                f"The currently installed Maximo Operator Catalog is <u>{catalogInfo['displayName']}</u>",
-                f" <u>{catalogInfo['image']}</u>"
-            ])
+            self.printDescription(
+                [f"The currently installed Maximo Operator Catalog is <u>{catalogInfo['displayName']}</u>", f" <u>{catalogInfo['image']}</u>"]
+            )
 
     def reviewMASInstance(self) -> None:
         self.printH1("Review MAS Instances")
@@ -192,5 +186,6 @@ class RollbackApp(BaseApp):
 
     def validateCatalog(self) -> None:
         if self.installedCatalogId is not None and self.installedCatalogId < self.getParam("mas_catalog_version"):
-            self.fatalError(f"Selected catalog is newer than the currently installed catalog.  Unable to rollback catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}")
-
+            self.fatalError(
+                f"Selected catalog is newer than the currently installed catalog.  Unable to rollback catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}"
+            )

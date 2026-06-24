@@ -31,9 +31,7 @@ def test_interactive_rollback_select_catalog_and_confirm(tmpdir):
         tmpdir,
         RollbackTestConfig(
             installed_catalog_id="v9-260527-amd64",
-            mas_instances=[
-                {"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.4"}}}
-            ],
+            mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.4"}}}],
             prompt_handlers={
                 r".*Select catalog version to rollback to.*": lambda m: "2",  # index 2 = v9-260430-amd64
                 r".*Proceed with these settings.*": lambda m: "y",
@@ -56,9 +54,7 @@ def test_interactive_rollback_user_aborts_at_confirmation(tmpdir):
         tmpdir,
         RollbackTestConfig(
             installed_catalog_id="v9-260527-amd64",
-            mas_instances=[
-                {"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.4"}}}
-            ],
+            mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.4"}}}],
             prompt_handlers={
                 r".*Select catalog version to rollback to.*": lambda m: "2",  # index 2 = v9-260430-amd64
                 r".*Proceed with these settings.*": lambda m: "n",

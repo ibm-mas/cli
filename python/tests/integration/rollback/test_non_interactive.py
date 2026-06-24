@@ -32,9 +32,12 @@ def test_rollback_non_interactive_core_only(tmpdir):
         RollbackTestConfig(
             installed_catalog_id="v9-260527-amd64",
             argv=[
-                "--catalog", "v9-260430-amd64",
-                "--mas-instance-id", "inst1",
-                "--mas-version", "9.0.x",
+                "--catalog",
+                "v9-260430-amd64",
+                "--mas-instance-id",
+                "inst1",
+                "--mas-version",
+                "9.0.x",
                 "--no-confirm",
             ],
         ),
@@ -54,10 +57,14 @@ def test_rollback_non_interactive_core_and_manage(tmpdir):
         RollbackTestConfig(
             installed_catalog_id="v9-260527-amd64",
             argv=[
-                "--catalog", "v9-260430-amd64",
-                "--mas-instance-id", "inst1",
-                "--mas-version", "9.0.x",
-                "--manage-version", "9.0.x",
+                "--catalog",
+                "v9-260430-amd64",
+                "--mas-instance-id",
+                "inst1",
+                "--mas-version",
+                "9.0.x",
+                "--manage-version",
+                "9.0.x",
                 "--no-confirm",
             ],
         ),
@@ -77,11 +84,16 @@ def test_rollback_non_interactive_all_versions(tmpdir):
         RollbackTestConfig(
             installed_catalog_id="v9-260527-amd64",
             argv=[
-                "--catalog", "v9-260430-amd64",
-                "--mas-instance-id", "inst1",
-                "--mas-version", "9.0.x",
-                "--manage-version", "9.0.x",
-                "--iot-version", "9.0.x",
+                "--catalog",
+                "v9-260430-amd64",
+                "--mas-instance-id",
+                "inst1",
+                "--mas-version",
+                "9.0.x",
+                "--manage-version",
+                "9.0.x",
+                "--iot-version",
+                "9.0.x",
                 "--no-confirm",
             ],
         ),
@@ -101,9 +113,12 @@ def test_rollback_non_interactive_newer_catalog_is_rejected(tmpdir):
         RollbackTestConfig(
             installed_catalog_id="v9-260129-amd64",
             argv=[
-                "--catalog", "v9-260430-amd64",  # newer than installed
-                "--mas-instance-id", "inst1",
-                "--mas-version", "9.0.x",
+                "--catalog",
+                "v9-260430-amd64",  # newer than installed
+                "--mas-instance-id",
+                "inst1",
+                "--mas-version",
+                "9.0.x",
                 "--no-confirm",
             ],
             expect_system_exit=True,
@@ -125,9 +140,12 @@ def test_rollback_non_interactive_dev_mode_skips_catalog_validation(tmpdir):
         RollbackTestConfig(
             installed_catalog_id="v9-260129-amd64",
             argv=[
-                "--catalog", "v9-260430-amd64",  # newer — normally rejected
-                "--mas-instance-id", "inst1",
-                "--mas-version", "9.0.x",
+                "--catalog",
+                "v9-260430-amd64",  # newer — normally rejected
+                "--mas-instance-id",
+                "inst1",
+                "--mas-version",
+                "9.0.x",
                 "--no-confirm",
                 "--dev-mode",
             ],
@@ -148,13 +166,18 @@ def test_rollback_non_interactive_with_artifactory_creds(tmpdir):
         RollbackTestConfig(
             installed_catalog_id="v9-260527-amd64",
             argv=[
-                "--catalog", "v9-260430-amd64",
-                "--mas-instance-id", "inst1",
-                "--mas-version", "9.0.x",
+                "--catalog",
+                "v9-260430-amd64",
+                "--mas-instance-id",
+                "inst1",
+                "--mas-version",
+                "9.0.x",
                 "--no-confirm",
                 "--dev-mode",
-                "--artifactory-username", "testuser",
-                "--artifactory-token", "testtoken",
+                "--artifactory-username",
+                "testuser",
+                "--artifactory-token",
+                "testtoken",
             ],
         ),
     )
