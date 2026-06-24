@@ -277,6 +277,7 @@ spec:
 
   workspaces:
     - name: configs
+    - name: shared-gitops-configs
 
   tasks:
 
@@ -458,6 +459,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs  
       taskRef:
         kind: Task
         name: gitops-db2u-database
