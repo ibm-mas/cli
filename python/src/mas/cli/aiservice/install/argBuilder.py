@@ -180,9 +180,9 @@ class aiServiceInstallArgBuilderMixin:
 
         # Database Configuration
         # -----------------------------------------------------------------------------
-        if self.getParam("install_db2") == "true":
+        if self.getParam("db2_action_aiservice") == "install":
             # In-cluster DB2 installation
-            command += f"  --install-db2{newline}"
+            command += f"  --db2-aiservice{newline}"
             if self.getParam("db2_channel") != "":
                 command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
             if self.db2LicenseFileLocal:

@@ -253,24 +253,24 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if value is not None and value != "":
                     self.aiserviceTenantSchedulingConfigFileLocal = value
 
-            elif key == "install_db2":
+            elif key == "db2_action_aiservice":
                 # Check if external DB parameters are provided
                 externalDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
                 hasExternalDb = any(vars(self.args)[dbParam] is not None for dbParam in externalDbParams)
                 
                 if hasExternalDb:
-                    # Using external database - validate all required parameters and ensure --install-db2 wasn't set
-                    if value == "true" and vars(self.args)["aiservice_db_jdbc_url"] is not None:
-                        self.fatalError(f"Cannot use --install-db2 with external database parameters. Use either --install-db2 for in-cluster DB2 OR --db-jdbc-url for external database (Oracle/SQL Server/DB2), not both.")
+                    # Using external database - validate all required parameters and ensure --db2-aiservice wasn't set
+                    if value == "install" and vars(self.args)["aiservice_db_jdbc_url"] is not None:
+                        self.fatalError(f"Cannot use --db2-aiservice with external database parameters. Use either --db2-aiservice for in-cluster DB2 OR --db-jdbc-url for external database (Oracle/SQL Server/DB2), not both.")
                     
                     self.setParam("install_db2", "false")
                     self.setParam("db2_action_aiservice", "byo")
                     for dbParam in externalDbParams:
                         if vars(self.args)[dbParam] is None:
                             self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
-                else:
-                    # Default: Install DB2 in-cluster (value is already "true" by default)
-                    self.setParam("install_db2", value)
+                elif value == "install":
+                    # Install DB2 in-cluster
+                    self.setParam("install_db2", "true")
                     self.setParam("db2_action_aiservice", "install")
                     self.setDB2DefaultChannel()
                     self.setDB2DefaultSettings()

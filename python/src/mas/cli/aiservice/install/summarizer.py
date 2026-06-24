@@ -105,8 +105,10 @@ class aiServiceInstallSummarizerMixin:
         else:
             # In-cluster DB2 deployment (default when db2_action="install" or not set)
             self.printSummary("Database Type", "In-cluster DB2")
-            self.printParamSummary("Install Namespace", "db2_namespace")
-            self.printParamSummary("Subscription Channel", "db2_channel")
+            if self.getParam("db2_namespace") != "":
+                self.printParamSummary("Install Namespace", "db2_namespace")
+            if self.getParam("db2_channel") != "":
+                self.printParamSummary("Subscription Channel", "db2_channel")
 
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")

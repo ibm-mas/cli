@@ -233,13 +233,12 @@ databaseArgGroup = aiServiceinstallArgParser.add_argument_group(
 
 # Option 1: Install DB2 in-cluster (default)
 databaseArgGroup.add_argument(
-    "--install-db2",
-    dest="install_db2",
+    "--db2-aiservice",
+    dest="db2_action_aiservice",
     required=False,
-    default="true",
     help="Install DB2 in-cluster for AI Service (default behavior, mutually exclusive with --db-*)",
     action="store_const",
-    const="true",
+    const="install",
 )
 databaseArgGroup.add_argument("--db2-namespace", required=False, help="Change namespace where Db2u instances will be created")
 databaseArgGroup.add_argument("--db2-channel", required=False, help="Subscription channel for Db2u")

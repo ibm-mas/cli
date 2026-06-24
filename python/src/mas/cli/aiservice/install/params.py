@@ -39,6 +39,7 @@ optionalParams = [
     "aiservice_db_ca_cert",
     # Database - Installation choice
     "install_db2",
+    "db2_action_aiservice",
     # Db2 - In-cluster installation
     "db2_action_system",
     "db2_action_manage",
