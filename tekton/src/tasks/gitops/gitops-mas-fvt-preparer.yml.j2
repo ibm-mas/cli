@@ -96,7 +96,7 @@ spec:
       default: ""
     - name: mas_appws_components
       type: string
-      default: ""      
+      default: ""
     - name: launchfvt_core
       type: string
       default: "true"
@@ -433,7 +433,7 @@ spec:
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
         export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${MAS_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
 
-        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
+        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
         . $CLI_DIR/functions/gitops_utils
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
@@ -459,7 +459,7 @@ spec:
           aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
           aws configure set default.region $SM_AWS_REGION
           export CLUSTER_TYPE=rosa
-          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role
           OC_RC=$?
           if [ $OC_RC -ne 0 ]; then
             echo "oc login failed"
@@ -490,12 +490,12 @@ spec:
         export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
         export ARGOCD_USERNAME=admin
         export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
-        
+
         argocd_login
         if [[ "${USE_SENDGRID}" == "true" ]]; then
           enable_subuser
         fi
-      
+
         if [[ "$LAUNCHER_ID" == "mas" ]]; then
           # Core infrastructure checks
           MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}"
@@ -535,20 +535,20 @@ spec:
 
           # Extract major.minor version from MAS_CHANNEL (e.g., "9.2" from "9.2.x-dev")
           MAS_VERSION=$(echo "${MAS_CHANNEL}" | cut -d'.' -f1,2)
-          
+
           # Version comparison flags
           if [[ "$(printf '%s\n' "${MAS_VERSION}" "9.2" | sort -V | head -n1)" == "${MAS_VERSION}" ]] && [[ "${MAS_VERSION}" != "9.2" ]]; then
             MAS_VERSION_LT_92=true
           else
             MAS_VERSION_LT_92=false
           fi
-          
+
           if [[ "$(printf '%s\n' "${MAS_VERSION}" "9.2" | sort -V | head -n1)" == "9.2" || "${MAS_VERSION}" == "9.2" ]]; then
             MAS_VERSION_GTE_92=true
           else
             MAS_VERSION_GTE_92=false
           fi
-          
+
           # The following order is defined by the sync wave order in https://github.com/ibm-mas/gitops/tree/main/root-applications/ibm-mas-instance-root/templates
           # Pre-9.2 version checks
           if [[ "${MAS_VERSION_LT_92}" == "true" ]]; then
@@ -696,10 +696,10 @@ spec:
         #  - The initial_user secret is primed with 2 primary and 2 secondary users with randomised emails
         #  - The ibm-create-initial-users Job that reads the secret and runs creates the users is deleted so ArgoCD resyncs it, causing it to be rerun
         #  - The test passes if the postsyncjobs app that contains the Job becomes healthy again after rerunning the Job
-        
+
         # The results of the tests are registered with the FVT dashboard under ibm-mas-gitops/initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}
 
-        # Assisted by watsonx Code Assistant 
+        # Assisted by watsonx Code Assistant
         get_random_email() {
           local random_part=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
           echo "${random_part}@example.com"
@@ -720,10 +720,10 @@ spec:
           POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
 
-          IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_NAME}/${MAS_INSTANCE_ID}/initial_users" 
+          IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_NAME}/${MAS_INSTANCE_ID}/initial_users"
           IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
           IU_SECRET_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops-mas-fvt-preparer\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}]"
-          
+
           echo "Creating ${IU_SECRET_NAME} secret"
           sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}" || return $?
 
@@ -748,7 +748,7 @@ spec:
 
 
         IU_SYNC_START_TIME=$(date +%s)
-        IU_SYNC_LOGS="$(initial_user_test 2>&1 | tee /dev/fd/2)"  
+        IU_SYNC_LOGS="$(initial_user_test 2>&1 | tee /dev/fd/2)"
         IU_RC=$? # NOTE: set -o pipefail ensures we get exit code of initial_user_test (not tee)
         IU_SYNC_LOGS_CDATA=$(printf '%s\n' "${IU_SYNC_LOGS}"| sed 's|\]\]>|]]]]><![CDATA[>|g') # guard against any "]]>" in the output
         IU_SYNC_ELAPSED_TIME=$(($(date +%s)-$IU_SYNC_START_TIME))
@@ -772,7 +772,7 @@ spec:
                 </testcase>
               </testsuite>
             </testsuites>
-          '       
+          '
         fi
 
 
@@ -805,7 +805,7 @@ spec:
           WINDOW_DURATION=4
         fi
 
-        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration ${WINDOW_DURATION}h --applications *.$CLUSTER_NAME.$MAS_INSTANCE_ID.*,*.$CLUSTER_NAME.$MAS_INSTANCE_ID,$MAS_INSTANCE_ID-*"  
+        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration ${WINDOW_DURATION}h --applications *.$CLUSTER_NAME.$MAS_INSTANCE_ID.*,*.$CLUSTER_NAME.$MAS_INSTANCE_ID,$MAS_INSTANCE_ID-*"
         argocd proj windows add mas --kind deny --schedule "* * * * *" --duration ${WINDOW_DURATION}h --applications "*.$CLUSTER_NAME.$MAS_INSTANCE_ID.*,*.$CLUSTER_NAME.$MAS_INSTANCE_ID,$MAS_INSTANCE_ID-*" --grpc-web
 
         UNESCAPED_LDAP_CRT=$(</workspace/shared-additional-configs/ldap_masdeps1_cert.pem)
@@ -850,7 +850,7 @@ spec:
         - -c
       name: gitops-mas-fvt-preparer
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-additional-configs

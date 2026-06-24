@@ -22,7 +22,7 @@ spec:
       description: "Provide the namespace of the pipelinerun"
   steps:
     - name: update-pipeline-status
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/update-pipeline-status.py

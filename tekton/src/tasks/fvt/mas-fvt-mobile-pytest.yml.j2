@@ -63,7 +63,7 @@ spec:
       type: string
       description: Used only by fvt-mobile-version step to upload version file to artifactory
       default: ""
-    
+
     - name: workspace_managedata_path
       type: string
       description: Path where output data file will be placed. Defaults to value used in fvt shared workspace
@@ -121,7 +121,7 @@ spec:
 
       - name: UPLOAD_FILE
         value: "$(params.upload_file)"
-      
+
       - name: WORKSPACE_MANAGEDATA_PATH
         value: "$(params.workspace_managedata_path)"
       - name: INPUT_DATA_FILE
@@ -218,7 +218,7 @@ spec:
       command:
         - python3
         - /opt/app-root/src/mobilever.py
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       onError: continue
 

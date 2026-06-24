@@ -19,34 +19,34 @@ spec:
       description: Output workspace for processed certificates
   steps:
     - name: process-certs
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       script: |
         #!/bin/bash
         set -e
-        
+
         CERTS_FILE="$(params.mas_manual_certs_yaml)"
         OUTPUT_FILE="/workspace/configs/manual_certs.yaml"
-        
+
         # Exit early if no certs file provided
         if [ -z "$CERTS_FILE" ] || [ ! -e "$CERTS_FILE" ]; then
           echo "No manual certs file provided, skipping"
           exit 0
         fi
-        
+
         echo "=========================================="
         echo "Processing Manual Certificates"
         echo "=========================================="
         echo "Source: $CERTS_FILE"
-        
+
         # Resolve symlink (K8s secrets are mounted as symlinks)
         REAL_FILE=$(readlink -f "$CERTS_FILE")
         echo "Resolved: $REAL_FILE"
-        
+
         # Step 1: Detect file format
         FILE_TYPE=$(file -b "$REAL_FILE")
         echo "Detected type: $FILE_TYPE"
         echo ""
-        
+
         # Step 2: Process based on detected format
         if echo "$FILE_TYPE" | grep -qi "zip"; then
           # ============================================
@@ -55,19 +55,19 @@ spec:
           echo "Format: ZIP archive (new format)"
           echo "Action: Extracting YAML from ZIP..."
           echo ""
-          
+
           TEMP_DIR=$(mktemp -d)
-          
+
           # Extract ZIP
           if ! unzip -q -o "$REAL_FILE" -d "$TEMP_DIR" 2>/dev/null; then
             echo "✗ ERROR: Failed to extract ZIP file"
             rm -rf "$TEMP_DIR"
             exit 1
           fi
-          
+
           # Find YAML file in extracted contents
           YAML_FILE=$(find "$TEMP_DIR" -type f \( -name "*.yaml" -o -name "*.yml" \) | head -n 1)
-          
+
           if [ -z "$YAML_FILE" ]; then
             echo "✗ ERROR: No YAML file found in ZIP archive"
             echo "ZIP contents:"
@@ -75,22 +75,22 @@ spec:
             rm -rf "$TEMP_DIR"
             exit 1
           fi
-          
+
           echo "Found YAML: $(basename "$YAML_FILE")"
-          
+
           # Validate YAML syntax
           if ! yq eval '.' "$YAML_FILE" > /dev/null 2>&1; then
             echo "✗ ERROR: Invalid YAML syntax in extracted file"
             rm -rf "$TEMP_DIR"
             exit 1
           fi
-          
+
           # Copy to output location
           cp "$YAML_FILE" "$OUTPUT_FILE"
           rm -rf "$TEMP_DIR"
-          
+
           echo "✓ ZIP extraction complete"
-          
+
         else
           # ============================================
           # LEGACY FORMAT: Plain YAML file
@@ -98,25 +98,25 @@ spec:
           echo "Format: Plain YAML (legacy format)"
           echo "Action: Validating and copying YAML..."
           echo ""
-          
+
           # Validate YAML syntax
           if ! yq eval '.' "$REAL_FILE" > /dev/null 2>&1; then
             echo "✗ ERROR: Invalid YAML syntax"
             exit 1
           fi
-          
+
           # Copy to output location
           cp "$REAL_FILE" "$OUTPUT_FILE"
-          
+
           echo "✓ YAML validation complete"
         fi
-        
+
         echo ""
         echo "=========================================="
         echo "Certificate Processing Complete"
         echo "=========================================="
         echo "Output: $OUTPUT_FILE"
-        
+
         # Display summary
         if [ -f "$OUTPUT_FILE" ]; then
           echo ""

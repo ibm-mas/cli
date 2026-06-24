@@ -32,6 +32,25 @@ spec:
       default: "false"
 
   tasks:
+    # 0. Pipeline Start - Track pipeline status in MongoDB
+    # -------------------------------------------------------------------------
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
     # 1. Wait for approval & verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
     - name: waitfor-approval
@@ -52,6 +71,8 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
+      runAfter:
+        - pipeline-start
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-upgrade-check', 'devops_suite_name': 'pre-upgrade-check'}) | indent(4) }}
       runAfter:
@@ -435,6 +456,25 @@ spec:
         - app-monitor-upgrade-before-iot
 
   finally:
+    # Pipeline Finish - Track final pipeline status in MongoDB
+    # -------------------------------------------------------------------------
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+          
     # Update synchronization configmap
     # -------------------------------------------------------------------------
     - name: sync-upgrade
