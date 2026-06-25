@@ -472,7 +472,7 @@ spec:
       runAfter:
         - gitops-cluster
       when:
-        - input: "$(params.dro_namespace)"
+        - input: "$(params.dro_cmm_setup)"
           operator: notin
           values: [""]
       params:
