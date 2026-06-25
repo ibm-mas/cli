@@ -471,6 +471,10 @@ spec:
     - name: gitops-dro
       runAfter:
         - gitops-cluster
+      when:
+        - input: "$(params.dro_namespace)"
+          operator: notin
+          values: [""]
       params:
         - name: cluster_name
           value: $(params.cluster_name)
