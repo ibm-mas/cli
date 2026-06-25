@@ -100,7 +100,7 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-        
+
         mas gitops-mas-config \
           --account-id "$ACCOUNT_ID" \
           --cluster-id "$CLUSTER_ID" \
@@ -124,7 +124,7 @@ spec:
         - -c
       name: gitops-jdbc-config
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

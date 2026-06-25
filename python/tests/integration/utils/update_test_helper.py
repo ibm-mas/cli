@@ -15,7 +15,7 @@ import contextlib
 from typing import Dict, Callable, Optional, List
 from unittest import mock
 from unittest.mock import MagicMock
-from openshift.dynamic import DynamicClient
+from kubernetes.dynamic import DynamicClient
 from mas.cli.update.app import UpdateApp
 from utils.prompt_tracker import create_prompt_handler
 

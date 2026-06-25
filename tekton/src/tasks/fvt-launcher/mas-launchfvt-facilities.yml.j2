@@ -15,7 +15,7 @@ spec:
 
   steps:
     - name: start-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
@@ -42,6 +42,13 @@ spec:
               name: mas-devops
               key: MAS_INSTANCE_ID
               optional: false
+        # Service Account for FVT Pipeline (supports RBAC mode)
+        - name: SERVICE_ACCOUNT_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: SERVICE_ACCOUNT_NAME
+              optional: true
 
         # Lookups from mas-fvt
         # -----------------------------------------------------------------------
@@ -92,7 +99,7 @@ spec:
               name: mas-fvt-facilities
               key: IVT_DIGEST_CORE
               optional: false
-                        
+
         # Black and white listing
         - name: FVT_BLACKLIST
           valueFrom:
@@ -108,7 +115,7 @@ spec:
               optional: false
 
     - name: wait-for-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       # 50 retries at 5 minute intervals = 4 hours
       command:

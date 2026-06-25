@@ -45,7 +45,7 @@ spec:
       default: "true"
     - name: aiservice_storage_region
       type: string
-    - name: openshiftai_source 
+    - name: openshiftai_source
       type: string
     - name: aiservice_rhoai_model_deployment_type
       type: string
@@ -95,7 +95,7 @@ spec:
         value: $(params.aiservice_storage_ssl)
       - name: AISERVICE_STORAGE_REGION
         value: $(params.aiservice_storage_region)
-      - name: OPENDATAHUB_SOURCE 
+      - name: OPENDATAHUB_SOURCE
         value: $(params.openshiftai_source)
       - name: AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE
         value: $(params.aiservice_rhoai_model_deployment_type)
@@ -130,6 +130,6 @@ spec:
         - -c
       name: gitops-rhoai
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
