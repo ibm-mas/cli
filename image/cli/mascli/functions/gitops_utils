@@ -1272,11 +1272,20 @@ function argocd_login() {
 
 function argocd_sync(){
   APP_NAME=$1
+  SYNC_MODE=${2:-app}  # Default to 'app' mode, can be 'label'
+  
   echo
-  echo "Force Application $APP_NAME to Sync ..."
-  argocd app sync $APP_NAME --timeout 30 --assumeYes --grpc-web
-  RC=$?
-  echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
+  if [[ "$SYNC_MODE" == "label" ]]; then
+    echo "Force Applications with label app.kubernetes.io/instance=$APP_NAME to Sync ..."
+    argocd app list -l app.kubernetes.io/instance=$APP_NAME -o name | xargs -n1 argocd app sync --timeout 30 --assumeYes --grpc-web || true
+    RC=$?
+    echo "ArgoCD response for Force Applications with label to Sync: $RC"
+  else
+    echo "Force Application $APP_NAME to Sync ..."
+    argocd app sync $APP_NAME --force --timeout 30 --assumeYes --grpc-web
+    RC=$?
+    echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
+  fi
 }
 
 function argocd_prune_sync(){
@@ -1340,8 +1349,9 @@ function check_argo_app_synced() {
   APPLICATION=$1
   CLUSTER_WATCHER=$2
   NAMESPACE=$3
+  SYNC_MODE=${4:-app}  # Default to 'app' mode, can be 'label'
   COUNT=0
-  echo "argo:check_argo_app_synced : APPLICATION=$APPLICATION CLUSTER_WATCHER=$CLUSTER_WATCHER NAMESPACE=$NAMESPACE"
+  echo "argo:check_argo_app_synced : APPLICATION=$APPLICATION CLUSTER_WATCHER=$CLUSTER_WATCHER NAMESPACE=$NAMESPACE SYNC_MODE=$SYNC_MODE"
   while true; do
     echo "argo:check_argo_app_synced : Checking sync status for $APPLICATION"
     APP_RES_YAML=$(argocd app get $APPLICATION -o json 2> /dev/null)
@@ -1359,9 +1369,9 @@ function check_argo_app_synced() {
       echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Phase is ${PHASE}. Waiting 30s before checking status and phase again - $COUNT"
       if ! (( $COUNT % 5 )) ; then
         if [[ -n "$CLUSTER_WATCHER" ]]; then
-          argocd_sync $CLUSTER_WATCHER
+          argocd_sync $CLUSTER_WATCHER "$SYNC_MODE"
         fi
-        argocd_sync $APPLICATION
+        argocd_sync $APPLICATION "$SYNC_MODE"
       fi
       sleep 30
     fi
