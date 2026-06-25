@@ -45,14 +45,17 @@ function redis_cli_cmd() {
   
   local cmd="redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} -n ${REDIS_DB}"
   
-  # Add username if provided (Redis 6+)
+  # Handle authentication
+  # When using a specific username, we must use --user and -a flags together
+  # REDISCLI_AUTH only works for default user authentication
   if [[ -n "${REDIS_USERNAME}" ]]; then
     cmd="${cmd} --user ${REDIS_USERNAME}"
-  fi
-  
-  # Set password via environment variable to avoid command-line warning
-  # This is more secure than using -a flag as it doesn't expose password in process list
-  if [[ -n "${REDIS_PASSWORD}" ]]; then
+    if [[ -n "${REDIS_PASSWORD}" ]]; then
+      # Use -a flag when username is specified (REDISCLI_AUTH doesn't work with --user)
+      cmd="${cmd} -a ${REDIS_PASSWORD}"
+    fi
+  elif [[ -n "${REDIS_PASSWORD}" ]]; then
+    # For default user, use REDISCLI_AUTH to avoid command-line warning
     export REDISCLI_AUTH="${REDIS_PASSWORD}"
   fi
   
@@ -76,19 +79,15 @@ function redis_available() {
     return 1
   fi
   
-  # Set REDISCLI_AUTH in current shell before calling redis_cli_cmd
-  if [[ -n "${REDIS_PASSWORD}" ]]; then
-    export REDISCLI_AUTH="${REDIS_PASSWORD}"
-  fi
-  
   local redis_cmd=$(redis_cli_cmd)
   
-  # Display command (password is now set via REDISCLI_AUTH env var, not in command)
-  echo "$(logts) Checking Redis availability: ${redis_cmd} PING"
+  # Display command with password masked
+  local display_cmd=$(echo "${redis_cmd}" | sed 's/-a [^ ]*/-a ****/g')
+  echo "$(logts) Checking Redis availability: ${display_cmd} PING"
   
   # Capture both stdout and stderr to see actual errors
-  # Filter out log messages (no need to filter warnings anymore as we use REDISCLI_AUTH)
-  local result=$(${redis_cmd} PING 2>&1 | grep -v "^\[" | head -1)
+  # Filter out log messages and warnings
+  local result=$(${redis_cmd} PING 2>&1 | grep -v "^\[" | grep -v "^Warning:" | head -1)
   local exit_code=$?
   
   if [[ "${result}" == "PONG" ]]; then
@@ -99,7 +98,7 @@ function redis_available() {
     if [[ ${exit_code} -ne 0 ]] || [[ -z "${result}" ]]; then
       echo "$(logts) Redis connection error (exit code: ${exit_code}):"
       # Get full error output, suppress password, and filter timestamps
-      ${redis_cmd} PING 2>&1 | grep -v "^\[" | sed 's/-a [^ ]*/-a ****/g'
+      ${redis_cmd} PING 2>&1 | grep -v "^\[" | grep -v "^Warning:" | sed 's/-a [^ ]*/-a ****/g'
     else
       echo "$(logts) Unexpected response: \"${result}\""
     fi
