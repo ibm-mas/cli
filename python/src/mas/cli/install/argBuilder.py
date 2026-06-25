@@ -378,11 +378,11 @@ class installArgBuilderMixin:
                     command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
             elif self.getParam("aiservice_db_jdbc_url") != "":
                 # External database (Oracle/SQL Server/DB2)
-                command += f"  --db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
-                command += f"  --db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
-                command += f"  --db-password \"{self.getParam('aiservice_db_password')}\"{newline}"
+                command += f"  --aiservice-db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
+                command += f"  --aiservice-db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
+                command += f"  --aiservice-db-password \"{self.getParam('aiservice_db_password')}\"{newline}"
                 if self.getParam("aiservice_db_ca_cert") != "":
-                    command += f"  --db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
+                    command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
 
             if self.getParam("aiservice_s3_accesskey") != "" and self.getParam("minio_root_user") == "":
                 command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"

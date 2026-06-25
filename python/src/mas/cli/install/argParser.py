@@ -1186,25 +1186,25 @@ db2ArgGroup.add_argument(
     const="install",
 )
 db2ArgGroup.add_argument(
-    "--db-jdbc-url",
+    "--aiservice-db-jdbc-url",
     dest="aiservice_db_jdbc_url",
     required=False,
     help="JDBC URL for external database (Oracle, SQL Server, or external DB2) for AI Service",
 )
 db2ArgGroup.add_argument(
-    "--db-username",
+    "--aiservice-db-username",
     dest="aiservice_db_username",
     required=False,
     help="Username for external database connection for AI Service",
 )
 db2ArgGroup.add_argument(
-    "--db-password",
+    "--aiservice-db-password",
     dest="aiservice_db_password",
     required=False,
     help="Password for external database connection for AI Service",
 )
 db2ArgGroup.add_argument(
-    "--db-ca-cert",
+    "--aiservice-db-ca-cert",
     dest="aiservice_db_ca_cert",
     required=False,
     help="CA certificate for external database connection (PEM format, optional) for AI Service",

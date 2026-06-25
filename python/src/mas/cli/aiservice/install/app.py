@@ -261,7 +261,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if hasExternalDb:
                     # Using external database - validate all required parameters and ensure --db2-aiservice wasn't set
                     if value == "install" and vars(self.args)["aiservice_db_jdbc_url"] is not None:
-                        self.fatalError(f"Cannot use --db2-aiservice with external database parameters. Use either --db2-aiservice for in-cluster DB2 OR --db-jdbc-url for external database (Oracle/SQL Server/DB2), not both.")
+                        self.fatalError(f"Cannot use --db2-aiservice with external database parameters. Use either --db2-aiservice for in-cluster DB2 OR --aiservice-db-jdbc-url for external database (Oracle/SQL Server/DB2), not both.")
                     
                     self.setParam("install_db2", "false")
                     self.setParam("db2_action_aiservice", "byo")

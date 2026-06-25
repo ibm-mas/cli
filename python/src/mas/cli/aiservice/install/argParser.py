@@ -246,25 +246,25 @@ databaseArgGroup.add_argument("--db2-license-file", required=False, help="Db2 Li
 
 # Option 2: Use external database (Oracle/SQL Server/DB2)
 databaseArgGroup.add_argument(
-    "--db-jdbc-url",
+    "--aiservice-db-jdbc-url",
     dest="aiservice_db_jdbc_url",
     required=False,
     help="JDBC URL for external database (e.g., jdbc:oracle:thin:@host:1521/service, jdbc:sqlserver://host:1433;databaseName=db, jdbc:db2://host:50000/db)"
 )
 databaseArgGroup.add_argument(
-    "--db-username",
+    "--aiservice-db-username",
     dest="aiservice_db_username",
     required=False,
     help="Database username for AI Service"
 )
 databaseArgGroup.add_argument(
-    "--db-password",
+    "--aiservice-db-password",
     dest="aiservice_db_password",
     required=False,
     help="Database password for AI Service"
 )
 databaseArgGroup.add_argument(
-    "--db-ca-cert",
+    "--aiservice-db-ca-cert",
     dest="aiservice_db_ca_cert",
     required=False,
     help="Database CA certificate (PEM format, optional, only if using SSL/TLS)"
