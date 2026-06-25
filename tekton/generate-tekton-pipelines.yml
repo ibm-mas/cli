@@ -9,6 +9,49 @@
 
     pipeline_src_dir: src/pipelines
     pipeline_target_dir: target/pipelines
+
+    # Optional: specify a single pipeline to generate (e.g., -e pipeline_name=mas-fvt-launcher)
+    pipeline_name: ""
+
+    # Define all pipelines
+    all_pipelines:
+      # MAS Pipelines
+      - mas-backup
+      - mas-restore
+      - mas-install
+      - mas-update
+      - mas-upgrade
+      - mas-uninstall
+      # MAS FVT Pipelines
+      - mas-fvt-assist
+      - mas-fvt-core
+      - mas-fvt-deprovision-after
+      - mas-fvt-iot
+      - mas-fvt-finally
+      - mas-fvt-manage
+      - mas-fvt-manage-ai
+      - mas-fvt-manage-is
+      - mas-fvt-manage-regr
+      - mas-fvt-mobile-pytest
+      - mas-fvt-mobile-requests
+      - mas-fvt-mobile-testng
+      - mas-fvt-monitor
+      - mas-fvt-optimizer
+      - mas-fvt-predict
+      - mas-fvt-sls
+      - mas-fvt-visualinspection
+      - mas-fvt-launcher
+      - mas-ivt-manage
+      - mas-fvt-facilities
+      # AI Service Pipelines
+      - aiservice-upgrade
+      # AI Service FVT Pipelines
+      - aiservice-fvt-launcher
+      - aiservice-fvt
+
+    # Determine which pipelines to generate
+    pipelines_to_generate: "{{ [pipeline_name] if pipeline_name != '' else all_pipelines }}"
+
   tasks:
 
     # 1. Prepare tmp and target directory for the pipeline build
@@ -26,54 +69,7 @@
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
-      with_items:
-        # MAS Pipelines
-        - mas-backup
-        - mas-restore
-        - mas-install
-        - mas-update
-        - mas-upgrade
-        - mas-rollback
-        - mas-uninstall
-        # MAS FVT Pipelines
-        - mas-fvt-assist
-        - mas-fvt-core
-        - mas-fvt-deprovision-after
-        - mas-fvt-iot
-        - mas-fvt-finally
-        - mas-fvt-manage
-        - mas-fvt-manage-ai
-        - mas-fvt-manage-is
-        - mas-fvt-manage-regr
-        - mas-fvt-mobile-pytest
-        - mas-fvt-mobile-requests
-        - mas-fvt-mobile-testng
-        - mas-fvt-monitor
-        - mas-fvt-optimizer
-        - mas-fvt-predict
-        - mas-fvt-sls
-        - mas-fvt-visualinspection
-        - mas-fvt-launcher
-        - mas-ivt-manage
-        - mas-fvt-facilities
-        # AI Service Pipelines
-        - aiservice-upgrade
-        # AI Service FVT Pipelines
-        - aiservice-fvt-launcher
-        - aiservice-fvt
-
-    # 2. Generate Pipelines
-    # -------------------------------------------------------------------------
-    - name: Generate Pipelines (wait-for-install versions)
-      vars:
-        wait_for_install: true
-      ansible.builtin.template:
-        src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
-        dest: "{{ pipeline_target_dir }}/{{ item }}-after-install.yaml"
-      with_items:
-        # TODO: Get rid of this, integrate this into main FVT launcher like
-        # we do for update, upgrade, & uninstall testing
-        - mas-rollback
+      with_items: "{{ pipelines_to_generate }}"
 
     # 3. Generate Gitops Pipelines
     # -------------------------------------------------------------------------
@@ -85,11 +81,11 @@
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
-        - deprovision-cluster
-        - deprovision-mas-deps
-        - deprovision-mas-instance
-        - deprovision-mas-cluster
-        - provision-bootstrap-cluster
+        - gitops-deprovision-cluster
+        - gitops-deprovision-mas-deps
+        - gitops-deprovision-mas-instance
+        - gitops-deprovision-mas-cluster
+        - gitops-provision-bootstrap-cluster
         - gitops-mas-instance
         - gitops-mas-fvt-preparer-pipeline
         - gitops-mas-apps
@@ -97,12 +93,13 @@
         - gitops-mas-deps
         - gitops-mas-initiator
         - gitops-suite-license-service
-        - deprovision-suite-license-service
+        - gitops-deprovision-suite-license-service
         - gitops-aiservice-pipeline
         - gitops-aiservice-tenant-pipeline
         - gitops-deprovision-aiservice-pipeline
         - gitops-deprovision-aiservice-tenant-pipeline
         - gitops-iac-pipeline
+      when: pipeline_name == ''
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
@@ -113,9 +110,10 @@
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}-after-deprovision.yaml"
       with_items:
-        - provision-bootstrap-cluster
-        - deprovision-cluster
-        - deprovision-mas-deps
+        - gitops-provision-bootstrap-cluster
+        - gitops-deprovision-cluster
+        - gitops-deprovision-mas-deps
+      when: pipeline_name == ''
 
     # 5. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
@@ -128,5 +126,4 @@
       with_items:
         - gitops-mas-deps
         - gitops-mas-initiator
-
-        
+      when: pipeline_name == ''

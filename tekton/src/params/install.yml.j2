@@ -421,6 +421,10 @@
 
 # MAS Configuration
 # -----------------------------------------------------------------------------
+- name: mas_issuer_kind
+  type: string
+  description: Certificate issuer kind for MAS
+  default: ""
 - name: mas_domain
   type: string
   default: ""
@@ -449,6 +453,12 @@
   type: string
   default: ""
 - name: mas_routing_mode
+  type: string
+  default: ""
+- name: mas_use_service_mesh
+  type: string
+  default: ""
+- name: mas_manual_route_mgmt
   type: string
   default: ""
 - name: mas_ingress_controller_name
@@ -551,6 +561,10 @@
   type: string
   description: Select the JDBC configuration to bind to
   default: system
+- name: mas_appws_bindings_kafka_manage
+  type: string
+  description: Select the Kafka configuration to bind to Manage
+  default: ""
 - name: mas_appws_components
   type: string
   description: Manage components to configure in the workspace
@@ -675,6 +689,11 @@
   type: string
   description: Manage upgrade type
   default: "regularUpgrade"
+- name: mas_manage_kafkaimageprocessor_pvc_size
+  type: string
+  description: PVC size for Manage Kafka Image Processor
+  default: ""
+
 
 # MAS Application Configuration - IBM Maximo Location Services for ESRI
 # -----------------------------------------------------------------------------
@@ -713,7 +732,7 @@
   default: "small"
 - name: mas_ws_facilities_app_om_upgrade_mode
   type: string
-  description: Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades. 
+  description: Warning! Application upgrades can overwrite your custom changes. Do not select Automatic if you have customized your application. Sets the Application upgrades.
   default: ""
 - name: mas_ws_facilities_routes_timeout
   type: string
@@ -747,11 +766,80 @@
   type: string
   description: Define storage mode for userfiles
   default: ""
+- name: mas_ws_facilities_server_timezone
+  type: string
+  description: Facilities server timezone
+  default: "UTC"  
 - name: mas_ws_facilities_config_map_name
   description: ConfigMap with configurations not supported by Tekton
+  type: string
+  default: ""
+- name: mas_ws_facilities_custom_properties
+  description: Flag indicating if custom FACILITIES.properties file is provided
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_file_local
+  description: Path to custom FACILITIES.properties file in pipeline workspace
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_secret_name
+  description: Name of the secret containing custom FACILITIES.properties
+  type: string
+  default: ""
+- name: mas_ws_facilities_dataconnectagent_deploymentmode
+  description: Agent dataconnectagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_extendedformulaagent_deploymentmode
+  description: Agent extendedformulaagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_formularecalcagent_deploymentmode
+  description: Agent formularecalcagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_incomingmailagent_deploymentmode
+  description: Agent incomingmailagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_maintenanceagent_deploymentmode
+  description: Agent maintenanceagent deployment mode
+  type: string
+  default: ""  
+- name: mas_ws_facilities_objectmigrationagent_deploymentmode
+  description: Agent objectmigrationagent deployment mode
+  type: string
+  default: "" 
+- name: mas_ws_facilities_objectpublishagent_deploymentmode
+  description: Agent objectpublishagent deployment mode
+  type: string
+  default: "" 
+- name: mas_ws_facilities_reportqueueagent_deploymentmode
+  description: Agent reportqueueagent deployment mode
+  type: string
+  default: "" 
+- name: mas_ws_facilities_wfagent_deploymentmode
+  description: Agent wfagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_wffutureagent_deploymentmode
+  description: Agent wffutureagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_wfnotificationagent_deploymentmode
+  description: Agent wfnotificationagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_reservesmtpagent_deploymentmode
+  description: Agent reservesmtpagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_scheduleragent_deploymentmode
+  description: Agent scheduleragent deployment mode
   type: string
   default: ""
 
 #  AI Service Configuration
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') }}
+

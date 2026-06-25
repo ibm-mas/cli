@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -19,7 +19,7 @@ requiredParams = [
     # DRO
     "dro_contact_email",
     "dro_contact_firstname",
-    "dro_contact_lastname"
+    "dro_contact_lastname",
 ]
 
 optionalParams = [
@@ -72,7 +72,6 @@ optionalParams = [
     "aiservice_s3_bucket_prefix",
     "aiservice_s3_tenants_bucket",
     "aiservice_s3_templates_bucket",
-
     "aiservice_watsonxai_apikey",
     "aiservice_watsonxai_url",
     "aiservice_watsonxai_project_id",
@@ -87,26 +86,18 @@ optionalParams = [
     "aiservice_instance_id",
     "aiservice_watsonxai_instance_id",
     "aiservice_watsonxai_verify",
-
     "minio_root_user",
     "minio_root_password",
-
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
-
-    "rsl_url",
-    "rsl_org_id",
-    "rsl_token",
     "rsl_ca_crt",
     "environment_type",
-
+    "configure_aiassistant",
     # Certificate Issuer
     "aiservice_certificate_issuer",
-
     # Enable IPv6 networking
     "enable_ipv6",
-
     # Slack
     "slack_token",
     "slack_channel",

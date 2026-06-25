@@ -78,7 +78,7 @@ spec:
           --git-branch "$GIT_BRANCH" \
           --config-action remove \
           --mas-config-scope system \
-          --mas-config-type appcfg \
+          --mas-config-type appconfig \
           --dir /tmp/init-app-config
 
         exit $?
@@ -87,6 +87,6 @@ spec:
         - -c
       name: gitops-delete-app-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

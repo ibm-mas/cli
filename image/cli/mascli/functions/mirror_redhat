@@ -89,6 +89,7 @@ function mirror_redhat_noninteractive() {
   # Check all args have been set
   [[ -z "$MIRROR_MODE" ]] && mirror_redhat_help "MIRROR_MODE is not set"
   [[ -z "$MIRROR_WORKING_DIR" ]] && mirror_redhat_help "MIRROR_WORKING_DIR is not set"
+  validate_registry_prefix "$REGISTRY_PREFIX_REDHAT"
 
   if [[ $MIRROR_MODE != "to-filesystem" && $REGISTRY_IS_ECR == "true" ]]; then
     REGISTRY_USERNAME="AWS"
@@ -148,11 +149,12 @@ function mirror_redhat_interactive() {
   echo "${TEXT_DIM}Select the release to mirror content for:"
 
   echo "Supported OCP Releases:"
-  echo "  1) 4.20"
-  echo "  2) 4.19"
-  echo "  3) 4.18"
-  echo "  4) 4.17"
-  echo "  5) 4.16"
+  echo "  1) 4.21"
+  echo "  2) 4.20"
+  echo "  3) 4.19"
+  echo "  4) 4.18"
+  echo "  5) 4.17"
+  echo "  6) 4.16"
   reset_colors
 
   echo
@@ -160,18 +162,21 @@ function mirror_redhat_interactive() {
 
   case $OCP_RELEASE_SELECTION in
     1)
-      OCP_RELEASE=4.20
+      OCP_RELEASE=4.21
       ;;
     2)
-      OCP_RELEASE=4.19
+      OCP_RELEASE=4.20
       ;;
     3)
-      OCP_RELEASE=4.18
+      OCP_RELEASE=4.19
       ;;
     4)
-      OCP_RELEASE=4.17
+      OCP_RELEASE=4.18
       ;;
     5)
+      OCP_RELEASE=4.17
+      ;;
+    6)
       OCP_RELEASE=4.16
       ;;
     *)
@@ -189,6 +194,7 @@ function mirror_redhat_interactive() {
     prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
     prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
     prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX_REDHAT
+    validate_registry_prefix "$REGISTRY_PREFIX_REDHAT"
     prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
     prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?"
   fi

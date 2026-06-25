@@ -13,7 +13,7 @@ Basic Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                  Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                   Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                   Cluster ID
-  -i, --Instance-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                 Instance ID
+  -i, --instance-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                 Instance ID
 
 ibm_aiservice_tenant(required):
       --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                             The AiService instance ID used by AI Service
@@ -21,11 +21,14 @@ ibm_aiservice_tenant(required):
       --catalog-channel ${TEXT_RESET}CATALOG_CHANNEL${TEXT_RESET}                                           The catalog channel from which to install the tenant operator
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
       --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Service instance
+      --aiservice-tenant-install-plan-approval ${TEXT_RESET}AISERVICE_TENANT_INSTALL_PLAN_APPROVAL${TEXT_RESET}                                                   
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
       --dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                                         URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
       --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                         Endpoint URL for Watsonx.ai
       --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                           Full URL for Watsonx.ai including API key
+      --tenant-scheduling-config-file ${COLOR_YELLOW}TENANT_SCHEDULING_CONFIG_FILE${TEXT_RESET}             Path to tenant scheduling configuration file (tolerations and nodeSelector)
+      --enable-deprovisioning ${COLOR_YELLOW}AISERVICE_ENABLE_DEPROVISIONING${TEXT_RESET}                    When true, the tenant is deprovisioned when its AIServiceTenant CR is deleted
 
 AiService :
 --aiservice-namespace ${COLOR_YELLOW}AISERVICE_NAMESPACE${TEXT_RESET}                                       The namespace where AI Service is deployed
@@ -33,6 +36,7 @@ AiService :
 --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                                   The AI Service instance ID
 --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                              The tenant's Kubernetes namespace
 --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Service instance
+--aiservice-tenant-install-plan-approval ${TEXT_RESET}AISERVICE_TENANT_INSTALL_PLAN_APPROVAL${TEXT_RESET}                                                          
 --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in-saas-env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
 --aiservice_operator_log_level ${COLOR_YELLOW}AISERVICE_OPERATOR_LOG_LEVEL${TEXT_RESET}                     Log level for the AI Service operator (e.g., info, debug)
@@ -57,7 +61,7 @@ Watsonx :
 Storage :
 --aiservice-storage-provider ${COLOR_YELLOW}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}                    The storage provider used by AI Service (e.g., S3, MinIO)
 --aiservice-storage-region ${COLOR_YELLOW}AISERVICE_STORAGE_REGION${TEXT_RESET}                        Storage region used in STORAGE (if applicable)
---aiservice-storage_ssl ${COLOR_YELLOW}AISERVICE_STORAGE_SSL${TEXT_RESET}                              Whether STORAGE uses SSL (true/false)
+--aiservice-storage-ssl ${COLOR_YELLOW}AISERVICE_STORAGE_SSL${TEXT_RESET}                              Whether STORAGE uses SSL (true/false)
 
 
 Automatic GitHub Push (Optional):
@@ -102,6 +106,7 @@ function gitops_aiservice_tenant_noninteractive() {
   #adding default values # -- aiservice Defaults
   export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}
   export AISERVICE_PROVISION_TENANT=${AISERVICE_PROVISION_TENANT:-"provision-tenant"}
+  export AISERVICE_TENANT_INSTALL_PLAN_APPROVAL=${AISERVICE_TENANT_INSTALL_PLAN_APPROVAL:-"Automatic"}
   export CATALOG_SOURCE=${CATALOG_SOURCE:-"ibm-operator-catalog"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
@@ -171,6 +176,9 @@ function gitops_aiservice_tenant_noninteractive() {
       --tenant-id)
         export TENANT_ID=$1 && shift
         ;;
+      --aiservice-tenant-install-plan-approval)
+        export AISERVICE_TENANT_INSTALL_PLAN_APPROVAL=$1 && shift
+        ;;
       --cluster-domain)
         export CLUSTER_DOMAIN=$1 && shift
         ;;
@@ -225,14 +233,11 @@ function gitops_aiservice_tenant_noninteractive() {
       --aiservice-storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
-      --aiservice-storage_ssl)
+      --aiservice-storage-ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
 
       
-      --rsl-url)
-        export RSL_URL=$1 && shift
-        ;;
 
       --aiservice-storage-provider)
         export AISERVICE_STORAGE_PROVIDER=$1 && shift
@@ -256,7 +261,14 @@ function gitops_aiservice_tenant_noninteractive() {
       --tenant-entitlement-end-date)
         export TENANT_ENTITLEMENT_END_DATE=$1 && shift
         ;;
-        
+
+      --tenant-scheduling-config-yaml)
+        export TENANT_SCHEDULING_CONFIG_YAML=$1 && shift
+        ;;
+
+      --enable-deprovisioning)
+        export AISERVICE_ENABLE_DEPROVISIONING=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -322,10 +334,9 @@ function gitops_aiservice_tenant_noninteractive() {
   # -- Watsonx
   [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
   [[ -z "$AISERVICE_WATSONX_FULL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONX_FULL is not set. Please specify the full Watsonx.ai URL using --aiservice-watsonx-full."
-  [[ -z "$RSL_URL" ]] && gitops_aiservice_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
   [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
   
-  [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage_ssl."
+  [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage-ssl."
   [[ -z "$AISERVICE_STORAGE_PROVIDER" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_PROVIDER is not set. Please specify the STORAGE provider using --aiservice-storage-provider."
  
  }
@@ -387,37 +398,44 @@ function gitops_aiservice_tenant() {
 
   # echo all the variables of gitops envs
 
-  # -- aiservice
-  echo_reset_dim "Aiservice namespace ........................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
-  echo_reset_dim "Catalog channel ............................... ${COLOR_MAGENTA}${CATALOG_CHANNEL}"
-  echo_reset_dim "Catalog source ................................ ${COLOR_MAGENTA}${CATALOG_SOURCE}"
-  echo_reset_dim "AiService provision tenant ................... ${COLOR_MAGENTA}${AISERVICE_PROVISION_TENANT}"
-  echo_reset_dim "AiService instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
-  echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
-  echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
-  echo_reset_dim "cluster domain ............................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
-  echo_reset_dim "in SaaS environment .......................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
+  # -- aiservice tenant
+  echo_reset_dim "Aiservice namespace ............................................ ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
+  echo_reset_dim "Catalog channel ................................................ ${COLOR_MAGENTA}${CATALOG_CHANNEL}"
+  echo_reset_dim "Catalog source ................................................. ${COLOR_MAGENTA}${CATALOG_SOURCE}"
+  echo_reset_dim "AiService provision tenant ..................................... ${COLOR_MAGENTA}${AISERVICE_PROVISION_TENANT}"
+  echo_reset_dim "AiService instance ID .......................................... ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+  echo_reset_dim "tenant namespace ............................................... ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
+  echo_reset_dim "tenant ID ...................................................... ${COLOR_MAGENTA}${TENANT_ID}"
+  echo_reset_dim "AIService Tenant Install Plan Approval . ${COLOR_MAGENTA}${AISERVICE_TENANT_INSTALL_PLAN_APPROVAL}"
+  echo_reset_dim "cluster domain ................................................. ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
+  echo_reset_dim "in SaaS environment ............................................ ${COLOR_MAGENTA}${IN_SAAS_ENV}"
+  echo_reset_dim "deprovisioning enabled ......................................... ${COLOR_MAGENTA}${AISERVICE_ENABLE_DEPROVISIONING}"
+if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" ]]; then
+  echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}${TENANT_SCHEDULING_CONFIG_YAML}"
+else
+  echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}Not Configured"
+fi
 
-  echo_reset_dim "MAS ICR CP registry .......................... ${COLOR_MAGENTA}${MAS_ICR_CP}"
-  echo_reset_dim "MAS ICR CPOPEN registry ...................... ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
+  echo_reset_dim "MAS ICR CP registry ............................................ ${COLOR_MAGENTA}${MAS_ICR_CP}"
+  echo_reset_dim "MAS ICR CPOPEN registry ........................................ ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
 
   # -- SLS
-  echo_reset_dim "SLS subscription ID .......................... ${COLOR_MAGENTA}${AISERVICE_SLS_SUBSCRIPTION_ID}"
-  echo_reset_dim "SLS service param file path .................. ${COLOR_MAGENTA}${STANDALONE_SLS_SERVICE}"
+  echo_reset_dim "SLS subscription ID ............................................ ${COLOR_MAGENTA}${AISERVICE_SLS_SUBSCRIPTION_ID}"
+  echo_reset_dim "SLS service param file path .................................... ${COLOR_MAGENTA}${STANDALONE_SLS_SERVICE}"
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
-    echo_reset_dim "ICN ........................................ ${COLOR_MAGENTA}${ICN}"
-    echo_reset_dim "SAAS_SUB_ID ........................................ ${COLOR_MAGENTA}${SAAS_SUB_ID}"
+    echo_reset_dim "ICN .......................................................... ${COLOR_MAGENTA}${ICN}"
+    echo_reset_dim "SAAS_SUB_ID .................................................. ${COLOR_MAGENTA}${SAAS_SUB_ID}"
   fi
   # -- Watsonx
-  echo_reset_dim "Watsonx.ai URL ............................... ${COLOR_MAGENTA}${AISERVICE_WATSONXAI_URL}"
-  echo_reset_dim "Watsonx.ai full URL .......................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_FULL}"
-  echo_reset_dim "watsonx.ai instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_INSTANCE_ID}"
-  echo_reset_dim "watsonx.ai version ............................. ${COLOR_MAGENTA}${AISERVICE_WATSONX_VERSION}"
-  echo_reset_dim "watsonx.ai username ........................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_USERNAME}"
-  echo_reset_dim "Aiservice operator log level ................... ${COLOR_MAGENTA}${AISERVICE_OPERATOR_LOG_LEVEL}"
+  echo_reset_dim "Watsonx.ai URL ................................................. ${COLOR_MAGENTA}${AISERVICE_WATSONXAI_URL}"
+  echo_reset_dim "Watsonx.ai full URL ............................................ ${COLOR_MAGENTA}${AISERVICE_WATSONX_FULL}"
+  echo_reset_dim "watsonx.ai instance ID ......................................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_INSTANCE_ID}"
+  echo_reset_dim "watsonx.ai version ............................................. ${COLOR_MAGENTA}${AISERVICE_WATSONX_VERSION}"
+  echo_reset_dim "watsonx.ai username ............................................ ${COLOR_MAGENTA}${AISERVICE_WATSONX_USERNAME}"
+  echo_reset_dim "Aiservice operator log level ................................... ${COLOR_MAGENTA}${AISERVICE_OPERATOR_LOG_LEVEL}"
   # -- STORAGE
-  echo_reset_dim "SSL enabled .................................. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
-  echo_reset_dim "Storage provider ............................. ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
+  echo_reset_dim "SSL enabled .................................................... ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
+  echo_reset_dim "Storage provider ............................................... ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
@@ -442,9 +460,13 @@ function gitops_aiservice_tenant() {
     export SECRET_KEY_SLS_URL=${SLS_SECRETS_PREFIX}sls#sls_url
   fi  
 
-  export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
-  export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
-  export SECRET_KEY_RSL_CA_CRT=${SECRETS_PREFIX}rsl#rsl_ca_crt
+  # RSL - Check if secret exists and has a value before exporting
+  RSL_SECRET="${SECRETS_PREFIX}rsl"
+  RSL_CA_CRT_VALUE=$(sm_get_secret_value "$RSL_SECRET" "rsl_ca_crt")
+  if [[ -n "$RSL_CA_CRT_VALUE" && "$RSL_CA_CRT_VALUE" != "null" && "$RSL_CA_CRT_VALUE" != "" ]]; then
+    export SECRET_KEY_RSL_CA_CRT=${RSL_SECRET}#rsl_ca_crt
+    echo "RSL CA certificate key found and exported"
+  fi
   
   #watsonx
   WATSONX_SECRET="${SECRETS_PREFIX}watsonx"
@@ -474,8 +496,14 @@ function gitops_aiservice_tenant() {
   else
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
   fi
-  sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
+
+  # Load scheduling config file
+  # ---------------------------------------------------------------------------
+  if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" && -s "$TENANT_SCHEDULING_CONFIG_YAML" ]]; then
+    export TENANT_SCHEDULING_CONFIG=$(yq eval '.' ${TENANT_SCHEDULING_CONFIG_YAML})
+    echo -e "\n - TENANT_SCHEDULING_CONFIG content .................. ${TENANT_SCHEDULING_CONFIG}"
+  fi
   
   # finally push them into the git repo
 

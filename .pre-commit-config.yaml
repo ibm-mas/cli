@@ -1,14 +1,28 @@
 default_language_version:
     python: python
 repos:
-  - repo: https://github.com/hhatto/autopep8
-    rev: v2.3.2
+  - repo: https://github.com/psf/black
+    rev: 26.5.1
     hooks:
-    -   id: autopep8
+      - id: black
   - repo: https://github.com/PyCQA/flake8
     rev: 7.3.0
     hooks:
       - id: flake8
+  - repo: https://github.com/DetachHead/basedpyright-pre-commit-mirror
+    rev: 1.39.8
+    hooks:
+      - id: basedpyright
+        name: basedpyright (must-gather only)
+        files: ^python/(src/mas/cli/must_gather|tests/cli/must_gather)/.*\.py$
+        additional_dependencies:
+          - kubernetes==33.1.0
+          - pyyaml
+          - requests
+          - halo
+          - alive-progress
+          - jsonpath-ng
+          - prettytable
   - repo: https://github.com/ibm/detect-secrets
     rev: 0.13.1+ibm.64.dss
     hooks:

@@ -79,7 +79,7 @@ function gitops_cp4d_service_noninteractive() {
     shift
     case $key in
       # GitOps Configuration
-      -d|--dir)
+      -d|--dir|--gitops-working-dir)
         export GITOPS_WORKING_DIR=$1 && shift
         ;;
       -g|--gitops-version)

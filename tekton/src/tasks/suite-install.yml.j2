@@ -47,6 +47,10 @@ spec:
       type: string
       description: Optional string parameter, either path or subdomain, defines the network routing mode used for the suite.
       default: ""
+    - name: mas_manual_route_mgmt
+      type: string
+      description: Optional string parameter, either true or false (defaults to false), defines whether the suite will disable automatic route creation, allowing manual definitiion of routes.
+      default: ""
     - name: mas_ingress_controller_name
       type: string
       description: Name of the IngressController to use for path-based routing
@@ -90,6 +94,10 @@ spec:
       type: string
       description: Flag to control metrics used to understand progression of tasks and workflows within the product
       default: "True"
+    - name: mas_issuer_kind
+      type: string
+      description: Certificate issuer kind for MAS Suite CR (Issuer or ClusterIssuer)
+      default: ""
 
     - name: ibm_entitlement_key
       type: string
@@ -175,11 +183,15 @@ spec:
         value: $(params.mas_routing_mode)
       - name: MAS_INGRESS_CONTROLLER_NAME
         value: $(params.mas_ingress_controller_name)
+      - name: MAS_USE_SERVICE_MESH
+        value: $(params.mas_use_service_mesh)
+      - name: MAS_MANUAL_ROUTE_MGMT
+        value: $(params.mas_manual_route_mgmt)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_TRUST_DEFAULT_CAS
         value: $(params.mas_trust_default_cas)
-      - name: ENABLE_IPV6
+      - name: OCP_ENABLE_IPV6
         value: $(params.enable_ipv6)
       # Enable optional integration with ECK logstash
       - name: ECK_ENABLE_LOGSTASH
@@ -206,6 +218,8 @@ spec:
         value: $(params.mas_usability_metrics)
       - name: MAS_DEPLOYMENT_PROGRESSION
         value: $(params.mas_deployment_progression)
+      - name: MAS_ISSUER_KIND
+        value: $(params.mas_issuer_kind)
 
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
@@ -244,7 +258,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_install
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 

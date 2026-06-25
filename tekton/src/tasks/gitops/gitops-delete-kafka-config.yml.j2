@@ -1,4 +1,3 @@
-
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -58,7 +57,7 @@ spec:
   steps:
     - args:
       - |-
-        
+
 
         aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
         aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
@@ -90,7 +89,7 @@ spec:
         - -c
       name: gitops-delete-kafka-config
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
 

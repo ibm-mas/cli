@@ -83,25 +83,25 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260528</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
+          <td><span style="font-weight: bold">v9-260527</span><br/><a href="v9-260527-amd64/">amd64</a> | <a href="v9-260527-s390x/">s390x</a> | <a href="v9-260527-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260423</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
+          <td><span style="font-weight: bold">v9-260430</span><br/><a href="v9-260430-amd64/">amd64</a> | <a href="v9-260430-s390x/">s390x</a> | <a href="v9-260430-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260326</span><br/><a href="v9-260326-amd64/">amd64</a> | <a href="v9-260326-s390x/">s390x</a> | <a href="v9-260326-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest</td>
+          <td>latest/ 19.4.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260226</span><br/><a href="v9-260226-amd64/">amd64</a> | <a href="v9-260226-s390x/">s390x</a> | <a href="v9-260226-ppc64le/">ppc64le</a></td>
@@ -521,7 +521,7 @@ The packages available in these catalogs are fixed. Multiple installations at di
 #### Disconnected Install
 > I want to run a disconnected environment using a private mirror registry
 
-The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../commands/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
+The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../guides/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
 
 
 ### Dynamic Catalog

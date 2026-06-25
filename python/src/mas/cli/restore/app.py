@@ -87,6 +87,7 @@ class RestoreApp(BaseApp):
                 "artifactory_repository",
                 # Manage App Restore
                 "restore_manage_app",
+                "restore_manage_include_pvc",
                 "restore_manage_db",
                 "manage_app_override_storageclass",
                 "manage_app_storage_class_rwx",
@@ -94,15 +95,50 @@ class RestoreApp(BaseApp):
                 "manage_db_override_storageclass",
                 "manage_db_storage_class_rwx",
                 "manage_db_storage_class_rwo",
+                # Facilities App Restore
+                "restore_facilities_app",
+                "restore_facilities_include_pvc",
+                "restore_facilities_db",
+                "facilities_app_override_storageclass",
+                "facilities_app_storage_class_rwx",
+                "facilities_app_storage_class_rwo",
+                "facilities_db_override_storageclass",
+                "facilities_db_storage_class_rwx",
+                "facilities_db_storage_class_rwo",
                 # MongoDB Storage Class Override
                 "override_mongodb_storageclass",
-                "mongodb_storageclass_name"
+                "mongodb_storageclass_name",
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
                 if key in requiredParams:
                     if value is None:
                         self.fatalError(f"{key} must be set")
+
+                    # Special handling for ibm_entitlement_key: validate it
+                    if key == "ibm_entitlement_key":
+                        isValid = self.validateEntitlementKey(value)
+                        if not isValid:
+                            if self.noConfirm:
+                                # Non-interactive with --no-confirm: warn but continue
+                                self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                            else:
+                                # Non-interactive without --no-confirm: offer options
+                                self.printWarning("IBM entitlement key validation failed")
+                                print()
+                                self.printDescription(
+                                    [
+                                        "What would you like to do?",
+                                        "  1. Continue anyway (skip validation)",
+                                        "  2. Quit (exit the application)",
+                                    ]
+                                )
+                                choice = self.promptForInt("Select an option", min=1, max=2)
+                                if choice == 2:
+                                    logger.info("User chose to quit due to invalid entitlement key")
+                                    exit(1)
+                                # If choice == 1, continue with the invalid key
+
                     self.setParam(key, value)
 
                 # These fields we just pass straight through to the parameters
@@ -126,7 +162,7 @@ class RestoreApp(BaseApp):
             self.connect()
 
         if self.dynamicClient is None:
-            self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
+            self.fatalError("Not successfully connected to a Kubernetes cluster.  See log file for details")
 
         # Perform a check whether the cluster is set up for airgap install
         self.isAirgap()
@@ -169,6 +205,9 @@ class RestoreApp(BaseApp):
             # Prompt for Manage app restore
             self.promptForManageAppRestore()
 
+            # Prompt for Facilities app restore
+            self.promptForFacilitiesAppRestore()
+
             self.promptForDownloadConfiguration()
 
             # Prompt for clean backup option if not provided
@@ -181,10 +220,7 @@ class RestoreApp(BaseApp):
         print()
 
         self.printH1("Review Settings")
-        self.printDescription([
-            "Connected to:",
-            f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
-        ])
+        self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
         self.printH2("MAS Instance Configuration")
         self.printSummary("Instance ID", self.getParam("mas_instance_id"))
@@ -220,7 +256,14 @@ class RestoreApp(BaseApp):
         if self.getParam("restore_manage_app") == "true":
             self.printH2("Manage Application Restore")
             self.printSummary("Restore Manage App", "Yes")
+            self.printSummary("Include PVC Restore", "Yes" if self.getParam("restore_manage_include_pvc") == "true" else "No")
             self.printSummary("Restore Manage incluster Db2 Database", "Yes" if self.getParam("restore_manage_db") == "true" else "No")
+
+        if self.getParam("restore_facilities_app") == "true":
+            self.printH2("Facilities Application Restore")
+            self.printSummary("Restore Facilities App", "Yes")
+            self.printSummary("Include PVC Restore", "Yes" if self.getParam("restore_facilities_include_pvc") == "true" else "No")
+            self.printSummary("Restore Facilities incluster Db2 Database", "Yes" if self.getParam("restore_facilities_db") == "true" else "No")
 
         if self.getParam("sls_domain") is not None and self.getParam("sls_domain") != "":
             self.printH2("SLS Configuration")
@@ -236,9 +279,7 @@ class RestoreApp(BaseApp):
         continueWithRestore = True
         if not self.noConfirm:
             print()
-            self.printDescription([
-                "Please carefully review your choices above, correcting mistakes now is much easier than after the restore has begun"
-            ])
+            self.printDescription(["Please carefully review your choices above, correcting mistakes now is much easier than after the restore has begun"])
             continueWithRestore = self.yesOrNo("Proceed with these settings")
 
         # Prepare the namespace and launch the restore pipeline
@@ -253,9 +294,13 @@ class RestoreApp(BaseApp):
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
             if self.getParam("backup_storage_class") is None or self.getParam("backup_storage_class") == "":
-                self.fatalError("No storage class specified for 'backup-pvc' pvc, please specify a storage class for the backup storage using --backup-storage-class")
+                self.fatalError(
+                    "No storage class specified for 'backup-pvc' pvc, please specify a storage class for the backup storage using --backup-storage-class"
+                )
             if self.getParam("backup_storage_access_mode") is None or self.getParam("backup_storage_access_mode") == "":
-                self.fatalError("No storage access mode specified for 'backup-pvc' pvc, please specify a storage access mode for the backup storage using --backup-storage-access-mode")
+                self.fatalError(
+                    "No storage access mode specified for 'backup-pvc' pvc, please specify a storage access mode for the backup storage using --backup-storage-access-mode"
+                )
 
             # Determine storage class and access mode for pipeline PVCs
             defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
@@ -266,14 +311,14 @@ class RestoreApp(BaseApp):
                 self.pipelineStorageClass = defaultStorageClasses.rwx
                 self.pipelineStorageAccessMode = "ReadWriteMany"
 
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
 
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 backupStorageSize = self.getParam("backup_storage_size") if self.getParam("backup_storage_size") else "20Gi"
                 preparePipelinesNamespace(
@@ -283,7 +328,7 @@ class RestoreApp(BaseApp):
                     accessMode=self.getParam("backup_storage_access_mode"),
                     createConfigPVC=False,
                     createBackupPVC=True,
-                    backupStorageSize=backupStorageSize
+                    backupStorageSize=backupStorageSize,
                 )
 
                 # Apply config file secrets to the namespace
@@ -291,8 +336,8 @@ class RestoreApp(BaseApp):
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text="Submitting PipelineRun for MAS Restore", spinner=self.spinner) as h:
@@ -324,9 +369,7 @@ class RestoreApp(BaseApp):
 
     def promptForSLSConfiguration(self) -> None:
         self.printH1("Suite-level SLS Configuration")
-        self.printDescription([
-            "You can either choose to use SLSCfg from the backup or you can provide the path to the SLSCfg file."
-        ])
+        self.printDescription(["You can either choose to use SLSCfg from the backup or you can provide the path to the SLSCfg file."])
         # promt user to include slscfg from backup. if yes, promt for sls_url, if not prompt for sls_cfg_file.
         includeSLSCfg = self.yesOrNo("Would you like to restore Suite-level SLSCfg from backup")
         if includeSLSCfg:
@@ -338,14 +381,14 @@ class RestoreApp(BaseApp):
                 self.setParam("sls_url_on_restore", "")
         else:
             self.setParam("include_slscfg_from_backup", "false")
-            self.promptForString(message="SLS Configuration File, must be provided when not restoring from backup", param="sls_cfg_file", validator=FileExistsValidator())
+            self.promptForString(
+                message="SLS Configuration File, must be provided when not restoring from backup", param="sls_cfg_file", validator=FileExistsValidator()
+            )
 
     def promptForDROConfiguration(self) -> None:
         if self.getParam("include_dro") != "true":
             self.printH1("Suite-level DRO/BAS Configuration")
-            self.printDescription([
-                "You can either choose to use BASCfg from the backup or you can provide the path to the BASCfg file."
-            ])
+            self.printDescription(["You can either choose to use BASCfg from the backup or you can provide the path to the BASCfg file."])
             # promt user to include bascfg from backup. if yes, promt for bas_url, if not prompt for dro_cfg_file.
             includeDROCfg = self.yesOrNo("Would you like to restore Suite-level BASCfg from backup")
             if includeDROCfg:
@@ -357,7 +400,9 @@ class RestoreApp(BaseApp):
                     self.setParam("dro_url_on_restore", "")
             else:
                 self.setParam("include_drocfg_from_backup", "false")
-                self.promptForString(message="DRO/BAS Configuration File, must be provided when not restoring from backup", param="dro_cfg_file", validator=FileExistsValidator())
+                self.promptForString(
+                    message="DRO/BAS Configuration File, must be provided when not restoring from backup", param="dro_cfg_file", validator=FileExistsValidator()
+                )
 
     def promptForIncludeSLS(self) -> None:
         self.printH1("SLS Configuration")
@@ -377,16 +422,18 @@ class RestoreApp(BaseApp):
 
     def promptForIncludeDRO(self) -> None:
         self.printH1("IBM Data Reporting Operator Configuration")
-        self.printDescription([
-            " - DRO is not part of backup/restore. You can install DRO instance or bring your own DRO.",
-            " - When you choose to install DRO, BASCfg will be autogenerated for the new DRO installation and will be automtically used in the Suite configuration."
-        ])
+        self.printDescription(
+            [
+                " - DRO is not part of backup/restore. You can install DRO instance or bring your own DRO.",
+                " - When you choose to install DRO, BASCfg will be autogenerated for the new DRO installation and will be automtically used in the Suite configuration.",
+            ]
+        )
         includeDRO: bool = self.yesOrNo("Would you like the pipeline to install DRO instance")
         if includeDRO:
             self.setParam("include_dro", "true")
             self.setParam("dro_cfg_file", "/workspace/backups/configs/dro.yml")
             self.setParam("include_drocfg_from_backup", "false")
-            self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+            self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
             self.promptForString("Contact e-mail address", "dro_contact_email")
             self.promptForString("Contact first name", "dro_contact_firstname")
             self.promptForString("Contact last name", "dro_contact_lastname")
@@ -397,9 +444,11 @@ class RestoreApp(BaseApp):
     def promptForMongo(self) -> None:
         """Prompt user for MongoDB configuration"""
         self.printH1("MongoDB Configuration")
-        self.printDescription([
-            " - You can skip Mongo restore if you have external MongoDB.",
-        ])
+        self.printDescription(
+            [
+                " - You can skip Mongo restore if you have external MongoDB.",
+            ]
+        )
 
         includeMongo = self.yesOrNo("Include MongoDB in restore")
 
@@ -424,19 +473,25 @@ class RestoreApp(BaseApp):
         isSNOCluster = self.isSNO()
 
         if isSNOCluster:
-            self.printDescription([
-                " - <Yellow>Single Node OpenShift detected</Yellow>",
-                " - You can use ReadWriteOnce storage class to create <Yellow>backup-pvc</Yellow> pvc for restore pipeline.",
-            ])
+            self.printDescription(
+                [
+                    " - <Yellow>Single Node OpenShift detected</Yellow>",
+                    " - You can use ReadWriteOnce storage class to create <Yellow>backup-pvc</Yellow> pvc for restore pipeline.",
+                ]
+            )
         else:
-            self.printDescription([
-                " - Select a storage class to use to create <Yellow>backup-pvc</Yellow> pvc for restore pipeline(Recommended access mode ReadWriteMany).",
-            ])
-        self.printDescription([
-            " - Make sure to have enough storage to download the archive(s) and extract the contents.",
-            " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
-            " - Note: The downloaded archive will be deleted after the contents are extracted."
-        ])
+            self.printDescription(
+                [
+                    " - Select a storage class to use to create <Yellow>backup-pvc</Yellow> pvc for restore pipeline(Recommended access mode ReadWriteMany).",
+                ]
+            )
+        self.printDescription(
+            [
+                " - Make sure to have enough storage to download the archive(s) and extract the contents.",
+                " - Example, if your accumulated size of backup archives is 8Gi, choose 20Gi.",
+                " - Note: The downloaded archive will be deleted after the contents are extracted.",
+            ]
+        )
 
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         pipelineStorageClass = None
@@ -462,31 +517,30 @@ class RestoreApp(BaseApp):
 
         if pipelineStorageClass is None or pipelineStorageClass == "" or customSC:
             if isSNOCluster:
-                self.printDescription([
-                    "Select ReadWriteOnce storage class to use from the list below:"
-                ])
+                self.printDescription(["Select ReadWriteOnce storage class to use from the list below:"])
                 for storageClass in getStorageClasses(self.dynamicClient):
                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
                 pipelineStorageAccessMode = "ReadWriteOnce"
-                pipelineStorageClass = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-            else:
-                self.printDescription([
-                    "Choose Storage class access mode:",
-                    " 1. ReadWriteOnce (RWO)",
-                    " 2. ReadWriteMany (RWX)",
-                ])
-                pipelineStorageAccessMode = self.promptForListSelect(
-                    "Select Storage class access mode",
-                    ["ReadWriteOnce", "ReadWriteMany"],
-                    "backup_storage_access_mode",
-                    default=1
+                pipelineStorageClass = prompt(
+                    HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
                 )
-                self.printDescription([
-                    "Select storage class to use from the list below:"
-                ])
+            else:
+                self.printDescription(
+                    [
+                        "Choose Storage class access mode:",
+                        " 1. ReadWriteOnce (RWO)",
+                        " 2. ReadWriteMany (RWX)",
+                    ]
+                )
+                pipelineStorageAccessMode = self.promptForListSelect(
+                    "Select Storage class access mode", ["ReadWriteOnce", "ReadWriteMany"], "backup_storage_access_mode", default=1
+                )
+                self.printDescription(["Select storage class to use from the list below:"])
                 for storageClass in getStorageClasses(self.dynamicClient):
                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                pipelineStorageClass = prompt(HTML(f'<Yellow>Enter {pipelineStorageAccessMode} storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+                pipelineStorageClass = prompt(
+                    HTML(f"<Yellow>Enter {pipelineStorageAccessMode} storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
+                )
 
         self.setParam("backup_storage_class", pipelineStorageClass)
         self.setParam("backup_storage_access_mode", pipelineStorageAccessMode)
@@ -529,18 +583,15 @@ class RestoreApp(BaseApp):
         if downloadBackup:
             self.setParam("download_backup", "true")
 
-            self.printDescription([
-                "Choose download destination:",
-                " 1. S3",
-                " 2. Artifactory",
-            ])
-
-            downloadDestination = self.promptForListSelect(
-                "Select download location",
-                ["S3", "Artifactory"],
-                "download_destination",
-                default=1
+            self.printDescription(
+                [
+                    "Choose download destination:",
+                    " 1. S3",
+                    " 2. Artifactory",
+                ]
             )
+
+            downloadDestination = self.promptForListSelect("Select download location", ["S3", "Artifactory"], "download_destination", default=1)
 
             if downloadDestination == "S3":
                 # Prompt for S3 credentials
@@ -592,23 +643,42 @@ class RestoreApp(BaseApp):
     def promptForManageAppRestore(self) -> None:
         """Prompt user for Manage application restore configuration"""
         self.printH1("Manage Application Restore")
-        self.printDescription([
-            "In addition to restoring the MAS Suite, you can also restore the Manage application.",
-            "This includes DB2, Manage namespace resources and persistent volume data."
-        ])
+        self.printDescription(
+            [
+                "In addition to restoring the MAS Suite, you can also restore the Manage application.",
+                "This includes DB2, Manage namespace resources and persistent volume data.",
+            ]
+        )
 
         restoreManageApp = self.yesOrNo("Do you want to restore the Manage application")
 
         if restoreManageApp:
             self.setParam("restore_manage_app", "true")
 
+            # Ask about PVC restore
+            self.printH2("Manage PVC Restore")
+            self.printDescription(
+                [
+                    "The Manage application uses persistent volumes that can be restored.",
+                    "This will restore PVC data from the backup.",
+                ]
+            )
+            restorePvc = self.yesOrNo("Do you want to include PVC restore for Manage")
+
+            if restorePvc:
+                self.setParam("restore_manage_include_pvc", "true")
+            else:
+                self.setParam("restore_manage_include_pvc", "false")
+
             # Ask about DB2 restore
             self.printH2("Manage Database Restore")
-            self.printDescription([
-                "- The Manage application uses a Db2 database that should also be restored.",
-                "- This will restore the incluster Db2 database associated with the Manage workspace.",
-                "- Note: This will be offline restore and the Manage application will be unavailable during the restore."
-            ])
+            self.printDescription(
+                [
+                    "- The Manage application uses a Db2 database that should also be restored.",
+                    "- This will restore the incluster Db2 database associated with the Manage workspace.",
+                    "- Note: This will be offline restore and the Manage application will be unavailable during the restore.",
+                ]
+            )
 
             restoreDb2 = self.yesOrNo("Do you want to restore the Manage database (Db2)")
 
@@ -624,10 +694,12 @@ class RestoreApp(BaseApp):
 
     def configStorageClasses(self):
         self.printH1("Configure MAS Component's Storage Class during Restore")
-        self.printDescription([
-            " - You can override the storage class for MAS components during restore.",
-            " - This is useful when restoring to a cluster with different storage classes."
-        ])
+        self.printDescription(
+            [
+                " - You can override the storage class for MAS components during restore.",
+                " - This is useful when restoring to a cluster with different storage classes.",
+            ]
+        )
         overrideStorageClasses = not self.yesOrNo("Do you want to use the storage classes from backup")
 
         if overrideStorageClasses:
@@ -647,15 +719,21 @@ class RestoreApp(BaseApp):
             if "storage_class_rwx" not in self.params or self.params["storage_class_rwx"] == "" or customSC:
                 self.storageClassProvider = "custom"
 
-                self.printDescription([
-                    "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
-                    "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be restored"
-                ])
+                self.printDescription(
+                    [
+                        "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
+                        "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be restored",
+                    ]
+                )
                 for storageClass in getStorageClasses(self.dynamicClient):
                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
-                self.params["storage_class_rwo"] = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-                self.params["storage_class_rwx"] = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+                self.params["storage_class_rwo"] = prompt(
+                    HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
+                )
+                self.params["storage_class_rwx"] = prompt(
+                    HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "), validator=StorageClassValidator(), validate_while_typing=False
+                )
 
             # Configure mongodb storage class override, preferable with RWO
             if self.getParam("storage_class_rwo") is not None and self.getParam("storage_class_rwo") != "":
@@ -663,7 +741,9 @@ class RestoreApp(BaseApp):
                 self.setParam("mongodb_storageclass_name", self.getParam("storage_class_rwo"))
 
             # Configure manage app storage class override
-            if (self.getParam("storage_class_rwo") is not None and self.getParam("storage_class_rwx") != "") and (self.getParam("storage_class_rwx") is not None and self.getParam("storage_class_rwo") != ""):
+            if (self.getParam("storage_class_rwo") is not None and self.getParam("storage_class_rwx") != "") and (
+                self.getParam("storage_class_rwx") is not None and self.getParam("storage_class_rwo") != ""
+            ):
                 self.setParam("manage_app_override_storageclass", "true")
                 self.setParam("manage_app_storage_class_rwx", self.getParam("storage_class_rwx"))
                 self.setParam("manage_app_storage_class_rwo", self.getParam("storage_class_rwo"))
@@ -671,12 +751,25 @@ class RestoreApp(BaseApp):
                 self.setParam("manage_db_storage_class_rwx", self.getParam("storage_class_rwx"))
                 self.setParam("manage_db_storage_class_rwo", self.getParam("storage_class_rwo"))
 
+            # Configure facilities app storage class override
+            if (self.getParam("storage_class_rwo") is not None and self.getParam("storage_class_rwx") != "") and (
+                self.getParam("storage_class_rwx") is not None and self.getParam("storage_class_rwo") != ""
+            ):
+                self.setParam("facilities_app_override_storageclass", "true")
+                self.setParam("facilities_app_storage_class_rwx", self.getParam("storage_class_rwx"))
+                self.setParam("facilities_app_storage_class_rwo", self.getParam("storage_class_rwo"))
+                self.setParam("facilities_db_override_storageclass", "true")
+                self.setParam("facilities_db_storage_class_rwx", self.getParam("storage_class_rwx"))
+                self.setParam("facilities_db_storage_class_rwo", self.getParam("storage_class_rwo"))
+
         else:
             self.setParam("override_mongodb_storageclass", "false")
             self.setParam("manage_app_override_storageclass", "false")
             self.setParam("manage_db_override_storageclass", "false")
+            self.setParam("facilities_app_override_storageclass", "false")
+            self.setParam("facilities_db_override_storageclass", "false")
 
-    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str = '', keyPrefix: str = '') -> dict:
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str = "", keyPrefix: str = "") -> dict:
         """
         Add file (or files) to a secret
         """
@@ -696,13 +789,13 @@ class RestoreApp(BaseApp):
             fileName = path.basename(fileToProcess)
 
             # Load the file
-            with open(fileToProcess, 'r') as file:
+            with open(fileToProcess, "r") as file:
                 data = file.read()
 
             # Add/update an entry to the secret data
             if "data" not in secretDict:
                 secretDict["data"] = {}
-            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode('ascii')).decode("ascii")
+            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode("ascii")).decode("ascii")
 
         return secretDict
 
@@ -727,27 +820,72 @@ class RestoreApp(BaseApp):
                 self.fatalError(f"DRO configuration file not found: {droCfgFile}")
 
             # Create a single secret for both config files
-            configSecret = {
-                "apiVersion": "v1",
-                "kind": "Secret",
-                "type": "Opaque",
-                "metadata": {
-                    "name": "pipeline-restore-configs"
-                }
-            }
+            configSecret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-restore-configs"}}
 
             # Add SLS config file to secret if provided
             if slsCfgFile:
-                configSecret = self.addFilesToSecret(configSecret, slsCfgFile, '')
+                configSecret = self.addFilesToSecret(configSecret, slsCfgFile, "")
                 # Update the param to point to the mounted file path
                 self.setParam("sls_cfg_file", f"/workspace/restore/{path.basename(slsCfgFile)}")
                 logger.debug(f"Added SLS config file to secret: {path.basename(slsCfgFile)}")
 
             # Add DRO config file to secret if provided
             if include_dro != "true" and droCfgFile:
-                configSecret = self.addFilesToSecret(configSecret, droCfgFile, '')
+                configSecret = self.addFilesToSecret(configSecret, droCfgFile, "")
                 # Update the param to point to the mounted file path
                 self.setParam("dro_cfg_file", f"/workspace/restore/{path.basename(droCfgFile)}")
                 logger.debug(f"Added DRO config file to secret: {path.basename(droCfgFile)}")
 
             self.configSecret = configSecret
+
+    def promptForFacilitiesAppRestore(self) -> None:
+        """Prompt user for Facilities application restore configuration"""
+        self.printH1("Facilities Application Restore")
+        self.printDescription(
+            [
+                "In addition to restoring the MAS Suite, you can also restore the Facilities application.",
+                "This includes DB2, Facilities namespace resources and persistent volume data.",
+            ]
+        )
+
+        restoreFacilitiesApp = self.yesOrNo("Do you want to restore the Facilities application")
+
+        if restoreFacilitiesApp:
+            self.setParam("restore_facilities_app", "true")
+
+            # Ask about PVC restore
+            self.printH2("Facilities PVC Restore")
+            self.printDescription(
+                [
+                    "The Facilities application uses persistent volumes that can be restored.",
+                    "This will restore PVC data from the backup.",
+                ]
+            )
+            restorePvc = self.yesOrNo("Do you want to include PVC restore for Facilities")
+
+            if restorePvc:
+                self.setParam("restore_facilities_include_pvc", "true")
+            else:
+                self.setParam("restore_facilities_include_pvc", "false")
+
+            # Ask about DB2 restore
+            self.printH2("Facilities Database Restore")
+            self.printDescription(
+                [
+                    "- The Facilities application uses a Db2 database that should also be restored.",
+                    "- This will restore the incluster Db2 database associated with the Facilities workspace.",
+                    "- Note: This will be offline restore and the Facilities application will be unavailable during the restore.",
+                ]
+            )
+
+            restoreDb2 = self.yesOrNo("Do you want to restore the Facilities database (Db2)")
+
+            # Always set to disk for pipeline as s3 download is handled for the whole pipeline
+            self.setParam("facilities_db2_restore_vendor", "disk")
+            if restoreDb2:
+                self.setParam("restore_facilities_db", "true")
+            else:
+                self.setParam("restore_facilities_db", "false")
+        else:
+            self.setParam("restore_facilities_app", "false")
+            self.setParam("restore_facilities_db", "false")

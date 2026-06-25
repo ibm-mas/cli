@@ -12,6 +12,7 @@ from os import path
 from typing import TYPE_CHECKING, Dict, List, Any
 from prompt_toolkit import print_formatted_text
 
+from mas.devops.utils import isVersionEqualOrAfter
 
 if TYPE_CHECKING:
     # Type hints for methods and attributes provided by other mixins
@@ -20,12 +21,13 @@ if TYPE_CHECKING:
     from prompt_toolkit.validation import Validator
 
 
-class Db2SettingsMixin():
+class Db2SettingsMixin:
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
         devMode: bool
         installIoT: bool
+        installMonitor: bool
         installManage: bool
         installFacilities: bool
         manageAppName: str
@@ -35,28 +37,21 @@ class Db2SettingsMixin():
         chosenCatalog: Dict[str, Any] | None
 
         # Methods from BaseApp
-        def setParam(self, param: str, value: str) -> None:
-            ...
+        def setParam(self, param: str, value: str) -> None: ...
 
-        def getParam(self, param: str) -> str:
-            ...
+        def getParam(self, param: str) -> str: ...
 
-        def isSNO(self) -> bool:
-            ...
+        def isSNO(self) -> bool: ...
 
         # Methods from PrintMixin
-        def printH1(self, message: str) -> None:
-            ...
+        def printH1(self, message: str) -> None: ...
 
-        def printH2(self, message: str) -> None:
-            ...
+        def printH2(self, message: str) -> None: ...
 
-        def printDescription(self, content: List[str]) -> None:
-            ...
+        def printDescription(self, content: List[str]) -> None: ...
 
         # Methods from PromptMixin
-        def yesOrNo(self, message: str, param: str | None = None) -> bool:
-            ...
+        def yesOrNo(self, message: str, param: str | None = None) -> bool: ...
 
         def promptForString(
             self,
@@ -65,25 +60,17 @@ class Db2SettingsMixin():
             default: str = "",
             isPassword: bool = False,
             validator: Validator | None = None,
-            completer: WordCompleter | None = None
-        ) -> str:
-            ...
+            completer: WordCompleter | None = None,
+        ) -> str: ...
 
-        def promptForListSelect(
-            self,
-            message: str,
-            options: List[str],
-            param: str | None = None,
-            default: int | None = None
-        ) -> str:
-            ...
+        def promptForListSelect(self, message: str, options: List[str], param: str | None = None, default: int | None = None) -> str: ...
+
+        def promptForFile(self, message: str, mustExist: bool = True, default: str = "", envVar: str = "") -> str: ...
 
         # Methods from ConfigGeneratorMixin or InstallSettingsMixin
-        def selectLocalConfigDir(self) -> None:
-            ...
+        def selectLocalConfigDir(self) -> None: ...
 
-        def generateJDBCCfg(self, instanceId: str, scope: str, destination: str, appId: str = "", workspaceId: str = "") -> None:
-            ...
+        def generateJDBCCfg(self, instanceId: str, scope: str, destination: str, appId: str = "", workspaceId: str = "") -> None: ...
 
     # In silentMode, no prompts will show up for "happy path" DB2 configuration scenarios. Prompts will still show up when an input is absolutely required
     # Settings under showAdvancedOptions are always prompted
@@ -105,36 +92,41 @@ class Db2SettingsMixin():
         # Proceed as normal
         # We know we are installing either IoT, Manage or Facilities, and on amd64 target architecture
         if not silentMode:
-            self.printDescription([
-                f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict, Real Estate and Facilities) or you may choose to configure MAS to use an existing database"
-            ])
+            self.printDescription(
+                [
+                    f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict, Real Estate and Facilities) or you may choose to configure MAS to use an existing database"
+                ]
+            )
 
         self.setDB2DefaultSettings()
 
         # Determine which application requires the system database based on Monitor version
         # For Monitor >= 9.2.0: Monitor requires system Db2
         # For Monitor < 9.2.0: IoT requires system Db2 (original behavior)
-        from mas.devops.utils import isVersionEqualOrAfter
         monitorChannel = self.getParam("mas_app_channel_monitor")
-        useNewDependency = monitorChannel and isVersionEqualOrAfter('9.2.0', monitorChannel)
-        instanceId = self.getParam('mas_instance_id')
+        useNewDependency = monitorChannel and isVersionEqualOrAfter("9.2.0", monitorChannel)
+        instanceId = self.getParam("mas_instance_id")
         # Do we need to set up a system database?
         if useNewDependency and self.installMonitor:
             # New behavior: Monitor >= 9.2.0 requires system Db2
             if not silentMode:
                 self.printH2("Database Configuration for Maximo Monitor")
-                self.printDescription([
-                    "Maximo Monitor requires a shared system-scope Db2 instance because other applications in the suite require access to the same database source",
-                    " - Only IBM Db2 is supported for this database"
-                ])
+                self.printDescription(
+                    [
+                        "Maximo Monitor requires a shared system-scope Db2 instance because other applications in the suite require access to the same database source",
+                        " - Only IBM Db2 is supported for this database",
+                    ]
+                )
         elif self.installIoT:
             # Original behavior: IoT requires system Db2
             if not silentMode:
                 self.printH2("Database Configuration for Maximo IoT")
-                self.printDescription([
-                    "Maximo IoT requires a shared system-scope Db2 instance because other applications in the suite require access to the same database source",
-                    " - Only IBM Db2 is supported for this database"
-                ])
+                self.printDescription(
+                    [
+                        "Maximo IoT requires a shared system-scope Db2 instance because other applications in the suite require access to the same database source",
+                        " - Only IBM Db2 is supported for this database",
+                    ]
+                )
         else:
             self.setParam("db2_action_system", "none")
 
@@ -165,12 +157,14 @@ class Db2SettingsMixin():
         if self.installManage:
             if not silentMode:
                 self.printH2(f"Database Configuration for Maximo {self.manageAppName}")
-                self.printDescription([
-                    f"Maximo {self.manageAppName} can be configured to share the system Db2 instance or use it's own dedicated database:",
-                    " - Use of a shared instance has a significant footprint reduction but is only recommended for development/test/demo installs",
-                    " - In most production systems you will want to use a dedicated database",
-                    " - IBM Db2, Oracle Database, &amp; Microsoft SQL Server are all supported database options"
-                ])
+                self.printDescription(
+                    [
+                        f"Maximo {self.manageAppName} can be configured to share the system Db2 instance or use it's own dedicated database:",
+                        " - Use of a shared instance has a significant footprint reduction but is only recommended for development/test/demo installs",
+                        " - In most production systems you will want to use a dedicated database",
+                        " - IBM Db2, Oracle Database, &amp; Microsoft SQL Server are all supported database options",
+                    ]
+                )
             # Determine whether to use the system or a dedicated database
             reuseSystemDb2 = False
             if (useNewDependency and self.installMonitor) or (not useNewDependency and self.installIoT):
@@ -184,16 +178,22 @@ class Db2SettingsMixin():
                 self.setParam("mas_appws_bindings_jdbc_manage", "workspace-application")
                 createSystemDb2UsingUniversalOperator = True
                 if not silentMode:
-                    createSystemDb2UsingUniversalOperator = self.yesOrNo(f"Create {self.manageAppName} dedicated Db2 instance using the IBM Db2 Universal Operator")
+                    createSystemDb2UsingUniversalOperator = self.yesOrNo(
+                        f"Create {self.manageAppName} dedicated Db2 instance using the IBM Db2 Universal Operator"
+                    )
                 if createSystemDb2UsingUniversalOperator:
                     self.setParam("db2_action_manage", "install")
                     if self.showAdvancedOptions and not silentMode:
-                        self.printDescription([
-                            f"Available Db2 instance types for {self.manageAppName}:",
-                            "  1. DB2 Warehouse (Default option)",
-                            "  2. DB2 Online Transactional Processing (OLTP)"
-                        ])
-                        self.promptForListSelect(message=f"Select the {self.manageAppName} dedicated DB2 instance type", options=["db2wh", "db2oltp"], param="db2_type", default=1)
+                        self.printDescription(
+                            [
+                                f"Available Db2 instance types for {self.manageAppName}:",
+                                "  1. DB2 Warehouse (Default option)",
+                                "  2. DB2 Online Transactional Processing (OLTP)",
+                            ]
+                        )
+                        self.promptForListSelect(
+                            message=f"Select the {self.manageAppName} dedicated DB2 instance type", options=["db2wh", "db2oltp"], param="db2_type", default=1
+                        )
                     else:
                         self.setParam("db2_type", "db2wh")
                 else:
@@ -207,11 +207,19 @@ class Db2SettingsMixin():
                     jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-manage.yaml")
                     print_formatted_text(f"Searching for {self.manageAppName} database configuration file in {jdbcCfgFile} ...")
                     if path.exists(jdbcCfgFile):
-                        if self.yesOrNo(f"{self.manageAppName} database configuration file 'jdbc-{instanceId}-manage.yaml' already exists.  Do you want to generate a new one"):
-                            self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
+                        if self.yesOrNo(
+                            f"{self.manageAppName} database configuration file 'jdbc-{instanceId}-manage.yaml' already exists.  Do you want to generate a new one"
+                        ):
+                            self.generateJDBCCfg(
+                                instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile
+                            )
                     else:
-                        print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid {self.manageAppName} database configuration file now ...")
-                        self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
+                        print_formatted_text(
+                            f"Expected file ({jdbcCfgFile}) was not found, generating a valid {self.manageAppName} database configuration file now ..."
+                        )
+                        self.generateJDBCCfg(
+                            instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile
+                        )
         else:
             self.setParam("db2_action_manage", "none")
 
@@ -222,7 +230,7 @@ class Db2SettingsMixin():
                 self.setParam("db2_action_facilities", "install")
             else:
                 self.setParam("db2_action_facilities", "none")
-                instanceId = self.getParam('mas_instance_id')
+                instanceId = self.getParam("mas_instance_id")
                 workspaceId = self.getParam("mas_workspace_id")
                 self.selectLocalConfigDir()
 
@@ -231,16 +239,32 @@ class Db2SettingsMixin():
                 jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-facilities.yaml")
                 print_formatted_text(f"Searching for Real Estate and Facilities database configuration file in {jdbcCfgFile} ...")
                 if path.exists(jdbcCfgFile):
-                    if self.yesOrNo(f"Real Estate and Facilities database configuration file 'jdbc-{instanceId}-facilities.yaml' already exists.  Do you want to generate a new one"):
-                        self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile)
+                    if self.yesOrNo(
+                        f"Real Estate and Facilities database configuration file 'jdbc-{instanceId}-facilities.yaml' already exists.  Do you want to generate a new one"
+                    ):
+                        self.generateJDBCCfg(
+                            instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile
+                        )
                 else:
-                    print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Real Estate and Facilities database configuration file now ...")
-                    self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile)
+                    print_formatted_text(
+                        f"Expected file ({jdbcCfgFile}) was not found, generating a valid Real Estate and Facilities database configuration file now ..."
+                    )
+                    self.generateJDBCCfg(
+                        instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile
+                    )
         else:
             self.setParam("db2_action_facilities", "none")
 
         # Do we need to configure Db2u?
-        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install" or self.getParam("db2_action_facilities") == "install":
+        if (
+            self.getParam("db2_action_system") == "install"
+            or self.getParam("db2_action_manage") == "install"
+            or self.getParam("db2_action_facilities") == "install"
+        ):
+            self.printDescription(
+                ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
+            )
+            self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
             if self.showAdvancedOptions:
                 self.printH2("Installation Namespace")
                 self.promptForString("Install namespace", "db2_namespace", default="db2u")
@@ -248,19 +272,21 @@ class Db2SettingsMixin():
                 # Node Affinity & Tolerations
                 # -------------------------------------------------------------------------
                 self.printH2("Node Affinity and Tolerations")
-                self.printDescription([
-                    f"Note that the same settings are applied to both the IoT and {self.manageAppName} Db2 instances",
-                    "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster",
-                    "For more information refer to the Red Hat documentation:",
-                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-node-affinity</u></Orange>",
-                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-taints-tolerations</u></Orange>",
-                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-node-affinity</u></Orange>",
-                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-taints-tolerations</u></Orange>",
-                    " - <Orange><u>https://docs.openshift.com/container-platform/4.18/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
-                    " - <Orange><u>https://docs.openshift.com/container-platform/4.18/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u></Orange>",
-                    " - <Orange><u>https://docs.openshift.com/container-platform/4.17/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
-                    " - <Orange><u>https://docs.openshift.com/container-platform/4.17/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u></Orange>"
-                ])
+                self.printDescription(
+                    [
+                        f"Note that the same settings are applied to both the IoT and {self.manageAppName} Db2 instances",
+                        "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster",
+                        "For more information refer to the Red Hat documentation:",
+                        " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-node-affinity</u></Orange>",
+                        " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-taints-tolerations</u></Orange>",
+                        " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-node-affinity</u></Orange>",
+                        " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-taints-tolerations</u></Orange>",
+                        " - <Orange><u>https://docs.openshift.com/container-platform/4.18/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
+                        " - <Orange><u>https://docs.openshift.com/container-platform/4.18/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u></Orange>",
+                        " - <Orange><u>https://docs.openshift.com/container-platform/4.17/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
+                        " - <Orange><u>https://docs.openshift.com/container-platform/4.17/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u></Orange>",
+                    ]
+                )
 
                 if self.yesOrNo("Configure node affinity"):
                     self.promptForString(" + Key", "db2_affinity_key")
@@ -272,9 +298,7 @@ class Db2SettingsMixin():
                     self.promptForString(" + Effect", "db2_tolerate_effect")
 
                 self.printH2("Database CPU & Memory")
-                self.printDescription([
-                    f"Note that the same settings are applied to both the IoT and {self.manageAppName} Db2 instances"
-                ])
+                self.printDescription([f"Note that the same settings are applied to both the IoT and {self.manageAppName} Db2 instances"])
 
                 if self.yesOrNo("Customize CPU and memory request/limit"):
                     self.promptForString(" + CPU Request", "db2_cpu_requests", default=self.getParam("db2_cpu_requests"))
@@ -283,9 +307,7 @@ class Db2SettingsMixin():
                     self.promptForString(" + Memory Limit", "db2_memory_limits", default=self.getParam("db2_memory_limits"))
 
                 self.printH2("Database Storage Capacity")
-                self.printDescription([
-                    f"Note that the same settings are applied to both the IoT and {self.manageAppName} Db2 instances"
-                ])
+                self.printDescription([f"Note that the same settings are applied to both the IoT and {self.manageAppName} Db2 instances"])
 
                 if self.yesOrNo("Customize storage capacity"):
                     self.promptForString(" + Data Volume", "db2_data_storage_size", default=self.getParam("db2_data_storage_size"))
@@ -296,11 +318,7 @@ class Db2SettingsMixin():
 
                 if self.devMode:
                     if self.yesOrNo("Select Db2 Custom Resource(CR)"):
-                        self.printDescription([
-                            "Db2 Custom Resource",
-                            "  1. Db2uCluster",
-                            "  2. Db2uInstance"
-                        ])
+                        self.printDescription(["Db2 Custom Resource", "  1. Db2uCluster", "  2. Db2uInstance"])
                         self.promptForListSelect("Select the CR Resource", ["db2ucluster", "db2uinstance"], "db2u_kind")
                     else:
                         self.setParam("db2u_kind", "db2ucluster")
@@ -309,10 +327,10 @@ class Db2SettingsMixin():
 
     def setDB2DefaultChannel(self) -> None:
         # Set the default db2-Channel
-        if hasattr(self, 'catalogDb2Channel'):
+        if hasattr(self, "catalogDb2Channel"):
             # Best case: catalogDb2Channel was set by processCatalogChoice()
             default_db2_channel = self.catalogDb2Channel
-        elif hasattr(self, 'chosenCatalog') and self.chosenCatalog is not None:
+        elif hasattr(self, "chosenCatalog") and self.chosenCatalog is not None:
             # Fallback: Get directly from chosenCatalog if available
             default_db2_channel = self.chosenCatalog.get("db2_channel_default", "v110509.0")
         else:

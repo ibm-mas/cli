@@ -75,6 +75,26 @@ spec:
       type: string
       default: ""
 
+    # AICFG
+    - name: install_aiservice_cfg
+      type: string
+      default: "false"
+    - name: aiservice_url
+      type: string
+      default: ""
+    - name: aiservice_tenant_id
+      type: string
+      default: ""
+    - name: aiservice_enabled
+      type: string
+      default: "true"
+    - name: aiservice_ssl_enabled
+      type: string
+      default: "true"
+    - name: aiservice_aiassistant_enabled
+      type: string
+      default: "false"
+
     - name: smtp_host
       type: string
     - name: smtp_port
@@ -271,9 +291,35 @@ spec:
     - name: mas_ingress_controller_name
       type: string
       default: ""
+    - name: mas_use_service_mesh
+      type: string
+      default: ""
+
   tasks:
 
-    # 0. Per-instance DB2U Operator
+    # 0. Preprocess Manual Certificates
+    # -------------------------------------------------------------------------
+    - name: preprocess-manual-certs
+      params:
+        - name: mas_manual_certs_yaml
+          value: $(params.mas_manual_certs_yaml)
+      workspaces:
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-process-manual-certs
+      when:
+        - input: "$(params.mas_manual_cert_mgmt)"
+          operator: in
+          values: ["true"]
+        - input: "$(params.mas_manual_certs_yaml)"
+          operator: notin
+          values: [""]
+
+    # 1. Per-instance DB2U Operator
     # -------------------------------------------------------------------------
     - name: gitops-db2u
       params:
@@ -466,7 +512,7 @@ spec:
         - name: delete_wildcards
           value: $(params.delete_wildcards)
         - name: mas_manual_certs_yaml
-          value: $(params.mas_manual_certs_yaml)
+          value: /workspace/configs/manual_certs.yaml
         - name: mas_pod_template_yaml
           value: $(params.mas_pod_template_yaml)
         - name: mas_wipe_mongo_data
@@ -501,6 +547,8 @@ spec:
           value: $(params.mas_routing_mode)
         - name: mas_ingress_controller_name
           value: $(params.mas_ingress_controller_name)
+        - name: mas_use_service_mesh
+          value: $(params.mas_use_service_mesh)
       taskRef:
         kind: Task
         name: gitops-suite
@@ -549,6 +597,19 @@ spec:
           value: $(params.dro_contact_lastname)
         - name: dro_ca_certificate_file
           value: $(params.dro_ca_certificate_file)
+        # AICFG
+        - name: install_aiservice_cfg
+          value: $(params.install_aiservice_cfg)
+        - name: aiservice_url
+          value: $(params.aiservice_url)
+        - name: aiservice_tenant_id
+          value: $(params.aiservice_tenant_id)
+        - name: aiservice_enabled
+          value: $(params.aiservice_enabled)
+        - name: aiservice_ssl_enabled
+          value: $(params.aiservice_ssl_enabled)
+        - name: aiservice_aiassistant_enabled
+          value: $(params.aiservice_aiassistant_enabled)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: mas_bascfg_pod_template_yaml

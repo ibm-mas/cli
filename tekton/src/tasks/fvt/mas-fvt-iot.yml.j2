@@ -48,7 +48,6 @@ spec:
         - mountPath: /dev/shm
           name: dshm
       securityContext:
-        privileged: true
         runAsUser: 0
       env:
         - name: PRODUCT_ID
@@ -68,6 +67,21 @@ spec:
               name: mas-devops
               key: DEVOPS_BUILD_NUMBER
               optional: true
+
+        # Black and white listing
+        - name: FVT_BLACKLIST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-iot
+              key: FVT_BLACKLIST
+              optional: false
+        - name: FVT_WHITELIST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-iot
+              key: FVT_WHITELIST
+              optional: false
+
 
         - name: NAMESPACE
           value: "mas-$(params.mas_instance_id)-core"

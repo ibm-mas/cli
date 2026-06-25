@@ -4,7 +4,7 @@ kind: Task
 metadata:
   name: gitops-aiservice-tenant
 spec:
-  params: 
+  params:
     - name: cluster_name
       type: string
     - name: account
@@ -23,6 +23,9 @@ spec:
       type: string
     - name: github_host
       type: string
+    - name: aiservice_enable_deprovisioning
+      type: string
+      default: "false"
     - name: aiservice_namespace
       type: string
     - name: aiservice_provision_tenant
@@ -35,6 +38,9 @@ spec:
       type: string
     - name: catalog_source
       type: string
+    - name: aiservice_tenant_install_plan_approval
+      type: string
+      default: "Automatic"
     - name: tenantNamespace
       type: string
     - name: tenant_id
@@ -79,13 +85,13 @@ spec:
       type: string
     - name: aiservice_s3_bucket_prefix
       type: string
-    - name: rsl_url
-      type: string
     - name: tenant_entitlement_type
       type: string
     - name: tenant_entitlement_start_date
       type: string
     - name: tenant_entitlement_end_date
+      type: string
+    - name: tenant_scheduling_config_yaml
       type: string
     - name: sls_service
       type: string
@@ -111,6 +117,8 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
+      - name: AISERVICE_ENABLE_DEPROVISIONING
+        value: $(params.aiservice_enable_deprovisioning)
       - name: AISERVICE_NAMESPACE
         value: $(params.aiservice_namespace)
       - name: AISERVICE_PROVISION_TENANT
@@ -123,6 +131,8 @@ spec:
         value: $(params.aiservice_tenant_catalog_channel)
       - name: CATALOG_SOURCE
         value: $(params.catalog_source)
+      - name: AISERVICE_TENANT_INSTALL_PLAN_APPROVAL
+        value: $(params.aiservice_tenant_install_plan_approval)
       - name: TENANT_NAMESPACE
         value: $(params.tenantNamespace)
       - name: TENANT_ID
@@ -165,14 +175,14 @@ spec:
         value: $(params.aiservice_s3_endpoint_url)
       - name: AISERVICE_S3_BUCKET_PREFIX
         value: $(params.aiservice_s3_bucket_prefix)
-      - name: RSL_URL
-        value: $(params.rsl_url)
       - name: TENANT_ENTITLEMENT_TYPE
         value: $(params.tenant_entitlement_type)
       - name: TENANT_ENTITLEMENT_START_DATE
         value: $(params.tenant_entitlement_start_date)
       - name: TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
+      - name: TENANT_SCHEDULING_CONFIG_YAML
+        value: $(params.tenant_scheduling_config_yaml)
       - name: STANDALONE_SLS_SERVICE
         value: $(params.sls_service)
     envFrom:
@@ -196,7 +206,7 @@ spec:
           export CATALOG_CHANNEL=${AISERVICE_CATALOG_CHANNEL}
         fi
         echo "[INFO] CATALOG_CHANNEL=${CATALOG_CHANNEL}"
-        
+
         mas gitops-aiservice-tenant -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
         --dir /tmp/init-aiservice-tenant \
@@ -213,6 +223,7 @@ spec:
         - -c
       name: gitops-aiservice-tenant
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
+    - name: shared-gitops-configs

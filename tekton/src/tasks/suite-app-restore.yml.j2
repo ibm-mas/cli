@@ -21,20 +21,25 @@ spec:
       type: string
       description: Directory to store backup files
       default: ""
-    
+
     - name: mas_app_backup_version
       type: string
       description: Version/timestamp for the MAS app backup
       default: ""
 
+    - name: restore_app_include_pvc
+      type: string
+      description: Whether to include PVC in backup
+      default: "true"
+
     - name: override_storageclass
       type: string
       description: Override App PVC storageclass during restore
       default: "false"
-    - name: manage_custom_storage_class_rwx
+    - name: custom_storage_class_rwx
       type: string
       default: ""
-    - name: manage_custom_storage_class_rwo
+    - name: custom_storage_class_rwo
       type: string
       default: ""
 
@@ -54,22 +59,25 @@ spec:
 
       - name: MAS_APP_BACKUP_VERSION
         value: $(params.mas_app_backup_version)
-      
+
+      - name: MAS_APP_RESTORE_INCLUDE_PVC
+        value: $(params.restore_app_include_pvc)
+
       - name: OVERRIDE_STORAGECLASS
         value: $(params.override_storageclass)
 
       # Manage specific
-      - name: MANAGE_CUSTOM_STORAGE_CLASS_RWX
-        value: $(params.manage_custom_storage_class_rwx)
-      - name: MANAGE_CUSTOM_STORAGE_CLASS_RWO
-        value: $(params.manage_custom_storage_class_rwo)
+      - name: MAS_APP_CUSTOM_STORAGE_CLASS_RWX
+        value: $(params.custom_storage_class_rwx)
+      - name: MAS_APP_CUSTOM_STORAGE_CLASS_RWO
+        value: $(params.custom_storage_class_rwo)
 
   steps:
     - name: suite-app-restore
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_restore
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/backups
 

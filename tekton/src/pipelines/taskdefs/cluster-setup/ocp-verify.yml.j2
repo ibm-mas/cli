@@ -11,18 +11,20 @@
     - name: devops_suite_name
       value: {{ devops_suite_name }}
     - name: verify_cluster
-      value: {{ verify_cluster | default("True") }}
+      value: "{{ verify_cluster | default('True') }}"
     - name: verify_catalogsources
-      value: {{ verify_catalogsources | default("True") }}
+      value: "{{ verify_catalogsources | default('True') }}"
     - name: verify_subscriptions
-      value: {{ verify_subscriptions | default("True") }}
+      value: "{{ verify_subscriptions | default('True') }}"
     - name: verify_workloads
-      value: {{ verify_workloads | default("True") }}
+      value: "{{ verify_workloads | default('True') }}"
     - name: verify_ingress
-      value: {{ verify_ingress | default("True") }}
+      value: "{{ verify_ingress | default('True') }}"
     - name: ocp_ingress_tls_secret_name
       value: $(params.ocp_ingress_tls_secret_name)
+{% if name != "post-install-verify" %}
   when:
     - input: "$(params.skip_pre_check)"
       operator: notin
       values: ["True", "true"]
+{% endif %}

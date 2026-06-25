@@ -42,7 +42,7 @@ class MarkdownFormatter:
             if epilog:
                 sections.append(epilog)
 
-        return '\n\n'.join(sections)
+        return "\n\n".join(sections)
 
     def format_usage(self, parser: argparse.ArgumentParser) -> str:
         """Generate usage synopsis."""
@@ -59,8 +59,8 @@ class MarkdownFormatter:
             return ""
 
         # Clean up description (may have multiple lines)
-        desc_lines = parser.description.strip().split('\n')
-        description = '\n'.join(line.strip() for line in desc_lines)
+        desc_lines = parser.description.strip().split("\n")
+        description = "\n".join(line.strip() for line in desc_lines)
 
         return f"""### Description
 
@@ -82,26 +82,22 @@ class MarkdownFormatter:
 
         for group in parser._action_groups:
             # Skip default groups with no custom title
-            if group.title in ('positional arguments', 'optional arguments', 'options'):
-                actions = [a for a in group._group_actions if a.dest != 'help']
+            if group.title in ("positional arguments", "optional arguments", "options"):
+                actions = [a for a in group._group_actions if a.dest != "help"]
                 if not actions:
                     continue
             else:
-                actions = [a for a in group._group_actions if a.dest != 'help']
+                actions = [a for a in group._group_actions if a.dest != "help"]
 
             if not actions:
                 continue
 
             # Collect data for this group
-            group_info = {
-                'title': group.title or "Options",
-                'description': group.description,
-                'rows': []
-            }
+            group_info = {"title": group.title or "Options", "description": group.description, "rows": []}
 
             for action in actions:
                 row_data = self._get_argument_data(action)
-                group_info['rows'].append(row_data)
+                group_info["rows"].append(row_data)
 
             groups_data.append(group_info)
 
@@ -111,12 +107,12 @@ class MarkdownFormatter:
             section = self._format_group_as_html(group_info)
             sections.append(section)
 
-        return '\n\n'.join(sections)
+        return "\n\n".join(sections)
 
     def _get_argument_data(self, action) -> Dict[str, str]:
         """Extract argument data as a dictionary."""
         # Option flags (without backticks for HTML)
-        option_strings = ', '.join(f"<code>{opt}</code>" for opt in action.option_strings)
+        option_strings = ", ".join(f"<code>{opt}</code>" for opt in action.option_strings)
         if not option_strings:
             option_strings = f"<code>{action.dest}</code>"
 
@@ -129,59 +125,54 @@ class MarkdownFormatter:
         # Description (escape for HTML)
         help_text = self.escape_html(action.help or "")
 
-        return {
-            'option': option_strings,
-            'type': type_str,
-            'default': default_str,
-            'description': help_text
-        }
+        return {"option": option_strings, "type": type_str, "default": default_str, "description": help_text}
 
     def _format_group_as_html(self, group_info: Dict) -> str:
         """Format a group as an HTML table with fixed column widths."""
         lines = [f"### {group_info['title']}"]
 
         # Add group description if present
-        if group_info['description']:
+        if group_info["description"]:
             lines.append("")
-            lines.append(group_info['description'])
+            lines.append(group_info["description"])
 
         # HTML table with fixed column widths
         lines.append("")
         lines.append('<table style="width: 100%; table-layout: fixed;">')
-        lines.append('  <colgroup>')
+        lines.append("  <colgroup>")
         lines.append('    <col style="width: 25%;">')  # Option column
         lines.append('    <col style="width: 15%;">')  # Type column
         lines.append('    <col style="width: 15%;">')  # Default column
         lines.append('    <col style="width: 45%;">')  # Description column
-        lines.append('  </colgroup>')
-        lines.append('  <thead>')
-        lines.append('    <tr>')
-        lines.append('      <th>Option</th>')
-        lines.append('      <th>Type</th>')
-        lines.append('      <th>Default</th>')
-        lines.append('      <th>Description</th>')
-        lines.append('    </tr>')
-        lines.append('  </thead>')
-        lines.append('  <tbody>')
+        lines.append("  </colgroup>")
+        lines.append("  <thead>")
+        lines.append("    <tr>")
+        lines.append("      <th>Option</th>")
+        lines.append("      <th>Type</th>")
+        lines.append("      <th>Default</th>")
+        lines.append("      <th>Description</th>")
+        lines.append("    </tr>")
+        lines.append("  </thead>")
+        lines.append("  <tbody>")
 
         # Table rows
-        for row_data in group_info['rows']:
-            lines.append('    <tr>')
+        for row_data in group_info["rows"]:
+            lines.append("    <tr>")
             lines.append(f'      <td>{row_data["option"]}</td>')
             lines.append(f'      <td>{row_data["type"]}</td>')
             lines.append(f'      <td>{row_data["default"]}</td>')
             lines.append(f'      <td>{row_data["description"]}</td>')
-            lines.append('    </tr>')
+            lines.append("    </tr>")
 
-        lines.append('  </tbody>')
-        lines.append('</table>')
+        lines.append("  </tbody>")
+        lines.append("</table>")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def format_type(self, action) -> str:
         """Format the type/choices for an argument (markdown version)."""
         if action.choices:
-            choices = ', '.join(str(c) for c in action.choices)
+            choices = ", ".join(str(c) for c in action.choices)
             return f"`{{{choices}}}`"
         elif isinstance(action, argparse._StoreTrueAction):
             return "flag"
@@ -197,7 +188,7 @@ class MarkdownFormatter:
     def format_type_html(self, action) -> str:
         """Format the type/choices for an argument (HTML version)."""
         if action.choices:
-            choices = ', '.join(str(c) for c in action.choices)
+            choices = ", ".join(str(c) for c in action.choices)
             return f"<code>{{{choices}}}</code>"
         elif isinstance(action, argparse._StoreTrueAction):
             return "flag"
@@ -242,12 +233,12 @@ class MarkdownFormatter:
             return ""
 
         # Escape pipe characters in table cells
-        text = text.replace('|', '\\|')
+        text = text.replace("|", "\\|")
 
         # Handle backticks - don't escape if already in code
         # This is a simple heuristic
-        if '`' in text and not text.count('`') % 2 == 0:
-            text = text.replace('`', '\\`')
+        if "`" in text and not text.count("`") % 2 == 0:
+            text = text.replace("`", "\\`")
 
         return text
 
@@ -257,13 +248,10 @@ class MarkdownFormatter:
             return ""
 
         # Escape HTML special characters (ampersand first!)
-        text = text.replace('&', '\x26amp;')
-        text = text.replace('<', '\x26lt;')
-        text = text.replace('>', '\x26gt;')
-        text = text.replace('"', '\x26quot;')
-        text = text.replace("'", '\x26#39;')
+        text = text.replace("&", "\x26amp;")
+        text = text.replace("<", "\x26lt;")
+        text = text.replace(">", "\x26gt;")
+        text = text.replace('"', "\x26quot;")
+        text = text.replace("'", "\x26#39;")
 
         return text
-
-
-# Made with Bob

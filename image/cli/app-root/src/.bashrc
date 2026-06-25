@@ -16,6 +16,9 @@ TEXT_UNDERLINE=$(tput smul)
 TEXT_RESET=$(tput sgr0)
 arch=$(uname -i)
 
+# Enable bash auto-completion
+. /etc/profile.d/bash_completion.sh
+
 echo "${TEXT_UNDERLINE}IBM Maximo Application Suite CLI Container ${TEXT_BOLD}v${VERSION}${TEXT_RESET}"
 echo
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops${TEXT_RESET}"
@@ -43,10 +46,14 @@ if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-roks${TEXT_RESET} to provision an OCP cluster on IBMCloud Red Hat OpenShift Service (ROKS)"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-rosa${TEXT_RESET} to provision an OCP cluster on AWS Red Hat OpenShift Service (ROSA)"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-fyre${TEXT_RESET} to provision an OCP cluster on IBM DevIT Fyre (internal)"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas setup-rbac${TEXT_RESET} to setup RBAC resources for MAS installation in a cluster"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas pre-install${TEXT_RESET} to set up pre-install RBAC for MAS installation in a cluster"
     echo "AI Service (Standalone) Management:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-install${TEXT_RESET} to install a new AI Service instance"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-upgrade${TEXT_RESET} to upgrade a existing AI Service instance"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-mirror-images${TEXT_RESET} to mirror container images required by AIService to a private registry"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-configure-airgap${TEXT_RESET} to configure a cluster to use a private registry as a mirror for AIService"
+    echo "Gitops based Management:"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas gitops${TEXT_RESET} to show all gitops related sub-commands"
     echo
 fi

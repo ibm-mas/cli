@@ -60,6 +60,9 @@ spec:
     - name: mas_routing_mode
       type: string
       default: ""
+    - name: mas_use_service_mesh
+      type: string
+      default: ""
     - name: mas_ingress_controller_name
       type: string
       default: ""
@@ -166,6 +169,15 @@ spec:
     - name: sls_service
       type: string
       default: ""
+    - name: argocluster_instance
+      type: string
+      default: ""
+    - name: application_admin_sa_name
+      type: string
+      default: ""
+    - name: application_admin_sa_namespace
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -199,6 +211,8 @@ spec:
         value: $(params.mas_domain)
       - name: MAS_ROUTING_MODE
         value: $(params.mas_routing_mode)
+      - name: MAS_USE_SERVICE_MESH
+        value: $(params.mas_use_service_mesh)
       - name: MAS_INGRESS_CONTROLLER_NAME
         value: $(params.mas_ingress_controller_name)
       - name: ICR_CP
@@ -257,7 +271,7 @@ spec:
       - name: DELETE_WILDCARDS
         value: $(params.delete_wildcards)
 
-      - name: MAS_MANUAL_CERTS_YAML 
+      - name: MAS_MANUAL_CERTS_YAML
         value: $(params.mas_manual_certs_yaml)
       - name: MAS_POD_TEMPLATE_YAML
         value: $(params.mas_pod_template_yaml)
@@ -293,6 +307,12 @@ spec:
         value: $(params.application_configuration)
       - name: STANDALONE_SLS_SERVICE
         value: $(params.sls_service)
+      - name: ARGOCLUSTER_INSTANCE
+        value: $(params.argocluster_instance)
+      - name: APPLICATION_ADMIN_SERVICE_ACCOUNT_NAME
+        value: $(params.application_admin_sa_name)
+      - name: APPLICATION_ADMIN_SERVICE_ACCOUNT_NAMESPACE
+        value: $(params.application_admin_sa_namespace)
 
     envFrom:
       - configMapRef:
@@ -313,7 +333,7 @@ spec:
         echo "Labels ................................ ${MAS_LABELS}"
         echo "Custom Labels ......................... ${CUSTOM_LABELS}"
 
-        # Parse MAS variables from json to dict        
+        # Parse MAS variables from json to dict
 
         MAS_ANNOTATIONS=$(echo "${MAS_ANNOTATIONS}" | sed "s/'/\"/g")
         export MAS_ANNOTATIONS=$(echo "${MAS_ANNOTATIONS}" | yq --output-format yaml)
@@ -370,7 +390,7 @@ spec:
         - -c
       name: gitops-suite
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

@@ -35,7 +35,7 @@ def validate_timeout(value):
     """
     # Pattern matches combinations of hours (h), minutes (m), and seconds (s)
     # Must have at least one unit and units must be in order (h, m, s)
-    pattern = r'^(\d+h)?(\d+m)?(\d+s)?$'
+    pattern = r"^(\d+h)?(\d+m)?(\d+s)?$"
 
     if not re.match(pattern, value):
         raise argparse.ArgumentTypeError(
@@ -45,61 +45,36 @@ def validate_timeout(value):
         )
 
     # Ensure at least one unit is present
-    if not any(unit in value for unit in ['h', 'm', 's']):
-        raise argparse.ArgumentTypeError(
-            f"Invalid timeout format: '{value}'. "
-            "Must include at least one time unit (h, m, or s)"
-        )
+    if not any(unit in value for unit in ["h", "m", "s"]):
+        raise argparse.ArgumentTypeError(f"Invalid timeout format: '{value}'. " "Must include at least one time unit (h, m, or s)")
 
     return value
 
 
 mirrorArgParser = argparse.ArgumentParser(
     prog="mas mirror",
-    description="\n".join([
-        f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Mirror IBM Maximo content to a private container registry.",
-    ]),
+    description="\n".join(
+        [
+            f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
+            "Mirror IBM Maximo content to a private container registry.",
+        ]
+    ),
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
-    add_help=False
+    add_help=False,
 )
 
 mainGroup = mirrorArgParser.add_argument_group("Primary Configuration")
-mainGroup.add_argument(
-    "--catalog",
-    required=True,
-    help="Catalog version (e.g., v9-240625-amd64, v9-260129-amd64)"
-)
-mainGroup.add_argument(
-    "--release",
-    required=True,
-    help="MAS release version",
-    choices=["8.10.x", "8.11.x", "9.0.x", "9.1.x"]
-)
-mainGroup.add_argument(
-    "--mode",
-    required=True,
-    help="Mirror mode",
-    choices=["m2m", "m2d", "d2m"]
-)
-mainGroup.add_argument(
-    "--target-registry",
-    required=False,
-    type=str,
-    help="Target registry for m2m and d2m modes (e.g., registry.example.com/namespace)"
-)
-mainGroup.add_argument(
-    "--dir",
-    required=True,
-    type=str,
-    help="Root directory for mirror operations (workspace for m2m, disk storage for m2d/d2m)"
-)
+mainGroup.add_argument("--catalog", required=True, help="Catalog version (e.g., v9-240625-amd64, v9-260129-amd64)")
+mainGroup.add_argument("--release", required=True, help="MAS release version", choices=["8.10.x", "8.11.x", "9.0.x", "9.1.x", "9.2.x-feature"])
+mainGroup.add_argument("--mode", required=True, help="Mirror mode", choices=["m2m", "m2d", "d2m"])
+mainGroup.add_argument("--target-registry", required=False, type=str, help="Target registry for m2m and d2m modes (e.g., registry.example.com/namespace)")
+mainGroup.add_argument("--dir", required=True, type=str, help="Root directory for mirror operations (workspace for m2m, disk storage for m2d/d2m)")
 mainGroup.add_argument(
     "--authfile",
     required=False,
     type=str,
-    help="Path to authentication file (must exist). If not provided, will be generated from environment variables (REGISTRY_USERNAME, REGISTRY_PASSWORD, and IBM_ENTITLEMENT_KEY)."
+    help="Path to authentication file (must exist). If not provided, will be generated from environment variables (REGISTRY_USERNAME, REGISTRY_PASSWORD, and IBM_ENTITLEMENT_KEY).",
 )
 
 # Add package-specific arguments dynamically, organized by group
@@ -129,41 +104,20 @@ for groupName, groupItems in groupby(PACKAGE_CONFIGS, key=lambda x: x[0]):
                 package_list = ", ".join(packages)
                 help_text = f"Mirror images for packages: {package_list}"
 
-            argGroup.add_argument(
-                f"--{argName}",
-                required=False,
-                help=help_text,
-                action="store_true"
-            )
+            argGroup.add_argument(f"--{argName}", required=False, help=help_text, action="store_true")
 
 advancedGroup = mirrorArgParser.add_argument_group("Advanced Configuration")
-advancedGroup.add_argument(
-    "--all",
-    required=False,
-    action="store_true",
-    help="Mirror all packages for the chosen release"
-)
+advancedGroup.add_argument("--all", required=False, action="store_true", help="Mirror all packages for the chosen release")
 advancedGroup.add_argument(
     "--dest-tls-verify",
     required=False,
-    type=lambda x: x.lower() == 'true',
+    type=lambda x: x.lower() == "true",
     default=True,
-    help="Verify TLS certificates for destination registry (default: true)"
+    help="Verify TLS certificates for destination registry (default: true)",
 )
 advancedGroup.add_argument(
-    "--image-timeout",
-    required=False,
-    type=validate_timeout,
-    default="20m",
-    help="Timeout for image operations (e.g., '1h20m10s', '1h', '20m', default: '20m')"
+    "--image-timeout", required=False, type=validate_timeout, default="20m", help="Timeout for image operations (e.g., '1h20m10s', '1h', '20m', default: '20m')"
 )
 
-otherArgGroup = mirrorArgParser.add_argument_group(
-    "More"
-)
-otherArgGroup.add_argument(
-    "-h", "--help",
-    action="help",
-    default=False,
-    help="Show this help message and exit"
-)
+otherArgGroup = mirrorArgParser.add_argument_group("More")
+otherArgGroup.add_argument("-h", "--help", action="help", default=False, help="Show this help message and exit")
