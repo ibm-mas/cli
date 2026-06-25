@@ -33,6 +33,8 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - servicemesh_domain_config
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
 
     # If configmap/approval-suite-verify exists then set STATUS=pending and wait for it to be changed to "approved"
     - name: suite-wait-for-approval

@@ -683,6 +683,8 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - servicemesh_domain_config
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
 
     - name: app-wait-for-approval
       # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
