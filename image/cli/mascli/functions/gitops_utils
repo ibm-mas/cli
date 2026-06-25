@@ -45,17 +45,17 @@ function redis_cli_cmd() {
   
   local cmd="redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} -n ${REDIS_DB}"
   
-  # Handle authentication
-  # When using a specific username, we must use --user and -a flags together
-  # REDISCLI_AUTH only works for default user authentication
+  # Handle authentication based on whether username is provided
   if [[ -n "${REDIS_USERNAME}" ]]; then
+    # When using a specific username (Redis 6+ ACL), must use --user with -a flag
+    # REDISCLI_AUTH does NOT work with --user flag
     cmd="${cmd} --user ${REDIS_USERNAME}"
     if [[ -n "${REDIS_PASSWORD}" ]]; then
-      # Use -a flag when username is specified (REDISCLI_AUTH doesn't work with --user)
       cmd="${cmd} -a ${REDIS_PASSWORD}"
     fi
   elif [[ -n "${REDIS_PASSWORD}" ]]; then
-    # For default user, use REDISCLI_AUTH to avoid command-line warning
+    # For default user authentication, use REDISCLI_AUTH to avoid command-line warning
+    # This is more secure as it doesn't expose password in process list
     export REDISCLI_AUTH="${REDIS_PASSWORD}"
   fi
   
@@ -79,9 +79,10 @@ function redis_available() {
     return 1
   fi
   
+  # Get redis command (authentication is handled inside redis_cli_cmd)
   local redis_cmd=$(redis_cli_cmd)
   
-  # Display command with password masked
+  # Display command with password masked for security
   local display_cmd=$(echo "${redis_cmd}" | sed 's/-a [^ ]*/-a ****/g')
   echo "$(logts) Checking Redis availability: ${display_cmd} PING"
   
@@ -97,7 +98,7 @@ function redis_available() {
     echo "$(logts) Redis is not available"
     if [[ ${exit_code} -ne 0 ]] || [[ -z "${result}" ]]; then
       echo "$(logts) Redis connection error (exit code: ${exit_code}):"
-      # Get full error output, suppress password, and filter timestamps
+      # Get full error output, suppress password, and filter timestamps/warnings
       ${redis_cmd} PING 2>&1 | grep -v "^\[" | grep -v "^Warning:" | sed 's/-a [^ ]*/-a ****/g'
     else
       echo "$(logts) Unexpected response: \"${result}\""
