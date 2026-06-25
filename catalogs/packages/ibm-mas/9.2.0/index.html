@@ -1,0 +1,1078 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>IBM Maximo Application Suite v9.2.0 - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../../../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../../../search/main.js"></script>
+    
+  <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../../../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/packages/ibm-mas/9.2.0.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="OpenShift Management">
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/provision-roks/">
+    IBM Cloud ROKS
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/provision-aws/">
+    AWS (IPI)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/provision-fyre/">
+    IBM DevIT FYRE
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/configure-airgap/">
+    Airgap Configuration
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Image Mirroring">
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/private-registry/">
+    Private Registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/image-mirroring/">
+    Image Mirroring (IBM)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/mirror-redhat-images/">
+    Image Mirroring (Red Hat)
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Install and Configure">
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/configtool-oidc/">
+    OIDC Config Tool
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/aiservice-install/">
+    AI Service Install
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Update and Upgrade">
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Backup and Restore">
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/backup/">
+    Backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/restore/">
+    Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Troubleshooting">
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/debug/">
+    Debug
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/must-gather/">
+    Must-Gather
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../../">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-260625-amd64/">
+    Jun 25 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-260527-amd64/">
+    May 27 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-260430-amd64/">
+    Apr 30 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-260326-amd64/">
+    Mar 26 2026
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../../../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+      Operator Catalog
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+      <cds-breadcrumb-link href="../../../">IBM Maximo Operator Catalog</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#ibm-maximo-application-suite-v920">IBM Maximo Application Suite v9.2.0</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#release-notes">Release Notes</cds-select-item>
+    
+      <cds-select-item value="#install-modes">Install Modes</cds-select-item>
+    
+      <cds-select-item value="#service-accounts">Service Accounts</cds-select-item>
+    
+      <cds-select-item value="#cluster-permissions">Cluster Permissions</cds-select-item>
+    
+      <cds-select-item value="#namespace-permissions">Namespace Permissions</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="ibm-maximo-application-suite-v920">IBM Maximo Application Suite v9.2.0<a class="headerlink" href="#ibm-maximo-application-suite-v920" title="Permanent link">¶</a></h1>
+<h2 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">¶</a></h2>
+<h3 id="new-features">New Features<a class="headerlink" href="#new-features" title="Permanent link">¶</a></h3>
+<ul>
+<li>New graphite version and UI components update (#4076)</li>
+<li>Add Real Estate &amp; Facilities 9.2 to list of supported applications (#4089)</li>
+<li>Add optional parameter 'addonIdentifier' to GenericAddon (#4208)</li>
+<li>Support read-only root filesystem (#4374)</li>
+<li>Device Token Expiry : Push Notification Service Update (#4519)</li>
+<li>support path-based routing mode (#4459)</li>
+<li>Switch authentication to Manage (#4656)</li>
+<li>Support manualRouteMgmt Suite setting to disable automatic route creation (#5061)</li>
+<li>Add AI Service Configuration (AiCfg) operator with AssistantAgent deployment support (#4968)</li>
+<li>Support MAS without ClusterRoles (#5087)</li>
+</ul>
+<h3 id="bug-fixes-and-security-updates">Bug Fixes and Security Updates<a class="headerlink" href="#bug-fixes-and-security-updates" title="Permanent link">¶</a></h3>
+<ul>
+<li>fix failing "PodLabelsAreUnique" in contentverification (#4010)</li>
+<li>Limit the concurrent reconciles of addon entity manager to avoid Out Of Memory (#3943)</li>
+<li>Fix for Labels &amp; update of Graphite to v3.1.556 (9.1) (#4012)</li>
+<li>fix indentation issue on the adoptionusageapi deployment template. (#4014)</li>
+<li>Make email optional when creating and updating a user (#4059)</li>
+<li>Add new environment variable LOG_LEVEL (#4022)</li>
+<li>updated mobileapi version for upcoming release. (#4069)</li>
+<li>
+<ul>
+<li>Update Meta Keywords For Accelerators (#4071)</li>
+</ul>
+</li>
+<li>Address Kyverno policy failures (#4051)</li>
+<li>update coreidp-login latest (#4084)</li>
+<li>Include users without email in sendmail_bulk payload (#4099)</li>
+<li>updated coreapi image version (#4108)</li>
+<li>Kyverno policy compliance fixes (#4110)</li>
+<li>Fix issue with commonNav ymls in coreapi build (#4111)</li>
+<li>Given correct templates path for sendmailapi templates (#4122)</li>
+<li>Use latest sendmailapi build to allow toAdress to be null (#4128)</li>
+<li>Added changes to send a milestone on a per-instance basis (#4060)</li>
+<li>Configure TLS for monagent-mas and workspace-coordinator component probes (#4006)</li>
+<li>Update supported versions for 9.2 (#4133)</li>
+<li>Change workspace-coordinator startup probe scheme to HTTPS (#4134)</li>
+<li>internalapi image updated, for updating the swagger validation for UserPayload owner values (#4140)</li>
+<li>Remove secrets data from logs (#4129)</li>
+<li>Enabling ACM, ICD and strategize for PowerPC and s390x (#4135)</li>
+<li>Use latest coreapi build to fix a bug which made forgotpassword function to fail (#4152)</li>
+<li>Update supported application version for monitor. (#4167)</li>
+<li>IoT 9.0.x not supported for 9.2.x (#4166)</li>
+<li>update supported application version for predict (#4168)</li>
+<li>MASCORE-9246 - Optimizer supported version update (#4161)</li>
+<li>Updated ansible-operator, coreapi and admindashboard versions to fix power filebeat issue (#4170)</li>
+<li>Fix users synced in MAS without any emails should not get excluded (#4176)</li>
+<li>updating version for mas-health (#4169)</li>
+<li>added release version 9.2 for assist for MAS CORE compatibility (#4182)</li>
+<li>Fix the issue where the added.timestamp value was being updated for existing users in bulk users upsert API (#4184)</li>
+<li>update Notice and non ibm license (dev) (#4193)</li>
+<li>migrate to SPS (dev) (#4224)</li>
+<li>Fix cache conflict in UiService ping checks for isFullManage and onlyFoundation (#4256)</li>
+<li>Multiple UI bug fixes (#4257)</li>
+<li>Make sure the user is resynced in Manage when the forceTokenChange flag is flipped as this flag will be added to the IDP table in Manage (#4219)</li>
+<li>Enabling HSE for 9.2 release for s390x,ppc64le (#4222)</li>
+<li>Added support for opt-out flag on the Suite operator and Suite CR (#4237)</li>
+<li>data-stream file for oscap scanning (#4258)</li>
+<li>Enabling Health and aviation for 9.2 release for s390x, ppc64le (#4275)</li>
+<li>Enable Replica for non-prod order also (#4291)</li>
+<li>Add support for reportAdoptionMetrics flag to control collection of adoption metrics in Suite CR and BAS CFG (#4238)</li>
+<li>updated userSync flag to false for 9.1 (#4298)</li>
+<li>Add AWSPCA support for certificate creation (#4247)</li>
+<li>Update certificate timeout and molecule scenario (#4317)</li>
+<li>Email is optional in Scim V2 User APIs (#4330)</li>
+<li>added env vars for rdnproperty of ldap scim (#4215)</li>
+<li>update catalogapi version - 9.2.x (#4334)</li>
+<li>Add compatibility to non-readonly mode (#4341)</li>
+<li>Add read-only mode (#4346)</li>
+<li>add retry option for internalapi binding status (#4351)</li>
+<li>Removing not needed apps deprecation (#4355)</li>
+<li>Fix tmp folder that was not following the new tmp/writeable path. (#4356)</li>
+<li>Use 2k key size for internal ca certificate (#4368)</li>
+<li>Add back /tmp/mas folder as part of ansible-operator (#4372)</li>
+<li>Fixing molecule test issues (#4373)</li>
+<li>Remove Assist's Watson Discovery dependency (#4120)</li>
+<li>Update MVI supported application versions (#4376)</li>
+<li>internalapi 10.3.0 - Add internal versions of put/delete message APIs and update dependencies (#4422)</li>
+<li>Remove sensitive logs (#4415)</li>
+<li>Updated mobileapi to avoid permission errors with new read-only flag (#4437)</li>
+<li>Application configuration 9.2.x version (#4318)</li>
+<li>Updated internalapi to avoid permission errors with new read-only flag (#4439)</li>
+<li>Add defaultSenderEmail to the /systeminfo internal API response (#4447)</li>
+<li>Add defaultRecipientEmail to the /systeminfo internal API response (#4461)</li>
+<li>Add support to additional infrastructure value metrics on Catalog items and addon operator (#4460)</li>
+<li>add new valuemetrics and limit for essentials Mascore-10860 (#4454)</li>
+<li>Prevent application configuration route re-creation every 5 min (#4487)</li>
+<li>Add application-configuration to generic addon list (#4458)</li>
+<li>Add support to application configuration when MAS readonly system - MAS 9.2 (#4495)</li>
+<li>Fix build failure by correcting indentation issues after merge (#4504)</li>
+<li>Add missing newline at end of YAML files to resolve linting errors (#4505)</li>
+<li>Add usage metric opt-out flags for SaaS and On-Prem deployments (#4503)</li>
+<li>Adding support for optional firstname, lastname and site input fields in the self registration form in the login page (9.2.x) (#4510)</li>
+<li>update coreapi to fix ui login hanging [MASCORE-11479] (#4516)</li>
+<li>Make sure datamodel-migration job runs correctly from the suite-upgrades role when upgrading to 9.2 (#4509)</li>
+<li>Update plan cost for additional infrastructure (#4520)</li>
+<li>add secure flag in ltpatoken2 cookie in coreidp (#4530)</li>
+<li>update mas util to 7.27.2: dev (#4532)</li>
+<li>downgrade wlp version - dev (#4542)</li>
+<li>Add environment variables for new coreidp prior to path based routing [MASCORE-8701] (#4517)</li>
+<li>Adding support for mobile authorize OIDC endpoint (#4550)</li>
+<li>include PBR env vars when starting coreapi (#4556)</li>
+<li>Add new /facilitiesupsert internal API (#4557)</li>
+<li>Updating components that had mas-utils-py version updated to fix timestamp format (timestamps that used utcnow() cannot become timezone-aware. (#4571)</li>
+<li>update lic files: dev (#4569)</li>
+<li>Add smtp ouath2 for outgoing emails [MASCORE-10041] (#4572)</li>
+<li>User pushnotification APIs forward data to and from Manage's /myusernotif APIs. (#4588)</li>
+<li>Fix readonly filesystem issue with push notification (#4604)</li>
+<li>fix the copyright year issue (#4610)</li>
+<li>Update catalog item to additional-resources (#4570)</li>
+<li>remove limit from totalusers valuemetric Mascore 11535 (#4606)</li>
+<li>Enforce mandatory flag for AdoptionMetrics inside MAS Catalogs (#4609)</li>
+<li>map PNS to 9.2 release branch (#4634)</li>
+<li>adding support url for push-notification-service (#4638)</li>
+<li>MAXMOF-1938 Mongo DB to Manage DB for PN (#4647)</li>
+<li>E-signature for LDAP (EAM Regulated customers require Esig passkey for LDAP) (#4653)</li>
+<li>update ansible and internal packages (#4670)</li>
+<li>E-sig for LDAP (Dockerfile revert) (#4673)</li>
+<li>fix the small bugs for the path based routing (#4681)</li>
+<li>add Maximo IT valuemetrics (#4693)</li>
+<li>Reorder the sequence in which we fetch the wheels (#4441)</li>
+<li>Add environment variable OIDC_ROUTE_URL to coreidp deployment (#4655)</li>
+<li>fixes for foundation (#4698)</li>
+<li>Add /v1/mobile/settings internal API and include mobile quick setup config in uiresources API response (#4699)</li>
+<li>Add default values for the mobile app store URLs (#4701)</li>
+<li>Overhaul of operator BVT (#4695)</li>
+<li>Convert ibm-mas-cfg-mongo tests (#4708)</li>
+<li>Convert ibm-mas-cfg-sls tests (#4714)</li>
+<li>MAXMOF-3217 : Push Notification design update (#4716)</li>
+<li>fix icd validation issue (#4718)</li>
+<li>fix the push notification rewrite target issue (#4722)</li>
+<li>MAXMOF-3168 : Badge count for push notification (#4719)</li>
+<li>MAXMOF-862 : Precise Debugging &amp; Restructuring (#4737)</li>
+<li>Create countrycodes configmap to support PI Compliance (#4635)</li>
+<li>Add 9.1.x &amp; 9.0.x prev release into rollback supported images list (dev) (#4444)</li>
+<li>emergency downgrade of kubernetes python MASISMIG-73418 fix dependencies dev (#4787)</li>
+<li>Remove mongodb dependency for JWT permissions (#4789)</li>
+<li>Coreidp support for Manage context root change (#4788)</li>
+<li>Updated coreapi version to handle scimv2 problems with permissions (#4798)</li>
+<li>Fix invalid config certs being added to the truststore [MASCORE-12381] (#4803)</li>
+<li>MAXMOF-3446: Forward port parsing logic (#4802)</li>
+<li>Add secure unauthenticated access to public resources, safeguard IDP configuration updates, expose maintenance mode to UI, and flip default mobile quick setup enable flag to true (#4821)</li>
+<li>Change IoT/Monitor Dependency for 9.2 (#4715)</li>
+<li>restart catalogapi pod when truststore changes (#4842)</li>
+<li>Fix CoreIDP Molecule Test Failure - Type Mismatch in Pod Temp… (#4854)</li>
+<li>Complete conversion of molecule tests to new unit test framework (#4875)</li>
+<li>guard against undefined config.oauthAuthentication (#4758)</li>
+<li>Move mas-mock-py into it's own repository (#4876)</li>
+<li>admindashboard minor version bump (#4878)</li>
+<li>Improvements to templating tests (#4879)</li>
+<li>Update suite image digests for versions: dev (#4872)</li>
+<li>Updating coreidp-login since a new minor was generated 2 weeks ago and autobuild is no longer updating coreidp-login version. (#4909)</li>
+<li>timeout increased for coreidp probes (#4916)</li>
+<li>Adding support for PUT /personalization/<userid>/focusednavigation API and "personalization" object in the GET /uiresources API response. (#4936)</userid></li>
+<li>security fix for axios - 9.2 (#4937)</li>
+<li>Migrate user authentication from MongoDB to AuthService API (#4942)</li>
+<li>Update licensing-sync (#4943)</li>
+<li>Update accappoints to v3.11.66 (#4946)</li>
+<li>re-build dev (#4956)</li>
+<li>User cleanup &amp; Removal of side effects of e-sig LDAP (#4959)</li>
+<li>Scimsync-agent uses Manage APIs to sync users and groups from LDAP server (#4924)</li>
+<li>Remove adoption usage hourly CronJob (#4902)</li>
+<li>Force the redeploy of scimsync liberty server when LDAP password changes for MASISMIG-73055 issue 92x (#4923)</li>
+<li>onboard Collaborate as addon for 92x (#4951)</li>
+<li>Remove entitlement from config/scim and selfreg configurations (#4982)</li>
+<li>Update admin dashboard for dfltapp redirect (#4981)</li>
+<li>Add foundationProperties to GET /uiresources API response. (#4991)</li>
+<li>APIs update to support Mongodb User and Group collection removal (#4993)</li>
+<li>Fallback to foundation when manage does not work (#4994)</li>
+<li>MAS Core UI images minor bump update (License report removed from admin) (#4995)</li>
+<li>Add MAS-Admin-Premium value metric for on-prem (#4987)</li>
+<li>env var for license usage dashboard crone jobs Mascore 13466 (#4984)</li>
+<li>Usersync coodinator cleanup (#5002)</li>
+<li>Updates in config version (#4944)</li>
+<li>Update main.yml to include latest feature channels (#4903)</li>
+<li>Add default topologySpreadConstraints or singleton labels (#5003)</li>
+<li>Update suite-upgrade role to use internalapi (#4966)</li>
+<li>include AI Service CASE (#4922)</li>
+<li>downgrade ibm-db (#5022)</li>
+<li>Remove enum constraint from GenericAddon addonType (#4999)</li>
+<li>fix: Update exception handling to be more generic (#5027)</li>
+<li>updated internalapi image with latest user and group cleanup (#5021)</li>
+<li>Normalize Group members and OSLC user queries for manage flow (#5026)</li>
+<li>updated accelerators file (#4997)</li>
+<li>Added new graphite config mount files for read-only system (#5034)</li>
+<li>Update suite image digests for versions 9.0.24, 9.1.15, 9.1.16 (#5043)</li>
+<li>Expose SLS API peaks endpoint (#5037)</li>
+<li>support PBR for manage, optimizer and health in applicationSettings (#5048)</li>
+<li>redirect to pinned apps (#5065)</li>
+<li>add feature set metrics value for hse and oilandgas app (#4910)</li>
+<li>MAXMIS-5372 : Reliability Strategies - Feature Set Metric (#5054)</li>
+<li>Downgrading coreidp because 14.0.11 is not working. (#5075)</li>
+<li>Update Capability Names, add/remove Valuemetrics for 9.2 (#5059)</li>
+<li>Fix Python code smells (#5089)</li>
+<li>Add build overlay volume for runtime modification in graphite-configuration for path based routing [MASCORE-11284] (#4687)</li>
+<li>ppcle64 fix for GLIBC_2.35 version not found (#5060)</li>
+<li>Add rbac exception class and update binding to pass certificates (#5093)</li>
+<li>MAXVM-438 VegM rollback (#5083)</li>
+<li>Change in GET /authenticated/users API to use Manage API. (#5107)</li>
+<li>Fix assets loading correctly for preview in appconfig [MASCORE-13820] (#5104)</li>
+<li>Remove Data Dictionary handling from Reconcile (#5109)</li>
+<li>update redirect logic on initial login (#5110)</li>
+<li>fix manual certificate management issue and pass issuer kind to aicfg (#5112)</li>
+<li>Add new role for mongocfg to rename deprecated collections and make a backup (#5079)</li>
+<li>Reverting scimsync because version 3.2.42 was broken by renovate. (#5117)</li>
+<li>update ansible-operator to 9.3.4 (#5119)</li>
+<li>Fix to the meaweb Manage APIs for path-based routing in coreapi and scimsync-agent (#5120)</li>
+<li>Update alm-agent image tag to official v1.0.0 release (#5100)</li>
+<li>Reduce CPU throttling in entitymgr-mongocfg (#4998)</li>
+<li>Add issuerKind to Suite CR status (#5128)</li>
+<li>MASCORE-13426: Remove all groupsync coordinator references (#4945)</li>
+<li>Usersync coordinator check to avoid calling manage when it is not available (#5132)</li>
+<li>Rename alm-agent image key to almagent (#5133)</li>
+<li>add path support for apps (#5130)</li>
+<li>fix undefined publicCaResourceVersion issue and fix default issuerKind (#5129)</li>
+<li>Fix missing patch permission in internalapi role MASCORE-14277 (#5138)</li>
+<li>prevent routing mode changes after installation (#5140)</li>
+<li>MASCORE-14339 : Added missing valuemetrics for utilities (#5144)</li>
+<li>MAXUIF-3309: Added PVC AccessMode Config for RWO 9.2 (#4827)</li>
+<li>Add support for path-based routing in ibm-mas-cfg-scim operator (#5145)</li>
+<li>Fix monitor capability missing from instance usage by adjusting metering job schedules (#5125)</li>
+<li>Restructure Suite CR settings to group metric collection flags (#5113)</li>
+<li>Entity managers are resource-bound (#5150)</li>
+<li>Forward requests to /meaweb Manage API using the integration service instead of the foundation service. (#5148)</li>
+<li>Migrate sendmail API to use authservice v1 API (#5147)</li>
+<li>MAXMOF-3919: No records are downloaded after onboarding (#5153)</li>
+<li>fix internalapi permission for configmaps (#5151)</li>
+<li>Get sls version from core api for license usage dashboard (#5154)</li>
+<li>Update internalapi and config version (#5156)</li>
+<li>Removing missing user apis not used and fix force token change API (#5157)</li>
+<li>update Collaborate addon catalog files for 92x (#5135)</li>
+<li>force routingMode to subdomain and unit tests [MASR-8433] (#5149)</li>
+<li>Read metric collection flags from Suite CR status and populate spec with defaults (#5160)</li>
+<li>Add language to preferences object in GET /profile API (#5165)</li>
+<li>Fix various config files &amp; add schema validation to BVT (#5171)</li>
+<li>Add IoT 9.2 in supported release (#5131)</li>
+<li>sendmail pod restarting every few minutes (#5167)</li>
+<li>admin-dashboard version updated (manage activation page issue fix) (#5163)</li>
+<li>fix unhandled forbidden exception during get the CR (#5161)</li>
+<li>Update CoreAPI Version to Fix AICfg URL and Tenant ID Display in UI (#5176)</li>
+<li>update adoptionusage-metering and api version (#5177)</li>
+<li>Fix upgrade timing issue when Manage is not available (#5178)</li>
+<li>update adoptionusageapi version (#5181)</li>
+<li>Update MAS to 9.2 and refresh license notices (#5185)</li>
+<li>update alm-agent to 1.0.1 (#5172)</li>
+<li>Update supported version for 9.2 (#5192)</li>
+<li>Fix: Initialize lookupAppResult before conditional assignment to prevent stale data in upgrade checks [MASCORE-14760] (#5194)</li>
+<li>Fix unittest by adding missing markers to work with recently released 9.1.0 pytest version (#5195)</li>
+</ul>
+<h2 id="install-modes">Install Modes<a class="headerlink" href="#install-modes" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Supported</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">OwnNamespace</td>
+<td style="text-align: left;">True</td>
+</tr>
+<tr>
+<td style="text-align: left;">SingleNamespace</td>
+<td style="text-align: left;">True</td>
+</tr>
+<tr>
+<td style="text-align: left;">MultiNamespace</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">AllNamespaces</td>
+<td style="text-align: left;">False</td>
+</tr>
+</tbody>
+</table>
+<h2 id="service-accounts">Service Accounts<a class="headerlink" href="#service-accounts" title="Permanent link">¶</a></h2>
+<ul>
+<li>ibm-mas-assistantagent</li>
+<li>ibm-mas-config-editor</li>
+<li>ibm-mas-config-reader</li>
+<li>ibm-mas-coreapi</li>
+<li>ibm-mas-coreidp</li>
+<li>ibm-mas-entitymgr-addons</li>
+<li>ibm-mas-entitymgr-aicfg</li>
+<li>ibm-mas-entitymgr-appcfg</li>
+<li>ibm-mas-entitymgr-bascfg</li>
+<li>ibm-mas-entitymgr-coreidp</li>
+<li>ibm-mas-entitymgr-idpcfg</li>
+<li>ibm-mas-entitymgr-jdbccfg</li>
+<li>ibm-mas-entitymgr-kafkacfg</li>
+<li>ibm-mas-entitymgr-mongocfg</li>
+<li>ibm-mas-entitymgr-objectstoragecfg</li>
+<li>ibm-mas-entitymgr-pushcfg</li>
+<li>ibm-mas-entitymgr-scimcfg</li>
+<li>ibm-mas-entitymgr-slscfg</li>
+<li>ibm-mas-entitymgr-smtpcfg</li>
+<li>ibm-mas-entitymgr-watsonstudiocfg</li>
+<li>ibm-mas-entitymgr-ws</li>
+<li>ibm-mas-internalapi</li>
+<li>ibm-mas-licensing-mediator</li>
+<li>ibm-mas-mobileapi</li>
+<li>ibm-mas-monagent-mas</li>
+<li>ibm-mas-nopriv</li>
+<li>ibm-mas-scim-agent</li>
+</ul>
+<h2 id="cluster-permissions">Cluster Permissions<a class="headerlink" href="#cluster-permissions" title="Permanent link">¶</a></h2>
+<p>No cluster permissions</p>
+<h2 id="namespace-permissions">Namespace Permissions<a class="headerlink" href="#namespace-permissions" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Resource</th>
+<th style="text-align: left;">Verbs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">create</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes/status</td>
+<td style="text-align: left;">get, list, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">certificates</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">issuers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores/status</td>
+<td style="text-align: left;">get</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">bind, create, escalate, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">bind, create, escalate, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">operator.ibm.com</td>
+<td style="text-align: left;">operandrequests</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">core.mas.ibm.com</td>
+<td style="text-align: left;">suites</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">core.mas.ibm.com</td>
+<td style="text-align: left;">suites/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">core.mas.ibm.com</td>
+<td style="text-align: left;">workspaces</td>
+<td style="text-align: left;">delete, get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">appcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">bascfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">idpcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">jdbccfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">kafkacfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">mongocfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">objectstoragecfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">pushnotificationcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">scimcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">slscfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">smtpcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">watsonstudiocfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">coreidps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">config.mas.ibm.com</td>
+<td style="text-align: left;">aicfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">appcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">bascfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">idpcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">jdbccfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">kafkacfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">mongocfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">objectstoragecfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">pushnotificationcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">scimcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">slscfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">smtpcfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">watsonstudiocfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">coreidps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">internal.mas.ibm.com</td>
+<td style="text-align: left;">aicfgs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">addons.mas.ibm.com</td>
+<td style="text-align: left;">genericaddons</td>
+<td style="text-align: left;">delete, get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">addons.mas.ibm.com</td>
+<td style="text-align: left;">mviedges</td>
+<td style="text-align: left;">delete, get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">addons.mas.ibm.com</td>
+<td style="text-align: left;">replicadbs</td>
+<td style="text-align: left;">delete, get, list, watch</td>
+</tr>
+</tbody>
+</table>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#release-notes" class="md-toc__link" data-md-level="1">
+                  Release Notes
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#new-features" class="md-toc__link" data-md-level="2">
+                          New Features
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#bug-fixes-and-security-updates" class="md-toc__link" data-md-level="2">
+                          Bug Fixes and Security Updates
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#install-modes" class="md-toc__link" data-md-level="1">
+                  Install Modes
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#service-accounts" class="md-toc__link" data-md-level="1">
+                  Service Accounts
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#cluster-permissions" class="md-toc__link" data-md-level="1">
+                  Cluster Permissions
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#namespace-permissions" class="md-toc__link" data-md-level="1">
+                  Namespace Permissions
+                </a>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>
