@@ -178,6 +178,9 @@ spec:
     - name: application_admin_sa_namespace
       type: string
       default: ""
+    - name: production_database_access_type
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -313,6 +316,8 @@ spec:
         value: $(params.application_admin_sa_name)
       - name: APPLICATION_ADMIN_SERVICE_ACCOUNT_NAMESPACE
         value: $(params.application_admin_sa_namespace)
+      - name: PRODUCTION_DATABASE_ACCESS_TYPE
+        value: $(params.production_database_access_type)
 
     envFrom:
       - configMapRef:

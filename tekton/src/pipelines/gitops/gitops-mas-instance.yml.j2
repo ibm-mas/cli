@@ -294,6 +294,9 @@ spec:
     - name: mas_use_service_mesh
       type: string
       default: ""
+    - name: production_database_access_type
+      type: string
+      default: ""
 
   tasks:
 
@@ -549,6 +552,8 @@ spec:
           value: $(params.mas_ingress_controller_name)
         - name: mas_use_service_mesh
           value: $(params.mas_use_service_mesh)
+        - name: production_database_access_type
+          value: $(params.production_database_access_type)
       taskRef:
         kind: Task
         name: gitops-suite
