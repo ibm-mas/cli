@@ -87,6 +87,7 @@ def generateNamespaceCollectionTasks(
         ("v1", "ServiceAccount"),
         ("rbac.authorization.k8s.io/v1", "Role"),
         ("rbac.authorization.k8s.io/v1", "RoleBinding"),
+        ("route.openshift.io/v1", "Route"),
         ("networking.k8s.io/v1", "NetworkPolicy"),
         ("networking.k8s.io/v1", "Ingress"),
         ("operators.coreos.com/v1alpha1", "Subscription"),
