@@ -266,9 +266,6 @@ spec:
     - name: provisioner_enable_mtls
       type: string
       default: ''
-    - name: provisioner_enable_pd_alert
-      type: string
-      default: ''
     - name: provisioner_enable_ocm_alert
       type: string
       default: ''
@@ -654,8 +651,6 @@ spec:
           value: $(params.provisioner_enable_mtls)
         - name: enable_ocm_alert
           value: $(params.provisioner_enable_ocm_alert)
-        - name: enable_pd_alert
-          value: $(params.provisioner_enable_pd_alert)
         - name: csb_client_ca_certificate_file
           value: $(params.provisioner_csb_client_ca_cert_file)
         - name: recommend_cluster
