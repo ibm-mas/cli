@@ -64,7 +64,6 @@ def addGrafanaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, n
                 namespace=ns,
                 outputDir=outputDir,
                 noLogs=noLogs,
-                secretData=False,
                 customResources=GRAFANA_RESOURCES,
                 ibmCRDs=ibmCRDs,
             )
