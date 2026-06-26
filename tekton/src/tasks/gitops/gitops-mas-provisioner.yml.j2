@@ -34,8 +34,6 @@ spec:
       type: string
     - name: enable_mtls
       type: string
-    - name: enable_pd_alert
-      type: string
     - name: enable_ocm_alert
       type: string
     - name: base_branch
@@ -98,8 +96,6 @@ spec:
         value: $(params.account_alias)
       - name: ENABLE_MTLS
         value: $(params.enable_mtls)
-      - name: ENABLE_PD_ALERT
-        value: $(params.enable_pd_alert)
       - name: ENABLE_OCM_ALERT
         value: $(params.enable_ocm_alert)
       - name: SERVICE_PORT
