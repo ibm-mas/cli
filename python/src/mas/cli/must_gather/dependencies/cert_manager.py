@@ -83,7 +83,6 @@ def addCertManagerToCollectionPlan(plan, dynClient: DynamicClient, outputDir: st
                 namespace=ns,
                 outputDir=outputDir,
                 noLogs=noLogs,
-                secretData=False,
                 customResources=CERT_MANAGER_RESOURCES,
                 ibmCRDs=ibmCRDs,
             )

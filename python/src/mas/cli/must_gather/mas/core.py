@@ -243,7 +243,6 @@ def _generateMASCoreCollectionTasks(
                 namespace=namespace,
                 outputDir=outputDir,
                 noLogs=noLogs,
-                secretData=False,  # MAS Core does not include secret data
                 customResources=None,  # No MAS-specific CRDs to add
                 ibmCRDs=ibmCRDs,
             )
