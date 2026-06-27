@@ -26,7 +26,6 @@ def generateNamespaceCollectionTasks(
     namespace: str,
     outputDir: str,
     noLogs: bool = False,
-    secretData: bool = False,
     customResources: Optional[List[Tuple[str, str]]] = None,
     ibmCRDs: Optional[List[Tuple[str, str]]] = None,
 ) -> List[Tuple]:
@@ -41,7 +40,6 @@ def generateNamespaceCollectionTasks(
         namespace (str): Target namespace for collection
         outputDir (str): Base output directory for collected resources
         noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        secretData (bool, optional): If True, include secret data in YAML. Defaults to False.
         customResources (list, optional): Custom CRD tuples (apiVersion, kind) specific to this namespace type. Defaults to None.
         ibmCRDs (list, optional): Additional IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
 
@@ -119,7 +117,6 @@ def generateNamespaceCollectionTasks(
             coreV1,
             namespace,
             outputDir,
-            secretData,
         )
     )
 
