@@ -11,7 +11,7 @@ spec:
     name: mas-fvt-iot
 
   taskRunTemplate:
-    serviceAccountName: pipeline
+    serviceAccountName: "{{ service_account_name }}"
   timeouts:
     pipeline: "8h"
 

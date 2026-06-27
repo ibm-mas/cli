@@ -77,7 +77,6 @@ def _generateCP4DCollectionTasks(
             namespace=namespace,
             outputDir=outputDir,
             noLogs=noLogs,
-            secretData=False,
             customResources=None,  # CP4D doesn't have specific CRDs to collect
             ibmCRDs=ibmCRDs,
         )

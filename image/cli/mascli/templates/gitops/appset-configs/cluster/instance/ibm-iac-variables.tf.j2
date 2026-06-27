@@ -251,6 +251,20 @@ variable "s3_iam_users_list_backup_iot" {
   }))
 }
 {%- endif %}
+{%- if (RDS_MONITOR | lower == 'true')%}
+variable "s3_iam_users_list_audit_log_monitor" {
+  description = "s3 user list"
+  type = map(object({
+    iam_user_name = string
+  }))
+}
+variable "s3_iam_users_list_backup_monitor" {
+  description = "s3 user list for backup"
+  type = map(object({
+    iam_user_name = string
+  }))
+}
+{%- endif %}
 {%- if (RDS_FACILITIES | lower == 'true')%}
 variable "s3_iam_users_list_audit_log_facilities" {
   description = "s3 user list"

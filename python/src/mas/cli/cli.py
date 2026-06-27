@@ -161,8 +161,16 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture: str | None = None
 
         self.compatibilityMatrix: Dict[str, Dict[str, List[str]]] = {
+            "9.2.x": {
+                "manage": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "optimizer": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "visualinspection": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "iot": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "monitor": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "predict": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "facilities": ["9.2.x", "9.2.x-feature", "9.1.x"],
+            },
             "9.2.x-feature": {
-                "aibroker": ["9.2.x-feature", "9.1.x"],
                 "manage": ["9.2.x-feature", "9.1.x"],
                 "optimizer": ["9.2.x-feature", "9.1.x"],
                 "visualinspection": ["9.2.x-feature", "9.1.x"],
@@ -180,7 +188,6 @@ class BaseApp(PrintMixin, PromptMixin):
                 "optimizer": ["9.1.x", "9.1.x-feature", "9.0.x"],
                 "predict": ["9.1.x", "9.0.x"],
                 "visualinspection": ["9.1.x", "9.1.x-feature", "9.0.x"],
-                "aibroker": ["9.1.x", "9.0.x"],
             },
             "9.1.x-feature": {
                 "assist": ["9.0.x"],
@@ -190,7 +197,6 @@ class BaseApp(PrintMixin, PromptMixin):
                 "optimizer": ["9.1.x-feature", "9.0.x"],
                 "predict": ["9.0.x"],
                 "visualinspection": ["9.1.x-feature", "9.0.x"],
-                "aibroker": ["9.0.x"],
             },
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
@@ -200,7 +206,6 @@ class BaseApp(PrintMixin, PromptMixin):
                 "optimizer": ["9.0.x", "8.5.x"],
                 "predict": ["9.0.x", "8.9.x"],
                 "visualinspection": ["9.0.x", "8.9.x"],
-                "aibroker": ["9.0.x"],
             },
             "8.11.x": {
                 "assist": ["8.8.x", "8.7.x"],
@@ -232,10 +237,12 @@ class BaseApp(PrintMixin, PromptMixin):
             "9.1.x": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>",
             "aibroker-9.1.x": " - <u>https://ibm.biz/MAS91-License</u>",
             "9.2.x-feature": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
+            "9.2.x": " - <u>https://ibm.biz/MAS92-License</u>\n - <u>https://ibm.biz/MAXIT92-License</u>\n - <u>https://ibm.biz/MAXESRI92-License</u>",
         }
 
         self.upgrade_path: Dict[str, str] = {
-            "9.1.x": "9.2.x-feature",
+            "9.2.x-feature": "9.2.x",
+            "9.1.x": "9.2.x",
             "9.1.x-feature": "9.1.x",
             "9.0.x": "9.1.x",
             "8.11.x": "9.0.x",
@@ -425,6 +432,35 @@ class BaseApp(PrintMixin, PromptMixin):
             logger.warning(f"Error: Unable to connect to OpenShift Container Platform: {e}")
             logger.exception(e, stack_info=True)
             return None
+
+    def getReconciledVersion(self, instance: Dict[str, Any]) -> str:
+        """
+        Get the reconciled version from an instance's status.
+
+        Checks if the instance is in a healthy state by verifying the presence of a reconciled version.
+        If the instance is unhealthy (missing reconciled version), triggers a fatal error with a clear message.
+
+        Args:
+            instance (dict): The instance resource dictionary containing metadata, kind, and status
+
+        Returns:
+            str: The reconciled version if the instance is healthy
+
+        Raises:
+            SystemExit: Via fatalError if the instance is unhealthy
+        """
+        instanceId = instance["metadata"]["name"]
+        instanceKind = instance.get("kind", "Instance")
+        reconciledVersion = instance.get("status", {}).get("versions", {}).get("reconciled")
+
+        if not reconciledVersion:
+            self.fatalError(
+                f"{instanceKind} '{instanceId}' is in an unhealthy state (missing reconciled version). "
+                f"We do not recommend (and thus do not support) continuing when there are unhealthy instances on the cluster. "
+                f"Please resolve the instance health issues before attempting to proceed."
+            )
+
+        return reconciledVersion
 
     @logMethodCall
     def connect(self) -> None:

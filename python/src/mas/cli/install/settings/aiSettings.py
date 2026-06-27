@@ -80,7 +80,8 @@ class AiSettingsMixin:
             except (ValueError, IndexError):
                 pass
 
-        # If MAS 9.1 or earlier, force disable AiCfg regardless of user input
+        # Skip AiCfg configuration silently for MAS 9.1 and earlier
+        # Do not display any warnings, messages, or step numbers
         if not is_mas_92_or_later:
             return
 
