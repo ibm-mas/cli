@@ -81,6 +81,10 @@ spec:
       - name: AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE
         value: $(params.aiservice_rhoai_model_deployment_type)
 
+  workspaces:
+    - name: configs
+      optional: true
+
   steps:
     - name: aiservice-rhoai
       command:

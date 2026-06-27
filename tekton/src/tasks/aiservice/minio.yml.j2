@@ -63,6 +63,10 @@ spec:
       - name: MINIO_ROOT_PASSWORD
         value: $(params.minio_root_password)
 
+  workspaces:
+    - name: configs
+      optional: true
+
   steps:
     - name: minio
       command:
