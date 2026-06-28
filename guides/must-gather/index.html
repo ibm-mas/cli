@@ -477,21 +477,15 @@
     <tr>
       <td><code>--collectors</code></td>
       <td><code>validateCollectors</code></td>
-      <td><code>ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,rhoai,aiservice,lic</code></td>
+      <td><code>ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,rhoai,aiservice,lic,pipelines</code></td>
       <td>Comma-separated list of collectors to run (default: all)
-Available collectors: ocp, db2, kafka, mongodb, cp4d, cert-manager, grafana, sls, mas, rhoai, aiservice, lic</td>
+Available collectors: ocp, db2, kafka, mongodb, cp4d, cert-manager, grafana, sls, mas, rhoai, aiservice, lic, pipelines</td>
     </tr>
     <tr>
       <td><code>--no-logs</code></td>
       <td>flag</td>
       <td><code>false</code></td>
       <td>Skip collection of pod logs, greatly speeds up must-gather collection time</td>
-    </tr>
-    <tr>
-      <td><code>--secret-data</code></td>
-      <td>flag</td>
-      <td><code>false</code></td>
-      <td>Include secrets content in the must-gather</td>
     </tr>
   </tbody>
 </table>
