@@ -533,6 +533,9 @@ spec:
     # 2.gitops-rhoai
     # -------------------------------------------------------------------------
     - name: gitops-rhoai
+    
+      runAfter:
+        - gitops-db2u-database
       when:
         - input: "$(params.ai_platform)"
           operator: in
