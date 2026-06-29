@@ -31,9 +31,8 @@ MAS PROVISIONER OPERATOR:
       --csb-client-ca-certificate-file ${COLOR_YELLOW}CSB_CLIENT_CA_CERTIFICATE_FILE${TEXT_RESET} Location of the file containing the CA certificate from MCSP CSB. Can provide when ENABLE_MTLS is set or a client auth cert would be provided in the cluster for use in test cases.
       --service-port ${COLOR_YELLOW}SERVICE_PORT${TEXT_RESET}                                     Service port. Defaults to 7329
       --base-branch ${COLOR_YELLOW}BASE_BRANCH${TEXT_RESET}                                       The reference branch that will be cloned during processing of the order in case the master branch is not used. Default is master
-      --async-poll-interval ${COLOR_YELLOW}ASYNC_POLL_INTERVAL${TEXT_RESET}                       The intervals in seconds between each poll from MCSP to check the status of the orders. Default is 600
-      --async-poll-max ${COLOR_YELLOW}ASYNC_POLL_MAX${TEXT_RESET}                                 The maximum amount of time in seconds for MCSP to keep polling to check the status of an order. Default is 864000
-      --enable-pd-alert ${COLOR_YELLOW}ENABLE_PD_ALERT${TEXT_RESET}                               Turn PagerDuty alerts on/off. Default is false
+      --async-poll-interval ${COLOR_YELLOW}ASYNC_POLL_INTERVAL${TEXT_RESET}                       The intervals in seconds between each poll from MCSP to check the status of the orders. Default is "600"
+      --async-poll-max ${COLOR_YELLOW}ASYNC_POLL_MAX${TEXT_RESET}                                 The maximum amount of time in seconds for MCSP to keep polling to check the status of an order. Default is "864000"
       --enable-ocm-alert ${COLOR_YELLOW}ENABLE_OCM_ALERT${TEXT_RESET}                             Turn On Call Manager alerts on/off. Default is false
       --recommend-cluster ${COLOR_YELLOW}RECOMMEND_CLUSTER${TEXT_RESET}                           Turn cluster recommendation which uses Instana on/off. Default is false
       --instana-url-prefix ${COLOR_YELLOW}INSTANA_URL_PREFIX${TEXT_RESET}                         The suffix "/api/infrastructure-monitoring/analyze/entities" is appended to the url prefix to make api calls to instana
@@ -133,9 +132,6 @@ function gitops_mas_provisioner_noninteractive() {
       --async-poll-max)
         export ASYNC_POLL_MAX=$1 && shift
         ;;
-      --enable-pd-alert)
-        export ENABLE_PD_ALERT=true
-        ;;
       --enable-ocm-alert)
         export ENABLE_OCM_ALERT=true
         ;;
@@ -227,7 +223,6 @@ function gitops_mas_provisioner() {
   # set default values of envs if not provided
   export ENABLE_MTLS=${ENABLE_MTLS:-false}
   export ENABLE_OCM_ALERT=${ENABLE_OCM_ALERT:-false}
-  export ENABLE_PD_ALERT=${ENABLE_PD_ALERT:-false}
   export PROVISIONER_VERSION=${PROVISIONER_VERSION:-latest}
   export PROVISIONER_NAMESPACE=${PROVISIONER_NAMESPACE:-"mas-provisioner"}
   export BASE_BRANCH=${BASE_BRANCH:-master}
@@ -281,7 +276,6 @@ function gitops_mas_provisioner() {
   echo_reset_dim "MAS Annotations Repo URL ................ ${COLOR_MAGENTA}${MAS_ANNOTATIONS_REPO_URL}"
   echo_reset_dim "Base Branch ............................. ${COLOR_MAGENTA}${BASE_BRANCH}"
   echo_reset_dim "Enable MTLS ............................. ${COLOR_MAGENTA}${ENABLE_MTLS}"
-  echo_reset_dim "Enable PD Alert ......................... ${COLOR_MAGENTA}${ENABLE_PD_ALERT}"
   echo_reset_dim "Enable OCM Alert ........................ ${COLOR_MAGENTA}${ENABLE_OCM_ALERT}"
   echo_reset_dim "Recommend Cluster ....................... ${COLOR_MAGENTA}${RECOMMEND_CLUSTER}"
   reset_colors
@@ -326,19 +320,6 @@ function gitops_mas_provisioner() {
     echo "- Update GITHUB_PAT secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret ${SECRET_NAME_GITHUB_TOKEN} "{\"token\": \"${GITHUB_PAT}\"}" "${TAGS}"
-  fi
-
-  if [ "$ENABLE_PD_ALERT" == "true" ]; then
-    if [ -n "$PAGERDUTY_KEY" ]; then
-      export SECRET_NAME_PAGERDUTY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd
-      export SECRET_KEY_PAGERDUTY=${SECRET_NAME_PAGERDUTY}#key
-      echo "- Update PAGERDUTY_KEY secret"
-      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-      sm_update_secret ${SECRET_NAME_PAGERDUTY} "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
-    else
-      echo_warning "'ENABLE_PD_ALERT' has been set but 'PAGERDUTY_KEY' was not provided"
-      exit 1
-    fi
   fi
 
   if [ "$ENABLE_OCM_ALERT" == "true" ]; then
