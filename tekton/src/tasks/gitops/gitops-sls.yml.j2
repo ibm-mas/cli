@@ -25,7 +25,7 @@ spec:
       type: string
     - name: dns_provider
       type: string
-    - name: cis_service_name
+    - name: cis_domain
       type: string
     - name: cis_crn
       type: string
@@ -84,8 +84,8 @@ spec:
         value: $(params.ocp_cluster_domain)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
-      - name: CIS_SERVICE_NAME
-        value: $(params.cis_service_name)
+      - name: CIS_DOMAIN
+        value: $(params.cis_domain)
       - name: CIS_CRN
         value: $(params.cis_crn)
       - name: SECRETS_PATH
@@ -131,13 +131,13 @@ spec:
         mas gitops-suite-license-service -d $WORKING_DIR -a $ACCOUNT -c $CLUSTER_NAME --ibm-customer-number ${ICN} --subscription-id ${SAAS_SUB_ID} \
         --secrets-path "${SECRETS_PATH}" --domain ${SLS_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN} \
         --cluster-url ${CLUSTER_URL} --github-push
-        
+
       command:
         - /bin/sh
         - -c
       name: gitops-sls
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: shared-entitlement
     - name: configs

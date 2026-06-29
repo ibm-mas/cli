@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -96,8 +96,6 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --dev-mode{newline}"
         if self.getParam("skip_pre_check") is True:
             command += f"  --skip-pre-check{newline}"
-        if self.admin_mode != "":
-            command += f'  --admin-mode "{self.admin_mode}"{newline}'
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam("service_account_name") != "":

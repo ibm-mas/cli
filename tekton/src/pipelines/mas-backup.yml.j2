@@ -300,6 +300,8 @@ spec:
           value: /workspace/backups
         - name: mas_app_backup_version
           value: $(params.backup_version)
+        - name: backup_app_include_pvc
+          value: $(params.backup_manage_include_pvc)
 
       taskRef:
         kind: Task
@@ -380,6 +382,8 @@ spec:
           value: /workspace/backups
         - name: mas_app_backup_version
           value: $(params.backup_version)
+        - name: backup_app_include_pvc
+          value: $(params.backup_facilities_include_pvc)
 
       taskRef:
         kind: Task

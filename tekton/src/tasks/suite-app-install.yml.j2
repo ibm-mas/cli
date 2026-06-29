@@ -349,6 +349,10 @@ spec:
       type: string
       description: Define storage mode for userfiles
       default: ""
+    - name: mas_ws_facilities_server_timezone
+      type: string
+      description: Define facilities server timezone. Set this only if the Facilities DB is using a timezone other than UTC.
+      default: "UTC"
     - name: mas_ws_facilities_config_map_name
       type: string
       description: ConfigMap with configurations not supported by Tekton
@@ -365,9 +369,61 @@ spec:
       type: string
       description: Name of the secret containing custom FACILITIES.properties
       default: ""
+    - name: mas_ws_facilities_dataconnectagent_deploymentmode
+      description: Agent dataconnectagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_extendedformulaagent_deploymentmode
+      description: Agent extendedformulaagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_formularecalcagent_deploymentmode
+      description: Agent formularecalcagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_incomingmailagent_deploymentmode
+      description: Agent incomingmailagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_maintenanceagent_deploymentmode
+      description: Agent maintenanceagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_objectmigrationagent_deploymentmode
+      description: Agent objectmigrationagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_objectpublishagent_deploymentmode
+      description: Agent objectpublishagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_reportqueueagent_deploymentmode
+      description: Agent reportqueueagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_wfagent_deploymentmode
+      description: Agent wfagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_wffutureagent_deploymentmode
+      description: Agent wffutureagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_wfnotificationagent_deploymentmode
+      description: Agent wfnotificationagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_reservesmtpagent_deploymentmode
+      description: Agent reservesmtpagent deployment mode
+      type: string
+      default: ""
+    - name: mas_ws_facilities_scheduleragent_deploymentmode
+      description: Agent scheduleragent deployment mode
+      type: string
+      default: ""
 
   stepTemplate:
-    image: quay.io/ibmmas/cli:latest
+    image: "quay.io/ibmmas/cli:latest"
     imagePullPolicy: $(params.image_pull_policy)
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(6) }}
@@ -402,6 +458,9 @@ spec:
         # Entitlement
         - name: IBM_ENTITLEMENT_KEY
           value: $(params.ibm_entitlement_key)
+
+        - name: MAS_USE_SERVICE_MESH
+          value: $(params.mas_use_service_mesh)
 
         # Application - Operator
         - name: MAS_APP_CHANNEL
@@ -584,12 +643,40 @@ spec:
           value: $(params.mas_ws_facilities_config_map_name)
         - name: MAS_FACILITIES_APP_OM_UPGRADE_MODE
           value: $(params.mas_ws_facilities_app_om_upgrade_mode)
+        - name: MAS_FACILITIES_SERVER_TIMEZONE
+          value: $(params.mas_ws_facilities_server_timezone)
         - name: MAS_FACILITIES_CUSTOM_PROPERTIES
           value: $(params.mas_ws_facilities_custom_properties)
         - name: MAS_FACILITIES_PROPERTIES_FILE_LOCAL
           value: $(params.mas_ws_facilities_properties_file_local)
         - name: MAS_FACILITIES_PROPERTIES_SECRET_NAME
           value: $(params.mas_ws_facilities_properties_secret_name)
+        - name: MAS_FACILITIES_DATACONNECTAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_dataconnectagent_deploymentmode)
+        - name: MAS_FACILITIES_EXTENDEDFORMULAAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_extendedformulaagent_deploymentmode)
+        - name: MAS_FACILITIES_FORMULARECALCAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_formularecalcagent_deploymentmode)
+        - name: MAS_FACILITIES_INCOMINGMAILAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_incomingmailagent_deploymentmode)
+        - name: MAS_FACILITIES_MAINTENANCEAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_maintenanceagent_deploymentmode)
+        - name: MAS_FACILITIES_OBJECTMIGRATIONAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_objectmigrationagent_deploymentmode)
+        - name: MAS_WS_FACILITIES_OBJECTPUBLISHAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_objectpublishagent_deploymentmode)
+        - name: MAS_FACILITIES_REPORTQUEUEAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_reportqueueagent_deploymentmode)
+        - name: MAS_FACILITIES_WFAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_wfagent_deploymentmode)
+        - name: MAS_FACILITIES_WFFUTUREAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_wffutureagent_deploymentmode)
+        - name: MAS_FACILITIES_WFNOTIFICATIONAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_wfnotificationagent_deploymentmode)
+        - name: MAS_FACILITIES_RESERVESMTPAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_reservesmtpagent_deploymentmode)
+        - name: MAS_FACILITIES_SCHEDULERAGENT_DEPLOYMENTMODE
+          value: $(params.mas_ws_facilities_scheduleragent_deploymentmode)
 
     - name: app-wait-for-approval
       # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
