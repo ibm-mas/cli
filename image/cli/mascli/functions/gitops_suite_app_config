@@ -55,6 +55,11 @@ Maximo Manage:
       --mas-app-global-secrets-yaml ${COLOR_YELLOW}MAS_APP_GLOBAL_SECRETS_YAML${TEXT_RESET}               Yaml file location containing secret key/values that will be added to the Manage encryption secret
       --manage-update-schedule ${COLOR_YELLOW}MANAGE_UPDATE_SCHEDULE${TEXT_RESET}                         Cron based schedule to indicate when manage will do the offline update when the onlineUpgrade is set in the ManageWorkspace CR. Optional as default is  "0 0 * * *"
 
+SLS License Configuration:
+      --sls-license-icn ${COLOR_YELLOW}SLS_LICENSE_ICN${TEXT_RESET}                                       SLS License ICN (Installation Customer Number)
+      --license-file ${COLOR_YELLOW}LICENSE_FILE${TEXT_RESET}                                             Path to SLS license file (ICN will be extracted)
+      --centralized-sls-service ${COLOR_YELLOW}CENTRALIZED_SLS_SERVICE${TEXT_RESET}                       Centralized SLS service path
+
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                             Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                           Secrets Manager key seperator string
@@ -175,6 +180,17 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       --manage-update-schedule)
         export MANAGE_UPDATE_SCHEDULE=$1 && shift
+        ;;
+      
+      # SLS License Configuration
+      --sls-license-icn)
+        export SLS_LICENSE_ICN=$1 && shift
+        ;;
+      --license-file)
+        export LICENSE_FILE=$1 && shift
+        ;;
+      --centralized-sls-service)
+        export CENTRALIZED_SLS_SERVICE=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -414,20 +430,6 @@ function gitops_suite_app_config() {
       fi
     else
       echo "- WARNING: License file is empty (${FILE_SIZE} bytes), skipping extraction"
-    fi
-  fi
-  
-  # Try SLS_LICENSE_FILE if LICENSE_FILE didn't work
-  if [[ -z "${ICN}" ]] && [[ -n "${SLS_LICENSE_FILE}" ]] && [[ -f "${SLS_LICENSE_FILE}" ]]; then
-    echo "- Attempting to extract ICN from SLS license file: ${SLS_LICENSE_FILE}"
-    FILE_SIZE=$(stat -c%s "${SLS_LICENSE_FILE}" 2>/dev/null || stat -f%z "${SLS_LICENSE_FILE}" 2>/dev/null || echo "0")
-    if [[ "${FILE_SIZE}" -gt 0 ]]; then
-      ICN=$(grep -oP 'ICN:\K[0-9A-Za-z]+' "${SLS_LICENSE_FILE}" 2>/dev/null | head -1 || true)
-      if [[ -n "${ICN}" ]]; then
-        echo "- ICN extracted from SLS license file: ${ICN}"
-      fi
-    else
-      echo "- WARNING: SLS license file is empty (${FILE_SIZE} bytes), skipping extraction"
     fi
   fi
   
@@ -671,13 +673,6 @@ function gitops_suite_app_config() {
         echo "ERROR: ICN is required for Facilities customer-level secrets"
         echo "Please configure ICN via SLS_LICENSE_ICN, CENTRALIZED_SLS_SERVICE, or LICENSE_FILE"
         exit 1
-      fi
-      
-      # Sanitize ICN to prevent path injection (allow only alphanumeric, underscore, hyphen)
-      SANITIZED_ICN=$(echo "${ICN}" | tr -cd 'A-Za-z0-9_-')
-      if [[ "${ICN}" != "${SANITIZED_ICN}" ]]; then
-        echo "WARNING: ICN contained invalid characters, sanitized from '${ICN}' to '${SANITIZED_ICN}'"
-        ICN="${SANITIZED_ICN}"
       fi
       
       # Set customer-level secret path (without trailing separator)
