@@ -63,7 +63,6 @@ def addMongoDBToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, n
                 namespace=ns,
                 outputDir=outputDir,
                 noLogs=noLogs,
-                secretData=False,
                 customResources=MONGODB_RESOURCES,
                 ibmCRDs=ibmCRDs,
             )

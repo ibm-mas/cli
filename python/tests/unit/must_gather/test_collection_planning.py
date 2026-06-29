@@ -35,7 +35,6 @@ def test_collection_plan_can_be_built_with_namespace_tasks():
             namespace=namespace,
             outputDir=outputDir,
             noLogs=False,
-            secretData=False,
             customResources=None,
             ibmCRDs=None,
         )
@@ -74,7 +73,6 @@ def test_collection_plan_preserves_task_order():
         namespace="strimzi",
         outputDir=outputDir,
         noLogs=False,
-        secretData=False,
         customResources=None,
         ibmCRDs=ibmCRDs,
     )
@@ -87,8 +85,8 @@ def test_collection_plan_preserves_task_order():
     group = plan.groups[0]
     taskNames = [task[0] for task in group.tasks]
 
-    # Should have: 1 IBM CRD task (ibm_suite) + 17 standard resource tasks + 1 secrets task = 19 tasks
-    assert len(taskNames) == 19
+    # Should have: 1 IBM CRD task (ibm_suite) + 18 standard resource tasks + 1 secrets task = 20 tasks
+    assert len(taskNames) == 20
 
     # Verify IBM CRDs come first
     assert taskNames[0] == "ibm_suite"

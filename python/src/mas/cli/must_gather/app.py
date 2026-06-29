@@ -14,8 +14,11 @@ import hashlib
 import logging
 import os
 
+from halo import Halo
 import requests
-from mas.cli import BaseApp
+
+from ..cli import BaseApp
+
 from .arg_parser import mustGatherArgParser
 from .output import OutputManager
 from .timer import Timer
@@ -26,7 +29,6 @@ from .aiservice import instance as aiservice_instance
 from .argo import applications as argo
 from .common.task_generation import generateNamespaceCollectionTasks
 from . import web_viewer
-from halo import Halo
 
 logger = logging.getLogger(__name__)
 
@@ -406,12 +408,12 @@ class MustGatherApp(BaseApp):
         else:
             logger.debug("Skipping SLS collection (not in collectors list)")
 
+        masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
+        masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
+
         # MAS Discovery (triggered by 'mas' or 'lic' collector)
         if "mas" in enabledCollectors or "lic" in enabledCollectors:
             try:
-                masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
-                masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
-
                 # Add MAS Core collection tasks
                 coreNamespaces = mas_core.addMASCoreToCollectionPlan(
                     plan=plan,
@@ -436,20 +438,24 @@ class MustGatherApp(BaseApp):
                             masAppIds=masAppIds,
                         )
 
-                        # Add MAS Pipelines collection tasks
-                        mas_pipelines.addMASPipelinesToCollectionPlan(
-                            plan=plan,
-                            dynClient=self.dynamicClient,
-                            outputDir=outputDir,
-                            noLogs=parsedArgs.no_logs,
-                            ibmCRDs=self.ibmCRDsList,
-                        )
                 else:
                     logger.debug("No MAS instances discovered")
             except Exception as e:
                 logger.warning(f"⚠️ MAS discovery failed: {e}")
         else:
             logger.debug("Skipping MAS collection (not in collectors list)")
+
+        # Tekton Pipeline Discovery
+        if "pipelines" in enabledCollectors:
+            mas_pipelines.addMASPipelinesToCollectionPlan(
+                plan=plan,
+                dynClient=self.dynamicClient,
+                outputDir=outputDir,
+                noLogs=parsedArgs.no_logs,
+                masInstanceIds=masInstanceIds,
+            )
+        else:
+            logger.debug("Skipping Tekton Pipeline collection (not in collectors list)")
 
         # AI Service Discovery
         if "aiservice" in enabledCollectors:
@@ -464,13 +470,16 @@ class MustGatherApp(BaseApp):
             logger.debug("Skipping AI Service collection (not in collectors list)")
 
         # Argo Discovery
-        argo.addArgoToCollectionPlan(
-            plan=plan,
-            dynClient=self.dynamicClient,
-            outputDir=outputDir,
-            noLogs=parsedArgs.no_logs,
-            ibmCRDs=self.ibmCRDsList,
-        )
+        if "argo" in enabledCollectors:
+            argo.addArgoToCollectionPlan(
+                plan=plan,
+                dynClient=self.dynamicClient,
+                outputDir=outputDir,
+                noLogs=parsedArgs.no_logs,
+                ibmCRDs=self.ibmCRDsList,
+            )
+        else:
+            logger.debug("Skipping ArgoCD collection (not in collectors list)")
 
         # Extra Namespaces Discovery
         if parsedArgs.extra_namespaces:
@@ -483,7 +492,6 @@ class MustGatherApp(BaseApp):
                     namespace=namespace,
                     outputDir=outputDir,
                     noLogs=parsedArgs.no_logs,
-                    secretData=False,
                     customResources=None,
                     ibmCRDs=self.ibmCRDsList,
                 )
