@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-suite-workspace
@@ -29,7 +29,6 @@ spec:
     - name: github_host
       type: string
   stepTemplate:
-    name: gitops-deprovision-suite-workspace
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
