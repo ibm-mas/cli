@@ -86,7 +86,6 @@ def _generateRHOAICollectionTasks(
         namespace=namespace,
         outputDir=outputDir,
         noLogs=noLogs,
-        secretData=False,
         customResources=customResources,
         ibmCRDs=ibmCRDs,
     )
