@@ -34,8 +34,6 @@ spec:
       type: string
     - name: enable_mtls
       type: string
-    - name: enable_pd_alert
-      type: string
     - name: enable_ocm_alert
       type: string
     - name: base_branch
@@ -98,8 +96,6 @@ spec:
         value: $(params.account_alias)
       - name: ENABLE_MTLS
         value: $(params.enable_mtls)
-      - name: ENABLE_PD_ALERT
-        value: $(params.enable_pd_alert)
       - name: ENABLE_OCM_ALERT
         value: $(params.enable_ocm_alert)
       - name: SERVICE_PORT
@@ -132,7 +128,7 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-        
+
         mkdir -p /tmp/init-mas-provisioner
         mas gitops-mas-provisioner -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-mas-provisioner \
@@ -149,7 +145,7 @@ spec:
         - -c
       name: gitops-mas-provisioner
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: gitops-cluster-configs

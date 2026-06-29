@@ -16,7 +16,7 @@ from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
-from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser
@@ -101,7 +101,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
             for instance in masInstances:
                 instanceId = instance["metadata"]["name"]
-                currentVersion = instance.get("status", {}).get("versions", {}).get("reconciled", "")
+                currentVersion = self.getReconciledVersion(instance)
 
                 if self.shouldApplyRBACForInstance(instanceId, currentVersion, self.chosenCatalog):
                     channel = getMasChannel(self.dynamicClient, instanceId)
@@ -196,7 +196,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 if key in requiredParams:
                     if value is None:
                         self.fatalError(f"{key} must be set")
-                    self.setParam(key, value)
+                    else:
+                        self.setParam(key, value)
 
                 # These fields we just pass straight through to the parameters
                 elif key in optionalParams:
@@ -290,6 +291,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
         self.printH2("IBM Maximo Operator Catalog")
+        assert self.installedCatalogId is not None, "Catalog ID is not set"
         self.printSummary("Installed Catalog", self.installedCatalogId)
         self.printSummary("Updated Catalog", self.getParam("mas_catalog_version"))
 
@@ -430,7 +432,10 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
             self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
-                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+                instanceId = instance["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(instance)
+
+                self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
             return True
         except ResourceNotFoundError:
             if instanceParamKey != "":
@@ -443,16 +448,16 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) May 27 2026 Update (MAS 9.1.18, 9.0.26, 8.11.34, &amp; 8.10.37)",
-                "  2) Apr 30 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
-                "  3) Mar 26 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
+                "  1) Jun 25 2026 Update (MAS 9.2.0, 9.1.19, 9.0.27, 8.11.34, &amp; 8.10.37)",
+                "  2) May 27 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
+                "  3) Apr 30 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
             ]
         )
 
         catalogOptions = [
+            "v9-260625-amd64",
             "v9-260527-amd64",
             "v9-260430-amd64",
-            "v9-260326-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 

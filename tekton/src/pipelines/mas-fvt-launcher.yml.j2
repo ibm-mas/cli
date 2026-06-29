@@ -155,7 +155,7 @@ spec:
     - name: config
       taskRef:
         kind: Task
-        name: mas-config-helper
+        name: mas-fvt-config-helper
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -460,7 +460,7 @@ spec:
         # All these launchers require manage in place to then run setup, therefore the criteria
         - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_manage_ai)$(params.launchfvt_predict)$(params.launchivt_manage)
           operator: notin
-          values: ["falsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
+          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify
       runAfter:
         - approval-suite-verify
 

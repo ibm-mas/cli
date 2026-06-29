@@ -13,7 +13,6 @@ mas_provisioner:
   base_branch: {{ BASE_BRANCH }}
   async_poll_interval: {{ ASYNC_POLL_INTERVAL }}
   async_poll_max: {{ ASYNC_POLL_MAX }}
-  enable_pd_alert: {{ ENABLE_PD_ALERT }}
   enable_ocm_alert: {{ ENABLE_OCM_ALERT }}
   github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
   {% if PROVISIONER_STORAGE_CLASS is defined and PROVISIONER_STORAGE_CLASS != "" %}
@@ -31,7 +30,4 @@ mas_provisioner:
   {% endif %}
   {% if SECRET_KEY_OCM_API is defined and SECRET_KEY_OCM_API != "" %}
   ocm_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OCM_API }}>"
-  {% endif %}
-  {% if SECRET_KEY_PAGERDUTY is defined and SECRET_KEY_PAGERDUTY != "" %}
-  pagerduty_integration: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_PAGERDUTY }}>"
   {% endif %}

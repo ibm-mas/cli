@@ -65,7 +65,6 @@ def addKafkaToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noL
                 namespace=ns,
                 outputDir=outputDir,
                 noLogs=noLogs,
-                secretData=False,
                 customResources=KAFKA_RESOURCES,
                 ibmCRDs=ibmCRDs,
             )

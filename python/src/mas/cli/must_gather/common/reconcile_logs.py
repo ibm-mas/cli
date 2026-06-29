@@ -84,6 +84,36 @@ def _findPodByLabel(namespace: str, labelSelector: str, labelValue: str) -> Opti
         return None
 
 
+def _checkRunnerDirectoryExists(coreV1Api: client.CoreV1Api, namespace: str, podName: str) -> bool:
+    """Check if ansible-operator runner directory exists in pod.
+
+    Args:
+        coreV1Api (CoreV1Api): Kubernetes core API client
+        namespace (str): Pod namespace
+        podName (str): Pod name
+
+    Returns:
+        bool: True if directory exists, False otherwise
+    """
+    try:
+        execCommand = ["test", "-d", "/tmp/ansible-operator/runner"]
+        stream(
+            coreV1Api.connect_get_namespaced_pod_exec,
+            podName,
+            namespace,
+            command=execCommand,
+            stderr=True,
+            stdin=False,
+            stdout=True,
+            tty=False,
+        )
+        # test command returns exit code 0 if directory exists
+        return True
+    except Exception:
+        # test command returns non-zero exit code if directory doesn't exist
+        return False
+
+
 def _findReconcileLogFiles(coreV1Api: client.CoreV1Api, namespace: str, podName: str) -> list[str]:
     """Find reconcile log files in operator pod.
 
@@ -326,6 +356,11 @@ def collectReconcileLogs(
     # Create thread-local CoreV1Api client for thread-safety
     dynClient = createThreadLocalDynamicClient()
     coreV1Api = client.CoreV1Api(api_client=dynClient.client)
+
+    # Check if ansible-operator runner directory exists
+    if not _checkRunnerDirectoryExists(coreV1Api, namespace, podName):
+        logger.debug(f"Ansible operator runner directory not found in pod {podName} - skipping reconcile log collection")
+        return True  # Graceful handling - not an Ansible operator or no reconciliations yet
 
     # Find reconcile log files
     logFiles = _findReconcileLogFiles(coreV1Api, namespace, podName)

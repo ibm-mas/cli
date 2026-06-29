@@ -269,7 +269,7 @@ spec:
         mkdir -p $SOURCE_LOCAL_DIR
         cd $SOURCE_LOCAL_DIR
         echo "git: Cloning $GITHUB_HOST:$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO branch $SOURCE_GIT_BRANCH into $SOURCE_LOCAL_DIR working directory"
-        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO.git -b $SOURCE_GIT_BRANCH || exit 
+        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO.git -b $SOURCE_GIT_BRANCH || exit
 
         mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
 
@@ -290,7 +290,7 @@ spec:
         process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
 
         # ICN folder will be created later after extracting ICN and SAAS_SUB_ID
-       
+
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
         if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
 
@@ -301,7 +301,7 @@ spec:
 
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
 
-          # Copy manual certs of mas_instance 
+          # Copy manual certs of mas_instance
           cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
 
           # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
@@ -338,7 +338,7 @@ spec:
         # Update the provisioner_domain in cluster-params.yaml.
         yq -i '(. | select(has("mas_provisioner")) |  .mas_provisioner.provisioner_domain) = env(APPSDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
 
-        # Update the channel in the mas-instance-params.yaml. 
+        # Update the channel in the mas-instance-params.yaml.
         yq -i '.mas_instance.channel = env(MAS_CHANNEL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
 
         # Update the operationalmode in the mas-instance-params.yaml.
@@ -439,62 +439,62 @@ spec:
         # Check if CENTRALISED_SLS is set to true
 
         if [[ "${CENTRALISED_SLS}" == true ]]; then
-     
+
           # Create ICN folder structure and copy files
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
           echo "gitops-mas-initiator: Copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
           cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
-          
+
           # Process any .j2 files in ICN folder
           process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
 
           # Now extract ICN and SAAS_SUB_ID from sls.sls_service parameter
           SLS_SERVICE=$(yq '.sls.sls_service // ""' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml)
-          
+
           if [ -z "$SLS_SERVICE" ]; then
             echo "Error: CENTRALISED_SLS is true but no SLS service reference found in mas-instance-params.yaml" >&2
             exit 1
           fi
-          
+
           echo "gitops-mas-initiator: Found SLS service reference: $SLS_SERVICE"
-          
+
           # Clean the path by removing <ref: and >
           CLEAN_PATH=$(echo "$SLS_SERVICE" | sed 's#<ref:##; s#>##')
-          
+
           # Split path by / and extract ICN and SAAS_SUB_ID
           IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
-          
+
           {% raw %}
           if [ ${#PARTS[@]} -lt 6 ]; then
           {% endraw %}
             echo "Error: Invalid SLS service parameter file Path $SLS_SERVICE format." >&2
             exit 1
           fi
-          
+
           # Extract ICN (4th element, index 3) and SAAS_SUB_ID (5th element, index 4)
           export ICN="${PARTS[3]}"
           export SAAS_SUB_ID="${PARTS[4]}"
-          
+
           # Validate extracted values
           if [ -z "$ICN" ] || [ -z "$SAAS_SUB_ID" ]; then
             echo "Error: Failed to extract ICN or SAAS_SUB_ID from SLS service path: $SLS_SERVICE" >&2
             exit 1
           fi
-          
+
           echo "gitops-mas-initiator: Extracted ICN from SLS service: $ICN"
           echo "gitops-mas-initiator: Extracted SAAS_SUB_ID from SLS service: $SAAS_SUB_ID"
-          
+
           # Set the ICN file path for later use in skip deploy section
           ICN_FILE_PATH="$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/$ICN/$SAAS_SUB_ID/sls-params.yaml"
-          
-          # Update sls.domain in sls-params.yaml 
+
+          # Update sls.domain in sls-params.yaml
           if [[ -f "$ICN_FILE_PATH" ]]; then
             echo "gitops-mas-initiator: Updating sls.domain in $ICN_FILE_PATH to $APPSDOMAIN"
             yq -i '.sls.domain = env(APPSDOMAIN)' "$ICN_FILE_PATH"
           else
             echo "gitops-mas-initiator: Warning - sls-params.yaml not found at $ICN_FILE_PATH"
           fi
- 
+
         else
           echo "gitops-mas-initiator: CENTRALISED_SLS not true, skipping ICN setup"
         fi
@@ -514,7 +514,7 @@ spec:
         else
             echo "Commit message starts with [skip deploy], no changes made."
         fi
-      
+
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
         FILES_ADDED_OUTPUT="$(git add -v .)"
         return_code=$?
@@ -549,12 +549,12 @@ spec:
               sleep 10
               break
             fi
-          
+
             if [[ ${index} -eq ${retries} ]]; then
               echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed even after $retries retries, exit with error"
               exit 1
             fi
-            echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed, retry after $interval sec ..."      
+            echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed, retry after $interval sec ..."
             sleep $interval
             ((index++))
           done
@@ -567,7 +567,7 @@ spec:
         - -c
       name: gitops-mas-initiator
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
-    
+

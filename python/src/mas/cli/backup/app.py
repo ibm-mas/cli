@@ -15,7 +15,7 @@ from halo import Halo
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
-from openshift.dynamic.exceptions import ResourceNotFoundError
+from kubernetes.dynamic.exceptions import ResourceNotFoundError
 
 from ..cli import BaseApp
 from ..validators import InstanceIDValidator, StorageClassValidator
@@ -270,7 +270,10 @@ class BackupApp(BaseApp):
             instances = listMasInstances(self.dynamicClient)
             self.printDescription(["The following MAS instances are installed on the target cluster:"])
             for instance in instances:
-                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+                instanceId = instance["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(instance)
+
+                self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
             return True
         except ResourceNotFoundError:
             self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])
@@ -284,13 +287,18 @@ class BackupApp(BaseApp):
                 self.fatalError("No MAS instances found on the cluster")
             elif len(instances) == 1:
                 instanceId = instances[0]["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(instances[0])
+
                 self.setParam("mas_instance_id", instanceId)
                 self.printDescription([f"Using MAS instance: <u>{instanceId}</u>"])
             else:
                 instanceOptions = []
                 for instance in instances:
-                    self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
-                    instanceOptions.append(instance["metadata"]["name"])
+                    instanceId = instance["metadata"]["name"]
+                    reconciledVersion = self.getReconciledVersion(instance)
+
+                    self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
+                    instanceOptions.append(instanceId)
 
                 instanceCompleter = WordCompleter(instanceOptions)
                 print()

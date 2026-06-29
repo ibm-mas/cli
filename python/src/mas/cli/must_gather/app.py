@@ -14,8 +14,11 @@ import hashlib
 import logging
 import os
 
+from halo import Halo
 import requests
-from mas.cli import BaseApp
+
+from ..cli import BaseApp
+
 from .arg_parser import mustGatherArgParser
 from .output import OutputManager
 from .timer import Timer
@@ -26,7 +29,6 @@ from .aiservice import instance as aiservice_instance
 from .argo import applications as argo
 from .common.task_generation import generateNamespaceCollectionTasks
 from . import web_viewer
-from halo import Halo
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +76,10 @@ class MustGatherApp(BaseApp):
 
             return serve_viewer(directory=parsedArgs.dir, port=parsedArgs.port)
 
+        # Handle summarize command
+        if parsedArgs.command == "summarize":
+            return self._summarizeMustGather(parsedArgs)
+
         # Handle collect command (default) or when no command specified
         # If no command specified, treat as collect for backward compatibility
         if parsedArgs.command is None or parsedArgs.command == "collect":
@@ -82,6 +88,37 @@ class MustGatherApp(BaseApp):
         # Unknown command
         mustGatherArgParser.print_help()
         return 1
+
+    def _summarizeMustGather(self, parsedArgs):
+        """Regenerate summaries for existing must-gather output.
+
+        Args:
+            parsedArgs: Parsed command-line arguments with 'dir' attribute
+
+        Returns:
+            int: Exit code (0 for success, 1 for failure)
+        """
+        outputDir = parsedArgs.dir
+
+        # Validate directory exists
+        if not os.path.exists(outputDir):
+            self.fatalError(f"Directory does not exist: {outputDir}")
+
+        # Validate it contains must-gather data
+        resourcesDir = os.path.join(outputDir, "resources")
+        if not os.path.exists(resourcesDir):
+            self.fatalError(f"Directory does not appear to contain must-gather data (missing 'resources' directory): {outputDir}")
+
+        self.printH1("Regenerating Must-Gather Summaries")
+        print(f"📁 Must-gather directory: {outputDir}\n")
+
+        # Generate summaries
+        if self.generateSummary(outputDir):
+            print("\n✅ Successfully regenerated all summaries")
+            return 0
+        else:
+            print("\n⚠️  Some summaries failed to generate (see messages above)")
+            return 1
 
     def _collectMustGather(self, parsedArgs):
         """Execute must-gather collection using 4-phase approach.
@@ -98,6 +135,10 @@ class MustGatherApp(BaseApp):
         Returns:
             int: Exit code (0 for success, 1 for failure)
         """
+        # Validate --no-tar flag
+        if parsedArgs.no_tar and not parsedArgs.keep_files:
+            self.fatalError("--no-tar flag requires --keep-files to be set")
+
         # Initialize output manager
         outputManager = OutputManager(parsedArgs.directory, parsedArgs.keep_files)
         outputManager.initialize()
@@ -164,11 +205,12 @@ class MustGatherApp(BaseApp):
         summaryTimer = Timer()
         summaryTimer.start()
 
-        # Generate subscriptions summary (only if OCP was collected)
-        if "ocp" in self._parseCollectors(parsedArgs.collectors):
-            self.generateSubscriptionsSummary(outputDir=outputManager.outputDir)
+        # Generate summaries (always run, individual summarizers check their own requirements)
+        print()  # Add newline before summary generation
+        self.generateSummary(outputDir=outputManager.outputDir)
 
         # Generate web viewer
+        print()  # Add newline before web viewer generation
         with Halo(text="Generating web viewer", spinner=self.spinner) as h:
             if web_viewer.generateWebViewer(outputManager.outputDir):
                 h.stop_and_persist(symbol="✅", text="Web viewer generated")
@@ -186,20 +228,24 @@ class MustGatherApp(BaseApp):
         packagingTimer = Timer()
         packagingTimer.start()
 
-        # Create archive
-        with Halo(text="Creating archive", spinner=self.spinner) as h:
-            archivePath = outputManager.createArchive()
-            h.stop_and_persist(symbol="✅", text=f"Archive created: {archivePath}")
+        # Create archive (skip if --no-tar flag is set)
+        if parsedArgs.no_tar:
+            print("Skipping archive creation (--no-tar flag set)")
+            archivePath = outputManager.outputDir
+        else:
+            with Halo(text="Creating archive", spinner=self.spinner) as h:
+                archivePath = outputManager.createArchive()
+                h.stop_and_persist(symbol="✅", text=f"Archive created: {archivePath}")
 
-        # Upload to Artifactory if configured
-        if parsedArgs.artifactory_token and parsedArgs.artifactory_upload_dir:
-            with Halo(text="Uploading to Artifactory", spinner=self.spinner) as h:
-                if self.uploadToArtifactory(
-                    archivePath=archivePath, artifactoryToken=parsedArgs.artifactory_token, artifactoryUploadDir=parsedArgs.artifactory_upload_dir
-                ):
-                    h.stop_and_persist(symbol="✅", text="Upload completed")
-                else:
-                    h.stop_and_persist(symbol="❌", text="Upload failed")
+            # Upload to Artifactory if configured
+            if parsedArgs.artifactory_token and parsedArgs.artifactory_upload_dir:
+                with Halo(text="Uploading to Artifactory", spinner=self.spinner) as h:
+                    if self.uploadToArtifactory(
+                        archivePath=archivePath, artifactoryToken=parsedArgs.artifactory_token, artifactoryUploadDir=parsedArgs.artifactory_upload_dir
+                    ):
+                        h.stop_and_persist(symbol="✅", text="Upload completed")
+                    else:
+                        h.stop_and_persist(symbol="❌", text="Upload failed")
 
         elapsed = packagingTimer.stop()
         print()
@@ -212,7 +258,10 @@ class MustGatherApp(BaseApp):
         elapsed = overallTimer.stop()
         self.printH1("Completion")
         print(f"Must-gather completed in {elapsed} seconds")
-        self.printHighlight(f"Must gather successfully saved to: {archivePath}")
+        if parsedArgs.no_tar:
+            self.printHighlight(f"Must gather files saved to: {archivePath}")
+        else:
+            self.printHighlight(f"Must gather successfully saved to: {archivePath}")
         if outputManager.keepFiles:
             print()
             self.printHighlight(f"Run mas-cli must-gather serve --dir {outputManager.outputDir} to browse the must-gather")
@@ -234,7 +283,7 @@ class MustGatherApp(BaseApp):
             CollectionPlan: Complete plan with all collection tasks organized into groups
         """
         from .collection_plan import CollectionPlan
-        from .dependencies import kafka, mongodb, grafana, cert_manager, db2, cp4d
+        from .dependencies import kafka, mongodb, grafana, cert_manager, db2, cp4d, rhoai
 
         # Type assertion: dynClient is guaranteed to be non-None by connect()
         assert self.dynamicClient is not None, "Kubernetes client must be initialized before planning collection"
@@ -249,10 +298,10 @@ class MustGatherApp(BaseApp):
         if "ocp" in enabledCollectors:
             logger.info("💭 Planning OCP resource collection")
             ocpTasks = [
-                ("cluster_resources", ocp.collectClusterResources, outputDir, False),
-                ("nodes", ocp.collectNodes, outputDir, False),
-                ("airgap_resources", ocp.collectAirgapResources, self.dynamicClient, outputDir, False),
-                ("marketplace_resources", ocp.collectMarketplaceResources, outputDir, False),
+                ("cluster_resources", ocp.collectClusterResources, outputDir),
+                ("nodes", ocp.collectNodes, outputDir),
+                ("airgap_resources", ocp.collectAirgapResources, self.dynamicClient, outputDir),
+                ("marketplace_resources", ocp.collectMarketplaceResources, outputDir),
             ]
             plan.addGroup("OpenShift Container Platform", ocpTasks)
             logger.debug("Added OCP collection group with 4 tasks to plan")
@@ -333,6 +382,18 @@ class MustGatherApp(BaseApp):
         else:
             logger.debug("Skipping CP4D collection (not in collectors list)")
 
+        # Red Hat OpenShift AI
+        if "rhoai" in enabledCollectors:
+            rhoai.addRHOAIToCollectionPlan(
+                plan=plan,
+                dynClient=self.dynamicClient,
+                outputDir=outputDir,
+                noLogs=parsedArgs.no_logs,
+                ibmCRDs=self.ibmCRDsList,
+            )
+        else:
+            logger.debug("Skipping Red Hat OpenShift AI collection (not in collectors list)")
+
         # SLS
         if "sls" in enabledCollectors:
             masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
@@ -347,12 +408,12 @@ class MustGatherApp(BaseApp):
         else:
             logger.debug("Skipping SLS collection (not in collectors list)")
 
-        # MAS Discovery
-        if "mas" in enabledCollectors:
-            try:
-                masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
-                masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
+        masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
+        masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
 
+        # MAS Discovery (triggered by 'mas' or 'lic' collector)
+        if "mas" in enabledCollectors or "lic" in enabledCollectors:
+            try:
                 # Add MAS Core collection tasks
                 coreNamespaces = mas_core.addMASCoreToCollectionPlan(
                     plan=plan,
@@ -361,34 +422,40 @@ class MustGatherApp(BaseApp):
                     noLogs=parsedArgs.no_logs,
                     ibmCRDs=self.ibmCRDsList,
                     masInstanceIds=masInstanceIds,
+                    enabledCollectors=enabledCollectors,
                 )
 
                 if coreNamespaces:
-                    # Add MAS Apps collection tasks for discovered instances
-                    mas_apps.addMASAppsToCollectionPlan(
-                        plan=plan,
-                        dynClient=self.dynamicClient,
-                        outputDir=outputDir,
-                        noLogs=parsedArgs.no_logs,
-                        ibmCRDs=self.ibmCRDsList,
-                        coreNamespaces=coreNamespaces,
-                        masAppIds=masAppIds,
-                    )
+                    # Add MAS Apps collection tasks only if 'mas' collector is enabled
+                    if "mas" in enabledCollectors:
+                        mas_apps.addMASAppsToCollectionPlan(
+                            plan=plan,
+                            dynClient=self.dynamicClient,
+                            outputDir=outputDir,
+                            noLogs=parsedArgs.no_logs,
+                            ibmCRDs=self.ibmCRDsList,
+                            coreNamespaces=coreNamespaces,
+                            masAppIds=masAppIds,
+                        )
 
-                    # Add MAS Pipelines collection tasks
-                    mas_pipelines.addMASPipelinesToCollectionPlan(
-                        plan=plan,
-                        dynClient=self.dynamicClient,
-                        outputDir=outputDir,
-                        noLogs=parsedArgs.no_logs,
-                        ibmCRDs=self.ibmCRDsList,
-                    )
                 else:
                     logger.debug("No MAS instances discovered")
             except Exception as e:
                 logger.warning(f"⚠️ MAS discovery failed: {e}")
         else:
             logger.debug("Skipping MAS collection (not in collectors list)")
+
+        # Tekton Pipeline Discovery
+        if "pipelines" in enabledCollectors:
+            mas_pipelines.addMASPipelinesToCollectionPlan(
+                plan=plan,
+                dynClient=self.dynamicClient,
+                outputDir=outputDir,
+                noLogs=parsedArgs.no_logs,
+                masInstanceIds=masInstanceIds,
+            )
+        else:
+            logger.debug("Skipping Tekton Pipeline collection (not in collectors list)")
 
         # AI Service Discovery
         if "aiservice" in enabledCollectors:
@@ -403,13 +470,16 @@ class MustGatherApp(BaseApp):
             logger.debug("Skipping AI Service collection (not in collectors list)")
 
         # Argo Discovery
-        argo.addArgoToCollectionPlan(
-            plan=plan,
-            dynClient=self.dynamicClient,
-            outputDir=outputDir,
-            noLogs=parsedArgs.no_logs,
-            ibmCRDs=self.ibmCRDsList,
-        )
+        if "argo" in enabledCollectors:
+            argo.addArgoToCollectionPlan(
+                plan=plan,
+                dynClient=self.dynamicClient,
+                outputDir=outputDir,
+                noLogs=parsedArgs.no_logs,
+                ibmCRDs=self.ibmCRDsList,
+            )
+        else:
+            logger.debug("Skipping ArgoCD collection (not in collectors list)")
 
         # Extra Namespaces Discovery
         if parsedArgs.extra_namespaces:
@@ -422,7 +492,6 @@ class MustGatherApp(BaseApp):
                     namespace=namespace,
                     outputDir=outputDir,
                     noLogs=parsedArgs.no_logs,
-                    secretData=False,
                     customResources=None,
                     ibmCRDs=self.ibmCRDsList,
                 )
@@ -468,7 +537,39 @@ class MustGatherApp(BaseApp):
             result = executeCollection(plan=plan, maxWorkers=50, displayCallback=displayCallback)
             return result
 
-    def generateSubscriptionsSummary(self, outputDir: str) -> bool:
+    def generateSummary(self, outputDir: str) -> bool:
+        """Generate all must-gather summaries.
+
+        Runs all available summarizers to generate summary reports from
+        collected must-gather data.
+
+        Args:
+            outputDir (str): Base output directory for must-gather
+
+        Returns:
+            bool: True if all summaries generated successfully, False otherwise
+        """
+        success = True
+
+        # Generate subscriptions summary
+        if not self._generateSubscriptionsSummary(outputDir):
+            success = False
+
+        # Generate nodes summary (add pod links)
+        if not self._generateNodesSummary(outputDir):
+            success = False
+
+        # Generate suite summaries
+        if not self._generateSuiteSummary(outputDir):
+            success = False
+
+        # Generate licensing summaries (only if lic collector was enabled)
+        if not self._generateLicensingSummary(outputDir):
+            success = False
+
+        return success
+
+    def _generateSubscriptionsSummary(self, outputDir: str) -> bool:
         """Generate cluster-wide subscriptions summary.
 
         Creates a unified subscriptions table at resources/_cluster/subscriptions.md
@@ -502,6 +603,118 @@ class MustGatherApp(BaseApp):
         except Exception as e:
             print(f"❌  Error generating subscriptions summary: {e}")
             logger.error(f"❌ Error generating subscriptions summary: {e}")
+            return False
+
+    def _generateNodesSummary(self, outputDir: str) -> bool:
+        """Generate nodes summary by adding pod links.
+
+        Updates node markdown files to add links to pod YAML files that
+        exist in the collection.
+
+        Args:
+            outputDir (str): Base output directory for must-gather
+
+        Returns:
+            bool: True if summary generation succeeded, False otherwise
+        """
+        logger = logging.getLogger(__name__)
+
+        try:
+            with Halo(text="Generating nodes summary", spinner=self.spinner) as h:
+                # Import nodes summarizer
+                from .summarizer import nodes
+
+                # Generate nodes summary (updates markdown files in place)
+                nodes.summarize(outputDir)
+
+                h.stop_and_persist(symbol=self.successIcon, text="Nodes summary generated")
+                logger.info("✅ Successfully generated nodes summary")
+                return True
+
+        except FileNotFoundError as e:
+            print(f"⚠️  Required files not found for nodes summary: {e}")
+            logger.warning(f"⚠️ Nodes summary skipped due to missing files: {e}")
+            return False
+        except Exception as e:
+            print(f"❌  Error generating nodes summary: {e}")
+            logger.error(f"❌ Error generating nodes summary: {e}")
+            return False
+
+    def _generateSuiteSummary(self, outputDir: str) -> bool:
+        """Generate MAS suite summaries for all instances.
+
+        Creates suite summary markdown files at resources/mas-{instance}-core/_summary.md
+        for each MAS instance found in the must-gather.
+
+        Args:
+            outputDir (str): Base output directory for must-gather
+
+        Returns:
+            bool: True if summary generation succeeded, False otherwise
+        """
+        logger = logging.getLogger(__name__)
+
+        try:
+            with Halo(text="Generating suite summaries", spinner=self.spinner) as h:
+                # Import suite summarizer
+                from .summarizer import suite
+
+                # Generate suite summaries (writes directly to files)
+                suite.summarize(outputDir)
+
+                h.stop_and_persist(symbol=self.successIcon, text="Suite summaries generated")
+                logger.info("✅ Successfully generated suite summaries")
+                return True
+
+        except FileNotFoundError as e:
+            print(f"⚠️  Required files not found for suite summary: {e}")
+            logger.warning(f"⚠️ Suite summary skipped due to missing files: {e}")
+            return False
+        except Exception as e:
+            print(f"❌  Error generating suite summary: {e}")
+            logger.error(f"❌ Error generating suite summary: {e}")
+            return False
+
+    def _generateLicensingSummary(self, outputDir: str) -> bool:
+        """Generate licensing summaries for all MAS instances.
+
+        Creates licensing summary markdown files at licensing/{instance}/_summary.md
+        for each MAS instance with collected licensing data. Only runs if licensing
+        data directory exists (i.e., lic collector was enabled).
+
+        Args:
+            outputDir (str): Base output directory for must-gather
+
+        Returns:
+            bool: True if summary generation succeeded, False otherwise
+        """
+        logger = logging.getLogger(__name__)
+
+        # Check if licensing directory exists (only created if lic collector was enabled)
+        licensingDir = os.path.join(outputDir, "licensing")
+        if not os.path.exists(licensingDir):
+            logger.debug("Licensing directory not found - skipping licensing summary (lic collector not enabled)")
+            return True
+
+        try:
+            with Halo(text="Generating licensing summaries", spinner=self.spinner) as h:
+                # Import licensing summarizer
+                from .summarizer import licensing
+
+                # Generate licensing summaries (writes directly to files)
+                licensing.summarize(outputDir)
+
+                h.stop_and_persist(symbol=self.successIcon, text="Licensing summaries generated")
+                logger.info("✅ Successfully generated licensing summaries")
+                return True
+
+        except FileNotFoundError as e:
+            print(f"⚠️  Required files not found for licensing summary: {e}")
+            logger.warning(f"⚠️ Licensing summary skipped due to missing files: {e}")
+            return False
+        except Exception as e:
+            print(f"❌  Error generating licensing summary: {e}")
+            logger.error(f"❌ Error generating licensing summary: {e}")
             return False
 
     def uploadToArtifactory(self, archivePath: str, artifactoryToken: str, artifactoryUploadDir: str) -> bool:
