@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-efs-csi-driver
@@ -36,7 +36,6 @@ spec:
       type: string
       default: "aws"
   stepTemplate:
-    name: gitops-efs-csi-driver
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
