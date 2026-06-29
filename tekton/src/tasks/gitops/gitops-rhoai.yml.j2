@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-rhoai
@@ -53,7 +53,6 @@ spec:
       type: string
 
   stepTemplate:
-    name: gitops-rhoai
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

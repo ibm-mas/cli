@@ -67,7 +67,6 @@ def _generateSLSCollectionTasks(
         namespace=namespace,
         outputDir=outputDir,
         noLogs=noLogs,
-        secretData=False,
         customResources=None,  # SLS uses IBM CRDs
         ibmCRDs=ibmCRDs,
     )
