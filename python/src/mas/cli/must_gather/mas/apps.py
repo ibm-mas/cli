@@ -66,7 +66,7 @@ def _discoverMASAppNamespaces(dynClient: DynamicClient, masInstanceId: str, masA
                 appId = nsName[len(namespacePrefix) :]
 
                 # Skip core namespace (handled separately)
-                if appId == "core":
+                if appId in ["core", "pipelines"]:
                     continue
 
                 # If specific app IDs provided, filter by them
@@ -176,7 +176,6 @@ def _generateMASAppCollectionTasks(
         namespace=namespace,
         outputDir=outputDir,
         noLogs=noLogs,
-        secretData=False,
         customResources=None,
         ibmCRDs=ibmCRDs,
     )
