@@ -20,6 +20,8 @@
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: mas_use_service_mesh
+      value: $(params.mas_use_service_mesh)
 
     # Workspace
     - name: mas_workspace_id
@@ -48,8 +50,42 @@
       value: $(params.mas_ws_facilities_storage_userfiles_class)
     - name: mas_ws_facilities_storage_userfiles_mode
       value: $(params.mas_ws_facilities_storage_userfiles_mode)
+    - name: mas_ws_facilities_server_timezone
+      value: $(params.mas_ws_facilities_server_timezone)      
     - name: mas_ws_facilities_config_map_name
       value: $(params.mas_ws_facilities_config_map_name)
+    - name: mas_ws_facilities_custom_properties
+      value: $(params.mas_ws_facilities_custom_properties)
+    - name: mas_ws_facilities_properties_file_local
+      value: $(params.mas_ws_facilities_properties_file_local)
+    - name: mas_ws_facilities_properties_secret_name
+      value: $(params.mas_ws_facilities_properties_secret_name)
+    - name: mas_ws_facilities_dataconnectagent_deploymentmode
+      value: $(params.mas_ws_facilities_dataconnectagent_deploymentmode)
+    - name: mas_ws_facilities_extendedformulaagent_deploymentmode
+      value: $(params.mas_ws_facilities_extendedformulaagent_deploymentmode)
+    - name: mas_ws_facilities_formularecalcagent_deploymentmode
+      value: $(params.mas_ws_facilities_formularecalcagent_deploymentmode)
+    - name: mas_ws_facilities_incomingmailagent_deploymentmode
+      value: $(params.mas_ws_facilities_incomingmailagent_deploymentmode)
+    - name: mas_ws_facilities_maintenanceagent_deploymentmode
+      value: $(params.mas_ws_facilities_maintenanceagent_deploymentmode)  
+    - name: mas_ws_facilities_objectmigrationagent_deploymentmode
+      value: $(params.mas_ws_facilities_objectmigrationagent_deploymentmode) 
+    - name: mas_ws_facilities_objectpublishagent_deploymentmode
+      value: $(params.mas_ws_facilities_objectpublishagent_deploymentmode) 
+    - name: mas_ws_facilities_reportqueueagent_deploymentmode
+      value: $(params.mas_ws_facilities_reportqueueagent_deploymentmode)
+    - name: mas_ws_facilities_wfagent_deploymentmode
+      value: $(params.mas_ws_facilities_wfagent_deploymentmode)
+    - name: mas_ws_facilities_wffutureagent_deploymentmode
+      value: $(params.mas_ws_facilities_wffutureagent_deploymentmode)
+    - name: mas_ws_facilities_wfnotificationagent_deploymentmode
+      value: $(params.mas_ws_facilities_wfnotificationagent_deploymentmode)
+    - name: mas_ws_facilities_reservesmtpagent_deploymentmode
+      value: $(params.mas_ws_facilities_reservesmtpagent_deploymentmode)
+    - name: mas_ws_facilities_scheduleragent_deploymentmode
+      value: $(params.mas_ws_facilities_scheduleragent_deploymentmode)     
   workspaces:
     - name: configs
       workspace: shared-configs

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -17,7 +17,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from sys import exit
 from os import path, getenv
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 from tabulate import tabulate
@@ -53,8 +53,6 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from mas.devops.utils import isVersionEqualOrAfter
 
 logger = logging.getLogger(__name__)
 
@@ -70,79 +68,6 @@ def logMethodCall(func):
 
 
 class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, InstallSettingsMixin, ConfigGeneratorMixin):
-
-    def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
-
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            return
-
-        if self.skip_preinstall_rbac:
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        if self.isInteractiveMode:
-            self.printDescription(
-                [
-                    "",
-                    f"You selected the '{self.permission_mode}' permission mode.",
-                    "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
-                    "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance.",
-                    "If that has already been done, you can continue the installation without applying it again.",
-                ]
-            )
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this AI Service installation"):
-                self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again with --skip-preinstall-rbac."
-                )
-        else:
-            self.fatalError(
-                "\n".join(
-                    [
-                        f"You selected the '{self.permission_mode}' permission mode.",
-                        "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
-                        "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
-                        "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas aiservice-install' with --skip-preinstall-rbac.",
-                    ]
-                )
-            )
-
-    def configPermissionMode(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Configure Permission Mode")
-            self.printDescription(
-                [
-                    "Choose how AI Service should be installed with respect to permissions:",
-                    "",
-                    "  1. <b>cluster</b> - Install with ClusterRoles (default)",
-                    "     - AI Service has cluster-level access to manage its resources across the cluster",
-                    "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to AI Service service accounts",
-                    "",
-                    "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
-                    "     - No ClusterRoles are installed in this mode",
-                    "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
-                    "     - AI Service can manage resources only in namespaces prepared by the OpenShift admin",
-                    "",
-                    "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
-                    "     - No ClusterRoles are installed in this mode",
-                    "     - Only essential permissions required for AI Service are applied",
-                    "     - AI Service can manage only the resources covered by these essential permissions",
-                ]
-            )
-
-            permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
-            permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
-            self.permission_mode = permissionModeMap[permissionModeInt]
-        elif self.permission_mode == "":
-            self.permission_mode = "cluster"
 
     @logMethodCall
     def processCatalogChoice(self) -> list:
@@ -254,9 +179,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
         )
         self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
-        # Permission mode prompt (especially in dev mode)
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            self.configPermissionMode()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -285,6 +207,31 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             if key in requiredParams:
                 if value is None:
                     self.fatalError(f"{key} must be set")
+
+                # Special handling for ibm_entitlement_key: validate it
+                if key == "ibm_entitlement_key":
+                    isValid = self.validateEntitlementKey(value)
+                    if not isValid:
+                        if self.noConfirm:
+                            # Non-interactive with --no-confirm: warn but continue
+                            self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                        else:
+                            # Non-interactive without --no-confirm: offer options
+                            self.printWarning("IBM entitlement key validation failed")
+                            print()
+                            self.printDescription(
+                                [
+                                    "What would you like to do?",
+                                    "  1. Continue anyway (skip validation)",
+                                    "  2. Quit (exit the application)",
+                                ]
+                            )
+                            choice = self.promptForInt("Select an option", min=1, max=2)
+                            if choice == 2:
+                                logger.info("User chose to quit due to invalid entitlement key")
+                                exit(1)
+                            # If choice == 1, continue with the invalid key
+
                 self.setParam(key, value)
 
             # These fields we just pass straight through to the parameters
@@ -466,13 +413,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.validateCatalogSource()
             self.licensePrompt()
 
-        if self.permission_mode != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            self.fatalError("--permission-mode is supported only for AI Service releases aligned to MAS 9.2.0 and later")
-
-        # Set default permission_mode for 9.2.0+ if not provided
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")) and self.permission_mode == "":
-            self.permission_mode = "cluster"
-
     @logMethodCall
     def install(self, argv):
         """
@@ -487,7 +427,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.noConfirm = args.no_confirm
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
-        self.permission_mode = args.permission_mode if args.permission_mode else ""
 
         self.printDescription(
             [
@@ -558,8 +497,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.nonInteractiveMode()
 
-        self.evaluatePreInstallRBACAccess()
-
         # Set up the sls and db2 license file
         self.slsLicenseFile()
         self.db2LicenseFile()
@@ -619,23 +556,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            if self.applyPreInstallMASRBAC:
-                with Halo(text=f"Setting up pre-install RBAC for AI Service instance {self.getParam('aiservice_instance_id')}...", spinner=self.spinner) as h:
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=".".join(self.getParam("aiservice_channel").split(".")[:2]),
-                        masInstanceId=self.getParam("aiservice_instance_id"),
-                        permissionMode=self.permission_mode,
-                        selectedApps=["aiservice"],
-                    )
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for AI Service is ready for {self.getParam('aiservice_instance_id')}")
-
             with Halo(text="Testing availability of MAS CLI image in cluster", spinner=self.spinner) as h:
                 testCLI()
                 h.stop_and_persist(symbol=self.successIcon, text="MAS CLI image deployment test completed")
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text=f"Submitting PipelineRun for {self.getParam('aiservice_instance_id')} install", spinner=self.spinner) as h:
@@ -836,7 +762,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
-        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+        self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
         if self.devMode:
             self.promptForString("Artifactory username", "artifactory_username")
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)

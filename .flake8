@@ -1,6 +1,7 @@
 [flake8]
 # These rules are ignored
 # - E501 line too long
-# - E203 whitespace before ':' (conflicts with Black)
-extend-ignore = E501, E203
+# - E203 whitespace before ':' (conflicts with Black formatting)
+# - D100-D400 docstring style warnings (legacy code, will be addressed separately)
+extend-ignore = E501, E203, D
 max-line-length = 160

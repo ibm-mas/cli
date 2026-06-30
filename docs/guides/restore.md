@@ -37,7 +37,9 @@ The restore process handles the following components:
 - **Suite-level SLSCfg** - Restores or provides custom Suite-level SLS configuration with optional URL override
 - **Suite-level BASCfg/DROCfg** - Restores or provides custom Suite-level DRO/BAS configuration with optional URL override
 - **Manage Database** - Optionally restores incluster Db2 database associated with Manage workspace
-- **Manage Application** - Optionally restores Manage application namespace resources and persistent volume data
+- **Manage Application** - Optionally restores Manage application namespace resources and optionally persistent volume data
+- **Facilities Database** - Optionally restores incluster Db2 database associated with Facilities workspace
+- **Facilities Application** - Optionally restores Facilities application namespace resources and optionally persistent volume data
 - **Grafana** - Optionally installs Grafana for monitoring (not part of backup)
 - **Data Reporter Operator (DRO)** - Optionally installs DRO (not part of backup), when DRO is installed, an auto-generated Suite-level BASCfg CR will be applied automatically.
 
@@ -96,8 +98,10 @@ When downloading from S3 or Artifactory, the `download_backup_archive` role sele
 | `include_sls_archive` | `false` | Download the SLS backup archive |
 | `include_manage_db_archive` | `false` | Download the Manage Db2 database backup archive |
 | `include_manage_app_archive` | `false` | Download the Manage application backup archive |
+| `include_facilities_db_archive` | `false` | Download the Facilities Db2 database backup archive |
+| `include_facilities_app_archive` | `false` | Download the Facilities application backup archive |
 
-These parameters are automatically set by the restore pipeline based on the restore configuration (e.g. `--restore-manage-app`, `--restore-manage-db`, `--include-sls`), so you do not need to set them manually when using the `mas restore` command.
+These parameters are automatically set by the restore pipeline based on the restore configuration (e.g. `--restore-manage-app`, `--restore-manage-db`, `--restore-facilities-app`, `--restore-facilities-db`, `--include-sls`), so you do not need to set them manually when using the `mas restore` command.
 
 ### Ansible DevOps Integration
 

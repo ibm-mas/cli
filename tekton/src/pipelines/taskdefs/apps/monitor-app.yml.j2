@@ -1,4 +1,3 @@
-- name: app-install-monitor
   timeout: "0"
   taskRef:
     name: mas-devops-suite-app-install
@@ -20,6 +19,8 @@
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: mas_use_service_mesh
+      value: $(params.mas_use_service_mesh)
 
     # Workspace
     - name: mas_workspace_id
@@ -27,7 +28,3 @@
   workspaces:
     - name: configs
       workspace: shared-configs
-  when:
-    - input: "$(params.mas_app_channel_monitor)"
-      operator: notin
-      values: [""]

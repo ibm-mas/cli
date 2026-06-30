@@ -18,8 +18,7 @@ This guide provides comprehensive information on backing up and restoring IBM Ma
 **Supported MAS versions**
 
 - MAS 9.1.x
-
-Note: MAS 9.0.x (Not supported yet, its in testing)
+- MAS 9.2.x
 
 **User Permissions Required**
 

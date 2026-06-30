@@ -21,17 +21,17 @@ import threading
 import json
 from typing import List, Dict, Any, Callable, Type, NoReturn
 
-# Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from kubernetes import config
 from kubernetes.client.api_client import ApiClient
 from kubernetes.client import Configuration
-from openshift.dynamic import DynamicClient
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic import DynamicClient
+from kubernetes.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO, getNodes
+from mas.devops.utils import validateIBMEntitlementKey
 
 from .displayMixins import PrintMixin, PromptMixin
 
@@ -104,8 +104,8 @@ def logMethodCall(func: Callable) -> Callable:
 
 class BaseApp(PrintMixin, PromptMixin):
     def __init__(self) -> None:
-        # Set up a log formatter
-        chFormatter = logging.Formatter("%(asctime)-25s" + " %(levelname)-8s %(message)s")
+        # Set up a log formatter with module name and line number
+        chFormatter = logging.Formatter("%(asctime)s | %(name)-45s [%(lineno)-3d] | %(levelname)-8s %(message)s")
 
         # Set up a log handler (5mb rotating log file)
         ch = logging.handlers.RotatingFileHandler("mas.log", maxBytes=(1048576 * 5), backupCount=2)
@@ -115,8 +115,15 @@ class BaseApp(PrintMixin, PromptMixin):
         # Configure the root logger
         rootLogger = logging.getLogger()
         rootLogger.addHandler(ch)
-        rootLogger.setLevel(logging.DEBUG)
+        rootLogger.setLevel(logging.INFO)
+
+        # Set MAS CLI loggers to DEBUG for detailed logging
+        logging.getLogger("mas").setLevel(logging.DEBUG)
+
+        # Keep third-party libraries at INFO to avoid verbose HTTP logs
         logging.getLogger("asyncio").setLevel(logging.INFO)
+        logging.getLogger("kubernetes").setLevel(logging.INFO)
+        logging.getLogger("urllib3").setLevel(logging.INFO)
 
         # Supports extended semver, unlike mas.cli.__version__
         self.version: str = "100.0.0-pre.local"
@@ -154,8 +161,16 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture: str | None = None
 
         self.compatibilityMatrix: Dict[str, Dict[str, List[str]]] = {
+            "9.2.x": {
+                "manage": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "optimizer": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "visualinspection": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "iot": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "monitor": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "predict": ["9.2.x", "9.2.x-feature", "9.1.x"],
+                "facilities": ["9.2.x", "9.2.x-feature", "9.1.x"],
+            },
             "9.2.x-feature": {
-                "aibroker": ["9.2.x-feature", "9.1.x"],
                 "manage": ["9.2.x-feature", "9.1.x"],
                 "optimizer": ["9.2.x-feature", "9.1.x"],
                 "visualinspection": ["9.2.x-feature", "9.1.x"],
@@ -173,7 +188,6 @@ class BaseApp(PrintMixin, PromptMixin):
                 "optimizer": ["9.1.x", "9.1.x-feature", "9.0.x"],
                 "predict": ["9.1.x", "9.0.x"],
                 "visualinspection": ["9.1.x", "9.1.x-feature", "9.0.x"],
-                "aibroker": ["9.1.x", "9.0.x"],
             },
             "9.1.x-feature": {
                 "assist": ["9.0.x"],
@@ -183,7 +197,6 @@ class BaseApp(PrintMixin, PromptMixin):
                 "optimizer": ["9.1.x-feature", "9.0.x"],
                 "predict": ["9.0.x"],
                 "visualinspection": ["9.1.x-feature", "9.0.x"],
-                "aibroker": ["9.0.x"],
             },
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
@@ -193,7 +206,6 @@ class BaseApp(PrintMixin, PromptMixin):
                 "optimizer": ["9.0.x", "8.5.x"],
                 "predict": ["9.0.x", "8.9.x"],
                 "visualinspection": ["9.0.x", "8.9.x"],
-                "aibroker": ["9.0.x"],
             },
             "8.11.x": {
                 "assist": ["8.8.x", "8.7.x"],
@@ -225,10 +237,12 @@ class BaseApp(PrintMixin, PromptMixin):
             "9.1.x": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>",
             "aibroker-9.1.x": " - <u>https://ibm.biz/MAS91-License</u>",
             "9.2.x-feature": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
+            "9.2.x": " - <u>https://ibm.biz/MAS92-License</u>\n - <u>https://ibm.biz/MAXIT92-License</u>\n - <u>https://ibm.biz/MAXESRI92-License</u>",
         }
 
         self.upgrade_path: Dict[str, str] = {
-            "9.1.x": "9.2.x-feature",
+            "9.2.x-feature": "9.2.x",
+            "9.1.x": "9.2.x",
             "9.1.x-feature": "9.1.x",
             "9.0.x": "9.1.x",
             "8.11.x": "9.0.x",
@@ -596,6 +610,35 @@ class BaseApp(PrintMixin, PromptMixin):
             logger.exception(e, stack_info=True)
             return None
 
+    def getReconciledVersion(self, instance: Dict[str, Any]) -> str:
+        """
+        Get the reconciled version from an instance's status.
+
+        Checks if the instance is in a healthy state by verifying the presence of a reconciled version.
+        If the instance is unhealthy (missing reconciled version), triggers a fatal error with a clear message.
+
+        Args:
+            instance (dict): The instance resource dictionary containing metadata, kind, and status
+
+        Returns:
+            str: The reconciled version if the instance is healthy
+
+        Raises:
+            SystemExit: Via fatalError if the instance is unhealthy
+        """
+        instanceId = instance["metadata"]["name"]
+        instanceKind = instance.get("kind", "Instance")
+        reconciledVersion = instance.get("status", {}).get("versions", {}).get("reconciled")
+
+        if not reconciledVersion:
+            self.fatalError(
+                f"{instanceKind} '{instanceId}' is in an unhealthy state (missing reconciled version). "
+                f"We do not recommend (and thus do not support) continuing when there are unhealthy instances on the cluster. "
+                f"Please resolve the instance health issues before attempting to proceed."
+            )
+
+        return reconciledVersion
+
     @logMethodCall
     def connect(self) -> None:
         promptForNewServer = False
@@ -677,3 +720,98 @@ class BaseApp(PrintMixin, PromptMixin):
         if self.localConfigDir is None:
             # You need to tell us where the configuration file can be found
             self.localConfigDir = self.promptForDir("Select Local configuration directory")
+
+    @logMethodCall
+    def validateEntitlementKey(self, entitlementKey: str, repository: str = "cp/mas/coreapi", timeout: int = 30) -> bool:
+        """
+        Validate IBM entitlement key using mas.devops.utils.validateIBMEntitlementKey.
+
+        Args:
+            entitlementKey: The entitlement key to validate
+            repository: Docker repository to test against. Defaults to "cp/mas/coreapi".
+            timeout: Timeout in seconds for validation. Defaults to 30.
+
+        Returns:
+            bool: True if valid, False if invalid
+        """
+        try:
+            logger.info(f"Validating IBM entitlement key against repository: {repository}")
+            isValid = validateIBMEntitlementKey(entitlementKey, repository, timeout)
+            if isValid:
+                logger.info("IBM entitlement key validation successful")
+            else:
+                logger.warning("IBM entitlement key validation failed")
+            return isValid
+        except Exception as e:
+            logger.error(f"Error validating IBM entitlement key: {e}")
+            logger.exception(e, stack_info=True)
+            return False
+
+    @logMethodCall
+    def promptForEntitlementKey(self, message: str, param: str, repository: str = "cp/mas/coreapi", timeout: int = 30) -> str:
+        """
+        Prompt for IBM entitlement key with validation.
+
+        In interactive mode:
+        - Validates the key after user input
+        - If invalid, offers: 1) Try again, 2) Continue anyway, 3) Quit
+        - Loops until valid key or user chooses to continue/quit
+
+        In non-interactive mode with --no-confirm:
+        - Validates but only warns if invalid, does not block
+
+        Args:
+            message: Prompt message to display
+            param: Parameter name to store the key
+            repository: Docker repository to test against
+            timeout: Timeout in seconds for validation
+
+        Returns:
+            str: The entitlement key (validated or user chose to continue anyway)
+        """
+        while True:
+            # Prompt for the entitlement key
+            entitlementKey = self.promptForString(message, param=None, isPassword=True)
+
+            # Validate the key
+            isValid = self.validateEntitlementKey(entitlementKey, repository, timeout)
+
+            if isValid:
+                # Key is valid, show success message and continue
+                self.printHighlight("✓ IBM entitlement key validated successfully")
+                self.setParam(param, entitlementKey)
+                return entitlementKey
+
+            # Key is invalid
+            if self.noConfirm:
+                # Non-interactive mode with --no-confirm: warn but continue
+                self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                self.setParam(param, entitlementKey)
+                return entitlementKey
+
+            # Interactive mode or non-interactive without --no-confirm: offer options
+            self.printWarning("IBM entitlement key validation failed")
+            print()
+            self.printDescription(
+                [
+                    "What would you like to do?",
+                    "  1. Try again (re-enter the entitlement key)",
+                    "  2. Continue anyway (skip validation)",
+                    "  3. Quit (exit the application)",
+                ]
+            )
+
+            choice = self.promptForInt("Select an option", min=1, max=3)
+
+            if choice == 1:
+                # Try again - loop will continue
+                continue
+            elif choice == 2:
+                # Continue anyway
+                logger.warning("User chose to continue with invalid entitlement key")
+                self.setParam(param, entitlementKey)
+                return entitlementKey
+            else:  # choice == 3
+                # Quit
+                logger.info("User chose to quit due to invalid entitlement key")
+                exit(1)

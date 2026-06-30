@@ -87,6 +87,7 @@ class RestoreApp(BaseApp):
                 "artifactory_repository",
                 # Manage App Restore
                 "restore_manage_app",
+                "restore_manage_include_pvc",
                 "restore_manage_db",
                 "manage_app_override_storageclass",
                 "manage_app_storage_class_rwx",
@@ -96,6 +97,7 @@ class RestoreApp(BaseApp):
                 "manage_db_storage_class_rwo",
                 # Facilities App Restore
                 "restore_facilities_app",
+                "restore_facilities_include_pvc",
                 "restore_facilities_db",
                 "facilities_app_override_storageclass",
                 "facilities_app_storage_class_rwx",
@@ -112,6 +114,31 @@ class RestoreApp(BaseApp):
                 if key in requiredParams:
                     if value is None:
                         self.fatalError(f"{key} must be set")
+
+                    # Special handling for ibm_entitlement_key: validate it
+                    if key == "ibm_entitlement_key":
+                        isValid = self.validateEntitlementKey(value)
+                        if not isValid:
+                            if self.noConfirm:
+                                # Non-interactive with --no-confirm: warn but continue
+                                self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                            else:
+                                # Non-interactive without --no-confirm: offer options
+                                self.printWarning("IBM entitlement key validation failed")
+                                print()
+                                self.printDescription(
+                                    [
+                                        "What would you like to do?",
+                                        "  1. Continue anyway (skip validation)",
+                                        "  2. Quit (exit the application)",
+                                    ]
+                                )
+                                choice = self.promptForInt("Select an option", min=1, max=2)
+                                if choice == 2:
+                                    logger.info("User chose to quit due to invalid entitlement key")
+                                    exit(1)
+                                # If choice == 1, continue with the invalid key
+
                     self.setParam(key, value)
 
                 # These fields we just pass straight through to the parameters
@@ -229,11 +256,13 @@ class RestoreApp(BaseApp):
         if self.getParam("restore_manage_app") == "true":
             self.printH2("Manage Application Restore")
             self.printSummary("Restore Manage App", "Yes")
+            self.printSummary("Include PVC Restore", "Yes" if self.getParam("restore_manage_include_pvc") == "true" else "No")
             self.printSummary("Restore Manage incluster Db2 Database", "Yes" if self.getParam("restore_manage_db") == "true" else "No")
 
         if self.getParam("restore_facilities_app") == "true":
             self.printH2("Facilities Application Restore")
             self.printSummary("Restore Facilities App", "Yes")
+            self.printSummary("Include PVC Restore", "Yes" if self.getParam("restore_facilities_include_pvc") == "true" else "No")
             self.printSummary("Restore Facilities incluster Db2 Database", "Yes" if self.getParam("restore_facilities_db") == "true" else "No")
 
         if self.getParam("sls_domain") is not None and self.getParam("sls_domain") != "":
@@ -308,7 +337,7 @@ class RestoreApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text="Submitting PipelineRun for MAS Restore", spinner=self.spinner) as h:
@@ -404,7 +433,7 @@ class RestoreApp(BaseApp):
             self.setParam("include_dro", "true")
             self.setParam("dro_cfg_file", "/workspace/backups/configs/dro.yml")
             self.setParam("include_drocfg_from_backup", "false")
-            self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+            self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
             self.promptForString("Contact e-mail address", "dro_contact_email")
             self.promptForString("Contact first name", "dro_contact_firstname")
             self.promptForString("Contact last name", "dro_contact_lastname")
@@ -626,6 +655,21 @@ class RestoreApp(BaseApp):
         if restoreManageApp:
             self.setParam("restore_manage_app", "true")
 
+            # Ask about PVC restore
+            self.printH2("Manage PVC Restore")
+            self.printDescription(
+                [
+                    "The Manage application uses persistent volumes that can be restored.",
+                    "This will restore PVC data from the backup.",
+                ]
+            )
+            restorePvc = self.yesOrNo("Do you want to include PVC restore for Manage")
+
+            if restorePvc:
+                self.setParam("restore_manage_include_pvc", "true")
+            else:
+                self.setParam("restore_manage_include_pvc", "false")
+
             # Ask about DB2 restore
             self.printH2("Manage Database Restore")
             self.printDescription(
@@ -808,6 +852,21 @@ class RestoreApp(BaseApp):
 
         if restoreFacilitiesApp:
             self.setParam("restore_facilities_app", "true")
+
+            # Ask about PVC restore
+            self.printH2("Facilities PVC Restore")
+            self.printDescription(
+                [
+                    "The Facilities application uses persistent volumes that can be restored.",
+                    "This will restore PVC data from the backup.",
+                ]
+            )
+            restorePvc = self.yesOrNo("Do you want to include PVC restore for Facilities")
+
+            if restorePvc:
+                self.setParam("restore_facilities_include_pvc", "true")
+            else:
+                self.setParam("restore_facilities_include_pvc", "false")
 
             # Ask about DB2 restore
             self.printH2("Facilities Database Restore")

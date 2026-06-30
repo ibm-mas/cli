@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-run-suite
@@ -117,9 +117,7 @@ spec:
       default: "false"
 
   stepTemplate:
-    name: 'fvt-run-$(params.fvt_image_name)'
     securityContext:
-      privileged: true
       runAsUser: 0
     env:
       - name: PRODUCT_ID
@@ -247,7 +245,7 @@ spec:
       # Common Test Framework Specific information
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
-      
+
       # Health Test Specific data
       - name: RHM_APIKEY
         valueFrom:
@@ -269,11 +267,11 @@ spec:
             optional: true
 
   steps:
-    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
+    - name: fvt-run-suite
+      image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-aiservice
@@ -81,7 +81,6 @@ spec:
       type: string
 
   stepTemplate:
-    name: gitops-aiservice
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -155,15 +154,15 @@ spec:
         value: $(params.jdbc_secret)
       - name: USE_AWS_DB2
         value: $(params.use_aws_db2)
-        
+
     envFrom:
       - configMapRef:
           name: environment-properties
           optional: true
       - secretRef:
           name: secure-properties
-  
-  
+
+
   steps:
     - args:
       - |-
@@ -187,6 +186,6 @@ spec:
         - -c
       name: gitops-aiservice
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
-    - name: configs 
+    - name: configs

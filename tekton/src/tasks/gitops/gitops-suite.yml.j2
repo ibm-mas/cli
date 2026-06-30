@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-suite
@@ -179,7 +179,6 @@ spec:
       type: string
       default: ""
   stepTemplate:
-    name: gitops-suite
     env:
       - name: CLUSTER_URL
         value: $(params.cluster_url)
@@ -271,7 +270,7 @@ spec:
       - name: DELETE_WILDCARDS
         value: $(params.delete_wildcards)
 
-      - name: MAS_MANUAL_CERTS_YAML 
+      - name: MAS_MANUAL_CERTS_YAML
         value: $(params.mas_manual_certs_yaml)
       - name: MAS_POD_TEMPLATE_YAML
         value: $(params.mas_pod_template_yaml)
@@ -333,7 +332,7 @@ spec:
         echo "Labels ................................ ${MAS_LABELS}"
         echo "Custom Labels ......................... ${CUSTOM_LABELS}"
 
-        # Parse MAS variables from json to dict        
+        # Parse MAS variables from json to dict
 
         MAS_ANNOTATIONS=$(echo "${MAS_ANNOTATIONS}" | sed "s/'/\"/g")
         export MAS_ANNOTATIONS=$(echo "${MAS_ANNOTATIONS}" | yq --output-format yaml)
@@ -390,7 +389,7 @@ spec:
         - -c
       name: gitops-suite
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs
