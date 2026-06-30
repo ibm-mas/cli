@@ -674,6 +674,18 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:21.10.2 $REGISTRY_HOST:$R
   </div>
 </div>
 
+<h3 id="stage-5-cli-container-optional">Stage 5 - CLI Container (Optional)<a class="headerlink" href="#stage-5-cli-container-optional" title="Permanent link">¶</a></h3>
+<p>Mirror the MAS CLI container itself for air-gapped environments.</p>
+<pre><code class="language-bash"># Interactive mode - prompts for CLI version
+docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:21.10.2 mas mirror-images
+
+# Non-interactive mode - mirrors current CLI version
+docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:21.10.2 mas mirror-images \
+  -m to-filesystem -d /mnt/registry/cli \
+  -c v9-260625-amd64 -C 9.2.x \
+  --mirror-cli \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
+</code></pre>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><a href="https://ibm-mas.github.io/cli/commands/mirror-redhat-images">Mirror Redhat images</a> to install required ( DRO, Cert Manager and Grafana) redhat dependencies for Mas installation to progress. Missing this step will result in installation failures.</p>
@@ -906,6 +918,11 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:21.10.2 $REGISTRY_HOST:$R
                       <li class="md-toc__item">
                         <a href="#stage-4-other-dependencies" class="md-toc__link" data-md-level="2">
                           Stage 4 - Other Dependencies
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#stage-5-cli-container-optional" class="md-toc__link" data-md-level="2">
+                          Stage 5 - CLI Container (Optional)
                         </a>
                       </li>
                   </ul>
