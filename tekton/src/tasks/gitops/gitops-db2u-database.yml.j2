@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-db2u-database
@@ -139,7 +139,6 @@ spec:
       type: string
       default: ""
   stepTemplate:
-    name: gitops-db2u-database
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

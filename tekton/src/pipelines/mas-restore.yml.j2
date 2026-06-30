@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-restore
@@ -61,7 +61,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-restore-check', 'devops_suite_name': 'pre-restore-check'}) | indent(4) }}
       runAfter:
         - pipeline-start
-    
+
     # 3. Prepare backup workspace
     # -------------------------------------------------------------------------
     - name: prepare-backup-workspace
@@ -93,7 +93,7 @@ spec:
           value: $(params.backup_archive_name)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        
+
         # Archive specific
         - name: include_mongo_archive
           value: $(params.include_mongo)
@@ -246,7 +246,7 @@ spec:
           value: $(params.mongodb_storageclass_name)
         - name: mas_config_dir
           value: /workspace/backups/configs
-      
+
       when:
         - input: "$(params.include_mongo)"
           operator: in
@@ -465,7 +465,7 @@ spec:
           value: $(params.restore_version)
         - name: restore_app_include_pvc
           value: $(params.restore_manage_include_pvc)
-        
+
         - name: override_storageclass
           value: $(params.manage_app_override_storageclass)
         - name: custom_storage_class_rwx
@@ -544,7 +544,7 @@ spec:
           value: $(params.restore_version)
         - name: restore_app_include_pvc
           value: $(params.restore_facilities_include_pvc)
-        
+
         - name: override_storageclass
           value: $(params.facilities_app_override_storageclass)
         - name: custom_storage_class_rwx

@@ -125,7 +125,6 @@ def _generateDb2CollectionTasks(
             namespace=namespace,
             outputDir=outputDir,
             noLogs=noLogs,
-            secretData=False,
             customResources=db2Resources,
             ibmCRDs=ibmCRDs,
         )

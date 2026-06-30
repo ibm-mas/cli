@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-aiservice
@@ -27,7 +27,6 @@ spec:
       type: string
 
   stepTemplate:
-    name: gitops-deprovision-aiservice
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
