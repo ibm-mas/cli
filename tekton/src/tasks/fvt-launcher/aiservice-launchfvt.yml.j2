@@ -63,6 +63,13 @@ spec:
               name: mas-fvt
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
+        # Service Account for FVT Pipeline (supports RBAC mode)
+        - name: SERVICE_ACCOUNT_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: SERVICE_ACCOUNT_NAME
+              optional: true
 
         # -----------------------------------------------------------------------
         # Framework Information
