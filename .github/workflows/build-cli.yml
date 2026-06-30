@@ -111,7 +111,7 @@ jobs:
           cat ${GITHUB_WORKSPACE}/python/src/mas/cli/cli.py | grep "self.version"
 
           python -m pip install --upgrade pip
-          pip install .[dev]
+          pip install -e .[dev]
 
           if [[ -e $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz ]]; then
             echo "Found local Python package ($GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz) on this branch."
