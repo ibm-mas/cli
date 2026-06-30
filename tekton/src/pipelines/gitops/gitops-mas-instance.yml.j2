@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: gitops-mas-instance
@@ -228,7 +228,7 @@ spec:
       default: "Automatic"
 
     # gitops-license-generator parameters
-    # ------------------------------------------------------------------------- 
+    # -------------------------------------------------------------------------
     - name: sls_license_expiry_date
       type: string
     - name: sls_license_app_points
@@ -245,7 +245,7 @@ spec:
       default: ""
 
     # oidc parameters
-    # ------------------------------------------------------------------------- 
+    # -------------------------------------------------------------------------
     - name: oidc
       type: string
 
@@ -266,7 +266,7 @@ spec:
       default: ""
 
     # maf parameters
-    # ------------------------------------------------------------------------- 
+    # -------------------------------------------------------------------------
     - name: mas_appcfg_pod_template_yaml
       type: string
       default: ""
@@ -283,7 +283,7 @@ spec:
     - name: sls_service
       type: string
       default: ""
-    
+
     # routing parameters
     - name: mas_routing_mode
       type: string
@@ -775,7 +775,7 @@ spec:
           value: $(params.mas_smtpcfg_pod_template_yaml)
         - name: smtp_config_ca_certificate_file
           value: $(params.smtp_config_ca_certificate_file)
-        
+
         - name: icn
           value: $(params.sls_license_icn)
         - name: mas_domain
@@ -800,7 +800,7 @@ spec:
         - name: shared-gitops-configs
           workspace: shared-gitops-configs
 
- 
+
     # 6. MAS Suite IDP Config
     # -------------------------------------------------------------------------
     - name: gitops-suite-idp-config
@@ -937,7 +937,7 @@ spec:
           values: ["true"]
 
         # Task uses an IBM internal image and cannot be used outside of the internal IBM Toolchains
-        # To make sure this task is only run when this is the case, reference a field that 
+        # To make sure this task is only run when this is the case, reference a field that
         # but corresponds to another IBM-internal only feature that will also still be present after smtp config is removed
         # sls.license.icn is a good choice for this, it also happens to be a required input to the sendgrid scripts
         - input: "$(params.sls_license_icn)"

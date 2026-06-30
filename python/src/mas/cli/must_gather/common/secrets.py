@@ -24,19 +24,16 @@ def collectSecrets(
     coreV1: CoreV1Api,
     namespace: str,
     outputDir: str,
-    secretData: bool = False,
 ) -> tuple[bool, int]:
     """Collect Kubernetes secrets from a namespace.
 
-    Collects secrets and generates both summary and detailed YAML output. When secretData
-    is False, secret data is excluded from YAML. When True, includes full YAML
-    with base64-encoded secret data.
+    Collects secrets and generates both summary and detailed YAML output.
+    Secret data is excluded from YAML.
 
     Args:
         coreV1 (CoreV1Api): Kubernetes CoreV1Api client instance
         namespace (str): Target namespace for collection
         outputDir (str): Base output directory for collected secrets
-        secretData (bool, optional): If True, include secret data in YAML output. If False, exclude secret data. Defaults to False.
 
     Returns:
         tuple[bool, int]: (success status, count of secrets collected)
@@ -70,8 +67,8 @@ def collectSecrets(
                 secretDict["apiVersion"] = "v1"
             if "kind" not in secretDict:
                 secretDict["kind"] = "Secret"
-            # Write YAML (with or without secret data based on secretData flag)
-            _writeYaml(secretDict, secretFile, includeData=secretData)
+            # Write YAML
+            _writeYaml(secretDict, secretFile)
 
         return (True, secretCount)
 
@@ -105,16 +102,15 @@ def _writeSummary(secretListDict: dict, outputFile: str) -> None:
             f.write("No resources found.\n")
 
 
-def _writeYaml(secretDict: dict, outputFile: str, includeData: bool = True) -> None:
+def _writeYaml(secretDict: dict, outputFile: str) -> None:
     """Write secret as YAML file.
 
     Args:
         secretDict (dict): Secret dictionary to write
         outputFile (str): Path to output file
-        includeData (bool, optional): If False, remove secret data before writing. Defaults to True.
     """
-    # Remove secret data if not requested
-    if not includeData and "data" in secretDict:
+    # ALWAYS remove secret data
+    if "data" in secretDict:
         secretDict = secretDict.copy()
         secretDict.pop("data", None)
 
