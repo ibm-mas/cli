@@ -13,6 +13,7 @@ from os import path
 from base64 import b64encode
 from glob import glob
 from prompt_toolkit import print_formatted_text
+from mas.devops.utils import isVersionEqualOrAfter
 
 import logging
 

@@ -47,6 +47,7 @@ from mas.cli.validators import (
     JsonValidator,
     OptimizerInstallPlanValidator,
     BucketPrefixValidator,
+    FileExistsValidator,
 )
 
 from mas.devops.ocp import (
