@@ -118,6 +118,12 @@ spec:
             name: mas-devops
             key: ARTIFACTORY_UPLOAD_DIR
             optional: true
+      - name: IBMCLOUD_APIKEY
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: IBMCLOUD_APIKEY
+            optional: true
 
       # Black and white listing
       - name: FVT_BLACKLIST
