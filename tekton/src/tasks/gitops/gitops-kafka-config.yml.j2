@@ -1,6 +1,6 @@
 
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-kafka-config
@@ -28,7 +28,6 @@ spec:
     - name: avp_aws_secret_region
       type: string
   stepTemplate:
-    name: gitops-kafka-config
     env:
       - name: CLUSTER_ID
         value: $(params.cluster_name)

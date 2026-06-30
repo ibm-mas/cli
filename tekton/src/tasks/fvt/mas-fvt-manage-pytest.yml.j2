@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-manage-pytest
@@ -61,7 +61,6 @@ spec:
       description: Instance ID of the target test environment
 
   stepTemplate:
-    name: 'fvt-manage-pytest'
     env:
       - name: PRODUCT_ID
         value: $(params.product_id)
@@ -197,7 +196,6 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 120m  # Ensure bad FVTs don't run forever
       onError: continue  # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm
