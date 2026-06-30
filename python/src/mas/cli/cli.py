@@ -357,6 +357,183 @@ class BaseApp(PrintMixin, PromptMixin):
             logger.info("Successfully created Tekton definitions with CLI digest")
 
     @logMethodCall
+    def hasCustomSuffix(self, channel: str) -> bool:
+        """
+        Check if a channel has a custom suffix (not in standard channels).
+
+        Standard suffixes that are always allowed:
+        - No suffix (e.g., "9.0.x", "9.1.x")
+        - "-feature" suffix (e.g., "9.1.x-feature", "9.2.x-feature")
+
+        Custom suffixes that require dev mode:
+        - "-dev", "-stable", "-test1", etc.
+
+        Returns:
+            True if channel has a custom suffix, False otherwise
+        """
+        if "-" not in channel:
+            return False
+
+        # Check if it's a standard channel (exists in upgrade_path or compatibilityMatrix)
+        if channel in self.upgrade_path or channel in self.compatibilityMatrix:
+            return False
+
+        # Extract the suffix
+        parts = channel.split("-")
+        if len(parts) < 2:
+            return False
+
+        # Check if base version exists
+        baseVersion = parts[0]  # e.g., "9.0.x"
+        if baseVersion not in self.upgrade_path and baseVersion not in self.compatibilityMatrix:
+            # Base version doesn't exist, so this is invalid regardless
+            return False
+
+        # If we get here, it has a custom suffix
+        return True
+
+    @logMethodCall
+    def getLicenseForChannel(self, channel: str) -> str:
+        """
+        Get the license text for a channel, using pattern matching if needed.
+
+        Examples:
+            "9.1.x" -> returns license for "9.1.x"
+            "9.1.x-dev" -> returns license for "9.1.x"
+            "9.2.x-feature-dev" -> returns license for "9.2.x-feature"
+
+        Returns:
+            License text string, or a default message if no license found
+        """
+        # Direct lookup
+        if channel in self.licenses:
+            return self.licenses[channel]
+
+        # Pattern matching: try progressively shorter prefixes
+        if "-" in channel:
+            parts = channel.split("-")
+            for i in range(len(parts), 0, -1):
+                prefix = "-".join(parts[:i])
+                if prefix in self.licenses:
+                    return self.licenses[prefix]
+
+        # Fallback: return a generic message
+        return f"License information not available for channel {channel}. Please refer to IBM documentation."
+
+    @logMethodCall
+    def extractVersionPrefix(self, channel: str) -> str:
+        """
+        Extract the version prefix from a channel string by finding the longest
+        prefix that exists in upgrade_path or compatibilityMatrix.
+
+        Examples:
+            "9.0.x" -> "9.0.x"
+            "9.0.x-dev" -> "9.0.x"
+            "9.1.x-feature" -> "9.1.x-feature" (if exists in upgrade_path)
+            "9.2.x-feature-dev" -> "9.2.x-feature" (if 9.2.x-feature exists)
+            "9.2.x-stable" -> "9.2.x"
+        """
+        if "-" not in channel:
+            return channel
+
+        # Try progressively shorter prefixes to find a match
+        parts = channel.split("-")
+
+        # Try from longest to shortest (e.g., "9.2.x-feature" before "9.2.x")
+        for i in range(len(parts), 0, -1):
+            prefix = "-".join(parts[:i])
+            # Check if this prefix exists in upgrade_path or compatibilityMatrix
+            if prefix in self.upgrade_path or prefix in self.compatibilityMatrix:
+                return prefix
+
+        # If no match found, return the first part (e.g., "9.0.x" from "9.0.x-dev")
+        return parts[0]
+
+    @logMethodCall
+    def isCompatibleUpgradePath(self, fromChannel: str, toChannel: str) -> bool:
+        """
+        Check if upgrade from fromChannel to toChannel is valid.
+        Supports pattern matching: 9.0.x-{anything} can upgrade to 9.1.x-{anything}
+
+        Examples:
+            9.0.x -> 9.1.x: True
+            9.0.x-dev -> 9.1.x-dev: True
+            9.0.x-test1 -> 9.1.x-test3: True
+            9.1.x-dev -> 9.2.x-stable: True
+            9.0.x -> 9.2.x: False (must go through 9.1.x first)
+        """
+        # Exact match in upgrade_path
+        if fromChannel in self.upgrade_path and self.upgrade_path[fromChannel] == toChannel:
+            return True
+
+        # Pattern-based matching: extract version prefixes
+        fromPrefix = self.extractVersionPrefix(fromChannel)
+        toPrefix = self.extractVersionPrefix(toChannel)
+
+        # Check if the base version upgrade path exists
+        if fromPrefix in self.upgrade_path and self.upgrade_path[fromPrefix] == toPrefix:
+            return True
+
+        return False
+
+    @logMethodCall
+    def getNextChannel(self, currentChannel: str) -> str | None:
+        """
+        Get the next upgrade channel for a given current channel.
+        Supports pattern matching for channels with suffixes.
+
+        Returns None if no upgrade path exists.
+        """
+        # Direct lookup
+        if currentChannel in self.upgrade_path:
+            return self.upgrade_path[currentChannel]
+
+        # Pattern-based lookup: if current is 9.0.x-dev, look up 9.0.x and append suffix
+        if "-" in currentChannel:
+            prefix = self.extractVersionPrefix(currentChannel)
+            suffix = currentChannel[len(prefix) :]  # e.g., "-dev"
+
+            if prefix in self.upgrade_path:
+                nextPrefix = self.upgrade_path[prefix]
+                # Append the same suffix to the next version
+                return nextPrefix + suffix
+
+        return None
+
+    @logMethodCall
+    def isAppChannelCompatible(self, coreChannel: str, appId: str, appChannel: str) -> bool:
+        """
+        Check if an app channel is compatible with a core channel.
+        Supports pattern matching for channels with suffixes.
+        """
+        # Direct lookup
+        if coreChannel in self.compatibilityMatrix:
+            if appId in self.compatibilityMatrix[coreChannel]:
+                compatibleChannels = self.compatibilityMatrix[coreChannel][appId]
+                if appChannel in compatibleChannels:
+                    return True
+
+                # Pattern matching: check if app's base version is compatible
+                appPrefix = self.extractVersionPrefix(appChannel)
+                if appPrefix in compatibleChannels:
+                    return True
+
+        # Pattern-based lookup for core channel
+        corePrefix = self.extractVersionPrefix(coreChannel)
+        if corePrefix in self.compatibilityMatrix:
+            if appId in self.compatibilityMatrix[corePrefix]:
+                compatibleChannels = self.compatibilityMatrix[corePrefix][appId]
+                if appChannel in compatibleChannels:
+                    return True
+
+                # Pattern matching: check if app's base version is compatible
+                appPrefix = self.extractVersionPrefix(appChannel)
+                if appPrefix in compatibleChannels:
+                    return True
+
+        return False
+
+    @logMethodCall
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> List[str]:
         if coreChannel in self.compatibilityMatrix:
             return self.compatibilityMatrix[coreChannel][appId]
@@ -520,12 +697,10 @@ class BaseApp(PrintMixin, PromptMixin):
         if architecture is not None:
             self.architecture = architecture
             logger.debug(f"Target architecture (overridden): {self.architecture}")
-        elif self.dynamicClient is not None:
+        else:
             nodes = getNodes(self.dynamicClient)
             self.architecture = nodes[0]["status"]["nodeInfo"]["architecture"]
             logger.debug(f"Target architecture: {self.architecture}")
-        else:
-            return
 
         if self.architecture not in ["amd64", "s390x", "ppc64le"]:
             self.fatalError(f"Unsupported worker node architecture: {self.architecture}")

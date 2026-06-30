@@ -118,20 +118,6 @@ spec:
               key: FVT_DIGEST_DATA_DICTIONARY
               optional: false
 
-        # Black and white listing
-        - name: FVT_BLACKLIST
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: FVT_BLACKLIST
-              optional: false
-        - name: FVT_WHITELIST
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: FVT_WHITELIST
-              optional: false
-
     - name: wait-for-pipelinerun
       image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)

@@ -30,6 +30,10 @@ class TestUpgradeChannelLogic:
             app.skipPreCheck = False
             app.licenseAccepted = True
             app.devMode = False
+            # Initialize install flags
+            app.installMonitor = False
+            app.installIoT = False
+            app.installFacilities = False
             # Mock the underlying _dynClient attribute (dynamicClient is a property)
             mock_client = Mock()
             # Create a function to return different mocks based on the kind parameter

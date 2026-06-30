@@ -55,7 +55,7 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     default=False,
-    help="Configure upgrade for development mode",
+    help="Configure upgrade for development mode (required for custom channel suffixes like 9.0.x-dev, 9.1.x-test1, etc.)",
 )
 masArgGroup.add_argument("--next-channel", required=False, default="", help="The Target Mas channel to Upgrade on")
 otherArgGroup.add_argument("--slack-token", required=False, help="Slack bot token for sending pipeline status notifications")

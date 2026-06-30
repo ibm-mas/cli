@@ -153,21 +153,6 @@ spec:
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
-      # Black and white listing
-      - name: FVT_BLACKLIST
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-$(params.product_id)
-            key: FVT_BLACKLIST
-            optional: true
-      - name: FVT_WHITELIST
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-$(params.product_id)
-            key: FVT_WHITELIST
-            optional: true
-
-
       - name: FVT_CONFIG_FILE
         value: $(params.fvt_config_file)
 

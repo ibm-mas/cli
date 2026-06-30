@@ -79,6 +79,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Initialise the build system
         id: init
         run: |
@@ -106,8 +111,9 @@ jobs:
           cat ${GITHUB_WORKSPACE}/python/src/mas/cli/cli.py | grep "self.version"
 
           python -m pip install --upgrade pip
-          pip install .[dev]
 
+          # Install mas-devops FIRST before installing the main package
+          # This is required because mas.cli.cli imports from mas.devops at module level
           if [[ -e $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz ]]; then
             echo "Found local Python package ($GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz) on this branch."
             python -m pip install $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
@@ -127,8 +133,11 @@ jobs:
                   PYTHON_BRANCH_NAME=stable
               fi
 
-              python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${PYTHON_BRANCH_NAME}"
+              python -m pip install "git+https://github.com/ibm-mas/python-devops.git@${PYTHON_BRANCH_NAME}"
           fi
+
+          # Now install the main package
+          pip install .[dev]
 
       - name: Lint
         id: lint

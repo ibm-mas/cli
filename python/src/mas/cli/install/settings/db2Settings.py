@@ -261,10 +261,11 @@ class Db2SettingsMixin:
             or self.getParam("db2_action_manage") == "install"
             or self.getParam("db2_action_facilities") == "install"
         ):
-            self.printDescription(
-                ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
-            )
-            self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
+            if not silentMode:
+                self.printDescription(
+                    ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
+                )
+                self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
             if self.showAdvancedOptions:
                 self.printH2("Installation Namespace")
                 self.promptForString("Install namespace", "db2_namespace", default="db2u")
@@ -322,8 +323,8 @@ class Db2SettingsMixin:
                         self.promptForListSelect("Select the CR Resource", ["db2ucluster", "db2uinstance"], "db2u_kind")
                     else:
                         self.setParam("db2u_kind", "db2ucluster")
-            else:
-                self.setParam("db2_namespace", "db2u")
+        else:
+            self.setParam("db2_namespace", "db2u")
 
     def setDB2DefaultChannel(self) -> None:
         # Set the default db2-Channel

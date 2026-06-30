@@ -224,7 +224,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             self.connect()
 
         if self.dynamicClient is None:
-            self.fatalError("Not successfully connected to a Kubernetes cluster.  See log file for details")
+            self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
 
         # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
         # deprecated MaximoApplicationSuite ImageContentSourcePolicy instead of the new ImageDigestMirrorSet
