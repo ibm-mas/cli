@@ -136,8 +136,8 @@ jobs:
               python -m pip install "git+https://github.com/ibm-mas/python-devops.git@${PYTHON_BRANCH_NAME}"
           fi
 
-          # Now install the main package in editable mode
-          pip install -e .[dev]
+          # Now install the main package
+          pip install .[dev]
 
       - name: Lint
         id: lint
