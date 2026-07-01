@@ -67,6 +67,9 @@ namespaces = true
   "templates/pod-templates/best-effort/*.yml",
   "templates/pod-templates/guaranteed/*.yml",
   "templates/pod-templates/saas-essentials/*.yml",
+  "rbac/install/*.yaml",
+  "rbac/install/pipeline/*.yaml",
+  "rbac/install/user/*.yaml",
 ]
 "mas.cli.must_gather.web_viewer" = [
   "templates/*.html",
