@@ -69,6 +69,9 @@ spec:
       type: string
       default: "generated(efs)"
 
+    - name: dro_enabled
+      type: string
+      default: ""
     - name: dro_namespace
       type: string
       default: "ibm-software-central"
@@ -468,6 +471,10 @@ spec:
     - name: gitops-dro
       runAfter:
         - gitops-cluster
+      when:
+        - input: "$(params.dro_enabled)"
+          operator: notin
+          values: [""]
       params:
         - name: cluster_name
           value: $(params.cluster_name)

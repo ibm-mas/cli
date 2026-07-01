@@ -491,7 +491,100 @@ function sm_get_secret_arn() {
    fi
 
    eval "$2=${_SECRET_ARN}"
+}
 
+
+# Manage customer-level MREF AES keystore password for Maximo Manage
+# Manages customer-level MREF (Maximo Real Estate and Facilities) AES keystore password
+# to ensure all environments for a customer share the same encryption password.
+# Updated: 2026-06-11 - Template separator fix included in this build
+# This prevents backflow issues when moving data between prod/dev/test environments.
+#
+# The function:
+# 1. Checks if customer-level password exists at ibm-customer/{ICN}/facilities/manage_mref_keystore_password
+# 2. If not, checks for legacy instance-level password and migrates it
+# 3. If neither exists, generates a new secure alphanumeric password
+# 4. Stores password at customer level for reuse across all customer instances
+#
+# Args:
+#   $1 - ICN (IBM Customer Number)
+#   $2 - ACCOUNT_ID
+#   $3 - CLUSTER_ID
+#   $4 - MAS_INSTANCE_ID
+#   $5 - SECRETS_KEY_SEPERATOR
+#
+# Returns:
+#   0 on success, 1 on failure
+#   Does NOT export password as environment variable
+function manage_customer_mref_password() {
+  local ICN="$1"
+  local ACCOUNT_ID="$2"
+  local CLUSTER_ID="$3"
+  local MAS_INSTANCE_ID="$4"
+  local SECRETS_KEY_SEPERATOR="$5"
+  
+  if [[ -z "${ICN}" ]]; then
+    echo "ERROR: ICN is required for customer-level MREF password management"
+    return 1
+  fi
+  
+  echo ""
+  echo_h2 "Managing Customer-Level MREF AES Keystore Password"
+  echo "- Customer ICN: ${ICN}"
+  
+  # Define secret paths following customer-level secret pattern: ibm-customer/{ICN}/facilities/...
+  local CUSTOMER_SECRET_NAME="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage_mref_keystore_password"
+  local LEGACY_SECRET_NAME="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage_mref_keystore_password"
+  
+  # Check if customer-level secret exists
+  echo "- Checking for customer-level secret: ${CUSTOMER_SECRET_NAME}"
+  set +o pipefail
+  local MREF_PASSWORD=$(sm_get_secret_value "${CUSTOMER_SECRET_NAME}" "password" 2>/dev/null)
+  set -o pipefail
+  
+  if [[ -n "${MREF_PASSWORD}" ]] && [[ "${MREF_PASSWORD}" != "null" ]]; then
+    echo "- Customer-level MREF password found, reusing existing password"
+    return 0
+  fi
+  
+  # Customer-level secret doesn't exist, check for legacy instance-level secret
+  echo "- Customer-level secret not found, checking for legacy instance-level secret"
+  echo "- Checking: ${LEGACY_SECRET_NAME}"
+  set +o pipefail
+  local LEGACY_PASSWORD=$(sm_get_secret_value "${LEGACY_SECRET_NAME}" "password" 2>/dev/null)
+  set -o pipefail
+  
+  if [[ -n "${LEGACY_PASSWORD}" ]] && [[ "${LEGACY_PASSWORD}" != "null" ]]; then
+    echo "- Legacy instance-level password found, migrating to customer level"
+    MREF_PASSWORD="${LEGACY_PASSWORD}"
+    local MIGRATION_NOTE="Migrated from instance-level secret: ${LEGACY_SECRET_NAME}"
+  else
+    echo "- No existing password found, generating new secure password"
+    # Generate secure alphanumeric password (no special characters to avoid escaping issues)
+    # Use a loop to ensure we get exactly 32 characters after filtering
+    while true; do
+      MREF_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 64) #pragma: allowlist secret
+      if [[ ${#MREF_PASSWORD} -ge 32 ]]; then
+        MREF_PASSWORD=${MREF_PASSWORD:0:32} #pragma: allowlist secret
+        break
+      fi
+    done
+    local MIGRATION_NOTE="Generated for first deployment"
+  fi
+  
+  # Store password at customer level
+  echo "- Storing password at customer level: ${CUSTOMER_SECRET_NAME}"
+  local TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite_app_config\"}, {\"Key\": \"icn\", \"Value\": \"${ICN}\"}, {\"Key\": \"type\", \"Value\": \"customer-level\"}, {\"Key\": \"purpose\", \"Value\": \"mref-aes-keystore\"}, {\"Key\": \"note\", \"Value\": \"${MIGRATION_NOTE}\"}]"
+  
+  sm_update_secret "${CUSTOMER_SECRET_NAME}" "{\"password\": \"${MREF_PASSWORD}\"}" "${TAGS}"
+  
+  if [[ $? -eq 0 ]]; then
+    echo "- Customer-level MREF password successfully stored"
+    return 0
+  else
+    echo "ERROR: Failed to store customer-level MREF password"
+    return 1
+  fi
 }
 
 function clone_target_git_repo() {
