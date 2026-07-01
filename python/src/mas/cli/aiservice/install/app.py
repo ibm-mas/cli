@@ -747,7 +747,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.printDescription(
             [
                 "By default, DB2 will be installed in-cluster (suitable for development and testing).",
-                "Alternatively, you can connect to an external database (Oracle, SQL Server, or DB2).",
+                "Alternatively, you can connect to an external Oracle database.",
+                # "Alternatively, you can connect to an external database (Oracle, SQL Server, or DB2).",
                 "",
             ]
         )
@@ -760,12 +761,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printH2("External Database Configuration")
             self.printDescription(
                 [
-                    "Provide connection details for your external database.",
+                    "Provide connection details for your external Oracle database.",
                     "",
-                    "<b>JDBC URL Examples:</b>",
-                    "  Oracle:     jdbc:oracle:thin:@//hostname:1521/servicename",
-                    "  SQL Server: jdbc:sqlserver://hostname:1433;databaseName=aiservice",
-                    "  DB2:        jdbc:db2://hostname:50000/database",
+                    "<b>JDBC URL Example:</b>",
+                    "  Oracle: jdbc:oracle:thin:@//hostname:1521/servicename",
+                    # "  SQL Server: jdbc:sqlserver://hostname:1433;databaseName=aiservice",
+                    # "  DB2:        jdbc:db2://hostname:50000/database",
                     "",
                 ]
             )

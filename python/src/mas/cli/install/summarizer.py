@@ -382,10 +382,10 @@ class InstallSummarizerMixin:
                     # Determine database type from JDBC URL
                     if "oracle" in jdbc_url.lower():
                         db_type = "External Database (Oracle)"
-                    elif "sqlserver" in jdbc_url.lower():
-                        db_type = "External Database (SQL Server)"
-                    elif "db2" in jdbc_url.lower():
-                        db_type = "External Database (DB2)"
+                    # elif "sqlserver" in jdbc_url.lower():
+                    #     db_type = "External Database (SQL Server)"
+                    # elif "db2" in jdbc_url.lower():
+                    #     db_type = "External Database (DB2)"
                     else:
                         db_type = "External Database"
                     
