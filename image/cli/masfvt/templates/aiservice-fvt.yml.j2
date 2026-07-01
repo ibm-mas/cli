@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: "{{ pipelinerun_name }}"
@@ -10,7 +10,8 @@ spec:
   pipelineRef:
     name: aiservice-fvt
 
-  serviceAccountName: "{{ service_account_name }}"
+  taskRunTemplate:
+    serviceAccountName: "{{ service_account_name }}"
   timeouts:
     pipeline: "8h"
 

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-backup
@@ -55,7 +55,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-backup-check', 'devops_suite_name': 'pre-backup-check'}) | indent(4) }}
       runAfter:
         - pipeline-start
-    
+
     # 3. Prepare backup workspace
     # -------------------------------------------------------------------------
     - name: prepare-backup-workspace
@@ -140,7 +140,7 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-          
+
         - name: mongodb_backup_version
           value: $(params.backup_version)
         - name: mongodb_action
