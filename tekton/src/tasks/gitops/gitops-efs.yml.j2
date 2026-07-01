@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-efs
@@ -22,7 +22,6 @@ spec:
       type: string
       default: ""
   stepTemplate:
-    name: gitops-efs
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -133,13 +132,13 @@ spec:
           --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-facilities-main" \
           --skip-create-storage-class \
           || exit 1
-        
+
       command:
         - /bin/sh
         - -c
       name: gitops-efs
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
 

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: aiservice-fvt-start-upgrade
@@ -22,7 +22,7 @@ spec:
         echo '--------------------------------------------------------------------------------'
         exit $RESULT
       timeout: "0"
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}

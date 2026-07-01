@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-ivt-manage
@@ -85,7 +85,7 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
-          
+
     # Manage x Monitor - Data Dictionary
     # -------------------------------------------------------------------------
     # - Requires in the same pipeline:
@@ -149,7 +149,7 @@ spec:
         {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(8) }}
       runAfter:
         - ivt-manage
-    
+
   # Finally
   # ---------------------------------------------------------------------------
   finally:

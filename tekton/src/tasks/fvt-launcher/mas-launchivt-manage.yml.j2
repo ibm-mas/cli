@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-launchivt-manage
@@ -15,7 +15,7 @@ spec:
 
   steps:
     - name: start-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
@@ -126,7 +126,7 @@ spec:
               optional: true
 
     - name: wait-for-pipelinerun
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       # 50 retries at 10 minute intervals = just over 8 hours
       command:

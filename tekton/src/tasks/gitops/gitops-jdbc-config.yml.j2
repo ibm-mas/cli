@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-jdbc-config
@@ -48,7 +48,6 @@ spec:
       type: string
       default: ""
   stepTemplate:
-    name: gitops-jdbc-config
     env:
       - name: CLUSTER_ID
         value: $(params.cluster_name)
@@ -100,7 +99,7 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-        
+
         mas gitops-mas-config \
           --account-id "$ACCOUNT_ID" \
           --cluster-id "$CLUSTER_ID" \
@@ -124,7 +123,7 @@ spec:
         - -c
       name: gitops-jdbc-config
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

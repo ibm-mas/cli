@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-db2u
@@ -32,7 +32,6 @@ spec:
       type: string
       default: "Automatic"
   stepTemplate:
-    name: gitops-db2u
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -72,7 +71,7 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-        
+
         mkdir -p /tmp/init-db2u
         mas gitops-db2u -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-db2u \
@@ -89,6 +88,6 @@ spec:
         - -c
       name: gitops-db2u
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

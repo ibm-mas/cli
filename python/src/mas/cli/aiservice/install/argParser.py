@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -205,13 +205,6 @@ aiserviceAdvancedArgGroup.add_argument(
     dest="aiservice_certificate_issuer",
     required=False,
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
-)
-aiserviceAdvancedArgGroup.add_argument(
-    "--admin-mode",
-    dest="admin_mode",
-    required=False,
-    choices=["cluster", "namespaced", "minimal"],
-    help="The admin mode used to determine which pre-install RBAC manifests are applied for AI Service (MAS 9.2+)",
 )
 aiserviceAdvancedArgGroup.add_argument(
     "--enable-ipv6",
