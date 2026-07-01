@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-fvt-facilities
@@ -117,7 +117,7 @@ spec:
         - name: pod-templates
           workspace: shared-pod-templates
 
-    # 2. Prepare data 
+    # 2. Prepare data
     # -----------------------------------------------------------------------------
     - name: fvt-facilities
       params:
@@ -130,7 +130,7 @@ spec:
         - name: fvt_image_namespace
           value: fvt-facilities
         - name: fvt_image_name
-          value: fvt-ibm-mas-facilities 
+          value: fvt-ibm-mas-facilities
         - name: fvt_image_digest
           value: $(params.fvt_digest_facilities)
         - name: fvt_test_suite

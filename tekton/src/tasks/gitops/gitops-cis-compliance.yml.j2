@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-cis-compliance
@@ -26,7 +26,6 @@ spec:
       type: string
       default: "Automatic"
   stepTemplate:
-    name: gitops-cis-compliance
     env:
       - name: CLUSTER_URL
         value: $(params.cluster_url)
