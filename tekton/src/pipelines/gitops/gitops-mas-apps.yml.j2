@@ -982,10 +982,6 @@ spec:
       type: string
       default: ""
 
-    - name: production_database_access_type
-      type: string
-      default: ""
-
   tasks:
     # 0. Preprocess Manual Certificates
     # -------------------------------------------------------------------------
@@ -1586,9 +1582,7 @@ spec:
           value: $(params.auto_backup_manage)
         - name: allow_list
           value: $(params.allow_list)
-        - name: production_database_access_type
-          value: $(params.production_database_access_type)
-
+        
       workspaces:
         - name: configs
           workspace: configs
