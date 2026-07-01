@@ -221,14 +221,10 @@ class TestUpgradeChannelLogic:
                                         mock_upgrade_app.upgrade([])
                                     except Exception:
                                         pass
-                                assert mock_upgrade_app.nextChannel == "9.2.x", (
-                                    f"Expected nextChannel='9.2.x', got '{mock_upgrade_app.nextChannel}'"
-                                )
+                                assert mock_upgrade_app.nextChannel == "9.2.x", f"Expected nextChannel='9.2.x', got '{mock_upgrade_app.nextChannel}'"
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
-                                    assert call_kwargs["masChannel"] == "", (
-                                        f"Expected masChannel='' (auto-determine), got '{call_kwargs['masChannel']}'"
-                                    )
+                                    assert call_kwargs["masChannel"] == "", f"Expected masChannel='' (auto-determine), got '{call_kwargs['masChannel']}'"
 
     def test_91x_dev_upgrade_with_next_channel(self, mock_upgrade_app):
         """
@@ -255,9 +251,7 @@ class TestUpgradeChannelLogic:
                                         pass
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
-                                    assert call_kwargs["masChannel"] == "9.1.x-dev", (
-                                        f"Expected masChannel='9.1.x-dev', got '{call_kwargs['masChannel']}'"
-                                    )
+                                    assert call_kwargs["masChannel"] == "9.1.x-dev", f"Expected masChannel='9.1.x-dev', got '{call_kwargs['masChannel']}'"
 
     def test_90x_dev_upgrade_auto_determine(self, mock_upgrade_app):
         """
@@ -282,14 +276,10 @@ class TestUpgradeChannelLogic:
                                         mock_upgrade_app.upgrade([])
                                     except Exception:
                                         pass
-                                assert mock_upgrade_app.nextChannel == "9.1.x-dev", (
-                                    f"Expected nextChannel='9.1.x-dev', got '{mock_upgrade_app.nextChannel}'"
-                                )
+                                assert mock_upgrade_app.nextChannel == "9.1.x-dev", f"Expected nextChannel='9.1.x-dev', got '{mock_upgrade_app.nextChannel}'"
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
-                                    assert call_kwargs["masChannel"] == "", (
-                                        f"Expected masChannel='' (auto-determine), got '{call_kwargs['masChannel']}'"
-                                    )
+                                    assert call_kwargs["masChannel"] == "", f"Expected masChannel='' (auto-determine), got '{call_kwargs['masChannel']}'"
 
     def test_90x_dev_upgrade_with_next_channel(self, mock_upgrade_app):
         """
@@ -316,6 +306,4 @@ class TestUpgradeChannelLogic:
                                         pass
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
-                                    assert call_kwargs["masChannel"] == "9.0.x-dev", (
-                                        f"Expected masChannel='9.0.x-dev', got '{call_kwargs['masChannel']}'"
-                                    )
+                                    assert call_kwargs["masChannel"] == "9.0.x-dev", f"Expected masChannel='9.0.x-dev', got '{call_kwargs['masChannel']}'"
