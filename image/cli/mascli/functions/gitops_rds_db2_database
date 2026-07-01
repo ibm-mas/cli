@@ -32,6 +32,7 @@ IBM RDS DB2:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}   Secrets Manager key seperator string      
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                             Secrets backend type. One of: aws, kubernetes (default: aws)
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -50,7 +51,6 @@ EOM
 
 function gitops_rds_db2_database_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-db2u-database commit"
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
@@ -115,6 +115,9 @@ function gitops_rds_db2_database_noninteractive() {
         ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
       # RDS-DB2
@@ -274,7 +277,8 @@ function gitops_rds_db2_database() {
   echo_reset_dim "db2-addons-audit-config-yaml .................. ${COLOR_MAGENTA}${DB2_ADDONS_AUDIT_CONFIG_YAML}"
   reset_colors
 
-  AVP_TYPE=aws  # Support for IBM will be added later
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-db2u-database

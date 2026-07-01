@@ -17,6 +17,7 @@ GitOps Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetes (default: aws)
 
 MongoDb Provider Selection:
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
@@ -43,7 +44,6 @@ EOM
 
 
 function gitops_deprovision_mongo_noninteractive() {
-  SECRETS_KEY_SEPERATOR="/"
 
   while [[ $# -gt 0 ]]
   do
@@ -64,6 +64,9 @@ function gitops_deprovision_mongo_noninteractive() {
         ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
       # MongoDb Provider Selection
@@ -190,9 +193,10 @@ function gitops_deprovision_mongo() {
     echo_reset_dim "YAML Configuration File ............... ${COLOR_MAGENTA}${MONGO_YAML_FILE}"
   fi
 
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
 
-  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
   if [ $MONGODB_PROVIDER == 'aws' ]; then

@@ -19,6 +19,7 @@ Options:
   --aws-region ${COLOR_YELLOW}AWS_DEFAULT_REGION${TEXT_RESET}                   AWS Region
   --aws-access-key ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}                AWS Access Key ID
   --aws-secret-key ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY${TEXT_RESET}            AWS Secret Access Key
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                           Secrets backend type. One of: aws, kubernetes (default: aws)
   --cloud-provider ${COLOR_YELLOW}CLOUD_PROVIDER${TEXT_RESET}                   Cloud Provider
   --skip-create-storage-class                                                   If set, script will skip creation of a corresponding EFS StorageClass named "efs<efs_unique_id>" in the OCP cluster
 
@@ -70,6 +71,11 @@ function gitops_efs_noninteractive() {
         ;;
       --aws-secret-key)
         export AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+
+      # Secrets Manager backend type
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
       # Other Commands
@@ -124,7 +130,8 @@ function gitops_efs() {
   echo_reset_dim "AWS Secret Key........................... ${COLOR_MAGENTA}${AWS_SECRET_ACCESS_KEY:0:8}<snip>"
  
   if [ $CLOUD_PROVIDER == 'aws' ]; then
-    AVP_TYPE=aws  # Support for IBM will be added later
+    AVP_TYPE="${AVP_TYPE:-aws}"
+    [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
     sm_login
 
     export CLUSTER_NAME=$CLUSTER_ID

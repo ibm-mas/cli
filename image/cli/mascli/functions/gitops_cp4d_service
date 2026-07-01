@@ -21,6 +21,7 @@ IBM Maximo Application Suite:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetes (default: aws)
 
 IBM CP4D Service:
       --cpd-product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                             CP4D Product Version
@@ -59,7 +60,6 @@ EOM
 
 function gitops_cp4d_service_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-cp4d-service commit"
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
@@ -107,6 +107,9 @@ function gitops_cp4d_service_noninteractive() {
         ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
       # CP4D Service
@@ -306,7 +309,8 @@ function gitops_cp4d_service() {
 
   # We want to use CP4D 4.8 but we need to wait for it to be ready in automation and product
   # In order to not block use we will just install using ansible-devops
-  AVP_TYPE=aws  # Support for IBM will be added later
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
 
   export SECRET_KEY_CCS_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ccs_version#ccs_version
 

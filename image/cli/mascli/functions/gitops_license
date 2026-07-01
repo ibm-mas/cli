@@ -27,6 +27,7 @@ AWS Secrets Manager Configuration:
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
       --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                           Secrets backend type. One of: aws, kubernetes (default: aws)
 
 Other Commands:
   -h, --help                                      Show this help message
@@ -80,6 +81,12 @@ function gitops_license_noninteractive() {
         ;;
       --sm-aws-secret-key)
         export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
       # Other Commands
@@ -145,7 +152,8 @@ function gitops_license() {
   echo_reset_dim "SLS License File  .............. ${COLOR_MAGENTA}${LICENSE_FILE}"
   reset_colors
 
-  AVP_TYPE=aws
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
   if [ ! -z "$SAAS_SUB_ID" ]; then

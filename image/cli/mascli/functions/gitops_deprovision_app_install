@@ -42,7 +42,6 @@ EOM
 
 function gitops_deprovision_app_install_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-deprovision-app-install commit"
 
   export REGION=${REGION:-${SM_AWS_REGION}}
@@ -119,6 +118,7 @@ function gitops_deprovision_app_install_noninteractive() {
         ;;
       esac
   done
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
 
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_app_install_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_deprovision_app_install_help "MAS_APP_ID is not set"

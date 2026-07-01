@@ -37,7 +37,6 @@ EOM
 
 function gitops_deprovision_suite_workspace_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-deprovision-suite-workspace commit"
 
   export REGION=${REGION:-${SM_AWS_REGION}}

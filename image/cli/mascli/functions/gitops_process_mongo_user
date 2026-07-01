@@ -17,6 +17,7 @@ GitOps Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                             Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}           Secrets Manager key seperator string
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                     Secrets backend type. One of: aws, kubernetes (default: aws)
 
 IBM Maximo Application Suite:
       -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                   IBM Suite Maximo Application Suite Instance ID
@@ -54,7 +55,6 @@ EOM
 
 
 function gitops_process_mongo_user_noninteractive() {
-  SECRETS_KEY_SEPERATOR="/"
 
   while [[ $# -gt 0 ]]
   do
@@ -75,6 +75,9 @@ function gitops_process_mongo_user_noninteractive() {
         ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
       # MAS
@@ -230,9 +233,10 @@ function gitops_process_mongo_user() {
   echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   reset_colors
 
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
 
-  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
   if [ ${MONGODB_PROVIDER} == 'aws' ]; then

@@ -11,6 +11,12 @@ region:
 sm:
   aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/aws#sm_aws_access_key_id>"
   aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/aws#sm_aws_secret_access_key>"
+{% if AVP_TYPE is defined and AVP_TYPE != '' %}
+  backend: {{ AVP_TYPE }}
+{% endif %}
+{% if SECRETS_KEY_SEPERATOR is defined and SECRETS_KEY_SEPERATOR != '' %}
+  secret_keys_seperator: "{{ SECRETS_KEY_SEPERATOR }}"
+{% endif %}
 
 ibm_sls_standalone:
   sls_channel: {{ SLS_CHANNEL }}

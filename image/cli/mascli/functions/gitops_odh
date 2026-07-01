@@ -20,6 +20,7 @@ GitOps Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetes (default: aws)
 
 ibm aiservice(required):
       --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
@@ -101,7 +102,6 @@ EOM
 
 function gitops_odh_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir  
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-odh commit"
 
 
@@ -166,6 +166,12 @@ function gitops_odh_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
             # Automatic GitHub Push
@@ -363,7 +369,8 @@ function gitops_odh() {
 
   CURRENT_DIR=$PWD
   
-  AVP_TYPE=aws
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
   # Set up secret key and fetch secret

@@ -141,7 +141,6 @@ function create_aws_tgw_peering(){
 }
 
 function gitops_aws_infrastructure_noninteractive() {
-  SECRETS_KEY_SEPERATOR="/"
 
   while [[ $# -gt 0 ]]
   do

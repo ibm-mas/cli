@@ -18,6 +18,7 @@ GitOps Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetes (default: aws)
 
 MAS PROVISIONER OPERATOR:
       --status-repo-url ${COLOR_YELLOW}STATUS_REPO_URL${TEXT_RESET}                       Git repo where the order status of the operation will be recorded
@@ -57,7 +58,6 @@ EOM
 
 function gitops_mas_provisioner_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-mas-provisioner commit"
 
   # defaults for fvtsaas
@@ -93,6 +93,9 @@ function gitops_mas_provisioner_noninteractive() {
         ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
       # MAS PROVISIONER OPERATOR
@@ -292,7 +295,8 @@ function gitops_mas_provisioner() {
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Configuring MAS Provisioner Secrets"
-  AVP_TYPE=aws
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement

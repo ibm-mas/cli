@@ -21,6 +21,8 @@ AWS Secrets Manager Configuration (Required):
       --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}                                                               Your AWS Access Key ID
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}                                                           Your AWS Secret Key
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                                            Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '_' for kubernetes)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                           Secrets backend type. One of: aws, kubernetes (default: aws)
       --skip-aws-secret-creation ${COLOR_YELLOW}SKIP_AWS_SECRET_CREATION${TEXT_RESET}                                                    If set, cluster AWS secret will be verified but not created. For use when cluster AWS secret is managed by some other configuration mechanism (e.g. Terraform).
 
 IBM Container Registry Entitlement (Required):
@@ -168,6 +170,12 @@ function gitops_cluster_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
       --skip-aws-secret-creation)
         export SKIP_AWS_SECRET_CREATION=true
@@ -610,7 +618,8 @@ function gitops_cluster() {
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Configuring Cluster secrets"
-  AVP_TYPE=aws
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}ibm_entitlement

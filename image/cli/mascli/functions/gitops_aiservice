@@ -19,6 +19,7 @@ Basic Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                      Secrets backend type. One of: aws, kubernetes (default: aws)
 
 ibm aiservice(required):
       --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
@@ -63,7 +64,6 @@ EOM
 
 function gitops_aiservice_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-aiservice commit"
 
    #adding default values # all generic values should to put here # check with ansible playbook/gitops anvs 
@@ -128,6 +128,12 @@ function gitops_aiservice_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
       --aiservice-namespace)
@@ -354,7 +360,8 @@ function gitops_aiservice() {
   echo_reset_dim "JDBC Secret ............................ ${COLOR_MAGENTA}${JDBC_SECRET}"
   echo_reset_dim "Use AWS DB2 ............................ ${COLOR_MAGENTA}${USE_AWS_DB2}"
 
-  AVP_TYPE=aws  # Support for IBM will be added later
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
   # update those varialbe which are necessory to be updated into aws , 
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"

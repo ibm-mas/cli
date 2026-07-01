@@ -15,6 +15,11 @@ Basic Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                   Cluster ID
   -i, --instance-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                 Instance ID
 
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key separator string (default: '/' for aws, '_' for kubernetes)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                      Secrets backend type. One of: aws, kubernetes (default: aws)
+
 ibm_aiservice_tenant(required):
       --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                             The AiService instance ID used by AI Service
       --catalog-source ${TEXT_RESET}CATALOG_SOURCE${TEXT_RESET}                                             The catalog source from which to install the tenant operator
@@ -81,7 +86,6 @@ EOM
 
 function gitops_aiservice_tenant_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-aiservice-tenant commit"
 
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
@@ -138,7 +142,10 @@ function gitops_aiservice_tenant_noninteractive() {
       -i|--instance-id)
         export INSTANCE_ID=$1 && shift 
         ;;
-      # AWS Secrets Manager Configuration
+      # Secrets Manager Configuration
+      --avp-type)
+        export AVP_TYPE=$1 && shift
+        ;;
       --sm-aws-secret-region)
         export SM_AWS_REGION=$1
         export REGION_ID=$1
@@ -152,6 +159,9 @@ function gitops_aiservice_tenant_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
       # -- aiservice
@@ -436,7 +446,8 @@ fi
   # -- STORAGE
   echo_reset_dim "SSL enabled .................................................... ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
   echo_reset_dim "Storage provider ............................................... ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
-  AVP_TYPE=aws  # Support for IBM will be added later
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"

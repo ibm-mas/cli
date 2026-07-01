@@ -28,6 +28,7 @@ Options:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetes (default: aws)
 
 Other Commands:
   -h, --help                                                                Show this help message
@@ -36,7 +37,6 @@ EOM
 }
 
 function gitops_suite_certs_noninteractive() {
-  SECRETS_KEY_SEPERATOR="/"
 
   while [[ $# -gt 0 ]]
   do
@@ -81,6 +81,9 @@ function gitops_suite_certs_noninteractive() {
         ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+      --avp-type)
+        export AVP_TYPE=$1 && shift
         ;;
 
       # CIS specific
@@ -166,7 +169,8 @@ function gitops_suite_certs() {
 
     echo
     echo "Move Certs to Secret Manager"
-    AVP_TYPE=aws  # Support for IBM will be added later
+    AVP_TYPE="${AVP_TYPE:-aws}"
+    [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
     sm_login
 
     appList=(

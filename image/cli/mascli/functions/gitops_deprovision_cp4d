@@ -38,7 +38,6 @@ EOM
 
 function gitops_deprovision_cp4d_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-deprovision-cp4d commit"
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
@@ -119,6 +118,7 @@ function gitops_deprovision_cp4d_noninteractive() {
         ;;
       esac
   done
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_cp4d_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_cp4d_help "ACCOUNT_ID is not set"
