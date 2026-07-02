@@ -108,6 +108,12 @@ def _getReconcileLogsOperatorsForApp(namespace: str, appId: str) -> List[Tuple[s
             (namespace, "operator", "ibm-truststore-mgr"),
             (namespace, "mas.ibm.com/appType", "serverBundle"),
         ]
+    elif appId == "monitor":
+        operators = [
+            (namespace, "control-plane", "ibm-mas-monitor"),
+            (namespace, "mas.ibm.com/appType", "entitymgr-ws-operator"),
+            (namespace, "operator", "ibm-truststore-mgr"),
+        ]
     elif appId == "iot":
         operators = [
             (namespace, "control-plane", "ibm-iot-operator"),
