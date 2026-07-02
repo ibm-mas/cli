@@ -696,7 +696,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-mas-initiator
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
