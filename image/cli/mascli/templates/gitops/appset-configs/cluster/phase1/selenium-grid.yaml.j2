@@ -6,16 +6,22 @@ selenium_grid:
   values:
     hub:
       imageTag: 4.23.0-20240727
+      extraEnvironmentVariables:
+        - name: SE_SESSION_REQUEST_TIMEOUT
+          value: "900"
     chromeNode:
       imageTag: 4.23.0-20240727
       imageName: node-chromium
+      extraEnvironmentVariables:
+        - name: SE_NODE_SESSION_TIMEOUT
+          value: "900"
       resources:
         requests:
-          memory: "1Gi"
-          cpu: "1"
-        limits:
           memory: "2Gi"
-          cpu: "1"
+          cpu: "2"
+        limits:
+          memory: "4Gi"
+          cpu: "2"
     firefoxNode:
       enabled: false
     edgeNode:
@@ -24,6 +30,7 @@ selenium_grid:
       enabled: true
       scalingType: job
       scaledOptions:
+        minReplicaCount: 3
         maxReplicaCount: 999
       scaledJobOptions:
         scalingStrategy:
