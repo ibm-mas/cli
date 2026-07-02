@@ -1741,12 +1741,12 @@ class InstallApp(
                 # "Alternatively, you can connect to an external database (Oracle, SQL Server, or DB2).",
             ]
         )
-        
+
         if self.yesOrNo("Do you want to use an external database"):
             # Configure external database
             self.setParam("install_db2", "false")
             self.setParam("db2_action_aiservice", "byo")
-            
+
             self.printDescription(
                 [
                     "Provide connection details for your external Oracle database.",
@@ -1757,11 +1757,11 @@ class InstallApp(
                     # "  DB2:        jdbc:db2://hostname:50000/database",
                 ]
             )
-            
+
             self.promptForString("Database JDBC URL", "aiservice_db_jdbc_url")
             self.promptForString("Database Username", "aiservice_db_username")
             self.promptForString("Database Password", "aiservice_db_password", isPassword=True)
-            
+
             if self.yesOrNo("Does the database use SSL/TLS with a self-signed certificate"):
                 self.promptForString(
                     "Database CA certificate (PEM format)",
@@ -1771,7 +1771,7 @@ class InstallApp(
             # Install DB2 for AI Service
             self.setParam("install_db2", "true")
             self.setParam("db2_action_aiservice", "install")
-            
+
             # Prompt for DB2 license file (same as standalone)
             self.printDescription(
                 [
@@ -2248,11 +2248,11 @@ class InstallApp(
                 if value is not None and value != "":
                     self.setParam("aiservice_channel", value)
                     self.installAIService = True
-                    
+
                     # Check if external DB parameters are provided
                     externalDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
                     hasExternalDb = any(vars(self.args)[dbParam] is not None for dbParam in externalDbParams)
-                    
+
                     if hasExternalDb:
                         # Using external database - validate all required parameters
                         self.setParam("install_db2", "false")
@@ -2264,7 +2264,7 @@ class InstallApp(
                         # Default: Install DB2 in-cluster
                         self.setParam("install_db2", "true")
                         self.setParam("db2_action_aiservice", "install")
-                    
+
                     # Set manage - bind - AI Service params same as provided AI Service's params
                     self.setParam(
                         "manage_bind_aiservice_instance_id",

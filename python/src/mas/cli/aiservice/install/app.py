@@ -282,12 +282,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 # Check if external DB parameters are provided
                 externalDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
                 hasExternalDb = any(vars(self.args)[dbParam] is not None for dbParam in externalDbParams)
-                
+
                 if hasExternalDb:
                     # Using external database - validate all required parameters and ensure --db2-aiservice wasn't set
                     if value == "install" and vars(self.args)["aiservice_db_jdbc_url"] is not None:
-                        self.fatalError(f"Cannot use --db2-aiservice with external database parameters. Use either --db2-aiservice for in-cluster DB2 OR --aiservice-db-jdbc-url for external database (Oracle/SQL Server/DB2), not both.")
-                    
+                        self.fatalError(
+                            "Cannot use --db2-aiservice with external database parameters. Use either --db2-aiservice for in-cluster DB2 OR --aiservice-db-jdbc-url for external database (Oracle/SQL Server/DB2), not both."
+                        )
+
                     self.setParam("install_db2", "false")
                     self.setParam("db2_action_aiservice", "byo")
                     for dbParam in externalDbParams:
@@ -507,26 +509,26 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.interactiveMode(simplified=args.simplified, advanced=args.advanced)
         else:
             self.nonInteractiveMode()
-            
+
             # Check if external database parameters were provided
             if self.getParam("db2_action_aiservice") == "":
                 externalDbProvided = (
-                    vars(self.args).get("aiservice_db_jdbc_url") is not None or
-                    vars(self.args).get("aiservice_db_username") is not None or
-                    vars(self.args).get("aiservice_db_password") is not None
+                    vars(self.args).get("aiservice_db_jdbc_url") is not None
+                    or vars(self.args).get("aiservice_db_username") is not None
+                    or vars(self.args).get("aiservice_db_password") is not None
                 )
-                
+
                 if externalDbProvided:
                     # External database configuration provided
                     self.setParam("install_db2", "false")
                     self.setParam("db2_action_aiservice", "byo")
-                    
+
                     # Validate required external DB parameters
                     requiredDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
                     for dbParam in requiredDbParams:
                         if vars(self.args).get(dbParam) is None:
                             self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
-                    
+
                     # Set the external DB parameters
                     for dbParam in ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password", "aiservice_db_ca_cert"]:
                         value = vars(self.args).get(dbParam)
@@ -757,7 +759,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             # Use external database
             self.setParam("install_db2", "false")
             self.setParam("db2_action_aiservice", "byo")
-            
+
             self.printH2("External Database Configuration")
             self.printDescription(
                 [
@@ -770,11 +772,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     "",
                 ]
             )
-            
+
             self.promptForString("Database JDBC URL", "aiservice_db_jdbc_url")
             self.promptForString("Database Username", "aiservice_db_username")
             self.promptForString("Database Password", "aiservice_db_password", isPassword=True)
-            
+
             if self.yesOrNo("Does the database use SSL/TLS with a self-signed certificate"):
                 self.promptForString("Database CA Certificate (PEM format)", "aiservice_db_ca_cert")
         else:

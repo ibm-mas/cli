@@ -228,7 +228,7 @@ aiserviceAdvancedArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 databaseArgGroup = aiServiceinstallArgParser.add_argument_group(
     "Database Configuration",
-    "Configure database for AI Service. By default, DB2 is installed in-cluster. Use --db-* parameters to connect to an external database (Oracle/SQL Server/DB2) instead."
+    "Configure database for AI Service. By default, DB2 is installed in-cluster. Use --db-* parameters to connect to an external database (Oracle/SQL Server/DB2) instead.",
 )
 
 # Option 1: Install DB2 in-cluster (default)
@@ -249,25 +249,12 @@ databaseArgGroup.add_argument(
     "--aiservice-db-jdbc-url",
     dest="aiservice_db_jdbc_url",
     required=False,
-    help="JDBC URL for external database (e.g., jdbc:oracle:thin:@host:1521/service, jdbc:sqlserver://host:1433;databaseName=db, jdbc:db2://host:50000/db)"
+    help="JDBC URL for external database (e.g., jdbc:oracle:thin:@host:1521/service, jdbc:sqlserver://host:1433;databaseName=db, jdbc:db2://host:50000/db)",
 )
+databaseArgGroup.add_argument("--aiservice-db-username", dest="aiservice_db_username", required=False, help="Database username for AI Service")
+databaseArgGroup.add_argument("--aiservice-db-password", dest="aiservice_db_password", required=False, help="Database password for AI Service")
 databaseArgGroup.add_argument(
-    "--aiservice-db-username",
-    dest="aiservice_db_username",
-    required=False,
-    help="Database username for AI Service"
-)
-databaseArgGroup.add_argument(
-    "--aiservice-db-password",
-    dest="aiservice_db_password",
-    required=False,
-    help="Database password for AI Service"
-)
-databaseArgGroup.add_argument(
-    "--aiservice-db-ca-cert",
-    dest="aiservice_db_ca_cert",
-    required=False,
-    help="Database CA certificate (PEM format, optional, only if using SSL/TLS)"
+    "--aiservice-db-ca-cert", dest="aiservice_db_ca_cert", required=False, help="Database CA certificate (PEM format, optional, only if using SSL/TLS)"
 )
 
 # Development Mode

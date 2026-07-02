@@ -370,11 +370,11 @@ class InstallSummarizerMixin:
 
             if "aiservice_certificate_issuer" in self.params:
                 self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
-            
+
             # Database configuration - matches standalone aiservice-install pattern
             self.printH2("AI Service Database Configuration")
             db2_action = self.getParam("db2_action_aiservice")
-            
+
             if db2_action == "byo":
                 # External database
                 jdbc_url = self.getParam("aiservice_db_jdbc_url")
@@ -388,7 +388,7 @@ class InstallSummarizerMixin:
                     #     db_type = "External Database (DB2)"
                     else:
                         db_type = "External Database"
-                    
+
                     self.printSummary("Database Type", db_type)
                     self.printParamSummary("JDBC URL", "aiservice_db_jdbc_url")
                     self.printParamSummary("Username", "aiservice_db_username")

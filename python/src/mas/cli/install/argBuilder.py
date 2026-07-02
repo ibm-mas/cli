@@ -375,7 +375,7 @@ class installArgBuilderMixin:
             # Certificate Issuer for AI Service
             if self.getParam("aiservice_certificate_issuer") != "":
                 command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
-            
+
             # Database configuration for AI Service - matches standalone pattern
             if self.getParam("db2_action_aiservice") == "install":
                 # In-cluster DB2 installation
