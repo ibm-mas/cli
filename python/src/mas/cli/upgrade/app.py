@@ -150,6 +150,8 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.licenseAccepted = args.accept_license
         self.nextChannel = args.next_channel
         self.devMode = args.dev_mode
+        if args.skip_compatibility_check:
+            self.setParam("skip_compatibility_check", "True")
         self.applyPreInstallMASRBAC = False
         self.selectedAppsForRBAC = []
 
