@@ -13,8 +13,7 @@ from os import path
 from json import loads, JSONDecodeError
 from typing import List
 
-# Use of the openshift client rather than the kubernetes client allows us access to "apply"
-from openshift import dynamic
+from kubernetes import dynamic
 from kubernetes import config
 from kubernetes.client import api_client
 
@@ -232,6 +231,16 @@ class BucketPrefixValidator(Validator):
 
         if not match(r"^.{1,4}$", bucketPrefix):
             raise ValidationError(message="Bucket prefix does not meet the requirement", cursor_position=len(bucketPrefix))
+
+
+class CustomizationArchiveNameValidator(Validator):
+    def validate(self, document: Document) -> None:
+        name = document.text
+        if not match(r"^[0-9a-zA-Z][0-9a-zA-Z\-_.]+$", name):
+            raise ValidationError(
+                message="Customization archive name must start with a letter or digit, and contain only letters, digits, hyphens, underscores, and dots",
+                cursor_position=len(name),
+            )
 
 
 class NotEmptyValidator(Validator):

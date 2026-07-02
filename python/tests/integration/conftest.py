@@ -17,6 +17,7 @@ Note: Logging mock is provided by the root conftest.py and applies to all tests 
 
 import pytest
 from pathlib import Path
+from unittest import mock
 
 
 def pytest_collection_modifyitems(config, items):
@@ -26,6 +27,17 @@ def pytest_collection_modifyitems(config, items):
         item_path = Path(item.fspath)
         if integration_dir in item_path.parents or item_path.parent == integration_dir:
             item.add_marker(pytest.mark.integration)
+
+
+@pytest.fixture(autouse=True)
+def mock_validate_entitlement_key():
+    """Mock validateEntitlementKey to always return True for integration tests.
+
+    Integration tests focus on workflow and integration, not validation logic.
+    Validation logic is covered by unit tests in test_entitlement_key_validation.py.
+    """
+    with mock.patch("mas.cli.cli.BaseApp.validateEntitlementKey", return_value=True):
+        yield
 
 
 # Made with Bob

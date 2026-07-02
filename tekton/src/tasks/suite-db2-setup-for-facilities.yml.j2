@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-devops-suite-db2-setup-for-facilities
@@ -302,10 +302,10 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_db2_setup_for_facilities
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
-    
+
   workspaces:
     - name: configs
       optional: true

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-pipeline-finish-and-deprovision
@@ -7,12 +7,12 @@ spec:
   params:
     # Common CLI parameters (required by cli-env.yml.j2)
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
-    
+
     # Pipeline status parameter (pipeline_name, pipelinerun_name, pipelinerun_namespace are in cli-params.yml.j2)
     - name: pipeline_status
       type: string
       description: "tasks.status value: Succeeded, Failed, Completed, or None"
-    
+
     # Deprovision control parameter
     - name: deprovision
       type: string
@@ -22,7 +22,7 @@ spec:
   steps:
     # Step 1: Update pipeline status (always runs)
     - name: pipeline-finish
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/update-pipeline-status.py
@@ -56,7 +56,7 @@ spec:
 
     # Step 2: Deprovision cluster (conditional - only on success)
     - name: deprovision-cluster
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /bin/bash
@@ -64,21 +64,21 @@ spec:
         - |
           #!/bin/bash
           set -e
-          
+
           echo "=========================================="
           echo "Cluster Deprovision - Conditional Check"
           echo "=========================================="
           echo "Deprovision parameter: $(params.deprovision)"
           echo "Pipeline status: $(params.pipeline_status)"
           echo ""
-          
+
           # Check if deprovision is disabled
           if [[ "$(params.deprovision)" != "true" && "$(params.deprovision)" != "True" ]]; then
             echo "Deprovision is disabled (deprovision=$(params.deprovision))"
             echo "Skipping cluster deprovision"
             exit 0
           fi
-          
+
           # Check if pipeline succeeded
           if [[ "$(params.pipeline_status)" != "Succeeded" ]]; then
             echo "Pipeline status is '$(params.pipeline_status)' (not 'Succeeded')"
@@ -87,10 +87,10 @@ spec:
             echo "Cluster will remain available for investigation"
             exit 0
           fi
-          
+
           echo "Pipeline succeeded and deprovision enabled - proceeding with cluster deprovision"
           echo ""
-          
+
           # Run the deprovision role
           /opt/app-root/src/run-role.sh ocp_deprovision
       env:
@@ -125,7 +125,7 @@ spec:
               name: mas-fvt
               key: FYRE_USERNAME
               optional: true
-        
+
         - name: FYRE_APIKEY
           valueFrom:
             secretKeyRef:
@@ -147,7 +147,7 @@ spec:
               name: mas-fvt
               key: AWS_ACCESS_KEY_ID
               optional: true
-        
+
         - name: AWS_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
@@ -189,7 +189,7 @@ spec:
               name: mas-fvt
               key: FVT_ARTIFACTORY_USERNAME
               optional: true
-                    
+
         - name: FVT_ARTIFACTORY_TOKEN
           valueFrom:
             secretKeyRef:

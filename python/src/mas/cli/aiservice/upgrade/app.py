@@ -24,7 +24,7 @@ from .argParser import upgradeArgParser
 from mas.devops.ocp import createNamespace
 from mas.devops.aiservice import listAiServiceInstances, getAiserviceChannel
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchAiServiceUpgradePipeline
-from openshift.dynamic.exceptions import ResourceNotFoundError
+from kubernetes.dynamic.exceptions import ResourceNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -69,8 +69,11 @@ class AiServiceUpgradeApp(BaseApp):
                 sys.exit(1)
 
             for aiservice in aiserviceInstances:
-                print_formatted_text(HTML(f"- <u>{aiservice['metadata']['name']}</u> v{aiservice['status']['versions']['reconciled']}"))
-                aiserviceOptions.append(aiservice["metadata"]["name"])
+                instanceId = aiservice["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(aiservice)
+
+                print_formatted_text(HTML(f"- <u>{instanceId}</u> v{reconciledVersion}"))
+                aiserviceOptions.append(instanceId)
 
             aiserviceCompleter = WordCompleter(aiserviceOptions)
             print()
@@ -129,7 +132,7 @@ class AiServiceUpgradeApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text="Submitting PipelineRun for {aiserviceInstanceId} upgrade", spinner=self.spinner) as h:

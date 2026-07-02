@@ -34,8 +34,8 @@ PREVIOUS_CATALOG=$(curl -s "https://api.github.com/repos/ibm-mas/cli/contents/ca
   | jq -r '[.[] | select(.name | endswith("amd64.yaml")) | .name | sub("\\.yaml$"; "")] | sort | .[-2]')
 
 # Static Variables for channel versioning
-MAS_LATEST_CHANNEL="9.1.x"
-MAS_PREVIOUS_CHANNEL="9.0.x"
+MAS_LATEST_CHANNEL="9.2.x"
+MAS_PREVIOUS_CHANNEL="9.1.x"
 
 # Logging values
 echo "CLI_LATEST_VERSION:     $CLI_LATEST_VERSION"

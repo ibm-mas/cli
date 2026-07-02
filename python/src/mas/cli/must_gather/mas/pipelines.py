@@ -16,7 +16,7 @@ mas-pipelines), and collects pipeline resources including PipelineRuns with logs
 """
 
 import logging
-from typing import Set, Optional, List, Tuple
+from typing import Set, Optional, List
 from kubernetes.dynamic import DynamicClient
 
 from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
@@ -24,7 +24,20 @@ from mas.cli.must_gather.common.task_generation import generateNamespaceCollecti
 logger = logging.getLogger(__name__)
 
 
-def discoverMASPipelineNamespaces(dynClient: DynamicClient, masInstanceIds: Optional[List[str]] = None, includeClusterLevel: bool = False) -> Set[str]:
+# Tekton resources to collect (both v1 and v1beta1 for compatibility)
+TEKTON_RESOURCES = [
+    ("tekton.dev/v1", "Pipeline"),
+    ("tekton.dev/v1", "PipelineRun"),
+    ("tekton.dev/v1", "Task"),
+    ("tekton.dev/v1", "TaskRun"),
+    ("tekton.dev/v1beta1", "Pipeline"),
+    ("tekton.dev/v1beta1", "PipelineRun"),
+    ("tekton.dev/v1beta1", "Task"),
+    ("tekton.dev/v1beta1", "TaskRun"),
+]
+
+
+def _discoverMASPipelineNamespaces(dynClient: DynamicClient, masInstanceIds: Optional[List[str]] = None) -> Set[str]:
     """Discover MAS pipeline namespaces.
 
     Discovers namespaces matching the pattern mas-{instance}-pipelines for instance-specific
@@ -52,17 +65,12 @@ def discoverMASPipelineNamespaces(dynClient: DynamicClient, masInstanceIds: Opti
             nsName = ns.metadata.name
 
             # Check for cluster-level mas-pipelines namespace
-            if includeClusterLevel and nsName == "mas-pipelines":
+            if nsName == "mas-pipelines":
                 namespaces.add(nsName)
-                continue
 
             # Check if namespace matches mas-{instance}-pipelines pattern
-            if nsName.startswith("mas-") and nsName.endswith("-pipelines"):
+            elif nsName.startswith("mas-") and nsName.endswith("-pipelines"):
                 # Extract instance ID from namespace name (mas-{instance}-pipelines)
-                # Skip if it's the cluster-level namespace
-                if nsName == "mas-pipelines":
-                    continue
-
                 instanceId = nsName[4:-10]  # Remove "mas-" prefix and "-pipelines" suffix
 
                 # If specific instance IDs provided, filter by them
@@ -79,47 +87,10 @@ def discoverMASPipelineNamespaces(dynClient: DynamicClient, masInstanceIds: Opti
     return namespaces
 
 
-def generateMASPipelinesCollectionTasks(
-    dynClient: DynamicClient,
-    namespace: str,
-    outputDir: str,
-    noLogs: bool = False,
-    ibmCRDs: Optional[List[Tuple[str, str]]] = None,
-) -> List[Tuple]:
-    """Generate collection tasks for a MAS pipelines namespace.
-
-    Creates a list of collection tasks that can be executed in parallel
-    for collecting MAS pipeline resources from a specific namespace.
-
-    Args:
-        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
-        namespace (str): MAS pipeline namespace to collect from
-        outputDir (str): Base output directory
-        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
-        ibmCRDs (list, optional): List of IBM CRD tuples (apiVersion, kind) to collect. Defaults to None.
-
-    Returns:
-        list: List of task tuples in format (task_name, func, *args)
-    """
-    # Use common namespace collection task generation
-    # Pipelines collect standard resources and pods
-    tasks = generateNamespaceCollectionTasks(
-        dynClient=dynClient,
-        namespace=namespace,
-        outputDir=outputDir,
-        noLogs=noLogs,
-        secretData=False,
-        customResources=None,
-        ibmCRDs=ibmCRDs,
-    )
-
-    return tasks
-
-
-def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list):
+def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, masInstanceIds: Optional[List[str]] = None):
     """Add MAS Pipelines collection tasks to the collection plan.
 
-    Discovers cluster-level MAS pipelines namespace and adds collection group
+    Discovers MAS pipelines namespace and adds collection group
     to the provided collection plan.
 
     Args:
@@ -127,23 +98,15 @@ def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: s
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
         noLogs (bool): If True, skip pod log collection
-        ibmCRDs (list): List of IBM CRD information for collection
     """
-    logger.debug("Discovering cluster-level MAS pipelines")
+    logger.debug("Discovering MAS pipelines namespaces")
     try:
-        clusterPipelineNamespaces = discoverMASPipelineNamespaces(dynClient, masInstanceIds=[], includeClusterLevel=True)
-        if "mas-pipelines" in clusterPipelineNamespaces:
-            logger.info("Discovered cluster-level MAS pipelines namespace")
-            tasks = generateMASPipelinesCollectionTasks(
-                dynClient=dynClient,
-                namespace="mas-pipelines",
-                outputDir=outputDir,
-                noLogs=noLogs,
-                ibmCRDs=ibmCRDs,
+        masPipelineNamespaces = _discoverMASPipelineNamespaces(dynClient, masInstanceIds)
+        for pipelinesNamespace in masPipelineNamespaces:
+            tasks = generateNamespaceCollectionTasks(
+                dynClient=dynClient, namespace=pipelinesNamespace, outputDir=outputDir, noLogs=noLogs, customResources=TEKTON_RESOURCES
             )
-            plan.addGroup("MAS Pipelines (cluster)", tasks)
-            logger.debug(f"Added {len(tasks)} MAS Pipelines collection tasks for cluster-level pipelines")
-        else:
-            logger.info("No cluster-level MAS pipelines namespace found")
+            plan.addGroup(f"MAS Pipelines ({pipelinesNamespace})", tasks)
+            logger.debug(f"Added {len(tasks)} MAS Pipelines collection tasks for {pipelinesNamespace}")
     except Exception as e:
         logger.warning(f"MAS Pipelines discovery failed: {e}")

@@ -23,7 +23,7 @@ MONGODB_RESOURCES = [
 ]
 
 
-def discoverMongoDBNamespaces(dynClient: DynamicClient) -> Set[str]:
+def _discoverMongoDBNamespaces(dynClient: DynamicClient) -> Set[str]:
     """Discover namespaces containing MongoDB Community resources.
 
     Discovers namespaces by finding all MongoDBCommunity custom resources in the cluster.
@@ -53,7 +53,7 @@ def addMongoDBToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, n
     from ..common.task_generation import generateNamespaceCollectionTasks
 
     logger.debug("Discovering MongoDB namespaces")
-    mongoNamespaces = discoverMongoDBNamespaces(dynClient)
+    mongoNamespaces = _discoverMongoDBNamespaces(dynClient)
 
     if mongoNamespaces:
         logger.info(f"Discovered {len(mongoNamespaces)} MongoDB namespace(s): {', '.join(sorted(mongoNamespaces))}")
@@ -63,7 +63,6 @@ def addMongoDBToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, n
                 namespace=ns,
                 outputDir=outputDir,
                 noLogs=noLogs,
-                secretData=False,
                 customResources=MONGODB_RESOURCES,
                 ibmCRDs=ibmCRDs,
             )

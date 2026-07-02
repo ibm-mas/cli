@@ -89,7 +89,7 @@ class TestCollectMarketplaceResources:
         self.mockClient.resources.get.return_value = mockApi
         mockCreateClient.return_value = self.mockClient
 
-        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir)
+        result = collectMarketplaceResources(outputDir=self.testDir)
 
         assert result is True, "collectMarketplaceResources should return True when resources are collected successfully"
         summaryFile = os.path.join(self.testDir, "resources", "openshift-marketplace", "catalogsources.md")
@@ -110,7 +110,7 @@ class TestCollectMarketplaceResources:
         self.mockClient.resources.get.return_value = mockApi
         mockCreateClient.return_value = self.mockClient
 
-        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir)
+        result = collectMarketplaceResources(outputDir=self.testDir)
 
         assert result is True, "collectMarketplaceResources should return True when jobs are collected successfully"
         summaryFile = os.path.join(self.testDir, "resources", "openshift-marketplace", "jobs.md")
@@ -138,6 +138,6 @@ class TestCollectMarketplaceResources:
         self.mockClient.resources.get.side_effect = mockGetResource
         mockCreateClient.return_value = self.mockClient
 
-        result = collectMarketplaceResources(dynClient=self.mockClient, outputDir=self.testDir)
+        result = collectMarketplaceResources(outputDir=self.testDir)
 
         assert result is True, "collectMarketplaceResources should return True for partial success when some resources are collected"

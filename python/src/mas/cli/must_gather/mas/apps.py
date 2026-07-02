@@ -22,6 +22,7 @@ from kubernetes.dynamic import DynamicClient
 
 from mas.cli.must_gather.common import generateReconcileLogsCollectionTasks
 from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
+from .manage import collectManageNetworkTests
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAS_APP_IDS = ["core", "add", "assist", "iot", "monitor", "manage", "optimizer", "predict", "visualinspection", "pipelines", "facilities"]
 
 
-def discoverMASAppNamespaces(dynClient: DynamicClient, masInstanceId: str, masAppIds: Optional[List[str]] = None) -> Set[str]:
+def _discoverMASAppNamespaces(dynClient: DynamicClient, masInstanceId: str, masAppIds: Optional[List[str]] = None) -> Set[str]:
     """Discover MAS application namespaces for a specific instance.
 
     Discovers namespaces matching the pattern mas-{instance}-{app}, excluding the
@@ -65,7 +66,7 @@ def discoverMASAppNamespaces(dynClient: DynamicClient, masInstanceId: str, masAp
                 appId = nsName[len(namespacePrefix) :]
 
                 # Skip core namespace (handled separately)
-                if appId == "core":
+                if appId in ["core", "pipelines"]:
                     continue
 
                 # If specific app IDs provided, filter by them
@@ -82,7 +83,7 @@ def discoverMASAppNamespaces(dynClient: DynamicClient, masInstanceId: str, masAp
     return namespaces
 
 
-def getReconcileLogsOperatorsForApp(namespace: str, appId: str) -> List[Tuple[str, str, str]]:
+def _getReconcileLogsOperatorsForApp(namespace: str, appId: str) -> List[Tuple[str, str, str]]:
     """Get list of operators to collect reconcile logs from for a specific app.
 
     Returns a list of (namespace, labelSelector, labelValue) tuples for all operators
@@ -145,7 +146,7 @@ def getReconcileLogsOperatorsForApp(namespace: str, appId: str) -> List[Tuple[st
     return operators
 
 
-def generateMASAppCollectionTasks(
+def _generateMASAppCollectionTasks(
     dynClient: DynamicClient,
     namespace: str,
     appId: str,
@@ -175,15 +176,18 @@ def generateMASAppCollectionTasks(
         namespace=namespace,
         outputDir=outputDir,
         noLogs=noLogs,
-        secretData=False,
         customResources=None,
         ibmCRDs=ibmCRDs,
     )
 
     # Add app-specific reconcile logs tasks
-    operators = getReconcileLogsOperatorsForApp(namespace, appId)
+    operators = _getReconcileLogsOperatorsForApp(namespace, appId)
     if operators:
         tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
+
+    # Add Manage-specific network connectivity test
+    if appId == "manage":
+        tasks.append(("network_tests", collectManageNetworkTests, dynClient, namespace, outputDir))
 
     return tasks
 
@@ -214,14 +218,14 @@ def addMASAppsToCollectionPlan(
         # Discover MAS Apps for this instance
         logger.debug(f"Discovering MAS apps for instance {instanceId}")
         try:
-            appNamespaces = discoverMASAppNamespaces(dynClient, masInstanceId=instanceId, masAppIds=masAppIds)
+            appNamespaces = _discoverMASAppNamespaces(dynClient, masInstanceId=instanceId, masAppIds=masAppIds)
             if appNamespaces:
                 logger.info(
                     f"Discovered {len(appNamespaces)} MAS app(s) for instance {instanceId}: {', '.join([ns.split('-')[-1] for ns in sorted(appNamespaces)])}"
                 )
                 for appNamespace in sorted(appNamespaces):
                     appId = appNamespace[len(f"mas-{instanceId}-") :]
-                    tasks = generateMASAppCollectionTasks(
+                    tasks = _generateMASAppCollectionTasks(
                         dynClient=dynClient,
                         namespace=appNamespace,
                         appId=appId,

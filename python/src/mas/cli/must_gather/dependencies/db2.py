@@ -44,7 +44,7 @@ def _extractNamespaceFromJdbcUrl(jdbcUrl: str) -> Optional[str]:
     return None
 
 
-def discoverDb2Namespaces(dynClient: DynamicClient, masInstanceIds: Optional[List[str]] = None) -> List[str]:
+def _discoverDb2Namespaces(dynClient: DynamicClient, masInstanceIds: Optional[List[str]] = None) -> List[str]:
     """Discover Db2 namespaces from cluster resources.
 
     Discovers Db2 namespaces either from JdbcCfg resources (when masInstanceIds provided)
@@ -93,7 +93,7 @@ def discoverDb2Namespaces(dynClient: DynamicClient, masInstanceIds: Optional[Lis
     return sorted(db2Namespaces)
 
 
-def generateDb2CollectionTasks(
+def _generateDb2CollectionTasks(
     dynClient: DynamicClient,
     namespaces: List[str],
     outputDir: str,
@@ -125,7 +125,6 @@ def generateDb2CollectionTasks(
             namespace=namespace,
             outputDir=outputDir,
             noLogs=noLogs,
-            secretData=False,
             customResources=db2Resources,
             ibmCRDs=ibmCRDs,
         )
@@ -148,11 +147,11 @@ def addDb2ToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLog
         masInstanceIds (list, optional): List of MAS instance IDs to filter discovery. Defaults to None.
     """
     logger.debug("Discovering DB2 namespaces")
-    db2Namespaces = discoverDb2Namespaces(dynClient, masInstanceIds=masInstanceIds)
+    db2Namespaces = _discoverDb2Namespaces(dynClient, masInstanceIds=masInstanceIds)
 
     if db2Namespaces:
         logger.info(f"Discovered {len(db2Namespaces)} DB2 namespace(s): {', '.join(sorted(db2Namespaces))}")
-        tasks = generateDb2CollectionTasks(
+        tasks = _generateDb2CollectionTasks(
             dynClient=dynClient,
             namespaces=db2Namespaces,
             outputDir=outputDir,

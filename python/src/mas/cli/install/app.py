@@ -17,7 +17,8 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import re
 import calendar
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError
+from urllib3.exceptions import MaxRetryError
 
 from typing import Dict, Any
 
@@ -72,6 +73,7 @@ from mas.devops.tekton import (
 )
 from mas.devops.pre_install import applyPreInstallMASRBAC
 from ..rbac_utils import evaluatePreinstallRBACAccess
+from .facilities.agents import facilitiesAgents, facilitiesAgentsDeploymentModes
 
 logger = logging.getLogger(__name__)
 
@@ -180,6 +182,8 @@ class InstallApp(
                     ]
                 )
             )
+        except MaxRetryError:
+            self.fatalError("Unable to connect to the Kubernetes API server. Please verify cluster connectivity and try again.")
 
     @logMethodCall
     def licensePrompt(self):
@@ -212,7 +216,7 @@ class InstallApp(
     @logMethodCall
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
-        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+        self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
         if self.devMode:
             self.promptForString("Artifactory username", "artifactory_username")
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
@@ -269,11 +273,8 @@ class InstallApp(
 
         # Generate catalogTable
         for application, key in applications.items():
-            # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             if key in self.chosenCatalog:
                 tempChosenCatalog = self.chosenCatalog[key].copy()
-                if "9.1.x-feature" not in tempChosenCatalog and "9.0.x" in tempChosenCatalog:
-                    tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
 
                 self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
@@ -660,7 +661,11 @@ class InstallApp(
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
-        self.configRoutingMode()
+
+        # temporarily disabiliing configuring routing mode
+        # self.configRoutingMode()
+        self.setParam("mas_routing_mode", "subdomain")
+
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -1290,7 +1295,7 @@ class InstallApp(
             self.installFacilities = False
 
         # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
-        if isVersionEqualOrAfter("9.0.0", self.getParam("mas_app_channel_manage")):
+        if self.getParam("mas_app_channel_manage") != "" and isVersionEqualOrAfter("9.0.0", self.getParam("mas_app_channel_manage")):
             self.installAIService = self.yesOrNo("Install AI Service")
             if self.installAIService:
                 self.configAIService()
@@ -1318,8 +1323,11 @@ class InstallApp(
                 "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
                 "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
                 "",
+                "Note: Remote file systems are often slower than local file systems, using a storage class backed by a remote file system (e.g. NFS) as the RWO storage class may result in degraded performance",
+                "",
             ]
         )
+
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         if defaultStorageClasses.provider is not None:
             print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
@@ -1470,6 +1478,9 @@ class InstallApp(
             )
 
             if self.showAdvancedOptions:
+                # Check MAS version - Custom FACILITIES.properties and Agents Deployment Flexibility are only supported in MAS 9.2+
+                mas_facilities_channel = self.getParam("mas_app_channel_facilities")
+
                 self.printH2("Maximo Real Estate and Facilities Settings - Advanced")
                 self.printDescription(
                     ["Advanced configurations for Real Estate and Facilities are added through an additional file called facilities-configs.yaml"]
@@ -1499,9 +1510,6 @@ class InstallApp(
                         "Real Estate and Facilities AES Vault Secret Name",
                         "mas_ws_facilities_vault_secret",
                     )
-
-                # Check MAS version - Custom FACILITIES.properties is only supported in MAS 9.2+
-                mas_facilities_channel = self.getParam("mas_app_channel_facilities")
 
                 # Only prompt for custom FACILITIES.properties file if MAS 9.2+
                 if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
@@ -1665,6 +1673,32 @@ class InstallApp(
                         "mas_ws_facilities_dwfagents",
                         validator=JsonValidator(),
                     )
+
+                # Only prompt for Agents Deployments Flexibility file if MAS 9.2+
+                if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
+                    if self.yesOrNo("Configure Agents Deployments Flexibility"):
+                        self.printDescription(
+                            [
+                                "Define deployment mode for each Facilities Agents:",
+                                "  1. shared - the agent is activated in the shared multiagents POD",
+                                "  2. dedicated - the agent is activated in a dedicated POD",
+                                "  3. disabled - the agent is not activated at all (not applicable for wfagent and reportqueueagent)",
+                            ]
+                        )
+                        for agent in facilitiesAgents:
+                            self.promptForListSelect(
+                                f"Select {agent} deployment mode:",
+                                facilitiesAgentsDeploymentModes[agent][:-1],
+                                f"mas_ws_facilities_{agent}_deploymentmode",
+                                default=1,
+                            )
+                    else:
+                        for agent in facilitiesAgents:
+                            self.setParam(f"mas_ws_facilities_{agent}_deploymentmode", "")
+                else:
+                    # For MAS 9.1 and earlier, skip the prompt and use default behavior
+                    for agent in facilitiesAgents:
+                        self.setParam(f"mas_ws_facilities_{agent}_deploymentmode", "")
 
                 # If advanced options is selected, we need to create a file to add props not supported by Tekton
                 self.selectLocalConfigDir()
@@ -1910,6 +1944,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.facilitiesPropertiesFileLocal = None
 
         if simplified:
             self.showAdvancedOptions = False
@@ -2001,6 +2036,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.facilitiesPropertiesFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
             "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
@@ -2024,6 +2060,31 @@ class InstallApp(
             if key in requiredParams:
                 if value is None:
                     self.fatalError(f"{key} must be set")
+
+                # Special handling for ibm_entitlement_key: validate it
+                if key == "ibm_entitlement_key":
+                    isValid = self.validateEntitlementKey(value)
+                    if not isValid:
+                        if self.noConfirm:
+                            # Non-interactive with --no-confirm: warn but continue
+                            self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                        else:
+                            # Non-interactive without --no-confirm: offer options
+                            self.printWarning("IBM entitlement key validation failed")
+                            print()
+                            self.printDescription(
+                                [
+                                    "What would you like to do?",
+                                    "  1. Continue anyway (skip validation)",
+                                    "  2. Quit (exit the application)",
+                                ]
+                            )
+                            choice = self.promptForInt("Select an option", min=1, max=2)
+                            if choice == 2:
+                                logger.info("User chose to quit due to invalid entitlement key")
+                                exit(1)
+                            # If choice == 1, continue with the invalid key
+
                 self.setParam(key, value)
 
             # These fields we just pass straight through to the parameters
@@ -2078,11 +2139,13 @@ class InstallApp(
             elif key == "pod_templates":
                 # For the named configurations we will convert into the path
                 if value in ["best-effort", "guaranteed"]:
+                    self.podTemplatesKeyword = value
                     self.setParam(
                         "mas_pod_templates_dir",
                         path.join(self.templatesDir, "pod-templates", value),
                     )
                 else:
+                    self.podTemplatesKeyword = None
                     self.setParam("mas_pod_templates_dir", value)
 
             # We check for both None and "" values for the application channel parameters
@@ -2307,7 +2370,6 @@ class InstallApp(
                 self.fatalError(f"Unknown option: {key} {value}")
 
         if self.installManage:
-
             # Configure Storage and Access mode
             self.manageStorageAndAccessMode()
 
@@ -2589,6 +2651,22 @@ class InstallApp(
             ]
         )
 
+        # Currently no 9.2.x patch support path based routing as that changes this will need to change
+        # to filter on the specific patch version
+        if self.getParam("mas_routing_mode") == "path":
+            self.fatalError(
+                "\n".join(
+                    [
+                        "Path based routing mode not supported",
+                        "========================================================================",
+                        "Path based routing is not currently supported",
+                        "",
+                        "Use subdomain routing mode:",
+                        "   mas install --routing subdomain ...",
+                    ]
+                )
+            )
+
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
             ingressControllerName = None
@@ -2812,7 +2890,7 @@ class InstallApp(
                 text=f"Installing latest Tekton definitions (v{self.version})",
                 spinner=self.spinner,
             ) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(
                     symbol=self.successIcon,
                     text=f"Latest Tekton definitions are installed (v{self.version})",

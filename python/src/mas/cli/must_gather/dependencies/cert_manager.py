@@ -29,7 +29,7 @@ CERT_MANAGER_RESOURCES = [
 ]
 
 
-def discoverCertManagerNamespaces(dynClient: DynamicClient) -> Set[str]:
+def _discoverCertManagerNamespaces(dynClient: DynamicClient) -> Set[str]:
     """Discover Certificate Manager namespaces.
 
     Checks for the existence of cert-manager-operator and cert-manager namespaces.
@@ -73,7 +73,7 @@ def addCertManagerToCollectionPlan(plan, dynClient: DynamicClient, outputDir: st
     from ..common.task_generation import generateNamespaceCollectionTasks
 
     logger.debug("Discovering Certificate Manager namespaces")
-    certManagerNamespaces = discoverCertManagerNamespaces(dynClient)
+    certManagerNamespaces = _discoverCertManagerNamespaces(dynClient)
 
     if certManagerNamespaces:
         logger.info(f"Discovered {len(certManagerNamespaces)} Certificate Manager namespace(s): {', '.join(sorted(certManagerNamespaces))}")
@@ -83,7 +83,6 @@ def addCertManagerToCollectionPlan(plan, dynClient: DynamicClient, outputDir: st
                 namespace=ns,
                 outputDir=outputDir,
                 noLogs=noLogs,
-                secretData=False,
                 customResources=CERT_MANAGER_RESOURCES,
                 ibmCRDs=ibmCRDs,
             )
