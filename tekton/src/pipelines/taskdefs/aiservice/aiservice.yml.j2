@@ -95,6 +95,18 @@
     - name: tenant_scheduling_cfg_file
       value: $(params.tenant_scheduling_cfg_file)
 
+    # Database Configuration
+    - name: install_db2
+      value: $(params.install_db2)
+    - name: aiservice_db_jdbc_url
+      value: $(params.aiservice_db_jdbc_url)
+    - name: aiservice_db_username
+      value: $(params.aiservice_db_username)
+    - name: aiservice_db_password
+      value: $(params.aiservice_db_password)
+    - name: aiservice_db_ca_cert
+      value: $(params.aiservice_db_ca_cert)
+
   taskRef:
     name: mas-devops-aiservice
     kind: Task
