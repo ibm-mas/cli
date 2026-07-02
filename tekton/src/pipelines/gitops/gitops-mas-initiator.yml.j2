@@ -56,11 +56,19 @@ spec:
       type: string
     - name: mas_channel
       type: string
+      default: ""
     - name: mas_operationalmode
       type: string
       default: ""
     - name: mas_instance_id
       type: string
+      default: ""
+    - name: aiservice_instance_id
+      type: string
+      default: ""
+    - name: is_gitops_fvt_env
+      type: string
+      default: ""  
     - name: mas_app_channel_assist
       type: string
       default: ""
@@ -80,6 +88,9 @@ spec:
       type: string
       default: ""
     - name: mas_app_channel_visualinspection
+      type: string
+      default: ""
+    - name: mas_app_channel_aiservice
       type: string
       default: ""
     - name: mas_app_channel_facilities
@@ -190,6 +201,10 @@ spec:
           value: $(params.mas_operationalmode)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
+        - name: is_gitops_fvt_env
+          value: $(params.is_gitops_fvt_env)  
         - name: mas_app_channel_assist
           value: $(params.mas_app_channel_assist)
         - name: mas_app_channel_iot
@@ -204,6 +219,8 @@ spec:
           value: $(params.mas_app_channel_predict)
         - name: mas_app_channel_visualinspection
           value: $(params.mas_app_channel_visualinspection)
+        - name: mas_app_channel_aiservice
+          value: $(params.mas_app_channel_aiservice)
         - name: mas_app_channel_facilities
           value: $(params.mas_app_channel_facilities)
         - name: github_pat

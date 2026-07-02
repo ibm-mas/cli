@@ -39,6 +39,7 @@ AiService :
 --aiservice-tenant-install-plan-approval ${TEXT_RESET}AISERVICE_TENANT_INSTALL_PLAN_APPROVAL${TEXT_RESET}                                                          
 --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in-saas-env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
+--is-gitops-fvt-env ${COLOR_YELLOW}IS_GITOPS_FVT_ENV${TEXT_RESET}                                           Whether this is a GitOps FVT environment (true/false)
 --aiservice_operator_log_level ${COLOR_YELLOW}AISERVICE_OPERATOR_LOG_LEVEL${TEXT_RESET}                     Log level for the AI Service operator (e.g., info, debug)
 --mas-icr-cp ${COLOR_YELLOW}MAS_ICR_CP${TEXT_RESET}                                                         IBM Cloud Pak container registry URL
 --mas-icr-cpopen ${COLOR_YELLOW}MAS_ICR_CPOPEN${TEXT_RESET}                                                 IBM Cloud Pak Open container registry URL
@@ -109,6 +110,7 @@ function gitops_aiservice_tenant_noninteractive() {
   export AISERVICE_TENANT_INSTALL_PLAN_APPROVAL=${AISERVICE_TENANT_INSTALL_PLAN_APPROVAL:-"Automatic"}
   export CATALOG_SOURCE=${CATALOG_SOURCE:-"ibm-operator-catalog"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
+  export IS_GITOPS_FVT_ENV=${IS_GITOPS_FVT_ENV:-"false"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"}
   export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
@@ -184,6 +186,9 @@ function gitops_aiservice_tenant_noninteractive() {
         ;;
       --in-saas-env)
         export IN_SAAS_ENV=$1 && shift
+        ;;
+      --is-gitops-fvt-env)
+        export IS_GITOPS_FVT_ENV=$1 && shift
         ;;
       --mas-icr-cp)
         export MAS_ICR_CP=$1 && shift
@@ -331,14 +336,17 @@ function gitops_aiservice_tenant_noninteractive() {
     [[ -z "$SLSCFG_URL" ]] && gitops_aiservice_tenant_help "SLSCFG_URL is not set. Please specify the SLS configuration URL using --slscfg-url."
   fi
 
-  # -- Watsonx
-  [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
-  [[ -z "$AISERVICE_WATSONX_FULL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONX_FULL is not set. Please specify the full Watsonx.ai URL using --aiservice-watsonx-full."
-  [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
-  
-  [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage-ssl."
-  [[ -z "$AISERVICE_STORAGE_PROVIDER" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_PROVIDER is not set. Please specify the STORAGE provider using --aiservice-storage-provider."
- 
+  if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
+    # -- Watsonx
+    [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
+    [[ -z "$AISERVICE_WATSONX_FULL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONX_FULL is not set. Please specify the full Watsonx.ai URL using --aiservice-watsonx-full."
+    [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
+    
+    [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage-ssl."
+    [[ -z "$AISERVICE_STORAGE_PROVIDER" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_PROVIDER is not set. Please specify the STORAGE provider using --aiservice-storage-provider."
+  else
+      echo "GitOps FVT Environment: Skipping watsonx verification (will be created by postSync job)"
+  fi
  }
 
 function gitops_aiservice_tenant() {
@@ -489,14 +497,20 @@ fi
 
   # check for those variables present into the aws sm 
 
-  sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_ca_b64enc"
-  if [ -z "$STANDALONE_SLS_SERVICE" ]; then
-    sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
+  if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
+    sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
+    sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_ca_b64enc"
+    if [ -z "$STANDALONE_SLS_SERVICE" ]; then
+      # In GitOps FVT environment, skip SLS secret verification as they will be created by postSync job
+      sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"    
+    else
+      sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
+    fi
+    sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
+    sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   else
-    sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
+      echo "GitOps FVT Environment: Skipping SLS secret verification (will be created by postSync job)"
   fi
-  sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
 
   # Load scheduling config file
   # ---------------------------------------------------------------------------

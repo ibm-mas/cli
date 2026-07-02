@@ -53,7 +53,8 @@ spec:
       type: string
     - name: fvt_version_facilities
       type: string
-
+    - name: fvt_version_aiservice
+      type: string
     - name: fvt_blacklist_core
       type: string
     - name: fvt_whitelist_core
@@ -86,6 +87,9 @@ spec:
       default: ""
 
     - name: mas_instance_id
+      type: string
+      default: ""
+    - name: aiservice_instance_id
       type: string
       default: ""
     - name: mas_workspace_id
@@ -139,6 +143,10 @@ spec:
     - name: launchfvt_facilities
       type: string
       default: "true"
+    - name: launchfvt_aiservice
+      type: string
+      default: "true"
+      description: "Set this to any value other than 'true' to disable lauch of the AI Service FVT Pipeline after app-cfg-aiservice completes"
 
     - name: mas_app_channel_facilities
       type: string
@@ -162,6 +170,9 @@ spec:
       type: string
       default: ""
     - name: mas_app_channel_predict
+      type: string
+      default: ""
+    - name: mas_app_channel_aiservice
       type: string
       default: ""
 
@@ -210,6 +221,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: FVT_ENVIRONMENT
         value: $(params.mas_instance_id)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
       - name: PIPELINE_STORAGE_CLASS
         value: $(params.pipeline_storage_class)
       - name: AWS_REGION
@@ -258,6 +271,8 @@ spec:
         value: $(params.fvt_version_sls)
       - name: FVT_VERSION_FACILITIES
         value: $(params.fvt_version_facilities)
+      - name: FVT_VERSION_AISERVICE
+        value: $(params.fvt_version_aiservice)
       - name: FVT_BLACKLIST_CORE
         value: $(params.fvt_blacklist_core)
       - name: FVT_WHITELIST_CORE
@@ -296,6 +311,8 @@ spec:
         value: $(params.launchfvt_manage_is)
       - name: LAUNCHFVT_FACILITIES
         value: $(params.launchfvt_facilities)
+      - name: LAUNCHFVT_AISERVICE
+        value: $(params.launchfvt_aiservice)
       - name: MAS_APP_CHANNEL_FACILITIES
         value: $(params.mas_app_channel_facilities)
       - name: MAS_APP_CHANNEL_IOT
@@ -312,7 +329,8 @@ spec:
         value: $(params.mas_app_channel_optimizer)
       - name: MAS_APP_CHANNEL_PREDICT
         value: $(params.mas_app_channel_predict)
-
+      - name: MAS_APP_CHANNEL_AISERVICE
+        value: $(params.mas_app_channel_aiservice)
       - name: LDAP_URL
         value: $(params.ldap_url)
       - name: LDAP_BASE_DN
@@ -668,6 +686,83 @@ spec:
               check_argo_app_healthy "predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
               check_argo_app_healthy "${MAS_WORKSPACE_ID}.predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}" 120
             fi
+          fi
+          if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
+            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 240
+          fi
+          # Second wave
+          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
+          fi
+          if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
+            MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
+          fi
+          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
+          fi
+          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 240
+          fi
+          if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
+            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 1260
+          fi
+          if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
+            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 840
+          fi
+          # Third wave
+          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
+          fi
+          if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
+            MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
+          fi
+          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 20
+          fi
+          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 480
+          fi
+          # Fourth wave
+          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 80
+          fi
+          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 60
+          fi
+          # Fifth wave
+          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 180
+          fi
+          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 60
+          fi
+          # Sixth wave
+          if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
+            MASAPP_APP="predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
+          fi
+        fi
+        if [[ "$LAUNCHER_ID" == "aiservice" ]]; then
+          if [[ "$LAUNCHFVT_AISERVICE" == "true" ]]; then
+            MASAPP_APP="aiservice.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 140
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 140
           fi
         fi
 
