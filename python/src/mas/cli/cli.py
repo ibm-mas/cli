@@ -424,8 +424,24 @@ class BaseApp(PrintMixin, PromptMixin):
                 self._apiClient = ApiClient(configuration=k8s_config)
                 self._dynClient = DynamicClient(self._apiClient)
             else:
-                config.load_kube_config()
-                self._apiClient = ApiClient()
+                # Determine kubeconfig path to force fresh load
+                kubeconfig_path = environ.get("KUBECONFIG")
+                if not kubeconfig_path:
+                    from pathlib import Path
+
+                    kubeconfig_path = path.join(Path.home(), ".kube", "config")
+
+                logger.debug(f"Loading kubeconfig from {kubeconfig_path}")
+
+                # Clear any cached configuration to ensure fresh load
+                Configuration.set_default(None)
+
+                # Load the configuration from the kubeconfig file
+                config.load_kube_config(config_file=kubeconfig_path)
+
+                # Create new API client with the fresh configuration
+                k8s_config = Configuration.get_default_copy()
+                self._apiClient = ApiClient(configuration=k8s_config)
                 self._dynClient = DynamicClient(self._apiClient)
             return self._dynClient
         except Exception as e:

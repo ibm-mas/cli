@@ -307,6 +307,21 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ib
   </div>
 </div>
 
+### Stage 5 - CLI Container (Optional)
+Mirror the MAS CLI container itself for air-gapped environments.
+
+```bash
+# Interactive mode - prompts for CLI version
+docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ mas mirror-images
+
+# Non-interactive mode - mirrors current CLI version
+docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ mas mirror-images \
+  -m to-filesystem -d /mnt/registry/cli \
+  -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
+  --mirror-cli \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
+```
+
 !!! note
     [Mirror Redhat images](https://ibm-mas.github.io/cli/commands/mirror-redhat-images) to install required ( DRO, Cert Manager and Grafana) redhat dependencies for Mas installation to progress. Missing this step will result in installation failures.
 

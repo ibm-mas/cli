@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-suite-idp-config
@@ -39,7 +39,6 @@ spec:
       type: string
       default: ""
   stepTemplate:
-    name: gitops-suite-idp-config
     env:
       - name: CLUSTER_ID
         value: $(params.cluster_name)
