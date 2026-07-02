@@ -29,9 +29,6 @@ spec:
       description: config directory path
       default: "/workspace/configs"
 
-    - name: ibm_entitlement_key
-      type: string
-      default: ""
     - name: dro_namespace
       type: string
       default: "redhat-marketplace"
@@ -86,7 +83,10 @@ spec:
         - name: CUSTOM_LABELS
           value: $(params.custom_labels)
         - name: IBM_ENTITLEMENT_KEY
-          value: $(params.ibm_entitlement_key)
+          valueFrom:
+            secretKeyRef:
+              name: pipeline-additional-configs
+              key: IBM_ENTITLEMENT_KEY
         - name: DRO_CONTACT_EMAIL
           value: $(params.dro_contact_email)
         - name: DRO_CONTACT_FIRSTNAME

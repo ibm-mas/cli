@@ -9,6 +9,8 @@ spec:
     - name: shared-backups
     # Configs to restore like slscfg and drocfg
     - name: restore-configurations
+    # Any pre-generated configs that contain IBM_ENTITLEMENT_KEY
+    - name: shared-additional-configs
 
   params:
     # 1. Common Parameters
@@ -297,6 +299,10 @@ spec:
       workspaces:
         - name: backups
           workspace: shared-backups
+        - name: additional-configs
+          workspace: shared-additional-configs
+        - name: configs
+          workspace: restore-configurations
       runAfter:
         - mongodb
 
@@ -325,8 +331,6 @@ spec:
           value: "$(params.dro_contact_firstname)"
         - name: dro_contact_lastname
           value: "$(params.dro_contact_lastname)"
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
         - name: dro_namespace
           value: $(params.dro_namespace)
         - name: dro_storage_class
