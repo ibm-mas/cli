@@ -99,9 +99,6 @@ spec:
       description: Certificate issuer kind for MAS Suite CR (Issuer or ClusterIssuer)
       default: ""
 
-    - name: ibm_entitlement_key
-      type: string
-
     - name: artifactory_username
       default: ''
       type: string
@@ -222,7 +219,10 @@ spec:
         value: $(params.mas_issuer_kind)
 
       - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
+        valueFrom:
+          secretKeyRef:
+            name: pipeline-additional-configs
+            key: IBM_ENTITLEMENT_KEY
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates

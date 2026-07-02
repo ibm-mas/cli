@@ -16,8 +16,6 @@
       value: $(params.artifactory_token)
     - name: aiservice_channel
       value: "$(params.aiservice_channel)"
-    - name: ibm_entitlement_key
-      value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
     - name: aiservice_rhoai_model_deployment_type
@@ -28,6 +26,9 @@
   taskRef:
     name: mas-devops-aiservice-rhoai
     kind: Task
+  workspaces:
+    - name: configs
+      workspace: shared-additional-configs
   when:
     - input: "$(params.aiservice_channel)"
       operator: notin

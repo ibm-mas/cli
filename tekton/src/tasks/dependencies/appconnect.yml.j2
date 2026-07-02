@@ -17,10 +17,6 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
     # Entitlement
-    - name: ibm_entitlement_key
-      type: string
-      description: "IBM Entitlement Key"
-      default: ""
     # Subscription Channel
     - name: appconnect_channel
       type: string
@@ -54,7 +50,10 @@ spec:
         value: $(params.custom_labels)
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
+        valueFrom:
+          secretKeyRef:
+            name: pipeline-additional-configs
+            key: IBM_ENTITLEMENT_KEY
       # Channel
       - name: APPCONNECT_CHANNEL
         value: $(params.appconnect_channel)
