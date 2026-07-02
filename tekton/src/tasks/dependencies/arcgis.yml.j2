@@ -17,10 +17,6 @@ spec:
       type: string
       description: Required to use development MAS builds
 
-    # Entitlement
-    - name: ibm_entitlement_key
-      type: string
-
     # MAS Details
     - name: mas_instance_id
       type: string
@@ -58,7 +54,10 @@ spec:
 
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
+        valueFrom:
+          secretKeyRef:
+            name: pipeline-additional-configs
+            key: IBM_ENTITLEMENT_KEY
 
       # MAS Details
       - name: MAS_INSTANCE_ID

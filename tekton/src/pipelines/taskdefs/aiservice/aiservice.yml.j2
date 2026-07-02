@@ -10,8 +10,6 @@
     - name: artifactory_token
       value: $(params.artifactory_token)
 
-    - name: ibm_entitlement_key
-      value: $(params.ibm_entitlement_key)
 
     - name: custom_labels
       value: $(params.custom_labels)
@@ -105,5 +103,7 @@
   workspaces:
     - name: configs
       workspace: shared-configs
+    - name: additional-configs
+      workspace: shared-additional-configs
     - name: aiservice
       workspace: shared-aiservice-config
