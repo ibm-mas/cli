@@ -22,6 +22,7 @@ from kubernetes.dynamic import DynamicClient
 
 from mas.cli.must_gather.common import generateReconcileLogsCollectionTasks
 from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
+from .manage import collectManageNetworkTests
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +66,7 @@ def _discoverMASAppNamespaces(dynClient: DynamicClient, masInstanceId: str, masA
                 appId = nsName[len(namespacePrefix) :]
 
                 # Skip core namespace (handled separately)
-                if appId == "core":
+                if appId in ["core", "pipelines"]:
                     continue
 
                 # If specific app IDs provided, filter by them
@@ -175,7 +176,6 @@ def _generateMASAppCollectionTasks(
         namespace=namespace,
         outputDir=outputDir,
         noLogs=noLogs,
-        secretData=False,
         customResources=None,
         ibmCRDs=ibmCRDs,
     )
@@ -184,6 +184,10 @@ def _generateMASAppCollectionTasks(
     operators = _getReconcileLogsOperatorsForApp(namespace, appId)
     if operators:
         tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
+
+    # Add Manage-specific network connectivity test
+    if appId == "manage":
+        tasks.append(("network_tests", collectManageNetworkTests, dynClient, namespace, outputDir))
 
     return tasks
 

@@ -66,3 +66,4 @@ rbac-install.yaml
 /.bob/notes
 pytest.log
 /dist
+/.bob/.bob-errors

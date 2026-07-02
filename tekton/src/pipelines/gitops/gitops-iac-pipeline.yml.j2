@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: gitops-iac-pipeline
@@ -241,6 +241,31 @@ spec:
       default: ''
 
     - name: rds_iot_db2_engine_version
+      type: string
+      default: ''
+
+    # iac-rdsdb2 monitor params
+    - name: rds_monitor_db2_instance_class
+      type: string
+      default: ''
+
+    - name: rds_monitor_db2_storage_type
+      type: string
+      default: ''
+
+    - name: rds_monitor_allocated_storage
+      type: string
+      default: ''
+
+    - name: rds_monitor_jdbc_connection_url_additional_params
+      type: string
+      default: ''
+
+    - name: rds_monitor_replica_db
+      type: string
+      default: ''
+
+    - name: rds_monitor_db2_engine_version
       type: string
       default: ''
 
@@ -555,6 +580,20 @@ spec:
         - name: rds_iot_db2_engine_version
           value: $(params.rds_iot_db2_engine_version)
 
+        # iac-rdsdb2 monitor params
+        - name: rds_monitor_db2_instance_class
+          value: $(params.rds_monitor_db2_instance_class)
+        - name: rds_monitor_db2_storage_type
+          value: $(params.rds_monitor_db2_storage_type)
+        - name: rds_monitor_allocated_storage
+          value: $(params.rds_monitor_allocated_storage)
+        - name: rds_monitor_jdbc_connection_url_additional_params
+          value: $(params.rds_monitor_jdbc_connection_url_additional_params)
+        - name: rds_monitor_replica_db
+          value: $(params.rds_monitor_replica_db)
+        - name: rds_monitor_db2_engine_version
+          value: $(params.rds_monitor_db2_engine_version)
+
         # iac-rdsdb2 facilities params
         - name: rds_facilities_db2_instance_class
           value: $(params.rds_facilities_db2_instance_class)
@@ -699,6 +738,16 @@ spec:
           value: $(params.rds_iot_jdbc_connection_url_additional_params)
         - name: rds_iot_replica_db
           value: $(params.rds_iot_replica_db)
+        - name: rds_monitor_db2_instance_class
+          value: $(params.rds_monitor_db2_instance_class)
+        - name: rds_monitor_db2_storage_type
+          value: $(params.rds_monitor_db2_storage_type)
+        - name: rds_monitor_allocated_storage
+          value: $(params.rds_monitor_allocated_storage)
+        - name: rds_monitor_jdbc_connection_url_additional_params
+          value: $(params.rds_monitor_jdbc_connection_url_additional_params)
+        - name: rds_monitor_replica_db
+          value: $(params.rds_monitor_replica_db)
         - name: rds_facilities_db2_instance_class
           value: $(params.rds_facilities_db2_instance_class)
         - name: rds_facilities_db2_storage_type

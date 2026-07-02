@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+from .facilities.agents import facilitiesAgents
 import logging
 
 logger = logging.getLogger(__name__)
@@ -86,8 +87,12 @@ class installArgBuilderMixin:
 
         if self.localConfigDir is not None:
             command += f'  --additional-configs "{self.localConfigDir}"{newline}'
-        if self.getParam("pod_templates") != "":
-            command += f"  --pod-templates \"{self.getParam('pod_templates')}\"{newline}"
+        if self.getParam("mas_pod_templates_dir") != "":
+            # Use keyword for built-in templates, otherwise use the full path
+            if hasattr(self, "podTemplatesKeyword") and self.podTemplatesKeyword is not None:
+                command += f'  --pod-templates "{self.podTemplatesKeyword}"{newline}'
+            else:
+                command += f"  --pod-templates \"{self.getParam('mas_pod_templates_dir')}\"{newline}"
 
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
@@ -351,11 +356,14 @@ class installArgBuilderMixin:
             if self.getParam("mas_ws_facilities_server_timezone") != "":
                 command += f"  --facilities-server-timezone \"{self.getParam('mas_ws_facilities_server_timezone')}\"{newline}"
 
-            if self.getParam("mas_ws_facilities_properties_file_local") != "":
-                command += f"  --facilities-properties-file \"{self.getParam('mas_ws_facilities_properties_file_local')}\"{newline}"
+            if self.facilitiesPropertiesFileLocal:
+                command += f'  --facilities-properties-file "{self.facilitiesPropertiesFileLocal}"{newline}'
             if self.getParam("mas_ws_facilities_properties_secret_name") != "":
                 command += f"  --facilities-properties-secret-name \"{self.getParam('mas_ws_facilities_properties_secret_name')}\"{newline}"
 
+            for agent in facilitiesAgents:
+                if self.getParam(f"mas_ws_facilities_{agent}_deploymentmode") != "":
+                    command += f'  --facilities-{agent}-deploymentmode "{self.getParam(f"mas_ws_facilities_{agent}_deploymentmode")}"{newline}'
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
         if self.installAIService:

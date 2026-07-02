@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-cos
@@ -43,7 +43,6 @@ spec:
       default: ""
 
   stepTemplate:
-    name: gitops-cos
     env:
       - name: OCP_SERVER
         value: $(params.cluster_url)
@@ -100,6 +99,6 @@ spec:
         - -c
       name: gitops-cos
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: gitops-deprovision-aiservice-tenant-pipeline
@@ -64,7 +64,6 @@ spec:
           value: $(params.aiservice_instance_id)
         - name: tenant_id
           value: $(params.tenant_id)
-          
 
-      
-   
+
+

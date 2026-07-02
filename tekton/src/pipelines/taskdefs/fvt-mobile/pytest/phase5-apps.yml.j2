@@ -1,14 +1,44 @@
-- name: mobile-pytest-crew
+- name: mobile-pytest-calibration
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile-api-crew
+      value: mobile-api-calibration
   runAfter:
     - mobile-pytest-ic
     - mobile-pytest-ir
     - mobile-pytest-it
     - mobile-pytest-sr
+    - mobile-pytest-assetmanager
+
+- name: mobile-pytest-civil-defects
+  taskRef:
+    kind: Task
+    name: mas-fvt-mobile-pytest
+  timeout: "0"
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-civil-defects
+  runAfter:
+    - mobile-pytest-ic
+    - mobile-pytest-ir
+    - mobile-pytest-it
+    - mobile-pytest-sr
+    - mobile-pytest-assetmanager
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  when:
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_digest_mobile_pytest)"
+      operator: notin
+      values: [""]
+    - input: "civil"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
 
 - name: mobile-pytest-insp
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
@@ -21,6 +51,7 @@
     - mobile-pytest-ir
     - mobile-pytest-it
     - mobile-pytest-sr
+    - mobile-pytest-assetmanager
 
 - name: mobile-pytest-collaborate
   taskRef:
@@ -36,6 +67,7 @@
     - mobile-pytest-ir
     - mobile-pytest-it
     - mobile-pytest-sr
+    - mobile-pytest-assetmanager
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -49,3 +81,16 @@
     - input: "collaborate"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
+
+- name: mobile-pytest-timesheet
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-timesheet
+  runAfter:
+    - mobile-pytest-ic
+    - mobile-pytest-ir
+    - mobile-pytest-it
+    - mobile-pytest-sr
+    - mobile-pytest-assetmanager

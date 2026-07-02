@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-sls
@@ -83,7 +83,6 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 2h0m0s # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm
