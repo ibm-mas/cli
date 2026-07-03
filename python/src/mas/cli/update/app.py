@@ -20,7 +20,7 @@ from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser
-from mas.devops.data import getCatalog, getNewestCatalogTag
+from mas.devops.data import getCatalog, getNewestCatalogTag, NoSuchCatalogError
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog, getMasChannel, getInstalledApps, getPermissionMode
 from mas.devops.aiservice import listAiServiceInstances
@@ -161,6 +161,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.noConfirm = self.args.no_confirm
         self.devMode = self.args.dev_mode
         self.db2LicenseFileLocal = None
+        self.chosenCatalog = None
         self.instancesNeedingRBAC = []
         self.applyPreInstallMASRBAC = False
 
@@ -245,7 +246,10 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         else:
             # In dev mode, load the user-specified catalog (or newest if not specified)
             catalogVersion = self.getParam("mas_catalog_version") if self.args.mas_catalog_version else getNewestCatalogTag()
-            self.chosenCatalog = getCatalog(catalogVersion)
+            try:
+                self.chosenCatalog = getCatalog(catalogVersion)
+            except NoSuchCatalogError:
+                pass
 
         self.printH1("Dependency Update Checks")
         with Halo(text="Checking for IBM Watson Discovery", spinner=self.spinner) as h:
@@ -291,8 +295,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
         self.printH2("IBM Maximo Operator Catalog")
-        assert self.installedCatalogId is not None, "Catalog ID is not set"
-        self.printSummary("Installed Catalog", self.installedCatalogId)
+        self.printSummary("Installed Catalog", self.installedCatalogId or "Unknown")
         self.printSummary("Updated Catalog", self.getParam("mas_catalog_version"))
 
         self.printH2("Supported Dependency Updates")
@@ -465,7 +468,10 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         # Check supported OCP versions
         ocpVersion = getClusterVersion(self.dynamicClient)
         # Load the catalog information
-        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        try:
+            self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        except NoSuchCatalogError:
+            return
         supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
         if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
             self.fatalError(
@@ -606,47 +612,52 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 if len(mongoClusters) > 0:
                     mongoNamespace = mongoClusters[0]["metadata"]["namespace"]
                     currentMongoVersion = mongoClusters[0]["status"]["version"]
-                    targetMongoVersion = self.chosenCatalog["mongo_extras_version_default"]
 
                     self.setParam("mongodb_namespace", mongoNamespace)
-                    self.setParam("mongodb_version", targetMongoVersion)
 
-                    targetMongoVersionMajor = targetMongoVersion.split(".")[0]
-                    currentMongoVersionMajor = currentMongoVersion.split(".")[0]
+                    if self.chosenCatalog is None:
+                        # Catalog unavailable (e.g. dev-mode master build) — skip version comparison
+                        h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE {currentMongoVersion} is installed (catalog not available, skipping version check)")
+                    else:
+                        targetMongoVersion = self.chosenCatalog["mongo_extras_version_default"]
+                        self.setParam("mongodb_version", targetMongoVersion)
 
-                    if targetMongoVersionMajor > currentMongoVersionMajor:
-                        self.setParam("mongodb_action", "install")
-                        # Let users know that Mongo will be upgraded if existing MongoDb major.minor version
-                        # is lower than the target major version
-                        # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
-                        if self.noConfirm and self.getParam(f"mongodb_v{targetMongoVersionMajor}_upgrade") != "true":
-                            # The user has chosen not to provide confirmation but has not provided the flag to pre-approve the mongo major version update
-                            h.stop_and_persist(symbol=self.failureIcon, text=f"MongoDb CE {currentMongoVersion} needs to be updated to {targetMongoVersion}")
+                        targetMongoVersionMajor = targetMongoVersion.split(".")[0]
+                        currentMongoVersionMajor = currentMongoVersion.split(".")[0]
+
+                        if targetMongoVersionMajor > currentMongoVersionMajor:
+                            self.setParam("mongodb_action", "install")
+                            # Let users know that Mongo will be upgraded if existing MongoDb major.minor version
+                            # is lower than the target major version
+                            # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
+                            if self.noConfirm and self.getParam(f"mongodb_v{targetMongoVersionMajor}_upgrade") != "true":
+                                # The user has chosen not to provide confirmation but has not provided the flag to pre-approve the mongo major version update
+                                h.stop_and_persist(symbol=self.failureIcon, text=f"MongoDb CE {currentMongoVersion} needs to be updated to {targetMongoVersion}")
+                                self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
+                                self.fatalError(
+                                    f"By choosing {self.getParam('mas_catalog_version')} you must confirm MongoDb update to version {targetMongoVersionMajor} using '--mongodb-v{targetMongoVersionMajor}-upgrade' when using '--no-confirm'"
+                                )
+                            elif self.getParam(f"mongodb_v{targetMongoVersionMajor}_upgrade") != "true":
+                                # The user has not pre-approved the major version update
+                                h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE {currentMongoVersion} needs to be updated to {targetMongoVersion}")
+                                self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
+                                if not self.yesOrNo(
+                                    f"Confirm update from MongoDb {currentMongoVersion} to {targetMongoVersion}", f"mongodb_v{targetMongoVersionMajor}_upgrade"
+                                ):
+                                    # If the user did not approve the update, abort
+                                    exit(1)
+                                print()
+                            else:
+                                h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE will be updated from {currentMongoVersion} to {targetMongoVersion}")
+                                self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
+                        elif targetMongoVersion < currentMongoVersion:
+                            h.stop_and_persist(symbol=self.failureIcon, text=f"MongoDb CE {currentMongoVersion} cannot be downgraded to {targetMongoVersion}")
                             self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
                             self.fatalError(
-                                f"By choosing {self.getParam('mas_catalog_version')} you must confirm MongoDb update to version {targetMongoVersionMajor} using '--mongodb-v{targetMongoVersionMajor}-upgrade' when using '--no-confirm'"
+                                f"Existing MongoDB Community Edition installation at version {currentMongoVersion} cannot be downgraded to version {targetMongoVersion}"
                             )
-                        elif self.getParam(f"mongodb_v{targetMongoVersionMajor}_upgrade") != "true":
-                            # The user has not pre-approved the major version update
-                            h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE {currentMongoVersion} needs to be updated to {targetMongoVersion}")
-                            self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
-                            if not self.yesOrNo(
-                                f"Confirm update from MongoDb {currentMongoVersion} to {targetMongoVersion}", f"mongodb_v{targetMongoVersionMajor}_upgrade"
-                            ):
-                                # If the user did not approve the update, abort
-                                exit(1)
-                            print()
                         else:
-                            h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE will be updated from {currentMongoVersion} to {targetMongoVersion}")
-                            self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
-                    elif targetMongoVersion < currentMongoVersion:
-                        h.stop_and_persist(symbol=self.failureIcon, text=f"MongoDb CE {currentMongoVersion} cannot be downgraded to {targetMongoVersion}")
-                        self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
-                        self.fatalError(
-                            f"Existing MongoDB Community Edition installation at version {currentMongoVersion} cannot be downgraded to version {targetMongoVersion}"
-                        )
-                    else:
-                        h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE is already installed at version {targetMongoVersion}")
+                            h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE is already installed at version {targetMongoVersion}")
                 else:
                     # There's no MongoDb instance installed in the cluster, so nothing to do
                     h.stop_and_persist(symbol=self.successIcon, text="No MongoDb CE instances found")
@@ -721,8 +732,12 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
                     if self.args.cpd_product_version:
                         cpdTargetVersion = self.getParam("cpd_product_version")
-                    else:
+                    elif self.chosenCatalog:
                         cpdTargetVersion = self.chosenCatalog["cpd_product_version_default"]
+                    else:
+                        # Catalog unavailable (e.g. dev-mode master build) — skip CP4D update
+                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) detected (catalog not available, skipping update check)")
+                        return
 
                     if cpdInstanceNamespace != "ibm-cpd":
                         h.stop_and_persist(
@@ -839,8 +854,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         kinds = ["Db2uCluster", "Db2uInstance"]
         paramName = "db2_namespace"
         mode = "db2"
-        # Get target Db2u version from catalog
-        targetDb2uVersion = self.chosenCatalog["db2_channel_default"]
+        # Get target Db2u version from catalog (may be None when catalog is unavailable, e.g. dev-mode master build)
+        targetDb2uVersion = self.chosenCatalog["db2_channel_default"] if self.chosenCatalog else None
 
         with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
             try:
