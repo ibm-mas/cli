@@ -462,19 +462,27 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:
+        catalogVersion = self.getParam("mas_catalog_version")
+        # Load the catalog information
+        self.chosenCatalog = getCatalog(catalogVersion)
+
+        # Dev/master catalogs are rolling builds from Artifactory — they have no
+        # static version metadata so OCP-compatibility and downgrade checks are skipped.
+        if catalogVersion.startswith("v9-master") or catalogVersion.startswith("v9-dev"):
+            logger.debug(f"Dev catalog detected ({catalogVersion}): skipping OCP compatibility and downgrade checks")
+            return
+
         # Check supported OCP versions
         ocpVersion = getClusterVersion(self.dynamicClient)
-        # Load the catalog information
-        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
         supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
         if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
             self.fatalError(
-                f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}"
+                f"IBM Maximo Operator Catalog {catalogVersion} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}"
             )
 
-        if self.installedCatalogId is not None and self.installedCatalogId > self.getParam("mas_catalog_version"):
+        if self.installedCatalogId is not None and self.installedCatalogId > catalogVersion:
             self.fatalError(
-                f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}"
+                f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {catalogVersion}"
             )
 
     def isWatsonDiscoveryInstalled(self) -> bool:

@@ -304,16 +304,21 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         detectedMode = None
 
         # Determine admin mode based on upgrade path
-        if self.nextChannel and isVersionEqualOrAfter("9.3.0", self.nextChannel) and currentChannel and isVersionEqualOrAfter("9.2.0", currentChannel):
-            # Upgrading TO 9.3.x+ FROM 9.2.x+: detect existing permission mode
-            logger.info(f"Upgrading from {currentChannel} to {self.nextChannel}: detecting existing permission mode")
-            detectedMode = getPermissionMode(self.dynamicClient, instanceId)
+        # Dev channels (9.x.x-dev) are pre-release, internal-use only builds and do not
+        # carry the GA RBAC requirements introduced in 9.2.x GA.  Skip RBAC for dev channels.
+        _isDevChannel = self.nextChannel and self.nextChannel.endswith("-dev")
 
-        elif self.nextChannel and self.nextChannel.startswith("9.2"):
-            # Upgrading TO 9.2.x: default to cluster mode
-            # (covers both 9.1.x→9.2.x and 9.2.x-feature→9.2.x)
-            logger.info("Upgrading to 9.2.x: defaulting to cluster mode")
-            detectedMode = "cluster"
+        if not _isDevChannel:
+            if self.nextChannel and isVersionEqualOrAfter("9.3.0", self.nextChannel) and currentChannel and isVersionEqualOrAfter("9.2.0", currentChannel):
+                # Upgrading TO 9.3.x+ FROM 9.2.x+: detect existing permission mode
+                logger.info(f"Upgrading from {currentChannel} to {self.nextChannel}: detecting existing permission mode")
+                detectedMode = getPermissionMode(self.dynamicClient, instanceId)
+
+            elif self.nextChannel and self.nextChannel.startswith("9.2"):
+                # Upgrading TO 9.2.x GA: default to cluster mode
+                # (covers both 9.1.x→9.2.x and 9.2.x-feature→9.2.x)
+                logger.info("Upgrading to 9.2.x: defaulting to cluster mode")
+                detectedMode = "cluster"
 
         # Evaluate RBAC access
         if detectedMode:

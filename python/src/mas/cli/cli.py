@@ -179,6 +179,16 @@ class BaseApp(PrintMixin, PromptMixin):
                 "predict": ["9.2.x-feature", "9.1.x"],
                 "facilities": ["9.2.x-feature", "9.1.x"],
             },
+            # Dev channels: 9.1.x-dev -> 9.2.x-dev, 9.0.x-dev -> 9.1.x-dev
+            "9.2.x-dev": {
+                "manage": ["9.2.x-dev", "9.1.x-dev"],
+                "optimizer": ["9.2.x-dev", "9.1.x-dev"],
+                "visualinspection": ["9.2.x-dev", "9.1.x-dev"],
+                "iot": ["9.2.x-dev", "9.1.x-dev"],
+                "monitor": ["9.2.x-dev", "9.1.x-dev"],
+                "predict": ["9.2.x-dev", "9.1.x-dev"],
+                "facilities": ["9.2.x-dev", "9.1.x-dev"],
+            },
             "9.1.x": {
                 "facilities": ["9.1.x"],
                 "assist": ["9.1.x", "9.0.x"],
@@ -197,6 +207,14 @@ class BaseApp(PrintMixin, PromptMixin):
                 "optimizer": ["9.1.x-feature", "9.0.x"],
                 "predict": ["9.0.x"],
                 "visualinspection": ["9.1.x-feature", "9.0.x"],
+            },
+            "9.1.x-dev": {
+                "manage": ["9.1.x-dev", "9.0.x-dev"],
+                "optimizer": ["9.1.x-dev", "9.0.x-dev"],
+                "visualinspection": ["9.1.x-dev", "9.0.x-dev"],
+                "iot": ["9.1.x-dev", "9.0.x-dev"],
+                "monitor": ["9.1.x-dev", "9.0.x-dev"],
+                "predict": ["9.1.x-dev", "9.0.x-dev"],
             },
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
@@ -244,6 +262,9 @@ class BaseApp(PrintMixin, PromptMixin):
             "9.2.x-feature": "9.2.x",
             "9.1.x": "9.2.x",
             "9.1.x-feature": "9.1.x",
+            # Dev channel upgrade paths
+            "9.1.x-dev": "9.2.x-dev",
+            "9.0.x-dev": "9.1.x-dev",
             "9.0.x": "9.1.x",
             "8.11.x": "9.0.x",
             "8.10.x": "8.11.x",
