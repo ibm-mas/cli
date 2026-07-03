@@ -349,13 +349,10 @@ function sm_update_secret(){
     local _namespace="${SECRETS_PATH:-default}"
     local _k8s_name="${SECRET_NAME//_/-}"
 
-    # Build label args from SECRET_TAGS JSON array (e.g. '[{"Key":"source","Value":"gitops_cluster"}]')
-    # Labels are applied via 'oc label' after creation since 'oc create secret' has no --labels flag.
-    local _label_args=""
+    # Build a labels block from SECRET_TAGS JSON array (e.g. '[{"Key":"source","Value":"gitops_cluster"}]')
+    local _labels_yaml=""
     if [[ -n "${SECRET_TAGS}" ]]; then
-      while IFS="=" read -r key value; do
-        _label_args="${_label_args} ${key}=${value}"
-      done < <(echo "${SECRET_TAGS}" | jq -r '.[] | "\(.Key)=\(.Value)"')
+      _labels_yaml=$(echo "${SECRET_TAGS}" | jq -r '.[] | "    \(.Key): \(.Value)"')
     fi
 
     set +o pipefail
@@ -363,18 +360,33 @@ function sm_update_secret(){
     local _exists
     _exists=$(oc get secret "${_k8s_name}" -n "${_namespace}" --ignore-not-found -o name 2>/dev/null)
 
+    # Build a Secret manifest using stringData so that values containing base64 padding
+    # characters (=) are stored verbatim.  oc create secret generic --from-literal strips
+    # trailing = from values, corrupting base64-padded fields.
+    _sm_apply_secret() {
+      local _action="$1"  # "creating" or "updating"
+      echo "- Secret ${_k8s_name} ${_action} (namespace: ${_namespace})"
+      local _string_data
+      _string_data=$(echo "${SECRET_VALUE}" | jq -r 'to_entries[] | "  \(.key): \(.value | @json)"')
+      local _labels_block=""
+      [[ -n "${_labels_yaml}" ]] && _labels_block="  labels:"$'\n'"${_labels_yaml}"$'\n'
+      oc apply -f - <<EOF || exit 1
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ${_k8s_name}
+  namespace: ${_namespace}
+${_labels_block}type: Opaque
+stringData:
+${_string_data}
+EOF
+      echo "- Secret ${_k8s_name} ${_action%ing}ed"
+    }
+
     if [[ -z "${_exists}" ]]; then
-      echo "- Secret ${_k8s_name} creating (namespace: ${_namespace})"
-      # Build oc create secret generic from JSON key/value pairs
-      local _literal_args=""
-      while IFS="=" read -r key value; do
-        _literal_args="${_literal_args} --from-literal=${key}=${value}"
-      done < <(echo "${SECRET_VALUE}" | jq -r 'to_entries[] | "\(.key)=\(.value)"')
-      oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} || exit 1
-      [[ -n "${_label_args}" ]] && oc label secret "${_k8s_name}" -n "${_namespace}" ${_label_args} || true
-      echo "- Secret ${_k8s_name} created"
+      _sm_apply_secret "creating"
     else
-      # Retrieve current secret JSON for idempotency check
+      # Retrieve current secret data for idempotency check
       local _current_value
       _current_value=$(oc get secret "${_k8s_name}" -n "${_namespace}" -o json 2>/dev/null \
         | jq -r '.data | to_entries[] | "\(.key)=\(.value | @base64d)"' \
@@ -382,15 +394,7 @@ function sm_update_secret(){
       if [[ "${SECRET_VALUE}" == "${_current_value}" ]]; then
         echo "- Secret ${_k8s_name} unchanged"
       else
-        echo "- Secret ${_k8s_name} updating (namespace: ${_namespace})"
-        local _literal_args=""
-        while IFS="=" read -r key value; do
-          _literal_args="${_literal_args} --from-literal=${key}=${value}"
-        done < <(echo "${SECRET_VALUE}" | jq -r 'to_entries[] | "\(.key)=\(.value)"')
-        oc delete secret "${_k8s_name}" -n "${_namespace}" 2>/dev/null
-        oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} || exit 1
-        [[ -n "${_label_args}" ]] && oc label secret "${_k8s_name}" -n "${_namespace}" ${_label_args} || true
-        echo "- Secret ${_k8s_name} updated"
+        _sm_apply_secret "updating"
       fi
     fi
     set -o pipefail
