@@ -21,8 +21,8 @@ AWS Secrets Manager Configuration (Required):
       --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}                                                               Your AWS Access Key ID
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}                                                           Your AWS Secret Key
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                                            Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '_' for kubernetes)
-      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                           Secrets backend type. One of: aws, kubernetes (default: aws)
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                                                          Secrets Manager key separator string (default: '/' for aws, '_' for kubernetes)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                                                    Secrets backend type. One of: aws, kubernetes (default: aws)
       --skip-aws-secret-creation ${COLOR_YELLOW}SKIP_AWS_SECRET_CREATION${TEXT_RESET}                                                    If set, cluster AWS secret will be verified but not created. For use when cluster AWS secret is managed by some other configuration mechanism (e.g. Terraform).
 
 IBM Container Registry Entitlement (Required):
@@ -119,7 +119,6 @@ EOM
 function gitops_cluster_noninteractive() {
   # Set defaults
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SM_DELIM="/"
 
   export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-cluster commit"}
   export MAS_CATALOG_VERSION=${MAS_CATALOG_VERSION:-"v8-240130-amd64"}
@@ -458,6 +457,8 @@ function gitops_cluster() {
   echo_h2 "Review Settings"
 
   # set default values
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   export CLUSTER_LOGGING_OPERATOR_INSTALL=${CLUSTER_LOGGING_OPERATOR_INSTALL:-"false"}
   export CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER=${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER:-"false"}
   export CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING=${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-"false"}
@@ -500,12 +501,16 @@ function gitops_cluster() {
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "AWS Secrets Manager" "    "
-  echo_reset_dim "Region ................................. ${COLOR_MAGENTA}${SM_AWS_REGION}"
-  echo_reset_dim "Secret Key ............................. ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
-  echo_reset_dim "Access Key ............................. ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_h2 "Secrets Backend" "    "
+  echo_reset_dim "AVP Type ............................... ${COLOR_MAGENTA}${AVP_TYPE}"
   echo_reset_dim "Secrets Path ........................... ${COLOR_MAGENTA}${SECRETS_PATH}"
-  echo_reset_dim "Skip creation of cluster AWS secret? ... ${COLOR_MAGENTA}${SKIP_AWS_SECRET_CREATION}"
+  echo_reset_dim "Secret Key Separator ................... ${COLOR_MAGENTA}${SECRETS_KEY_SEPERATOR}"
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    echo_reset_dim "Region ................................. ${COLOR_MAGENTA}${SM_AWS_REGION}"
+    echo_reset_dim "Secret Key ............................. ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+    echo_reset_dim "Access Key ............................. ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+    echo_reset_dim "Skip creation of cluster AWS secret? ... ${COLOR_MAGENTA}${SKIP_AWS_SECRET_CREATION}"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -618,38 +623,36 @@ function gitops_cluster() {
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Configuring Cluster secrets"
-  AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
-  export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}ibm_entitlement
+  export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
 
-  export SECRET_NAME_CIS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}cis
+  export SECRET_NAME_CIS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cis
   export SECRET_KEY_IBM_APIKEY=${SECRET_NAME_CIS}#ibm_apikey
 
-  export SECRET_NAME_DEVOPS_MONGO=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}devops
+  export SECRET_NAME_DEVOPS_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}devops
   export SECRET_KEY_DEVOPS_MONGO=${SECRET_NAME_DEVOPS_MONGO}#devops_mongo_uri
 
-  export SECRET_NAME_ISV_CLIENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}isv_client
+  export SECRET_NAME_ISV_CLIENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}isv_client
   export SECRET_KEY_ISV_CLIENT_ID=${SECRET_NAME_ISV_CLIENT}#client_id
   export SECRET_KEY_ISV_CLIENT_SECRET=${SECRET_NAME_ISV_CLIENT}#client_secret
 
-  export SECRET_NAME_FALCON_CLIENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}falcon_client
+  export SECRET_NAME_FALCON_CLIENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}falcon_client
   export SECRET_KEY_FALCON_CLIENT_ID=${SECRET_NAME_FALCON_CLIENT}#client_id
   export SECRET_KEY_FALCON_CLIENT_SECRET=${SECRET_NAME_FALCON_CLIENT}#client_secret
 
-  export SECRET_NAME_CLOUDWATCH=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}cloudwatch
+  export SECRET_NAME_CLOUDWATCH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cloudwatch
   export SECRET_KEY_CLOUDWATCH_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_CLOUDWATCH}#aws_secret_access_key
   export SECRET_KEY_CLOUDWATCH_AWS_ACCESS_KEY_ID=${SECRET_NAME_CLOUDWATCH}#aws_access_key_id
 
-  export SECRET_NAME_INSTANA=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}instana
+  export SECRET_NAME_INSTANA=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana
   export SECRET_KEY_INSTANA_KEY=${SECRET_NAME_INSTANA}#key
 
-  export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SM_DELIM}syslog_pullsecret
+  export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}syslog_pullsecret
   export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
 
-  export SECRET_NAME_AWS_ECR=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws_ecr
+  export SECRET_NAME_AWS_ECR=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws_ecr
   export SECRET_KEY_AWS_ECR_ACCESS_KEY_ID=${SECRET_NAME_AWS_ECR}#ecr_aws_access_key_id
   export SECRET_KEY_AWS_ECR_ACCESS_KEY_SECRET=${SECRET_NAME_AWS_ECR}#ecr_aws_secret_access_key
 
@@ -732,7 +735,7 @@ function gitops_cluster() {
   sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_PULL_SECRET_B64}\", \"entitlement_key\": \"${IBM_ENTITLEMENT_B64}\"}" "${TAGS}"
 
   if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
-    export SECRET_NAME_GITHUB_PAT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}github_pat
+    export SECRET_NAME_GITHUB_PAT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}github_pat
     export SECRET_KEY_GITHUB_PAT=${SECRET_NAME_GITHUB_PAT}#github_pat
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_GITHUB_PAT "{\"github_pat\": \"${CLUSTER_PROMOTION_TARGET_GITHUB_PAT}\"}" "${TAGS}"
@@ -742,7 +745,7 @@ function gitops_cluster() {
 
 
   # This is used by some of the ArgoCD sync hooks to make updates to AWS SM from within the cluster
-  export SECRET_NAME_AWS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws
+  export SECRET_NAME_AWS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws
   if [[ "$SKIP_AWS_SECRET_CREATION" == "true" ]]; then
     echo "- Verify AWS secret"
     sm_verify_secret_exists $SECRET_NAME_AWS "sm_aws_access_key_id,sm_aws_secret_access_key"

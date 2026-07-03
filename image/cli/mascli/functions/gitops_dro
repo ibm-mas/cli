@@ -207,6 +207,9 @@ function gitops_dro() {
   reset_colors
   echo_h2 "Review Settings"
 
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
+
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
@@ -216,11 +219,15 @@ function gitops_dro() {
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "AWS Secrets Manager" "    "
-  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
-  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
-  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_h2 "Secrets Backend" "    "
+  echo_reset_dim "AVP Type ....................... ${COLOR_MAGENTA}${AVP_TYPE}"
   echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPERATOR}"
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+    echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+    echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -263,8 +270,6 @@ function gitops_dro() {
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-dro
   mkdir -p $TEMP_DIR
-  AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
   # Define cluster-level secrets used
