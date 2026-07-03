@@ -319,6 +319,10 @@ function gitops_bootstrap() {
   if [[ "${RESTRICTED_ACCESS}" != "true" ]]; then
     echo 'Add cluster-admin access to argocd-application-controller service account'
     oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:${ARGOCLUSTER_NAMESPACE}:${ARGOCD_CR_NAME}-argocd-application-controller
+    
+    if [[ "${AVP_TYPE}" == "kubernetessecret" ]]; then
+      oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:${ARGOCLUSTER_NAMESPACE}:${ARGOCD_CR_NAME}-repo-sa
+    fi
 
     # 9. For some reason the application-controller needs restarting to pickup the RBAC changes
     echo 'Restart application-controller'
