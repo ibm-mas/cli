@@ -152,7 +152,7 @@ function gitops_nvidia_gpu_noninteractive() {
         ;;
     esac
   done
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_nvidia_gpu_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_nvidia_gpu_help "ACCOUNT_ID is not set"

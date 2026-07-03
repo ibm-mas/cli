@@ -31,7 +31,7 @@ AWS Secrets Manager Configuration (Required):
   --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
   --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
   --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '_' for kubernetes)
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '.' for kubernetes)
   --check-secret ${COLOR_YELLOW}CHECK_SECRET${TEXT_RESET}                   Boolean to indicate whether any secret for the config should be checked that it exists or not
 
 Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
@@ -585,7 +585,7 @@ function gitops_mas_config() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h4 "Target" "    "
@@ -792,7 +792,7 @@ function gitops_mas_config() {
     # Source: gitops_suite_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
       export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo#info
       export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
       sm_login

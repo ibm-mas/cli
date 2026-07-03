@@ -122,7 +122,7 @@ function gitops_deprovision_app_config_noninteractive() {
         ;;
       esac
   done
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
 
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_app_config_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_deprovision_app_config_help "MAS_WORKSPACE_ID is not set"

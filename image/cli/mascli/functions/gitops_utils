@@ -286,9 +286,10 @@ function sm_list_cluster_secrets() {
 
     echo "$LIST_SECRETS_OUTPUT" | yq -r '.SecretList[].Name'
   elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
-    # List all Kubernetes secrets in the configured namespace whose name starts with <account>_<cluster_id>_
+    # List all Kubernetes secrets in the configured namespace whose name starts with <account><sep><cluster_id><sep>
     local _namespace="${SECRETS_PATH:-default}"
-    local _prefix="${ACCOUNT}_${CLUSTER_ID}_"
+    local _sep="${SECRETS_KEY_SEPERATOR:-.}"
+    local _prefix="${ACCOUNT}${_sep}${CLUSTER_ID}${_sep}"
     oc get secrets -n "${_namespace}" -o name | sed 's|^secret/||' | grep "^${_prefix}"
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
@@ -340,10 +341,21 @@ function sm_update_secret(){
     set -o pipefail
   elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
     # SECRET_VALUE is a JSON string.  Each top-level key becomes a data field in the Kubernetes Secret.
-    # SECRET_NAME uses '_' as the path separator (e.g. account_cluster_secretname).
+    # SECRET_NAME uses '.' as the path separator (e.g. account.cluster.secretname).
+    # Underscores are replaced with hyphens to produce a valid RFC 1123 subdomain name.
     # SECRETS_PATH holds the target namespace.
+    # SECRET_TAGS is a JSON array of {"Key":...,"Value":...} objects (AWS tag format); each entry
+    # is applied as a Kubernetes label on the Secret.
     local _namespace="${SECRETS_PATH:-default}"
-    local _k8s_name="${SECRET_NAME}"
+    local _k8s_name="${SECRET_NAME//_/-}"
+
+    # Build --labels flag from SECRET_TAGS JSON array (e.g. '[{"Key":"source","Value":"gitops_cluster"}]')
+    local _label_args=""
+    if [[ -n "${SECRET_TAGS}" ]]; then
+      while IFS="=" read -r key value; do
+        _label_args="${_label_args} --labels=${key}=${value}"
+      done < <(echo "${SECRET_TAGS}" | jq -r '.[] | "\(.Key)=\(.Value)"')
+    fi
 
     set +o pipefail
     # Check whether the secret already exists
@@ -357,7 +369,7 @@ function sm_update_secret(){
       while IFS="=" read -r key value; do
         _literal_args="${_literal_args} --from-literal=${key}=${value}"
       done < <(echo "${SECRET_VALUE}" | jq -r 'to_entries[] | "\(.key)=\(.value)"')
-      oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} || exit 1
+      oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} ${_label_args} || exit 1
       echo "- Secret ${_k8s_name} created"
     else
       # Retrieve current secret JSON for idempotency check
@@ -374,7 +386,7 @@ function sm_update_secret(){
           _literal_args="${_literal_args} --from-literal=${key}=${value}"
         done < <(echo "${SECRET_VALUE}" | jq -r 'to_entries[] | "\(.key)=\(.value)"')
         oc delete secret "${_k8s_name}" -n "${_namespace}" 2>/dev/null
-        oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} || exit 1
+        oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} ${_label_args} || exit 1
         echo "- Secret ${_k8s_name} updated"
       fi
     fi
@@ -396,9 +408,10 @@ function sm_delete_secret(){
 
   elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
     local _namespace="${SECRETS_PATH:-default}"
-    echo "- Deleting Kubernetes secret ${SECRET_NAME} (namespace: ${_namespace})"
+    local _k8s_name="${SECRET_NAME//_/-}"
+    echo "- Deleting Kubernetes secret ${_k8s_name} (namespace: ${_namespace})"
     set +o pipefail
-    oc delete secret "${SECRET_NAME}" -n "${_namespace}" --ignore-not-found || exit 1
+    oc delete secret "${_k8s_name}" -n "${_namespace}" --ignore-not-found || exit 1
     set -o pipefail
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
@@ -420,8 +433,9 @@ function sm_get_secret(){
   elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
     # Reconstruct the JSON object stored in the Kubernetes Secret data fields
     local _namespace="${SECRETS_PATH:-default}"
+    local _k8s_name="${SECRET_NAME//_/-}"
     set +o pipefail
-    oc get secret "${SECRET_NAME}" -n "${_namespace}" -o json 2>/dev/null \
+    oc get secret "${_k8s_name}" -n "${_namespace}" -o json 2>/dev/null \
       | jq -r '.data | to_entries[] | "\(.key)=\(.value | @base64d)"' \
       | jq -Rs 'split("\n") | map(select(length>0)) | map(split("=") | {(.[0]): (.[1:] | join("="))}) | add // {}'
     set -o pipefail
@@ -442,8 +456,9 @@ function sm_get_secret_value(){
 
   elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
     local _namespace="${SECRETS_PATH:-default}"
+    local _k8s_name="${SECRET_NAME//_/-}"
     set +o pipefail
-    oc get secret "${SECRET_NAME}" -n "${_namespace}" -o jsonpath="{.data.${SECRET_KEY}}" 2>/dev/null | base64 -d
+    oc get secret "${_k8s_name}" -n "${_namespace}" -o jsonpath="{.data.${SECRET_KEY}}" 2>/dev/null | base64 -d
     set -o pipefail
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     # echo "IBM SecretsManager not yet supported"
@@ -463,10 +478,11 @@ function sm_get_secret_file(){
     set -o pipefail
 
   elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
-    echo "- Getting Kubernetes Secret ${SECRET_NAME} to set in file ${SECRET_FILE}"
     local _namespace="${SECRETS_PATH:-default}"
+    local _k8s_name="${SECRET_NAME//_/-}"
+    echo "- Getting Kubernetes Secret ${_k8s_name} to set in file ${SECRET_FILE}"
     set +o pipefail
-    oc get secret "${SECRET_NAME}" -n "${_namespace}" -o json 2>/dev/null \
+    oc get secret "${_k8s_name}" -n "${_namespace}" -o json 2>/dev/null \
       | jq -r '.data | to_entries[] | "\(.key)=\(.value | @base64d)"' \
       | jq -Rs 'split("\n") | map(select(length>0)) | map(split("=") | {(.[0]): (.[1:] | join("="))}) | add // {}' \
       > "${SECRET_FILE}"
@@ -511,25 +527,26 @@ function sm_verify_secret_exists(){
     set -o pipefail
   elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
     local _namespace="${SECRETS_PATH:-default}"
-    echo "- Verifying Kubernetes Secret ${SECRET_NAME} exists (namespace: ${_namespace})"
+    local _k8s_name="${SECRET_NAME//_/-}"
+    echo "- Verifying Kubernetes Secret ${_k8s_name} exists (namespace: ${_namespace})"
     set +o pipefail
     local _exists
-    _exists=$(oc get secret "${SECRET_NAME}" -n "${_namespace}" --ignore-not-found -o name 2>/dev/null)
+    _exists=$(oc get secret "${_k8s_name}" -n "${_namespace}" --ignore-not-found -o name 2>/dev/null)
     if [[ -z "${_exists}" ]]; then
-      echo "Error: Secret ${SECRET_NAME} does not exist in namespace ${_namespace}"
+      echo "Error: Secret ${_k8s_name} does not exist in namespace ${_namespace}"
       exit 1
     fi
 
     if [ -n "${LOOKUP_KEYS}" ]; then
       echo "Secret Keys to validate ${LOOKUP_KEYS}"
       for secret_key in $(echo $LOOKUP_KEYS | tr "," "\n"); do
-        secret_value=$(oc get secret "${SECRET_NAME}" -n "${_namespace}" -o jsonpath="{.data.${secret_key}}" 2>/dev/null | base64 -d)
+        secret_value=$(oc get secret "${_k8s_name}" -n "${_namespace}" -o jsonpath="{.data.${secret_key}}" 2>/dev/null | base64 -d)
         echo "String value for secret key $secret_key: ${secret_value:0:4}<snip>"
         if [[ -z "${secret_value}" || "$secret_value" == null ]]; then
           if [[ ${ENFORCE_VALIDATION} = false ]]; then
-            echo "*****Warning: Secret key $secret_key does not exist or it is missing value in Secret ${SECRET_NAME}"
+            echo "*****Warning: Secret key $secret_key does not exist or it is missing value in Secret ${_k8s_name}"
           else
-            echo "Error: Secret key $secret_key does not exist or it is missing value in Secret ${SECRET_NAME}"
+            echo "Error: Secret key $secret_key does not exist or it is missing value in Secret ${_k8s_name}"
             exit 1
           fi
         fi
@@ -542,6 +559,40 @@ function sm_verify_secret_exists(){
     exit 1
   fi
 }
+
+
+# Normalise all SECRET_NAME_* and SECRET_KEY_* environment variables so that the
+# logical names (which may contain underscores from path-segment suffixes such as
+# "ibm_entitlement") produce RFC 1123-compliant Kubernetes Secret names.
+#
+# Underscores are replaced with hyphens in the path portion only:
+#   - For SECRET_NAME_* the whole value is normalised.
+#   - For SECRET_KEY_* only the part before the '#' field separator is normalised,
+#     so the data-key name (after '#') is preserved unchanged.
+#
+# This must be called after all SECRET_NAME_* / SECRET_KEY_* exports have been
+# set and only takes effect when AVP_TYPE=kubernetes.
+function sm_normalize_secret_names() {
+  [[ "$AVP_TYPE" != "kubernetes" ]] && return 0
+
+  # Normalise SECRET_NAME_* variables
+  while IFS='=' read -r var value; do
+    export "${var}=${value//_/-}"
+  done < <(env | grep '^SECRET_NAME_')
+
+  # Normalise the path portion of SECRET_KEY_* variables (before the '#')
+  while IFS='=' read -r var value; do
+    local _path="${value%%#*}"
+    local _field="${value#*#}"
+    if [[ "${_path}" == "${value}" ]]; then
+      # No '#' present - normalise whole value
+      export "${var}=${value//_/-}"
+    else
+      export "${var}=${_path//_/-}#${_field}"
+    fi
+  done < <(env | grep '^SECRET_KEY_')
+}
+
 
 function sm_update_account_secret() {
   ACCOUNT=$1

@@ -124,7 +124,7 @@ function gitops_deprovision_efs() {
  
   if [ $CLOUD_PROVIDER == 'aws' ]; then
     AVP_TYPE="${AVP_TYPE:-aws}"
-    [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="_" || SECRETS_KEY_SEPERATOR="/"; }
+    [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
     sm_login
 
     if [[ -z "${EFS_UNIQUE_ID}" ]]; then

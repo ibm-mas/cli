@@ -374,6 +374,13 @@ function jinjanate_commmon() {
   if [ -n "$output_path" ]; then
     local output_opts="-o ${output_path}"
   fi
+  # When using the kubernetes AVP backend, secret name paths must comply with RFC 1123
+  # subdomain rules (no underscores). Normalise SECRET_KEY_* path portions (before '#')
+  # in the environment so that the AVP annotations in the rendered templates match the
+  # physical Kubernetes Secret names created by sm_update_secret.
+  if [[ "${AVP_TYPE}" == "kubernetes" ]]; then
+    sm_normalize_secret_names
+  fi
   jinjanate --quiet --undefined $filter_params $template_path $output_opts
 }
 
