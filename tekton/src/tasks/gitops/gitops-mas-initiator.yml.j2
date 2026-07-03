@@ -335,29 +335,6 @@ spec:
 
         # ICN folder will be created later after extracting ICN and SAAS_SUB_ID
         process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID"
-        echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
-        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
-
-          mkdir -p $TARGET_LOCAL_DIR/manual-certs
-          cd $TARGET_LOCAL_DIR/manual-certs
-
-          git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/devops-configs.git -b master || exit
-
-          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
-
-          # Copy manual certs of mas_instance
-          cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
-
-          # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
-
-          chmod +x $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh
-
-          $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh  $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
-
-          # Remove manual-certs folder
-          rm -rf $TARGET_LOCAL_DIR/manual-certs
-
-        fi
         fi
         
         cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
