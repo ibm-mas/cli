@@ -1254,7 +1254,7 @@ db2ArgGroup.add_argument(
     dest="db2u_kind",
     required=False,
     choices=["db2ucluster", "db2uinstance", "rotate"],  # ADD "rotate"
-    help="Db2 resource kind in the cluster (db2ucluster, db2uinstance, or rotate). Defaults to catalog value. Only effective in dev mode."
+    help="Db2 resource kind in the cluster (db2ucluster, db2uinstance, or rotate). Defaults to catalog value. Only effective in dev mode.",
 )
 # db2ArgGroup.add_argument(
 #     "--db2u-kind",
