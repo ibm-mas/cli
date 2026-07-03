@@ -79,6 +79,7 @@ class Db2SettingsMixin:
             self.printH1("Configure Databases")
 
         self.setDB2DefaultChannel()  # Set default channel for Db2 if not already set
+        self.setDB2uKindDefault()  # Set default db2u_kind from catalog if not already set
 
         # If neither Monitor, Manage or Facilities is being installed, we have nothing to do
         # Note: For Monitor >= 9.2.0, Monitor requires Db2; for Monitor < 9.2.0, IoT requires Db2
@@ -328,7 +329,7 @@ class Db2SettingsMixin:
     def setDB2DefaultChannel(self) -> None:
         # Set the default db2-Channel
         if hasattr(self, "catalogDb2Channel"):
-            # Best case: catalogDb2Channel was set by processCatalogChoice()
+            # CatalogDb2Channel was set by processCatalogChoice()
             default_db2_channel = self.catalogDb2Channel
         elif hasattr(self, "chosenCatalog") and self.chosenCatalog is not None:
             # Fallback: Get directly from chosenCatalog if available
@@ -345,6 +346,30 @@ class Db2SettingsMixin:
             db2_channel = user_channel if user_channel else default_db2_channel
 
         self.params["db2_channel"] = db2_channel
+
+    def setDB2uKindDefault(self) -> None:
+        # Set the default db2u_kind from catalog, with dev mode override support
+        # Get default from catalog (same logic as setDB2DefaultChannel)
+        if hasattr(self, "catalogDb2uKind"):
+            # CatalogDb2uKind was set by processCatalogChoice()
+            default_db2u_kind = self.catalogDb2uKind
+        elif hasattr(self, "chosenCatalog") and self.chosenCatalog is not None:
+            # Fallback: Get directly from chosenCatalog if available
+            default_db2u_kind = self.chosenCatalog.get("db2u_kind_default", "db2ucluster")
+        else:
+            # Use hardcoded fallback
+            default_db2u_kind = "db2ucluster"
+
+        # Apply dev mode override logic (exactly like db2_channel)
+        if not self.devMode:
+            # Non-dev mode: Always use catalog default
+            db2u_kind = default_db2u_kind
+        else:
+            # Dev mode: Allow user override if provided via CLI argument
+            user_kind = self.getParam("db2u_kind")
+            db2u_kind = user_kind if user_kind else default_db2u_kind
+
+        self.params["db2u_kind"] = db2u_kind
 
     def setDB2DefaultSettings(self) -> None:
 
