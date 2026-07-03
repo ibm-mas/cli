@@ -349,11 +349,12 @@ function sm_update_secret(){
     local _namespace="${SECRETS_PATH:-default}"
     local _k8s_name="${SECRET_NAME//_/-}"
 
-    # Build --labels flag from SECRET_TAGS JSON array (e.g. '[{"Key":"source","Value":"gitops_cluster"}]')
+    # Build label args from SECRET_TAGS JSON array (e.g. '[{"Key":"source","Value":"gitops_cluster"}]')
+    # Labels are applied via 'oc label' after creation since 'oc create secret' has no --labels flag.
     local _label_args=""
     if [[ -n "${SECRET_TAGS}" ]]; then
       while IFS="=" read -r key value; do
-        _label_args="${_label_args} --labels=${key}=${value}"
+        _label_args="${_label_args} ${key}=${value}"
       done < <(echo "${SECRET_TAGS}" | jq -r '.[] | "\(.Key)=\(.Value)"')
     fi
 
@@ -369,7 +370,8 @@ function sm_update_secret(){
       while IFS="=" read -r key value; do
         _literal_args="${_literal_args} --from-literal=${key}=${value}"
       done < <(echo "${SECRET_VALUE}" | jq -r 'to_entries[] | "\(.key)=\(.value)"')
-      oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} ${_label_args} || exit 1
+      oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} || exit 1
+      [[ -n "${_label_args}" ]] && oc label secret "${_k8s_name}" -n "${_namespace}" ${_label_args} || true
       echo "- Secret ${_k8s_name} created"
     else
       # Retrieve current secret JSON for idempotency check
@@ -386,7 +388,8 @@ function sm_update_secret(){
           _literal_args="${_literal_args} --from-literal=${key}=${value}"
         done < <(echo "${SECRET_VALUE}" | jq -r 'to_entries[] | "\(.key)=\(.value)"')
         oc delete secret "${_k8s_name}" -n "${_namespace}" 2>/dev/null
-        oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} ${_label_args} || exit 1
+        oc create secret generic "${_k8s_name}" -n "${_namespace}" ${_literal_args} || exit 1
+        [[ -n "${_label_args}" ]] && oc label secret "${_k8s_name}" -n "${_namespace}" ${_label_args} || true
         echo "- Secret ${_k8s_name} updated"
       fi
     fi
