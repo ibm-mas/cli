@@ -22,6 +22,10 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_catalog_version
       type: string
+    - name: mas_catalog_digest
+      type: string
+      description: Set when using dev or pre-release catalog in airgap
+      default: ""
 
     # Development Build Support
     # -------------------------------------------------------------------------
@@ -239,6 +243,9 @@ spec:
           value: update-catalog
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
+
+        - name: mas_catalog_digest
+          value: $(params.mas_catalog_digest)
 
         # Development catalog support
         - name: artifactory_username
