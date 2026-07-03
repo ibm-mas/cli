@@ -585,7 +585,7 @@ function gitops_mas_config() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h4 "Target" "    "
@@ -792,7 +792,7 @@ function gitops_mas_config() {
     # Source: gitops_suite_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
       export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo#info
       export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
       sm_login

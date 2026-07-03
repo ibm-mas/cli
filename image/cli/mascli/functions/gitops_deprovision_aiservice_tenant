@@ -18,7 +18,7 @@ Basic Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  
-      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                      Secrets backend type. One of: aws, kubernetes (default: aws)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                      Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 
 ibm_aiservice_tenant(required):
@@ -171,7 +171,7 @@ function gitops_deprovision_aiservice_tenant() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "

@@ -118,7 +118,7 @@ function gitops_deprovision_app_install_noninteractive() {
         ;;
       esac
   done
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
 
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_app_install_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_deprovision_app_install_help "MAS_APP_ID is not set"

@@ -21,7 +21,7 @@ IBM Maximo Application Suite:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
-      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetes (default: aws)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 IBM CP4D:
       --cpd-product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                    CP4D Product Version
@@ -270,7 +270,7 @@ function gitops_cp4d() {
 
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
 
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
   export SECRET_KEY_NAMESPACE_SCOPE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}namespace_scope_channel#namespace_scope_channel

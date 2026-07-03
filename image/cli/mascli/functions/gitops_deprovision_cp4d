@@ -118,7 +118,7 @@ function gitops_deprovision_cp4d_noninteractive() {
         ;;
       esac
   done
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_cp4d_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_cp4d_help "ACCOUNT_ID is not set"

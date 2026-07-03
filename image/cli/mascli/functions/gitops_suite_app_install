@@ -49,7 +49,7 @@ Visual Inspection:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                          Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}        Secrets Manager key seperator string
-      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                  Secrets backend type. One of: aws, kubernetes (default: aws)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                  Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                            Enable automatic push to GitHub
@@ -323,7 +323,7 @@ function gitops_suite_app_install() {
   echo
   echo_h2 "Configuring Suite secrets"
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
 

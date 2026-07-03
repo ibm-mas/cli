@@ -18,7 +18,7 @@ GitOps Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
-      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetes (default: aws)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 MAS PROVISIONER OPERATOR:
       --status-repo-url ${COLOR_YELLOW}STATUS_REPO_URL${TEXT_RESET}                       Git repo where the order status of the operation will be recorded
@@ -296,7 +296,7 @@ function gitops_mas_provisioner() {
   echo
   echo_h2 "Configuring MAS Provisioner Secrets"
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement

@@ -258,7 +258,7 @@ function sm_login() {
     aws configure set default.region $SM_AWS_REGION
     export AWS_REGION=$SM_AWS_REGION
     aws configure list
-  elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
+  elif [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     # For the kubernetes backend the pod already runs with an in-cluster service account,
     # so no credential setup is required.  We just verify that the cluster is reachable.
     echo "Logging into Kubernetes SecretsManager (AVP kubernetes backend) ..."
@@ -285,7 +285,7 @@ function sm_list_cluster_secrets() {
     set -o pipefail
 
     echo "$LIST_SECRETS_OUTPUT" | yq -r '.SecretList[].Name'
-  elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
+  elif [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     # List all Kubernetes secrets in the configured namespace whose name starts with <account><sep><cluster_id><sep>
     local _namespace="${SECRETS_PATH:-default}"
     local _sep="${SECRETS_KEY_SEPERATOR:-.}"
@@ -339,7 +339,7 @@ function sm_update_secret(){
       echo "- Secret $SECRET_NAME unchanged"
     fi
     set -o pipefail
-  elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
+  elif [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     # SECRET_VALUE is a JSON string.  Each top-level key becomes a data field in the Kubernetes Secret.
     # SECRET_NAME uses '.' as the path separator (e.g. account.cluster.secretname).
     # Underscores are replaced with hyphens to produce a valid RFC 1123 subdomain name.
@@ -409,7 +409,7 @@ function sm_delete_secret(){
     aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null || exit 1
     set -o pipefail
 
-  elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
+  elif [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     local _namespace="${SECRETS_PATH:-default}"
     local _k8s_name="${SECRET_NAME//_/-}"
     echo "- Deleting Kubernetes secret ${_k8s_name} (namespace: ${_namespace})"
@@ -433,7 +433,7 @@ function sm_get_secret(){
     aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString
     set -o pipefail
 
-  elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
+  elif [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     # Reconstruct the JSON object stored in the Kubernetes Secret data fields
     local _namespace="${SECRETS_PATH:-default}"
     local _k8s_name="${SECRET_NAME//_/-}"
@@ -457,7 +457,7 @@ function sm_get_secret_value(){
     aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString | jq -r .${SECRET_KEY}
     set -o pipefail
 
-  elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
+  elif [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     local _namespace="${SECRETS_PATH:-default}"
     local _k8s_name="${SECRET_NAME//_/-}"
     set +o pipefail
@@ -480,7 +480,7 @@ function sm_get_secret_file(){
     aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString > $SECRET_FILE
     set -o pipefail
 
-  elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
+  elif [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     local _namespace="${SECRETS_PATH:-default}"
     local _k8s_name="${SECRET_NAME//_/-}"
     echo "- Getting Kubernetes Secret ${_k8s_name} to set in file ${SECRET_FILE}"
@@ -528,7 +528,7 @@ function sm_verify_secret_exists(){
     fi
 
     set -o pipefail
-  elif [[ "$AVP_TYPE" == "kubernetes" ]]; then
+  elif [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     local _namespace="${SECRETS_PATH:-default}"
     local _k8s_name="${SECRET_NAME//_/-}"
     echo "- Verifying Kubernetes Secret ${_k8s_name} exists (namespace: ${_namespace})"
@@ -576,7 +576,7 @@ function sm_verify_secret_exists(){
 # This must be called after all SECRET_NAME_* / SECRET_KEY_* exports have been
 # set and only takes effect when AVP_TYPE=kubernetes.
 function sm_normalize_secret_names() {
-  [[ "$AVP_TYPE" != "kubernetes" ]] && return 0
+  [[ "$AVP_TYPE" != "kubernetessecret" ]] && return 0
 
   # Normalise SECRET_NAME_* variables
   while IFS='=' read -r var value; do
@@ -647,7 +647,7 @@ function sm_get_cluster_secret() {
 function sm_get_secret_arn() {
   local _SECRET_NAME="$1"
 
-  if [[ "$AVP_TYPE" == "kubernetes" ]]; then
+  if [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     # The kubernetes backend has no concept of ARNs; return the secret name as the identifier
     eval "$2=${_SECRET_NAME}"
     return 0

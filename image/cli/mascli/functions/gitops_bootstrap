@@ -21,7 +21,7 @@ Options:
       --cluster-admin-role ${COLOR_YELLOW}CLUSTER_ADMIN_ROLE${TEXT_RESET}          Flag. Optional. If set (or CLUSTER_ADMIN_ROLE set to exactly "true"), enables cluster admin role. Default: enabled if neither role flag is provided, disabled if only --application-admin-role is set.
       --application-admin-role ${COLOR_YELLOW}APPLICATION_ADMIN_ROLE${TEXT_RESET}  Flag. Optional. If set (or APPLICATION_ADMIN_ROLE set to exactly "true"), enables application admin role. Default: enabled if neither role flag is provided, disabled if only --cluster-admin-role is set.
       --cli-version ${COLOR_YELLOW}CLI_VERSION${TEXT_RESET}                        CLI Version to be used to run avp container. Optional
-      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                              Secrets backend type. One of: aws, kubernetes (default: aws)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                              Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 AWS Secrets Manager Configuration (required when --avp-type is aws):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}             Region of the AWS Secrets Manager to use

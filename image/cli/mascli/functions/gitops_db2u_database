@@ -75,7 +75,7 @@ IBM DB2U:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                                  Secrets Manager key seperator string
-      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                            Secrets backend type. One of: aws, kubernetes (default: aws)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                            Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                                                      Enable automatic push to GitHub
@@ -504,7 +504,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
   if [[ -z $SECRET_NAME_DB2_BACKUP ]]; then
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
     export SECRET_NAME_DB2_BACKUP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup
   fi
   if [[ -z $SECRET_NAME_ICD_AUTH_KEY ]]; then

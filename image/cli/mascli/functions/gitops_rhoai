@@ -20,7 +20,7 @@ GitOps Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
-      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetes (default: aws)
+      --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 ibm aiservice(required):
       --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
@@ -370,7 +370,7 @@ function gitops_rhoai() {
   CURRENT_DIR=$PWD
   
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetes" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
   sm_login
 
   # Set up secret key and fetch secret
