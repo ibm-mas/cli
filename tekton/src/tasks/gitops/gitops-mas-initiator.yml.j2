@@ -419,11 +419,11 @@ spec:
             cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
           fi
 
-          if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
-            yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-            echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
-          fi
-          
+
+        if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
+          yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+          echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
+        fi
           if [[ "${MANUAL_CERTS_CONTROL_FLAG}" != "true" ]]; then
             yq -i 'del(.dns.manual_certs)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
             echo "gitops-mas-initiator: removed .dns.manual_certs node"
@@ -706,7 +706,6 @@ spec:
               break
             fi
           
-            if [[ ${index} -eq ${retries} ]]; then
               echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed even after $retries retries, exit with error"
               exit 1
             fi
@@ -722,7 +721,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-mas-initiator
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:latest
   workspaces:
     - name: configs
