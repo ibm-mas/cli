@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: gitops-mas-initiator
@@ -129,6 +129,7 @@ spec:
       type: string
       default: ""  
   stepTemplate:
+    name: gitops-mas-initiator
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -285,6 +286,55 @@ spec:
           set -e -o pipefail
         fi
 
+        # Fetch public NLB DNS name from AWS and create secret
+        echo "Fetching Network Load Balancer DNS name for $CLUSTER_NAME VPC..."
+        
+        set +o pipefail
+        # Note the - after cluster name. this is to distinguish between different similar named clusters
+        vpc_name=$(aws ec2 describe-vpcs --output yaml 2>/dev/null | grep $CLUSTER_NAME- | yq '.[].Value // ""' 2>/dev/null | xargs)
+        if [ -z "$vpc_name" ]; then
+          # Needed if there is only one cluster in account
+          vpc_name=$(aws ec2 describe-vpcs --output yaml 2>/dev/null | grep $CLUSTER_NAME- | yq '.Value // ""' 2>/dev/null | xargs)
+        fi
+        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml 2>/dev/null | yq '.Vpcs[].VpcId' 2>/dev/null)
+        set -o pipefail
+        
+        if [ -z "$VPC_ID" ]; then
+          echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
+        fi
+
+        echo "VPC of $VPC_ID found for $CLUSTER_NAME"     
+        
+        # Get Network Load Balancer DNS name (internet-facing, type network, name contains $CLUSTER_NAME and ext)
+        NLB_DNS=$(aws elbv2 describe-load-balancers \
+          --query "LoadBalancers[?VpcId=='${VPC_ID}' && Type=='network' && Scheme=='internet-facing'].{Name:LoadBalancerName,DNS:DNSName}" \
+          --output json | jq -r '.[] | select(.Name | contains("'${CLUSTER_NAME}'") and contains("ext")) | .DNS' | head -n 1)
+        
+        if [[ -z "$NLB_DNS" || "$NLB_DNS" == "None" ]]; then
+          echo "ERROR: Could not find internet-facing Network Load Balancer in $CLUSTER_NAME VPC"
+          exit 1
+        fi
+        
+        echo "Found NLB DNS: $NLB_DNS"
+        
+        # Create AWS secret with NLB DNS information using path structure
+        SECRET_NAME="${ACCOUNT}/${CLUSTER_NAME}/public-elb"
+        
+        # Check if secret already exists
+        if aws secretsmanager describe-secret --secret-id "${SECRET_NAME}" 2>/dev/null; then
+          echo "Updating existing secret: ${SECRET_NAME}"
+          aws secretsmanager update-secret \
+            --secret-id "${SECRET_NAME}" \
+            --secret-string "{\"dns\":\"${NLB_DNS}\"}"
+        else
+          echo "Creating new secret: ${SECRET_NAME}"
+          aws secretsmanager create-secret \
+            --name "${SECRET_NAME}" \
+            --description "Public Network Load Balancer DNS for fvt" \
+            --secret-string "{\"dns\":\"${NLB_DNS}\"}"
+        fi
+        
+        echo "AWS secret created/updated successfully: ${SECRET_NAME}"
 
         export TARGET_LOCAL_DIR="/tmp/target_repo"
         mkdir -p $TARGET_LOCAL_DIR
@@ -296,7 +346,7 @@ spec:
         mkdir -p $SOURCE_LOCAL_DIR
         cd $SOURCE_LOCAL_DIR
         echo "git: Cloning $GITHUB_HOST:$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO branch $SOURCE_GIT_BRANCH into $SOURCE_LOCAL_DIR working directory"
-        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO.git -b $SOURCE_GIT_BRANCH || exit
+        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO.git -b $SOURCE_GIT_BRANCH || exit 
 
         mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
 
@@ -334,7 +384,8 @@ spec:
           fi
 
         # ICN folder will be created later after extracting ICN and SAAS_SUB_ID
-        process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID"
+       
+          process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID"
         fi
         
         cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
@@ -356,6 +407,8 @@ spec:
             # Copy manual certs of mas_instance
             cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
 
+            # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
+
             chmod +x $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh
 
             $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh  $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
@@ -366,12 +419,11 @@ spec:
             cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
           fi
 
-  
-
-        if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
-          yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-          echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
-        fi
+          if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
+            yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+            echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
+          fi
+          
           if [[ "${MANUAL_CERTS_CONTROL_FLAG}" != "true" ]]; then
             yq -i 'del(.dns.manual_certs)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
             echo "gitops-mas-initiator: removed .dns.manual_certs node"
@@ -410,9 +462,6 @@ spec:
 
           # Update the provisioner_domain in cluster-params.yaml.
           yq -i '(. | select(has("mas_provisioner")) |  .mas_provisioner.provisioner_domain) = env(APPSDOMAIN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-
-          # Update the channel in the mas-instance-params.yaml.
-          yq -i '.mas_instance.channel = env(MAS_CHANNEL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
         fi
 
         # Additional MAS-specific configurations (only if MAS_INSTANCE_ID is provided)
@@ -542,12 +591,12 @@ spec:
         # Check if CENTRALISED_SLS is set to true
 
         if [[ "${CENTRALISED_SLS}" == true ]]; then
-
+     
           # Create ICN folder structure and copy files
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn
           echo "gitops-mas-initiator: Copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
           cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/icn/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/
-
+          
           # Process any .j2 files in ICN folder
           process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn"
 
@@ -562,46 +611,46 @@ spec:
             echo "Error: CENTRALISED_SLS is true but no SLS service reference found in either mas-instance-params.yaml or aiservice-params.yaml" >&2
             exit 1
           fi
-
+          
           echo "gitops-mas-initiator: Found SLS service reference: $SLS_SERVICE"
-
+          
           # Clean the path by removing <ref: and >
           CLEAN_PATH=$(echo "$SLS_SERVICE" | sed 's#<ref:##; s#>##')
-
+          
           # Split path by / and extract ICN and SAAS_SUB_ID
           IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
-
+          
           {% raw %}
           if [ ${#PARTS[@]} -lt 6 ]; then
           {% endraw %}
             echo "Error: Invalid SLS service parameter file Path $SLS_SERVICE format." >&2
             exit 1
           fi
-
+          
           # Extract ICN (4th element, index 3) and SAAS_SUB_ID (5th element, index 4)
           export ICN="${PARTS[3]}"
           export SAAS_SUB_ID="${PARTS[4]}"
-
+          
           # Validate extracted values
           if [ -z "$ICN" ] || [ -z "$SAAS_SUB_ID" ]; then
             echo "Error: Failed to extract ICN or SAAS_SUB_ID from SLS service path: $SLS_SERVICE" >&2
             exit 1
           fi
-
+          
           echo "gitops-mas-initiator: Extracted ICN from SLS service: $ICN"
           echo "gitops-mas-initiator: Extracted SAAS_SUB_ID from SLS service: $SAAS_SUB_ID"
-
+          
           # Set the ICN file path for later use in skip deploy section
           ICN_FILE_PATH="$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/icn/$ICN/$SAAS_SUB_ID/sls-params.yaml"
-
-          # Update sls.domain in sls-params.yaml
+          
+          # Update sls.domain in sls-params.yaml 
           if [[ -f "$ICN_FILE_PATH" ]]; then
             echo "gitops-mas-initiator: Updating sls.domain in $ICN_FILE_PATH to $APPSDOMAIN"
             yq -i '.sls.domain = env(APPSDOMAIN)' "$ICN_FILE_PATH"
           else
             echo "gitops-mas-initiator: Warning - sls-params.yaml not found at $ICN_FILE_PATH"
           fi
-
+ 
         else
           echo "gitops-mas-initiator: CENTRALISED_SLS not true, skipping ICN setup"
         fi
@@ -621,7 +670,7 @@ spec:
         else
             echo "Commit message starts with [skip deploy], no changes made."
         fi
-
+      
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
         FILES_ADDED_OUTPUT="$(git add -v .)"
         return_code=$?
@@ -656,12 +705,12 @@ spec:
               sleep 10
               break
             fi
-
+          
             if [[ ${index} -eq ${retries} ]]; then
               echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed even after $retries retries, exit with error"
               exit 1
             fi
-            echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed, retry after $interval sec ..."
+            echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed, retry after $interval sec ..."      
             sleep $interval
             ((index++))
           done
@@ -674,7 +723,7 @@ spec:
         - -c
       name: gitops-mas-initiator
       imagePullPolicy: Always
-      image: "quay.io/ibmmas/cli:latest"
+      image: quay.io/ibmmas/cli:latest
   workspaces:
     - name: configs
-
+    
