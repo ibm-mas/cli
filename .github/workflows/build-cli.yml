@@ -57,7 +57,6 @@ jobs:
           retention-days: 30
 
       - name: Upload definition to Artifactory
-        continue-on-error: true
         env:
           ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
           ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
