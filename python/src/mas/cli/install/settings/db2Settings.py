@@ -349,7 +349,7 @@ class Db2SettingsMixin:
 
     def setDB2uKindDefault(self) -> None:
         # Set the default db2u_kind from catalog, with dev mode override support
-        # Get default from catalog (same logic as setDB2DefaultChannel)
+        # Get default from catalog
         if hasattr(self, "catalogDb2uKind"):
             # CatalogDb2uKind was set by processCatalogChoice()
             default_db2u_kind = self.catalogDb2uKind
@@ -360,7 +360,7 @@ class Db2SettingsMixin:
             # Use hardcoded fallback
             default_db2u_kind = "db2ucluster"
 
-        # Apply dev mode override logic (exactly like db2_channel)
+        # Apply dev mode override logic
         if not self.devMode:
             # Non-dev mode: Always use catalog default
             db2u_kind = default_db2u_kind
