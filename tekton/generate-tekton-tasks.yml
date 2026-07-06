@@ -230,6 +230,7 @@
         - gitops-license
         - gitops-license-generator
         - gitops-mas-fvt-preparer
+        - gitops-aiservice-fvt-preparer
         - gitops-mas-initiator
         - gitops-mas-provisioner
         - gitops-mongo
