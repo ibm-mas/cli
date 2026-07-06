@@ -349,7 +349,7 @@ class Db2SettingsMixin:
 
     def setDB2uKindDefault(self) -> None:
         # Set the default db2u_kind from catalog, with dev mode override support
-        # Get default from catalog
+        # Get default from Catalog
         if hasattr(self, "catalogDb2uKind"):
             # CatalogDb2uKind was set by processCatalogChoice()
             default_db2u_kind = self.catalogDb2uKind
