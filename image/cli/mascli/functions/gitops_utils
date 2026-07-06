@@ -389,8 +389,7 @@ EOF
       # Retrieve current secret data for idempotency check
       local _current_value
       _current_value=$(oc get secret "${_k8s_name}" -n "${_namespace}" -o json 2>/dev/null \
-        | jq -r '.data | to_entries[] | "\(.key)=\(.value | @base64d)"' \
-        | jq -Rs 'split("\n") | map(select(length>0)) | map(split("=") | {(.[0]): (.[1:] | join("="))}) | add // {}')
+        | jq '(.data // {}) | to_entries | map({key: .key, value: (.value | @base64d)}) | from_entries')
       if [[ "${SECRET_VALUE}" == "${_current_value}" ]]; then
         echo "- Secret ${_k8s_name} unchanged"
       else
@@ -443,8 +442,7 @@ function sm_get_secret(){
     local _k8s_name="${SECRET_NAME//_/-}"
     set +o pipefail
     oc get secret "${_k8s_name}" -n "${_namespace}" -o json 2>/dev/null \
-      | jq -r '.data | to_entries[] | "\(.key)=\(.value | @base64d)"' \
-      | jq -Rs 'split("\n") | map(select(length>0)) | map(split("=") | {(.[0]): (.[1:] | join("="))}) | add // {}'
+      | jq '(.data // {}) | to_entries | map({key: .key, value: (.value | @base64d)}) | from_entries'
     set -o pipefail
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     # echo "IBM SecretsManager not yet supported"
@@ -490,8 +488,7 @@ function sm_get_secret_file(){
     echo "- Getting Kubernetes Secret ${_k8s_name} to set in file ${SECRET_FILE}"
     set +o pipefail
     oc get secret "${_k8s_name}" -n "${_namespace}" -o json 2>/dev/null \
-      | jq -r '.data | to_entries[] | "\(.key)=\(.value | @base64d)"' \
-      | jq -Rs 'split("\n") | map(select(length>0)) | map(split("=") | {(.[0]): (.[1:] | join("="))}) | add // {}' \
+      | jq '(.data // {}) | to_entries | map({key: .key, value: (.value | @base64d)}) | from_entries' \
       > "${SECRET_FILE}"
     set -o pipefail
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
