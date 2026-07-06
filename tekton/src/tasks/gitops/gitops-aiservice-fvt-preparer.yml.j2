@@ -566,7 +566,7 @@ spec:
             check_argo_app_healthy "${MASAPP_APP}" 120
           fi
           if [[ "$LAUNCHFVT_AISERVICE" == "true" ]]; then
-            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="aiservice.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}" 120
           fi
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
