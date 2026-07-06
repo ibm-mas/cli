@@ -228,9 +228,12 @@ function gitops_suite_app_config_noninteractive() {
   [[ -z "${MAS_APPWS_API_VERSION}" ]] && gitops_suite_app_config_help "MAS_APPWS_API_VERSION is not set"
   [[ -z "${MAS_APPWS_KIND}" ]] && gitops_suite_app_config_help "MAS_APPWS_KIND is not set"
 
-  if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
-    echo 'Missing required params for AWS mongo provider, make sure to provide $SM_AWS_ACCESS_KEY_ID, $SM_AWS_SECRET_ACCESS_KEY, $SM_AWS_REGION'
-    exit 1
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  if [[ "${AVP_TYPE}" == "aws" ]]; then
+    if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
+      echo 'Missing required params for AWS secrets manager, make sure to provide $SM_AWS_ACCESS_KEY_ID, $SM_AWS_SECRET_ACCESS_KEY, $SM_AWS_REGION'
+      exit 1
+    fi
   fi
 
   if [[ -z "${MAS_APPWS_SPEC_YAML}" ]]; then
