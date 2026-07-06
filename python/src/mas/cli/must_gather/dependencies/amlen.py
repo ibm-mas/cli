@@ -18,6 +18,7 @@ to the must-gather output directory.
 
 import logging
 import os
+import shutil
 import tarfile
 import tempfile
 from typing import List
@@ -71,7 +72,7 @@ def _downloadAndExtractAmlenLogs(coreV1Api: client.CoreV1Api, namespace: str, po
 
     Creates a ``tar -czf -`` of the discovered log files inside the pod, streams
     the archive to a temporary file, extracts it, and then moves the ``*.log``
-    files to ``{outputDir}/resources/{namespace}/mbgx-logs/{podName}/``.
+    files to ``{outputDir}/amlen-logs/{namespace}/{podName}/``.
 
     Args:
         coreV1Api (CoreV1Api): Kubernetes core API client
@@ -83,7 +84,7 @@ def _downloadAndExtractAmlenLogs(coreV1Api: client.CoreV1Api, namespace: str, po
     Returns:
         bool: True if extraction succeeded (even partially), False on failure
     """
-    destDir = os.path.join(outputDir, "resources", namespace, "mbgx-logs", podName)
+    destDir = os.path.join(outputDir, "amlen-logs", namespace, podName)
     os.makedirs(destDir, exist_ok=True)
 
     tarCommand = ["tar", "-czf", "-"] + logFiles
@@ -136,7 +137,7 @@ def _downloadAndExtractAmlenLogs(coreV1Api: client.CoreV1Api, namespace: str, po
                                 if fname.endswith(".log"):
                                     src = os.path.join(dirpath, fname)
                                     dst = os.path.join(destDir, fname)
-                                    os.replace(src, dst)
+                                    shutil.copy2(src, dst)
             except tarfile.TarError as e:
                 logger.warning(f"Failed to open tar archive from pod {podName}: {e}")
                 return False
@@ -153,7 +154,7 @@ def collectAmlenLogs(namespace: str, outputDir: str) -> bool:
 
     Discovers pods labelled ``app=mbgx-messagesight``, finds ``*.log`` files
     inside each pod's ``/var/messagesight/diag/logs/`` directory, and streams
-    them out into ``{outputDir}/resources/{namespace}/mbgx-logs/{podName}/``.
+    them out into ``{outputDir}/amlen-logs/{namespace}/{podName}/``.
 
     Args:
         namespace (str): Kubernetes namespace to search for mbgx pods
