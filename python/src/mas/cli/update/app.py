@@ -12,6 +12,7 @@
 import logging
 import logging.handlers
 import re
+from os import getenv
 from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
@@ -161,6 +162,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.noConfirm = self.args.no_confirm
         self.devMode = self.args.dev_mode
         self.db2LicenseFileLocal = None
+        self.chosenCatalog = None
         self.instancesNeedingRBAC = []
         self.applyPreInstallMASRBAC = False
 
@@ -217,6 +219,10 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 else:
                     print(f"Unknown option: {key} {value}")
                     self.fatalError(f"Unknown option: {key} {value}")
+
+            # Dev mode ICR registry override
+            if self.devMode:
+                self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
         else:
             # Interactive mode
             self.printH1("Set Target OpenShift Cluster")
@@ -245,7 +251,10 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         else:
             # In dev mode, load the user-specified catalog (or newest if not specified)
             catalogVersion = self.getParam("mas_catalog_version") if self.args.mas_catalog_version else getNewestCatalogTag()
-            self.chosenCatalog = getCatalog(catalogVersion)
+            try:
+                self.chosenCatalog = getCatalog(catalogVersion)
+            except NoSuchCatalogError:
+                pass
 
         self.printH1("Dependency Update Checks")
         with Halo(text="Checking for IBM Watson Discovery", spinner=self.spinner) as h:
