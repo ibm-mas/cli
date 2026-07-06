@@ -1723,15 +1723,71 @@ class InstallApp(
             ]
         )
 
-        # Install Db2 for AI Service
-        self.setParam("db2_action_aiservice", "install")
-
         self.promptForString(
             "Instance ID",
             "aiservice_instance_id",
             validator=InstanceIDFormatValidator(),
         )
         self.params["aiservice_channel"] = prompt(HTML("<Yellow>Custom channel for AI Service</Yellow> "))
+
+    @logMethodCall
+    def configAIServiceDatabase(self):
+        """Configure database for AI Service - either in-cluster DB2 or external database"""
+        self.printH2("Database Configuration for AI Service")
+        self.printDescription(
+            [
+                "By default, DB2 will be installed in-cluster (suitable for development and testing).",
+                "Alternatively, you can connect to an external Oracle or DB2 database (supported in AI Service 9.1.x only).",
+                # "Alternatively, you can connect to an external database (Oracle, SQL Server, or DB2).",
+            ]
+        )
+
+        if self.yesOrNo("Do you want to use an external database"):
+            # Configure external database
+            self.setParam("install_db2", "false")
+            self.setParam("db2_action_aiservice", "byo")
+
+            self.printDescription(
+                [
+                    "Provide connection details for your external Oracle or DB2 database.",
+                    "",
+                    "JDBC URL Example:",
+                    "  Oracle:     jdbc:oracle:thin:@//hostname:1521/servicename",
+                    "  DB2:        jdbc:db2://hostname:50000/database",
+                    # "  SQL Server: jdbc:sqlserver://hostname:1433;databaseName=aiservice",
+                ]
+            )
+
+            self.promptForString("Database JDBC URL", "aiservice_db_jdbc_url")
+            self.promptForString("Database Username", "aiservice_db_username")
+            self.promptForString("Database Password", "aiservice_db_password", isPassword=True)
+
+            if self.yesOrNo("Does the database use SSL/TLS with a self-signed certificate"):
+                self.promptForString(
+                    "Database CA certificate (PEM format)",
+                    "aiservice_db_ca_cert",
+                )
+        else:
+            # Install DB2 for AI Service
+            self.setParam("install_db2", "true")
+            self.setParam("db2_action_aiservice", "install")
+
+            # Prompt for DB2 license file (same as standalone)
+            self.printDescription(
+                [
+                    "Db2 Universal Operator for v12 onwards requires a License activation key",
+                    "If you don't have a license, press enter to continue.",
+                ]
+            )
+            db2LicenseFile = self.promptForString("Db2 License file", "db2_license_file")
+            if db2LicenseFile and db2LicenseFile.strip() != "":
+                self.db2LicenseFileLocal = db2LicenseFile
+
+    @logMethodCall
+    def configAIServiceDatabaseInDependencies(self) -> None:
+        """Wrapper method to configure AI Service database in the Dependencies section"""
+        if self.installAIService:
+            self.configAIServiceDatabase()
 
     @logMethodCall
     def aiServiceSettings(self) -> None:
@@ -2002,6 +2058,7 @@ class InstallApp(
         self.arcgisSettings()  # Will only prompt if Manage (with Spatial) or Facilities is selected
         self.configMongoDb()
         self.configDb2()
+        self.configAIServiceDatabaseInDependencies()  # Configure AI Service database
         self.configKafka()  # Will only do anything if IoT has been selected for install
         self.configAi()  # Configure AI Service integration
 
@@ -2190,9 +2247,24 @@ class InstallApp(
             elif key == "aiservice_channel":
                 if value is not None and value != "":
                     self.setParam("aiservice_channel", value)
-                    # Install Db2 for AI Service
-                    self.setParam("db2_action_aiservice", "install")
                     self.installAIService = True
+
+                    # Check if external DB parameters are provided
+                    externalDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
+                    hasExternalDb = any(vars(self.args)[dbParam] is not None for dbParam in externalDbParams)
+
+                    if hasExternalDb:
+                        # Using external database - validate all required parameters
+                        self.setParam("install_db2", "false")
+                        self.setParam("db2_action_aiservice", "byo")
+                        for dbParam in externalDbParams:
+                            if vars(self.args)[dbParam] is None:
+                                self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
+                    else:
+                        # Default: Install DB2 in-cluster
+                        self.setParam("install_db2", "true")
+                        self.setParam("db2_action_aiservice", "install")
+
                     # Set manage - bind - AI Service params same as provided AI Service's params
                     self.setParam(
                         "manage_bind_aiservice_instance_id",
