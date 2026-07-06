@@ -358,7 +358,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             # Apply pre-install RBAC if user has permissions
             if self.applyPreInstallMASRBAC and detectedMode:
                 self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
-                with Halo(text="App pre-install MAS RBAC for target version", spinner=self.spinner) as h:
+                with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
                         masVersion=".".join(self.nextChannel.split(".")[:2]),
