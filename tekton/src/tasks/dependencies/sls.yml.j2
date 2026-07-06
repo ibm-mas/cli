@@ -48,6 +48,11 @@ spec:
       type: string
       default: ""
 
+    # Entitlement (only used for artifactory auth since 3.8.0)
+    - name: ibm_entitlement_key
+      type: string
+      default: ""
+
     - name: artifactory_username
       default: ""
       type: string
@@ -103,13 +108,8 @@ spec:
         value: $(params.sls_entitlement_file)
 
       # Entitlement (only used for artifactory auth since 3.8.0)
-      {% if sls_channel is defined and sls_channel|string|replace('.', '')|int <= 370 %}
       - name: IBM_ENTITLEMENT_KEY
-        valueFrom:
-          secretKeyRef:
-            name: pipeline-additional-configs
-            key: IBM_ENTITLEMENT_KEY
-      {% endif %}
+        value: $(params.ibm_entitlement_key)
 
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)

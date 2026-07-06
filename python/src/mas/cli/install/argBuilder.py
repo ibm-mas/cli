@@ -376,6 +376,22 @@ class installArgBuilderMixin:
             if self.getParam("aiservice_certificate_issuer") != "":
                 command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
 
+            # Database configuration for AI Service - matches standalone pattern
+            if self.getParam("db2_action_aiservice") == "install":
+                # In-cluster DB2 installation
+                command += f"  --db2-aiservice{newline}"
+                if self.getParam("db2_channel") != "":
+                    command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
+                if self.db2LicenseFileLocal:
+                    command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
+            elif self.getParam("aiservice_db_jdbc_url") != "":
+                # External database (Oracle/SQL Server/DB2)
+                command += f"  --aiservice-db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
+                command += f"  --aiservice-db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
+                command += f"  --aiservice-db-password \"{self.getParam('aiservice_db_password')}\"{newline}"
+                if self.getParam("aiservice_db_ca_cert") != "":
+                    command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
+
             if self.getParam("aiservice_s3_accesskey") != "" and self.getParam("minio_root_user") == "":
                 command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
             if self.getParam("aiservice_s3_secretkey") != "" and self.getParam("minio_root_user") == "":
