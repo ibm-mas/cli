@@ -13,6 +13,7 @@ from utils import InstallTestConfig, run_aiservice_install_test
 import sys
 import os
 import pytest
+from unittest import mock
 from mas.devops.data import NoSuchCatalogError
 
 # Add test directory to path for utils import
@@ -47,8 +48,9 @@ def test_aiservice_install_master_no_dev_mode(tmpdir):
     )
 
     # Run the test and expect NoSuchCatalogError to be raised
-    with pytest.raises(NoSuchCatalogError):
-        run_aiservice_install_test(tmpdir, config)
+    with mock.patch("mas.cli.aiservice.install.app.getCatalog", side_effect=NoSuchCatalogError("v9-master-amd64")):
+        with pytest.raises(NoSuchCatalogError):
+            run_aiservice_install_test(tmpdir, config)
 
 
 def test_aiservice_install_master_dev_mode(tmpdir):

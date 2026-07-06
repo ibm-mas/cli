@@ -42,7 +42,7 @@ def test_update_master_dev_mode(tmpdir):
         timeout_seconds=30,
         argv=[
             "--dev-mode",
-            "--mas-catalog-version",
+            "--catalog",
             "v9-master-amd64",
             "--no-confirm",
         ],
@@ -67,7 +67,7 @@ def test_update_unknown_installed_catalog(tmpdir):
         timeout_seconds=30,
         argv=[
             "--dev-mode",
-            "--mas-catalog-version",
+            "--catalog",
             "v9-master-amd64",
             "--no-confirm",
         ],
@@ -91,7 +91,7 @@ def test_update_master_no_dev_mode(tmpdir):
         mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
         timeout_seconds=30,
         argv=[
-            "--mas-catalog-version",
+            "--catalog",
             "v9-master-amd64",
             "--no-confirm",
         ],
