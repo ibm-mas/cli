@@ -58,7 +58,6 @@ EOM
 function gitops_suite_license_service_noninteractive() {
   # Set defaults
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPARATOR="/"
 
   GIT_COMMIT_MSG="gitops-suite-license-service commit"
 

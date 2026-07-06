@@ -36,7 +36,6 @@ EOM
 }
 
 function gitops_license_noninteractive() {
-  SECRETS_KEY_SEPARATOR="/"
 
   while [[ $# -gt 0 ]]
   do

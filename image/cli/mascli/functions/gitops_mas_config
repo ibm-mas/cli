@@ -792,7 +792,6 @@ function gitops_mas_config() {
     # Source: gitops_suite_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
-  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
       export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo#info
       export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
       sm_login
