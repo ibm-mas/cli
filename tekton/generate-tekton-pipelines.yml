@@ -132,6 +132,3 @@
         - gitops-mas-initiator
         - gitops-aiservice-deps
       when: pipeline_name == ''
-        
-
-        

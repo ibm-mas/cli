@@ -9,6 +9,3 @@ ibm_db2u:
   db2_channel: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_DEFAULT_CHANNEL }}>
 {% endif %}
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
-{% if CLUSTER_DOMAIN is defined and CLUSTER_DOMAIN !='' %}
-  cluster_domain: {{ CLUSTER_DOMAIN }}
-{% endif %}
