@@ -50,6 +50,8 @@ class TestUpgradeAdminModeDetectionIntegration:
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
+    @patch("mas.cli.upgrade.app.preparePipelinesNamespace")
+    @patch("mas.cli.upgrade.app.getDefaultStorageClasses")
     @patch("mas.cli.upgrade.app.installOpenShiftPipelines")
     @patch("mas.cli.upgrade.app.createNamespace")
     @patch("mas.cli.upgrade.app.getInstalledApps")
@@ -70,6 +72,8 @@ class TestUpgradeAdminModeDetectionIntegration:
         mock_get_installed_apps,
         mock_create_ns,
         mock_install_pipelines,
+        mock_get_default_storage_classes,
+        mock_prepare_pipelines_ns,
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
@@ -101,6 +105,8 @@ class TestUpgradeAdminModeDetectionIntegration:
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
+    @patch("mas.cli.upgrade.app.preparePipelinesNamespace")
+    @patch("mas.cli.upgrade.app.getDefaultStorageClasses")
     @patch("mas.cli.upgrade.app.installOpenShiftPipelines")
     @patch("mas.cli.upgrade.app.createNamespace")
     @patch("mas.cli.upgrade.app.getInstalledApps")
@@ -121,6 +127,8 @@ class TestUpgradeAdminModeDetectionIntegration:
         mock_get_installed_apps,
         mock_create_ns,
         mock_install_pipelines,
+        mock_get_default_storage_classes,
+        mock_prepare_pipelines_ns,
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
@@ -156,6 +164,8 @@ class TestUpgradeAdminModeDetectionIntegration:
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
+    @patch("mas.cli.upgrade.app.preparePipelinesNamespace")
+    @patch("mas.cli.upgrade.app.getDefaultStorageClasses")
     @patch("mas.cli.upgrade.app.installOpenShiftPipelines")
     @patch("mas.cli.upgrade.app.createNamespace")
     @patch("mas.cli.upgrade.app.getInstalledApps")
@@ -176,6 +186,8 @@ class TestUpgradeAdminModeDetectionIntegration:
         mock_get_installed_apps,
         mock_create_ns,
         mock_install_pipelines,
+        mock_get_default_storage_classes,
+        mock_prepare_pipelines_ns,
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
@@ -230,6 +242,8 @@ class TestUpgradeRBACEvaluationIntegration:
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
+    @patch("mas.cli.upgrade.app.preparePipelinesNamespace")
+    @patch("mas.cli.upgrade.app.getDefaultStorageClasses")
     @patch("mas.cli.upgrade.app.installOpenShiftPipelines")
     @patch("mas.cli.upgrade.app.createNamespace")
     @patch("mas.cli.upgrade.app.getInstalledApps")
@@ -250,6 +264,8 @@ class TestUpgradeRBACEvaluationIntegration:
         mock_get_installed_apps,
         mock_create_ns,
         mock_install_pipelines,
+        mock_get_default_storage_classes,
+        mock_prepare_pipelines_ns,
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
@@ -286,6 +302,8 @@ class TestUpgradeRBACEvaluationIntegration:
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
+    @patch("mas.cli.upgrade.app.preparePipelinesNamespace")
+    @patch("mas.cli.upgrade.app.getDefaultStorageClasses")
     @patch("mas.cli.upgrade.app.installOpenShiftPipelines")
     @patch("mas.cli.upgrade.app.createNamespace")
     @patch("mas.cli.upgrade.app.getInstalledApps")
@@ -306,6 +324,8 @@ class TestUpgradeRBACEvaluationIntegration:
         mock_get_installed_apps,
         mock_create_ns,
         mock_install_pipelines,
+        mock_get_default_storage_classes,
+        mock_prepare_pipelines_ns,
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
