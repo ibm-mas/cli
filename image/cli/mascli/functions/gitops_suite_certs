@@ -27,7 +27,7 @@ Options:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}  Secrets Manager key seperator string
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 Other Commands:
@@ -79,8 +79,8 @@ function gitops_suite_certs_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -170,7 +170,7 @@ function gitops_suite_certs() {
     echo
     echo "Move Certs to Secret Manager"
     AVP_TYPE="${AVP_TYPE:-aws}"
-    [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+    [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
     sm_login
 
     appList=(
@@ -197,7 +197,7 @@ function gitops_suite_certs() {
         PUBLIC_CERT_TLS=""
         PUBLIC_TLS_KEY=""
 
-        export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}${app}
+        export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}certs${SECRETS_KEY_SEPARATOR}${app}
 
         if [[ -s "${PUBLIC_CERT_CA_FILE_PATH}" ]]; then
           echo "File Path :  ${PUBLIC_CERT_CA_FILE_PATH}"

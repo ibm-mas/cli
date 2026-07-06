@@ -15,7 +15,7 @@ GitOps Configuration:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}                            Secrets Manager key seperator string
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                      Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 IBM Maximo Application Suite:
@@ -66,8 +66,8 @@ function gitops_deprovision_cos_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -186,7 +186,7 @@ function gitops_deprovision_cos() {
   reset_colors
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
   sm_login
 
   export COS_ACTION="deprovision"
@@ -195,7 +195,7 @@ function gitops_deprovision_cos() {
 
   if [[ "$COS_TYPE" == "ibm" ]]; then
 
-    export COS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
+    export COS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}cos
     export ROLE_NAME=cos && ansible-playbook ibm.mas_devops.run_role
 
     rc=$?

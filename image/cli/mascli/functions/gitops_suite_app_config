@@ -59,7 +59,7 @@ Maximo Manage:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                             Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                           Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}                           Secrets Manager key seperator string
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                     Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 Automatic GitHub Push:
@@ -142,8 +142,8 @@ function gitops_suite_app_config_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -351,7 +351,7 @@ function gitops_suite_app_config() {
   echo
   echo_h2 "Configuring Suite secrets"
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
   sm_login
 
 
@@ -376,7 +376,7 @@ function gitops_suite_app_config() {
     export GIT_SSH="false"
   fi
 
-  export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}
+  export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}
 
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
@@ -411,7 +411,7 @@ function gitops_suite_app_config() {
       fi
 
       if [ -z "${CPD_WSL_PROJECT_ID}" ]; then
-        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${CPD_WSL_PROJECT_NAME} ${CPD_WSL_PROJECT_ID_FILE}
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}${CPD_WSL_PROJECT_NAME} ${CPD_WSL_PROJECT_ID_FILE}
         CPD_WSL_PROJECT_ID=$(jq -r .wsl_project_id ${CPD_WSL_PROJECT_ID_FILE})
       fi
 
@@ -511,7 +511,7 @@ function gitops_suite_app_config() {
     if [[ "${MAS_APP_ID}" == "manage" ]]; then
       yq eval '.mas_appws_spec.settings.customizationList  | to_entries | map(select(.value.customizationArchiveCredentials | length > 0)) | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML_RESOLVED} | yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
       export MANAGE_LOGGING_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.deployment.loggingS3Destination.secretKey.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
-      export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_logging${SECRETS_KEY_SEPERATOR}
+      export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}manage_logging${SECRETS_KEY_SEPARATOR}
       if [[ -n "${MANAGE_LOGGING_SECRET_NAME}" ]]; then
         sm_verify_secret_exists ${MANAGE_LOGGING_SECRET}${MANAGE_LOGGING_SECRET_NAME} "access_secret_key,bucketName,endpointURL,accessKey"
       fi
@@ -535,7 +535,7 @@ function gitops_suite_app_config() {
     if [[ "${MAS_APP_ID}" == "facilities" ]]; then
       # Although the name of the secret can be set in the CR, it is expected to be of the form <workspaceId>-facilities-vs--sn to allow the UI to work
       export FACILITIES_VAULT_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.vaultSecret.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
-      export FACILITIES_VAULT_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}
+      export FACILITIES_VAULT_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}facilities${SECRETS_KEY_SEPARATOR}
       if [[ -n "${FACILITIES_VAULT_SECRET_NAME}" ]]; then
         if [ "$FACILITIES_VAULT_SECRET_NAME" != "${MAS_WORKSPACE_ID}-facilities-vs--sn" ]; then
           echo "Error: Secret name $FACILITIES_VAULT_SECRET_NAME does not match ${MAS_WORKSPACE_ID}-facilities-vs--sn" 
@@ -546,7 +546,7 @@ function gitops_suite_app_config() {
 
       # Although the name of the secret can be set in the CR, it is expected to be of the form <workspaceId>-facilities-lexml--sn to allow the UI to work
       export FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.libertyExtensionXML.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
-      export FACILITIES_LIBERTY_EXTENSIONS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}
+      export FACILITIES_LIBERTY_EXTENSIONS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}facilities${SECRETS_KEY_SEPARATOR}
       if [[ -n "${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}" ]]; then
         if [ "$FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME" != "${MAS_WORKSPACE_ID}-facilities-lexml--sn" ]; then 
           echo "Error: Secret name $FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME does not match ${MAS_WORKSPACE_ID}-facilities-lexml--sn" 

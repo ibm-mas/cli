@@ -19,7 +19,7 @@ GitOps Configuration:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}  Secrets Manager key seperator string
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                            Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 ibm aiservice(required):
@@ -167,8 +167,8 @@ function gitops_odh_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -370,19 +370,19 @@ function gitops_odh() {
   CURRENT_DIR=$PWD
   
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
   sm_login
 
   # Set up secret key and fetch secret
-  export SECRET_ACCOUNT_PATH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
-  export ODH_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage"
+  export SECRET_ACCOUNT_PATH="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}"
+  export ODH_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}storage"
   export SECRET_KEY_IMAGE_PULL_SECRET_B64="${SECRET_ACCOUNT_PATH}ibm_entitlement#image_pull_secret_b64"
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
   fi
 
-  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement "image_pull_secret_b64"
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}ibm_entitlement "image_pull_secret_b64"
 
   echo_h2 "ODH Secret Summary"
   echo_reset_dim "AI Service Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"

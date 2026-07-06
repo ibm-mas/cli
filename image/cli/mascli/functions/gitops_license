@@ -82,8 +82,8 @@ function gitops_license_noninteractive() {
       --sm-aws-secret-key)
         export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -129,7 +129,7 @@ function gitops_license() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h4 "Target" "    "
@@ -146,7 +146,7 @@ function gitops_license() {
   echo "${TEXT_DIM}"
   echo_h4 "Secrets Backend" "    "
   echo_reset_dim "AVP Type ....................... ${COLOR_MAGENTA}${AVP_TYPE}"
-  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPERATOR}"
+  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPARATOR}"
   if [[ "$AVP_TYPE" == "aws" ]]; then
     echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
     echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"

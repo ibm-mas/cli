@@ -18,7 +18,7 @@ Basic Configuration:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}  
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                      Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 ibm aiservice(required):
@@ -129,8 +129,8 @@ function gitops_aiservice_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -303,7 +303,7 @@ function gitops_aiservice() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
@@ -318,7 +318,7 @@ function gitops_aiservice() {
   echo_h2 "Secrets Backend" "    "
   echo_reset_dim "AVP Type ....................... ${COLOR_MAGENTA}${AVP_TYPE}"
   echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
-  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPERATOR}"
+  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPARATOR}"
   if [[ "$AVP_TYPE" == "aws" ]]; then
     echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
     echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
@@ -369,9 +369,13 @@ function gitops_aiservice() {
 
   sm_login
   # update those varialbe which are necessory to be updated into aws , 
-  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}"
 
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
+
+  export SECRET_NAME_AWS_ACCESS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}aws
+  export SECRET_KEY_AWS_ACCESS_KEY_ID=${SECRET_NAME_AWS_ACCESS}#sm_aws_access_key_id
+  export SECRET_KEY_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_AWS_ACCESS}#sm_aws_secret_access_key
 
   #storage
   export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}s3#sm_s3_accesskey

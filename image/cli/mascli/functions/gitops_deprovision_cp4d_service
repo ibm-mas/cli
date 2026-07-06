@@ -20,7 +20,7 @@ IBM Maximo Application Suite:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 IBM CP4D Service:
       --cpd-service-name ${COLOR_YELLOW}CPD_SERVICE_NAME${TEXT_RESET}                                         CP4D Service Name
@@ -91,8 +91,8 @@ function gitops_deprovision_cp4d_service_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
 
       # CP4D Service
@@ -145,7 +145,7 @@ function gitops_deprovision_cp4d_service_noninteractive() {
         ;;
       esac
   done
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_cp4d_service_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_cp4d_service_help "ACCOUNT_ID is not set"

@@ -131,7 +131,7 @@ function gitops_efs() {
  
   if [ $CLOUD_PROVIDER == 'aws' ]; then
     AVP_TYPE="${AVP_TYPE:-aws}"
-    [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+    [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
     sm_login
 
     export CLUSTER_NAME=$CLUSTER_ID

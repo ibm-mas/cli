@@ -17,7 +17,7 @@ GitOps Configuration:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 NVIDIA GPU OPERATOR:
       --nfd-namespace ${COLOR_YELLOW}NFD_NAMESPACE${TEXT_RESET}                                 NFD Namespace, defaults to openshift-nfd
@@ -83,8 +83,8 @@ function gitops_nvidia_gpu_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
 
       # NVIDIA GPU OPERATOR
@@ -152,7 +152,7 @@ function gitops_nvidia_gpu_noninteractive() {
         ;;
     esac
   done
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_nvidia_gpu_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_nvidia_gpu_help "ACCOUNT_ID is not set"

@@ -17,7 +17,7 @@ GitOps Configuration:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}   Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}   Secrets Manager key seperator string
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                             Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 Automatic GitHub Push:
@@ -65,8 +65,8 @@ function gitops_deprovision_cluster_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -181,23 +181,23 @@ function gitops_deprovision_cluster() {
   echo
   echo_h2 "Deleting Cluster secrets"
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
   sm_login
   
   # Created by gitops_cluster task
-  export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
+  export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}ibm_entitlement
   sm_delete_secret $SECRET_NAME_IBM_ENTITLEMENT
 
   # Created by postsync hook in redhat-cert-manager chart
-  export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
+  export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}cluster_domain
   echo "Delete $SECRET_NAME_CLUSTER_DOMAIN from Secrets Manager"
   sm_delete_secret $SECRET_NAME_CLUSTER_DOMAIN
 
-  export SECRET_NAME_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel
+  export SECRET_NAME_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}db2_default_channel
   echo "Delete $SECRET_NAME_DB2_DEFAULT_CHANNEL from Secrets Manager"
   sm_delete_secret $SECRET_NAME_DB2_DEFAULT_CHANNEL
 
-  export SECRET_NAME_AWS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws
+  export SECRET_NAME_AWS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}aws
   echo "Delete $SECRET_NAME_AWS from Secrets Manager"
   sm_delete_secret $SECRET_NAME_AWS
 

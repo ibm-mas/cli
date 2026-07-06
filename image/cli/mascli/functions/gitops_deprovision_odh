@@ -24,7 +24,7 @@ GitOps Configuration:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}                            Secrets Manager key seperator string
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                      Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 Target Cluster (Optional):
@@ -72,8 +72,8 @@ function gitops_deprovision_odh_noninteractive() {
       --cluster-url)
         export CLUSTER_URL=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -175,7 +175,7 @@ function gitops_deprovision_odh() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h2 "Target"
@@ -191,7 +191,7 @@ function gitops_deprovision_odh() {
   echo_h2 "Secrets Backend" "    "
   echo_reset_dim "AVP Type ....................... ${COLOR_MAGENTA}${AVP_TYPE}"
   echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
-  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPERATOR}"
+  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPARATOR}"
   if [[ "$AVP_TYPE" == "aws" ]]; then
     echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
     echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
@@ -220,8 +220,8 @@ function gitops_deprovision_odh() {
 
   #secrets path in aws 
 
-  export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}s3
-  export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
+  export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}s3
+  export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}ibm_entitlement
 
 
   echo -e "login aws"
@@ -229,7 +229,7 @@ function gitops_deprovision_odh() {
   sm_login
 
 
-  export OCP_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocp_login
+  export OCP_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}ocp_login
   export OAUTH_ADMIN_USERNAME=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_USERNAME")
   export OAUTH_ADMIN_PWD=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_PWD")
   export OCP_DISABLE_TLS_VERIFY=$(sm_get_secret_value "$OCP_SECRET_NAME" "OCP_DISABLE_TLS_VERIFY")

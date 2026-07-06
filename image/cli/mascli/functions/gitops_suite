@@ -24,7 +24,7 @@ AWS Secrets Manager Configuration (Required):
       --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '.' for kubernetes)
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '.' for kubernetes)
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                           Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 MongoDb Provider Selection (Required):
@@ -225,8 +225,8 @@ function gitops_suite_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -584,7 +584,7 @@ function gitops_suite() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h4 "Target" "    "
@@ -603,7 +603,7 @@ function gitops_suite() {
   echo_h4 "Secrets Backend" "    "
   echo_reset_dim "AVP Type ....................... ${COLOR_MAGENTA}${AVP_TYPE}"
   echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
-  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPERATOR}"
+  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPARATOR}"
   if [[ "$AVP_TYPE" == "aws" ]]; then
     echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
     echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
@@ -728,9 +728,9 @@ function gitops_suite() {
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-cluster
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}ibm_entitlement#image_pull_secret_b64
   
-  export SECRET_NAME_AWS_ACCESS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws
+  export SECRET_NAME_AWS_ACCESS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}aws
   export SECRET_KEY_AWS_ACCESS_KEY_ID=${SECRET_NAME_AWS_ACCESS}#sm_aws_access_key_id
   export SECRET_KEY_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_AWS_ACCESS}#sm_aws_secret_access_key
   # The AWS secret is established by the gitops_cluster step
@@ -738,8 +738,8 @@ function gitops_suite() {
   # Get the cluster-level secrets used
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-mongo
-  export SECRET_NAME_MASTER_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
-  export SECRET_NAME_CIS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cis
+  export SECRET_NAME_MASTER_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo
+  export SECRET_NAME_CIS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}cis
 
   export SECRET_KEY_DOCDB_HOST=${SECRET_NAME_MASTER_MONGO}#docdb_host
   export SECRET_KEY_DOCDB_PORT=${SECRET_NAME_MASTER_MONGO}#docdb_port
@@ -773,8 +773,8 @@ function gitops_suite() {
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
 
-  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info"
-  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo "username,password,info"
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo $MONGO_SECRET_FILE
 
   jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
   MASTER_MONGO_USERNAME=$(jq -r .username $MONGO_SECRET_FILE)
@@ -785,18 +785,18 @@ function gitops_suite() {
   # Instance-level secrets to use
   # ---------------------------------------------------------------------------
   # Note that these instance-level secrets are set up by gitops-license
-  export SECRET_KEY_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}license#license_file
+  export SECRET_KEY_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}license#license_file
 
   # Instance-level secrets to create
   # ---------------------------------------------------------------------------
-  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
+  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}mongo
   export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
   export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
   export SECRET_KEY_MONGO_INFO=${SECRET_NAME_MONGO}#info
 
   
   export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
-  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_SECRET_FILE
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}mongo $MONGO_INSTANCE_SECRET_FILE
   INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
 
@@ -804,7 +804,7 @@ function gitops_suite() {
   # Instance username and password will be created in presync hook unless it is already set in the docdb secret created in federal env, this is due to the
   # presync hook not running in a federal env due to the userid requirements.
   export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
-  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
   DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
   if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} ]]; then
     INSTANCE_MONGO_USERNAME=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)

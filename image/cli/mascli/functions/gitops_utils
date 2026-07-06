@@ -288,7 +288,7 @@ function sm_list_cluster_secrets() {
   elif [[ "$AVP_TYPE" == "kubernetessecret" ]]; then
     # List all Kubernetes secrets in the configured namespace whose name starts with <account><sep><cluster_id><sep>
     local _namespace="${SECRETS_PATH:-default}"
-    local _sep="${SECRETS_KEY_SEPERATOR:-.}"
+    local _sep="${SECRETS_KEY_SEPARATOR:-.}"
     local _prefix="${ACCOUNT}${_sep}${CLUSTER_ID}${_sep}"
     oc get secrets -n "${_namespace}" -o name | sed 's|^secret/||' | grep "^${_prefix}"
   elif [[ "$AVP_TYPE" == "ibm" ]]; then

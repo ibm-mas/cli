@@ -18,7 +18,7 @@ GitOps Configuration:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                      Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}    Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}    Secrets Manager key seperator string
 
 IBM DB2U:
       --db2-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                        DB2 Channel, defaults to default channel in catalog if redhat cert-manager is installed
@@ -79,8 +79,8 @@ function gitops_db2u_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
 
       # DB2
@@ -209,14 +209,14 @@ function gitops_db2u() {
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-cluster
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}ibm_entitlement#image_pull_secret_b64
   
 
   # If DB2_CHANNEL has not been specified, fetch the default set in secrets manager by the postsync job on redhat-cert-manager
   if [[ -z "${DB2_CHANNEL}" ]]; then
     echo "DB2_CHANNEL not specified, fetching from secrets manager"
-    export SECRET_KEY_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel
+    export SECRET_KEY_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}db2_default_channel#db2_default_channel
   fi
 
   echo "${TEXT_DIM}"

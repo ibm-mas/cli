@@ -15,7 +15,7 @@ GitOps Configuration:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}                            Secrets Manager key seperator string
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                      Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 IBM Maximo Application Suite:
@@ -79,8 +79,8 @@ function gitops_deprovision_kafka_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -252,7 +252,7 @@ function gitops_deprovision_kafka() {
   reset_colors
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
   sm_login
 
 
@@ -274,7 +274,7 @@ function gitops_deprovision_kafka() {
     export AWS_MSK_SECURITY_GROUP_NAME=msk-${CLUSTER_ID}-sg
     export AWS_MSK_CLUSTER_CONFIGURATION=msk-${CLUSTER_ID}-cluster-config
     export AWS_MSK_KMS_KEY=msk-${CLUSTER_ID}-kms-key
-    export AWS_MSK_SECRET=AmazonMSK_${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
+    export AWS_MSK_SECRET=AmazonMSK_${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}kafka
 
     echo_reset_dim "KAFKA_NAMESPACE ....................... ${COLOR_MAGENTA}${KAFKA_NAMESPACE}"
     echo_reset_dim "AWS_MSK_INSTANCE_TYPE ................. ${COLOR_MAGENTA}${AWS_MSK_INSTANCE_TYPE}"

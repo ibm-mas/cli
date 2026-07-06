@@ -74,7 +74,7 @@ IBM DB2U:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                                  Secrets Manager key seperator string
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}                                  Secrets Manager key seperator string
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                            Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 Automatic GitHub Push:
@@ -142,8 +142,8 @@ function gitops_db2u_database_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -504,11 +504,11 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
   if [[ -z $SECRET_NAME_DB2_BACKUP ]]; then
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
-    export SECRET_NAME_DB2_BACKUP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
+    export SECRET_NAME_DB2_BACKUP=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}db2_backup
   fi
   if [[ -z $SECRET_NAME_ICD_AUTH_KEY ]]; then
-    export SECRET_NAME_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}icd
+    export SECRET_NAME_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}icd
   fi
   if [[ -z $DB2_BACKUP_BUCKET_NAME ]]; then
     export DB2_BACKUP_BUCKET_NAME=${SECRET_NAME_DB2_BACKUP}#bucketName
@@ -642,7 +642,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   if [[ -z "${CLUSTER_DOMAIN}" ]]; then
     echo "CLUSTER_DOMAIN not specified, fetching from secrets manager"
-    export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
+    export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}cluster_domain#cluster_domain
   fi
 
   if [[ $AUTO_BACKUP == 'true' && $IS_REPLICA_TASK == 'false' && $SKIP_BACKUP_NOTIFICATION == 'false' ]]; then

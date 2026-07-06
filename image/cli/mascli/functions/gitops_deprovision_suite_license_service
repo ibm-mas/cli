@@ -74,7 +74,7 @@ function gitops_deprovision_suite_license_service_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
+      --secrets-key-separator)
         export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
@@ -191,7 +191,7 @@ function gitops_deprovision_suite_license_service() {
   echo
   echo_h2 "Deleting Subscription secrets"
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
   sm_login
   
   # Created by gitops_suite_license_service task

@@ -18,7 +18,7 @@ AWS Secrets Manager Configuration:
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
       --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '.' for kubernetes)
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '.' for kubernetes)
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                           Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 MongoDb Provider Selection:
@@ -78,8 +78,8 @@ function gitops_mongo_noninteractive() {
       --sm-aws-secret-key)
         export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --avp-type)
         export AVP_TYPE=$1 && shift
@@ -200,7 +200,7 @@ function gitops_mongo() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h4 "Target" "    "
@@ -211,7 +211,7 @@ function gitops_mongo() {
   echo "${TEXT_DIM}"
   echo_h4 "Secrets Backend" "    "
   echo_reset_dim "AVP Type ....................... ${COLOR_MAGENTA}${AVP_TYPE}"
-  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPERATOR}"
+  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPARATOR}"
   if [[ "$AVP_TYPE" == "aws" ]]; then
     echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
     echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
@@ -236,7 +236,7 @@ function gitops_mongo() {
   reset_colors
   echo
 
-  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
+  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo
   sm_login
 
   if [ $MONGODB_PROVIDER == 'aws' ]; then
@@ -258,7 +258,7 @@ function gitops_mongo() {
     export DOCDB_ENGINE_VERSION=${DOCDB_ENGINE_VERSION:-"4.0.0"}
     export DOCDB_MASTER_USERNAME=docdbadmin
     export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
-    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo $MONGO_SECRET_FILE
     DOCDB_MASTER_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)
     if [[ -n ${DOCDB_MASTER_PASSWORD} ]]; then
       export DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD}

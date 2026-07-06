@@ -192,7 +192,7 @@ spec:
         value: $(params.secrets_path)
       - name: AVP_TYPE
         value: $(params.avp_type)
-      - name: SECRETS_KEY_SEPERATOR
+      - name: SECRETS_KEY_SEPARATOR
         value: $(params.secrets_key_seperator)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
@@ -240,7 +240,7 @@ spec:
 
         if [ -n $IBMCLOUD_APIKEY ]; then
 
-          export SECRET_NAME=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}cis
+          export SECRET_NAME=${ACCOUNT}${SECRETS_KEY_SEPARATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPARATOR}cis
           export SECRET_VALUE="{\"ibm_apikey\":\"$IBMCLOUD_APIKEY\"}"
 
           aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
@@ -369,7 +369,7 @@ spec:
           secret_names=$(yq eval '.mas_appws_spec.settings.customizationList | to_entries | .[].value.customizationArchiveCredentials.secretName' ${MAS_APPWS_SPEC_YAML})
           for customization_archive_secret_name in ${secret_names[@]}; do
 
-            export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}$MAS_INSTANCE_ID${SECRETS_KEY_SEPERATOR}
+            export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT}${SECRETS_KEY_SEPARATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPARATOR}$MAS_INSTANCE_ID${SECRETS_KEY_SEPARATOR}
             export CUSTOMIZATION_ARCHIVE_SECRET_NAME=${CUSTOMIZATION_ARCHIVE_SECRET}${customization_archive_secret_name}
             echo "gitops-mas-initiator: creating AWS SM with name :: ${CUSTOMIZATION_ARCHIVE_SECRET_NAME}"
 

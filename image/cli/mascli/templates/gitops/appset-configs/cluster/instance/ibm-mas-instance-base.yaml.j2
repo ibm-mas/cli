@@ -14,13 +14,13 @@ instance:
   id: {{ MAS_INSTANCE_ID }}
 
 sm:
-  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_access_key_id>"
-  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_secret_access_key>"
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_ACCESS_KEY_ID }}>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_SECRET_ACCESS_KEY }}>"
 {% if AVP_TYPE is defined and AVP_TYPE != '' %}
   backend: {{ AVP_TYPE }}
 {% endif %}
-{% if SECRETS_KEY_SEPERATOR is defined and SECRETS_KEY_SEPERATOR != '' %}
-  secret_keys_seperator: "{{ SECRETS_KEY_SEPERATOR }}"
+{% if SECRETS_KEY_SEPARATOR is defined and SECRETS_KEY_SEPARATOR != '' %}
+  secret_keys_separator: "{{ SECRETS_KEY_SEPARATOR }}"
 {% endif %}
 {% if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
 custom_labels:

@@ -31,7 +31,7 @@ AWS Secrets Manager Configuration (Required):
   --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
   --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
   --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '.' for kubernetes)
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET} Secrets Manager key separator string (default: '/' for aws, '.' for kubernetes)
   --check-secret ${COLOR_YELLOW}CHECK_SECRET${TEXT_RESET}                   Boolean to indicate whether any secret for the config should be checked that it exists or not
 
 Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
@@ -350,8 +350,8 @@ function gitops_mas_config_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
       --check-secret)
         export CHECK_SECRET=$1 && shift
@@ -585,7 +585,7 @@ function gitops_mas_config() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h4 "Target" "    "
@@ -600,7 +600,7 @@ function gitops_mas_config() {
   echo_h4 "Secrets Backend" "    "
   echo_reset_dim "AVP Type ....................... ${COLOR_MAGENTA}${AVP_TYPE}"
   echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
-  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPERATOR}"
+  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPARATOR}"
   echo_reset_dim "Check Secret ................... ${COLOR_MAGENTA}${CHECK_SECRET}"
   if [[ "$AVP_TYPE" == "aws" ]]; then
     echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
@@ -792,24 +792,24 @@ function gitops_mas_config() {
     # Source: gitops_suite_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
-      export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo#info
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "${AVP_TYPE:-aws}" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
+      export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo#info
       export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
       sm_login
       if [ $MONGODB_PROVIDER == 'yaml' ]; then
-        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info"
-        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo "username,password,info"
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo $MONGO_SECRET_FILE
       elif [ $MONGODB_PROVIDER == 'aws' ]; then
         #check if username,password,info exist at cluster level. Please note if username password not exist at instance level, it will be created 
-        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info" 
+        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo "username,password,info" 
 
         #enforce validation set to false for instance level check
-        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password" false
-        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}mongo "username,password" false
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}mongo $MONGO_SECRET_FILE
 
         #For AWS Docdb in govcloud set the corect authmechanism and configdb
         export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
-        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
         DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
         if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} ]]; then
           export DOCDB_AUTHMECHANISM="MONGODB-AWS"
@@ -819,17 +819,17 @@ function gitops_mas_config() {
 
       jq -r .info $MONGO_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
 
-      export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
+      export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}mongo
       export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
       export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
     fi
 
 
     if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
-      export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
+      export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}dro
       export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
       export SECRET_KEY_DRO_URL=${SECRET_NAME_DRO}#dro_url
-      export SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mas_segment_key
+      export SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}mas_segment_key
       export SECRET_KEY_MAS_SEGMENT_KEY=${SECRET_NAME_MAS_SEGMENT_KEY}#mas_segment_key
       export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
       
@@ -867,7 +867,7 @@ function gitops_mas_config() {
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "aicfg" ]; then
-      export SECRET_NAME_AISERVICE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ai-credentials
+      export SECRET_NAME_AISERVICE=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}ai-credentials
       export SECRET_KEY_AISERVICE_API_KEY=${SECRET_NAME_AISERVICE}#apiKey
       export SECRET_KEY_AISERVICE_CERTIFICATE=${SECRET_NAME_AISERVICE}#certificate
       
@@ -909,9 +909,9 @@ function gitops_mas_config() {
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       if [ -z "$STANDALONE_SLS_SERVICE" ]; then
-        export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls"
+        export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}sls"
       else
-        export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}sls"
+        export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}sls"
       fi  
       export SECRET_KEY_SLS_URL=${SECRET_NAME_SLS}#sls_url
       export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
@@ -940,10 +940,10 @@ function gitops_mas_config() {
       fi
       export KAFKA_SECRET_FILE=$TEMP_DIR/kafka-secret.json
       sm_login
-      sm_verify_secret_exists ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka "username,password"
-      sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka $KAFKA_SECRET_FILE
+      sm_verify_secret_exists ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}kafka "username,password"
+      sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}kafka $KAFKA_SECRET_FILE
       jq -r .info $KAFKA_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
-      export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
+      export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}kafka
       export SECRET_KEY_KAFKA_USERNAME=${AWS_MSK_SECRET}#username
       export SECRET_KEY_KAFKA_PASSWORD=${AWS_MSK_SECRET}#password
     fi
@@ -952,7 +952,7 @@ function gitops_mas_config() {
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
       sm_login
-      SECRET_NAME_LDAP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
+      SECRET_NAME_LDAP=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}ldap
       if [ -z "${LDAP_BIND_DN}" ] || [ -z "${LDAP_BIND_PASSWORD}" ]; then
         sm_verify_secret_exists $SECRET_NAME_LDAP "bindDN,bindPassword"
       else
@@ -967,7 +967,7 @@ function gitops_mas_config() {
     # Source: gitops_suite_objectstorage_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "objectstorage" ]; then
-      export OBJECTSTORAGE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
+      export OBJECTSTORAGE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}cos
       export SECRET_KEY_OBJECTSTORAGE_INFO=${OBJECTSTORAGE_SECRET}#info
       export COS_SECRET_FILE=$TEMP_DIR/cos-secret.json
       sm_login
@@ -987,9 +987,9 @@ function gitops_mas_config() {
 
       echo_reset_dim "JDBC_TYPE ................................. ${COLOR_MAGENTA}$JDBC_TYPE"
       if [ "${JDBC_TYPE}" == "rds-db2" ]; then
-        export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}admin${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+        export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}admin${SECRETS_KEY_SEPARATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPARATOR}credentials
       else
-        export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+        export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}jdbc${SECRETS_KEY_SEPARATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPARATOR}credentials
       fi
       echo_reset_dim "JDBC_CREDENTIALS_SECRET_ID ................ ${COLOR_MAGENTA}$JDBC_CREDENTIALS_SECRET_ID"
 
@@ -1016,7 +1016,7 @@ function gitops_mas_config() {
 
       if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
         # This secret is created by a PostSync Job in the ibm-db2u-database chart
-        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}jdbc${SECRETS_KEY_SEPARATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPARATOR}config
         export SECRET_KEY_DB2_DBNAME=${JDBC_CONFIG_SECRET_ID}#db2_dbname
         export SECRET_KEY_DB2_NAMESPACE=${JDBC_CONFIG_SECRET_ID}#db2_namespace
         export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_CONFIG_SECRET_ID}#jdbc_instance_name
@@ -1024,12 +1024,12 @@ function gitops_mas_config() {
         export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
       elif [ "${JDBC_TYPE}" == "rds-db2" ]; then
         # For rds-db2, the certificate is already stored in AWS Secrets Manager by gitops_rds_db2_database
-        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}jdbc${SECRETS_KEY_SEPARATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPARATOR}config
         export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
         export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
       else
         # This secret we are creating here
-        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}jdbc${SECRETS_KEY_SEPARATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPARATOR}config
         export JDBC_CERTIFICATE_CONTENT_B64=$(cat $JDBC_CERTIFICATE_FILE | base64 -w0)
         TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $JDBC_CONFIG_SECRET_ID "{ \"jdbc_connection_url\": \"${JDBC_CONNECTION_URL}\", \"jdbc_instance_name\": \"${JDBC_INSTANCE_NAME}\", \"ca_b64\": \"${JDBC_CERTIFICATE_CONTENT_B64}\" }" "${TAGS}"
@@ -1045,7 +1045,7 @@ function gitops_mas_config() {
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
       sm_login
-      SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
+      SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}smtp
       if [ -z "${SMTP_USERNAME}" ] || [ -z "${SMTP_PASSWORD}" ]; then
         sm_verify_secret_exists $SECRET_NAME_SMTP "username,password"
       else
@@ -1071,7 +1071,7 @@ function gitops_mas_config() {
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "watsonstudio" ]; then
       # Secrets are stored in SM in the cp4d-service function that installs wsl
-      export WATSON_STUDIO_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl-cp4d
+      export WATSON_STUDIO_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}wsl-cp4d
       export SECRET_KEY_WATSON_STUDIO_USERNAME=${WATSON_STUDIO_SECRET}#username
       export SECRET_KEY_WATSON_STUDIO_PASSWORD=${WATSON_STUDIO_SECRET}#password
       export SECRET_KEY_WATSON_STUDIO_URL=${WATSON_STUDIO_SECRET}#url
@@ -1122,13 +1122,13 @@ function gitops_mas_config() {
 
     if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
       sm_login
-      SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mas_segment_key
+      SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}mas_segment_key
       sm_delete_secret $SECRET_NAME_MAS_SEGMENT_KEY
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       sm_login
-      export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+      export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}jdbc${SECRETS_KEY_SEPARATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPARATOR}credentials
       sm_delete_secret $JDBC_CREDENTIALS_SECRET_ID
     fi
 

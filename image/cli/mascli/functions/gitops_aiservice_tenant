@@ -17,7 +17,7 @@ Basic Configuration:
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key separator string (default: '/' for aws, '.' for kubernetes)
+      --secrets-key-separator ${COLOR_YELLOW}SECRETS_KEY_SEPARATOR${TEXT_RESET}                            Secrets Manager key separator string (default: '/' for aws, '.' for kubernetes)
       --avp-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}                                                      Secrets backend type. One of: aws, kubernetessecret (default: aws)
 
 ibm_aiservice_tenant(required):
@@ -160,8 +160,8 @@ function gitops_aiservice_tenant_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
+      --secrets-key-separator)
+        export SECRETS_KEY_SEPARATOR=$1 && shift
         ;;
 
       # -- aiservice
@@ -375,7 +375,7 @@ function gitops_aiservice_tenant() {
   echo_h2 "Review Settings"
 
   AVP_TYPE="${AVP_TYPE:-aws}"
-  [[ -z "$SECRETS_KEY_SEPERATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPERATOR="." || SECRETS_KEY_SEPERATOR="/"; }
+  [[ -z "$SECRETS_KEY_SEPARATOR" ]] && { [[ "$AVP_TYPE" == "kubernetessecret" ]] && SECRETS_KEY_SEPARATOR="." || SECRETS_KEY_SEPARATOR="/"; }
 
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
@@ -389,7 +389,7 @@ function gitops_aiservice_tenant() {
   echo_h2 "Secrets Backend" "    "
   echo_reset_dim "AVP Type ....................... ${COLOR_MAGENTA}${AVP_TYPE}"
   echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
-  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPERATOR}"
+  echo_reset_dim "Secret Key Separator ........... ${COLOR_MAGENTA}${SECRETS_KEY_SEPARATOR}"
   if [[ "$AVP_TYPE" == "aws" ]]; then
     echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
     echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
@@ -455,10 +455,15 @@ fi
   echo_reset_dim "Storage provider ............................................... ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
   sm_login
 
-  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}"
 
   # aiservice
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
+
+  export SECRET_NAME_AWS_ACCESS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}aws
+  export SECRET_KEY_AWS_ACCESS_KEY_ID=${SECRET_NAME_AWS_ACCESS}#sm_aws_access_key_id
+  export SECRET_KEY_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_AWS_ACCESS}#sm_aws_secret_access_key
+
   # dro
   export SECRET_KEY_ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
   export DRO_CA_B64ENC=${SECRETS_PREFIX}dro#dro_ca_b64enc
@@ -466,11 +471,11 @@ fi
 
   # sls
   if [ -z "$STANDALONE_SLS_SERVICE" ]; then
-    export SLS_SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${AISERVICE_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${TENANT_ID}${SECRETS_KEY_SEPERATOR}"
+    export SLS_SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${AISERVICE_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}${TENANT_ID}${SECRETS_KEY_SEPARATOR}"
     export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SLS_SECRETS_PREFIX}sls#slscfg_registration_key
     export SECRET_KEY_SLSCFG_CA_B64ENC=${SLS_SECRETS_PREFIX}sls#slscfg_ca_b64enc
   else
-    export SLS_SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}"
+    export SLS_SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}"
     export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SLS_SECRETS_PREFIX}sls#registration_key
     export SECRET_KEY_SLSCFG_CA_B64ENC=${SLS_SECRETS_PREFIX}sls#ca_b64
     export SECRET_KEY_SLS_URL=${SLS_SECRETS_PREFIX}sls#sls_url
