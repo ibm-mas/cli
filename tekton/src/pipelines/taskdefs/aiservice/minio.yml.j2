@@ -14,6 +14,8 @@
       value: $(params.artifactory_token)
     - name: mas_app_channel
       value: "$(params.aiservice_channel)"
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
     - name: minio_root_user
       value: $(params.minio_root_user)
     - name: minio_root_password
@@ -22,9 +24,6 @@
   taskRef:
     name: mas-devops-minio
     kind: Task
-  workspaces:
-    - name: configs
-      workspace: shared-additional-configs
   when:
     - input: "$(params.minio_root_user)"
       operator: notin
