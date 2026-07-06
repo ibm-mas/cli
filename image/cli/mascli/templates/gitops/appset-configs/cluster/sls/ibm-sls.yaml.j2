@@ -9,10 +9,13 @@ region:
   id: {{ REGION_ID }}
 
 sm:
+{% if AVP_TYPE is defined and AVP_TYPE == 'aws' %}
   aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_ACCESS_KEY_ID }}>"
   aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_SECRET_ACCESS_KEY }}>"
+{% endif %}
 {% if AVP_TYPE is defined and AVP_TYPE != '' %}
   backend: {{ AVP_TYPE }}
+  secrets_path: "{{ SECRETS_PATH }}"
 {% endif %}
 {% if SECRETS_KEY_SEPARATOR is defined and SECRETS_KEY_SEPARATOR != '' %}
   secret_keys_separator: "{{ SECRETS_KEY_SEPARATOR }}"

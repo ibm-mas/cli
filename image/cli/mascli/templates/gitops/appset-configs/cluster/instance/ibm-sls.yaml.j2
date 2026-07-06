@@ -1,5 +1,15 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
+sm:
+{% if AVP_TYPE is defined and AVP_TYPE == 'aws' %}
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_ACCESS_KEY_ID }}>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_SECRET_ACCESS_KEY }}>"
+{% endif %}
+{% if AVP_TYPE is defined and AVP_TYPE != '' %}
+  backend: {{ AVP_TYPE }}
+  secrets_path: "{{ SECRETS_PATH }}"
+{% endif %}
+
 ibm_sls:
 {%- if ICN %}
   ibm_customer_number: "{{ ICN }}"
