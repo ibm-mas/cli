@@ -166,9 +166,12 @@ function gitops_rds_db2_database_noninteractive() {
       esac
   done
 
-  [[ -z "$SM_AWS_ACCESS_KEY_ID" ]] &&  gitops_rds_db2_database_help "SM_AWS_ACCESS_KEY_ID is not set"
-  [[ -z "$SM_AWS_SECRET_ACCESS_KEY" ]] && gitops_rds_db2_database_help "SM_AWS_SECRET_ACCESS_KEY is not set"
-  [[ -z "$SM_AWS_REGION" ]] && gitops_rds_db2_database_help "SM_AWS_REGION is not set"
+  AVP_TYPE="${AVP_TYPE:-aws}"
+  if [[ "${AVP_TYPE}" == "aws" ]]; then
+    [[ -z "$SM_AWS_ACCESS_KEY_ID" ]] && gitops_rds_db2_database_help "SM_AWS_ACCESS_KEY_ID is not set"
+    [[ -z "$SM_AWS_SECRET_ACCESS_KEY" ]] && gitops_rds_db2_database_help "SM_AWS_SECRET_ACCESS_KEY is not set"
+    [[ -z "$SM_AWS_REGION" ]] && gitops_rds_db2_database_help "SM_AWS_REGION is not set"
+  fi
   [[ -z "$SECRETS_PATH" ]] && gitops_rds_db2_database_help "SECRETS_PATH is not set"
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_rds_db2_database_help "GITOPS_WORKING_DIR is not set"
