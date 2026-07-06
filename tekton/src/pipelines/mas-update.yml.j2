@@ -37,6 +37,10 @@ spec:
       default: ""
       type: string
       description: Required to install development MAS catalogs
+    - name: mas_icr_cpopen
+      default: ""
+      type: string
+      description: Override the ICR cpopen registry (used in dev mode)
 
     # ocs/odf storage action
     # -------------------------------------------------------------------------
@@ -252,6 +256,8 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
+        - name: mas_icr_cpopen
+          value: $(params.mas_icr_cpopen)
 
 
     # 3. Verify health of the cluster before we consider the update complete

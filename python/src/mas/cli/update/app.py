@@ -12,6 +12,7 @@
 import logging
 import logging.handlers
 import re
+from os import getenv
 from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
@@ -219,6 +220,10 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 else:
                     print(f"Unknown option: {key} {value}")
                     self.fatalError(f"Unknown option: {key} {value}")
+
+            # In dev mode, set the ICR cpopen registry override so ibm_catalogs role pulls from Artifactory
+            if self.devMode:
+                self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
         else:
             # Interactive mode
             self.printH1("Set Target OpenShift Cluster")
