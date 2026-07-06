@@ -512,7 +512,9 @@ spec:
             CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
             IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
             
+            {% raw %}
             if [ ${#PARTS[@]} -lt 6 ]; then
+            {% endraw %}
                           echo "Error: Invalid SLS service parameter file Path $STANDALONE_SLS_SERVICE format." >&2
               exit 1
             fi
