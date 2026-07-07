@@ -800,7 +800,19 @@ function gitops_suite() {
   INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
 
-  # Setting mongo instance secret with info field copied from the cluster level secret, 
+  # For yaml mongo provider, fall back to the master credentials if the instance-level
+  # username/password are absent (null literal or empty string).  DocDB sets its own
+  # credentials via a separate job so this fallback must not apply there.
+  if [[ "$MONGODB_PROVIDER" == "yaml" ]]; then
+    if [[ -z "$INSTANCE_MONGO_USERNAME" || "$INSTANCE_MONGO_USERNAME" == "null" || \
+          -z "$INSTANCE_MONGO_PASSWORD" || "$INSTANCE_MONGO_PASSWORD" == "null" ]]; then
+      echo "gitops_suite : instance mongo credentials not set, falling back to master credentials"
+      INSTANCE_MONGO_USERNAME=$MASTER_MONGO_USERNAME
+      INSTANCE_MONGO_PASSWORD=$MASTER_MONGO_PASSWORD
+    fi
+  fi
+
+  # Setting mongo instance secret with info field copied from the cluster level secret,
   # Instance username and password will be created in presync hook unless it is already set in the docdb secret created in federal env, this is due to the
   # presync hook not running in a federal env due to the userid requirements.
   export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
