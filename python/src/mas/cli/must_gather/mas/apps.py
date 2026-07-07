@@ -66,7 +66,7 @@ def _discoverMASAppNamespaces(dynClient: DynamicClient, masInstanceId: str, masA
                 appId = nsName[len(namespacePrefix) :]
 
                 # Skip core namespace (handled separately)
-                if appId == "core":
+                if appId in ["core", "pipelines"]:
                     continue
 
                 # If specific app IDs provided, filter by them
@@ -107,6 +107,12 @@ def _getReconcileLogsOperatorsForApp(namespace: str, appId: str) -> List[Tuple[s
             (namespace, "mas.ibm.com/appType", "maxinstudb"),
             (namespace, "operator", "ibm-truststore-mgr"),
             (namespace, "mas.ibm.com/appType", "serverBundle"),
+        ]
+    elif appId == "monitor":
+        operators = [
+            (namespace, "control-plane", "ibm-mas-monitor"),
+            (namespace, "mas.ibm.com/appType", "entitymgr-ws-operator"),
+            (namespace, "operator", "ibm-truststore-mgr"),
         ]
     elif appId == "iot":
         operators = [
@@ -176,7 +182,6 @@ def _generateMASAppCollectionTasks(
         namespace=namespace,
         outputDir=outputDir,
         noLogs=noLogs,
-        secretData=False,
         customResources=None,
         ibmCRDs=ibmCRDs,
     )

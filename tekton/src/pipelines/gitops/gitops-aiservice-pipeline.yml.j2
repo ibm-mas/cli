@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: gitops-aiservice-pipeline
@@ -46,7 +46,7 @@ spec:
       type: string
     - name: aiservice_channel
       type: string
-    - name: aiservice_install_plan_approval   
+    - name: aiservice_install_plan_approval
       type: string
       default: "Automatic"
     - name: mas_catalog_source
@@ -87,7 +87,7 @@ spec:
       type: string
     - name: aiservice_s3_bucket_prefix
       type: string
-    - name: opendatahub_source 
+    - name: opendatahub_source
       type: string
     - name: aiservice_odh_model_deployment_type
       type: string
@@ -115,7 +115,7 @@ spec:
       type: string
     - name: rhoai_operator_version
       type: string
-    - name: openshiftai_source 
+    - name: openshiftai_source
       type: string
     - name: aiservice_rhoai_model_deployment_type
       type: string
@@ -176,7 +176,7 @@ spec:
           value: $(params.aiservice_storage_ssl)
         - name: aiservice_storage_region
           value: $(params.aiservice_storage_region)
-        - name: opendatahub_source 
+        - name: opendatahub_source
           value: $(params.opendatahub_source)
         - name: aiservice_odh_model_deployment_type
           value: $(params.aiservice_odh_model_deployment_type)
@@ -232,7 +232,7 @@ spec:
           value: $(params.aiservice_storage_ssl)
         - name: aiservice_storage_region
           value: $(params.aiservice_storage_region)
-        - name: openshiftai_source 
+        - name: openshiftai_source
           value: $(params.openshiftai_source)
         - name: aiservice_rhoai_model_deployment_type
           value: $(params.aiservice_rhoai_model_deployment_type)
@@ -289,7 +289,7 @@ spec:
           value: $(params.artifactory_username)
         - name: aiservice_channel
           value: $(params.aiservice_channel)
-        - name: aiservice_install_plan_approval   
+        - name: aiservice_install_plan_approval
           value: $(params.aiservice_install_plan_approval)
 
         - name: mas_catalog_source

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-devops-suite-app-backup
@@ -26,12 +26,12 @@ spec:
       type: string
       description: Directory to store backup files
       default: ""
-    
+
     - name: mas_app_backup_version
       type: string
       description: Version/timestamp for the MAS app backup
       default: ""
-    
+
     - name: backup_app_include_pvc
       type: string
       description: Whether to include PVC in backup
@@ -43,17 +43,17 @@ spec:
 
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      
+
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
-      
+
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
 
       # Backup specific
       - name: MAS_BACKUP_DIR
         value: /workspace/backups
-      
+
       - name: MAS_APP_BACKUP_VERSION
         value: $(params.mas_app_backup_version)
 
@@ -65,7 +65,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_backup
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/backups
 

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-bootstrap
@@ -48,7 +48,6 @@ spec:
       type: string
       default: "true"
   stepTemplate:
-    name: gitops-bootstrap
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -133,6 +132,6 @@ spec:
         - -c
       name: gitops-bootstrap
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

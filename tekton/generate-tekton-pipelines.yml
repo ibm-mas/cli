@@ -21,7 +21,6 @@
       - mas-install
       - mas-update
       - mas-upgrade
-      - mas-rollback
       - mas-uninstall
       # MAS FVT Pipelines
       - mas-fvt-assist
@@ -72,20 +71,6 @@
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items: "{{ pipelines_to_generate }}"
 
-    # 2. Generate Pipelines
-    # -------------------------------------------------------------------------
-    - name: Generate Pipelines (wait-for-install versions)
-      vars:
-        wait_for_install: true
-      ansible.builtin.template:
-        src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
-        dest: "{{ pipeline_target_dir }}/{{ item }}-after-install.yaml"
-      with_items:
-        # TODO: Get rid of this, integrate this into main FVT launcher like
-        # we do for update, upgrade, & uninstall testing
-        - mas-rollback
-      when: pipeline_name == '' or pipeline_name == 'mas-rollback'
-
     # 3. Generate Gitops Pipelines
     # -------------------------------------------------------------------------
     - name: Generate GitOps Pipelines
@@ -96,11 +81,11 @@
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
-        - deprovision-cluster
-        - deprovision-mas-deps
-        - deprovision-mas-instance
-        - deprovision-mas-cluster
-        - provision-bootstrap-cluster
+        - gitops-deprovision-cluster
+        - gitops-deprovision-mas-deps
+        - gitops-deprovision-mas-instance
+        - gitops-deprovision-mas-cluster
+        - gitops-provision-bootstrap-cluster
         - gitops-mas-instance
         - gitops-mas-fvt-preparer-pipeline
         - gitops-mas-apps
@@ -108,7 +93,7 @@
         - gitops-mas-deps
         - gitops-mas-initiator
         - gitops-suite-license-service
-        - deprovision-suite-license-service
+        - gitops-deprovision-suite-license-service
         - gitops-aiservice-pipeline
         - gitops-aiservice-tenant-pipeline
         - gitops-deprovision-aiservice-pipeline
@@ -125,9 +110,9 @@
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}-after-deprovision.yaml"
       with_items:
-        - provision-bootstrap-cluster
-        - deprovision-cluster
-        - deprovision-mas-deps
+        - gitops-provision-bootstrap-cluster
+        - gitops-deprovision-cluster
+        - gitops-deprovision-mas-deps
       when: pipeline_name == ''
 
     # 5. Generate Gitops Pipelines with waits

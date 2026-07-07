@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-devops-update-configmap
@@ -18,7 +18,7 @@ spec:
       description: "The value to set"
   steps:
     - name: update-configmap
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       command:
         - /opt/app-root/src/update-configmap.sh
       env:

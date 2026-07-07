@@ -32,21 +32,21 @@ def discoverAIServiceTenants(dynClient: DynamicClient, instanceId: str, tenantId
         List[str]: List of AI Service tenant IDs
     """
     tenants = []
-    namespace = f"aiservice-{instanceId}"
 
     try:
         api = dynClient.resources.get(api_version="aiservice.ibm.com/v1", kind="AIServiceTenant")
-        aiserviceTenants = api.get(namespace=namespace)
+        label_selector = f"aiservice.ibm.com/instanceId={instanceId}"
+        aiserviceTenants = api.get(label_selector=label_selector)
 
         for tenantCr in aiserviceTenants.items:
             tenantId = tenantCr.metadata.name
             if tenantId not in tenants:
                 tenants.append(tenantId)
 
-        logger.info(f"Discovered {len(tenants)} AI Service tenants in namespace {namespace}")
+        logger.info(f"Discovered {len(tenants)} AI Service tenants")
 
     except Exception as e:
-        logger.debug(f"Could not discover AI Service tenants in {namespace}: {e}")
+        logger.debug(f"Could not discover AI Service tenants: {e}")
 
     # Filter by tenant IDs if provided
     if tenantIds:

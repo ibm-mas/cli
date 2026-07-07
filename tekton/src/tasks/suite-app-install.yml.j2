@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-devops-suite-app-install
@@ -351,8 +351,8 @@ spec:
       default: ""
     - name: mas_ws_facilities_server_timezone
       type: string
-      description: Define facilities server timezone. Set this only if the Facilities DB is using a timezone other than UTC. 
-      default: "UTC"       
+      description: Define facilities server timezone. Set this only if the Facilities DB is using a timezone other than UTC.
+      default: "UTC"
     - name: mas_ws_facilities_config_map_name
       type: string
       description: ConfigMap with configurations not supported by Tekton
@@ -388,19 +388,19 @@ spec:
     - name: mas_ws_facilities_maintenanceagent_deploymentmode
       description: Agent maintenanceagent deployment mode
       type: string
-      default: ""  
+      default: ""
     - name: mas_ws_facilities_objectmigrationagent_deploymentmode
       description: Agent objectmigrationagent deployment mode
       type: string
-      default: "" 
+      default: ""
     - name: mas_ws_facilities_objectpublishagent_deploymentmode
       description: Agent objectpublishagent deployment mode
       type: string
-      default: "" 
+      default: ""
     - name: mas_ws_facilities_reportqueueagent_deploymentmode
       description: Agent reportqueueagent deployment mode
       type: string
-      default: "" 
+      default: ""
     - name: mas_ws_facilities_wfagent_deploymentmode
       description: Agent wfagent deployment mode
       type: string
@@ -420,10 +420,10 @@ spec:
     - name: mas_ws_facilities_scheduleragent_deploymentmode
       description: Agent scheduleragent deployment mode
       type: string
-      default: ""      
+      default: ""
 
   stepTemplate:
-    image: quay.io/ibmmas/cli:latest
+    image: "quay.io/ibmmas/cli:latest"
     imagePullPolicy: $(params.image_pull_policy)
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(6) }}
@@ -644,7 +644,7 @@ spec:
         - name: MAS_FACILITIES_APP_OM_UPGRADE_MODE
           value: $(params.mas_ws_facilities_app_om_upgrade_mode)
         - name: MAS_FACILITIES_SERVER_TIMEZONE
-          value: $(params.mas_ws_facilities_server_timezone)          
+          value: $(params.mas_ws_facilities_server_timezone)
         - name: MAS_FACILITIES_CUSTOM_PROPERTIES
           value: $(params.mas_ws_facilities_custom_properties)
         - name: MAS_FACILITIES_PROPERTIES_FILE_LOCAL
@@ -660,11 +660,11 @@ spec:
         - name: MAS_FACILITIES_INCOMINGMAILAGENT_DEPLOYMENTMODE
           value: $(params.mas_ws_facilities_incomingmailagent_deploymentmode)
         - name: MAS_FACILITIES_MAINTENANCEAGENT_DEPLOYMENTMODE
-          value: $(params.mas_ws_facilities_maintenanceagent_deploymentmode)  
+          value: $(params.mas_ws_facilities_maintenanceagent_deploymentmode)
         - name: MAS_FACILITIES_OBJECTMIGRATIONAGENT_DEPLOYMENTMODE
-          value: $(params.mas_ws_facilities_objectmigrationagent_deploymentmode) 
+          value: $(params.mas_ws_facilities_objectmigrationagent_deploymentmode)
         - name: MAS_WS_FACILITIES_OBJECTPUBLISHAGENT_DEPLOYMENTMODE
-          value: $(params.mas_ws_facilities_objectpublishagent_deploymentmode) 
+          value: $(params.mas_ws_facilities_objectpublishagent_deploymentmode)
         - name: MAS_FACILITIES_REPORTQUEUEAGENT_DEPLOYMENTMODE
           value: $(params.mas_ws_facilities_reportqueueagent_deploymentmode)
         - name: MAS_FACILITIES_WFAGENT_DEPLOYMENTMODE
@@ -676,7 +676,7 @@ spec:
         - name: MAS_FACILITIES_RESERVESMTPAGENT_DEPLOYMENTMODE
           value: $(params.mas_ws_facilities_reservesmtpagent_deploymentmode)
         - name: MAS_FACILITIES_SCHEDULERAGENT_DEPLOYMENTMODE
-          value: $(params.mas_ws_facilities_scheduleragent_deploymentmode)          
+          value: $(params.mas_ws_facilities_scheduleragent_deploymentmode)
 
     - name: app-wait-for-approval
       # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"

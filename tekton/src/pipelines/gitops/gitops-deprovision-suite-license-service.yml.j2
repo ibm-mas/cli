@@ -1,17 +1,19 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: gitops-deprovision-mas-cluster
+  name: gitops-deprovision-suite-license-service
 spec:
-  description: Deprovision MAS Cluster scope
+  description: MAS deprovision Suite License Service for customer subscription
   workspaces:
-    - name: configs
+    - name: shared-entitlement
   params:
 
-    - name: cluster_name
+    - name: sls_license_icn
       type: string
-    - name: region
+    - name: sls_license_subscription_id
+      type: string
+    - name: cluster_name
       type: string
     - name: account
       type: string
@@ -23,27 +25,24 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: github_user
-      type: string
     - name: git_commit_msg
       type: string
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: db2_action
-      type: string
-      default: ""
 
   tasks:
-    - name: gitops-deprovision-mas-cluster
+    - name: gitops-deprovision-customer-subscription
       params:
+        - name: sls_license_icn
+          value: $(params.sls_license_icn)
+        - name: sls_license_subscription_id
+          value: $(params.sls_license_subscription_id)
         - name: cluster_name
           value: $(params.cluster_name)
         - name: account
           value: $(params.account)
-        - name: region
-          value: $(params.region)
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org
@@ -52,20 +51,16 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: github_user
-          value: $(params.github_user)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
         - name: secrets_path
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: db2_action
-          value: $(params.db2_action)
 
       taskRef:
         kind: Task
-        name: gitops-deprovision-cluster
+        name: gitops-deprovision-customer-subscription
       workspaces:
-        - name: configs
-          workspace: configs
+        - name: shared-entitlement
+          workspace: shared-entitlement

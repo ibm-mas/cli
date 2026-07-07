@@ -72,7 +72,7 @@ def _parse_args_wrapper(args=None, namespace=None):
 
 
 # Define all available collectors
-ALL_COLLECTORS = ["ocp", "db2", "kafka", "mongodb", "cp4d", "cert-manager", "grafana", "sls", "mas", "aiservice", "lic"]
+ALL_COLLECTORS = ["ocp", "db2", "kafka", "mongodb", "cp4d", "cert-manager", "grafana", "sls", "mas", "rhoai", "aiservice", "lic", "pipelines"]
 
 
 def validateCollectors(collectorsStr: str) -> str:
@@ -137,7 +137,6 @@ controlsGroup.add_argument(
     help=f"Comma-separated list of collectors to run (default: all)\nAvailable collectors: {', '.join(ALL_COLLECTORS)}",
 )
 controlsGroup.add_argument("--no-logs", action="store_true", default=False, help="Skip collection of pod logs, greatly speeds up must-gather collection time")
-controlsGroup.add_argument("--secret-data", action="store_true", default=False, help="Include secrets content in the must-gather")
 
 # MAS Content Controls group
 masGroup = mustGatherArgParser.add_argument_group("MAS Content Controls")

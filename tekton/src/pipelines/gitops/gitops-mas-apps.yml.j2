@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: gitops-mas-apps
@@ -23,8 +23,6 @@ spec:
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
-      type: string
-    - name: mas-use-service-mesh
       type: string
 
     # 1. Gitops git Parameters
@@ -53,6 +51,12 @@ spec:
       type: string
     - name: mas_workspace_id
       type: string
+    - name: sls_license_icn
+      type: string
+      default: ""
+    - name: centralized_sls_service
+      type: string
+      default: ""
     - name: icr_cp
       type: string
     - name: icr_cp_open
@@ -629,7 +633,7 @@ spec:
       type: string
     - name: default_file_storage_class
       type: string
-      
+
       #CP4D
     - name: cpd_product_version
       type: string
@@ -970,7 +974,7 @@ spec:
     - name: allow_list
       type: string
       default: ""
-    
+
     - name: rds_db2_backup_manage
       type: string
       default: ""
@@ -981,10 +985,6 @@ spec:
       type: string
       default: ""
     - name: rds_db2_backup_facilities
-      type: string
-      default: ""
-
-    - name: production_database_access_type
       type: string
       default: ""
 
@@ -1018,7 +1018,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -1078,7 +1078,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -1206,7 +1206,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -1484,7 +1484,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -1588,8 +1588,6 @@ spec:
           value: $(params.auto_backup_manage)
         - name: allow_list
           value: $(params.allow_list)
-        - name: production_database_access_type
-          value: $(params.production_database_access_type)
         
       workspaces:
         - name: configs
@@ -1617,7 +1615,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -1805,7 +1803,7 @@ spec:
           value: $(params.db2_database_db_config_yaml_facilities)
         - name: rds_db2_backup
           value: $(params.rds_db2_backup_facilities)
-      
+
       workspaces:
         - name: configs
           workspace: configs
@@ -1827,7 +1825,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -1956,7 +1954,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -2173,13 +2171,13 @@ spec:
 
     # 8. CP4D for Predict
     # -------------------------------------------------------------------------
-    # 8.1 CP4D 
+    # 8.1 CP4D
     - name: gitops-cp4d
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -2230,7 +2228,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -2304,7 +2302,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -2336,7 +2334,7 @@ spec:
           value: $(params.opensearch_install_plan)
         - name: canvasbase_install_plan
           value: $(params.canvasbase_install_plan)
-        
+
 
       workspaces:
         - name: configs
@@ -2363,7 +2361,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -2382,7 +2380,7 @@ spec:
         - input: "$(params.mas_app_channel_predict)"
           operator: notin
           values: [""]
-          
+
       workspaces:
         - name: configs
           workspace: configs
@@ -2397,7 +2395,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -2453,7 +2451,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -2510,7 +2508,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
@@ -2898,7 +2896,7 @@ spec:
           values: ["deactivate", ""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]  
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
     # 6.2 Manage App
     - name: gitops-deprovision-mas-app-install-manage
       runAfter:
@@ -2925,7 +2923,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]   
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
     # 6.3 Manage Database
     - name: gitops-deprovision-db2u-database-manage
       runAfter:
@@ -2952,7 +2950,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]    
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
     # 6.4 Manage JDBC Config
     - name: gitops-delete-jdbc-config-manage
       runAfter:
@@ -3022,7 +3020,7 @@ spec:
         - input: "$(params.mas_edition)"
           operator: in
           values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
-  
+
     # 7. IoT Deprovision
     # -------------------------------------------------------------------------
     # 7.1 IoT Config/Workspace

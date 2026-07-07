@@ -17,7 +17,8 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import re
 import calendar
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError
+from urllib3.exceptions import MaxRetryError
 
 from typing import Dict, Any
 
@@ -181,6 +182,8 @@ class InstallApp(
                     ]
                 )
             )
+        except MaxRetryError:
+            self.fatalError("Unable to connect to the Kubernetes API server. Please verify cluster connectivity and try again.")
 
     @logMethodCall
     def licensePrompt(self):
@@ -213,7 +216,7 @@ class InstallApp(
     @logMethodCall
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
-        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+        self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
         if self.devMode:
             self.promptForString("Artifactory username", "artifactory_username")
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
@@ -270,11 +273,8 @@ class InstallApp(
 
         # Generate catalogTable
         for application, key in applications.items():
-            # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             if key in self.chosenCatalog:
                 tempChosenCatalog = self.chosenCatalog[key].copy()
-                if "9.1.x-feature" not in tempChosenCatalog and "9.0.x" in tempChosenCatalog:
-                    tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
 
                 self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
@@ -1295,7 +1295,7 @@ class InstallApp(
             self.installFacilities = False
 
         # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
-        if isVersionEqualOrAfter("9.0.0", self.getParam("mas_app_channel_manage")):
+        if self.getParam("mas_app_channel_manage") != "" and isVersionEqualOrAfter("9.0.0", self.getParam("mas_app_channel_manage")):
             self.installAIService = self.yesOrNo("Install AI Service")
             if self.installAIService:
                 self.configAIService()
@@ -1323,8 +1323,11 @@ class InstallApp(
                 "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
                 "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
                 "",
+                "Note: Remote file systems are often slower than local file systems, using a storage class backed by a remote file system (e.g. NFS) as the RWO storage class may result in degraded performance",
+                "",
             ]
         )
+
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         if defaultStorageClasses.provider is not None:
             print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
@@ -1720,15 +1723,71 @@ class InstallApp(
             ]
         )
 
-        # Install Db2 for AI Service
-        self.setParam("db2_action_aiservice", "install")
-
         self.promptForString(
             "Instance ID",
             "aiservice_instance_id",
             validator=InstanceIDFormatValidator(),
         )
         self.params["aiservice_channel"] = prompt(HTML("<Yellow>Custom channel for AI Service</Yellow> "))
+
+    @logMethodCall
+    def configAIServiceDatabase(self):
+        """Configure database for AI Service - either in-cluster DB2 or external database"""
+        self.printH2("Database Configuration for AI Service")
+        self.printDescription(
+            [
+                "By default, DB2 will be installed in-cluster (suitable for development and testing).",
+                "Alternatively, you can connect to an external Oracle or DB2 database (supported in AI Service 9.1.x only).",
+                # "Alternatively, you can connect to an external database (Oracle, SQL Server, or DB2).",
+            ]
+        )
+
+        if self.yesOrNo("Do you want to use an external database"):
+            # Configure external database
+            self.setParam("install_db2", "false")
+            self.setParam("db2_action_aiservice", "byo")
+
+            self.printDescription(
+                [
+                    "Provide connection details for your external Oracle or DB2 database.",
+                    "",
+                    "JDBC URL Example:",
+                    "  Oracle:     jdbc:oracle:thin:@//hostname:1521/servicename",
+                    "  DB2:        jdbc:db2://hostname:50000/database",
+                    # "  SQL Server: jdbc:sqlserver://hostname:1433;databaseName=aiservice",
+                ]
+            )
+
+            self.promptForString("Database JDBC URL", "aiservice_db_jdbc_url")
+            self.promptForString("Database Username", "aiservice_db_username")
+            self.promptForString("Database Password", "aiservice_db_password", isPassword=True)
+
+            if self.yesOrNo("Does the database use SSL/TLS with a self-signed certificate"):
+                self.promptForString(
+                    "Database CA certificate (PEM format)",
+                    "aiservice_db_ca_cert",
+                )
+        else:
+            # Install DB2 for AI Service
+            self.setParam("install_db2", "true")
+            self.setParam("db2_action_aiservice", "install")
+
+            # Prompt for DB2 license file (same as standalone)
+            self.printDescription(
+                [
+                    "Db2 Universal Operator for v12 onwards requires a License activation key",
+                    "If you don't have a license, press enter to continue.",
+                ]
+            )
+            db2LicenseFile = self.promptForString("Db2 License file", "db2_license_file")
+            if db2LicenseFile and db2LicenseFile.strip() != "":
+                self.db2LicenseFileLocal = db2LicenseFile
+
+    @logMethodCall
+    def configAIServiceDatabaseInDependencies(self) -> None:
+        """Wrapper method to configure AI Service database in the Dependencies section"""
+        if self.installAIService:
+            self.configAIServiceDatabase()
 
     @logMethodCall
     def aiServiceSettings(self) -> None:
@@ -1999,6 +2058,7 @@ class InstallApp(
         self.arcgisSettings()  # Will only prompt if Manage (with Spatial) or Facilities is selected
         self.configMongoDb()
         self.configDb2()
+        self.configAIServiceDatabaseInDependencies()  # Configure AI Service database
         self.configKafka()  # Will only do anything if IoT has been selected for install
         self.configAi()  # Configure AI Service integration
 
@@ -2057,6 +2117,31 @@ class InstallApp(
             if key in requiredParams:
                 if value is None:
                     self.fatalError(f"{key} must be set")
+
+                # Special handling for ibm_entitlement_key: validate it
+                if key == "ibm_entitlement_key":
+                    isValid = self.validateEntitlementKey(value)
+                    if not isValid:
+                        if self.noConfirm:
+                            # Non-interactive with --no-confirm: warn but continue
+                            self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                        else:
+                            # Non-interactive without --no-confirm: offer options
+                            self.printWarning("IBM entitlement key validation failed")
+                            print()
+                            self.printDescription(
+                                [
+                                    "What would you like to do?",
+                                    "  1. Continue anyway (skip validation)",
+                                    "  2. Quit (exit the application)",
+                                ]
+                            )
+                            choice = self.promptForInt("Select an option", min=1, max=2)
+                            if choice == 2:
+                                logger.info("User chose to quit due to invalid entitlement key")
+                                exit(1)
+                            # If choice == 1, continue with the invalid key
+
                 self.setParam(key, value)
 
             # These fields we just pass straight through to the parameters
@@ -2162,9 +2247,24 @@ class InstallApp(
             elif key == "aiservice_channel":
                 if value is not None and value != "":
                     self.setParam("aiservice_channel", value)
-                    # Install Db2 for AI Service
-                    self.setParam("db2_action_aiservice", "install")
                     self.installAIService = True
+
+                    # Check if external DB parameters are provided
+                    externalDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
+                    hasExternalDb = any(vars(self.args)[dbParam] is not None for dbParam in externalDbParams)
+
+                    if hasExternalDb:
+                        # Using external database - validate all required parameters
+                        self.setParam("install_db2", "false")
+                        self.setParam("db2_action_aiservice", "byo")
+                        for dbParam in externalDbParams:
+                            if vars(self.args)[dbParam] is None:
+                                self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
+                    else:
+                        # Default: Install DB2 in-cluster
+                        self.setParam("install_db2", "true")
+                        self.setParam("db2_action_aiservice", "install")
+
                     # Set manage - bind - AI Service params same as provided AI Service's params
                     self.setParam(
                         "manage_bind_aiservice_instance_id",
@@ -2342,7 +2442,6 @@ class InstallApp(
                 self.fatalError(f"Unknown option: {key} {value}")
 
         if self.installManage:
-
             # Configure Storage and Access mode
             self.manageStorageAndAccessMode()
 
