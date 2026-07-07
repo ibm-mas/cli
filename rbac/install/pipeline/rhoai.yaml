@@ -131,7 +131,7 @@ rules:
       - patch
       - list
 
-  # RHOAI requires routes for external access
+  # RHOAI requires scc patch for workaround to not update PVC settings by operator
   - apiGroups:
       - security.openshift.io
     resources:
