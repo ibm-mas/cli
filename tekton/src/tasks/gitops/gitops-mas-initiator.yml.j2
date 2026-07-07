@@ -356,7 +356,9 @@ spec:
         export MASDOMAIN=$MAS_INSTANCE_ID.apps.$DOMAIN
         export APPSDOMAIN=apps.$DOMAIN
 
-        yq -i '.mas_instance.domain = env(MASDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+        if [[ -n "$MAS_INSTANCE_ID" ]]; then  
+          yq -i '.mas_instance.domain = env(MASDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+        fi
 
         # Update the ocp server url & ingress domain url in the cluster-params.yaml.
         yq -i '.cluster.url = env(OCP_SERVER)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
@@ -366,11 +368,15 @@ spec:
         yq -i '(. | select(has("mas_provisioner")) |  .mas_provisioner.provisioner_domain) = env(APPSDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
 
         # Update the channel in the mas-instance-params.yaml.
-        yq -i '.mas_instance.channel = env(MAS_CHANNEL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+        if [[ -n "$MAS_INSTANCE_ID" ]]; then
+          yq -i '.mas_instance.channel = env(MAS_CHANNEL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+        fi 
 
         # Update the operationalmode in the mas-instance-params.yaml.
-        yq -i '.mas_instance.annotations."mas.ibm.com/operationalMode" = env(MAS_OPERATIONALMODE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
-
+        if [[ -n "$MAS_INSTANCE_ID" ]]; then
+          yq -i '.mas_instance.annotations."mas.ibm.com/operationalMode" = env(MAS_OPERATIONALMODE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+        fi 
+        
         # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
         if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
           yq -i 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
