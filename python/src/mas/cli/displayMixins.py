@@ -29,24 +29,41 @@ PROMPTCOLOR = "Yellow"
 
 # List of sensitive parameters that should be masked in output
 SENSITIVE_PARAMS = {
+    # IBM Cloud & AWS Credentials
     "ibmcloud_apikey",
     "aws_access_key_id",
     "secret_access_key",
+    "aws_secret_access_key",
+    # Artifactory Credentials
+    "artifactory_username",
     "artifactory_token",
+    # MAS Credentials
     "mas_superuser_password",
+    # Logging & Messaging
     "eck_remote_es_password",
     "kafka_password",
+    "aws_kafka_user_password",
+    # Manage App Settings
     "mas_app_settings_customization_archive_password",
+    "mas_app_settings_customization_archive_username",
+    # Manage Encryption Keys
     "mas_manage_encryptionsecret_crypto_key",
     "mas_manage_encryptionsecret_cryptox_key",
     "mas_manage_encryptionsecret_old_crypto_key",
     "mas_manage_encryptionsecret_old_cryptox_key",
+    # DNS Provider Credentials
     "cis_apikey",
     "cloudflare_apitoken",
+    # Storage Credentials
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
     "cos_apikey",
+    # AI Service Credentials
     "aiservice_watsonxai_apikey",
+    "aiservice_db_username",
+    "aiservice_db_password",
+    # Minio Credentials
+    "minio_root_user",
     "minio_root_password",
 }
 
