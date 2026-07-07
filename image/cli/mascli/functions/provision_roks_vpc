@@ -209,10 +209,11 @@ function provision_roks_vpc_interactive() {
       ;;
   esac
 
-  prompt_for_input "Resource Group" IBMCLOUD_RESOURCEGROUP "Default" && export IBMCLOUD_RESOURCEGROUP
-  prompt_for_input "Datacenter" ROKS_ZONE "eu-gb-1" && export ROKS_ZONE
+  prompt_for_input "Resource Group" IBMCLOUD_RESOURCEGROUP "" && export IBMCLOUD_RESOURCEGROUP
+  prompt_for_input "VPC Name" ROKS_VPC_NAME "" && export ROKS_VPC_NAME
   prompt_for_input "Worker Node Type" ROKS_FLAVOR "bx2.8x32" && export ROKS_FLAVOR
   prompt_for_input "Number of Worker Nodes" ROKS_WORKERS "3" && export ROKS_WORKERS
+  prompt_for_input "Worker Pool VPC Zone" ROKS_ZONE "eu-gb-1" && export ROKS_ZONE
 
   export OCP_PROVISION_GPU=false
   echo ""
