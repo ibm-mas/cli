@@ -119,6 +119,24 @@ def _getReconcileLogsOperatorsForApp(namespace: str, appId: str) -> List[Tuple[s
             (namespace, "control-plane", "ibm-iot-operator"),
             (namespace, "control-plane", "workspace-operator"),
             (namespace, "operator", "ibm-truststore-mgr"),
+            # Components
+            (namespace, "control-plane", "actions-operator"),
+            (namespace, "control-plane", "auth-operator"),
+            (namespace, "control-plane", "datapower-operator"),
+            (namespace, "control-plane", "devops-operator"),
+            (namespace, "control-plane", "dm-operator"),
+            (namespace, "control-plane", "dsc-operator"),
+            (namespace, "control-plane", "edgeconfig-operator"),
+            (namespace, "control-plane", "fpl-operator"),
+            (namespace, "control-plane", "guardian-operator"),
+            (namespace, "control-plane", "mbgx-operator"),
+            (namespace, "control-plane", "mfgx-operator"),
+            (namespace, "control-plane", "monitor-operator"),
+            (namespace, "control-plane", "orgmgmt-operator"),
+            (namespace, "control-plane", "provision-operator"),
+            (namespace, "control-plane", "registry-operator"),
+            (namespace, "control-plane", "state-operator"),
+            (namespace, "control-plane", "webui-operator"),
         ]
     elif appId == "optimizer":
         operators = [
