@@ -10,7 +10,7 @@ IBM Maximo Application Suite CLI Utility
 [![GitHub release](https://img.shields.io/github/v/release/ibm-mas/cli)](https://github.com/ibm-mas/cli/releases/latest)
 
 
-Documentation 
+Documentation
 -------------------------------------------------------------------------------
 [https://ibm-mas.github.io/cli/](https://ibm-mas.github.io/cli/)
 
