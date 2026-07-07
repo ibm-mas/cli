@@ -27,13 +27,14 @@ from mas.devops.mas import (
     listMasInstances,
     getMasChannel,
     getAppsSubscriptionChannel,
+    getDefaultStorageClasses,
     getWorkspaceId,
     verifyAppInstance,
     getPermissionMode,
     getInstalledApps,
 )
 from mas.devops.utils import isVersionEqualOrAfter
-from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 from mas.devops.pre_install import applyPreInstallMASRBAC
 from ..rbac_utils import evaluatePreinstallRBACAccess
 
@@ -371,6 +372,19 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
+                defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+                if self.isSNO() or defaultStorageClasses.rwx == "none":
+                    pipelineStorageClass = defaultStorageClasses.rwo
+                    pipelineStorageAccessMode = "ReadWriteOnce"
+                else:
+                    pipelineStorageClass = defaultStorageClasses.rwx
+                    pipelineStorageAccessMode = "ReadWriteMany"
+                preparePipelinesNamespace(
+                    dynClient=self.dynamicClient,
+                    instanceId=instanceId,
+                    storageClass=pipelineStorageClass,
+                    accessMode=pipelineStorageAccessMode,
+                )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:

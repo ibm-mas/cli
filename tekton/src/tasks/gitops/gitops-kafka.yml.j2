@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-kafka
@@ -35,7 +35,6 @@ spec:
       default: ""
 
   stepTemplate:
-    name: gitops-kafka
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-assist-desktop
@@ -58,7 +58,6 @@ spec:
       default: "false"
 
   stepTemplate:
-    resources: {}
     workingDir: /opt/ibm/test/src
     volumeMounts:
       - mountPath: /dev/shm
