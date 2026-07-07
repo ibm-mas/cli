@@ -140,6 +140,8 @@ rules:
       - openshift-ai-llminferenceservice-multi-node-scc
       - openshift-ai-llminferenceservice-scc
     verbs:
+      - list
+      - create
       - get
       - patch
       - update
