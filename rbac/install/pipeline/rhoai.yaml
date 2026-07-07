@@ -50,7 +50,6 @@ rules:
       - get
       - create
       - patch
-      - delete
   
   # RHOAI requires service accounts
   - apiGroups:
