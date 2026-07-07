@@ -72,7 +72,6 @@ def addArgoToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLo
                 namespace="openshift-gitops",
                 outputDir=outputDir,
                 noLogs=noLogs,
-                secretData=False,
                 customResources=None,
                 ibmCRDs=ibmCRDs,
             )
