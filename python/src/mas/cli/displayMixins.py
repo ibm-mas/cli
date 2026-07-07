@@ -27,6 +27,29 @@ SUMMARYCOLOR = "SkyBlue"
 UNDEFINEDPARAMCOLOR = "LightSlateGrey"
 PROMPTCOLOR = "Yellow"
 
+# List of sensitive parameters that should be masked in output
+SENSITIVE_PARAMS = {
+    "ibmcloud_apikey",
+    "aws_access_key_id",
+    "secret_access_key",
+    "artifactory_token",
+    "mas_superuser_password",
+    "eck_remote_es_password",
+    "kafka_password",
+    "mas_app_settings_customization_archive_password",
+    "mas_manage_encryptionsecret_crypto_key",
+    "mas_manage_encryptionsecret_cryptox_key",
+    "mas_manage_encryptionsecret_old_crypto_key",
+    "mas_manage_encryptionsecret_old_cryptox_key",
+    "cis_apikey",
+    "cloudflare_apitoken",
+    "aiservice_s3_accesskey",
+    "aiservice_s3_secretkey",
+    "cos_apikey",
+    "aiservice_watsonxai_apikey",
+    "minio_root_password",
+}
+
 
 class PrintMixin:
     def printTitle(self, message: str) -> None:
@@ -73,8 +96,15 @@ class PrintMixin:
             logger.debug(f'Parameter Summary: {param} = ""')
             self.printSummary(message, f"<{UNDEFINEDPARAMCOLOR}>Default</{UNDEFINEDPARAMCOLOR}>")
         else:
-            logger.debug(f"Parameter Summary: {param} = {self.getParam(param)}")  # type: ignore
-            self.printSummary(message, self.getParam(param))  # type: ignore
+            value = self.getParam(param)  # type: ignore
+            # Mask sensitive parameters
+            if param in SENSITIVE_PARAMS:
+                display_value = "***"
+                logger.debug(f"Parameter Summary: {param} = *** (masked)")
+            else:
+                display_value = value
+                logger.debug(f"Parameter Summary: {param} = {value}")
+            self.printSummary(message, display_value)
 
     def printTable(self, headers: List[str], rows: List[List[str]]) -> None:
         """
