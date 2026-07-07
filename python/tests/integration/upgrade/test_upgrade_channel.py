@@ -307,3 +307,33 @@ class TestUpgradeChannelLogic:
                                 if mock_launch.called:
                                     call_kwargs = mock_launch.call_args[1]
                                     assert call_kwargs["masChannel"] == "9.0.x-dev", f"Expected masChannel='9.0.x-dev', got '{call_kwargs['masChannel']}'"
+
+    def test_dev_channel_auto_sets_skip_compatibility_check(self, mock_upgrade_app):
+        """Test that dev-channel upgrades auto-enable compatibility check skipping.
+
+        GIVEN a MAS instance on a dev channel and no explicit skip flag
+        WHEN upgrade() resolves the current channel
+        THEN it sets skip_compatibility_check to True before launching the pipeline.
+        """
+        with patch("mas.cli.upgrade.app.getMasChannel", return_value="9.1.x-dev"):
+            with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
+                    with patch("mas.devops.tekton.updateTektonDefinitions"):
+                        with patch("mas.devops.ocp.createNamespace"):
+                            with patch("mas.devops.tekton.launchUpgradePipeline"):
+                                mock_args = Mock()
+                                mock_args.mas_instance_id = "test-inst"
+                                mock_args.no_confirm = True
+                                mock_args.skip_pre_check = False
+                                mock_args.accept_license = True
+                                mock_args.dev_mode = False
+                                mock_args.next_channel = ""
+                                mock_args.skip_compatibility_check = False
+                                mock_args.image_pull_policy = None
+                                with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
+                                    try:
+                                        mock_upgrade_app.upgrade([])
+                                    except Exception:
+                                        pass
+
+                                assert mock_upgrade_app.params["skip_compatibility_check"] == "True"

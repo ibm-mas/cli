@@ -47,7 +47,7 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     default=False,
-    help="Skip the suite version compatibility check before upgrade (use when upgrading from a dev channel)",
+    help="Skip the suite version compatibility check before upgrade (auto-enabled when upgrading from a dev channel)",
 )
 otherArgGroup.add_argument(
     "--no-confirm",

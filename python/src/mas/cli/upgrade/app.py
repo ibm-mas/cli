@@ -197,6 +197,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             )
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
+        if currentChannel and "-dev" in currentChannel:
+            self.setParam("skip_compatibility_check", "True")
+            logger.info(f"Dev channel detected ({currentChannel}): auto-enabling skip_compatibility_check")
         if currentChannel is not None:
             if self.devMode:
                 # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
