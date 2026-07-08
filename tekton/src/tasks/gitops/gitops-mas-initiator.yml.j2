@@ -437,7 +437,7 @@ spec:
 
         fi
         # Update the app channels in the mas-apps-params.yaml.
-        if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
+        if [ -n "$MAS_APP_CHANNEL_ASSIST" ]; then
           yq -i '(. | select(has("assist")) |  .assist.app_channel) = env(MAS_APP_CHANNEL_ASSIST)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
           # Assist not supported in v8 due to no CP4D WD support
           if [[ "$MAS_APP_CHANNEL_ASSIST" =~ ^8\. ]]; then
@@ -447,25 +447,25 @@ spec:
             echo "gitops-mas-initiator: set .launchfvt.assist to false"
           fi
         fi
-        if [ -n $MAS_APP_CHANNEL_FACILITIES ]; then
+        if [ -n "$MAS_APP_CHANNEL_FACILITIES" ]; then
           yq -i '(. | select(has("facilities")) |  .facilities.app_channel) = env(MAS_APP_CHANNEL_FACILITIES)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
         fi
-        if [ -n $MAS_APP_CHANNEL_IOT ]; then
+        if [ -n "$MAS_APP_CHANNEL_IOT" ]; then
           yq -i '(. | select(has("iot")) |  .iot.app_channel) = env(MAS_APP_CHANNEL_IOT)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
         fi
-        if [ -n $MAS_APP_CHANNEL_MANAGE ]; then
+        if [ -n "$MAS_APP_CHANNEL_MANAGE" ]; then
           yq -i '(. | select(has("manage")) |  .manage.app_channel) = env(MAS_APP_CHANNEL_MANAGE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
         fi
-        if [ -n $MAS_APP_CHANNEL_MONITOR ]; then
+        if [ -n "$MAS_APP_CHANNEL_MONITOR" ]; then
           yq -i '(. | select(has("monitor")) |  .monitor.app_channel) = env(MAS_APP_CHANNEL_MONITOR)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
         fi
-        if [ -n $MAS_APP_CHANNEL_OPTIMIZER ]; then
+        if [ -n "$MAS_APP_CHANNEL_OPTIMIZER" ]; then
           yq -i '(. | select(has("optimizer")) |  .optimizer.app_channel) = env(MAS_APP_CHANNEL_OPTIMIZER)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
         fi
-        if [ -n $MAS_APP_CHANNEL_PREDICT ]; then
+        if [ -n "$MAS_APP_CHANNEL_PREDICT" ]; then
           yq -i '(. | select(has("predict")) |  .predict.app_channel) = env(MAS_APP_CHANNEL_PREDICT)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
         fi
-        if [ -n $MAS_APP_CHANNEL_VISUALINSPECTION ]; then
+        if [ -n "$MAS_APP_CHANNEL_VISUALINSPECTION" ]; then
           yq -i '(. | select(has("visualinspection")) |  .visualinspection.app_channel) = env(MAS_APP_CHANNEL_VISUALINSPECTION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
         fi
 
