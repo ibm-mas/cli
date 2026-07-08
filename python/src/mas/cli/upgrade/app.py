@@ -216,8 +216,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                                 f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
                             )
                         )
-                    elif self.nextChannel == self.upgrade_path.get(currentChannel) or \
-                            self.nextChannel in self.upgrade_path_alternatives.get(currentChannel, []):
+                    elif self.nextChannel == self.upgrade_path.get(currentChannel) or self.nextChannel in self.upgrade_path_alternatives.get(
+                        currentChannel, []
+                    ):
                         # Valid upgrade path: currentChannel -> nextChannel (default or alternative)
                         pass
                     else:
