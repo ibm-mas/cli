@@ -914,11 +914,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printDescription(catalogSummary)
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            # There's only one release channel, the user doesn't need to be prompted!!
-            # releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
-            # releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
-            # self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
-            self.setParam("aiservice_channel", "9.1.x")
+            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
+            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
+            self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
 
     @logMethodCall
     def validateCatalogSource(self):
