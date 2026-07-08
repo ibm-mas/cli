@@ -288,7 +288,9 @@ function sm_list_tenant_secrets() {
 
   if [[ "$AVP_TYPE" == "aws" ]]; then
     set +o pipefail
+    echo "Finding Secrets at ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${AISERVICE_INSTANCE_ID}${DELIMIITER}${TENANT_ID}${DELIMIITER}"
     LIST_SECRETS_OUTPUT="$(aws secretsmanager list-secrets --output yaml --no-cli-pager --filters Key=name,Values=${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${AISERVICE_INSTANCE_ID}${DELIMIITER}${TENANT_ID}${DELIMIITER})"
+    echo "Secrets Found: $LIST_SECRETS_OUTPUT"
     return_code=$?
     if [ $return_code -ne 0 ]; then
       echo "aws: secretmanager list-secrets failed with error: $return_code"

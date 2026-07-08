@@ -212,15 +212,13 @@ function gitops_deprovision_aiservice_tenant() {
  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  # Created for custom service accounts
+  # Created for tenant secrets
+  echo "Finding Secrets for Tenant Deprovision"
   TENANT_SECRETS=($(sm_list_cluster_secrets ${ACCOUNT_ID} ${CLUSTER_ID} ${AISERVICE_INSTANCE_ID} ${TENANT_ID}))
-  PATTERN='^[^\/]+\/[^\/]+\/custom-sa\/[^\/]+$'
   for SECRET_NAME in "${TENANT_SECRETS[@]}"; do
-    if [[ "$SECRET_NAME" =~ $PATTERN ]]; then
-      export TENANT_SECRET_NAME=${SECRET_NAME}
-      echo "Delete $TENANT_SECRET_NAME from Secrets Manager"
-      sm_delete_secret $TENANT_SECRET_NAME
-    fi
+    export TENANT_SECRET_NAME=${SECRET_NAME}
+    echo "Delete $TENANT_SECRET_NAME from Secrets Manager"
+    sm_delete_secret $TENANT_SECRET_NAME
   done
 
   # finally push them into the git repo
