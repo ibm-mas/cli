@@ -161,6 +161,15 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture: str | None = None
 
         self.compatibilityMatrix: Dict[str, Dict[str, List[str]]] = {
+            "9.2.x-dev": {
+                "manage": ["9.2.x-dev", "9.2.x", "9.2.x-feature", "9.1.x", "9.1.x-dev"],
+                "optimizer": ["9.2.x-dev", "9.2.x", "9.2.x-feature", "9.1.x", "9.1.x-dev"],
+                "visualinspection": ["9.2.x-dev", "9.2.x", "9.2.x-feature", "9.1.x", "9.1.x-dev"],
+                "iot": ["9.2.x-dev", "9.2.x", "9.2.x-feature", "9.1.x", "9.1.x-dev"],
+                "monitor": ["9.2.x-dev", "9.2.x", "9.2.x-feature", "9.1.x", "9.1.x-dev"],
+                "predict": ["9.2.x-dev", "9.2.x", "9.2.x-feature", "9.1.x", "9.1.x-dev"],
+                "facilities": ["9.2.x-dev", "9.2.x", "9.2.x-feature", "9.1.x", "9.1.x-dev"],
+            },
             "9.2.x": {
                 "manage": ["9.2.x", "9.2.x-feature", "9.1.x", "9.1.x-dev"],
                 "optimizer": ["9.2.x", "9.2.x-feature", "9.1.x", "9.1.x-dev"],
@@ -199,14 +208,23 @@ class BaseApp(PrintMixin, PromptMixin):
                 "predict": ["9.1.x-dev", "9.0.x"],
                 "visualinspection": ["9.1.x-dev", "9.1.x-feature", "9.0.x"],
             },
+            "8.11.x-dev": {
+                "assist": ["8.11.x-dev", "8.8.x", "8.7.x"],
+                "iot": ["8.11.x-dev", "8.8.x", "8.7.x"],
+                "manage": ["8.11.x-dev", "8.7.x", "8.6.x"],
+                "monitor": ["8.11.x-dev", "8.11.x", "8.10.x"],
+                "optimizer": ["8.11.x-dev", "8.5.x", "8.4.x"],
+                "predict": ["8.11.x-dev", "8.9.x", "8.8.x"],
+                "visualinspection": ["8.11.x-dev", "8.9.x", "8.8.x"],
+            },
             "9.0.x-dev": {
-                "assist": ["9.0.x-dev", "9.0.x", "8.8.x"],
-                "iot": ["9.0.x-dev", "9.0.x", "8.8.x"],
-                "manage": ["9.0.x-dev", "9.0.x", "8.7.x"],
-                "monitor": ["9.0.x-dev", "9.0.x", "8.11.x"],
-                "optimizer": ["9.0.x-dev", "9.0.x", "8.5.x"],
-                "predict": ["9.0.x-dev", "9.0.x", "8.9.x"],
-                "visualinspection": ["9.0.x-dev", "9.0.x", "8.9.x"],
+                "assist": ["9.0.x-dev", "9.0.x", "8.11.x-dev", "8.8.x"],
+                "iot": ["9.0.x-dev", "9.0.x", "8.11.x-dev", "8.8.x"],
+                "manage": ["9.0.x-dev", "9.0.x", "8.11.x-dev", "8.7.x"],
+                "monitor": ["9.0.x-dev", "9.0.x", "8.11.x-dev", "8.11.x"],
+                "optimizer": ["9.0.x-dev", "9.0.x", "8.11.x-dev", "8.5.x"],
+                "predict": ["9.0.x-dev", "9.0.x", "8.11.x-dev", "8.9.x"],
+                "visualinspection": ["9.0.x-dev", "9.0.x", "8.11.x-dev", "8.9.x"],
             },
             "9.1.x-feature": {
                 "assist": ["9.0.x"],
@@ -255,7 +273,9 @@ class BaseApp(PrintMixin, PromptMixin):
             "9.1.x-feature": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
             "9.1.x": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>",
             "9.1.x-dev": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>",
+            "9.2.x-dev": " - <u>https://ibm.biz/MAS92-License</u>\n - <u>https://ibm.biz/MAXIT92-License</u>\n - <u>https://ibm.biz/MAXESRI92-License</u>",
             "9.0.x-dev": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>",
+            "8.11.x-dev": " - <u>https://ibm.biz/MAS811-License</u>\n - <u>https://ibm.biz/MAXIT81-License</u>",
             "aibroker-9.1.x": " - <u>https://ibm.biz/MAS91-License</u>",
             "9.2.x-feature": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
             "9.2.x": " - <u>https://ibm.biz/MAS92-License</u>\n - <u>https://ibm.biz/MAXIT92-License</u>\n - <u>https://ibm.biz/MAXESRI92-License</u>",
@@ -264,13 +284,23 @@ class BaseApp(PrintMixin, PromptMixin):
         self.upgrade_path: Dict[str, str] = {
             "9.2.x-feature": "9.2.x",
             "9.1.x": "9.2.x",
-            "9.1.x-dev": "9.2.x",
+            "9.1.x-dev": "9.2.x-dev",
             "9.0.x-dev": "9.1.x-dev",
             "9.1.x-feature": "9.1.x",
             "9.0.x": "9.1.x",
+            "8.11.x-dev": "9.0.x-dev",
             "8.11.x": "9.0.x",
             "8.10.x": "8.11.x",
             "8.9.x": "8.10.x",
+        }
+
+        # Additional valid --next-channel targets beyond the default upgrade_path.
+        # upgrade_path defines the auto-selected (default) next channel.
+        # upgrade_path_alternatives lists other explicitly-allowed targets for the same source.
+        self.upgrade_path_alternatives: Dict[str, List[str]] = {
+            "9.1.x-dev": ["9.2.x"],
+            "9.0.x-dev": ["9.1.x"],
+            "8.11.x-dev": ["9.0.x"],
         }
 
         self.spinner: Dict[str, Any] = {"interval": 80, "frames": [" ⠋", " ⠙", " ⠹", " ⠸", " ⠼", " ⠴", " ⠦", " ⠧", " ⠇", " ⠏"]}
