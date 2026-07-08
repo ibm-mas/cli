@@ -89,11 +89,8 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         ".*Enable usability metrics.*": lambda msg: "y",
         # 22. Application selection
         ".*Install IoT.*": lambda msg: "y",
-        ".*Custom channel for iot.*": lambda msg: "9.2.x-dev",
         ".*Install Monitor.*": lambda msg: "y",
-        ".*Custom channel for monitor.*": lambda msg: "9.2.x-dev",
         ".*Install Manage.*": lambda msg: "y",
-        ".*Custom channel for manage.*": lambda msg: "9.2.x-dev",
         ".*Select a server bundle configuration.*": lambda msg: "1",
         ".*Customize database settings.*": lambda msg: "n",
         ".*Create demo data.*": lambda msg: "n",
