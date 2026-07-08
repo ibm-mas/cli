@@ -212,35 +212,16 @@ function gitops_deprovision_aiservice_tenant() {
  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
-
-  export SECRET_IBM_ENTITLEMENT_AUTH=${SECRETS_PREFIX}ibm_entitlement
-  export SECRET_DRO_AUTH=${SECRETS_PREFIX}dro
-  export SECRET_SLS_AUTH=${SECRETS_PREFIX}sls
-  export SECRET_WATSONX_AUTH=${SECRETS_PREFIX}watsonx
-  export SECRET_RSL_AUTH=${SECRETS_PREFIX}rsl
-  export SECRET_S3_AUTH=${SECRETS_PREFIX}s3
-
-
-  # deleting secrets from aws
-   echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
-   sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
-
-   echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
-   sm_delete_secret $SECRET_DRO_AUTH
-
-   echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
-   sm_delete_secret $SECRET_SLS_AUTH
-
-   echo -e "Deleting watsonx secrets $SECRET_WATSONX_AUTH"
-   sm_delete_secret $SECRET_WATSONX_AUTH
-
-   echo -e "Deleting rsl secrets $SECRET_RSL_AUTH"
-   sm_delete_secret $SECRET_RSL_AUTH
-
-   echo -e "Deleting storage secrets $SECRET_S3_AUTH"
-   sm_delete_secret $SECRET_S3_AUTH
-
+  # Created for custom service accounts
+  TENANT_SECRETS=($(sm_list_cluster_secrets ${ACCOUNT_ID} ${CLUSTER_ID} ${AISERVICE_INSTANCE_ID} ${TENANT_ID}))
+  PATTERN='^[^\/]+\/[^\/]+\/custom-sa\/[^\/]+$'
+  for SECRET_NAME in "${TENANT_SECRETS[@]}"; do
+    if [[ "$SECRET_NAME" =~ $PATTERN ]]; then
+      export TENANT_SECRET_NAME=${SECRET_NAME}
+      echo "Delete $TENANT_SECRET_NAME from Secrets Manager"
+      sm_delete_secret $TENANT_SECRET_NAME
+    fi
+  done
 
   # finally push them into the git repo
 
