@@ -159,6 +159,7 @@
         - suite-dns
         - suite-install
         - suite-uninstall
+        - suite-switch-routing
         - suite-upgrade
         - suite-verify
         - upload-backup-archive

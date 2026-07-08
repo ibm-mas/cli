@@ -19,6 +19,7 @@
       - mas-backup
       - mas-restore
       - mas-install
+      - mas-switch-routing
       - mas-update
       - mas-upgrade
       - mas-uninstall

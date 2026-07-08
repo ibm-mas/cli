@@ -1,0 +1,115 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: mas-switch-routing
+spec:
+  params:
+    # Tekton Pipeline Configuration
+    # -------------------------------------------------------------------------
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+    - name: mas_instance_id
+      type: string
+
+  tasks:
+    # 0. Pipeline Start - Track pipeline status in MongoDB
+    # -------------------------------------------------------------------------
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
+    # 1. Wait for approval & verify health of the cluster before we change anything
+    # -------------------------------------------------------------------------
+    - name: waitfor-approval
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap-v2
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-switch-routing
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+      runAfter:
+        - pipeline-start
+
+    # 2. Switch the routing mode
+    # -------------------------------------------------------------------------
+    - name: switch-routing
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-switch-routing
+      runAfter:
+        - waitfor-approval
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: devops_suite_name
+          value: switch-routing
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+  finally:
+    # Pipeline Finish - Track final pipeline status in MongoDB
+    # -------------------------------------------------------------------------
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
+    # Update synchronization configmap
+    # -------------------------------------------------------------------------
+    - name: sync-update
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-switch-routing
+        - name: configmap_value
+          value: $(tasks.status)
