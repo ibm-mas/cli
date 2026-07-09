@@ -380,6 +380,7 @@ def test_install_interactive_simplified(tmpdir):
             mock.patch("mas.cli.displayMixins.prompt") as mixins_prompt,
             mock.patch("mas.cli.aiservice.install.app.prompt") as app_prompt,
             mock.patch("mas.cli.aiservice.install.app.getStorageClasses") as get_storage_classes,
+            mock.patch("mas.cli.displayMixins.PromptSession") as prompt_session_class,
         ):
             dynamic_client_class.return_value = dynamic_client
             get_nodes.return_value = [{"status": {"nodeInfo": {"architecture": "amd64"}}}]
@@ -394,6 +395,8 @@ def test_install_interactive_simplified(tmpdir):
                     return "y"
                 if re.match(".*Show advanced installation options?.*", message):
                     return "n"
+                if re.match(".*Select release.*", message):
+                    return "9.1"
                 if re.match(".*Do you accept the license terms?.*", message):
                     return "y"
                 if re.match(".*ReadWriteOnce (RWO) storage class.*", message):
@@ -472,6 +475,9 @@ def test_install_interactive_simplified(tmpdir):
                     return "n"
 
             mixins_prompt.side_effect = set_mixin_prompt_input
+            prompt_session_instance = MagicMock()
+            prompt_session_class.return_value = prompt_session_instance
+            prompt_session_instance.prompt.side_effect = set_mixin_prompt_input
 
             def set_app_prompt_input(**kwargs):
                 message = str(kwargs["message"])
