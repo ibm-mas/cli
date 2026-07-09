@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-start-switch-routing-mode
@@ -17,17 +17,11 @@ spec:
     - name: start-switch-routing-mode
       script: |
         #!/usr/bin/env bash
-        echo "Switching routing mode to: $MAS_ROUTING_MODE"
-        
-        # Update the Suite CR with the new routing mode
-        oc patch suite $MAS_INSTANCE_ID -n mas-$MAS_INSTANCE_ID-core --type=merge -p "{\"spec\":{\"settings\":{\"routingMode\":\"$MAS_ROUTING_MODE\"}}}"
-        
-        RESULT=$?
-        echo 'Routing mode switch initiated'
-        echo '--------------------------------------------------------------------------------'
-        echo "Target routing mode: $MAS_ROUTING_MODE"
-        echo '--------------------------------------------------------------------------------'
-        exit $RESULT
+        oc patch suite $MAS_INSTANCE_ID \
+          -n mas-$MAS_INSTANCE_ID-core \
+          --type=merge \
+          -p "{\"spec\":{\"settings\":{\"routingMode\":\"$MAS_ROUTING_MODE\"}}}"
+        exit $?
       timeout: "0"
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
