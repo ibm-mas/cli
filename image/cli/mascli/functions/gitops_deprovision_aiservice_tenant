@@ -215,9 +215,10 @@ function gitops_deprovision_aiservice_tenant() {
   # Created for tenant secrets
   echo "Finding Secrets for Tenant Deprovision"
   TENANT_SECRETS=($(sm_list_tenant_secrets ${ACCOUNT_ID} ${CLUSTER_ID} ${AISERVICE_INSTANCE_ID} ${TENANT_ID}))
-  PATTERN='^[^\/]+\/[^\/]+\/'${TENANT_ID}'\/[^\/]+$'
+  PATTERN='^[^\/]+\/[^\/]+\/[^\/]+\/'${TENANT_ID}'\/[^\/]+$'
   echo $PATTERN
   for SECRET_NAME in "${TENANT_SECRETS[@]}"; do
+    echo "Checking secret ${SECRET_NAME} for pattern"
     if [[ "$SECRET_NAME" =~ $PATTERN ]]; then
       export TENANT_SECRET_NAME=${SECRET_NAME}
       echo "Delete $TENANT_SECRET_NAME from Secrets Manager"
