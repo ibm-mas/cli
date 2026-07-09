@@ -17,11 +17,33 @@ spec:
     - name: start-switch-routing-mode
       script: |
         #!/usr/bin/env bash
+        set -e
+
+        echo "Patching Suite CR to set routingMode to $MAS_ROUTING_MODE"
         oc patch suite $MAS_INSTANCE_ID \
           -n mas-$MAS_INSTANCE_ID-core \
           --type=merge \
           -p "{\"spec\":{\"settings\":{\"routingMode\":\"$MAS_ROUTING_MODE\"}}}"
-        exit $?
+
+        echo "Waiting for Suite to reconcile ..."
+        RETRIES=0
+        MAX_RETRIES=60
+        while [[ $RETRIES -lt $MAX_RETRIES ]]; do
+          CONDITION=$(oc get suite $MAS_INSTANCE_ID -n mas-$MAS_INSTANCE_ID-core \
+            -o jsonpath='{.status.conditions[?(@.type=="Ready")].reason}' 2>/dev/null)
+          ROUTING=$(oc get suite $MAS_INSTANCE_ID -n mas-$MAS_INSTANCE_ID-core \
+            -o jsonpath='{.spec.settings.routingMode}' 2>/dev/null)
+          echo "  Ready reason: $CONDITION  routingMode: $ROUTING"
+          if [[ "$CONDITION" == "Ready" && "$ROUTING" == "$MAS_ROUTING_MODE" ]]; then
+            echo "Suite is Ready with routingMode=$MAS_ROUTING_MODE"
+            exit 0
+          fi
+          RETRIES=$((RETRIES + 1))
+          sleep 60
+        done
+
+        echo "Timed out waiting for Suite to become Ready with routingMode=$MAS_ROUTING_MODE"
+        exit 1
       timeout: "0"
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
