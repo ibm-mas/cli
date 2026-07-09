@@ -366,7 +366,10 @@ spec:
         yq -i '.cluster.url = env(OCP_SERVER)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
         yq -i '.cluster.domain = env(APPSDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
 
-        yq -i '.aiservice.cluster_domain = env(APPSDOMAIN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID/aiservice-params.yaml)
+        # Update the cluster_domain in aiservice-params.yaml if AISERVICE_INSTANCE_ID is set
+        if [ -n "$AISERVICE_INSTANCE_ID" ]; then
+          yq -i '.aiservice.cluster_domain = env(APPSDOMAIN)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AISERVICE_INSTANCE_ID/aiservice-params.yaml
+        fi
         
         # Update the provisioner_domain in cluster-params.yaml.
         yq -i '(. | select(has("mas_provisioner")) |  .mas_provisioner.provisioner_domain) = env(APPSDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
