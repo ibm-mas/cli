@@ -252,6 +252,12 @@ function gitops_aiservice_noninteractive() {
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aiservice_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_suite_help "CLUSTER_URL is not set"
   
+  # CLUSTER_DOMAIN is optional - if not provided, it should be set by the calling Tekton task
+  # by reading from cluster-params.yaml before invoking this function
+  if [[ -z "$CLUSTER_DOMAIN" ]]; then
+    echo_warning "CLUSTER_DOMAIN is not set - it should be provided by the Tekton task or set manually"
+  fi
+  
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_aiservice_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_aiservice_help "GITHUB_ORG is not set"
@@ -264,7 +270,6 @@ function gitops_aiservice_noninteractive() {
 # -- aiservice
   [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aiservice_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Service instance ID using --aiservice_instance_id."
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aiservice_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
-  [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aiservice_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aiservice_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
   [[ -z "$AISERVICE_CHANNEL" ]] && gitops_aiservice_help "AISERVICE_CHANNEL is not set. Please provide the mas app channel using --aiservice-channel"
   [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aiservice_help "MAS_CATALOG_SOURCE is not set. Please provide the mas catalog source using --mas-catalog-source"

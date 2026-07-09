@@ -175,6 +175,13 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
+        # If CLUSTER_DOMAIN is not provided, read it from cluster-params.yaml
+        if [[ -z "$CLUSTER_DOMAIN" ]]; then
+          echo "CLUSTER_DOMAIN not provided, reading from cluster-params.yaml"
+          export CLUSTER_DOMAIN=$(yq eval '.cluster.domain' /workspace/configs/gitops/$ACCOUNT/$CLUSTER_NAME/cluster-params.yaml)
+          echo "CLUSTER_DOMAIN set to: $CLUSTER_DOMAIN"
+        fi
+
         mkdir -p /tmp/init-aiservice
         mas gitops-aiservice -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
