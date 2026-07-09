@@ -305,47 +305,10 @@ spec:
           enable_subuser
         fi
       
-        if [[ "$LAUNCHER_ID" == "core" ]]; then
-          MONGO_CONFIG_APP="${AISERVICE_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}"
-          BAS_CONFIG_APP="${AISERVICE_INSTANCE_ID}-bas-system.${CLUSTER_NAME}"
-          SLS_CONFIG_APP="${AISERVICE_INSTANCE_ID}-sls-system.${CLUSTER_NAME}"
-
-          # Check if centralized SLS is being used
-          if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
-            # Extract ICN and subscription ID from STANDALONE_SLS_SERVICE path
-            CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
-            IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
-            
-            {% raw %}
-            if [ ${#PARTS[@]} -lt 6 ]; then
-            {% endraw %}
-                          echo "Error: Invalid SLS service parameter file Path $STANDALONE_SLS_SERVICE format." >&2
-              exit 1
-            fi
-            CENTRALIZED_ICN="${PARTS[3]}"
-            SAAS_SUB_ID="${PARTS[4]}"
-            # Use centralized SLS format: sls.icnid.subscriptionid
-            SLS_APP_NAME="sls.${CENTRALIZED_ICN}.${SAAS_SUB_ID}"
-          else
-            # Use standalone SLS format
-            SLS_APP_NAME="sls.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
-          fi
-
-          SUITE_APP_NAME="suite.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
-          WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
-
-          check_argo_app_healthy "${SLS_APP_NAME}" 180 #90 minutes
-          check_argo_app_healthy "${MONGO_CONFIG_APP}" 60 #30 minutes
-          check_argo_app_healthy "${SLS_CONFIG_APP}" 30
-          check_argo_app_healthy "${BAS_CONFIG_APP}" 30
-          check_argo_app_healthy "${SUITE_APP_NAME}" 30
-          check_argo_app_healthy "${WORKSPACE_APP}" 30
-        fi
-
         # NOTE: verified that subuser teardown (including deletion of its API keys, authenticated domains and DNS records) still works as expected against a disabled subuser
         #       so there is no need to re-enable the subuser before attempting to deprovision the MAS instance.
       
-        if [[ "$LAUNCHER_ID" == "apps" ]]; then
+        if [[ "$LAUNCHER_ID" == "aiservice" ]]; then
           # The following order is defined by the sync wave order in https://github.com/ibm-mas/gitops/tree/main/root-applications/ibm-mas-instance-root/templates
           if [[ "$LAUNCHFVT_AISERVICE" == "true" ]]; then
             MASAPP_APP="aiservice.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
@@ -504,7 +467,7 @@ spec:
         argocd proj windows delete mas $ARGOWINDOW --grpc-web
 
         # Set auto_delete: true, to allow ArgoCD to automatically delete resources when the deprovision pipelines run
-        if [[ "$LAUNCHER_ID" == "apps" ]]; then
+        if [[ "$LAUNCHER_ID" == "aiservice" ]]; then
           ACCOUNT_ROOT_APP="root.${ACCOUNT_ID}"
           CLUSTER_ROOT_APP="cluster.${CLUSTER_NAME}"
           INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
