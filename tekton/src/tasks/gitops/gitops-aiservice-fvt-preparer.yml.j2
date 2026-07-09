@@ -29,48 +29,6 @@ spec:
     - name: fvt_config
       type: string
 
-    - name: fvt_version_core
-      type: string
-    - name: ivt_version_core
-      type: string
-    - name: fvt_version_ctf
-      type: string
-    - name: fvt_version_predict
-      type: string
-    - name: fvt_version_assist
-      type: string
-    - name: fvt_version_iot
-      type: string
-    - name: fvt_version_optimizer
-      type: string
-    - name: fvt_version_manage
-      type: string
-    - name: fvt_version_mobile
-      type: string
-    - name: fvt_version_data_dictionary
-      type: string
-    - name: fvt_version_sls
-      type: string
-    - name: fvt_version_facilities
-      type: string
-
-    - name: fvt_blacklist_core
-      type: string
-    - name: fvt_whitelist_core
-      type: string
-    - name: fvt_blacklist_manage
-      type: string
-    - name: fvt_whitelist_manage
-      type: string
-    - name: fvt_blacklist_manage_is
-      type: string
-    - name: fvt_whitelist_manage_is
-      type: string
-    - name: fvt_blacklist_optimizer
-      type: string
-    - name: fvt_whitelist_optimizer
-      type: string
-
     - name: artifactory_generic_release_url
       type: string
     - name: artifactory_generic_logs_url
@@ -88,85 +46,12 @@ spec:
     - name: aiservice_instance_id
       type: string
       default: ""
-    - name: mas_workspace_id
-      type: string
-      default: ""
     - name: aiservice_channel
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      default: ""      
-    - name: launchfvt_core
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
-    - name: launchfvt_assist
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
-    - name: launchfvt_iot
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
-    - name: launchfvt_manage
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
-    - name: launchfvt_monitor
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
-    - name: launchfvt_optimizer
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
-    - name: launchfvt_predict
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
-    - name: launchfvt_visualinspection
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
-    - name: launchfvt_mobile
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
-    - name: launchfvt_manage_is
-      type: string
-      default: "true"
-    - name: launchfvt_facilities
-      type: string
-      default: "true"
     - name: launchfvt_aiservice
       type: string
       default: "true"  
-
-    - name: mas_app_channel_facilities
-      type: string
-      default: ""
-    - name: mas_app_channel_iot
-      type: string
-      default: ""
-    - name: mas_app_channel_manage
-      type: string
-      default: ""
-    - name: mas_app_channel_monitor
-      type: string
-      default: ""
-    - name: mas_app_channel_visualinspection
-      type: string
-      default: ""
-    - name: mas_app_channel_assist
-      type: string
-      default: ""
-    - name: mas_app_channel_optimizer
-      type: string
-      default: ""
-    - name: mas_app_channel_predict
-      type: string
-      default: ""
 
     - name: ldap_url
       type: string
@@ -209,8 +94,10 @@ spec:
         value: $(params.launcher_id)
       - name: DEVOPS_ENVIRONMENT
         value: $(params.aiservice_instance_id)
-      - name: MAS_INSTANCE_ID
+      - name: AISERVICE_INSTANCE_ID
         value: $(params.aiservice_instance_id)
+      - name: MAS_INSTANCE_ID
+        value: ""
       - name: FVT_ENVIRONMENT
         value: $(params.aiservice_instance_id)
       - name: PIPELINE_STORAGE_CLASS
@@ -231,92 +118,10 @@ spec:
         value: $(params.artifactory_generic_logs_url)
       - name: FVT_ANSIBLE_VERSION
         value: $(params.fvt_ansible_version)
-      - name: MAS_WORKSPACE_ID
-        value: $(params.mas_workspace_id)
-      - name: MANAGE_COMPONENTS
-        value: $(params.mas_appws_components)
       - name: AISERVICE_CHANNEL
         value: $(params.aiservice_channel)
-      - name: FVT_VERSION_CORE
-        value: $(params.fvt_version_core)
-      - name: IVT_VERSION_CORE
-        value: $(params.ivt_version_core)
-      - name: FVT_VERSION_CTF
-        value: $(params.fvt_version_ctf)
-      - name: FVT_VERSION_PREDICT
-        value: $(params.fvt_version_predict)
-      - name: FVT_VERSION_ASSIST
-        value: $(params.fvt_version_assist)
-      - name: FVT_VERSION_IOT
-        value: $(params.fvt_version_iot)
-      - name: FVT_VERSION_OPTIMIZER
-        value: $(params.fvt_version_optimizer)
-      - name: FVT_VERSION_MANAGE
-        value: $(params.fvt_version_manage)
-      - name: FVT_VERSION_MOBILE
-        value: $(params.fvt_version_mobile)
-      - name: FVT_VERSION_DATA_DICTIONARY
-        value: $(params.fvt_version_data_dictionary)
-      - name: FVT_VERSION_SLS
-        value: $(params.fvt_version_sls)
-      - name: FVT_VERSION_FACILITIES
-        value: $(params.fvt_version_facilities)
-      - name: FVT_BLACKLIST_CORE
-        value: $(params.fvt_blacklist_core)
-      - name: FVT_WHITELIST_CORE
-        value: $(params.fvt_whitelist_core)
-      - name: FVT_BLACKLIST_MANAGE
-        value: $(params.fvt_blacklist_manage)
-      - name: FVT_WHITELIST_MANAGE
-        value: $(params.fvt_whitelist_manage)
-      - name: FVT_BLACKLIST_MANAGE_IS
-        value: $(params.fvt_blacklist_manage_is)
-      - name: FVT_WHITELIST_MANAGE_IS
-        value: $(params.fvt_whitelist_manage_is)
-      - name: FVT_BLACKLIST_OPTIMIZER
-        value: $(params.fvt_blacklist_optimizer)
-      - name: FVT_WHITELIST_OPTIMIZER
-        value: $(params.fvt_whitelist_optimizer)
-      - name: LAUNCHFVT_CORE
-        value: $(params.launchfvt_core)
-      - name: LAUNCHFVT_ASSIST
-        value: $(params.launchfvt_assist)
-      - name: LAUNCHFVT_IOT
-        value: $(params.launchfvt_iot)
-      - name: LAUNCHFVT_MANAGE
-        value: $(params.launchfvt_manage)
-      - name: LAUNCHFVT_MOBILE
-        value: $(params.launchfvt_mobile)
-      - name: LAUNCHFVT_MONITOR
-        value: $(params.launchfvt_monitor)
-      - name: LAUNCHFVT_OPTIMIZER
-        value: $(params.launchfvt_optimizer)
-      - name: LAUNCHFVT_PREDICT
-        value: $(params.launchfvt_predict)
-      - name: LAUNCHFVT_VISUALINSPECTION
-        value: $(params.launchfvt_visualinspection)
-      - name: LAUNCHFVT_MANAGE_IS
-        value: $(params.launchfvt_manage_is)
-      - name: LAUNCHFVT_FACILITIES
-        value: $(params.launchfvt_facilities)
       - name: LAUNCHFVT_AISERVICE
         value: $(params.launchfvt_aiservice)  
-      - name: MAS_APP_CHANNEL_FACILITIES
-        value: $(params.mas_app_channel_facilities)
-      - name: MAS_APP_CHANNEL_IOT
-        value: $(params.mas_app_channel_iot)
-      - name: MAS_APP_CHANNEL_MANAGE
-        value: $(params.mas_app_channel_manage)
-      - name: MAS_APP_CHANNEL_MONITOR
-        value: $(params.mas_app_channel_monitor)
-      - name: MAS_APP_CHANNEL_VISUALINSPECTION
-        value: $(params.mas_app_channel_visualinspection)
-      - name: MAS_APP_CHANNEL_ASSIST
-        value: $(params.mas_app_channel_assist)
-      - name: MAS_APP_CHANNEL_OPTIMIZER
-        value: $(params.mas_app_channel_optimizer)
-      - name: MAS_APP_CHANNEL_PREDICT
-        value: $(params.mas_app_channel_predict)
 
       - name: LDAP_URL
         value: $(params.ldap_url)
@@ -347,7 +152,7 @@ spec:
       - |-
 
         set -o pipefail
-        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium,mas-${MAS_INSTANCE_ID}-syncres,mas-${MAS_INSTANCE_ID}-postsyncjobs' ERR EXIT
+        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${AISERVICE_INSTANCE_ID} --extra-namespaces selenium,mas-${AISERVICE_INSTANCE_ID}-syncres,mas-${AISERVICE_INSTANCE_ID}-postsyncjobs' ERR EXIT
 
 
         get_trailing_number() {
@@ -435,7 +240,7 @@ spec:
         }
 
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
-        export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${MAS_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
+        export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${AISERVICE_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
 
         CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
         . $CLI_DIR/functions/gitops_utils
@@ -501,9 +306,9 @@ spec:
         fi
       
         if [[ "$LAUNCHER_ID" == "core" ]]; then
-          MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}"
-          BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${CLUSTER_NAME}"
-          SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${CLUSTER_NAME}"
+          MONGO_CONFIG_APP="${AISERVICE_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}"
+          BAS_CONFIG_APP="${AISERVICE_INSTANCE_ID}-bas-system.${CLUSTER_NAME}"
+          SLS_CONFIG_APP="${AISERVICE_INSTANCE_ID}-sls-system.${CLUSTER_NAME}"
 
           # Check if centralized SLS is being used
           if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
@@ -523,11 +328,11 @@ spec:
             SLS_APP_NAME="sls.${CENTRALIZED_ICN}.${SAAS_SUB_ID}"
           else
             # Use standalone SLS format
-            SLS_APP_NAME="sls.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            SLS_APP_NAME="sls.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
           fi
 
-          SUITE_APP_NAME="suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          SUITE_APP_NAME="suite.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
+          WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
 
           check_argo_app_healthy "${SLS_APP_NAME}" 180 #90 minutes
           check_argo_app_healthy "${MONGO_CONFIG_APP}" 60 #30 minutes
@@ -542,86 +347,10 @@ spec:
       
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
           # The following order is defined by the sync wave order in https://github.com/ibm-mas/gitops/tree/main/root-applications/ibm-mas-instance-root/templates
-          # First wave (has to include the prereqs cp4d, db2)
-          if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
-            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 240
-          fi
-          if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
-            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 240
-          fi
-          # Second wave
-          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
-            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 120
-          fi
-          if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
-            MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 120
-          fi
-          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
-            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 120
-          fi
           if [[ "$LAUNCHFVT_AISERVICE" == "true" ]]; then
-            MASAPP_APP="aiservice.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="aiservice.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}" 120
           fi
-          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
-            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 240
-          fi
-          if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
-            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 1260
-          fi
-          if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
-            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 840
-          fi
-          # Third wave
-          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
-            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
-          fi
-          if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
-            MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
-          fi
-          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
-            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 20
-          fi
-          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
-            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 480
-          fi
-          # Fourth wave
-          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
-            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 80
-          fi
-          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
-            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 60
-          fi
-          # Fifth wave
-          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
-            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 180
-          fi
-          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
-            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 60
-          fi
-          # Sixth wave
-          if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
-            MASAPP_APP="predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 120
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
-          fi
-
         fi
 
         # If use_sendgrid: true, disable the subuser so we do not accidentally send out real emails when running tests against the instance
@@ -648,7 +377,7 @@ spec:
         #  - The ibm-create-initial-users Job that reads the secret and runs creates the users is deleted so ArgoCD resyncs it, causing it to be rerun
         #  - The test passes if the postsyncjobs app that contains the Job becomes healthy again after rerunning the Job
         
-        # The results of the tests are registered with the FVT dashboard under ibm-mas-gitops/initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}
+        # The results of the tests are registered with the FVT dashboard under ibm-mas-gitops/initial-users-automation-${LAUNCHER_ID}-${AISERVICE_INSTANCE_ID}
 
         # Assisted by watsonx Code Assistant 
         get_random_email() {
@@ -668,10 +397,10 @@ spec:
           argocd_login || return $?
 
           # First check the POSTSYNCJOBS_APP is healthy so we know the initial users job has run already (and so will exist)
-          POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
           check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
 
-          IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_NAME}/${MAS_INSTANCE_ID}/initial_users" 
+          IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_NAME}/${AISERVICE_INSTANCE_ID}/initial_users" 
           IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
           IU_SECRET_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops-mas-fvt-preparer\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}]"
           
@@ -683,12 +412,12 @@ spec:
           # The only way to get it to rerun and pick up the new initial_secret is to delete the Job and get ArgoCD to resync
           # the application that the Job belongs to:
 
-          IU_JOB_LIST=$(oc get jobs -n mas-${MAS_INSTANCE_ID}-postsyncjobs -o jsonpath='{range .items[?(@.spec.template.metadata.labels.app=="ibm-create-initial-users-l")]}{.metadata.name}{"\n"}{end}') || return $?
-          echo "Deleting the following ibm-create-initial-user Jobs in mas-${MAS_INSTANCE_ID}-postsyncjobs namespace:"
+          IU_JOB_LIST=$(oc get jobs -n mas-${AISERVICE_INSTANCE_ID}-postsyncjobs -o jsonpath='{range .items[?(@.spec.template.metadata.labels.app=="ibm-create-initial-users-l")]}{.metadata.name}{"\n"}{end}') || return $?
+          echo "Deleting the following ibm-create-initial-user Jobs in mas-${AISERVICE_INSTANCE_ID}-postsyncjobs namespace:"
           echo "${IU_JOB_LIST}"
           echo "${IU_JOB_LIST}"
           for IU_JOB in $IU_JOB_LIST; do
-              oc delete job "${IU_JOB}" -n mas-${MAS_INSTANCE_ID}-postsyncjobs || return $?
+              oc delete job "${IU_JOB}" -n mas-${AISERVICE_INSTANCE_ID}-postsyncjobs || return $?
           done
 
           # Force a resync of the postsyncjobs app
@@ -707,7 +436,7 @@ spec:
         if [[ "${IU_RC}" == "0" ]]; then
           IU_TEST_RESULT_XML='
             <testsuites disabled="0" errors="0" failures="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
-              <testsuite disabled="0" errors="0" failures="0" name="initial-users-automation-'${MAS_INSTANCE_ID}'" skipped="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+              <testsuite disabled="0" errors="0" failures="0" name="initial-users-automation-'${AISERVICE_INSTANCE_ID}'" skipped="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
                 <testcase name="Sync" time="'${IU_SYNC_ELAPSED_TIME}'" classname="Sync" />
               </testsuite>
             </testsuites>
@@ -715,7 +444,7 @@ spec:
         else
           IU_TEST_RESULT_XML='
             <testsuites disabled="0" errors="0" failures="1" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
-              <testsuite disabled="0" errors="0" failures="1" name="initial-users-automation-'${MAS_INSTANCE_ID}'" skipped="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+              <testsuite disabled="0" errors="0" failures="1" name="initial-users-automation-'${AISERVICE_INSTANCE_ID}'" skipped="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
                 <testcase name="Sync" time="'${IU_SYNC_ELAPSED_TIME}'" classname="Sync">
                   <failure message="Initial user creation failed (rc '${IU_RC}')" type="Failure"><![CDATA[
                     '${IU_SYNC_LOGS_CDATA}'
@@ -732,8 +461,8 @@ spec:
         # DEVOPS_MONGO_URI=<set in secure properties>
         # DEVOPS_ENVIRONMENT=<param>
         # DEVOPS_BUILD_NUMBER=<param>
-        export DEVOPS_SUITE_NAME="initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}"
-        export JUNIT_OUTPUT_DIR="/tmp/initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}"
+        export DEVOPS_SUITE_NAME="initial-users-automation-${LAUNCHER_ID}-${AISERVICE_INSTANCE_ID}"
+        export JUNIT_OUTPUT_DIR="/tmp/initial-users-automation-${LAUNCHER_ID}-${AISERVICE_INSTANCE_ID}"
         export PRODUCT_ID="ibm-mas-gitops"
 
         mkdir -p $JUNIT_OUTPUT_DIR
@@ -748,7 +477,7 @@ spec:
 
         # Get the trailing number of the MAS instanceid so we can modify the sync window duration. This is because
         # you can't have two sync windows with the same schedule and duration even if for different apps
-        RESULT=$(get_trailing_number $MAS_INSTANCE_ID)
+        RESULT=$(get_trailing_number $AISERVICE_INSTANCE_ID)
         if [[ -n "$RESULT" ]]; then
           WINDOW_DURATION=$((4 + RESULT))
         else
@@ -756,8 +485,8 @@ spec:
           WINDOW_DURATION=4
         fi
 
-        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration ${WINDOW_DURATION}h --applications *.$CLUSTER_NAME.$MAS_INSTANCE_ID.*,*.$CLUSTER_NAME.$MAS_INSTANCE_ID,$MAS_INSTANCE_ID-*"  
-        argocd proj windows add mas --kind deny --schedule "* * * * *" --duration ${WINDOW_DURATION}h --applications "*.$CLUSTER_NAME.$MAS_INSTANCE_ID.*,*.$CLUSTER_NAME.$MAS_INSTANCE_ID,$MAS_INSTANCE_ID-*" --grpc-web
+        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration ${WINDOW_DURATION}h --applications *.$CLUSTER_NAME.$AISERVICE_INSTANCE_ID.*,*.$CLUSTER_NAME.$AISERVICE_INSTANCE_ID,$AISERVICE_INSTANCE_ID-*"  
+        argocd proj windows add mas --kind deny --schedule "* * * * *" --duration ${WINDOW_DURATION}h --applications "*.$CLUSTER_NAME.$AISERVICE_INSTANCE_ID.*,*.$CLUSTER_NAME.$AISERVICE_INSTANCE_ID,$AISERVICE_INSTANCE_ID-*" --grpc-web
 
         UNESCAPED_LDAP_CRT=$(</workspace/shared-additional-configs/ldap_masdeps1_cert.pem)
         ESCAPED_LDAP_CRT=${UNESCAPED_LDAP_CRT//\"/\\\"}
@@ -766,11 +495,11 @@ spec:
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} || exit 1
 
         # Wait for launcher to complete
-        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
+        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $AISERVICE_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$AISERVICE_INSTANCE_ID-pipelines
 
         # Remove argocd window
         argocd_login
-        ARGOWINDOW=$(argocd proj windows list mas | grep "$CLUSTER_NAME.$MAS_INSTANCE_ID\b" | sed 's/%!(EXTRA.*)//' | cut -c1-1)
+        ARGOWINDOW=$(argocd proj windows list mas | grep "$CLUSTER_NAME.$AISERVICE_INSTANCE_ID\b" | sed 's/%!(EXTRA.*)//' | cut -c1-1)
         echo "argo:argocd proj windows delete mas $ARGOWINDOW"
         argocd proj windows delete mas $ARGOWINDOW --grpc-web
 
@@ -778,7 +507,7 @@ spec:
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
           ACCOUNT_ROOT_APP="root.${ACCOUNT_ID}"
           CLUSTER_ROOT_APP="cluster.${CLUSTER_NAME}"
-          INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
 
           argocd app set ${ACCOUNT_ROOT_APP} --parameter auto_delete=true --grpc-web
 
@@ -799,7 +528,7 @@ spec:
       command:
         - /bin/bash
         - -c
-      name: gitops-mas-fvt-preparer
+      name: gitops-aiservice-fvt-preparer
       imagePullPolicy: Always
       image: "quay.io/ibmmas/cli:latest"
   workspaces:
