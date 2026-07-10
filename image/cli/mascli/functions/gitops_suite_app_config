@@ -425,7 +425,7 @@ function gitops_suite_app_config() {
   if [[ -n "${ICN}" ]]; then
     echo "✓ ICN successfully resolved: ${ICN}"
     echo "  This ICN will be used for customer-level secrets:"
-    echo "  - ibm-customer/${ICN}/facilities/manage_mref_keystore_password"
+    echo "  - ibm-customer/${ICN}/facilities/manage-mref-keystore-password"
     echo "  - ibm-customer/${ICN}/<app>/..."
   else
     echo "⚠ WARNING: ICN not available - customer-level secrets cannot be used"
@@ -640,7 +640,7 @@ function gitops_suite_app_config() {
         echo "- Verifying user-provided secret exists..."
       else
         # No user-provided name - use customer-level default
-        export FACILITIES_VAULT_SECRET_NAME="manage_mref_keystore_password"
+        export FACILITIES_VAULT_SECRET_NAME="manage-mref-keystore-password"
         echo "- Using customer-level vault secret name: ${FACILITIES_VAULT_SECRET_NAME}"
         
         # Ensure customer-level secret exists

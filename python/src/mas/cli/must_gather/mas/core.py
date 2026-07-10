@@ -258,6 +258,7 @@ def _generateMASCoreCollectionTasks(
             (namespace, "control-plane", "ibm-mas-cfg-app"),
             (namespace, "control-plane", "ibm-mas-cfg-bas"),
             (namespace, "control-plane", "ibm-mas-cfg-idp"),
+            (namespace, "control-plane", "ibm-mas-cfg-mcpi"),
             (namespace, "control-plane", "ibm-mas-cfg-scim"),
             (namespace, "control-plane", "ibm-mas-cfg-jdbc"),
             (namespace, "control-plane", "ibm-mas-cfg-mongo"),

@@ -1,0 +1,500 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: gitops-aiservice-fvt-preparer
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account_id
+      type: string
+    - name: region_id
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: devops_build_number
+      type: string
+    - name: launcher_id
+      type: string
+    - name: pipeline_storage_class
+      type: string
+    - name: aws_region
+      type: string
+    - name: fvt_pipeline_name
+      type: string
+    - name: cli_version
+      type: string
+    - name: fvt_config
+      type: string
+
+    - name: artifactory_generic_release_url
+      type: string
+    - name: artifactory_generic_logs_url
+      type: string
+    - name: fvt_ansible_version
+      type: string
+
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: image_pull_policy
+      type: string
+      default: ""
+
+    - name: aiservice_instance_id
+      type: string
+      default: ""
+    - name: aiservice_channel
+      type: string
+      default: ""
+    - name: launchfvt_aiservice
+      type: string
+      default: "true"  
+
+    - name: ldap_url
+      type: string
+      default: ""
+    - name: ldap_basedn
+      type: string
+      default: ""
+    - name: ldap_userid_map
+      type: string
+      default: ""
+
+    - name: icn
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: use_sendgrid
+      type: string
+      default: ""
+    - name: standalone_sls_service
+      type: string
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: TERM
+        value: xterm
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT_ID
+        value: $(params.account_id)
+      - name: REGION_ID
+        value: $(params.region_id)
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
+      - name: TRAVIS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: LAUNCHER_ID
+        value: $(params.launcher_id)
+      - name: DEVOPS_ENVIRONMENT
+        value: $(params.aiservice_instance_id)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
+      - name: MAS_INSTANCE_ID
+        value: ""
+      - name: FVT_ENVIRONMENT
+        value: $(params.aiservice_instance_id)
+      - name: PIPELINE_STORAGE_CLASS
+        value: $(params.pipeline_storage_class)
+      - name: AWS_REGION
+        value: $(params.aws_region)
+      - name: FVT_PIPELINE_NAME
+        value: $(params.fvt_pipeline_name)
+      - name: CLI_VERSION
+        value: $(params.cli_version)
+      - name: FVT_CONFIG
+        value: $(params.fvt_config)
+      - name: FVT_IMAGE_REGISTRY
+        value: $(params.fvt_image_registry)
+      - name: ARTIFACTORY_GENERIC_RELEASE_URL
+        value: $(params.artifactory_generic_release_url)
+      - name: ARTIFACTORY_GENERIC_LOGS_URL
+        value: $(params.artifactory_generic_logs_url)
+      - name: FVT_ANSIBLE_VERSION
+        value: $(params.fvt_ansible_version)
+      - name: AISERVICE_CHANNEL
+        value: $(params.aiservice_channel)
+      - name: LAUNCHFVT_AISERVICE
+        value: $(params.launchfvt_aiservice)  
+
+      - name: LDAP_URL
+        value: $(params.ldap_url)
+      - name: LDAP_BASE_DN
+        value: $(params.ldap_basedn)
+      - name: LDAP_USER_MAP
+        value: $(params.ldap_userid_map)
+      - name: LDAP_CERT_ALIAS
+        value: ldap
+
+      - name: ICN
+        value: $(params.icn)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: USE_SENDGRID
+        value: $(params.use_sendgrid)
+      - name: STANDALONE_SLS_SERVICE
+        value: $(params.standalone_sls_service)
+
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+
+        set -o pipefail
+        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${AISERVICE_INSTANCE_ID} --extra-namespaces selenium,mas-${AISERVICE_INSTANCE_ID}-syncres,mas-${AISERVICE_INSTANCE_ID}-postsyncjobs' ERR EXIT
+
+
+        get_trailing_number() {
+          local input_string="$1"
+          local trailing_number=$(echo $input_string | grep -Eo '[0-9]+$')
+
+          if [[ -n "$trailing_number" ]]; then
+            echo "$trailing_number"
+          else
+            echo ""
+          fi
+        }
+
+        enable_subuser() {
+
+          echo "Enabling sendgrid subuser if it is disabled by previous run"
+
+          export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
+          sm_login || exit 1
+
+          # lookup ibm-customer/<ICN>/sendgrid_subuser#username from AWS SM
+          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
+          echo "Getting ${SECRET_NAME_SENDGRID} from AWS SM"
+          export SENDGRID_SUBUSER_USERNAME="$(sm_get_secret_value "${SECRET_NAME_SENDGRID}" "username")" # pragma: allowlist secret
+          echo "Subuser username: ${SENDGRID_SUBUSER_USERNAME}"
+          if [[ -z "${SENDGRID_SUBUSER_USERNAME}" || "${SENDGRID_SUBUSER_USERNAME}" == "null" ]]; then
+            echo "Required AWS SM secret "${SECRET_NAME_SENDGRID}" not found or invalid"
+            exit 1
+          fi
+
+          # Check if subuser is disabled
+          subuser_disabled=`curl -X GET \
+            https://api.sendgrid.com/v3/subusers/${SENDGRID_SUBUSER_USERNAME} \
+            -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
+            -H "Content-Type: application/json" | jq '.disabled'`
+          if [[ "$subuser_disabled" == "true" ]]; then
+            curl -X PATCH \
+              https://api.sendgrid.com/v3/subusers/${SENDGRID_SUBUSER_USERNAME} \
+              --fail \
+              -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
+              -H "Content-Type: application/json" \
+              -d '{"disabled": false}'
+            CURL_RC=$?
+            if [ $CURL_RC -ne 0 ]; then
+              echo "Failed to enable SendGrid subuser, aborting test"
+              echo "WARNING: until the SendGrid subuser is enabled, the suite will fail!"
+              exit 1
+            fi
+            echo "SendGrid subuser ${SENDGRID_SUBUSER_USERNAME} enabled successfully!"
+          fi
+
+        }
+
+        disable_subuser() {
+          echo "Disabling sendgrid subuser to prevent the suite from sending out emails during test execution"
+
+          export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
+          sm_login || exit 1
+
+          # lookup ibm-customer/<ICN>/sendgrid_subuser#username from AWS SM
+          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
+          echo "Getting ${SECRET_NAME_SENDGRID} from AWS SM"
+          export SENDGRID_SUBUSER_USERNAME="$(sm_get_secret_value "${SECRET_NAME_SENDGRID}" "username")" # pragma: allowlist secret
+          echo "Subuser username: ${SENDGRID_SUBUSER_USERNAME}"
+          if [[ -z "${SENDGRID_SUBUSER_USERNAME}" || "${SENDGRID_SUBUSER_USERNAME}" == "null" ]]; then
+            echo "Required AWS SM secret "${SECRET_NAME_SENDGRID}" not found or invalid"
+            exit 1
+          fi
+
+          curl -X PATCH \
+            https://api.sendgrid.com/v3/subusers/${SENDGRID_SUBUSER_USERNAME} \
+            --fail \
+            -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"disabled": true}'
+          CURL_RC=$?
+          if [ $CURL_RC -ne 0 ]; then
+            echo "Failed to disable SendGrid subuser, aborting test"
+            echo "WARNING: until the SendGrid subuser is disabled, the suite will be capable of sending emails for real!"
+            echo "         do not attempt to run any tests against the environment until the subuser is successfully disabled!"
+            exit 1
+          fi
+          echo "SendGrid subuser ${SENDGRID_SUBUSER_USERNAME} disabled successfully!"
+          echo "It is now safe to run tests against the environment; the suite is no longer capable of sending emails for real."
+        }
+
+        export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
+        export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${AISERVICE_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
+
+        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
+        . $CLI_DIR/functions/gitops_utils
+
+        ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+        if [ -f $ROSA_CONFIG ]; then
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        elif [ -n $OCP_SERVER ]; then
+          oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        else
+          aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+          aws configure set default.region $SM_AWS_REGION
+          export CLUSTER_TYPE=rosa
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        fi
+
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        echo "Installing ibm.mas_fvt ansible collection (with retries)"
+        wget --header="Authorization:Bearer $FVT_ARTIFACTORY_TOKEN" ${ARTIFACTORY_GENERIC_RELEASE_URL}/maximoappsuite/ansible-fvt/${FVT_ANSIBLE_VERSION}/ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz || exit 1
+
+        MAX_ATTEMPTS=5
+        ATTEMPT=1
+        until ansible-galaxy collection install ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz; [[ $? -eq 0 ]];
+        do
+          if [[ $ATTEMPT -eq $MAX_ATTEMPTS ]]; then
+            echo "All $MAX_ATTEMPTS attempts to install the collection have failed"
+            break
+          fi
+          echo "Attempt $ATTEMPT failed.  Sleeping for 30 seconds before retry"
+          sleep 30
+          ((ATTEMPT++))
+        done
+
+        echo "Setting up ArgoCD sync window to allow FVT tests to run without interuption"
+        export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
+        export ARGOCD_USERNAME=admin
+        export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
+        
+        argocd_login
+        if [[ "${USE_SENDGRID}" == "true" ]]; then
+          enable_subuser
+        fi
+      
+        # NOTE: verified that subuser teardown (including deletion of its API keys, authenticated domains and DNS records) still works as expected against a disabled subuser
+        #       so there is no need to re-enable the subuser before attempting to deprovision the MAS instance.
+      
+        if [[ "$LAUNCHER_ID" == "aiservice" ]]; then
+          # The following order is defined by the sync wave order in https://github.com/ibm-mas/gitops/tree/main/root-applications/ibm-mas-instance-root/templates
+          if [[ "$LAUNCHFVT_AISERVICE" == "true" ]]; then
+            MASAPP_APP="aiservice.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
+          fi
+        fi
+
+        # If use_sendgrid: true, disable the subuser so we do not accidentally send out real emails when running tests against the instance
+        # NOTE: Many of the FVT suites will fail unless the suite is configured to use Mailhog for SMTP, so we only plan to have smtp.use_sendgrid: true set for fvtsaastran
+        #       We only run the catalogapi FVT suite there at present, and that suite does not depend on Mailhog.
+        # NOTE: we deliberately perform this step *after* checking application health, since disabling the sendgrid subuser will cause the validation step in the
+        #       SMTP entity manager to fail (unfortunately, there is no way to configure a SendGrid subuser to silently drop emails without the client call reporting failure)
+        # NOTE: although we don't check the health of the SMTP app explicitly, this is not necessary since the WORKSPACE_APP (which we do check above) sync will be blocked until the SMTP
+        #       app becomes healthy (if SMTP is configured)
+        if [[ "${USE_SENDGRID}" == "true" ]]; then
+
+          disable_subuser
+
+        fi
+
+        echo '
+        # - Automated Initial User Tests
+        # -----------------------------------
+        '
+        # See https://pages.github.ibm.com/maximoappsuite/saas/walkthrough/#automated-creation-of-initial-users for details
+
+        # This test runs twice: once in the core phase and once again in the apps phase (to drive the logic that grants application roles and assigns Manage Security Groups to the initial users):
+        #  - The initial_user secret is primed with 2 primary and 2 secondary users with randomised emails
+        #  - The ibm-create-initial-users Job that reads the secret and runs creates the users is deleted so ArgoCD resyncs it, causing it to be rerun
+        #  - The test passes if the postsyncjobs app that contains the Job becomes healthy again after rerunning the Job
+        
+        # The results of the tests are registered with the FVT dashboard under ibm-mas-gitops/initial-users-automation-${LAUNCHER_ID}-${AISERVICE_INSTANCE_ID}
+
+        # Assisted by watsonx Code Assistant 
+        get_random_email() {
+          local random_part=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
+          echo "${random_part}@example.com"
+        }
+
+        initial_user_test() {
+          # Because some of the functions in gitops_utils call exit 1,
+          # it's important that this function is only called from a subshell
+          # otherwise if it fails it might cause the whole script (and thus the FVT run) to exit
+
+          # Establish the initial_users secret
+          export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
+          sm_login || return $?
+
+          argocd_login || return $?
+
+          # First check the POSTSYNCJOBS_APP is healthy so we know the initial users job has run already (and so will exist)
+          POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
+          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
+
+          IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_NAME}/${AISERVICE_INSTANCE_ID}/initial_users" 
+          IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
+          IU_SECRET_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops-mas-fvt-preparer\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}]"
+          
+          echo "Creating ${IU_SECRET_NAME} secret"
+          sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}" || return $?
+
+          # The Job will have already run when MAS Core was installed during the first phase of our FVT process
+          # Since no initial_users secret existed at that time, it will not have done anything
+          # The only way to get it to rerun and pick up the new initial_secret is to delete the Job and get ArgoCD to resync
+          # the application that the Job belongs to:
+
+          IU_JOB_LIST=$(oc get jobs -n mas-${AISERVICE_INSTANCE_ID}-postsyncjobs -o jsonpath='{range .items[?(@.spec.template.metadata.labels.app=="ibm-create-initial-users-l")]}{.metadata.name}{"\n"}{end}') || return $?
+          echo "Deleting the following ibm-create-initial-user Jobs in mas-${AISERVICE_INSTANCE_ID}-postsyncjobs namespace:"
+          echo "${IU_JOB_LIST}"
+          echo "${IU_JOB_LIST}"
+          for IU_JOB in $IU_JOB_LIST; do
+              oc delete job "${IU_JOB}" -n mas-${AISERVICE_INSTANCE_ID}-postsyncjobs || return $?
+          done
+
+          # Force a resync of the postsyncjobs app
+          echo "Forcing ${POSTSYNCJOBS_APP} to resync"
+          argocd_sync "${POSTSYNCJOBS_APP}" || return $?
+          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
+        }
+
+
+        IU_SYNC_START_TIME=$(date +%s)
+        IU_SYNC_LOGS="$(initial_user_test 2>&1 | tee /dev/fd/2)"  
+        IU_RC=$? # NOTE: set -o pipefail ensures we get exit code of initial_user_test (not tee)
+        IU_SYNC_LOGS_CDATA=$(printf '%s\n' "${IU_SYNC_LOGS}"| sed 's|\]\]>|]]]]><![CDATA[>|g') # guard against any "]]>" in the output
+        IU_SYNC_ELAPSED_TIME=$(($(date +%s)-$IU_SYNC_START_TIME))
+
+        if [[ "${IU_RC}" == "0" ]]; then
+          IU_TEST_RESULT_XML='
+            <testsuites disabled="0" errors="0" failures="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+              <testsuite disabled="0" errors="0" failures="0" name="initial-users-automation-'${AISERVICE_INSTANCE_ID}'" skipped="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+                <testcase name="Sync" time="'${IU_SYNC_ELAPSED_TIME}'" classname="Sync" />
+              </testsuite>
+            </testsuites>
+          '
+        else
+          IU_TEST_RESULT_XML='
+            <testsuites disabled="0" errors="0" failures="1" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+              <testsuite disabled="0" errors="0" failures="1" name="initial-users-automation-'${AISERVICE_INSTANCE_ID}'" skipped="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+                <testcase name="Sync" time="'${IU_SYNC_ELAPSED_TIME}'" classname="Sync">
+                  <failure message="Initial user creation failed (rc '${IU_RC}')" type="Failure"><![CDATA[
+                    '${IU_SYNC_LOGS_CDATA}'
+                  ]]></failure>
+                </testcase>
+              </testsuite>
+            </testsuites>
+          '       
+        fi
+
+
+
+        # Create junit xml for one testsuite of the parent argo app, and the testcase of sync
+        # DEVOPS_MONGO_URI=<set in secure properties>
+        # DEVOPS_ENVIRONMENT=<param>
+        # DEVOPS_BUILD_NUMBER=<param>
+        export DEVOPS_SUITE_NAME="initial-users-automation-${LAUNCHER_ID}-${AISERVICE_INSTANCE_ID}"
+        export JUNIT_OUTPUT_DIR="/tmp/initial-users-automation-${LAUNCHER_ID}-${AISERVICE_INSTANCE_ID}"
+        export PRODUCT_ID="ibm-mas-gitops"
+
+        mkdir -p $JUNIT_OUTPUT_DIR
+        echo ${IU_TEST_RESULT_XML} > $JUNIT_OUTPUT_DIR/output.xml
+
+        echo "Run save-junit-to-mongo.py"
+        python3 /opt/app-root/src/save-junit-to-mongo.py
+        # -----------------------------------
+
+        echo "Sleeping for 180 seconds to give postsync job a chance to run before creating sync window"
+        sleep 180
+
+        # Get the trailing number of the MAS instanceid so we can modify the sync window duration. This is because
+        # you can't have two sync windows with the same schedule and duration even if for different apps
+        RESULT=$(get_trailing_number $AISERVICE_INSTANCE_ID)
+        if [[ -n "$RESULT" ]]; then
+          WINDOW_DURATION=$((4 + RESULT))
+        else
+          #Set to 4 when there is no trailing number
+          WINDOW_DURATION=4
+        fi
+
+        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration ${WINDOW_DURATION}h --applications *.$CLUSTER_NAME.$AISERVICE_INSTANCE_ID.*,*.$CLUSTER_NAME.$AISERVICE_INSTANCE_ID,$AISERVICE_INSTANCE_ID-*"  
+        argocd proj windows add mas --kind deny --schedule "* * * * *" --duration ${WINDOW_DURATION}h --applications "*.$CLUSTER_NAME.$AISERVICE_INSTANCE_ID.*,*.$CLUSTER_NAME.$AISERVICE_INSTANCE_ID,$AISERVICE_INSTANCE_ID-*" --grpc-web
+
+        UNESCAPED_LDAP_CRT=$(</workspace/shared-additional-configs/ldap_masdeps1_cert.pem)
+        ESCAPED_LDAP_CRT=${UNESCAPED_LDAP_CRT//\"/\\\"}
+        export LDAP_CRT=${ESCAPED_LDAP_CRT//$'\n'/\\n}
+        echo "Set LDAP_CRT as $LDAP_CRT"
+        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} || exit 1
+
+        # Wait for launcher to complete
+        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $AISERVICE_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$AISERVICE_INSTANCE_ID-pipelines
+
+        # Remove argocd window
+        argocd_login
+        ARGOWINDOW=$(argocd proj windows list mas | grep "$CLUSTER_NAME.$AISERVICE_INSTANCE_ID\b" | sed 's/%!(EXTRA.*)//' | cut -c1-1)
+        echo "argo:argocd proj windows delete mas $ARGOWINDOW"
+        argocd proj windows delete mas $ARGOWINDOW --grpc-web
+
+        # Set auto_delete: true, to allow ArgoCD to automatically delete resources when the deprovision pipelines run
+        if [[ "$LAUNCHER_ID" == "aiservice" ]]; then
+          ACCOUNT_ROOT_APP="root.${ACCOUNT_ID}"
+          CLUSTER_ROOT_APP="cluster.${CLUSTER_NAME}"
+          INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
+
+          argocd app set ${ACCOUNT_ROOT_APP} --parameter auto_delete=true --grpc-web
+
+          if [[ "${USE_SENDGRID}" == "true" ]]; then
+            enable_subuser
+          fi
+
+          # wait for the root apps to sync to make sure the setting has been applied everywhere
+          check_argo_app_synced "${ACCOUNT_ROOT_APP}"
+          check_argo_app_synced "${CLUSTER_ROOT_APP}"
+          check_argo_app_synced "${INSTANCE_ROOT_APP}"
+
+          if [[ "${USE_SENDGRID}" == "true" ]]; then
+            disable_subuser
+          fi
+        fi
+
+      command:
+        - /bin/bash
+        - -c
+      name: gitops-aiservice-fvt-preparer
+      imagePullPolicy: Always
+      image: "quay.io/ibmmas/cli:latest"
+  workspaces:
+    - name: configs
+    - name: shared-additional-configs
+    
