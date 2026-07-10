@@ -478,19 +478,7 @@ fi
   
   #watsonx
   WATSONX_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${AISERVICE_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${TENANT_ID}${SECRETS_KEY_SEPERATOR}watsonx"
-
-  WATSONXAI_APIKEY_VALUE=$(sm_get_secret_value "$WATSONX_SECRET" "watsonxai_apikey")
-  if [[ -z "$WATSONXAI_APIKEY_VALUE" || "$WATSONXAI_APIKEY_VALUE" == "null" ]]; then
-    echo_warning "Watson AI API key not found in secret: ${WATSONX_SECRET}"
-    exit 1
-  fi
   export SECRET_KEY_WATSONXAI_APIKEY=${WATSONX_SECRET}#watsonxai_apikey
-
-  WATSONXAI_PROJECT_ID_VALUE=$(sm_get_secret_value "$WATSONX_SECRET" "watsonxai_project_id")
-  if [[ -z "$WATSONXAI_PROJECT_ID_VALUE" || "$WATSONXAI_PROJECT_ID_VALUE" == "null" ]]; then
-    echo_warning "Watson AI project ID not found in secret: ${WATSONX_SECRET}"
-    exit 1
-  fi
   export AISERVICE_WATSONXAI_PROJECT_ID=${WATSONX_SECRET}#watsonxai_project_id
   
   # Check if watsonx secret contains watsonxai_ca_crt key and export if it has a value
@@ -518,7 +506,7 @@ fi
     else
       sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
     fi
-    sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
+    sm_verify_secret_exists ${WATSONX_SECRET} "watsonxai_apikey,watsonxai_project_id"
   else
       echo "GitOps FVT Environment: Skipping SLS secret verification (will be created by postSync job)"
   fi
