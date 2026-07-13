@@ -219,6 +219,9 @@ class installArgBuilderMixin:
         if self.getParam("mongodb_namespace") != "":
             command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
 
+        if self.devMode and self.getParam("mongodb_provider") != "":
+            command += f"  --mongodb-provider \"{self.getParam('mongodb_provider')}\"{newline}"
+
         # OCP Configuration
         # -----------------------------------------------------------------------------
         if self.getParam("ocp_ingress_tls_secret_name") != "":
