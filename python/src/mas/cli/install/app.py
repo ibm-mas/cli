@@ -2330,6 +2330,13 @@ class InstallApp(
                     self.setParam(key, value)
                     self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
 
+            elif key == "mongodb_provider":
+                if value:
+                    if self.devMode:
+                        self.setParam(key, value)
+                    else:
+                        raise ValueError("Mongo provider cannot be used in non-dev mode")
+
             # SLS
             elif key == "license_file":
                 if value is not None and value != "":

@@ -556,6 +556,9 @@ class InstallSummarizerMixin:
         if self.getParam("mongodb_action") == "install":
             self.printSummary("Type", "MongoCE Operator")
             self.printParamSummary("Install Namespace", "mongodb_namespace")
+            mongodb_provider = self.getParam("mongodb_provider")
+            if mongodb_provider:
+                self.printParamSummary("MongoDB Provider", "mongodb_provider")
         elif self.getParam("mongodb_action") == "byo":
             self.printSummary("Type", "BYO (mongodb-system.yaml)")
         else:

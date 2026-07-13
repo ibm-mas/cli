@@ -61,6 +61,14 @@ class MongoDbSettingsMixin:
             ]
         )
 
+        if self.devMode:
+            user_provider = self.getParam("mongodb_provider")
+            mongo_provider = user_provider if user_provider else "community"
+            valid_providers = ["community", "mck", "rotate"]
+            if mongo_provider not in valid_providers:
+                raise ValueError(f"Invalid mongodb_provider: {mongo_provider}. Allowed: {valid_providers}")
+            self.setParam("mongodb_provider", mongo_provider)
+
         if (self.architecture != "s390x" and self.architecture != "ppc64le") and self.yesOrNo(
             "Create MongoDb cluster using MongoDb Community Edition Operator"
         ):
