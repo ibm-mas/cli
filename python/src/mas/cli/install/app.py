@@ -1087,7 +1087,7 @@ class InstallApp(
         # User has chosen to set up DNS integration with Cloudflare
         self.setParam("dns_provider", "cloudflare")
         self.promptForString("Cloudflare e-mail", "cloudflare_email")
-        self.promptForString("Cloudflare API token", "cloudflare_apitoken")
+        self.promptForString("Cloudflare API token", "cloudflare_apitoken", isPassword=True)
         self.promptForString("Cloudflare zone", "cloudflare_zone")
         self.promptForString("Cloudflare subdomain", "cloudflare_subdomain")
 
@@ -1111,7 +1111,7 @@ class InstallApp(
     def configDNSAndCertsCIS(self):
         self.setParam("dns_provider", "cis")
         self.promptForString("CIS e-mail", "cis_email")
-        self.promptForString("CIS API token", "cis_apikey")
+        self.promptForString("CIS API token", "cis_apikey", isPassword=True)
         self.promptForString("CIS CRN", "cis_crn")
         self.promptForString("CIS subdomain", "cis_subdomain")
 
@@ -1272,8 +1272,11 @@ class InstallApp(
         if self.installPredict:
             self.configAppChannel("predict")
 
-        # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
-        if isVersionEqualOrAfter("9.0.0", self.getParam("mas_channel")):
+        # Assist is only installable on MAS 9.0.x and 9.1.x
+        # - Not supported before 9.0.0 due to withdrawal of support for Watson Discovery
+        # - Not supported from 9.2.0 onwards
+        mas_channel = self.getParam("mas_channel")
+        if isVersionEqualOrAfter("9.0.0", mas_channel) and not isVersionEqualOrAfter("9.2.0", mas_channel):
             self.installAssist = self.yesOrNo("Install Assist")
             if self.installAssist:
                 self.configAppChannel("assist")
@@ -1813,7 +1816,7 @@ class InstallApp(
             else:
                 # Ask for external storage configuration
                 self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-                self.promptForString("Storage access key", "aiservice_s3_accesskey")
+                self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
                 self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
                 self.promptForString("Storage host", "aiservice_s3_host")
                 self.promptForString("Storage port", "aiservice_s3_port")
@@ -2211,6 +2214,18 @@ class InstallApp(
             # value = "" means the paramerter was explicitly set to "don't install this application"
             elif key == "assist_channel":
                 if value is not None and value != "":
+                    # Validate that Assist is supported for the selected MAS version
+                    mas_channel = self.getParam("mas_channel")
+                    if isVersionEqualOrAfter("9.2.0", mas_channel):
+                        self.fatalError(
+                            f"Assist is not supported in MAS 9.2 or higher (selected channel: {mas_channel}). "
+                            "Assist is only available for MAS 9.0.x and 9.1.x versions."
+                        )
+                    elif not isVersionEqualOrAfter("9.0.0", mas_channel):
+                        self.fatalError(
+                            f"Assist is not supported in MAS versions before 9.0.0 (selected channel: {mas_channel}). "
+                            "Assist is only available for MAS 9.0.x and 9.1.x versions."
+                        )
                     self.setParam("mas_app_channel_assist", value)
                     self.installAssist = True
             elif key == "iot_channel":

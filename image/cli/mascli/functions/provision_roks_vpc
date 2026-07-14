@@ -137,7 +137,7 @@ function provision_roks_vpc_noninteractive() {
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
-        provision_roks_help
+        provision_roks_vpc_help
         exit 1
         ;;
       esac
@@ -276,6 +276,9 @@ function provision_roks_vpc() {
   export IBMCLOUD_APIKEY
   export IBMCLOUD_RESOURCEGROUP
 
+  # VPC
+  export ROKS_VPC_NAME
+
   # Cluster
   export CLUSTER_TYPE=roks-vpc
   export CLUSTER_NAME
@@ -316,6 +319,7 @@ function provision_roks_vpc() {
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Configuration" "    "
+  echo_reset_dim "VPC Name .................. $ROKS_VPC_NAME"
   echo_reset_dim "Cluster Name .............. $CLUSTER_NAME"
   echo_reset_dim "OCP Version ............... $OCP_VERSION"
 
@@ -362,7 +366,7 @@ function provision_roks_vpc() {
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi
 
-  ansible-playbook ibm.mas_devops.ocp_roks_provision
+  ansible-playbook ibm.mas_devops.ocp_roks_vpc_provision
   result=$?
 
   if [[ "$result" == "0" ]]; then
