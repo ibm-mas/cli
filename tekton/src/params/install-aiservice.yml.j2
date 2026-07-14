@@ -170,3 +170,26 @@
   type: string
   description: Name of the Issuer to configure AI Service to issue certificates
   default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - Database
+# -----------------------------------------------------------------------------
+- name: install_db2
+  type: string
+  description: Install DB2 in-cluster for AI Service (true/false)
+  default: ""
+- name: aiservice_db_jdbc_url
+  type: string
+  description: JDBC URL for external database (Oracle/SQL Server/DB2)
+  default: ""
+- name: aiservice_db_username
+  type: string
+  description: Database username for AI Service
+  default: ""
+- name: aiservice_db_password
+  type: string
+  description: Database password for AI Service
+  default: ""
+- name: aiservice_db_ca_cert
+  type: string
+  description: Database CA certificate (PEM format, optional for SSL/TLS)
+  default: ""

@@ -35,7 +35,7 @@ DB2_HOME=${3}
 
 # validate instance user exist
 
-instHome=`perl -e "@user=getpwnam ${INST_USER};" -e "print @user[7];"`
+instHome=`getent passwd ${INST_USER} | cut -d: -f6`
 
 if [ -z "$instHome" ]; then
     echo "Error: The DB2 instance user $INST_USER does not exist!"

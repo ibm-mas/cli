@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-dro
@@ -48,7 +48,6 @@ spec:
       type: string
       default: ""
   stepTemplate:
-    name: gitops-dro
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
