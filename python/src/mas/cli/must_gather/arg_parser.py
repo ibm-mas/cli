@@ -72,7 +72,7 @@ def _parse_args_wrapper(args=None, namespace=None):
 
 
 # Define all available collectors
-ALL_COLLECTORS = ["ocp", "db2", "kafka", "mongodb", "cp4d", "cert-manager", "grafana", "sls", "mas", "aiservice", "lic"]
+ALL_COLLECTORS = ["ocp", "db2", "kafka", "mongodb", "cp4d", "cert-manager", "grafana", "sls", "mas", "aiservice", "lic", "servicemesh"]
 
 
 def validateCollectors(collectorsStr: str) -> str:

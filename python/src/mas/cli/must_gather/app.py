@@ -281,7 +281,7 @@ class MustGatherApp(BaseApp):
             CollectionPlan: Complete plan with all collection tasks organized into groups
         """
         from .collection_plan import CollectionPlan
-        from .dependencies import kafka, mongodb, grafana, cert_manager, db2, cp4d
+        from .dependencies import kafka, mongodb, grafana, cert_manager, db2, cp4d, servicemesh
 
         # Type assertion: dynClient is guaranteed to be non-None by connect()
         assert self.dynamicClient is not None, "Kubernetes client must be initialized before planning collection"
@@ -379,6 +379,18 @@ class MustGatherApp(BaseApp):
             )
         else:
             logger.debug("Skipping CP4D collection (not in collectors list)")
+
+        # Service Mesh
+        if "servicemesh" in enabledCollectors:
+            servicemesh.addServiceMeshToCollectionPlan(
+                plan=plan,
+                dynClient=self.dynamicClient,
+                outputDir=outputDir,
+                noLogs=parsedArgs.no_logs,
+                ibmCRDs=self.ibmCRDsList,
+            )
+        else:
+            logger.debug("Skipping ServiceMesh collection (not in collectors list)")
 
         # SLS
         if "sls" in enabledCollectors:
