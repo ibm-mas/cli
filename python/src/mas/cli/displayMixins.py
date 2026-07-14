@@ -27,6 +27,46 @@ SUMMARYCOLOR = "SkyBlue"
 UNDEFINEDPARAMCOLOR = "LightSlateGrey"
 PROMPTCOLOR = "Yellow"
 
+# List of sensitive parameters that should be masked in output
+SENSITIVE_PARAMS = {
+    # IBM Cloud & AWS Credentials
+    "ibmcloud_apikey",
+    "aws_access_key_id",
+    "secret_access_key",
+    "aws_secret_access_key",
+    # Artifactory Credentials
+    "artifactory_username",
+    "artifactory_token",
+    # MAS Credentials
+    "mas_superuser_password",
+    # Logging & Messaging
+    "eck_remote_es_password",
+    "kafka_password",
+    "aws_kafka_user_password",
+    # Manage App Settings
+    "mas_app_settings_customization_archive_password",
+    "mas_app_settings_customization_archive_username",
+    # Manage Encryption Keys
+    "mas_manage_encryptionsecret_crypto_key",
+    "mas_manage_encryptionsecret_cryptox_key",
+    "mas_manage_encryptionsecret_old_crypto_key",
+    "mas_manage_encryptionsecret_old_cryptox_key",
+    # DNS Provider Credentials
+    "cis_apikey",
+    "cloudflare_apitoken",
+    # Storage Credentials
+    "aiservice_s3_accesskey",
+    "aiservice_s3_secretkey",
+    "cos_apikey",
+    # AI Service Credentials
+    "aiservice_watsonxai_apikey",
+    "aiservice_db_username",
+    "aiservice_db_password",
+    # Minio Credentials
+    "minio_root_user",
+    "minio_root_password",
+}
+
 
 class PrintMixin:
     def printTitle(self, message: str) -> None:
@@ -73,8 +113,15 @@ class PrintMixin:
             logger.debug(f'Parameter Summary: {param} = ""')
             self.printSummary(message, f"<{UNDEFINEDPARAMCOLOR}>Default</{UNDEFINEDPARAMCOLOR}>")
         else:
-            logger.debug(f"Parameter Summary: {param} = {self.getParam(param)}")  # type: ignore
-            self.printSummary(message, self.getParam(param))  # type: ignore
+            value = self.getParam(param)  # type: ignore
+            # Mask sensitive parameters
+            if param in SENSITIVE_PARAMS:
+                display_value = "***"
+                logger.debug(f"Parameter Summary: {param} = *** (masked)")
+            else:
+                display_value = value
+                logger.debug(f"Parameter Summary: {param} = {value}")
+            self.printSummary(message, display_value)
 
     def printTable(self, headers: List[str], rows: List[List[str]]) -> None:
         """

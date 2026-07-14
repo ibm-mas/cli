@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-upgrade
@@ -474,7 +474,7 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
-          
+
     # Update synchronization configmap
     # -------------------------------------------------------------------------
     - name: sync-upgrade

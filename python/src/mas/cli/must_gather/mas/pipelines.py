@@ -37,7 +37,7 @@ TEKTON_RESOURCES = [
 ]
 
 
-def _discoverMASPipelineNamespaces(dynClient: DynamicClient, masInstanceIds: Optional[List[str]] = None, includeClusterLevel: bool = False) -> Set[str]:
+def _discoverMASPipelineNamespaces(dynClient: DynamicClient, masInstanceIds: Optional[List[str]] = None) -> Set[str]:
     """Discover MAS pipeline namespaces.
 
     Discovers namespaces matching the pattern mas-{instance}-pipelines for instance-specific
@@ -65,17 +65,12 @@ def _discoverMASPipelineNamespaces(dynClient: DynamicClient, masInstanceIds: Opt
             nsName = ns.metadata.name
 
             # Check for cluster-level mas-pipelines namespace
-            if includeClusterLevel and nsName == "mas-pipelines":
+            if nsName == "mas-pipelines":
                 namespaces.add(nsName)
-                continue
 
             # Check if namespace matches mas-{instance}-pipelines pattern
-            if nsName.startswith("mas-") and nsName.endswith("-pipelines"):
+            elif nsName.startswith("mas-") and nsName.endswith("-pipelines"):
                 # Extract instance ID from namespace name (mas-{instance}-pipelines)
-                # Skip if it's the cluster-level namespace
-                if nsName == "mas-pipelines":
-                    continue
-
                 instanceId = nsName[4:-10]  # Remove "mas-" prefix and "-pipelines" suffix
 
                 # If specific instance IDs provided, filter by them
@@ -92,10 +87,10 @@ def _discoverMASPipelineNamespaces(dynClient: DynamicClient, masInstanceIds: Opt
     return namespaces
 
 
-def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, ibmCRDs: list):
+def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool, masInstanceIds: Optional[List[str]] = None):
     """Add MAS Pipelines collection tasks to the collection plan.
 
-    Discovers cluster-level MAS pipelines namespace and adds collection group
+    Discovers MAS pipelines namespace and adds collection group
     to the provided collection plan.
 
     Args:
@@ -103,25 +98,15 @@ def addMASPipelinesToCollectionPlan(plan, dynClient: DynamicClient, outputDir: s
         dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
         noLogs (bool): If True, skip pod log collection
-        ibmCRDs (list): List of IBM CRD information for collection
     """
-    logger.debug("Discovering cluster-level MAS pipelines")
+    logger.debug("Discovering MAS pipelines namespaces")
     try:
-        clusterPipelineNamespaces = _discoverMASPipelineNamespaces(dynClient, masInstanceIds=[], includeClusterLevel=True)
-        if "mas-pipelines" in clusterPipelineNamespaces:
-            logger.info("Discovered cluster-level MAS pipelines namespace")
+        masPipelineNamespaces = _discoverMASPipelineNamespaces(dynClient, masInstanceIds)
+        for pipelinesNamespace in masPipelineNamespaces:
             tasks = generateNamespaceCollectionTasks(
-                dynClient=dynClient,
-                namespace="mas-pipelines",
-                outputDir=outputDir,
-                noLogs=noLogs,
-                secretData=False,
-                customResources=TEKTON_RESOURCES,
-                ibmCRDs=ibmCRDs,
+                dynClient=dynClient, namespace=pipelinesNamespace, outputDir=outputDir, noLogs=noLogs, customResources=TEKTON_RESOURCES
             )
-            plan.addGroup("MAS Pipelines (cluster)", tasks)
-            logger.debug(f"Added {len(tasks)} MAS Pipelines collection tasks for cluster-level pipelines")
-        else:
-            logger.info("No cluster-level MAS pipelines namespace found")
+            plan.addGroup(f"MAS Pipelines ({pipelinesNamespace})", tasks)
+            logger.debug(f"Added {len(tasks)} MAS Pipelines collection tasks for {pipelinesNamespace}")
     except Exception as e:
         logger.warning(f"MAS Pipelines discovery failed: {e}")

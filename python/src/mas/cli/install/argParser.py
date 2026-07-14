@@ -1188,6 +1188,38 @@ db2ArgGroup.add_argument(
     const="install",
 )
 db2ArgGroup.add_argument(
+    "--db2-aiservice",
+    dest="db2_action_aiservice",
+    required=False,
+    help="Install a dedicated Db2u instance for Maximo AI Service (supported by AI Service)",
+    action="store_const",
+    const="install",
+)
+db2ArgGroup.add_argument(
+    "--aiservice-db-jdbc-url",
+    dest="aiservice_db_jdbc_url",
+    required=False,
+    help="JDBC URL for external database (Oracle, SQL Server, or external DB2) for AI Service",
+)
+db2ArgGroup.add_argument(
+    "--aiservice-db-username",
+    dest="aiservice_db_username",
+    required=False,
+    help="Username for external database connection for AI Service",
+)
+db2ArgGroup.add_argument(
+    "--aiservice-db-password",
+    dest="aiservice_db_password",
+    required=False,
+    help="Password for external database connection for AI Service",
+)
+db2ArgGroup.add_argument(
+    "--aiservice-db-ca-cert",
+    dest="aiservice_db_ca_cert",
+    required=False,
+    help="CA certificate for external database connection (PEM format, optional) for AI Service",
+)
+db2ArgGroup.add_argument(
     "--db2-type",
     required=False,
     help="Type of Manage dedicated Db2u instance (default: db2wh)",

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-rds-db2-database
@@ -43,7 +43,6 @@ spec:
       default: "false"
 
   stepTemplate:
-    name: gitops-rds-db2-database
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

@@ -17,6 +17,18 @@ from kubernetes.dynamic import DynamicClient
 
 logger = logging.getLogger(__name__)
 
+# Tekton resources to collect (both v1 and v1beta1 for compatibility)
+TEKTON_RESOURCES = [
+    ("tekton.dev/v1", "Pipeline"),
+    ("tekton.dev/v1", "PipelineRun"),
+    ("tekton.dev/v1", "Task"),
+    ("tekton.dev/v1", "TaskRun"),
+    ("tekton.dev/v1beta1", "Pipeline"),
+    ("tekton.dev/v1beta1", "PipelineRun"),
+    ("tekton.dev/v1beta1", "Task"),
+    ("tekton.dev/v1beta1", "TaskRun"),
+]
+
 
 def discoverAIServiceInstances(dynClient: DynamicClient, instanceIds: Optional[str] = None) -> List[str]:
     """Discover AI Service instances in the cluster.
@@ -111,7 +123,7 @@ def _generateAIServiceSummary(dynClient: DynamicClient, namespace: str, outputFi
             f.write("-" * 80 + "\n")
             try:
                 api = dynClient.resources.get(api_version="aiservice.ibm.com/v1", kind="AIServiceTenant")
-                tenants = api.get(namespace=namespace)
+                tenants = api.get()
                 if tenants.items:
                     for tenant in tenants.items:
                         f.write(f"Name: {tenant.metadata.name}\n")
@@ -133,8 +145,8 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
     """Add AI Service collection tasks to the collection plan.
 
     Discovers AI Service instances and for each instance, adds collection groups for:
-    - The instance namespace (mas-{instance}-aiservice)
-    - Tenant namespaces (mas-{instance}-aiservice-{tenant})
+    - The instance namespace (aiservice-{instance})
+    - Tenant namespaces (aiservice-{instance}-{tenant})
     - Pipeline namespaces (aiservice-{instance}-pipelines)
 
     Args:
@@ -147,6 +159,7 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
     from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
     from mas.cli.must_gather.aiservice import tenant as aiservice_tenant
     from mas.cli.must_gather.aiservice import pipelines as aiservice_pipelines
+    from mas.cli.must_gather.common import generateReconcileLogsCollectionTasks
 
     logger.info("Discovering AI Service instances")
     try:
@@ -155,37 +168,55 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
             logger.info(f"Discovered {len(instanceIds)} AI Service instance(s): {', '.join(sorted(instanceIds))}")
             for instanceId in sorted(instanceIds):
                 # Generate tasks for AI Service instance namespace
-                instanceNamespace = f"mas-{instanceId}-aiservice"
+                instanceNamespace = f"aiservice-{instanceId}"
                 tasks = generateNamespaceCollectionTasks(
                     dynClient=dynClient,
                     namespace=instanceNamespace,
                     outputDir=outputDir,
                     noLogs=noLogs,
-                    secretData=False,
                     customResources=None,
                     ibmCRDs=ibmCRDs,
                 )
+
+                # Add AI Service specific reconcile logs tasks
+                operators = [
+                    (instanceNamespace, "control-plane", "ibm-aiservice"),
+                    (instanceNamespace, "aiservice.ibm.com/appType", "entitymgr-tenant-operator"),
+                    (instanceNamespace, "control-plane", "controller-manager"),
+                    (instanceNamespace, "operator", "ibm-truststore-mgr"),
+                ]
+                tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
+
                 plan.addGroup(f"AI Service Instance ({instanceId})", tasks)
                 logger.debug(f"Added {len(tasks)} AI Service instance collection tasks for {instanceId}")
 
                 # Discover tenants for this instance
+                # Discover InferenceServices created by each tenant
+                ISVC_RESOURCES = [("serving.kserve.io/v1beta1", "InferenceService")]
                 logger.debug(f"Discovering AI Service tenants for instance {instanceId}")
                 try:
                     tenantIds = aiservice_tenant.discoverAIServiceTenants(dynClient, instanceId=instanceId)
                     if tenantIds:
                         logger.info(f"Discovered {len(tenantIds)} AI Service tenant(s) for instance {instanceId}: {', '.join(sorted(tenantIds))}")
                         for tenantId in sorted(tenantIds):
-                            tenantNamespace = f"mas-{instanceId}-aiservice-{tenantId}"
                             # Generate tasks for AI Service tenant namespace
                             tasks = generateNamespaceCollectionTasks(
                                 dynClient=dynClient,
-                                namespace=tenantNamespace,
+                                namespace=tenantId,
                                 outputDir=outputDir,
                                 noLogs=noLogs,
-                                secretData=False,
-                                customResources=None,
+                                customResources=ISVC_RESOURCES,
                                 ibmCRDs=ibmCRDs,
                             )
+
+                            # Add AI Service tenant specific reconcile logs tasks
+                            operators = [
+                                (tenantId, "control-plane", "ibm-aiservice-tenant"),
+                                (tenantId, "control-plane", "controller-manager"),
+                                (tenantId, "operator", "ibm-truststore-mgr"),
+                            ]
+                            tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
+
                             plan.addGroup(f"AI Service Tenant ({instanceId}/{tenantId})", tasks)
                             logger.debug(f"Added {len(tasks)} AI Service tenant collection tasks for {instanceId}/{tenantId}")
                     else:
@@ -208,8 +239,7 @@ def addAIServiceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str,
                                 namespace=pipelineNamespace,
                                 outputDir=outputDir,
                                 noLogs=noLogs,
-                                secretData=False,
-                                customResources=None,
+                                customResources=TEKTON_RESOURCES,
                                 ibmCRDs=ibmCRDs,
                             )
                             plan.addGroup(f"AI Service Pipelines ({pipelineNamespace})", tasks)

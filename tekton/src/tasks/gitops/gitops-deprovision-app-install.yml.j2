@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-app-install
@@ -26,7 +26,6 @@ spec:
     - name: mas_app_id
       type: string
   stepTemplate:
-    name: gitops-deprovision-app-install
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

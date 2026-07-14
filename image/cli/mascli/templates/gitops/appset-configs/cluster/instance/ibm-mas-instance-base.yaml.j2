@@ -74,3 +74,8 @@ enhanced_dr: {{ ENHANCED_DR }}
 {%- if MAS_CLI_IMAGE_REPO is defined and MAS_CLI_IMAGE_REPO != '' %}
 cli_image_repo: {{ MAS_CLI_IMAGE_REPO }}
 {%- endif %}
+
+{%- if PRODUCTION_DATABASE_ACCESS_TYPE is defined and PRODUCTION_DATABASE_ACCESS_TYPE != '' %}
+production_database_access:
+  type: {{ PRODUCTION_DATABASE_ACCESS_TYPE }}
+{%- endif %}

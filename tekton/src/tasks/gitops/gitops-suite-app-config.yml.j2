@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-suite-app-config
@@ -76,9 +76,14 @@ spec:
     - name: manage_update_schedule
       type: string
       default: ""
+    - name: sls_license_icn
+      type: string
+      default: ""
+    - name: centralized_sls_service
+      type: string
+      default: ""
 
   stepTemplate:
-    name: gitops-suite-app-config
     env:
       - name: CLUSTER_URL
         value: $(params.cluster_url)
@@ -136,6 +141,10 @@ spec:
         value: $(params.run_sanity_test)
       - name: MANAGE_UPDATE_SCHEDULE
         value: $(params.manage_update_schedule)
+      - name: SLS_LICENSE_ICN
+        value: $(params.sls_license_icn)
+      - name: CENTRALIZED_SLS_SERVICE
+        value: $(params.centralized_sls_service)
     envFrom:
       - configMapRef:
           name: environment-properties
