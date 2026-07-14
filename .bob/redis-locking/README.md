@@ -1,1 +1,0 @@
-These documents had been generated in `/docs` but were and are not part of the documentation site - I don't know if they are even needed or not, if they are needed they need a proper home - which is probably not even this repository given the role of the script?
