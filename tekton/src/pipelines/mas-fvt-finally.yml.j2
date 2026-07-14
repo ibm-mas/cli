@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-fvt-finally
@@ -70,7 +70,7 @@ spec:
         name: mas-devops-must-gather
       params:
         - name: base_output_dir
-          value: "/mustgather/$(context.pipelineRun.name)"
+          value: "$(workspaces.mustgather.path)/$(context.pipelineRun.name)"
       workspaces:
         - name: mustgather
           workspace: shared-mustgather

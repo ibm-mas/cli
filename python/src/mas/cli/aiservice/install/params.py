@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -32,7 +32,15 @@ optionalParams = [
     "sls_namespace",
     # DRO
     "dro_namespace",
-    # Db2
+    # Database - External (Oracle/SQL Server/DB2)
+    "aiservice_db_jdbc_url",
+    "aiservice_db_username",
+    "aiservice_db_password",
+    "aiservice_db_ca_cert",
+    # Database - Installation choice
+    "install_db2",
+    "db2_action_aiservice",
+    # Db2 - In-cluster installation
     "db2_action_system",
     "db2_action_manage",
     "db2_action_facilities",
@@ -40,7 +48,6 @@ optionalParams = [
     "db2_timezone",
     "db2_namespace",
     "db2_channel",
-    "db2_license_file",
     "db2_affinity_key",
     "db2_affinity_value",
     "db2_tolerate_key",
@@ -97,8 +104,6 @@ optionalParams = [
     "configure_aiassistant",
     # Certificate Issuer
     "aiservice_certificate_issuer",
-    # permission mode
-    "permission_mode",
     # Enable IPv6 networking
     "enable_ipv6",
     # Slack

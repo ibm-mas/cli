@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-devops-aiservice
@@ -48,15 +48,12 @@ spec:
     # WatsonX params
     - name: aiservice_watsonxai_apikey
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_url
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_project_id
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_deployment_id
       type: string
@@ -68,41 +65,33 @@ spec:
       default: ""
     - name: aiservice_watsonx_action
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_ca_crt
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_instance_id
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_username
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_version
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_on_prem
       type: string
-      description:
       default: "This option is mandatory"
     - name: aiservice_watsonxai_verify
       type: string
-      description:
       default: "This option is mandatory"
 
     # AI Service storage
     - name: aiservice_s3_accesskey
       type: string
-      default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_secretkey
       type: string
-      default: "This option is mandatory"
+      default: ""
       default: ""
     - name: aiservice_s3_host
       type: string
@@ -134,8 +123,8 @@ spec:
     - name: environment_type
       type: string
       description: Environment type
-      default: ""    
-    
+      default: ""
+
     # Tenant Entitlement
     - name: tenant_entitlement_type
       type: string
@@ -150,11 +139,11 @@ spec:
     # RSL
     - name: rsl_ca_crt
       type: string
-   
+
 
     # RHOAI flag
     - name: rhoai
-    
+
     # Certificate Issuer
     - name: aiservice_certificate_issuer
       type: string
@@ -164,6 +153,28 @@ spec:
       type: string
       description: Optional boolean parameter that when set to True, configures services in SingleStack IPv6 networking
       default: "False"
+
+    # Database Configuration
+    - name: install_db2
+      type: string
+      description: Install DB2 in-cluster for AI Service (true/false)
+      default: ""
+    - name: aiservice_db_jdbc_url
+      type: string
+      description: JDBC URL for external database (Oracle/SQL Server/DB2)
+      default: ""
+    - name: aiservice_db_username
+      type: string
+      description: Database username for AI Service
+      default: ""
+    - name: aiservice_db_password
+      type: string
+      description: Database password for AI Service
+      default: ""
+    - name: aiservice_db_ca_cert
+      type: string
+      description: Database CA certificate (PEM format, optional for SSL/TLS)
+      default: ""
 
   stepTemplate:
     env:
@@ -268,12 +279,24 @@ spec:
       - name: OCP_ENABLE_IPV6
         value: $(params.enable_ipv6)
 
+      # Database Configuration
+      - name: INSTALL_DB2
+        value: $(params.install_db2)
+      - name: AISERVICE_DB_JDBC_URL
+        value: $(params.aiservice_db_jdbc_url)
+      - name: AISERVICE_DB_USERNAME
+        value: $(params.aiservice_db_username)
+      - name: AISERVICE_DB_PASSWORD
+        value: $(params.aiservice_db_password)
+      - name: AISERVICE_DB_CA_CERT
+        value: $(params.aiservice_db_ca_cert)
+
   steps:
     - name: aiservice
       command:
         - /opt/app-root/src/run-role.sh
         - aiservice
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
@@ -281,13 +304,13 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - aiservice_tenant
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
     # If configmap/approval-aiservice exists then set STATUS=pending and wait for it to be changed to "approved"
     - name: app-cfg-post-verify
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/wait-for-configmap.sh

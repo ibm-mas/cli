@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-cluster
@@ -105,7 +105,7 @@ spec:
     - name: ibm_rbac_binding_to_group
       type: string
       default: ''
-    
+
     - name: falcon_operator_cloud_region
       type: string
       default: ''
@@ -158,7 +158,6 @@ spec:
       default: ""
 
   stepTemplate:
-    name: gitops-cluster
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -210,7 +209,7 @@ spec:
         value: $(params.cluster_promotion_target_pr_title)
       - name: CLUSTER_PROMOTION_CLUSTER_VALUES
         value: $(params.cluster_promotion_cluster_values)
-      
+
       - name: INSTALL_SELENIUM_GRID
         value: $(params.install_selenium_grid)
 
@@ -238,7 +237,7 @@ spec:
 
       - name: IBM_RBAC_BINDING_TO_GROUP
         value: $(params.ibm_rbac_binding_to_group)
-      
+
       - name: FALCON_OPERATOR_CLOUD_REGION
         value: $(params.falcon_operator_cloud_region)
       - name: FALCON_OPERATOR_NODE_SENSOR
@@ -337,7 +336,7 @@ spec:
         - -c
       name: gitops-cluster
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: gitops-cluster-configs

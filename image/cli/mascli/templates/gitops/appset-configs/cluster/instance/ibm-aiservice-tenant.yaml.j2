@@ -9,6 +9,9 @@ ibm_aiservice_tenant:
   catalog_source: "{{ CATALOG_SOURCE }}"
   aiservice_tenant_install_plan_approval: "{{ AISERVICE_TENANT_INSTALL_PLAN_APPROVAL }}"
   tenantNamespace: "{{ TENANT_NAMESPACE }}"
+{% if AISERVICE_ENABLE_DEPROVISIONING is defined and AISERVICE_ENABLE_DEPROVISIONING != '' %}
+  enable_deprovisioning: {{ AISERVICE_ENABLE_DEPROVISIONING }}
+{% endif %}
 
   mas_icr_cp: "{{ MAS_ICR_CP }}"
   mas_icr_cpopen: "{{ MAS_ICR_CPOPEN }}"

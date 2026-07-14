@@ -1,0 +1,386 @@
+#!/bin/bash
+
+function provision_roks_vpc_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas provision-roks-vpc [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+IBMCloud Credentials (Required):
+  -a, --apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                  IBMCloud API key
+
+Cluster Configuration (Required):
+  -r, --resource-group ${COLOR_YELLOW}IBMCLOUD_RESOURCEGROUP${TEXT_RESET}   IBMCloud resource group to deploy the cluster in
+  -V, --vpc-name ${COLOR_YELLOW}ROKS_VPC_NAME${TEXT_RESET}                  Name of the VPC to provision the cluster in
+  -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}               Name of the cluster to be provisioned
+  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}                 OCP version to use (e.g 4.16_openshift)
+
+Worker Node Configuration (Required):
+      --worker-count ${COLOR_YELLOW}ROKS_WORKERS${TEXT_RESET}               Number of worker nodes to provision
+      --worker-flavor ${COLOR_YELLOW}ROKS_FLAVOR${TEXT_RESET}               The flavour of worker node to use (e.g. bx2.8x32)
+      --worker-zone ${COLOR_YELLOW}ROKS_ZONE${TEXT_RESET}                   VPC zone where the worker nodes should be provisioned. (e.g. dal10-1)
+
+GPU Support (Optional):
+      --gpu-worker-count ${COLOR_YELLOW}GPU_WORKERS${TEXT_RESET}            Number of GPU worker nodes to provision
+      --gpu-worker-flavor ${COLOR_YELLOW}GPU_FLAVOR${TEXT_RESET}     The flavour of worker node to use (e.g. gx2.8x64.v100)
+      --gpu-workerpool-name ${COLOR_YELLOW}GPU_WORKERPOOL_NAME${TEXT_RESET} Name of the GPU workerpool
+
+Storage Provisioner Configuration:
+      --storage ${COLOR_YELLOW}OCP_STORAGE_PROVIDER${TEXT_RESET}            Choose optional storage provider (longhorn)
+
+Turbonomic Integration:
+      --turbonomic-name ${COLOR_YELLOW}TURBONOMIC_TARGET_NAME${TEXT_RESET}               Target name in Turbonomic
+      --turbonomic-url ${COLOR_YELLOW}TURBONOMIC_SERVER_URL${TEXT_RESET}                 Turbonomic server URL
+      --turbonomic-version ${COLOR_YELLOW}TURBONOMIC_SERVER_VERSION${TEXT_RESET}         Turbonomic server version
+      --turbonomic-username ${COLOR_YELLOW}TURBONOMIC_USERNAME${TEXT_RESET}              Turbonomic username
+      --turbonomic-password ${COLOR_YELLOW}TURBONOMIC_PASSWORD${TEXT_RESET}              Turbonomic password
+
+Service Mesh Installation:
+      --install-service-mesh       Install Redhat Openshift Service Mesh to handle cluster networking
+      --install-kiali              Install Kiali as a monitoring UI for Redhat Openshift Service Mesh
+
+Other Commands:
+      --no-confirm                              Provision the cluster without prompting for confirmation
+  -h, --help                                    Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function provision_roks_vpc_noninteractive() {
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # Credentials
+      -a|--apikey)
+        IBMCLOUD_APIKEY=$1 && shift
+        ;;
+
+      # Cluster
+      -r|--resource-group)
+        IBMCLOUD_RESOURCEGROUP=$1 && shift
+        ;;
+      -V|--vpc-name)
+        ROKS_VPC_NAME=$1 && shift
+        ;;
+      -c|--cluster-name)
+        CLUSTER_NAME=$1 && shift
+        ;;
+      -v|--ocp-version)
+        OCP_VERSION=$1 && shift
+        ;;
+
+      # Worker Pool
+      --worker-count)
+        ROKS_WORKERS=$1 && shift
+        ;;
+      --worker-flavor)
+        ROKS_FLAVOR=$1 && shift
+        ;;
+      --worker-zone)
+        ROKS_ZONE=$1 && shift
+        ;;
+
+      # GPU
+      --gpu-worker-count)
+        OCP_PROVISION_GPU=true
+        GPU_WORKERS=$1 && shift
+        ;;
+      --gpu-worker-flavour)
+        GPU_FLAVOR=$1 && shift
+        ;;
+      --gpu-workerpool-name)
+        GPU_WORKERPOOL_NAME=$1 && shift
+        ;;
+
+      # Storage Configuration
+      --storage)
+        OCP_STORAGE_PROVIDER=$1 && shift
+        ;;
+
+      # Turbonomic
+      --turbonomic-name)
+        TURBONOMIC_TARGET_NAME=$1 && shift
+        ;;
+      --turbonomic-url)
+        TURBONOMIC_SERVER_URL=$1 && shift
+        ;;
+      --turbonomic-version)
+        TURBONOMIC_SERVER_VERSION=$1 && shift
+        ;;
+      --turbonomic-username)
+        TURBONOMIC_USERNAME=$1 && shift
+        ;;
+      --turbonomic-password)
+        TURBONOMIC_PASSWORD=$1 && shift
+        ;;
+
+      # Service Mesh
+      --install-service-mesh)
+        INSTALL_SERVICE_MESH=true
+        ;;
+      --install-kiali)
+        INSTALL_KIALI=true
+        ;;
+
+      # Other options
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        provision_roks_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
+        provision_roks_vpc_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Check all args have been set
+  [[ -z "$IBMCLOUD_APIKEY" ]] && provision_roks_help "IBMCLOUD_APIKEY is not set"
+  [[ -z "$IBMCLOUD_RESOURCEGROUP" ]] && provision_roks_help "IBMCLOUD_RESOURCEGROUP is not set"
+  [[ -z "$CLUSTER_NAME" ]] && provision_roks_help "CLUSTER_NAME is not set"
+  [[ -z "$OCP_VERSION" ]] && provision_roks_help "OCP_VERSION is not set"
+  [[ -z "$ROKS_WORKERS" ]] && provision_roks_help "ROKS_WORKERS is not set"
+  [[ -z "$ROKS_FLAVOR" ]] && provision_roks_help "ROKS_FLAVOR is not set"
+  [[ -z "$ROKS_ZONE" ]] && provision_roks_help "ROKS_ZONE is not set"
+}
+
+function provision_roks_vpc_interactive() {
+
+  echo_h2 "IBM Cloud API Key"
+  echo "Provide your IBM Cloud API key (if you have not set the IBMCLOUD_APIKEY"
+  echo "environment variable) which will be used to provision a ROKS VPC instance."
+  echo ""
+  prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY "Re-use saved IBM Cloud API Key?" && export IBMCLOUD_APIKEY
+
+  echo ""
+  echo_h2 "IBM Cloud ROKS VPC Cluster Configuration"
+  echo "Select your worker node flavour and the number of worker nodes to provision."
+  echo "We recommend the 'bx2.8x32' worker node flavour to provide the best balance"
+  echo "of performance, flexibility, and cost."
+  echo ""
+  if [[ ! -z "$1" ]]; then
+    CLUSTER_NAME=$1
+  fi
+
+  prompt_for_input "Cluster Name" CLUSTER_NAME && export CLUSTER_NAME
+  export CLUSTER_TYPE=roks-vpc
+
+  echo
+  echo "OCP Version:"
+  echo "  1. 4.21"
+  echo "  2. 4.20"
+  echo "  3. 4.19"
+  echo "  4. 4.18"
+  echo "  5. 4.17"
+  echo "  6. 4.16"
+  prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
+
+  case $OCP_VERSION_SELECTION in
+    1|4.21)
+      export OCP_VERSION=4.21_openshift
+      ;;
+    2|4.20)
+      export OCP_VERSION=4.20_openshift
+      ;;
+    3|4.19)
+      export OCP_VERSION=4.19_openshift
+      ;;
+    4|4.18)
+      export OCP_VERSION=4.18_openshift
+      ;;
+    5|4.17)
+      export OCP_VERSION=4.17_openshift
+      ;;
+    6|4.16)
+      export OCP_VERSION=4.16_openshift
+      ;;
+
+    *)
+      export OCP_VERSION=$OCP_VERSION_SELECTION
+      ;;
+  esac
+
+  prompt_for_input "Resource Group" IBMCLOUD_RESOURCEGROUP "" && export IBMCLOUD_RESOURCEGROUP
+  prompt_for_input "VPC Name" ROKS_VPC_NAME "" && export ROKS_VPC_NAME
+  prompt_for_input "Worker Node Type" ROKS_FLAVOR "bx2.8x32" && export ROKS_FLAVOR
+  prompt_for_input "Number of Worker Nodes" ROKS_WORKERS "3" && export ROKS_WORKERS
+  prompt_for_input "Worker Pool VPC Zone" ROKS_ZONE "eu-gb-1" && export ROKS_ZONE
+
+  export OCP_PROVISION_GPU=false
+  echo ""
+  echo_h2 "GPU Worker Pool"
+  echo "GPU worker nodes can be added to the cluster for applications that require complex "
+  echo "mathematical computations.  If you intend to install the IBM Visual Inspection application "
+  echo "you should answer 'yes' at the prompt below."
+  echo ""
+  prompt_for_confirm "Provision GPU worker nodes in cluster" && export OCP_PROVISION_GPU=true
+
+  if [[ $OCP_PROVISION_GPU == "true" ]]; then
+    prompt_for_input "Number of GPU Nodes" GPU_WORKERS "1" && export GPU_WORKERS
+    prompt_for_input "GPU Nodes Type" GPU_FLAVOR "gx2.8x64.v100" && export GPU_FLAVOR
+    prompt_for_input "GPU Worker Pool Name" GPU_WORKERPOOL_NAME "gpu" && export GPU_WORKERPOOL_NAME
+  fi
+
+  echo
+  echo_h2 "Storage Provider:"
+  echo "  1. IBMCloud"
+  echo "  2. Longhorn"
+  prompt_for_input "Select the storage provider to setup" OCP_STORAGE_PROVIDER_SELECTION "1"
+
+  if [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "1" ]]; then
+    OCP_STORAGE_PROVIDER=""
+  elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "2" ]]; then
+    OCP_STORAGE_PROVIDER="longhorn"
+  fi
+
+  echo
+  echo_h2 "Turbonomic Integration:"
+  echo "Leave name empty if you do not want to enable Turbonomic integration in this cluster"
+  prompt_for_input "Turbonomic Name" TURBONOMIC_TARGET_NAME
+  if [[ "$TURBONOMIC_TARGET_NAME" != "" ]]; then
+    prompt_for_input "Server URL" TURBONOMIC_SERVER_URL
+    prompt_for_input "Server Version" TURBONOMIC_SERVER_VERSION
+    prompt_for_input "Username" TURBONOMIC_USERNAME
+    prompt_for_secret "Password" TURBONOMIC_PASSWORD
+  fi
+
+  echo
+  echo_h2 "Service Mesh Installation:"
+  prompt_for_confirm "Install Service Mesh" && export INSTALL_SERVICE_MESH=true
+  if [[ "$INSTALL_SERVICE_MESH" == "true" ]]; then
+    prompt_for_confirm "Install Kiali" && export INSTALL_KIALI=true
+  fi
+
+}
+
+
+function provision_roks_vpc() {
+  # Take the first parameter off (it will be provision-fyre)
+  shift
+  if [[ $# -gt 0 ]]; then
+    provision_roks_vpc_noninteractive "$@"
+  else
+    provision_roks_vpc_interactive
+  fi
+
+  # Ensure all environment variables are available to ansible-playbook
+  export IBMCLOUD_APIKEY
+  export IBMCLOUD_RESOURCEGROUP
+
+  # VPC
+  export ROKS_VPC_NAME
+
+  # Cluster
+  export CLUSTER_TYPE=roks-vpc
+  export CLUSTER_NAME
+  export OCP_VERSION
+
+  # Workers
+  export ROKS_WORKERS
+  export ROKS_FLAVOR
+  export ROKS_ZONE
+
+  # GPU
+  export OCP_PROVISION_GPU
+  export GPU_WORKERS
+  export GPU_FLAVOR
+  export GPU_WORKERPOOL_NAME
+
+  # Storage
+  export OCP_STORAGE_PROVIDER
+
+  # Turbonomic
+  export TURBONOMIC_TARGET_NAME
+  export TURBONOMIC_SERVER_URL
+  export TURBONOMIC_SERVER_VERSION
+  export TURBONOMIC_USERNAME
+  export TURBONOMIC_PASSWORD
+
+  # ServiceMesh/Istio
+  export INSTALL_SERVICE_MESH
+  export INSTALL_KIALI
+
+  echo ""
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "IBMCloud Authentication" "    "
+  echo_reset_dim "IBMCloud Resource Group ... $IBMCLOUD_RESOURCEGROUP"
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Cluster Configuration" "    "
+  echo_reset_dim "VPC Name .................. $ROKS_VPC_NAME"
+  echo_reset_dim "Cluster Name .............. $CLUSTER_NAME"
+  echo_reset_dim "OCP Version ............... $OCP_VERSION"
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Worker Configuration" "    "
+  echo_reset_dim "Worker Flavour ............ $ROKS_FLAVOR"
+  echo_reset_dim "Worker Pool Zone .......... $ROKS_ZONE"
+  echo_reset_dim "Worker Pool Size .......... $ROKS_WORKERS"
+  echo_reset_dim "Add GPU Worker Nodes ...... ${OCP_PROVISION_GPU:-false}"
+  if [[ $OCP_PROVISION_GPU == "true" ]]; then
+    echo_reset_dim "GPU Worker Pool Size ...... $GPU_WORKERS"
+    echo_reset_dim "GPU Worker Flavour ........ $GPU_FLAVOR"
+    echo_reset_dim "GPU Worker Pool Name ...... $GPU_WORKERPOOL_NAME"
+  fi
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Storage" "    "
+  if [[ "${OCP_STORAGE_PROVIDER}" == "" ]]; then
+    echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}IBMCloud"
+  else
+    echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}${OCP_STORAGE_PROVIDER}"
+  fi
+
+  if [[ "${TURBONOMIC_TARGET_NAME}" != "" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "Turbonomic Integration" "    "
+    echo_reset_dim "Target Name ................. ${COLOR_MAGENTA}${TURBONOMIC_TARGET_NAME}"
+    echo_reset_dim "Server URL .................. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_URL}"
+    echo_reset_dim "Server Version .............. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_VERSION}"
+  fi
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Service Mesh Integration" "    "
+  echo_reset_dim "Install Service Mesh ........ ${COLOR_MAGENTA}${INSTALL_SERVICE_MESH:-false}"
+  echo_reset_dim "Install Kiali................ ${COLOR_MAGENTA}${INSTALL_KIALI:-false}"
+
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
+
+  ansible-playbook ibm.mas_devops.ocp_roks_vpc_provision
+  result=$?
+
+  if [[ "$result" == "0" ]]; then
+    echo ""
+    echo "IBM Cloud ROKS VPC cluster is ready to use"
+    export OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+    export OCP_CONSOLE_URL="https://$OCP_CONSOLE_ROUTE"
+  fi
+  if [[ -n "$NOTIFY_SLACK_MSG" ]]; then
+    mas-devops-notify-slack --action ocp-provision-roks --rc $result --msg "$NOTIFY_SLACK_MSG"
+  else
+    mas-devops-notify-slack --action ocp-provision-roks --rc $result
+  fi
+
+  exit $result
+}

@@ -36,4 +36,5 @@ resources:
   - pipeline/openshift-operators.yaml
   - pipeline/openshift-user-workload-monitoring.yaml
   - pipeline/redhat-marketplace.yaml
+  - pipeline/scc.yaml
   - pipeline/serviceaccount.yaml

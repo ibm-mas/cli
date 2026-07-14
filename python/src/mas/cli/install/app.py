@@ -17,7 +17,8 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import re
 import calendar
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError
+from urllib3.exceptions import MaxRetryError
 
 from typing import Dict, Any
 
@@ -46,6 +47,8 @@ from mas.cli.validators import (
     JsonValidator,
     OptimizerInstallPlanValidator,
     BucketPrefixValidator,
+    NotEmptyValidator,
+    FileExistsValidator,
 )
 
 from mas.devops.ocp import (
@@ -68,7 +71,9 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
+from mas.devops.pre_install import applyPreInstallMASRBAC
+from ..rbac_utils import evaluatePreinstallRBACAccess
+from .facilities.agents import facilitiesAgents, facilitiesAgentsDeploymentModes
 
 logger = logging.getLogger(__name__)
 
@@ -116,53 +121,6 @@ class InstallApp(
             selectedApps.append("arcgis")
 
         return selectedApps
-
-    def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
-
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
-            return
-
-        if self.mas_permission_mode == "minimal":
-            return
-
-        if self.skip_preinstall_rbac:
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        if self.isInteractiveMode:
-            self.printDescription(
-                [
-                    "",
-                    f"You selected the '{self.mas_permission_mode}' permission mode.",
-                    "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
-                    "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this MAS instance, MAS channel, permission mode, and selected apps.",
-                    "If that has already been done, you can continue the installation without applying it again.",
-                ]
-            )
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this installation"):
-                self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this installation and then run 'mas install' again with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'."
-                )
-        else:
-            self.fatalError(
-                "\n".join(
-                    [
-                        f"You selected the '{self.mas_permission_mode}' permission mode.",
-                        "The pre-install RBAC required for this permission mode has not been applied by your current cluster login.",
-                        "This step must be completed by an OpenShift cluster administrator before MAS installation can continue.",
-                        "Ask your OpenShift administrator to run 'mas pre-install' for this installation and then rerun 'mas install' with --skip-preinstall-rbac using the same permission mode that was used in 'mas pre-install'.",
-                    ]
-                )
-            )
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -224,6 +182,8 @@ class InstallApp(
                     ]
                 )
             )
+        except MaxRetryError:
+            self.fatalError("Unable to connect to the Kubernetes API server. Please verify cluster connectivity and try again.")
 
     @logMethodCall
     def licensePrompt(self):
@@ -256,7 +216,7 @@ class InstallApp(
     @logMethodCall
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
-        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+        self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
         if self.devMode:
             self.promptForString("Artifactory username", "artifactory_username")
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
@@ -313,11 +273,8 @@ class InstallApp(
 
         # Generate catalogTable
         for application, key in applications.items():
-            # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             if key in self.chosenCatalog:
                 tempChosenCatalog = self.chosenCatalog[key].copy()
-                if "9.1.x-feature" not in tempChosenCatalog and "9.0.x" in tempChosenCatalog:
-                    tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
 
                 self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
@@ -558,6 +515,11 @@ class InstallApp(
                     self.setParam("mas_arcgis_channel", channel)
                     self.installArcgis = True
 
+                    # ArcGIS requires cluster admin mode for MAS 9.2.0+
+                    if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+                        if self.mas_admin_mode != "cluster":
+                            self.fatalError(f"--arcgis-channel requires --admin-mode cluster (current: {self.mas_admin_mode})")
+
                     self.printDescription(
                         [
                             "",
@@ -699,8 +661,11 @@ class InstallApp(
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
-        self.configRoutingMode()
-        self.configManualRoutesMgmt()
+
+        # temporarily disabiliing configuring routing mode
+        # self.configRoutingMode()
+        self.setParam("mas_routing_mode", "subdomain")
+
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -746,10 +711,10 @@ class InstallApp(
             self.setParam("rhoai", "false")
 
     @logMethodCall
-    def configPermissionMode(self):
+    def configAdminMode(self):
         if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             if self.showAdvancedOptions:
-                self.printH1("Configure Permission Mode")
+                self.printH1("Configure Mas Admin Mode")
                 self.printDescription(
                     [
                         "Choose how MAS should be installed with respect to permissions:",
@@ -759,24 +724,24 @@ class InstallApp(
                         "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts",
                         "",
                         "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
-                        "     - No ClusterRoles are installed in this mode",
+                        "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
                         "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
                         "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
                         "",
                         "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
-                        "     - No ClusterRoles are installed in this mode",
+                        "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - Only essential permissions required for MAS applications are applied",
                         "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
                         "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
                     ]
                 )
 
-                permissionModeInt = self.promptForInt("Permission Mode", default=1, min=1, max=3)
-                permissionModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
-                self.mas_permission_mode = permissionModeMap[permissionModeInt]
+                adminModeInt = self.promptForInt("Mas Admin Mode", default=1, min=1, max=3)
+                adminModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
+                self.mas_admin_mode = adminModeMap[adminModeInt]
 
-                if self.mas_permission_mode in ["namespaced", "minimal"]:
+                if self.mas_admin_mode in ["namespaced", "minimal"]:
                     self.setParam("mas_issuer_kind", "Issuer")
                 else:
                     self.printDescription(
@@ -793,18 +758,18 @@ class InstallApp(
                     )
                     issuerKindChoice = self.promptForInt("Certificate issuer kind", min=1, max=2, default=2)
                     self.setParam("mas_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")
-            elif self.mas_permission_mode == "":
-                self.mas_permission_mode = "cluster"
+            elif self.mas_admin_mode == "":
+                self.mas_admin_mode = "cluster"
                 self.setParam("mas_issuer_kind", "ClusterIssuer")
 
     def _handleDNSIntegrationRestriction(self):
         if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             return False
 
-        if self.mas_permission_mode in ["namespaced", "minimal"]:
+        if self.mas_admin_mode in ["namespaced", "minimal"]:
             self.printDescription(
                 [
-                    f"You are using the {self.mas_permission_mode} permission mode.",
+                    f"You are using the {self.mas_admin_mode} admin mode.",
                     "DNS integration is not available in this mode.",
                     "If you use a custom domain, you need to configure DNS manually.",
                 ]
@@ -1015,22 +980,18 @@ class InstallApp(
             return False
 
     @logMethodCall
-    def configManualRoutesMgmt(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Configure Routes Manually")
-            self.printDescription(["Disable automatic route creation."])
-            self.yesOrNo("Disable Route Creation", "mas_manual_route_mgmt")
-        else:
-            self.setParam("mas_manual_route_mgmt", "false")
-
-    @logMethodCall
     def configServiceMesh(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Configure Service Mesh")
-            self.printDescription(["By default, Maximo Application Suite does not use Service Mesh for routing."])
-            self.yesOrNo("Use Service Mesh", "mas_use_service_mesh")
+        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            self.printH1("Service Mesh")
+            self.printDescription(
+                [
+                    "If Red Hat OpenShift Service Mesh is installed in the cluster and configured to monitor the Maximo Application Suite namespaces then the pods in MAS will create sidecars to allow monitoring of traffic via Service Mesh. This is a pre-requisite for using Service Mesh to manage Ingress for MAS."
+                ]
+            )
+            self.yesOrNo("Enable OpenShift Service Mesh support for MAS", "mas_use_service_mesh")
         else:
             self.setParam("mas_use_service_mesh", "false")
+        self.setParam("mas_manual_route_mgmt", "false")
 
     @logMethodCall
     def configAnnotations(self):
@@ -1310,8 +1271,11 @@ class InstallApp(
         if self.installPredict:
             self.configAppChannel("predict")
 
-        # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
-        if isVersionEqualOrAfter("9.0.0", self.getParam("mas_channel")):
+        # Assist is only installable on MAS 9.0.x and 9.1.x
+        # - Not supported before 9.0.0 due to withdrawal of support for Watson Discovery
+        # - Not supported from 9.2.0 onwards
+        mas_channel = self.getParam("mas_channel")
+        if isVersionEqualOrAfter("9.0.0", mas_channel) and not isVersionEqualOrAfter("9.2.0", mas_channel):
             self.installAssist = self.yesOrNo("Install Assist")
             if self.installAssist:
                 self.configAppChannel("assist")
@@ -1334,7 +1298,7 @@ class InstallApp(
             self.installFacilities = False
 
         # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
-        if isVersionEqualOrAfter("9.0.0", self.getParam("mas_app_channel_manage")):
+        if self.getParam("mas_app_channel_manage") != "" and isVersionEqualOrAfter("9.0.0", self.getParam("mas_app_channel_manage")):
             self.installAIService = self.yesOrNo("Install AI Service")
             if self.installAIService:
                 self.configAIService()
@@ -1345,7 +1309,11 @@ class InstallApp(
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
         if len(versions) == 0:
-            self.params[f"mas_app_channel_{appId}"] = prompt(HTML(f"<Yellow>Custom channel for {appId}</Yellow>"))
+            self.promptForString(
+                f"Custom channel for {appId}",
+                f"mas_app_channel_{appId}",
+                validator=NotEmptyValidator(),
+            )
         else:
             self.params[f"mas_app_channel_{appId}"] = versions[0]
 
@@ -1358,8 +1326,11 @@ class InstallApp(
                 "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
                 "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
                 "",
+                "Note: Remote file systems are often slower than local file systems, using a storage class backed by a remote file system (e.g. NFS) as the RWO storage class may result in degraded performance",
+                "",
             ]
         )
+
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         if defaultStorageClasses.provider is not None:
             print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
@@ -1510,6 +1481,9 @@ class InstallApp(
             )
 
             if self.showAdvancedOptions:
+                # Check MAS version - Custom FACILITIES.properties and Agents Deployment Flexibility are only supported in MAS 9.2+
+                mas_facilities_channel = self.getParam("mas_app_channel_facilities")
+
                 self.printH2("Maximo Real Estate and Facilities Settings - Advanced")
                 self.printDescription(
                     ["Advanced configurations for Real Estate and Facilities are added through an additional file called facilities-configs.yaml"]
@@ -1539,6 +1513,35 @@ class InstallApp(
                         "Real Estate and Facilities AES Vault Secret Name",
                         "mas_ws_facilities_vault_secret",
                     )
+
+                # Only prompt for custom FACILITIES.properties file if MAS 9.2+
+                if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
+                    if self.yesOrNo("Upload custom FACILITIES.properties file"):
+                        self.printDescription(
+                            [
+                                "Provide the path to your custom FACILITIES.properties file.",
+                                "This file will be uploaded as a secret in OpenShift.",
+                                "If you choose not to upload a custom file, the default FACILITIES.properties will be used.",
+                            ]
+                        )
+                        facilitiesPropertiesFile = self.promptForString(
+                            "Path to FACILITIES.properties file", "mas_ws_facilities_properties_file_local", validator=FileExistsValidator()
+                        )
+                        # FileExistsValidator ensures file exists, so we can proceed directly
+                        self.setParam("mas_ws_facilities_properties_file_local", facilitiesPropertiesFile)
+                        self.setParam("mas_ws_facilities_custom_properties", "true")
+
+                        # Prompt for custom secret name (optional, with default)
+                        customSecretName = self.promptForString("Specify the custom secret name", "mas_ws_facilities_properties_secret_name")
+                        # Use default if not provided
+                        if not customSecretName or customSecretName.strip() == "":
+                            customSecretName = "custom-facilities-properties"
+                        self.setParam("mas_ws_facilities_properties_secret_name", customSecretName)
+                    else:
+                        self.setParam("mas_ws_facilities_custom_properties", "false")
+                else:
+                    # For MAS 9.1 and earlier, skip the prompt and use default behavior
+                    self.setParam("mas_ws_facilities_custom_properties", "false")
 
                 self.promptForString(
                     "Set Real Estate and Facilities Routes Timeout:",
@@ -1654,6 +1657,14 @@ class InstallApp(
                         default=30,
                     )
 
+                if self.yesOrNo("Do you want set Real Estate and Facilities server timezone (Set only if the Facilities DB uses a timezone other than UTC)"):
+                    self.promptForString(
+                        "Provide server timezone:",
+                        "mas_ws_facilities_server_timezone",
+                        default="UTC",
+                    )
+                    self.setParam("db2_facilities_timezone", self.getParam("mas_ws_facilities_server_timezone"))
+
                 if self.yesOrNo("Supply configuration for dedicated workflow agents"):
                     print_formatted_text(
                         HTML(
@@ -1665,6 +1676,32 @@ class InstallApp(
                         "mas_ws_facilities_dwfagents",
                         validator=JsonValidator(),
                     )
+
+                # Only prompt for Agents Deployments Flexibility file if MAS 9.2+
+                if mas_facilities_channel and isVersionEqualOrAfter("9.2.0", mas_facilities_channel):
+                    if self.yesOrNo("Configure Agents Deployments Flexibility"):
+                        self.printDescription(
+                            [
+                                "Define deployment mode for each Facilities Agents:",
+                                "  1. shared - the agent is activated in the shared multiagents POD",
+                                "  2. dedicated - the agent is activated in a dedicated POD",
+                                "  3. disabled - the agent is not activated at all (not applicable for wfagent and reportqueueagent)",
+                            ]
+                        )
+                        for agent in facilitiesAgents:
+                            self.promptForListSelect(
+                                f"Select {agent} deployment mode:",
+                                facilitiesAgentsDeploymentModes[agent][:-1],
+                                f"mas_ws_facilities_{agent}_deploymentmode",
+                                default=1,
+                            )
+                    else:
+                        for agent in facilitiesAgents:
+                            self.setParam(f"mas_ws_facilities_{agent}_deploymentmode", "")
+                else:
+                    # For MAS 9.1 and earlier, skip the prompt and use default behavior
+                    for agent in facilitiesAgents:
+                        self.setParam(f"mas_ws_facilities_{agent}_deploymentmode", "")
 
                 # If advanced options is selected, we need to create a file to add props not supported by Tekton
                 self.selectLocalConfigDir()
@@ -1689,15 +1726,71 @@ class InstallApp(
             ]
         )
 
-        # Install Db2 for AI Service
-        self.setParam("db2_action_aiservice", "install")
-
         self.promptForString(
             "Instance ID",
             "aiservice_instance_id",
             validator=InstanceIDFormatValidator(),
         )
         self.params["aiservice_channel"] = prompt(HTML("<Yellow>Custom channel for AI Service</Yellow> "))
+
+    @logMethodCall
+    def configAIServiceDatabase(self):
+        """Configure database for AI Service - either in-cluster DB2 or external database"""
+        self.printH2("Database Configuration for AI Service")
+        self.printDescription(
+            [
+                "By default, DB2 will be installed in-cluster (suitable for development and testing).",
+                "Alternatively, you can connect to an external Oracle or DB2 database (supported in AI Service 9.1.x only).",
+                # "Alternatively, you can connect to an external database (Oracle, SQL Server, or DB2).",
+            ]
+        )
+
+        if self.yesOrNo("Do you want to use an external database"):
+            # Configure external database
+            self.setParam("install_db2", "false")
+            self.setParam("db2_action_aiservice", "byo")
+
+            self.printDescription(
+                [
+                    "Provide connection details for your external Oracle or DB2 database.",
+                    "",
+                    "JDBC URL Example:",
+                    "  Oracle:     jdbc:oracle:thin:@//hostname:1521/servicename",
+                    "  DB2:        jdbc:db2://hostname:50000/database",
+                    # "  SQL Server: jdbc:sqlserver://hostname:1433;databaseName=aiservice",
+                ]
+            )
+
+            self.promptForString("Database JDBC URL", "aiservice_db_jdbc_url")
+            self.promptForString("Database Username", "aiservice_db_username")
+            self.promptForString("Database Password", "aiservice_db_password", isPassword=True)
+
+            if self.yesOrNo("Does the database use SSL/TLS with a self-signed certificate"):
+                self.promptForString(
+                    "Database CA certificate (PEM format)",
+                    "aiservice_db_ca_cert",
+                )
+        else:
+            # Install DB2 for AI Service
+            self.setParam("install_db2", "true")
+            self.setParam("db2_action_aiservice", "install")
+
+            # Prompt for DB2 license file (same as standalone)
+            self.printDescription(
+                [
+                    "Db2 Universal Operator for v12 onwards requires a License activation key",
+                    "If you don't have a license, press enter to continue.",
+                ]
+            )
+            db2LicenseFile = self.promptForString("Db2 License file", "db2_license_file")
+            if db2LicenseFile and db2LicenseFile.strip() != "":
+                self.db2LicenseFileLocal = db2LicenseFile
+
+    @logMethodCall
+    def configAIServiceDatabaseInDependencies(self) -> None:
+        """Wrapper method to configure AI Service database in the Dependencies section"""
+        if self.installAIService:
+            self.configAIServiceDatabase()
 
     @logMethodCall
     def aiServiceSettings(self) -> None:
@@ -1910,6 +2003,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.facilitiesPropertiesFileLocal = None
 
         if simplified:
             self.showAdvancedOptions = False
@@ -1934,8 +2028,18 @@ class InstallApp(
         self.configICRCredentials()
 
         # MAS Core
-        self.configPermissionMode()
-        self.evaluatePreInstallRBACAccess()
+        self.configAdminMode()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.configCertManager()
         self.configMAS()
 
@@ -1957,6 +2061,7 @@ class InstallApp(
         self.arcgisSettings()  # Will only prompt if Manage (with Spatial) or Facilities is selected
         self.configMongoDb()
         self.configDb2()
+        self.configAIServiceDatabaseInDependencies()  # Configure AI Service database
         self.configKafka()  # Will only do anything if IoT has been selected for install
         self.configAi()  # Configure AI Service integration
 
@@ -1991,6 +2096,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.facilitiesPropertiesFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
             "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
@@ -2014,6 +2120,31 @@ class InstallApp(
             if key in requiredParams:
                 if value is None:
                     self.fatalError(f"{key} must be set")
+
+                # Special handling for ibm_entitlement_key: validate it
+                if key == "ibm_entitlement_key":
+                    isValid = self.validateEntitlementKey(value)
+                    if not isValid:
+                        if self.noConfirm:
+                            # Non-interactive with --no-confirm: warn but continue
+                            self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                        else:
+                            # Non-interactive without --no-confirm: offer options
+                            self.printWarning("IBM entitlement key validation failed")
+                            print()
+                            self.printDescription(
+                                [
+                                    "What would you like to do?",
+                                    "  1. Continue anyway (skip validation)",
+                                    "  2. Quit (exit the application)",
+                                ]
+                            )
+                            choice = self.promptForInt("Select an option", min=1, max=2)
+                            if choice == 2:
+                                logger.info("User chose to quit due to invalid entitlement key")
+                                exit(1)
+                            # If choice == 1, continue with the invalid key
+
                 self.setParam(key, value)
 
             # These fields we just pass straight through to the parameters
@@ -2068,11 +2199,13 @@ class InstallApp(
             elif key == "pod_templates":
                 # For the named configurations we will convert into the path
                 if value in ["best-effort", "guaranteed"]:
+                    self.podTemplatesKeyword = value
                     self.setParam(
                         "mas_pod_templates_dir",
                         path.join(self.templatesDir, "pod-templates", value),
                     )
                 else:
+                    self.podTemplatesKeyword = None
                     self.setParam("mas_pod_templates_dir", value)
 
             # We check for both None and "" values for the application channel parameters
@@ -2080,6 +2213,18 @@ class InstallApp(
             # value = "" means the paramerter was explicitly set to "don't install this application"
             elif key == "assist_channel":
                 if value is not None and value != "":
+                    # Validate that Assist is supported for the selected MAS version
+                    mas_channel = self.getParam("mas_channel")
+                    if isVersionEqualOrAfter("9.2.0", mas_channel):
+                        self.fatalError(
+                            f"Assist is not supported in MAS 9.2 or higher (selected channel: {mas_channel}). "
+                            "Assist is only available for MAS 9.0.x and 9.1.x versions."
+                        )
+                    elif not isVersionEqualOrAfter("9.0.0", mas_channel):
+                        self.fatalError(
+                            f"Assist is not supported in MAS versions before 9.0.0 (selected channel: {mas_channel}). "
+                            "Assist is only available for MAS 9.0.x and 9.1.x versions."
+                        )
                     self.setParam("mas_app_channel_assist", value)
                     self.installAssist = True
             elif key == "iot_channel":
@@ -2117,9 +2262,24 @@ class InstallApp(
             elif key == "aiservice_channel":
                 if value is not None and value != "":
                     self.setParam("aiservice_channel", value)
-                    # Install Db2 for AI Service
-                    self.setParam("db2_action_aiservice", "install")
                     self.installAIService = True
+
+                    # Check if external DB parameters are provided
+                    externalDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
+                    hasExternalDb = any(vars(self.args)[dbParam] is not None for dbParam in externalDbParams)
+
+                    if hasExternalDb:
+                        # Using external database - validate all required parameters
+                        self.setParam("install_db2", "false")
+                        self.setParam("db2_action_aiservice", "byo")
+                        for dbParam in externalDbParams:
+                            if vars(self.args)[dbParam] is None:
+                                self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
+                    else:
+                        # Default: Install DB2 in-cluster
+                        self.setParam("install_db2", "true")
+                        self.setParam("db2_action_aiservice", "install")
+
                     # Set manage - bind - AI Service params same as provided AI Service's params
                     self.setParam(
                         "manage_bind_aiservice_instance_id",
@@ -2217,7 +2377,6 @@ class InstallApp(
                 "accept_license",
                 "dev_mode",
                 "skip_pre_check",
-                "skip_preinstall_rbac",
                 "skip_grafana_install",
                 "no_confirm",
                 "help",
@@ -2298,7 +2457,6 @@ class InstallApp(
                 self.fatalError(f"Unknown option: {key} {value}")
 
         if self.installManage:
-
             # Configure Storage and Access mode
             self.manageStorageAndAccessMode()
 
@@ -2339,57 +2497,70 @@ class InstallApp(
         if self.getParam("mas_issuer_kind") != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--mas-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
 
-        if self.mas_permission_mode != "":
-            if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
-                self.fatalError(f"--permission-mode is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
-            else:
-                if self.getParam("mas_issuer_kind") == "":
-                    if self.mas_permission_mode == "cluster":
-                        self.setParam("mas_issuer_kind", "ClusterIssuer")
-                    else:
-                        self.setParam("mas_issuer_kind", "Issuer")
+        # Validate admin mode based on MAS version
+        if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            # MAS 9.2+: --admin-mode is REQUIRED
+            if self.mas_admin_mode == "":
+                self.fatalError(
+                    f"--admin-mode is required for MAS version 9.2 or higher (selected channel: {self.getParam('mas_channel')}). Valid options: cluster, namespaced, minimal"
+                )
 
-                if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.mas_permission_mode != "cluster":
+            # Set issuer kind based on admin mode if not explicitly set
+            if self.getParam("mas_issuer_kind") == "":
+                if self.mas_admin_mode == "cluster":
+                    self.setParam("mas_issuer_kind", "ClusterIssuer")
+                else:
+                    self.setParam("mas_issuer_kind", "Issuer")
+
+            # Validate ClusterIssuer requires cluster mode
+            if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.mas_admin_mode != "cluster":
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Invalid configuration for certificate issuer kind 'ClusterIssuer'",
+                            "ClusterIssuer can only be used when --admin-mode cluster is selected.",
+                        ]
+                    )
+                )
+
+            # Validate DNS integration restrictions
+            if self.getParam("dns_provider") != "":
+                if self.mas_admin_mode in ["namespaced", "minimal"]:
                     self.fatalError(
                         "\n".join(
                             [
-                                "Invalid configuration for certificate issuer kind 'ClusterIssuer'",
-                                "ClusterIssuer can only be used when --permission-mode cluster is selected.",
+                                f"Invalid configuration for admin mode '{self.mas_admin_mode}'",
+                                "DNS integration is not available in this mode.",
+                                "Remove DNS integration option --dns-provider, or switch to --admin-mode cluster and use --mas-issuer-kind ClusterIssuer.",
                             ]
                         )
                     )
 
-                if self.getParam("dns_provider") != "":
-                    if self.mas_permission_mode in [
-                        "namespaced",
-                        "minimal",
-                    ]:
-                        self.fatalError(
-                            "\n".join(
-                                [
-                                    f"Invalid configuration for permission mode '{self.mas_permission_mode}'",
-                                    "DNS integration is not available in this mode.",
-                                    "Remove DNS integration option --dns-provider, or switch to --permission-mode cluster and use --mas-issuer-kind ClusterIssuer.",
-                                ]
-                            )
+                if self.mas_admin_mode == "cluster" and self.getParam("mas_issuer_kind") == "Issuer":
+                    self.fatalError(
+                        "\n".join(
+                            [
+                                "Invalid configuration for certificate issuer kind 'Issuer'",
+                                "DNS integration is not available when --mas-issuer-kind Issuer is selected.",
+                                "Remove DNS integration option --dns-provider, or use --mas-issuer-kind ClusterIssuer.",
+                            ]
                         )
+                    )
+        else:
+            if self.mas_admin_mode != "":
+                self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('mas_channel')})")
 
-                    if self.mas_permission_mode == "cluster" and self.getParam("mas_issuer_kind") == "Issuer":
-                        self.fatalError(
-                            "\n".join(
-                                [
-                                    "Invalid configuration for certificate issuer kind 'Issuer'",
-                                    "DNS integration is not available when --mas-issuer-kind Issuer is selected.",
-                                    "Remove DNS integration option --dns-provider, or use --mas-issuer-kind ClusterIssuer.",
-                                ]
-                            )
-                        )
-        elif isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
-            self.mas_permission_mode = "cluster"
-            if self.getParam("mas_issuer_kind") == "":
-                self.setParam("mas_issuer_kind", "ClusterIssuer")
-
-        self.evaluatePreInstallRBACAccess()
+        self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+            dynamicClient=self.dynamicClient,
+            masChannel=self.getParam("mas_channel"),
+            adminMode=self.mas_admin_mode,
+            noConfirm=self.noConfirm,
+            printH1Func=self.printH1,
+            printDescriptionFunc=self.printDescription,
+            yesOrNoFunc=self.yesOrNo,
+            fatalErrorFunc=self.fatalError,
+            operation="installation",
+        )
         self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
@@ -2421,6 +2592,11 @@ class InstallApp(
             arcgis_channel = self.getParam("mas_arcgis_channel")
             if arcgis_channel and not isVersionEqualOrAfter("9.0.0", arcgis_channel):
                 self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
+
+            # ArcGIS requires cluster admin mode
+            if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+                if self.mas_admin_mode != "cluster":
+                    self.fatalError(f"--arcgis-channel requires --admin-mode cluster (current: {self.mas_admin_mode})")
 
         # Validate Kafka requirements for IoT installation in non-interactive mode
         if self.installIoT:
@@ -2463,7 +2639,7 @@ class InstallApp(
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
         self.skipGrafanaInstall = args.skip_grafana_install
-        self.mas_permission_mode = args.mas_permission_mode if args.mas_permission_mode else ""
+        self.mas_admin_mode = args.mas_admin_mode if args.mas_admin_mode else ""
 
         # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
@@ -2477,8 +2653,6 @@ class InstallApp(
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
-
-        self.skip_preinstall_rbac = hasattr(args, "skip_preinstall_rbac") and args.skip_preinstall_rbac
 
         # Handle --use-cli-digest parameter which can be:
         # - False (not provided)
@@ -2514,7 +2688,7 @@ class InstallApp(
             self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
-            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
+            print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
             exit(1)
 
         # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
@@ -2550,6 +2724,7 @@ class InstallApp(
         self.podTemplates()
         self.slsLicenseFile()
         self.db2LicenseFile()
+        self.facilitiesPropertiesFile()
         self.manualCertificates()
         self.aiserviceConfig()
 
@@ -2562,6 +2737,22 @@ class InstallApp(
                 self.buildCommand(),
             ]
         )
+
+        # Currently no 9.2.x patch support path based routing as that changes this will need to change
+        # to filter on the specific patch version
+        if self.getParam("mas_routing_mode") == "path":
+            self.fatalError(
+                "\n".join(
+                    [
+                        "Path based routing mode not supported",
+                        "========================================================================",
+                        "Path based routing is not currently supported",
+                        "",
+                        "Use subdomain routing mode:",
+                        "   mas install --routing subdomain ...",
+                    ]
+                )
+            )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
@@ -2708,7 +2899,7 @@ class InstallApp(
                         dynClient=self.dynamicClient,
                         masVersion=".".join(self.getParam("mas_channel").split(".")[:2]),
                         masInstanceId=self.getParam("mas_instance_id"),
-                        permissionMode=self.mas_permission_mode,
+                        adminMode=self.mas_admin_mode,
                         selectedApps=self.getSelectedApps(),
                     )
                     h.stop_and_persist(symbol=self.successIcon, text="Pre-install MAS RBAC applied")
@@ -2756,6 +2947,7 @@ class InstallApp(
                     namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
                     db2LicenseFile=self.db2LicenseFileSecret,
+                    facilitiesProperties=self.facilitiesPropertiesSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret,
@@ -2785,7 +2977,7 @@ class InstallApp(
                 text=f"Installing latest Tekton definitions (v{self.version})",
                 spinner=self.spinner,
             ) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(
                     symbol=self.successIcon,
                     text=f"Latest Tekton definitions are installed (v{self.version})",

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-cp4d
@@ -27,7 +27,6 @@ spec:
     - name: mas_instance_id
       type: string
   stepTemplate:
-    name: gitops-deprovision-cp4d
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -63,7 +62,7 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-        
+
         mkdir -p /tmp/deprovision-cp4d
         mas gitops-deprovision-cp4d -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --dir /tmp/deprovision-cp4d \
@@ -80,6 +79,6 @@ spec:
         - -c
       name: gitops-deprovision-cp4d
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
