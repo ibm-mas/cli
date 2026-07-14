@@ -173,12 +173,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Dependencies
         self.configMongoDb()
-        self.setDB2DefaultChannel()
-        self.setDB2DefaultSettings()
-        self.printDescription(
-            ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
-        )
-        self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
+        self.configDatabase()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -198,9 +193,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.approvals = {
             "approval_aiservice": {"id": "aiservice"},
         }
-
-        self.setDB2DefaultChannel()
-        self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
@@ -285,6 +277,30 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 # No need to perform validation if file exist here, as it has been already validated by argParser type check.
                 if value is not None and value != "":
                     self.aiserviceTenantSchedulingConfigFileLocal = value
+
+            elif key == "db2_action_aiservice":
+                # Check if external DB parameters are provided
+                externalDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
+                hasExternalDb = any(vars(self.args)[dbParam] is not None for dbParam in externalDbParams)
+
+                if hasExternalDb:
+                    # Using external database - validate all required parameters and ensure --db2-aiservice wasn't set
+                    if value == "install" and vars(self.args)["aiservice_db_jdbc_url"] is not None:
+                        self.fatalError(
+                            "Cannot use --db2-aiservice with external database parameters. Use either --db2-aiservice for in-cluster DB2 OR --aiservice-db-jdbc-url for external database (Oracle/SQL Server/DB2), not both."
+                        )
+
+                    self.setParam("install_db2", "false")
+                    self.setParam("db2_action_aiservice", "byo")
+                    for dbParam in externalDbParams:
+                        if vars(self.args)[dbParam] is None:
+                            self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
+                elif value == "install":
+                    # Install DB2 in-cluster
+                    self.setParam("install_db2", "true")
+                    self.setParam("db2_action_aiservice", "install")
+                    self.setDB2DefaultChannel()
+                    self.setDB2DefaultSettings()
 
             elif key == "non_prod":
                 if not value:
@@ -485,14 +501,45 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.setParam("dro_action", "install")
 
-        # Install Db2 for AI Service
-        self.setParam("db2_action_aiservice", "install")
+        # DB2 action will be set by configDatabase() based on user choice
+        # Don't set db2_action_aiservice here - it should be determined by user selection
 
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:
             self.interactiveMode(simplified=args.simplified, advanced=args.advanced)
         else:
             self.nonInteractiveMode()
+
+            # Check if external database parameters were provided
+            if self.getParam("db2_action_aiservice") == "":
+                externalDbProvided = (
+                    vars(self.args).get("aiservice_db_jdbc_url") is not None
+                    or vars(self.args).get("aiservice_db_username") is not None
+                    or vars(self.args).get("aiservice_db_password") is not None
+                )
+
+                if externalDbProvided:
+                    # External database configuration provided
+                    self.setParam("install_db2", "false")
+                    self.setParam("db2_action_aiservice", "byo")
+
+                    # Validate required external DB parameters
+                    requiredDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
+                    for dbParam in requiredDbParams:
+                        if vars(self.args).get(dbParam) is None:
+                            self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
+
+                    # Set the external DB parameters
+                    for dbParam in ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password", "aiservice_db_ca_cert"]:
+                        value = vars(self.args).get(dbParam)
+                        if value is not None:
+                            self.setParam(dbParam, value)
+                else:
+                    # No database configuration provided - default to installing DB2
+                    self.setParam("install_db2", "true")
+                    self.setParam("db2_action_aiservice", "install")
+                    self.setDB2DefaultChannel()
+                    self.setDB2DefaultSettings()
 
         # Set up the sls and db2 license file
         self.slsLicenseFile()
@@ -610,7 +657,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             # Ask for external storage configuration
             self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-            self.promptForString("Storage access key", "aiservice_s3_accesskey")
+            self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
             self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
             self.promptForString("Storage host", "aiservice_s3_host")
             self.promptForString("Storage port", "aiservice_s3_port")
@@ -692,6 +739,56 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # Set default bucket names
         self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
         self.setParam("aiservice_s3_templates_bucket", "km-templates")
+
+    @logMethodCall
+    def configDatabase(self) -> None:
+        """
+        Configure database for AI Service.
+        """
+        self.printH1("Database Configuration")
+        self.printDescription(
+            [
+                "By default, DB2 will be installed in-cluster (suitable for development and testing).",
+                "Alternatively, you can connect to an external Oracle or DB2 database (supported in AI Service 9.1.x only).",
+                # "Alternatively, you can connect to an external database (Oracle, SQL Server, or DB2).",
+                "",
+            ]
+        )
+
+        if self.yesOrNo("Do you want to use an external database"):
+            # Use external database
+            self.setParam("install_db2", "false")
+            self.setParam("db2_action_aiservice", "byo")
+
+            self.printH2("External Database Configuration")
+            self.printDescription(
+                [
+                    "Provide connection details for your external Oracle or DB2 database.",
+                    "",
+                    "<b>JDBC URL Example:</b>",
+                    "  Oracle:     jdbc:oracle:thin:@//hostname:1521/servicename",
+                    "  DB2:        jdbc:db2://hostname:50000/database",
+                    # "  SQL Server: jdbc:sqlserver://hostname:1433;databaseName=aiservice",
+                    "",
+                ]
+            )
+
+            self.promptForString("Database JDBC URL", "aiservice_db_jdbc_url")
+            self.promptForString("Database Username", "aiservice_db_username")
+            self.promptForString("Database Password", "aiservice_db_password", isPassword=True)
+
+            if self.yesOrNo("Does the database use SSL/TLS with a self-signed certificate"):
+                self.promptForString("Database CA Certificate (PEM format)", "aiservice_db_ca_cert")
+        else:
+            # Install DB2 in-cluster (default)
+            self.setParam("install_db2", "true")
+            self.setParam("db2_action_aiservice", "install")
+            self.setDB2DefaultChannel()
+            self.setDB2DefaultSettings()
+            self.printDescription(
+                ["Db2 Universal Operator for v12 onwards requires a License activation key", "If you don't have a license, press enter to continue."]
+            )
+            self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
 
     def aiServiceIntegrations(self) -> None:
         self.printH1("WatsonX Integration")
