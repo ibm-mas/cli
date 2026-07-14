@@ -155,6 +155,71 @@ locals {
   }
   #RDS IOT specific IAM parameter ends here for Backup bucket
 {%- endif %}
+{%- if (RDS_MONITOR | lower == 'true') %}
+  #RDS monitor specific IAM parameter starts here for Audit log bucket
+  iam_user_arns_audit_log_monitor = {
+    audit_log   = "${var.iam_user_arn_prefix_audit_log}-auditlog-monitor"
+  }
+
+  s3_iam_users_list_audit_log_monitor = {
+    audit_log = {
+      bucket_name   = "${var.s3bucket_name_prefix_db2}-auditlog-monitor"
+      iam_user_name = "${var.iam_user_name_prefix_audit_log}-auditlog-monitor"
+      access_level  = var.access_level_audit_log_rw
+    }
+  }
+
+  iam_users_by_bucket_audit_log_monitor = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_audit_log_monitor : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_audit_log_monitor :
+      local.iam_user_arns_audit_log_monitor[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names_audit_log_monitor = {
+    audit_log   = "${var.iam_user_name_prefix_audit_log}-auditlog-monitor"
+  }
+
+  bucket_user_name_map_audit_log_monitor = {
+    for key, value in local.s3_iam_users_list_audit_log_monitor :
+    key => lookup(local.bucket_user_names_audit_log_monitor, key, null)
+  }
+  #RDS monitor specific IAM parameter ends here for Audit log bucket
+
+  #RDS monitor specific IAM parameter starts here for Backup bucket
+  iam_user_arns_backup_monitor = {
+    backup   = "${var.iam_user_arn_prefix_backup}-backup-monitor"
+  }
+
+  s3_iam_users_list_backup_monitor = {
+    backup = {
+      bucket_name   = "${var.s3bucket_name_prefix_db2}-backup-monitor"
+      iam_user_name = "${var.iam_user_name_prefix_backup}-backup-monitor"
+      access_level  = var.access_level_backup_rw
+    }
+  }
+
+  iam_users_by_bucket_backup_monitor = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_backup_monitor : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_backup_monitor :
+      local.iam_user_arns_backup_monitor[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names_backup_monitor = {
+    backup   = "${var.iam_user_name_prefix_backup}-backup-monitor"
+  }
+
+  bucket_user_name_map_backup_monitor = {
+    for key, value in local.s3_iam_users_list_backup_monitor :
+    key => lookup(local.bucket_user_names_backup_monitor, key, null)
+  }
+  #RDS monitor specific IAM parameter ends here for Backup bucket
+{%- endif %}
 {%- if (RDS_FACILITIES | lower == 'true') %}
   #RDS FACILITIES specific IAM parameter starts here for Audit log bucket
   iam_user_arns_audit_log_facilities = {
@@ -562,6 +627,45 @@ locals {
     }
     #RDS Backup iot specific S3 bucket end
    {%- endif %}
+    {%- if (RDS_MONITOR | lower == 'true') %}
+    #RDS monitor specific S3 bucket start
+    rds_s3bucket_audit_log_monitor = {
+        auditlog-monitor = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3bucket_name_prefix_db2}-auditlog-monitor"
+          id                   = "${var.s3bucket_name_prefix_db2}-auditlog-monitor"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_db2}-auditlog-monitor"
+          secret_suffix        = "monitor"
+          cos_secret_format    = false
+          manage_secret_format = false
+          expiration = {
+            days = 366 // how long to keep logs
+          }
+        }
+    }
+    #RDS monitor specific S3 bucket end
+    #RDS Backup monitor specific S3 bucket start
+    rds_s3bucket_backup_monitor = {
+        backup-monitor = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3backup_bucket_name_prefix_db2}-monitor"
+          id                   = "${var.s3backup_bucket_name_prefix_db2}-monitor"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3backup_bucket_name_prefix_db2}-monitor"
+          secret_suffix        = "backup-monitor"
+          cos_secret_format    = false
+          manage_secret_format = false
+          expiration = {
+            days = 366 // how long to keep backups
+          }
+        }
+    }
+    #RDS Backup monitor specific S3 bucket end
+   {%- endif %}
+
    {%- endif %}
     }
 
@@ -618,6 +722,22 @@ locals {
       efs_mount_count = {{EFS_IOT_DB2_MOUNT_COUNT}}
     }
 {%- endif %}
+{%- if EFS_MONITOR_DB2 == "true" %}
+    monitor-db2 = {
+      name = join("-", ["efs", var.cluster_name, var.instance_name, "monitor-db2"])
+      performance_mode = "{{EFS_MONITOR_DB2_PERFORMANCE_MODE}}"
+      throughput_mode = "{{EFS_MONITOR_DB2_THROUGHPUT_MODE}}"
+      efs_mount_count = {{EFS_MONITOR_DB2_MOUNT_COUNT}}
+    }
+{%- endif %}
+{%- if EFS_MONITOR_MAIN == "true" %}
+    monitor-main = {
+      name = join("-", ["efs", var.cluster_name, var.instance_name, "monitor-main"])
+      performance_mode = "{{EFS_MONITOR_MAIN_PERFORMANCE_MODE}}"
+      throughput_mode = "{{EFS_MONITOR_MAIN_THROUGHPUT_MODE}}"
+      efs_mount_count = {{EFS_MONITOR_MAIN_MOUNT_COUNT}}
+    }
+{%- endif %}
 {%- if EFS_VISUALINSPECTION_MAIN == "true" %}
     visualinspection-main = {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "visualinspection-main"])
@@ -667,7 +787,7 @@ locals {
 {%- if (IS_S3 | lower == 'true') and (S3_MVI | lower == 'true') %}
 resource "aws_iam_user_policy" "mvi_list_all_buckets" {
   name = "${var.instance_name}-${var.cluster_name}-mvi-list-all-buckets"
-  user = "${var.iam_user_name_prefix_mvi}-mvi-${var.access_level_rw}"
+  user = var.s3_iam_users_list_mvi["mvi"].iam_user_name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -679,5 +799,7 @@ resource "aws_iam_user_policy" "mvi_list_all_buckets" {
       }
     ]
   })
+
+  depends_on = [time_sleep.wait_for_iam_mvi_bucket]
 }
 {%- endif %}

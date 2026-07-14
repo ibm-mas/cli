@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: aiservice-fvt-launcher
@@ -19,13 +19,13 @@ spec:
     - name: sync_with_update
       type: string
       default: "false"
-      description: "Set this to 'true' to enable synchronization with a running AI Service update pipeline"  
+      description: "Set this to 'true' to enable synchronization with a running AI Service update pipeline"
 
     - name: sync_with_upgrade
       type: string
       default: "false"
       description: "Set this to 'true' to enable synchronization with a running MAS upgrade pipeline"
-      
+
     - name: sync_with_uninstall
       type: string
       default: "false"
@@ -201,7 +201,7 @@ spec:
         - start-update
 
     # Verify health of the cluster before we consider the update complete
-    # Reusing mas-devops-ocp-verify Task which already has 
+    # Reusing mas-devops-ocp-verify Task which already has
     # -------------------------------------------------------------------------
     - name: post-update
       timeout: "0"
@@ -259,7 +259,7 @@ spec:
         - start-upgrade
 
     # Verify health of the cluster before we consider the upgrade complete
-    # Reusing mas-devops-ocp-verify Task which already has 
+    # Reusing mas-devops-ocp-verify Task which already has
     # -------------------------------------------------------------------------
     - name: post-upgrade
       timeout: "0"

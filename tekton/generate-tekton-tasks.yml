@@ -39,7 +39,6 @@
         - nvidia-gpu
         - ocs
         - rhoai-migration
-        - sls-registry-update
         - sls
         - turbonomic
 
@@ -95,6 +94,7 @@
         - mas-fvt-pre-update
         - mas-fvt-pre-upgrade
         - mas-fvt-post-update
+        - mas-fvt-config-helper
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
@@ -115,8 +115,6 @@
         - mas-launchfvt-optimizer
         - mas-launchfvt-predict
         - mas-launchfvt-visualinspection
-        - mas-launchfvt-upgrade-post
-        - mas-launchfvt-upgrade-pre
         - mas-launchfvt-facilities
         - mas-launchivt-manage
 
@@ -147,7 +145,6 @@
         - suite-app-backup
         - suite-app-install
         - suite-app-restore
-        - suite-app-rollback
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-backup
@@ -158,7 +155,6 @@
         - suite-db2-setup-for-facilities
         - suite-dns
         - suite-install
-        - suite-rollback
         - suite-uninstall
         - suite-upgrade
         - suite-verify
@@ -187,16 +183,7 @@
         - wait-for-configmap-v2
         - wait-for-tekton
 
-    # 9. Generate Tasks (Common)
-    # -------------------------------------------------------------------------
-    - name: Generate Tasks (Common)
-      ansible.builtin.template:
-        src: "{{ task_src_dir }}/common/{{ item }}.yml.j2"
-        dest: "{{ task_target_dir }}/{{ item }}.yaml"
-      with_items:
-        - mas-config-helper
-
-    # 10. Generate Tasks (GitOps)
+    # 9. Generate Tasks (GitOps)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (GitOps)
       ansible.builtin.template:
@@ -264,6 +251,8 @@
         - gitops-suite
         - gitops-odh
         - gitops-deprovision-odh
+        - gitops-rhoai
+        - gitops-deprovision-rhoai
         - gitops-aiservice
         - gitops-aiservice-tenant
         - gitops-deprovision-aiservice-tenant
@@ -278,4 +267,3 @@
         - gitops-iac-provision-msk
         - gitops-rds-db2-database
         - gitops-iac-provision-rdsdb2
-

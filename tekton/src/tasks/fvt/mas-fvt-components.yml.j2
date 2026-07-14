@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-components
@@ -16,13 +16,13 @@ spec:
       description: Extracted component names as a JSON array
   steps:
     - name: extract
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       script: |
         #!/bin/sh
         echo "Hello.. Start extraction for $(params.mas_appws_components)"
 
         component_input="$(params.mas_appws_components)"
-        
+
         if [[ $component_input =~ "civil" ]]; then
           echo "Civil component is present. Adding HSE and Spatial to the list of components"
           component_input="$component_input,spatial=latest,hse=latest"

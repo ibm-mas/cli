@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-assist
@@ -63,7 +63,6 @@ spec:
       default: "false"
 
   stepTemplate:
-    name: 'fvt-run-$(params.fvt_image_name)'
     env:
       - name: PRODUCT_ID
         value: ibm-mas-assist
@@ -122,11 +121,11 @@ spec:
         value: $(params.ctf_is_local)
 
   steps:
-    - image: '$(params.fvt_image_registry)/fvt-assist/$(params.fvt_image_name)@$(params.fvt_image_digest)'
+    - name: fvt-assist
+      image: '$(params.fvt_image_registry)/fvt-assist/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 300m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-suite-config
@@ -76,7 +76,6 @@ spec:
       type: string
       default: ""
   stepTemplate:
-    name: gitops-suite-config
     env:
       - name: CLUSTER_URL
         value: $(params.cluster_url)
@@ -144,7 +143,7 @@ spec:
   steps:
     - args:
       - |-
-        
+
 
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
@@ -234,13 +233,13 @@ spec:
           echo "AI Service not configured, skipping AiCfg creation"
         fi
 
-        
+
       command:
         - /bin/sh
         - -c
       name: gitops-suite-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-additional-configs

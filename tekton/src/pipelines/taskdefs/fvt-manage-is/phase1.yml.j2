@@ -192,6 +192,8 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: civil-api-defectdetection
+    - name: workspace_managedata_path
+      value: "/workspace/configs/managedata"
   when:
     - input: "civil"
       operator: in

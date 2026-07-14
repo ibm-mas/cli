@@ -98,14 +98,12 @@ jobs:
       - name: Install
         id: install
         run: |
-          cd $GITHUB_WORKSPACE/python
           sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
           sed -i "s#self.version: str = \"100.0.0-pre.local\"#self.version: str = \"${{ env.VERSION }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/cli.py
           echo "check version in file: __init__.py"
           cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
           echo "check version in file: cli.py"
           cat ${GITHUB_WORKSPACE}/python/src/mas/cli/cli.py | grep "self.version"
-
 
           python -m pip install --upgrade pip
           pip install .[dev]
@@ -135,22 +133,19 @@ jobs:
       - name: Lint
         id: lint
         run: |
-          cd $GITHUB_WORKSPACE/python
-          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
+          flake8 python/src --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 python/src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
 
       - name: Test
         id: test
         run: |
-          cd $GITHUB_WORKSPACE/python
-          pytest
+          pytest python/tests
 
       - name: Build
         id: build
         run: |
-          cd $GITHUB_WORKSPACE/python
           python -m build
-          cp $GITHUB_WORKSPACE/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/mas_cli.tar.gz
+          cp $GITHUB_WORKSPACE/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/mas_cli.tar.gz
 
       # 3. Upload and Publish
       # -------------------------------------------------------------------------------------------
@@ -169,7 +164,7 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          packages-dir: python/dist
+          packages-dir: dist
 
   build-arm64-container:
     name: Build Container Image (arm64)
@@ -239,7 +234,6 @@ jobs:
 
           # Push the images
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-arm64
-
 
   build-amd64-container:
     name: Build Container Image (amd64)
@@ -490,190 +484,11 @@ jobs:
           else
             echo "Publishing quay.io/ibmmas/cli:$GITHUB_REF_NAME alias"
             docker buildx imagetools create -t quay.io/ibmmas/cli:$GITHUB_REF_NAME quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+
+            # Preserve digests for master and monthlyupdate branches with build-specific tags
+            if [[ "$GITHUB_REF_NAME" == "master" ]] || [[ "$GITHUB_REF_NAME" == "monthlyupdate" ]]; then
+              BUILD_TAG="${GITHUB_REF_NAME}-${{ github.run_number }}"
+              echo "Publishing quay.io/ibmmas/cli:${BUILD_TAG} for digest preservation"
+              docker buildx imagetools create -t quay.io/ibmmas/cli:${BUILD_TAG} quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+            fi
           fi
-
-
-  pyinstaller-windows:
-    name: Build Windows CLI
-    runs-on: windows-latest
-    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
-    needs:
-      - build-tekton
-      - build-python
-    steps:
-      # 1. Initialize the build
-      # -------------------------------------------------------------------------------------------
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v4
-
-      # 2. Run PyInstaller
-      # -------------------------------------------------------------------------------------------
-      - name: Download the tekton file
-        id: download-tekton
-        uses: actions/download-artifact@v4
-        with:
-          name: ibm-mas-tekton.yaml
-          path: ${{ github.workspace }}/python/src/mas/cli/templates/
-
-      - name: Download the python package
-        id: download-python
-        uses: actions/download-artifact@v4
-        with:
-          name: mas_cli.tar.gz
-          path: ${{ github.workspace }}/
-
-      - name: Build the Windows executable
-        id: build
-        run: |
-          python -m pip install --upgrade pip virtualenv
-          python -m venv .venv
-          .\.venv\Scripts\activate
-          python -m pip install "./mas_cli.tar.gz[dev]"
-          python -m pip list
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-cli
-
-      # 3. Upload and Publish
-      # -------------------------------------------------------------------------------------------
-      - name: Upload mas-cli
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-cli-windows-amd64
-          path: ${{ github.workspace }}/python/dist/mas-cli.exe
-          retention-days: 30
-
-      - name: Publish the new cli
-        id: publish
-        if: github.event_name == 'release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/python/dist/mas-cli.exe
-          asset_name: mas-cli-windows-amd64.exe
-          tag: ${{ github.ref }}
-          overwrite: true
-
-  pyinstaller-linux:
-    name: Build Linux CLI
-    # We intentionally run on the oldest available Ubuntu runner, as this will result in a binary
-    # usable on older and newer versions of linux.
-    runs-on: ubuntu-24.04
-    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
-    needs:
-      - build-tekton
-      - build-python
-    steps:
-      # 1. Initialize the build
-      # -------------------------------------------------------------------------------------------
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v4
-
-      # 2. Run PyInstaller
-      # -------------------------------------------------------------------------------------------
-      - name: Download the tekton file
-        id: download-tekton
-        uses: actions/download-artifact@v4
-        with:
-          name: ibm-mas-tekton.yaml
-          path: ${{ github.workspace }}/python/src/mas/cli/templates/
-
-      - name: Download the python package
-        id: download-python
-        uses: actions/download-artifact@v4
-        with:
-          name: mas_cli.tar.gz
-          path: ${{ github.workspace }}/
-
-      - name: Build the Linux executable
-        id: build
-        run: |
-          python -m pip install --upgrade pip virtualenv
-          python -m venv .venv
-          source .venv/bin/activate
-          python -m pip install ./mas_cli.tar.gz[dev]
-          python -m pip list
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-cli
-
-      # 3. Upload and Publish
-      # -------------------------------------------------------------------------------------------
-      - name: Upload mas-cli
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-cli-linux-amd64
-          path: ${{ github.workspace }}/python/dist/mas-cli
-          retention-days: 30
-
-      - name: Publish the new cli
-        id: publish
-        if: github.event_name == 'release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-linux-amd64
-          tag: ${{ github.ref }}
-          overwrite: true
-
-  pyinstaller-macos:
-    name: Build MacOS CLI
-    runs-on: macos-latest
-    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
-    needs:
-      - build-tekton
-      - build-python
-    steps:
-      # 1. Initialize the build
-      # -------------------------------------------------------------------------------------------
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v4
-
-      # 2. Run PyInstaller
-      # -------------------------------------------------------------------------------------------
-      - name: Download the tekton file
-        id: download-tekton
-        uses: actions/download-artifact@v4
-        with:
-          name: ibm-mas-tekton.yaml
-          path: ${{ github.workspace }}/python/src/mas/cli/templates/
-
-      - name: Download the python package
-        id: download-python
-        uses: actions/download-artifact@v4
-        with:
-          name: mas_cli.tar.gz
-          path: ${{ github.workspace }}/
-
-      - name: Build the Linux executable
-        id: build
-        run: |
-          python -m pip install --upgrade pip virtualenv
-          python -m venv .venv
-          source .venv/bin/activate
-          python -m pip install ./mas_cli.tar.gz[dev]
-          python -m pip list
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-cli
-
-      # 3. Upload and Publish
-      # -------------------------------------------------------------------------------------------
-      - name: Upload mas-cli
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-cli-macos-arm64
-          path: ${{ github.workspace }}/python/dist/mas-cli
-          retention-days: 30
-
-      - name: Publish the new cli
-        id: publish
-        if: github.event_name == 'release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-macos-arm64
-          tag: ${{ github.ref }}
-          overwrite: true

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-devops-suite-certs
@@ -26,7 +26,7 @@ spec:
       type: string
       description: Optional boolean parameter that when set to True, indicates that manually created certificates will be used to certify MAS and application routes
       default: ""
-    
+
     # MAS Routing Mode
     - name: mas_routing_mode
       type: string
@@ -119,7 +119,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_certs
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
 
   workspaces:
