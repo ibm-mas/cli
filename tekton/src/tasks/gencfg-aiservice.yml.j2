@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-devops-gencfg-aiservice
@@ -23,7 +23,7 @@ spec:
 
   steps:
     - name: gencfg-aiservice
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: IfNotPresent
       env:
         - name: MAS_INSTANCE_ID
@@ -34,13 +34,13 @@ spec:
           value: $(params.aiservice_instance_id)
         - name: AISERVICE_CHANNEL
           value: $(params.aiservice_channel)
-      
+
       workingDir: /workspace/shared-configs
-      
+
       script: |
         #!/bin/bash
         set -e
-        
+
         echo "================================================================================"
         echo "Generating AiCfg with auto-detected values from cluster"
         echo "================================================================================"
@@ -49,51 +49,51 @@ spec:
         echo "AI Service Instance ID ..... ${AISERVICE_INSTANCE_ID}"
         echo "AI Service Channel ......... ${AISERVICE_CHANNEL}"
         echo ""
-        
+
         # Construct tenant ID and tenant name
         # Format: aiservice-{instance_id}-user
         AISERVICE_TENANT_ID="aiservice-${AISERVICE_INSTANCE_ID}-user"
-        
+
         # Set namespaces
         AISERVICE_NAMESPACE="aiservice-${AISERVICE_INSTANCE_ID}"
         AISERVICE_TENANT_NAME="${AISERVICE_TENANT_ID}"
-        
+
         echo "AI Service Tenant ID ....... ${AISERVICE_TENANT_ID}"
-        
+
         # Determine tenant namespace based on channel
         if [[ "${AISERVICE_CHANNEL}" == 9.1.* ]]; then
           AISERVICE_TENANT_NAMESPACE="${AISERVICE_NAMESPACE}"
         else
           AISERVICE_TENANT_NAMESPACE="${AISERVICE_TENANT_NAME}"
         fi
-        
+
         echo "AI Service Namespace ....... ${AISERVICE_NAMESPACE}"
         echo "Tenant Namespace ........... ${AISERVICE_TENANT_NAMESPACE}"
         echo ""
-        
+
         # 1. Get API Key from secret
         echo "Fetching API key from secret..."
         SECRET_NAME="${AISERVICE_TENANT_NAME}----apikey-secret"
         APIKEY=$(oc get secret "${SECRET_NAME}" -n "${AISERVICE_TENANT_NAMESPACE}" -o jsonpath='{.data.AIBROKER_APIKEY}' | base64 -d)
         echo "✓ API key retrieved"
-        
+
         # 2. Get URL from route
         echo "Fetching URL from route..."
         ROUTE_HOST=$(oc get route aibroker -n "${AISERVICE_NAMESPACE}" -o jsonpath='{.spec.host}')
         URL="https://${ROUTE_HOST}/ibm/aibroker/service/rest/api/v1"
         echo "✓ URL: ${URL}"
-        
+
         # 3. Get TLS certificate from secret
         echo "Fetching certificate from secret..."
         TLS_SECRET_NAME="${AISERVICE_INSTANCE_ID}-public-aibroker-tls"
         CERTIFICATE=$(oc get secret "${TLS_SECRET_NAME}" -n "${AISERVICE_NAMESPACE}" -o jsonpath='{.data.ca\.crt}' | base64 -d)
         echo "✓ Certificate retrieved"
-        
+
         echo ""
         echo "================================================================================"
         echo "Generating AiCfg YAML file"
         echo "================================================================================"
-        
+
         # Create the AiCfg YAML file
         cat > "aicfg-${MAS_INSTANCE_ID}-system.yaml" <<EOF
         ---
@@ -138,7 +138,7 @@ spec:
               crt: |-
         $(echo "${CERTIFICATE}" | sed 's/^/        /')
         EOF
-        
+
         echo "✓ AiCfg file created: aicfg-${MAS_INSTANCE_ID}-system.yaml"
         echo ""
         echo "================================================================================"

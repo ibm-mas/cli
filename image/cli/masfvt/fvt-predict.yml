@@ -15,10 +15,14 @@
     fvt_digest_ctf: "{{ lookup('env', 'FVT_DIGEST_CTF') }}"
     fvt_digest_predict: "{{ lookup('env', 'FVT_DIGEST_PREDICT') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
+    # Black and white listing
+    fvt_blacklist: "{{ lookup('env', 'FVT_BLACKLIST') }}"
+    fvt_whitelist: "{{ lookup('env', 'FVT_WHITELIST') }}"
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-predict', True) }}-{{ devops_build_number }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+    service_account_name: "{{ lookup('env', 'SERVICE_ACCOUNT_NAME') | default('pipeline', True) }}"
   tasks:
     - name: "Debug"
       debug:
@@ -36,6 +40,9 @@
           - "fvt_digest_ctf .................... {{ fvt_digest_ctf }}"
           - "fvt_digest_predict ................ {{ fvt_digest_predict }}"
           - "ivt_digest_core ................... {{ ivt_digest_core }}"
+          - ""
+          - "fvt_blacklist ............... {{ fvt_blacklist }}"
+          - "fvt_whitelist ............... {{ fvt_whitelist }}"
 
     - name: "Start fvt-predict pipeline"
       kubernetes.core.k8s:

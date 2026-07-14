@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -96,10 +96,6 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --dev-mode{newline}"
         if self.getParam("skip_pre_check") is True:
             command += f"  --skip-pre-check{newline}"
-        if self.permission_mode != "":
-            command += f'  --permission-mode "{self.permission_mode}"{newline}'
-        if self.skip_preinstall_rbac:
-            command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam("service_account_name") != "":
@@ -182,10 +178,22 @@ class aiServiceInstallArgBuilderMixin:
         if self.getParam("rsl_ca_crt") != "":
             command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 
-        if self.getParam("db2_channel") != "":
-            command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
-        if self.db2LicenseFileLocal:
-            command += f'  --db2-license-file "{self.db2LicenseFileLocal}"'
+        # Database Configuration
+        # -----------------------------------------------------------------------------
+        if self.getParam("db2_action_aiservice") == "install":
+            # In-cluster DB2 installation
+            command += f"  --db2-aiservice{newline}"
+            if self.getParam("db2_channel") != "":
+                command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
+            if self.db2LicenseFileLocal:
+                command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
+        elif self.getParam("aiservice_db_jdbc_url") != "":
+            # External database (Oracle/SQL Server/DB2)
+            command += f"  --aiservice-db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
+            command += f"  --aiservice-db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
+            command += f"  --aiservice-db-password \"{self.getParam('aiservice_db_password')}\"{newline}"
+            if self.getParam("aiservice_db_ca_cert") != "":
+                command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
 
         command += "  --accept-license --no-confirm"
         return command

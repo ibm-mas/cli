@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-suite-idp-config
@@ -26,7 +26,6 @@ spec:
     - name: avp_aws_secret_region
       type: string
   stepTemplate:
-    name: gitops-deprovision-suite-idp-config
     env:
       - name: CLUSTER_ID
         value: $(params.cluster_name)
@@ -57,7 +56,7 @@ spec:
   steps:
     - args:
       - |-
-        
+
 
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
@@ -86,6 +85,6 @@ spec:
         - -c
       name: gitops-deprovision-suite-idp-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

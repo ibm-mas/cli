@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+from .facilities.agents import facilitiesAgents
 import logging
 
 logger = logging.getLogger(__name__)
@@ -86,14 +87,18 @@ class installArgBuilderMixin:
 
         if self.localConfigDir is not None:
             command += f'  --additional-configs "{self.localConfigDir}"{newline}'
-        if self.getParam("pod_templates") != "":
-            command += f"  --pod-templates \"{self.getParam('pod_templates')}\"{newline}"
+        if self.getParam("mas_pod_templates_dir") != "":
+            # Use keyword for built-in templates, otherwise use the full path
+            if hasattr(self, "podTemplatesKeyword") and self.podTemplatesKeyword is not None:
+                command += f'  --pod-templates "{self.podTemplatesKeyword}"{newline}'
+            else:
+                command += f"  --pod-templates \"{self.getParam('mas_pod_templates_dir')}\"{newline}"
 
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
 
-        if self.mas_permission_mode != "":
-            command += f"  --permission-mode {self.mas_permission_mode}{newline}"
+        if self.mas_admin_mode != "":
+            command += f"  --admin-mode {self.mas_admin_mode}{newline}"
 
         if self.getParam("mas_trust_default_cas").lower() == "false":
             command += f"  --disable-ca-trust{newline}"
@@ -348,6 +353,17 @@ class installArgBuilderMixin:
             if self.getParam("mas_ws_facilities_storage_userfiles_size") != "":
                 command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
 
+            if self.getParam("mas_ws_facilities_server_timezone") != "":
+                command += f"  --facilities-server-timezone \"{self.getParam('mas_ws_facilities_server_timezone')}\"{newline}"
+
+            if self.facilitiesPropertiesFileLocal:
+                command += f'  --facilities-properties-file "{self.facilitiesPropertiesFileLocal}"{newline}'
+            if self.getParam("mas_ws_facilities_properties_secret_name") != "":
+                command += f"  --facilities-properties-secret-name \"{self.getParam('mas_ws_facilities_properties_secret_name')}\"{newline}"
+
+            for agent in facilitiesAgents:
+                if self.getParam(f"mas_ws_facilities_{agent}_deploymentmode") != "":
+                    command += f'  --facilities-{agent}-deploymentmode "{self.getParam(f"mas_ws_facilities_{agent}_deploymentmode")}"{newline}'
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
         if self.installAIService:
@@ -359,6 +375,22 @@ class installArgBuilderMixin:
             # Certificate Issuer for AI Service
             if self.getParam("aiservice_certificate_issuer") != "":
                 command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
+
+            # Database configuration for AI Service - matches standalone pattern
+            if self.getParam("db2_action_aiservice") == "install":
+                # In-cluster DB2 installation
+                command += f"  --db2-aiservice{newline}"
+                if self.getParam("db2_channel") != "":
+                    command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
+                if self.db2LicenseFileLocal:
+                    command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
+            elif self.getParam("aiservice_db_jdbc_url") != "":
+                # External database (Oracle/SQL Server/DB2)
+                command += f"  --aiservice-db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
+                command += f"  --aiservice-db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
+                command += f"  --aiservice-db-password \"{self.getParam('aiservice_db_password')}\"{newline}"
+                if self.getParam("aiservice_db_ca_cert") != "":
+                    command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
 
             if self.getParam("aiservice_s3_accesskey") != "" and self.getParam("minio_root_user") == "":
                 command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
@@ -465,8 +497,12 @@ class installArgBuilderMixin:
 
             if self.getParam("db2_type") != "":
                 command += f"  --db2-type \"{self.getParam('db2_type')}\"{newline}"
-            if self.getParam("db2_timezone") != "":
-                command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+            if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+                if self.getParam("db2_timezone") != "":
+                    command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+            if self.getParam("db2_action_facilities") == "install":
+                if self.getParam("db2_facilities_timezone") != "":
+                    command += f"  --db2-facilities-timezone \"{self.getParam('db2_facilities_timezone')}\"{newline}"
             if self.db2LicenseFileLocal != "":
                 command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
 
@@ -608,8 +644,6 @@ class installArgBuilderMixin:
             command += f"  --dev-mode{newline}"
         if self.getParam("skip_pre_check") is True:
             command += f"  --skip-pre-check{newline}"
-        if self.skip_preinstall_rbac:
-            command += f"  --skip-preinstall-rbac{newline}"
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam("service_account_name") != "":

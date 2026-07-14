@@ -766,8 +766,76 @@
   type: string
   description: Define storage mode for userfiles
   default: ""
+- name: mas_ws_facilities_server_timezone
+  type: string
+  description: Facilities server timezone
+  default: "UTC"  
 - name: mas_ws_facilities_config_map_name
   description: ConfigMap with configurations not supported by Tekton
+  type: string
+  default: ""
+- name: mas_ws_facilities_custom_properties
+  description: Flag indicating if custom FACILITIES.properties file is provided
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_file_local
+  description: Path to custom FACILITIES.properties file in pipeline workspace
+  type: string
+  default: ""
+- name: mas_ws_facilities_properties_secret_name
+  description: Name of the secret containing custom FACILITIES.properties
+  type: string
+  default: ""
+- name: mas_ws_facilities_dataconnectagent_deploymentmode
+  description: Agent dataconnectagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_extendedformulaagent_deploymentmode
+  description: Agent extendedformulaagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_formularecalcagent_deploymentmode
+  description: Agent formularecalcagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_incomingmailagent_deploymentmode
+  description: Agent incomingmailagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_maintenanceagent_deploymentmode
+  description: Agent maintenanceagent deployment mode
+  type: string
+  default: ""  
+- name: mas_ws_facilities_objectmigrationagent_deploymentmode
+  description: Agent objectmigrationagent deployment mode
+  type: string
+  default: "" 
+- name: mas_ws_facilities_objectpublishagent_deploymentmode
+  description: Agent objectpublishagent deployment mode
+  type: string
+  default: "" 
+- name: mas_ws_facilities_reportqueueagent_deploymentmode
+  description: Agent reportqueueagent deployment mode
+  type: string
+  default: "" 
+- name: mas_ws_facilities_wfagent_deploymentmode
+  description: Agent wfagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_wffutureagent_deploymentmode
+  description: Agent wffutureagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_wfnotificationagent_deploymentmode
+  description: Agent wfnotificationagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_reservesmtpagent_deploymentmode
+  description: Agent reservesmtpagent deployment mode
+  type: string
+  default: ""
+- name: mas_ws_facilities_scheduleragent_deploymentmode
+  description: Agent scheduleragent deployment mode
   type: string
   default: ""
 

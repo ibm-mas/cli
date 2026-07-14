@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-rosa
@@ -18,14 +18,12 @@ spec:
       type: string
     - name: aws_region
       type: string
-  stepTemplate:
-    name: gitops-deprovision-rosa
   steps:
     - args:
       - |-
         export ROSA_TOKEN=$(params.rosa_token)
         export OCP_VERSION=$(params.ocp_version)
-  
+
         aws configure set aws_access_key_id $(params.aws_access_key_id)
         aws configure set aws_secret_access_key $(params.aws_secret_access_key)
         aws configure set default.region $(params.aws_region)
@@ -46,6 +44,6 @@ spec:
         - -c
       name: gitops-deprovision-rosa
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

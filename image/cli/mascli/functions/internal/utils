@@ -202,6 +202,21 @@ function prompt_for_secret(){
 }
 
 
+function validate_registry_prefix() {
+  registryPrefix=$1
+
+  if [[ -z "$registryPrefix" ]]; then
+    return 0
+  fi
+
+  if [[ ! "$registryPrefix" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$ ]]; then
+    echo_warning "Invalid registry prefix '$registryPrefix'"
+    echo_warning "REGISTRY_PREFIX must be a lowercase RFC 1123 subdomain containing only lowercase alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character"
+    echo_warning "Examples: test, test.dev, abc-123"
+    exit 1
+  fi
+}
+
 function prompt_for_input(){
   msg=$1
   varname=$2
@@ -446,7 +461,7 @@ try:
     result = resolve_path(data, dot_path)
     # Strip quotes from result (handles strings, lists, dicts recursively)
     result = strip_quotes_recursive(result)
-    
+
     if isinstance(result, (list, dict)):
         print(json.dumps(result))
     else:

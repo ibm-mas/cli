@@ -66,7 +66,7 @@ mirrorArgParser = argparse.ArgumentParser(
 
 mainGroup = mirrorArgParser.add_argument_group("Primary Configuration")
 mainGroup.add_argument("--catalog", required=True, help="Catalog version (e.g., v9-240625-amd64, v9-260129-amd64)")
-mainGroup.add_argument("--release", required=True, help="MAS release version", choices=["8.10.x", "8.11.x", "9.0.x", "9.1.x", "9.2.x-feature"])
+mainGroup.add_argument("--release", required=True, help="MAS release version", choices=["8.10.x", "8.11.x", "9.0.x", "9.1.x", "9.2.x", "9.2.x-feature"])
 mainGroup.add_argument("--mode", required=True, help="Mirror mode", choices=["m2m", "m2d", "d2m"])
 mainGroup.add_argument("--target-registry", required=False, type=str, help="Target registry for m2m and d2m modes (e.g., registry.example.com/namespace)")
 mainGroup.add_argument("--dir", required=True, type=str, help="Root directory for mirror operations (workspace for m2m, disk storage for m2d/d2m)")

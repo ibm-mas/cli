@@ -12,7 +12,7 @@ VERSION_FILE=$GITHUB_WORKSPACE/.version
 VERSION_FILE_NOPREREL=$GITHUB_WORKSPACE/.version-noprerel
 
 if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-  echo "Note: non-branch build for a tag named '${GITHUB_REF_NAME}'"
+  echo "Non-branch build for '${GITHUB_REF_TYPE}/${GITHUB_REF_NAME}'"
   TAG_BASED_RELEASE=true
 
   SEMVER_XYZ="(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
@@ -26,7 +26,8 @@ if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
   fi
 
   echo "${GITHUB_REF_NAME}" > $VERSION_FILE
-else
+elif [[ "${GITHUB_REF_TYPE}" == "branch" ]]; then
+  echo "Branch build for '${GITHUB_REF_TYPE}/${GITHUB_REF_NAME}'"
   # Finds the most recent tag that is reachable from a commit. If the tag points
   # to the commit, then only the tag is shown. Otherwise, it suffixes the tag name with the number
   # of additional commits on top of the tagged object and the abbreviated object name of the most
@@ -87,6 +88,9 @@ else
     semver bump patch ${SEMVER_LAST_TAG} > $VERSION_FILE
     echo "Configuring semver for rebuild of ${SEMVER_LAST_TAG}: $(cat $VERSION_FILE)"
   fi
+else
+  echo "Unknown GITHUB_REF_TYPE: ${GITHUB_REF_TYPE}"
+  exit 1
 fi
 
 
