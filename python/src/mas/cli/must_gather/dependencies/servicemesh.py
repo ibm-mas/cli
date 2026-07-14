@@ -99,7 +99,6 @@ def addServiceMeshToCollectionPlan(plan, dynClient: DynamicClient, outputDir: st
                 namespace=ns,
                 outputDir=outputDir,
                 noLogs=noLogs,
-                secretData=False,
                 customResources=SERVICEMESH_NS_RESOURCES,
                 ibmCRDs=ibmCRDs,
             )
