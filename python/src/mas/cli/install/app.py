@@ -333,6 +333,7 @@ class InstallApp(
             self.promptForString("Select channel", "mas_channel", default="9.2.x-dev")
         else:
             catalogInfo = getCurrentCatalog(self.dynamicClient)
+            logger.debug(f"Installed catalog lookup result: {catalogInfo}")
 
             if catalogInfo is None:
                 self.printDescription(
