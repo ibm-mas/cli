@@ -78,12 +78,15 @@ function redis_available() {
     echo "$(logts) Redis is not available"
     return 1
   fi
-  
+
+  # Diagnostic: log credential configuration (no values exposed)
+  echo "$(logts) Redis credential check: REDIS_USERNAME is $([[ -n "${REDIS_USERNAME}" ]] && echo "set" || echo "not set"), REDIS_PASSWORD is $([[ -n "${REDIS_PASSWORD}" ]] && echo "set" || echo "not set")"
+
   # Get redis command (authentication is handled inside redis_cli_cmd)
   local redis_cmd=$(redis_cli_cmd)
   
   # Display command with password masked for security
-  local display_cmd=$(echo "${redis_cmd}" | sed 's/-a [^ ]*/-a ****/g')
+  local display_cmd=$(echo "${redis_cmd}" | sed 's/-a [^ ]*/-a ****/g' | sed 's/--user [^ ]*/--user ****/g')
   echo "$(logts) Checking Redis availability: ${display_cmd} PING"
   
   # Capture both stdout and stderr to see actual errors
@@ -99,9 +102,13 @@ function redis_available() {
     if [[ ${exit_code} -ne 0 ]] || [[ -z "${result}" ]]; then
       echo "$(logts) Redis connection error (exit code: ${exit_code}):"
       # Get full error output, suppress password, and filter timestamps/warnings
-      ${redis_cmd} PING 2>&1 | grep -v "^\[" | grep -v "^Warning:" | sed 's/-a [^ ]*/-a ****/g'
+      ${redis_cmd} PING 2>&1 | grep -v "^\[" | grep -v "^Warning:" | sed 's/-a [^ ]*/-a ****/g' | sed 's/--user [^ ]*/--user ****/g'
     else
       echo "$(logts) Unexpected response: \"${result}\""
+      # Additional hint for auth failures
+      if echo "${result}" | grep -qi "WRONGPASS\|NOAUTH\|AUTH"; then
+        echo "$(logts) Hint: Authentication failed. Verify REDIS_USERNAME and REDIS_PASSWORD env vars match the Redis server ACL configuration."
+      fi
     fi
     return 1
   fi
