@@ -333,6 +333,7 @@ class InstallApp(
             self.promptForString("Select channel", "mas_channel", default="9.2.x-dev")
         else:
             catalogInfo = getCurrentCatalog(self.dynamicClient)
+            logger.debug(f"Installed catalog lookup result: {catalogInfo}")
 
             if catalogInfo is None:
                 self.printDescription(
@@ -1086,7 +1087,7 @@ class InstallApp(
         # User has chosen to set up DNS integration with Cloudflare
         self.setParam("dns_provider", "cloudflare")
         self.promptForString("Cloudflare e-mail", "cloudflare_email")
-        self.promptForString("Cloudflare API token", "cloudflare_apitoken")
+        self.promptForString("Cloudflare API token", "cloudflare_apitoken", isPassword=True)
         self.promptForString("Cloudflare zone", "cloudflare_zone")
         self.promptForString("Cloudflare subdomain", "cloudflare_subdomain")
 
@@ -1110,7 +1111,7 @@ class InstallApp(
     def configDNSAndCertsCIS(self):
         self.setParam("dns_provider", "cis")
         self.promptForString("CIS e-mail", "cis_email")
-        self.promptForString("CIS API token", "cis_apikey")
+        self.promptForString("CIS API token", "cis_apikey", isPassword=True)
         self.promptForString("CIS CRN", "cis_crn")
         self.promptForString("CIS subdomain", "cis_subdomain")
 
@@ -1815,7 +1816,7 @@ class InstallApp(
             else:
                 # Ask for external storage configuration
                 self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-                self.promptForString("Storage access key", "aiservice_s3_accesskey")
+                self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
                 self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
                 self.promptForString("Storage host", "aiservice_s3_host")
                 self.promptForString("Storage port", "aiservice_s3_port")
