@@ -350,15 +350,15 @@ class Db2SettingsMixin:
     def setDB2uKindDefault(self) -> None:
         # Set the default db2u_kind from catalog, with dev mode override support
         # Get default from Catalog
-        if hasattr(self, "catalogDb2uKind"):
+        if hasattr(self, "catalogDb2uKind") and self.catalogDb2uKind is not None:
             # CatalogDb2uKind was set by processCatalogChoice()
             default_db2u_kind = self.catalogDb2uKind
         elif hasattr(self, "chosenCatalog") and self.chosenCatalog is not None:
             # Fallback: Get directly from chosenCatalog if available
-            default_db2u_kind = self.chosenCatalog.get("db2u_kind_default", "db2ucluster")
+            default_db2u_kind = self.chosenCatalog.get("db2u_kind_default")
         else:
             # Use hardcoded fallback
-            default_db2u_kind = "db2ucluster"
+            default_db2u_kind = None
 
         # Apply dev mode override logic
         if not self.devMode:
@@ -369,7 +369,9 @@ class Db2SettingsMixin:
             user_kind = self.getParam("db2u_kind")
             db2u_kind = user_kind if user_kind else default_db2u_kind
 
-        self.params["db2u_kind"] = db2u_kind
+        # Only set parameter if we have a value
+        if db2u_kind:
+            self.params["db2u_kind"] = db2u_kind
 
     def setDB2DefaultSettings(self) -> None:
 
