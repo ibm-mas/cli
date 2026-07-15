@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -46,12 +46,6 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Release", "aiservice_channel")
         self.printParamSummary("Instance ID", "aiservice_instance_id")
         self.printParamSummary("Environment Type", "environment_type")
-        if self.admin_mode not in [None, ""]:
-            self.printSummary("Admin Mode", self.admin_mode)
-            self.printSummary(
-                "Apply Pre-Install RBAC",
-                "Yes" if self.applyPreInstallMASRBAC else "No",
-            )
 
         if "aiservice_certificate_issuer" in self.params:
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
@@ -84,10 +78,37 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
     def db2Summary(self) -> None:
-        self.printH2("IBM Db2 Univeral Operator Configuration")
-        self.printParamSummary("Action", "db2_action_aiservice")
-        self.printParamSummary("Install Namespace", "db2_namespace")
-        self.printParamSummary("Subscription Channel", "db2_channel")
+        self.printH2("Database Configuration")
+
+        db2_action = self.getParam("db2_action_aiservice")
+
+        if db2_action == "byo":
+            # External database
+            jdbc_url = self.getParam("aiservice_db_jdbc_url")
+            if jdbc_url:
+                # Determine database type from JDBC URL
+                if "oracle" in jdbc_url.lower():
+                    db_type = "External Database (Oracle)"
+                # elif "sqlserver" in jdbc_url.lower():
+                #     db_type = "External Database (SQL Server)"
+                # elif "db2" in jdbc_url.lower():
+                #     db_type = "External Database (DB2)"
+                else:
+                    db_type = "External Database"
+
+                self.printSummary("Database Type", db_type)
+                self.printParamSummary("JDBC URL", "aiservice_db_jdbc_url")
+                self.printParamSummary("Username", "aiservice_db_username")
+                # Don't print password for security
+                if self.getParam("aiservice_db_ca_cert"):
+                    self.printSummary("CA Certificate", "Provided")
+        else:
+            # In-cluster DB2 deployment (default when db2_action="install" or not set)
+            self.printSummary("Database Type", "In-cluster DB2")
+            if self.getParam("db2_namespace") != "":
+                self.printParamSummary("Install Namespace", "db2_namespace")
+            if self.getParam("db2_channel") != "":
+                self.printParamSummary("Subscription Channel", "db2_channel")
 
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")

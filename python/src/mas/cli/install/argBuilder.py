@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+from .facilities.agents import facilitiesAgents
 import logging
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,28 @@ class installArgBuilderMixin:
             command += "export OLD_CRYPTO_KEY=x\n"
         if self.getParam("mas_manage_encryptionsecret_old_cryptox_key") != "":
             command += "export OLD_CRYTPOX_KEY=x\n"
+
+        # DNS Provider Credentials
+        if self.getParam("cis_apikey") != "":
+            command += "export CIS_APIKEY=x\n"
+        if self.getParam("cloudflare_apitoken") != "":
+            command += "export CLOUDFLARE_APITOKEN=x\n"
+
+        # Storage Credentials
+        if self.getParam("aiservice_s3_accesskey") != "":
+            command += "export AISERVICE_S3_ACCESSKEY=x\n"
+        if self.getParam("aiservice_s3_secretkey") != "":
+            command += "export AISERVICE_S3_SECRETKEY=x\n"
+        if self.getParam("cos_apikey") != "":
+            command += "export COS_APIKEY=x\n"
+
+        # AI Service Credentials
+        if self.getParam("aiservice_watsonxai_apikey") != "":
+            command += "export AISERVICE_WATSONXAI_APIKEY=x\n"
+        if self.getParam("minio_root_user") != "":
+            command += "export MINIO_ROOT_USER=x\n"
+        if self.getParam("minio_root_password") != "":
+            command += "export MINIO_ROOT_PASSWORD=x\n"
 
         command += f"mas install --mas-catalog-version {self.getParam('mas_catalog_version')}"
 
@@ -86,8 +109,12 @@ class installArgBuilderMixin:
 
         if self.localConfigDir is not None:
             command += f'  --additional-configs "{self.localConfigDir}"{newline}'
-        if self.getParam("pod_templates") != "":
-            command += f"  --pod-templates \"{self.getParam('pod_templates')}\"{newline}"
+        if self.getParam("mas_pod_templates_dir") != "":
+            # Use keyword for built-in templates, otherwise use the full path
+            if hasattr(self, "podTemplatesKeyword") and self.podTemplatesKeyword is not None:
+                command += f'  --pod-templates "{self.podTemplatesKeyword}"{newline}'
+            else:
+                command += f"  --pod-templates \"{self.getParam('mas_pod_templates_dir')}\"{newline}"
 
         if self.operationalMode == 2:
             command += f"  --non-prod{newline}"
@@ -120,13 +147,13 @@ class installArgBuilderMixin:
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
         if self.getParam("dns_provider") == "cis":
-            command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}\""
+            command += '  --dns-provider cis --cis-apikey "$CIS_APIKEY"'
             command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
             command += f" --cis-crn \"{self.getParam('cis_crn')}\""
             command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
 
         if self.getParam("dns_provider") == "cloudflare":
-            command += f"  --dns-provider cloudflare --cloudflare-apitoken \"{self.getParam('cloudflare_apitoken')}\"{newline}"
+            command += f'  --dns-provider cloudflare --cloudflare-apitoken "$CLOUDFLARE_APITOKEN"{newline}'
             command += f"  --cloudflare-email \"{self.getParam('cloudflare_email')}\"{newline}"
             command += f"  --cloudflare-zone \"{self.getParam('cloudflare_zone')}\"{newline}"
             command += f"  --cloudflare-subdomain \"{self.getParam('cloudflare_subdomain')}\"{newline}"
@@ -348,11 +375,17 @@ class installArgBuilderMixin:
             if self.getParam("mas_ws_facilities_storage_userfiles_size") != "":
                 command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
 
-            if self.getParam("mas_ws_facilities_properties_file_local") != "":
-                command += f"  --facilities-properties-file \"{self.getParam('mas_ws_facilities_properties_file_local')}\"{newline}"
+            if self.getParam("mas_ws_facilities_server_timezone") != "":
+                command += f"  --facilities-server-timezone \"{self.getParam('mas_ws_facilities_server_timezone')}\"{newline}"
+
+            if self.facilitiesPropertiesFileLocal:
+                command += f'  --facilities-properties-file "{self.facilitiesPropertiesFileLocal}"{newline}'
             if self.getParam("mas_ws_facilities_properties_secret_name") != "":
                 command += f"  --facilities-properties-secret-name \"{self.getParam('mas_ws_facilities_properties_secret_name')}\"{newline}"
 
+            for agent in facilitiesAgents:
+                if self.getParam(f"mas_ws_facilities_{agent}_deploymentmode") != "":
+                    command += f'  --facilities-{agent}-deploymentmode "{self.getParam(f"mas_ws_facilities_{agent}_deploymentmode")}"{newline}'
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
         if self.installAIService:
@@ -365,10 +398,26 @@ class installArgBuilderMixin:
             if self.getParam("aiservice_certificate_issuer") != "":
                 command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
 
+            # Database configuration for AI Service - matches standalone pattern
+            if self.getParam("db2_action_aiservice") == "install":
+                # In-cluster DB2 installation
+                command += f"  --db2-aiservice{newline}"
+                if self.getParam("db2_channel") != "":
+                    command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
+                if self.db2LicenseFileLocal:
+                    command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
+            elif self.getParam("aiservice_db_jdbc_url") != "":
+                # External database (Oracle/SQL Server/DB2)
+                command += f"  --aiservice-db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
+                command += f"  --aiservice-db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
+                command += f"  --aiservice-db-password \"{self.getParam('aiservice_db_password')}\"{newline}"
+                if self.getParam("aiservice_db_ca_cert") != "":
+                    command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
+
             if self.getParam("aiservice_s3_accesskey") != "" and self.getParam("minio_root_user") == "":
-                command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
+                command += f'  --s3-accesskey "$AISERVICE_S3_ACCESSKEY"{newline}'
             if self.getParam("aiservice_s3_secretkey") != "" and self.getParam("minio_root_user") == "":
-                command += f"  --s3-secretkey \"{self.getParam('aiservice_s3_secretkey')}\"{newline}"
+                command += f'  --s3-secretkey "$AISERVICE_S3_SECRETKEY"{newline}'
             if self.getParam("aiservice_s3_host") != "" and self.getParam("minio_root_user") == "":
                 command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
             if self.getParam("aiservice_s3_port") != "" and self.getParam("minio_root_user") == "":
@@ -395,7 +444,7 @@ class installArgBuilderMixin:
                 command += f"  --manage-persistent-volumes{newline}"
 
             if self.getParam("aiservice_watsonxai_apikey") != "":
-                command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
+                command += f'  --watsonxai-apikey "$AISERVICE_WATSONXAI_APIKEY"{newline}'
             if self.getParam("aiservice_watsonxai_url") != "":
                 command += f"  --watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
             if self.getParam("aiservice_watsonxai_project_id") != "":
@@ -419,9 +468,9 @@ class installArgBuilderMixin:
 
             if self.getParam("minio_root_user") != "":
                 command += f"  --install-minio {newline}"
-                command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
+                command += f'  --minio-root-user "$MINIO_ROOT_USER"{newline}'
             if self.getParam("minio_root_password") != "":
-                command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
+                command += f'  --minio-root-password "$MINIO_ROOT_PASSWORD"{newline}'
 
             if self.getParam("tenant_entitlement_type") != "":
                 command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
@@ -470,8 +519,12 @@ class installArgBuilderMixin:
 
             if self.getParam("db2_type") != "":
                 command += f"  --db2-type \"{self.getParam('db2_type')}\"{newline}"
-            if self.getParam("db2_timezone") != "":
-                command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+            if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+                if self.getParam("db2_timezone") != "":
+                    command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+            if self.getParam("db2_action_facilities") == "install":
+                if self.getParam("db2_facilities_timezone") != "":
+                    command += f"  --db2-facilities-timezone \"{self.getParam('db2_facilities_timezone')}\"{newline}"
             if self.db2LicenseFileLocal != "":
                 command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
 
@@ -555,7 +608,7 @@ class installArgBuilderMixin:
             if self.getParam("cos_resourcegroup") != "":
                 command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
             if self.getParam("cos_apikey") != "":
-                command += f" --cos-apikey \"{self.getParam('cos_apikey')}\""
+                command += ' --cos-apikey "$COS_APIKEY"'
             if self.getParam("cos_instance_name") != "":
                 command += f" --cos-instance-name \"{self.getParam('cos_instance_name')}\""
             if self.getParam("cos_bucket_name") != "":

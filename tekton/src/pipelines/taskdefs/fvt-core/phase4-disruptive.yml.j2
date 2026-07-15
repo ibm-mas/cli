@@ -94,7 +94,18 @@
   runAfter:
     - coreidp-saml
 
-# 8. coreidp-ssoconfig
+# 8. coreidp-oidc
+# -------------------------------------------------------------------------
+- name: coreidp-oidc
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-oidc
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreidp-saml-ui
+
+# 9. coreidp-ssoconfig
 # -------------------------------------------------------------------------
 - name: coreidp-ssoconfig
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -104,9 +115,9 @@
       value: coreidp-ssoconfig
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - coreidp-saml-ui
+    - coreidp-oidc
 
-# 9. licensingapi
+# 10. licensingapi
 # -------------------------------------------------------------------------
 - name: licensingapi
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -118,7 +129,7 @@
   runAfter:
     - coreidp-ssoconfig
 
-# 10. usagebilling
+# 11. usagebilling
 # -------------------------------------------------------------------------
 - name: usagebilling
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -135,7 +146,7 @@
     - name: pod-templates
       workspace: shared-pod-templates
 
-# 11. operatormaturity
+# 12. operatormaturity
 # -------------------------------------------------------------------------
 - name: operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}

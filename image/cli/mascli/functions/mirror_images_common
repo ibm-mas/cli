@@ -71,6 +71,8 @@ function mirror_to_registry_interactive_common() {
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
   prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX
+  REGISTRY_PREFIX=$(sanitize_registry_prefix "$REGISTRY_PREFIX")
+  validate_registry_prefix "$REGISTRY_PREFIX"
 
   if [[ $MIRROR_MODE != "to-filesystem" ]]; then
     echo

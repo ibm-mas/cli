@@ -89,6 +89,8 @@ function mirror_redhat_noninteractive() {
   # Check all args have been set
   [[ -z "$MIRROR_MODE" ]] && mirror_redhat_help "MIRROR_MODE is not set"
   [[ -z "$MIRROR_WORKING_DIR" ]] && mirror_redhat_help "MIRROR_WORKING_DIR is not set"
+  REGISTRY_PREFIX_REDHAT=$(sanitize_registry_prefix "$REGISTRY_PREFIX_REDHAT")
+  validate_registry_prefix "$REGISTRY_PREFIX_REDHAT"
 
   if [[ $MIRROR_MODE != "to-filesystem" && $REGISTRY_IS_ECR == "true" ]]; then
     REGISTRY_USERNAME="AWS"
@@ -193,6 +195,8 @@ function mirror_redhat_interactive() {
     prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
     prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
     prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX_REDHAT
+    REGISTRY_PREFIX_REDHAT=$(sanitize_registry_prefix "$REGISTRY_PREFIX_REDHAT")
+    validate_registry_prefix "$REGISTRY_PREFIX_REDHAT"
     prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
     prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?"
   fi

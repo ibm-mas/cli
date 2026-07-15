@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: aiservice-fvt
@@ -45,7 +45,6 @@ spec:
       default: ""
 
   stepTemplate:
-    name: 'fvt-aiservice'
     env:
       # What are we testing?
       - name: PRODUCT_ID
@@ -96,11 +95,11 @@ spec:
         value: "$(params.fvt_enable_debug)"
 
   steps:
-    - image: '$(params.fvt_image_registry)/fvt-aibroker/fvt-ibm-mas-aibroker@$(params.fvt_image_digest)'
+    - name: fvt-aiservice
+      image: '$(params.fvt_image_registry)/fvt-aibroker/fvt-ibm-mas-aibroker@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 3h0m0s # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm

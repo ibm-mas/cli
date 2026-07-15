@@ -1,10 +1,10 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-aiservice-tenant
 spec:
-  params: 
+  params:
     - name: cluster_name
       type: string
     - name: account
@@ -96,8 +96,10 @@ spec:
     - name: sls_service
       type: string
       default: ""
+    - name: is_gitops_fvt_env
+      type: string
+      default: "false"  
   stepTemplate:
-    name: gitops-aiservice-tenant
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -185,6 +187,8 @@ spec:
         value: $(params.tenant_scheduling_config_yaml)
       - name: STANDALONE_SLS_SERVICE
         value: $(params.sls_service)
+      - name: IS_GITOPS_FVT_ENV
+        value: $(params.is_gitops_fvt_env)  
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -223,7 +227,7 @@ spec:
         - -c
       name: gitops-aiservice-tenant
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

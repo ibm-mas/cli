@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-cos
@@ -45,7 +45,6 @@ spec:
       type: string
 
   stepTemplate:
-    name: gitops-deprovision-cos
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -111,6 +110,6 @@ spec:
         - -c
       name: gitops-deprovision-cos
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

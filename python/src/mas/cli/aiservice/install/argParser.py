@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -207,13 +207,6 @@ aiserviceAdvancedArgGroup.add_argument(
     help="Provide the name of the Issuer to configure AI Service to issue certificates",
 )
 aiserviceAdvancedArgGroup.add_argument(
-    "--admin-mode",
-    dest="admin_mode",
-    required=False,
-    choices=["cluster", "namespaced", "minimal"],
-    help="The admin mode used to determine which pre-install RBAC manifests are applied for AI Service (MAS 9.2+)",
-)
-aiserviceAdvancedArgGroup.add_argument(
     "--enable-ipv6",
     dest="enable_ipv6",
     required=False,
@@ -231,13 +224,38 @@ aiserviceAdvancedArgGroup.add_argument(
 )
 
 
-# IBM Db2 Universal Operator
+# Database Configuration
 # -----------------------------------------------------------------------------
-db2ArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Db2 Universal Operator")
+databaseArgGroup = aiServiceinstallArgParser.add_argument_group(
+    "Database Configuration",
+    "Configure database for AI Service. By default, DB2 is installed in-cluster. Use --db-* parameters to connect to an external database (Oracle/SQL Server/DB2) instead.",
+)
 
-db2ArgGroup.add_argument("--db2-namespace", required=False, help="Change namespace where Db2u instances will be created")
-db2ArgGroup.add_argument("--db2-channel", required=False, help="Subscription channel for Db2u")
-db2ArgGroup.add_argument("--db2-license-file", required=False, help="Db2 License File for Db2")
+# Option 1: Install DB2 in-cluster (default)
+databaseArgGroup.add_argument(
+    "--db2-aiservice",
+    dest="db2_action_aiservice",
+    required=False,
+    help="Install DB2 in-cluster for AI Service (default behavior, mutually exclusive with --db-*)",
+    action="store_const",
+    const="install",
+)
+databaseArgGroup.add_argument("--db2-namespace", required=False, help="Change namespace where Db2u instances will be created")
+databaseArgGroup.add_argument("--db2-channel", required=False, help="Subscription channel for Db2u")
+databaseArgGroup.add_argument("--db2-license-file", required=False, help="Db2 License File for Db2")
+
+# Option 2: Use external database (Oracle/SQL Server/DB2)
+databaseArgGroup.add_argument(
+    "--aiservice-db-jdbc-url",
+    dest="aiservice_db_jdbc_url",
+    required=False,
+    help="JDBC URL for external database (e.g., jdbc:oracle:thin:@host:1521/service, jdbc:sqlserver://host:1433;databaseName=db, jdbc:db2://host:50000/db)",
+)
+databaseArgGroup.add_argument("--aiservice-db-username", dest="aiservice_db_username", required=False, help="Database username for AI Service")
+databaseArgGroup.add_argument("--aiservice-db-password", dest="aiservice_db_password", required=False, help="Database password for AI Service")
+databaseArgGroup.add_argument(
+    "--aiservice-db-ca-cert", dest="aiservice_db_ca_cert", required=False, help="Database CA certificate (PEM format, optional, only if using SSL/TLS)"
+)
 
 # Development Mode
 # -----------------------------------------------------------------------------

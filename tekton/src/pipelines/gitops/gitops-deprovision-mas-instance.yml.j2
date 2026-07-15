@@ -1,0 +1,301 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: gitops-deprovision-mas-instance
+spec:
+  workspaces:
+    - name: configs
+  description: Deprovision MAS GitOps Instance
+  params:
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: region
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
+    - name: github_url
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: mongo_provider
+      type: string
+      default: aws
+    - name: mas_workspace_id
+      type: string
+    - name: mas_workspace_name
+      type: string
+
+    # JDBC
+    - name: jdbc_type_iot
+      type: string
+    - name: jdbc_instance_name_iot
+      type: string
+    - name: jdbc_route_iot
+      type: string
+      default: ""
+    - name: jdbc_type_manage
+      type: string
+    - name: jdbc_instance_name_manage
+      type: string
+    - name: jdbc_route_manage
+      type: string
+      default: ""
+
+    - name: sls_license_icn
+      type: string
+    - name: cis_crn
+      type: string
+    - name: cis_mas_domain
+      type: string
+    - name: smtp_use_sendgrid
+      type: string
+      default: ""
+  tasks:
+    # Deprovision workspace
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-workspace
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_workspace_name
+          value: $(params.mas_workspace_name)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-workspace
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # Deprovision SendGrid subuser
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-sendgrid-subuser
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: icn
+          value: $(params.sls_license_icn)
+        - name: cis_mas_domain
+          value: $(params.cis_mas_domain)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-sendgrid-subuser
+      when:
+        # Task uses an IBM internal image and cannot be used outside of the internal IBM Toolchains
+        # To make sure this task is only run when this is the case, reference a field that
+        # but corresponds to another IBM-internal only feature that will also still be present after smtp config is removed
+        # sls.license.icn is a good choice for this, it also happens to be a required input to the sendgrid scripts
+        - input: "$(params.sls_license_icn)"
+          operator: notin
+          values: [""]
+
+        # only attempt Subuser teardown if the instance was configured to use automated sendgrid subuser management at the time of deprovisioning
+        - input: "$(params.smtp_use_sendgrid)"
+          operator: in
+          values: ["true"]
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # Deprovision SMTP config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-smtp-config
+      runAfter:
+        - gitops-deprovision-suite-workspace
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-smtp-config
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # Deprovision IDP config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-idp-config
+      runAfter:
+        - gitops-deprovision-suite-workspace
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-idp-config
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # Deprovision Suite config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-config
+      runAfter:
+        - gitops-delete-kafka-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: jdbc_type_iot
+          value: $(params.jdbc_type_iot)
+        - name: jdbc_instance_name_iot
+          value: $(params.jdbc_instance_name_iot)
+        - name: jdbc_route_iot
+          value: $(params.jdbc_route_iot)
+        - name: jdbc_type_manage
+          value: $(params.jdbc_type_manage)
+        - name: jdbc_instance_name_manage
+          value: $(params.jdbc_instance_name_manage)
+        - name: jdbc_route_manage
+          value: $(params.jdbc_route_manage)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        name: gitops-deprovision-suite-config
+        kind: Task
+
+    # Deprovision Suite config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite
+      runAfter:
+        - gitops-deprovision-suite-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mongo_provider
+          value: $(params.mongo_provider)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # Deprovision Kafka config
+    # -------------------------------------------------------------------------
+    - name: gitops-delete-kafka-config
+      runAfter:
+        - gitops-deprovision-suite-smtp-config
+        - gitops-deprovision-suite-idp-config
+        - gitops-deprovision-suite-objectstorage-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-delete-kafka-config
+
+    # Deprovision Objectstorage config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-objectstorage-config
+      runAfter:
+        - gitops-deprovision-suite-workspace
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-objectstorage-config
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # Deprovision Watson Studio config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-watson-studio-config
+      runAfter:
+        - gitops-deprovision-suite-workspace
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-watson-studio-config
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # Deprovision DB2U Operator
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-db2u
+      runAfter:
+        - gitops-deprovision-suite-watson-studio-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u
+      workspaces:
+        - name: configs
+          workspace: configs
+

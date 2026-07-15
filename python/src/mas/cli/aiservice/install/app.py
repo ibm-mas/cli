@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
+# Copyright (c) 2025, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -17,7 +17,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from sys import exit
 from os import path, getenv
-from openshift.dynamic.exceptions import NotFoundError
+from kubernetes.dynamic.exceptions import NotFoundError
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 from tabulate import tabulate
@@ -53,8 +53,6 @@ from mas.devops.tekton import (
     testCLI,
     launchInstallPipeline,
 )
-from mas.devops.pre_install import applyPreInstallMASRBAC, permissionCheckForRBAC
-from mas.devops.utils import isVersionEqualOrAfter
 
 logger = logging.getLogger(__name__)
 
@@ -70,84 +68,6 @@ def logMethodCall(func):
 
 
 class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, InstallSettingsMixin, ConfigGeneratorMixin):
-
-    def evaluatePreInstallRBACAccess(self) -> None:
-        self.applyPreInstallMASRBAC = False
-
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            return
-
-        if self.admin_mode == "minimal":
-            return
-
-        permissionResults = permissionCheckForRBAC(self.dynamicClient)
-        hasPreInstallRBACAccess = all(result["allowed"] for result in permissionResults)
-
-        if hasPreInstallRBACAccess:
-            self.applyPreInstallMASRBAC = True
-            return
-
-        self.printH2("Pre-Install RBAC Configuration")
-        # User does not have permissions to apply RBAC
-        self.printDescription(
-            [
-                f"Admin mod: '{self.admin_mode}'.",
-                "Pre-install RBAC could not be applied automatically (insufficient permissions).",
-            ]
-        )
-
-        if self.noConfirm:
-            self.printDescription(
-                [
-                    f"Installation will continue with the selected '{self.admin_mode}' admin mode.",
-                    "The current user does not have sufficient permissions to apply the pre-install RBAC automatically.",
-                    "With the --no-confirm flag, the installation assumes the required RBAC has already been applied by your OpenShift administrator.",
-                    "If it has not been applied, ensure your OpenShift administrator runs 'mas pre-install' with the same admin mode before the installation proceeds.",
-                ]
-            )
-        else:
-            self.printDescription(
-                [
-                    "",
-                    "This step must be completed by an OpenShift cluster administrator before AI Service installation can continue.",
-                    "Ask your OpenShift administrator to run 'mas pre-install' for this AI Service instance, channel, admin mode, and selected apps.",
-                    "If that has already been done, you can continue the installation.",
-                ]
-            )
-
-            if not self.yesOrNo("Has your OpenShift administrator already run 'mas pre-install' for this AI Service installation"):
-                self.fatalError(
-                    "Installation aborted. Ask your OpenShift administrator to run 'mas pre-install' for this AI Service installation and then run 'mas aiservice-install' again using the same admin mode."
-                )
-
-    def configAdminMode(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Configure Admin Mode")
-            self.printDescription(
-                [
-                    "Choose how AI Service should be installed with respect to permissions:",
-                    "",
-                    "  1. <b>cluster</b> - Install with ClusterRoles (default)",
-                    "     - AI Service has cluster-level access to manage its resources across the cluster",
-                    "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to AI Service service accounts",
-                    "",
-                    "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
-                    "     - No ClusterRoles are installed in this mode",
-                    "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
-                    "     - AI Service can manage resources only in namespaces prepared by the OpenShift admin",
-                    "",
-                    "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
-                    "     - No ClusterRoles are installed in this mode",
-                    "     - Only essential permissions required for AI Service are applied",
-                    "     - AI Service can manage only the resources covered by these essential permissions",
-                ]
-            )
-
-            adminModeInt = self.promptForInt("Admin Mode", default=1, min=1, max=3)
-            adminModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
-            self.admin_mode = adminModeMap[adminModeInt]
-        elif self.admin_mode == "":
-            self.admin_mode = "cluster"
 
     @logMethodCall
     def processCatalogChoice(self) -> list:
@@ -253,14 +173,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Dependencies
         self.configMongoDb()
-        self.setDB2DefaultChannel()
-        self.setDB2DefaultSettings()
-        self.printDescription(
-            ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
-        )
-        self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            self.configAdminMode()
+        self.configDatabase()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -281,14 +194,36 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "approval_aiservice": {"id": "aiservice"},
         }
 
-        self.setDB2DefaultChannel()
-        self.setDB2DefaultSettings()
-
         for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
             if key in requiredParams:
                 if value is None:
                     self.fatalError(f"{key} must be set")
+
+                # Special handling for ibm_entitlement_key: validate it
+                if key == "ibm_entitlement_key":
+                    isValid = self.validateEntitlementKey(value)
+                    if not isValid:
+                        if self.noConfirm:
+                            # Non-interactive with --no-confirm: warn but continue
+                            self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                        else:
+                            # Non-interactive without --no-confirm: offer options
+                            self.printWarning("IBM entitlement key validation failed")
+                            print()
+                            self.printDescription(
+                                [
+                                    "What would you like to do?",
+                                    "  1. Continue anyway (skip validation)",
+                                    "  2. Quit (exit the application)",
+                                ]
+                            )
+                            choice = self.promptForInt("Select an option", min=1, max=2)
+                            if choice == 2:
+                                logger.info("User chose to quit due to invalid entitlement key")
+                                exit(1)
+                            # If choice == 1, continue with the invalid key
+
                 self.setParam(key, value)
 
             # These fields we just pass straight through to the parameters
@@ -342,6 +277,30 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 # No need to perform validation if file exist here, as it has been already validated by argParser type check.
                 if value is not None and value != "":
                     self.aiserviceTenantSchedulingConfigFileLocal = value
+
+            elif key == "db2_action_aiservice":
+                # Check if external DB parameters are provided
+                externalDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
+                hasExternalDb = any(vars(self.args)[dbParam] is not None for dbParam in externalDbParams)
+
+                if hasExternalDb:
+                    # Using external database - validate all required parameters and ensure --db2-aiservice wasn't set
+                    if value == "install" and vars(self.args)["aiservice_db_jdbc_url"] is not None:
+                        self.fatalError(
+                            "Cannot use --db2-aiservice with external database parameters. Use either --db2-aiservice for in-cluster DB2 OR --aiservice-db-jdbc-url for external database (Oracle/SQL Server/DB2), not both."
+                        )
+
+                    self.setParam("install_db2", "false")
+                    self.setParam("db2_action_aiservice", "byo")
+                    for dbParam in externalDbParams:
+                        if vars(self.args)[dbParam] is None:
+                            self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
+                elif value == "install":
+                    # Install DB2 in-cluster
+                    self.setParam("install_db2", "true")
+                    self.setParam("db2_action_aiservice", "install")
+                    self.setDB2DefaultChannel()
+                    self.setDB2DefaultSettings()
 
             elif key == "non_prod":
                 if not value:
@@ -469,17 +428,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.validateCatalogSource()
             self.licensePrompt()
 
-        # Validate admin mode based on AI Service version
-        if isVersionEqualOrAfter("9.2.0", self.getParam("aiservice_channel")):
-            # AI Service 9.2+: --admin-mode is REQUIRED
-            if self.admin_mode == "":
-                self.fatalError(
-                    f"--admin-mode is required for MAS version 9.2 or higher (selected channel: {self.getParam('aiservice_channel')}). Valid options: cluster, namespaced, minimal"
-                )
-        else:
-            if self.admin_mode != "":
-                self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('aiservice_channel')})")
-
     @logMethodCall
     def install(self, argv):
         """
@@ -494,7 +442,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.noConfirm = args.no_confirm
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
-        self.admin_mode = args.admin_mode if args.admin_mode else ""
 
         self.printDescription(
             [
@@ -554,8 +501,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.setParam("dro_action", "install")
 
-        # Install Db2 for AI Service
-        self.setParam("db2_action_aiservice", "install")
+        # DB2 action will be set by configDatabase() based on user choice
+        # Don't set db2_action_aiservice here - it should be determined by user selection
 
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:
@@ -563,7 +510,36 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.nonInteractiveMode()
 
-        self.evaluatePreInstallRBACAccess()
+            # Check if external database parameters were provided
+            if self.getParam("db2_action_aiservice") == "":
+                externalDbProvided = (
+                    vars(self.args).get("aiservice_db_jdbc_url") is not None
+                    or vars(self.args).get("aiservice_db_username") is not None
+                    or vars(self.args).get("aiservice_db_password") is not None
+                )
+
+                if externalDbProvided:
+                    # External database configuration provided
+                    self.setParam("install_db2", "false")
+                    self.setParam("db2_action_aiservice", "byo")
+
+                    # Validate required external DB parameters
+                    requiredDbParams = ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password"]
+                    for dbParam in requiredDbParams:
+                        if vars(self.args).get(dbParam) is None:
+                            self.fatalError(f"Parameter is required when using external database: --{dbParam.replace('_', '-')}")
+
+                    # Set the external DB parameters
+                    for dbParam in ["aiservice_db_jdbc_url", "aiservice_db_username", "aiservice_db_password", "aiservice_db_ca_cert"]:
+                        value = vars(self.args).get(dbParam)
+                        if value is not None:
+                            self.setParam(dbParam, value)
+                else:
+                    # No database configuration provided - default to installing DB2
+                    self.setParam("install_db2", "true")
+                    self.setParam("db2_action_aiservice", "install")
+                    self.setDB2DefaultChannel()
+                    self.setDB2DefaultSettings()
 
         # Set up the sls and db2 license file
         self.slsLicenseFile()
@@ -624,23 +600,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            if self.applyPreInstallMASRBAC:
-                with Halo(text=f"Setting up pre-install RBAC for AI Service instance {self.getParam('aiservice_instance_id')}...", spinner=self.spinner) as h:
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=".".join(self.getParam("aiservice_channel").split(".")[:2]),
-                        masInstanceId=self.getParam("aiservice_instance_id"),
-                        adminMode=self.admin_mode,
-                        selectedApps=["aiservice"],
-                    )
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for AI Service is ready for {self.getParam('aiservice_instance_id')}")
-
             with Halo(text="Testing availability of MAS CLI image in cluster", spinner=self.spinner) as h:
                 testCLI()
                 h.stop_and_persist(symbol=self.successIcon, text="MAS CLI image deployment test completed")
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text=f"Submitting PipelineRun for {self.getParam('aiservice_instance_id')} install", spinner=self.spinner) as h:
@@ -692,7 +657,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             # Ask for external storage configuration
             self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-            self.promptForString("Storage access key", "aiservice_s3_accesskey")
+            self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
             self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
             self.promptForString("Storage host", "aiservice_s3_host")
             self.promptForString("Storage port", "aiservice_s3_port")
@@ -775,6 +740,56 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
         self.setParam("aiservice_s3_templates_bucket", "km-templates")
 
+    @logMethodCall
+    def configDatabase(self) -> None:
+        """
+        Configure database for AI Service.
+        """
+        self.printH1("Database Configuration")
+        self.printDescription(
+            [
+                "By default, DB2 will be installed in-cluster (suitable for development and testing).",
+                "Alternatively, you can connect to an external Oracle or DB2 database (supported in AI Service 9.1.x only).",
+                # "Alternatively, you can connect to an external database (Oracle, SQL Server, or DB2).",
+                "",
+            ]
+        )
+
+        if self.yesOrNo("Do you want to use an external database"):
+            # Use external database
+            self.setParam("install_db2", "false")
+            self.setParam("db2_action_aiservice", "byo")
+
+            self.printH2("External Database Configuration")
+            self.printDescription(
+                [
+                    "Provide connection details for your external Oracle or DB2 database.",
+                    "",
+                    "<b>JDBC URL Example:</b>",
+                    "  Oracle:     jdbc:oracle:thin:@//hostname:1521/servicename",
+                    "  DB2:        jdbc:db2://hostname:50000/database",
+                    # "  SQL Server: jdbc:sqlserver://hostname:1433;databaseName=aiservice",
+                    "",
+                ]
+            )
+
+            self.promptForString("Database JDBC URL", "aiservice_db_jdbc_url")
+            self.promptForString("Database Username", "aiservice_db_username")
+            self.promptForString("Database Password", "aiservice_db_password", isPassword=True)
+
+            if self.yesOrNo("Does the database use SSL/TLS with a self-signed certificate"):
+                self.promptForString("Database CA Certificate (PEM format)", "aiservice_db_ca_cert")
+        else:
+            # Install DB2 in-cluster (default)
+            self.setParam("install_db2", "true")
+            self.setParam("db2_action_aiservice", "install")
+            self.setDB2DefaultChannel()
+            self.setDB2DefaultSettings()
+            self.printDescription(
+                ["Db2 Universal Operator for v12 onwards requires a License activation key", "If you don't have a license, press enter to continue."]
+            )
+            self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
+
     def aiServiceIntegrations(self) -> None:
         self.printH1("WatsonX Integration")
         self.printDescription(
@@ -841,7 +856,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
-        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+        self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
         if self.devMode:
             self.promptForString("Artifactory username", "artifactory_username")
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
@@ -899,11 +914,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printDescription(catalogSummary)
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            # There's only one release channel, the user doesn't need to be prompted!!
-            # releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
-            # releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
-            # self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
-            self.setParam("aiservice_channel", "9.1.x")
+            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
+            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
+            self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
 
     @logMethodCall
     def validateCatalogSource(self):

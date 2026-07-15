@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: aiservice-fvt
@@ -109,7 +109,7 @@ spec:
           value: insightsgenerator
       runAfter:
         - fvt-aiservice-tenant-entitlement
-    
+
     # 5. PCC test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-pcc
