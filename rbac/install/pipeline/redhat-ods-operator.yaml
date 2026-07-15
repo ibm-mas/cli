@@ -17,14 +17,6 @@ kind: ClusterRole
 metadata:
   name: mas:{{ mas_instance_id }}:install-pipeline:redhat-ods-operator
 rules:
-  # Operator install
-  - apiGroups:
-      - apiextensions.k8s.io
-    resources:
-      - customresourcedefinitions
-    verbs:
-      - create
-      - patch
   # RHOAI requires scc patch for workaround to not update PVC settings by operator
   - apiGroups:
       - security.openshift.io
@@ -35,13 +27,6 @@ rules:
       - openshift-ai-llminferenceservice-scc
     verbs:
       - list
-      - create
       - get
       - patch
-      - update
-  - apiGroups:
-      - rbac.authorization.k8s.io
-    resources:
-      - clusterrolebindings
-    verbs:
       - update
