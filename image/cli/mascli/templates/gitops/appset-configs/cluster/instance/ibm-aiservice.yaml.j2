@@ -46,6 +46,7 @@ ibm_aiservice:
   # Environment Variable:
   aiservice_channel: "{{ AISERVICE_CHANNEL }}"
   aiservice_install_plan_approval: "{{ AISERVICE_INSTALL_PLAN_APPROVAL }}"
+  aiservice_domain: "{{ CLUSTER_DOMAIN }}"
   mas_catalog_source: "{{ MAS_CATALOG_SOURCE }}"
 
   # Source container registry
@@ -53,7 +54,6 @@ ibm_aiservice:
  
   mas_icr_cp: "{{ MAS_ICR_CP }}"
   mas_icr_cpopen: "{{ MAS_ICR_CPOPEN }}"
-  aiservice_domain: "{{ CLUSTER_DOMAIN }}"
   in_saas_env: {{ IN_SAAS_ENV }}
   aiservice_storage_class: "{{ PRIMARY_STORAGE_CLASS }}"
   aiservice_operator_log_level: "0"
