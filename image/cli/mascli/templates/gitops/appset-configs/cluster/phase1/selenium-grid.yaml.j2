@@ -15,6 +15,8 @@ selenium_grid:
       extraEnvironmentVariables:
         - name: SE_NODE_SESSION_TIMEOUT
           value: "900"
+        - name: SE_DRAIN_AFTER_SESSION_COUNT
+          value: "0"
       resources:
         requests:
           memory: "2Gi"
