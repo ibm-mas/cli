@@ -409,7 +409,7 @@ class Db2SettingsMixin:
             print(f"DEBUG: Setting self.params['db2u_kind'] = {db2u_kind}")
             self.params["db2u_kind"] = db2u_kind
         else:
-            print(f"DEBUG: NOT setting db2u_kind (value is None)")
+            print("DEBUG: NOT setting db2u_kind (value is None)")
 
         print(f"DEBUG: Final self.params.get('db2u_kind') = {self.params.get('db2u_kind')}")
 
