@@ -346,72 +346,23 @@ class Db2SettingsMixin:
         self.params["db2_channel"] = db2_channel
 
     def setDB2uKindDefault(self) -> None:
-        # # Set the default db2u_kind from catalog, with dev mode override support
-        # # Get default from Catalog
-        # if hasattr(self, "catalogDb2uKind") and self.catalogDb2uKind is not None:
-        #     # CatalogDb2uKind was set by processCatalogChoice()
-        #     default_db2u_kind = self.catalogDb2uKind
-        # elif hasattr(self, "chosenCatalog") and self.chosenCatalog is not None:
-        #     # Fallback: Get directly from chosenCatalog if available
-        #     default_db2u_kind = self.chosenCatalog.get("db2u_kind_default")
-        # else:
-        #     # Use hardcoded fallback
-        #     default_db2u_kind = None
-
-        # # Apply dev mode override logic
-        # if not self.devMode:
-        #     # Non-dev mode: Always use catalog default
-        #     db2u_kind = default_db2u_kind
-        #     # Explicitly remove any user-provided CLI argument
-        #     if "db2u_kind" in self.params:
-        #         del self.params["db2u_kind"]
-        # else:
-        #     # Dev mode: Allow user override if provided via CLI argument
-        #     user_kind = self.getParam("db2u_kind")
-        #     db2u_kind = user_kind if user_kind else default_db2u_kind
-
-        # # Only set parameter if we have a value
-        # if db2u_kind:
-        #     self.params["db2u_kind"] = db2u_kind
         # Set the default db2u_kind from catalog, with dev mode override support
-
-        # DEBUG: Print initial state
-        print(f"DEBUG: devMode = {self.devMode}")
-        print(f"DEBUG: Initial self.params.get('db2u_kind') = {self.params.get('db2u_kind')}")
-
         # Get default from Catalog
         if hasattr(self, "catalogDb2uKind") and self.catalogDb2uKind is not None:
             default_db2u_kind = self.catalogDb2uKind
         elif hasattr(self, "chosenCatalog") and self.chosenCatalog is not None:
-            default_db2u_kind = self.chosenCatalog.get("db2u_kind_default")
+            default_db2u_kind = self.chosenCatalog.get("db2u_kind_default", "db2ucluster")
         else:
-            default_db2u_kind = None
+            default_db2u_kind = "db2ucluster"
 
-        print(f"DEBUG: default_db2u_kind from catalog = {default_db2u_kind}")
-
-        # Apply dev mode override logic
         if not self.devMode:
-            # Non-dev mode: Always use catalog default
             db2u_kind = default_db2u_kind
-            print(f"DEBUG: Non-dev mode, db2u_kind set to = {db2u_kind}")
-            # Explicitly remove any user-provided CLI argument
-            if "db2u_kind" in self.params:
-                print(f"DEBUG: Deleting user's db2u_kind = {self.params['db2u_kind']}")
-                del self.params["db2u_kind"]
         else:
-            # Dev mode: Allow user override if provided via CLI argument
+            # In dev mode, allow user override if provided
             user_kind = self.getParam("db2u_kind")
             db2u_kind = user_kind if user_kind else default_db2u_kind
-            print(f"DEBUG: Dev mode, user_kind = {user_kind}, db2u_kind = {db2u_kind}")
 
-        # Only set parameter if we have a value
-        if db2u_kind:
-            print(f"DEBUG: Setting self.params['db2u_kind'] = {db2u_kind}")
-            self.params["db2u_kind"] = db2u_kind
-        else:
-            print("DEBUG: NOT setting db2u_kind (value is None)")
-
-        print(f"DEBUG: Final self.params.get('db2u_kind') = {self.params.get('db2u_kind')}")
+        self.params["db2u_kind"] = db2u_kind
 
     def setDB2DefaultSettings(self) -> None:
 
