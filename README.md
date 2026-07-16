@@ -15,6 +15,7 @@ Documentation
 [https://ibm-mas.github.io/cli/](https://ibm-mas.github.io/cli/)
 
 
+
 Want to contribute to MAS Command Line Interface?
 --------------------------------------------------------------------------------
 We welcome every Maximo Application Suite users, developers and enthusiasts to contribute to the MAS Command Line Interface while fixing code issues and implementing new automated functionalities.
