@@ -349,6 +349,27 @@ function gitops_aiservice_tenant_noninteractive() {
   fi
  }
 
+function gitops_aiservice_tenant_fvt_prepare() {
+
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${AISERVICE_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${TENANT_ID}${SECRETS_KEY_SEPERATOR}"
+
+  WATSONXAI_APIKEY=${WATSONXAI_APIKEY:-"watsonxai-apikey"}
+  WATSONXAI_PROJECT_ID=${WATSONXAI_PROJECT_ID:-"watsonxai-project-id"}
+
+  SECRET_NAME_WATSONXAI=${SECRETS_PREFIX}watsonx
+
+  TAGS="[{\"Key\": \"watsonxai_apikey\", \"Value\": \"watsonxai_apikey\"}, {\"Key\": \"watsonxai_project_id\", \"Value\": \"watsonxai_project_id\"}]"
+      
+  sm_update_secret \
+    "$SECRET_NAME_WATSONXAI" \
+    "{\"watsonxai_apikey\":\"$WATSONXAI_APIKEY\",\"watsonxai_project_id\":\"$WATSONXAI_PROJECT_ID\"}" \
+    "$TAGS" || {
+      echo "Failed to update WatsonX secret"
+      return 1
+    }    
+  echo "AI Service Tenant FVT secret creating function end"
+}
+
 function gitops_aiservice_tenant() {
   # Take the first parameter off (it will be create-gitops)
   shift
@@ -508,7 +529,8 @@ fi
     fi
     sm_verify_secret_exists ${WATSONX_SECRET} "watsonxai_apikey,watsonxai_project_id"
   else
-      echo "GitOps FVT Environment: Skipping SLS secret verification (will be created by postSync job)"
+      echo "IS_GITOPS_FVT_ENV is true - Skipping DRO, sls, and watsonx secret validation"
+      gitops_aiservice_tenant_fvt_prepare
   fi
 
   # Load scheduling config file

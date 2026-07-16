@@ -287,21 +287,6 @@ function gitops_aiservice_fvt_prepare() {
 
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
 
-  WATSONXAI_APIKEY=${WATSONXAI_APIKEY:-"watsonxai-apikey"}
-  WATSONXAI_PROJECT_ID=${WATSONXAI_PROJECT_ID:-"watsonxai-project-id"}
-
-  SECRET_NAME_WATSONXAI=${SECRETS_PREFIX}watsonx
-
-  TAGS="[{\"Key\": \"watsonxai_apikey\", \"Value\": \"watsonxai_apikey\"}, {\"Key\": \"watsonxai_project_id\", \"Value\": \"watsonxai_project_id\"}]"
-  
-  sm_update_secret \
-    "$SECRET_NAME_WATSONXAI" \
-    "{\"watsonxai_apikey\":\"$WATSONXAI_APIKEY\",\"watsonxai_project_id\":\"$WATSONXAI_PROJECT_ID\"}" \
-    "$TAGS" || {
-      echo "Failed to update WatsonX secret"
-      return 1
-    }
-
   SM_S3_ACCESSKEY=${SM_S3_ACCESSKEY:-"sm_s3_accesskey"}
   SM_S3_SECRETKEY=${SM_S3_SECRETKEY:-"sm_s3_secretkey"}
   SM_S3_HOST=${SM_S3_HOST:-"sm_s3_host"}
