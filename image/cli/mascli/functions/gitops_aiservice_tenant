@@ -478,19 +478,7 @@ fi
   
   #watsonx
   WATSONX_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${AISERVICE_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${TENANT_ID}${SECRETS_KEY_SEPERATOR}watsonx"
-
-  WATSONXAI_APIKEY_VALUE=$(sm_get_secret_value "$WATSONX_SECRET" "watsonxai_apikey")
-  if [[ -z "$WATSONXAI_APIKEY_VALUE" || "$WATSONXAI_APIKEY_VALUE" == "null" ]]; then
-    echo_warning "Watson AI API key not found in secret: ${WATSONX_SECRET}"
-    # exit 1
-  fi
   export SECRET_KEY_WATSONXAI_APIKEY=${WATSONX_SECRET}#watsonxai_apikey
-
-  WATSONXAI_PROJECT_ID_VALUE=$(sm_get_secret_value "$WATSONX_SECRET" "watsonxai_project_id")
-  if [[ -z "$WATSONXAI_PROJECT_ID_VALUE" || "$WATSONXAI_PROJECT_ID_VALUE" == "null" ]]; then
-    echo_warning "Watson AI project ID not found in secret: ${WATSONX_SECRET}"
-    # exit 1
-  fi
   export AISERVICE_WATSONXAI_PROJECT_ID=${WATSONX_SECRET}#watsonxai_project_id
   
   # Check if watsonx secret contains watsonxai_ca_crt key and export if it has a value
@@ -510,16 +498,15 @@ fi
   # check for those variables present into the aws sm 
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
-
   if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
     sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_ca_b64enc"
-    sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
     if [ -z "$STANDALONE_SLS_SERVICE" ]; then
       # In GitOps FVT environment, skip SLS secret verification as they will be created by postSync job
       sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"    
     else
       sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
     fi
+    sm_verify_secret_exists ${WATSONX_SECRET} "watsonxai_apikey,watsonxai_project_id"
   else
       echo "GitOps FVT Environment: Skipping SLS secret verification (will be created by postSync job)"
   fi
