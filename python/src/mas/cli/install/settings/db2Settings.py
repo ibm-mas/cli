@@ -348,12 +348,23 @@ class Db2SettingsMixin:
     def setDB2uKindDefault(self) -> None:
         # Set the default db2u_kind from catalog, with dev mode override support
         # Get default from Catalog
+        print("=" * 80)
+        print("DEBUG: setDB2uKindDefault() called")
+        print(f"DEBUG: hasattr catalogDb2uKind = {hasattr(self, 'catalogDb2uKind')}")
+        if hasattr(self, "catalogDb2uKind"):
+            print(f"DEBUG: self.catalogDb2uKind = {self.catalogDb2uKind}")
+        print(f"DEBUG: devMode = {self.devMode}")
+        print(f"DEBUG: Initial self.params.get('db2u_kind') = {self.params.get('db2u_kind')}")
+        print("=" * 80)
+
         if hasattr(self, "catalogDb2uKind") and self.catalogDb2uKind is not None:
             default_db2u_kind = self.catalogDb2uKind
         elif hasattr(self, "chosenCatalog") and self.chosenCatalog is not None:
             default_db2u_kind = self.chosenCatalog.get("db2u_kind_default", "db2ucluster")
         else:
             default_db2u_kind = "db2ucluster"
+
+        print(f"DEBUG: default_db2u_kind = {default_db2u_kind}")
 
         if not self.devMode:
             db2u_kind = default_db2u_kind
@@ -362,7 +373,10 @@ class Db2SettingsMixin:
             user_kind = self.getParam("db2u_kind")
             db2u_kind = user_kind if user_kind else default_db2u_kind
 
+        print(f"DEBUG: Final db2u_kind to set = {db2u_kind}")
         self.params["db2u_kind"] = db2u_kind
+        print(f"JAINY_DEBUG: setDB2uKindDefault set db2u_kind to: {db2u_kind}")
+        print(f"JAINY_DEBUG: self.params['db2u_kind'] is now: {self.params.get('db2u_kind')}")
 
     def setDB2DefaultSettings(self) -> None:
 
