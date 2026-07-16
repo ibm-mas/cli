@@ -362,6 +362,9 @@ class Db2SettingsMixin:
         if not self.devMode:
             # Non-dev mode: Always use catalog default
             db2u_kind = default_db2u_kind
+            # Explicitly remove any user-provided CLI argument
+            if "db2u_kind" in self.params:
+                del self.params["db2u_kind"]
         else:
             # Dev mode: Allow user override if provided via CLI argument
             user_kind = self.getParam("db2u_kind")
