@@ -321,8 +321,6 @@ class Db2SettingsMixin:
                     if self.yesOrNo("Select Db2 Custom Resource(CR)"):
                         self.printDescription(["Db2 Custom Resource", "  1. Db2uCluster", "  2. Db2uInstance"])
                         self.promptForListSelect("Select the CR Resource", ["db2ucluster", "db2uinstance"], "db2u_kind")
-                    else:
-                        self.setParam("db2u_kind", "db2ucluster")
             else:
                 self.setParam("db2_namespace", "db2u")
 
