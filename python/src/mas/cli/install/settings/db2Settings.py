@@ -346,7 +346,7 @@ class Db2SettingsMixin:
         self.params["db2_channel"] = db2_channel
 
     def setDB2uKindDefault(self) -> None:
-        # Set the default db2u_kind from catalog, with dev mode override support
+        # Set the default db2u_kind from catalog, with dev mode Override support
         # Get default from Catalog
         if hasattr(self, "catalogDb2uKind"):
             default_db2u_kind = self.catalogDb2uKind
