@@ -357,7 +357,7 @@ class Db2SettingsMixin:
         print(f"DEBUG: Initial self.params.get('db2u_kind') = {self.params.get('db2u_kind')}")
         print("=" * 80)
 
-        if hasattr(self, "catalogDb2uKind") and self.catalogDb2uKind is not None:
+        if hasattr(self, "catalogDb2uKind"):
             default_db2u_kind = self.catalogDb2uKind
         elif hasattr(self, "chosenCatalog") and self.chosenCatalog is not None:
             default_db2u_kind = self.chosenCatalog.get("db2u_kind_default", "db2ucluster")

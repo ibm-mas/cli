@@ -241,7 +241,7 @@ class InstallApp(
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
         self.catalogDb2Channel = self.chosenCatalog.get("db2_channel_default", "v110509.0")  # Returns fallback "v110509.0" for old catalogs without this field
-        self.catalogDb2uKind = self.chosenCatalog.get("db2u_kind_default")  # Returns None if not found
+        self.catalogDb2uKind = self.chosenCatalog.get("db2u_kind_default", "db2ucluster")  # Returns Fallback if not found
         if self.architecture != "s390x" and self.architecture != "ppc64le":
             self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
 
@@ -2563,6 +2563,7 @@ class InstallApp(
             operation="installation",
         )
         self.setDB2DefaultChannel()
+        self.setDB2uKindDefault()
 
         # Version before 9.1 cannot have empty components
         if (
