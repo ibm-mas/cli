@@ -15,6 +15,7 @@
 # -------------------------------------------------------------------------
 - name: smtp
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: smtp
@@ -25,6 +26,7 @@
 # -------------------------------------------------------------------------
 - name: core-trustcas
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: core-trustcas
@@ -35,6 +37,7 @@
 # -------------------------------------------------------------------------
 - name: adoptionusagemetering
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: adoptionusagemetering
@@ -45,6 +48,7 @@
 # -----------------------------------------------------------------------------
 - name: authservice
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -58,6 +62,7 @@
 # -------------------------------------------------------------------------
 - name: coreidp-ldap
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: coreidp-ldap
@@ -69,6 +74,7 @@
 # -------------------------------------------------------------------------
 - name: coreidp-saml
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: coreidp-saml
@@ -80,6 +86,7 @@
 # -------------------------------------------------------------------------
 - name: coreidp-saml-ui
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: coreidp-saml-ui
@@ -102,6 +109,7 @@
 # -------------------------------------------------------------------------
 - name: coreidp-ssoconfig
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: coreidp-ssoconfig
@@ -113,6 +121,7 @@
 # -------------------------------------------------------------------------
 - name: licensingapi
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: licensingapi
@@ -124,6 +133,7 @@
 # -------------------------------------------------------------------------
 - name: usagebilling
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: usagebilling
@@ -140,6 +150,7 @@
 # -------------------------------------------------------------------------
 - name: operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  onError: continue
   params:
     - name: fvt_test_suite
       value: operatormaturity
