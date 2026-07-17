@@ -198,7 +198,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             )
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
-        if currentChannel and "-dev" in currentChannel:
+        if currentChannel and currentChannel.endswith("-dev"):
             self.setParam("skip_compatibility_check", "True")
             logger.info(f"Dev channel detected ({currentChannel}): auto-enabling skip_compatibility_check")
         if currentChannel is not None:
