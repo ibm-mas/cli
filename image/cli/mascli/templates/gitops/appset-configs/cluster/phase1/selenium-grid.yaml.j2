@@ -9,6 +9,7 @@ selenium_grid:
     chromeNode:
       imageTag: 4.23.0-20240727
       imageName: node-chromium
+      drainAfterSessionCount: 0
       resources:
         requests:
           memory: "1Gi"
@@ -28,6 +29,9 @@ selenium_grid:
       scaledJobOptions:
         scalingStrategy:
           strategy: default
+        ttlSecondsAfterFinished: 0
+        successfulJobsHistoryLimit: 0
+        failedJobsHistoryLimit: 0
     ingress:
       hostname: selenium-grid.local
       path: /selenium
