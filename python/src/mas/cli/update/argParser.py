@@ -97,6 +97,9 @@ updateArgParser = UpdateArgumentParser(
 
 masArgGroup = updateArgParser.add_argument_group("Catalog Selection", "Select the IBM Maximo Operator Catalog version to update to.")
 masArgGroup.add_argument("-c", "--catalog", dest="mas_catalog_version", required=False, help="Maximo Operator Catalog Version (e.g. v9-240625-amd64)")
+masArgGroup.add_argument(
+    "--mas-catalog-digest", required=False, help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources"
+)
 
 depsArgGroup = updateArgParser.add_argument_group(
     "Update Dependencies", "Configure which MAS dependencies (Db2, MongoDB, Kafka) should be updated and specify their namespaces."

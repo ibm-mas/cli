@@ -43,6 +43,13 @@ otherArgGroup.add_argument(
     help="Disable the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline",
 )
 otherArgGroup.add_argument(
+    "--skip-compatibility-check",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Skip the suite version compatibility check before upgrade (auto-enabled when upgrading from a dev channel)",
+)
+otherArgGroup.add_argument(
     "--no-confirm",
     required=False,
     action="store_true",

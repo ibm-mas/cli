@@ -22,6 +22,10 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_catalog_version
       type: string
+    - name: mas_catalog_digest
+      type: string
+      description: Set when using dev or pre-release catalog in airgap
+      default: ""
 
     # Development Build Support
     # -------------------------------------------------------------------------
@@ -33,6 +37,10 @@ spec:
       default: ""
       type: string
       description: Required to install development MAS catalogs
+    - name: mas_icr_cpopen
+      default: ""
+      type: string
+      description: Override the ICR cpopen registry (used in dev mode)
 
     # ocs/odf storage action
     # -------------------------------------------------------------------------
@@ -240,11 +248,16 @@ spec:
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
 
+        - name: mas_catalog_digest
+          value: $(params.mas_catalog_digest)
+
         # Development catalog support
         - name: artifactory_username
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
+        - name: mas_icr_cpopen
+          value: $(params.mas_icr_cpopen)
 
 
     # 3. Verify health of the cluster before we consider the update complete
