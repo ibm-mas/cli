@@ -273,6 +273,7 @@ function mirror_to_registry_noninteractive() {
   [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
 
   [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
+  REGISTRY_PREFIX=$(sanitize_registry_prefix "$REGISTRY_PREFIX")
   validate_registry_prefix "$REGISTRY_PREFIX"
 
   if [[ $MIRROR_MODE != "to-filesystem" && $REGISTRY_IS_ECR == "true" ]]; then
