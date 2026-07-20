@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-manage-pytest
@@ -59,9 +59,12 @@ spec:
     - name: mas_instance_id
       type: string
       description: Instance ID of the target test environment
+    - name: workspace_managedata_path
+      type: string
+      description: Path where output data file will be placed. Defaults to value used in fvt shared workspace
+      default: ""
 
   stepTemplate:
-    name: 'fvt-manage-pytest'
     env:
       - name: PRODUCT_ID
         value: $(params.product_id)
@@ -118,6 +121,12 @@ spec:
           secretKeyRef:
             name: mas-devops
             key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
+      - name: IBMCLOUD_APIKEY
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt
+            key: IBMCLOUD_APIKEY
             optional: true
 
       # Black and white listing
@@ -189,6 +198,8 @@ spec:
             name: mas-fvt-manage
             key: LDAP_CRT
             optional: false
+      - name: WORKSPACE_MANAGEDATA_PATH
+        value: "$(params.workspace_managedata_path)"
 
 
   steps:
@@ -197,7 +208,6 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 120m  # Ensure bad FVTs don't run forever
       onError: continue  # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm

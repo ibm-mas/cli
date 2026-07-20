@@ -93,17 +93,6 @@ class TestArgumentParser:
         args = parser.parse_args(["--no-logs"])
         assert args.no_logs is True
 
-    def test_parser_accepts_secret_data_flag(self):
-        """Test that --secret-data flag sets secret_data parameter.
-
-        GIVEN argument parser
-        WHEN --secret-data flag is provided
-        THEN secret_data is True.
-        """
-        parser = mustGatherArgParser
-        args = parser.parse_args(["--secret-data"])
-        assert args.secret_data is True
-
     def test_parser_accepts_mas_instance_ids(self):
         """Test that --mas-instance-ids accepts comma-separated list.
 
@@ -294,7 +283,7 @@ class TestCollectorsFlag:
         """
         parser = mustGatherArgParser
         args = parser.parse_args([])
-        expected = "ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,rhoai,aiservice,lic"
+        expected = "ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,rhoai,aiservice,lic,pipelines,amlen"
         assert args.collectors == expected
 
     def test_parser_collectors_single_collector(self):

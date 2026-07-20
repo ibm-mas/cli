@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: gitops-suite-license-service
@@ -21,7 +21,7 @@ spec:
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
     # Gitops Git Parameters
-    # ------------------------------------------------------------------------- 
+    # -------------------------------------------------------------------------
     - name: github_push
       type: string
       default: "False"
@@ -90,7 +90,7 @@ spec:
     - name: cis_domain
       type: string
       default: ""
-    
+
     - name: cis_crn
       type: string
       default: ""
@@ -108,7 +108,7 @@ spec:
       default: ""
 
     # gitops-license-generator parameters
-    # ------------------------------------------------------------------------- 
+    # -------------------------------------------------------------------------
     - name: sls_license_expiry_date
       type: string
     - name: sls_license_app_points
@@ -138,7 +138,7 @@ spec:
           value: $(params.mas_instance_id)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        
+
         - name: sls_license_icn
           value: $(params.sls_license_icn)
         - name: sls_subscription_id
@@ -183,7 +183,7 @@ spec:
         - name: sls_subscription_id
           value: $(params.sls_subscription_id)
         - name: authorized_entitlement_saas_encoded
-          value: $(params.authorized_entitlement_saas_encoded)  
+          value: $(params.authorized_entitlement_saas_encoded)
       taskRef:
         kind: Task
         name: gitops-license-generator
@@ -192,10 +192,10 @@ spec:
           operator: in
           values: [""]
 
-    # 2. 
+    # 2.
     # -------------------------------------------------------------------------
     - name: gitops-sls
-      runAfter:        
+      runAfter:
         - gitops-license-generator
       params:
         - name: cluster_name

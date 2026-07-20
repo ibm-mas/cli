@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-mas-fvt-preparer
@@ -187,7 +187,6 @@ spec:
       default: ""
 
   stepTemplate:
-    name: gitops-mas-fvt-preparer
     env:
       - name: TERM
         value: xterm
@@ -343,7 +342,7 @@ spec:
       - |-
 
         set -o pipefail
-        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium,mas-${MAS_INSTANCE_ID}-syncres,mas-${MAS_INSTANCE_ID}-postsyncjobs' ERR EXIT
+        trap '[[ $? -eq 1 ]] && env -u KUBERNETES_SERVICE_HOST mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium,mas-${MAS_INSTANCE_ID}-syncres,mas-${MAS_INSTANCE_ID}-postsyncjobs' ERR EXIT
 
 
         get_trailing_number() {

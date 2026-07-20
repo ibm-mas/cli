@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-odh
@@ -29,7 +29,6 @@ spec:
     - name: aiservice_instance_id
       type: string
   stepTemplate:
-    name: gitops-deprovision-odh
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

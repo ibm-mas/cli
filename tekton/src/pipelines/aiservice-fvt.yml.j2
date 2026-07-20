@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: aiservice-fvt
@@ -109,8 +109,18 @@ spec:
           value: insightsgenerator
       runAfter:
         - fvt-aiservice-tenant-entitlement
-    
-    # 5. PCC test suite
+
+    # 5. DOCSEARCH test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-docsearch
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: docsearch
+      runAfter:
+        - fvt-aiservice-tenant-entitlement
+    # 6. PCC test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-pcc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -123,7 +133,7 @@ spec:
         - fvt-aiservice-fmea
         - fvt-aiservice-insightsgenerator
 
-    # 6. Similarity test suite
+    # 7. Similarity test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-similarity
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -136,7 +146,7 @@ spec:
         - fvt-aiservice-fmea
         - fvt-aiservice-insightsgenerator
 
-    # 7. FIELDEXTRACTOR test suite
+    # 8. FIELDEXTRACTOR test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-fieldextractor
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -148,7 +158,7 @@ spec:
         - fvt-aiservice-pcc
         - fvt-aiservice-similarity
 
-    # 8. NL2OSLC Granite test suite
+    # 9. NL2OSLC Granite test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-nl2oslc-granite
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -159,7 +169,7 @@ spec:
       runAfter:
         - fvt-aiservice-fieldextractor
 
-    # 9. NL2OSLC GPT OSS test suite
+    # 10. NL2OSLC GPT OSS test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-nl2oslc-gpt
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}

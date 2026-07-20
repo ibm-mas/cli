@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-customer-subscription
@@ -28,7 +28,6 @@ spec:
     - name: avp_aws_secret_region
       type: string
   stepTemplate:
-    name: gitops-deprovision-customer-subscription
     env:
       - name: ACCOUNT
         value: $(params.account)

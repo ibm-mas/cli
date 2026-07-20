@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-update
@@ -168,7 +168,7 @@ spec:
       type: string
       default: ""
       description: ReadWriteMany storage class
-    
+
     # AI Service
     # -------------------------------------------------------------------------
     - name: aiservice_instance_ids
@@ -458,7 +458,7 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
-          
+
     # Update synchronization configmap
     # -------------------------------------------------------------------------
     - name: sync-update
