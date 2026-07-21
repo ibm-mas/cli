@@ -222,7 +222,7 @@ function gitops_deprovision_aiservice_tenant() {
     if [[ "$SECRET_NAME" =~ $PATTERN ]]; then
       export TENANT_SECRET_NAME=${SECRET_NAME}
       echo "Delete $TENANT_SECRET_NAME from Secrets Manager"
-      # sm_delete_secret $TENANT_SECRET_NAME
+      sm_delete_secret $TENANT_SECRET_NAME
     fi 
   done
 
