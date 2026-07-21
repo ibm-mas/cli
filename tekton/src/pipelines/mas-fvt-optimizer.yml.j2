@@ -572,7 +572,7 @@ spec:
         - name: configs
           workspace: shared-configs
       runAfter:
-        - moprojects
+        - fvt-optimizer-model-endpoints-ctf
 
     # 12. Run "api_job_endpoints" (CTF)
     # -----------------------------------------------------------------------------
@@ -610,7 +610,6 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-model-endpoints-ctf
         - fvt-optimizer-model-endpoints
       workspaces:
         - name: configs
@@ -695,7 +694,7 @@ spec:
         - name: configs
           workspace: shared-configs
       runAfter:
-        - moprojects
+        - fvt-optimizer-project-endpoints-ctf
 
     # 15. Run "optimizer-api-endpoints"
     # -----------------------------------------------------------------------------
