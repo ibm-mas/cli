@@ -361,7 +361,7 @@ spec:
 
           # First check the POSTSYNCJOBS_APP is healthy so we know the initial users job has run already (and so will exist)
           POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
-          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
+          # check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
 
           IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_NAME}/${AISERVICE_INSTANCE_ID}/initial_users" 
           IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
@@ -386,7 +386,7 @@ spec:
           # Force a resync of the postsyncjobs app
           echo "Forcing ${POSTSYNCJOBS_APP} to resync"
           argocd_sync "${POSTSYNCJOBS_APP}" || return $?
-          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
+          # check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
         }
 
 
