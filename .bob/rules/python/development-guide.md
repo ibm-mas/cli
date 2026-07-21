@@ -5,19 +5,26 @@
 - Use a **virtual environment** in `.venv`
 - **Formatting:** Black with 160 character width
 - **No Code Smells:** Flake8
-- **Modular:** Break implmentation into small, reusable modules - limiting files to no more than **600** lines of code
-- **Test-Driven Development:** Write tests **before** the implementation using the [test-driven-development](.bob/skills/test-driven-development) skill
+- **Modular:** Break implmentation into small, reusable modules - limiting files to no more than **800** lines of code
+- **Test-Driven Development:** Write tests **before** the implementation using the instructions in the test-driven-development skill
 - **pytest** with **pytest-coverage** is mandatory
 - Test code **must also be documentated**: Each test function must have a docstring in the Given-When-Then format
 
+
 ## Virtual Environments
-**CRITICAL:** Most Python commands (pytest, pip, python, etc.) MUST be run from within the project's virtual environment. **Exceptions:** black and flake8 are installed globally and do NOT require venv.
+**CRITICAL:** Python commands (pytest, pip, python, etc.) MUST be run from within the project's virtual environment: `.venv/bin/<COMMAND>`
+- Unless instructed to use a different virtual environment, use the `.venv` directory in the project root
+- If a virtual environment is not available, refuse to proceed until the developer provides a working environment
 
-### Command Format
-- **For commands requiring venv (pytest, pip, python):** `.venv/bin/<COMMAND>`
-- **For black and flake8 (no venv needed):** `<COMMAND>`
+### Dependency Management
+**NEVER modify the virtual environment yourself.** This means:
+- **NEVER** run `pip install`, `pip uninstall`, `uv add`, `uv remove`, or any other package management commands
+- **NEVER** attempt to install, upgrade, or remove packages from the environment
 
-**Why this matters:** Most Python packages (pytest, etc.) are installed in the venv, not globally. Black and flake8 are exceptions - they're installed globally for consistency across projects.
+**What to do instead:**
+If you need to update `pyproject.toml`, `setup.py`, `requirements.txt` or any other dependency configuration file:
+- **STOP immediately** and inform the developer that they must update the environment before you can proceed
+- If new dependencies are required, communicate this clearly to the developer and wait for them to update the environment
 
 
 ## Style Guide
@@ -80,15 +87,23 @@ def function():
     )
 ```
 
-### Copyright Headers
+
+## Copyright Headers
 If `.copyright.yml` contains `validate: true` refer to the instructions in [copyright-statements.md](copyright-statements.md) to properly maintain copyright headers in all Python source files.
 
-### Validation
-After completing any significant unit of work use the [black-and-flake8](.bob/skills/black-and-flake8) skill command to format and lint the code
 
-### Test Organization
+## Validation
+After completing any significant unit of work use black and flake 8 to validate the code quality of the changes, repeat until there are no more findings:
+- Run the command: `black . && flake8 .`
+- Review the output for code smells
+- Address ALL findings starting from the bottom of the list so that changes do not modify the line number of the next finding to be processed
+
+If `black` or `flake8` are not installed, **fail and alert the user to install them**
+
+
+## Test Organization
 - Name test files `tests/src/<module>/test_<module>_<feature>.py` (pytest requires unique file names across all directories)
-- Limit individual test files to a maximum of **600** lines of code
+- Limit individual test files to a maximum of **800** lines of code
 - Place test data in `tests/resources/<module>`
 - Use `conftest.py` for shared fixtures
-- Use `pytest.mark` decorators for to denote tests requiring external dependencies that are not mocked, e.g. `mongodb`, `kafka`, `db2`
+- Use `pytest.mark` decorators for to denote tests requiring external dependencies that are not mocked, e.g. `mongodb`, `kafka`, `db2`, `ocp`

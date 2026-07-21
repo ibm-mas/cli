@@ -1,5 +1,5 @@
 ---
-name: reverse-engineer-tdd-tests
+name: reverse-engineer-tests
 description: Apply TDD principles retrospectively to existing code by writing tests "as if" they were written first
 ---
 

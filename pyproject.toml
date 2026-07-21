@@ -25,6 +25,7 @@ dependencies = [
   "tabulate",
   "prettytable",
   "jsonpath-ng",
+  "textual",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",

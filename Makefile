@@ -52,7 +52,12 @@ dist/mas_cli-100.0.0.tar.gz:
 
 .PHONY: mkdocs-serve
 mkdocs-serve: .venv-docs
-	.venv-docs/bin/mkdocs serve --livereload --dev-addr localhost:9010
+	.venv-docs/bin/mkdocs serve --livereload --dirty --dev-addr localhost:9010
+
+# Serve docs excluding the catalogs subtree — fastest reload for working on guides/reference
+.PHONY: mkdocs-serve-dev
+mkdocs-serve-dev: .venv-docs
+	.venv-docs/bin/mkdocs serve --livereload --dirty --dev-addr localhost:9010 --config-file mkdocs.dev.yml
 
 
 # Tekton Definitions

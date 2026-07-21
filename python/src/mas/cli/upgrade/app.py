@@ -13,18 +13,15 @@ import sys
 import logging
 import logging.handlers
 from prompt_toolkit import prompt, print_formatted_text, HTML
-from prompt_toolkit.completion import WordCompleter
 
 from halo import Halo
 
 from ..cli import BaseApp
-from ..validators import InstanceIDValidator
 from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import (
-    listMasInstances,
     getMasChannel,
     getAppsSubscriptionChannel,
     getDefaultStorageClasses,
@@ -32,6 +29,7 @@ from mas.devops.mas import (
     verifyAppInstance,
     getPermissionMode,
     getInstalledApps,
+    listMasInstances,
 )
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
@@ -42,6 +40,139 @@ logger = logging.getLogger(__name__)
 
 
 class UpgradeApp(BaseApp, UpgradeSettingsMixin):
+    def prepareUpgrade(self) -> None:
+        """Detect the upgrade path and validate compatibility for the selected instance.
+
+        Called as the ``validator`` on the instance-selection step.  Reads
+        ``mas_instance_id`` from ``self.params``, then runs all the channel
+        detection, compatibility validation, license acceptance, Manage
+        Foundation detection, Monitor install order, Civil Kafka validation, and
+        RBAC evaluation that the non-interactive ``upgrade()`` method performs —
+        reusing that code directly rather than duplicating it.
+
+        On success, populates ``self.nextChannel``, ``self.currentChannel``,
+        and related params so the review screen has the right data.
+
+        Raises:
+            RuntimeError: If the upgrade path is invalid, apps are incompatible,
+                or the license has not been accepted.
+        """
+        instanceId = self.params.get("mas_instance_id", "")
+
+        # Ensure the TUI-specific flags are defaulted before running the logic
+        # that the non-interactive path sets from argparse arguments.
+        if not hasattr(self, "noConfirm"):
+            self.noConfirm = True  # TUI always runs non-interactively here
+        if not hasattr(self, "skipPreCheck"):
+            self.skipPreCheck = False
+        if not hasattr(self, "licenseAccepted"):
+            self.licenseAccepted = False
+        if not hasattr(self, "devMode"):
+            self.devMode = False
+        if not hasattr(self, "nextChannel"):
+            self.nextChannel = ""
+        if not hasattr(self, "applyPreInstallMASRBAC"):
+            self.applyPreInstallMASRBAC = False
+        if not hasattr(self, "selectedAppsForRBAC"):
+            self.selectedAppsForRBAC = []
+
+        self.lookupTargetArchitecture()
+
+        currentChannel = getMasChannel(self.dynamicClient, instanceId)
+        if currentChannel is not None:
+            if self.nextChannel != "":
+                if self.nextChannel == currentChannel:
+                    pass  # retry scenario — proceed
+                elif self.nextChannel == self.upgrade_path.get(currentChannel):
+                    pass  # valid explicit path
+                else:
+                    raise RuntimeError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
+            else:
+                if currentChannel not in self.upgrade_path:
+                    raise RuntimeError(f"No upgrade available, {instanceId} is already on the latest release {currentChannel}")
+                self.nextChannel = self.upgrade_path[currentChannel]
+
+            if self.nextChannel in self.compatibilityMatrix:
+                installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+                incompatibleApps = []
+                for installedApp in installedAppsChannel:
+                    appId = installedApp["appId"]
+                    appChannel = installedApp["channel"]
+                    if appId not in self.compatibilityMatrix[self.nextChannel]:
+                        if "feature" in self.nextChannel:
+                            incompatibleApps.append(f"{appId}: Not available in feature channel {self.nextChannel}")
+                        elif appId == "assist":
+                            incompatibleApps.append(f"{appId}: Not supported in {self.nextChannel} (replaced by Collaborate in MAS 9.2+)")
+                        else:
+                            incompatibleApps.append(f"{appId}: Not supported in {self.nextChannel}")
+                    else:
+                        compatibleAppChannels = self.compatibilityMatrix[self.nextChannel][appId]
+                        if appChannel not in compatibleAppChannels:
+                            incompatibleApps.append(
+                                f"{appId} (on {appChannel}): Must be on one of {compatibleAppChannels} to upgrade to MAS {self.nextChannel}"
+                            )
+                if incompatibleApps:
+                    raise RuntimeError(f"Cannot upgrade to {self.nextChannel}. Compatibility issues:\n" + "\n".join(incompatibleApps))
+        else:
+            currentChannel = "Unknown"
+            if self.nextChannel == "":
+                self.nextChannel = "Unknown"
+
+        self.currentChannel = currentChannel
+
+        # License check — in TUI mode licenseAccepted defaults to False so we
+        # raise here; the user will need to re-run with --accept-license or we
+        # add a license step to the TUI later.
+        if not self.licenseAccepted and not self.devMode:
+            if self.nextChannel in self.licenses:
+                raise RuntimeError(
+                    f"You must accept the license terms to upgrade to {self.nextChannel}.\n"
+                    f"Re-run with --accept-license or add license acceptance to the TUI workflow.\n"
+                    f"License: {self.licenses[self.nextChannel]}"
+                )
+
+        self.setParam("should_install_manage_foundation", "false")
+
+        self.computeMonitorInstallOrderForUpgrade(instanceId)
+        self.validateKafkaForCivilUpgrade(instanceId)
+
+        detectedMode = None
+        if self.nextChannel and isVersionEqualOrAfter("9.3.0", self.nextChannel) and currentChannel and isVersionEqualOrAfter("9.2.0", currentChannel):
+            detectedMode = getPermissionMode(self.dynamicClient, instanceId)
+        elif self.nextChannel and self.nextChannel.startswith("9.2"):
+            detectedMode = "cluster"
+
+        if detectedMode:
+            self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
+                dynamicClient=self.dynamicClient,
+                masChannel=self.nextChannel,
+                adminMode=detectedMode,
+                instanceId=instanceId,
+                noConfirm=True,
+                printH1Func=self.printH1,
+                printDescriptionFunc=self.printDescription,
+                yesOrNoFunc=self.yesOrNo,
+                fatalErrorFunc=self.fatalError,
+                operation="upgrade",
+            )
+
+    def fetchInstalledInstanceIds(self) -> None:
+        """Fetch and cache the MAS instance IDs from the connected cluster.
+
+        Run as post_connect in the connect-cluster worker thread immediately
+        after a successful connection.  Raises RuntimeError when no MAS
+        instances are found so the error surfaces on the connect screen rather
+        than leaving the next screen empty.
+
+        Raises:
+            RuntimeError: When no MAS Suite instances are found on the cluster.
+        """
+        suites = listMasInstances(self.dynamicClient)
+        instanceIds = sorted([s["metadata"]["labels"]["mas.ibm.com/instanceId"] for s in suites])
+        if not instanceIds:
+            raise RuntimeError("No MAS instances were found on this cluster.")
+        self._installedInstanceIds = instanceIds
+
     def computeMonitorInstallOrderForUpgrade(self, instanceId):
         """
         Determine the installation order for Monitor relative to IoT based on TARGET Monitor version.
@@ -158,42 +289,18 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         if args.image_pull_policy and args.image_pull_policy != "":
             self.setParam("image_pull_policy", args.image_pull_policy)
 
+        # --mas-instance-id is required for non-interactive path; interactive path
+        # is handled by the TUI shell (mas-cli upgrade without --mas-instance-id).
         if instanceId is None:
-            self.printH1("Set Target OpenShift Cluster")
-            # Connect to the target cluster
-            self.connect()
-        else:
-            logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
-            # Need to lookup target architecture because configDb2 will try to access self.architecture
-            self.lookupTargetArchitecture()
+            self.fatalError("--mas-instance-id is required for non-interactive mode")
+
+        logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
+        # Need to lookup target architecture because configDb2 will try to access self.architecture
+        self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
             print_formatted_text(HTML("<Red>Error: Not successfully connected to a Kubernetes cluster.  See log file for details</Red>"))
             sys.exit(1)
-
-        if instanceId is None:
-            # Interactive mode
-            self.printH1("Instance Selection")
-            print_formatted_text(HTML("<LightSlateGrey>Select a MAS instance to upgrade from the list below:</LightSlateGrey>"))
-            suites = listMasInstances(self.dynamicClient)
-            suiteOptions = []
-
-            if len(suites) == 0:
-                print_formatted_text(HTML("<Red>Error: No MAS instances detected on this cluster</Red>"))
-                sys.exit(1)
-
-            for suite in suites:
-                instanceId = suite["metadata"]["name"]
-                reconciledVersion = self.getReconciledVersion(suite)
-
-                print_formatted_text(HTML(f"- <u>{instanceId}</u> v{reconciledVersion}"))
-                suiteOptions.append(instanceId)
-
-            suiteCompleter = WordCompleter(suiteOptions)
-            print()
-            instanceId = prompt(
-                HTML("<Yellow>Enter MAS instance ID: </Yellow>"), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False
-            )
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
         if currentChannel is not None:

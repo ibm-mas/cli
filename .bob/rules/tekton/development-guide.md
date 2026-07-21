@@ -1,4 +1,4 @@
-a# Tekton Development Guide
+# Tekton Development Guide
 
 ## Overview
 

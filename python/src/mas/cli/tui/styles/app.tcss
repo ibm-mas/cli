@@ -1,0 +1,260 @@
+/* ==========================================================================
+   MAS CLI TUI — application stylesheet
+   All widget styles are consolidated here so no Python file contains
+   inline CSS strings.  App-level rules (TextualShell) have higher
+   specificity than widget DEFAULT_CSS and reliably override Textual's
+   built-in Header/Footer colours.
+   ========================================================================== */
+
+/* ---------- Header / Footer overrides ------------------------------------- */
+
+Header, HeaderIcon, HeaderClockSpace, HeaderClock {
+    background: $background;
+}
+
+/* Prevent the header from expanding when clicked. */
+Header.-tall {
+    height: 1;
+}
+
+Footer, FooterKey {
+    background: $background;
+}
+
+/* ---------- TextualShell layout ------------------------------------------- */
+
+TextualShell {
+    layout: vertical;
+}
+
+#main-horizontal {
+    height: 1fr;
+}
+
+#sidebar {
+    width: 25%;
+    height: 100%;
+    border-right: solid $primary;
+    padding: 1;
+}
+
+#step-content {
+    width: 75%;
+    height: 100%;
+}
+
+/* ---------- Sidebar ListView — strip all built-in highlighting ------------- */
+
+#step-list,
+#step-list:focus,
+#step-list:focus-within {
+    background: $background;
+}
+
+#step-list > ListItem,
+#step-list > ListItem:hover,
+#step-list > ListItem.--highlight,
+#step-list:focus > ListItem.--highlight,
+#step-list:focus-within > ListItem.--highlight {
+    background: $background;
+}
+
+/* ---------- Sidebar step states ------------------------------------------- */
+
+.step-active {
+    color: $accent;
+    text-style: bold;
+}
+
+.step-completed {
+    color: $success;
+}
+
+.step-skipped {
+    color: $text-muted;
+}
+
+/* ---------- Shared field / description styles ----------------------------- */
+
+.field-label {
+    margin-top: 1;
+}
+
+.description-para {
+    margin-bottom: 1;
+    width: 100%;
+    text-wrap: wrap;
+}
+
+/* ---------- Validator error labels ---------------------------------------- */
+
+.validator-error {
+    display: none;
+}
+
+.validator-error--visible {
+    display: block;
+    color: $error;
+    margin-top: 1;
+    text-style: bold;
+    width: 100%;
+    text-wrap: wrap;
+}
+
+/* ---------- ActionOverlay ------------------------------------------------- */
+
+ActionOverlay {
+    align: center middle;
+}
+
+#action-dialog {
+    width: 70%;
+    height: auto;
+    max-height: 80%;
+    background: $surface;
+    border: thick $primary;
+    padding: 1 2;
+}
+
+#action-log {
+    height: 10;
+    border: solid $primary-darken-3;
+}
+
+#btn-dismiss {
+    display: none;
+    margin-top: 1;
+}
+
+/* ---------- ConnectStepScreen --------------------------------------------- */
+
+ConnectStepScreen {
+    height: 100%;
+    padding: 1;
+}
+
+#connect-switcher {
+    height: 1fr;
+}
+
+#connect-reuse, #connect-new {
+    height: 100%;
+    padding: 0;
+}
+
+.connect-heading {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+.connect-url {
+    color: $accent;
+    margin-bottom: 1;
+}
+
+.connect-error {
+    color: $error;
+    margin-top: 1;
+}
+
+.connect-field-label {
+    margin-top: 1;
+}
+
+#reuse-buttons {
+    margin-top: 2;
+    height: auto;
+}
+
+/* ---------- AutoRunScreen ------------------------------------------------- */
+
+AutoRunScreen {
+    height: 100%;
+    padding: 1;
+}
+
+#dep-log {
+    height: 1fr;
+    border: solid $primary-darken-3;
+    margin-bottom: 1;
+}
+
+#btn-next-dep {
+    display: none;
+}
+
+#btn-next-dep.dep-ready {
+    display: block;
+}
+
+/* ---------- ReviewScreen -------------------------------------------------- */
+
+ReviewScreen {
+    height: 100%;
+    padding: 1;
+}
+
+#review-content {
+    height: 1fr;
+    padding: 0;
+}
+
+#review-content Markdown {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+/* MarkdownH2 inherits margin: 2 0 1 0 from MarkdownHeader — strip the
+   top margin on the first heading so there is no blank space above it. */
+#review-content MarkdownH2:first-of-type {
+    margin-top: 0;
+}
+
+#review-footer {
+    height: auto;
+    padding: 1 2;
+    border-top: solid $panel-lighten-2;
+}
+
+#review-prompt {
+    margin-bottom: 1;
+    color: $text-muted;
+}
+
+#review-buttons {
+    height: auto;
+}
+
+/* ---------- StepScreen ---------------------------------------------------- */
+
+StepScreen {
+    height: 100%;
+    padding: 1 2;
+}
+
+/* ---------- ParamsOverlay ------------------------------------------------- */
+
+ParamsOverlay {
+    align: center middle;
+}
+
+#params-dialog {
+    width: 70%;
+    height: 80%;
+    background: $surface;
+    border: thick $primary;
+    padding: 1 2;
+}
+
+#params-heading {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#params-table {
+    height: 1fr;
+}
+
+#btn-params-close {
+    margin-top: 1;
+}

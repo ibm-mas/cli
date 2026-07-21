@@ -259,6 +259,13 @@ class BaseApp(PrintMixin, PromptMixin):
         self._dynClient: DynamicClient | None = None
         self._apiClient: ApiClient | None = None
 
+    def printBanner(self) -> None:
+        """Print the CLI startup banner and verify kubectl is available.
+
+        Called by __main__.py before dispatching to a command.  Separated
+        from __init__ so that constructing a BaseApp subclass (e.g. in the
+        TUI or in tests) does not produce output or perform filesystem checks.
+        """
         self.printTitle(f"\nIBM Maximo Application Suite Admin CLI v{self.version}")
         print_formatted_text(
             HTML("Powered by <Orange><u>https://github.com/ibm-mas/ansible-devops/</u></Orange> and <Orange><u>https://tekton.dev/</u></Orange>\n")
@@ -376,13 +383,11 @@ class BaseApp(PrintMixin, PromptMixin):
             print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>\n"))
         exit(1)
 
-    @logMethodCall
     def isSNO(self) -> bool:
         if self._isSNO is None:
             self._isSNO = isSNO(self.dynamicClient)
         return self._isSNO
 
-    @logMethodCall
     def isAirgap(self) -> bool:
         if self._isAirgap is None:
             # First check if the legacy ICSP is installed.  If it is raise an error and instruct the user to re-run configure-airgap to
@@ -516,7 +521,6 @@ class BaseApp(PrintMixin, PromptMixin):
         # Now that we are connected, inspect the architecture of the OpenShift cluster
         self.lookupTargetArchitecture()
 
-    @logMethodCall
     def lookupTargetArchitecture(self, architecture: str | None = None) -> None:
         logger.debug("Looking up worker node architecture")
         if architecture is not None:
@@ -531,6 +535,64 @@ class BaseApp(PrintMixin, PromptMixin):
 
         if self.architecture not in ["amd64", "s390x", "ppc64le"]:
             self.fatalError(f"Unsupported worker node architecture: {self.architecture}")
+
+    def getActiveConsoleURL(self) -> str | None:
+        """Return the console URL of the currently active OCP connection, or None.
+
+        Attempts to resolve the OpenShift console Route.  Returns ``None``
+        when no dynamic client is loaded or the Route lookup fails.  Safe to
+        call at any time with no side-effects.
+
+        Returns:
+            str | None: Console URL string (e.g. "https://console.example.com")
+                or None if not connected.
+        """
+        self.reloadDynamicClient()
+        if self._dynClient is None:
+            return None
+        try:
+            routesAPI = self._dynClient.resources.get(api_version="route.openshift.io/v1", kind="Route")
+            consoleRoute = routesAPI.get(name="console", namespace="openshift-console")
+            return f"https://{consoleRoute.spec.host}"
+        except Exception:
+            return None
+
+    def _connectFromParams(self) -> None:
+        """Connect to an OCP cluster using params, or reuse an existing connection.
+
+        Reads ``server_url``, ``login_token``, and ``skip_tls_verify`` from
+        ``self.params``.  When connection params are present, calls
+        :func:`mas.devops.ocp.connect`, reloads the dynamic client, and then
+        resolves the target node architecture.  When no params are provided and
+        ``self._dynClient`` is already loaded, only
+        :meth:`lookupTargetArchitecture` is called (kubeconfig-based connection).
+
+        This method is safe to run in a worker thread — it makes no
+        ``prompt_toolkit`` calls.
+
+        Raises:
+            Exception: Any exception raised by :func:`mas.devops.ocp.connect`
+                or :meth:`reloadDynamicClient` is propagated to the caller so
+                the TUI can display it as an error.
+        """
+        serverUrl = self.getParam("server_url")
+        loginToken = self.getParam("login_token")
+        skipTls = self.getParam("skip_tls_verify").lower() in ("true", "1", "yes")
+
+        if not serverUrl and self._dynClient is not None:
+            # Already connected via kubeconfig; just resolve architecture.
+            self.lookupTargetArchitecture()
+            return
+
+        if serverUrl:
+            connect(serverUrl, loginToken, skipTls)
+            self.reloadDynamicClient()
+            if self._dynClient is None:
+                raise RuntimeError(
+                    "Unable to connect to the OpenShift cluster. " "Check the server URL, login token, and TLS settings. " "See mas.log for details."
+                )
+
+        self.lookupTargetArchitecture()
 
     @logMethodCall
     def initializeApprovalConfigMap(self, namespace: str, id: str, enabled: bool, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
