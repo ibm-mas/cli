@@ -502,6 +502,7 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
     # Run the test
     run_install_test(tmpdir, config)
 
+
 def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
     """Test non-interactive installation with path-based routing mode using CLI flags.
 
@@ -646,6 +647,7 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
     )
     # Run the test
     run_install_test(tmpdir, config)
+
 
 def test_install_master_dev_mode_non_interactive_with_slack(tmpdir):
     """Test non-interactive installation with Slack notification parameters.
