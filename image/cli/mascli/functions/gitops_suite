@@ -906,6 +906,55 @@ function gitops_suite() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 
+  # Apply CIS Firewall Lockdown from allow_list
+  # ---------------------------------------------------------------------------
+  if [[ "${DNS_PROVIDER}" == "cis" ]]; then
+    echo
+    echo_h2 "Configuring CIS Firewall Lockdown for allow_list"
+
+    # Retrieve the zone ID for the MAS domain
+    ZONE_ID=$(ibmcloud cis domains \
+      --instance "${CIS_SERVICE_NAME}" --output json \
+      | jq -r '.[] | select(.name == "'"${CIS_MAS_DOMAIN#*.}"'") | .id')
+
+    if [[ -z "${ZONE_ID}" ]]; then
+      echo "[ERROR] Could not resolve CIS zone ID for domain ${CIS_MAS_DOMAIN}"
+      exit 1
+    fi
+
+    URL_PATTERN="*.${CIS_MAS_DOMAIN}"
+
+    # Remove any prior lockdown rules matching this URL pattern (idempotency)
+    EXISTING_LOCKDOWN_IDS=$(ibmcloud cis firewall lockdowns \
+      --domain "${ZONE_ID}" --instance "${CIS_SERVICE_NAME}" --output json \
+      | jq -r --arg pat "${URL_PATTERN}" \
+        '.[] | select(.urls[] == $pat) | .id' 2>/dev/null || true)
+
+    for LOCK_ID in ${EXISTING_LOCKDOWN_IDS}; do
+      echo "  Removing existing lockdown rule ${LOCK_ID}"
+      ibmcloud cis firewall-delete "${LOCK_ID}" \
+        --type lockdowns \
+        --domain "${ZONE_ID}" \
+        --instance "${CIS_SERVICE_NAME}" -f
+    done
+
+    if [[ -n "${ALLOW_LIST}" && "${ALLOW_LIST}" != "[]" ]]; then
+      # Build configurations JSON from ALLOW_LIST (JSON array string)
+      CONFIGURATIONS=$(echo "${ALLOW_LIST}" | jq -c \
+        '[.[] | {"target": (if test("/") then "ip_range" else "ip" end), "value": .}]')
+
+      echo "  Creating lockdown for ${URL_PATTERN} with configurations: ${CONFIGURATIONS}"
+
+      ibmcloud cis firewall-create \
+        --type lockdowns \
+        --domain "${ZONE_ID}" \
+        --json "{\"urls\": [\"${URL_PATTERN}\"], \"configurations\": ${CONFIGURATIONS}}" \
+        --instance "${CIS_SERVICE_NAME}"
+
+      echo_reset_dim "CIS Lockdown created for ${URL_PATTERN}"
+    fi
+  fi
+
   rm -rf $TEMP_DIR
 
 }
