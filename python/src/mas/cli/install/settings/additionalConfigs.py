@@ -38,6 +38,7 @@ class AdditionalConfigsMixin:
         manualCertsDir: str | None
         showAdvancedOptions: bool
         aiserviceTenantSchedulingConfigFileLocal: str | None
+        aiserviceTenantOperatorConfigFileLocal: str | None
         additionalConfigsSecret: Dict[str, Any] | None
         podTemplatesSecret: Dict[str, Any] | None
         slsLicenseFileSecret: Dict[str, Any] | None
@@ -216,6 +217,11 @@ class AdditionalConfigsMixin:
             aiserviceConfigSecret: dict[str, Any] = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-aiservice-config"}}
             self.setParam("tenant_scheduling_config_file", f"/workspace/aiservice/{path.basename(self.aiserviceTenantSchedulingConfigFileLocal)}")
             self.aiserviceConfigSecret = self.addFilesToSecret(aiserviceConfigSecret, self.aiserviceTenantSchedulingConfigFileLocal, "yaml")
+
+        if self.aiserviceTenantOperatorConfigFileLocal:
+            aiserviceConfigSecret: dict[str, Any] = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-aiservice-config"}}
+            self.setParam("tenant_operator_config_file", f"/workspace/aiservice/{path.basename(self.aiserviceTenantOperatorConfigFileLocal)}")
+            self.aiserviceConfigSecret = self.addFilesToSecret(aiserviceConfigSecret, self.aiserviceTenantOperatorConfigFileLocal, "yaml")
 
     def db2LicenseFile(self) -> None:
         if self.db2LicenseFileLocal:

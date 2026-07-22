@@ -60,6 +60,9 @@ class aiServiceInstallSummarizerMixin:
         if self.aiserviceTenantSchedulingConfigFileLocal:
             self.printSummary("Scheduling configuration file", self.aiserviceTenantSchedulingConfigFileLocal)
 
+        if self.aiserviceTenantOperatorConfigFileLocal:
+            self.printSummary("Tenant operator configuration file", self.aiserviceTenantOperatorConfigFileLocal)
+
         self.printH2("S3 Configuration")
         # self.printParamSummary("Storage provider", "aiservice_s3_provider")
         if self.getParam("minio_root_user") is not None and self.getParam("minio_root_user") != "":

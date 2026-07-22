@@ -97,6 +97,9 @@ spec:
     - name: tenant_scheduling_config_yaml
       type: string
       default: ""
+    - name: tenant_operator_config_yaml
+      type: string
+      default: ""
 
     # standalone sls
     - name: sls_service
@@ -204,5 +207,7 @@ spec:
           value: $(params.tenant_entitlement_end_date)
         - name: tenant_scheduling_config_yaml
           value: $(params.tenant_scheduling_config_yaml)
+        - name: tenant_operator_config_yaml
+          value: $(params.tenant_operator_config_yaml)
         - name: sls_service
           value: $(params.sls_service)

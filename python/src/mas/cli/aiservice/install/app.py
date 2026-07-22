@@ -189,6 +189,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.db2LicenseFileLocal = None
 
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
 
         self.approvals = {
             "approval_aiservice": {"id": "aiservice"},
@@ -277,6 +278,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 # No need to perform validation if file exist here, as it has been already validated by argParser type check.
                 if value is not None and value != "":
                     self.aiserviceTenantSchedulingConfigFileLocal = value
+
+            elif key == "tenant_operator_config_file":
+                if value is not None and value != "":
+                    self.aiserviceTenantOperatorConfigFileLocal = value
 
             elif key == "db2_action_aiservice":
                 # Check if external DB parameters are provided
@@ -700,7 +705,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime("%Y-%m-%d"))
 
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.configSchedulingConstraints()
+        self.configTenantOperator()
 
     @logMethodCall
     def configSchedulingConstraints(self):
