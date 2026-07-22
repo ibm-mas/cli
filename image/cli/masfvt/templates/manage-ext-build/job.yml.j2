@@ -1,0 +1,38 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: manage-external-build
+  namespace: manage-build
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccountName: manage-build-job-sa
+      restartPolicy: Never
+      volumes:
+        - name: build-script-run
+          configMap:
+            name: manage-build-script
+            defaultMode: 0755
+        - name: build-script-bc
+          configMap:
+            name: manage-build-script-bc
+            defaultMode: 0755
+      containers:
+        - name: build
+          image: quay.io/ibmmas/cli:latest
+          imagePullPolicy: {{ image_pull_policy }}
+          env:
+            - name: INSTANCE_ID
+              value: "{{ mas_instance_id }}"
+            - name: WORKSPACE_ID
+              value: "{{ mas_workspace_id }}"
+          volumeMounts:
+            - name: build-script-run
+              mountPath: /tmp/run.sh
+              subPath: run.sh
+            - name: build-script-bc
+              mountPath: /tmp/build_bc.py
+              subPath: build_bc.py
+          command: ["/bin/bash", "/tmp/run.sh"]

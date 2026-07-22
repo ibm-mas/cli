@@ -117,6 +117,7 @@
         - mas-launchfvt-visualinspection
         - mas-launchfvt-facilities
         - mas-launchivt-manage
+        - mas-manage-external-build
 
 
     # 5. Generate Tasks (IVT)

@@ -1,0 +1,128 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: mas-manage-external-build
+spec:
+  params:
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+  steps:
+    # Step 1 — Wait for ManageWorkspace CR to exist
+    # -------------------------------------------------------------------------
+    # Starts immediately after approval-suite-verify. Polls until the
+    # ManageWorkspace CR is created by suite_app_config (which happens inside
+    # app-install-manage, ~60-85 min after the install pipeline starts).
+    # Max wait: 180 retries × 60s = 3 hours.
+    - name: wait-for-manageworkspace
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      env:
+        - name: INSTANCE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MAS_INSTANCE_ID
+              optional: false
+        - name: WORKSPACE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: MAS_WORKSPACE_ID
+              optional: false
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        MAX_RETRIES=180
+        DELAY=60
+        MANAGE_NS="mas-${INSTANCE_ID}-manage"
+        CR_NAME="${INSTANCE_ID}-${WORKSPACE_ID}"
+
+        echo ""
+        echo "Inputs"
+        echo "------------------------------------------------------------------"
+        echo "Instance ID ................ ${INSTANCE_ID}"
+        echo "Workspace ID ............... ${WORKSPACE_ID}"
+        echo "Manage namespace ........... ${MANAGE_NS}"
+        echo "ManageWorkspace CR name .... ${CR_NAME}"
+        echo "Max retries ................ ${MAX_RETRIES}"
+        echo "Delay ...................... ${DELAY}s  (total wait budget: 3h)"
+        echo ""
+        echo "Waiting for ManageWorkspace CR ${CR_NAME} in ${MANAGE_NS} ..."
+        echo "------------------------------------------------------------------"
+
+        RETRIES=0
+        while [[ "${RETRIES}" -lt "${MAX_RETRIES}" ]]; do
+          if oc get manageworkspace "${CR_NAME}" -n "${MANAGE_NS}" &>/dev/null; then
+            echo "ManageWorkspace CR ${CR_NAME} found. Proceeding."
+            exit 0
+          fi
+          echo "[${RETRIES}/${MAX_RETRIES}] Not yet available. Waiting ${DELAY}s ..."
+          sleep "${DELAY}"
+          RETRIES=$((RETRIES + 1))
+        done
+
+        echo "ERROR: timed out after 3h waiting for ManageWorkspace CR ${CR_NAME} in ${MANAGE_NS}" >&2
+        exit 1
+
+    # Step 2 — Run the external build Ansible playbook
+    # -------------------------------------------------------------------------
+    # Applies manage-build-script ConfigMap and manage-external-build Job to
+    # the manage-build namespace. The Job: sets skipImageBuild, builds admin +
+    # bundle images via BuildConfig, patches ManageWorkspace.usePrebuiltImages.
+    - name: run-external-build
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - ansible-playbook
+        - /masfvt/manage-external-build.yml
+      env:
+        - name: IMAGE_PULL_POLICY
+          value: $(params.image_pull_policy)
+        - name: PIPELINERUN_NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: MAS_INSTANCE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MAS_INSTANCE_ID
+              optional: false
+        - name: SERVICE_ACCOUNT_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: SERVICE_ACCOUNT_NAME
+              optional: true
+        - name: MAS_WORKSPACE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: MAS_WORKSPACE_ID
+              optional: false
+
+    # Step 3 — Wait for the OCP Job to complete
+    # -------------------------------------------------------------------------
+    # Polls manage-external-build Job in manage-build namespace.
+    # 180 retries × 60s = 3 hours.
+    - name: wait-for-build-job
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/wait-for-tekton.sh
+      env:
+        - name: TYPE
+          value: job
+        - name: NAME
+          value: manage-external-build
+        - name: NAMESPACE
+          value: manage-build
+        - name: DELAY
+          value: "60"
+        - name: MAX_RETRIES
+          value: "180"
+        - name: IGNORE_FAILURE
+          value: "False"
