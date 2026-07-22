@@ -37,6 +37,7 @@ class InstallSummarizerMixin:
         localConfigDir: str | None
         slsLicenseFileLocal: str | None
         aiserviceTenantSchedulingConfigFileLocal: str | None
+        aiserviceTenantOperatorConfigFileLocal: str | None
         facilitiesPropertiesFileLocal: str | None
         deployCP4D: bool
         installAssist: bool
@@ -411,6 +412,11 @@ class InstallSummarizerMixin:
                 self.printSummary(
                     "Scheduling configuration file",
                     self.aiserviceTenantSchedulingConfigFileLocal,
+                )
+            if self.aiserviceTenantOperatorConfigFileLocal:
+                self.printSummary(
+                    "Tenant operator configuration file",
+                    self.aiserviceTenantOperatorConfigFileLocal,
                 )
 
             self.printH2("S3 Configuration")

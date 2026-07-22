@@ -93,6 +93,8 @@ spec:
       type: string
     - name: tenant_scheduling_config_yaml
       type: string
+    - name: tenant_operator_config_yaml
+      type: string
     - name: sls_service
       type: string
       default: ""
@@ -185,6 +187,8 @@ spec:
         value: $(params.tenant_entitlement_end_date)
       - name: TENANT_SCHEDULING_CONFIG_YAML
         value: $(params.tenant_scheduling_config_yaml)
+      - name: TENANT_OPERATOR_CONFIG_YAML
+        value: $(params.tenant_operator_config_yaml)
       - name: STANDALONE_SLS_SERVICE
         value: $(params.sls_service)
       - name: IS_GITOPS_FVT_ENV

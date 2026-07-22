@@ -28,7 +28,8 @@ ibm_aiservice_tenant(required):
       --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                         Endpoint URL for Watsonx.ai
       --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                           Full URL for Watsonx.ai including API key
       --tenant-scheduling-config-file ${COLOR_YELLOW}TENANT_SCHEDULING_CONFIG_FILE${TEXT_RESET}             Path to tenant scheduling configuration file (tolerations and nodeSelector)
-      --enable-deprovisioning ${COLOR_YELLOW}AISERVICE_ENABLE_DEPROVISIONING${TEXT_RESET}                    When true, the tenant is deprovisioned when its AIServiceTenant CR is deleted
+      --tenant-operator-config-file ${COLOR_YELLOW}TENANT_OPERATOR_CONFIG_FILE${TEXT_RESET}                 Path to tenant operator configuration file
+      --enable-deprovisioning ${COLOR_YELLOW}AISERVICE_ENABLE_DEPROVISIONING${TEXT_RESET}                   When true, the tenant is deprovisioned when its AIServiceTenant CR is deleted
 
 AiService :
 --aiservice-namespace ${COLOR_YELLOW}AISERVICE_NAMESPACE${TEXT_RESET}                                       The namespace where AI Service is deployed
@@ -270,6 +271,10 @@ function gitops_aiservice_tenant_noninteractive() {
       --tenant-scheduling-config-yaml)
         export TENANT_SCHEDULING_CONFIG_YAML=$1 && shift
         ;;
+      
+      --tenant-operator-config-file)
+        export TENANT_OPERATOR_CONFIG_FILE=$1 && shift
+        ;;
 
       --enable-deprovisioning)
         export AISERVICE_ENABLE_DEPROVISIONING=$1 && shift
@@ -424,6 +429,12 @@ else
   echo_reset_dim "Scheduling constraints (tolerations/nodeSelector) .............. ${COLOR_MAGENTA}Not Configured"
 fi
 
+  if [[ -n "$TENANT_OPERATOR_CONFIG_FILE" ]]; then
+    echo_reset_dim "Tenant operator configuration file .............. ${COLOR_MAGENTA}${TENANT_OPERATOR_CONFIG_FILE}"
+  else
+    echo_reset_dim "Tenant operator configuration file .............. ${COLOR_MAGENTA}Not set"
+  fi
+
   echo_reset_dim "MAS ICR CP registry ............................................ ${COLOR_MAGENTA}${MAS_ICR_CP}"
   echo_reset_dim "MAS ICR CPOPEN registry ........................................ ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
 
@@ -516,6 +527,11 @@ fi
   if [[ -n "$TENANT_SCHEDULING_CONFIG_YAML" && -s "$TENANT_SCHEDULING_CONFIG_YAML" ]]; then
     export TENANT_SCHEDULING_CONFIG=$(yq eval '.' ${TENANT_SCHEDULING_CONFIG_YAML})
     echo -e "\n - TENANT_SCHEDULING_CONFIG content .................. ${TENANT_SCHEDULING_CONFIG}"
+  fi
+
+  if [[ -n "$TENANT_OPERATOR_CONFIG_FILE" && -s "$TENANT_OPERATOR_CONFIG_FILE" ]]; then
+    export TENANT_OPERATOR_CONFIG=$(yq eval '.' ${TENANT_OPERATOR_CONFIG_FILE})
+    echo -e "\n - TENANT_OPERATOR_CONFIG .................. ${TENANT_OPERATOR_CONFIG}"
   fi
   
   # finally push them into the git repo

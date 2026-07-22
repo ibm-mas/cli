@@ -11,6 +11,7 @@
 from os import path
 from typing import TYPE_CHECKING, Dict, List, Any
 from prompt_toolkit import print_formatted_text
+from mas.cli.cli import logMethodCall
 
 if TYPE_CHECKING:
     # Type hints for methods and attributes provided by other mixins
@@ -29,6 +30,7 @@ class AiSettingsMixin:
         templatesDir: str
         dynamicClient: Any
         installAIService: bool
+        aiserviceTenantOperatorConfigFileLocal: str | None
 
         # Methods from BaseApp
         def setParam(self, param: str, value: str) -> None: ...
@@ -54,6 +56,8 @@ class AiSettingsMixin:
             validator: Validator | None = None,
             completer: WordCompleter | None = None,
         ) -> str: ...
+
+        def promptForFile(self, message: str, mustExist: bool = True, default: str = "", envVar: str = "") -> str: ...
 
         def promptForListSelect(self, message: str, options: List[str], param: str | None = None, default: int | None = None) -> str: ...
 
@@ -142,3 +146,21 @@ class AiSettingsMixin:
             else:
                 self.setParam("configure_aiassistant", "none")
                 print_formatted_text("AiCfg configuration skipped")
+
+    @logMethodCall
+    def configTenantOperator(self):
+        if self.showAdvancedOptions:
+            self.printH1("Tenant operator configuration customization")
+            self.printDescription(
+                content=[
+                    "The AI Service tenant operator deployment may be customized, for example, to adjust resource requests/limits",
+                    "To customize the operator, create a YAML configuration file",
+                    "The YAML file may contain any valid configuration for the 'spec.config' field in an OLM Subscription resource",
+                ]
+            )
+
+            configTenantOperator = self.yesOrNo("Customize the AI Service tenant operator deployment")
+            if configTenantOperator:
+                self.aiserviceTenantOperatorConfigFileLocal = self.promptForFile(
+                    "Tenant operator configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_OPERATOR_CONFIG_FILE"
+                )
