@@ -42,6 +42,12 @@ spec:
       type: string
     - name: fvt_ansible_version
       type: string
+    - name: fvt_version_core
+      type: string
+      default: ""
+    - name: ivt_version_core
+      type: string
+      default: ""  
 
     - name: aiservice_channel
       type: string
@@ -105,7 +111,10 @@ spec:
           value: $(params.artifactory_generic_logs_url)
         - name: fvt_ansible_version
           value: $(params.fvt_ansible_version)
-
+        - name: fvt_version_core
+          value: $(params.fvt_version_core)
+        - name: ivt_version_core
+          value: $(params.ivt_version_core)
 
         - name: aiservice_channel
           value: $(params.aiservice_channel)

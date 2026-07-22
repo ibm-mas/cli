@@ -28,6 +28,12 @@ spec:
       type: string
     - name: fvt_config
       type: string
+    - name: fvt_version_core
+      type: string
+      default: ""
+    - name: ivt_version_core
+      type: string
+      default: ""  
 
     - name: artifactory_generic_release_url
       type: string
@@ -112,6 +118,10 @@ spec:
         value: $(params.fvt_config)
       - name: FVT_IMAGE_REGISTRY
         value: $(params.fvt_image_registry)
+      - name: FVT_VERSION_CORE
+        value: $(params.fvt_version_core)
+      - name: IVT_VERSION_CORE
+        value: $(params.ivt_version_core)  
       - name: ARTIFACTORY_GENERIC_RELEASE_URL
         value: $(params.artifactory_generic_release_url)
       - name: ARTIFACTORY_GENERIC_LOGS_URL
@@ -368,7 +378,7 @@ spec:
           IU_SECRET_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops-mas-fvt-preparer\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}]"
           
           echo "Creating ${IU_SECRET_NAME} secret"
-          sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}" || return $?
+          # sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}" || return $?
 
           # The Job will have already run when MAS Core was installed during the first phase of our FVT process
           # Since no initial_users secret existed at that time, it will not have done anything
@@ -385,7 +395,7 @@ spec:
 
           # Force a resync of the postsyncjobs app
           echo "Forcing ${POSTSYNCJOBS_APP} to resync"
-          argocd_sync "${POSTSYNCJOBS_APP}" || return $?
+          # argocd_sync "${POSTSYNCJOBS_APP}" || return $?
           # check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
         }
 
