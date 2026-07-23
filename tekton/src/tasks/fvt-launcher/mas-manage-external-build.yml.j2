@@ -11,13 +11,14 @@ spec:
       default: IfNotPresent
 
   steps:
-    # Step 1 — Wait for ManageWorkspace CR to exist
+    # Step 1 — Setup manage-build namespace + wait for ManageWorkspace CR
     # -------------------------------------------------------------------------
-    # Starts immediately after approval-suite-verify. Polls until the
-    # ManageWorkspace CR is created by suite_app_config (which happens inside
-    # app-install-manage, ~60-85 min after the install pipeline starts).
+    # Phase A (immediate): Creates manage-build namespace, SA, local RBAC, and
+    #   push secret — resources with no dependency on the manage namespace.
+    # Phase B (waits): Polls until the ManageWorkspace CR exists (guarantees the
+    #   manage namespace exists too), then applies cross-namespace Role/RoleBinding.
     # Max wait: 180 retries × 60s = 3 hours.
-    - name: wait-for-manageworkspace
+    - name: setup-and-wait
       image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       env:
@@ -37,10 +38,11 @@ spec:
         #!/usr/bin/env bash
         set -euo pipefail
 
+        MANAGE_NS="mas-${INSTANCE_ID}-manage"
+        BUILD_NS="manage-build"
+        CR_NAME="${INSTANCE_ID}-${WORKSPACE_ID}"
         MAX_RETRIES=180
         DELAY=60
-        MANAGE_NS="mas-${INSTANCE_ID}-manage"
-        CR_NAME="${INSTANCE_ID}-${WORKSPACE_ID}"
 
         echo ""
         echo "Inputs"
@@ -48,26 +50,144 @@ spec:
         echo "Instance ID ................ ${INSTANCE_ID}"
         echo "Workspace ID ............... ${WORKSPACE_ID}"
         echo "Manage namespace ........... ${MANAGE_NS}"
-        echo "ManageWorkspace CR name .... ${CR_NAME}"
-        echo "Max retries ................ ${MAX_RETRIES}"
-        echo "Delay ...................... ${DELAY}s  (total wait budget: 3h)"
+        echo "ManageWorkspace CR ......... ${CR_NAME}"
+        echo "Max retries ................ ${MAX_RETRIES} (${DELAY}s each = 3h budget)"
         echo ""
-        echo "Waiting for ManageWorkspace CR ${CR_NAME} in ${MANAGE_NS} ..."
+
+        # ----------------------------------------------------------------
+        # Phase A — set up manage-build (no dependency on manage namespace)
+        # ----------------------------------------------------------------
+        echo "Phase A: Setting up ${BUILD_NS} ..."
         echo "------------------------------------------------------------------"
 
+        if ! oc get namespace "${BUILD_NS}" &>/dev/null; then
+          oc new-project "${BUILD_NS}"
+          echo "  Created namespace ${BUILD_NS}"
+        else
+          echo "  Namespace ${BUILD_NS} already exists"
+        fi
+
+        if ! oc get sa manage-build-job-sa -n "${BUILD_NS}" &>/dev/null; then
+          oc create serviceaccount manage-build-job-sa -n "${BUILD_NS}"
+          echo "  Created SA manage-build-job-sa"
+        else
+          echo "  SA manage-build-job-sa already exists"
+        fi
+
+        if ! oc get secret manage-build-push-secret -n "${BUILD_NS}" &>/dev/null; then
+          BUILDER_TOKEN=$(oc create token builder -n "${BUILD_NS}" --duration=8760h)
+          oc create secret docker-registry manage-build-push-secret \
+            --docker-server=image-registry.openshift-image-registry.svc:5000 \
+            --docker-username=builder \
+            --docker-password="${BUILDER_TOKEN}" \
+            -n "${BUILD_NS}"
+          echo "  Created manage-build-push-secret"
+        else
+          echo "  manage-build-push-secret already exists"
+        fi
+
+        oc apply -f - <<EOF
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: Role
+        metadata:
+          name: manage-build-job-local-role
+          namespace: ${BUILD_NS}
+        rules:
+          - apiGroups: ["build.openshift.io"]
+            resources: ["buildconfigs", "builds"]
+            verbs: ["get", "list", "watch", "create", "update", "patch"]
+          - apiGroups: ["build.openshift.io"]
+            resources: ["buildconfigs/instantiate"]
+            verbs: ["create"]
+          - apiGroups: [""]
+            resources: ["secrets", "configmaps"]
+            verbs: ["get", "create", "delete"]
+        EOF
+        oc apply -f - <<EOF
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: RoleBinding
+        metadata:
+          name: manage-build-job-local-rolebinding
+          namespace: ${BUILD_NS}
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: Role
+          name: manage-build-job-local-role
+        subjects:
+          - kind: ServiceAccount
+            name: manage-build-job-sa
+            namespace: ${BUILD_NS}
+        EOF
+        echo "  Phase A complete."
+        echo ""
+
+        # ----------------------------------------------------------------
+        # Phase B — wait for ManageWorkspace CR, then apply cross-NS RBAC
+        # If ManageWorkspace CR exists, manage namespace is guaranteed to exist.
+        # ----------------------------------------------------------------
+        echo "Phase B: Waiting for ManageWorkspace CR ${CR_NAME} in ${MANAGE_NS} ..."
+        echo "------------------------------------------------------------------"
         RETRIES=0
         while [[ "${RETRIES}" -lt "${MAX_RETRIES}" ]]; do
           if oc get manageworkspace "${CR_NAME}" -n "${MANAGE_NS}" &>/dev/null; then
-            echo "ManageWorkspace CR ${CR_NAME} found. Proceeding."
-            exit 0
+            echo "  ManageWorkspace CR ${CR_NAME} found."
+            break
           fi
-          echo "[${RETRIES}/${MAX_RETRIES}] Not yet available. Waiting ${DELAY}s ..."
+          echo "  [${RETRIES}/${MAX_RETRIES}] Not yet available. Waiting ${DELAY}s ..."
           sleep "${DELAY}"
           RETRIES=$((RETRIES + 1))
+          if [[ "${RETRIES}" -eq "${MAX_RETRIES}" ]]; then
+            echo "ERROR: timed out after 3h waiting for ManageWorkspace CR ${CR_NAME}" >&2
+            exit 1
+          fi
         done
 
-        echo "ERROR: timed out after 3h waiting for ManageWorkspace CR ${CR_NAME} in ${MANAGE_NS}" >&2
-        exit 1
+        oc policy add-role-to-user registry-editor \
+          "system:serviceaccount:${BUILD_NS}:builder" \
+          -n "${MANAGE_NS}" || true
+
+        oc apply -f - <<EOF
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: Role
+        metadata:
+          name: manage-build-job-role
+          namespace: ${MANAGE_NS}
+        rules:
+          - apiGroups: [""]
+            resources: ["configmaps"]
+            resourceNames: ["managebuild-buildinfo", "${INSTANCE_ID}-${WORKSPACE_ID}-truststore-cfg"]
+            verbs: ["get"]
+          - apiGroups: [""]
+            resources: ["secrets"]
+            resourceNames: ["${INSTANCE_ID}-${WORKSPACE_ID}-manage-truststorepasswd", "ibm-entitlement"]
+            verbs: ["get"]
+          - apiGroups: ["apps.mas.ibm.com"]
+            resources: ["manageworkspaces"]
+            verbs: ["get", "patch"]
+          - apiGroups: ["apps.mas.ibm.com"]
+            resources: ["managebuilds"]
+            verbs: ["get"]
+          - apiGroups: ["image.openshift.io"]
+            resources: ["imagestreamtags"]
+            verbs: ["get"]
+        EOF
+        oc apply -f - <<EOF
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: RoleBinding
+        metadata:
+          name: manage-build-job-rolebinding
+          namespace: ${MANAGE_NS}
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: Role
+          name: manage-build-job-role
+        subjects:
+          - kind: ServiceAccount
+            name: manage-build-job-sa
+            namespace: ${BUILD_NS}
+        EOF
+        echo "  Cross-namespace RBAC applied."
+        echo "  Setup complete. Proceeding to build."
 
     # Step 2 — Run the external build Ansible playbook
     # -------------------------------------------------------------------------
