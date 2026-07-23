@@ -40,3 +40,9 @@
       name: mas-devops
       key: MAS_READ_ONLY_ROOT_FILESYSTEM
       optional: true
+- name: MANAGE_SKIP_IMAGE_BUILD
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops
+      key: MANAGE_SKIP_IMAGE_BUILD
+      optional: true

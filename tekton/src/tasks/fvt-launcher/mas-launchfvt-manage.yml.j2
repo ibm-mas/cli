@@ -49,6 +49,12 @@ spec:
               name: mas-devops
               key: SERVICE_ACCOUNT_NAME
               optional: true
+        - name: MANAGE_SKIP_IMAGE_BUILD
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MANAGE_SKIP_IMAGE_BUILD
+              optional: true
 
         # Lookups from mas-fvt
         # -----------------------------------------------------------------------
