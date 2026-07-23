@@ -458,6 +458,7 @@ class InstallSummarizerMixin:
             print()
             self.printParamSummary("Install Namespace", "db2_namespace")
             self.printParamSummary("Subscription Channel", "db2_channel")
+            self.printParamSummary("Db2 Resource Kind", "db2u_kind")
             print()
             self.printParamSummary("CPU Request", "db2_cpu_requests")
             self.printParamSummary("CPU Limit", "db2_cpu_limits")

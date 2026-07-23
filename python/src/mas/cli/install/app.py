@@ -241,6 +241,7 @@ class InstallApp(
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
         self.catalogDb2Channel = self.chosenCatalog.get("db2_channel_default", "v110509.0")  # Returns fallback "v110509.0" for old catalogs without this field
+        self.catalogDb2uKind = self.chosenCatalog.get("db2u_kind_default", "db2ucluster")  # Returns Fallback if not found
         if self.architecture != "s390x" and self.architecture != "ppc64le":
             self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
 
@@ -2493,7 +2494,6 @@ class InstallApp(
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
-            self.setParam("db2u_kind", "db2ucluster")
 
         if self.getParam("mas_issuer_kind") != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--mas-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
@@ -2563,6 +2563,7 @@ class InstallApp(
             operation="installation",
         )
         self.setDB2DefaultChannel()
+        self.setDB2uKindDefault()
 
         # Version before 9.1 cannot have empty components
         if (
