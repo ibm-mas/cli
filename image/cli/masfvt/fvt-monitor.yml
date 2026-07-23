@@ -16,25 +16,9 @@
     fvt_digest_ctf: "{{ lookup('env', 'FVT_DIGEST_CTF') }}"
     fvt_digest_monitor: "{{ lookup('env', 'FVT_DIGEST_MONITOR') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
-    # Black and white listing
-    fvt_blacklist: "{{ lookup('env', 'FVT_BLACKLIST') }}"
-    fvt_whitelist: "{{ lookup('env', 'FVT_WHITELIST') }}"
     # Data Dictionary FVT is only supported for Release versions 8.10, 8.11, and 9.0
     # For any other version (including 9.1+), the digest will be empty and the task will be skipped
     fvt_digest_data_dictionary: "{% if '8.10' in mas_app_channel_monitor or '8.11' in mas_app_channel_monitor or '9.0' in mas_app_channel_monitor %}{{ lookup('env', 'FVT_DIGEST_DATA_DICTIONARY') }}{% endif %}"
-    # Control the Monitor suite based on Monitor version and presence/absence of Manage
-    # For Monitor 9.1.x and above, use version-specific test suites (fvt_91x, fvt_92x)
-    # For Monitor 8.x and 9.0.x, use legacy suites based on Manage presence
-    fvt_test_suite: >-
-      {%- if '9.1' in mas_app_channel_monitor -%}
-        fvt_91x
-      {%- elif '9.2' in mas_app_channel_monitor -%}
-        fvt_91x
-      {%- elif mas_app_channel_manage == '' -%}
-        monitor_fvt
-      {%- else -%}
-        monitor_fvt_with_manage
-      {%- endif -%}
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-monitor', True) }}-{{ devops_build_number }}"
@@ -59,11 +43,6 @@
           - "fvt_digest_monitor .............. {{ fvt_digest_monitor }}"
           - "ivt_digest_core ................. {{ ivt_digest_core }}"
           - "fvt_digest_data_dictionary ...... {{ fvt_digest_data_dictionary }}"
-          - ""
-          - "fvt_test_suite .................. {{ fvt_test_suite }}"
-          - ""
-          - "fvt_blacklist ............... {{ fvt_blacklist }}"
-          - "fvt_whitelist ............... {{ fvt_whitelist }}"
 
     - name: "Start fvt-monitor pipeline"
       kubernetes.core.k8s:
