@@ -21,6 +21,9 @@ spec:
     - name: mas_app_channel_monitor
       type: string
       default: ""
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
     - name: mas_instance_id
       type: string
       default: ""
@@ -57,9 +60,9 @@ spec:
       description: Data Dictionary Digest
       default: ""
 
-    - name: fvt_test_suite
+    # Product channel (used for version-specific suite selection)
+    - name: product_channel
       type: string
-      description: Which Monitor FVT suite to run [monitor_fvt, monitor_fvt_with_manage, fvt_91x]
       default: ""
 
   tasks:
@@ -80,16 +83,23 @@ spec:
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
 
-    # 1. Core x Monitor
+    # 1. Core x Monitor (Kyverno + IVT Core)
     # -------------------------------------------------------------------------
     - name: kyverno-monitor
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-monitor
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
         - name: product_channel
           value: $(params.mas_app_channel_monitor)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.ivt_digest_core)
+        - name: product_id
+          value: ibm-mas-monitor
         - name: fvt_test_suite
           value: kyverno
       when:
@@ -105,11 +115,18 @@ spec:
     - name: ivtcore-monitor
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-monitor
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
         - name: product_channel
           value: $(params.mas_app_channel_monitor)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.ivt_digest_core)
+        - name: product_id
+          value: ibm-mas-monitor
         - name: fvt_test_suite
           value: coreivt
       runAfter:
@@ -122,30 +139,21 @@ spec:
           operator: notin
           values: [""]
 
-    # 2. Monitor FVT (with or without Manage Integration)
-    # -----------------------------------------------------------------------------
-    # When Manage is installed in the cluster, many Monitor APIs are disabled, this
-    # prevents the standard Monitor FVT suite from running so this IVT suite must run instead
-    #
-    # fvt_test_suite should be set to one of the following:
-    # - monitor_fvt
-    # - monitor_fvt_with_manage
-    #
-    # These testsuites are mutually exclusive
-    - name: fvt-monitor
+    # 2. Legacy Monitor FVT - monitor_fvt_with_manage
+    # -------------------------------------------------------------------------
+    # Kept unchanged - runs when Manage is installed alongside Monitor.
+    - name: fvt-monitor-with-manage
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
         - name: fvt_image_digest
           value: $(params.fvt_digest_monitor)
-
         - name: fvt_test_suite
-          value: $(params.fvt_test_suite) # pytest_marker in Monitor Test Framework
+          value: monitor_fvt_with_manage
         - name: product_channel
           value: $(params.mas_app_channel_monitor)
       timeout: "0"
@@ -156,20 +164,391 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.fvt_test_suite)"
-          operator: in
-          values: ["monitor_fvt", "monitor_fvt_with_manage", "fvt_91x"]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
       runAfter:
         - ivtcore-monitor
       workspaces:
         - name: configs
           workspace: shared-configs
 
-    # 3. Data Dictionary FVT
+    # 3. New Parallel Monitor FVT Suites (9.1.x and above, no Manage)
+    # -------------------------------------------------------------------------
+    # All 11 suites run in parallel immediately after ivtcore-monitor completes.
+    # Each suite is fully self-contained with its own setup and cleanup phases.
+    # The when condition (mas_app_channel_manage == "") ensures these only run
+    # when Manage is NOT installed (mutually exclusive with fvt-monitor-with-manage).
+    # -------------------------------------------------------------------------
+
+    # fvt_monitoronly - File ingest and basic monitor-only verification
+    - name: fvt-monitoronly
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_monitoronly
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_core_devicetype - Device type management APIs
+    - name: fvt-core-devicetype
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_core_devicetype
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_core_device - Device management APIs
+    - name: fvt-core-device
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_core_device
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_core_gateway - Gateway management APIs
+    - name: fvt-core-gateway
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_core_gateway
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_core_workspace - Workspace-level APIs
+    - name: fvt-core-workspace
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_core_workspace
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_iot - IoT device data ingestion and certificate tests
+    - name: fvt-iot
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_iot
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_pipeline_devicetype - Device type pipeline (KPI bootstrap + data lake validation)
+    - name: fvt-pipeline-devicetype
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_pipeline_devicetype
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_pipeline_hierarchy - Hierarchy (asset/location/system/site/org) pipeline validation
+    - name: fvt-pipeline-hierarchy
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_pipeline_hierarchy
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_edc - Edge Data Collector device library and protocol integration
+    - name: fvt-edc
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_edc
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_int_mref - MREF (TRIRIGA, Webex, DNA Spaces) integration
+    - name: fvt-int-mref
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_int_mref
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_int_scada - SCADA connector integration
+    - name: fvt-int-scada
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_int_scada
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 4. Data Dictionary FVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-data-dictionary/data-dictionary.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-monitor
+        - fvt-monitoronly
+        - fvt-core-devicetype
+        - fvt-core-device
+        - fvt-core-gateway
+        - fvt-core-workspace
+        - fvt-iot
+        - fvt-pipeline-devicetype
+        - fvt-pipeline-hierarchy
+        - fvt-edc
+        - fvt-int-mref
+        - fvt-int-scada
+        - fvt-monitor-with-manage
 
   finally:
     # 1. Run CV
@@ -177,11 +556,18 @@ spec:
     - name: cv-monitor
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-monitor
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
         - name: product_channel
           value: $(params.mas_app_channel_monitor)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.ivt_digest_core)
+        - name: product_id
+          value: ibm-mas-monitor
         - name: fvt_test_suite
           value: contentverification
       when:
@@ -201,8 +587,6 @@ spec:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipeline_status
-          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
-          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
           value: $(tasks.status)
         - name: pipeline_name
           value: $(context.pipeline.name)

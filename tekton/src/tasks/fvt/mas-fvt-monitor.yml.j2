@@ -40,17 +40,23 @@ spec:
       default: "true"
     - name: fvt_test_suite
       type: string
-      description: Which Monitor FVT suite to run ('monitor_fvt' or 'monitor_fvt_with_manage')
+      description: >-
+        Which Monitor FVT suite to run. Valid values:
+          Legacy suites  : monitor_fvt_with_manage
+          New suites     : fvt_monitoronly, fvt_core_devicetype, fvt_core_device,
+                           fvt_core_gateway, fvt_core_workspace, fvt_iot,
+                           fvt_pipeline_devicetype, fvt_pipeline_hierarchy,
+                           fvt_edc, fvt_int_mref, fvt_int_scada
     - name: ctf_is_local
       type: string
-      description: Boolean value to check if tests are runninng locally or on fvt
+      description: Boolean value to check if tests are running locally or on fvt
       default: "false"
 
   steps:
     - name: fvt-monitor
       image: '$(params.fvt_image_registry)/fvt-monitor/fvt-ibm-mas-monitor@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
+      timeout: 6h # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       workingDir: /opt/ibm/test
       env:
@@ -66,7 +72,7 @@ spec:
         - name: WORKSPACE_ID
           value: "$(params.mas_workspace_id)"
 
-       # Enable results to be saved
+        # Enable results to be saved
         - name: DEVOPS_MONGO_URI
           valueFrom:
             secretKeyRef:
@@ -93,7 +99,6 @@ spec:
               name: mas-fvt-monitor
               key: FVT_WHITELIST
               optional: false
-
 
         # Test Data
         - name: FVT_TEST_SUITE
