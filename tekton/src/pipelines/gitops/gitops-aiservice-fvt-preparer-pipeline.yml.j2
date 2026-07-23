@@ -49,6 +49,10 @@ spec:
       type: string
       default: ""  
 
+    - name: fvt_version_aiservice
+      type: string
+      default: ""
+
     - name: aiservice_channel
       type: string
       
@@ -115,6 +119,8 @@ spec:
           value: $(params.fvt_version_core)
         - name: ivt_version_core
           value: $(params.ivt_version_core)
+        - name: fvt_version_aiservice
+          value: $(params.fvt_version_aiservice)
 
         - name: aiservice_channel
           value: $(params.aiservice_channel)

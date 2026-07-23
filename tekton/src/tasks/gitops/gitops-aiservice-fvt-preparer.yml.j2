@@ -55,6 +55,9 @@ spec:
     - name: aiservice_channel
       type: string
       default: ""
+    - name: fvt_version_aiservice
+      type: string
+      default: ""
     - name: launchfvt_aiservice
       type: string
       default: "true"  
@@ -130,6 +133,8 @@ spec:
         value: $(params.fvt_ansible_version)
       - name: AISERVICE_CHANNEL
         value: $(params.aiservice_channel)
+      - name: FVT_VERSION_AISERVICE
+        value: $(params.fvt_version_aiservice)
       - name: LAUNCHFVT_AISERVICE
         value: $(params.launchfvt_aiservice)  
 
