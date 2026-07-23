@@ -480,7 +480,7 @@ spec:
         if [[ "$LAUNCHER_ID" == "aiservice" ]]; then
           ACCOUNT_ROOT_APP="root.${ACCOUNT_ID}"
           CLUSTER_ROOT_APP="cluster.${CLUSTER_NAME}"
-          INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
+          INSTANCE_ROOT_APP="aiservice.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
 
           argocd app set ${ACCOUNT_ROOT_APP} --parameter auto_delete=true --grpc-web
 
