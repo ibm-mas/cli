@@ -73,18 +73,11 @@ spec:
 
         # Lookups from mas-fvt-monitor
         # -----------------------------------------------------------------------
-        # Framework Information
         - name: MAS_APP_CHANNEL_MONITOR
           valueFrom:
             secretKeyRef:
               name: mas-fvt-monitor
               key: MAS_APP_CHANNEL_MONITOR
-              optional: false
-        - name: MAS_APP_CHANNEL_MANAGE
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: MAS_APP_CHANNEL_MANAGE
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:

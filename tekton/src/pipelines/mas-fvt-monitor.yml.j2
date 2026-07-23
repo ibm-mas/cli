@@ -21,9 +21,6 @@ spec:
     - name: mas_app_channel_monitor
       type: string
       default: ""
-    - name: mas_app_channel_manage
-      type: string
-      default: ""
     - name: mas_instance_id
       type: string
       default: ""
@@ -54,15 +51,10 @@ spec:
       description: IVT Digest - Core
       default: ""
 
-    # Data Dictionary Digest
+    # Data Dictionary Digest (only populated for 8.10, 8.11, 9.0)
     - name: fvt_digest_data_dictionary
       type: string
       description: Data Dictionary Digest
-      default: ""
-
-    # Product channel (used for version-specific suite selection)
-    - name: product_channel
-      type: string
       default: ""
 
   tasks:
@@ -139,9 +131,10 @@ spec:
           operator: notin
           values: [""]
 
-    # 2. Legacy Monitor FVT - monitor_fvt_with_manage
+    # 2. Legacy Monitor FVT - monitor_fvt_with_manage (8.10, 8.11, 9.0 only)
     # -------------------------------------------------------------------------
-    # Kept unchanged - runs when Manage is installed alongside Monitor.
+    # Runs for Monitor versions 8.10, 8.11, and 9.0 only.
+    # Skipped for 9.1 and above where the new parallel suites are used instead.
     - name: fvt-monitor-with-manage
       params:
         - name: mas_instance_id
@@ -164,21 +157,20 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: in
+          values: ["8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
         - name: configs
           workspace: shared-configs
 
-    # 3. New Parallel Monitor FVT Suites (9.1.x and above, no Manage)
+    # 3. New Parallel Monitor FVT Suites (9.1 and above)
     # -------------------------------------------------------------------------
     # All 11 suites run in parallel immediately after ivtcore-monitor completes.
     # Each suite is fully self-contained with its own setup and cleanup phases.
-    # The when condition (mas_app_channel_manage == "") ensures these only run
-    # when Manage is NOT installed (mutually exclusive with fvt-monitor-with-manage).
+    # Gated on mas_app_channel_monitor containing "9.1" or "9.2" (or later).
     # -------------------------------------------------------------------------
 
     # fvt_monitoronly - File ingest and basic monitor-only verification
@@ -204,9 +196,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -236,9 +228,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -268,9 +260,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -300,9 +292,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -332,9 +324,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -364,9 +356,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -396,9 +388,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -428,9 +420,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -460,9 +452,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -492,9 +484,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -524,19 +516,20 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: in
-          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
         - ivtcore-monitor
       workspaces:
         - name: configs
           workspace: shared-configs
 
-    # 4. Data Dictionary FVT
+    # 4. Data Dictionary FVT (8.10, 8.11, 9.0 only - digest is empty for 9.1+)
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-data-dictionary/data-dictionary.yml.j2') | indent(4) }}
       runAfter:
+        - fvt-monitor-with-manage
         - fvt-monitoronly
         - fvt-core-devicetype
         - fvt-core-device
@@ -548,7 +541,6 @@ spec:
         - fvt-edc
         - fvt-int-mref
         - fvt-int-scada
-        - fvt-monitor-with-manage
 
   finally:
     # 1. Run CV
