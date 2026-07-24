@@ -124,7 +124,6 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         ".*Collaborate.*": lambda msg: "n",
         ".*Include customization archive.*": lambda msg: "n",
         ".*Install Predict.*": lambda msg: "n",
-        ".*Install Assist.*": lambda msg: "n",
         ".*Install Optimizer.*": lambda msg: "n",
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
