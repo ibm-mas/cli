@@ -895,9 +895,15 @@ function gitops_suite() {
   echo "- IBM Maximo Application Suite Core Platform"
   local suite_vars_file
   suite_vars_file=$(mktemp /tmp/mas-suite-vars-XXXXXX.yaml)
-  MANUAL_CERTS="${MANUAL_CERTS}" TLS_CERT="${TLS_CERT}" TLS_KEY="${TLS_KEY}" CA_CERT="${CA_CERT}" \
-    yq -n '.MANUAL_CERTS = strenv(MANUAL_CERTS) | .TLS_CERT = strenv(TLS_CERT) | .TLS_KEY = strenv(TLS_KEY) | .CA_CERT = strenv(CA_CERT)' \
-    > "${suite_vars_file}"
+  # Write cert variables to a temp YAML file using pure bash (single-quoted YAML scalars)
+  # to avoid passing large values through execve() environment, which hits ARG_MAX.
+  # Single-quote YAML scalars only require escaping ' as '' within the value.
+  {
+    printf "MANUAL_CERTS: '%s'\n" "${MANUAL_CERTS//\'/\'\'}"
+    printf "TLS_CERT: '%s'\n"     "${TLS_CERT//\'/\'\'}"
+    printf "TLS_KEY: '%s'\n"      "${TLS_KEY//\'/\'\'}"
+    printf "CA_CERT: '%s'\n"      "${CA_CERT//\'/\'\'}"
+  } > "${suite_vars_file}"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml "${suite_vars_file}"
   rm -f "${suite_vars_file}"
 
