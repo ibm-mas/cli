@@ -895,14 +895,22 @@ function gitops_suite() {
   echo "- IBM Maximo Application Suite Core Platform"
   local suite_vars_file
   suite_vars_file=$(mktemp /tmp/mas-suite-vars-XXXXXX.yaml)
-  # Write cert variables to a temp YAML file using pure bash (single-quoted YAML scalars)
-  # to avoid passing large values through execve() environment, which hits ARG_MAX.
-  # Single-quote YAML scalars only require escaping ' as '' within the value.
+  # Write cert variables to a temp YAML file using pure bash with YAML literal block
+  # scalars (|) to avoid passing large values through execve() environment (ARG_MAX).
+  # Literal block scalars preserve newlines, which is required for MANUAL_CERTS
+  # (a multi-line YAML mapping string) and safe for single-line base64 values.
+  # Each value is indented by 2 spaces under the block indicator.
   {
-    printf "MANUAL_CERTS: '%s'\n" "${MANUAL_CERTS//\'/\'\'}"
-    printf "TLS_CERT: '%s'\n"     "${TLS_CERT//\'/\'\'}"
-    printf "TLS_KEY: '%s'\n"      "${TLS_KEY//\'/\'\'}"
-    printf "CA_CERT: '%s'\n"      "${CA_CERT//\'/\'\'}"
+    # MANUAL_CERTS is a multi-line YAML mapping; use clip-chomp (|) to preserve
+    # its trailing newline so jinjanate sees each key on its own line.
+    printf "MANUAL_CERTS: |\n"; printf "%s\n" "${MANUAL_CERTS}" | sed 's/^/  /'
+    # TLS_CERT/TLS_KEY/CA_CERT are single-line base64 scalars rendered inline in
+    # the template (e.g. "tls_cert: {{ TLS_CERT }}"); use strip-chomp (|-) so
+    # jinjanate receives the value without a trailing newline, which would otherwise
+    # produce a multi-line YAML value in the output file.
+    printf "TLS_CERT: |-\n";    printf "%s\n" "${TLS_CERT}"     | sed 's/^/  /'
+    printf "TLS_KEY: |-\n";     printf "%s\n" "${TLS_KEY}"      | sed 's/^/  /'
+    printf "CA_CERT: |-\n";     printf "%s\n" "${CA_CERT}"      | sed 's/^/  /'
   } > "${suite_vars_file}"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml "${suite_vars_file}"
   rm -f "${suite_vars_file}"
