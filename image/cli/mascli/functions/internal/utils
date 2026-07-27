@@ -400,7 +400,15 @@ function jinjanate_commmon() {
   if [ -n "$output_path" ]; then
     local output_opts="-o ${output_path}"
   fi
-  jinjanate --quiet --undefined $filter_params $template_path ${var_file} $output_opts
+  # If a var_file is provided, also pass --import-env='' so that exported
+  # environment variables remain available alongside the file's variables.
+  # Without this flag, jinjanate ignores the environment when a data file
+  # is given as a positional argument.
+  if [ -n "$var_file" ]; then
+    jinjanate --quiet --undefined $filter_params --import-env='' $template_path ${var_file} $output_opts
+  else
+    jinjanate --quiet --undefined $filter_params $template_path $output_opts
+  fi
 }
 
 #Get value from FILE at given DOTPATH
