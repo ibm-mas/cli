@@ -842,10 +842,10 @@ function gitops_suite() {
       echo
       echo_h2 "Read manual cert files for core from file ${MAS_MANUAL_CERTS_YAML}, and set to gitops template"
 
-      export MANUAL_CERTS=$(yq eval '.manual_certs' ${MAS_MANUAL_CERTS_YAML})
-      export TLS_CERT=$(yq eval '.manual_certs.core_tls_crt' ${MAS_MANUAL_CERTS_YAML})
-      export TLS_KEY=$(yq eval  '.manual_certs.core_tls_key' ${MAS_MANUAL_CERTS_YAML})
-      export CA_CERT=$(yq eval  '.manual_certs.core_ca_crt'  ${MAS_MANUAL_CERTS_YAML})
+      MANUAL_CERTS=$(yq eval '.manual_certs' ${MAS_MANUAL_CERTS_YAML})
+      TLS_CERT=$(yq eval '.manual_certs.core_tls_crt' ${MAS_MANUAL_CERTS_YAML})
+      TLS_KEY=$(yq eval  '.manual_certs.core_tls_key' ${MAS_MANUAL_CERTS_YAML})
+      CA_CERT=$(yq eval  '.manual_certs.core_ca_crt'  ${MAS_MANUAL_CERTS_YAML})
 
       echo -e "\n - MANUAL_CERTS CONTENT .................. ${MANUAL_CERTS}"
       echo -e "\n - TLS_CERT CONTENT ...................... ${TLS_CERT}"
@@ -893,7 +893,13 @@ function gitops_suite() {
   jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
 
   echo "- IBM Maximo Application Suite Core Platform"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
+  local suite_vars_file
+  suite_vars_file=$(mktemp /tmp/mas-suite-vars-XXXXXX.yaml)
+  printf 'MANUAL_CERTS: %s\nTLS_CERT: %s\nTLS_KEY: %s\nCA_CERT: %s\n' \
+    "${MANUAL_CERTS}" "${TLS_CERT}" "${TLS_KEY}" "${CA_CERT}" \
+    > "${suite_vars_file}"
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml "${suite_vars_file}"
+  rm -f "${suite_vars_file}"
 
 
   # Commit and push to github target repo
