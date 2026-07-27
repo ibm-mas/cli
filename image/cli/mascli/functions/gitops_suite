@@ -895,8 +895,8 @@ function gitops_suite() {
   echo "- IBM Maximo Application Suite Core Platform"
   local suite_vars_file
   suite_vars_file=$(mktemp /tmp/mas-suite-vars-XXXXXX.yaml)
-  printf 'MANUAL_CERTS: %s\nTLS_CERT: %s\nTLS_KEY: %s\nCA_CERT: %s\n' \
-    "${MANUAL_CERTS}" "${TLS_CERT}" "${TLS_KEY}" "${CA_CERT}" \
+  MANUAL_CERTS="${MANUAL_CERTS}" TLS_CERT="${TLS_CERT}" TLS_KEY="${TLS_KEY}" CA_CERT="${CA_CERT}" \
+    yq -n '.MANUAL_CERTS = strenv(MANUAL_CERTS) | .TLS_CERT = strenv(TLS_CERT) | .TLS_KEY = strenv(TLS_KEY) | .CA_CERT = strenv(CA_CERT)' \
     > "${suite_vars_file}"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml "${suite_vars_file}"
   rm -f "${suite_vars_file}"
