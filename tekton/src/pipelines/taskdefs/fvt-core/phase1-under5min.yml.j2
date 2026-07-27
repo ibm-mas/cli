@@ -146,6 +146,17 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - coreapi-graphiteconfigtool
+
+# mcpi-viewer (Cypress UI tests) ~5m
+# ------------------------------------------------------------------------------
+- name: mcpi-viewer
+  {{ lookup('template', 'taskdefs/fvt-core/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mcpi-viewer
+  runAfter:
+    - mcpi
     
 # coreapi-selfreg  ~5m
 # ------------------------------------------------------------------------------

@@ -1,0 +1,14 @@
+timeout: "0"
+taskRef:
+  kind: Task
+  name: mas-fvt-core-cypress
+when:
+  - input: "$(params.fvt_digest_core_cypress)"
+    operator: notin
+    values: [""]
+  - input: "$(params.mas_channel)"
+    operator: notin
+    values: [""]
+workspaces:
+  - name: configs
+    workspace: shared-configs
