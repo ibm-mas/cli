@@ -834,23 +834,51 @@ function gitops_suite() {
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
-  # Set certs only if manual cert is True (to create k8s secret in gitops)
+  # Store manual certs in AWS Secrets Manager (one secret per app) and export
+  # per-app boolean flags used by the Jinja2 template to emit AVP <path:...>
+  # references instead of inline base64.  This avoids the ~100KB payload that
+  # causes both ARG_MAX failures in this script and AVP manifest-size failures
+  # in ArgoCD.  One secret per app is required because a fully-installed
+  # instance (~87 KB total) exceeds the AWS Secrets Manager 64 KB hard limit.
   # ---------------------------------------------------------------------------
-  
+  export SECRET_NAME_MANUAL_CERTS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manual_certs"
+
   if [ "${MAS_MANUAL_CERT_MGMT}" == "true" ] ; then
     if [[ -n "$MAS_MANUAL_CERTS_YAML" && -s "$MAS_MANUAL_CERTS_YAML" ]]; then
       echo
-      echo_h2 "Read manual cert files for core from file ${MAS_MANUAL_CERTS_YAML}, and set to gitops template"
+      echo_h2 "Writing manual cert secrets to AWS Secrets Manager from ${MAS_MANUAL_CERTS_YAML}"
 
-      MANUAL_CERTS=$(yq eval '.manual_certs' ${MAS_MANUAL_CERTS_YAML})
-      TLS_CERT=$(yq eval '.manual_certs.core_tls_crt' ${MAS_MANUAL_CERTS_YAML})
-      TLS_KEY=$(yq eval  '.manual_certs.core_tls_key' ${MAS_MANUAL_CERTS_YAML})
-      CA_CERT=$(yq eval  '.manual_certs.core_ca_crt'  ${MAS_MANUAL_CERTS_YAML})
+      # All apps that may carry per-app certs (core handled separately below).
+      # This list must stay in sync with gitops_suite_app_install / gitops_suite_app_config.
+      local -a CERT_APPS=(core assist iot manage monitor optimizer predict visualinspection facilities)
+      local CERT_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
 
-      echo -e "\n - MANUAL_CERTS CONTENT .................. ${MANUAL_CERTS}"
-      echo -e "\n - TLS_CERT CONTENT ...................... ${TLS_CERT}"
-      echo -e "\n - TLS_KEY CONTENT ....................... ${TLS_KEY}"
-      echo -e "\n - CA_CERT CONTENT ....................... ${CA_CERT}"
+      for app in "${CERT_APPS[@]}"; do
+        local tls_crt tls_key ca_crt
+        tls_crt=$(yq eval ".manual_certs.${app}_tls_crt // \"\"" "${MAS_MANUAL_CERTS_YAML}")
+        tls_key=$(yq eval ".manual_certs.${app}_tls_key // \"\"" "${MAS_MANUAL_CERTS_YAML}")
+        ca_crt=$(yq eval  ".manual_certs.${app}_ca_crt  // \"\"" "${MAS_MANUAL_CERTS_YAML}")
+
+        # Only create/update the secret when at least the tls_crt is present.
+        # AVP will hard-fail if a <path:...> reference points to a non-existent
+        # secret, so we must not emit template refs for absent certs.
+        if [[ -n "${tls_crt}" && "${tls_crt}" != "null" ]]; then
+          local secret_name="${SECRET_NAME_MANUAL_CERTS_PREFIX}${SECRETS_KEY_SEPERATOR}${app}"
+          # Normalise null yq output to empty string before writing to JSON
+          [[ "${tls_key}" == "null" ]] && tls_key=""
+          [[ "${ca_crt}"  == "null" ]] && ca_crt=""
+          local secret_json
+          secret_json=$(printf '{"tls_crt":"%s","tls_key":"%s","ca_crt":"%s"}' \
+            "${tls_crt}" "${tls_key}" "${ca_crt}")
+          sm_update_secret "${secret_name}" "${secret_json}" "${CERT_TAGS}"
+          # Export a per-app flag so the Jinja2 template knows to emit the ref.
+          export "MANUAL_CERT_APP_${app}=true"
+          echo " - manual cert secret written for app: ${app} -> ${secret_name}"
+        else
+          export "MANUAL_CERT_APP_${app}=false"
+          echo " - no manual cert for app: ${app} (skipping secret)"
+        fi
+      done
 
     fi
   fi
@@ -893,27 +921,7 @@ function gitops_suite() {
   jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
 
   echo "- IBM Maximo Application Suite Core Platform"
-  local suite_vars_file
-  suite_vars_file=$(mktemp /tmp/mas-suite-vars-XXXXXX.yaml)
-  # Write cert variables to a temp YAML file using pure bash with YAML literal block
-  # scalars (|) to avoid passing large values through execve() environment (ARG_MAX).
-  # Literal block scalars preserve newlines, which is required for MANUAL_CERTS
-  # (a multi-line YAML mapping string) and safe for single-line base64 values.
-  # Each value is indented by 2 spaces under the block indicator.
-  {
-    # MANUAL_CERTS is a multi-line YAML mapping; use clip-chomp (|) to preserve
-    # its trailing newline so jinjanate sees each key on its own line.
-    printf "MANUAL_CERTS: |\n"; printf "%s\n" "${MANUAL_CERTS}" | sed 's/^/  /'
-    # TLS_CERT/TLS_KEY/CA_CERT are single-line base64 scalars rendered inline in
-    # the template (e.g. "tls_cert: {{ TLS_CERT }}"); use strip-chomp (|-) so
-    # jinjanate receives the value without a trailing newline, which would otherwise
-    # produce a multi-line YAML value in the output file.
-    printf "TLS_CERT: |-\n";    printf "%s\n" "${TLS_CERT}"     | sed 's/^/  /'
-    printf "TLS_KEY: |-\n";     printf "%s\n" "${TLS_KEY}"      | sed 's/^/  /'
-    printf "CA_CERT: |-\n";     printf "%s\n" "${CA_CERT}"      | sed 's/^/  /'
-  } > "${suite_vars_file}"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml "${suite_vars_file}"
-  rm -f "${suite_vars_file}"
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
 
 
   # Commit and push to github target repo

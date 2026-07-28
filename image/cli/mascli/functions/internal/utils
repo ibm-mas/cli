@@ -392,7 +392,6 @@ function ocp_version_check() {
 function jinjanate_commmon() {
   local template_path=$1
   local output_path=$2
-  local var_file=$3
   local filter_files=$(ls $CLI_DIR/templates/filters/*.py)
   for file in $filter_files; do
     local filter_params="${filter_params} --filters ${file}"
@@ -400,15 +399,7 @@ function jinjanate_commmon() {
   if [ -n "$output_path" ]; then
     local output_opts="-o ${output_path}"
   fi
-  # If a var_file is provided, also pass --import-env='' so that exported
-  # environment variables remain available alongside the file's variables.
-  # Without this flag, jinjanate ignores the environment when a data file
-  # is given as a positional argument.
-  if [ -n "$var_file" ]; then
-    jinjanate --quiet --undefined $filter_params --import-env='' $template_path ${var_file} $output_opts
-  else
-    jinjanate --quiet --undefined $filter_params $template_path $output_opts
-  fi
+  jinjanate --quiet --undefined $filter_params $template_path $output_opts
 }
 
 #Get value from FILE at given DOTPATH

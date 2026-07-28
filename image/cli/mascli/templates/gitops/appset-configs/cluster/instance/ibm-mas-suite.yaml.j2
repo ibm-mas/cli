@@ -62,19 +62,69 @@ ibm_mas_suite:
     {{ MAS_IMAGE_TAGS | indent(4) }}
 {%- endif %}
 
-{%- if CA_CERT is defined and CA_CERT !='' %}
-  ca_cert: {{ CA_CERT }}
-{%- endif %}
-{%- if TLS_CERT is defined and TLS_CERT !='' %}
-  tls_cert: {{ TLS_CERT }}
-{%- endif %}
-{%- if TLS_KEY is defined and TLS_KEY !='' %}
-  tls_key: {{ TLS_KEY }}
+{%- if MAS_MANUAL_CERT_MGMT == 'true' and MANUAL_CERT_APP_core == 'true' %}
+  ca_cert: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#ca_crt>
+  tls_cert: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#tls_crt>
+  tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#tls_key>
 {%- endif %}
 
-{% if MANUAL_CERTS is defined and MANUAL_CERTS !='' %}
+{% if MAS_MANUAL_CERT_MGMT == 'true' and (
+    MANUAL_CERT_APP_core == 'true' or
+    MANUAL_CERT_APP_assist == 'true' or
+    MANUAL_CERT_APP_iot == 'true' or
+    MANUAL_CERT_APP_manage == 'true' or
+    MANUAL_CERT_APP_monitor == 'true' or
+    MANUAL_CERT_APP_optimizer == 'true' or
+    MANUAL_CERT_APP_predict == 'true' or
+    MANUAL_CERT_APP_visualinspection == 'true' or
+    MANUAL_CERT_APP_facilities == 'true'
+  ) %}
   manual_certs:
-    {{ MANUAL_CERTS | indent(4) }}
+{%- if MANUAL_CERT_APP_core == 'true' %}
+    core_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#tls_crt>
+    core_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#tls_key>
+    core_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#ca_crt>
+{%- endif %}
+{%- if MANUAL_CERT_APP_assist == 'true' %}
+    assist_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/assist#tls_crt>
+    assist_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/assist#tls_key>
+    assist_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/assist#ca_crt>
+{%- endif %}
+{%- if MANUAL_CERT_APP_iot == 'true' %}
+    iot_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/iot#tls_crt>
+    iot_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/iot#tls_key>
+    iot_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/iot#ca_crt>
+{%- endif %}
+{%- if MANUAL_CERT_APP_manage == 'true' %}
+    manage_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/manage#tls_crt>
+    manage_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/manage#tls_key>
+    manage_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/manage#ca_crt>
+{%- endif %}
+{%- if MANUAL_CERT_APP_monitor == 'true' %}
+    monitor_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/monitor#tls_crt>
+    monitor_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/monitor#tls_key>
+    monitor_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/monitor#ca_crt>
+{%- endif %}
+{%- if MANUAL_CERT_APP_optimizer == 'true' %}
+    optimizer_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/optimizer#tls_crt>
+    optimizer_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/optimizer#tls_key>
+    optimizer_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/optimizer#ca_crt>
+{%- endif %}
+{%- if MANUAL_CERT_APP_predict == 'true' %}
+    predict_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/predict#tls_crt>
+    predict_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/predict#tls_key>
+    predict_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/predict#ca_crt>
+{%- endif %}
+{%- if MANUAL_CERT_APP_visualinspection == 'true' %}
+    visualinspection_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/visualinspection#tls_crt>
+    visualinspection_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/visualinspection#tls_key>
+    visualinspection_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/visualinspection#ca_crt>
+{%- endif %}
+{%- if MANUAL_CERT_APP_facilities == 'true' %}
+    facilities_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/facilities#tls_crt>
+    facilities_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/facilities#tls_key>
+    facilities_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/facilities#ca_crt>
+{%- endif %}
 {% endif %}
 
 {% if MAS_POD_TEMPLATE is defined and MAS_POD_TEMPLATE !='' %}
