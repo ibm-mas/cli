@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# ******************************************************************************
+# *****************************************************************************
 # Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
@@ -7,7 +7,7 @@
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
 #
-# ******************************************************************************
+# *****************************************************************************
 
 import logging
 import logging.handlers
