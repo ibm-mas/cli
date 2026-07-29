@@ -280,6 +280,29 @@ function sm_list_cluster_secrets() {
   fi
 }
 
+function sm_list_tenant_secrets() {
+  ACCOUNT=$1
+  CLUSTER_ID=$2
+  AISERVICE_INSTANCE_ID=$3
+  TENANT_ID=$4
+
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    set +o pipefail
+    LIST_SECRETS_OUTPUT="$(aws secretsmanager list-secrets --output yaml --no-cli-pager --filters Key=name,Values=${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${AISERVICE_INSTANCE_ID}${DELIMIITER}${TENANT_ID}${DELIMIITER})"
+    return_code=$?
+    if [ $return_code -ne 0 ]; then
+      echo "aws: secretmanager list-secrets failed with error: $return_code"
+      exit $return_code
+    fi
+    set -o pipefail
+
+    echo "$LIST_SECRETS_OUTPUT" | yq -r '.SecretList[].Name'
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    echo "IBM SecretsManager not yet supported"
+    exit 1
+  fi
+}
+
 function sm_update_secret(){
   SECRET_NAME=$1
   SECRET_VALUE=$2
