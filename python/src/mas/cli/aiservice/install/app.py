@@ -657,7 +657,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             # Ask for external storage configuration
             self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-            self.promptForString("Storage access key", "aiservice_s3_accesskey")
+            self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
             self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
             self.promptForString("Storage host", "aiservice_s3_host")
             self.promptForString("Storage port", "aiservice_s3_port")
@@ -914,11 +914,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printDescription(catalogSummary)
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            # There's only one release channel, the user doesn't need to be prompted!!
-            # releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
-            # releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
-            # self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
-            self.setParam("aiservice_channel", "9.1.x")
+            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
+            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
+            self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
 
     @logMethodCall
     def validateCatalogSource(self):

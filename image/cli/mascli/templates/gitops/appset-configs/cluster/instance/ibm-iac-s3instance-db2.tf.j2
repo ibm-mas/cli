@@ -1,6 +1,6 @@
 module "s3buckets_instance_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}" {
   source = "{{RDS_S3_SOURCE}}"
-  depends_on = [module.account_policy_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}]
+  depends_on = [module.account_policy_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}, time_sleep.wait_for_iam_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}]
   tags                    = var.common_tags
   name_prefix             = var.name_prefix
   s3buckets               = local.cluster.instance.rds_s3bucket_{{BUCKET_TYPE}}_{{RDS_S3_APP_NAME}}

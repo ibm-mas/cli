@@ -34,3 +34,9 @@
   value: $(params.pipelinerun_name)
 - name: PIPELINE_NAME
   value: $(params.pipeline_name)
+- name: MAS_READ_ONLY_ROOT_FILESYSTEM
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops
+      key: MAS_READ_ONLY_ROOT_FILESYSTEM
+      optional: true

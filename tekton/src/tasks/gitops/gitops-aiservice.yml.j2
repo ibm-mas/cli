@@ -79,6 +79,9 @@ spec:
       type: string
     - name: use_aws_db2
       type: string
+    - name: is_gitops_fvt_env
+      type: string
+      default: "false"
 
   stepTemplate:
     env:
@@ -154,7 +157,9 @@ spec:
         value: $(params.jdbc_secret)
       - name: USE_AWS_DB2
         value: $(params.use_aws_db2)
-
+      - name: IS_GITOPS_FVT_ENV
+        value: $(params.is_gitops_fvt_env)   
+        
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -169,6 +174,13 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
+
+        # If CLUSTER_DOMAIN is not provided, read it from cluster-params.yaml
+        if [[ -z "$CLUSTER_DOMAIN" ]]; then
+          echo "CLUSTER_DOMAIN not provided, reading from cluster-params.yaml"
+          export CLUSTER_DOMAIN=$(yq eval '.cluster.domain' /workspace/configs/gitops/$ACCOUNT/$CLUSTER_NAME/cluster-params.yaml)
+          echo "CLUSTER_DOMAIN set to: $CLUSTER_DOMAIN"
+        fi
 
         mkdir -p /tmp/init-aiservice
         mas gitops-aiservice -a $ACCOUNT -c $CLUSTER_NAME \
@@ -189,3 +201,4 @@ spec:
       image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
+

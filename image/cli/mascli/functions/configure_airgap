@@ -96,6 +96,7 @@ function configure_ocp_for_mirror_noninteractive() {
   [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_CA_FILE is not set"
   [[ -z "$REGISTRY_USERNAME" ]] && configure_ocp_for_mirror_help "REGISTRY_USERNAME is not set"
   [[ -z "$REGISTRY_PASSWORD" ]] && configure_ocp_for_mirror_help "REGISTRY_PASSWORD is not set"
+  REGISTRY_PREFIX=$(sanitize_registry_prefix "$REGISTRY_PREFIX")
   validate_registry_prefix "$REGISTRY_PREFIX"
   if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
     echo_warning "Certificate file '$REGISTRY_PRIVATE_CA_FILE' does not exist"
@@ -115,6 +116,7 @@ function configure_ocp_for_mirror_interactive() {
   prompt_for_input "Mirror Registry Host" REGISTRY_PRIVATE_HOST && export REGISTRY_PRIVATE_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PRIVATE_PORT && export REGISTRY_PRIVATE_PORT
   prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX && export REGISTRY_PREFIX
+  REGISTRY_PREFIX=$(sanitize_registry_prefix "$REGISTRY_PREFIX")
   validate_registry_prefix "$REGISTRY_PREFIX"
   prompt_for_input "Mirror Registry CA File" REGISTRY_PRIVATE_CA_FILE && export REGISTRY_PRIVATE_CA_FILE
   if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
@@ -123,11 +125,11 @@ function configure_ocp_for_mirror_interactive() {
   fi
 
   if [[ "$REGISTRY_PRIVATE_PORT" != "" ]]; then
-    REGISTRY_PRIVATE_URL = "${REGISTRY_PRIVATE_HOST}:${REGISTRY_PRIVATE_PORT}"
+    REGISTRY_PRIVATE_URL="${REGISTRY_PRIVATE_HOST}:${REGISTRY_PRIVATE_PORT}"
   fi
 
   if [[ "$REGISTRY_PREFIX" != "" ]]; then
-    REGISTRY_PRIVATE_URL_WITH_PATH = "${REGISTRY_PRIVATE_URL}/${REGISTRY_PREFIX}"
+    REGISTRY_PRIVATE_URL_WITH_PATH="${REGISTRY_PRIVATE_URL}/${REGISTRY_PREFIX}"
   fi
 
   echo

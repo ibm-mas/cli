@@ -11,42 +11,53 @@
 """OpenShift Marketplace resource collection."""
 
 import logging
-from mas.cli.must_gather.common.resources import collectResources
+from typing import List, Tuple
+
+from kubernetes.dynamic import DynamicClient
 
 logger = logging.getLogger(__name__)
 
+# CatalogSource is the marketplace-specific custom resource
+_MARKETPLACE_CUSTOM_RESOURCES = [
+    ("operators.coreos.com/v1alpha1", "CatalogSource"),
+]
 
-def collectMarketplaceResources(outputDir: str) -> bool:
-    """Collect OpenShift Marketplace resources.
 
-    Collects resources from the openshift-marketplace namespace including:
-    - catalogsources: Operator catalog sources
-    - jobs: Catalog import and refresh jobs
+def generateMarketplaceCollectionTasks(dynClient: DynamicClient, outputDir: str, noLogs: bool = False) -> List[Tuple]:
+    """Generate collection tasks for the openshift-marketplace namespace.
+
+    Uses generateNamespaceCollectionTasks to produce the standard set of tasks
+    (pods, pod logs, secrets, configmaps, services, deployments, etc.) plus
+    CatalogSource as a marketplace-specific custom resource.
 
     Args:
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
         outputDir (str): Base output directory for collected resources
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
 
     Returns:
-        bool: True if collection succeeded, False if errors occurred
+        list: List of task tuples for namespace collection
     """
-    successCount = 0
-    totalCount = 0
+    from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
 
-    # Resources to collect from openshift-marketplace - (apiVersion, kind)
-    marketplaceResources = [
-        ("operators.coreos.com/v1alpha1", "CatalogSource"),
-        ("batch/v1", "Job"),
-    ]
+    return generateNamespaceCollectionTasks(
+        dynClient=dynClient,
+        namespace="openshift-marketplace",
+        outputDir=outputDir,
+        noLogs=noLogs,
+        customResources=_MARKETPLACE_CUSTOM_RESOURCES,
+    )
 
-    for apiVersion, kind in marketplaceResources:
-        totalCount += 1
-        if collectResources(
-            namespace="openshift-marketplace",
-            apiVersion=apiVersion,
-            kind=kind,
-            outputDir=outputDir,
-            allNamespaces=False,
-        ):
-            successCount += 1
 
-    return successCount > 0
+def addMarketplaceToCollectionPlan(plan, dynClient: DynamicClient, outputDir: str, noLogs: bool = False) -> None:
+    """Add OpenShift Marketplace collection tasks to the collection plan.
+
+    Args:
+        plan (CollectionPlan): Collection plan to add tasks to
+        dynClient (DynamicClient): Kubernetes Dynamic Client for API access
+        outputDir (str): Base output directory for collected resources
+        noLogs (bool, optional): If True, skip pod log collection. Defaults to False.
+    """
+    tasks = generateMarketplaceCollectionTasks(dynClient=dynClient, outputDir=outputDir, noLogs=noLogs)
+    plan.addGroup("OpenShift Marketplace", tasks)
+    logger.debug(f"Added {len(tasks)} marketplace collection tasks to plan")
