@@ -333,7 +333,39 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # fvt_iot - IoT device data ingestion and certificate tests
+    # fvt_core_hierarchy - Core hierarchy (asset/location/system/site/org) management APIs
+    - name: fvt-core-hierarchy
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_core_hierarchy
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+      runAfter:
+        - ivtcore-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+        # fvt_iot - IoT device data ingestion and certificate tests
     - name: fvt-iot
       params:
         - name: mas_instance_id
@@ -535,6 +567,7 @@ spec:
         - fvt-core-device
         - fvt-core-gateway
         - fvt-core-workspace
+        - fvt-core-hierarchy
         - fvt-iot
         - fvt-pipeline-devicetype
         - fvt-pipeline-hierarchy
