@@ -168,8 +168,8 @@ spec:
 
     # 3. New Parallel Monitor FVT Suites (9.1 and above)
     # -------------------------------------------------------------------------
-    # All 11 suites run in parallel immediately after ivtcore-monitor completes.
-    # Each suite is fully self-contained with its own setup and cleanup phases.
+    # fvt_monitoronly runs first (creates default hierarchy: D_ORG, D_SITE_1, D_ASSET_1, D_LOCATION_1).
+    # Once it completes, the remaining 10 suites fan out in parallel (runAfter: fvt-monitoronly).
     # Gated on mas_app_channel_monitor containing "9.1" or "9.2" (or later).
     # -------------------------------------------------------------------------
 
@@ -232,7 +232,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -264,7 +264,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -296,7 +296,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -328,7 +328,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -360,7 +360,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -392,7 +392,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -424,7 +424,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -456,7 +456,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -488,7 +488,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -520,7 +520,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -552,7 +552,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - ivtcore-monitor
+        - fvt-monitoronly
       workspaces:
         - name: configs
           workspace: shared-configs
