@@ -273,6 +273,8 @@ def test_install_interactive_advanced(tmpdir):
                     return ""
                 if re.match(".*Operational Mode.*", message):
                     return "1"
+                if re.match(".*AI Data Science Platform.*", message):
+                    return "1"
                 if re.match(".*Install Minio.*", message):
                     return "y"
                 if re.match(".*minio root username.*", message):
@@ -428,6 +430,8 @@ def test_install_interactive_simplified(tmpdir):
                 if re.match(".*Instance ID.*", message):
                     return "apmdevops"
                 if re.match(".*Operational Mode.*", message):
+                    return "1"
+                if re.match(".*AI Data Science Platform.*", message):
                     return "1"
                 if re.match(".*Install Minio.*", message):
                     return "y"
