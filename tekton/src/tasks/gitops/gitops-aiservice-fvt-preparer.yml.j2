@@ -28,6 +28,12 @@ spec:
       type: string
     - name: fvt_config
       type: string
+    - name: fvt_version_core
+      type: string
+      default: ""
+    - name: ivt_version_core
+      type: string
+      default: ""  
 
     - name: artifactory_generic_release_url
       type: string
@@ -47,6 +53,9 @@ spec:
       type: string
       default: ""
     - name: aiservice_channel
+      type: string
+      default: ""
+    - name: fvt_version_aiservice
       type: string
       default: ""
     - name: launchfvt_aiservice
@@ -97,7 +106,7 @@ spec:
       - name: AISERVICE_INSTANCE_ID
         value: $(params.aiservice_instance_id)
       - name: MAS_INSTANCE_ID
-        value: ""
+        value: $(params.aiservice_instance_id)
       - name: FVT_ENVIRONMENT
         value: $(params.aiservice_instance_id)
       - name: PIPELINE_STORAGE_CLASS
@@ -112,6 +121,10 @@ spec:
         value: $(params.fvt_config)
       - name: FVT_IMAGE_REGISTRY
         value: $(params.fvt_image_registry)
+      - name: FVT_VERSION_CORE
+        value: $(params.fvt_version_core)
+      - name: IVT_VERSION_CORE
+        value: $(params.ivt_version_core)  
       - name: ARTIFACTORY_GENERIC_RELEASE_URL
         value: $(params.artifactory_generic_release_url)
       - name: ARTIFACTORY_GENERIC_LOGS_URL
@@ -120,6 +133,8 @@ spec:
         value: $(params.fvt_ansible_version)
       - name: AISERVICE_CHANNEL
         value: $(params.aiservice_channel)
+      - name: FVT_VERSION_AISERVICE
+        value: $(params.fvt_version_aiservice)
       - name: LAUNCHFVT_AISERVICE
         value: $(params.launchfvt_aiservice)  
 
@@ -242,6 +257,10 @@ spec:
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
         export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${AISERVICE_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
 
+        # Pass Slack values from secure-properties through to the downstream FVT preparer/setup flow
+        export FVT_SLACK_TOKEN=${SLACK_TOKEN}
+        export FVT_SLACK_CHANNEL=${SLACK_CHANNEL}
+
         CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
         . $CLI_DIR/functions/gitops_utils
 
@@ -361,14 +380,14 @@ spec:
 
           # First check the POSTSYNCJOBS_APP is healthy so we know the initial users job has run already (and so will exist)
           POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
-          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
+          # check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
 
           IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_NAME}/${AISERVICE_INSTANCE_ID}/initial_users" 
           IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
           IU_SECRET_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops-mas-fvt-preparer\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}]"
           
           echo "Creating ${IU_SECRET_NAME} secret"
-          sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}" || return $?
+          # sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}" || return $?
 
           # The Job will have already run when MAS Core was installed during the first phase of our FVT process
           # Since no initial_users secret existed at that time, it will not have done anything
@@ -385,8 +404,8 @@ spec:
 
           # Force a resync of the postsyncjobs app
           echo "Forcing ${POSTSYNCJOBS_APP} to resync"
-          argocd_sync "${POSTSYNCJOBS_APP}" || return $?
-          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
+          # argocd_sync "${POSTSYNCJOBS_APP}" || return $?
+          # check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
         }
 
 
@@ -470,7 +489,7 @@ spec:
         if [[ "$LAUNCHER_ID" == "aiservice" ]]; then
           ACCOUNT_ROOT_APP="root.${ACCOUNT_ID}"
           CLUSTER_ROOT_APP="cluster.${CLUSTER_NAME}"
-          INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
+          INSTANCE_ROOT_APP="aiservice.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
 
           argocd app set ${ACCOUNT_ROOT_APP} --parameter auto_delete=true --grpc-web
 

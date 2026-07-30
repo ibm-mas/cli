@@ -88,7 +88,18 @@ function gitops_mas_fvt_preparer() {
     export SET_FINISHED=false
   fi
   export DEPROVISION=false
-  
+
+  # For AI Service FVT flow: ensure AISERVICE_INSTANCE_ID drives the pipelines namespace
+  # start_pipeline defaults read pipelines_namespace from FVT_ENVIRONMENT
+  # FVT_ENVIRONMENT is already set to AISERVICE_INSTANCE_ID by the Tekton task env,
+  # but we also explicitly export it here for clarity and for non-Tekton invocations
+  if [[ -n "${AISERVICE_INSTANCE_ID}" ]]; then
+    export FVT_ENVIRONMENT=${AISERVICE_INSTANCE_ID}
+    export SYNC_WITH_UPDATE=false
+    export SYNC_WITH_UPGRADE=false
+    export SYNC_WITH_UNINSTALL=false
+  fi
+
   #FVT pipeline to run
   export PIPELINE_NAME=$FVT_PIPELINE_NAME
   export ROLE_NAME="setup_pipeline"
