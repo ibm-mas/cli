@@ -46,6 +46,7 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Release", "aiservice_channel")
         self.printParamSummary("Instance ID", "aiservice_instance_id")
         self.printParamSummary("Environment Type", "environment_type")
+        self.printSummary("AI Data Science Platform", "Red Hat OpenShift AI (RHOAI)" if self.getParam("rhoai") == "true" else "Open Data Hub (ODH)")
 
         if "aiservice_certificate_issuer" in self.params:
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
