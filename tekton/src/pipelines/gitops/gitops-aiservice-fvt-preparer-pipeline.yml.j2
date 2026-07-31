@@ -1,0 +1,139 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: gitops-aiservice-fvt-preparer-pipeline
+spec:
+  workspaces:
+    - name: configs
+    - name: shared-additional-configs
+
+  description: Gitops AI Service FVT pipeline
+  params:
+    - name: cluster_name
+      type: string
+    - name: account_id
+      type: string
+    - name: region_id
+      type: string
+    - name: cluster_url
+      type: string
+    - name: devops_build_number
+      type: string
+    - name: launcher_id
+      type: string
+    - name: aiservice_instance_id
+      type: string
+    - name: pipeline_storage_class
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: fvt_pipeline_name
+      type: string
+    - name: cli_version
+      type: string
+    - name: fvt_config
+      type: string
+    - name: fvt_image_registry
+      type: string
+    - name: artifactory_generic_release_url
+      type: string
+    - name: artifactory_generic_logs_url
+      type: string
+    - name: fvt_ansible_version
+      type: string
+
+    - name: aiservice_channel
+      type: string
+      
+    - name: launchfvt_aiservice
+      type: string
+      default: "true"
+
+    - name: ldap_url
+      type: string
+      default: ""
+    - name: ldap_basedn
+      type: string
+      default: ""
+    - name: ldap_userid_map
+      type: string
+      default: ""
+
+    - name: sls_license_icn
+      type: string
+    - name: smtp_use_sendgrid
+      type: string
+      default: ""
+    - name: standalone_sls_service
+      type: string
+      default: ""
+
+  tasks:
+    - name: mas-launchfvt
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account_id
+          value: $(params.account_id)
+        - name: region_id
+          value: $(params.region_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: launcher_id
+          value: $(params.launcher_id)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
+        - name: pipeline_storage_class
+          value: $(params.pipeline_storage_class)
+        - name: aws_region
+          value: $(params.avp_aws_secret_region)
+        - name: fvt_pipeline_name
+          value: $(params.fvt_pipeline_name)
+        - name: cli_version
+          value: $(params.cli_version)
+        - name: fvt_config
+          value: $(params.fvt_config)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+
+        - name: artifactory_generic_release_url
+          value: $(params.artifactory_generic_release_url)
+        - name: artifactory_generic_logs_url
+          value: $(params.artifactory_generic_logs_url)
+        - name: fvt_ansible_version
+          value: $(params.fvt_ansible_version)
+
+
+        - name: aiservice_channel
+          value: $(params.aiservice_channel)
+
+        - name: launchfvt_aiservice
+          value: $(params.launchfvt_aiservice)  
+
+        - name: ldap_url
+          value: $(params.ldap_url)
+        - name: ldap_basedn
+          value: $(params.ldap_basedn)
+        - name: ldap_userid_map
+          value: $(params.ldap_userid_map)
+
+        - name: icn
+          value: $(params.sls_license_icn)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: use_sendgrid
+          value: $(params.smtp_use_sendgrid)
+        - name: standalone_sls_service
+          value: $(params.standalone_sls_service)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-additional-configs
+          workspace: shared-additional-configs
+      taskRef:
+        kind: Task
+        name: gitops-aiservice-fvt-preparer

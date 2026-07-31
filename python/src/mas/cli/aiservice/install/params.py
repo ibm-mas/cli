@@ -32,7 +32,15 @@ optionalParams = [
     "sls_namespace",
     # DRO
     "dro_namespace",
-    # Db2
+    # Database - External (Oracle/SQL Server/DB2)
+    "aiservice_db_jdbc_url",
+    "aiservice_db_username",
+    "aiservice_db_password",
+    "aiservice_db_ca_cert",
+    # Database - Installation choice
+    "install_db2",
+    "db2_action_aiservice",
+    # Db2 - In-cluster installation
     "db2_action_system",
     "db2_action_manage",
     "db2_action_facilities",

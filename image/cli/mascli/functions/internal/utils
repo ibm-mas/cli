@@ -202,6 +202,31 @@ function prompt_for_secret(){
 }
 
 
+function sanitize_registry_prefix() {
+  local original=$1
+  if [[ -z "$original" ]]; then
+    echo ""
+    return 0
+  fi
+  local prefix=$original
+  # Convert uppercase to lowercase
+  prefix=$(echo "$prefix" | tr '[:upper:]' '[:lower:]')
+  # Replace any character that is not lowercase alphanumeric, '-', or '.' with '-'
+  prefix=$(echo "$prefix" | sed 's/[^a-z0-9.-]/-/g')
+  # Collapse multiple consecutive hyphens into one
+  prefix=$(echo "$prefix" | sed 's/-\{2,\}/-/g')
+  # Strip leading and trailing hyphens or dots
+  prefix=$(echo "$prefix" | sed 's/^[.-]*//;s/[.-]*$//')
+  # Notify the user if the value was changed so they know what will actually be used
+  # Redirect to stderr so the message is not captured when function is used in $(...) substitution
+  if [[ "$prefix" != "$original" ]]; then
+    echo -e "${COLOR_YELLOW}Note: Registry prefix '$original' is not RFC 1123 compliant and has been automatically changed to '$prefix'${TEXT_RESET}" >&2
+    echo -e "${COLOR_YELLOW}      Make sure your images were also mirrored using '$prefix'${TEXT_RESET}" >&2
+    echo -e "Note: Registry prefix '$original' auto-sanitized to '$prefix'" >> $LOGFILE
+  fi
+  echo "$prefix"
+}
+
 function validate_registry_prefix() {
   registryPrefix=$1
 

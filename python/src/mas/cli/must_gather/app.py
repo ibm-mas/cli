@@ -23,7 +23,7 @@ from .arg_parser import mustGatherArgParser
 from .output import OutputManager
 from .timer import Timer
 from . import ocp
-from .dependencies import sls
+from .dependencies import sls, amlen as amlen_dep
 from .mas import core as mas_core, apps as mas_apps, pipelines as mas_pipelines
 from .aiservice import instance as aiservice_instance
 from .argo import applications as argo
@@ -301,10 +301,10 @@ class MustGatherApp(BaseApp):
                 ("cluster_resources", ocp.collectClusterResources, outputDir),
                 ("nodes", ocp.collectNodes, outputDir),
                 ("airgap_resources", ocp.collectAirgapResources, self.dynamicClient, outputDir),
-                ("marketplace_resources", ocp.collectMarketplaceResources, outputDir),
             ]
             plan.addGroup("OpenShift Container Platform", ocpTasks)
-            logger.debug("Added OCP collection group with 4 tasks to plan")
+            logger.debug("Added OCP collection group with 3 tasks to plan")
+            ocp.addMarketplaceToCollectionPlan(plan=plan, dynClient=self.dynamicClient, outputDir=outputDir, noLogs=parsedArgs.no_logs)
         else:
             logger.debug("Skipping OCP collection (not in collectors list)")
 
@@ -411,8 +411,8 @@ class MustGatherApp(BaseApp):
         masInstanceIds = parsedArgs.mas_instance_ids.split(",") if parsedArgs.mas_instance_ids else None
         masAppIds = parsedArgs.mas_app_ids.split(",") if parsedArgs.mas_app_ids else None
 
-        # MAS Discovery (triggered by 'mas' or 'lic' collector)
-        if "mas" in enabledCollectors or "lic" in enabledCollectors:
+        # MAS Discovery (triggered by 'mas', 'lic', or 'amlen' collector)
+        if "mas" in enabledCollectors or "lic" in enabledCollectors or "amlen" in enabledCollectors:
             try:
                 # Add MAS Core collection tasks
                 coreNamespaces = mas_core.addMASCoreToCollectionPlan(
@@ -437,6 +437,18 @@ class MustGatherApp(BaseApp):
                             coreNamespaces=coreNamespaces,
                             masAppIds=masAppIds,
                         )
+
+                    # Amlen Message Gateway log collection (runs when 'amlen' collector is enabled)
+                    # Collects from the IoT namespace (mas-{instance}-iot) where mbgx pods run
+                    if "amlen" in enabledCollectors:
+                        for coreNs in sorted(coreNamespaces):
+                            instanceId = coreNs[4:-5]  # Remove "mas-" prefix and "-core" suffix
+                            iotNamespace = f"mas-{instanceId}-iot"
+                            amlen_dep.addAmlenToCollectionPlan(
+                                plan=plan,
+                                namespace=iotNamespace,
+                                outputDir=outputDir,
+                            )
 
                 else:
                     logger.debug("No MAS instances discovered")

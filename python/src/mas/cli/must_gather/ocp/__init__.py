@@ -13,12 +13,13 @@
 from .cluster import collectClusterResources
 from .nodes import collectNodes
 from .airgap import collectAirgapResources, detectAirgapEnvironment
-from .marketplace import collectMarketplaceResources
+from .marketplace import generateMarketplaceCollectionTasks, addMarketplaceToCollectionPlan
 
 __all__ = [
     "collectClusterResources",
     "collectNodes",
     "collectAirgapResources",
     "detectAirgapEnvironment",
-    "collectMarketplaceResources",
+    "generateMarketplaceCollectionTasks",
+    "addMarketplaceToCollectionPlan",
 ]

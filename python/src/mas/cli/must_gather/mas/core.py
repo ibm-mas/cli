@@ -22,8 +22,8 @@ from typing import Set, Optional, List
 from kubernetes.dynamic import DynamicClient
 from kubernetes import client
 
+from mas.cli.must_gather.common import generateReconcileLogsCollectionTasks
 from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
-from mas.cli.must_gather.common.reconcile_logs import collectReconcileLogs
 from mas.cli.must_gather.common.pod_exec import execCurlInPod
 from .network_tests import testCoreToManageConnectivity
 from .version import isMAS91OrLater
@@ -249,16 +249,25 @@ def _generateMASCoreCollectionTasks(
         )
 
         # Add MAS Core-specific task: Collect reconcile logs from MAS operator
-        tasks.append(
-            (
-                "reconcile_logs_mas_operator",
-                collectReconcileLogs,
-                namespace,
-                "app.kubernetes.io/name",
-                "ibm-mas-operator",
-                outputDir,
-            )
-        )
+        operators = [
+            (namespace, "control-plane", "ibm-mas"),
+            (namespace, "control-plane", "ibm-mas-ws"),
+            (namespace, "control-plane", "ibm-mas-coreidp"),
+            (namespace, "control-plane", "ibm-mas-addons"),
+            (namespace, "control-plane", "ibm-mas-cfg-ai"),
+            (namespace, "control-plane", "ibm-mas-cfg-app"),
+            (namespace, "control-plane", "ibm-mas-cfg-bas"),
+            (namespace, "control-plane", "ibm-mas-cfg-idp"),
+            (namespace, "control-plane", "ibm-mas-cfg-mcpi"),
+            (namespace, "control-plane", "ibm-mas-cfg-scim"),
+            (namespace, "control-plane", "ibm-mas-cfg-jdbc"),
+            (namespace, "control-plane", "ibm-mas-cfg-mongo"),
+            (namespace, "control-plane", "ibm-mas-cfg-kafka"),
+            (namespace, "control-plane", "ibm-mas-cfg-objectstorage"),
+            (namespace, "control-plane", "ibm-mas-cfg-smtp"),
+            (namespace, "operator", "ibm-truststore-mgr"),
+        ]
+        tasks.extend(generateReconcileLogsCollectionTasks(operators, outputDir))
 
         # Add network connectivity test (Core to Manage)
         tasks.append(
