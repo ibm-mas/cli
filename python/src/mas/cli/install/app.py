@@ -1734,24 +1734,6 @@ class InstallApp(
         )
         self.params["aiservice_channel"] = prompt(HTML("<Yellow>Custom channel for AI Service</Yellow> "))
 
-        # Prompt user to choose AI data science platform
-        self.printH2("Configure AI Data Science Platform")
-        self.printDescription(
-            [
-                "Choose which AI data science platform to install:",
-                " - <b>Note for 9.1.x</b>: Open Data Hub (ODH) is the supported platform for AI Service 9.1.x",
-                " - <b>Note for 9.2.x</b>: Red Hat OpenShift AI (RHOAI) is the recommended platform for AI Service 9.2.x",
-                "",
-                "  1. Open Data Hub (ODH)",
-                "  2. Red Hat OpenShift AI (RHOAI)",
-            ]
-        )
-        platformChoice = self.promptForInt("AI Data Science Platform", default=1, min=1, max=2)
-        if platformChoice == 2:
-            self.setParam("rhoai", "true")
-        else:
-            self.setParam("rhoai", "false")
-
     @logMethodCall
     def configAIServiceDatabase(self):
         """Configure database for AI Service - either in-cluster DB2 or external database"""
@@ -1854,6 +1836,24 @@ class InstallApp(
                 )
                 self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
                 self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
+
+            # Configure AI Data Science Platform
+            self.printH2("Configure AI Data Science Platform")
+            self.printDescription(
+                [
+                    "Choose which AI data science platform to install:",
+                    " - <b>Note for 9.1.x</b>: Open Data Hub (ODH) is the supported platform for AI Service 9.1.x",
+                    " - <b>Note for 9.2.x</b>: Red Hat OpenShift AI (RHOAI) is the recommended platform for AI Service 9.2.x",
+                    "",
+                    "  1. Red Hat OpenShift AI (RHOAI)",
+                    "  2. Open Data Hub (ODH)",
+                ]
+            )
+            platformChoice = self.promptForInt("AI Data Science Platform", default=1, min=1, max=2)
+            if platformChoice == 2:
+                self.setParam("rhoai", "false")
+            else:
+                self.setParam("rhoai", "true")
 
             # Configure Certificate Issuer
             self.configAIServiceCertIssuer()

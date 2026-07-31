@@ -273,14 +273,14 @@ def test_install_interactive_advanced(tmpdir):
                     return ""
                 if re.match(".*Operational Mode.*", message):
                     return "1"
-                if re.match(".*AI Data Science Platform.*", message):
-                    return "1"
                 if re.match(".*Install Minio.*", message):
                     return "y"
                 if re.match(".*minio root username.*", message):
                     return "username"
                 if re.match(".*minio root password.*", message):
                     return "password"
+                if re.match(".*AI Data Science Platform.*", message):
+                    return "1"
                 if re.match(r".*Configure certificate issuer\?.*", message):
                     return "y"
                 if re.match(".*Certificate issuer name.*", message):
@@ -431,14 +431,14 @@ def test_install_interactive_simplified(tmpdir):
                     return "apmdevops"
                 if re.match(".*Operational Mode.*", message):
                     return "1"
-                if re.match(".*AI Data Science Platform.*", message):
-                    return "1"
                 if re.match(".*Install Minio.*", message):
                     return "y"
                 if re.match(".*minio root username.*", message):
                     return "username"
                 if re.match(".*minio root password.*", message):
                     return "password"
+                if re.match(".*AI Data Science Platform.*", message):
+                    return "1"
                 if re.match(".*Entitlement end date.*", message):
                     return "2027-02-16"
                 if re.match(".*Watsonxai api key.*", message):

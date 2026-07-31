@@ -80,12 +80,12 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         ".*Instance ID.*": lambda msg: "testinst",
         # 9. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
-        # 10. AI Data Science Platform
-        ".*AI Data Science Platform.*": lambda msg: "1",
-        # 11. Storage Configuration (MinIO)
+        # 10. Storage Configuration (MinIO)
         ".*Install Minio.*": lambda msg: "y",
         ".*minio root username.*": lambda msg: "miniouser",
         ".*minio root password.*": lambda msg: "miniopass",
+        # 11. AI Data Science Platform
+        ".*AI Data Science Platform.*": lambda msg: "1",
         # 12. Tenant Settings
         ".*Entitlement end date.*": lambda msg: "2027-02-16",
         # 13. WatsonX Integration
@@ -153,12 +153,12 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Instance ID.*": lambda msg: "testinst",
         # 9. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
-        # 10. AI Data Science Platform
-        ".*AI Data Science Platform.*": lambda msg: "1",
-        # 11. Storage Configuration (MinIO)
+        # 10. Storage Configuration (MinIO)
         ".*Install Minio.*": lambda msg: "y",
         ".*minio root username.*": lambda msg: "miniouser",
         ".*minio root password.*": lambda msg: "miniopass",
+        # 11. AI Data Science Platform
+        ".*AI Data Science Platform.*": lambda msg: "1",
         # 12. Tenant Settings
         ".*Entitlement end date.*": lambda msg: "2027-02-16",
         # 13. WatsonX Integration
