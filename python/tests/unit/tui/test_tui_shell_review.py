@@ -10,9 +10,9 @@
 
 """Tests for TextualShell review screen and action overlay.
 
-Covers: review DataTable rendering, sensitive value masking, Confirm button
-exit, ActionOverlay push on step action, worker thread execution, overlay
-dismissal on success, and error handling with Dismiss button.
+Covers: review Markdown rendering, sensitive value masking, Confirm button
+advancing to the next step, ActionOverlay push on step action, worker thread
+execution, overlay dismissal on success, and error handling with Dismiss button.
 """
 
 import asyncio
@@ -21,6 +21,7 @@ import pytest
 from unittest.mock import MagicMock
 
 from mas.cli.tui.models import WorkflowStep, WorkflowSummaryItem
+from mas.cli.tui.screens import LaunchScreen, ReviewScreen
 
 pytestmark = pytest.mark.tui
 
@@ -44,16 +45,52 @@ def _make_app(params: dict = None):
     return m
 
 
+def _review_step(index: int = 1, summary=None) -> WorkflowStep:
+    """Return a review WorkflowStep with the given index and optional summary.
+
+    Args:
+        index (int): Step index passed to screen_kwargs. Defaults to 1.
+        summary (list, optional): Summary items. Defaults to empty list.
+
+    Returns:
+        WorkflowStep: Configured review step.
+    """
+    return WorkflowStep(
+        id="review",
+        heading="Review Settings",
+        screen_class=ReviewScreen,
+        summary=summary or [],
+    )
+
+
+def _launch_step(index: int = 2) -> WorkflowStep:
+    """Return a launch WorkflowStep.
+
+    Args:
+        index (int): Step index. Defaults to 2.
+
+    Returns:
+        WorkflowStep: Configured launch step.
+    """
+    app = MagicMock()
+    app.launchUpdate = MagicMock()
+    return WorkflowStep(
+        id="launch",
+        heading="Launch",
+        screen_class=LaunchScreen,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Review screen
 # ---------------------------------------------------------------------------
 
 
 def test_review_screen_shows_summary_markdown():
-    """Test that the review screen shows a Markdown widget with summary items.
+    """Test that the review screen shows a Markdown widget with id 'review-markdown'.
 
-    GIVEN a workflow with one step that has summary items
-    WHEN all steps complete and the review screen is shown
+    GIVEN a workflow with a review step that has summary items
+    WHEN all preceding steps complete and the review step is shown
     THEN a Markdown widget with id 'review-markdown' is present.
     """
     from mas.cli.tui.shell import TextualShell
@@ -64,6 +101,11 @@ def test_review_screen_shows_summary_markdown():
         WorkflowStep(
             id="step-one",
             heading="Step One",
+        ),
+        WorkflowStep(
+            id="review",
+            heading="Review Settings",
+            screen_class=ReviewScreen,
             summary=[WorkflowSummaryItem(label="Catalog Version", param="catalog_version")],
         ),
     ]
@@ -83,18 +125,22 @@ def test_review_screen_shows_summary_markdown():
 def test_review_screen_masks_sensitive_item():
     """Test that sensitive summary items are shown as '***' in the review markdown.
 
-    GIVEN a workflow with a sensitive summary item
-    WHEN the review screen is displayed
-    THEN the rendered markdown source contains '***' and not the real value.
+    GIVEN a workflow with a review step containing a sensitive summary item
+    WHEN the review step is shown
+    THEN the rendered Markdown source contains '***' and not the real value.
     """
     from mas.cli.tui.shell import TextualShell
-    from mas.cli.tui.shell import ReviewScreen
 
     mas_app = _make_app({"login_token": "super-secret-token"})
     definition = [
         WorkflowStep(
             id="step-one",
             heading="Step One",
+        ),
+        WorkflowStep(
+            id="review",
+            heading="Review Settings",
+            screen_class=ReviewScreen,
             summary=[WorkflowSummaryItem(label="Token", param="login_token", sensitive=True)],
         ),
     ]
@@ -105,7 +151,7 @@ def test_review_screen_masks_sensitive_item():
             await pilot.pause()
             await pilot.click(".btn-next")
             await pilot.pause()
-            review = shell.query_one("#review-panel", ReviewScreen)
+            review = shell.query_one("#step-panel-review", ReviewScreen)
             return review._build_markdown()
 
     md_text = asyncio.run(run())
@@ -113,17 +159,35 @@ def test_review_screen_masks_sensitive_item():
     assert "super-secret-token" not in md_text
 
 
-def test_confirm_button_triggers_workflow_confirmed():
-    """Test that the Confirm button causes the shell to exit cleanly.
+def test_confirm_button_posts_step_completed():
+    """Test that the Confirm button on the review screen advances to the next step.
 
-    GIVEN a single-step workflow navigated to the review screen
+    GIVEN a workflow ending with a review step as the last step
     WHEN the Confirm button is clicked
-    THEN the shell's return_value is 0 (success).
+    THEN the shell's return_value is None (no exit triggered — last step just
+         marks complete with no further step to advance to).
     """
     from mas.cli.tui.shell import TextualShell
 
     mas_app = _make_app()
-    definition = [WorkflowStep(id="step-one", heading="Step One")]
+
+    # LaunchScreen.start_dynamic_loaders runs launchUpdate — stub it out so
+    # the worker doesn't error in the test environment.
+    mas_app.launchUpdate = MagicMock()
+
+    definition = [
+        WorkflowStep(id="step-one", heading="Step One"),
+        WorkflowStep(
+            id="review",
+            heading="Review Settings",
+            screen_class=ReviewScreen,
+        ),
+        WorkflowStep(
+            id="launch",
+            heading="Launch",
+            screen_class=LaunchScreen,
+        ),
+    ]
 
     async def run():
         shell = TextualShell(mas_app, definition)
@@ -133,10 +197,13 @@ def test_confirm_button_triggers_workflow_confirmed():
             await pilot.pause()
             await pilot.click("#btn-confirm")
             await pilot.pause()
-        return shell.return_value
+            # After confirm the shell advances to the launch step.
+            # The launch step is now active (not exited).
+            active = shell._active_index
+        return active
 
     result = asyncio.run(run())
-    assert result == 0
+    assert result == 2  # advanced to the launch step (index 2)
 
 
 # ---------------------------------------------------------------------------

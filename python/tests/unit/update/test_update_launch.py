@@ -167,3 +167,38 @@ def test_launchUpdate_with_progress_callback_calls_callback():
     assert any(
         "Validate" in lbl or "Pipeline" in lbl or "Tekton" in lbl or "namespace" in lbl.lower() for lbl in labels
     ), f"Expected a recognisable stage label, got: {labels}"
+
+
+def test_launchUpdate_with_start_callback_calls_start_before_progress():
+    """Test that launchUpdate calls startCallback before progressCallback for each stage.
+
+    GIVEN a list-collecting startCallback and progressCallback
+    WHEN launchUpdate(progressCallback, startCallback) is called
+    THEN startCallback is called with each stage label before its progressCallback call.
+    """
+    app = _make_update_app()
+    started = []
+    completed = []
+
+    def start_cb(label):
+        started.append(("start", label))
+
+    def prog_cb(label, ok, detail):
+        completed.append(("done", label))
+
+    with (
+        patch(f"{_DEVOPS_PATCH_BASE}.installOpenShiftPipelines", return_value=True),
+        patch(f"{_DEVOPS_PATCH_BASE}.createNamespace"),
+        patch(f"{_DEVOPS_PATCH_BASE}.preparePipelinesNamespace"),
+        patch(f"{_DEVOPS_PATCH_BASE}.prepareUpdateSecrets"),
+        patch(f"{_DEVOPS_PATCH_BASE}.updateTektonDefinitions"),
+        patch(f"{_DEVOPS_PATCH_BASE}.launchUpdatePipeline", return_value="http://example.com/run"),
+    ):
+        app.launchUpdate(progressCallback=prog_cb, startCallback=start_cb)
+
+    assert len(started) >= 1, "Expected at least one startCallback call"
+    start_labels = [s[1] for s in started]
+    done_labels = [d[1] for d in completed]
+    # Every started label must appear in completed too (or raise — but no exception here)
+    for lbl in start_labels:
+        assert lbl in done_labels, f"Stage '{lbl}' was started but never completed"

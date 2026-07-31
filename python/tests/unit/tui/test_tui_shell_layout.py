@@ -96,11 +96,11 @@ def test_shell_instantiates():
 
 
 def test_sidebar_has_one_item_per_step():
-    """Test that the sidebar contains one list item per step plus a Review Settings entry.
+    """Test that the sidebar contains exactly one list item per workflow step.
 
     GIVEN a WorkflowDefinition with two unconditional steps
     WHEN TextualShell is run
-    THEN the sidebar ListView has exactly 3 ListItem children (2 steps + Review Settings).
+    THEN the sidebar ListView has exactly 2 ListItem children.
     """
     from mas.cli.tui.shell import TextualShell
     from textual.widgets import ListItem
@@ -116,7 +116,7 @@ def test_sidebar_has_one_item_per_step():
             await pilot.pause()
             return len(list(shell.query(ListItem)))
 
-    assert asyncio.run(run()) == 3
+    assert asyncio.run(run()) == 2
 
 
 def test_condition_false_step_renders_greyed():

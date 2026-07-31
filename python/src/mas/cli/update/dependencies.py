@@ -561,7 +561,7 @@ class DependencyDetectionMixin:
     # Orchestration
     # ------------------------------------------------------------------
 
-    def runDependencyChecks(self, progressCallback: Optional[Callable] = None) -> None:
+    def runDependencyChecks(self, progressCallback: Optional[Callable] = None, startCallback: Optional[Callable] = None) -> None:
         """Run all pre-update dependency checks.
 
         Drives ``_DEPENDENCY_CHECKS`` sequentially.  When ``progressCallback``
@@ -578,6 +578,10 @@ class DependencyDetectionMixin:
             progressCallback (Callable, optional): Called as
                 ``(label: str, ok: bool, detail: str) -> None`` after each check.
                 Must be safe to call from any thread.  Defaults to None.
+            startCallback (Callable, optional): Called as ``(label: str) -> None``
+                immediately before each check starts (TUI path only).  Allows the
+                UI to mark the step as in-progress before the work runs.
+                Defaults to None.
 
         Raises:
             RuntimeError: When a fatal-if-present check returns ok=False.
@@ -585,11 +589,15 @@ class DependencyDetectionMixin:
         if progressCallback is not None:
             # TUI path: call detectors, forward DetectResult to callback
             for item in self._DEPENDENCY_CHECKS:
+                if startCallback is not None:
+                    startCallback(item.label)
                 method = getattr(self, item.method)
                 result = method()
                 progressCallback(item.label, result.ok, result.message)
                 if item.fatal_if_present and not result.ok:
                     raise RuntimeError(result.message)
+            if startCallback is not None:
+                startCallback("Pre-install RBAC evaluation")
             self.evaluatePreinstallRBACAccessForUpdate()
             progressCallback("Pre-install RBAC evaluation", True, "Complete")
         else:

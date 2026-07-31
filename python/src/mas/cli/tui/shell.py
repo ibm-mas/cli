@@ -30,7 +30,7 @@ try:
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
-from mas.cli.tui.messages import ActionComplete, StepCompleted, WorkflowConfirmed, WorkflowReset
+from mas.cli.tui.messages import ActionComplete, StepCompleted, WorkflowReset
 from mas.cli.tui.models import WorkflowDefinition, WorkflowStep
 from mas.cli.tui.screens import ActionOverlay, AutoRunScreen, ConnectStepScreen, ParamsOverlay, ReviewScreen, StepScreen
 
@@ -39,6 +39,7 @@ from mas.cli.tui.screens import ActionOverlay, AutoRunScreen, ConnectStepScreen,
 __all__ = [
     "AutoRunScreen",
     "ConnectStepScreen",
+    "ReviewScreen",
     "TextualShell",
     "serveTuiMode",
 ]
@@ -88,8 +89,6 @@ class TextualShell(App):
         self._definition: WorkflowDefinition = definition
         self._active_index: int = 0
         self._completed: set = set()
-        # Set title via the reactive property so the mounted Header widget
-        # picks up the change through its watcher on app.title.
         version = getattr(mas_app, "version", "")
         cmd = command.capitalize() if command else ""
         self.title = f"MAS {cmd} v{version}" if cmd else f"MAS CLI v{version}"
@@ -132,21 +131,15 @@ class TextualShell(App):
         return not step.condition(self._mas_app.params)
 
     async def _populate_sidebar(self) -> None:
-        """Build the sidebar ListView with one item per step."""
+        """Build the sidebar ListView with one item per workflow step."""
         list_view = self.query_one("#step-list", ListView)
         list_view.can_focus = False
         list_view.can_focus_children = False
         for step in self._definition:
-            item = ListItem(Label(step.heading), id=f"sidebar-{step.id}")
+            item = ListItem(Label(f"⬜ {step.heading}"), id=f"sidebar-{step.id}")
             if self._is_skipped(step):
                 item.add_class("step-skipped")
             await list_view.append(item)
-        # Legacy: for commands whose review screen is mounted via _activate_review
-        # (not as a step in the definition), add a sidebar entry for it.
-        has_review_step = any(s.id == "review" for s in self._definition)
-        if not has_review_step:
-            review_item = ListItem(Label("Review Settings"), id="sidebar-review")
-            await list_view.append(review_item)
 
     async def _populate_content(self) -> None:
         """Mount only the first step panel into ContentSwitcher.
@@ -210,6 +203,7 @@ class TextualShell(App):
                 if s.id in self._completed:
                     item.add_class("step-completed")
                     item.remove_class("step-skipped")
+                    item.query_one(Label).update(f"✅ {s.heading}")
                 elif self._is_skipped(s):
                     item.add_class("step-skipped")
             except Exception:
@@ -219,6 +213,7 @@ class TextualShell(App):
             active_item = self.query_one(f"#sidebar-{step.id}", ListItem)
             active_item.add_class("step-active")
             active_item.remove_class("step-skipped")
+            active_item.query_one(Label).update(f"⏳ {step.heading}")
         except Exception:
             pass
 
@@ -251,46 +246,6 @@ class TextualShell(App):
         switcher.current = panel_id
         try:
             panel.start_dynamic_loaders()
-        except Exception:
-            pass
-
-    def _activate_review(self) -> None:
-        """Switch the content area to the review screen and refresh its table."""
-        switcher = self.query_one("#step-content", ContentSwitcher)
-        if not switcher.query("#review-panel"):
-            self.call_after_refresh(self._mount_and_activate_review)
-            return
-        self._show_review()
-
-    async def _mount_and_activate_review(self) -> None:
-        """Mount ReviewScreen lazily then switch to it (legacy path for upgrade)."""
-        switcher = self.query_one("#step-content", ContentSwitcher)
-        # Pass the full definition list so the generic fallback can iterate it.
-        review = ReviewScreen(self._mas_app, step_or_definition=self._definition)
-        await switcher.mount(review)
-        self._show_review()
-
-    def _show_review(self) -> None:
-        """Refresh the review table, switch to it, and update the sidebar."""
-        review = self.query_one("#review-panel", ReviewScreen)
-        review.refresh_table()
-        switcher = self.query_one("#step-content", ContentSwitcher)
-        switcher.current = "review-panel"
-        try:
-            self.query_one("#review-content").focus()
-        except Exception:
-            pass
-        for s in self._definition:
-            try:
-                item = self.query_one(f"#sidebar-{s.id}", ListItem)
-                item.remove_class("step-active", "step-skipped")
-                item.add_class("step-completed")
-            except Exception:
-                pass
-        try:
-            review_item = self.query_one("#sidebar-review", ListItem)
-            review_item.remove_class("step-skipped")
-            review_item.add_class("step-active")
         except Exception:
             pass
 
@@ -350,10 +305,6 @@ class TextualShell(App):
     def _complete_step(self, step_index: int) -> None:
         """Mark step done, refresh conditions, advance to next step.
 
-        For commands whose workflow ends without a review step in the definition
-        (e.g. upgrade), falls back to ``_activate_review()`` when all definition
-        steps have been completed.
-
         Args:
             step_index (int): Zero-based index of the completed step.
         """
@@ -361,10 +312,7 @@ class TextualShell(App):
         self._completed.add(step.id)
         self._refresh_sidebar_conditions()
         next_index = self._find_next_active_index(step_index)
-        if next_index == -1:
-            # No more steps in definition — use legacy review activation.
-            self._activate_review()
-        else:
+        if next_index != -1:
             self._activate_step(next_index)
 
     def action_show_params(self) -> None:
@@ -381,14 +329,6 @@ class TextualShell(App):
         """
         self.exit(1)
 
-    def on_workflow_confirmed(self, _event: WorkflowConfirmed) -> None:
-        """Exit the shell with success code when Confirm is clicked.
-
-        Args:
-            _event (WorkflowConfirmed): The confirmation event (unused payload).
-        """
-        self.exit(0)
-
     def on_workflow_reset(self, _event: WorkflowReset) -> None:
         """Reset the workflow: clear completed state and return to the first step.
 
@@ -402,20 +342,14 @@ class TextualShell(App):
             try:
                 item = self.query_one(f"#sidebar-{s.id}", ListItem)
                 item.remove_class("step-active", "step-completed")
+                item.query_one(Label).update(f"⬜ {s.heading}")
                 if self._is_skipped(s):
                     item.add_class("step-skipped")
             except Exception:
                 pass
-        # Legacy sidebar-review entry (commands using _activate_review path).
-        try:
-            review_item = self.query_one("#sidebar-review", ListItem)
-            review_item.remove_class("step-active", "step-completed")
-        except Exception:
-            pass
         switcher = self.query_one("#step-content", ContentSwitcher)
-        # Remove all lazily-mounted panels (steps 1+) and the review panel so
-        # they recompose fresh with current app state on next activation.
-        # Reset the first panel (always mounted) in place.
+        # Remove all lazily-mounted panels (steps 1+) so they recompose fresh
+        # with current app state on next activation.  Reset step 0 in place.
         first_id = f"step-panel-{self._definition[0].id}" if self._definition else None
         for widget in list(switcher.children):
             if first_id and widget.id == first_id:

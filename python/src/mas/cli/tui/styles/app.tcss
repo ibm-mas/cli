@@ -170,13 +170,47 @@ ConnectStepScreen {
 
 AutoRunScreen {
     height: 100%;
+}
+
+#dep-content {
+    height: 1fr;
     padding: 1;
 }
 
-#dep-log {
-    height: 1fr;
+#dep-step-list {
+    height: auto;
     border: solid $primary-darken-3;
+    margin-top: 1;
+    background: $background;
+}
+
+#dep-step-list > ListItem,
+#dep-step-list > ListItem:hover,
+#dep-step-list > ListItem.--highlight,
+#dep-step-list:focus > ListItem.--highlight,
+#dep-step-list:focus-within > ListItem.--highlight {
+    background: $background;
+    height: auto;
+}
+
+#dep-step-list > ListItem > Label {
+    width: 100%;
+    text-wrap: wrap;
+}
+
+#dep-footer {
+    height: auto;
+    padding: 1 2;
+    border-top: solid $panel-lighten-2;
+}
+
+#dep-prompt {
     margin-bottom: 1;
+    color: $text-muted;
+}
+
+#dep-buttons {
+    height: auto;
 }
 
 #btn-next-dep {
@@ -185,6 +219,67 @@ AutoRunScreen {
 
 #btn-next-dep.dep-ready {
     display: block;
+}
+
+/* ---------- LaunchScreen -------------------------------------------------- */
+
+LaunchScreen {
+    height: 100%;
+}
+
+#launch-content {
+    height: 1fr;
+    padding: 1;
+}
+
+#launch-step-list {
+    height: auto;
+    border: solid $primary-darken-3;
+    margin-top: 1;
+    background: $background;
+}
+
+#launch-step-list > ListItem,
+#launch-step-list > ListItem:hover,
+#launch-step-list > ListItem.--highlight,
+#launch-step-list:focus > ListItem.--highlight,
+#launch-step-list:focus-within > ListItem.--highlight {
+    background: $background;
+    height: auto;
+}
+
+#launch-step-list > ListItem > Label {
+    width: 100%;
+    text-wrap: wrap;
+}
+
+#pipeline-url {
+    margin-top: 1;
+    width: 100%;
+    text-wrap: wrap;
+    color: $accent;
+}
+
+#launch-footer {
+    height: auto;
+    padding: 1 2;
+    border-top: solid $panel-lighten-2;
+}
+
+#launch-prompt {
+    margin-bottom: 1;
+    color: $text-muted;
+}
+
+#launch-buttons {
+    height: auto;
+}
+
+/* ---------- Shared step-error state --------------------------------------- */
+
+.step-error {
+    color: $error;
+    text-style: bold;
 }
 
 /* ---------- ReviewScreen -------------------------------------------------- */

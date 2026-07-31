@@ -210,12 +210,12 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin, CatalogMixin, DependencyDetecti
             self.printH1("Launch Update")
             self.launchUpdate()
 
-    def launchUpdate(self, progressCallback: Optional[Callable] = None) -> None:
+    def launchUpdate(self, progressCallback: Optional[Callable] = None, startCallback: Optional[Callable] = None) -> None:
         """Submit the Tekton update pipeline, reporting stages via progressCallback.
 
         Pure-work method with no printH1, yesOrNo, or printDescription calls.
         Called from the TUI LaunchScreen (with a progressCallback that streams
-        each stage to the RichLog) and from the non-interactive update() path
+        each stage to the step-list) and from the non-interactive update() path
         (with progressCallback=None, where Halo spinners are used directly —
         keeping existing CLI behaviour completely unchanged).
 
@@ -223,11 +223,17 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin, CatalogMixin, DependencyDetecti
             progressCallback (Callable, optional): Called as
                 (label: str, ok: bool, detail: str) -> None after each stage.
                 When None, Halo spinners are used instead.
+            startCallback (Callable, optional): Called as (label: str) -> None
+                immediately before each stage starts (TUI path only).  Allows
+                the UI to mark the step as in-progress before the work runs.
+                Defaults to None.
         """
         pipelinesNamespace = "mas-pipelines"
 
         if progressCallback is not None:
             # TUI path — call devops functions directly and report each stage.
+            if startCallback is not None:
+                startCallback("Validate OpenShift Pipelines")
             if installOpenShiftPipelines(self.dynamicClient):
                 progressCallback("Validate OpenShift Pipelines", True, "Operator is installed and ready to use")
             else:
@@ -239,6 +245,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin, CatalogMixin, DependencyDetecti
                     instanceId = instanceInfo["id"]
                     targetVersion = instanceInfo["targetVersion"]
                     adminMode = instanceInfo["adminMode"]
+                    if startCallback is not None:
+                        startCallback(f"Apply pre-install RBAC: {instanceId}")
                     selectedApps = getInstalledApps(self.dynamicClient, instanceId)
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
@@ -249,6 +257,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin, CatalogMixin, DependencyDetecti
                     )
                     progressCallback(f"Apply pre-install RBAC: {instanceId}", True, f"{targetVersion}, mode: {adminMode}")
 
+            if startCallback is not None:
+                startCallback("Prepare pipelines namespace")
             createNamespace(self.dynamicClient, pipelinesNamespace)
             preparePipelinesNamespace(dynClient=self.dynamicClient)
             prepareUpdateSecrets(
@@ -259,9 +269,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin, CatalogMixin, DependencyDetecti
             )
             progressCallback("Prepare pipelines namespace", True, pipelinesNamespace)
 
+            if startCallback is not None:
+                startCallback("Install Tekton definitions")
             updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
             progressCallback("Install Tekton definitions", True, f"v{self.version}")
 
+            if startCallback is not None:
+                startCallback("Submit PipelineRun")
             pipelineURL = launchUpdatePipeline(dynClient=self.dynamicClient, params=self.params)
             if pipelineURL is not None:
                 progressCallback("Submit PipelineRun", True, pipelineURL)

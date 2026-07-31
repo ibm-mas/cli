@@ -136,3 +136,55 @@ def test_detect_methods_present_on_update_app():
     ]
     for methodName in expectedMethods:
         assert hasattr(UpdateApp, methodName), f"UpdateApp is missing method: {methodName}"
+
+
+def test_run_dependency_checks_start_callback_called_before_progress():
+    """Test that runDependencyChecks calls startCallback before progressCallback for each check.
+
+    GIVEN a mock UpdateApp with all detect methods returning DetectResult(ok=True)
+    WHEN runDependencyChecks(progressCallback=cb, startCallback=start_cb) is called
+    THEN startCallback(label) is called before progressCallback(label, ...) for each check.
+    """
+    from unittest.mock import patch, MagicMock
+    from mas.cli.update.dependencies import DetectResult
+
+    app = UpdateApp.__new__(UpdateApp)
+    app._dynClient = MagicMock()
+    app.params = {}
+    app.chosenCatalog = MagicMock()
+    app.applyPreInstallMASRBAC = False
+    app.instancesNeedingRBAC = []
+
+    fake_result = DetectResult(ok=True, message="ok")
+    events = []
+
+    def start_cb(label):
+        events.append(("start", label))
+
+    def prog_cb(label, ok, detail):
+        events.append(("done", label))
+
+    # Patch all detector methods to return fake_result and RBAC evaluator to no-op
+    with (
+        patch.object(type(app), "isWatsonDiscoveryInstalled", return_value=fake_result),
+        patch.object(type(app), "isWatsonOpenscaleInstalled", return_value=fake_result),
+        patch.object(type(app), "isIBMCertManagerInstalled", return_value=fake_result),
+        patch.object(type(app), "detectGrafana4", return_value=fake_result),
+        patch.object(type(app), "detectODH", return_value=fake_result),
+        patch.object(type(app), "detectMongoDb", return_value=fake_result),
+        patch.object(type(app), "detectDb2u", return_value=fake_result),
+        patch.object(type(app), "detectKafka", return_value=fake_result),
+        patch.object(type(app), "detectCP4D", return_value=fake_result),
+        patch.object(type(app), "evaluatePreinstallRBACAccessForUpdate", return_value=None),
+    ):
+        app.runDependencyChecks(progressCallback=prog_cb, startCallback=start_cb)
+
+    # Interleaved events: for each label "start" must appear before "done"
+    assert len(events) > 0, "Expected at least one event"
+    labels_seen = {}
+    for kind, label in events:
+        if kind == "start":
+            labels_seen[label] = "started"
+        elif kind == "done":
+            assert labels_seen.get(label) == "started", f"'done' for '{label}' arrived before 'start'"
+            labels_seen[label] = "done"
