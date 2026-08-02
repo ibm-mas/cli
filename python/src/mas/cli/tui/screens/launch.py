@@ -10,14 +10,12 @@
 
 """Launch screen that submits the Tekton pipeline and streams progress."""
 
-from typing import Any, List
+from typing import Any, List, Optional
 
-try:
-    from textual.app import ComposeResult
-    from textual.containers import Horizontal, Vertical, VerticalScroll
-    from textual.widgets import Button, Label, ListItem, ListView
-except ModuleNotFoundError as exc:
-    raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
+import pyperclip
+from textual.app import ComposeResult
+from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.widgets import Button, Label, ListItem, ListView
 
 from mas.cli.tui.models import WorkflowStep
 
@@ -77,6 +75,7 @@ class LaunchScreen(VerticalScroll):
         self._step = step
         self._step_index = step_index
         self._step_labels: List[str] = list(_LAUNCH_STEPS)
+        self._pipeline_url: Optional[str] = None
 
     def compose(self) -> ComposeResult:
         """Build the screen: heading, description, step-list, then footer with action buttons.
@@ -97,11 +96,13 @@ class LaunchScreen(VerticalScroll):
         with Vertical(id="launch-footer"):
             yield Label("View the pipeline run:", id="launch-prompt")
             with Horizontal(id="launch-buttons"):
+                yield Button("📋 Copy URL", id="btn-copy-url", classes="btn-copy-url", variant="primary")
                 yield Button("✓ Done", id="btn-done", classes="btn-launch-done", variant="success")
                 yield Button("✕ Dismiss", id="btn-dismiss-error", classes="btn-launch-dismiss", variant="error")
 
     def on_mount(self) -> None:
         """Hide action buttons and pipeline URL label on mount."""
+        self.query_one("#btn-copy-url", Button).display = False
         self.query_one("#btn-done", Button).display = False
         self.query_one("#btn-dismiss-error", Button).display = False
         self.query_one("#pipeline-url", Label).display = False
@@ -183,6 +184,9 @@ class LaunchScreen(VerticalScroll):
                 url_label = self.query_one("#pipeline-url", Label)
                 url_label.update(detail)
                 url_label.display = True
+                # Store URL and show Copy URL button
+                self._pipeline_url = detail
+                self.query_one("#btn-copy-url", Button).display = True
             else:
                 item.query_one(Label).update(f"{icon} {label}: {detail}")
         except Exception:
@@ -233,6 +237,10 @@ class LaunchScreen(VerticalScroll):
         except Exception:
             pass
         try:
+            self.query_one("#btn-copy-url", Button).display = False
+        except Exception:
+            pass
+        try:
             self.query_one("#btn-done", Button).display = False
         except Exception:
             pass
@@ -240,14 +248,27 @@ class LaunchScreen(VerticalScroll):
             self.query_one("#btn-dismiss-error", Button).display = False
         except Exception:
             pass
+        self._pipeline_url = None
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Handle Done and Dismiss buttons.
+        """Handle Copy URL, Done and Dismiss buttons.
 
         Args:
             event (Button.Pressed): The button press event.
         """
-        if event.button.id == "btn-done":
+        if event.button.id == "btn-copy-url":
+            if self._pipeline_url:
+                try:
+                    pyperclip.copy(self._pipeline_url)
+                    # Provide visual feedback by temporarily updating button text
+                    button = event.button
+                    original_label = button.label
+                    button.label = "✓ Copied!"
+                    self.set_timer(2.0, lambda: setattr(button, "label", original_label))
+                except Exception:
+                    # If clipboard fails, silently ignore (pyperclip may not be available on all systems)
+                    pass
+        elif event.button.id == "btn-done":
             self.app.exit(0)
         elif event.button.id == "btn-dismiss-error":
             self.app.exit(1)

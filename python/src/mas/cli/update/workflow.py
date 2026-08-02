@@ -116,6 +116,44 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
     # self.installedCatalogId which validateCatalog() reads on the next step.
     connectStep = connectClusterStep(appInstance, post_connect=appInstance.reviewCurrentCatalog)
 
+    catalogStep = WorkflowStep(
+        id="choose-catalog",
+        heading="Choose Target Catalog",
+        heading_level="h1",
+        description=[
+            "Select the IBM Maximo Operator Catalog version to update to.",
+        ],
+        fields=[
+            WorkflowField(
+                id="mas_catalog_version",
+                label="Catalog Version",
+                type="select",
+                options=catalogOptions,
+                required=True,
+            ),
+        ],
+        validator=appInstance.checkCatalog,
+    )
+    dependenciesStep = WorkflowStep(
+        id="dependency-checks",
+        heading="Dependency Update Checks",
+        heading_level="h1",
+        description=[
+            "Detecting installed dependencies that may require updates.",
+        ],
+        screen_class=AutoRunScreen,
+        summary=[
+            WorkflowSummaryItem(label="Installed Catalog", attr="installedCatalogId"),
+            WorkflowSummaryItem(label="Target Catalog Version", param="mas_catalog_version"),
+            WorkflowSummaryItem(label="IBM Db2", param="db2_namespace"),
+            WorkflowSummaryItem(label="MongoDB Community", param="mongodb_namespace"),
+            WorkflowSummaryItem(label="Apache Kafka", param="kafka_namespace"),
+            WorkflowSummaryItem(label="IBM Cloud Pak for Data", param="cp4d_update"),
+            WorkflowSummaryItem(label="Grafana v4 Operator", param="grafana_v5_upgrade"),
+            WorkflowSummaryItem(label="Open Data Hub (ODH)", param="odh_to_rhoai_migration"),
+        ],
+    )
+
     reviewStep = WorkflowStep(
         id="review",
         heading="Review Settings",
@@ -145,43 +183,8 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
 
     return [
         connectStep,
-        WorkflowStep(
-            id="choose-catalog",
-            heading="Choose Target Catalog",
-            heading_level="h1",
-            description=[
-                "Select the IBM Maximo Operator Catalog version to update to.",
-            ],
-            fields=[
-                WorkflowField(
-                    id="mas_catalog_version",
-                    label="Catalog Version",
-                    type="select",
-                    options=catalogOptions,
-                    required=True,
-                ),
-            ],
-            validator=appInstance.checkCatalog,
-        ),
-        WorkflowStep(
-            id="dependency-checks",
-            heading="Dependency Update Checks",
-            heading_level="h1",
-            description=[
-                "Detecting installed dependencies that may require updates.",
-            ],
-            screen_class=AutoRunScreen,
-            summary=[
-                WorkflowSummaryItem(label="Installed Catalog", attr="installedCatalogId"),
-                WorkflowSummaryItem(label="Target Catalog Version", param="mas_catalog_version"),
-                WorkflowSummaryItem(label="IBM Db2", param="db2_namespace"),
-                WorkflowSummaryItem(label="MongoDB Community", param="mongodb_namespace"),
-                WorkflowSummaryItem(label="Apache Kafka", param="kafka_namespace"),
-                WorkflowSummaryItem(label="IBM Cloud Pak for Data", param="cp4d_update"),
-                WorkflowSummaryItem(label="Grafana v4 Operator", param="grafana_v5_upgrade"),
-                WorkflowSummaryItem(label="Open Data Hub (ODH)", param="odh_to_rhoai_migration"),
-            ],
-        ),
+        catalogStep,
+        dependenciesStep,
         reviewStep,
         launchStep,
     ]

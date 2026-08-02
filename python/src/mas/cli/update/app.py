@@ -25,7 +25,6 @@ else delegates to one of the mixins above.
 import logging
 from typing import Callable, Optional
 
-from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
 from ..cli import BaseApp
@@ -210,132 +209,138 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin, CatalogMixin, DependencyDetecti
             self.printH1("Launch Update")
             self.launchUpdate()
 
-    def launchUpdate(self, progressCallback: Optional[Callable] = None, startCallback: Optional[Callable] = None) -> None:
-        """Submit the Tekton update pipeline, reporting stages via progressCallback.
+    def _validateOpenShiftPipelines(self) -> tuple[bool, str]:
+        """Validate OpenShift Pipelines installation.
 
-        Pure-work method with no printH1, yesOrNo, or printDescription calls.
-        Called from the TUI LaunchScreen (with a progressCallback that streams
-        each stage to the step-list) and from the non-interactive update() path
-        (with progressCallback=None, where Halo spinners are used directly —
-        keeping existing CLI behaviour completely unchanged).
+        Returns:
+            tuple[bool, str]: (success, detail_message)
+        """
+        if installOpenShiftPipelines(self.dynamicClient):
+            return True, "Operator is installed and ready to use"
+        return False, "Operator installation failed"
+
+    def _prepareNamespace(self, namespace: str) -> tuple[bool, str]:
+        """Prepare pipelines namespace and secrets.
 
         Args:
-            progressCallback (Callable, optional): Called as
-                (label: str, ok: bool, detail: str) -> None after each stage.
-                When None, Halo spinners are used instead.
-            startCallback (Callable, optional): Called as (label: str) -> None
-                immediately before each stage starts (TUI path only).  Allows
-                the UI to mark the step as in-progress before the work runs.
-                Defaults to None.
+            namespace (str): Namespace to prepare
+
+        Returns:
+            tuple[bool, str]: (success, detail_message)
         """
+        createNamespace(self.dynamicClient, namespace)
+        preparePipelinesNamespace(dynClient=self.dynamicClient)
+        prepareUpdateSecrets(
+            dynClient=self.dynamicClient,
+            slack_token=self.getParam("slack_token"),
+            slack_channel=self.getParam("slack_channel"),
+            db2LicenseFile=self.db2LicenseFileSecret,
+        )
+        return True, namespace
+
+    def _installTektonDefinitions(self, namespace: str) -> tuple[bool, str]:
+        """Install Tekton definitions.
+
+        Args:
+            namespace (str): Namespace to install definitions in
+
+        Returns:
+            tuple[bool, str]: (success, detail_message)
+        """
+        updateTektonDefinitions(self.dynamicClient, namespace, self.tektonDefsPath)
+        return True, f"v{self.version}"
+
+    def _submitPipelineRun(self) -> tuple[bool, str]:
+        """Submit the update PipelineRun.
+
+        Returns:
+            tuple[bool, str]: (success, detail_message)
+        """
+        pipelineURL = launchUpdatePipeline(dynClient=self.dynamicClient, params=self.params)
+        if pipelineURL:
+            return True, pipelineURL
+        return False, "Failed — see log file for details"
+
+    def launchUpdate(self, progressCallback: Optional[Callable] = None, startCallback: Optional[Callable] = None) -> None:
+        """Submit the Tekton update pipeline with unified progress reporting.
+
+        Uses the ProgressReporter abstraction to eliminate code duplication
+        between CLI (Halo spinners) and TUI (callbacks) execution paths.
+
+        Args:
+            progressCallback (Callable, optional): TUI callback (label, ok, detail) -> None
+            startCallback (Callable, optional): TUI start callback (label) -> None
+        """
+        from mas.cli.common.progress import HaloProgressReporter, CallbackProgressReporter
+
+        # Select reporter based on execution mode
+        if progressCallback is not None:
+            reporter = CallbackProgressReporter(progressCallback, startCallback)
+        else:
+            reporter = HaloProgressReporter(self.spinner, self.successIcon, self.failureIcon)
+
         pipelinesNamespace = "mas-pipelines"
 
-        if progressCallback is not None:
-            # TUI path — call devops functions directly and report each stage.
-            if startCallback is not None:
-                startCallback("Validate OpenShift Pipelines")
-            if installOpenShiftPipelines(self.dynamicClient):
-                progressCallback("Validate OpenShift Pipelines", True, "Operator is installed and ready to use")
-            else:
-                progressCallback("Validate OpenShift Pipelines", False, "Operator installation failed")
-                raise RuntimeError("OpenShift Pipelines installation failed")
-
-            if self.applyPreInstallMASRBAC and self.instancesNeedingRBAC:
-                for instanceInfo in self.instancesNeedingRBAC:
-                    instanceId = instanceInfo["id"]
-                    targetVersion = instanceInfo["targetVersion"]
-                    adminMode = instanceInfo["adminMode"]
-                    if startCallback is not None:
-                        startCallback(f"Apply pre-install RBAC: {instanceId}")
-                    selectedApps = getInstalledApps(self.dynamicClient, instanceId)
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=".".join(targetVersion.split(".")[:2]),
-                        masInstanceId=instanceId,
-                        adminMode=adminMode,
-                        selectedApps=selectedApps,
-                    )
-                    progressCallback(f"Apply pre-install RBAC: {instanceId}", True, f"{targetVersion}, mode: {adminMode}")
-
-            if startCallback is not None:
-                startCallback("Prepare pipelines namespace")
-            createNamespace(self.dynamicClient, pipelinesNamespace)
-            preparePipelinesNamespace(dynClient=self.dynamicClient)
-            prepareUpdateSecrets(
-                dynClient=self.dynamicClient,
-                slack_token=self.getParam("slack_token"),
-                slack_channel=self.getParam("slack_channel"),
-                db2LicenseFile=self.db2LicenseFileSecret,
-            )
-            progressCallback("Prepare pipelines namespace", True, pipelinesNamespace)
-
-            if startCallback is not None:
-                startCallback("Install Tekton definitions")
-            updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
-            progressCallback("Install Tekton definitions", True, f"v{self.version}")
-
-            if startCallback is not None:
-                startCallback("Submit PipelineRun")
-            pipelineURL = launchUpdatePipeline(dynClient=self.dynamicClient, params=self.params)
-            if pipelineURL is not None:
-                progressCallback("Submit PipelineRun", True, pipelineURL)
-            else:
-                progressCallback("Submit PipelineRun", False, "Failed — see log file for details")
+        # Stage 1: Validate OpenShift Pipelines
+        reporter.start("Validate OpenShift Pipelines")
+        success, detail = self._validateOpenShiftPipelines()
+        if success:
+            reporter.success("Validate OpenShift Pipelines", detail)
         else:
-            # CLI path — use Halo spinners exactly as before.
-            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
-                if installOpenShiftPipelines(self.dynamicClient):
-                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
-                else:
-                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
-                    self.fatalError("Installation failed")
+            reporter.failure("Validate OpenShift Pipelines", detail)
+            raise RuntimeError("OpenShift Pipelines installation failed")
 
-            # Apply pre-install RBAC if user has permissions
-            if self.applyPreInstallMASRBAC and self.instancesNeedingRBAC:
+        # Stage 2: Apply pre-install RBAC (if needed)
+        if self.applyPreInstallMASRBAC and self.instancesNeedingRBAC:
+            if progressCallback is None:
+                # CLI path: print header
                 print()
                 print_formatted_text(HTML(f"<Yellow>Applying RBAC for {len(self.instancesNeedingRBAC)} instance(s) transitioning to GA...</Yellow>"))
                 print()
 
-                for instanceInfo in self.instancesNeedingRBAC:
-                    instanceId = instanceInfo["id"]
-                    targetVersion = instanceInfo["targetVersion"]
-                    adminMode = instanceInfo["adminMode"]
+            for instanceInfo in self.instancesNeedingRBAC:
+                instanceId = instanceInfo["id"]
+                targetVersion = instanceInfo["targetVersion"]
+                adminMode = instanceInfo["adminMode"]
 
-                    selectedApps = getInstalledApps(self.dynamicClient, instanceId)
+                label = f"Apply pre-install RBAC: {instanceId}"
+                reporter.start(label)
 
-                    with Halo(text=f"Applying pre-install RBAC for instance: {instanceId} ({targetVersion}, mode: {adminMode})", spinner=self.spinner) as h:
-                        applyPreInstallMASRBAC(
-                            dynClient=self.dynamicClient,
-                            masVersion=".".join(targetVersion.split(".")[:2]),
-                            masInstanceId=instanceId,
-                            adminMode=adminMode,
-                            selectedApps=selectedApps,
-                        )
-                        h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC applied for {instanceId} ({targetVersion}, mode: {adminMode})")
+                selectedApps = getInstalledApps(self.dynamicClient, instanceId)
+                applyPreInstallMASRBAC(
+                    dynClient=self.dynamicClient,
+                    masVersion=".".join(targetVersion.split(".")[:2]),
+                    masInstanceId=instanceId,
+                    adminMode=adminMode,
+                    selectedApps=selectedApps,
+                )
+                reporter.success(label, f"{targetVersion}, mode: {adminMode}")
 
+            if progressCallback is None:
+                # CLI path: print footer
                 print()
                 print_formatted_text(HTML("<Green>✓ Pre-install RBAC applied successfully for all instances transitioning to GA</Green>"))
                 print()
 
-            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
-                createNamespace(self.dynamicClient, pipelinesNamespace)
-                preparePipelinesNamespace(dynClient=self.dynamicClient)
-                prepareUpdateSecrets(
-                    dynClient=self.dynamicClient,
-                    slack_token=self.getParam("slack_token"),
-                    slack_channel=self.getParam("slack_channel"),
-                    db2LicenseFile=self.db2LicenseFileSecret,
-                )
+        # Stage 3: Prepare namespace
+        reporter.start("Prepare pipelines namespace")
+        success, detail = self._prepareNamespace(pipelinesNamespace)
+        reporter.success("Prepare pipelines namespace", detail)
 
-            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
-                h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
+        # Stage 4: Install Tekton definitions
+        reporter.start("Install Tekton definitions")
+        success, detail = self._installTektonDefinitions(pipelinesNamespace)
+        reporter.success("Install Tekton definitions", detail)
 
-            with Halo(text="Submitting PipelineRun for MAS update", spinner=self.spinner) as h:
-                pipelineURL = launchUpdatePipeline(dynClient=self.dynamicClient, params=self.params)
-                if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text="PipelineRun for MAS update submitted")
-                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
-                else:
-                    h.stop_and_persist(symbol=self.failureIcon, text="Failed to submit PipelineRun for MAS update, see log file for details")
-                    print()
+        # Stage 5: Submit PipelineRun
+        reporter.start("Submit PipelineRun")
+        success, detail = self._submitPipelineRun()
+        if success:
+            reporter.success("Submit PipelineRun", detail)
+            if progressCallback is None:
+                # CLI path: print URL
+                print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{detail}</u></Cyan>\n"))
+        else:
+            reporter.failure("Submit PipelineRun", detail)
+            if progressCallback is None:
+                print()

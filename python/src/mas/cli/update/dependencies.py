@@ -101,7 +101,6 @@ class DependencyDetectionMixin:
     # ------------------------------------------------------------------
     # Fatal pre-condition checks
     # ------------------------------------------------------------------
-
     def isWatsonDiscoveryInstalled(self) -> DetectResult:
         """Check whether IBM Watson Discovery is installed.
 
@@ -155,7 +154,6 @@ class DependencyDetectionMixin:
     # ------------------------------------------------------------------
     # CLI spinner helper
     # ------------------------------------------------------------------
-
     def _runWithHalo(self, label: str, fn: Callable) -> None:
         """Run a detect function wrapped in a Halo spinner (CLI path only).
 
@@ -179,7 +177,6 @@ class DependencyDetectionMixin:
     # ------------------------------------------------------------------
     # Dependency detectors
     # ------------------------------------------------------------------
-
     def detectGrafana4(self) -> DetectResult:
         """Detect Grafana Operator v4 and set grafana_v5_upgrade param.
 
@@ -560,7 +557,6 @@ class DependencyDetectionMixin:
     # ------------------------------------------------------------------
     # Orchestration
     # ------------------------------------------------------------------
-
     def runDependencyChecks(self, progressCallback: Optional[Callable] = None, startCallback: Optional[Callable] = None) -> None:
         """Run all pre-update dependency checks.
 

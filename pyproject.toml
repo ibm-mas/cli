@@ -26,6 +26,7 @@ dependencies = [
   "prettytable",
   "jsonpath-ng",
   "textual",
+  "pyperclip",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -37,16 +38,6 @@ classifiers = [
   "Topic :: Communications",
   "Topic :: Internet",
   "Topic :: Software Development :: Libraries :: Python Modules",
-]
-
-[project.optional-dependencies]
-dev = [
-  "basedpyright",
-  "build",
-  "black",
-  "flake8",
-  "flake8-docstrings",
-  "pytest",
 ]
 
 [project.scripts]
@@ -105,4 +96,15 @@ pythonVersion = "3.12"
 executionEnvironments = [
   { root = "python/src" },
   { root = "python/tests", extraPaths = ["python/src"] }
+]
+
+[dependency-groups]
+dev = [
+  "black>=26.5.1",
+  "basedpyright",
+  "build",
+  "black",
+  "flake8",
+  "flake8-docstrings",
+  "pytest",
 ]
