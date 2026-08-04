@@ -86,22 +86,24 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         ".*Install Minio.*": lambda msg: "y",
         ".*minio root username.*": lambda msg: "miniouser",
         ".*minio root password.*": lambda msg: "miniopass",
-        # 11. Tenant Settings
+        # 11. AI Data Science Platform
+        ".*AI Data Science Platform.*": lambda msg: "1",
+        # 12. Tenant Settings
         ".*Entitlement end date.*": lambda msg: "2027-02-16",
-        # 12. WatsonX Integration
+        # 13. WatsonX Integration
         ".*Watsonxai api key.*": lambda msg: "testWxApiKey",
         ".*Watsonxai machine learning url.*": lambda msg: "https://us-south.ml.cloud.ibm.com",
         ".*Watsonxai project id.*": lambda msg: "testProjectId",
         ".*Does the Watsonxai AI use a self-signed certificate.*": lambda msg: "n",
         ".*Watsonxai Deployment ID.*": lambda msg: "",
         ".*Watsonxai Space ID.*": lambda msg: "",
-        # 13. RSL Integration
+        # 14. RSL Integration
         ".*Does the RSL API use a self-signed certificate.*": lambda msg: "n",
-        # 14. Database configuration
+        # 15. Database configuration
         ".*Do you want to use an external database.*": lambda msg: "n",
-        # 15. MongoDB configuration
+        # 16. MongoDB configuration
         ".*Create MongoDb cluster.*": lambda msg: "y",
-        # 16. Final confirmation
+        # 17. Final confirmation
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
@@ -157,22 +159,24 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Install Minio.*": lambda msg: "y",
         ".*minio root username.*": lambda msg: "miniouser",
         ".*minio root password.*": lambda msg: "miniopass",
-        # 11. Tenant Settings
+        # 11. AI Data Science Platform
+        ".*AI Data Science Platform.*": lambda msg: "1",
+        # 12. Tenant Settings
         ".*Entitlement end date.*": lambda msg: "2027-02-16",
-        # 12. WatsonX Integration
+        # 13. WatsonX Integration
         ".*Watsonxai api key.*": lambda msg: "testWxApiKey",
         ".*Watsonxai machine learning url.*": lambda msg: "https://us-south.ml.cloud.ibm.com",
         ".*Watsonxai project id.*": lambda msg: "testProjectId",
         ".*Does the Watsonxai AI use a self-signed certificate.*": lambda msg: "n",
         ".*Watsonxai Deployment ID.*": lambda msg: "",
         ".*Watsonxai Space ID.*": lambda msg: "",
-        # 13. RSL Integration
+        # 14. RSL Integration
         ".*Does the RSL API use a self-signed certificate.*": lambda msg: "n",
-        # 14. Database configuration
+        # 15. Database configuration
         ".*Do you want to use an external database.*": lambda msg: "n",
-        # 15. MongoDB configuration
+        # 16. MongoDB configuration
         ".*Create MongoDb cluster.*": lambda msg: "y",
-        # 16. Final confirmation
+        # 17. Final confirmation
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
