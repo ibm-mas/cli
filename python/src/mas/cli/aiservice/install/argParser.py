@@ -195,7 +195,7 @@ aiServiceArgGroup.add_argument(
     "--environment-type", dest="environment_type", required=False, default="non-production", help="Environment type (default: non-production)"
 )
 
-# AI Service advanced configuration
+# AI  Service advanced configuration
 # -----------------------------------------------------------------------------
 aiserviceAdvancedArgGroup = aiServiceinstallArgParser.add_argument_group(
     "Advanced configuration for AI Service", "Advanced configuration options for AI Service including certificates issuer and IPv6 support"
