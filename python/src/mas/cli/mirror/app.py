@@ -726,6 +726,19 @@ def mirrorCharts(
         logger.info(f"No charts listed in metadata for {caseName} — skipping")
         return ChartMirrorResult(caseName=caseName, total=0, mirrored=0)
 
+    # Register the Helm repo so helm pull can resolve chart names via an alias.
+    # Passing a raw GitHub URL directly to helm pull is not valid — it requires
+    # either an OCI ref or a registered repo alias backed by an index.yaml.
+    helmRepoAlias = f"ibm-mas-charts-{caseName}"
+    repoAddCmd = ["helm", "repo", "add", helmRepoAlias, helmRepo, "--force-update"]
+    logger.info(f"Registering Helm repo: {helmRepo} as {helmRepoAlias}")
+    repoAddResult = subprocess.run(repoAddCmd, capture_output=True, text=True)
+    if repoAddResult.returncode != 0:
+        logger.error(f"helm repo add failed: {repoAddResult.stderr.strip()}")
+        failed = [f"{c['name']}:{c['version']}" for c in charts]
+        return ChartMirrorResult(caseName=caseName, total=len(charts), mirrored=0, failed=failed)
+    subprocess.run(["helm", "repo", "update", helmRepoAlias], capture_output=True, text=True)
+
     # Registry hostname only (strip any path after the first /)  — used for helm registry login
     registryHost = targetRegistry.split("/")[0] if targetRegistry else ""
 
@@ -748,7 +761,7 @@ def mirrorCharts(
                 pullCmd = [
                     "helm",
                     "pull",
-                    f"{helmRepo}/{chartName}",
+                    f"{helmRepoAlias}/{chartName}",
                     "--version",
                     chartVersion,
                     "--destination",
@@ -802,7 +815,7 @@ def mirrorCharts(
             pullCmd = [
                 "helm",
                 "pull",
-                f"{helmRepo}/{chartName}",
+                f"{helmRepoAlias}/{chartName}",
                 "--version",
                 chartVersion,
                 "--destination",
@@ -1151,11 +1164,16 @@ class MirrorApp(BaseApp):
         # Mirrors the casectl_resolve_charts=true bundles in mirror_dependencies.yml.
         CHART_CASE_CATALOG_KEYS = [
             # (caseName, catalogVersionKey, argName)
+            ("ibm-cp-datacore", "cp4d_platform_version", "cp4d-platform"),
+            ("ibm-ccs", "ccs_build", "cp4d-platform"),  # ccs ships with platform
+            ("ibm-opencontent-opensearch", "opensearch_version", "cp4d-platform"),  # opensearch ships with platform
             ("ibm-wsl", "wsl_version", "cp4d-wsl"),
-            ("ibm-wml-cpd", "wml_version", "cp4d-wml"),
-            ("ibm-analyticsengine", "spark_version", "cp4d-spark"),
-            ("ibm-datarefinery", "wsl_version", "cp4d-wsl"),  # datarefinery uses same version as wsl
+            ("ibm-datarefinery", "datarefinery_version", "cp4d-wsl"),
             ("ibm-wsl-runtimes", "wsl_runtimes_version", "cp4d-wsl"),
+            ("ibm-wml-cpd", "wml_version", "cp4d-wml"),
+            ("ibm-redis-cp", "redis_version", "cp4d-wml"),  # redis ships with wml
+            ("ibm-analyticsengine", "spark_version", "cp4d-spark"),
+            ("ibm-cognos-analytics-prod", "cognos_version", "cp4d-cognos"),
         ]
 
         # Gate: only run if cpd_product_version_default >= 5.2.0
@@ -1201,7 +1219,7 @@ class MirrorApp(BaseApp):
                     caseName=caseName,
                     caseVersion=caseVersion,
                     mode=mode,
-                    targetRegistry=targetRegistry,
+                    targetRegistry=f"{targetRegistry}/charts",
                     registryUsername=registryUsername,
                     registryPassword=registryPassword,
                     rootDir=rootDir,
