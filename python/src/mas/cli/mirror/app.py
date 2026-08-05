@@ -32,7 +32,7 @@ from mas.devops.data import getCatalog, NoSuchCatalogError
 
 from ..cli import BaseApp
 from .argParser import mirrorArgParser
-from .config import PACKAGE_CONFIGS
+from .config import PACKAGE_CONFIGS, HELM_ONLY_CHART_CONFIGS
 
 logger = logging.getLogger(__name__)
 
@@ -1160,12 +1160,17 @@ class MirrorApp(BaseApp):
                     failedMirrors.append(packageResult)
 
         # Mirror Helm charts for CPD packages (CPD 5.2.0+ only).
-        # Derived from PACKAGE_CONFIGS — has_HelmCharts=True marks chart-bearing CASEs.
+        # Derived from PACKAGE_CONFIGS (has_HelmCharts=True) plus HELM_ONLY_CHART_CONFIGS
+        # for bundles that have charts but no standalone ISC image files.
         # To add/remove a CASE from helm chart mirroring, update config.py only.
         seen: set = set()
         CHART_CASE_CATALOG_KEYS = []
         for _section, argName, packageName, catalogKey, has_HelmCharts in PACKAGE_CONFIGS:
             if has_HelmCharts and packageName not in seen:
+                CHART_CASE_CATALOG_KEYS.append((packageName, catalogKey, argName))
+                seen.add(packageName)
+        for packageName, catalogKey, argName in HELM_ONLY_CHART_CONFIGS:
+            if packageName not in seen:
                 CHART_CASE_CATALOG_KEYS.append((packageName, catalogKey, argName))
                 seen.add(packageName)
 
