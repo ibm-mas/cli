@@ -82,7 +82,7 @@ mainGroup.add_argument(
 
 # Group configs by (groupName, argName) to deduplicate and aggregate packages
 arg_map = defaultdict(list)
-for group, argName, packageName, versionKey in PACKAGE_CONFIGS:
+for group, argName, packageName, versionKey, has_HelmCharts in PACKAGE_CONFIGS:
     arg_map[(group, argName)].append(packageName)
 
 # Now create arguments with deduplicated argNames and aggregated package lists
