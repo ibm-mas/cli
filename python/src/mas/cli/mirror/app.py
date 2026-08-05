@@ -1086,7 +1086,7 @@ class MirrorApp(BaseApp):
 
         # Mirror each package with common parameters using shared configuration
         currentGroup = None
-        for group, argName, packageName, catalogKey in PACKAGE_CONFIGS:
+        for group, argName, packageName, catalogKey, has_HelmCharts in PACKAGE_CONFIGS:
             # Print section header when group changes
             if group != currentGroup:
                 self.printH1(group)
@@ -1159,22 +1159,15 @@ class MirrorApp(BaseApp):
                 if not packageResult.success:
                     failedMirrors.append(packageResult)
 
-        # Mirror Helm charts for CPD packages (CPD 5.2.0+ only)
-        # Map of CASE bundle name → catalog version key for chart-bearing CPD bundles.
-        # Mirrors the casectl_resolve_charts=true bundles in mirror_dependencies.yml.
-        CHART_CASE_CATALOG_KEYS = [
-            # (caseName, catalogVersionKey, argName)
-            ("ibm-cp-datacore", "cp4d_platform_version", "cp4d-platform"),
-            ("ibm-ccs", "ccs_build", "cp4d-platform"),  # ccs ships with platform
-            ("ibm-opencontent-opensearch", "opensearch_version", "cp4d-platform"),  # opensearch ships with platform
-            ("ibm-wsl", "wsl_version", "cp4d-wsl"),
-            ("ibm-datarefinery", "datarefinery_version", "cp4d-wsl"),
-            ("ibm-wsl-runtimes", "wsl_runtimes_version", "cp4d-wsl"),
-            ("ibm-wml-cpd", "wml_version", "cp4d-wml"),
-            ("ibm-redis-cp", "redis_version", "cp4d-wml"),  # redis ships with wml
-            ("ibm-analyticsengine", "spark_version", "cp4d-spark"),
-            ("ibm-cognos-analytics-prod", "cognos_version", "cp4d-cognos"),
-        ]
+        # Mirror Helm charts for CPD packages (CPD 5.2.0+ only).
+        # Derived from PACKAGE_CONFIGS — has_HelmCharts=True marks chart-bearing CASEs.
+        # To add/remove a CASE from helm chart mirroring, update config.py only.
+        seen: set = set()
+        CHART_CASE_CATALOG_KEYS = []
+        for _section, argName, packageName, catalogKey, has_HelmCharts in PACKAGE_CONFIGS:
+            if has_HelmCharts and packageName not in seen:
+                CHART_CASE_CATALOG_KEYS.append((packageName, catalogKey, argName))
+                seen.add(packageName)
 
         # Gate: only run if cpd_product_version_default >= 5.2.0
         cpdVersionRaw = catalog.get("cpd_product_version_default", "")
