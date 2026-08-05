@@ -257,11 +257,7 @@ spec:
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
         export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${AISERVICE_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
 
-        # Pass Slack values from secure-properties through to the downstream FVT preparer/setup flow
-        export FVT_SLACK_TOKEN=${SLACK_TOKEN}
-        export FVT_SLACK_CHANNEL=${SLACK_CHANNEL}
-
-        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
+        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
         . $CLI_DIR/functions/gitops_utils
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
