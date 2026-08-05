@@ -12,8 +12,6 @@
 # has_HelmCharts=True for CPD CASE bundles that ship Helm charts.
 # These are the only packages for which helm pull/push runs during mirroring.
 PACKAGE_CONFIGS = [
-    ("Cloud Pak for Data - Platform", "cp4d-platform", "ibm-opensearch-operator", "opensearch_version"),
-    ("Cloud Pak for Data - Spark", "cp4d-spark", "ibm-analyticsengine", "spark_version"),
     ("Required Dependencies", "sls", "ibm-sls", "sls_version", False),
     ("Required Dependencies", "tsm", "ibm-truststore-mgr", "tsm_version", False),
     ("Optional Dependencies", "amlen", "amlen", "amlen_extras_version", False),
@@ -44,9 +42,11 @@ PACKAGE_CONFIGS = [
     ("Cloud Pak for Data - Platform", "cp4d-platform", "ibm-cloud-native-postgresql", "postgress_version", False),
     ("Cloud Pak for Data - Platform", "cp4d-platform", "ibm-datarefinery", "datarefinery_version", True),
     ("Cloud Pak for Data - Platform", "cp4d-platform", "ibm-elasticsearch-operator", "elasticsearch_version", False),
+    ("Cloud Pak for Data - Platform", "cp4d-platform", "ibm-opensearch-operator", "opensearch_version", False),
     ("Cloud Pak for Data - Platform", "cp4d-platform", "ibm-opencontent-opensearch", "opensearch_version", True),
     ("Cloud Pak for Data - WSL", "cp4d-wsl", "ibm-wsl", "wsl_version", True),
     ("Cloud Pak for Data - WSL", "cp4d-wsl", "ibm-wsl-runtimes", "wsl_runtimes_version", True),
+    ("Cloud Pak for Data - WML", "cp4d-wml", "ibm-wml-cpd", "wml_version", True),
     ("Cloud Pak for Data - WML", "cp4d-wml", "ibm-redis-cp", "redis_version", True),
     ("Cloud Pak for Data - Spark", "cp4d-spark", "ibm-analyticsengine", "spark_version", True),
     ("Cloud Pak for Data - Cognos", "cp4d-cognos", "ibm-cognos-analytics-prod", "cognos_version", True),
