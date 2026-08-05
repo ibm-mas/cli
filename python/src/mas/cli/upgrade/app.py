@@ -151,6 +151,8 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.licenseAccepted = args.accept_license
         self.nextChannel = args.next_channel
         self.devMode = args.dev_mode
+        if args.skip_compatibility_check:
+            self.setParam("skip_compatibility_check", "True")
         self.applyPreInstallMASRBAC = False
         self.selectedAppsForRBAC = []
 
@@ -196,6 +198,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             )
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
+        if currentChannel and currentChannel.endswith("-dev"):
+            self.setParam("skip_compatibility_check", "True")
+            logger.info(f"Dev channel detected ({currentChannel}): auto-enabling skip_compatibility_check")
         if currentChannel is not None:
             if self.devMode:
                 # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
@@ -212,8 +217,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                                 f"Retrying upgrade to {self.nextChannel} — apps may still need to be upgraded.</LightSlateGrey>"
                             )
                         )
-                    elif self.nextChannel == self.upgrade_path.get(currentChannel):
-                        # Valid upgrade path: currentChannel -> nextChannel
+                    elif self.nextChannel == self.upgrade_path.get(currentChannel) or self.nextChannel in self.upgrade_path_alternatives.get(
+                        currentChannel, []
+                    ):
+                        # Valid upgrade path: currentChannel -> nextChannel (default or alternative)
                         pass
                     else:
                         self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
