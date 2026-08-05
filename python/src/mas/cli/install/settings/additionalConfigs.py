@@ -212,14 +212,13 @@ class AdditionalConfigsMixin:
 
     def aiserviceConfig(self) -> None:
         self.aiserviceConfigSecret = None
+        aiserviceConfigSecret: dict[str, Any] = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-aiservice-config"}}
 
         if self.aiserviceTenantSchedulingConfigFileLocal:
-            aiserviceConfigSecret: dict[str, Any] = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-aiservice-config"}}
             self.setParam("tenant_scheduling_config_file", f"/workspace/aiservice/{path.basename(self.aiserviceTenantSchedulingConfigFileLocal)}")
             self.aiserviceConfigSecret = self.addFilesToSecret(aiserviceConfigSecret, self.aiserviceTenantSchedulingConfigFileLocal, "yaml")
 
         if self.aiserviceTenantOperatorConfigFileLocal:
-            aiserviceConfigSecret: dict[str, Any] = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque", "metadata": {"name": "pipeline-aiservice-config"}}
             self.setParam("tenant_operator_config_file", f"/workspace/aiservice/{path.basename(self.aiserviceTenantOperatorConfigFileLocal)}")
             self.aiserviceConfigSecret = self.addFilesToSecret(aiserviceConfigSecret, self.aiserviceTenantOperatorConfigFileLocal, "yaml")
 
