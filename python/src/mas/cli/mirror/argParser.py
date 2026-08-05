@@ -91,7 +91,7 @@ for groupName, groupItems in groupby(PACKAGE_CONFIGS, key=lambda x: x[0]):
     # Track which argNames we've already added to this group
     added_args = set()
 
-    for group, argName, packageName, _ in groupItems:
+    for group, argName, packageName, _, _has_HelmCharts in groupItems:
         if argName not in added_args:
             added_args.add(argName)
             # Get all package names for this argName
