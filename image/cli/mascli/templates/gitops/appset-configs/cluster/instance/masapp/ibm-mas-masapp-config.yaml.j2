@@ -61,7 +61,9 @@ public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
 {% endif %}
 
 {% if MAS_MANUAL_CERT_MGMT == 'true' and MANUAL_CERT_APP_HAS_CERT == 'true' %}
+{% if MANUAL_CERT_APP_HAS_CA == 'true' %}
 ca_cert: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/{{ MAS_APP_ID }}#ca_crt>
+{% endif %}
 tls_cert: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/{{ MAS_APP_ID }}#tls_crt>
 tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/{{ MAS_APP_ID }}#tls_key>
 {% endif %}

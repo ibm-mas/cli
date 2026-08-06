@@ -871,11 +871,19 @@ function gitops_suite() {
           secret_json=$(printf '{"tls_crt":"%s","tls_key":"%s","ca_crt":"%s"}' \
             "${tls_crt}" "${tls_key}" "${ca_crt}")
           sm_update_secret "${secret_name}" "${secret_json}" "${CERT_TAGS}"
-          # Export a per-app flag so the Jinja2 template knows to emit the ref.
+          # Export per-app flags so the Jinja2 template knows which keys to emit.
+          # tls_crt/tls_key are always present when the secret is written.
+          # ca_crt gets its own flag since it is often absent.
           export "MANUAL_CERT_APP_${app}=true"
+          if [[ -n "${ca_crt}" ]]; then
+            export "MANUAL_CERT_APP_${app}_HAS_CA=true"
+          else
+            export "MANUAL_CERT_APP_${app}_HAS_CA=false"
+          fi
           echo " - manual cert secret written for app: ${app} -> ${secret_name}"
         else
           export "MANUAL_CERT_APP_${app}=false"
+          export "MANUAL_CERT_APP_${app}_HAS_CA=false"
           echo " - no manual cert for app: ${app} (skipping secret)"
         fi
       done

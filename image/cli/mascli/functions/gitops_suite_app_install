@@ -436,6 +436,7 @@ function gitops_suite_app_install() {
   if [ "${MAS_MANUAL_CERT_MGMT}" == "true" ] ; then
     export SECRET_NAME_MANUAL_CERTS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manual_certs"
     export MANUAL_CERT_APP_HAS_CERT="false"
+    export MANUAL_CERT_APP_HAS_CA="false"
 
     if [[ -n "$MAS_MANUAL_CERTS_YAML" ]] && [[ -s "$MAS_MANUAL_CERTS_YAML" ]]; then
       declare -A tls_secret_name
@@ -467,6 +468,7 @@ function gitops_suite_app_install() {
           sm_update_secret "${secret_name}" "${secret_json}" "${cert_tags}"
           export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
           export MANUAL_CERT_APP_HAS_CERT="true"
+          [[ -n "${ca_crt}" ]] && export MANUAL_CERT_APP_HAS_CA="true"
           echo " - manual cert secret written for app: ${MAS_APP_ID} -> ${secret_name}"
         else
           echo " - no manual cert for app: ${MAS_APP_ID} (skipping secret)"

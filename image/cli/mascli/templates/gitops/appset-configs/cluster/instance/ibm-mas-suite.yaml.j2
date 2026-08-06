@@ -63,7 +63,9 @@ ibm_mas_suite:
 {%- endif %}
 
 {%- if MAS_MANUAL_CERT_MGMT == 'true' and MANUAL_CERT_APP_core == 'true' %}
+{%- if MANUAL_CERT_APP_core_HAS_CA == 'true' %}
   ca_cert: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#ca_crt>
+{%- endif %}
   tls_cert: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#tls_crt>
   tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#tls_key>
 {%- endif %}
@@ -83,47 +85,65 @@ ibm_mas_suite:
 {%- if MANUAL_CERT_APP_core == 'true' %}
     core_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#tls_crt>
     core_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#tls_key>
+{%- if MANUAL_CERT_APP_core_HAS_CA == 'true' %}
     core_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/core#ca_crt>
+{%- endif %}
 {%- endif %}
 {%- if MANUAL_CERT_APP_assist == 'true' %}
     assist_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/assist#tls_crt>
     assist_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/assist#tls_key>
+{%- if MANUAL_CERT_APP_assist_HAS_CA == 'true' %}
     assist_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/assist#ca_crt>
+{%- endif %}
 {%- endif %}
 {%- if MANUAL_CERT_APP_iot == 'true' %}
     iot_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/iot#tls_crt>
     iot_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/iot#tls_key>
+{%- if MANUAL_CERT_APP_iot_HAS_CA == 'true' %}
     iot_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/iot#ca_crt>
+{%- endif %}
 {%- endif %}
 {%- if MANUAL_CERT_APP_manage == 'true' %}
     manage_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/manage#tls_crt>
     manage_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/manage#tls_key>
+{%- if MANUAL_CERT_APP_manage_HAS_CA == 'true' %}
     manage_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/manage#ca_crt>
+{%- endif %}
 {%- endif %}
 {%- if MANUAL_CERT_APP_monitor == 'true' %}
     monitor_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/monitor#tls_crt>
     monitor_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/monitor#tls_key>
+{%- if MANUAL_CERT_APP_monitor_HAS_CA == 'true' %}
     monitor_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/monitor#ca_crt>
+{%- endif %}
 {%- endif %}
 {%- if MANUAL_CERT_APP_optimizer == 'true' %}
     optimizer_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/optimizer#tls_crt>
     optimizer_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/optimizer#tls_key>
+{%- if MANUAL_CERT_APP_optimizer_HAS_CA == 'true' %}
     optimizer_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/optimizer#ca_crt>
+{%- endif %}
 {%- endif %}
 {%- if MANUAL_CERT_APP_predict == 'true' %}
     predict_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/predict#tls_crt>
     predict_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/predict#tls_key>
+{%- if MANUAL_CERT_APP_predict_HAS_CA == 'true' %}
     predict_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/predict#ca_crt>
+{%- endif %}
 {%- endif %}
 {%- if MANUAL_CERT_APP_visualinspection == 'true' %}
     visualinspection_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/visualinspection#tls_crt>
     visualinspection_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/visualinspection#tls_key>
+{%- if MANUAL_CERT_APP_visualinspection_HAS_CA == 'true' %}
     visualinspection_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/visualinspection#ca_crt>
+{%- endif %}
 {%- endif %}
 {%- if MANUAL_CERT_APP_facilities == 'true' %}
     facilities_tls_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/facilities#tls_crt>
     facilities_tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/facilities#tls_key>
+{%- if MANUAL_CERT_APP_facilities_HAS_CA == 'true' %}
     facilities_ca_crt: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/facilities#ca_crt>
+{%- endif %}
 {%- endif %}
 {% endif %}
 
