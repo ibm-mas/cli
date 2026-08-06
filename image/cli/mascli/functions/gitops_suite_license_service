@@ -28,6 +28,7 @@ IBM Suite License Service:
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}                          IBM Suite License Service Subscription Channel
       --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}                IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
+      --mas-sls-pod-template-yaml ${COLOR_YELLOW}MAS_SLS_POD_TEMPLATE_YAML${TEXT_RESET}  SLS Pod Template YAML file
   -i  --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}                          IBM Customer Number
   -s  --subscription-id ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}                      Customer subscription id
       --domain ${COLOR_YELLOW}SLS_DOMAIN${TEXT_RESET}                                Domain for SLS to create route
@@ -177,6 +178,9 @@ function gitops_suite_license_service_noninteractive() {
       --internal-cert-authority)
         export INTERNAL_CERT_AUTHORITY=$1 && shift
         ;;
+      --mas-sls-pod-template-yaml)
+        export MAS_SLS_POD_TEMPLATE_YAML=$1 && shift
+        ;;
 
       # Other Commands
       -h|--help)
@@ -266,6 +270,7 @@ function gitops_suite_license_service() {
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
   fi
+  echo_reset_dim "SLS Pod Template YAML File ................. ${COLOR_MAGENTA}${MAS_SLS_POD_TEMPLATE_YAML}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -416,6 +421,10 @@ function gitops_suite_license_service() {
   
   # FIX THIS => SLS POD TEMPLATES?
   # ---------------------------------------------------------------------------
+  if [[ -n "$MAS_SLS_POD_TEMPLATE_YAML" && -s "$MAS_SLS_POD_TEMPLATE_YAML" ]]; then
+    export SLS_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SLS_POD_TEMPLATE_YAML})
+    echo -e "\n - SLS_POD_TEMPLATE CONTENT .................. ${SLS_POD_TEMPLATE}"
+  fi
 
 
   # Generate ArgoApps
@@ -425,7 +434,7 @@ function gitops_suite_license_service() {
 
   echo "- IBM Suite License Service"
   
-  jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/sls/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml 
+  jinjanate --quiet --undefined --import-env='' -D SLS_POD_TEMPLATE="${SLS_POD_TEMPLATE}" $CLI_DIR/templates/gitops/appset-configs/cluster/sls/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
