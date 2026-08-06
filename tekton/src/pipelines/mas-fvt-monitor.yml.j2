@@ -201,12 +201,51 @@ spec:
 
     # 3. New Parallel Monitor FVT Suites (9.1 and above)
     # -------------------------------------------------------------------------
-    # fvt_monitoronly runs first (creates default hierarchy: D_ORG, D_SITE_1, D_ASSET_1, D_LOCATION_1).
-    # Once it completes, the remaining 10 suites fan out in parallel (runAfter: fvt-monitoronly).
-    # Gated on mas_app_channel_monitor containing "9.1" or "9.2" (or later).
+    # fvt_hierarchy_setup runs first on ALL versions (9.1 and 9.2+).
+    # It creates Default + Pipeline hierarchies and device types so that all
+    # dependent suites find everything ready.
+    #
+    # Once fvt_hierarchy_setup completes, all other suites fan out in parallel
+    # (runAfter: fvt-hierarchy-setup), including fvt-monitoronly which is gated
+    # to 9.2+ only (@afterMON920) and handles CSV file ingest verification.
     # -------------------------------------------------------------------------
 
-    # fvt_monitoronly - File ingest and basic monitor-only verification
+    # fvt_hierarchy_setup - Version-agnostic hierarchy bootstrap (9.1 and 9.2+)
+    # Creates Default + Pipeline hierarchies, device types, devices, and assignments.
+    # Runs on ALL 9.1+ versions — no version gate.
+    - name: fvt-hierarchy-setup
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_monitor)
+        - name: fvt_test_suite
+          value: fvt_hierarchy_setup
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+      runAfter:
+        - fvt-health-check
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # fvt_monitoronly - CSV file ingest and 9.2-specific monitor-only verification
+    # Runs on Monitor 9.2+ only (gated by @afterMON920 inside the suite).
     - name: fvt-monitoronly
       params:
         - name: mas_instance_id
@@ -233,7 +272,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-health-check
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -265,7 +304,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -297,7 +336,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -329,7 +368,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -361,7 +400,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -393,7 +432,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -425,7 +464,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -457,7 +496,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -489,7 +528,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -521,7 +560,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -553,7 +592,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -585,7 +624,7 @@ spec:
           operator: notin
           values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
       runAfter:
-        - fvt-monitoronly
+        - fvt-hierarchy-setup
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -596,6 +635,7 @@ spec:
       runAfter:
         - fvt-health-check
         - fvt-monitor-with-manage
+        - fvt-hierarchy-setup
         - fvt-monitoronly
         - fvt-core-devicetype
         - fvt-core-device
