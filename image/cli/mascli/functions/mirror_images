@@ -65,7 +65,8 @@ function mirror_everything() {
     MIRROR_WML=true
     MIRROR_SPARK=true
     MIRROR_COGNOS=true
-    
+    MIRROR_SERVICEMESH=true
+
     # CLI
     MIRROR_CLI=true
 
@@ -103,6 +104,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_COGNOS=false
   MIRROR_ODF=false
   MIRROR_CLI=false
+  MIRROR_SERVICEMESH=false
 
   while [[ $# -gt 0 ]]
   do
@@ -224,6 +226,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-odf)
         MIRROR_ODF=true
+        ;;
+      --mirror-servicemesh)
+        MIRROR_SERVICEMESH=true
         ;;
 
       # Content Selection (Cloud Pak for Data)
@@ -521,6 +526,7 @@ function mirror_to_registry() {
   show_mirror_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
   show_mirror_status "OpenShiftAi ........................." $MIRROR_OPENSHIFTAI
   show_mirror_status "IBM Maximo CLI ......................" $MIRROR_CLI
+  show_mirror_status "Red Hat Service Mesh ................" $MIRROR_SERVICEMESH
 
   confirm_mirror
 
@@ -535,4 +541,5 @@ function mirror_to_registry() {
   mirror_one_thing $MIRROR_MAS_FACILITIES       "IBM Maximo Facilities"                 "$LOG_PREFIX-facilities.log"       mirror_add_facilities
   mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
   mirror_one_thing $MIRROR_CLI                  "IBM Maximo CLI"                        "$LOG_PREFIX-cli.log"              mirror_cli
+  mirror_one_thing $MIRROR_SERVICEMESH          "Red Hat Service Mesh"                  "$LOG_PREFIX-servicemesh.log"      mirror_add_servicemesh
 }
