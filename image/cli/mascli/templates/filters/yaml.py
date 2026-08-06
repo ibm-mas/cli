@@ -15,3 +15,8 @@ def to_nice_yaml(value, indent: int = 2) -> str:
 # Parse a JSON string into a Python object
 def from_json(value: str):
     return json.loads(value)
+
+
+# Serialize a Python object to a compact JSON string
+def tojson(value) -> str:
+    return json.dumps(value, separators=(",", ":"))

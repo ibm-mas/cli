@@ -135,5 +135,5 @@ db2_backup_icd_auth_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_ICD_A
 
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
 allow_list:
-  ips: "{{ ALLOW_LIST | from_json | join(',') if ALLOW_LIST.startswith('[') else ALLOW_LIST }}"
+  ips: {{ (ALLOW_LIST | from_json) | tojson if ALLOW_LIST.startswith('[') else ALLOW_LIST.split(',') | tojson }}
 {% endif %}
