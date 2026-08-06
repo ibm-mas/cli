@@ -68,3 +68,4 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade
 ```bash
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade --mas-instance-id inst1 --no-confirm
 ```
+# testing of suite_upgrade role
