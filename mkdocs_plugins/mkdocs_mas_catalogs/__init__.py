@@ -171,14 +171,20 @@ spec:
 """
 
         # Build the table header
-        table_html = """<table class="compatabilityMatrix">
+        table_html = """The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, any support dates stated refer to the EUS1 end dates.
+
+For more details refer to the [OCP lifecycle policy](https://access.redhat.com/support/policy/updates/openshift).  Also note that non-EUS release support expires before the extended support for the previous EUS release, for example extended support for OCP 4.18 expires on Feb 25, 2027, while standard support for OCP 4.17 expires on April 1, 2026.
+
+<table class="compatabilityMatrix">
   <tr>
     <th>OCP</th><td rowspan="{}" class="spacer"></td>
     <th>General Availability</th>
     <th>Standard Support</th>
     <th>Extended Support</th>
   </tr>
-""".format(len(ocp_versions) + 1)
+""".format(
+            len(ocp_versions) + 1
+        )
 
         # Add rows for each OCP version
         ocp_data = ocp_lifecycle_data.get("ocp_versions", {})
