@@ -114,6 +114,10 @@ function provision_roks_noninteractive() {
       --install-kiali)
         INSTALL_KIALI=true
         ;;
+      # Enable RHOAI
+      --install-rhoai)
+        ocp_enable_rhoai=true
+        ;;
       # Other options
       --no-confirm)
         NO_CONFIRM=true
