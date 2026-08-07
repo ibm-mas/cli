@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-efs
@@ -19,7 +19,6 @@ spec:
       type: string
       default: aws
   stepTemplate:
-    name: gitops-deprovision-efs
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -65,7 +64,7 @@ spec:
 
         # Additional PER MAS instance/dependency EFS instances
         # --skip-delete-storage-class is specified for these as the StorageClasses for these EFS instances are managed by ArgoCD
-        
+
         mas gitops-deprovision-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
           --cloud-provider $CLOUD_PROVIDER \
           --aws-region $SM_AWS_REGION \
@@ -125,7 +124,7 @@ spec:
         - -c
       name: gitops-deprovision-efs
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
 

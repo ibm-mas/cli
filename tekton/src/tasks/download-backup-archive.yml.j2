@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-devops-download-backup-archive
@@ -19,7 +19,7 @@ spec:
     - name: mas_instance_id
       type: string
       description: Instance ID
-    
+
     # Archives specific parameters
     - name: include_mongo_archive
       type: string
@@ -91,7 +91,7 @@ spec:
         value: $(params.restore_version)
       - name: BACKUP_ARCHIVE_NAME
         value: $(params.backup_archive_name)
-      
+
       # Archive specific
       - name: INCLUDE_MONGO_ARCHIVE
         value: $(params.include_mongo_archive)
@@ -129,7 +129,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - download_backup_archive
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/backups
 

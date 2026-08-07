@@ -69,6 +69,7 @@ Content Selection (Other Dependencies):
       --mirror-mongo-v7                           Mirror images for MongoDb Community Edition version 7
       --mirror-db2                                Mirror images for IBM Db2
       --mirror-odf                                Mirror images for ODF
+      --mirror-cli                                Mirror images for IBM Maximo CLI
 
 Content Selection (All images included):
       --mirror-everything                         Mirror all MAS related images (including dependencies)

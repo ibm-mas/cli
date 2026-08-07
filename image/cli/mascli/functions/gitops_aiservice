@@ -72,6 +72,7 @@ function gitops_aiservice_noninteractive() {
   #adding default values 
   export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
+  export IS_GITOPS_FVT_ENV=${IS_GITOPS_FVT_ENV:-"false"}
   export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed  
   export JDBC_SECRET=${JDBC_SECRET:-"aiservice-jdbc-secret"}
   export USE_AWS_DB2=${USE_AWS_DB2:-"false"}  # Default to "false", can be set to "true" if needed
@@ -136,6 +137,9 @@ function gitops_aiservice_noninteractive() {
       --in-saas-env)
           export IN_SAAS_ENV=$1 && shift
         ;;
+      --is-gitops-fvt-env)
+        export IS_GITOPS_FVT_ENV=$1 && shift
+        ;;  
       --is-external-route)
           export IS_EXTERNAL_ROUTE=$1 && shift
         ;;
@@ -248,6 +252,12 @@ function gitops_aiservice_noninteractive() {
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aiservice_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_suite_help "CLUSTER_URL is not set"
   
+  # CLUSTER_DOMAIN is optional - if not provided, it should be set by the calling Tekton task
+  # by reading from cluster-params.yaml before invoking this function
+  if [[ -z "$CLUSTER_DOMAIN" ]]; then
+    echo_warning "CLUSTER_DOMAIN is not set - it should be provided by the Tekton task or set manually"
+  fi
+  
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_aiservice_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_aiservice_help "GITHUB_ORG is not set"
@@ -260,7 +270,6 @@ function gitops_aiservice_noninteractive() {
 # -- aiservice
   [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aiservice_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Service instance ID using --aiservice_instance_id."
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aiservice_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
-  [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aiservice_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aiservice_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
   [[ -z "$AISERVICE_CHANNEL" ]] && gitops_aiservice_help "AISERVICE_CHANNEL is not set. Please provide the mas app channel using --aiservice-channel"
   [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aiservice_help "MAS_CATALOG_SOURCE is not set. Please provide the mas catalog source using --mas-catalog-source"
@@ -272,6 +281,44 @@ function gitops_aiservice_noninteractive() {
   [[ -z "$JDBC_SECRET" ]] && gitops_aiservice_help "JDBC_SECRET is not set. Please specify the JDBC secret name using --jdbc-secret."
   [[ -z "$USE_AWS_DB2" ]] && gitops_aiservice_help "USE_AWS_DB2 is not set. Please specify if using AWS hosted DB2 using --use-aws-db2."
 
+}
+
+function gitops_aiservice_fvt_prepare() {
+
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
+
+  WATSONXAI_APIKEY=${WATSONXAI_APIKEY:-"watsonxai-apikey"}
+  WATSONXAI_PROJECT_ID=${WATSONXAI_PROJECT_ID:-"watsonxai-project-id"}
+
+  SECRET_NAME_WATSONXAI=${SECRETS_PREFIX}watsonx
+
+  TAGS="[{\"Key\": \"watsonxai_apikey\", \"Value\": \"watsonxai_apikey\"}, {\"Key\": \"watsonxai_project_id\", \"Value\": \"watsonxai_project_id\"}]"
+  
+  sm_update_secret \
+    "$SECRET_NAME_WATSONXAI" \
+    "{\"watsonxai_apikey\":\"$WATSONXAI_APIKEY\",\"watsonxai_project_id\":\"$WATSONXAI_PROJECT_ID\"}" \
+    "$TAGS" || {
+      echo "Failed to update WatsonX secret"
+      return 1
+    }
+
+  SM_S3_ACCESSKEY=${SM_S3_ACCESSKEY:-"sm_s3_accesskey"}
+  SM_S3_SECRETKEY=${SM_S3_SECRETKEY:-"sm_s3_secretkey"}
+  SM_S3_HOST=${SM_S3_HOST:-"sm_s3_host"}
+  SM_S3_REGION=${SM_S3_REGION:-"sm_s3_region"}
+
+  SECRET_NAME_S3=${SECRETS_PREFIX}s3
+  TAGS="[{\"Key\": \"sm_s3_accesskey\", \"Value\": \"sm_s3_accesskey\"}, {\"Key\": \"sm_s3_secretkey\", \"Value\": \"sm_s3_secretkey\"}, {\"Key\": \"sm_s3_host\", \"Value\": \"sm_s3_host\"}, {\"Key\": \"sm_s3_region\", \"Value\": \"sm_s3_region\"}]"
+  
+  sm_update_secret \
+    "$SECRET_NAME_S3" \
+    "{\"sm_s3_accesskey\":\"$SM_S3_ACCESSKEY\",\"sm_s3_secretkey\":\"$SM_S3_SECRETKEY\",\"sm_s3_host\":\"$SM_S3_HOST\",\"sm_s3_region\":\"$SM_S3_REGION\"}" \
+    "$TAGS" || {
+      echo "Failed to update S3 secret"
+      return 1
+    }
+
+  echo "AI Service FVT secret creating function end"
 }
 
 function gitops_aiservice() {
@@ -353,6 +400,7 @@ function gitops_aiservice() {
   echo_reset_dim "Is External Route ...................... ${COLOR_MAGENTA}${IS_EXTERNAL_ROUTE}"
   echo_reset_dim "JDBC Secret ............................ ${COLOR_MAGENTA}${JDBC_SECRET}"
   echo_reset_dim "Use AWS DB2 ............................ ${COLOR_MAGENTA}${USE_AWS_DB2}"
+  echo_reset_dim "Is GitOps FVT ENV ............................ ${COLOR_MAGENTA}${IS_GITOPS_FVT_ENV}"
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
@@ -382,9 +430,18 @@ function gitops_aiservice() {
   export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_url,dro_ca_b64enc"
-  sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
-  sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca_b64enc"
+
+  # Skip DRO, S3, and JDBC secret validation in FVT environments
+  # These secrets will be created by postSync jobs after deployment
+  if [[ "${IS_GITOPS_FVT_ENV}" != "true" ]]; then
+    sm_verify_secret_exists ${SECRETS_PREFIX}dro "dro_api_token,dro_url,dro_ca_b64enc"
+    sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
+    sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca_b64enc"
+  else
+    echo "IS_GITOPS_FVT_ENV is true - Skipping DRO, S3, and JDBC secret validation"
+
+    gitops_aiservice_fvt_prepare
+  fi
 
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
@@ -417,8 +474,11 @@ function gitops_aiservice() {
 
     echo "Generating aiservice file ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aiservice.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml
+# Note: DB2 database configuration is now generated by the gitops-db2u task
+# which runs before this task in the pipeline. This ensures DB2 files are
+# pushed to git before AI Service files, allowing ArgoCD to respect sync waves.
 
-    # Commit and push to github target repo
+# Commit and push to github target repo
     # ---------------------------------------------------------------------------
     if [ "$GITHUB_PUSH" == "true" ]; then
       echo

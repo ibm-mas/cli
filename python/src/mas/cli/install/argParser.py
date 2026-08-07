@@ -13,6 +13,7 @@ from os import path
 
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
+from .facilities.agents import facilitiesAgents, facilitiesAgentsDeploymentModes
 
 # Constants for argument choices
 DNS_PROVIDERS = ["cloudflare", "cis", "route53"]
@@ -123,7 +124,7 @@ masAdvancedArgGroup.add_argument(
 masAdvancedArgGroup.add_argument(
     "--pod-templates",
     required=False,
-    help="Path to directory containing custom podTemplates configuration files to be applied",
+    help="Pod templates to apply. Use 'guaranteed' or 'best-effort' for built-in templates, or provide a path to a directory containing custom podTemplates configuration files",
 )
 masAdvancedArgGroup.add_argument(
     "--non-prod",
@@ -819,6 +820,14 @@ facilitiesArgGroup.add_argument(
     default=50,
 )
 facilitiesArgGroup.add_argument(
+    "--facilities-server-timezone",
+    dest="mas_ws_facilities_server_timezone",
+    required=False,
+    help="Facilities servers timezone",
+    type=str,
+    default="UTC",
+)
+facilitiesArgGroup.add_argument(
     "--facilities-properties-file",
     dest="mas_ws_facilities_properties_file_local",
     required=False,
@@ -831,7 +840,15 @@ facilitiesArgGroup.add_argument(
     help="Custom name for the Facilities properties secret (default: facilities-properties)",
     default="custom-facilities-properties",
 )
-
+for agent in facilitiesAgents:
+    facilitiesArgGroup.add_argument(
+        f"--facilities-{agent}-deploymentmode",
+        dest=f"mas_ws_facilities_{agent}_deploymentmode",
+        required=False,
+        help=f"Facilities agent {agent} deployment mode",
+        default="",
+        choices=facilitiesAgentsDeploymentModes[agent],
+    )
 # Open Data Hub
 # -----------------------------------------------------------------------------
 odhArgGroup = installArgParser.add_argument_group("Open Data Hub")
@@ -1170,13 +1187,46 @@ db2ArgGroup.add_argument(
     const="install",
 )
 db2ArgGroup.add_argument(
+    "--db2-aiservice",
+    dest="db2_action_aiservice",
+    required=False,
+    help="Install a dedicated Db2u instance for Maximo AI Service (supported by AI Service)",
+    action="store_const",
+    const="install",
+)
+db2ArgGroup.add_argument(
+    "--aiservice-db-jdbc-url",
+    dest="aiservice_db_jdbc_url",
+    required=False,
+    help="JDBC URL for external database (Oracle, SQL Server, or external DB2) for AI Service",
+)
+db2ArgGroup.add_argument(
+    "--aiservice-db-username",
+    dest="aiservice_db_username",
+    required=False,
+    help="Username for external database connection for AI Service",
+)
+db2ArgGroup.add_argument(
+    "--aiservice-db-password",
+    dest="aiservice_db_password",
+    required=False,
+    help="Password for external database connection for AI Service",
+)
+db2ArgGroup.add_argument(
+    "--aiservice-db-ca-cert",
+    dest="aiservice_db_ca_cert",
+    required=False,
+    help="CA certificate for external database connection (PEM format, optional) for AI Service",
+)
+db2ArgGroup.add_argument(
     "--db2-type",
     required=False,
     help="Type of Manage dedicated Db2u instance (default: db2wh)",
     choices=DB2_TYPES,
     metavar="{db2wh,db2oltp}",
 )
-db2ArgGroup.add_argument("--db2-timezone", required=False, help="Timezone for Db2 instance")
+db2ArgGroup.add_argument("--db2-timezone", required=False, help="Timezone for System and Dedicated Manage Instances")
+db2ArgGroup.add_argument("--db2-facilities-timezone", required=False, help="Timezone for Dedicated Facilities Instance")
 db2ArgGroup.add_argument("--db2-license-file", required=False, help="Db2 License File for Db2")
 db2ArgGroup.add_argument("--db2-affinity-key", required=False, help="Set a node label to declare affinity to")
 db2ArgGroup.add_argument(

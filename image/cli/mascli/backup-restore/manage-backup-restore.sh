@@ -34,13 +34,23 @@ function backupResources {
         specYaml=`(echo "$resourceYaml" | yq .spec)`
 		
 	secretList=`(echo "$specYaml" | yq '[.. | select(has("secretName"))]')`
-	echo "secretList are $secretList"
+	if [ "$secretList" != "[]" ]; then
+	    echo "Found secrets to backup:"
+	    echo "$secretList" | yq -r '.[] | "  - " + .secretName'
+	else
+	    echo "No secrets found to backup"
+	fi
 	numberOfSecrets=`(echo "$secretList" | yq 'length')`
 	for (( j = 0; j < $numberOfSecrets; j++ ))
 	do
 	    secretName=`(echo "$secretList" | yq .[$j].secretName)`
-	    echo "secret $secret"
-	    backupSingleResource Secret $secretName $NAMESPACE
+	    # Skip empty or null secret names
+	    if [ -n "$secretName" ] && [ "$secretName" != "null" ]; then
+	        echo "Processing secret: $secretName"
+	        backupSingleResource Secret $secretName $NAMESPACE
+	    else
+	        echo "Skipping empty or null secret name"
+	    fi
 	done
 
         echo "Saving "$resourceKind" named $resourceName to $BACKUP_FOLDER/$resourceKind-$resourceName.yaml"

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-kafka
@@ -35,7 +35,6 @@ spec:
       default: ""
 
   stepTemplate:
-    name: gitops-kafka
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -77,14 +76,14 @@ spec:
           vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs)
         fi
         export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
-        
+
         if [ -z "$VPC_ID" ]; then
           echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
           exit 1
         fi
 
         echo "VPC of $VPC_ID found for $CLUSTER_NAME"
-        
+
         aws ec2 associate-vpc-cidr-block \
         --vpc-id $VPC_ID \
         --cidr-block 10.1.0.0/23
@@ -110,6 +109,6 @@ spec:
         - -c
       name: gitops-kafka
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

@@ -146,6 +146,23 @@ s3_iam_users_list_backup_iot = {
 }
 #RDS S3 iot Backup related params ends
 {%- endif %}
+{%- if (RDS_MONITOR | lower == 'true') %}
+#RDS S3 monitor AUDIT LOG related params starts
+s3_iam_users_list_audit_log_monitor = {
+    audit_log  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-monitor"
+    }
+}
+#RDS S3 monitor AUDIT LOG related params ends
+
+#RDS S3 monitor Backup related params starts
+s3_iam_users_list_backup_monitor = {
+    backup  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-backup-monitor"
+    }
+}
+#RDS S3 monitor Backup related params ends
+{%- endif %}
 {%- if (RDS_FACILITIES | lower == 'true') %}
 #RDS S3 FACILITIES AUDIT LOG related params starts
 s3_iam_users_list_audit_log_facilities = {

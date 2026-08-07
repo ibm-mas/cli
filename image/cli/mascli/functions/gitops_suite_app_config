@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-
-
 function gitops_suite_app_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -57,6 +55,13 @@ Maximo Manage:
       --mas-app-global-secrets-yaml ${COLOR_YELLOW}MAS_APP_GLOBAL_SECRETS_YAML${TEXT_RESET}               Yaml file location containing secret key/values that will be added to the Manage encryption secret
       --manage-update-schedule ${COLOR_YELLOW}MANAGE_UPDATE_SCHEDULE${TEXT_RESET}                         Cron based schedule to indicate when manage will do the offline update when the onlineUpgrade is set in the ManageWorkspace CR. Optional as default is  "0 0 * * *"
 
+SLS License Configuration (only one required, checked in this order):
+      --sls-license-icn ${COLOR_YELLOW}SLS_LICENSE_ICN${TEXT_RESET}                                       IBM customer number (checked first)
+      --license-file ${COLOR_YELLOW}LICENSE_FILE${TEXT_RESET}                                             Path to SLS license file to extract ICN from (checked second)
+      --centralized-sls-service ${COLOR_YELLOW}CENTRALIZED_SLS_SERVICE${TEXT_RESET}                       Secrets Manager reference path to centralized SLS service (checked third)
+                                                                                                           Format: <ref:account/cluster/instance/ICN/sls-service-name>
+                                                                                                           Example: <ref:aws/us-east-1/prod-cluster/12345678/sls-entitlement>
+
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                             Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                           Secrets Manager key seperator string
@@ -78,7 +83,7 @@ EOM
 
 function gitops_suite_app_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
+  export SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-suite-app-config commit"
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
@@ -177,6 +182,17 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       --manage-update-schedule)
         export MANAGE_UPDATE_SCHEDULE=$1 && shift
+        ;;
+      
+      # SLS License Configuration
+      --sls-license-icn)
+        export SLS_LICENSE_ICN=$1 && shift
+        ;;
+      --license-file)
+        export LICENSE_FILE=$1 && shift
+        ;;
+      --centralized-sls-service)
+        export CENTRALIZED_SLS_SERVICE=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -350,6 +366,76 @@ function gitops_suite_app_config() {
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
+  # Resolve ICN for customer-level secrets (required for Facilities MREF password)
+  # ---------------------------------------------------------------------------
+  # ICN must be provided via environment variables from the saas-deploy-py pipeline:
+  # 1. SLS_LICENSE_ICN (pre-configured) - highest priority
+  # 2. SLS_SERVICE (centralized SLS) - extract from path
+  # 3. LICENSE_FILE or SLS_LICENSE_FILE - extract from license file content
+  # 4. Environment variable ICN (if already set)
+  
+  echo "=== ICN EXTRACTION DEBUG ==="
+  echo "SLS_LICENSE_ICN=${SLS_LICENSE_ICN}"
+  echo "CENTRALIZED_SLS_SERVICE=${CENTRALIZED_SLS_SERVICE}"
+  echo "LICENSE_FILE=${LICENSE_FILE}"
+  echo "Current ICN value: ${ICN}"
+  echo "=== END DEBUG ==="
+  
+  # Use SLS_LICENSE_ICN if available (highest priority)
+  if [[ -z "${ICN}" ]] && [[ -n "${SLS_LICENSE_ICN}" ]]; then
+    echo "- Using SLS_LICENSE_ICN: ${SLS_LICENSE_ICN}"
+    ICN="${SLS_LICENSE_ICN}"
+  fi
+  
+  # Try CENTRALIZED_SLS_SERVICE if ICN not yet resolved (for centralized SLS)
+  if [[ -z "${ICN}" ]] && [[ -n "${CENTRALIZED_SLS_SERVICE}" ]]; then
+    echo "- Resolving ICN from CENTRALIZED_SLS_SERVICE: ${CENTRALIZED_SLS_SERVICE}"
+    CLEAN_PATH=$(echo "$CENTRALIZED_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+    echo "- Cleaned path: ${CLEAN_PATH}"
+    IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+    echo "- Path parts count: ${#PARTS[@]}"
+    echo "- Path parts: ${PARTS[*]}"
+    if [ ${#PARTS[@]} -ge 5 ]; then
+      ICN="${PARTS[3]}"
+      echo "- ICN extracted from position 3: ${ICN}"
+      echo "✓ ICN resolved from SLS service path: ${ICN}"
+    else
+      echo "⚠ Warning: CENTRALIZED_SLS_SERVICE path does not have expected format (need at least 5 parts)"
+    fi
+  fi
+  
+  # Try to extract ICN from license file (for standard SLS with license file)
+  if [[ -z "${ICN}" ]] && [[ -n "${LICENSE_FILE}" ]] && [[ -f "${LICENSE_FILE}" ]]; then
+    echo "- Attempting to extract ICN from license file: ${LICENSE_FILE}"
+    FILE_SIZE=$(stat -c%s "${LICENSE_FILE}" 2>/dev/null || stat -f%z "${LICENSE_FILE}" 2>/dev/null || echo "0")
+    if [[ "${FILE_SIZE}" -gt 0 ]]; then
+      ICN=$(grep -oP 'ICN:\K[0-9A-Za-z]+' "${LICENSE_FILE}" 2>/dev/null | head -1 || true)
+      if [[ -n "${ICN}" ]]; then
+        echo "- ICN extracted from license file: ${ICN}"
+      fi
+    else
+      echo "- WARNING: License file is empty (${FILE_SIZE} bytes), skipping extraction"
+    fi
+  fi
+  
+  export ICN=${ICN:-""}
+  
+  echo
+  echo "=== ICN RESOLUTION SUMMARY ==="
+  if [[ -n "${ICN}" ]]; then
+    echo "✓ ICN successfully resolved: ${ICN}"
+    echo "  This ICN will be used for customer-level secrets:"
+    echo "  - ibm-customer/${ICN}/facilities/manage-mref-keystore-password"
+    echo "  - ibm-customer/${ICN}/<app>/..."
+  else
+    echo "⚠ WARNING: ICN not available - customer-level secrets cannot be used"
+    echo "  ICN must be provided via one of:"
+    echo "  - SLS_LICENSE_ICN environment variable"
+    echo "  - CENTRALIZED_SLS_SERVICE path (centralized SLS)"
+    echo "  - LICENSE_FILE content (standard SLS)"
+  fi
+  echo "=== END SUMMARY ==="
+  echo
 
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
@@ -529,26 +615,51 @@ function gitops_suite_app_config() {
     fi # end if [[ "${MAS_APP_ID}" == "manage" ]]
 
     if [[ "${MAS_APP_ID}" == "facilities" ]]; then
-      # Although the name of the secret can be set in the CR, it is expected to be of the form <workspaceId>-facilities-vs--sn to allow the UI to work
-      export FACILITIES_VAULT_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.vaultSecret.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
-      export FACILITIES_VAULT_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}
-      if [[ -n "${FACILITIES_VAULT_SECRET_NAME}" ]]; then
-        if [ "$FACILITIES_VAULT_SECRET_NAME" != "${MAS_WORKSPACE_ID}-facilities-vs--sn" ]; then
-          echo "Error: Secret name $FACILITIES_VAULT_SECRET_NAME does not match ${MAS_WORKSPACE_ID}-facilities-vs--sn" 
-          exit 1
-        fi
-        sm_verify_secret_exists ${FACILITIES_VAULT_SECRET}${FACILITIES_VAULT_SECRET_NAME} "pwd" 
+      # MREF (Maximo Real Estate and Facilities) Customer-Level Secret Management
+      # ---------------------------------------------------------------------------
+      # Ensure ICN is available for customer-level secrets
+      if [[ -z "${ICN}" ]]; then
+        echo "ERROR: ICN is required for Facilities customer-level secrets"
+        echo "Please configure ICN via SLS_LICENSE_ICN, CENTRALIZED_SLS_SERVICE, or LICENSE_FILE"
+        exit 1
       fi
-
-      # Although the name of the secret can be set in the CR, it is expected to be of the form <workspaceId>-facilities-lexml--sn to allow the UI to work
-      export FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.libertyExtensionXML.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
-      export FACILITIES_LIBERTY_EXTENSIONS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}
-      if [[ -n "${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}" ]]; then
-        if [ "$FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME" != "${MAS_WORKSPACE_ID}-facilities-lexml--sn" ]; then 
-          echo "Error: Secret name $FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME does not match ${MAS_WORKSPACE_ID}-facilities-lexml--sn" 
+      
+      # Set customer-level secret path (without trailing separator)
+      export FACILITIES_VAULT_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities"
+      export FACILITIES_LIBERTY_EXTENSIONS_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities"
+      
+      # Get user-provided secret name from app spec (if any)
+      USER_PROVIDED_VAULT_SECRET=$(yq eval '.mas_appws_spec.settings.vaultSecret.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
+      USER_PROVIDED_LIBERTY_SECRET=$(yq eval '.mas_appws_spec.settings.libertyExtensionXML.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
+      
+      # Handle vault secret name
+      if [[ -n "${USER_PROVIDED_VAULT_SECRET}" ]]; then
+        # User provided a name - verify it exists
+        export FACILITIES_VAULT_SECRET_NAME="${USER_PROVIDED_VAULT_SECRET}"
+        echo "- Using user-provided vault secret name: ${FACILITIES_VAULT_SECRET_NAME}"
+        echo "- Verifying user-provided secret exists..."
+      else
+        # No user-provided name - use customer-level default
+        export FACILITIES_VAULT_SECRET_NAME="manage-mref-keystore-password"
+        echo "- Using customer-level vault secret name: ${FACILITIES_VAULT_SECRET_NAME}"
+        
+        # Ensure customer-level secret exists
+        manage_customer_mref_password "${ICN}" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${SECRETS_KEY_SEPERATOR}"
+        if [[ $? -ne 0 ]]; then
+          echo "ERROR: Failed to create/retrieve customer-level MREF password"
           exit 1
         fi
-        sm_verify_secret_exists ${FACILITIES_LIBERTY_EXTENSIONS_SECRET}${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME} "b64_xml" 
+      fi
+      
+      # Verify vault secret exists
+      sm_verify_secret_exists "${FACILITIES_VAULT_SECRET}${SECRETS_KEY_SEPERATOR}${FACILITIES_VAULT_SECRET_NAME}" "password"
+      
+      # Handle liberty extensions secret name
+      if [[ -n "${USER_PROVIDED_LIBERTY_SECRET}" ]]; then
+        export FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME="${USER_PROVIDED_LIBERTY_SECRET}"
+        echo "- Using user-provided liberty extensions secret name: ${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}"
+        # Verify liberty secret exists
+        sm_verify_secret_exists "${FACILITIES_LIBERTY_EXTENSIONS_SECRET}${SECRETS_KEY_SEPERATOR}${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}" "b64_xml"
       fi
     fi # end if [[ "${MAS_APP_ID}" == "facilities" ]]
     else
@@ -720,3 +831,4 @@ function gitops_suite_app_config() {
   rm -rf $TEMP_DIR
 
 }
+#smtg

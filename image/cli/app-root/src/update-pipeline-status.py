@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
 # This script allows you to record the results of the pipeline in a MongoDb database.
 # To enable this capability you must set additional environment variables as follows:
 #
@@ -95,6 +105,8 @@ if __name__ == "__main__":
             print("Slack notification skipped: one or more required env vars are not set")
         elif pipelineName not in ["mas-install", "mas-update", "mas-upgrade", "mas-uninstall"]:
             print(f"No slack notifications for pipeline: {pipelineName}")
+        elif pipelineRunName.endswith("-finally"):
+            print(f"Slack notification skipped: pipeline run ends with 'finally' ({pipelineRunName})")
         else:
             if pipelineStatus == "Started":
                 print("Sending pipeline start notification to Slack...")

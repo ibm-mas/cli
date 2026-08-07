@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-delete-app-config
@@ -27,7 +27,6 @@ spec:
       type: string
       default: ""
   stepTemplate:
-    name: gitops-delete-app-config
     env:
       - name: CLUSTER_ID
         value: $(params.cluster_name)
@@ -78,7 +77,7 @@ spec:
           --git-branch "$GIT_BRANCH" \
           --config-action remove \
           --mas-config-scope system \
-          --mas-config-type appcfg \
+          --mas-config-type appconfig \
           --dir /tmp/init-app-config
 
         exit $?
@@ -87,6 +86,6 @@ spec:
         - -c
       name: gitops-delete-app-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

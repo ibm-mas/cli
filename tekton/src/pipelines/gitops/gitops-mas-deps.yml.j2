@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
 {% if wait_for_provision == true %}
@@ -45,10 +45,10 @@ spec:
       default: aws
     - name: aws_docdb_instance_number
       type: string
-      default: 3
+      default: "3"
     - name: aws_docdb_engine_version
       type: string
-      default: 4.0.0
+      default: "4.0.0"
     - name: mongodb_action
       type: string
 
@@ -82,7 +82,7 @@ spec:
     - name: ibmcloud_apikey
       type: string
       default: ""
-      
+
     - name: cos_type
       type: string
       description: COS Provider (ibm or ocs)
@@ -119,9 +119,9 @@ spec:
         - name: name
           value: $(params.pipelinerun_name)
         - name: delay
-          value: 120  # seconds between checking the status of the pipelinerun
+          value: "120"  # seconds between checking the status of the pipelinerun
         - name: max_retries
-          value: 120  # attempts before giving up
+          value: "120"  # attempts before giving up
         - name: ignore_failure
           value: $(params.ignore_failure)  # fails and exit once the first failure is detected
 {% endif %}
@@ -215,7 +215,7 @@ spec:
 {% endif %}
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
+
         - name: github_pat
           value: $(params.github_pat)
 

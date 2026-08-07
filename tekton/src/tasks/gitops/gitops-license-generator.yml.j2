@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-license-generator
@@ -27,7 +27,6 @@ spec:
     - name: sls_subscription_id
       type: string
   stepTemplate:
-    name: gitops-license-generator
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

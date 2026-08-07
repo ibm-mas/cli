@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-fvt-mobile-requests
@@ -39,7 +39,7 @@ spec:
     - name: build_num
       type: string
       default: ""
-        
+
     # FVT: Mobile Digests
     - name: fvt_digest_mobile_pytest
       type: string
@@ -47,7 +47,7 @@ spec:
     - name: fvt_digest_mobile_testng
       type: string
       default: ""
-    
+
     # FVT: Request Pipelines
     - name: launchfvt_mobile_requests
       default: "False"

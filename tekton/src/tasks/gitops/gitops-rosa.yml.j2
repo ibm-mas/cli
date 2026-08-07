@@ -1,10 +1,9 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-rosa
 spec:
-
   params:
     - name: cluster_name
       type: string
@@ -24,8 +23,6 @@ spec:
       type: string
     - name: rosa_compute_machine_type
       type: string
-  stepTemplate:
-    name: gitops-rosa
   steps:
     - args:
       - |-
@@ -48,6 +45,6 @@ spec:
         - -c
       name: gitops-rosa
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

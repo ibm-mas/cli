@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-suite-smtp-config-sendgrid
@@ -42,7 +42,6 @@ spec:
     - name: cis_crn
       type: string
   stepTemplate:
-    name: gitops-suite-smtp-config
     env:
       - name: CLUSTER_ID
         value: $(params.cluster_name)
@@ -128,7 +127,7 @@ spec:
           --cis-crn "${CIS_CRN}" \
           --output-file "${OUTPUT_FILE}" \
           --action create
-        
+
         rc="$?"
 
         echo "mas-saas-sendgrid-subuser rc: ${rc}"
@@ -252,7 +251,7 @@ spec:
         --mas-smtpcfg-pod-template-yaml "${MAS_SMTPCFG_POD_TEMPLATE_YAML}"
 
         exit $?
-        
+
       command:
         - /bin/sh
         - -c

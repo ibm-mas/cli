@@ -1,7 +1,15 @@
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
 # This script allows you to record the a timestamp  in a MongoDb database whenever invoked in task or worker.
 # To enable this capability you must set additional environment variables as follows:
-#
-#
+
 import os
 import sys
 from datetime import datetime, UTC

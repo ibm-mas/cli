@@ -248,6 +248,11 @@
   description: Whether to backup the Manage application (true/false)
   default: "false"
 
+- name: backup_manage_include_pvc
+  type: string
+  description: Whether to backup the Manage PVC (true/false)
+  default: "true"
+
 - name: backup_manage_db
   type: string
   description: Whether to backup the Manage database (Db2) (true/false)
@@ -257,6 +262,11 @@
   type: string
   description: Whether to restore the Manage application (true/false)
   default: "false"
+
+- name: restore_manage_include_pvc
+  type: string
+  description: Whether to restore the Manage PVC (true/false)
+  default: "true"
 
 - name: restore_manage_db
   type: string
@@ -353,6 +363,11 @@
   description: Whether to backup the Facilities application (true/false)
   default: "false"
 
+- name: backup_facilities_include_pvc
+  type: string
+  description: Whether to backup the Facilities PVC (true/false)
+  default: "true"
+
 - name: backup_facilities_db
   type: string
   description: Whether to backup the Facilities database (Db2) (true/false)
@@ -362,6 +377,11 @@
   type: string
   description: Whether to restore the Facilities application (true/false)
   default: "false"
+
+- name: restore_facilities_include_pvc
+  type: string
+  description: Whether to restore the Facilities PVC (true/false)
+  default: "true"
 
 - name: restore_facilities_db
   type: string

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-fvt-mobile-pytest
@@ -42,7 +42,7 @@ spec:
     - name: build_num
       type: string
       default: ""
-    
+
     # FVT: Mobile Digests
     - name: fvt_digest_mobile_pytest
       type: string
@@ -50,7 +50,7 @@ spec:
     - name: fvt_digest_mobile_testng
       type: string
       default: ""
-      
+
   tasks:
     - name: pipeline-start
       timeout: "0"
@@ -82,13 +82,13 @@ spec:
 
     # 2. Manage FVT - Manage Mobile
     # -------------------------------------------------------------------------
-    
-    {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase1-setup.yml.j2') | indent(4) }}  
+
+    {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase1-setup.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase2-apps.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase3-apps.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase4-apps.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase5-apps.yml.j2') | indent(4) }}
-  
+
   # Finally
   # ---------------------------------------------------------------------------
   finally:

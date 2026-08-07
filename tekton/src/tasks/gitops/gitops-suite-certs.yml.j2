@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-suite-certs
@@ -38,7 +38,6 @@ spec:
       type: string
 
   stepTemplate:
-    name: gitops-suite-certs
     env:
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
@@ -96,7 +95,7 @@ spec:
         - -c
       name: gitops-suite-certs
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: certificates

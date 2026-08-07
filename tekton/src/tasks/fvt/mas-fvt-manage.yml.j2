@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-manage
@@ -64,9 +64,7 @@ spec:
       description: Workspace ID in MAS to use for running the tests
 
   stepTemplate:
-    name: fvt-manage
     securityContext:
-      privileged: true
       runAsUser: 0
     env:
       - name: PRODUCT_ID
@@ -146,11 +144,11 @@ spec:
             optional: true
 
   steps:
-    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
+    - name: fvt-manage
+      image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 150m  # Ensure bad FVTs don't run forever
       onError: continue  # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm

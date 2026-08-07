@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAS Must-Gather Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4589ff;
+            --primary-hover: #0f62fe;
+            --bg-primary: #161616;
+            --bg-secondary: #262626;
+            --bg-tertiary: #393939;
+            --text-primary: #f4f4f4;
+            --text-secondary: #c6c6c6;
+            --border: #393939;
+            --sidebar-width: 400px;
+            --header-height: 60px;
+            --code-bg: #1e1e1e;
+            --hover-bg: #353535;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            overflow: hidden;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        a:visited {
+            color: #8ab4f8;
+        }
+
+        .header {
+            height: var(--header-height);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-right: auto;
+        }
+
+
+
+        .btn {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .container {
+            display: flex;
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        .file-tree {
+            padding: 10px;
+        }
+
+        .tree-item {
+            padding: 6px 8px;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tree-item:hover {
+            background: var(--hover-bg);
+        }
+
+        .tree-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tree-item.folder {
+            font-weight: 500;
+        }
+
+        .tree-icon {
+            width: 16px;
+            text-align: center;
+        }
+
+        .tree-children {
+            margin-left: 20px;
+        }
+
+        .tree-children.collapsed {
+            display: none;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .breadcrumb {
+            height: 40px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 8px;
+            overflow-x: auto;
+        }
+
+        .breadcrumb-item {
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .content-viewer {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            background: var(--bg-primary);
+        }
+
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3 {
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .markdown-content h1 {
+            font-size: 2em;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.5em;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .markdown-content p {
+            margin-bottom: 16px;
+        }
+
+        .markdown-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 16px 0;
+        }
+
+        .markdown-content table thead {
+            background: var(--bg-secondary);
+        }
+
+        .markdown-content table th,
+        .markdown-content table td {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .markdown-content table tbody tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .markdown-content code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--text-primary);
+        }
+
+        .markdown-content pre {
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid var(--border);
+        }
+
+        .markdown-content pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .code-content {
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 4px;
+            overflow: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            max-height: 100%;
+        }
+
+        .code-line {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding-left: 6em;
+            text-indent: -6em;
+        }
+
+        .yaml-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .yaml-tree {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .yaml-node {
+            margin-left: 20px;
+        }
+
+        .yaml-key {
+            color: #4ec9b0;
+            font-weight: 600;
+        }
+
+        .yaml-value {
+            color: #ce9178;
+        }
+
+        .yaml-string {
+            color: #ce9178;
+        }
+
+        .yaml-number {
+            color: #b5cea8;
+        }
+
+        .yaml-boolean {
+            color: #569cd6;
+        }
+
+        .yaml-null {
+            color: #808080;
+        }
+
+        .yaml-toggle {
+            cursor: pointer;
+            user-select: none;
+            display: inline-block;
+            width: 16px;
+            color: var(--text-secondary);
+        }
+
+        .yaml-toggle:hover {
+            color: var(--primary);
+        }
+
+        .yaml-line {
+            padding: 2px 0;
+        }
+
+        .yaml-collapsed {
+            display: none;
+        }
+
+        .copy-btn {
+            padding: 4px 8px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .copy-btn:hover {
+            background: var(--hover-bg);
+            border-color: var(--primary);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 4px;
+            border: 1px solid var(--primary);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .resource-link {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .resource-link:hover {
+            color: var(--primary-hover);
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            padding: 20px;
+            background: #3a1f1f;
+            border: 1px solid #ff6b6b;
+            border-radius: 4px;
+            color: #ff8787;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 14px;
+            height: 14px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 7px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #525252;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MAS Must-Gather Viewer</h1>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="file-tree" id="fileTree">
+                <div class="loading">Loading file tree...</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="breadcrumb" id="breadcrumb">
+                <span class="breadcrumb-item">Home</span>
+            </div>
+            <div class="content-viewer" id="contentViewer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📁</div>
+                    <p>Select a file from the tree to view its contents</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script>
+        let manifest = null;
+        let currentFile = null;
+        let namespaceManifests = {}; // Cache for loaded namespace manifests
+        let isV2Manifest = false;
+
+        async function init() {
+            try {
+                const response = await fetch('manifest.json');
+                manifest = await response.json();
+
+                // Detect manifest version
+                isV2Manifest = manifest.version === '2.0';
+
+                if (isV2Manifest) {
+                    // V2: Render root files and namespace placeholders
+                    renderFileTreeV2();
+                } else {
+                    // V1: Render entire tree at once
+                    renderFileTree(manifest.files);
+                }
+
+                // Load file from URL hash if present
+                const hash = window.location.hash.slice(1);
+                if (hash) {
+                    const filePath = decodeURIComponent(hash);
+                    await loadFile(filePath);
+                }
+            } catch (error) {
+                document.getElementById('fileTree').innerHTML =
+                    '<div class="error">Failed to load manifest.json</div>';
+            }
+        }
+
+        function renderFileTreeV2() {
+            const container = document.getElementById('fileTree');
+            container.innerHTML = '';
+
+            // Render root-level files first
+            renderFileTree(manifest.files, container, '');
+
+            // Create resources folder with namespace placeholders
+            const resourcesDiv = document.createElement('div');
+            resourcesDiv.className = 'tree-item folder';
+            resourcesDiv.innerHTML = `<span class="tree-icon">▶</span><span>resources</span>`;
+
+            const resourcesChildren = document.createElement('div');
+            resourcesChildren.className = 'tree-children collapsed';
+
+            resourcesDiv.onclick = (e) => {
+                e.stopPropagation();
+                resourcesChildren.classList.toggle('collapsed');
+                resourcesDiv.querySelector('.tree-icon').textContent =
+                    resourcesChildren.classList.contains('collapsed') ? '▶' : '▼';
+            };
+
+            container.appendChild(resourcesDiv);
+            container.appendChild(resourcesChildren);
+
+            // Add namespace folders as lazy-loadable items
+            for (const namespace of manifest.namespaces) {
+                const nsDiv = document.createElement('div');
+                nsDiv.className = 'tree-item folder';
+                nsDiv.innerHTML = `<span class="tree-icon">▶</span><span>${namespace}</span>`;
+                nsDiv.dataset.namespace = namespace;
+
+                const nsChildren = document.createElement('div');
+                nsChildren.className = 'tree-children collapsed';
+                nsChildren.dataset.namespace = namespace;
+
+                nsDiv.onclick = async (e) => {
+                    e.stopPropagation();
+                    const isCollapsed = nsChildren.classList.contains('collapsed');
+
+                    if (isCollapsed) {
+                        // Expanding - load namespace manifest if not cached
+                        if (!namespaceManifests[namespace]) {
+                            nsDiv.querySelector('.tree-icon').textContent = '⏳';
+                            await loadNamespaceManifest(namespace);
+
+                            // Render namespace content
+                            if (namespaceManifests[namespace]) {
+                                renderFileTree(namespaceManifests[namespace].files, nsChildren, `resources/${namespace}`, namespace);
+                            }
+                        }
+                        nsChildren.classList.remove('collapsed');
+                        nsDiv.querySelector('.tree-icon').textContent = '▼';
+                    } else {
+                        // Collapsing
+                        nsChildren.classList.add('collapsed');
+                        nsDiv.querySelector('.tree-icon').textContent = '▶';
+                    }
+                };
+
+                resourcesChildren.appendChild(nsDiv);
+                resourcesChildren.appendChild(nsChildren);
+            }
+        }
+
+        async function loadNamespaceManifest(namespace) {
+            try {
+                const response = await fetch(`resources/${namespace}.json`);
+                const nsManifest = await response.json();
+                namespaceManifests[namespace] = nsManifest;
+            } catch (error) {
+                console.error(`Failed to load namespace manifest for ${namespace}:`, error);
+                namespaceManifests[namespace] = { files: {} };
+            }
+        }
+
+        function renderFileTree(files, parentElement = null, path = '', namespacePrefix = null) {
+            const container = parentElement || document.getElementById('fileTree');
+            if (!parentElement) container.innerHTML = '';
+
+            for (const [name, item] of Object.entries(files)) {
+                const itemPath = path ? `${path}/${name}` : name;
+                const div = document.createElement('div');
+
+                if (item.type === 'directory') {
+                    div.className = 'tree-item folder';
+                    div.innerHTML = `<span class="tree-icon">▶</span><span>${name}</span>`;
+
+                    const childrenDiv = document.createElement('div');
+                    childrenDiv.className = 'tree-children collapsed';
+
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        childrenDiv.classList.toggle('collapsed');
+                        div.querySelector('.tree-icon').textContent =
+                            childrenDiv.classList.contains('collapsed') ? '▶' : '▼';
+                    };
+
+                    container.appendChild(div);
+                    container.appendChild(childrenDiv);
+                    renderFileTree(item.children, childrenDiv, itemPath, namespacePrefix);
+                } else {
+                    const icon = getFileIcon(name);
+                    div.className = 'tree-item';
+                    div.innerHTML = `<span class="tree-icon">${icon}</span><span>${name}</span>`;
+                    // If we have a namespace prefix and item.path is relative, prepend the prefix
+                    const filePath = (namespacePrefix && item.path && !item.path.startsWith('resources/'))
+                        ? `resources/${namespacePrefix}/${item.path}`
+                        : (item.path || itemPath);
+                    div.onclick = () => loadFile(filePath);
+                    container.appendChild(div);
+                }
+            }
+        }
+
+        function getFileIcon(filename) {
+            if (filename.endsWith('.md')) return '📄';
+            if (filename.endsWith('.yaml') || filename.endsWith('.yml')) return '📋';
+            if (filename.endsWith('.log')) return '📝';
+            if (filename.endsWith('.json')) return '📊';
+            return '📄';
+        }
+
+        async function loadFile(path) {
+            currentFile = path;
+            updateBreadcrumb(path);
+
+            // Update URL hash for deep linking
+            window.location.hash = encodeURIComponent(path);
+
+            // For V2 manifests, check if we need to load a namespace manifest first
+            if (isV2Manifest && path.startsWith('resources/')) {
+                const pathParts = path.split('/');
+                if (pathParts.length >= 2) {
+                    const namespace = pathParts[1];
+                    if (!namespaceManifests[namespace]) {
+                        // Load namespace manifest and expand the folder
+                        await loadNamespaceManifest(namespace);
+
+                        // Find and expand the namespace folder
+                        const nsFolders = document.querySelectorAll('[data-namespace]');
+                        for (const folder of nsFolders) {
+                            if (folder.dataset.namespace === namespace && folder.classList.contains('tree-item')) {
+                                const childrenDiv = folder.nextElementSibling;
+                                if (childrenDiv && childrenDiv.classList.contains('collapsed')) {
+                                    // Render namespace content
+                                    renderFileTree(namespaceManifests[namespace].files, childrenDiv, `resources/${namespace}`);
+                                    childrenDiv.classList.remove('collapsed');
+                                    folder.querySelector('.tree-icon').textContent = '▼';
+                                }
+                                break;
+                            }
+                        }
+
+                        // Also expand resources folder if needed
+                        const resourcesFolders = document.querySelectorAll('.tree-item.folder');
+                        for (const folder of resourcesFolders) {
+                            if (folder.textContent.includes('resources')) {
+                                const childrenDiv = folder.nextElementSibling;
+                                if (childrenDiv && childrenDiv.classList.contains('collapsed')) {
+                                    childrenDiv.classList.remove('collapsed');
+                                    folder.querySelector('.tree-icon').textContent = '▼';
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Find and highlight the active tree item
+            const treeItems = Array.from(document.querySelectorAll('.tree-item'));
+            const activeItem = treeItems.find(item => {
+                const itemText = item.querySelector('span:last-child')?.textContent;
+                return path.endsWith(itemText);
+            });
+            if (activeItem) {
+                activeItem.classList.add('active');
+                // Expand parent folders
+                let parent = activeItem.parentElement;
+                while (parent) {
+                    if (parent.classList.contains('tree-children')) {
+                        parent.classList.remove('collapsed');
+                        const folderItem = parent.previousElementSibling;
+                        if (folderItem && folderItem.querySelector('.tree-icon')) {
+                            folderItem.querySelector('.tree-icon').textContent = '▼';
+                        }
+                    }
+                    parent = parent.parentElement;
+                }
+            }
+
+            const viewer = document.getElementById('contentViewer');
+            viewer.innerHTML = '<div class="loading">Loading...</div>';
+
+            try {
+                const response = await fetch(path);
+                const content = await response.text();
+
+                if (path.endsWith('.md')) {
+                    viewer.innerHTML = `<div class="markdown-content">${marked.parse(content)}</div>`;
+                    // Make resource links clickable after rendering
+                    makeResourceLinksClickable();
+                } else if (path.endsWith('.yaml') || path.endsWith('.yml')) {
+                    renderYAML(content, viewer);
+                } else if (path.endsWith('.log')) {
+                    const lines = content.split('\n').map((line, i) =>
+                        `<div class="code-line">${(i + 1).toString().padStart(4, ' ')} | ${escapeHtml(line)}</div>`
+                    ).join('');
+                    viewer.innerHTML = `<div class="code-content">${lines}</div>`;
+                } else {
+                    const lines = content.split('\n').map(line =>
+                        `<div class="code-line">${escapeHtml(line)}</div>`
+                    ).join('');
+                    viewer.innerHTML = `<div class="code-content">${lines}</div>`;
+                }
+            } catch (error) {
+                viewer.innerHTML = `<div class="error">Failed to load file: ${error.message}</div>`;
+            }
+        }
+
+        function updateBreadcrumb(path) {
+            const parts = path.split('/');
+            const breadcrumb = document.getElementById('breadcrumb');
+            breadcrumb.innerHTML = '<span class="breadcrumb-item" onclick="showHome()">Home</span>';
+
+            let currentPath = '';
+            parts.forEach((part, index) => {
+                currentPath += (currentPath ? '/' : '') + part;
+                const isLast = index === parts.length - 1;
+                const separator = document.createElement('span');
+                separator.className = 'breadcrumb-separator';
+                separator.textContent = ' / ';
+                breadcrumb.appendChild(separator);
+
+                const item = document.createElement('span');
+                item.className = 'breadcrumb-item';
+                item.textContent = part;
+                if (!isLast) {
+                    const pathCopy = currentPath;
+                    item.onclick = () => navigateToPath(pathCopy);
+                }
+                breadcrumb.appendChild(item);
+            });
+
+            // Add copy path button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = '📋 Copy Path';
+            copyBtn.onclick = copyBreadcrumbPath;
+            breadcrumb.appendChild(copyBtn);
+        }
+
+        function showHome() {
+            // Clear URL hash
+            window.location.hash = '';
+            currentFile = null;
+
+            document.getElementById('contentViewer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📁</div>
+                    <p>Select a file from the tree to view its contents</p>
+                </div>
+            `;
+            document.getElementById('breadcrumb').innerHTML =
+                '<span class="breadcrumb-item">Home</span>';
+
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function renderYAML(content, viewer) {
+            try {
+                const data = jsyaml.load(content);
+
+                const controls = document.createElement('div');
+                controls.className = 'yaml-controls';
+                controls.innerHTML = `
+                    <button class="btn btn-secondary" onclick="expandAllYAML()">Expand All</button>
+                    <button class="btn btn-secondary" onclick="collapseAllYAML()">Collapse All</button>
+                    <button class="btn btn-secondary" onclick="toggleYAMLView()">Toggle Raw View</button>
+                    <button class="btn btn-secondary" onclick="copyYAMLContent()">📋 Copy YAML</button>
+                `;
+
+                const treeContainer = document.createElement('div');
+                treeContainer.className = 'code-content yaml-tree';
+                treeContainer.id = 'yamlTree';
+
+                const rawContainer = document.createElement('div');
+                rawContainer.className = 'code-content';
+                rawContainer.id = 'yamlRaw';
+                rawContainer.style.display = 'none';
+                const lines = content.split('\n').map(line =>
+                    `<div class="code-line">${escapeHtml(line)}</div>`
+                ).join('');
+                rawContainer.innerHTML = lines;
+
+                viewer.innerHTML = '';
+                viewer.appendChild(controls);
+                viewer.appendChild(treeContainer);
+                viewer.appendChild(rawContainer);
+
+                renderYAMLNode(data, treeContainer, 0);
+            } catch (error) {
+                // If YAML parsing fails, fall back to raw view
+                const lines = content.split('\n').map(line =>
+                    `<div class="code-line">${escapeHtml(line)}</div>`
+                ).join('');
+                viewer.innerHTML = `<div class="code-content">${lines}</div>`;
+            }
+        }
+
+        function renderYAMLNode(data, container, depth, key = null, parentPath = '') {
+            const indent = '  '.repeat(depth);
+            const currentPath = parentPath ? `${parentPath}.${key}` : key || '';
+
+            if (data === null || data === undefined) {
+                const line = document.createElement('div');
+                line.className = 'yaml-line';
+                line.innerHTML = `${indent}${key ? `<span class="yaml-key">${escapeHtml(key)}</span>: ` : ''}<span class="yaml-null">null</span>`;
+                container.appendChild(line);
+            } else if (typeof data === 'object' && !Array.isArray(data)) {
+                // Object
+                if (key !== null) {
+                    const line = document.createElement('div');
+                    line.className = 'yaml-line';
+                    const toggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
+
+                    // Check if this should be collapsed by default
+                    const collapseByDefault = currentPath === 'metadata.annotations' ||
+                                             currentPath === 'metadata.labels' ||
+                                             currentPath === 'metadata.managedFields';
+                    const icon = collapseByDefault ? '▶' : '▼';
+
+                    line.innerHTML = `${indent}<span class="yaml-toggle" id="${toggleId}" onclick="toggleYAMLNode('${toggleId}')">${icon}</span> <span class="yaml-key">${escapeHtml(key)}</span>:`;
+                    container.appendChild(line);
+
+                    const childContainer = document.createElement('div');
+                    childContainer.className = collapseByDefault ? 'yaml-node yaml-collapsed' : 'yaml-node';
+                    childContainer.id = `node-${toggleId}`;
+                    container.appendChild(childContainer);
+
+                    for (const [k, v] of Object.entries(data)) {
+                        renderYAMLNode(v, childContainer, depth + 1, k, currentPath);
+                    }
+                } else {
+                    for (const [k, v] of Object.entries(data)) {
+                        renderYAMLNode(v, container, depth, k, parentPath);
+                    }
+                }
+            } else if (Array.isArray(data)) {
+                // Array
+                if (key !== null) {
+                    const line = document.createElement('div');
+                    line.className = 'yaml-line';
+                    const toggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
+
+                    // Check if this should be collapsed by default
+                    const collapseByDefault = currentPath === 'metadata.annotations' ||
+                                             currentPath === 'metadata.labels' ||
+                                             currentPath === 'metadata.managedFields';
+                    const icon = collapseByDefault ? '▶' : '▼';
+
+                    line.innerHTML = `${indent}<span class="yaml-toggle" id="${toggleId}" onclick="toggleYAMLNode('${toggleId}')">${icon}</span> <span class="yaml-key">${escapeHtml(key)}</span>:`;
+                    container.appendChild(line);
+
+                    const childContainer = document.createElement('div');
+                    childContainer.className = collapseByDefault ? 'yaml-node yaml-collapsed' : 'yaml-node';
+                    childContainer.id = `node-${toggleId}`;
+                    container.appendChild(childContainer);
+
+                    data.forEach((item, index) => {
+                        const itemLine = document.createElement('div');
+                        itemLine.className = 'yaml-line';
+
+                        if (typeof item === 'object' && item !== null) {
+                            const itemToggleId = `toggle-${Math.random().toString(36).substr(2, 9)}`;
+                            itemLine.innerHTML = `${'  '.repeat(depth + 1)}<span class="yaml-toggle" id="${itemToggleId}" onclick="toggleYAMLNode('${itemToggleId}')">▼</span> -`;
+                            childContainer.appendChild(itemLine);
+
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'yaml-node';
+                            itemContainer.id = `node-${itemToggleId}`;
+                            childContainer.appendChild(itemContainer);
+
+                            if (Array.isArray(item)) {
+                                item.forEach((subItem, subIndex) => {
+                                    renderYAMLNode(subItem, itemContainer, depth + 2, null, currentPath);
+                                });
+                            } else {
+                                for (const [k, v] of Object.entries(item)) {
+                                    renderYAMLNode(v, itemContainer, depth + 2, k, currentPath);
+                                }
+                            }
+                        } else {
+                            itemLine.innerHTML = `${'  '.repeat(depth + 1)}- ${formatYAMLValue(item)}`;
+                            childContainer.appendChild(itemLine);
+                        }
+                    });
+                }
+            } else {
+                // Primitive value
+                const line = document.createElement('div');
+                line.className = 'yaml-line';
+                line.innerHTML = `${indent}${key ? `<span class="yaml-key">${escapeHtml(key)}</span>: ` : ''}${formatYAMLValue(data)}`;
+                container.appendChild(line);
+            }
+        }
+
+        function formatYAMLValue(value) {
+            if (typeof value === 'string') {
+                return `<span class="yaml-string">${escapeHtml(value)}</span>`;
+            } else if (typeof value === 'number') {
+                return `<span class="yaml-number">${value}</span>`;
+            } else if (typeof value === 'boolean') {
+                return `<span class="yaml-boolean">${value}</span>`;
+            } else if (value === null) {
+                return `<span class="yaml-null">null</span>`;
+            }
+            return escapeHtml(String(value));
+        }
+
+        function toggleYAMLNode(toggleId) {
+            const toggle = document.getElementById(toggleId);
+            const node = document.getElementById(`node-${toggleId}`);
+
+            if (node.classList.contains('yaml-collapsed')) {
+                node.classList.remove('yaml-collapsed');
+                toggle.textContent = '▼';
+            } else {
+                node.classList.add('yaml-collapsed');
+                toggle.textContent = '▶';
+            }
+        }
+
+        function expandAllYAML() {
+            document.querySelectorAll('.yaml-node').forEach(node => {
+                node.classList.remove('yaml-collapsed');
+            });
+            document.querySelectorAll('.yaml-toggle').forEach(toggle => {
+                toggle.textContent = '▼';
+            });
+        }
+
+        function collapseAllYAML() {
+            document.querySelectorAll('.yaml-node').forEach(node => {
+                node.classList.add('yaml-collapsed');
+            });
+            document.querySelectorAll('.yaml-toggle').forEach(toggle => {
+                toggle.textContent = '▶';
+            });
+        }
+
+        function toggleYAMLView() {
+            const tree = document.getElementById('yamlTree');
+            const raw = document.getElementById('yamlRaw');
+
+            if (tree.style.display === 'none') {
+                tree.style.display = '';
+                raw.style.display = 'none';
+            } else {
+                tree.style.display = 'none';
+                raw.style.display = '';
+            }
+        }
+
+        // Copy functionality
+        function copyToClipboard(text, message = 'Copied to clipboard') {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(message);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showToast('Failed to copy', true);
+            });
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            if (isError) {
+                toast.style.borderColor = '#ff6b6b';
+                toast.style.background = '#3a1f1f';
+            }
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function copyBreadcrumbPath() {
+            if (currentFile) {
+                copyToClipboard(currentFile, 'Path copied to clipboard');
+            }
+        }
+
+        function copyTableAsMarkdown(table) {
+            const rows = Array.from(table.querySelectorAll('tr'));
+            const markdown = rows.map(row => {
+                const cells = Array.from(row.querySelectorAll('th, td'));
+                return '| ' + cells.map(cell => cell.textContent.trim()).join(' | ') + ' |';
+            }).join('\n');
+
+            // Add separator after header
+            if (rows.length > 1) {
+                const headerCells = rows[0].querySelectorAll('th, td').length;
+                const separator = '| ' + Array(headerCells).fill('---').join(' | ') + ' |';
+                const lines = markdown.split('\n');
+                lines.splice(1, 0, separator);
+                copyToClipboard(lines.join('\n'), 'Table copied as markdown');
+            } else {
+                copyToClipboard(markdown, 'Table copied as markdown');
+            }
+        }
+
+        function copyYAMLContent() {
+            const rawView = document.getElementById('yamlRaw');
+            if (rawView) {
+                // Get text content from raw view
+                const lines = Array.from(rawView.querySelectorAll('.code-line'));
+                const content = lines.map(line => line.textContent).join('\n');
+                copyToClipboard(content, 'YAML copied to clipboard');
+            }
+        }
+
+        // Resource link functionality
+        function makeResourceLinksClickable() {
+            const viewer = document.getElementById('contentViewer');
+            const tables = viewer.querySelectorAll('.markdown-content table');
+
+            tables.forEach(table => {
+                // Add copy button to table
+                if (!table.previousElementSibling || !table.previousElementSibling.classList.contains('copy-btn')) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.textContent = '📋 Copy Table';
+                    copyBtn.onclick = () => copyTableAsMarkdown(table);
+                    table.parentNode.insertBefore(copyBtn, table);
+                }
+
+                // Make resource names in first column clickable
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const firstCell = row.querySelector('td:first-child');
+                    if (firstCell) {
+                        const text = firstCell.textContent.trim();
+                        // Check if it looks like a resource name (not empty, not a status/number)
+                        if (text && !text.match(/^\d+$/) && !text.match(/^(Running|Pending|Failed|Succeeded|Unknown|True|False)$/i)) {
+                            // Try to find corresponding YAML file
+                            const resourceName = text;
+                            firstCell.innerHTML = `<span class="resource-link" onclick="navigateToResource('${escapeHtml(resourceName)}')">${escapeHtml(resourceName)}</span>`;
+                        }
+                    }
+                });
+            });
+        }
+
+        async function navigateToResource(resourceName) {
+            if (!currentFile) return;
+
+            // Determine the directory of the current file
+            const currentDir = currentFile.substring(0, currentFile.lastIndexOf('/'));
+
+            // Common patterns for resource YAML files
+            const possiblePaths = [
+                `${currentDir}/${resourceName}.yaml`,
+                `${currentDir}/${resourceName}.yml`,
+                `${currentDir}/${resourceName}/${resourceName}.yaml`,
+                `${currentDir}/${resourceName}/${resourceName}.yml`,
+            ];
+
+            // Try each possible path
+            for (const path of possiblePaths) {
+                try {
+                    const response = await fetch(path, { method: 'HEAD' });
+                    if (response.ok) {
+                        await loadFile(path);
+                        return;
+                    }
+                } catch (e) {
+                    // Continue to next path
+                }
+            }
+
+            // If no file found, show error
+            showToast(`Resource file not found: ${resourceName}`, true);
+        }
+
+
+
+        // Handle browser back/forward navigation
+        window.addEventListener('hashchange', async () => {
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                const filePath = decodeURIComponent(hash);
+                await loadFile(filePath);
+            } else {
+                showHome();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

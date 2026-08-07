@@ -1,12 +1,107 @@
 [build-system]
 requires = [
-  "setuptools"
+  "setuptools>=69",
+  "wheel",
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "mas-cli"
+dynamic = ["version"]
+description = "Python Admin CLI for Maximo Application Suite"
+readme = { file = "python/README.md", content-type = "text/markdown" }
+requires-python = ">=3.12"
+license = "EPL-1.0"
+authors = [
+  { name = "David Parker", email = "parkerda@uk.ibm.com" },
+]
+urls = { Homepage = "https://github.com/ibm-mas/cli" }
+dependencies = [
+  "mas-devops >= 9.0.0",
+  "alive-progress",
+  "halo",
+  "prompt_toolkit",
+  "kubernetes == 33.1.0",
+  "tabulate",
+  "prettytable",
+  "jsonpath-ng",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Communications",
+  "Topic :: Internet",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.optional-dependencies]
+dev = [
+  "basedpyright",
+  "build",
+  "black",
+  "flake8",
+  "flake8-docstrings",
+  "pytest",
+]
+
+[project.scripts]
+mas-cli = "mas.cli.__main__:main"
+
+[tool.setuptools]
+# Package metadata is consolidated at the repository root while source files remain in python/src.
+package-dir = { "" = "python/src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["python/src"]
+namespaces = true
+
+[tool.setuptools.package-data]
+"mas.cli" = [
+  "templates/*.yaml",
+  "templates/*.yml.j2",
+  "templates/pod-templates/best-effort/*.yml",
+  "templates/pod-templates/guaranteed/*.yml",
+  "templates/pod-templates/saas-essentials/*.yml",
+]
+"mas.cli.must_gather.web_viewer" = [
+  "templates/*.html",
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "mas.cli.__version__" }
+
 [tool.black]
 line-length = 160
-include = 'python/(src|test)/.*\.py$'
+target-version = ['py312']
+include = 'python/(src|tests)/.*\.py$'
 
 [tool.flake8]
 max-line-length = 160
+
+[tool.basedpyright]
+# Only check must-gather module during gradual rollout
+include = [
+  "python/src/mas/cli/must_gather",
+  "python/src/mas/cli/update",
+  "python/src/mas/cli/upgrade",
+  "python/tests/unit/must_gather"
+]
+
+# Use "basic" mode - focuses on our code, lenient with untyped dependencies
+# Options: "off", "basic", "standard", "strict"
+typeCheckingMode = "basic"
+
+# Target Python version
+pythonVersion = "3.12"
+
+# Execution environments for proper import resolution
+# This tells basedpyright where to find Python modules
+executionEnvironments = [
+  { root = "python/src" },
+  { root = "python/tests", extraPaths = ["python/src"] }
+]

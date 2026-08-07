@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-suite-sendgrid-subuser
@@ -20,7 +20,6 @@ spec:
     - name: avp_aws_secret_region
       type: string
   stepTemplate:
-    name: gitops-deprovision-suite-sendgrid-subuser
     env:
       - name: CLUSTER_ID
         value: $(params.cluster_name)
@@ -87,7 +86,7 @@ spec:
           --cis-mas-domain "${CIS_MAS_DOMAIN}" \
           --output-file "${OUTPUT_FILE}" \
           --action delete
-        
+
         rc="$?"
 
         if [[ "${rc}" != "0" ]]; then

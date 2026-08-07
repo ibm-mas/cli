@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-deprovision-kafka
@@ -12,12 +12,12 @@ spec:
     - name: mas_instance_id
       type: string
     - name: github_repo
-      type: string      
+      type: string
     - name: secrets_path
       type: string
     - name: kafka_provider
       type: string
-      default: aws      
+      default: aws
     - name: avp_aws_secret_region
       type: string
     - name: avp_aws_secret_key
@@ -27,7 +27,6 @@ spec:
     - name: vpc_ipv4_cidr
       type: string
   stepTemplate:
-    name: gitops-deprovision-kafka
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -36,11 +35,11 @@ spec:
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: GITHUB_REPO
-        value: $(params.github_repo)        
+        value: $(params.github_repo)
       - name: SECRET_PATH
         value: $(params.secrets_path)
       - name: KAFKA_PROVIDER
-        value: $(params.kafka_provider)        
+        value: $(params.kafka_provider)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: SM_AWS_SECRET_ACCESS_KEY
@@ -52,7 +51,7 @@ spec:
   steps:
     - args:
       - |-
-        
+
         mkdir -p /tmp/deprovision-kafka
 
         aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
@@ -66,14 +65,14 @@ spec:
           vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs)
         fi
         export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
-        
+
         if [ -z "$VPC_ID" ]; then
           echo "No VPC for $CLUSTER_NAME found so assume there is no kafka to deprovision, exiting.."
           exit 0
         fi
 
         echo "VPC of $VPC_ID found for $CLUSTER_NAME"
-        
+
         aws ec2 associate-vpc-cidr-block \
         --vpc-id $VPC_ID \
         --cidr-block 10.1.0.0/23
@@ -99,6 +98,6 @@ spec:
         - -c
       name: gitops-deprovision-kafka
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs

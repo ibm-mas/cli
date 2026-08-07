@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: gitops-cp4d-service
@@ -61,7 +61,6 @@ spec:
       type: string
       default: "Automatic"
   stepTemplate:
-    name: gitops-cp4d-service
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -129,7 +128,7 @@ spec:
         export MAS_CONFIG_DIR=/workspace/configs/$MAS_INSTANCE_ID-cp4d-service-$CPD_SERVICE_NAME
         mkdir -p /workspace/configs/$MAS_INSTANCE_ID-cp4d-service-$CPD_SERVICE_NAME
         mkdir -p /tmp/init-cp4d-service
-        
+
         mas gitops-cp4d-service -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cp4d-service \
         --secrets-path $SECRET_PATH \
@@ -145,7 +144,7 @@ spec:
         - -c
       name: gitops-cp4d-service
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
     - name: shared-gitops-configs

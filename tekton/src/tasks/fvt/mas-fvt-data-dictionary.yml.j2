@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-data-dictionary
@@ -35,7 +35,6 @@ spec:
       description: Instance ID of the target test environment
 
   stepTemplate:
-    name: 'fvt-data-dictionary'
     env:
       # What are we testing?
       - name: PRODUCT_ID
@@ -72,11 +71,11 @@ spec:
         value: "true"
 
   steps:
-    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-data-dictionary@$(params.fvt_image_digest)'
+    - name: fvt-data-dictionary
+      image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-data-dictionary@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 2h0m0s # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm

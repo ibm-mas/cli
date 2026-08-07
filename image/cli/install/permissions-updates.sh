@@ -8,7 +8,6 @@ chmod +x /opt/app-root/src/*.sh
 chmod +x /opt/app-root/src/.bashrc
 chmod -R ug+w /mascli
 chmod +x /mascli/mas
-chmod +x /mascli/must-gather/*
 chmod +x /mascli/debug/*
 chmod +x /mascli/backup-restore/*
 # Only chmod /masfvt if it exists

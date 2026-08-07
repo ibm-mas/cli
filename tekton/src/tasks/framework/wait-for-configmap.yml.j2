@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-devops-wait-for-configmap
@@ -37,7 +37,7 @@ spec:
 
   steps:
     - name: wait-for-configmap
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       command:
         - /opt/app-root/src/wait-for-configmap.sh
       env:

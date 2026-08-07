@@ -12,10 +12,11 @@ usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION]
                   [--clean-backup] [--no-clean-backup] [--upload-backup] [--aws-access-key-id AWS_ACCESS_KEY_ID]
                   [--aws-secret-access-key AWS_SECRET_ACCESS_KEY] [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION]
                   [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY]
-                  [--backup-manage-app] [--manage-workspace-id MANAGE_WORKSPACE_ID] [--backup-manage-db]
+                  [--backup-manage-app] [--backup-manage-include-pvc] [--backup-manage-exclude-pvc] [--manage-workspace-id MANAGE_WORKSPACE_ID] [--backup-manage-db]
                   [--manage-db2-namespace MANAGE_DB2_NAMESPACE] [--manage-db2-instance-name MANAGE_DB2_INSTANCE_NAME]
                   [--manage-db2-backup-type {offline,online}]
-                  [--backup-facilities-app] [--facilities-workspace-id FACILITIES_WORKSPACE_ID] [--backup-facilities-db]
+                  [--backup-facilities-app] [--backup-facilities-include-pvc] [--backup-facilities-exclude-pvc]
+                  [--facilities-workspace-id FACILITIES_WORKSPACE_ID] [--backup-facilities-db]
                   [--facilities-db2-namespace FACILITIES_DB2_NAMESPACE] [--facilities-db2-instance-name FACILITIES_DB2_INSTANCE_NAME]
                   [--facilities-db2-backup-type {offline,online}]
                   [--include-sls] [--exclude-sls] [--include-mongo] [--exclude-mongo]
@@ -65,6 +66,10 @@ Manage Application Backup:
   --backup-manage-app   Backup the Manage application
   --manage-workspace-id MANAGE_WORKSPACE_ID
                         Manage workspace ID
+  --backup-manage-include-pvc
+                        Include PVC backup for Manage application
+  --backup-manage-exclude-pvc
+                        Exclude PVC backup for Manage application
   --backup-manage-db    Backup the Manage application database (Db2)
   --manage-db2-namespace MANAGE_DB2_NAMESPACE
                         Manage Db2 namespace (default: db2u)
@@ -78,6 +83,10 @@ Facilities Application Backup:
                         Backup the Facilities application
   --facilities-workspace-id FACILITIES_WORKSPACE_ID
                         Facilities workspace ID
+  --backup-facilities-include-pvc
+                        Include PVC backup for Facilities application
+  --backup-facilities-exclude-pvc
+                        Exclude PVC backup for Facilities application
   --backup-facilities-db
                         Backup the Facilities application database (Db2)
   --facilities-db2-namespace FACILITIES_DB2_NAMESPACE
@@ -255,6 +264,18 @@ mas backup \
   --no-confirm
 ```
 
+### Backup with Manage Application excluding PVCs
+Backup the Manage application including persistent volume data:
+
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-manage-app \
+  --manage-workspace-id masdev \
+  --backup-manage-exclude-pvc \
+  --no-confirm
+```
+
 ### Backup with Manage Application Only (No Database)
 Backup the Manage application without backing up its database:
 
@@ -278,6 +299,18 @@ mas backup \
   --facilities-db2-namespace db2u \
   --facilities-db2-instance-name mas-inst1-masdev-facilities \
   --facilities-db2-backup-type offline \
+  --no-confirm
+```
+
+### Backup with Facilities Application excluding PVCs
+Backup the Facilities application including persistent volume data:
+
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-facilities-app \
+  --facilities-workspace-id masdev \
+  --backup-facilities-exclude-pvc \
   --no-confirm
 ```
 
@@ -336,13 +369,23 @@ Two upload destinations are supported:
 ### Manage Application Backup
 The backup command can optionally include the Manage application and its Db2 database:
 
-- **Manage Application**: Backs up the Manage namespace resources and persistent volume data
+- **Manage Application**: Backs up the Manage namespace resources
+- **Manage PVC Backup**: Use `--backup-manage-include-pvc` or `--backup-manage-exclude-pvc` to include/exclude persistent volume data in the backup
 - **Manage Database**: Backs up the Db2 database associated with the Manage workspace
   - **Offline backup**: Database is unavailable during backup (required for circular logging)
   - **Online backup**: Database remains available during backup (requires archive logging)
 
 !!! note
     If your Db2 instance uses circular logging (default), you must use offline backup type.
+
+### Facilities Application Backup
+The backup command can optionally include the Facilities application and its Db2 database:
+
+- **Facilities Application**: Backs up the Facilities namespace resources
+- **Facilities PVC Backup**: Use `--backup-facilities-include-pvc` or `--backup-facilities-exclude-pvc` to include/exclude persistent volume data in the backup
+- **Facilities Database**: Backs up the Db2 database associated with the Facilities workspace
+  - **Offline backup**: Database is unavailable during backup (required for circular logging)
+  - **Online backup**: Database remains available during backup (requires archive logging)
 
 ### Interactive Mode
 When running without `--instance-id`, the command enters interactive mode and will prompt for:

@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: mas-fvt-mobile-testng
@@ -39,7 +39,7 @@ spec:
     - name: fvt_artifactory_token
       type: string
       default: ""
-    
+
     # FVT: Mobile Digests
     - name: fvt_digest_mobile_pytest
       type: string
@@ -47,7 +47,7 @@ spec:
     - name: fvt_digest_mobile_testng
       type: string
       default: ""
-  
+
     # Image Digests
     - name: fvt_digest_manage
       type: string
@@ -84,8 +84,8 @@ spec:
 
     # 2. Manage FVT - Manage Mobile
     # -------------------------------------------------------------------------
-    
-    
+
+
     {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase1-setup.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase2-civil.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase3-mobfound.yml.j2') | indent(4) }}

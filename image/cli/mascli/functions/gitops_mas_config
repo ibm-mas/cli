@@ -17,7 +17,7 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
   -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
-  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of aicfg|appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
+  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of aicfg|appconfig|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
   --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
 
@@ -57,7 +57,7 @@ AI Service Configuration (required if MAS_CONFIG_TYPE is "aicfg"):
   --aiservice-ssl-enabled ${COLOR_YELLOW}AISERVICE_SSL_ENABLED${TEXT_RESET}     Enable SSL for AI Service (true|false)
   --aiservice-aiassistant-enabled ${COLOR_YELLOW}AISERVICE_AIASSISTANT_ENABLED${TEXT_RESET} Enable AI Assistant (true|false)
 
-MAF Configuration (required if MAS_CONFIG_TYPE is "appcfg"):
+MAF Configuration (required if MAS_CONFIG_TYPE is "appconfig"):
   --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                                        Enable MAF for the application configuration (true|false)
   --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}                     Storage class name to use for MAF persistent storage
   --maf-size ${COLOR_YELLOW}MAF_SIZE${TEXT_RESET}                                              Size of the MAF persistent storage (e.g. 2Gi)
@@ -401,8 +401,8 @@ function gitops_mas_config_noninteractive() {
   fi
 
   [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_CONFIG_TYPE is not set"
-  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(aicfg|appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
-    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of aicfg|appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
+  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(aicfg|appconfig|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
+    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of aicfg|appconfig|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
 
   [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_mas_config_help "MAS_CONFIG_SCOPE is not set"
@@ -446,7 +446,7 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$AISERVICE_AIASSISTANT_ENABLED" ]] && gitops_mas_config_help "AISERVICE_AIASSISTANT_ENABLED is not set"
     fi
 
-    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+    if [ "${MAS_CONFIG_TYPE}" == "appconfig" ]; then
       [[ -z "$MAF_ENABLED" ]] && gitops_mas_config_help "MAF_ENABLED is not set"
       [[ -z "$MAF_SIZE" ]] && gitops_mas_config_help "MAF_SIZE is not set"
       [[ -z "$MAF_STORAGE_CLASSNAME" ]] && gitops_mas_config_help "MAF_STORAGE_CLASSNAME is not set"
@@ -672,7 +672,7 @@ function gitops_mas_config() {
       reset_colors
     fi
 
-    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+    if [ "${MAS_CONFIG_TYPE}" == "appconfig" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "MAF Enabled  ................... ${COLOR_MAGENTA}${MAF_ENABLED}"
       echo_reset_dim "MAF Storage Class Name  ........ ${COLOR_MAGENTA}${MAF_STORAGE_CLASSNAME}"
@@ -871,7 +871,7 @@ function gitops_mas_config() {
       fi
     fi
 
-    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+    if [ "${MAS_CONFIG_TYPE}" == "appconfig" ]; then
 
       sm_login
       
@@ -883,7 +883,7 @@ function gitops_mas_config() {
       fi
 
       # Process storage class name (handle generated(efs) directive)
-      # For MAF appcfg, use cluster-level storage class: efs-{CLUSTER_ID}-main
+      # For MAF appconfig, use cluster-level storage class: efs-{CLUSTER_ID}-main
       # Do not include MAS_INSTANCE_ID or MAS_APP_ID in the storage class name
       # ---------------------------------------------------------------------------
       if [[ -n "${MAF_STORAGE_CLASSNAME}" ]]; then

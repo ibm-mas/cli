@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: mas-fvt-core
@@ -43,7 +43,6 @@ spec:
       description: Workspace ID in MAS to use for running the tests
 
   stepTemplate:
-    name: 'fvt-core'
     env:
       # What are we testing?
       - name: PRODUCT_ID
@@ -202,13 +201,19 @@ spec:
             name: mas-fvt-core
             key: KEYCLOAK_REALM_NAME
             optional: false
+      - name: OIDC_DISCOVERY_ENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: OIDC_DISCOVERY_ENDPOINT
+            optional: false
 
   steps:
-    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
+    - name: fvt-core
+      image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 3h0m0s # Ensure bad FVTs don't run forever - want this to be lower, but a couple of suites are now pushing 2 hours as standard :(
       onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
         - mountPath: /dev/shm

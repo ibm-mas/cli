@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: aiservice-upgrade
@@ -29,7 +29,7 @@ spec:
     - name: skip_compatibility_check
       type: string
       default: "False"
-      description: Skip performing compatiblity checks before upgrade   
+      description: Skip performing compatiblity checks before upgrade
 
   tasks:
     - name: pipeline-start
@@ -111,7 +111,7 @@ spec:
           # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
           value: $(tasks.status)
-        
+
     - name: pipeline-finish
       timeout: "0"
       taskRef:

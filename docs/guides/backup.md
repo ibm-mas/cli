@@ -202,27 +202,30 @@ The backup captures certificate configurations but not the actual certificates, 
 
 The backup process supports backing up MAS application resources and persistent volume data. Currently supported:
 
-- **Manage Application** - Backs up Manage namespace resources and persistent volume data
+- **Manage Application** - Backs up Manage namespace resources and optionally persistent volume data
+- **Facilities Application** - Backs up Facilities namespace resources and optionally persistent volume data
 
-When backing up a Manage application, the following resources are included:
+When backing up a Manage or Facilities application, the following resources are included:
 
 **Namespace Resources**:
-- `ManageApp` custom resource
-- `ManageWorkspace` custom resource
-- Encryption secrets (dynamically determined from ManageWorkspace CR)
+- Application custom resource (e.g., `ManageApp`, `FacilitiesApp`)
+- Workspace custom resource (e.g., `ManageWorkspace`, `FacilitiesWorkspace`)
+- Encryption secrets (dynamically determined from Workspace CR)
 - Certificates with `mas.ibm.com/instanceId` label
 - Subscription and OperatorGroup
 - IBM entitlement secret
 - All referenced secrets (auto-discovered)
 
-**Persistent Volume Data** (if configured in ManageWorkspace CR):
+**Persistent Volume Data** (optional, controlled by flags):
+- Use `--backup-manage-include-pvc` to include Manage PVC data
+- Use `--backup-facilities-include-pvc` to include Facilities PVC data
 - All persistent volumes defined in `spec.settings.deployment.persistentVolumes`
 - Data backed up as compressed tar.gz archives
 - Each PVC's mount path archived separately
 - Common PVCs include JMS server data, custom fonts, and attachments
 
 !!! note
-    Application backup is optional and configured during the interactive backup process or via command-line parameters (`--backup-manage-app`, `--manage-workspace-id`).
+    Application backup is optional and configured during the interactive backup process or via command-line parameters (`--backup-manage-app`, `--manage-workspace-id`, `--backup-manage-include-pvc` for Manage; `--backup-facilities-app`, `--facilities-workspace-id`, `--backup-facilities-include-pvc` for Facilities).
 
 ### Db2 Database Backup
 

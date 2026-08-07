@@ -1,10 +1,4 @@
 # Python Docstrings Guidelines
-Docstrings are inline documentation for Python modules, classes, and functions. They are:
-
-- Embedded directly in the source code
-- Used to generate API documentation automatically
-- Essential for code maintainability and usability
-
 
 ## Writing Style
 
@@ -26,6 +20,17 @@ All Python code MUST use **Google-style docstrings**. This style is:
 
 ## Required Docstring Structure
 A complete docstring includes these sections **in order**:
+
+1. **Summary Line**: Brief one-line description (required)
+2. **Extended Description**: Detailed explanation (optional, use when needed)
+3. **Args**: Function/method parameters (required if function has parameters)
+4. **Returns**: Return value description (required if function returns a value)
+5. **Raises**: Exceptions that may be raised (required if function raises exceptions)
+
+Do **NOT** use these sections: `Note`, `Warning`, `Example`, any notes or warnings should be part of the extended description and examples lead to bloated documentation.
+
+
+## Key Format Rules
 
 1. **Summary Line**:
    - One line describing what the function does
@@ -54,8 +59,6 @@ A complete docstring includes these sections **in order**:
    - Format: `ExceptionType: When this exception occurs`
    - List all exceptions that may be raised
    - Explain the conditions that trigger each exception
-
-Do **NOT** include these sections: `Note`, `Warning`, or `Example`; any notes or warnings should be part of the extended description.
 
 
 ## Module Docstrings
@@ -132,5 +135,18 @@ def create_subscription(
     Raises:
         OLMException: If the package is not available in any catalog, or if installPlanApproval is "Manual" without a startingCSV
         NotFoundError: If resources cannot be created
+    """
+```
+
+## Test Case Docstring
+Test code must also be documentated: Each test function must have a docstring in the **Given-When-Then** format:
+
+```python
+def test_main_with_repo_argument_creates_sync():
+    """Test that --repo argument creates sync with correct parameters.
+
+    GIVEN --repo and --rulesets arguments
+    WHEN main() runs
+    THEN BobInstructionsSync is created with correct parameters.
     """
 ```

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -15,7 +15,7 @@ from halo import Halo
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
-from openshift.dynamic.exceptions import ResourceNotFoundError
+from kubernetes.dynamic.exceptions import ResourceNotFoundError
 
 from ..cli import BaseApp
 from ..validators import InstanceIDValidator, StorageClassValidator
@@ -76,6 +76,7 @@ class BackupApp(BaseApp):
                 # Manage App Backup
                 "manage_workspace_id",
                 "backup_manage_app",
+                "backup_manage_include_pvc",
                 "backup_manage_db",
                 "manage_db2_namespace",
                 "manage_db2_instance_name",
@@ -84,6 +85,7 @@ class BackupApp(BaseApp):
                 # Facilities App Backup
                 "facilities_workspace_id",
                 "backup_facilities_app",
+                "backup_facilities_include_pvc",
                 "backup_facilities_db",
                 "facilities_db2_namespace",
                 "facilities_db2_instance_name",
@@ -187,6 +189,7 @@ class BackupApp(BaseApp):
             self.printH2("Manage Application Backup")
             self.printSummary("Backup Manage App", "Yes")
             self.printSummary("Workspace ID", self.getParam("manage_workspace_id"))
+            self.printSummary("Include PVC Backup", "Yes" if self.getParam("backup_manage_include_pvc") == "true" else "No")
             self.printSummary("Backup Manage incluster Db2 Database", "Yes" if self.getParam("backup_manage_db") == "true" else "No")
             if self.getParam("backup_manage_db") == "true":
                 self.printSummary("Db2 Namespace", self.getParam("manage_db2_namespace"))
@@ -197,6 +200,7 @@ class BackupApp(BaseApp):
             self.printH2("Facilities Application Backup")
             self.printSummary("Backup Facilities App", "Yes")
             self.printSummary("Workspace ID", self.getParam("facilities_workspace_id"))
+            self.printSummary("Include PVC Backup", "Yes" if self.getParam("backup_facilities_include_pvc") == "true" else "No")
             self.printSummary("Backup Facilities incluster Db2 Database", "Yes" if self.getParam("backup_facilities_db") == "true" else "No")
             if self.getParam("backup_facilities_db") == "true":
                 self.printSummary("Db2 Namespace", self.getParam("facilities_db2_namespace"))
@@ -248,7 +252,7 @@ class BackupApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text="Submitting PipelineRun for MAS backup", spinner=self.spinner) as h:
@@ -266,7 +270,10 @@ class BackupApp(BaseApp):
             instances = listMasInstances(self.dynamicClient)
             self.printDescription(["The following MAS instances are installed on the target cluster:"])
             for instance in instances:
-                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+                instanceId = instance["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(instance)
+
+                self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
             return True
         except ResourceNotFoundError:
             self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])
@@ -280,13 +287,18 @@ class BackupApp(BaseApp):
                 self.fatalError("No MAS instances found on the cluster")
             elif len(instances) == 1:
                 instanceId = instances[0]["metadata"]["name"]
+                reconciledVersion = self.getReconciledVersion(instances[0])
+
                 self.setParam("mas_instance_id", instanceId)
                 self.printDescription([f"Using MAS instance: <u>{instanceId}</u>"])
             else:
                 instanceOptions = []
                 for instance in instances:
-                    self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
-                    instanceOptions.append(instance["metadata"]["name"])
+                    instanceId = instance["metadata"]["name"]
+                    reconciledVersion = self.getReconciledVersion(instance)
+
+                    self.printDescription([f"- <u>{instanceId}</u> v{reconciledVersion}"])
+                    instanceOptions.append(instanceId)
 
                 instanceCompleter = WordCompleter(instanceOptions)
                 print()
@@ -571,6 +583,21 @@ class BackupApp(BaseApp):
                 workspaceId = self.promptForString("Enter Manage workspace ID")
                 self.setParam("manage_workspace_id", workspaceId)
 
+            # Ask about PVC backup
+            self.printH2("Manage PVC Backup")
+            self.printDescription(
+                [
+                    "The Manage application uses persistent volumes that can be backed up.",
+                    "This will include PVC data in the backup.",
+                ]
+            )
+            backupPvc = self.yesOrNo("Do you want to include PVC backup for Manage")
+
+            if backupPvc:
+                self.setParam("backup_manage_include_pvc", "true")
+            else:
+                self.setParam("backup_manage_include_pvc", "false")
+
             # Ask about DB2 backup
             self.printH2("Manage Database Backup")
             self.printDescription(
@@ -656,6 +683,21 @@ class BackupApp(BaseApp):
             except Exception:
                 workspaceId = self.promptForString("Enter Facilities workspace ID")
                 self.setParam("facilities_workspace_id", workspaceId)
+
+            # Ask about PVC backup
+            self.printH2("Facilities PVC Backup")
+            self.printDescription(
+                [
+                    "The Facilities application uses persistent volumes that can be backed up.",
+                    "This will include PVC data in the backup.",
+                ]
+            )
+            backupPvc = self.yesOrNo("Do you want to include PVC backup for Facilities")
+
+            if backupPvc:
+                self.setParam("backup_facilities_include_pvc", "true")
+            else:
+                self.setParam("backup_facilities_include_pvc", "false")
 
             # Ask about DB2 backup
             self.printH2("Facilities Database Backup")

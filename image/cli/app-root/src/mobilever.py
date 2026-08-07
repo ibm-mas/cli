@@ -1,3 +1,12 @@
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
 import os
 import threading
 import zipfile
@@ -207,11 +216,14 @@ class MobVer(object):
             if json_object.get("WARN") is not None:
                 graphite_json.update({"WARN": json_object.get("WARN")})
             else:
+                application_id = json_object.get("applicationId")
+                application_id = application_id.lower() if application_id else application_id
+
                 graphite_json.update(
                     {
-                        json_object.get("applicationId"): {
+                        application_id: {
                             "version": json_object.get("version"),
-                            "applicationId": json_object.get("applicationId"),
+                            "applicationId": application_id,
                             "applicationTitle": json_object.get("applicationTitle"),
                             "mobileVersion": json_object.get("mobileVersion"),
                             "buildToolsVersion": json_object.get("buildToolsVersion"),
@@ -222,11 +234,11 @@ class MobVer(object):
 
                 # removing empty mobile version or non mobile apps
                 if json_object.get("mobileVersion") is None:
-                    del graphite_json[json_object.get("applicationId")]["mobileVersion"]
+                    del graphite_json[application_id]["mobileVersion"]
 
                 # removing empty title from apps with no title
                 if json_object.get("applicationTitle") is None:
-                    del graphite_json[json_object.get("applicationId")]["applicationTitle"]
+                    del graphite_json[application_id]["applicationTitle"]
 
             # delete build.json file
             os.remove(path_in_str)
@@ -246,9 +258,10 @@ class MobVer(object):
         self.download_mobile_packages(podName=maxinst_pod)
 
         # navigator has been moved to manage and should no longer be downloaded from mobileapi pod
-        if "9.1" not in mas_ver:
+        # Only download from mobileapi pod for versions in mobile_core list
+        mobile_core = ["8.10", "8.11", "9.0"]
+        if mas_ver and any(version in mas_ver for version in mobile_core):
             self.download_navigator_package(podName=mobileapi_pod)
-
         self.extract_build_json_from_zip_files(source_zip_files_path=".")
 
         graphite_ver = self.extract_build_info_from_json_files(source_json_files_path=".")

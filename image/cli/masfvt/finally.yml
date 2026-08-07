@@ -12,6 +12,7 @@
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-finally-' ~ devops_build_number, True) }}"
     mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+    service_account_name: "{{ lookup('env', 'SERVICE_ACCOUNT_NAME') | default('pipeline', True) }}"
   tasks:
     - name: "Debug"
       debug:

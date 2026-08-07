@@ -4,6 +4,9 @@
 {%- if RDS_APP | upper == "IOT" -%}
 {{RDS_DB2_CONFIG_IOT}}
 {% endif -%}
+{%- if RDS_APP | upper == "MONITOR" -%}
+{{RDS_DB2_CONFIG_MONITOR}}
+{% endif -%}
 {%- if RDS_APP | upper == "FACILITIES" -%}
 {{RDS_DB2_CONFIG_FACILITIES}}
 {% endif -%}
