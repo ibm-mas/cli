@@ -1285,7 +1285,7 @@ db2ArgGroup.add_argument(
     "--db2u-kind",
     dest="db2u_kind",
     required=False,
-    help="Db2 resource kind in the cluster",
+    help="Db2 resource kind in the cluster(db2ucluster, db2uinstance)",
 )
 
 # ECK Integration
