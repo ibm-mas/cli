@@ -1500,13 +1500,37 @@ function check_argo_app_healthy() {
   APPLICATION=$1
   MAX_CHECKS=$2
   COUNT=0
+
+  # Resolve the effective app name, handling both bare name and namespace-prefixed name (namespace/app-name).
+  # Try as-is first; if the health field comes back null (app not found),
+  # fall back to the namespace-prefixed form using ARGOAPP_NAMESPACE.
+  local _RESOLVED_APP=""
+  local _TEST_STATUS
+  _TEST_STATUS=$(argocd app get "$APPLICATION" -o json 2>/dev/null | jq -r .status.health.status)
+  if [[ "$_TEST_STATUS" != "null" && -n "$_TEST_STATUS" ]]; then
+    _RESOLVED_APP="$APPLICATION"
+  else
+    local _NS="${ARGOAPP_NAMESPACE:-openshift-gitops}"
+    # If APPLICATION already contains a '/', strip the prefix and try with the configured namespace.
+    local _BARE_NAME="${APPLICATION##*/}"
+    local _PREFIXED_APP="${_NS}/${_BARE_NAME}"
+    _TEST_STATUS=$(argocd app get "$_PREFIXED_APP" -o json 2>/dev/null | jq -r .status.health.status)
+    if [[ "$_TEST_STATUS" != "null" && -n "$_TEST_STATUS" ]]; then
+      _RESOLVED_APP="$_PREFIXED_APP"
+      echo "argo:check_argo_app_healthy : Resolved app name to namespace-prefixed form: $_RESOLVED_APP"
+    else
+      # Fall back to the original name so that the loop can log a meaningful status
+      _RESOLVED_APP="$APPLICATION"
+    fi
+  fi
+
   while true; do
     if [[ -n "$MAX_CHECKS" ]]; then
-      echo "argo:check_argo_app_healthy : Checking health status for $APPLICATION up to $MAX_CHECKS times"
+      echo "argo:check_argo_app_healthy : Checking health status for $_RESOLVED_APP up to $MAX_CHECKS times"
     else
-      echo "argo:check_argo_app_healthy : Checking health status for $APPLICATION with no timeout"
+      echo "argo:check_argo_app_healthy : Checking health status for $_RESOLVED_APP with no timeout"
     fi
-    HEALTH_STATUS=$(argocd app get $APPLICATION -o json 2> /dev/null | jq -r .status.health.status)
+    HEALTH_STATUS=$(argocd app get "$_RESOLVED_APP" -o json 2> /dev/null | jq -r .status.health.status)
     if [ "$HEALTH_STATUS" == "Healthy" ]; then
       echo "Health Status is Healthy"
       break
