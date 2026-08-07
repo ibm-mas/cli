@@ -868,6 +868,7 @@ function gitops_suite() {
 
   # Set SLS pod template yaml
   # ---------------------------------------------------------------------------
+  export SLS_POD_TEMPLATE=""
   if [[ -n "$MAS_SLS_POD_TEMPLATE_YAML" && -s "$MAS_SLS_POD_TEMPLATE_YAML" ]]; then
     export SLS_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SLS_POD_TEMPLATE_YAML})
     echo -e "\n - SLS_POD_TEMPLATE CONTENT .................. ${SLS_POD_TEMPLATE}"
