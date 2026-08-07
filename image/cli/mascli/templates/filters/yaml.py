@@ -1,4 +1,3 @@
-import json
 import yaml
 
 
@@ -10,13 +9,3 @@ def toYaml(value: str) -> dict:
 # Convert a Python object to a nicely formatted YAML string
 def to_nice_yaml(value, indent: int = 2) -> str:
     return yaml.dump(value, default_flow_style=False, indent=indent, sort_keys=False)
-
-
-# Parse a JSON string into a Python object
-def from_json(value: str):
-    return json.loads(value)
-
-
-# Serialize a Python object to a compact JSON string
-def tojson(value) -> str:
-    return json.dumps(value, separators=(",", ":"))

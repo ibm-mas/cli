@@ -90,7 +90,7 @@ ibm_mas_suite:
 
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
   allow_list:
-    ips: {{ (ALLOW_LIST | from_json) | tojson if ALLOW_LIST.startswith('[') else ALLOW_LIST.split(',') | tojson }}
+    ips: {{ ALLOW_LIST }}
 {% endif %}
 
 {% if SUITE_SPEC_ADDITIONAL_PROPERTIES is defined and SUITE_SPEC_ADDITIONAL_PROPERTIES != '' %}
