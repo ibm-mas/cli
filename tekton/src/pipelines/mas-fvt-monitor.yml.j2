@@ -57,6 +57,15 @@ spec:
       description: Data Dictionary Digest
       default: ""
 
+    # Computed suite selector (set by fvt-monitor.yml Ansible playbook):
+    #   monitor_fvt_with_manage : Monitor 8.10.x and 8.11.x (legacy, no health check)
+    #   fvt_90x                 : Monitor 9.0.x (monitor_fvt_with_manage + fvt_health_check)
+    #   fvt_91x                 : Monitor 9.1.x and 9.2.x+ (new parallel suites + fvt_health_check)
+    - name: fvt_test_suite
+      type: string
+      description: Which Monitor FVT suite grouping to run
+      default: ""
+
   tasks:
     - name: pipeline-start
       timeout: "0"
@@ -131,10 +140,11 @@ spec:
           operator: notin
           values: [""]
 
-    # 2. Legacy Monitor FVT - monitor_fvt_with_manage (8.10, 8.11, 9.0 only)
+    # 2. Legacy Monitor FVT - monitor_fvt_with_manage (8.10.x, 8.11.x, 9.0.x)
     # -------------------------------------------------------------------------
-    # Runs for Monitor versions 8.10, 8.11, and 9.0 only.
-    # Skipped for 9.1 and above where the new parallel suites are used instead.
+    # Runs for Monitor 8.10.x and 8.11.x (fvt_test_suite=monitor_fvt_with_manage)
+    # and Monitor 9.0.x (fvt_test_suite=fvt_90x).
+    # Skipped for 9.1+ where the new parallel suites are used instead.
     - name: fvt-monitor-with-manage
       params:
         - name: mas_instance_id
@@ -157,17 +167,18 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
+        - input: "$(params.fvt_test_suite)"
           operator: in
-          values: ["8.10.x", "8.11.x", "9.0.x"]
+          values: ["monitor_fvt_with_manage", "fvt_90x"]
       runAfter:
         - ivtcore-monitor
       workspaces:
         - name: configs
           workspace: shared-configs
 
-    # 2b. Health-check suite - runs on Monitor 9.0, 9.1, 9.2+ (NOT 8.10 or 8.11)
-    # Validates /healthcheck/ready and /healthcheck/live. Acts as gate before fvt-monitoronly.
+    # 2b. Health-check suite - runs on Monitor 9.0.x, 9.1.x, 9.2.x+
+    # (NOT 8.10 or 8.11 — gated by fvt_test_suite being fvt_90x or fvt_91x)
+    # Validates /healthcheck/ready and /healthcheck/live.
     - name: fvt-health-check
       timeout: "0"
       taskRef:
@@ -190,29 +201,25 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_90x", "fvt_91x"]
       runAfter:
         - ivtcore-monitor
       workspaces:
         - name: configs
           workspace: shared-configs
 
-    # 3. New Parallel Monitor FVT Suites (9.1 and above)
+    # 3. New Parallel Monitor FVT Suites (9.1.x and 9.2.x+)
     # -------------------------------------------------------------------------
-    # fvt_hierarchy_setup runs first on ALL versions (9.1 and 9.2+).
-    # It creates Default + Pipeline hierarchies and device types so that all
-    # dependent suites find everything ready.
-    #
-    # Once fvt_hierarchy_setup completes, all other suites fan out in parallel
-    # (runAfter: fvt-hierarchy-setup), including fvt-monitoronly which is gated
-    # to 9.2+ only (@afterMON920) and handles CSV file ingest verification.
+    # All tasks in this section are gated on fvt_test_suite == "fvt_91x".
+    # fvt_hierarchy_setup runs first and creates Default + Pipeline hierarchies
+    # and device types so that all dependent suites find everything ready.
+    # Once fvt_hierarchy_setup completes, all other suites fan out in parallel.
     # -------------------------------------------------------------------------
 
-    # fvt_hierarchy_setup - Version-agnostic hierarchy bootstrap (9.1 and 9.2+)
+    # fvt_hierarchy_setup - Hierarchy bootstrap for 9.1+ parallel suites
     # Creates Default + Pipeline hierarchies, device types, devices, and assignments.
-    # Runs on ALL 9.1+ versions — no version gate.
     - name: fvt-hierarchy-setup
       params:
         - name: mas_instance_id
@@ -235,9 +242,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-health-check
       workspaces:
@@ -268,9 +275,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -300,9 +307,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -332,9 +339,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -364,9 +371,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -396,9 +403,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -428,9 +435,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -460,9 +467,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -492,9 +499,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -524,9 +531,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -556,9 +563,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -588,9 +595,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -620,9 +627,9 @@ spec:
         - input: "$(params.fvt_digest_monitor)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: ["", "8.10.x", "8.11.x", "9.0.x"]
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["fvt_91x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:

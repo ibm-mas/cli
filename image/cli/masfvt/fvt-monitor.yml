@@ -22,6 +22,20 @@
     # Data Dictionary FVT is only supported for Release versions 8.10, 8.11, and 9.0
     # For any other version (including 9.1+), the digest will be empty and the task will be skipped
     fvt_digest_data_dictionary: "{% if '8.10' in mas_app_channel_monitor or '8.11' in mas_app_channel_monitor or '9.0' in mas_app_channel_monitor %}{{ lookup('env', 'FVT_DIGEST_DATA_DICTIONARY') }}{% endif %}"
+    # Determine which Monitor FVT suite to run based on Monitor version and presence of Manage:
+    #   - 8.10.x / 8.11.x: legacy suite (monitor_fvt_with_manage only, no health check)
+    #   - 9.0.x:            legacy suite + health check (fvt_90x)
+    #   - 9.1.x / 9.2.x+:  new parallel suites (fvt_91x)
+    fvt_test_suite: >-
+      {%- if '9.1' in mas_app_channel_monitor -%}
+        fvt_91x
+      {%- elif '9.2' in mas_app_channel_monitor -%}
+        fvt_91x
+      {%- elif '9.0' in mas_app_channel_monitor -%}
+        fvt_90x
+      {%- else -%}
+        monitor_fvt_with_manage
+      {%- endif -%}
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-monitor', True) }}-{{ devops_build_number }}"
@@ -46,6 +60,8 @@
           - "fvt_digest_monitor .............. {{ fvt_digest_monitor }}"
           - "ivt_digest_core ................. {{ ivt_digest_core }}"
           - "fvt_digest_data_dictionary ...... {{ fvt_digest_data_dictionary }}"
+          - ""
+          - "fvt_test_suite .................. {{ fvt_test_suite }}"
           - ""
           - "fvt_blacklist ............... {{ fvt_blacklist }}"
           - "fvt_whitelist ............... {{ fvt_whitelist }}"
