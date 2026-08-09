@@ -159,14 +159,14 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: in
-          values: ["8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - ivtcore-monitor
       workspaces:
         - name: configs
           workspace: shared-configs
 
-    # 2b. Health-check suite - runs on ALL Monitor versions (9.0, 9.1, 9.2+)
+    # 2b. Health-check suite - runs on Monitor 9.0, 9.1, 9.2+ (NOT 8.10 or 8.11)
     # Validates /healthcheck/ready and /healthcheck/live. Acts as gate before fvt-monitoronly.
     - name: fvt-health-check
       timeout: "0"
@@ -192,7 +192,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: [""]
+          values: ["", "8.10.x", "8.11.x"]
       runAfter:
         - ivtcore-monitor
       workspaces:
@@ -237,7 +237,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-health-check
       workspaces:
@@ -270,7 +270,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -302,7 +302,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -334,7 +334,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -366,7 +366,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -398,7 +398,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -430,7 +430,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -462,7 +462,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -494,7 +494,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -526,7 +526,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -558,7 +558,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -590,7 +590,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
@@ -622,7 +622,7 @@ spec:
           values: [""]
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
-          values: ["", "8.10.x-stable", "8.11.x-stable", "9.0.x-stable"]
+          values: ["", "8.10.x", "8.11.x", "9.0.x"]
       runAfter:
         - fvt-hierarchy-setup
       workspaces:
