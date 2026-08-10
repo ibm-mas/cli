@@ -327,10 +327,10 @@ function gitops_cluster_noninteractive() {
         export CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER=true
         ;;
       --cluster-logging-operator-environment-type)
-        export CLUSTER_LOGGING_OPERATOR_ENVIRONMENT_TYPE=true
+        export CLUSTER_LOGGING_OPERATOR_ENVIRONMENT_TYPE=$1 && shift
         ;;
       --cluster-logging-operator-additional-exclude-containers)
-        export CLUSTER_LOGGING_OPERATOR_ADDITIONAL_EXCLUDE_CONTAINERS=true
+        export CLUSTER_LOGGING_OPERATOR_ADDITIONAL_EXCLUDE_CONTAINERS=$1 && shift
         ;;
       --cluster-logging-operator-install-plan)
         export CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN=$1 && shift
