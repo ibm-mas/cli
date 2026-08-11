@@ -388,7 +388,7 @@ function ocp_version_check() {
   fi
 }
 
-# Calls jinjanate with common arguments. Call jinjanate directly if this does not suit your use case. 
+# Calls jinjanate with common arguments. Call jinjanate directly if this does not suit your use case.
 function jinjanate_commmon() {
   local template_path=$1
   local output_path=$2
