@@ -1,0 +1,37 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:openshift-monitoring
+  namespace: openshift-monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{ mas_instance_id }}:install-pipeline:openshift-monitoring
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:openshift-monitoring
+  namespace: openshift-monitoring
+rules:
+  # User workload monitoring will be enabled during the install of Grafana (enableUserWorkload)
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - create
+      - patch
+  # When setting up grafana we need to lookup the thanos-querier route
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
+    verbs:
+      - get
