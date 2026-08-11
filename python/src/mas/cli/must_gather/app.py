@@ -301,10 +301,10 @@ class MustGatherApp(BaseApp):
                 ("cluster_resources", ocp.collectClusterResources, outputDir),
                 ("nodes", ocp.collectNodes, outputDir),
                 ("airgap_resources", ocp.collectAirgapResources, self.dynamicClient, outputDir),
-                ("marketplace_resources", ocp.collectMarketplaceResources, outputDir),
             ]
             plan.addGroup("OpenShift Container Platform", ocpTasks)
-            logger.debug("Added OCP collection group with 4 tasks to plan")
+            logger.debug("Added OCP collection group with 3 tasks to plan")
+            ocp.addMarketplaceToCollectionPlan(plan=plan, dynClient=self.dynamicClient, outputDir=outputDir, noLogs=parsedArgs.no_logs)
         else:
             logger.debug("Skipping OCP collection (not in collectors list)")
 

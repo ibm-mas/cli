@@ -236,6 +236,11 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         if appId not in self.compatibilityMatrix[self.nextChannel]:
                             if "feature" in self.nextChannel:
                                 incompatibleApps.append(f"  - {appId}: Not available in feature channel {self.nextChannel}")
+                            elif appId == "assist":
+                                # Assist was withdrawn in MAS 9.2; its functionality was migrated to the Collaborate add-on
+                                incompatibleApps.append(
+                                    f"  - {appId}: Not supported in {self.nextChannel} (Assist has been replaced by the Collaborate add-on in MAS 9.2+)"
+                                )
                             else:
                                 incompatibleApps.append(f"  - {appId}: Not supported in {self.nextChannel}")
                         else:

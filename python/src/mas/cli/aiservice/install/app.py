@@ -657,7 +657,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             # Ask for external storage configuration
             self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-            self.promptForString("Storage access key", "aiservice_s3_accesskey")
+            self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
             self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
             self.promptForString("Storage host", "aiservice_s3_host")
             self.promptForString("Storage port", "aiservice_s3_port")
@@ -667,6 +667,24 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
+
+        # Configure AI Data Science Platform
+        self.printH2("Configure AI Data Science Platform")
+        self.printDescription(
+            [
+                "Choose which AI data science platform to install:",
+                " - <b>Note for 9.1.x</b>: Open Data Hub (ODH) is the supported platform for AI Service 9.1.x",
+                " - <b>Note for 9.2.x</b>: Red Hat OpenShift AI (RHOAI) is the recommended platform for AI Service 9.2.x",
+                "",
+                "  1. Red Hat OpenShift AI (RHOAI)",
+                "  2. Open Data Hub (ODH)",
+            ]
+        )
+        platformChoice = self.promptForInt("AI Data Science Platform", default=1, min=1, max=2)
+        if platformChoice == 2:
+            self.setParam("rhoai", "false")
+        else:
+            self.setParam("rhoai", "true")
 
         # Configure Certificate Issuer
         self.configCertIssuer()
@@ -914,11 +932,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printDescription(catalogSummary)
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            # There's only one release channel, the user doesn't need to be prompted!!
-            # releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
-            # releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
-            # self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
-            self.setParam("aiservice_channel", "9.1.x")
+            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
+            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
+            self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -1083,9 +1099,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.setParam("environment_type", "production")
             self.setParam("aiservice_odh_model_deployment_type", "raw")
             self.setParam("aiservice_rhoai_model_deployment_type", "raw")
-            self.setParam("rhoai", "false")
         else:
             self.setParam("environment_type", "non-production")
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
             self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
-            self.setParam("rhoai", "false")
