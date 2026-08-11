@@ -1,4 +1,4 @@
-IBM Maximo Application Suite CLI Utility
+     Maximo Application Suite CLI Utility
 ===============================================================================
 [![Code Style: Black](https://img.shields.io/badge/Code%20Style-Black-000000.svg)](https://github.com/psf/black)
 [![Flake8: Checked](https://img.shields.io/badge/Flake8-Checked-blueviolet)](https://flake8.pycqa.org/en/latest/)
