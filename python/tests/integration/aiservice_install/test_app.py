@@ -24,6 +24,12 @@ from mas.cli.aiservice.install.app import AiServiceInstallApp
 
 
 def test_install_noninteractive(tmpdir):
+    """Test non-interactive AI Service install.
+
+    GIVEN a complete set of CLI arguments for AI Service install
+    WHEN the install command runs in non-interactive mode
+    THEN the install pipeline is launched without prompting for input.
+    """
     tmpdir.join("authorized_entitlement.lic").write("testLicense")
     tmpdir.join("aiservice-tenant-affinity-config.yaml").write("#")
     with mock.patch("mas.cli.cli.config"):
@@ -101,23 +107,24 @@ def test_install_noninteractive(tmpdir):
                         "mongoce",
                         "--aiservice-channel",
                         "9.1.x",
-                        "--aiservice-certificate-issuer",
-                        "cert-issuer",
-                        "--enable-ipv6",
-                        "--s3-accesskey",
-                        "test",
-                        "--s3-secretkey",
-                        "test",
-                        "--s3-host",
-                        "minio-service.minio.svc.cluster.local",
-                        "--s3-port",
-                        "9000",
-                        "--s3-ssl",
-                        "false",
-                        "--s3-region",
-                        "none",
-                        "--s3-bucket-prefix",
+                        "--domain",
+                        "aiservice.example.com",
+                        "--dns-provider",
+                        "cis",
+                        "--cis-email",
+                        "cis@example.com",
+                        "--cis-apikey",
+                        "testCisApiKey",
+                        "--cis-crn",
+                        "crn:v1:test",
+                        "--cis-subdomain",
                         "aiservice",
+                        "--ocp-ingress",
+                        "cluster-ingress.example.com",
+                        "--aiservice-certificate-issuer",
+                        "testInstanceId-cis-le-prod",
+                        "--enable-ipv6",
+                        "--install-minio",
                         "--s3-tenants-bucket",
                         "km-tenants",
                         "--s3-templates-bucket",
@@ -164,6 +171,12 @@ def test_install_noninteractive(tmpdir):
 
 
 def test_install_interactive_advanced(tmpdir):
+    """Test advanced interactive AI Service install flow.
+
+    GIVEN advanced interactive answers including custom domain and CIS DNS setup
+    WHEN the install command runs interactively
+    THEN the workflow completes using the updated DNS and certificate prompts.
+    """
     tmpdir.join("authorized_entitlement.lic").write("testLicense")
     tmpdir.join("aiservice-tenant-affinity-config.yaml").write("#")
     tmpdir.join("mongodb-system.yaml").write("#")
@@ -281,23 +294,31 @@ def test_install_interactive_advanced(tmpdir):
                     return "password"
                 if re.match(".*AI Data Science Platform.*", message):
                     return "1"
-                if re.match(r".*Configure certificate issuer\?.*", message):
+                if re.match(".*Cluster ingress certificate secret name.*", message):
+                    return ""
+                if re.match(".*Configure.*domain.*certificate management.*", message):
                     return "y"
-                if re.match(".*Certificate issuer name.*", message):
-                    return "cert-issuer"
+                if re.match(".*Configure custom domain.*", message):
+                    return "y"
+                if re.match(".*AI Service domain.*", message):
+                    return "aiservice.example.com"
+                if re.match(".*DNS Provider.*", message):
+                    return "1"
+                if re.match(".*CIS e-mail.*", message):
+                    return "cis@example.com"
+                if re.match(".*CIS API token.*", message):
+                    return "testCisApiKey"
+                if re.match(".*CIS CRN.*", message):
+                    return "crn:v1:test"
+                if re.match(".*CIS subdomain.*", message):
+                    return "aiservice"
+                if re.match(".*Certificate issuer.*", message):
+                    return "1"
+                if re.match(".*Cluster Ingress Domain Override.*", message):
+                    return ""
                 if re.match(".*Enable IPv6 SingleStack networking.*", message):
                     return "y"
-                if re.match(".*RSL url.*", message):
-                    return "https://rls.maximo.test.ibm.com"
-                if re.match(".*ORG Id of RSL.*", message):
-                    return "rslOrgId"
-                if re.match(".*Token for RSL.*", message):
-                    return "rslToken"
-                if re.match(".*Watsonxai machine learning url.*", message):
-                    return "watsonxUrl"
                 if re.match(".*Does the RSL API use a self-signed certificate.*", message):
-                    return "n"
-                if re.match(".*Does the Watsonxai AI use a self-signed certificate.*", message):
                     return "n"
                 if re.match(".*Do you want to use an external database.*", message):
                     return "n"
@@ -341,6 +362,12 @@ def test_install_interactive_advanced(tmpdir):
 
 
 def test_install_interactive_simplified(tmpdir):
+    """Test simplified interactive AI Service install flow.
+
+    GIVEN simplified interactive answers for the default AI Service setup
+    WHEN the install command runs interactively
+    THEN the workflow completes without the advanced DNS and certificate prompts.
+    """
     tmpdir.join("authorized_entitlement.lic").write("testLicense")
     tmpdir.join("mongodb-system.yaml").write("#")
     tmpdir.join("cert.crt").write("#")
@@ -453,17 +480,7 @@ def test_install_interactive_simplified(tmpdir):
                     return ""
                 if re.match(".*Watsonxai Space ID.*", message):
                     return ""
-                if re.match(".*RSL url.*", message):
-                    return "https://rls.maximo.test.ibm.com"
-                if re.match(".*ORG Id of RSL.*", message):
-                    return "rslOrgId"
-                if re.match(".*Token for RSL.*", message):
-                    return "rslToken"
-                if re.match(".*Watsonxai machine learning url.*", message):
-                    return "watsonxUrl"
                 if re.match(".*Does the RSL API use a self-signed certificate.*", message):
-                    return "n"
-                if re.match(".*Does the Watsonxai AI use a self-signed certificate.*", message):
                     return "n"
                 if re.match(".*Do you want to use an external database.*", message):
                     return "n"

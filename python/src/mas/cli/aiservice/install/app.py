@@ -266,6 +266,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.setParam("aiservice_s3_ssl", "false")
                     self.setParam("aiservice_s3_region", "none")
                     self.setParam("aiservice_s3_bucket_prefix", "s3-")
+
+                    # Set default bucket names
+                    self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
+                    self.setParam("aiservice_s3_templates_bucket", "km-templates")
                 else:
                     self.fatalError(f"Unsupported value for --install-minio: {value}")
 

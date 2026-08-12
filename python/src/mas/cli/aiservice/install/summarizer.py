@@ -35,7 +35,7 @@ class aiServiceInstallSummarizerMixin:
         self.printH2("Maximo Operator Catalog")
         self.printParamSummary("Catalog Version", "mas_catalog_version")
         # We only list the digest if it's specified (primary use case is when running development builds in airgap environments)
-        if self.getParam("mas_catalog_digest" != ""):
+        if self.getParam("mas_catalog_digest") != "":
             self.printParamSummary("Catalog Digest", "mas_catalog_digest")
 
         self.printH2("IBM Container Registry")
@@ -68,7 +68,6 @@ class aiServiceInstallSummarizerMixin:
                 self.printParamSummary("Route 53 subdomain", "route53_subdomain")
             elif self.getParam("dns_provider") == "":
                 pass
-
 
         self.printParamSummary("Configure AI Service to run in IPv6 mode", "enable_ipv6")
 
