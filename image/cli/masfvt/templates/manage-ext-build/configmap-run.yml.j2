@@ -106,13 +106,29 @@ data:
     # 5. Build admin image
     # ----------------------------------------------------------------
     ADMIN_DOCKERFILE=$(oc get configmap managebuild-buildinfo \
-      -n ${MANAGE_NS} -o jsonpath="{.data.admin-image}")
+      -n ${MANAGE_NS} -o jsonpath="{.data.admin-image}" \
+      | sed "/^#RUN opensslversion/,/^#  .*; fi$/s/^#//" \
+      | sed "s/^#RUN wget \$configfile/RUN wget \$configfile/" \
+      | sed "s/^#RUN rm -rf customizationCredentials/RUN rm -rf customizationCredentials/")
+
+    # Extract secretMountPath from: ARG configfile="--config=./customizationCredentials/<path>/credentials"
+    CRED_MOUNT_PATH=$(echo "${ADMIN_DOCKERFILE}" \
+      | grep '^ARG configfile=' \
+      | sed 's|.*customizationCredentials/||;s|/credentials".*||')
+
+    if [ -n "${CRED_MOUNT_PATH}" ]; then
+      echo "Customization credentials path: ${CRED_MOUNT_PATH}"
+      CRED_SECRET_NAME="${CRED_MOUNT_PATH}"
+      strip_metadata secret "${CRED_SECRET_NAME}" "${MANAGE_NS}" | oc apply -f -
+    fi
 
     python3 /tmp/build_bc.py admin \
       "${ADMIN_DOCKERFILE}" \
       "${INSTANCE_ID}-${WORKSPACE_ID}-truststore-cfg" \
       "${INSTANCE_ID}-${WORKSPACE_ID}-manage-truststorepasswd" \
       "image-registry.openshift-image-registry.svc:5000/${MANAGE_NS}/ext-manage-admin:${BUILD_TAG}" \
+      "${CRED_MOUNT_PATH:-}" \
+      "${CRED_SECRET_NAME:-}" \
       | oc apply -f -
 
     oc start-build manage-admin-build -n manage-build --wait

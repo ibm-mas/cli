@@ -12,6 +12,11 @@ data:
     dockerfile = sys.argv[2]
 
     if mode == "admin":
+        cred_mount_path = sys.argv[6] if len(sys.argv) > 6 and sys.argv[6] else ""
+        cred_secret_name = sys.argv[7] if len(sys.argv) > 7 and sys.argv[7] else ""
+        secrets = [{"secret": {"name": sys.argv[4]}, "destinationDir": "tmp_build_files"}]
+        if cred_secret_name and cred_mount_path:
+            secrets.append({"secret": {"name": cred_secret_name}, "destinationDir": "tmp_build_files/customizationCredentials/" + cred_mount_path})
         bc = {
             "apiVersion": "build.openshift.io/v1",
             "kind": "BuildConfig",
@@ -25,7 +30,7 @@ data:
                     "type": "Dockerfile",
                     "dockerfile": dockerfile,
                     "configMaps": [{"configMap": {"name": sys.argv[3]}, "destinationDir": "tmp_build_files"}],
-                    "secrets":    [{"secret":    {"name": sys.argv[4]}, "destinationDir": "tmp_build_files"}]
+                    "secrets":    secrets
                 },
                 "strategy": {
                     "type": "Docker",
