@@ -48,8 +48,27 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Environment Type", "environment_type")
         self.printSummary("AI Data Science Platform", "Red Hat OpenShift AI (RHOAI)" if self.getParam("rhoai") == "true" else "Open Data Hub (ODH)")
 
-        if "aiservice_certificate_issuer" in self.params:
+        if "aiservice_domain" in self.params:
+            print()
+            self.printParamSummary("Domain Name", "aiservice_domain")
+            self.printParamSummary("DNS Provider", "dns_provider")
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
+
+            if self.getParam("ocp_ingress") != "":
+                self.printParamSummary("OCP Ingress", "ocp_ingress")
+            if self.getParam("dns_provider") == "cis":
+                self.printParamSummary("CIS e-mail", "cis_email")
+                self.printParamSummary("CIS API Key", "cis_apikey")
+                self.printParamSummary("CIS CRN", "cis_crn")
+                self.printParamSummary("CIS subdomain", "cis_subdomain")
+            elif self.getParam("dns_provider") == "route53":
+                self.printParamSummary("Route 53 e-mail", "route53_email")
+                self.printParamSummary("Route 53 hosted zone name", "route53_hosted_zone_name")
+                self.printParamSummary("Route 53 hosted zone region", "route53_hosted_zone_region")
+                self.printParamSummary("Route 53 subdomain", "route53_subdomain")
+            elif self.getParam("dns_provider") == "":
+                pass
+
 
         self.printParamSummary("Configure AI Service to run in IPv6 mode", "enable_ipv6")
 

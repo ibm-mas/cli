@@ -689,9 +689,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # Configure DNS
         self.configDNSAndCerts()
 
-        # Configure Certificate Issuer
-        self.configCertIssuer()
-
         # Configure Network configuration for services
         self.configNetworking()
 
@@ -804,22 +801,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.promptForString("AWS Route 53 e-mail", "route53_email")
 
         self.setParam("aiservice_certificate_issuer", f"{self.getParam('aiservice_instance_id')}-route53-le-prod")
-
-    @logMethodCall
-    def configCertIssuer(self):
-        if self.showAdvancedOptions:
-            self.printH1("Configure Certificate Issuer")
-            self.printDescription([
-                "Provide name of your certificate Issuer",
-                "This Issuer will be used to generate public certificates for AI Service",
-                f"The certificate Issuer must be configured in the AI Service namespace: aiservice-{self.getParam("aiservice_instance_id")}"
-                "When skipped, a self-signed certificate issuer will be created during installation"
-            ])
-            configureCertIssuer = self.yesOrNo("Configure certificate issuer")
-            if configureCertIssuer:
-                self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
-            else:
-                self.setParam("aiservice_certificate_issuer", "")
 
     @logMethodCall
     def configNetworking(self):
