@@ -154,7 +154,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-core/ui-cypress/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mcpi-viewer
+      value: mcpi-viewer-ui
   runAfter:
     - mcpi
     
