@@ -147,7 +147,7 @@
   runAfter:
     - coreapi-graphiteconfigtool
 
-# mcpi-viewer (Cypress UI tests) ~5m
+# mcpi-viewer (Cypress UI test) ~5m
 # ------------------------------------------------------------------------------
 - name: mcpi-viewer
   {{ lookup('template', 'taskdefs/fvt-core/ui-cypress/taskref.yml.j2') | indent(2) }}
