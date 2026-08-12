@@ -14,6 +14,9 @@ from os import path
 from ... import __version__ as packageVersion
 from ...cli import getHelpFormatter
 
+# Constants for argument choices
+DNS_PROVIDERS = ["cis", "route53"]
+
 
 def isValidFile(parser, arg) -> str:
     if not path.exists(arg):
@@ -222,7 +225,82 @@ aiserviceAdvancedArgGroup.add_argument(
     help="Path to the YAML file that contains the scheduling configuration for tenant",
     type=lambda x: isValidFile(aiServiceinstallArgParser, x),
 )
+aiserviceAdvancedArgGroup.add_argument(
+    "--domain",
+    dest="aiservice_domain",
+    required=False,
+    help="Configure AI Service with a custom domain",
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--dns-provider",
+    dest="dns_provider",
+    required=False,
+    help="Enable automatic DNS management (see DNS Configuration options)",
+    choices=DNS_PROVIDERS,
+    metavar="{cis,route53}",
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--ocp-ingress",
+    dest="ocp_ingress",
+    required=False,
+    help="Overwrites Ingress Domain",
+)
 
+# DNS Integration - IBM CIS
+# -----------------------------------------------------------------------------
+cisArgGroup = aiServiceinstallArgParser.add_argument_group("DNS Integration - CIS")
+cisArgGroup.add_argument(
+    "--cis-email",
+    dest="cis_email",
+    required=False,
+    help="Required when DNS provider is CIS and you want to use a Let's Encrypt Issuer",
+)
+cisArgGroup.add_argument(
+    "--cis-apikey",
+    dest="cis_apikey",
+    required=False,
+    help="Required when DNS provider is CIS",
+)
+cisArgGroup.add_argument(
+    "--cis-crn",
+    dest="cis_crn",
+    required=False,
+    help="Required when DNS provider is CIS",
+)
+cisArgGroup.add_argument(
+    "--cis-subdomain",
+    dest="cis_subdomain",
+    required=False,
+    help="Optionally setup AI Service instance as a subdomain under a multi-tenant CIS DNS record",
+)
+
+# DNS Integration - AWS Route53
+# -----------------------------------------------------------------------------
+route53ArgGroup = aiServiceinstallArgParser.add_argument_group("DNS Integration - AWS Route53")
+route53ArgGroup.add_argument(
+    "--route53-hosted-zone-name",
+    dest="route53_hosted_zone_name",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
+route53ArgGroup.add_argument(
+    "--route53-hosted-zone-region",
+    dest="route53_hosted_zone_region",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
+route53ArgGroup.add_argument(
+    "--route53-subdomain",
+    dest="route53_subdomain",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
+route53ArgGroup.add_argument(
+    "--route53-email",
+    dest="route53_email",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
 
 # Database Configuration
 # -----------------------------------------------------------------------------

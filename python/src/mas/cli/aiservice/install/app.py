@@ -125,9 +125,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.printDescription(
             [
                 "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
-                " - Configure certificate issuer",
                 " - Enable IPv6 SingleStack networking for services",
                 " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant",
+                " - Configure a custom domain and DNS integrations",
             ]
         )
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
@@ -686,6 +686,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.setParam("rhoai", "true")
 
+        # Configure DNS
+        self.configDNSAndCerts()
+
         # Configure Certificate Issuer
         self.configCertIssuer()
 
@@ -693,12 +696,130 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configNetworking()
 
     @logMethodCall
+    def configDNSAndCerts(self):
+        if self.showAdvancedOptions:
+            self.printH1("Cluster Ingress Secret Override")
+            self.printDescription(
+                [
+                    "In most OpenShift clusters the installation is able to automatically locate the default ingress certificate, however in some configurations it is necessary to manually configure the name of the secret",
+                    "Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this and can leave the response empty",
+                ]
+            )
+            self.promptForString(
+                "Cluster ingress certificate secret name",
+                "ocp_ingress_tls_secret_name",
+                default="",
+            )
+
+            self.printH1("Configure Domain & Certificate Management")
+            configureDomainAndCertMgmt = self.yesOrNo("Configure domain & certificate management")
+            if configureDomainAndCertMgmt:
+                configureDomain = self.yesOrNo("Configure custom domain")
+                if configureDomain:
+                    self.promptForString("AI Service domain", "aiservice_domain")
+
+                    self.printDescription(
+                        [
+                            "",
+                            "DNS Integrations:",
+                            "  1. IBM Cloud Internet Services",
+                            "  2. AWS Route 53",
+                            "  3. None (I will set up DNS myself)",
+                        ]
+                    )
+                    dnsProvider = self.promptForInt("DNS Provider", min=1, max=3)
+                    if dnsProvider == 1:
+                        self.configDNSAndCertsCIS()
+                    elif dnsProvider == 2:
+                        self.configDNSAndCertsRoute53()
+                    elif dnsProvider == 3:
+                        # Use self-signed certificate Issuer with custom domain
+                        self.setParam("dns_provider", "")
+                        self.setParam("aiservice_certificate_issuer", "")
+
+                    if dnsProvider == 1:
+                        self.printDescription(
+                            [
+                                "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
+                                "CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration.",
+                            ]
+                        )
+                        self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
+
+                else:
+                    # Use self-signed certificate Issuer with default domain
+                    self.setParam("dns_provider", "")
+                    self.setParam("aiservice_domain", "")
+                    self.setParam("aiservice_certificate_issuer", "")
+
+    @logMethodCall
+    def configDNSAndCertsCIS(self):
+        self.setParam("dns_provider", "cis")
+        self.promptForString("CIS e-mail", "cis_email")
+        self.promptForString("CIS API token", "cis_apikey", isPassword=True)
+        self.promptForString("CIS CRN", "cis_crn")
+        self.promptForString("CIS subdomain", "cis_subdomain")
+
+        self.printDescription(
+            [
+                "Certificate Issuer:",
+                "  1. LetsEncrypt (Production)",
+                "  2. LetsEncrypt (Staging)",
+                "  3. Self-Signed",
+            ]
+        )
+        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
+        certIssuerOptions = [
+            f"{self.getParam('aiservice_instance_id')}-cis-le-prod",
+            f"{self.getParam('aiservice_instance_id')}-cis-le-stg",
+            "",
+        ]
+        self.setParam("aiservice_certificate_issuer", certIssuerOptions[certIssuer - 1])
+
+    @logMethodCall
+    def configDNSAndCertsRoute53(self):
+        self.setParam("dns_provider", "route53")
+        self.printDescription(
+            [
+                "Provide your AWS account access key ID and secret access key",
+                "This will be used to authenticate into the AWS account where your AWS Route 53 hosted zone instance is located",
+                "",
+            ]
+        )
+        self.promptForString("AWS Access Key ID", "aws_access_key_id", isPassword=True)
+        self.promptForString("AWS Secret Access Key", "aws_secret_access_key", isPassword=True)
+
+        self.printDescription(
+            [
+                "Provide your AWS Route 53 hosted zone instance details",
+                "This information will be used to create webhook resources between your cluster and your AWS Route 53 instance (cluster issuer and cname records)",
+                "in order for it to be able to resolve DNS entries for all the subdomains created for your Maximo Application Suite instance",
+                "",
+                "Therefore, the AWS Route 53 subdomain + the AWS Route 53 hosted zone name defined, when combined, needs to match with the chosen AI Service domain, otherwise the DNS records won't be able to get resolved",
+            ]
+        )
+        self.promptForString("AWS Route 53 hosted zone name", "route53_hosted_zone_name")
+        self.promptForString("AWS Route 53 hosted zone region", "route53_hosted_zone_region")
+        self.promptForString("AWS Route 53 subdomain", "route53_subdomain")
+        self.promptForString("AWS Route 53 e-mail", "route53_email")
+
+        self.setParam("aiservice_certificate_issuer", f"{self.getParam('aiservice_instance_id')}-route53-le-prod")
+
+    @logMethodCall
     def configCertIssuer(self):
         if self.showAdvancedOptions:
             self.printH1("Configure Certificate Issuer")
+            self.printDescription([
+                "Provide name of your certificate Issuer",
+                "This Issuer will be used to generate public certificates for AI Service",
+                f"The certificate Issuer must be configured in the AI Service namespace: aiservice-{self.getParam("aiservice_instance_id")}"
+                "When skipped, a self-signed certificate issuer will be created during installation"
+            ])
             configureCertIssuer = self.yesOrNo("Configure certificate issuer")
             if configureCertIssuer:
                 self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
+            else:
+                self.setParam("aiservice_certificate_issuer", "")
 
     @logMethodCall
     def configNetworking(self):

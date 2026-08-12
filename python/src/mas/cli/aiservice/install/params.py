@@ -109,4 +109,18 @@ optionalParams = [
     # Slack
     "slack_token",
     "slack_channel",
+    # DNS Providers
+    "dns_provider",
+    "aiservice_domain",
+    "ocp_ingress",
+    # CIS
+    "cis_email",
+    "cis_apikey",
+    "cis_crn",
+    "cis_subdomain",
+    # AWS Route53
+    "route53_hosted_zone_name",
+    "route53_hosted_zone_region",
+    "route53_subdomain",
+    "route53_email",
 ]

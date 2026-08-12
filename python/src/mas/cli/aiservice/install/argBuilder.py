@@ -23,10 +23,30 @@ class aiServiceInstallArgBuilderMixin:
             command += "export IBMCLOUD_APIKEY=x\n"
         if self.getParam("aws_access_key_id") != "":
             command += "export AWS_ACCESS_KEY_ID=x\n"
-        if self.getParam("secret_access_key") != "":
-            command += "export SECRET_ACCESS_KEY=x\n"
+        if self.getParam("aws_secret_access_key") != "":
+            command += "export AWS_SECRET_ACCESS_KEY=x\n"
         if self.getParam("artifactory_username") != "":
             command += "export ARTIFACTORY_USERNAME=x\nexport ARTIFACTORY_TOKEN=x\n"
+
+        # Object Storage Credentials
+        if self.getParam("aiservice_s3_accesskey") != "":
+            command += "export AISERVICE_S3_ACCESSKEY=x\n"
+        if self.getParam("aiservice_s3_secretkey") != "":
+            command += "export AISERVICE_S3_SECRETKEY=x\n"
+
+        # Watsonx Credentials
+        if self.getParam("aiservice_watsonxai_apikey") != "":
+            command += "export AISERVICE_WATSONXAI_APIKEY=x\n"
+
+        # MinIO Credentials
+        if self.getParam("minio_root_user") != "":
+            command += "export MINIO_ROOT_USER=x\n"
+        if self.getParam("minio_root_password") != "":
+            command += "export MINIO_ROOT_PASSWORD=x\n"
+
+        # Database password
+        if self.getParam("aiservice_db_password") != "":
+            command += "export AISERVICE_DB_PASSWORD=x\n"
 
         command += f"mas aiservice-install --mas-catalog-version {self.getParam('mas_catalog_version')}"
 
@@ -38,7 +58,7 @@ class aiServiceInstallArgBuilderMixin:
         # AI Service Instance Id
         command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
 
-        # MAS Advanced Configuration
+        # AI Service Advanced Configuration
         # -----------------------------------------------------------------------------
 
         if self.localConfigDir is not None:
@@ -108,22 +128,45 @@ class aiServiceInstallArgBuilderMixin:
         if self.getParam("aiservice_certificate_issuer") != "":
             command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
 
+        if self.getParam("aiservice_domain") != "":
+            command += f"  --domain \"{self.getParam('aiservice_domain')}\"{newline}"
+
+        if self.getParam("dns_provider") == "cis":
+            command += '  --dns-provider cis --cis-apikey "$CIS_APIKEY"'
+            command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
+            command += f" --cis-crn \"{self.getParam('cis_crn')}\""
+            command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
+
+        if self.getParam("dns_provider") == "route53":
+            command += f"  --dns-provider route53{newline}"
+            command += f"  --route53-subdomain \"{self.getParam('route53_subdomain')}\"{newline}"
+            command += f"  --route53-email \"{self.getParam('route53_email')}\"{newline}"
+            command += f"  --route53-hosted-zone-name \"{self.getParam('route53_hosted_zone_name')}\"{newline}"
+            command += f"  --route53-hosted-zone-region \"{self.getParam('route53_hosted_zone_region')}\"{newline}"
+
         # Enable IPv6 networking
         if self.getParam("enable_ipv6").lower() == "true":
             command += f"  --enable-ipv6{newline}"
 
-        if self.getParam("aiservice_s3_accesskey") != "":
-            command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
-        if self.getParam("aiservice_s3_secretkey") != "":
-            command += f"  --s3-secretkey \"{self.getParam('aiservice_s3_secretkey')}\"{newline}"
-        if self.getParam("aiservice_s3_host") != "":
-            command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
-        if self.getParam("aiservice_s3_port") != "":
-            command += f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
-        if self.getParam("aiservice_s3_ssl") != "":
-            command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
-        if self.getParam("aiservice_s3_region") != "":
-            command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+        # Object storage
+        if self.getParam("minio_root_user") != "" and self.getParam("minio_root_password") != "":
+            command += f"  --install-minio-aiservice{newline}"
+            command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
+            command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
+        else:
+            if self.getParam("aiservice_s3_accesskey") != "":
+                command += f'  --s3-accesskey "$AISERVICE_S3_ACCESSKEY"{newline}'
+            if self.getParam("aiservice_s3_secretkey") != "":
+                command += f'  --s3-secretkey "$AISERVICE_S3_SECRETKEY"{newline}'
+            if self.getParam("aiservice_s3_host") != "":
+                command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
+            if self.getParam("aiservice_s3_port") != "":
+                command += f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
+            if self.getParam("aiservice_s3_ssl") != "":
+                command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
+            if self.getParam("aiservice_s3_region") != "":
+                command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+
         if self.getParam("aiservice_s3_bucket_prefix") != "":
             command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
         if self.getParam("aiservice_s3_tenants_bucket") != "":
@@ -139,7 +182,7 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --rhoai{newline}"
 
         if self.getParam("aiservice_watsonxai_apikey") != "":
-            command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
+            command += f'  --watsonxai-apikey "$AISERVICE_WATSONXAI_APIKEY"{newline}'
         if self.getParam("aiservice_watsonxai_url") != "":
             command += f"  --watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
         if self.getParam("aiservice_watsonxai_project_id") != "":
@@ -160,11 +203,6 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
         if self.getParam("aiservice_watsonxai_on_prem") != "":
             command += f"  --watsonxai-onprem \"{self.getParam('aiservice_watsonxai_on_prem')}\"{newline}"
-
-        if self.getParam("minio_root_user") != "":
-            command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
-        if self.getParam("minio_root_password") != "":
-            command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
 
         if self.getParam("tenant_entitlement_type") != "":
             command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
@@ -191,7 +229,7 @@ class aiServiceInstallArgBuilderMixin:
             # External database (Oracle/SQL Server/DB2)
             command += f"  --aiservice-db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
             command += f"  --aiservice-db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
-            command += f"  --aiservice-db-password \"{self.getParam('aiservice_db_password')}\"{newline}"
+            command += f'  --aiservice-db-password "$AISERVICE_DB_PASSWORD"{newline}'
             if self.getParam("aiservice_db_ca_cert") != "":
                 command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
 
