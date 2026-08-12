@@ -426,6 +426,7 @@ function gitops_suite_license_service() {
     export SLS_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SLS_POD_TEMPLATE_YAML})
     echo -e "\n - SLS_POD_TEMPLATE CONTENT .................. ${SLS_POD_TEMPLATE}"
   fi
+  SLS_POD_TEMPLATE="${SLS_POD_TEMPLATE}" yq eval -i '.SLS_POD_TEMPLATE = strenv(SLS_POD_TEMPLATE)' $MONGO_CONFIG_FILE
 
 
   # Generate ArgoApps
@@ -435,7 +436,7 @@ function gitops_suite_license_service() {
 
   echo "- IBM Suite License Service"
   
-  jinjanate --quiet --undefined --import-env='' -D SLS_POD_TEMPLATE="${SLS_POD_TEMPLATE}" $CLI_DIR/templates/gitops/appset-configs/cluster/sls/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
+  jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/sls/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then

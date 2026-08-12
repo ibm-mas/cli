@@ -909,6 +909,7 @@ function gitops_suite() {
     export SLS_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SLS_POD_TEMPLATE_YAML})
     echo -e "\n - SLS_POD_TEMPLATE CONTENT .................. ${SLS_POD_TEMPLATE}"
   fi
+  SLS_POD_TEMPLATE="${SLS_POD_TEMPLATE}" yq eval -i '.SLS_POD_TEMPLATE = strenv(SLS_POD_TEMPLATE)' $MONGO_CONFIG_FILE
 
   # Set Suite Spec additional properties
   # ---------------------------------------------------------------------------
@@ -939,7 +940,7 @@ function gitops_suite() {
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-mas-instance-base.yaml
 
   echo "- IBM Suite License Service"
-  jinjanate --quiet --undefined --import-env='' -D SLS_POD_TEMPLATE="${SLS_POD_TEMPLATE}" $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
+  jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
 
   echo "- IBM Maximo Application Suite Core Platform"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
