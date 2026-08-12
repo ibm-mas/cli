@@ -202,6 +202,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
                 self.nextChannel = prompt(HTML("<Yellow>Custom channel</Yellow> "))
             else:
+                # Fetch all installed app subscription channels once — used for both
+                # channel resolution and compatibility validation below
+                installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+
                 if self.nextChannel != "":
                     # --next-channel was explicitly provided by the user
                     if self.nextChannel == currentChannel:
@@ -218,14 +222,25 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     else:
                         self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
                 else:
-                    # No --next-channel given: derive from upgrade_path
-                    if currentChannel not in self.upgrade_path:
-                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {currentChannel}")
-                    self.nextChannel = self.upgrade_path[currentChannel]
+                    # No --next-channel given: derive from upgrade_path using the
+                    # oldest channel across Core + all installed apps.
+                    # This handles partial upgrade resumption correctly — e.g. if Core
+                    # reached 9.1.x but Manage is still on 9.0.x, effectiveCurrentChannel
+                    # will be 9.0.x and the target will be 9.1.x instead of 9.2.x.
+                    allChannels = [currentChannel] + [app["channel"] for app in installedAppsChannel]
+
+                    def channelOrder(ch):
+                        keys = list(self.upgrade_path.keys())
+                        return keys.index(ch) if ch in keys else -1
+
+                    effectiveCurrentChannel = max(allChannels, key=channelOrder)
+
+                    if effectiveCurrentChannel not in self.upgrade_path:
+                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {effectiveCurrentChannel}")
+                    self.nextChannel = self.upgrade_path[effectiveCurrentChannel]
 
                 # Validate installed apps compatibility with the target channel
                 if self.nextChannel in self.compatibilityMatrix:
-                    installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
                     incompatibleApps = []
 
                     for installedApp in installedAppsChannel:
