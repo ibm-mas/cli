@@ -233,11 +233,11 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         keys = list(self.upgrade_path.keys())
                         return keys.index(ch) if ch in keys else -1
 
-                    effectiveCurrentChannel = max(allChannels, key=channelOrder)
+                    self.effectiveCurrentChannel = max(allChannels, key=channelOrder)
 
-                    if effectiveCurrentChannel not in self.upgrade_path:
-                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {effectiveCurrentChannel}")
-                    self.nextChannel = self.upgrade_path[effectiveCurrentChannel]
+                    if self.effectiveCurrentChannel not in self.upgrade_path:
+                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
+                    self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
 
                 # Validate installed apps compatibility with the target channel
                 if self.nextChannel in self.compatibilityMatrix:
@@ -431,8 +431,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         # Regular upgrade with explicit --next-channel
                         masChannelParam = currentChannel
                 else:
-                    # No --next-channel provided: let ansible auto-determine
-                    masChannelParam = ""
+                    # No --next-channel provided: pass the effectiveCurrentChannel computed
+                    # earlier so Ansible targets the correct hop based on all component
+                    # channels, not just Core's channel.
+                    masChannelParam = self.effectiveCurrentChannel if hasattr(self, "effectiveCurrentChannel") else ""
 
                 pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
                 if pipelineURL is not None:
