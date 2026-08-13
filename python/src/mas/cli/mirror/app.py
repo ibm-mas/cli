@@ -10,12 +10,14 @@
 # *****************************************************************************
 
 import base64
+import glob
 import json
 import logging
 import re
 import selectors
 import shutil
 import subprocess
+import tempfile
 import yaml
 import urllib.request
 import urllib.error
@@ -30,7 +32,7 @@ from mas.devops.data import getCatalog, NoSuchCatalogError
 
 from ..cli import BaseApp
 from .argParser import mirrorArgParser
-from .config import PACKAGE_CONFIGS
+from .config import PACKAGE_CONFIGS, HELM_ONLY_CHART_CONFIGS
 
 logger = logging.getLogger(__name__)
 
@@ -167,7 +169,7 @@ def getISC(configPath: str) -> str:
 
     # Construct GitHub raw content URL
     # Convert blob URL to raw content URL
-    githubUrl = f"https://raw.githubusercontent.com/ibm-mas/image-set-configs/master/{configPath}"
+    githubUrl = f"https://raw.githubusercontent.com/ibm-mas/image-set-configs/ss-cpd531-ag/{configPath}"
 
     logger.info(f"Attempting to download from: {githubUrl}")
 
@@ -596,6 +598,280 @@ def mirrorCatalog(
     return _executeMirror(configPath, displayName, workspacePath, mode, targetRegistry, ocMirrorPath, authFilePath, rootDir, destTlsVerify, imageTimeout)
 
 
+def getChartMetadata(caseName: str, caseVersion: str) -> str:
+    """
+    Get the chart metadata file for a CPD CASE bundle, downloading from GitHub if missing.
+
+    The metadata file lives at:
+      ~/.ibm-mas/image-set-configs/charts/<caseName>/<major.minor>/<caseName>-<version>.yaml
+
+    If not present locally it is fetched from:
+      https://raw.githubusercontent.com/ibm-mas/image-set-configs/master/charts/...
+
+    Args:
+        caseName: CASE bundle name (e.g., "ibm-wsl")
+        caseVersion: CASE version stripped of build metadata (e.g., "11.0.0")
+
+    Returns:
+        Full local path to the chart metadata YAML file
+
+    Raises:
+        FileNotFoundError: If the file does not exist locally and cannot be downloaded
+    """
+    versionParts = caseVersion.split(".")
+    if len(versionParts) < 2:
+        raise FileNotFoundError(f"Cannot resolve chart metadata path: invalid version '{caseVersion}' for {caseName}")
+
+    majorMinor = f"{versionParts[0]}.{versionParts[1]}"
+    relativeConfigPath = f"charts/{caseName}/{majorMinor}/{caseName}-{caseVersion}.yaml"
+    return getISC(relativeConfigPath)
+
+
+@dataclass
+class ChartMirrorResult:
+    """Result of a helm chart mirror operation for one CASE bundle."""
+
+    caseName: str
+    total: int
+    mirrored: int
+    failed: List[str] = field(default_factory=list)
+
+    @property
+    def success(self) -> bool:
+        """
+        Determine if all charts were mirrored successfully.
+
+        Returns:
+            True if total > 0 and all charts mirrored without error
+        """
+        return self.total > 0 and self.mirrored == self.total
+
+
+def _helmLogin(registry: str, username: str, password: str) -> bool:
+    """
+    Log in to an OCI Helm registry.
+
+    Args:
+        registry: Registry hostname (and optional port), e.g. "myregistry:5000"
+        username: Registry username
+        password: Registry password
+
+    Returns:
+        True on success, False on failure
+    """
+    cmd = ["helm", "registry", "login", registry, "--username", username, "--password", password, "--insecure"]
+    logger.info(f"Logging in to Helm OCI registry: {registry}")
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            logger.error(f"helm registry login failed: {result.stderr.strip()}")
+            return False
+        logger.info("Helm registry login successful")
+        return True
+    except Exception as e:
+        logger.error(f"helm registry login error: {e}")
+        return False
+
+
+def mirrorCharts(
+    caseName: str,
+    caseVersion: str,
+    mode: str,
+    targetRegistry: str = "",
+    registryUsername: str = "",
+    registryPassword: str = "",
+    rootDir: str = "",
+) -> ChartMirrorResult:
+    """
+    Mirror Helm charts for a CPD CASE bundle to/from a target OCI registry.
+
+    Mirrors only bundles listed in the chart metadata files in the ibm-mas/image-set-configs
+    charts/ directory (ibm-wsl, ibm-wml-cpd, ibm-analyticsengine, ibm-datarefinery,
+    ibm-wsl-runtimes). Skips silently for bundles with no chart metadata.
+
+    Mode behaviour mirrors the Ansible mirror_helm.yml logic:
+    - m2m: helm pull each chart into a temp dir, then helm push to target OCI registry
+    - m2d: helm pull each chart into <rootDir>/charts/<caseName>/<caseVersion>/
+    - d2m: helm push each .tgz from <rootDir>/charts/<caseName>/<caseVersion>/ to target registry
+
+    Args:
+        caseName: CASE bundle name (e.g., "ibm-wsl")
+        caseVersion: CASE bundle version from catalog (e.g., "11.0.0+20250521.202913.73")
+        mode: Mirror mode ("m2m", "m2d", or "d2m")
+        targetRegistry: Target OCI registry for m2m and d2m (e.g., "myregistry:5000/cpd/charts")
+        registryUsername: Registry username for helm registry login
+        registryPassword: Registry password for helm registry login
+        rootDir: Root directory for disk operations (m2d destination, d2m source)
+
+    Returns:
+        ChartMirrorResult with counts of attempted and successfully mirrored charts
+    """
+    # Strip build metadata suffix for file/path lookups
+    fileVersion = caseVersion.split("+")[0]
+
+    # Try to load chart metadata; skip gracefully if not found
+    try:
+        metadataPath = getChartMetadata(caseName, fileVersion)
+    except FileNotFoundError:
+        logger.info(f"No chart metadata found for {caseName} {fileVersion} — skipping helm chart mirror")
+        return ChartMirrorResult(caseName=caseName, total=0, mirrored=0)
+
+    with open(metadataPath, "r") as f:
+        metadata = yaml.safe_load(f)
+
+    helmRepo = metadata.get("helm_repo", "https://raw.githubusercontent.com/IBM/charts/master/repo/ibm-helm")
+    charts = metadata.get("charts", [])
+
+    if not charts:
+        logger.info(f"No charts listed in metadata for {caseName} — skipping")
+        return ChartMirrorResult(caseName=caseName, total=0, mirrored=0)
+
+    # Register the Helm repo so helm pull can resolve chart names via an alias.
+    # Passing a raw GitHub URL directly to helm pull is not valid — it requires
+    # either an OCI ref or a registered repo alias backed by an index.yaml.
+    helmRepoAlias = f"ibm-mas-charts-{caseName}"
+    repoAddCmd = ["helm", "repo", "add", helmRepoAlias, helmRepo, "--force-update"]
+    logger.info(f"Registering Helm repo: {helmRepo} as {helmRepoAlias}")
+    repoAddResult = subprocess.run(repoAddCmd, capture_output=True, text=True)
+    if repoAddResult.returncode != 0:
+        logger.error(f"helm repo add failed: {repoAddResult.stderr.strip()}")
+        failed = [f"{c['name']}:{c['version']}" for c in charts]
+        return ChartMirrorResult(caseName=caseName, total=len(charts), mirrored=0, failed=failed)
+    subprocess.run(["helm", "repo", "update", helmRepoAlias], capture_output=True, text=True)
+
+    # Registry hostname only (strip any path after the first /)  — used for helm registry login
+    registryHost = targetRegistry.split("/")[0] if targetRegistry else ""
+
+    # Login to OCI registry for push modes
+    if mode in ["m2m", "d2m"] and registryHost and registryUsername:
+        if not _helmLogin(registryHost, registryUsername, registryPassword):
+            failed = [f"{c['name']}:{c['version']}" for c in charts]
+            return ChartMirrorResult(caseName=caseName, total=len(charts), mirrored=0, failed=failed)
+
+    result = ChartMirrorResult(caseName=caseName, total=len(charts), mirrored=0)
+
+    if mode == "m2m":
+        # Pull each chart into a temp dir, then push to OCI registry
+        with tempfile.TemporaryDirectory() as tmpDir:
+            for chart in charts:
+                chartName = chart["name"]
+                chartVersion = chart["version"]
+                displayLabel = f"{chartName}:{chartVersion}"
+
+                pullCmd = [
+                    "helm",
+                    "pull",
+                    f"{helmRepoAlias}/{chartName}",
+                    "--version",
+                    chartVersion,
+                    "--destination",
+                    tmpDir,
+                ]
+                logger.info(f"Pulling chart: {displayLabel}")
+                pullResult = subprocess.run(pullCmd, capture_output=True, text=True)
+                if pullResult.returncode != 0:
+                    logger.error(f"helm pull failed for {displayLabel}: {pullResult.stderr.strip()}")
+                    result.failed.append(displayLabel)
+                    continue
+
+                # Find the downloaded .tgz (helm names it <chart>-<version>.tgz)
+                tgzPattern = path.join(tmpDir, f"{chartName}-{chartVersion}.tgz")
+                tgzFiles = glob.glob(tgzPattern)
+                if not tgzFiles:
+                    # Fallback: any .tgz in tmpDir matching chart name
+                    tgzFiles = glob.glob(path.join(tmpDir, f"{chartName}-*.tgz"))
+                if not tgzFiles:
+                    logger.error(f"Downloaded chart archive not found for {displayLabel} in {tmpDir}")
+                    result.failed.append(displayLabel)
+                    continue
+
+                pushCmd = ["helm", "push", tgzFiles[0], f"oci://{targetRegistry}", "--insecure-skip-tls-verify"]
+                logger.info(f"Pushing chart: {displayLabel} → oci://{targetRegistry}")
+                pushResult = subprocess.run(pushCmd, capture_output=True, text=True)
+                if pushResult.returncode != 0:
+                    logger.error(f"helm push failed for {displayLabel}: {pushResult.stderr.strip()}")
+                    result.failed.append(displayLabel)
+                    continue
+
+                logger.info(f"Successfully mirrored chart: {displayLabel}")
+                result.mirrored += 1
+
+    elif mode == "m2d":
+        # Pull each chart into the disk working directory
+        diskDir = path.join(rootDir, "charts", caseName, fileVersion)
+        makedirs(diskDir, exist_ok=True)
+
+        for chart in charts:
+            chartName = chart["name"]
+            chartVersion = chart["version"]
+            displayLabel = f"{chartName}:{chartVersion}"
+
+            tgzDest = path.join(diskDir, f"{chartName}-{chartVersion}.tgz")
+            if path.exists(tgzDest):
+                logger.info(f"Chart archive already exists, skipping pull: {tgzDest}")
+                result.mirrored += 1
+                continue
+
+            pullCmd = [
+                "helm",
+                "pull",
+                f"{helmRepoAlias}/{chartName}",
+                "--version",
+                chartVersion,
+                "--destination",
+                diskDir,
+            ]
+            logger.info(f"Pulling chart to disk: {displayLabel} → {diskDir}")
+            pullResult = subprocess.run(pullCmd, capture_output=True, text=True)
+            if pullResult.returncode != 0:
+                logger.error(f"helm pull failed for {displayLabel}: {pullResult.stderr.strip()}")
+                result.failed.append(displayLabel)
+                continue
+
+            logger.info(f"Successfully pulled chart to disk: {displayLabel}")
+            result.mirrored += 1
+
+    elif mode == "d2m":
+        # Push each .tgz from the disk working directory to the OCI registry
+        diskDir = path.join(rootDir, "charts", caseName, fileVersion)
+        if not path.exists(diskDir):
+            logger.warning(f"Chart disk directory not found for {caseName}: {diskDir}")
+            failed = [f"{c['name']}:{c['version']}" for c in charts]
+            return ChartMirrorResult(caseName=caseName, total=len(charts), mirrored=0, failed=failed)
+
+        for chart in charts:
+            chartName = chart["name"]
+            chartVersion = chart["version"]
+            displayLabel = f"{chartName}:{chartVersion}"
+
+            tgzPattern = path.join(diskDir, f"{chartName}-{chartVersion}.tgz")
+            tgzFiles = glob.glob(tgzPattern)
+            if not tgzFiles:
+                tgzFiles = glob.glob(path.join(diskDir, f"{chartName}-*.tgz"))
+            if not tgzFiles:
+                logger.error(f"Chart archive not found on disk for {displayLabel} in {diskDir}")
+                result.failed.append(displayLabel)
+                continue
+
+            pushCmd = ["helm", "push", tgzFiles[0], f"oci://{targetRegistry}", "--insecure-skip-tls-verify"]
+            logger.info(f"Pushing chart from disk: {displayLabel} → oci://{targetRegistry}")
+            pushResult = subprocess.run(pushCmd, capture_output=True, text=True)
+            if pushResult.returncode != 0:
+                logger.error(f"helm push failed for {displayLabel}: {pushResult.stderr.strip()}")
+                result.failed.append(displayLabel)
+                continue
+
+            logger.info(f"Successfully pushed chart: {displayLabel}")
+            result.mirrored += 1
+
+    else:
+        logger.error(f"Unsupported mode for chart mirroring: {mode}")
+        failed = [f"{c['name']}:{c['version']}" for c in charts]
+        return ChartMirrorResult(caseName=caseName, total=len(charts), mirrored=0, failed=failed)
+
+    return result
+
+
 def validateEnvironmentVariables(mode: str, targetRegistry: str) -> None:
     """
     Validate that required environment variables are set based on the mirror mode.
@@ -810,7 +1086,7 @@ class MirrorApp(BaseApp):
 
         # Mirror each package with common parameters using shared configuration
         currentGroup = None
-        for group, argName, packageName, catalogKey in PACKAGE_CONFIGS:
+        for group, argName, packageName, catalogKey, has_HelmCharts in PACKAGE_CONFIGS:
             # Print section header when group changes
             if group != currentGroup:
                 self.printH1(group)
@@ -883,6 +1159,80 @@ class MirrorApp(BaseApp):
                 if not packageResult.success:
                     failedMirrors.append(packageResult)
 
+        # Mirror Helm charts for CPD packages (CPD 5.2.0+ only).
+        # Derived from PACKAGE_CONFIGS (has_HelmCharts=True) plus HELM_ONLY_CHART_CONFIGS
+        # for bundles that have charts but no standalone ISC image files.
+        # To add/remove a CASE from helm chart mirroring, update config.py only.
+        seen: set = set()
+        CHART_CASE_CATALOG_KEYS = []
+        for _section, argName, packageName, catalogKey, has_HelmCharts in PACKAGE_CONFIGS:
+            if has_HelmCharts and packageName not in seen:
+                CHART_CASE_CATALOG_KEYS.append((packageName, catalogKey, argName))
+                seen.add(packageName)
+        for packageName, catalogKey, argName in HELM_ONLY_CHART_CONFIGS:
+            if packageName not in seen:
+                CHART_CASE_CATALOG_KEYS.append((packageName, catalogKey, argName))
+                seen.add(packageName)
+
+        # Gate: only run if cpd_product_version_default >= 5.2.0
+        cpdVersionRaw = catalog.get("cpd_product_version_default", "")
+        cpdHelmEligible = False
+        failedChartMirrors: List[ChartMirrorResult] = []
+        try:
+            cpdMajor, cpdMinor = str(cpdVersionRaw).split(".")[:2]
+            cpdHelmEligible = (int(cpdMajor), int(cpdMinor)) >= (5, 2)
+        except (ValueError, AttributeError):
+            pass
+
+        if cpdHelmEligible:
+            # Collect registry credentials for helm registry login
+            registryUsername = environ.get("REGISTRY_USERNAME", "")
+            registryPassword = environ.get("REGISTRY_PASSWORD", "")
+
+            self.printH1("Cloud Pak for Data - Helm Charts")
+
+            for caseName, catalogKey, argName in CHART_CASE_CATALOG_KEYS:
+                # Only mirror if the corresponding image flag was set
+                flagAttr = argName.replace("-", "_")
+                chartFlag = mirrorAll or getattr(args, flagAttr, False)
+                if not chartFlag:
+                    displayName = f"{caseName} (helm charts)"
+                    print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} Mirroring disabled by user")
+                    continue
+
+                caseVersion = catalog.get(catalogKey, "")
+                # ibm-wsl-runtimes falls back to wsl_version if wsl_runtimes_version absent
+                if not caseVersion and catalogKey == "wsl_runtimes_version":
+                    caseVersion = catalog.get("wsl_version", "")
+
+                if not caseVersion:
+                    logger.info(f"No catalog version for {caseName} ({catalogKey}) — skipping charts")
+                    displayName = f"{caseName} (helm charts)"
+                    print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} No catalog version available")
+                    continue
+
+                displayName = f"{caseName} (helm charts)"
+                print(f"Mirroring Helm charts: {displayName}")
+                chartResult = mirrorCharts(
+                    caseName=caseName,
+                    caseVersion=caseVersion,
+                    mode=mode,
+                    targetRegistry=f"{targetRegistry}/charts",
+                    registryUsername=registryUsername,
+                    registryPassword=registryPassword,
+                    rootDir=rootDir,
+                )
+
+                if chartResult.total == 0:
+                    print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} No chart metadata found")
+                elif chartResult.success:
+                    print(f"{displayName.ljust(50)} ✅ {chartResult.mirrored}/{chartResult.total} charts mirrored")
+                else:
+                    print(f"{displayName.ljust(50)} ⚠️  {chartResult.mirrored}/{chartResult.total} charts mirrored")
+                    failedChartMirrors.append(chartResult)
+        else:
+            logger.info(f"CPD version {cpdVersionRaw!r} < 5.2.0 or not set — skipping Helm chart mirroring")
+
         # Report final status
         if len(failedMirrors) > 0:
             failedImages = totalImages - mirroredImages
@@ -894,10 +1244,28 @@ class MirrorApp(BaseApp):
                 if result.failed_images:
                     for failed_image in result.failed_images:
                         print_formatted_text(HTML(f"<ansired>  - {failed_image}</ansired>"))
+
+            if cpdHelmEligible and failedChartMirrors:
+                for chartResult in failedChartMirrors:
+                    print_formatted_text(
+                        HTML(f"<ansired>- {chartResult.caseName} (helm charts) - {len(chartResult.failed)}/{chartResult.total} charts failed</ansired>")
+                    )
+                    for fc in chartResult.failed:
+                        print_formatted_text(HTML(f"<ansired>  - {fc}</ansired>"))
         else:
-            print_formatted_text(HTML("\n<B>✅ Mirror operation completed successfully</B>"))
-            if totalImages > 0:
-                print_formatted_text(HTML(f"Successfully mirrored {mirroredImages} images"))
+            allChartsOk = not cpdHelmEligible or not failedChartMirrors
+            if allChartsOk:
+                print_formatted_text(HTML("\n<B>✅ Mirror operation completed successfully</B>"))
+                if totalImages > 0:
+                    print_formatted_text(HTML(f"Successfully mirrored {mirroredImages} images"))
+            else:
+                print_formatted_text(HTML("\n<B>⚠️  Mirror operation completed with Helm chart failures</B>"))
+                if totalImages > 0:
+                    print_formatted_text(HTML(f"Successfully mirrored {mirroredImages} images"))
+                for chartResult in failedChartMirrors:
+                    print_formatted_text(
+                        HTML(f"<ansired>- {chartResult.caseName} (helm charts) - {len(chartResult.failed)}/{chartResult.total} charts failed</ansired>")
+                    )
 
     def _isUnsupportedPackage(self, version: str, packageName: str) -> bool:
         unsupported = False
