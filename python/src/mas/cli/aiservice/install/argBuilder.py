@@ -121,6 +121,13 @@ class aiServiceInstallArgBuilderMixin:
         if self.getParam("service_account_name") != "":
             command += f"  --service-account {self.getParam('service_account_name')}{newline}"
 
+        # OCP Configuration
+        # -----------------------------------------------------------------------------
+        if self.getParam("ocp_ingress_tls_secret_name") != "":
+            command += f"  --ocp-ingress-tls-secret-name \"{self.getParam('ocp_ingress_tls_secret_name')}\"{newline}"
+        if self.getParam("ocp_ingress") != "":
+            command += f"  --ocp-ingress \"{self.getParam('ocp_ingress')}\"{newline}"
+
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
 

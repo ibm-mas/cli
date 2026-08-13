@@ -123,4 +123,6 @@ optionalParams = [
     "route53_hosted_zone_region",
     "route53_subdomain",
     "route53_email",
+    # OCP Ingress
+    "ocp_ingress_tls_secret_name",
 ]

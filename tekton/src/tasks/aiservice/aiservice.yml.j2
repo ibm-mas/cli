@@ -154,6 +154,11 @@ spec:
       description: Optional boolean parameter that when set to True, configures services in SingleStack IPv6 networking
       default: "False"
 
+    - name: aiservice_domain
+      type: string
+      description: Custom domain for IBM Maximo AI Service
+      default: ""
+
     # Database Configuration
     - name: install_db2
       type: string
@@ -278,6 +283,9 @@ spec:
       # Enable IPv6
       - name: OCP_ENABLE_IPV6
         value: $(params.enable_ipv6)
+
+      - name: AISERVICE_DOMAIN
+        value: $(params.aiservice_domain)
 
       # Database Configuration
       - name: INSTALL_DB2

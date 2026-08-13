@@ -103,6 +103,15 @@ spec:
       description: Optional string parameter, either path or subdomain, defines the network routing mode used for the suite.
       default: ""
 
+    # AI Service
+    - name: aiservice_domain
+      type: string
+      description: Custom domain for IBM Maximo AI Service
+      default: ""
+    - name: aiservice_instance_id
+      type: string
+      description: AI Service instance id
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -165,6 +174,12 @@ spec:
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_ROUTING_MODE
         value: $(params.mas_routing_mode)
+
+      # AI Service
+      - name: AISERVICE_DOMAIN
+        value: $(params.aiservice_domain)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
 
   steps:
     - name: suite-dns

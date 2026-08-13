@@ -245,6 +245,13 @@ aiserviceAdvancedArgGroup.add_argument(
     required=False,
     help="Overwrites Ingress Domain",
 )
+aiserviceAdvancedArgGroup.add_argument(
+    "--ocp-ingress-tls-secret-name",
+    dest="ocp_ingress_tls_secret_name",
+    required=False,
+    default="",
+    help="Cluster ingress certificate secret name",
+)
 
 # DNS Integration - IBM CIS
 # -----------------------------------------------------------------------------
