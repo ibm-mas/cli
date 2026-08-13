@@ -32,6 +32,7 @@ from prompt_toolkit import prompt, print_formatted_text, HTML
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO, getNodes
 from mas.devops.utils import validateIBMEntitlementKey
+from requests.exceptions import SSLError as RequestsSSLError
 
 from .displayMixins import PrintMixin, PromptMixin
 
@@ -565,7 +566,7 @@ class BaseApp(PrintMixin, PromptMixin):
             self.localConfigDir = self.promptForDir("Select Local configuration directory")
 
     @logMethodCall
-    def validateEntitlementKey(self, entitlementKey: str, repository: str = "cp/mas/coreapi", timeout: int = 30) -> bool:
+    def validateEntitlementKey(self, entitlementKey: str, repository: str = "cp/mas/coreapi", timeout: int = 30):
         """
         Validate IBM entitlement key using mas.devops.utils.validateIBMEntitlementKey.
 
@@ -575,7 +576,8 @@ class BaseApp(PrintMixin, PromptMixin):
             timeout: Timeout in seconds for validation. Defaults to 30.
 
         Returns:
-            bool: True if valid, False if invalid
+            True if the key is valid, False if authentication failed, None if an SSL error
+            prevented the validation from completing (key may still be valid).
         """
         try:
             logger.info(f"Validating IBM entitlement key against repository: {repository}")
@@ -585,6 +587,9 @@ class BaseApp(PrintMixin, PromptMixin):
             else:
                 logger.warning("IBM entitlement key validation failed")
             return isValid
+        except RequestsSSLError as e:
+            logger.error(f"SSL error validating IBM entitlement key: {e}")
+            return None
         except Exception as e:
             logger.error(f"Error validating IBM entitlement key: {e}")
             logger.exception(e, stack_info=True)
@@ -597,11 +602,11 @@ class BaseApp(PrintMixin, PromptMixin):
 
         In interactive mode:
         - Validates the key after user input
-        - If invalid, offers: 1) Try again, 2) Continue anyway, 3) Quit
+        - If invalid or SSL error, offers: 1) Try again, 2) Continue anyway, 3) Quit
         - Loops until valid key or user chooses to continue/quit
 
         In non-interactive mode with --no-confirm:
-        - Validates but only warns if invalid, does not block
+        - Validates but only warns if invalid or SSL error, does not block
 
         Args:
             message: Prompt message to display
@@ -617,32 +622,55 @@ class BaseApp(PrintMixin, PromptMixin):
             entitlementKey = self.promptForString(message, param=None, isPassword=True)
 
             # Validate the key
+            # Returns True (valid), False (auth failed), or None (SSL error - unable to check)
             isValid = self.validateEntitlementKey(entitlementKey, repository, timeout)
 
-            if isValid:
+            if isValid is True:
                 # Key is valid, show success message and continue
                 self.printHighlight("✓ IBM entitlement key validated successfully")
                 self.setParam(param, entitlementKey)
                 return entitlementKey
 
-            # Key is invalid
+            # Validation could not complete (SSL) or failed (bad key)
             if self.noConfirm:
-                # Non-interactive mode with --no-confirm: warn but continue
-                self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
+                if isValid is None:
+                    self.printWarning(
+                        "SSL certificate verification failed — could not reach cp.icr.io to validate the entitlement key. "
+                        "This is likely caused by a corporate proxy or firewall using a self-signed certificate. "
+                        "Your entitlement key may still be valid. Continuing due to --no-confirm flag."
+                    )
+                else:
+                    self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
                 self.setParam(param, entitlementKey)
                 return entitlementKey
 
-            # Interactive mode or non-interactive without --no-confirm: offer options
-            self.printWarning("IBM entitlement key validation failed")
-            print()
-            self.printDescription(
-                [
-                    "What would you like to do?",
-                    "  1. Try again (re-enter the entitlement key)",
-                    "  2. Continue anyway (skip validation)",
-                    "  3. Quit (exit the application)",
-                ]
-            )
+            # Interactive mode: build the warning and offer options
+            if isValid is None:
+                self.printWarning("SSL certificate verification failed — could not reach cp.icr.io")
+                print()
+                self.printDescription(
+                    [
+                        "This is likely caused by a corporate proxy or firewall using a self-signed certificate.",
+                        "This does NOT necessarily mean your entitlement key is wrong.",
+                        "Your key may be perfectly valid — the CLI simply could not connect to verify it.",
+                        "",
+                        "What would you like to do?",
+                        "  1. Try again (re-enter the entitlement key)",
+                        "  2. Continue anyway (skip validation) — recommended if your key is correct",
+                        "  3. Quit (exit the application)",
+                    ]
+                )
+            else:
+                self.printWarning("IBM entitlement key validation failed")
+                print()
+                self.printDescription(
+                    [
+                        "What would you like to do?",
+                        "  1. Try again (re-enter the entitlement key)",
+                        "  2. Continue anyway (skip validation)",
+                        "  3. Quit (exit the application)",
+                    ]
+                )
 
             choice = self.promptForInt("Select an option", min=1, max=3)
 
@@ -651,10 +679,10 @@ class BaseApp(PrintMixin, PromptMixin):
                 continue
             elif choice == 2:
                 # Continue anyway
-                logger.warning("User chose to continue with invalid entitlement key")
+                logger.warning("User chose to continue with unverified entitlement key")
                 self.setParam(param, entitlementKey)
                 return entitlementKey
             else:  # choice == 3
                 # Quit
-                logger.info("User chose to quit due to invalid entitlement key")
+                logger.info("User chose to quit due to entitlement key validation failure")
                 exit(1)

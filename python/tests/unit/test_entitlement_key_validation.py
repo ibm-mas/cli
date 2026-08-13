@@ -27,6 +27,7 @@ THEN it should warn but continue when --no-confirm is set
 
 import pytest
 from unittest.mock import patch
+from requests.exceptions import SSLError as RequestsSSLError
 from mas.cli.cli import BaseApp
 
 
@@ -80,6 +81,21 @@ class TestValidateEntitlementKey:
 
         assert result is True
         mock_validate.assert_called_once_with("key-123", "custom/repo", 60)
+
+    @patch("mas.cli.cli.validateIBMEntitlementKey")
+    def test_validate_with_ssl_error(self, mock_validate):
+        """Test validation when an SSL certificate error occurs.
+
+        GIVEN an SSL certificate error during validation (e.g. corporate proxy)
+        WHEN validateEntitlementKey is called
+        THEN it should return None to signal the key could not be checked (not that it is wrong).
+        """
+        mock_validate.side_effect = RequestsSSLError("SSL: CERTIFICATE_VERIFY_FAILED")
+        app = BaseApp()
+
+        result = app.validateEntitlementKey("key-123")
+
+        assert result is None
 
     @patch("mas.cli.cli.validateIBMEntitlementKey")
     def test_validate_with_network_error(self, mock_validate):
@@ -217,6 +233,89 @@ class TestPromptForEntitlementKeyInteractive:
         assert exc_info.value.code == 1
         mock_validate.assert_called_once()
         mock_prompt_int.assert_called_once()
+
+
+class TestPromptForEntitlementKeySSLError:
+    """Test promptForEntitlementKey when an SSL error prevents validation."""
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForString")
+    @patch("mas.cli.cli.BaseApp.promptForInt")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    @patch("mas.cli.cli.BaseApp.printDescription")
+    def test_ssl_error_continue_anyway(self, mock_print_desc, mock_print_warn, mock_prompt_int, mock_prompt_string, mock_validate):
+        """Test continuing when SSL error occurs and user chooses option 2.
+
+        GIVEN an SSL error during validation
+        WHEN promptForEntitlementKey is called and user chooses to continue anyway
+        THEN it should return the key and show an SSL-specific warning message.
+        """
+        mock_prompt_string.return_value = "valid-key-123"
+        mock_validate.return_value = None  # None signals SSL error
+        mock_prompt_int.return_value = 2  # Continue anyway
+
+        app = BaseApp()
+        app.noConfirm = False
+
+        result = app.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+
+        assert result == "valid-key-123"
+        assert app.getParam("ibm_entitlement_key") == "valid-key-123"
+        mock_validate.assert_called_once()
+        mock_prompt_int.assert_called_once()
+        # Warning should mention SSL, not "validation failed"
+        warn_message = mock_print_warn.call_args[0][0]
+        assert "SSL" in warn_message
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForString")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    def test_ssl_error_with_no_confirm(self, mock_print_warn, mock_prompt_string, mock_validate):
+        """Test SSL error with --no-confirm flag.
+
+        GIVEN an SSL error and --no-confirm flag is set
+        WHEN promptForEntitlementKey is called
+        THEN it should warn with an SSL-specific message and continue without prompting.
+        """
+        mock_prompt_string.return_value = "valid-key-123"
+        mock_validate.return_value = None  # None signals SSL error
+
+        app = BaseApp()
+        app.noConfirm = True
+
+        result = app.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+
+        assert result == "valid-key-123"
+        assert app.getParam("ibm_entitlement_key") == "valid-key-123"
+        mock_validate.assert_called_once()
+        mock_print_warn.assert_called_once()
+        # Warning should mention SSL, not generic "validation failed"
+        warn_message = mock_print_warn.call_args[0][0]
+        assert "SSL" in warn_message
+
+    @patch("mas.cli.cli.BaseApp.validateEntitlementKey")
+    @patch("mas.cli.cli.BaseApp.promptForString")
+    @patch("mas.cli.cli.BaseApp.promptForInt")
+    @patch("mas.cli.cli.BaseApp.printWarning")
+    @patch("mas.cli.cli.BaseApp.printDescription")
+    def test_ssl_error_quit(self, mock_print_desc, mock_print_warn, mock_prompt_int, mock_prompt_string, mock_validate):
+        """Test quitting when SSL error occurs and user chooses option 3.
+
+        GIVEN an SSL error during validation
+        WHEN promptForEntitlementKey is called and user chooses to quit
+        THEN it should raise SystemExit.
+        """
+        mock_prompt_string.return_value = "valid-key-123"
+        mock_validate.return_value = None  # None signals SSL error
+        mock_prompt_int.return_value = 3  # Quit
+
+        app = BaseApp()
+        app.noConfirm = False
+
+        with pytest.raises(SystemExit) as exc_info:
+            app.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+
+        assert exc_info.value.code == 1
 
 
 class TestPromptForEntitlementKeyNonInteractive:
