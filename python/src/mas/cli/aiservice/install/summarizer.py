@@ -69,6 +69,7 @@ class aiServiceInstallSummarizerMixin:
             elif self.getParam("dns_provider") == "":
                 pass
 
+        print()
         self.printParamSummary("Configure AI Service to run in IPv6 mode", "enable_ipv6")
 
         self.printH2("AI Service Tenant Configuration")

@@ -29,20 +29,18 @@ class aiServiceInstallArgBuilderMixin:
             command += "export ARTIFACTORY_USERNAME=x\nexport ARTIFACTORY_TOKEN=x\n"
 
         # Object Storage Credentials
-        if self.getParam("aiservice_s3_accesskey") != "":
-            command += "export AISERVICE_S3_ACCESSKEY=x\n"
-        if self.getParam("aiservice_s3_secretkey") != "":
-            command += "export AISERVICE_S3_SECRETKEY=x\n"
+        if self.getParam("minio_root_user") != "" and self.getParam("minio_root_password") != "":
+            command += "export MINIO_ROOT_USER=x\n"
+            command += "export MINIO_ROOT_PASSWORD=x\n"
+        else:
+            if self.getParam("aiservice_s3_accesskey") != "":
+                command += "export AISERVICE_S3_ACCESSKEY=x\n"
+            if self.getParam("aiservice_s3_secretkey") != "":
+                command += "export AISERVICE_S3_SECRETKEY=x\n"
 
         # Watsonx Credentials
         if self.getParam("aiservice_watsonxai_apikey") != "":
             command += "export AISERVICE_WATSONXAI_APIKEY=x\n"
-
-        # MinIO Credentials
-        if self.getParam("minio_root_user") != "":
-            command += "export MINIO_ROOT_USER=x\n"
-        if self.getParam("minio_root_password") != "":
-            command += "export MINIO_ROOT_PASSWORD=x\n"
 
         # Database password
         if self.getParam("aiservice_db_password") != "":
@@ -158,8 +156,8 @@ class aiServiceInstallArgBuilderMixin:
         # Object storage
         if self.getParam("minio_root_user") != "" and self.getParam("minio_root_password") != "":
             command += f"  --install-minio-aiservice{newline}"
-            command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
-            command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
+            command += f'  --minio-root-user "$MINIO_ROOT_USER"{newline}'
+            command += f'  --minio-root-password "$MINIO_ROOT_PASSWORD"{newline}'
         else:
             if self.getParam("aiservice_s3_accesskey") != "":
                 command += f'  --s3-accesskey "$AISERVICE_S3_ACCESSKEY"{newline}'
