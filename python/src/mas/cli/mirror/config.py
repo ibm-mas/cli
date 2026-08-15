@@ -46,15 +46,15 @@ PACKAGE_CONFIGS = [
     ("Cloud Pak for Data - WSL", "cp4d-wsl", "ibm-wsl", "wsl_version", True),
     ("Cloud Pak for Data - WSL", "cp4d-wsl", "ibm-wsl-runtimes", "wsl_runtimes_version", True),
     ("Cloud Pak for Data - WML", "cp4d-wml", "ibm-wml-cpd", "wml_version", True),
+    ("Cloud Pak for Data - WML", "cp4d-wml", "ibm-redis-cp", "redis_version", True),
     ("Cloud Pak for Data - Spark", "cp4d-spark", "ibm-analyticsengine", "spark_version", True),
     ("Cloud Pak for Data - Cognos", "cp4d-cognos", "ibm-cognos-analytics-prod", "cognos_version", True),
 ]
 
 # Helm-chart-only CASE bundles: no standalone ISC image files exist for these.
-# Their images are bundled inside their parent CASE (e.g. ibm-redis-cp images
-# come with ibm-wml-cpd, ibm-opencontent-opensearch with ibm-opensearch-operator).
+# Their images are bundled inside their parent CASE (e.g. ibm-opencontent-opensearch
+# images come with ibm-opensearch-operator).
 # Each tuple: (caseName, catalogKey, argName)
 HELM_ONLY_CHART_CONFIGS = [
-    ("ibm-redis-cp", "redis_version", "cp4d-wml"),
     ("ibm-opencontent-opensearch", "opensearch_version", "cp4d-platform"),
 ]
