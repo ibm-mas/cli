@@ -843,7 +843,12 @@ class InstallApp(
         # Soft block: routing mode / PBR configuration is hidden from the interactive CLI.
         # The --routing, --configure-ingress, and --ingress-controller-name args remain
         # available for non-interactive use; validation of those values still runs below.
-        if False and self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
+        if (
+            False
+            and self.showAdvancedOptions
+            and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel"))
+            and self.getParam("mas_channel") != "9.2.x-feature"
+        ):
             self.printH1("Configure Routing Mode")
 
             masDomain = self._getMasDomainForDisplay()
