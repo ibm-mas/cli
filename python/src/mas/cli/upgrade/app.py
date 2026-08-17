@@ -239,6 +239,19 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
                     self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
 
+                # Check if all components are already on the target channel.
+                # Covers both auto-detect and --next-channel paths.
+                # Only exits if Core AND every installed app are already on nextChannel.
+                # If any app is behind, this condition is False and pipeline launches normally.
+                if self.nextChannel == currentChannel and all(app["channel"] == self.nextChannel for app in installedAppsChannel):
+                    print_formatted_text(
+                        HTML(
+                            f"<LightSlateGrey>No action required, {instanceId} is already fully upgraded. "
+                            f"All components are on channel {self.nextChannel}.</LightSlateGrey>"
+                        )
+                    )
+                    return
+
                 # Validate installed apps compatibility with the target channel
                 if self.nextChannel in self.compatibilityMatrix:
                     incompatibleApps = []
