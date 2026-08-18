@@ -1879,7 +1879,9 @@ class InstallApp(
             )
 
             self.aiserviceTenantSchedulingConfigFileLocal = None
+            self.aiserviceTenantOperatorConfigFileLocal = None
             self.configSchedulingConstraints()
+            self.configTenantOperator()
 
     @logMethodCall
     def configSchedulingConstraints(self):
@@ -2005,6 +2007,7 @@ class InstallApp(
                 " - Choose alternative Apache Kafka providers (default to Strimzi)",
                 " - Customize Grafana storage settings",
                 " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant",
+                " - Customize AI Service tenant operator configuration",
             ]
         )
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
@@ -2018,6 +2021,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.facilitiesPropertiesFileLocal = None
 
         if simplified:
@@ -2111,6 +2115,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.facilitiesPropertiesFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
@@ -2465,6 +2470,10 @@ class InstallApp(
                 # No need to perform validation if file exist here, as it has been already validated by argParser type check.
                 if value is not None and value != "":
                     self.aiserviceTenantSchedulingConfigFileLocal = value
+
+            elif key == "tenant_operator_config_file":
+                if value is not None and value != "":
+                    self.aiserviceTenantOperatorConfigFileLocal = value
 
             # Fail if there's any arguments we don't know how to handle
             else:
