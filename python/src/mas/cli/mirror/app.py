@@ -169,7 +169,7 @@ def getISC(configPath: str) -> str:
 
     # Construct GitHub raw content URL
     # Convert blob URL to raw content URL
-    githubUrl = f"https://raw.githubusercontent.com/ibm-mas/image-set-configs/ss-cpd531-ag/{configPath}"
+    githubUrl = f"https://raw.githubusercontent.com/ibm-mas/image-set-configs/master/{configPath}"
 
     logger.info(f"Attempting to download from: {githubUrl}")
 
