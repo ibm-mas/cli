@@ -137,7 +137,7 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --domain \"{self.getParam('aiservice_domain')}\"{newline}"
 
         if self.getParam("dns_provider") == "cis":
-            command += '  --dns-provider cis --cis-apikey "$CIS_APIKEY"'
+            command += f'  --dns-provider cis --cis-apikey "$CIS_APIKEY"{newline}'
             command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
             command += f" --cis-crn \"{self.getParam('cis_crn')}\""
             command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
