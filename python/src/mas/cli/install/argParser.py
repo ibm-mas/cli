@@ -261,6 +261,15 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
+    "--enable-proxy",
+    dest="enable_proxy",
+    required=False,
+    help="Configure Cluster wide proxy to test if it is supported our MAS",
+    action="store_const",
+    const="true",
+)
+
+masAdvancedArgGroup.add_argument(
     "--admin-mode",
     dest="mas_admin_mode",
     required=False,

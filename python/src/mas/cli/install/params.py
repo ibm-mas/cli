@@ -68,6 +68,7 @@ optionalParams = [
     "mas_appws_upgrade_type",
     # IPV6
     "enable_ipv6",
+    "enable_proxy",
     # SLS
     "sls_namespace",
     # DNS Providers

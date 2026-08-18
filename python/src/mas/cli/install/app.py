@@ -2418,6 +2418,9 @@ class InstallApp(
             elif key == "enable_ipv6":
                 self.setParam("enable_ipv6", "true")
 
+            elif key == "enable_proxy":
+                self.setParam("enable_proxy", "true")
+
             elif key == "install_minio_aiservice":
                 if vars(self.args).get("aiservice_instance_id"):
                     incompatibleWithMinioInstall = [

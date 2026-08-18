@@ -106,6 +106,7 @@ optionalParams = [
     "aiservice_certificate_issuer",
     # Enable IPv6 networking
     "enable_ipv6",
+    "enable_proxy"
     # Slack
     "slack_token",
     "slack_channel",

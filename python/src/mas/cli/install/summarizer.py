@@ -159,6 +159,7 @@ class InstallSummarizerMixin:
 
         self.printParamSummary("Use Service Mesh", "mas_use_service_mesh")
         self.printParamSummary("IPV6 Support", "enable_ipv6")
+        self.printParamSummary("IPV6 Support", "enable_proxy")
         if self.getParam("mas_manual_cert_mgmt") != "":
             self.printSummary("Manual Certificates", self.manualCertsDir)
         else:

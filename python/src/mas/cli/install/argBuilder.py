@@ -179,6 +179,9 @@ class installArgBuilderMixin:
         if self.getParam("enable_ipv6").lower() == "true":
             command += f"  --enable-ipv6{newline}"
 
+        if self.getParam("enable_proxy").lower() == "true":
+            command += f"  --enable-proxy{newline}"
+
         # Storage
         # -----------------------------------------------------------------------------
         command += f"  --storage-class-rwo \"{self.getParam('storage_class_rwo')}\""

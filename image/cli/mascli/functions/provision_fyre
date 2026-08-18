@@ -26,7 +26,7 @@ Cluster Configuration (Required):
 Cluster Configuration (Optional):
       --enable-fips                                                   Enable FIPS settings in this Fyre cluster
       --enable-ipv6                                                   Enable IPV6 settings in this Fyre cluster. When enabled, site will be automatically changed to 'rtp'.
-
+      --enable-proxy                                                  Enable Cluster wide Proxy in the Fyre cluster
 Fyre Quick Burn Worker Node Configuration (Optional, only takes effect when quota-type is set to "quickburn"):
       --cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET}    When Fyre Quick Burn, defines the size category ("medium" or "large")
 
@@ -109,6 +109,9 @@ function provision_fyre_noninteractive() {
         ;;
       --enable-ipv6)
         OCP_ENABLE_IPV6=true
+        ;;
+      --enable-proxy)
+        OCP_ENABLE_PROXY=true
         ;;
 
       # Worker configuration
@@ -289,6 +292,7 @@ function provision_fyre_interactive() {
     prompt_for_input "Worker Additional Disk Sizes (GB, comma-seperated list)" FYRE_WORKER_ADDITIONAL_DISKS
     prompt_for_confirm "Enable FIPS? " OCP_FIPS_ENABLED
     prompt_for_confirm "Enable IPV6? " OCP_ENABLE_IPV6
+    prompt_for_confirm "Enable Proxy? " OCP_ENABLE_PROXY
   else
     FYRE_QUOTA_TYPE="quick_burn"
     if [[ "$FYRE_SITE" != "svl" ]]; then
@@ -388,6 +392,7 @@ function provision_fyre() {
   export FYRE_WORKER_ADDITIONAL_DISKS
   export OCP_FIPS_ENABLED
   export OCP_ENABLE_IPV6
+  export OCP_ENABLE_PROXY
 
   export OCP_STORAGE_PROVIDER
 
@@ -432,6 +437,7 @@ function provision_fyre() {
     echo_reset_dim "Worker Node Disks ......... ${COLOR_MAGENTA}${FYRE_WORKER_ADDITIONAL_DISKS:-None}"
     echo_reset_dim "Enable FIPS? .............. ${COLOR_MAGENTA}${OCP_FIPS_ENABLED:-None}"
     echo_reset_dim "Enable IPV6? .............. ${COLOR_MAGENTA}${OCP_ENABLE_IPV6:-None}"
+    echo_reset_dim "Enable PROXY?.............. ${COLOR_MAGENTA}${OCP_ENABLE_PROXY:=None}"
   fi
 
   reset_colors
