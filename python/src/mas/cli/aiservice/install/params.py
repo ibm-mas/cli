@@ -118,6 +118,12 @@ optionalParams = [
     "cis_apikey",
     "cis_crn",
     "cis_subdomain",
+    "cis_service_name",
+    "cis_enhanced_security",
+    "override_edge_certs",
+    "cis_proxy",
+    "cis_waf",
+    "delete_wildcards",
     # AWS Route53
     "route53_hosted_zone_name",
     "route53_hosted_zone_region",

@@ -141,6 +141,18 @@ class aiServiceInstallArgBuilderMixin:
             command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
             command += f" --cis-crn \"{self.getParam('cis_crn')}\""
             command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
+            if self.getParam("cis_enhanced_security") == "true":
+                command += f"  --cis-enhanced-security{newline}"
+                if self.getParam("cis_service_name") != "":
+                    command += f"  --cis-service-name \"{self.getParam('cis_service_name')}\"{newline}"
+                if self.getParam("cis_waf") == "true":
+                    command += f"  --cis-waf{newline}"
+                if self.getParam("cis_proxy") == "true":
+                    command += f"  --cis-proxy{newline}"
+                if self.getParam("delete_wildcards") == "true":
+                    command += f"  --delete-wildcards{newline}"
+                if self.getParam("override_edge_certs") == "true":
+                    command += f"  --override-edge-certs{newline}"
 
         if self.getParam("dns_provider") == "route53":
             command += f"  --dns-provider route53{newline}"
@@ -155,7 +167,7 @@ class aiServiceInstallArgBuilderMixin:
 
         # Object storage
         if self.getParam("minio_root_user") != "" and self.getParam("minio_root_password") != "":
-            command += f"  --install-minio-aiservice{newline}"
+            command += f"  --install-minio{newline}"
             command += f'  --minio-root-user "$MINIO_ROOT_USER"{newline}'
             command += f'  --minio-root-password "$MINIO_ROOT_PASSWORD"{newline}'
         else:
@@ -171,9 +183,9 @@ class aiServiceInstallArgBuilderMixin:
                 command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
             if self.getParam("aiservice_s3_region") != "":
                 command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+            if self.getParam("aiservice_s3_bucket_prefix") != "":
+                command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
 
-        if self.getParam("aiservice_s3_bucket_prefix") != "":
-            command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
         if self.getParam("aiservice_s3_tenants_bucket") != "":
             command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
         if self.getParam("aiservice_s3_templates_bucket") != "":

@@ -61,6 +61,13 @@ class aiServiceInstallSummarizerMixin:
                 self.printParamSummary("CIS API Key", "cis_apikey")
                 self.printParamSummary("CIS CRN", "cis_crn")
                 self.printParamSummary("CIS subdomain", "cis_subdomain")
+                self.printSummary("Enhanced Security", "Yes" if self.getParam("cis_enhanced_security") == "true" else "No")
+                if self.getParam("cis_enhanced_security") == "true":
+                    self.printParamSummary("CIS Service Name", "cis_service_name")
+                    self.printSummary("WAF Enabled", "Yes" if self.getParam("cis_waf") == "true" else "No")
+                    self.printSummary("Proxy Enabled", "Yes" if self.getParam("cis_proxy") == "true" else "No")
+                    self.printSummary("Delete Wildcard DNS Entries", "Yes" if self.getParam("delete_wildcards") == "true" else "No")
+                    self.printSummary("Override Edge Certificates", "Yes" if self.getParam("override_edge_certs") == "true" else "No")
             elif self.getParam("dns_provider") == "route53":
                 self.printParamSummary("Route 53 e-mail", "route53_email")
                 self.printParamSummary("Route 53 hosted zone name", "route53_hosted_zone_name")

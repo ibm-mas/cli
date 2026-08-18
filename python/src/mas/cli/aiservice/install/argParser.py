@@ -280,6 +280,57 @@ cisArgGroup.add_argument(
     required=False,
     help="Optionally setup AI Service instance as a subdomain under a multi-tenant CIS DNS record",
 )
+cisArgGroup.add_argument(
+    "--cis-enhanced-security",
+    dest="cis_enhanced_security",
+    required=False,
+    default="false",
+    help="Configure enhanced security for CIS (enables WAF and proxy settings)",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--cis-service-name",
+    dest="cis_service_name",
+    required=False,
+    help="CIS service instance name",
+)
+cisArgGroup.add_argument(
+    "--cis-waf",
+    dest="cis_waf",
+    required=False,
+    default="true",
+    help="Enable Web Application Firewall (WAF) for CIS DNS entries",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--cis-proxy",
+    dest="cis_proxy",
+    required=False,
+    default="false",
+    help="Enable CIS proxy for DNS entries",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--delete-wildcards",
+    dest="delete_wildcards",
+    required=False,
+    default="false",
+    help="Force deletion of wildcard DNS entries in CIS",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--override-edge-certs",
+    dest="override_edge_certs",
+    required=False,
+    default="true",
+    help="Override and delete existing edge certificates in CIS instance",
+    action="store_const",
+    const="true",
+)
 
 # DNS Integration - AWS Route53
 # -----------------------------------------------------------------------------

@@ -415,6 +415,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
 
+        # For CIS DNS provider, always set cis_entries_to_add to "aiservice" (stand-alone install)
+        if self.getParam("dns_provider") == "cis":
+            self.setParam("cis_entries_to_add", "aiservice")
+
         # Load the catalog information
         try:
             self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
@@ -776,6 +780,19 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "",
         ]
         self.setParam("aiservice_certificate_issuer", certIssuerOptions[certIssuer - 1])
+
+        # CIS security & behaviour options
+        configEnhancedSecurity = self.yesOrNo("Configure enhanced security for CIS", "cis_enhanced_security")
+        if configEnhancedSecurity:
+            self.printDescription(["Enter the name of your CIS service from IBM Cloud"])
+            self.promptForString("CIS service name", "cis_service_name")
+            self.yesOrNo("Enable WAF (Web Application Firewall)", "cis_waf")
+            self.yesOrNo("Enable CIS proxy", "cis_proxy")
+            self.yesOrNo("Delete wildcard DNS entries in CIS", "delete_wildcards")
+            self.yesOrNo("Override and delete existing edge certificates in CIS instance", "override_edge_certs")
+
+        # AI Service stand-alone install: always add only AI Service CIS entries
+        self.setParam("cis_entries_to_add", "aiservice")
 
     @logMethodCall
     def configDNSAndCertsRoute53(self):

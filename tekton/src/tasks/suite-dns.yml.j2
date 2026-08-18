@@ -70,6 +70,18 @@ spec:
     - name: cis_proxy
       type: string
       default: ""
+    - name: cis_waf
+      type: string
+      default: "true"
+    - name: delete_wildcards
+      type: string
+      default: "false"
+    - name: update_dns_entries
+      type: string
+      default: "true"
+    - name: cis_entries_to_add
+      type: string
+      default: "all"
 
     # AWS Route 53 support
     - name: aws_access_key_id
@@ -157,6 +169,14 @@ spec:
         value: $(params.override_edge_certs)
       - name: CIS_PROXY
         value: $(params.cis_proxy)
+      - name: CIS_WAF
+        value: $(params.cis_waf)
+      - name: DELETE_WILDCARDS
+        value: $(params.delete_wildcards)
+      - name: UPDATE_DNS_ENTRIES
+        value: $(params.update_dns_entries)
+      - name: CIS_ENTRIES_TO_ADD
+        value: $(params.cis_entries_to_add)
 
       - name: AWS_ACCESS_KEY_ID
         value: $(params.aws_access_key_id)
@@ -169,7 +189,7 @@ spec:
       - name: ROUTE53_EMAIL
         value: $(params.route53_email)
       - name: ROUTE53_SUBDOMAIN
-        value: $(route53_subdomain)
+        value: $(params.route53_subdomain)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_ROUTING_MODE

@@ -314,6 +314,18 @@ def test_install_interactive_advanced(tmpdir):
                     return "aiservice"
                 if re.match(".*Certificate issuer.*", message):
                     return "1"
+                if re.match(".*Configure enhanced security for CIS.*", message):
+                    return "y"
+                if re.match(".*CIS service name.*", message):
+                    return "test-cis-service"
+                if re.match(".*Enable WAF.*", message):
+                    return "y"
+                if re.match(".*Enable CIS proxy.*", message):
+                    return "n"
+                if re.match(".*Delete wildcard DNS entries in CIS.*", message):
+                    return "n"
+                if re.match(".*Override and delete existing edge certificates in CIS instance.*", message):
+                    return "y"
                 if re.match(".*Cluster Ingress Domain Override.*", message):
                     return ""
                 if re.match(".*Enable IPv6 SingleStack networking.*", message):
@@ -521,3 +533,134 @@ def test_install_interactive_simplified(tmpdir):
             storage_class.metadata.name = "nfs-client"
             app = AiServiceInstallApp()
             app.install(argv=[])
+
+
+def test_install_noninteractive_cis_enhanced_security(tmpdir):
+    """Test non-interactive AI Service install with CIS enhanced security options.
+
+    GIVEN a complete set of CLI arguments including CIS enhanced security flags
+    WHEN the install command runs in non-interactive mode
+    THEN the install pipeline is launched with WAF, proxy, wildcard and edge cert settings applied.
+    """
+    tmpdir.join("authorized_entitlement.lic").write("testLicense")
+    with mock.patch("mas.cli.cli.config"):
+        dynamic_client = MagicMock(DynamicClient)
+        resources = MagicMock()
+        dynamic_client.resources = resources
+        routes_api = MagicMock()
+        catalog_api = MagicMock()
+        crd_api = MagicMock()
+        namespace_api = MagicMock()
+        cluster_role_binding_api = MagicMock()
+        pvc_api = MagicMock()
+        secret_api = MagicMock()
+        resource_apis = {
+            "CatalogSource": catalog_api,
+            "Route": routes_api,
+            "CustomResourceDefinition": crd_api,
+            "Namespace": namespace_api,
+            "ClusterRoleBinding": cluster_role_binding_api,
+            "PersistentVolumeClaim": pvc_api,
+            "Secret": secret_api,
+        }
+        resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs["kind"], None)
+        route = MagicMock()
+        route.spec = MagicMock()
+        route.spec.host = "maximo.ibm.com"
+        route.spec.displayName = supportedCatalogs["amd64"][1]
+        routes_api.get.return_value = route
+        catalog_api.get.side_effect = NotFoundError(ApiException(status="404"))
+        with (
+            mock.patch("mas.cli.cli.DynamicClient") as dynamic_client_class,
+            mock.patch("mas.cli.cli.getNodes") as get_nodes,
+            mock.patch("mas.cli.cli.isAirgapInstall") as is_airgap_install,
+            mock.patch("mas.cli.aiservice.install.app.getCurrentCatalog") as get_current_catalog,
+            mock.patch("mas.cli.aiservice.install.app.installOpenShiftPipelines"),
+            mock.patch("mas.cli.aiservice.install.app.updateTektonDefinitions"),
+            mock.patch("mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace"),
+            mock.patch("mas.cli.aiservice.install.app.launchInstallPipeline") as launch_ai_service_install_pipeline,
+        ):
+            dynamic_client_class.return_value = dynamic_client
+            get_nodes.return_value = [{"status": {"nodeInfo": {"architecture": "amd64"}}}]
+            is_airgap_install.return_value = False
+            get_current_catalog.return_value = {"catalogId": supportedCatalogs["amd64"][1]}
+            launch_ai_service_install_pipeline.return_value = "https://pipeline.test.maximo.ibm.com"
+            with mock.patch("mas.cli.cli.isSNO") as is_sno:
+                is_sno.return_value = False
+                app = AiServiceInstallApp()
+                app.install(
+                    [
+                        "--mas-catalog-version",
+                        "v9-250828-amd64",
+                        "--ibm-entitlement-key",
+                        "testEntitlementKey",
+                        "--aiservice-instance-id",
+                        "testInstanceId",
+                        "--storage-class-rwo",
+                        "nfs-client",
+                        "--storage-class-rwx",
+                        "nfs-client",
+                        "--storage-pipeline",
+                        "nfs-client",
+                        "--storage-accessmode",
+                        "ReadWriteMany",
+                        "--license-file",
+                        f"{tmpdir}/authorized_entitlement.lic",
+                        "--contact-email",
+                        "maximo@ibm.com",
+                        "--contact-firstname",
+                        "Test",
+                        "--contact-lastname",
+                        "Test",
+                        "--aiservice-channel",
+                        "9.1.x",
+                        "--domain",
+                        "aiservice.example.com",
+                        "--dns-provider",
+                        "cis",
+                        "--cis-email",
+                        "cis@example.com",
+                        "--cis-apikey",
+                        "testCisApiKey",
+                        "--cis-crn",
+                        "crn:v1:test",
+                        "--cis-subdomain",
+                        "aiservice",
+                        "--cis-service-name",
+                        "test-cis-service",
+                        "--cis-enhanced-security",
+                        "--cis-waf",
+                        "--delete-wildcards",
+                        "--override-edge-certs",
+                        "--aiservice-certificate-issuer",
+                        "testInstanceId-cis-le-prod",
+                        "--install-minio",
+                        "--minio-root-user",
+                        "test",
+                        "--minio-root-password",
+                        "test",
+                        "--watsonxai-apikey",
+                        "test",
+                        "--watsonxai-url",
+                        "https://us-south.ml.cloud.ibm.com",
+                        "--watsonxai-project-id",
+                        "test",
+                        "--tenant-entitlement-type",
+                        "standard",
+                        "--tenant-entitlement-start-date",
+                        "2025-08-28",
+                        "--tenant-entitlement-end-date",
+                        "2026-08-28",
+                        "--accept-license",
+                        "--no-confirm",
+                        "--skip-pre-check",
+                    ]
+                )
+
+                # Verify the new CIS params are correctly set in the pipeline params
+                assert app.getParam("cis_enhanced_security") == "true"
+                assert app.getParam("cis_waf") == "true"
+                assert app.getParam("delete_wildcards") == "true"
+                assert app.getParam("override_edge_certs") == "true"
+                assert app.getParam("cis_service_name") == "test-cis-service"
+                assert app.getParam("cis_entries_to_add") == "aiservice"
