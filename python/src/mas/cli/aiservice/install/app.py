@@ -791,6 +791,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if configEnhancedSecurity:
             self.printDescription(["Enter the name of your CIS service from IBM Cloud"])
             self.promptForString("CIS service name", "cis_service_name")
+            self.yesOrNo("Update existing CIS DNS entries", "update_dns_entries")
             self.yesOrNo("Enable WAF (Web Application Firewall)", "cis_waf")
             self.yesOrNo("Enable CIS proxy", "cis_proxy")
             self.yesOrNo("Delete wildcard DNS entries in CIS", "delete_wildcards")

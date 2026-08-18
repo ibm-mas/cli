@@ -145,6 +145,8 @@ class aiServiceInstallArgBuilderMixin:
                 command += f"  --cis-enhanced-security{newline}"
                 if self.getParam("cis_service_name") != "":
                     command += f"  --cis-service-name \"{self.getParam('cis_service_name')}\"{newline}"
+                if self.getParam("update_dns_entries") == "true":
+                    command += f"  --update-dns-entries{newline}"
                 if self.getParam("cis_waf") == "true":
                     command += f"  --cis-waf{newline}"
                 if self.getParam("cis_proxy") == "true":

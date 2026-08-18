@@ -303,6 +303,15 @@ cisArgGroup.add_argument(
     help="CIS service instance name",
 )
 cisArgGroup.add_argument(
+    "--update-dns-entries",
+    dest="update_dns_entries",
+    required=False,
+    default="true",
+    help="Update existing DNS entries in CIS if they already exist (default: true)",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
     "--cis-waf",
     dest="cis_waf",
     required=False,

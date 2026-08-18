@@ -120,6 +120,7 @@ optionalParams = [
     "cis_subdomain",
     "cis_service_name",
     "cis_enhanced_security",
+    "update_dns_entries",
     "override_edge_certs",
     "cis_proxy",
     "cis_waf",

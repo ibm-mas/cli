@@ -64,6 +64,7 @@ class aiServiceInstallSummarizerMixin:
                 self.printSummary("Enhanced Security", "Yes" if self.getParam("cis_enhanced_security") == "true" else "No")
                 if self.getParam("cis_enhanced_security") == "true":
                     self.printParamSummary("CIS Service Name", "cis_service_name")
+                    self.printSummary("Update Existing DNS Entries", "Yes" if self.getParam("update_dns_entries") == "true" else "No")
                     self.printSummary("WAF Enabled", "Yes" if self.getParam("cis_waf") == "true" else "No")
                     self.printSummary("Proxy Enabled", "Yes" if self.getParam("cis_proxy") == "true" else "No")
                     self.printSummary("Delete Wildcard DNS Entries", "Yes" if self.getParam("delete_wildcards") == "true" else "No")

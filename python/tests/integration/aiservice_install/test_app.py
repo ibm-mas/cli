@@ -326,6 +326,8 @@ def test_install_interactive_advanced(tmpdir):
                     return "y"
                 if re.match(".*CIS service name.*", message):
                     return "test-cis-service"
+                if re.match(".*Update existing CIS DNS entries.*", message):
+                    return "y"
                 if re.match(".*Enable WAF.*", message):
                     return "y"
                 if re.match(".*Enable CIS proxy.*", message):
@@ -637,6 +639,7 @@ def test_install_noninteractive_cis_enhanced_security(tmpdir):
                         "--cis-service-name",
                         "test-cis-service",
                         "--cis-enhanced-security",
+                        "--update-dns-entries",
                         "--cis-waf",
                         "--delete-wildcards",
                         "--override-edge-certs",
@@ -667,6 +670,7 @@ def test_install_noninteractive_cis_enhanced_security(tmpdir):
 
                 # Verify the new CIS params are correctly set in the pipeline params
                 assert app.getParam("cis_enhanced_security") == "true"
+                assert app.getParam("update_dns_entries") == "true"
                 assert app.getParam("cis_waf") == "true"
                 assert app.getParam("delete_wildcards") == "true"
                 assert app.getParam("override_edge_certs") == "true"
