@@ -103,6 +103,16 @@ spec:
       description: Optional string parameter, either path or subdomain, defines the network routing mode used for the suite.
       default: ""
 
+    # Certificate issuer kind — ClusterIssuer (cluster mode) or Issuer (namespaced/minimal)
+    - name: mas_issuer_kind
+      type: string
+      default: ""
+
+    # IngressController name used to derive the HTTP-01 solver ingressClassName
+    - name: mas_ingress_controller_name
+      type: string
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -165,6 +175,10 @@ spec:
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_ROUTING_MODE
         value: $(params.mas_routing_mode)
+      - name: MAS_ISSUER_KIND
+        value: $(params.mas_issuer_kind)
+      - name: MAS_INGRESS_CONTROLLER_NAME
+        value: $(params.mas_ingress_controller_name)
 
   steps:
     - name: suite-dns

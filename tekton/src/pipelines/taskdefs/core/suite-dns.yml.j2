@@ -64,6 +64,10 @@
       value: $(params.route53_subdomain)
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: mas_issuer_kind
+      value: $(params.mas_issuer_kind)
+    - name: mas_ingress_controller_name
+      value: $(params.mas_ingress_controller_name)
   taskRef:
     kind: Task
     name: mas-devops-suite-dns
