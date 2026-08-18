@@ -227,10 +227,10 @@ aiserviceAdvancedArgGroup.add_argument(
 )
 aiserviceAdvancedArgGroup.add_argument(
     "--tenant-operator-config-file",
-        dest="tenant_operator_config_file",
-        required=False,
-        help="Path to the YAML file that contains the tenant operator customization settings",
-        type=lambda x: isValidFile(aiServiceinstallArgParser, x),
+    dest="tenant_operator_config_file",
+    required=False,
+    help="Path to the YAML file that contains the tenant operator customization settings",
+    type=lambda x: isValidFile(aiServiceinstallArgParser, x),
 )
 aiserviceAdvancedArgGroup.add_argument(
     "--domain",
