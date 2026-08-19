@@ -96,11 +96,22 @@ spec:
           value: coreidp-auth
       runAfter:
         - kyverno
+    
+    # We're getting concurrent problems on manage since we're running a lot of creation/deletion at the same time
+    # as this test is pretty fast, it can be runned independently to not cause race conditions.
+    - name: coreapi-scimv2
+      {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: coreapi-scimv2
+      runAfter:
+        - coreidp-auth
 
     # Phase 1
     # -------------------------------------------------------------------------
     # Only suites that take less than 5 minutes
-    {{ lookup('template', 'taskdefs/fvt-core/phase1-under5min.yml.j2', template_vars={'runAfter': ['coreidp-auth']}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-core/phase1-under5min.yml.j2', template_vars={'runAfter': ['coreapi-scimv2']}) | indent(4) }}
 
     # Phase 2
     # -------------------------------------------------------------------------

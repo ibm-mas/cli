@@ -37,6 +37,7 @@ class InstallSummarizerMixin:
         localConfigDir: str | None
         slsLicenseFileLocal: str | None
         aiserviceTenantSchedulingConfigFileLocal: str | None
+        aiserviceTenantOperatorConfigFileLocal: str | None
         facilitiesPropertiesFileLocal: str | None
         deployCP4D: bool
         installAssist: bool
@@ -367,6 +368,7 @@ class InstallSummarizerMixin:
             self.printParamSummary("Release", "aiservice_channel")
             self.printParamSummary("Instance ID", "aiservice_instance_id")
             self.printParamSummary("Environment Type", "environment_type")
+            self.printSummary("AI Data Science Platform", "Red Hat OpenShift AI (RHOAI)" if self.getParam("rhoai") == "true" else "Open Data Hub (ODH)")
 
             if "aiservice_certificate_issuer" in self.params:
                 self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
@@ -411,6 +413,11 @@ class InstallSummarizerMixin:
                 self.printSummary(
                     "Scheduling configuration file",
                     self.aiserviceTenantSchedulingConfigFileLocal,
+                )
+            if self.aiserviceTenantOperatorConfigFileLocal:
+                self.printSummary(
+                    "Tenant operator configuration file",
+                    self.aiserviceTenantOperatorConfigFileLocal,
                 )
 
             self.printH2("S3 Configuration")
