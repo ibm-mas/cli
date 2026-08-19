@@ -189,6 +189,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.db2LicenseFileLocal = None
 
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
 
         self.approvals = {
             "approval_aiservice": {"id": "aiservice"},
@@ -277,6 +278,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 # No need to perform validation if file exist here, as it has been already validated by argParser type check.
                 if value is not None and value != "":
                     self.aiserviceTenantSchedulingConfigFileLocal = value
+
+            elif key == "tenant_operator_config_file":
+                if value is not None and value != "":
+                    self.aiserviceTenantOperatorConfigFileLocal = value
 
             elif key == "db2_action_aiservice":
                 # Check if external DB parameters are provided
@@ -668,6 +673,24 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
+        # Configure AI Data Science Platform
+        self.printH2("Configure AI Data Science Platform")
+        self.printDescription(
+            [
+                "Choose which AI data science platform to install:",
+                " - <b>Note for 9.1.x</b>: Open Data Hub (ODH) is the supported platform for AI Service 9.1.x",
+                " - <b>Note for 9.2.x</b>: Red Hat OpenShift AI (RHOAI) is the recommended platform for AI Service 9.2.x",
+                "",
+                "  1. Red Hat OpenShift AI (RHOAI)",
+                "  2. Open Data Hub (ODH)",
+            ]
+        )
+        platformChoice = self.promptForInt("AI Data Science Platform", default=1, min=1, max=2)
+        if platformChoice == 2:
+            self.setParam("rhoai", "false")
+        else:
+            self.setParam("rhoai", "true")
+
         # Configure Certificate Issuer
         self.configCertIssuer()
 
@@ -700,7 +723,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime("%Y-%m-%d"))
 
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.configSchedulingConstraints()
+        self.configTenantOperator()
 
     @logMethodCall
     def configSchedulingConstraints(self):
@@ -1081,9 +1106,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.setParam("environment_type", "production")
             self.setParam("aiservice_odh_model_deployment_type", "raw")
             self.setParam("aiservice_rhoai_model_deployment_type", "raw")
-            self.setParam("rhoai", "false")
         else:
             self.setParam("environment_type", "non-production")
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
             self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
-            self.setParam("rhoai", "false")

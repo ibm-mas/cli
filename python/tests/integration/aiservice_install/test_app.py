@@ -26,6 +26,7 @@ from mas.cli.aiservice.install.app import AiServiceInstallApp
 def test_install_noninteractive(tmpdir):
     tmpdir.join("authorized_entitlement.lic").write("testLicense")
     tmpdir.join("aiservice-tenant-affinity-config.yaml").write("#")
+    tmpdir.join("aiservice-tenant-operator-config.yaml").write("#")
     with mock.patch("mas.cli.cli.config"):
         dynamic_client = MagicMock(DynamicClient)
         resources = MagicMock()
@@ -154,6 +155,8 @@ def test_install_noninteractive(tmpdir):
                         "2026-08-28",
                         "--tenant-scheduling-config-file",
                         f"{tmpdir}/aiservice-tenant-affinity-config.yaml",
+                        "--tenant-operator-config-file",
+                        f"{tmpdir}/aiservice-tenant-operator-config.yaml",
                         "--rsl-ca-crt",
                         "testRslCaCert",
                         "--accept-license",
@@ -166,6 +169,7 @@ def test_install_noninteractive(tmpdir):
 def test_install_interactive_advanced(tmpdir):
     tmpdir.join("authorized_entitlement.lic").write("testLicense")
     tmpdir.join("aiservice-tenant-affinity-config.yaml").write("#")
+    tmpdir.join("aiservice-tenant-operator-config.yaml").write("#")
     tmpdir.join("mongodb-system.yaml").write("#")
     tmpdir.join("cert.crt").write("#")
     with mock.patch("mas.cli.cli.config"):
@@ -259,6 +263,10 @@ def test_install_interactive_advanced(tmpdir):
                     return "y"
                 if re.match(".*Scheduling configuration YAML file.*", message):
                     return f"{tmpdir}/aiservice-tenant-affinity-config.yaml"
+                if re.match(".*Customize the AI Service tenant operator deployment.*", message):
+                    return "y"
+                if re.match(".*Tenant operator configuration YAML file.*", message):
+                    return f"{tmpdir}/aiservice-tenant-operator-config.yaml"
                 if re.match(".*Watsonxai api key.*", message):
                     return "testWxApiKey"
                 if re.match(".*Watsonxai machine learning url.*", message):
@@ -279,6 +287,8 @@ def test_install_interactive_advanced(tmpdir):
                     return "username"
                 if re.match(".*minio root password.*", message):
                     return "password"
+                if re.match(".*AI Data Science Platform.*", message):
+                    return "1"
                 if re.match(r".*Configure certificate issuer\?.*", message):
                     return "y"
                 if re.match(".*Certificate issuer name.*", message):
@@ -435,6 +445,8 @@ def test_install_interactive_simplified(tmpdir):
                     return "username"
                 if re.match(".*minio root password.*", message):
                     return "password"
+                if re.match(".*AI Data Science Platform.*", message):
+                    return "1"
                 if re.match(".*Entitlement end date.*", message):
                     return "2027-02-16"
                 if re.match(".*Watsonxai api key.*", message):
