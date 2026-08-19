@@ -49,6 +49,14 @@
       value: $(params.override_edge_certs)
     - name: cis_proxy
       value: $(params.cis_proxy)
+    - name: cis_waf
+      value: $(params.cis_waf)
+    - name: delete_wildcards
+      value: $(params.delete_wildcards)
+    - name: update_dns_entries
+      value: $(params.update_dns_entries)
+    - name: cis_entries_to_add
+      value: $(params.cis_entries_to_add)
 
     - name: aws_access_key_id
       value: $(params.aws_access_key_id)
@@ -64,6 +72,12 @@
       value: $(params.route53_subdomain)
     - name: custom_labels
       value: $(params.custom_labels)
+
+    # AI Service
+    - name: aiservice_domain
+      value: $(params.aiservice_domain)
+    - name: aiservice_instance_id
+      value: $(params.aiservice_instance_id)
   taskRef:
     kind: Task
     name: mas-devops-suite-dns
