@@ -352,6 +352,18 @@ cisArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 route53ArgGroup = aiServiceinstallArgParser.add_argument_group("DNS Integration - AWS Route53")
 route53ArgGroup.add_argument(
+    "--aws-access-key-id",
+    dest="aws_access_key_id",
+    required=False,
+    help="AWS access key ID for authenticating with the AWS account (required for Route53 DNS integration)",
+)
+route53ArgGroup.add_argument(
+    "--aws-secret-access-key",
+    dest="aws_secret_access_key",
+    required=False,
+    help="AWS secret access key for authenticating with the AWS account (required for Route53 DNS integration)",
+)
+route53ArgGroup.add_argument(
     "--route53-hosted-zone-name",
     dest="route53_hosted_zone_name",
     required=False,

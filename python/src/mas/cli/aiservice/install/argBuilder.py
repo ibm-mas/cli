@@ -42,6 +42,9 @@ class aiServiceInstallArgBuilderMixin:
         if self.getParam("aiservice_watsonxai_apikey") != "":
             command += "export AISERVICE_WATSONXAI_APIKEY=x\n"
 
+        if self.getParam("cis_apikey") != "":
+            command += "export CIS_APIKEY=x\n"
+
         # Database password
         if self.getParam("aiservice_db_password") != "":
             command += "export AISERVICE_DB_PASSWORD=x\n"
@@ -137,10 +140,11 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --domain \"{self.getParam('aiservice_domain')}\"{newline}"
 
         if self.getParam("dns_provider") == "cis":
-            command += f'  --dns-provider cis --cis-apikey "$CIS_APIKEY"{newline}'
-            command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
-            command += f" --cis-crn \"{self.getParam('cis_crn')}\""
-            command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
+            command += f"  --dns-provider cis{newline}"
+            command += f'  --cis-apikey "$CIS_APIKEY"{newline}'
+            command += f"  --cis-subdomain \"{self.getParam('cis_subdomain')}\"{newline}"
+            command += f"  --cis-crn \"{self.getParam('cis_crn')}\"{newline}"
+            command += f"  --cis-email \"{self.getParam('cis_email')}\"{newline}"
             if self.getParam("cis_enhanced_security") == "true":
                 command += f"  --cis-enhanced-security{newline}"
                 if self.getParam("cis_service_name") != "":
@@ -162,6 +166,8 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --route53-email \"{self.getParam('route53_email')}\"{newline}"
             command += f"  --route53-hosted-zone-name \"{self.getParam('route53_hosted_zone_name')}\"{newline}"
             command += f"  --route53-hosted-zone-region \"{self.getParam('route53_hosted_zone_region')}\"{newline}"
+            command += f'  --aws-access-key-id "$AWS_ACCESS_KEY_ID"{newline}'
+            command += f'  --aws-secret-access-key "$AWS_SECRET_ACCESS_KEY"{newline}'
 
         # Enable IPv6 networking
         if self.getParam("enable_ipv6").lower() == "true":

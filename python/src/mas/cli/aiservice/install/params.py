@@ -126,6 +126,8 @@ optionalParams = [
     "cis_waf",
     "delete_wildcards",
     # AWS Route53
+    "aws_access_key_id",
+    "aws_secret_access_key",
     "route53_hosted_zone_name",
     "route53_hosted_zone_region",
     "route53_subdomain",
