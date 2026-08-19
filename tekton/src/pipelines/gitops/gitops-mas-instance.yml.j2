@@ -297,6 +297,9 @@ spec:
     - name: production_database_access_type
       type: string
       default: ""
+    - name: mas_environment_type
+      type: string
+      default: ""
 
   tasks:
 
@@ -554,6 +557,8 @@ spec:
           value: $(params.mas_use_service_mesh)
         - name: production_database_access_type
           value: $(params.production_database_access_type)
+        - name: mas_environment_type
+          value: $(params.mas_environment_type)
       taskRef:
         kind: Task
         name: gitops-suite
