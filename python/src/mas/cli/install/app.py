@@ -662,7 +662,11 @@ class InstallApp(
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
-        self.configRoutingMode()
+
+        # temporarily disabiliing configuring routing mode
+        # self.configRoutingMode()
+        self.setParam("mas_routing_mode", "subdomain")
+
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -1879,7 +1883,9 @@ class InstallApp(
             )
 
             self.aiserviceTenantSchedulingConfigFileLocal = None
+            self.aiserviceTenantOperatorConfigFileLocal = None
             self.configSchedulingConstraints()
+            self.configTenantOperator()
 
     @logMethodCall
     def configSchedulingConstraints(self):
@@ -2005,6 +2011,7 @@ class InstallApp(
                 " - Choose alternative Apache Kafka providers (default to Strimzi)",
                 " - Customize Grafana storage settings",
                 " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant",
+                " - Customize AI Service tenant operator configuration",
             ]
         )
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
@@ -2018,6 +2025,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.facilitiesPropertiesFileLocal = None
 
         if simplified:
@@ -2111,6 +2119,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.facilitiesPropertiesFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
@@ -2466,6 +2475,10 @@ class InstallApp(
                 if value is not None and value != "":
                     self.aiserviceTenantSchedulingConfigFileLocal = value
 
+            elif key == "tenant_operator_config_file":
+                if value is not None and value != "":
+                    self.aiserviceTenantOperatorConfigFileLocal = value
+
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")
@@ -2752,6 +2765,22 @@ class InstallApp(
                 self.buildCommand(),
             ]
         )
+
+        # Currently no 9.2.x patch support path based routing as that changes this will need to change
+        # to filter on the specific patch version
+        if self.getParam("mas_routing_mode") == "path":
+            self.fatalError(
+                "\n".join(
+                    [
+                        "Path based routing mode not supported",
+                        "========================================================================",
+                        "Path based routing is not currently supported",
+                        "",
+                        "Use subdomain routing mode:",
+                        "   mas install --routing subdomain ...",
+                    ]
+                )
+            )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
