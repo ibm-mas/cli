@@ -55,10 +55,13 @@ function install_buildx() {
   curl --silent -L "https://github.com/docker/buildx/releases/download/v0.31.1/buildx-v0.31.1.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
   chmod a+x ~/.docker/cli-plugins/docker-buildx
 
-  # qemu-user-static and binfmt-support are pre-installed on GitHub-hosted ubuntu-latest runners.
-  # Running apt-get install causes multi-minute stalls when azure.archive.ubuntu.com is unreachable.
-  # Validate the tools are present without re-installing them.
+  # Bypass the Azure mirror (azure.archive.ubuntu.com) which causes multi-minute stalls on
+  # GitHub-hosted runners when the mirror is unreachable, using archive.ubuntu.com directly.
+  sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null || true
+  sudo apt-get update -o Acquire::CompressionTypes::Order::=gz
+  sudo apt-get install -y qemu-user-static
   qemu-aarch64-static --version
+  sudo apt-get install -y binfmt-support
   update-binfmts --version
 
   docker version || exit 1
