@@ -55,10 +55,10 @@ function install_buildx() {
   curl --silent -L "https://github.com/docker/buildx/releases/download/v0.31.1/buildx-v0.31.1.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
   chmod a+x ~/.docker/cli-plugins/docker-buildx
 
-  sudo apt-get update
-  sudo apt-get install -y qemu-user-static
+  # qemu-user-static and binfmt-support are pre-installed on GitHub-hosted ubuntu-latest runners.
+  # Running apt-get install causes multi-minute stalls when azure.archive.ubuntu.com is unreachable.
+  # Validate the tools are present without re-installing them.
   qemu-aarch64-static --version
-  sudo apt-get install -y binfmt-support
   update-binfmts --version
 
   docker version || exit 1
