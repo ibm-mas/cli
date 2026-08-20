@@ -181,9 +181,6 @@ spec:
     - name: production_database_access_type
       type: string
       default: ""
-    - name: mas_environment_type
-      type: string
-      default: ""
   stepTemplate:
     env:
       - name: CLUSTER_URL
@@ -320,8 +317,6 @@ spec:
         value: $(params.application_admin_sa_namespace)
       - name: PRODUCTION_DATABASE_ACCESS_TYPE
         value: $(params.production_database_access_type)
-      - name: MAS_ENVIRONMENT_TYPE
-        value: $(params.mas_environment_type)
 
     envFrom:
       - configMapRef:
