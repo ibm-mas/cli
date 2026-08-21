@@ -202,6 +202,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
                 self.nextChannel = prompt(HTML("<Yellow>Custom channel</Yellow> "))
             else:
+                # Fetch all installed app subscription channels once — used for both
+                # channel resolution and compatibility validation below
+                installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+
                 if self.nextChannel != "":
                     # --next-channel was explicitly provided by the user
                     if self.nextChannel == currentChannel:
@@ -218,14 +222,38 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     else:
                         self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
                 else:
-                    # No --next-channel given: derive from upgrade_path
-                    if currentChannel not in self.upgrade_path:
-                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {currentChannel}")
-                    self.nextChannel = self.upgrade_path[currentChannel]
+                    # No --next-channel given: derive from upgrade_path using the
+                    # oldest channel across Core + all installed apps.
+                    # This handles partial upgrade resumption correctly — e.g. if Core
+                    # reached 9.1.x but Manage is still on 9.0.x, effectiveCurrentChannel
+                    # will be 9.0.x and the target will be 9.1.x instead of 9.2.x.
+                    allChannels = [currentChannel] + [app["channel"] for app in installedAppsChannel]
+
+                    def channelOrder(ch):
+                        keys = list(self.upgrade_path.keys())
+                        return keys.index(ch) if ch in keys else -1
+
+                    self.effectiveCurrentChannel = max(allChannels, key=channelOrder)
+
+                    if self.effectiveCurrentChannel not in self.upgrade_path:
+                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
+                    self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
+
+                # Check if all components are already on the target channel.
+                # Covers both auto-detect and --next-channel paths.
+                # Only exits if Core AND every installed app are already on nextChannel.
+                # If any app is behind, this condition is False and pipeline launches normally.
+                if self.nextChannel == currentChannel and all(app["channel"] == self.nextChannel for app in installedAppsChannel):
+                    print_formatted_text(
+                        HTML(
+                            f"<LightSlateGrey>No action required, {instanceId} is already fully upgraded. "
+                            f"All components are on channel {self.nextChannel}.</LightSlateGrey>"
+                        )
+                    )
+                    return
 
                 # Validate installed apps compatibility with the target channel
                 if self.nextChannel in self.compatibilityMatrix:
-                    installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
                     incompatibleApps = []
 
                     for installedApp in installedAppsChannel:
@@ -416,8 +444,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         # Regular upgrade with explicit --next-channel
                         masChannelParam = currentChannel
                 else:
-                    # No --next-channel provided: let ansible auto-determine
-                    masChannelParam = ""
+                    # No --next-channel provided: pass the effectiveCurrentChannel computed
+                    # earlier so Ansible targets the correct hop based on all component
+                    # channels, not just Core's channel.
+                    masChannelParam = self.effectiveCurrentChannel if hasattr(self, "effectiveCurrentChannel") else ""
 
                 pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
                 if pipelineURL is not None:
