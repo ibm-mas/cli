@@ -108,7 +108,7 @@ spec:
         value: $(params.git_commit_msg)
       - name: GIT_SSH
         value: $(params.github_ssh)
-      - name: POD_TEMPLATE
+      - name: MAS_SLS_POD_TEMPLATE_YAML
         value: $(params.mas_slscfg_pod_template_yaml)
 
     envFrom:
@@ -129,7 +129,8 @@ spec:
 
         mas gitops-suite-license-service -d $WORKING_DIR -a $ACCOUNT -c $CLUSTER_NAME --ibm-customer-number ${ICN} --subscription-id ${SAAS_SUB_ID} \
         --secrets-path "${SECRETS_PATH}" --domain ${SLS_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN} \
-        --cluster-url ${CLUSTER_URL} --github-push
+        --cluster-url ${CLUSTER_URL} --github-push \
+        ${MAS_SLS_POD_TEMPLATE_YAML:+--mas-sls-pod-template-yaml ${MAS_SLS_POD_TEMPLATE_YAML}}
 
       command:
         - /bin/sh
