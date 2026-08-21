@@ -67,5 +67,4 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade
 ### Non-Interactive Upgrade
 ```bash
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade --mas-instance-id inst1 --no-confirm
-```always quay.io/ibmmas/cli mas upgrade --mas-instance-id inst1 --no-confirm
 ```
