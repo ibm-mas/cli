@@ -54,7 +54,7 @@ spec:
       type: string
     - name: github_ssh
       type: string
-    - name: mas_slscfg_pod_template_yaml
+    - name: mas_sls_pod_template_yaml
       type: string
 
   stepTemplate:
@@ -109,7 +109,7 @@ spec:
       - name: GIT_SSH
         value: $(params.github_ssh)
       - name: MAS_SLS_POD_TEMPLATE_YAML
-        value: $(params.mas_slscfg_pod_template_yaml)
+        value: $(params.mas_sls_pod_template_yaml)
 
     envFrom:
       - configMapRef:
