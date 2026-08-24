@@ -56,6 +56,8 @@ spec:
       type: string
     - name: mas_sls_pod_template_yaml
       type: string
+    - name: mas_slscfg_pod_template_yaml
+      type: string
 
   stepTemplate:
     env:
@@ -110,6 +112,8 @@ spec:
         value: $(params.github_ssh)
       - name: MAS_SLS_POD_TEMPLATE_YAML
         value: $(params.mas_sls_pod_template_yaml)
+      - name: MAS_SLSCFG_POD_TEMPLATE_YAML
+        value: $(params.mas_slscfg_pod_template_yaml)
 
     envFrom:
       - configMapRef:

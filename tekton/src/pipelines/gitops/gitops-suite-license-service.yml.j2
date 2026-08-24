@@ -106,6 +106,9 @@ spec:
     - name: mas_sls_pod_template_yaml
       type: string
       default: ""
+    - name: mas_slscfg_pod_template_yaml
+      type: string
+      default: ""
 
     # gitops-license-generator parameters
     # -------------------------------------------------------------------------
@@ -253,6 +256,8 @@ spec:
           value: $(params.sls_subscription_id)
         - name: mas_sls_pod_template_yaml
           value: $(params.mas_sls_pod_template_yaml)
+        - name: mas_slscfg_pod_template_yaml
+          value: $(params.mas_slscfg_pod_template_yaml)
 
       taskRef:
         kind: Task
