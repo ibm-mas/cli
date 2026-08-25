@@ -235,6 +235,19 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
                     self.effectiveCurrentChannel = max(allChannels, key=channelOrder)
 
+                    # Early-exit BEFORE upgrade_path lookup:
+                    # If every component is on the same channel and that channel has no
+                    # further upgrade target, the instance is fully upgraded — exit cleanly
+                    # without needing a self-referencing entry (e.g. "9.2.x":"9.2.x") in upgrade_path.
+                    if self.effectiveCurrentChannel not in self.upgrade_path and all(ch == self.effectiveCurrentChannel for ch in allChannels):
+                        print_formatted_text(
+                            HTML(
+                                f"<LightSlateGrey>No action required, {instanceId} is already fully upgraded. "
+                                f"All components are on channel {self.effectiveCurrentChannel}.</LightSlateGrey>"
+                            )
+                        )
+                        return
+
                     if self.effectiveCurrentChannel not in self.upgrade_path:
                         self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
                     self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
