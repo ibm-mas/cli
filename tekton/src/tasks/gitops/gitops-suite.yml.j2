@@ -391,9 +391,7 @@ spec:
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH \
-        --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA" \
-        ${MAS_POD_TEMPLATE_YAML:+--mas-pod-template-yaml ${MAS_POD_TEMPLATE_YAML}} \
-        ${MAS_SLS_POD_TEMPLATE_YAML:+--mas-sls-pod-template-yaml ${MAS_SLS_POD_TEMPLATE_YAML}}
+        --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA"
 
         exit $?
       command:
