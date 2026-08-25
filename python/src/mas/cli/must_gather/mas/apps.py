@@ -23,6 +23,7 @@ from kubernetes.dynamic import DynamicClient
 from mas.cli.must_gather.common import generateReconcileLogsCollectionTasks
 from mas.cli.must_gather.common.task_generation import generateNamespaceCollectionTasks
 from .manage import collectManageNetworkTests
+from .facilities import collectFacilitiesLogs
 
 logger = logging.getLogger(__name__)
 
@@ -212,6 +213,9 @@ def _generateMASAppCollectionTasks(
     # Add Manage-specific network connectivity test
     if appId == "manage":
         tasks.append(("network_tests", collectManageNetworkTests, dynClient, namespace, outputDir))
+
+    if appId == "facilities":
+        tasks.append(("facilities_logs", collectFacilitiesLogs, namespace, outputDir))
 
     return tasks
 
