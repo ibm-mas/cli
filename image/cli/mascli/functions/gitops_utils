@@ -524,7 +524,7 @@ function sm_get_secret_arn() {
 # This prevents backflow issues when moving data between prod/dev/test environments.
 #
 # The function:
-# 1. Checks if customer-level password exists at ibm-customer/{ICN}/facilities/manage-mref-keystore-password
+# 1. Checks if customer-level password exists at ibm-customer/{ICN}/facilities/{MAS_WORKSPACE_ID}-facilities--vs{ICN}-sn
 # 2. If not, checks for legacy instance-level password and migrates it
 # 3. If neither exists, generates a new secure alphanumeric password
 # 4. Stores password at customer level for reuse across all customer instances
@@ -534,7 +534,8 @@ function sm_get_secret_arn() {
 #   $2 - ACCOUNT_ID
 #   $3 - CLUSTER_ID
 #   $4 - MAS_INSTANCE_ID
-#   $5 - SECRETS_KEY_SEPERATOR
+#   $5 - MAS_WORKSPACE_ID
+#   $6 - SECRETS_KEY_SEPERATOR
 #
 # Returns:
 #   0 on success, 1 on failure
@@ -544,7 +545,8 @@ function manage_customer_mref_password() {
   local ACCOUNT_ID="$2"
   local CLUSTER_ID="$3"
   local MAS_INSTANCE_ID="$4"
-  local SECRETS_KEY_SEPERATOR="$5"
+  local MAS_WORKSPACE_ID="$5"
+  local SECRETS_KEY_SEPERATOR="$6"
   
   if [[ -z "${ICN}" ]]; then
     echo "ERROR: ICN is required for customer-level MREF password management"
@@ -556,8 +558,9 @@ function manage_customer_mref_password() {
   echo "- Customer ICN: ${ICN}"
   
   # Define secret paths following customer-level secret pattern: ibm-customer/{ICN}/facilities/...
-  local CUSTOMER_SECRET_NAME="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage-mref-keystore-password"
-  local LEGACY_SECRET_NAME="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage-mref-keystore-password"
+  local CUSTOMER_SECRET_NAME="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}${MAS_WORKSPACE_ID}-facilities--vs${ICN}-sn"
+  local LEGACY_SECRET_NAME="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage-mref-keystore-password"
+  local LEGACY_INSTANCE_SECRET_NAME="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage-mref-keystore-password"
   
   # Check if customer-level secret exists
   echo "- Checking for customer-level secret: ${CUSTOMER_SECRET_NAME}"
@@ -570,29 +573,42 @@ function manage_customer_mref_password() {
     return 0
   fi
   
-  # Customer-level secret doesn't exist, check for legacy instance-level secret
-  echo "- Customer-level secret not found, checking for legacy instance-level secret"
+  # Customer-level secret not found, check for legacy customer-level secret (manage-mref-keystore-password)
+  echo "- Customer-level secret not found, checking for legacy customer-level secret"
   echo "- Checking: ${LEGACY_SECRET_NAME}"
   set +o pipefail
   local LEGACY_PASSWORD=$(sm_get_secret_value "${LEGACY_SECRET_NAME}" "password" 2>/dev/null)
   set -o pipefail
   
   if [[ -n "${LEGACY_PASSWORD}" ]] && [[ "${LEGACY_PASSWORD}" != "null" ]]; then
-    echo "- Legacy instance-level password found, migrating to customer level"
+    echo "- Legacy customer-level password found, migrating to new customer-level secret"
     MREF_PASSWORD="${LEGACY_PASSWORD}"
-    local MIGRATION_NOTE="Migrated from instance-level secret: ${LEGACY_SECRET_NAME}"
+    local MIGRATION_NOTE="Migrated from legacy customer-level secret: ${LEGACY_SECRET_NAME}"
   else
-    echo "- No existing password found, generating new secure password"
-    # Generate secure alphanumeric password (no special characters to avoid escaping issues)
-    # Use a loop to ensure we get exactly 32 characters after filtering
-    while true; do
-      MREF_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 64) #pragma: allowlist secret
-      if [[ ${#MREF_PASSWORD} -ge 32 ]]; then
-        MREF_PASSWORD=${MREF_PASSWORD:0:32} #pragma: allowlist secret
-        break
-      fi
-    done
-    local MIGRATION_NOTE="Generated for first deployment"
+    # Legacy customer-level not found, check legacy instance-level secret
+    echo "- Legacy customer-level secret not found, checking for legacy instance-level secret"
+    echo "- Checking: ${LEGACY_INSTANCE_SECRET_NAME}"
+    set +o pipefail
+    local LEGACY_INSTANCE_PASSWORD=$(sm_get_secret_value "${LEGACY_INSTANCE_SECRET_NAME}" "password" 2>/dev/null)
+    set -o pipefail
+
+    if [[ -n "${LEGACY_INSTANCE_PASSWORD}" ]] && [[ "${LEGACY_INSTANCE_PASSWORD}" != "null" ]]; then
+      echo "- Legacy instance-level password found, migrating to customer level"
+      MREF_PASSWORD="${LEGACY_INSTANCE_PASSWORD}"
+      local MIGRATION_NOTE="Migrated from instance-level secret: ${LEGACY_INSTANCE_SECRET_NAME}"
+    else
+      echo "- No existing password found, generating new secure password"
+      # Generate secure alphanumeric password (no special characters to avoid escaping issues)
+      # Use a loop to ensure we get exactly 32 characters after filtering
+      while true; do
+        MREF_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 64) #pragma: allowlist secret
+        if [[ ${#MREF_PASSWORD} -ge 32 ]]; then
+          MREF_PASSWORD=${MREF_PASSWORD:0:32} #pragma: allowlist secret
+          break
+        fi
+      done
+      local MIGRATION_NOTE="Generated for first deployment"
+    fi
   fi
   
   # Store password at customer level

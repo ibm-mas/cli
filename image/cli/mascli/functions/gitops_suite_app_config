@@ -425,7 +425,7 @@ function gitops_suite_app_config() {
   if [[ -n "${ICN}" ]]; then
     echo "✓ ICN successfully resolved: ${ICN}"
     echo "  This ICN will be used for customer-level secrets:"
-    echo "  - ibm-customer/${ICN}/facilities/manage-mref-keystore-password"
+    echo "  - ibm-customer/${ICN}/facilities/{workspace_id}-facilities--vs${ICN}-sn"
     echo "  - ibm-customer/${ICN}/<app>/..."
   else
     echo "⚠ WARNING: ICN not available - customer-level secrets cannot be used"
@@ -640,11 +640,11 @@ function gitops_suite_app_config() {
         echo "- Verifying user-provided secret exists..."
       else
         # No user-provided name - use customer-level default
-        export FACILITIES_VAULT_SECRET_NAME="manage-mref-keystore-password"
+        export FACILITIES_VAULT_SECRET_NAME="${MAS_WORKSPACE_ID}-facilities--vs-sn"
         echo "- Using customer-level vault secret name: ${FACILITIES_VAULT_SECRET_NAME}"
         
         # Ensure customer-level secret exists
-        manage_customer_mref_password "${ICN}" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${SECRETS_KEY_SEPERATOR}"
+        manage_customer_mref_password "${ICN}" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${MAS_WORKSPACE_ID}" "${SECRETS_KEY_SEPERATOR}"
         if [[ $? -ne 0 ]]; then
           echo "ERROR: Failed to create/retrieve customer-level MREF password"
           exit 1
