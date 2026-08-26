@@ -102,6 +102,46 @@ spec:
               key: FVT_WHITELIST
               optional: false
 
+        # MIST Integration credentials (fvt_int_mist suite)
+        - name: MIST_ORG_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: MIST_ORG_ID
+              optional: true
+        - name: MIST_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: MIST_API_URL
+              optional: true
+        - name: MIST_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: MIST_ACCESS_TOKEN
+              optional: true
+
+        # TRIRIGA Integration credentials (fvt_int_mref suite)
+        - name: TRIRIGA_URL
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: TRIRIGA_URL
+              optional: true
+        - name: TRIRIGA_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: TRIRIGA_USERNAME
+              optional: true
+        - name: TRIRIGA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: TRIRIGA_PASSWORD
+              optional: true
+
         # Test Data
         - name: FVT_TEST_SUITE
           value: $(params.fvt_test_suite)
