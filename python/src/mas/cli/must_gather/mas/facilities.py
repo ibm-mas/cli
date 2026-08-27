@@ -140,7 +140,7 @@ def collectFacilitiesLogs(namespace: str, outputDir: str) -> bool:
     ``{outputDir}/facilities-logs/{namespace}/{podName}/``.
 
     """
-    logger.info(f"📥 Collecting Facilities logs from namespace {namespace}")
+    logger.info(f"Collecting Facilities logs from namespace {namespace}")
 
     dynClient = createThreadLocalDynamicClient()
     podApi = dynClient.resources.get(api_version="v1", kind="Pod")
