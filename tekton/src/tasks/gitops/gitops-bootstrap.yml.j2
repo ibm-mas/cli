@@ -131,7 +131,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-bootstrap
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       image: "quay.io/ibmmas/cli:latest"
   workspaces:
     - name: configs
