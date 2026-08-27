@@ -662,7 +662,11 @@ class InstallApp(
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
-        self.configRoutingMode()
+
+        # temporarily disabiliing configuring routing mode
+        # self.configRoutingMode()
+        self.setParam("mas_routing_mode", "subdomain")
+
         self.configServiceMesh()
         self.configSSOProperties()
         self.configSpecialCharacters()
@@ -705,7 +709,7 @@ class InstallApp(
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
             self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
 
-        self.setParam("rhoai", "false")
+        self.setParam("rhoai", "true")
 
     @logMethodCall
     def configAdminMode(self):
@@ -1833,23 +1837,13 @@ class InstallApp(
                 self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
                 self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
-            # Configure AI Data Science Platform
-            self.printH2("Configure AI Data Science Platform")
-            self.printDescription(
-                [
-                    "Choose which AI data science platform to install:",
-                    " - <b>Note for 9.1.x</b>: Open Data Hub (ODH) is the supported platform for AI Service 9.1.x",
-                    " - <b>Note for 9.2.x</b>: Red Hat OpenShift AI (RHOAI) is the recommended platform for AI Service 9.2.x",
-                    "",
-                    "  1. Red Hat OpenShift AI (RHOAI)",
-                    "  2. Open Data Hub (ODH)",
-                ]
+            # AI Data Science Platform - defaults to Red Hat OpenShift AI (RHOAI)
+            self.setParam("rhoai", "true")
+            self.printWarning(
+                "Starting with AI Service 9.1.18, support for Open Data Hub (ODH) has been dropped. "
+                "Only Red Hat OpenShift AI (RHOAI) 2.25.10 or later is supported going forward. "
+                "If an existing ODH installation is detected, the installer will automatically migrate it to RHOAI."
             )
-            platformChoice = self.promptForInt("AI Data Science Platform", default=1, min=1, max=2)
-            if platformChoice == 2:
-                self.setParam("rhoai", "false")
-            else:
-                self.setParam("rhoai", "true")
 
             # Configure Certificate Issuer
             self.configAIServiceCertIssuer()
@@ -2192,11 +2186,15 @@ class InstallApp(
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
                     self.setParam("aiservice_odh_model_deployment_type", "raw")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+                    self.setParam("rhoai", "true")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
                     self.setParam("aiservice_odh_model_deployment_type", "serverless")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+                    self.setParam("rhoai", "true")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -2761,6 +2759,22 @@ class InstallApp(
                 self.buildCommand(),
             ]
         )
+
+        # Currently no 9.2.x patch support path based routing as that changes this will need to change
+        # to filter on the specific patch version
+        if self.getParam("mas_routing_mode") == "path":
+            self.fatalError(
+                "\n".join(
+                    [
+                        "Path based routing mode not supported",
+                        "========================================================================",
+                        "Path based routing is not currently supported",
+                        "",
+                        "Use subdomain routing mode:",
+                        "   mas install --routing subdomain ...",
+                    ]
+                )
+            )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
