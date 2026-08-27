@@ -213,8 +213,7 @@ def _generateMASAppCollectionTasks(
     # Add Manage-specific network connectivity test
     if appId == "manage":
         tasks.append(("network_tests", collectManageNetworkTests, dynClient, namespace, outputDir))
-
-    if appId == "facilities":
+    elif appId == "facilities":
         tasks.append(("facilities_logs", collectFacilitiesLogs, namespace, outputDir))
 
     return tasks
