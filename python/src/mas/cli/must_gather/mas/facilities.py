@@ -40,13 +40,6 @@ def _findFacilitiesLogFiles(coreV1Api: client.CoreV1Api, namespace: str, podName
     Executes ``find /home/wiotp/log -type f`` inside the pod and returns the
     list of matching paths.
 
-    Args:
-        coreV1Api (CoreV1Api): Kubernetes core API client
-        namespace (str): Pod namespace
-        podName (str): Pod name
-
-    Returns:
-        list[str]: List of absolute log file paths inside the pod, empty if none found
     """
     try:
         resp = stream(
@@ -74,15 +67,6 @@ def _downloadAndExtractFacilitiesLogs(coreV1Api: client.CoreV1Api, namespace: st
     the archive to a temporary file, extracts it, and moves the files to
     ``{outputDir}/facilities-logs/{namespace}/{podName}/``.
 
-    Args:
-        coreV1Api (CoreV1Api): Kubernetes core API client
-        namespace (str): Pod namespace
-        podName (str): Pod name
-        logFiles (list[str]): Log file paths to archive
-        outputDir (str): Base must-gather output directory
-
-    Returns:
-        bool: True if extraction succeeded (even partially), False on failure
     """
     destDir = os.path.join(outputDir, "facilities-logs", namespace, podName)
     os.makedirs(destDir, exist_ok=True)
@@ -155,12 +139,6 @@ def collectFacilitiesLogs(namespace: str, outputDir: str) -> bool:
     pod's ``/home/wiotp/log/`` directory, and streams them out into
     ``{outputDir}/facilities-logs/{namespace}/{podName}/``.
 
-    Args:
-        namespace (str): Facilities namespace (mas-{instance}-facilities)
-        outputDir (str): Base must-gather output directory
-
-    Returns:
-        bool: Always True (failures are logged but never propagated)
     """
     logger.info(f"📥 Collecting Facilities logs from namespace {namespace}")
 
@@ -177,7 +155,7 @@ def collectFacilitiesLogs(namespace: str, outputDir: str) -> bool:
         try:
             pods = podApi.get(namespace=namespace, label_selector=labelSelector)
         except Exception as e:
-            logger.warning(f"⚠️ Failed to list Facilities pods in {namespace} with label {labelSelector}: {e}")
+            logger.warning(f"Failed to list Facilities pods in {namespace} with label {labelSelector}: {e}")
             continue
 
         for pod in pods.items:
@@ -200,8 +178,8 @@ def collectFacilitiesLogs(namespace: str, outputDir: str) -> bool:
 
         success = _downloadAndExtractFacilitiesLogs(coreV1Api, namespace, podName, logFiles, outputDir)
         if success:
-            logger.info(f"    ✅ Collected Facilities logs from {podName}")
+            logger.info(f"Collected Facilities logs from {podName}")
         else:
-            logger.warning(f"    ⚠️ Unable to get Facilities logs from {podName}")
+            logger.warning(f"Unable to get Facilities logs from {podName}")
 
     return True
