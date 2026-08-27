@@ -71,7 +71,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 "The upgrade pipeline requires a PersistentVolumeClaim (config-pvc) to store pipeline data.",
                 "No existing config-pvc was found in the pipelines namespace.",
                 "",
-                "Select a storage class for the upgrade pipeline PVC.",
+                "Maximo Application Suite requires a storage class that supports ReadWriteOnce (RWO) or ReadWriteMany (RWX) access mode:",
+                "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
+                "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
             ]
         )
 
@@ -89,8 +91,8 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 suggestedAccessMode = "ReadWriteMany"
 
             print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class : {suggestedStorageClass}</LightSlateGrey>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Access mode   : {suggestedAccessMode}</LightSlateGrey>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
 
         # Accept the suggestion, or fall through to manual prompt
         useDetected = False
@@ -100,7 +102,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 self.pipelineStorageClass = suggestedStorageClass
                 self.pipelineStorageAccessMode = suggestedAccessMode
                 return
-            useDetected = self.yesOrNo("Use the auto-detected storage class")
+            useDetected = self.yesOrNo("Use the auto-detected storage classes")
 
         if not useDetected:
             # No provider detected or user declined - fail fast in non-interactive mode
@@ -111,29 +113,32 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 )
 
             # List all available storage classes on the cluster and prompt the user to pick
-            self.printDescription(["Select a storage class from the list below:"])
+            self.printDescription(
+                [
+                    "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
+                    "Enter 'none' for ReadWriteMany if you do not have a suitable class available, however this will limit what can be installed.",
+                ]
+            )
             for storageClass in getStorageClasses(self.dynamicClient):
                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
-            if self.isSNO():
+            rwoStorageClass = prompt(
+                HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
+                validator=StorageClassValidator(),
+                validate_while_typing=False,
+            )
+            rwxStorageClass = prompt(
+                HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "),
+                validator=StorageClassValidator(),
+                validate_while_typing=False,
+            )
+
+            if self.isSNO() or rwxStorageClass == "none":
+                self.pipelineStorageClass = rwoStorageClass
                 self.pipelineStorageAccessMode = "ReadWriteOnce"
-                self.pipelineStorageClass = prompt(
-                    HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
-                    validator=StorageClassValidator(),
-                    validate_while_typing=False,
-                )
             else:
-                self.pipelineStorageAccessMode = self.promptForListSelect(
-                    "Select storage class access mode",
-                    ["ReadWriteMany", "ReadWriteOnce"],
-                    "pipeline_storage_accessmode",
-                    default=0,
-                )
-                self.pipelineStorageClass = prompt(
-                    HTML(f"<Yellow>Enter {self.pipelineStorageAccessMode} storage class</Yellow> "),
-                    validator=StorageClassValidator(),
-                    validate_while_typing=False,
-                )
+                self.pipelineStorageClass = rwxStorageClass
+                self.pipelineStorageAccessMode = "ReadWriteMany"
         else:
             self.pipelineStorageClass = suggestedStorageClass
             self.pipelineStorageAccessMode = suggestedAccessMode
