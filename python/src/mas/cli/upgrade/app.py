@@ -18,11 +18,11 @@ from prompt_toolkit.completion import WordCompleter
 from halo import Halo
 
 from ..cli import BaseApp
-from ..validators import InstanceIDValidator
+from ..validators import InstanceIDValidator, StorageClassValidator
 from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
-from mas.devops.ocp import createNamespace
+from mas.devops.ocp import createNamespace, getStorageClasses
 from mas.devops.mas import (
     listMasInstances,
     getMasChannel,
@@ -34,7 +34,7 @@ from mas.devops.mas import (
     getInstalledApps,
 )
 from mas.devops.utils import isVersionEqualOrAfter
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline, lookupPipelineStorageClass
 from mas.devops.pre_install import applyPreInstallMASRBAC
 from ..rbac_utils import evaluatePreinstallRBACAccess
 
@@ -42,6 +42,102 @@ logger = logging.getLogger(__name__)
 
 
 class UpgradeApp(BaseApp, UpgradeSettingsMixin):
+
+    def configPipelineStorageClass(self, instanceId: str) -> None:
+        """
+        Determine the storage class and access mode for the upgrade pipeline config-pvc.
+        Sets self.pipelineStorageClass and self.pipelineStorageAccessMode.
+        """
+
+        if self.pipelineStorageClass and self.pipelineStorageAccessMode:
+            logger.debug(f"Using pipeline storage class from CLI args: {self.pipelineStorageClass} ({self.pipelineStorageAccessMode})")
+            return
+
+        # Read storage class from existing config-pvc on the cluster.
+        # This is the normal upgrade path - the PVC was created during the original
+        # install and already has the correct storage class for this cluster.
+        existingStorageClass, existingAccessMode = lookupPipelineStorageClass(self.dynamicClient, instanceId)
+        if existingStorageClass:
+            self.pipelineStorageClass = existingStorageClass
+            self.pipelineStorageAccessMode = existingAccessMode or ("ReadWriteOnce" if self.isSNO() else "ReadWriteMany")
+            logger.debug(f"Using pipeline storage class from existing config-pvc: {self.pipelineStorageClass} ({self.pipelineStorageAccessMode})")
+            return
+
+        # No existing config-pvc found — MAS was not installed via the CLI.
+        # Prompt the user to configure a storage class for the pipeline PVC,
+        self.printH1("Configure Pipeline Storage Class")
+        self.printDescription(
+            [
+                "The upgrade pipeline requires a PersistentVolumeClaim (config-pvc) to store pipeline data.",
+                "No existing config-pvc was found in the pipelines namespace.",
+                "",
+                "Select a storage class for the upgrade pipeline PVC.",
+            ]
+        )
+
+        # Try to auto-detect a known storage provider as a default suggestion
+        suggestedStorageClass = None
+        suggestedAccessMode = None
+        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+
+        if defaultStorageClasses.provider is not None:
+            if self.isSNO() or defaultStorageClasses.rwx is None:
+                suggestedStorageClass = defaultStorageClasses.rwo
+                suggestedAccessMode = "ReadWriteOnce"
+            else:
+                suggestedStorageClass = defaultStorageClasses.rwx
+                suggestedAccessMode = "ReadWriteMany"
+
+            print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class : {suggestedStorageClass}</LightSlateGrey>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Access mode   : {suggestedAccessMode}</LightSlateGrey>"))
+
+        # Accept the suggestion, or fall through to manual prompt
+        useDetected = False
+        if suggestedStorageClass:
+            if self.noConfirm:
+                # Non-interactive mode: accept auto-detected value without prompting
+                self.pipelineStorageClass = suggestedStorageClass
+                self.pipelineStorageAccessMode = suggestedAccessMode
+                return
+            useDetected = self.yesOrNo("Use the auto-detected storage class")
+
+        if not useDetected:
+            # No provider detected or user declined - fail fast in non-interactive mode
+            if self.noConfirm:
+                self.fatalError(
+                    "No storage class could be detected for the pipeline config-pvc and --no-confirm is set. "
+                    "Please re-run with --storage-pipeline and --storage-accessmode."
+                )
+
+            # List all available storage classes on the cluster and prompt the user to pick
+            self.printDescription(["Select a storage class from the list below:"])
+            for storageClass in getStorageClasses(self.dynamicClient):
+                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+
+            if self.isSNO():
+                self.pipelineStorageAccessMode = "ReadWriteOnce"
+                self.pipelineStorageClass = prompt(
+                    HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
+                    validator=StorageClassValidator(),
+                    validate_while_typing=False,
+                )
+            else:
+                self.pipelineStorageAccessMode = self.promptForListSelect(
+                    "Select storage class access mode",
+                    ["ReadWriteMany", "ReadWriteOnce"],
+                    "pipeline_storage_accessmode",
+                    default=0,
+                )
+                self.pipelineStorageClass = prompt(
+                    HTML(f"<Yellow>Enter {self.pipelineStorageAccessMode} storage class</Yellow> "),
+                    validator=StorageClassValidator(),
+                    validate_while_typing=False,
+                )
+        else:
+            self.pipelineStorageClass = suggestedStorageClass
+            self.pipelineStorageAccessMode = suggestedAccessMode
+
     def computeMonitorInstallOrderForUpgrade(self, instanceId):
         """
         Determine the installation order for Monitor relative to IoT based on TARGET Monitor version.
@@ -153,6 +249,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.devMode = args.dev_mode
         self.applyPreInstallMASRBAC = False
         self.selectedAppsForRBAC = []
+
+        # Pre-populate pipeline storage class from CLI args so configPipelineStorageClass
+        self.pipelineStorageClass = args.storage_pipeline or None
+        self.pipelineStorageAccessMode = args.storage_accessmode or None
 
         # Set image_pull_policy if provided
         if args.image_pull_policy and args.image_pull_policy != "":
@@ -336,11 +436,15 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 operation="upgrade",
             )
 
+        self.configPipelineStorageClass(instanceId)
+
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {self.nextChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Class .......... {self.pipelineStorageClass}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Access Mode .... {self.pipelineStorageAccessMode}</LightSlateGrey>"))
 
         if not self.noConfirm:
             print()
@@ -377,18 +481,11 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
-                defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
-                if self.isSNO() or defaultStorageClasses.rwx == "none":
-                    pipelineStorageClass = defaultStorageClasses.rwo
-                    pipelineStorageAccessMode = "ReadWriteOnce"
-                else:
-                    pipelineStorageClass = defaultStorageClasses.rwx
-                    pipelineStorageAccessMode = "ReadWriteMany"
                 preparePipelinesNamespace(
                     dynClient=self.dynamicClient,
                     instanceId=instanceId,
-                    storageClass=pipelineStorageClass,
-                    accessMode=pipelineStorageAccessMode,
+                    storageClass=self.pipelineStorageClass,
+                    accessMode=self.pipelineStorageAccessMode,
                 )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
