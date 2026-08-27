@@ -1,0 +1,105 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: mas-devops-mcpi
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    # Pre-Release Support
+    - name: artifactory_username
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+    - name: artifactory_token
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+
+    # Entitlement
+    - name: ibm_entitlement_key
+      type: string
+
+    # MAS instance
+    - name: mas_instance_id
+      type: string
+      description: MAS Instance ID
+
+    # MCPI Operator
+    - name: mcpi_channel
+      type: string
+      description: Catalog channel for the MCPI operator subscription
+
+    # MCPI Routing
+    - name: routing_mode
+      type: string
+      default: ""
+      description: "Routing mode for MCPI: subdomain or path"
+    - name: manual_route_mgmt
+      type: string
+      default: ""
+      description: Disable automatic route management for MCPI
+
+    # Custom Label Support
+    - name: custom_labels
+      type: string
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
+
+    # ICR
+    - name: mas_icr_cp
+      type: string
+      default: ""
+    - name: mas_icr_cpopen
+      type: string
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # Pre-Release Support
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
+
+      # Entitlement
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+
+      # MAS instance
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # MCPI
+      - name: MCPI_CHANNEL
+        value: $(params.mcpi_channel)
+      - name: ROUTING_MODE
+        value: $(params.routing_mode)
+      - name: MANUAL_ROUTE_MGMT
+        value: $(params.manual_route_mgmt)
+
+      # Labels
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
+
+      # ICR
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
+      - name: MAS_ICR_CPOPEN
+        value: $(params.mas_icr_cpopen)
+
+  steps:
+    - name: mcpicfg
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/run-role.sh
+        - mcpicfg
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+      optional: true

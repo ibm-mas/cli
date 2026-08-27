@@ -50,6 +50,7 @@ spec:
     # 12. Install & Configure Visual Inspection
     # 13. Install & Configure Facilities
     # 14. Install & Configure AI Service with Default Tenant
+    # 15. Install & Configure MCPI
 
     - name: pipeline-start
       timeout: "0"
@@ -463,7 +464,13 @@ spec:
           operator: notin
           values: ["", "9.0.*", "9.1.*"]
 
-    # 15. Verify health of the cluster before we consider the install complete
+    # 15. Install and configure MCPI (Maximo Cluster Performance Insights)
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/mcpi/mcpi.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config
+
+    # 16. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
       runAfter:
@@ -477,6 +484,7 @@ spec:
         - eck
         - cognos
         - aiservice
+        - mcpi
 
   finally:
     # Update synchronization configmap

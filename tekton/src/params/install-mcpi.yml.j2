@@ -1,0 +1,14 @@
+# MAS Add-on Configuration - Maximo Cluster Performance Insights (MCPI)
+# -----------------------------------------------------------------------------
+- name: mcpi_channel
+  type: string
+  description: Default channel for IBM Maximo Cluster Performance Insights operator subscription
+  default: ""
+- name: routing_mode
+  type: string
+  description: "Routing mode for MCPI: subdomain or path"
+  default: ""
+- name: manual_route_mgmt
+  type: string
+  description: Disable automatic route management for MCPI
+  default: ""
