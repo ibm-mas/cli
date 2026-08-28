@@ -22,7 +22,7 @@ from ..validators import InstanceIDValidator, StorageClassValidator
 from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
-from mas.devops.ocp import createNamespace, getStorageClasses
+from mas.devops.ocp import createNamespace, getStorageClasses, getStorageClass
 from mas.devops.mas import (
     listMasInstances,
     getMasChannel,
@@ -50,6 +50,8 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         """
 
         if self.pipelineStorageClass and self.pipelineStorageAccessMode:
+            if getStorageClass(self.dynamicClient, self.pipelineStorageClass) is None:
+                self.fatalError(f"Storage class '{self.pipelineStorageClass}' specified via --storage-pipeline is not available on this cluster.")
             logger.debug(f"Using pipeline storage class from CLI args: {self.pipelineStorageClass} ({self.pipelineStorageAccessMode})")
             return
 
