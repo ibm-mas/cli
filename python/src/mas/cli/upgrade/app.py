@@ -113,32 +113,29 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 )
 
             # List all available storage classes on the cluster and prompt the user to pick
-            self.printDescription(
-                [
-                    "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
-                    "Enter 'none' for ReadWriteMany if you do not have a suitable class available, however this will limit what can be installed.",
-                ]
-            )
+            self.printDescription(["Select a storage class for the upgrade pipeline PVC from the list below:"])
             for storageClass in getStorageClasses(self.dynamicClient):
                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
-            rwoStorageClass = prompt(
-                HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
-                validator=StorageClassValidator(),
-                validate_while_typing=False,
-            )
-            rwxStorageClass = prompt(
-                HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "),
-                validator=StorageClassValidator(),
-                validate_while_typing=False,
-            )
-
-            if self.isSNO() or rwxStorageClass == "none":
-                self.pipelineStorageClass = rwoStorageClass
+            if self.isSNO():
                 self.pipelineStorageAccessMode = "ReadWriteOnce"
+                self.pipelineStorageClass = prompt(
+                    HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
+                    validator=StorageClassValidator(),
+                    validate_while_typing=False,
+                )
             else:
-                self.pipelineStorageClass = rwxStorageClass
-                self.pipelineStorageAccessMode = "ReadWriteMany"
+                self.pipelineStorageAccessMode = self.promptForListSelect(
+                    "Select storage class access mode",
+                    ["ReadWriteMany", "ReadWriteOnce"],
+                    "pipeline_storage_accessmode",
+                    default=0,
+                )
+                self.pipelineStorageClass = prompt(
+                    HTML(f"<Yellow>Enter {self.pipelineStorageAccessMode} storage class</Yellow> "),
+                    validator=StorageClassValidator(),
+                    validate_while_typing=False,
+                )
         else:
             self.pipelineStorageClass = suggestedStorageClass
             self.pipelineStorageAccessMode = suggestedAccessMode
