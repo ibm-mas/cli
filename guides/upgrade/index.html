@@ -484,6 +484,39 @@
   </tbody>
 </table>
 
+<h3 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">¶</a></h3>
+<p>Storage class configuration for the upgrade pipeline PVC.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--storage-pipeline</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Pipeline storage class to use for the upgrade config PVC (e.g. ibmc-file-gold-gid). Auto-detected from the existing config-pvc when omitted.</td>
+    </tr>
+    <tr>
+      <td><code>--storage-accessmode</code></td>
+      <td><code>{ReadWriteMany, ReadWriteOnce}</code></td>
+      <td>-</td>
+      <td>Pipeline storage class access mode (ReadWriteMany or ReadWriteOnce). Auto-detected from the existing config-pvc when omitted.</td>
+    </tr>
+  </tbody>
+</table>
+
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
 <p>Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subscription channels. New features are always delivered via new subscription channels, while updates within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.</p>
 <h3 id="upgrade-vs-update">Upgrade vs. Update<a class="headerlink" href="#upgrade-vs-update" title="Permanent link">¶</a></h3>
@@ -583,6 +616,11 @@
                       <li class="md-toc__item">
                         <a href="#more" class="md-toc__link" data-md-level="2">
                           More
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#storage" class="md-toc__link" data-md-level="2">
+                          Storage
                         </a>
                       </li>
                   </ul>
