@@ -2902,7 +2902,7 @@ class InstallApp(
                             "========================================================================",
                             "--letsencrypt is only supported with path-based routing mode.",
                             "Remove --letsencrypt or switch to path routing:",
-                            "   mas install --routing path --letsencrypt --le-email <email> ...",
+                            "   mas install --routing path --letsencrypt --le-email [email] ...",
                         ]
                     )
                 )
@@ -2916,7 +2916,7 @@ class InstallApp(
                                 "Let's Encrypt E-mail Required",
                                 "========================================================================",
                                 "--le-email must be provided when --letsencrypt is set.",
-                                "   mas install --routing path --letsencrypt --le-email <email> ...",
+                                "   mas install --routing path --letsencrypt --le-email [email] ...",
                             ]
                         )
                     )
