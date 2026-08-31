@@ -651,6 +651,9 @@ def _helmLogin(registry: str, username: str, password: str) -> bool:
     """
     Log in to an OCI Helm registry.
 
+    Uses HELM_REGISTRY_CA_FILE environment variable for TLS verification if set,
+    otherwise falls back to --insecure.
+
     Args:
         registry: Registry hostname (and optional port), e.g. "myregistry:5000"
         username: Registry username
@@ -659,8 +662,14 @@ def _helmLogin(registry: str, username: str, password: str) -> bool:
     Returns:
         True on success, False on failure
     """
-    cmd = ["helm", "registry", "login", registry, "--username", username, "--password", password, "--insecure"]
-    logger.info(f"Logging in to Helm OCI registry: {registry}")
+    cmd = ["helm", "registry", "login", registry, "--username", username, "--password", password]
+    caFile = environ.get("HELM_REGISTRY_CA_FILE", "")
+    if caFile:
+        cmd += ["--ca-file", caFile]
+        logger.info(f"Logging in to Helm OCI registry: {registry} (using CA file: {caFile})")
+    else:
+        cmd.append("--insecure")
+        logger.info(f"Logging in to Helm OCI registry: {registry} (insecure — set HELM_REGISTRY_CA_FILE to use a custom CA)")
     try:
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:
