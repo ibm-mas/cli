@@ -244,6 +244,22 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
+    "--letsencrypt",
+    dest="mas_letsencrypt_http01_enabled",
+    required=False,
+    action="store_const",
+    const="true",
+    help="Enable Let's Encrypt HTTP-01 certificate management (path routing mode only, cluster must be publicly accessible on port 80)",
+)
+
+masAdvancedArgGroup.add_argument(
+    "--le-email",
+    dest="mas_le_email",
+    required=False,
+    help="E-mail address to register with Let's Encrypt (required when --letsencrypt is set)",
+)
+
+masAdvancedArgGroup.add_argument(
     "--mas-issuer-kind",
     dest="mas_issuer_kind",
     required=False,

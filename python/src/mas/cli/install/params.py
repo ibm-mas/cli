@@ -75,6 +75,9 @@ optionalParams = [
     "dns_provider",
     "mas_cluster_issuer",
     "ocp_ingress",
+    # Let's Encrypt HTTP-01
+    "mas_letsencrypt_http01_enabled",
+    "mas_le_email",
     # CIS
     "cis_email",
     "cis_apikey",

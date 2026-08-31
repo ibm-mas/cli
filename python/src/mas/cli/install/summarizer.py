@@ -153,6 +153,12 @@ class InstallSummarizerMixin:
         if self.getParam("mas_routing_mode") == "path":
             self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
+            if self.getParam("mas_letsencrypt_http01_enabled") == "true":
+                self.printSummary("Let's Encrypt HTTP-01", "Enabled")
+                self.printParamSummary("Let's Encrypt e-mail", "mas_le_email")
+                self.printParamSummary("Let's Encrypt Issuer", "mas_cluster_issuer")
+            else:
+                self.printSummary("Let's Encrypt HTTP-01", "Disabled")
 
         if self.getParam("mas_manual_route_mgmt") == "true":
             self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")

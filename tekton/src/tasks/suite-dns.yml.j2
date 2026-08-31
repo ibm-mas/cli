@@ -113,6 +113,17 @@ spec:
       type: string
       default: ""
 
+    # Let's Encrypt HTTP-01
+    - name: mas_letsencrypt_http01_enabled
+      type: string
+      default: "false"
+    - name: mas_le_email
+      type: string
+      default: ""
+    - name: mas_cluster_issuer
+      type: string
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -179,6 +190,12 @@ spec:
         value: $(params.mas_issuer_kind)
       - name: MAS_INGRESS_CONTROLLER_NAME
         value: $(params.mas_ingress_controller_name)
+      - name: MAS_LETSENCRYPT_HTTP01
+        value: $(params.mas_letsencrypt_http01_enabled)
+      - name: MAS_LE_EMAIL
+        value: $(params.mas_le_email)
+      - name: MAS_CLUSTER_ISSUER
+        value: $(params.mas_cluster_issuer)
 
   steps:
     - name: suite-dns
