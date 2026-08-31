@@ -47,6 +47,7 @@ class TestUpgradeAdminModeDetectionIntegration:
         self.app.devMode = False
         self.app.params = {}  # Initialize params dict to avoid subscript errors
 
+    @patch("mas.cli.upgrade.app.lookupPipelineStorageClass", return_value=("ibmc-file-gold-gid", "ReadWriteMany"))
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
@@ -79,6 +80,7 @@ class TestUpgradeAdminModeDetectionIntegration:
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
+        mock_lookup_storage_class,
     ):
         """Test that upgrading from 9.2.x to 9.3.x calls getPermissionMode()"""
         # Setup mocks
@@ -104,6 +106,7 @@ class TestUpgradeAdminModeDetectionIntegration:
         # Verify getPermissionMode was called (9.2.x → 9.3.x detects mode)
         mock_get_mode.assert_called_once_with(self.app._dynClient, "test-instance")
 
+    @patch("mas.cli.upgrade.app.lookupPipelineStorageClass", return_value=("ibmc-file-gold-gid", "ReadWriteMany"))
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
@@ -136,6 +139,7 @@ class TestUpgradeAdminModeDetectionIntegration:
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
+        mock_lookup_storage_class,
     ):
         """Test that upgrading from 9.2.x-feature to 9.2.x defaults to cluster mode"""
         # Setup mocks
@@ -165,6 +169,7 @@ class TestUpgradeAdminModeDetectionIntegration:
         call_args = mock_evaluate_rbac.call_args
         assert call_args[1]["adminMode"] == "cluster"
 
+    @patch("mas.cli.upgrade.app.lookupPipelineStorageClass", return_value=("ibmc-file-gold-gid", "ReadWriteMany"))
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
@@ -197,6 +202,7 @@ class TestUpgradeAdminModeDetectionIntegration:
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
+        mock_lookup_storage_class,
     ):
         """Test that upgrading from 9.0.x to 9.1.x does NOT detect mode (pre-RBAC)"""
         # Setup mocks
@@ -245,6 +251,7 @@ class TestUpgradeRBACEvaluationIntegration:
         self.app.devMode = False
         self.app.params = {}  # Initialize params dict to avoid subscript errors
 
+    @patch("mas.cli.upgrade.app.lookupPipelineStorageClass", return_value=("ibmc-file-gold-gid", "ReadWriteMany"))
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
@@ -277,6 +284,7 @@ class TestUpgradeRBACEvaluationIntegration:
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
+        mock_lookup_storage_class,
     ):
         """Test that 9.2.x-feature→9.2.x upgrade defaults to cluster mode"""
         # Setup mocks
@@ -307,6 +315,7 @@ class TestUpgradeRBACEvaluationIntegration:
         assert call_args[1]["adminMode"] == "cluster"
         assert call_args[1]["operation"] == "upgrade"
 
+    @patch("mas.cli.upgrade.app.lookupPipelineStorageClass", return_value=("ibmc-file-gold-gid", "ReadWriteMany"))
     @patch("mas.cli.upgrade.app.logger")
     @patch("mas.cli.upgrade.app.launchUpgradePipeline")
     @patch("mas.cli.upgrade.app.updateTektonDefinitions")
@@ -339,6 +348,7 @@ class TestUpgradeRBACEvaluationIntegration:
         mock_update_tekton,
         mock_launch_pipeline,
         mock_logger,
+        mock_lookup_storage_class,
     ):
         """Test that 9.2.x→9.3.x upgrade detects existing mode"""
         # Setup mocks
