@@ -709,7 +709,7 @@ class InstallApp(
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
             self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
 
-        self.setParam("rhoai", "false")
+        self.setParam("rhoai", "true")
 
     @logMethodCall
     def configAdminMode(self):
@@ -1837,23 +1837,13 @@ class InstallApp(
                 self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
                 self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
-            # Configure AI Data Science Platform
-            self.printH2("Configure AI Data Science Platform")
-            self.printDescription(
-                [
-                    "Choose which AI data science platform to install:",
-                    " - <b>Note for 9.1.x</b>: Open Data Hub (ODH) is the supported platform for AI Service 9.1.x",
-                    " - <b>Note for 9.2.x</b>: Red Hat OpenShift AI (RHOAI) is the recommended platform for AI Service 9.2.x",
-                    "",
-                    "  1. Red Hat OpenShift AI (RHOAI)",
-                    "  2. Open Data Hub (ODH)",
-                ]
+            # AI Data Science Platform - defaults to Red Hat OpenShift AI (RHOAI)
+            self.setParam("rhoai", "true")
+            self.printWarning(
+                "Starting with AI Service 9.1.18, support for Open Data Hub (ODH) has been dropped. "
+                "Only Red Hat OpenShift AI (RHOAI) 2.25.10 or later is supported going forward. "
+                "If an existing ODH installation is detected, the installer will automatically migrate it to RHOAI."
             )
-            platformChoice = self.promptForInt("AI Data Science Platform", default=1, min=1, max=2)
-            if platformChoice == 2:
-                self.setParam("rhoai", "false")
-            else:
-                self.setParam("rhoai", "true")
 
             # Configure Certificate Issuer
             self.configAIServiceCertIssuer()
@@ -1883,7 +1873,9 @@ class InstallApp(
             )
 
             self.aiserviceTenantSchedulingConfigFileLocal = None
+            self.aiserviceTenantOperatorConfigFileLocal = None
             self.configSchedulingConstraints()
+            self.configTenantOperator()
 
     @logMethodCall
     def configSchedulingConstraints(self):
@@ -2009,6 +2001,7 @@ class InstallApp(
                 " - Choose alternative Apache Kafka providers (default to Strimzi)",
                 " - Customize Grafana storage settings",
                 " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant",
+                " - Customize AI Service tenant operator configuration",
             ]
         )
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
@@ -2022,6 +2015,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.facilitiesPropertiesFileLocal = None
 
         if simplified:
@@ -2115,6 +2109,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.facilitiesPropertiesFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
@@ -2191,11 +2186,15 @@ class InstallApp(
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
                     self.setParam("aiservice_odh_model_deployment_type", "raw")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+                    self.setParam("rhoai", "true")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
                     self.setParam("aiservice_odh_model_deployment_type", "serverless")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+                    self.setParam("rhoai", "true")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -2469,6 +2468,10 @@ class InstallApp(
                 # No need to perform validation if file exist here, as it has been already validated by argParser type check.
                 if value is not None and value != "":
                     self.aiserviceTenantSchedulingConfigFileLocal = value
+
+            elif key == "tenant_operator_config_file":
+                if value is not None and value != "":
+                    self.aiserviceTenantOperatorConfigFileLocal = value
 
             # Fail if there's any arguments we don't know how to handle
             else:
