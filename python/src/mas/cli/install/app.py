@@ -942,11 +942,8 @@ class InstallApp(
                     ]
                 )
                 if self.yesOrNo("Do you want to use Let's Encrypt for certificate management"):
-                    self.setParam("mas_letsencrypt_http01_enabled", "true")
                     self.promptForString("Let's Encrypt e-mail", "mas_le_email")
                     self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
-                else:
-                    self.setParam("mas_letsencrypt_http01_enabled", "false")
 
     def _checkIngressControllerForPathRouting(self, controllerName="default"):
         """Check if a specific IngressController exists and is configured for path-based routing.
@@ -2886,39 +2883,23 @@ class InstallApp(
 
         # Validate Let's Encrypt HTTP-01 flags
         if not self.isInteractiveMode:
-            leEnabled = self.getParam("mas_letsencrypt_http01_enabled") == "true"
-            routingMode = self.getParam("mas_routing_mode")
+            leEmail = self.getParam("mas_le_email")
 
-            if leEnabled and routingMode != "path":
+            if leEmail and self.getParam("mas_routing_mode") != "path":
                 self.fatalError(
                     "\n".join(
                         [
                             "Let's Encrypt HTTP-01 Requires Path-Based Routing",
                             "========================================================================",
-                            "--letsencrypt is only supported with path-based routing mode.",
-                            "Remove --letsencrypt or switch to path routing:",
-                            "   mas install --routing path --letsencrypt --le-email [email] ...",
+                            "--le-email is only supported with path-based routing mode.",
+                            "Remove --le-email or switch to path routing:",
+                            "   mas install --routing path --le-email [email] ...",
                         ]
                     )
                 )
 
-            if leEnabled:
-                leEmail = self.getParam("mas_le_email")
-                if not leEmail:
-                    self.fatalError(
-                        "\n".join(
-                            [
-                                "Let's Encrypt E-mail Required",
-                                "========================================================================",
-                                "--le-email must be provided when --letsencrypt is set.",
-                                "   mas install --routing path --letsencrypt --le-email [email] ...",
-                            ]
-                        )
-                    )
-                if not self.getParam("mas_cluster_issuer"):
-                    self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
-            else:
-                self.setParam("mas_letsencrypt_http01_enabled", "false")
+            if leEmail and not self.getParam("mas_cluster_issuer"):
+                self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
 
         # Based on the parameters set the annotations correctly
         self.configAnnotations()

@@ -465,14 +465,10 @@
   type: string
   default: ""
   description: Name of the IngressController to use for path-based routing
-- name: mas_letsencrypt_http01_enabled
-  type: string
-  default: "false"
-  description: Enable Let's Encrypt HTTP-01 certificate management (path routing mode only, cluster must be publicly accessible on port 80)
 - name: mas_le_email
   type: string
   default: ""
-  description: E-mail address to register with Let's Encrypt (required when mas_letsencrypt_http01_enabled is true)
+  description: E-mail address to register with Let's Encrypt. When set, Let's Encrypt HTTP-01 is automatically enabled (path routing mode only, cluster must be publicly accessible on port 80)
 - name: mas_trust_default_cas
   type: string
   default: ""

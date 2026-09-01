@@ -14,16 +14,15 @@ Test suite for Let's Encrypt HTTP-01 certificate management in MAS CLI.
 
 Covers:
   Interactive mode:
-    - User opts in  → mas_letsencrypt_http01_enabled=true, email collected, mas_cluster_issuer set
-    - User opts out → mas_letsencrypt_http01_enabled=false, no email prompt
+    - User opts in  → email collected, mas_cluster_issuer set
+    - User opts out → email stays empty, no email prompt
     - Only shown when routing mode is path (subdomain skips it entirely)
 
   Non-interactive mode:
-    - --letsencrypt + --le-email + --routing path → valid, mas_cluster_issuer auto-set
-    - --letsencrypt without --le-email            → fatalError
-    - --letsencrypt + --routing subdomain         → fatalError
-    - --letsencrypt + --mas-cluster-issuer custom → custom issuer respected
-    - no --letsencrypt                            → mas_letsencrypt_http01_enabled=false
+    - --le-email + --routing path → valid, mas_cluster_issuer auto-set
+    - --le-email + --routing subdomain → fatalError
+    - --le-email + --mas-cluster-issuer custom → custom issuer respected
+    - no --le-email → LE disabled (Ansible derives from empty email)
 """
 
 import sys
@@ -88,47 +87,36 @@ def create_mock_app(instance_id="testinst"):
 class TestInteractiveLetsEncrypt:
     """Interactive prompt flow for Let's Encrypt HTTP-01."""
 
-    def test_user_opts_in_sets_enabled_flag_email_and_cluster_issuer(self):
-        """When user says yes to LE, enabled=true, email collected, cluster issuer set."""
+    def test_user_opts_in_collects_email_and_sets_cluster_issuer(self):
+        """When user says yes to LE, email is collected and mas_cluster_issuer is set."""
         app = create_mock_app(instance_id="inst1")
-        # Routing mode already confirmed as path
         app.params["mas_routing_mode"] = "path"
-
-        # Simulate: yesOrNo("Do you want to use LetsEncrypt...") → True
         app.yesOrNo = MagicMock(return_value=True)
 
-        # Run only the LE block (after routing mode is set)
-        # Replicate the block from configRoutingMode for isolation
+        # Replicate the current interactive LE block from configRoutingMode
         if app.getParam("mas_routing_mode") == "path":
             app.printDescription([])
-            if app.yesOrNo("Do you want to use LetsEncrypt for certificate management"):
-                app.setParam("mas_letsencrypt_http01_enabled", "true")
+            if app.yesOrNo("Do you want to use Let's Encrypt for certificate management"):
                 app.promptForString("Let's Encrypt e-mail", "mas_le_email")
                 app.setParam("mas_cluster_issuer", f"{app.getParam('mas_instance_id')}-http01-le-prod")
-            else:
-                app.setParam("mas_letsencrypt_http01_enabled", "false")
 
-        assert app.getParam("mas_letsencrypt_http01_enabled") == "true"
         assert app.getParam("mas_le_email") == "user-mas_le_email"
         assert app.getParam("mas_cluster_issuer") == "inst1-http01-le-prod"
         app.promptForString.assert_called_once()
 
-    def test_user_opts_out_sets_disabled_flag_and_no_email_prompt(self):
-        """When user says no to LE, enabled=false and email is never prompted."""
+    def test_user_opts_out_no_email_and_no_cluster_issuer(self):
+        """When user says no to LE, email stays empty and cluster issuer is not set."""
         app = create_mock_app(instance_id="inst1")
         app.params["mas_routing_mode"] = "path"
         app.yesOrNo = MagicMock(return_value=False)
 
         if app.getParam("mas_routing_mode") == "path":
             app.printDescription([])
-            if app.yesOrNo("Do you want to use LetsEncrypt for certificate management"):
-                app.setParam("mas_letsencrypt_http01_enabled", "true")
+            if app.yesOrNo("Do you want to use Let's Encrypt for certificate management"):
                 app.promptForString("Let's Encrypt e-mail", "mas_le_email")
                 app.setParam("mas_cluster_issuer", f"{app.getParam('mas_instance_id')}-http01-le-prod")
-            else:
-                app.setParam("mas_letsencrypt_http01_enabled", "false")
 
-        assert app.getParam("mas_letsencrypt_http01_enabled") == "false"
+        assert app.getParam("mas_le_email") == ""
         assert app.getParam("mas_cluster_issuer") == ""
         app.promptForString.assert_not_called()
 
@@ -140,12 +128,12 @@ class TestInteractiveLetsEncrypt:
 
         if app.getParam("mas_routing_mode") == "path":
             app.printDescription([])
-            if app.yesOrNo("Do you want to use LetsEncrypt for certificate management"):
-                app.setParam("mas_letsencrypt_http01_enabled", "true")
+            if app.yesOrNo("Do you want to use Let's Encrypt for certificate management"):
+                app.promptForString("Let's Encrypt e-mail", "mas_le_email")
 
         # yesOrNo should never have been called (routing is subdomain)
         app.yesOrNo.assert_not_called()
-        assert app.getParam("mas_letsencrypt_http01_enabled") == ""
+        assert app.getParam("mas_le_email") == ""
 
 
 # =============================================================================
@@ -154,7 +142,7 @@ class TestInteractiveLetsEncrypt:
 
 
 class TestArgParserLetsEncrypt:
-    """Verify --letsencrypt and --le-email are parsed correctly."""
+    """Verify --le-email is parsed correctly and is the sole LE enablement signal."""
 
     def _base_argv(self):
         return [
@@ -172,27 +160,20 @@ class TestArgParserLetsEncrypt:
             "--no-confirm",
         ]
 
-    def test_letsencrypt_flag_sets_enabled_true(self):
-        argv = self._base_argv() + ["--letsencrypt", "--le-email", "test@ibm.com"]
-        args = installArgParser.parse_args(args=argv)
-        assert args.mas_letsencrypt_http01_enabled == "true"
-        assert args.mas_le_email == "test@ibm.com"
-
-    def test_no_letsencrypt_flag_defaults_to_none(self):
-        """Without --letsencrypt the dest is None (not yet set to false — that happens in validation)."""
-        argv = self._base_argv()
-        args = installArgParser.parse_args(args=argv)
-        assert args.mas_letsencrypt_http01_enabled is None
-
-    def test_le_email_without_letsencrypt_is_accepted_by_parser(self):
-        """Parser accepts --le-email on its own; validation rejects it later."""
+    def test_le_email_enables_le(self):
+        """--le-email enables LE — it is the only flag needed."""
         argv = self._base_argv() + ["--le-email", "test@ibm.com"]
         args = installArgParser.parse_args(args=argv)
         assert args.mas_le_email == "test@ibm.com"
-        assert args.mas_letsencrypt_http01_enabled is None
 
-    def test_letsencrypt_with_subdomain_routing_is_parsed(self):
-        """Parser does not reject this combination; app validation does."""
+    def test_no_le_email_means_le_disabled(self):
+        """Without --le-email, mas_le_email is None — Ansible derives LE disabled."""
+        argv = self._base_argv()
+        args = installArgParser.parse_args(args=argv)
+        assert args.mas_le_email is None
+
+    def test_le_email_with_subdomain_routing_is_parsed(self):
+        """Parser accepts the combination; app validation rejects it."""
         argv = [
             "--mas-instance-id",
             "testinst",
@@ -204,7 +185,6 @@ class TestArgParserLetsEncrypt:
             "cluster",
             "--routing",
             "subdomain",
-            "--letsencrypt",
             "--le-email",
             "test@ibm.com",
             "--accept-license",
@@ -212,19 +192,18 @@ class TestArgParserLetsEncrypt:
         ]
         args = installArgParser.parse_args(args=argv)
         assert args.mas_routing_mode == "subdomain"
-        assert args.mas_letsencrypt_http01_enabled == "true"
+        assert args.mas_le_email == "test@ibm.com"
 
-    def test_custom_cluster_issuer_preserved_with_letsencrypt(self):
-        """--mas-cluster-issuer is parsed alongside --letsencrypt."""
+    def test_custom_cluster_issuer_preserved_with_le_email(self):
+        """--mas-cluster-issuer is preserved alongside --le-email."""
         argv = self._base_argv() + [
-            "--letsencrypt",
             "--le-email",
             "test@ibm.com",
             "--mas-cluster-issuer",
             "my-custom-issuer",
         ]
         args = installArgParser.parse_args(args=argv)
-        assert args.mas_letsencrypt_http01_enabled == "true"
+        assert args.mas_le_email == "test@ibm.com"
         assert args.mas_cluster_issuer == "my-custom-issuer"
 
 
@@ -234,14 +213,16 @@ class TestArgParserLetsEncrypt:
 
 
 class TestNonInteractiveLetsEncryptValidation:
-    """Validate the non-interactive LE validation block in app.py."""
+    """Validate the non-interactive LE validation block in app.py.
 
-    def _make_app(self, routing_mode="path", le_enabled="true", le_email="test@ibm.com", cluster_issuer="", instance_id="testinst"):
+    LE is enabled purely by the presence of mas_le_email.
+    """
+
+    def _make_app(self, routing_mode="path", le_email="test@ibm.com", cluster_issuer="", instance_id="testinst"):
         app = MagicMock(spec=InstallApp)
         app.isInteractiveMode = False
         app.params = {
             "mas_routing_mode": routing_mode,
-            "mas_letsencrypt_http01_enabled": le_enabled,
             "mas_le_email": le_email,
             "mas_cluster_issuer": cluster_issuer,
             "mas_instance_id": instance_id,
@@ -253,62 +234,46 @@ class TestNonInteractiveLetsEncryptValidation:
 
     def _run_validation(self, app):
         """Replicate the non-interactive LE validation block from app.py."""
-        leEnabled = app.getParam("mas_letsencrypt_http01_enabled") == "true"
-        routingMode = app.getParam("mas_routing_mode")
+        leEmail = app.getParam("mas_le_email")
 
-        if leEnabled and routingMode != "path":
+        if leEmail and app.getParam("mas_routing_mode") != "path":
             app.fatalError("Let's Encrypt HTTP-01 Requires Path-Based Routing")
 
-        if leEnabled:
-            leEmail = app.getParam("mas_le_email")
-            if not leEmail:
-                app.fatalError("Let's Encrypt E-mail Required")
-            if not app.getParam("mas_cluster_issuer"):
-                app.setParam("mas_cluster_issuer", f"{app.getParam('mas_instance_id')}-http01-le-prod")
-        else:
-            app.setParam("mas_letsencrypt_http01_enabled", "false")
+        if leEmail and not app.getParam("mas_cluster_issuer"):
+            app.setParam("mas_cluster_issuer", f"{app.getParam('mas_instance_id')}-http01-le-prod")
 
     def test_valid_le_path_routing_sets_cluster_issuer(self):
-        """Valid config: LE enabled + path routing + email → cluster issuer auto-set."""
-        app = self._make_app(routing_mode="path", le_enabled="true", le_email="test@ibm.com", cluster_issuer="")
+        """Valid config: email + path routing → cluster issuer auto-set."""
+        app = self._make_app(routing_mode="path", le_email="test@ibm.com", cluster_issuer="")
         self._run_validation(app)
         assert app.getParam("mas_cluster_issuer") == "testinst-http01-le-prod"
         app.fatalError.assert_not_called()
 
     def test_valid_le_path_routing_custom_issuer_preserved(self):
         """When user provides --mas-cluster-issuer, it is NOT overwritten."""
-        app = self._make_app(routing_mode="path", le_enabled="true", le_email="test@ibm.com", cluster_issuer="my-custom-issuer")
+        app = self._make_app(routing_mode="path", le_email="test@ibm.com", cluster_issuer="my-custom-issuer")
         self._run_validation(app)
         assert app.getParam("mas_cluster_issuer") == "my-custom-issuer"
         app.fatalError.assert_not_called()
 
     def test_le_with_subdomain_routing_raises_fatal_error(self):
-        """--letsencrypt + --routing subdomain must trigger a fatal error."""
-        app = self._make_app(routing_mode="subdomain", le_enabled="true", le_email="test@ibm.com")
+        """--le-email + --routing subdomain must trigger a fatal error."""
+        app = self._make_app(routing_mode="subdomain", le_email="test@ibm.com")
         with pytest.raises(SystemExit):
             self._run_validation(app)
         app.fatalError.assert_called_once()
         assert "Path-Based Routing" in app.fatalError.call_args[0][0]
 
-    def test_le_without_email_raises_fatal_error(self):
-        """--letsencrypt without --le-email must trigger a fatal error."""
-        app = self._make_app(routing_mode="path", le_enabled="true", le_email="")
-        with pytest.raises(SystemExit):
-            self._run_validation(app)
-        app.fatalError.assert_called_once()
-        assert "E-mail Required" in app.fatalError.call_args[0][0]
-
-    def test_no_le_sets_enabled_false(self):
-        """Without --letsencrypt, mas_letsencrypt_http01_enabled is explicitly set to false."""
-        app = self._make_app(routing_mode="path", le_enabled="false", le_email="")
+    def test_no_le_email_no_cluster_issuer_set(self):
+        """Without --le-email, no cluster issuer is set and no error raised."""
+        app = self._make_app(routing_mode="path", le_email="")
         self._run_validation(app)
-        assert app.getParam("mas_letsencrypt_http01_enabled") == "false"
         assert app.getParam("mas_cluster_issuer") == ""
         app.fatalError.assert_not_called()
 
     def test_le_cluster_issuer_name_matches_ansible_default(self):
         """Issuer name must be <instanceId>-http01-le-prod to match mas_http01_le_prod_issuer_name."""
-        app = self._make_app(routing_mode="path", le_enabled="true", le_email="test@ibm.com", cluster_issuer="", instance_id="myinstance")
+        app = self._make_app(routing_mode="path", le_email="test@ibm.com", cluster_issuer="", instance_id="myinstance")
         self._run_validation(app)
         assert app.getParam("mas_cluster_issuer") == "myinstance-http01-le-prod"
 
