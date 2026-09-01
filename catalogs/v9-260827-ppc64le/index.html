@@ -411,7 +411,9 @@
 </li>
 </ul>
 <h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">¶</a></h2>
-<p>There are no known issues for this catalog release.</p>
+<ul>
+<li>During upgrades from MAS Manage 9.0.x to 9.1.x using the online-offline upgrade process, some environments may fail during the offline phase because the PLGCOUNT table does not contain the expected MAXPRODUCTID column. This issue is upgrade-blocking and was identified late in the release validation cycle. Due to the August 27, 2026 GA release timeline, MAS Manage 9.1.x was released with this documented as a known limitation. A corrective fix has been developed, and an Interim Fix (IFIX) release is being prepared. Customers encountering this issue should contact IBM Support and reference the technote <a href="https://www.ibm.com/support/pages/node/7285399">technote</a></li>
+</ul>
 <h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¶</a></h2>
 <p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v9-260827-ppc64le.yaml</code></p>
 <h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link">¶</a></h2>
