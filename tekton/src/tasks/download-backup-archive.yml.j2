@@ -37,6 +37,14 @@ spec:
       type: string
       description: Download Manage App archive
       default: "false"
+    - name: include_facilities_app_archive
+      type: string
+      description: Download Facilities App archive
+      default: "false"
+    - name: include_facilities_db_archive
+      type: string
+      description: Download Facilities DB archive
+      default: "false"
 
     # S3 download parameters
     - name: aws_access_key_id
@@ -101,6 +109,10 @@ spec:
         value: $(params.include_manage_db_archive)
       - name: INCLUDE_MANAGE_APP_ARCHIVE
         value: $(params.include_manage_app_archive)
+      - name: INCLUDE_FACILITIES_APP_ARCHIVE
+        value: $(params.include_facilities_app_archive)
+      - name: INCLUDE_FACILITIES_DB_ARCHIVE
+        value: $(params.include_facilities_db_archive)
 
       # S3 credentials
       - name: S3_ACCESS_KEY_ID
