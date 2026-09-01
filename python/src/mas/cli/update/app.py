@@ -712,6 +712,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     return
                 elif len(cpds) == 1:
                     cpdUpgradePath = {
+                        "5.3.1": "5.4.0",
                         "5.2.0": "5.3.1",
                         "5.1.3": "5.2.0",
                         "5.0.0": "5.1.3",
