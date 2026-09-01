@@ -719,23 +719,18 @@ class InstallApp(
                         "  1. <b>cluster</b> - Install with ClusterRoles (default)",
                         "     - MAS has cluster-level access to manage its applications and resources across the cluster",
                         "     - CLI pre-installs ClusterRoles to grant delegated admin permissions to MAS service accounts",
-                        "     - Supports ClusterIssuer or Issuer certificate kind",
-                        "     - ClusterIssuer: CLI-managed DNS integration available for both path and subdomain routing",
-                        "     - Issuer: CLI-managed DNS integration available for path-based routing only",
                         "",
                         "  2. <b>namespaced</b> - Install with namespace-scoped Roles only",
                         "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
                         "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
-                        "     - Certificate issuer kind is fixed to 'Issuer'",
-                        "     - CLI-managed DNS integration available for path-based routing only; not available in subdomain routing",
+                        "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
                         "",
                         "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
                         "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - Only essential permissions required for MAS applications are applied",
                         "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
-                        "     - Certificate issuer kind is fixed to 'Issuer'",
-                        "     - CLI-managed DNS integration available for path-based routing only; not available in subdomain routing",
+                        "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
                     ]
                 )
 
@@ -782,8 +777,8 @@ class InstallApp(
             self.printDescription(
                 [
                     "You selected Issuer as the certificate issuer kind.",
-                    "CLI-managed DNS integration with Issuer is only supported in path-based routing mode.",
-                    "If you plan to use subdomain routing, you need to configure DNS manually.",
+                    "DNS integration is not available when the certificate issuer kind is Issuer.",
+                    "If you use a custom domain, you need to configure DNS manually.",
                 ]
             )
             return True
@@ -2570,24 +2565,24 @@ class InstallApp(
 
             # Validate DNS integration restrictions
             if self.getParam("dns_provider") != "":
-                if self.mas_admin_mode in ["namespaced", "minimal"] and self.getParam("mas_routing_mode") != "path":
+                if self.mas_admin_mode in ["namespaced", "minimal"]:
                     self.fatalError(
                         "\n".join(
                             [
                                 f"Invalid configuration for admin mode '{self.mas_admin_mode}'",
-                                "DNS integration is only available in path-based routing mode for this admin mode.",
-                                "Add --routing path, or switch to --admin-mode cluster and use --mas-issuer-kind ClusterIssuer.",
+                                "DNS integration is not available in this mode.",
+                                "Remove DNS integration option --dns-provider, or switch to --admin-mode cluster and use --mas-issuer-kind ClusterIssuer.",
                             ]
                         )
                     )
 
-                if self.mas_admin_mode == "cluster" and self.getParam("mas_issuer_kind") == "Issuer" and self.getParam("mas_routing_mode") != "path":
+                if self.mas_admin_mode == "cluster" and self.getParam("mas_issuer_kind") == "Issuer":
                     self.fatalError(
                         "\n".join(
                             [
-                                "Invalid configuration: --admin-mode cluster with --mas-issuer-kind Issuer requires --routing path.",
-                                "DNS integration with Issuer in cluster mode is only supported in path-based routing mode.",
-                                "Either add --routing path, or use --mas-issuer-kind ClusterIssuer.",
+                                "Invalid configuration for certificate issuer kind 'Issuer'",
+                                "DNS integration is not available when --mas-issuer-kind Issuer is selected.",
+                                "Remove DNS integration option --dns-provider, or use --mas-issuer-kind ClusterIssuer.",
                             ]
                         )
                     )
