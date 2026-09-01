@@ -1,0 +1,62 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-user
+  namespace: mas-{{ mas_instance_id }}-pipelines
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{mas_instance_id}}:install-user
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-user
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{mas_instance_id}}:install-user
+  namespace: mas-{{mas_instance_id}}-pipelines
+rules:
+  # MAS install creates a single PVC for storing generated configuration files
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - get
+      - create
+      - patch
+
+  # MAS install creates and deletes secrets
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - create
+      - delete
+
+  # MAS install creates and deletes configmaps
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - create
+      - delete
+
+  # MAS install creates Pipelines, Tasks, and PipelineRuns
+  - apiGroups:
+      - tekton.dev
+    resources:
+      - pipelines
+      - pipelineruns
+      - tasks
+    verbs:
+      - get
+      - create
+      - patch

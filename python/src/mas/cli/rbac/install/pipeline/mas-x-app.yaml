@@ -1,0 +1,183 @@
+---
+# Shared ClusterRole for all MAS Applications
+# This ClusterRole is bound to each application namespace below
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+rules:
+  # Application installation requires namespace management
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - patch
+  
+  # Application operator subscription
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - installplans
+      - operatorgroups
+      - subscriptions
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+  
+  # Application requires secrets for entitlement keys and credentials
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - create
+      - patch
+      - delete
+  
+  # Application requires service accounts
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+      - create
+      - patch
+  
+  # Application requires configmaps
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - create
+      - patch
+  
+  # Application CRDs - all MAS application types
+  - apiGroups:
+      - apps.mas.ibm.com
+    resources:
+      - manageapps
+      - manageworkspaces
+      - healthapps
+      - predictapps
+      - assistapps
+      - visualinspectionapps
+      - iotapps
+    verbs:
+      - get
+      - create
+      - patch
+      - list
+      - watch
+---
+# Maximo Manage Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-manage
+  namespace: mas-{{ mas_instance_id }}-manage
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+# Maximo Monitor Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-monitor
+  namespace: mas-{{ mas_instance_id }}-monitor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+# Maximo Health Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-health
+  namespace: mas-{{ mas_instance_id }}-health
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+# Maximo Predict Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-predict
+  namespace: mas-{{ mas_instance_id }}-predict
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+# Maximo Assist Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-assist
+  namespace: mas-{{ mas_instance_id }}-assist
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+# Maximo Visual Inspection Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-visualinspection
+  namespace: mas-{{ mas_instance_id }}-visualinspection
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+# IoT Tool Application
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app-iot
+  namespace: mas-{{ mas_instance_id }}-iot
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-app
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines

@@ -1,0 +1,129 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd-operators
+  namespace: ibm-cpd-operators
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd-operators
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd-operators
+  namespace: ibm-cpd-operators
+rules:
+  # Cloud Pak for Data operator installation
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - installplans
+      - operatorgroups
+      - subscriptions
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+  # IBM entitlement key secret and service accounts
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - serviceaccounts
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+  # CPD operators need to create RBAC resources
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+      - rolebindings
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+      - delete
+  # Grant wildcard permissions that CPD operators need to delegate
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+      - deletecollection
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd
+  namespace: ibm-cpd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-cpd
+  namespace: ibm-cpd
+rules:
+  # Cloud Pak for Data instance management
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - configmaps
+      - serviceaccounts
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+  # CPD services and deployments
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+  # CPD routes
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
