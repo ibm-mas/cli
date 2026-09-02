@@ -103,18 +103,6 @@ spec:
               optional: false
 
         # MIST Integration credentials (fvt_int_mist suite)
-        - name: MIST_ORG_ID
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: MIST_ORG_ID
-              optional: true
-        - name: MIST_API_URL
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: MIST_API_URL
-              optional: true
         - name: MIST_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
@@ -123,12 +111,6 @@ spec:
               optional: true
 
         # TRIRIGA Integration credentials (fvt_int_mref suite)
-        - name: TRIRIGA_URL
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: TRIRIGA_URL
-              optional: true
         - name: TRIRIGA_USERNAME
           valueFrom:
             secretKeyRef:
@@ -140,6 +122,26 @@ spec:
             secretKeyRef:
               name: mas-fvt-monitor
               key: TRIRIGA_PASSWORD
+              optional: true
+
+        # Webex Integration credentials (fvt_int_mref suite)
+        - name: WEBEX_JWT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: WEBEX_JWT_TOKEN
+              optional: true
+        - name: WEBEX_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: WEBEX_CLIENT_ID
+              optional: true
+        - name: WEBEX_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: WEBEX_CLIENT_SECRET
               optional: true
 
         # Test Data
