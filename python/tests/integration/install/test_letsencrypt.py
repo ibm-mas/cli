@@ -388,6 +388,7 @@ class TestInteractiveLetsEncryptIntegration:
             ".*Proceed with these settings.*": lambda msg: "y",
         }
 
+    @pytest.mark.skip(reason="configRoutingMode() is temporarily disabled in app.py — re-enable when path routing is un-commented")
     def test_interactive_le_enabled_path_routing(self, tmpdir):
         """Interactive: select path routing, opt into LE, provide email — LE enabled."""
         handlers = self._common_handlers(tmpdir, le_response="y")
@@ -409,6 +410,7 @@ class TestInteractiveLetsEncryptIntegration:
         )
         run_install_test(tmpdir, config)
 
+    @pytest.mark.skip(reason="configRoutingMode() is temporarily disabled in app.py — re-enable when path routing is un-commented")
     def test_interactive_le_disabled_path_routing(self, tmpdir):
         """Interactive: select path routing, decline LE — normal DNS-01 flow continues."""
         handlers = self._common_handlers(tmpdir, le_response="n")
