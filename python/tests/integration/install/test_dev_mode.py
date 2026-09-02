@@ -217,7 +217,6 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
     run_install_test(tmpdir, config)
 
 
-@pytest.mark.skip(reason="path based routing currently disabled")
 def test_install_master_dev_mode_with_path_routing(tmpdir):
     """Test interactive installation with 9.2.0 channel including path-based routing mode configuration.
 
@@ -317,7 +316,6 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         ".*Select components to enable.*": lambda msg: "n",
         ".*Include customization archive.*": lambda msg: "n",
         ".*Install Predict.*": lambda msg: "n",
-        ".*Install Assist.*": lambda msg: "n",
         ".*Install Optimizer.*": lambda msg: "n",
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
@@ -536,7 +534,7 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir, caplo
             "--artifactory-token",
             "ARTIFACTORY_TOKEN",
             "--mas-catalog-version",
-            "v9-master-amd64",
+            "v9-260625-amd64",
             "--mas-instance-id",
             "fvtcore",
             "--mas-workspace-id",
@@ -647,7 +645,6 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir, caplo
             "--no-confirm",
         ],
     )
-    # Run the test
     # Run the test and capture SystemExit to verify error message
     with pytest.raises(SystemExit) as exc_info:
         run_install_test(tmpdir, config)
@@ -656,7 +653,7 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir, caplo
     assert exc_info.value.code != 0, "Expected non-zero exit code"
 
     # Verify the error message was logged
-    error_message = "Path based routing mode not supported"
+    error_message = "Path-based routing is not supported with this catalog"
     assert any(error_message in record.message for record in caplog.records), f"Expected error message '{error_message}' not found in logs"
 
 
