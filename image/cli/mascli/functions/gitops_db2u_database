@@ -636,7 +636,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "skip-backup-notification ...................... ${COLOR_MAGENTA}${SKIP_BACKUP_NOTIFICATION}"
   echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   echo_reset_dim "allow-list .................................... ${COLOR_MAGENTA}${ALLOW_LIST}"
-  echo_reset_dim "facilities-db2-schema ......................... ${COLOR_MAGENTA}${FACILITIES_DB2_SCHEMA}"
+  echo_reset_dim "facilities-db2-schema ......................... ${COLOR_MAGENTA}${FACILITIES_DB2_SCHEMA}" 
   echo_reset_dim "Cluster Domain ................................ ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   reset_colors
 
