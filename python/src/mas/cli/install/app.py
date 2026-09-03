@@ -936,6 +936,19 @@ class InstallApp(
             else:
                 self.setParam("mas_routing_mode", "subdomain")
 
+            # After routing mode is confirmed as path, offer Let's Encrypt HTTP-01.
+            if self.getParam("mas_routing_mode") == "path":
+                self.printDescription(
+                    [
+                        "",
+                        "Let's Encrypt HTTP-01 can automatically issue trusted certificates for your domain",
+                        "Note: your cluster must be publicly accessible on port 80 from the internet.",
+                    ]
+                )
+                if self.yesOrNo("Do you want to use Let's Encrypt for certificate management"):
+                    self.promptForString("Let's Encrypt e-mail", "mas_le_email")
+                    self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
+
     def _checkIngressControllerForPathRouting(self, controllerName="default"):
         """Check if a specific IngressController exists and is configured for path-based routing.
 
@@ -2881,6 +2894,26 @@ class InstallApp(
                     )
             else:
                 logger.info(f"IngressController '{ingressControllerName}' is already configured for path-based routing")
+
+        # Validate Let's Encrypt HTTP-01 flags
+        if not self.isInteractiveMode:
+            leEmail = self.getParam("mas_le_email")
+
+            if leEmail and self.getParam("mas_routing_mode") != "path":
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Let's Encrypt HTTP-01 Requires Path-Based Routing",
+                            "========================================================================",
+                            "--le-email is only supported with path-based routing mode.",
+                            "Remove --le-email or switch to path routing:",
+                            "   mas install --routing path --le-email [email] ...",
+                        ]
+                    )
+                )
+
+            if leEmail and not self.getParam("mas_cluster_issuer"):
+                self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
 
         # Based on the parameters set the annotations correctly
         self.configAnnotations()
