@@ -300,8 +300,6 @@ def test_install_interactive_advanced(tmpdir):
                     return "username"
                 if re.match(".*minio root password.*", message):
                     return "password"
-                if re.match(".*AI Data Science Platform.*", message):
-                    return "1"
                 if re.match(".*Cluster ingress certificate secret name.*", message):
                     return ""
                 if re.match(".*Configure.*domain.*certificate management.*", message):
@@ -486,8 +484,6 @@ def test_install_interactive_simplified(tmpdir):
                     return "username"
                 if re.match(".*minio root password.*", message):
                     return "password"
-                if re.match(".*AI Data Science Platform.*", message):
-                    return "1"
                 if re.match(".*Entitlement end date.*", message):
                     return "2027-02-16"
                 if re.match(".*Watsonxai api key.*", message):
