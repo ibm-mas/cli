@@ -57,4 +57,5 @@ PACKAGE_CONFIGS = [
 # Each tuple: (caseName, catalogKey, argName)
 HELM_ONLY_CHART_CONFIGS = [
     ("ibm-opencontent-opensearch", "opensearch_version", "cp4d-platform"),
+    ("ibm-pg-operator", "pg_operator_version", "cp4d-platform"),
 ]
