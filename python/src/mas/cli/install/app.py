@@ -663,9 +663,7 @@ class InstallApp(
         self.configCATrust()
         self.configDNSAndCerts()
 
-        # temporarily disabiliing configuring routing mode
-        # self.configRoutingMode()
-        self.setParam("mas_routing_mode", "subdomain")
+        self.configRoutingMode()
 
         self.configServiceMesh()
         self.configSSOProperties()
@@ -709,7 +707,7 @@ class InstallApp(
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
             self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
 
-        self.setParam("rhoai", "false")
+        self.setParam("rhoai", "true")
 
     @logMethodCall
     def configAdminMode(self):
@@ -842,9 +840,19 @@ class InstallApp(
             logger.warning(f"Failed to list IngressControllers: {e}")
             return "default"
 
+    # Catalogs that do not support path-based routing
+    _PATH_ROUTING_UNSUPPORTED_CATALOGS = ["260625", "260730", "260805", "260827", "260902"]
+
     @logMethodCall
     def configRoutingMode(self):
-        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
+        catalogVersion = self.getParam("mas_catalog_version") or ""
+        catalogSupportsPathRouting = not any(c in catalogVersion for c in self._PATH_ROUTING_UNSUPPORTED_CATALOGS)
+        if (
+            self.showAdvancedOptions
+            and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel"))
+            and self.getParam("mas_channel") != "9.2.x-feature"
+            and catalogSupportsPathRouting
+        ):
             self.printH1("Configure Routing Mode")
 
             masDomain = self._getMasDomainForDisplay()
@@ -1837,23 +1845,13 @@ class InstallApp(
                 self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
                 self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
-            # Configure AI Data Science Platform
-            self.printH2("Configure AI Data Science Platform")
-            self.printDescription(
-                [
-                    "Choose which AI data science platform to install:",
-                    " - <b>Note for 9.1.x</b>: Open Data Hub (ODH) is the supported platform for AI Service 9.1.x",
-                    " - <b>Note for 9.2.x</b>: Red Hat OpenShift AI (RHOAI) is the recommended platform for AI Service 9.2.x",
-                    "",
-                    "  1. Red Hat OpenShift AI (RHOAI)",
-                    "  2. Open Data Hub (ODH)",
-                ]
+            # AI Data Science Platform - defaults to Red Hat OpenShift AI (RHOAI)
+            self.setParam("rhoai", "true")
+            self.printWarning(
+                "Starting with AI Service 9.1.18, support for Open Data Hub (ODH) has been dropped. "
+                "Only Red Hat OpenShift AI (RHOAI) 2.25.10 or later is supported going forward. "
+                "If an existing ODH installation is detected, the installer will automatically migrate it to RHOAI."
             )
-            platformChoice = self.promptForInt("AI Data Science Platform", default=1, min=1, max=2)
-            if platformChoice == 2:
-                self.setParam("rhoai", "false")
-            else:
-                self.setParam("rhoai", "true")
 
             # Configure Certificate Issuer
             self.configAIServiceCertIssuer()
@@ -2196,11 +2194,15 @@ class InstallApp(
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
                     self.setParam("aiservice_odh_model_deployment_type", "raw")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+                    self.setParam("rhoai", "true")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
                     self.setParam("aiservice_odh_model_deployment_type", "serverless")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+                    self.setParam("rhoai", "true")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -2766,21 +2768,40 @@ class InstallApp(
             ]
         )
 
-        # Currently no 9.2.x patch support path based routing as that changes this will need to change
-        # to filter on the specific patch version
+        # Reject path-based routing for unsupported channel versions or catalogs
         if self.getParam("mas_routing_mode") == "path":
-            self.fatalError(
-                "\n".join(
-                    [
-                        "Path based routing mode not supported",
-                        "========================================================================",
-                        "Path based routing is not currently supported",
-                        "",
-                        "Use subdomain routing mode:",
-                        "   mas install --routing subdomain ...",
-                    ]
+            masChannel = self.getParam("mas_channel") or ""
+            catalogVersion = self.getParam("mas_catalog_version") or ""
+            if not isVersionEqualOrAfter("9.2.0", masChannel) or masChannel == "9.2.x-feature":
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Path-based routing is not supported on this channel",
+                            "========================================================================",
+                            f"Channel {masChannel} does not support path-based routing.",
+                            "",
+                            "Path-based routing requires MAS 9.2 or later.",
+                            "",
+                            "Use subdomain routing mode:",
+                            "   mas install --routing subdomain ...",
+                        ]
+                    )
                 )
-            )
+            elif any(c in catalogVersion for c in self._PATH_ROUTING_UNSUPPORTED_CATALOGS):
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Path-based routing is not supported with this catalog",
+                            "========================================================================",
+                            f"Catalog {catalogVersion} does not support path-based routing.",
+                            "",
+                            "Path-based routing requires catalog v9-260924 or later.",
+                            "",
+                            "Use subdomain routing mode:",
+                            "   mas install --routing subdomain ...",
+                        ]
+                    )
+                )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
