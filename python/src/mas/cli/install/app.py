@@ -1050,9 +1050,9 @@ class InstallApp(
                         if dnsProvider == 1:
                             self.configDNSAndCertsCloudflare()
                         elif dnsProvider == 2:
-                            self.configDNSAndCertsCIS()
+                            self.configDNSAndCertsCIS(configMas=True, configAIService=False)
                         elif dnsProvider == 3:
-                            self.configDNSAndCertsRoute53()
+                            self.configDNSAndCertsRoute53(configMas=True, configAIService=False)
                         elif dnsProvider == 4:
                             # Use MAS default self-signed cluster issuer with a custom domain
                             self.setParam("dns_provider", "")
@@ -1083,6 +1083,27 @@ class InstallApp(
                     self.manualCertsDir = None
 
     @logMethodCall
+    def _buildCertIssuerName(self, instanceId: str, provider: str, certIssuer: int) -> str:
+        options = [
+            f"{instanceId}-{provider}-le-prod",
+            f"{instanceId}-{provider}-le-stg",
+            "",
+        ]
+        return options[certIssuer - 1]
+
+    @logMethodCall
+    def _promptCertIssuer(self) -> int:
+        self.printDescription(
+            [
+                "Certificate Issuer:",
+                "  1. LetsEncrypt (Production)",
+                "  2. LetsEncrypt (Staging)",
+                "  3. Self-Signed",
+            ]
+        )
+        return self.promptForInt("Certificate issuer", min=1, max=3)
+
+    @logMethodCall
     def configDNSAndCertsCloudflare(self):
         # User has chosen to set up DNS integration with Cloudflare
         self.setParam("dns_provider", "cloudflare")
@@ -1091,48 +1112,35 @@ class InstallApp(
         self.promptForString("Cloudflare zone", "cloudflare_zone")
         self.promptForString("Cloudflare subdomain", "cloudflare_subdomain")
 
-        self.printDescription(
-            [
-                "Certificate Issuer:",
-                "  1. LetsEncrypt (Production)",
-                "  2. LetsEncrypt (Staging)",
-                "  3. Self-Signed",
-            ]
-        )
-        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
-        certIssuerOptions = [
-            f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
-            f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
-            "",
-        ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
+        certIssuer = self._promptCertIssuer()
+        self.setParam("mas_cluster_issuer", self._buildCertIssuerName(self.getParam("mas_instance_id"), "cloudflare", certIssuer))
 
     @logMethodCall
-    def configDNSAndCertsCIS(self):
+    def configDNSAndCertsCIS(self, configMas: bool, configAIService: bool):
         self.setParam("dns_provider", "cis")
         self.promptForString("CIS e-mail", "cis_email")
         self.promptForString("CIS API token", "cis_apikey", isPassword=True)
         self.promptForString("CIS CRN", "cis_crn")
         self.promptForString("CIS subdomain", "cis_subdomain")
 
-        self.printDescription(
-            [
-                "Certificate Issuer:",
-                "  1. LetsEncrypt (Production)",
-                "  2. LetsEncrypt (Staging)",
-                "  3. Self-Signed",
-            ]
-        )
-        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
-        certIssuerOptions = [
-            f"{self.getParam('mas_instance_id')}-cis-le-prod",
-            f"{self.getParam('mas_instance_id')}-cis-le-stg",
-            "",
-        ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
+        certIssuer = self._promptCertIssuer()
+        if configMas:
+            self.setParam("mas_cluster_issuer", self._buildCertIssuerName(self.getParam("mas_instance_id"), "cis", certIssuer))
+        if configAIService:
+            self.setParam("aiservice_certificate_issuer", self._buildCertIssuerName(self.getParam("aiservice_instance_id"), "cis", certIssuer))
+
+        configEnhancedSecurity = self.yesOrNo("Configure enhanced security for CIS", "cis_enhanced_security")
+        if configEnhancedSecurity:
+            self.printDescription(["Enter the name of your CIS service from IBM Cloud"])
+            self.promptForString("CIS service name", "cis_service_name")
+            self.yesOrNo("Update existing CIS DNS entries", "update_dns_entries")
+            self.yesOrNo("Enable WAF (Web Application Firewall)", "cis_waf")
+            self.yesOrNo("Enable CIS proxy", "cis_proxy")
+            self.yesOrNo("Delete wildcard DNS entries in CIS", "delete_wildcards")
+            self.yesOrNo("Override and delete existing edge certificates in CIS instance", "override_edge_certs")
 
     @logMethodCall
-    def configDNSAndCertsRoute53(self):
+    def configDNSAndCertsRoute53(self, configMas: bool, configAIService: bool):
         self.setParam("dns_provider", "route53")
         self.printDescription(
             [
@@ -1158,7 +1166,11 @@ class InstallApp(
         self.promptForString("AWS Route 53 subdomain", "route53_subdomain")
         self.promptForString("AWS Route 53 e-mail", "route53_email")
 
-        self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
+        if configMas:
+            self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
+
+        if configAIService:
+            self.setParam("aiservice_certificate_issuer", f"{self.getParam('aiservice_instance_id')}-route53-le-prod")
 
     @logMethodCall
     def configApps(self):
@@ -1845,16 +1857,73 @@ class InstallApp(
                 "If an existing ODH installation is detected, the installer will automatically migrate it to RHOAI."
             )
 
-            # Configure Certificate Issuer
-            self.configAIServiceCertIssuer()
+            # DNS configuration for AI Service
+            self.configAIServiceDNSAndCerts()
 
     @logMethodCall
-    def configAIServiceCertIssuer(self):
+    def configAIServiceDNSAndCerts(self):
         if self.showAdvancedOptions:
-            self.printH1("Configure Certificate Issuer")
-            configureCertIssuer = self.yesOrNo("Configure certificate issuer")
-            if configureCertIssuer:
-                self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
+            self.printH1("Configure Domain & Certificate Management for AI Service")
+            configAIServiceDNS = self.yesOrNo("Configure domain & certificate management for AI Service")
+            if configAIServiceDNS:
+                if self.getParam("mas_domain") != "" and self.getParam("dns_provider") != "":
+                    if self.getParam("dns_provider") == "cloudflare":
+                        self.printDescription(
+                            [
+                                "MAS is configured to use Cloudflare as the DNS provider.",
+                                "AI Service does not support DNS configuration with Cloudflare.",
+                                "DNS for AI Service will therefore need to be configured manually.",
+                            ]
+                        )
+                    else:
+                        self.printDescription(
+                            [
+                                f"MAS is configured with the domain {self.getParam('mas_domain')} using the {self.getParam('dns_provider')} DNS provider.",
+                                "The same domain and DNS provider configuration will be applied to AI Service.",
+                            ]
+                        )
+                        self.setParam("aiservice_domain", self.getParam("mas_domain"))
+                        if self.getParam("mas_cluster_issuer") != "":
+                            aiserviceCertIssuer = self.getParam("mas_cluster_issuer").replace(
+                                self.getParam("mas_instance_id"), self.getParam("aiservice_instance_id")
+                            )
+                            self.setParam("aiservice_certificate_issuer", aiserviceCertIssuer)
+                        else:
+                            self.setParam("aiservice_certificate_issuer", "")
+                else:
+                    self.promptForString("AI Service domain", "aiservice_domain")
+                    self.printDescription(
+                        [
+                            "",
+                            "DNS Integrations:",
+                            "  1. IBM Cloud Internet Services",
+                            "  2. AWS Route 53",
+                            "  3. None (I will set up DNS myself)",
+                        ]
+                    )
+                    dnsProvider = self.promptForInt("DNS Provider", min=1, max=3)
+
+                    if dnsProvider == 1:
+                        self.configDNSAndCertsCIS(configMas=False, configAIService=True)
+                    elif dnsProvider == 2:
+                        self.configDNSAndCertsRoute53(configMas=False, configAIService=True)
+                    elif dnsProvider == 3:
+                        # Use self-signed certificate Issuer with custom domain
+                        self.setParam("dns_provider", "")
+                        self.setParam("aiservice_certificate_issuer", "")
+
+                    if dnsProvider == 1:
+                        self.printDescription(
+                            [
+                                "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
+                                "CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration.",
+                            ]
+                        )
+                        self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
+            else:
+                # Use self-signed certificate Issuer with default domain
+                self.setParam("aiservice_domain", "")
+                self.setParam("aiservice_certificate_issuer", "")
 
     @logMethodCall
     def aiServiceTenantSettings(self) -> None:
@@ -2571,6 +2640,27 @@ class InstallApp(
         else:
             if self.mas_admin_mode != "":
                 self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('mas_channel')})")
+
+        if self.installAIService:
+            # Configure DNS integration for AI Service
+            # For non-interactive mode, MAS domain configuration will be used for AI Service.
+            # Interactive mode, provides an option to configure DNS for AI service when DNS integration is not configured for MAS.
+            if self.getParam("mas_domain") != "":
+                if self.getParam("dns_provider") != "cloudflare":
+                    self.setParam("aiservice_domain", self.getParam("mas_domain"))
+                    if self.getParam("mas_cluster_issuer") != "":
+                        aiserviceCertIssuer = self.getParam("mas_cluster_issuer").replace(
+                            self.getParam("mas_instance_id"), self.getParam("aiservice_instance_id")
+                        )
+                        self.setParam("aiservice_certificate_issuer", aiserviceCertIssuer)
+                    else:
+                        # Self signed certificate issuer with custom domain
+                        self.setParam("aiservice_certificate_issuer", "")
+                else:
+                    # Cloudflare DNS integration is not supported for AI Service.
+                    # Installation will continue without AI Service DNS configuration
+                    self.setParam("aiservice_domain", "")
+                    self.setParam("aiservice_certificate_issuer", "")
 
         self.applyPreInstallMASRBAC = evaluatePreinstallRBACAccess(
             dynamicClient=self.dynamicClient,

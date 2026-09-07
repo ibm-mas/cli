@@ -541,6 +541,135 @@ def test_install_interactive_simplified(tmpdir):
             app.install(argv=[])
 
 
+def test_install_noninteractive_route53(tmpdir):
+    """Test non-interactive AI Service install with Route53 DNS integration.
+
+    GIVEN a complete set of CLI arguments including AWS Route53 DNS provider and AWS credentials
+    WHEN the install command runs in non-interactive mode
+    THEN the install pipeline is launched with aws_access_key_id and aws_secret_access_key set.
+    """
+    tmpdir.join("authorized_entitlement.lic").write("testLicense")
+    with mock.patch("mas.cli.cli.config"):
+        dynamic_client = MagicMock(DynamicClient)
+        resources = MagicMock()
+        dynamic_client.resources = resources
+        routes_api = MagicMock()
+        catalog_api = MagicMock()
+        crd_api = MagicMock()
+        namespace_api = MagicMock()
+        cluster_role_binding_api = MagicMock()
+        pvc_api = MagicMock()
+        secret_api = MagicMock()
+        resource_apis = {
+            "CatalogSource": catalog_api,
+            "Route": routes_api,
+            "CustomResourceDefinition": crd_api,
+            "Namespace": namespace_api,
+            "ClusterRoleBinding": cluster_role_binding_api,
+            "PersistentVolumeClaim": pvc_api,
+            "Secret": secret_api,
+        }
+        resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs["kind"], None)
+        route = MagicMock()
+        route.spec = MagicMock()
+        route.spec.host = "maximo.ibm.com"
+        route.spec.displayName = supportedCatalogs["amd64"][1]
+        routes_api.get.return_value = route
+        catalog_api.get.side_effect = NotFoundError(ApiException(status="404"))
+        with (
+            mock.patch("mas.cli.cli.DynamicClient") as dynamic_client_class,
+            mock.patch("mas.cli.cli.getNodes") as get_nodes,
+            mock.patch("mas.cli.cli.isAirgapInstall") as is_airgap_install,
+            mock.patch("mas.cli.aiservice.install.app.getCurrentCatalog") as get_current_catalog,
+            mock.patch("mas.cli.aiservice.install.app.installOpenShiftPipelines"),
+            mock.patch("mas.cli.aiservice.install.app.updateTektonDefinitions"),
+            mock.patch("mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace"),
+            mock.patch("mas.cli.aiservice.install.app.launchInstallPipeline") as launch_ai_service_install_pipeline,
+        ):
+            dynamic_client_class.return_value = dynamic_client
+            get_nodes.return_value = [{"status": {"nodeInfo": {"architecture": "amd64"}}}]
+            is_airgap_install.return_value = False
+            get_current_catalog.return_value = {"catalogId": supportedCatalogs["amd64"][1]}
+            launch_ai_service_install_pipeline.return_value = "https://pipeline.test.maximo.ibm.com"
+            with mock.patch("mas.cli.cli.isSNO") as is_sno:
+                is_sno.return_value = False
+                app = AiServiceInstallApp()
+                app.install(
+                    [
+                        "--mas-catalog-version",
+                        "v9-250828-amd64",
+                        "--ibm-entitlement-key",
+                        "testEntitlementKey",
+                        "--aiservice-instance-id",
+                        "testInstanceId",
+                        "--storage-class-rwo",
+                        "nfs-client",
+                        "--storage-class-rwx",
+                        "nfs-client",
+                        "--storage-pipeline",
+                        "nfs-client",
+                        "--storage-accessmode",
+                        "ReadWriteMany",
+                        "--license-file",
+                        f"{tmpdir}/authorized_entitlement.lic",
+                        "--contact-email",
+                        "maximo@ibm.com",
+                        "--contact-firstname",
+                        "Test",
+                        "--contact-lastname",
+                        "Test",
+                        "--aiservice-channel",
+                        "9.1.x",
+                        "--domain",
+                        "aiservice.example.com",
+                        "--aiservice-certificate-issuer",
+                        "testInstanceId-route53-le-prod",
+                        "--dns-provider",
+                        "route53",
+                        "--aws-access-key-id",
+                        "testAwsAccessKeyId",
+                        "--aws-secret-access-key",
+                        "testAwsSecretAccessKey",
+                        "--route53-hosted-zone-name",
+                        "example.com",
+                        "--route53-hosted-zone-region",
+                        "us-east-1",
+                        "--route53-subdomain",
+                        "aiservice",
+                        "--route53-email",
+                        "route53@example.com",
+                        "--install-minio",
+                        "--minio-root-user",
+                        "test",
+                        "--minio-root-password",
+                        "test",
+                        "--watsonxai-apikey",
+                        "test",
+                        "--watsonxai-url",
+                        "https://us-south.ml.cloud.ibm.com",
+                        "--watsonxai-project-id",
+                        "test",
+                        "--tenant-entitlement-type",
+                        "standard",
+                        "--tenant-entitlement-start-date",
+                        "2025-08-28",
+                        "--tenant-entitlement-end-date",
+                        "2026-08-28",
+                        "--accept-license",
+                        "--no-confirm",
+                        "--skip-pre-check",
+                    ]
+                )
+
+                assert app.getParam("aws_access_key_id") == "testAwsAccessKeyId"
+                assert app.getParam("aws_secret_access_key") == "testAwsSecretAccessKey"
+                assert app.getParam("dns_provider") == "route53"
+                assert app.getParam("route53_hosted_zone_name") == "example.com"
+                assert app.getParam("route53_hosted_zone_region") == "us-east-1"
+                assert app.getParam("route53_subdomain") == "aiservice"
+                assert app.getParam("route53_email") == "route53@example.com"
+
+
 def test_install_noninteractive_cis_enhanced_security(tmpdir):
     """Test non-interactive AI Service install with CIS enhanced security options.
 
