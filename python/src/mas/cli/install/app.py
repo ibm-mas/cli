@@ -663,9 +663,7 @@ class InstallApp(
         self.configCATrust()
         self.configDNSAndCerts()
 
-        # temporarily disabiliing configuring routing mode
-        # self.configRoutingMode()
-        self.setParam("mas_routing_mode", "subdomain")
+        self.configRoutingMode()
 
         self.configServiceMesh()
         self.configSSOProperties()
@@ -842,9 +840,19 @@ class InstallApp(
             logger.warning(f"Failed to list IngressControllers: {e}")
             return "default"
 
+    # Catalogs that do not support path-based routing
+    _PATH_ROUTING_UNSUPPORTED_CATALOGS = ["260625", "260730", "260805", "260827", "260902"]
+
     @logMethodCall
     def configRoutingMode(self):
-        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
+        catalogVersion = self.getParam("mas_catalog_version") or ""
+        catalogSupportsPathRouting = not any(c in catalogVersion for c in self._PATH_ROUTING_UNSUPPORTED_CATALOGS)
+        if (
+            self.showAdvancedOptions
+            and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel"))
+            and self.getParam("mas_channel") != "9.2.x-feature"
+            and catalogSupportsPathRouting
+        ):
             self.printH1("Configure Routing Mode")
 
             masDomain = self._getMasDomainForDisplay()
@@ -2760,21 +2768,40 @@ class InstallApp(
             ]
         )
 
-        # Currently no 9.2.x patch support path based routing as that changes this will need to change
-        # to filter on the specific patch version
+        # Reject path-based routing for unsupported channel versions or catalogs
         if self.getParam("mas_routing_mode") == "path":
-            self.fatalError(
-                "\n".join(
-                    [
-                        "Path based routing mode not supported",
-                        "========================================================================",
-                        "Path based routing is not currently supported",
-                        "",
-                        "Use subdomain routing mode:",
-                        "   mas install --routing subdomain ...",
-                    ]
+            masChannel = self.getParam("mas_channel") or ""
+            catalogVersion = self.getParam("mas_catalog_version") or ""
+            if not isVersionEqualOrAfter("9.2.0", masChannel) or masChannel == "9.2.x-feature":
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Path-based routing is not supported on this channel",
+                            "========================================================================",
+                            f"Channel {masChannel} does not support path-based routing.",
+                            "",
+                            "Path-based routing requires MAS 9.2 or later.",
+                            "",
+                            "Use subdomain routing mode:",
+                            "   mas install --routing subdomain ...",
+                        ]
+                    )
                 )
-            )
+            elif any(c in catalogVersion for c in self._PATH_ROUTING_UNSUPPORTED_CATALOGS):
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Path-based routing is not supported with this catalog",
+                            "========================================================================",
+                            f"Catalog {catalogVersion} does not support path-based routing.",
+                            "",
+                            "Path-based routing requires catalog v9-260924 or later.",
+                            "",
+                            "Use subdomain routing mode:",
+                            "   mas install --routing subdomain ...",
+                        ]
+                    )
+                )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
