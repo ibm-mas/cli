@@ -65,3 +65,8 @@ ibm_aiservice_tenant:
   tenant_scheduling_config:
     {{ TENANT_SCHEDULING_CONFIG | indent(4)}}
 {% endif %}
+
+{% if TENANT_OPERATOR_CONFIG is defined and TENANT_OPERATOR_CONFIG != '' %}
+  tenant_operator_config:
+    {{ TENANT_OPERATOR_CONFIG | indent(4)}}
+{% endif %}

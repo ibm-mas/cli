@@ -60,7 +60,7 @@ spec:
     # Computed suite selector (set by fvt-monitor.yml Ansible playbook):
     #   monitor_fvt_with_manage : Monitor 8.10.x and 8.11.x (legacy, no health check)
     #   fvt_90x                 : Monitor 9.0.x (monitor_fvt_with_manage + fvt_health_check)
-    #   fvt_91x                 : Monitor 9.1.x and 9.2.x+ (new parallel suites + fvt_health_check)
+    #   fvt_91x                 : Monitor 9.1.x, 9.2.x+ and 9.3.x+ (new parallel suites + fvt_health_check)
     - name: fvt_test_suite
       type: string
       description: Which Monitor FVT suite grouping to run
@@ -176,7 +176,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 2b. Health-check suite - runs on Monitor 9.0.x, 9.1.x, 9.2.x+
+    # 2b. Health-check suite - runs on Monitor 9.0.x, 9.1.x, 9.2.x+, 9.3.x+
     # (NOT 8.10 or 8.11 — gated by fvt_test_suite being fvt_90x or fvt_91x)
     # Validates /healthcheck/ready and /healthcheck/live.
     - name: fvt-health-check
@@ -210,7 +210,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 3. New Parallel Monitor FVT Suites (9.1.x and 9.2.x+)
+    # 3. New Parallel Monitor FVT Suites (9.1.x, 9.2.x+, 9.3.x+)
     # -------------------------------------------------------------------------
     # All tasks in this section are gated on fvt_test_suite == "fvt_91x".
     # fvt_hierarchy_setup runs first and creates Default + Pipeline hierarchies

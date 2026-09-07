@@ -1104,6 +1104,13 @@ aiServiceArgGroup.add_argument(
     help="Path to the YAML file that contains the scheduling configuration for tenant",
     type=lambda x: isValidFile(installArgParser, x),
 )
+aiServiceArgGroup.add_argument(
+    "--tenant-operator-config-file",
+    dest="tenant_operator_config_file",
+    required=False,
+    help="Path to the YAML file that contains the tenant operator customization settings",
+    type=lambda x: isValidFile(installArgParser, x),
+)
 
 # IBM Cloud Pak for Data
 # -----------------------------------------------------------------------------
