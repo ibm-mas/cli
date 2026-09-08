@@ -86,7 +86,7 @@ fvt_gitops:
   enabled: true
   # enabled_apps: "suite" always runs; append app names from mas-apps-params.yaml
   # that have a matching suite directory in the fvt-gitops image.
-  enabled_apps: "{{ FVT_GITOPS_ENABLED_APPS | default('suite') }}"
+  enabled_apps: "{{ FVT_GITOPS_ENABLED_APPS | default('suite,manage') }}"
   image_repo: "{{ FVT_GITOPS_IMAGE_REPO | default('docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/mas-devops/fvt-gitops') }}"
   image_tag: "{{ FVT_GITOPS_IMAGE_TAG | default('latest') }}"
 {%- endif %}
