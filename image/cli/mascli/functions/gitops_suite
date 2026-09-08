@@ -446,6 +446,14 @@ function gitops_suite_noninteractive() {
         export PRODUCTION_DATABASE_ACCESS_TYPE=$1 && shift
         ;;
 
+      --fvt-gitops-enabled)
+        export FVT_GITOPS_ENABLED=$1 && shift
+        ;;
+
+      --fvt-gitops-enabled-apps)
+        export FVT_GITOPS_ENABLED_APPS=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_suite_help
@@ -662,6 +670,8 @@ function gitops_suite() {
   fi
   echo_reset_dim "Default welcome message .................... ${COLOR_MAGENTA}${WELCOME_MESSAGE}"
   echo_reset_dim "Production Database Access Type ............ ${COLOR_MAGENTA}${PRODUCTION_DATABASE_ACCESS_TYPE}"
+  echo_reset_dim "FVT GitOps Enabled ......................... ${COLOR_MAGENTA}${FVT_GITOPS_ENABLED}"
+  echo_reset_dim "FVT GitOps Enabled Apps .................... ${COLOR_MAGENTA}${FVT_GITOPS_ENABLED_APPS}"
   reset_colors
 
   if [[ -n "$DNS_PROVIDER" ]]; then
