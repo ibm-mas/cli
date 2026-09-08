@@ -768,7 +768,9 @@ class InstallApp(
         if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             return False
 
-        if self.mas_admin_mode in ["namespaced", "minimal"]:
+        # 9.2: namespaced/minimal always blocks DNS (ClusterIssuer not available in those modes)
+        # 9.3+: issuerKind is independent of admin mode — only block when Issuer is selected
+        if self.mas_admin_mode in ["namespaced", "minimal"] and not isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
             self.printDescription(
                 [
                     f"You are using the {self.mas_admin_mode} admin mode.",
@@ -2562,8 +2564,10 @@ class InstallApp(
                     )
 
             # Validate DNS integration restrictions
+            # 9.2: namespaced/minimal cannot use ClusterIssuer so DNS is always blocked.
+            # 9.3+: namespaced/minimal CAN use ClusterIssuer so DNS is allowed when ClusterIssuer is selected.
             if self.getParam("dns_provider") != "":
-                if self.mas_admin_mode in ["namespaced", "minimal"]:
+                if self.mas_admin_mode in ["namespaced", "minimal"] and not isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
                     self.fatalError(
                         "\n".join(
                             [
@@ -2574,7 +2578,7 @@ class InstallApp(
                         )
                     )
 
-                if self.mas_admin_mode == "cluster" and self.getParam("mas_issuer_kind") == "Issuer":
+                if self.getParam("mas_issuer_kind") == "Issuer":
                     self.fatalError(
                         "\n".join(
                             [
