@@ -524,7 +524,7 @@ function sm_get_secret_arn() {
 # This prevents backflow issues when moving data between prod/dev/test environments.
 #
 # The function:
-# 1. Checks if customer-level password exists at ibm-customer/{ICN}/facilities/{MAS_WORKSPACE_ID}-facilities--vs{ICN}-sn
+# 1. Checks if customer-level password exists at ibm-customer/{ICN}/facilities/{MAS_WORKSPACE_ID}-facilities--vs-sn
 # 2. If not, checks for legacy instance-level password and migrates it
 # 3. If neither exists, generates a new secure alphanumeric password
 # 4. Stores password at customer level for reuse across all customer instances
@@ -558,7 +558,7 @@ function manage_customer_mref_password() {
   echo "- Customer ICN: ${ICN}"
   
   # Define secret paths following customer-level secret pattern: ibm-customer/{ICN}/facilities/...
-  local CUSTOMER_SECRET_NAME="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}${MAS_WORKSPACE_ID}-facilities--vs${ICN}-sn"
+  local CUSTOMER_SECRET_NAME="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}${MAS_WORKSPACE_ID}-facilities--vs-sn"
   local LEGACY_SECRET_NAME="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage-mref-keystore-password"
   local LEGACY_INSTANCE_SECRET_NAME="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}manage-mref-keystore-password"
   
