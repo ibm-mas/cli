@@ -742,7 +742,8 @@ class InstallApp(
                 adminModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
                 self.mas_admin_mode = adminModeMap[adminModeInt]
 
-                if self.mas_admin_mode in ["namespaced", "minimal"]:
+                if self.mas_admin_mode in ["namespaced", "minimal"] and not isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
+                    # 9.2: namespaced/minimal requires Issuer because ClusterIssuer must needs cluster RBAC
                     self.setParam("mas_issuer_kind", "Issuer")
                 else:
                     self.printDescription(
@@ -2547,16 +2548,18 @@ class InstallApp(
                 else:
                     self.setParam("mas_issuer_kind", "Issuer")
 
-            # Validate ClusterIssuer requires cluster mode
-            if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.mas_admin_mode != "cluster":
-                self.fatalError(
-                    "\n".join(
-                        [
-                            "Invalid configuration for certificate issuer kind 'ClusterIssuer'",
-                            "ClusterIssuer can only be used when --admin-mode cluster is selected.",
-                        ]
+            # Validate ClusterIssuer requires cluster mode (9.2 only — in 9.3+ issuerKind is
+            # external-only so namespaced/minimal can freely use ClusterIssuer)
+            if not isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
+                if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.mas_admin_mode != "cluster":
+                    self.fatalError(
+                        "\n".join(
+                            [
+                                "Invalid configuration for certificate issuer kind 'ClusterIssuer'",
+                                "ClusterIssuer can only be used when --admin-mode cluster is selected.",
+                            ]
+                        )
                     )
-                )
 
             # Validate DNS integration restrictions
             if self.getParam("dns_provider") != "":
