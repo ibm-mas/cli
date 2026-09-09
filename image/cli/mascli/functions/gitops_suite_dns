@@ -140,9 +140,12 @@ function gitops_suite_dns() {
   echo_reset_dim "cis_apikey .............................. ${COLOR_MAGENTA}${CIS_APIKEY:0:8}<snip>"
   echo_reset_dim "mas_config_dir .......................... ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
  
-  # If CPD public route is enabled, add the cpd-public hostname to CIS DNS + edge cert
+  # If CPD public route is enabled, append cpd-public to CIS_ENTRIES_TO_ADD for DNS + edge cert.
+  # NOTE: only append if not already present to keep idempotent behaviour.
   if [[ "${CPD_PUBLIC_ROUTE_ENABLED}" == "true" ]]; then
-    export CIS_ENTRIES_TO_ADD="cpd-public.${CIS_SUBDOMAIN}"
+    if [[ "${CIS_ENTRIES_TO_ADD}" != *"cpd-public"* ]]; then
+      export CIS_ENTRIES_TO_ADD="${CIS_ENTRIES_TO_ADD:+${CIS_ENTRIES_TO_ADD},}cpd-public"
+    fi
     echo_reset_dim "CPD_PUBLIC_ROUTE_ENABLED ................ ${COLOR_MAGENTA}true"
     echo_reset_dim "CIS_ENTRIES_TO_ADD ...................... ${COLOR_MAGENTA}${CIS_ENTRIES_TO_ADD}"
   fi
