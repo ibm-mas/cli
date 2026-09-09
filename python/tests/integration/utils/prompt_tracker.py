@@ -16,7 +16,12 @@ from typing import Dict, Callable
 class PromptTracker:
     """
     Utility class to track which prompts were matched during tests.
-    Ensures each expected prompt is matched exactly once.
+
+    By default every registered pattern must be matched exactly once.  Wrap the
+    handler in a tuple ``(handler, expected_count)`` to declare a different
+    expected hit count, e.g. ``(lambda msg: "y", 2)`` for a prompt that fires
+    twice.  Use ``None`` as the count to skip the upper-bound check entirely.
+    When only handler is provided the expected match count defaults to 1.
     """
 
     def __init__(self, prompt_handlers: Dict[str, Callable[[str], str]]):
@@ -24,11 +29,19 @@ class PromptTracker:
         Initialize the prompt tracker.
 
         Args:
-            prompt_handlers: Dictionary mapping regex patterns to handler functions.
-                            Each handler receives the full message and returns the response.
+            prompt_handlers: Dictionary mapping regex patterns to handler functions
+                or ``(handler, expected_count)`` tuples.  ``expected_count`` may be
+                an integer (exact match) or ``None`` (at-least-once, no upper bound).
         """
-        self.prompt_handlers = prompt_handlers
-        self.match_counts = {pattern: 0 for pattern in prompt_handlers.keys()}
+        # Normalise every entry to (callable, expected_count)
+        self.prompt_handlers: Dict[str, tuple] = {}
+        for pattern, value in prompt_handlers.items():
+            if isinstance(value, tuple):
+                handler, expected_count = value
+            else:
+                handler, expected_count = value, 1
+            self.prompt_handlers[pattern] = (handler, expected_count)
+        self.match_counts = {pattern: 0 for pattern in self.prompt_handlers.keys()}
 
     def handle_prompt(self, *args, **kwargs) -> str:
         """
@@ -53,7 +66,7 @@ class PromptTracker:
             raise AssertionError(f"No message found in prompt call. Args: {args}, Kwargs: {kwargs}")
 
         # Try to match against all registered patterns
-        for pattern, handler in self.prompt_handlers.items():
+        for pattern, (handler, _) in self.prompt_handlers.items():
             if re.match(pattern, message):
                 self.match_counts[pattern] += 1
                 return handler(message)
@@ -74,11 +87,14 @@ class PromptTracker:
         """
         errors = []
         for pattern, count in self.match_counts.items():
+            _, expected_count = self.prompt_handlers[pattern]
             if count == 0:
                 if not allow_unmatched:
                     errors.append(f"Prompt pattern never matched: {pattern}")
-            elif count > 1:
-                errors.append(f"Prompt pattern matched {count} times (expected 1): {pattern}")
+            elif expected_count is None:
+                pass      # no upper-bound, matches indefinitely.
+            elif count != expected_count:
+                errors.append(f"Prompt pattern matched {count} times (expected {expected_count}): {pattern}")
 
         if len(errors) > 0:
             error_message = " | ".join(errors)
