@@ -9,7 +9,7 @@ ls -l /tmp/install/
 echo ""
 
 # If the local file is present, defer to this
-# Otherwise, check for a matching branch name in Artifactory
+# Otherwise, Check for a matching branch name in Artifactory
 # Otherwise, install the most recent version from Galaxy
 if [[ -e /tmp/install/ibm-mas_devops.tar.gz ]]; then
     echo "Installing local build of ansible-devops from archive"
