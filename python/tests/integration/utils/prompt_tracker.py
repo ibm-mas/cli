@@ -92,7 +92,7 @@ class PromptTracker:
                 if not allow_unmatched:
                     errors.append(f"Prompt pattern never matched: {pattern}")
             elif expected_count is None:
-                pass      # no upper-bound, matches indefinitely.
+                pass  # no upper-bound, matches indefinitely.
             elif count != expected_count:
                 errors.append(f"Prompt pattern matched {count} times (expected {expected_count}): {pattern}")
 

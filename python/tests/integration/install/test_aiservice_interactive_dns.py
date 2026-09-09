@@ -20,18 +20,13 @@ Three scenarios are covered:
   3. MAS has no custom domain — AI Service is configured independently with CIS DNS.
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from mas.cli.install.catalogs import supportedCatalogs
 from utils import InstallTestConfig, run_install_test
-
 
 # ---------------------------------------------------------------------------
 # Shared helpers
 # ---------------------------------------------------------------------------
+
 
 def _base_prompts(tmpdir):
     """Return the prompt handlers common to all three interactive DNS tests.
@@ -134,13 +129,14 @@ def _config(prompt_handlers, tmpdir):
         storage_provider_name="NFS Client",
         ocp_version="4.18.0",
         timeout_seconds=30,
-        argv=['--dev-mode']
+        argv=["--dev-mode"],
     )
 
 
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 def test_install_interactive_aiservice_inherits_cis_dns(tmpdir):
     """Test that AI Service inherits MAS CIS DNS config in interactive mode.
@@ -158,7 +154,7 @@ def test_install_interactive_aiservice_inherits_cis_dns(tmpdir):
     prompts.update(
         {
             # Matches only the MAS DNS prompt — ends with "management?" not "management for AI Service?"
-            ".*Configure domain.*certificate management\?.*": lambda msg: "y",
+            r".*Configure domain.*certificate management\?.*": lambda msg: "y",
             ".*Configure custom domain.*": lambda msg: "y",
             ".*MAS top-level domain.*": lambda msg: "mas.example.com",
             ".*DNS Provider.*": lambda msg: "2",  # IBM Cloud Internet Services
@@ -199,7 +195,7 @@ def test_install_interactive_aiservice_cloudflare_dns_skipped(tmpdir):
     prompts.update(
         {
             # Matches only the MAS DNS prompt — ends with "management?" not "management for AI Service?"
-            ".*Configure domain.*certificate management\?.*": lambda msg: "y",
+            r".*Configure domain.*certificate management\?.*": lambda msg: "y",
             ".*Configure custom domain.*": lambda msg: "y",
             ".*MAS top-level domain.*": lambda msg: "mas.example.com",
             ".*DNS Provider.*": lambda msg: "1",  # Cloudflare
@@ -237,7 +233,7 @@ def test_install_interactive_aiservice_cis_dns_no_mas_domain(tmpdir):
     prompts.update(
         {
             # Matches only the MAS DNS prompt — ends with "management?" not "management for AI Service?"
-            ".*Configure domain.*certificate management\?.*": lambda msg: "y",
+            r".*Configure domain.*certificate management\?.*": lambda msg: "y",
             ".*Configure custom domain.*": lambda msg: "n",
             # 18. AI Service DNS: MAS has no domain → full independent DNS flow
             ".*Configure.*domain.*certificate management for AI Service.*": lambda msg: "y",
