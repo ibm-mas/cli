@@ -740,7 +740,11 @@ class InstallApp(
                 adminModeMap = {1: "cluster", 2: "namespaced", 3: "minimal"}
                 self.mas_admin_mode = adminModeMap[adminModeInt]
 
-                if self.mas_admin_mode in ["namespaced", "minimal"]:
+                if isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
+                    # 9.3+: issuerKind is not prompted — it is derived later from the DNS provider/Let's encrypt choice.
+                    # Default (no dns provider, no LE) Issuer, set as fallback here.
+                    self.setParam("mas_issuer_kind", "Issuer")
+                elif self.mas_admin_mode in ["namespaced", "minimal"]:
                     self.setParam("mas_issuer_kind", "Issuer")
                 else:
                     self.printDescription(
@@ -759,10 +763,14 @@ class InstallApp(
                     self.setParam("mas_issuer_kind", "ClusterIssuer" if issuerKindChoice == 2 else "Issuer")
             elif self.mas_admin_mode == "":
                 self.mas_admin_mode = "cluster"
-                self.setParam("mas_issuer_kind", "ClusterIssuer")
+                if isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
+                    self.setParam("mas_issuer_kind", "Issuer")
+                else:
+                    self.setParam("mas_issuer_kind", "ClusterIssuer")
 
     def _handleDNSIntegrationRestriction(self):
-        if not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+        # DNS integration restrictions only apply to MAS 9.2.x
+        if not (isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and not isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel"))):
             return False
 
         if self.mas_admin_mode in ["namespaced", "minimal"]:
@@ -956,6 +964,8 @@ class InstallApp(
                 if self.yesOrNo("Do you want to use Let's Encrypt for certificate management"):
                     self.promptForString("Let's Encrypt e-mail", "mas_le_email")
                     self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
+                    if isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
+                        self.setParam("mas_issuer_kind", "Issuer")
 
     def _checkIngressControllerForPathRouting(self, controllerName="default"):
         """Check if a specific IngressController exists and is configured for path-based routing.
@@ -1127,6 +1137,8 @@ class InstallApp(
             "",
         ]
         self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
+        if isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
+            self.setParam("mas_issuer_kind", "ClusterIssuer")
 
     @logMethodCall
     def configDNSAndCertsCIS(self):
@@ -1151,6 +1163,8 @@ class InstallApp(
             "",
         ]
         self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
+        if isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
+            self.setParam("mas_issuer_kind", "ClusterIssuer")
 
     @logMethodCall
     def configDNSAndCertsRoute53(self):
@@ -1180,6 +1194,8 @@ class InstallApp(
         self.promptForString("AWS Route 53 e-mail", "route53_email")
 
         self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
+        if isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
+            self.setParam("mas_issuer_kind", "ClusterIssuer")
 
     @logMethodCall
     def configApps(self):
@@ -2548,47 +2564,61 @@ class InstallApp(
                     f"--admin-mode is required for MAS version 9.2 or higher (selected channel: {self.getParam('mas_channel')}). Valid options: cluster, namespaced, minimal"
                 )
 
-            # Set issuer kind based on admin mode if not explicitly set
-            if self.getParam("mas_issuer_kind") == "":
-                if self.mas_admin_mode == "cluster":
+            if isVersionEqualOrAfter("9.3.0", self.getParam("mas_channel")):
+                # MAS 9.3+: --mas-issuer-kind is not supported — issuerKind is derived automatically.
+                if hasattr(self.args, "mas_issuer_kind") and self.args.mas_issuer_kind is not None:
+                    self.fatalError(
+                        f"--mas-issuer-kind is not supported on MAS 9.3+ (selected channel: {self.getParam('mas_channel')}).\n"
+                        "issuerKind is derived automatically from your domain and routing configuration"
+                    )
+                if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_le_email") != "":
+                    self.setParam("mas_issuer_kind", "Issuer")
+                elif self.getParam("dns_provider") != "":
                     self.setParam("mas_issuer_kind", "ClusterIssuer")
                 else:
                     self.setParam("mas_issuer_kind", "Issuer")
+            else:
+                # Set issuer kind based on admin mode if not explicitly set
+                if self.getParam("mas_issuer_kind") == "":
+                    if self.mas_admin_mode == "cluster":
+                        self.setParam("mas_issuer_kind", "ClusterIssuer")
+                    else:
+                        self.setParam("mas_issuer_kind", "Issuer")
 
-            # Validate ClusterIssuer requires cluster mode
-            if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.mas_admin_mode != "cluster":
-                self.fatalError(
-                    "\n".join(
-                        [
-                            "Invalid configuration for certificate issuer kind 'ClusterIssuer'",
-                            "ClusterIssuer can only be used when --admin-mode cluster is selected.",
-                        ]
-                    )
-                )
-
-            # Validate DNS integration restrictions
-            if self.getParam("dns_provider") != "":
-                if self.mas_admin_mode in ["namespaced", "minimal"]:
+                # Validate ClusterIssuer requires cluster mode
+                if self.getParam("mas_issuer_kind") == "ClusterIssuer" and self.mas_admin_mode != "cluster":
                     self.fatalError(
                         "\n".join(
                             [
-                                f"Invalid configuration for admin mode '{self.mas_admin_mode}'",
-                                "DNS integration is not available in this mode.",
-                                "Remove DNS integration option --dns-provider, or switch to --admin-mode cluster and use --mas-issuer-kind ClusterIssuer.",
+                                "Invalid configuration for certificate issuer kind 'ClusterIssuer'",
+                                "ClusterIssuer can only be used when --admin-mode cluster is selected.",
                             ]
                         )
                     )
 
-                if self.mas_admin_mode == "cluster" and self.getParam("mas_issuer_kind") == "Issuer":
-                    self.fatalError(
-                        "\n".join(
-                            [
-                                "Invalid configuration for certificate issuer kind 'Issuer'",
-                                "DNS integration is not available when --mas-issuer-kind Issuer is selected.",
-                                "Remove DNS integration option --dns-provider, or use --mas-issuer-kind ClusterIssuer.",
-                            ]
+                # Validate DNS integration restrictions
+                if self.getParam("dns_provider") != "":
+                    if self.mas_admin_mode in ["namespaced", "minimal"]:
+                        self.fatalError(
+                            "\n".join(
+                                [
+                                    f"Invalid configuration for admin mode '{self.mas_admin_mode}'",
+                                    "DNS integration is not available in this mode.",
+                                    "Remove DNS integration option --dns-provider, or switch to --admin-mode cluster.",
+                                ]
+                            )
                         )
-                    )
+
+                    if self.mas_admin_mode == "cluster" and self.getParam("mas_issuer_kind") == "Issuer":
+                        self.fatalError(
+                            "\n".join(
+                                [
+                                    "Invalid configuration for certificate issuer kind 'Issuer'",
+                                    "DNS integration is not available when --mas-issuer-kind Issuer is selected.",
+                                    "Remove DNS integration option --dns-provider, or use --mas-issuer-kind ClusterIssuer.",
+                                ]
+                            )
+                        )
         else:
             if self.mas_admin_mode != "":
                 self.fatalError(f"--admin-mode is not supported for MAS version 9.1 and earlier (selected channel: {self.getParam('mas_channel')})")
