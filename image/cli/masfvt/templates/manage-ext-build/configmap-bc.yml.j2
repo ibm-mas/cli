@@ -1,0 +1,71 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: manage-build-script-bc
+  namespace: manage-build
+data:
+  build_bc.py: |
+    import json, sys
+
+    mode = sys.argv[1]
+    dockerfile = sys.argv[2]
+
+    if mode == "admin":
+        bc = {
+            "apiVersion": "build.openshift.io/v1",
+            "kind": "BuildConfig",
+            "metadata": {"name": "manage-admin-build", "namespace": "manage-build"},
+            "spec": {
+                "resources": {
+                    "requests": {"cpu": "1", "memory": "1Gi", "ephemeral-storage": "30Gi"},
+                    "limits":   {"cpu": "3", "memory": "4Gi", "ephemeral-storage": "100Gi"}
+                },
+                "source": {
+                    "type": "Dockerfile",
+                    "dockerfile": dockerfile,
+                    "configMaps": [{"configMap": {"name": sys.argv[3]}, "destinationDir": "tmp_build_files"}],
+                    "secrets":    [{"secret":    {"name": sys.argv[4]}, "destinationDir": "tmp_build_files"}]
+                },
+                "strategy": {
+                    "type": "Docker",
+                    "dockerStrategy": {
+                        "forcePull": True,
+                        "pullSecret": {"name": "ibm-entitlement"},
+                        "imageOptimizationPolicy": "SkipLayers"
+                    }
+                },
+                "output": {
+                    "to": {"kind": "DockerImage", "name": sys.argv[5]},
+                    "pushSecret": {"name": "manage-build-push-secret"}
+                }
+            }
+        }
+    else:
+        bc = {
+            "apiVersion": "build.openshift.io/v1",
+            "kind": "BuildConfig",
+            "metadata": {"name": "manage-bundle-" + sys.argv[3] + "-build", "namespace": "manage-build"},
+            "spec": {
+                "resources": {
+                    "requests": {"cpu": "1", "memory": "1Gi", "ephemeral-storage": "30Gi"},
+                    "limits":   {"cpu": "3", "memory": "4Gi", "ephemeral-storage": "100Gi"}
+                },
+                "source": {"type": "Dockerfile", "dockerfile": dockerfile},
+                "strategy": {
+                    "type": "Docker",
+                    "dockerStrategy": {
+                        "forcePull": True,
+                        "pullSecret": {"name": "manage-build-combined-pull"},
+                        "imageOptimizationPolicy": "SkipLayers",
+                        "buildArgs": [{"name": "adminImagePath", "value": sys.argv[4]}]
+                    }
+                },
+                "output": {
+                    "to": {"kind": "DockerImage", "name": sys.argv[5]},
+                    "pushSecret": {"name": "manage-build-push-secret"}
+                }
+            }
+        }
+
+    print(json.dumps(bc))

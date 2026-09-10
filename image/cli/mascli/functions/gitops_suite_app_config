@@ -680,9 +680,20 @@ function gitops_suite_app_config() {
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
 
-  # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage, facilites
+  # Store per-app manual certs in AWS Secrets Manager and export the secret name
+  # for use by the Jinja2 template as an AVP <path:...> reference.
+  # Only required for manage, health, facilities (apps that have per-workspace certs).
   # ---------------------------------------------------------------------------
   if [ "${MAS_MANUAL_CERT_MGMT}" == "true" ] ; then
+    export SECRET_NAME_MANUAL_CERTS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manual_certs"
+    export MANUAL_CERT_APP_HAS_CERT="false"
+    export MANUAL_CERT_APP_HAS_CA="false"
+
+    declare -A tls_secret_name
+    tls_secret_name['health']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
+    tls_secret_name['manage']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
+    tls_secret_name['facilities']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-public-facilities-tls"
+
     if [[ -n "$MAS_MANUAL_CERTS_YAML" ]]; then
       # Resolve the path relative to CURRENT_DIR if it's not absolute
       if [[ "$MAS_MANUAL_CERTS_YAML" != /* ]]; then
@@ -690,34 +701,34 @@ function gitops_suite_app_config() {
       else
         MAS_MANUAL_CERTS_YAML_RESOLVED="$MAS_MANUAL_CERTS_YAML"
       fi
-      
+
       if [[ -s "$MAS_MANUAL_CERTS_YAML_RESOLVED" ]]; then
+        if [[ -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
+          echo
+          echo_h2 "Writing manual cert secret for app ${MAS_APP_ID} to AWS Secrets Manager"
 
-      declare -A tls_secret_name
-      tls_secret_name['health']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
-      tls_secret_name['manage']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
-      tls_secret_name['facilities']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-public-facilities-tls"
+          local tls_crt tls_key ca_crt
+          tls_crt=$(yq eval ".manual_certs.${MAS_APP_ID}_tls_crt // \"\"" "${MAS_MANUAL_CERTS_YAML_RESOLVED}")
+          tls_key=$(yq eval ".manual_certs.${MAS_APP_ID}_tls_key // \"\"" "${MAS_MANUAL_CERTS_YAML_RESOLVED}")
+          ca_crt=$(yq eval  ".manual_certs.${MAS_APP_ID}_ca_crt  // \"\"" "${MAS_MANUAL_CERTS_YAML_RESOLVED}")
 
-      if [[ -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
-
-        echo
-        echo_h2 "Read manual cert files for app ${MAS_APP_ID} from file ${MAS_MANUAL_CERTS_YAML}, and set to gitops template"
-
-        tls_crt_filter_query=.manual_certs.${MAS_APP_ID}_tls_crt
-        tls_key_filter_query=.manual_certs.${MAS_APP_ID}_tls_key
-        ca_crt_filter_query=.manual_certs.${MAS_APP_ID}_ca_crt
-
-        export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
-        export TLS_CERT=$(yq eval "$tls_crt_filter_query" ${MAS_MANUAL_CERTS_YAML_RESOLVED})
-        export TLS_KEY=$(yq eval  "$tls_key_filter_query" ${MAS_MANUAL_CERTS_YAML_RESOLVED})
-        export CA_CERT=$(yq eval  "$ca_crt_filter_query"  ${MAS_MANUAL_CERTS_YAML_RESOLVED})
-
-        echo -e "\n - PUBLIC_TLS_SECRET_NAME ................ ${PUBLIC_TLS_SECRET_NAME}"
-        echo -e "\n - TLS_CERT CONTENT ...................... ${TLS_CERT}"
-        echo -e "\n - TLS_KEY CONTENT ....................... ${TLS_KEY}"
-        echo -e "\n - CA_CERT CONTENT ....................... ${CA_CERT}"
-
-      fi
+          if [[ -n "${tls_crt}" && "${tls_crt}" != "null" ]]; then
+            [[ "${tls_key}" == "null" ]] && tls_key=""
+            [[ "${ca_crt}"  == "null" ]] && ca_crt=""
+            local secret_name="${SECRET_NAME_MANUAL_CERTS_PREFIX}${SECRETS_KEY_SEPERATOR}${MAS_APP_ID}"
+            local cert_tags="[{\"Key\": \"source\", \"Value\": \"gitops_suite_app_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+            local secret_json
+            secret_json=$(printf '{"tls_crt":"%s","tls_key":"%s","ca_crt":"%s"}' \
+              "${tls_crt}" "${tls_key}" "${ca_crt}")
+            sm_update_secret "${secret_name}" "${secret_json}" "${cert_tags}"
+            export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
+            export MANUAL_CERT_APP_HAS_CERT="true"
+            [[ -n "${ca_crt}" ]] && export MANUAL_CERT_APP_HAS_CA="true"
+            echo " - manual cert secret written for app: ${MAS_APP_ID} -> ${secret_name}"
+          else
+            echo " - no manual cert for app: ${MAS_APP_ID} (skipping secret)"
+          fi
+        fi
       else
         echo
         echo_h2 "WARNING: Specified manual certs file not found or empty: $MAS_MANUAL_CERTS_YAML_RESOLVED"

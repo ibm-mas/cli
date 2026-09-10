@@ -103,6 +103,10 @@ spec:
           value: $(params.restore_manage_db)
         - name: include_manage_app_archive
           value: $(params.restore_manage_app)
+        - name: include_facilities_app_archive
+          value: $(params.restore_facilities_app)
+        - name: include_facilities_db_archive
+          value: $(params.restore_facilities_db)
 
         # S3 parameters
         - name: aws_access_key_id

@@ -245,6 +245,13 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
+    "--le-email",
+    dest="mas_le_email",
+    required=False,
+    help="E-mail address to register with Let's Encrypt. Providing this implicitly enables Let's Encrypt HTTP-01 certificate management (path routing mode only, cluster must be publicly accessible on port 80)",
+)
+
+masAdvancedArgGroup.add_argument(
     "--mas-issuer-kind",
     dest="mas_issuer_kind",
     required=False,
@@ -1103,6 +1110,13 @@ aiServiceArgGroup.add_argument(
     dest="tenant_scheduling_config_file",
     required=False,
     help="Path to the YAML file that contains the scheduling configuration for tenant",
+    type=lambda x: isValidFile(installArgParser, x),
+)
+aiServiceArgGroup.add_argument(
+    "--tenant-operator-config-file",
+    dest="tenant_operator_config_file",
+    required=False,
+    help="Path to the YAML file that contains the tenant operator customization settings",
     type=lambda x: isValidFile(installArgParser, x),
 )
 

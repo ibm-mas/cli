@@ -64,60 +64,60 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260827</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
+          <td><span style="font-weight: bold">v9-260827</span><br/><a href="v9-260827-amd64/">amd64</a> | <a href="v9-260827-s390x/">s390x</a> | <a href="v9-260827-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.3.1</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260730</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
+          <td><span style="font-weight: bold">v9-260730</span><br/><a href="v9-260730-amd64/">amd64</a> | <a href="v9-260730-s390x/">s390x</a> | <a href="v9-260730-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260625</span><br/><a href="v9-260625-amd64/">amd64</a> | <a href="v9-260625-s390x/">s390x</a> | <a href="v9-260625-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest</td>
+          <td>latest/ 21.10.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260527</span><br/><a href="v9-260527-amd64/">amd64</a> | <a href="v9-260527-s390x/">s390x</a> | <a href="v9-260527-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest</td>
+          <td>latest/ 21.5.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260430</span><br/><a href="v9-260430-amd64/">amd64</a> | <a href="v9-260430-s390x/">s390x</a> | <a href="v9-260430-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest</td>
+          <td>20.2.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260326</span><br/><a href="v9-260326-amd64/">amd64</a> | <a href="v9-260326-s390x/">s390x</a> | <a href="v9-260326-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest/ 19.4.0</td>
+          <td>19.4.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260226</span><br/><a href="v9-260226-amd64/">amd64</a> | <a href="v9-260226-s390x/">s390x</a> | <a href="v9-260226-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest/ 18.18.1</td>
+          <td>18.18.1</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260129</span><br/><a href="v9-260129-amd64/">amd64</a> | <a href="v9-260129-s390x/">s390x</a> | <a href="v9-260129-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest/ 18.11.0</td>
+          <td>18.11.0</td>
         </tr>
         </tbody>
     </table>

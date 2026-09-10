@@ -112,6 +112,11 @@ spec:
       default: "false"
       description: "Set this to 'true' to enable launch of the IVT pipeline at the end of applications FVT"
 
+    - name: manage_skip_image_build
+      type: string
+      default: "false"
+      description: "Set this to 'true' to trigger the external Manage image build job (required when the manage namespace has a LimitRange restricting ephemeral storage)"
+
     # Finalize
     # -------------------------------------------------------------------------
     - name: finalize
@@ -298,6 +303,28 @@ spec:
       runAfter:
         - launchfvt-sls
         - launchfvt-core-pre92
+
+    # Manage External Image Build
+    # -------------------------------------------------------------------------
+    # Runs immediately after approval-suite-verify (Core ready).
+    # Step 1 polls until ManageWorkspace CR exists (~60-85 min after install start).
+    # Step 2 submits the OCP Job that builds admin + bundle images and patches
+    #         ManageWorkspace.spec.settings.usePrebuiltImages.
+    # Step 3 waits for the Job to complete (3h budget, 60s poll).
+    - name: manage-external-build
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-manage-external-build
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+      when:
+        - input: $(params.manage_skip_image_build)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
 
 
     # 2. Application FVT - Assist
