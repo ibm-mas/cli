@@ -59,6 +59,7 @@ python/mas-*.spec
 
 /mkdocs_plugins/mkdocs_mas_catalogs.egg-info
 /mkdocs_plugins/mkdocs_mas_plugins.egg-info
+/.mkdocs_cache
 /.venv-docs
 rbac-install.yaml
 

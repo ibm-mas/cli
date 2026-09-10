@@ -3,6 +3,9 @@
 # - trustcas: changes Suite config and verifies using SCIM whether defult CAs are included (or not) in the truststore
 # - adoptionusagemetering: I can't see anything disruptive happening in this suite at all !?
 # - coreidp-ldap: reconfigures MAS IDP multiple times
+# - coreidp-scim: reconfigures MAS IDP multiple times
+# - coreidp-ldap-disruptive: reconfigures MAS IDP multiple times
+# - coreidp-scim-disruptive: reconfigures MAS IDP multiple times
 # - coreidp-saml: reconfigures MAS IDP multiple times
 # - coreidp-saml-ui: ??
 # - coreidp-ssoconfig: ??
@@ -54,7 +57,7 @@
   runAfter:
     - authservice
 
-# 5. coreidp-ldap
+# 5. coreidp-ldap + coreidp-scim (parallel)
 # -------------------------------------------------------------------------
 - name: coreidp-ldap
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -67,7 +70,41 @@
     - core-trustcas
     - adoptionusagemetering
 
-# 6. coreidp-saml
+- name: coreidp-scim
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-scim
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - smtp
+    - core-trustcas
+    - adoptionusagemetering
+
+# 6. coreidp-ldap-disruptive
+# -------------------------------------------------------------------------
+- name: coreidp-ldap-disruptive
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-ldap-disruptive
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreidp-ldap
+    - coreidp-scim
+
+# 7. coreidp-scim-disruptive
+# -------------------------------------------------------------------------
+- name: coreidp-scim-disruptive
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-scim-disruptive
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreidp-ldap-disruptive
+
+# 8. coreidp-saml
 # -------------------------------------------------------------------------
 - name: coreidp-saml
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -76,9 +113,9 @@
       value: coreidp-saml
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - coreidp-ldap
+    - coreidp-scim-disruptive
 
-# 7. coreidp-saml-ui
+# 9. coreidp-saml-ui
 # -------------------------------------------------------------------------
 - name: coreidp-saml-ui
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -89,7 +126,7 @@
   runAfter:
     - coreidp-saml
 
-# 8. coreidp-oidc
+# 10. coreidp-oidc
 # -------------------------------------------------------------------------
 - name: coreidp-oidc
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -100,7 +137,7 @@
   runAfter:
     - coreidp-saml-ui
 
-# 9. coreidp-ssoconfig
+# 11. coreidp-ssoconfig
 # -------------------------------------------------------------------------
 - name: coreidp-ssoconfig
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -111,7 +148,7 @@
   runAfter:
     - coreidp-oidc
 
-# 10. licensingapi
+# 12. licensingapi
 # -------------------------------------------------------------------------
 - name: licensingapi
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -122,7 +159,7 @@
   runAfter:
     - coreidp-ssoconfig
 
-# 11. usagebilling
+# 13. usagebilling
 # -------------------------------------------------------------------------
 - name: usagebilling
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -138,7 +175,7 @@
     - name: pod-templates
       workspace: shared-pod-templates
 
-# 12. operatormaturity
+# 14. operatormaturity
 # -------------------------------------------------------------------------
 - name: operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
