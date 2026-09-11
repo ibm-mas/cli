@@ -752,9 +752,12 @@ class MustGatherApp(BaseApp):
 
         try:
             # Calculate checksums
+            # usedforsecurity=False is required in FIPS mode: MD5/SHA1 are blocked by the
+            # FIPS provider when used for security purposes, but are permitted for non-security
+            # uses such as Artifactory upload checksums.
             with Halo(text="Calculating checksums", spinner=self.spinner) as h:
-                md5Hash = hashlib.md5()
-                sha1Hash = hashlib.sha1()
+                md5Hash = hashlib.md5(usedforsecurity=False)
+                sha1Hash = hashlib.sha1(usedforsecurity=False)
 
                 with open(archivePath, "rb") as f:
                     while chunk := f.read(8192):
