@@ -1673,6 +1673,8 @@ function generate_storage_class_def() {
     fi
 
     STORAGE_CLASS_DEF='{"provisioner": "efs.csi.aws.com", "parameters": { "fileSystemId": "'${EFS_FILESYSTEM_ID}'", "directoryPerms": "777", "basePath": "/rosa-'${STORAGE_CLASS_NAME}'", "gid": "0", "uid": "0", "provisioningMode": "efs-ap" }}'
+  elif [[ "${STORAGE_CLASS_TYPE}" == "gp3" ]]; then
+    STORAGE_CLASS_DEF='{"provisioner": "ebs.csi.aws.com", "parameters": { "type": "gp3", "encrypted": "true" }}'
   else
     echo "Unsupported StorageClass type: ${STORAGE_CLASS_TYPE}" >&2
     exit 1
