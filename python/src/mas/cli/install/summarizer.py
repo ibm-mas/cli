@@ -125,11 +125,15 @@ class InstallSummarizerMixin:
         else:
             self.printSummary("Install Mode", "Connected Install")
 
-        if "mas_domain" in self.params:
+        # AI Service domain is added to the AI Service section along with other AI Service-specific configurations.
+        # The condition below prevents the DNS provider summary from being displayed twice when the MAS and AI Service domains are configured.
+        if "mas_domain" in self.params or "aiservice_domain" in self.params:
             print()
-            self.printParamSummary("Domain Name", "mas_domain")
+            if self.getParam("mas_domain") != "":
+                self.printParamSummary("Domain Name", "mas_domain")
             self.printParamSummary("DNS Provider", "dns_provider")
-            self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
+            if self.getParam("mas_cluster_issuer") != "":
+                self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
 
             if self.getParam("ocp_ingress") != "":
                 self.printParamSummary("OCP Ingress", "ocp_ingress")
@@ -143,8 +147,19 @@ class InstallSummarizerMixin:
                 self.printParamSummary("CIS API Key", "cis_apikey")
                 self.printParamSummary("CIS CRN", "cis_crn")
                 self.printParamSummary("CIS subdomain", "cis_subdomain")
+                self.printSummary("Enhanced Security", "Yes" if self.getParam("cis_enhanced_security") == "true" else "No")
+                if self.getParam("cis_enhanced_security") == "true":
+                    self.printParamSummary("CIS Service Name", "cis_service_name")
+                    self.printSummary("Update Existing DNS Entries", "Yes" if self.getParam("update_dns_entries") == "true" else "No")
+                    self.printSummary("WAF Enabled", "Yes" if self.getParam("cis_waf") == "true" else "No")
+                    self.printSummary("Proxy Enabled", "Yes" if self.getParam("cis_proxy") == "true" else "No")
+                    self.printSummary("Delete Wildcard DNS Entries", "Yes" if self.getParam("delete_wildcards") == "true" else "No")
+                    self.printSummary("Override Edge Certificates", "Yes" if self.getParam("override_edge_certs") == "true" else "No")
             elif self.getParam("dns_provider") == "route53":
-                pass
+                self.printParamSummary("Route53 e-mail", "route53_email")
+                self.printParamSummary("Route53 hosted zone name", "route53_hosted_zone_name")
+                self.printParamSummary("Route53 hosted zone region", "route53_hosted_zone_region")
+                self.printParamSummary("Route53 subdomain", "route53_subdomain")
             elif self.getParam("dns_provider") == "":
                 pass
 
@@ -376,7 +391,10 @@ class InstallSummarizerMixin:
             self.printParamSummary("Environment Type", "environment_type")
             self.printSummary("AI Data Science Platform", "Red Hat OpenShift AI (RHOAI)" if self.getParam("rhoai") == "true" else "Open Data Hub (ODH)")
 
-            if "aiservice_certificate_issuer" in self.params:
+            if self.getParam("aiservice_domain") != "":
+                print()
+                self.printParamSummary("Domain Name", "aiservice_domain")
+                self.printParamSummary("DNS Provider", "dns_provider")
                 self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
             # Database configuration - matches standalone aiservice-install pattern

@@ -368,6 +368,8 @@ class InstallTestHelper:
                 assert self.prompt_tracker is not None, "prompt_tracker should be initialized"
                 self.prompt_tracker.verify_all_prompts_matched()
 
+                return app
+
 
 def run_install_test(tmpdir, config: InstallTestConfig, install_type: str = "mas"):
     """
@@ -378,12 +380,15 @@ def run_install_test(tmpdir, config: InstallTestConfig, install_type: str = "mas
         config: Test configuration
         install_type: Type of installation - 'mas' or 'aiservice' (default: 'mas')
 
+    Returns:
+        The app instance after install completes, for asserting params.
+
     Raises:
         TimeoutError: If test times out
         AssertionError: If prompt verification fails
     """
     helper = InstallTestHelper(tmpdir, config, install_type)
-    helper.run_install_test()
+    return helper.run_install_test()
 
 
 def run_aiservice_install_test(tmpdir, config: InstallTestConfig):
@@ -394,8 +399,11 @@ def run_aiservice_install_test(tmpdir, config: InstallTestConfig):
         tmpdir: pytest tmpdir fixture
         config: Test configuration
 
+    Returns:
+        The app instance after install completes, for asserting params.
+
     Raises:
         TimeoutError: If test times out
         AssertionError: If prompt verification fails
     """
-    run_install_test(tmpdir, config, install_type="aiservice")
+    return run_install_test(tmpdir, config, install_type="aiservice")
