@@ -29,6 +29,7 @@
         - cp4d-service
         - cp4d-service-update
         - cp4d
+        - cp4d-uninstall
         - db2
         - dro
         - eck
