@@ -61,6 +61,7 @@ def _base_prompts(tmpdir):
         ".*Cluster ingress certificate secret name.*": lambda msg: "",
         ".*Configure manual certificates.*": lambda msg: "n",
         ".*Routing Mode.*": lambda msg: "1",
+        ".*Do you want to use Let's Encrypt for certificate management.*": lambda msg: "n",
         ".*Configure ingress namespace ownership policy to enable path-based routing for MAS.*": lambda msg: "y",
         ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "n",
         ".*Configure SSO properties.*": lambda msg: "n",

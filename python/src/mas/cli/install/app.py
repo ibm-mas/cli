@@ -1896,6 +1896,8 @@ class InstallApp(
                                 "DNS for AI Service will therefore need to be configured manually.",
                             ]
                         )
+                        self.setParam("aiservice_domain", "")
+                        self.setParam("aiservice_certificate_issuer", "")
                     else:
                         self.printDescription(
                             [
