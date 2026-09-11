@@ -23,6 +23,28 @@ from datetime import datetime, UTC
 from pymongo import MongoClient
 
 
+def getConsoleURL():
+    """Resolve the OpenShift console URL from the in-cluster route.
+
+    Uses oc to query the console route in openshift-console namespace,
+    matching the pattern used throughout the CLI bash infrastructure.
+
+    Returns:
+        str: HTTPS console URL, or empty string if lookup fails.
+    """
+    try:
+        result = subprocess.run(
+            ["oc", "-n", "openshift-console", "get", "route", "console", "-o", "jsonpath={.spec.host}"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return f"https://{result.stdout.strip()}"
+    except Exception:
+        pass
+    return ""
+
+
 def send_slack_notification(action, pipeline_name, instance_id, rc=0):
     """
     Send Slack notification for pipeline start or completion using CLI command.
@@ -35,6 +57,7 @@ def send_slack_notification(action, pipeline_name, instance_id, rc=0):
     """
     slack_token = os.getenv("SLACK_TOKEN", "")
     slack_channel = os.getenv("SLACK_CHANNEL", "")
+    env = None
 
     if not slack_token or not slack_channel:
         return
@@ -43,6 +66,8 @@ def send_slack_notification(action, pipeline_name, instance_id, rc=0):
         print(f"Sending Slack notification: action={action}, pipeline={pipeline_name}, instance={instance_id}")
 
         if action == "pipeline-start":
+            env = os.environ.copy()
+            env["OCP_CONSOLE_URL"] = getConsoleURL()
             cmd = [
                 "python3",
                 "/opt/app-root/bin/mas-devops-notify-slack",
@@ -71,7 +96,7 @@ def send_slack_notification(action, pipeline_name, instance_id, rc=0):
             return
 
         # Run the command, ignore errors (|| true equivalent)
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if result.returncode == 0:
             print("Slack notification sent successfully")
         else:
