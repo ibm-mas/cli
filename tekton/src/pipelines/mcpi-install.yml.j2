@@ -1,0 +1,126 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: mcpi-install
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
+    - name: shared-additional-configs
+    # The SLS entitlement key file that will be installed during install-sls
+    - name: shared-entitlement
+    # Pre-generated certificates
+    - name: shared-certificates
+    # PodTemplates configurations
+    - name: shared-pod-templates
+
+  params:
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+
+    # 2. Installation
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4) }}
+
+    - name: mas_instance_id
+      type: string
+      description: MAS Instance ID
+
+    - name: ibm_entitlement_key
+      type: string
+      description: IBM entitlement key
+
+    # MCPI Add-on Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-mcpi.yml.j2') | indent(4) }}
+
+  tasks:
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
+    # 1. IBM Operator Catalog
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
+      runAfter:
+        - pipeline-start
+
+    # 2. Certificate Manager
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
+      runAfter:
+        - ibm-catalogs
+
+    # 3. IBM SLS
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | indent(4) }}
+      runAfter:
+        - cert-manager
+
+    # 4. DRO
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/dro.yml.j2') | indent(4) }}
+      runAfter:
+        - ibm-catalogs
+
+    # 5. Install and configure MCPI
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/mcpi/mcpi.yml.j2') | indent(4) }}
+      runAfter:
+        - sls
+        - dro
+
+    # 6. Verify health of the cluster
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
+      runAfter:
+        - mcpi
+
+  finally:
+    # Update synchronization configmap
+    # -------------------------------------------------------------------------
+    - name: sync-install
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-install
+        - name: configmap_value
+          value: $(tasks.status)
+
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
