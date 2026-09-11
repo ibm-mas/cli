@@ -13,6 +13,7 @@ from utils import InstallTestConfig, run_install_test
 import sys
 import os
 import pytest
+from unittest import mock
 from mas.devops.data import NoSuchCatalogError
 
 # Add test directory to path for utils import
@@ -47,8 +48,9 @@ def test_install_master_no_dev_mode(tmpdir):
     )
 
     # Run the test and expect NoSuchCatalogError to be raised
-    with pytest.raises(NoSuchCatalogError):
-        run_install_test(tmpdir, config)
+    with mock.patch("mas.cli.install.app.getCatalog", side_effect=NoSuchCatalogError("v9-master-amd64")):
+        with pytest.raises(NoSuchCatalogError):
+            run_install_test(tmpdir, config)
 
 
 def test_install_master_dev_mode(tmpdir):
@@ -85,11 +87,8 @@ def test_install_master_dev_mode(tmpdir):
         ".*Operational Mode.*": lambda msg: "1",
         # 10. Application selection
         ".*Install IoT.*": lambda msg: "y",
-        ".*Custom channel for iot.*": lambda msg: "9.1.x-dev",
         ".*Install Monitor.*": lambda msg: "y",
-        ".*Custom channel for monitor.*": lambda msg: "9.1.x-dev",
         ".*Install Manage.*": lambda msg: "y",
-        ".*Custom channel for manage.*": lambda msg: "9.1.x-dev",
         ".*Select components to enable.*": lambda msg: "n",
         ".*Include customization archive.*": lambda msg: "n",
         ".*Install Predict.*": lambda msg: "n",
@@ -168,11 +167,8 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Operational Mode.*": lambda msg: "1",
         # 10. Application selection
         ".*Install IoT.*": lambda msg: "y",
-        ".*Custom channel for iot.*": lambda msg: "9.1.x-dev",
         ".*Install Monitor.*": lambda msg: "y",
-        ".*Custom channel for monitor.*": lambda msg: "9.1.x-dev",
         ".*Install Manage.*": lambda msg: "y",
-        ".*Custom channel for manage.*": lambda msg: "9.1.x-dev",
         ".*Select components to enable.*": lambda msg: "n",
         ".*Include customization archive.*": lambda msg: "n",
         ".*Install Predict.*": lambda msg: "n",

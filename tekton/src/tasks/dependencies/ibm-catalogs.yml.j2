@@ -23,6 +23,10 @@ spec:
       type: string
       description: Set when using development catalog in air gap
       default: ""
+    - name: mas_icr_cpopen
+      type: string
+      description: Override the ICR cpopen registry (used in dev mode)
+      default: ""
 
     # Optional parameter to uninstall IBM Catalogs
     - name: ibm_catalogs_action
@@ -50,6 +54,8 @@ spec:
         value: $(params.mas_catalog_version)
       - name: MAS_CATALOG_DIGEST
         value: $(params.mas_catalog_digest)
+      - name: MAS_ICR_CPOPEN
+        value: $(params.mas_icr_cpopen)
 
       # Optional parameter to uninstall IBM Catalogs
       - name: IBM_CATALOGS_ACTION
