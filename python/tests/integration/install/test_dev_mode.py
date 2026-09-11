@@ -250,7 +250,9 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 4. Routing Mode Configuration - Select path-based routing
         ".*Routing Mode.*": lambda msg: "1",  # Select path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
-        # 5. Service Mesh Configuration - to use service mesg
+        # 4.1. Let's Encrypt HTTP-01 - decline, use existing cert setup
+        ".*Do you want to use Let.*s Encrypt.*": lambda msg: "n",
+        # 5. Service Mesh Configuration - to use service mesh
         ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",  # Select to use service mesh
         # 5. Configure IngressController for path-based routing
         ".*Configure ingress namespace ownership.*": lambda msg: "y",  # Agree to configure
