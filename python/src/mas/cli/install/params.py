@@ -79,6 +79,8 @@ optionalParams = [
     "route53_hosted_zone_region",
     "route53_subdomain",
     "route53_email",
+    # Let's Encrypt HTTP-01
+    "mas_le_email",
     # CIS
     "cis_email",
     "cis_apikey",

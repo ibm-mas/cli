@@ -124,6 +124,25 @@ spec:
       type: string
       description: AI Service instance id
 
+    # Certificate issuer kind — ClusterIssuer (cluster mode) or Issuer (namespaced/minimal)
+    - name: mas_issuer_kind
+      type: string
+      default: ""
+
+    # IngressController name used to derive the HTTP-01 solver ingressClassName
+    - name: mas_ingress_controller_name
+      type: string
+      default: ""
+
+    # Let's Encrypt HTTP-01
+    - name: mas_le_email
+      type: string
+      default: ""
+    - name: mas_cluster_issuer
+      type: string
+      default: ""
+
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -194,6 +213,14 @@ spec:
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_ROUTING_MODE
         value: $(params.mas_routing_mode)
+      - name: MAS_ISSUER_KIND
+        value: $(params.mas_issuer_kind)
+      - name: MAS_INGRESS_CONTROLLER_NAME
+        value: $(params.mas_ingress_controller_name)
+      - name: MAS_LE_EMAIL
+        value: $(params.mas_le_email)
+      - name: MAS_CLUSTER_ISSUER
+        value: $(params.mas_cluster_issuer)
 
       # AI Service
       - name: AISERVICE_DOMAIN
