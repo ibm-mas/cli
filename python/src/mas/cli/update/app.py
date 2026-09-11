@@ -712,7 +712,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     return
                 elif len(cpds) == 1:
                     cpdUpgradePath = {
-                        "5.2.0": "5.3.1",
+                        "5.3.1": "5.4.0",
+                        "5.2.0": ["5.3.1", "5.4.0"],
                         "5.1.3": "5.2.0",
                         "5.0.0": "5.1.3",
                     }
@@ -747,13 +748,18 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         self.fatalError(
                             "Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nContact IBM support for assistance"
                         )
-                    elif cpdUpgradePath[cpdInstanceVersion] != cpdTargetVersion:
+
+                    validNextVersions = cpdUpgradePath[cpdInstanceVersion]
+                    if isinstance(validNextVersions, str):
+                        validNextVersions = [validNextVersions]
+
+                    if cpdTargetVersion not in validNextVersions:
                         h.stop_and_persist(
                             symbol=self.successIcon,
                             text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) can not be updated to {cpdTargetVersion} directly",
                         )
                         self.fatalError(
-                            f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{cpdUpgradePath[cpdInstanceVersion]}:\n- https://ibm-mas.github.io/cli/catalogs"
+                            f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{validNextVersions[0]}:\n- https://ibm-mas.github.io/cli/catalogs"
                         )
 
                     currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"
