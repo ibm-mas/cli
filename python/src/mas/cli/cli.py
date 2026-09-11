@@ -161,12 +161,6 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture: str | None = None
 
         self.compatibilityMatrix: Dict[str, Dict[str, List[str]]] = {
-            "9.3.x-pr.kind": {
-                "manage": ["9.3.x-pr.kind", "9.2.x-dev", "9.2.x"],
-            },
-            "9.2.x-dev": {
-                "manage": ["9.2.x-dev", "9.2.x", "9.2.x-feature", "9.1.x"],
-            },
             "9.2.x": {
                 "manage": ["9.2.x", "9.2.x-feature", "9.1.x"],
                 "optimizer": ["9.2.x", "9.2.x-feature", "9.1.x"],
@@ -368,7 +362,7 @@ class BaseApp(PrintMixin, PromptMixin):
     @logMethodCall
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> List[str]:
         if coreChannel in self.compatibilityMatrix:
-            return self.compatibilityMatrix[coreChannel][appId]
+            return self.compatibilityMatrix[coreChannel].get(appId, [])
         else:
             return []
 
