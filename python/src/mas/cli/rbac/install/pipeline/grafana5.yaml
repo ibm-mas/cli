@@ -1,0 +1,79 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:grafana5
+  namespace: grafana5
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{ mas_instance_id }}:install-pipeline:grafana5
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:grafana5
+  namespace: grafana5
+rules:
+  # Grafana subscripton will be created in this namespace
+  # Detect presence of existing operator group before creating a new one
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - patch
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - installplans
+      - operatorgroups
+      - subscriptions
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+
+  # Create the Grafana instance
+  - apiGroups:
+      - grafana.integreatly.org
+    resources:
+      - grafanas
+    verbs:
+      - get
+      - create
+      - patch
+
+  # Create the Grafana datasource
+  # Note that this is additive to the verbs already provided in clusterrole-grafana5.yaml
+  - apiGroups:
+      - grafana.integreatly.org
+    resources:
+      - grafanadatasources
+    verbs:
+      - patch
+
+  # Lookup & create the prometheus-serviceaccount
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+      - create
+      - patch
+
+  # Create the prometheus-serviceaccount token
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch

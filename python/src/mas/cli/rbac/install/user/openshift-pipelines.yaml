@@ -1,0 +1,39 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-user:openshift-pipelines
+  namespace: openshift-pipelines
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{mas_instance_id}}:install-user:openshift-pipelines
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-user
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{mas_instance_id}}:install-user:openshift-pipelines
+  namespace: openshift-pipelines
+rules:
+  # MAS install will check the health of OpenShift pipelines status
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+  # Enables the workaround to handle the bug in OpenShift Pipelines/Tekton when
+  # there is no default storage class defined in the cluster
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - get
+      - patch
+    resourceNames:
+      - postgredb-tekton-results-postgres-0
