@@ -190,7 +190,7 @@
     - fvt-manage-base-ui-communication-temp
     - fvt-manage-base-ui-scheduler-classic
 
-# Base UI IVT Cypress test
+# Base UI IVT Cypress tests
 - name: fvt-manage-base-ui-ivt
   {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
   params:
