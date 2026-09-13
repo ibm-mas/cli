@@ -202,9 +202,4 @@
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
-    - fvt-manage-base-ui-escalation-action
-    - fvt-manage-base-ui-birt-report
-    - fvt-manage-base-ui-user-crud
-    - fvt-manage-base-ui-user-consumption
-    - fvt-manage-base-ui-communication-temp
     - fvt-manage-base-ui-scheduler-classic
