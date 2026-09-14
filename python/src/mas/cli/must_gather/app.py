@@ -752,18 +752,27 @@ class MustGatherApp(BaseApp):
 
         try:
             # Calculate checksums
-            with Halo(text="Calculating checksums", spinner=self.spinner) as h:
-                md5Hash = hashlib.md5()
-                sha1Hash = hashlib.sha1()
+            # with Halo(text="Calculating checksums", spinner=self.spinner) as h:
+            logger.info("Calculating checksums")
+            md5Hash = hashlib.md5()
+            logger.info("md5Hash done on to sh1Hash")
+            sha1Hash = hashlib.sha1()
+            logger.info("sh1Hash done")
 
-                with open(archivePath, "rb") as f:
-                    while chunk := f.read(8192):
-                        md5Hash.update(chunk)
-                        sha1Hash.update(chunk)
+            with open(archivePath, "rb") as f:
+                logger.info(f"Chunking up {archivePath}")
+                while chunk := f.read(8192):
+                    md5Hash.update(chunk)
+                    logger.info("md5Hash updated")
+                    sha1Hash.update(chunk)
+                    logger.info("sha1Hash updated")
 
-                md5Value = md5Hash.hexdigest()
-                sha1Value = sha1Hash.hexdigest()
-                h.stop_and_persist(symbol=self.successIcon, text=f"Checksums calculated (MD5: {md5Value[:8]}..., SHA1: {sha1Value[:8]}...)")
+            md5Value = md5Hash.hexdigest()
+            logger.info("md5Value calculated")
+            sha1Value = sha1Hash.hexdigest()
+            logger.info("sha1Value calculated")
+            #    h.stop_and_persist(symbol=self.successIcon, text=f"Checksums calculated (MD5: {md5Value[:8]}..., SHA1: {sha1Value[:8]}...)")
+            logger.info(f"Checksums calculated (MD5: {md5Value[:8]}..., SHA1: {sha1Value[:8]}...)")
 
             # Construct target URL
             archiveFilename = os.path.basename(archivePath)
