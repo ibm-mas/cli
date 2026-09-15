@@ -752,27 +752,36 @@ class MustGatherApp(BaseApp):
 
         try:
             # Calculate checksums
-            # with Halo(text="Calculating checksums", spinner=self.spinner) as h:
-            logger.info("Calculating checksums")
-            md5Hash = hashlib.md5()
-            logger.info("md5Hash done on to sh1Hash")
-            sha1Hash = hashlib.sha1()
-            logger.info("sh1Hash done")
+            with Halo(text="Calculating checksums", spinner=self.spinner) as h:
+                try:
+                    md5Hash = hashlib.md5()
+                    sha1Hash = hashlib.sha1()
 
-            with open(archivePath, "rb") as f:
-                logger.info(f"Chunking up {archivePath}")
-                while chunk := f.read(8192):
-                    md5Hash.update(chunk)
-                    logger.info("md5Hash updated")
-                    sha1Hash.update(chunk)
-                    logger.info("sha1Hash updated")
+                    with open(archivePath, "rb") as f:
+                        while chunk := f.read(8192):
+                            md5Hash.update(chunk)
+                            sha1Hash.update(chunk)
 
-            md5Value = md5Hash.hexdigest()
-            logger.info("md5Value calculated")
-            sha1Value = sha1Hash.hexdigest()
-            logger.info("sha1Value calculated")
-            #    h.stop_and_persist(symbol=self.successIcon, text=f"Checksums calculated (MD5: {md5Value[:8]}..., SHA1: {sha1Value[:8]}...)")
-            logger.info(f"Checksums calculated (MD5: {md5Value[:8]}..., SHA1: {sha1Value[:8]}...)")
+                    md5Value = md5Hash.hexdigest()
+                    sha1Value = sha1Hash.hexdigest()
+                    headers = {"Authorization": f"Bearer {artifactoryToken}", "X-Checksum-Md5": md5Value, "X-Checksum-Sha1": sha1Value}
+                    logger.info(f"Checksums calculated (MD5: {md5Value[:8]}..., SHA1: {sha1Value[:8]}...)")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Checksums calculated (MD5: {md5Value[:8]}..., SHA1: {sha1Value[:8]}...)")
+                except Exception as e:
+                    print(f"❌ Error during checksum calculation: {e}")
+                    logger.error(f"❌ Error during checksum calculation: {e}")
+                    print("Calculating sha256 checksum")
+                    logger.info("Calculating sha256 checksum")
+
+                    sha256Hash = hashlib.sha256()
+                    with open(archivePath, "rb") as f:
+                        while chunk := f.read(8192):
+                            sha256Hash.update(chunk)
+
+                    sha256Value = sha256Hash.hexdigest()
+                    headers = {"Authorization": f"Bearer {artifactoryToken}", "X-Checksum-Sha256": sha256Value}
+                    logger.info(f"Checksums calculated (SHA256: {sha256Value[:8]}...)")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Checksums calculated (SHA256: {sha256Value[:8]}...)")
 
             # Construct target URL
             archiveFilename = os.path.basename(archivePath)
@@ -780,7 +789,6 @@ class MustGatherApp(BaseApp):
 
             # Upload to Artifactory
             with Halo(text=f"Uploading to {targetUrl}", spinner=self.spinner) as h:
-                headers = {"Authorization": f"Bearer {artifactoryToken}", "X-Checksum-Md5": md5Value, "X-Checksum-Sha1": sha1Value}
 
                 with open(archivePath, "rb") as f:
                     response = requests.put(targetUrl, data=f, headers=headers, timeout=600)
