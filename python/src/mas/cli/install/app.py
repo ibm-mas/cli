@@ -841,7 +841,7 @@ class InstallApp(
             return "default"
 
     # Catalogs that do not support path-based routing
-    _PATH_ROUTING_UNSUPPORTED_CATALOGS = ["260625", "260730", "260805", "260827", "260902"]
+    _PATH_ROUTING_UNSUPPORTED_CATALOGS = ["260625", "260730", "260805", "260827", "260918"]
 
     @logMethodCall
     def configRoutingMode(self):
