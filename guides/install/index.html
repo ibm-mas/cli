@@ -39,6 +39,8 @@
     
     <link href="../../extra.css" rel="stylesheet">
     
+    <link href="../../stylesheets/mas-arch-diagram.css" rel="stylesheet">
+    
 
     
     <script src="../../search/main.js"></script>
@@ -325,8 +327,14 @@
   <cds-side-nav-menu title="Reference">
     
       
-  <cds-side-nav-menu-item href="../../reference/dependencies/">
-    Dependencies
+  <cds-side-nav-menu-item href="../../reference/dependencies-92/">
+    Dependencies (9.2)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies-91/">
+    Dependencies (9.1)
   </cds-side-nav-menu-item>
 
     
@@ -491,7 +499,7 @@
 </tr>
 <tr>
 <td><strong>MAS CLI Version</strong></td>
-<td><code>23.10.2</code></td>
+<td><code>23.11.0</code></td>
 <td>Use specific image tag</td>
 <td>Document exact version used</td>
 </tr>
@@ -539,7 +547,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <li>OpenShift version (e.g., <code>4.18.3</code>)</li>
 <li>Red Hat catalog digests (all catalogs with full SHA256)</li>
 <li>IBM MAS catalog version (e.g., <code>v9-260902-amd64</code>)</li>
-<li>MAS CLI version (e.g., <code>23.10.2</code>)</li>
+<li>MAS CLI version (e.g., <code>23.11.0</code>)</li>
 <li><strong>Reason for pinning</strong>: Business justification and requirements</li>
 <li><strong>Planned review date</strong>: When the configuration will be reviewed for updates</li>
 <li><strong>Responsible contact</strong>: Person or team responsible for maintenance</li>
@@ -676,7 +684,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <li><strong>Standalone Installation</strong>: For standalone AI Service installation, use the dedicated <code>mas aiservice-install</code> command to install AI Service independently of the main MAS installation.</li>
 </ul>
 </div>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:23.10.2 mas install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:23.11.0 mas install
 </code></pre>
 <p>The interactive install will guide you through a series of questioned designed to help you arrive at the best configuration for your scenario, it can be broken down as below:</p>
 <div>
@@ -825,7 +833,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 SUPERUSER_PASSWORD=xxx
 
-docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:23.10.2  bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:23.11.0  bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas install \
     --mas-catalog-version v9-260902-amd64 \
@@ -1093,6 +1101,12 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td><code>string</code></td>
       <td>-</td>
       <td>Provide the name of the ClusterIssuer to configure MAS to issue certificates</td>
+    </tr>
+    <tr>
+      <td><code>--le-email</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>E-mail address to register with Let's Encrypt. Providing this implicitly enables Let's Encrypt HTTP-01 certificate management (path routing mode only, cluster must be publicly accessible on port 80)</td>
     </tr>
     <tr>
       <td><code>--mas-issuer-kind</code></td>
