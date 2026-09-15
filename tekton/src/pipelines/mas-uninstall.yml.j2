@@ -54,6 +54,18 @@ spec:
     - name: dro_namespace
       default: "redhat-marketplace"
       type: string
+    - name: cp4d_action
+      type: string
+      description: Optional. Used to uninstall CP4D
+      default: "none"
+    - name: cpd_operators_namespace
+      type: string
+      description: Optional. CP4D operators namespace
+      default: ""
+    - name: cpd_instance_namespace
+      type: string
+      description: Optional. CP4D instance namespace
+      default: ""
 
   tasks:
     # Content
@@ -274,7 +286,33 @@ spec:
           value: suite-uninstall
 
 
-    # 4. Uninstall IBM Suite Licensing Service
+    # 4. Uninstall Cloud Pak for Data
+    # -------------------------------------------------------------------------
+    # CP4D is a cluster-level dependency, independent of any MAS instance.
+    # Runs in parallel with app-uninstall tasks immediately after approval.
+    # The cp4d_uninstall role safely exits if CP4D is not installed.
+    - name: uninstall-cp4d
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        - name: cpd_operators_namespace
+          value: $(params.cpd_operators_namespace)
+        - name: cpd_instance_namespace
+          value: $(params.cpd_instance_namespace)
+        - name: devops_suite_name
+          value: dependencies-cp4d-uninstall
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-uninstall
+      when:
+        - input: "$(params.cp4d_action)"
+          operator: in
+          values: ["uninstall"]
+      runAfter:
+        - waitfor-approval
+
+
+    # 5. Uninstall IBM Suite Licensing Service
     # -------------------------------------------------------------------------
     - name: uninstall-sls
       timeout: "0"
