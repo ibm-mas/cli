@@ -315,7 +315,7 @@ class DependencyDetectionMixin:
             if len(cpds) == 0:
                 return DetectResult(ok=True, message="IBM Cloud Pak for Data is not installed")
 
-            cpdUpgradePath = {"5.2.0": "5.2.0", "5.1.3": "5.2.0", "5.0.0": "5.1.3"}
+            cpdUpgradePath = {"5.2.0": "5.3.1", "5.1.3": "5.2.0", "5.0.0": "5.1.3"}
             cpdInstanceNamespace = cpds[0]["metadata"]["namespace"]
             cpdInstanceVersion = cpds[0]["spec"]["version"]
 

@@ -123,9 +123,9 @@ class CatalogMixin:
             list: Ordered list of catalog version strings, newest first.
         """
         return [
-            "v9-260625-amd64",
-            "v9-260527-amd64",
-            "v9-260430-amd64",
+            "v9-260902-amd64",
+            "v9-260827-amd64",
+            "v9-260730-amd64",
         ]
 
     def chooseCatalog(self) -> None:
@@ -134,9 +134,9 @@ class CatalogMixin:
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) Jun 25 2026 Update (MAS 9.2.0, 9.1.19, 9.0.27, 8.11.34, &amp; 8.10.37)",
-                "  2) May 27 2026 Update (MAS 9.1.16, 9.0.24, 8.11.34, &amp; 8.10.37)",
-                "  3) Apr 30 2026 Update (MAS 9.1.14, 9.0.23, 8.11.33, &amp; 8.10.36)",
+                "  1) Sep 02 2026 Update (MAS 9.2.3, 9.1.22, 9.0.29, 8.11.34, &amp; 8.10.37)",
+                "  2) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
+                "  3) Jul 30 2026 Update (MAS 9.2.1, 9.1.20, 9.0.28, 8.11.34, &amp; 8.10.37)",
             ]
         )
         self.promptForListSelect("Select catalog version", self.getCatalogOptions(), "mas_catalog_version", default=1)
