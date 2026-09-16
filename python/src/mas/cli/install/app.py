@@ -135,7 +135,7 @@ class InstallApp(
                     f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}"
                 )
 
-        # Compare with any existing installed catalog
+        # Compare with any existing installed Catalog
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
