@@ -726,13 +726,13 @@ class InstallApp(
                         "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - CLI pre-installs namespace-scoped Roles in prepared namespaces to grant delegated admin permissions",
                         "     - MAS can manage applications only in namespaces prepared by the OpenShift admin",
-                        "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
+                        "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually only for MAS 9.2",
                         "",
                         "  3. <b>minimal</b> - Install with essential namespace-scoped Roles only",
                         "     - No ClusterRoles are installed in this mode, except where required by ArcGIS and Visual Inspection (MVI)",
                         "     - Only essential permissions required for MAS applications are applied",
                         "     - MAS UI/API cannot manage application lifecycle; OpenShift admins must manage apps outside MAS",
-                        "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually.",
+                        "     - DNS integration is not available in this mode. If you use a custom domain, you need to configure DNS manually only for MAS 9.2",
                     ]
                 )
 
