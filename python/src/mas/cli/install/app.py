@@ -663,9 +663,7 @@ class InstallApp(
         self.configCATrust()
         self.configDNSAndCerts()
 
-        # temporarily disabiliing configuring routing mode
-        # self.configRoutingMode()
-        self.setParam("mas_routing_mode", "subdomain")
+        self.configRoutingMode()
 
         self.configServiceMesh()
         self.configSSOProperties()
@@ -842,9 +840,19 @@ class InstallApp(
             logger.warning(f"Failed to list IngressControllers: {e}")
             return "default"
 
+    # Catalogs that do not support path-based routing
+    _PATH_ROUTING_UNSUPPORTED_CATALOGS = ["260625", "260730", "260805", "260827", "260902"]
+
     @logMethodCall
     def configRoutingMode(self):
-        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
+        catalogVersion = self.getParam("mas_catalog_version") or ""
+        catalogSupportsPathRouting = not any(c in catalogVersion for c in self._PATH_ROUTING_UNSUPPORTED_CATALOGS)
+        if (
+            self.showAdvancedOptions
+            and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel"))
+            and self.getParam("mas_channel") != "9.2.x-feature"
+            and catalogSupportsPathRouting
+        ):
             self.printH1("Configure Routing Mode")
 
             masDomain = self._getMasDomainForDisplay()
@@ -935,6 +943,19 @@ class InstallApp(
                             self.setParam("mas_ingress_controller_name", "")
             else:
                 self.setParam("mas_routing_mode", "subdomain")
+
+            # After routing mode is confirmed as path, offer Let's Encrypt HTTP-01.
+            if self.getParam("mas_routing_mode") == "path":
+                self.printDescription(
+                    [
+                        "",
+                        "Let's Encrypt HTTP-01 can automatically issue trusted certificates for your domain",
+                        "Note: your cluster must be publicly accessible on port 80 from the internet.",
+                    ]
+                )
+                if self.yesOrNo("Do you want to use Let's Encrypt for certificate management"):
+                    self.promptForString("Let's Encrypt e-mail", "mas_le_email")
+                    self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
 
     def _checkIngressControllerForPathRouting(self, controllerName="default"):
         """Check if a specific IngressController exists and is configured for path-based routing.
@@ -2760,21 +2781,40 @@ class InstallApp(
             ]
         )
 
-        # Currently no 9.2.x patch support path based routing as that changes this will need to change
-        # to filter on the specific patch version
+        # Reject path-based routing for unsupported channel versions or catalogs
         if self.getParam("mas_routing_mode") == "path":
-            self.fatalError(
-                "\n".join(
-                    [
-                        "Path based routing mode not supported",
-                        "========================================================================",
-                        "Path based routing is not currently supported",
-                        "",
-                        "Use subdomain routing mode:",
-                        "   mas install --routing subdomain ...",
-                    ]
+            masChannel = self.getParam("mas_channel") or ""
+            catalogVersion = self.getParam("mas_catalog_version") or ""
+            if not isVersionEqualOrAfter("9.2.0", masChannel) or masChannel == "9.2.x-feature":
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Path-based routing is not supported on this channel",
+                            "========================================================================",
+                            f"Channel {masChannel} does not support path-based routing.",
+                            "",
+                            "Path-based routing requires MAS 9.2 or later.",
+                            "",
+                            "Use subdomain routing mode:",
+                            "   mas install --routing subdomain ...",
+                        ]
+                    )
                 )
-            )
+            elif any(c in catalogVersion for c in self._PATH_ROUTING_UNSUPPORTED_CATALOGS):
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Path-based routing is not supported with this catalog",
+                            "========================================================================",
+                            f"Catalog {catalogVersion} does not support path-based routing.",
+                            "",
+                            "Path-based routing requires catalog v9-260924 or later.",
+                            "",
+                            "Use subdomain routing mode:",
+                            "   mas install --routing subdomain ...",
+                        ]
+                    )
+                )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
@@ -2881,6 +2921,26 @@ class InstallApp(
                     )
             else:
                 logger.info(f"IngressController '{ingressControllerName}' is already configured for path-based routing")
+
+        # Validate Let's Encrypt HTTP-01 flags
+        if not self.isInteractiveMode:
+            leEmail = self.getParam("mas_le_email")
+
+            if leEmail and self.getParam("mas_routing_mode") != "path":
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Let's Encrypt HTTP-01 Requires Path-Based Routing",
+                            "========================================================================",
+                            "--le-email is only supported with path-based routing mode.",
+                            "Remove --le-email or switch to path routing:",
+                            "   mas install --routing path --le-email [email] ...",
+                        ]
+                    )
+                )
+
+            if leEmail and not self.getParam("mas_cluster_issuer"):
+                self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
 
         # Based on the parameters set the annotations correctly
         self.configAnnotations()
