@@ -136,6 +136,9 @@ spec:
     - name: tenant_scheduling_cfg_file
       type: string
 
+    - name: tenant_operator_cfg_file
+      type: string
+
     # RSL
     - name: rsl_ca_crt
       type: string
@@ -266,6 +269,9 @@ spec:
         value: $(params.tenant_entitlement_end_date)
       - name: AISERVICE_TENANT_SCHEDULING_CONFIG_FILE
         value: $(params.tenant_scheduling_cfg_file)
+      
+      - name: AISERVICE_TENANT_OPERATOR_CONFIG_FILE
+        value: $(params.tenant_operator_cfg_file)
 
       # RSL
       - name: RSL_CA_CRT

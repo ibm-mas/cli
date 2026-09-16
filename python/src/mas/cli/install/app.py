@@ -663,9 +663,7 @@ class InstallApp(
         self.configCATrust()
         self.configDNSAndCerts()
 
-        # temporarily disabiliing configuring routing mode
-        # self.configRoutingMode()
-        self.setParam("mas_routing_mode", "subdomain")
+        self.configRoutingMode()
 
         self.configServiceMesh()
         self.configSSOProperties()
@@ -704,12 +702,12 @@ class InstallApp(
             self.setParam("environment_type", "production")
             self.setParam("aiservice_odh_model_deployment_type", "raw")
             self.setParam("aiservice_rhoai_model_deployment_type", "raw")
-            self.setParam("rhoai", "false")
         else:
             self.setParam("environment_type", "non-production")
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
             self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
-            self.setParam("rhoai", "false")
+
+        self.setParam("rhoai", "true")
 
     @logMethodCall
     def configAdminMode(self):
@@ -842,9 +840,19 @@ class InstallApp(
             logger.warning(f"Failed to list IngressControllers: {e}")
             return "default"
 
+    # Catalogs that do not support path-based routing
+    _PATH_ROUTING_UNSUPPORTED_CATALOGS = ["260625", "260730", "260805", "260827", "260902"]
+
     @logMethodCall
     def configRoutingMode(self):
-        if self.showAdvancedOptions and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.2.x-feature":
+        catalogVersion = self.getParam("mas_catalog_version") or ""
+        catalogSupportsPathRouting = not any(c in catalogVersion for c in self._PATH_ROUTING_UNSUPPORTED_CATALOGS)
+        if (
+            self.showAdvancedOptions
+            and isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel"))
+            and self.getParam("mas_channel") != "9.2.x-feature"
+            and catalogSupportsPathRouting
+        ):
             self.printH1("Configure Routing Mode")
 
             masDomain = self._getMasDomainForDisplay()
@@ -935,6 +943,19 @@ class InstallApp(
                             self.setParam("mas_ingress_controller_name", "")
             else:
                 self.setParam("mas_routing_mode", "subdomain")
+
+            # After routing mode is confirmed as path, offer Let's Encrypt HTTP-01.
+            if self.getParam("mas_routing_mode") == "path":
+                self.printDescription(
+                    [
+                        "",
+                        "Let's Encrypt HTTP-01 can automatically issue trusted certificates for your domain",
+                        "Note: your cluster must be publicly accessible on port 80 from the internet.",
+                    ]
+                )
+                if self.yesOrNo("Do you want to use Let's Encrypt for certificate management"):
+                    self.promptForString("Let's Encrypt e-mail", "mas_le_email")
+                    self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
 
     def _checkIngressControllerForPathRouting(self, controllerName="default"):
         """Check if a specific IngressController exists and is configured for path-based routing.
@@ -1837,6 +1858,14 @@ class InstallApp(
                 self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
                 self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
+            # AI Data Science Platform - defaults to Red Hat OpenShift AI (RHOAI)
+            self.setParam("rhoai", "true")
+            self.printWarning(
+                "Starting with AI Service 9.1.18, support for Open Data Hub (ODH) has been dropped. "
+                "Only Red Hat OpenShift AI (RHOAI) 2.25.10 or later is supported going forward. "
+                "If an existing ODH installation is detected, the installer will automatically migrate it to RHOAI."
+            )
+
             # Configure Certificate Issuer
             self.configAIServiceCertIssuer()
 
@@ -1865,7 +1894,9 @@ class InstallApp(
             )
 
             self.aiserviceTenantSchedulingConfigFileLocal = None
+            self.aiserviceTenantOperatorConfigFileLocal = None
             self.configSchedulingConstraints()
+            self.configTenantOperator()
 
     @logMethodCall
     def configSchedulingConstraints(self):
@@ -1991,6 +2022,7 @@ class InstallApp(
                 " - Choose alternative Apache Kafka providers (default to Strimzi)",
                 " - Customize Grafana storage settings",
                 " - Customize Scheduling configuration for AI workloads(Training pipeline & Inference services) for AI Service tenant",
+                " - Customize AI Service tenant operator configuration",
             ]
         )
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
@@ -2004,6 +2036,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.facilitiesPropertiesFileLocal = None
 
         if simplified:
@@ -2097,6 +2130,7 @@ class InstallApp(
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
+        self.aiserviceTenantOperatorConfigFileLocal = None
         self.facilitiesPropertiesFileLocal = None
 
         self.approvals: Dict[str, Dict[str, Any]] = {
@@ -2173,11 +2207,15 @@ class InstallApp(
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
                     self.setParam("aiservice_odh_model_deployment_type", "raw")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+                    self.setParam("rhoai", "true")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
                     self.setParam("aiservice_odh_model_deployment_type", "serverless")
+                    self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+                    self.setParam("rhoai", "true")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -2451,6 +2489,10 @@ class InstallApp(
                 # No need to perform validation if file exist here, as it has been already validated by argParser type check.
                 if value is not None and value != "":
                     self.aiserviceTenantSchedulingConfigFileLocal = value
+
+            elif key == "tenant_operator_config_file":
+                if value is not None and value != "":
+                    self.aiserviceTenantOperatorConfigFileLocal = value
 
             # Fail if there's any arguments we don't know how to handle
             else:
@@ -2739,21 +2781,40 @@ class InstallApp(
             ]
         )
 
-        # Currently no 9.2.x patch support path based routing as that changes this will need to change
-        # to filter on the specific patch version
+        # Reject path-based routing for unsupported channel versions or catalogs
         if self.getParam("mas_routing_mode") == "path":
-            self.fatalError(
-                "\n".join(
-                    [
-                        "Path based routing mode not supported",
-                        "========================================================================",
-                        "Path based routing is not currently supported",
-                        "",
-                        "Use subdomain routing mode:",
-                        "   mas install --routing subdomain ...",
-                    ]
+            masChannel = self.getParam("mas_channel") or ""
+            catalogVersion = self.getParam("mas_catalog_version") or ""
+            if not isVersionEqualOrAfter("9.2.0", masChannel) or masChannel == "9.2.x-feature":
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Path-based routing is not supported on this channel",
+                            "========================================================================",
+                            f"Channel {masChannel} does not support path-based routing.",
+                            "",
+                            "Path-based routing requires MAS 9.2 or later.",
+                            "",
+                            "Use subdomain routing mode:",
+                            "   mas install --routing subdomain ...",
+                        ]
+                    )
                 )
-            )
+            elif any(c in catalogVersion for c in self._PATH_ROUTING_UNSUPPORTED_CATALOGS):
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Path-based routing is not supported with this catalog",
+                            "========================================================================",
+                            f"Catalog {catalogVersion} does not support path-based routing.",
+                            "",
+                            "Path-based routing requires catalog v9-260924 or later.",
+                            "",
+                            "Use subdomain routing mode:",
+                            "   mas install --routing subdomain ...",
+                        ]
+                    )
+                )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
         if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
@@ -2860,6 +2921,26 @@ class InstallApp(
                     )
             else:
                 logger.info(f"IngressController '{ingressControllerName}' is already configured for path-based routing")
+
+        # Validate Let's Encrypt HTTP-01 flags
+        if not self.isInteractiveMode:
+            leEmail = self.getParam("mas_le_email")
+
+            if leEmail and self.getParam("mas_routing_mode") != "path":
+                self.fatalError(
+                    "\n".join(
+                        [
+                            "Let's Encrypt HTTP-01 Requires Path-Based Routing",
+                            "========================================================================",
+                            "--le-email is only supported with path-based routing mode.",
+                            "Remove --le-email or switch to path routing:",
+                            "   mas install --routing path --le-email [email] ...",
+                        ]
+                    )
+                )
+
+            if leEmail and not self.getParam("mas_cluster_issuer"):
+                self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-http01-le-prod")
 
         # Based on the parameters set the annotations correctly
         self.configAnnotations()

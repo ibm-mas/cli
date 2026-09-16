@@ -46,6 +46,9 @@ def create_mock_app():
     app.printH1 = MagicMock()
     app.promptForString = MagicMock(return_value="")
 
+    # Expose class-level constants so bound real methods can access them via self
+    app._PATH_ROUTING_UNSUPPORTED_CATALOGS = InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS
+
     # Add the actual methods we want to test
     app._checkIngressControllerPermissions = InstallApp._checkIngressControllerPermissions.__get__(app, InstallApp)
     app._checkIngressControllerForPathRouting = InstallApp._checkIngressControllerForPathRouting.__get__(app, InstallApp)
@@ -1013,6 +1016,191 @@ class TestCompleteCliFlow:
 
         # promptForInt should not be called (no routing mode prompt)
         assert app.promptForInt.call_count == 0
+
+
+# =============================================================================
+# Catalog Version Routing Exclusion Tests
+# =============================================================================
+
+
+class TestCatalogRoutingExclusion:
+    """Test that path-based routing is blocked for unsupported catalog versions."""
+
+    @pytest.mark.parametrize(
+        "catalog,channel",
+        [
+            ("v9-260625-amd64", "9.2.x"),
+            ("v9-260730-s390x", "9.2.x"),
+            ("v9-260805-ppc64le", "9.3.x"),
+        ],
+    )
+    def test_interactive_routing_skipped_for_blocked_catalog(self, catalog, channel):
+        """Test that configRoutingMode skips the routing prompt for all blocked catalogs on all architectures.
+
+        GIVEN showAdvancedOptions=True and a blocked catalog on any architecture
+        WHEN configRoutingMode is called
+        THEN no routing prompt is shown and mas_routing_mode is not set.
+        """
+        app = create_mock_app()
+        app.isInteractiveMode = True
+        app.showAdvancedOptions = True
+        app.setParam("mas_channel", channel)
+        app.setParam("mas_catalog_version", catalog)
+
+        with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
+            app.configRoutingMode()
+
+        assert app.getParam("mas_routing_mode") == ""
+        assert app.promptForInt.call_count == 0
+
+    @pytest.mark.parametrize(
+        "catalog",
+        [
+            "v9-260924-amd64",
+            "v9-260924-s390x",
+            "v9-260924-ppc64le",
+        ],
+    )
+    def test_interactive_routing_available_for_catalog_260924(self, catalog):
+        """Test that configRoutingMode shows the routing prompt for catalog 260924 on all architectures.
+
+        GIVEN showAdvancedOptions=True, mas_channel=9.3.x, and catalog 260924 on any architecture
+        WHEN configRoutingMode is called
+        THEN the routing mode prompt is shown.
+        """
+        app = create_mock_app()
+        app.isInteractiveMode = True
+        app.showAdvancedOptions = True
+        app.setParam("mas_channel", "9.3.x")
+        app.setParam("mas_catalog_version", catalog)
+
+        # User selects subdomain (option 2) so no ingress controller calls are needed
+        app.promptForInt.return_value = 2
+
+        ingress_config_api = MagicMock()
+        ingress_config = MagicMock()
+        ingress_config.spec.get.return_value = "apps.cluster.example.com"
+        ingress_config_api.get.return_value = ingress_config
+        app.dynamicClient.resources.get.return_value = ingress_config_api
+
+        with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
+            app.configRoutingMode()
+
+        assert app.promptForInt.call_count == 1
+
+    def test_interactive_routing_available_for_empty_catalog(self):
+        """Test that configRoutingMode shows prompt when catalog version is not set.
+
+        GIVEN mas_catalog_version is empty (e.g. dev mode)
+        WHEN configRoutingMode is called
+        THEN the routing mode prompt is shown.
+        """
+        app = create_mock_app()
+        app.isInteractiveMode = True
+        app.showAdvancedOptions = True
+        app.setParam("mas_channel", "9.2.x")
+        app.setParam("mas_catalog_version", "")
+
+        # User selects subdomain
+        app.promptForInt.return_value = 2
+
+        ingress_config_api = MagicMock()
+        ingress_config_api.get.return_value = MagicMock()
+        app.dynamicClient.resources.get.return_value = ingress_config_api
+
+        with patch("mas.cli.install.app.isVersionEqualOrAfter", return_value=True):
+            app.configRoutingMode()
+
+        assert app.promptForInt.call_count == 1
+
+    @pytest.mark.parametrize("channel", ["9.1.x", "9.0.x", "8.11.x", "9.2.x-feature"])
+    def test_noninteractive_path_routing_blocked_for_unsupported_channel(self, channel):
+        """Test that fatalError is raised when path routing is requested with an unsupported channel.
+
+        GIVEN mas_routing_mode=path and mas_channel is below 9.2 or is 9.2.x-feature
+        WHEN the channel check runs
+        THEN fatalError is called.
+        """
+        app = create_mock_app()
+        app.fatalError = MagicMock()
+        app.setParam("mas_routing_mode", "path")
+        app.setParam("mas_channel", channel)
+        app.setParam("mas_catalog_version", "v9-260827-amd64")
+
+        from mas.cli.install.app import InstallApp, isVersionEqualOrAfter
+
+        masChannel = app.getParam("mas_channel") or ""
+        catalogVersion = app.getParam("mas_catalog_version") or ""
+        if not isVersionEqualOrAfter("9.2.0", masChannel) or masChannel == "9.2.x-feature":
+            app.fatalError("Path-based routing is not supported on this channel")
+        elif any(c in catalogVersion for c in InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS):
+            app.fatalError("Path-based routing is not supported with this catalog")
+
+        app.fatalError.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "catalog,channel",
+        [
+            ("v9-260625-amd64", "9.2.x"),
+            ("v9-260730-s390x", "9.2.x"),
+            ("v9-260805-ppc64le", "9.3.x"),
+        ],
+    )
+    def test_noninteractive_path_routing_blocked_for_unsupported_catalog(self, catalog, channel):
+        """Test that fatalError is raised when path routing is requested with a blocked catalog across all architectures.
+
+        GIVEN mas_routing_mode=path, a supported channel, and a blocked catalog on any architecture
+        WHEN the validation runs
+        THEN fatalError is called.
+        """
+        app = create_mock_app()
+        app.fatalError = MagicMock()
+        app.setParam("mas_routing_mode", "path")
+        app.setParam("mas_channel", channel)
+        app.setParam("mas_catalog_version", catalog)
+
+        from mas.cli.install.app import InstallApp, isVersionEqualOrAfter
+
+        masChannel = app.getParam("mas_channel") or ""
+        catalogVersion = app.getParam("mas_catalog_version") or ""
+        if not isVersionEqualOrAfter("9.2.0", masChannel) or masChannel == "9.2.x-feature":
+            app.fatalError("Path-based routing is not supported on this channel")
+        elif any(c in catalogVersion for c in InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS):
+            app.fatalError("Path-based routing is not supported with this catalog")
+
+        app.fatalError.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "catalog",
+        [
+            "v9-260924-amd64",
+            "v9-260924-s390x",
+            "v9-260924-ppc64le",
+        ],
+    )
+    def test_noninteractive_path_routing_allowed_for_supported_channel_and_catalog(self, catalog):
+        """Test that fatalError is NOT raised when channel and catalog both support path routing on any architecture.
+
+        GIVEN mas_routing_mode=path, mas_channel=9.2.x, mas_catalog_version=v9-260924 on any architecture
+        WHEN the validation runs
+        THEN fatalError is not called.
+        """
+        app = create_mock_app()
+        app.fatalError = MagicMock()
+        app.setParam("mas_routing_mode", "path")
+        app.setParam("mas_channel", "9.2.x")
+        app.setParam("mas_catalog_version", catalog)
+
+        from mas.cli.install.app import InstallApp, isVersionEqualOrAfter
+
+        masChannel = app.getParam("mas_channel") or ""
+        catalogVersion = app.getParam("mas_catalog_version") or ""
+        if not isVersionEqualOrAfter("9.2.0", masChannel) or masChannel == "9.2.x-feature":
+            app.fatalError("Path-based routing is not supported on this channel")
+        elif any(c in catalogVersion for c in InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS):
+            app.fatalError("Path-based routing is not supported with this catalog")
+
+        app.fatalError.assert_not_called()
 
 
 # =============================================================================

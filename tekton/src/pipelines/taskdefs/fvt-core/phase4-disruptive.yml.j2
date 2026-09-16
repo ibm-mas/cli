@@ -11,37 +11,7 @@
 # - operatormaturity: non-disruptive, we just want it to be the last thing that runs
 
 
-# 1. smtp
-# -------------------------------------------------------------------------
-- name: smtp
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    - name: fvt_test_suite
-      value: smtp
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter: {{ runAfter }}
-
-# 2. core-trustcas
-# -------------------------------------------------------------------------
-- name: core-trustcas
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    - name: fvt_test_suite
-      value: core-trustcas
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter: {{ runAfter }}
-
-# 3. adoptionusagemetering
-# -------------------------------------------------------------------------
-- name: adoptionusagemetering
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    - name: fvt_test_suite
-      value: adoptionusagemetering
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter: {{ runAfter }}
-
-# 4. authservice ~3m
+# 1. authservice ~3m
 # -----------------------------------------------------------------------------
 - name: authservice
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -49,10 +19,40 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: authservice
+  runAfter: {{ runAfter }}
+
+# 2. smtp
+# -------------------------------------------------------------------------
+- name: smtp
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: smtp
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - smtp
-    - core-trustcas
-    - adoptionusagemetering
+    - authservice
+
+# 3. core-trustcas
+# -------------------------------------------------------------------------
+- name: core-trustcas
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: core-trustcas
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - authservice
+
+# 4. adoptionusagemetering
+# -------------------------------------------------------------------------
+- name: adoptionusagemetering
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: adoptionusagemetering
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - authservice
 
 # 5. coreidp-ldap
 # -------------------------------------------------------------------------
@@ -63,7 +63,9 @@
       value: coreidp-ldap
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - authservice
+    - smtp
+    - core-trustcas
+    - adoptionusagemetering
 
 # 6. coreidp-saml
 # -------------------------------------------------------------------------

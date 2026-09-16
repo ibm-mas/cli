@@ -96,6 +96,9 @@ spec:
     - name: dro_cis_crn
       type: string
       default: ""
+    - name: mas_environment_type
+      type: string
+      default: ""
 
     - name: nvidia_gpu_action
       type: string
@@ -512,6 +515,8 @@ spec:
           value: $(params.dro_public_domain)
         - name: dro_cis_crn
           value: $(params.dro_cis_crn)
+        - name: mas_environment_type
+          value: $(params.mas_environment_type)
       taskRef:
         kind: Task
         name: gitops-dro

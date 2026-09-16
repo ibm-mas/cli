@@ -1,0 +1,188 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: manage-build-script
+  namespace: manage-build
+data:
+  run.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    MANAGE_NS="mas-${INSTANCE_ID}-manage"
+
+    # ----------------------------------------------------------------
+    # 0. Wait for operator to acknowledge skipImageBuild
+    # ----------------------------------------------------------------
+    echo "Waiting for ManageWorkspace to confirm skipImageBuild (max 2h, poll every 60s)..."
+    for i in $(seq 1 120); do
+      MSG=$(oc get manageworkspace ${INSTANCE_ID}-${WORKSPACE_ID} -n ${MANAGE_NS} \
+        -o jsonpath="{.status.conditions[?(@.type==\"BuildReady\")].message}" 2>/dev/null || true)
+      echo "  [${i}/120] ${MSG}"
+      if echo "${MSG}" | grep -q "skipImageBuild is set to True"; then
+        echo "skipImageBuild confirmed. Proceeding."
+        break
+      fi
+      if [ "${i}" -eq 120 ]; then
+        echo "ERROR: timed out waiting for skipImageBuild acknowledgement." >&2
+        exit 1
+      fi
+      sleep 60
+    done
+
+    # ----------------------------------------------------------------
+    # 1. Discover bundle types from ManageWorkspace
+    # ----------------------------------------------------------------
+    BUNDLE_TYPES=$(oc get manageworkspace ${INSTANCE_ID}-${WORKSPACE_ID} \
+      -n ${MANAGE_NS} \
+      -o jsonpath="{.spec.settings.deployment.serverBundles[*].bundleType}" \
+      | tr ' ' '\n' | grep -v '^standalonejms$' | tr '\n' ' ' | xargs)
+    echo "Bundle types: ${BUNDLE_TYPES}"
+
+    # ----------------------------------------------------------------
+    # 2. Generate BUILD_TAG
+    # ----------------------------------------------------------------
+    VERSION=$(oc get managebuild managebuild -n ${MANAGE_NS} \
+      -o jsonpath="{.spec.global.version}")
+    BUILD_TAG="ext-$(date -u +%Y%m%dT%H%M%S)-${VERSION}"
+    echo "BUILD_TAG: ${BUILD_TAG}"
+
+    # ----------------------------------------------------------------
+    # 3. Copy ibm-entitlement and create combined pull secret
+    # ----------------------------------------------------------------
+    oc delete secret ibm-entitlement -n manage-build --ignore-not-found
+    oc get secret ibm-entitlement -n ${MANAGE_NS} -o json \
+      | python3 -c "
+    import json, sys
+    obj = json.load(sys.stdin)
+    obj['metadata'] = {'name': obj['metadata']['name'], 'namespace': 'manage-build'}
+    print(json.dumps(obj))
+    " | oc create -f -
+
+    IBM_AUTH=$(oc get secret ibm-entitlement -n manage-build \
+      -o jsonpath="{.data.\.dockerconfigjson}" | base64 -d)
+    PUSH_AUTH=$(oc get secret manage-build-push-secret -n manage-build \
+      -o jsonpath="{.data.\.dockerconfigjson}" | base64 -d)
+    COMBINED=$(python3 -c "
+    import json, sys
+    a = json.loads(sys.argv[1])
+    b = json.loads(sys.argv[2])
+    a['auths'].update(b['auths'])
+    print(json.dumps(a))
+    " "${IBM_AUTH}" "${PUSH_AUTH}")
+
+    oc delete secret manage-build-combined-pull -n manage-build --ignore-not-found
+    oc create secret generic manage-build-combined-pull \
+      --from-literal=.dockerconfigjson="${COMBINED}" \
+      --type=kubernetes.io/dockerconfigjson \
+      -n manage-build
+
+    # ----------------------------------------------------------------
+    # 4. Copy truststore resources into manage-build
+    # ----------------------------------------------------------------
+    strip_metadata() {
+      oc get "$1" "$2" -n "$3" -o json \
+        | python3 -c "
+    import json, sys
+    obj = json.load(sys.stdin)
+    meta = obj.get('metadata', {})
+    for field in ['resourceVersion', 'uid', 'creationTimestamp', 'ownerReferences',
+                  'managedFields', 'generation', 'selfLink']:
+        meta.pop(field, None)
+    annotations = meta.get('annotations', {})
+    annotations.pop('kubectl.kubernetes.io/last-applied-configuration', None)
+    if not annotations:
+        meta.pop('annotations', None)
+    meta['namespace'] = 'manage-build'
+    print(json.dumps(obj))
+    "
+    }
+
+    strip_metadata secret ${INSTANCE_ID}-${WORKSPACE_ID}-manage-truststorepasswd ${MANAGE_NS} | oc apply -f -
+
+    oc delete configmap ${INSTANCE_ID}-${WORKSPACE_ID}-truststore-cfg -n manage-build --ignore-not-found
+    strip_metadata configmap ${INSTANCE_ID}-${WORKSPACE_ID}-truststore-cfg ${MANAGE_NS} | oc create -f -
+
+    # ----------------------------------------------------------------
+    # 5. Build admin image
+    # ----------------------------------------------------------------
+    ADMIN_DOCKERFILE=$(oc get configmap managebuild-buildinfo \
+      -n ${MANAGE_NS} -o jsonpath="{.data.admin-image}")
+
+    python3 /tmp/build_bc.py admin \
+      "${ADMIN_DOCKERFILE}" \
+      "${INSTANCE_ID}-${WORKSPACE_ID}-truststore-cfg" \
+      "${INSTANCE_ID}-${WORKSPACE_ID}-manage-truststorepasswd" \
+      "image-registry.openshift-image-registry.svc:5000/${MANAGE_NS}/ext-manage-admin:${BUILD_TAG}" \
+      | oc apply -f -
+
+    oc start-build manage-admin-build -n manage-build --wait
+    echo "Admin build complete."
+
+    # ----------------------------------------------------------------
+    # 6. Build bundle images (parallel)
+    # ----------------------------------------------------------------
+    BUNDLE_PIDS=()
+    for BUNDLE_TYPE in ${BUNDLE_TYPES}; do
+      BUNDLE_DOCKERFILE=$(oc get configmap managebuild-buildinfo \
+        -n ${MANAGE_NS} -o jsonpath="{.data.${BUNDLE_TYPE}-image}" \
+        | sed "0,/^FROM.*AS LIBERTY/s/^# \(ARG\|FROM\|WORKDIR\|RUN\|USER\)/\1/" \
+        | sed "0,/^FROM.*AS LIBERTY/s/^#   /  /")
+
+      python3 /tmp/build_bc.py bundle \
+        "${BUNDLE_DOCKERFILE}" \
+        "${BUNDLE_TYPE}" \
+        "image-registry.openshift-image-registry.svc:5000/${MANAGE_NS}/ext-manage-admin:${BUILD_TAG}" \
+        "image-registry.openshift-image-registry.svc:5000/${MANAGE_NS}/ext-manage-bundle-${BUNDLE_TYPE}:${BUILD_TAG}" \
+        | oc apply -f -
+
+      oc start-build manage-bundle-${BUNDLE_TYPE}-build -n manage-build --wait &
+      BUNDLE_PIDS+=($!)
+      echo "Bundle ${BUNDLE_TYPE} build started (PID ${BUNDLE_PIDS[-1]})."
+    done
+
+    echo "Waiting for all bundle builds to complete..."
+    FAILED=0
+    for pid in "${BUNDLE_PIDS[@]}"; do
+      wait "${pid}" || { echo "ERROR: bundle build failed (PID ${pid})" >&2; FAILED=1; }
+    done
+    if [ "${FAILED}" -eq 1 ]; then exit 1; fi
+    echo "All bundle builds complete."
+
+    # ----------------------------------------------------------------
+    # 7. Retrieve digests and patch ManageWorkspace
+    # ----------------------------------------------------------------
+    get_digest() {
+      local istag_name="$1"
+      local retries=20
+      for i in $(seq 1 ${retries}); do
+        DIGEST=$(oc get istag "${istag_name}" -n ${MANAGE_NS} \
+          -o jsonpath="{.image.dockerImageReference}" 2>/dev/null || true)
+        if [ -n "${DIGEST}" ]; then
+          echo "${DIGEST}"
+          return 0
+        fi
+        echo "  Waiting for istag ${istag_name} (${i}/${retries})..." >&2
+        sleep 10
+      done
+      echo "ERROR: timed out waiting for istag ${istag_name}" >&2
+      return 1
+    }
+
+    ADMIN_DIGEST=$(get_digest "ext-manage-admin:${BUILD_TAG}")
+    echo "Admin digest: ${ADMIN_DIGEST}"
+
+    SERVER_BUNDLE_IMAGES="["
+    FIRST=true
+    for BUNDLE_TYPE in ${BUNDLE_TYPES}; do
+      DIGEST=$(get_digest "ext-manage-bundle-${BUNDLE_TYPE}:${BUILD_TAG}")
+      echo "Bundle ${BUNDLE_TYPE} digest: ${DIGEST}"
+      if [ "${FIRST}" = "true" ]; then FIRST=false; else SERVER_BUNDLE_IMAGES="${SERVER_BUNDLE_IMAGES},"; fi
+      SERVER_BUNDLE_IMAGES="${SERVER_BUNDLE_IMAGES}{\"bundleType\":\"${BUNDLE_TYPE}\",\"image\":\"${DIGEST}\"}"
+    done
+    SERVER_BUNDLE_IMAGES="${SERVER_BUNDLE_IMAGES}]"
+
+    oc patch manageworkspace ${INSTANCE_ID}-${WORKSPACE_ID} \
+      -n ${MANAGE_NS} --type=merge \
+      -p "{\"spec\":{\"settings\":{\"skipImageBuild\":true,\"usePrebuiltImages\":{\"adminImage\":\"${ADMIN_DIGEST}\",\"serverBundleImages\":${SERVER_BUNDLE_IMAGES},\"imagePullSecrets\":[]}}}}"
+
+    echo "ManageWorkspace patched successfully."

@@ -85,6 +85,18 @@ rules:
       - get
       - list
       - patch
+
+  # On OCP >= 4.21, the CLI needs to enable the Pipelines console plugin by patching
+  # the cluster-scoped Console operator resource (consoles.operator.openshift.io/cluster)
+  - apiGroups:
+      - operator.openshift.io
+    resources:
+      - consoles
+    verbs:
+      - get
+      - patch
+    resourceNames:
+      - cluster
   
   # The CLI needs to read the cluster ingress configuration to determine the domain
   - apiGroups:

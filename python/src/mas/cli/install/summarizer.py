@@ -37,6 +37,7 @@ class InstallSummarizerMixin:
         localConfigDir: str | None
         slsLicenseFileLocal: str | None
         aiserviceTenantSchedulingConfigFileLocal: str | None
+        aiserviceTenantOperatorConfigFileLocal: str | None
         facilitiesPropertiesFileLocal: str | None
         deployCP4D: bool
         installAssist: bool
@@ -152,6 +153,12 @@ class InstallSummarizerMixin:
         if self.getParam("mas_routing_mode") == "path":
             self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
+            if self.getParam("mas_le_email") != "":
+                self.printSummary("Let's Encrypt HTTP-01", "Enabled")
+                self.printParamSummary("Let's Encrypt e-mail", "mas_le_email")
+                self.printParamSummary("Let's Encrypt Issuer", "mas_cluster_issuer")
+            else:
+                self.printSummary("Let's Encrypt HTTP-01", "Disabled")
 
         if self.getParam("mas_manual_route_mgmt") == "true":
             self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
@@ -367,6 +374,7 @@ class InstallSummarizerMixin:
             self.printParamSummary("Release", "aiservice_channel")
             self.printParamSummary("Instance ID", "aiservice_instance_id")
             self.printParamSummary("Environment Type", "environment_type")
+            self.printSummary("AI Data Science Platform", "Red Hat OpenShift AI (RHOAI)" if self.getParam("rhoai") == "true" else "Open Data Hub (ODH)")
 
             if "aiservice_certificate_issuer" in self.params:
                 self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
@@ -411,6 +419,11 @@ class InstallSummarizerMixin:
                 self.printSummary(
                     "Scheduling configuration file",
                     self.aiserviceTenantSchedulingConfigFileLocal,
+                )
+            if self.aiserviceTenantOperatorConfigFileLocal:
+                self.printSummary(
+                    "Tenant operator configuration file",
+                    self.aiserviceTenantOperatorConfigFileLocal,
                 )
 
             self.printH2("S3 Configuration")

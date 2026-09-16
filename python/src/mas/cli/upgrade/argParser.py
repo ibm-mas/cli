@@ -14,6 +14,7 @@ from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
 
 IMAGE_PULL_POLICIES = ["IfNotPresent", "Always"]
+STORAGE_ACCESS_MODES = ["ReadWriteMany", "ReadWriteOnce"]
 
 upgradeArgParser = argparse.ArgumentParser(
     prog="mas upgrade",
@@ -58,6 +59,21 @@ otherArgGroup.add_argument(
     help="Configure upgrade for development mode",
 )
 masArgGroup.add_argument("--next-channel", required=False, default="", help="The Target Mas channel to Upgrade on")
+storageArgGroup = upgradeArgParser.add_argument_group("Storage", "Storage class configuration for the upgrade pipeline PVC.")
+storageArgGroup.add_argument(
+    "--storage-pipeline",
+    required=False,
+    dest="storage_pipeline",
+    help="Pipeline storage class to use for the upgrade config PVC (e.g. ibmc-file-gold-gid). " "Auto-detected from the existing config-pvc when omitted.",
+)
+storageArgGroup.add_argument(
+    "--storage-accessmode",
+    required=False,
+    dest="storage_accessmode",
+    choices=STORAGE_ACCESS_MODES,
+    metavar="{ReadWriteMany,ReadWriteOnce}",
+    help="Pipeline storage class access mode (ReadWriteMany or ReadWriteOnce). " "Auto-detected from the existing config-pvc when omitted.",
+)
 otherArgGroup.add_argument("--slack-token", required=False, help="Slack bot token for sending pipeline status notifications")
 otherArgGroup.add_argument("--slack-channel", required=False, help="Slack channel(s) for pipeline notifications (comma-separated for multiple channels)")
 otherArgGroup.add_argument(

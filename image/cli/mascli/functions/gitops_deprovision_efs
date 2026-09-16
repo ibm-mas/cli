@@ -127,6 +127,16 @@ function gitops_deprovision_efs() {
     echo_reset_dim "File System ID ........................ ${COLOR_MAGENTA}${FILE_SYSTEM_ID}"
 
     if [[ -n $FILE_SYSTEM_ID && $FILE_SYSTEM_ID != '' ]]; then
+      # Delete all access points first so the file system can be deleted cleanly
+      ACCESS_POINT_IDS=`aws efs describe-access-points --file-system-id $FILE_SYSTEM_ID --query 'AccessPoints[*].AccessPointId' --output text`
+      if [[ -n $ACCESS_POINT_IDS && $ACCESS_POINT_IDS != '' ]]; then
+        for apid in ${ACCESS_POINT_IDS[@]}; do
+          echo_reset_dim "Deleting Access Point ID ........ ${COLOR_MAGENTA}${apid}"
+          aws efs delete-access-point --access-point-id $apid
+        done
+        sleep 10
+      fi
+
       MOUNT_TARGETID=`aws efs describe-mount-targets --file-system-id $FILE_SYSTEM_ID --query 'MountTargets[*].MountTargetId' --output text`
 
       if [[ -n $MOUNT_TARGETID && $MOUNT_TARGETID != '' ]]; then
