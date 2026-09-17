@@ -14,6 +14,9 @@ from os import path
 from ... import __version__ as packageVersion
 from ...cli import getHelpFormatter
 
+# Constants for argument choices
+DNS_PROVIDERS = ["cis", "route53"]
+
 
 def isValidFile(parser, arg) -> str:
     if not path.exists(arg):
@@ -229,7 +232,161 @@ aiserviceAdvancedArgGroup.add_argument(
     help="Path to the YAML file that contains the tenant operator customization settings",
     type=lambda x: isValidFile(aiServiceinstallArgParser, x),
 )
+aiserviceAdvancedArgGroup.add_argument(
+    "--domain",
+    dest="aiservice_domain",
+    required=False,
+    help="Configure AI Service with a custom domain",
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--dns-provider",
+    dest="dns_provider",
+    required=False,
+    help="Enable automatic DNS management (see DNS Configuration options)",
+    choices=DNS_PROVIDERS,
+    metavar="{cis,route53}",
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--ocp-ingress",
+    dest="ocp_ingress",
+    required=False,
+    help="Overwrites Ingress Domain",
+)
+aiserviceAdvancedArgGroup.add_argument(
+    "--ocp-ingress-tls-secret-name",
+    dest="ocp_ingress_tls_secret_name",
+    required=False,
+    default="",
+    help="Cluster ingress certificate secret name",
+)
 
+# DNS Integration - IBM CIS
+# -----------------------------------------------------------------------------
+cisArgGroup = aiServiceinstallArgParser.add_argument_group("DNS Integration - CIS")
+cisArgGroup.add_argument(
+    "--cis-email",
+    dest="cis_email",
+    required=False,
+    help="Required when DNS provider is CIS and you want to use a Let's Encrypt Issuer",
+)
+cisArgGroup.add_argument(
+    "--cis-apikey",
+    dest="cis_apikey",
+    required=False,
+    help="Required when DNS provider is CIS",
+)
+cisArgGroup.add_argument(
+    "--cis-crn",
+    dest="cis_crn",
+    required=False,
+    help="Required when DNS provider is CIS",
+)
+cisArgGroup.add_argument(
+    "--cis-subdomain",
+    dest="cis_subdomain",
+    required=False,
+    help="Optionally setup AI Service instance as a subdomain under a multi-tenant CIS DNS record",
+)
+cisArgGroup.add_argument(
+    "--cis-enhanced-security",
+    dest="cis_enhanced_security",
+    required=False,
+    default="false",
+    help="Configure enhanced security for CIS (enables WAF and proxy settings)",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--cis-service-name",
+    dest="cis_service_name",
+    required=False,
+    help="CIS service instance name",
+)
+cisArgGroup.add_argument(
+    "--update-dns-entries",
+    dest="update_dns_entries",
+    required=False,
+    default="true",
+    help="Update existing DNS entries in CIS if they already exist (default: true)",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--cis-waf",
+    dest="cis_waf",
+    required=False,
+    default="true",
+    help="Enable Web Application Firewall (WAF) for CIS DNS entries",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--cis-proxy",
+    dest="cis_proxy",
+    required=False,
+    default="false",
+    help="Enable CIS proxy for DNS entries",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--delete-wildcards",
+    dest="delete_wildcards",
+    required=False,
+    default="false",
+    help="Force deletion of wildcard DNS entries in CIS",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--override-edge-certs",
+    dest="override_edge_certs",
+    required=False,
+    default="true",
+    help="Override and delete existing edge certificates in CIS instance",
+    action="store_const",
+    const="true",
+)
+
+# DNS Integration - AWS Route53
+# -----------------------------------------------------------------------------
+route53ArgGroup = aiServiceinstallArgParser.add_argument_group("DNS Integration - AWS Route53")
+route53ArgGroup.add_argument(
+    "--aws-access-key-id",
+    dest="aws_access_key_id",
+    required=False,
+    help="AWS access key ID for authenticating with the AWS account (required for Route53 DNS integration)",
+)
+route53ArgGroup.add_argument(
+    "--aws-secret-access-key",
+    dest="aws_secret_access_key",
+    required=False,
+    help="AWS secret access key for authenticating with the AWS account (required for Route53 DNS integration)",
+)
+route53ArgGroup.add_argument(
+    "--route53-hosted-zone-name",
+    dest="route53_hosted_zone_name",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
+route53ArgGroup.add_argument(
+    "--route53-hosted-zone-region",
+    dest="route53_hosted_zone_region",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
+route53ArgGroup.add_argument(
+    "--route53-subdomain",
+    dest="route53_subdomain",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
+route53ArgGroup.add_argument(
+    "--route53-email",
+    dest="route53_email",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
 
 # Database Configuration
 # -----------------------------------------------------------------------------
