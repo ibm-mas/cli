@@ -565,7 +565,7 @@ function manage_customer_mref_password() {
   # Check if customer-level secret exists
   echo "- Checking for customer-level secret: ${CUSTOMER_SECRET_NAME}"
   set +o pipefail
-  local MREF_PASSWORD=$(sm_get_secret_value "${CUSTOMER_SECRET_NAME}" "password" 2>/dev/null)
+  local MREF_PASSWORD=$(sm_get_secret_value "${CUSTOMER_SECRET_NAME}" "pwd" 2>/dev/null)
   set -o pipefail
   
   if [[ -n "${MREF_PASSWORD}" ]] && [[ "${MREF_PASSWORD}" != "null" ]]; then
@@ -615,7 +615,7 @@ function manage_customer_mref_password() {
   echo "- Storing password at customer level: ${CUSTOMER_SECRET_NAME}"
   local TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite_app_config\"}, {\"Key\": \"icn\", \"Value\": \"${ICN}\"}, {\"Key\": \"type\", \"Value\": \"customer-level\"}, {\"Key\": \"purpose\", \"Value\": \"mref-aes-keystore\"}, {\"Key\": \"note\", \"Value\": \"${MIGRATION_NOTE}\"}]"
   
-  sm_update_secret "${CUSTOMER_SECRET_NAME}" "{\"password\": \"${MREF_PASSWORD}\"}" "${TAGS}"
+  sm_update_secret "${CUSTOMER_SECRET_NAME}" "{\"pwd\": \"${MREF_PASSWORD}\"}" "${TAGS}"
   
   if [[ $? -eq 0 ]]; then
     echo "- Customer-level MREF password successfully stored"

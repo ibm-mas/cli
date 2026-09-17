@@ -653,7 +653,7 @@ function gitops_suite_app_config() {
       fi
       
       # Verify vault secret exists
-      sm_verify_secret_exists "${FACILITIES_VAULT_SECRET}${SECRETS_KEY_SEPERATOR}${FACILITIES_AWS_SECRET_NAME:-${FACILITIES_VAULT_SECRET_NAME}}" "password"
+      sm_verify_secret_exists "${FACILITIES_VAULT_SECRET}${SECRETS_KEY_SEPERATOR}${FACILITIES_AWS_SECRET_NAME:-${FACILITIES_VAULT_SECRET_NAME}}" "pwd"
       
       # Handle liberty extensions secret name
       if [[ -n "${USER_PROVIDED_LIBERTY_SECRET}" ]]; then
