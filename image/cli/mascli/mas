@@ -287,6 +287,16 @@ case $1 in
     mas-cli aiservice-install "$@"
     ;;
 
+  mcpi-install)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! mcpi-install                                                              !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "mcpi-install")
+    shift
+    # Run the new Python-based mcpi-install
+    mas-cli mcpi-install "$@"
+    ;;
+
   aiservice-upgrade)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! aiservice-upgrade                                                         !!" >> $LOGFILE

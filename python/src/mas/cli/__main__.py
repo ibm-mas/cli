@@ -50,6 +50,7 @@ def usage() -> None:
             + " - <ForestGreen>mas-cli must-gather</ForestGreen> Collect diagnostic information\n"
             + " - <ForestGreen>mas-cli setup-rbac</ForestGreen>  Set up RBAC resources for MAS installation\n"
             + " - <ForestGreen>mas-cli pre-install</ForestGreen>  Set up pre-install RBAC for MAS\n"
+            + " - <ForestGreen>mas-cli mcpi-install</ForestGreen> Install Maximo Cluster Performance Insights\n"
         )
     )
     print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
@@ -73,6 +74,11 @@ def main() -> None:
             from mas.cli.aiservice.install.app import AiServiceInstallApp
 
             app = AiServiceInstallApp()
+            raise SystemExit(app.install(argv[2:]))
+        if function == "mcpi-install":
+            from mas.cli.mcpi.install.app import McpiInstallApp
+
+            app = McpiInstallApp()
             raise SystemExit(app.install(argv[2:]))
         if function == "aiservice-upgrade":
             from mas.cli.aiservice.upgrade.app import AiServiceUpgradeApp
