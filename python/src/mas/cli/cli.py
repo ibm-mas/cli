@@ -244,6 +244,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self.upgrade_path: Dict[str, str] = {
             "9.2.x-dev": "9.3.x-pr.kind",
+            "9.2.x": "9.3.x-pr.kind",
             "9.2.x-feature": "9.2.x",
             "9.1.x": "9.2.x",
             "9.1.x-feature": "9.1.x",
