@@ -32,8 +32,6 @@ from prompt_toolkit import prompt, print_formatted_text, HTML
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO, getNodes
 from mas.devops.utils import validateIBMEntitlementKey
-from requests.exceptions import SSLError as RequestsSSLError
-
 from .displayMixins import PrintMixin, PromptMixin
 
 # Configure the logger
@@ -577,23 +575,17 @@ class BaseApp(PrintMixin, PromptMixin):
 
         Returns:
             True if the key is valid, False if authentication failed, None if an SSL error
-            prevented the validation from completing (key may still be valid).
+            or network error prevented validation (key status unknown, may still be valid).
         """
-        try:
-            logger.info(f"Validating IBM entitlement key against repository: {repository}")
-            isValid = validateIBMEntitlementKey(entitlementKey, repository, timeout)
-            if isValid:
-                logger.info("IBM entitlement key validation successful")
-            else:
-                logger.warning("IBM entitlement key validation failed")
-            return isValid
-        except RequestsSSLError as e:
-            logger.error(f"SSL error validating IBM entitlement key: {e}")
-            return None
-        except Exception as e:
-            logger.error(f"Error validating IBM entitlement key: {e}")
-            logger.exception(e, stack_info=True)
-            return False
+        logger.info(f"Validating IBM entitlement key against repository: {repository}")
+        isValid = validateIBMEntitlementKey(entitlementKey, repository, timeout)
+        if isValid is True:
+            logger.info("IBM entitlement key validation successful")
+        elif isValid is False:
+            logger.warning("IBM entitlement key validation failed")
+        else:
+            logger.warning("IBM entitlement key could not be validated (SSL/network error)")
+        return isValid
 
     @logMethodCall
     def promptForEntitlementKey(self, message: str, param: str, repository: str = "cp/mas/coreapi", timeout: int = 30) -> str:

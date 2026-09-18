@@ -27,7 +27,6 @@ THEN it should warn but continue when --no-confirm is set
 
 import pytest
 from unittest.mock import patch
-from requests.exceptions import SSLError as RequestsSSLError
 from mas.cli.cli import BaseApp
 
 
@@ -87,10 +86,11 @@ class TestValidateEntitlementKey:
         """Test validation when an SSL certificate error occurs.
 
         GIVEN an SSL certificate error during validation (e.g. corporate proxy)
+        utils.py now catches SSLError internally and returns None.
         WHEN validateEntitlementKey is called
         THEN it should return None to signal the key could not be checked (not that it is wrong).
         """
-        mock_validate.side_effect = RequestsSSLError("SSL: CERTIFICATE_VERIFY_FAILED")
+        mock_validate.return_value = None  # utils.py absorbs SSLError and returns None
         app = BaseApp()
 
         result = app.validateEntitlementKey("key-123")
@@ -102,30 +102,32 @@ class TestValidateEntitlementKey:
         """Test validation when network error occurs.
 
         GIVEN a network error during validation
+        utils.py now catches RequestException internally and returns None.
         WHEN validateEntitlementKey is called
-        THEN it should return False and log the error.
+        THEN it should return None (key status unknown, not necessarily wrong).
         """
-        mock_validate.side_effect = ConnectionError("Network error")
+        mock_validate.return_value = None  # utils.py absorbs network errors and returns None
         app = BaseApp()
 
         result = app.validateEntitlementKey("key-123")
 
-        assert result is False
+        assert result is None
 
     @patch("mas.cli.cli.validateIBMEntitlementKey")
     def test_validate_with_timeout(self, mock_validate):
         """Test validation when timeout occurs.
 
         GIVEN a timeout during validation
+        utils.py now catches RequestException (including timeout) internally and returns None.
         WHEN validateEntitlementKey is called
-        THEN it should return False and log the error.
+        THEN it should return None (key status unknown, not necessarily wrong).
         """
-        mock_validate.side_effect = TimeoutError("Validation timeout")
+        mock_validate.return_value = None  # utils.py absorbs timeout and returns None
         app = BaseApp()
 
         result = app.validateEntitlementKey("key-123")
 
-        assert result is False
+        assert result is None
 
 
 class TestPromptForEntitlementKeyInteractive:
