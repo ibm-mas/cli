@@ -60,6 +60,10 @@ IBM Maximo Application Suite:
       --mas-routing-mode ${COLOR_YELLOW}MAS_ROUTING_MODE${TEXT_RESET}                                                              Configure MAS with path or subdomain routing (default: 'subdomain'). Note: path-based routing is supported from MAS 9.2 and later versions
       --mas-ingress-controller-name ${COLOR_YELLOW}MAS_INGRESS_CONTROLLER_NAME${TEXT_RESET}                                        (Optional) Name of the IngressController to use for path-based routing (default: 'default')
       --production-database-access-type ${COLOR_YELLOW}PRODUCTION_DATABASE_ACCESS_TYPE${TEXT_RESET}                                Production database access type (e.g., 'ITIC')
+      --fvt-gitops-enabled ${COLOR_YELLOW}FVT_GITOPS_ENABLED${TEXT_RESET}                                                          Enable FVT GitOps testing (true/false)
+      --fvt-gitops-enabled-apps ${COLOR_YELLOW}FVT_GITOPS_ENABLED_APPS${TEXT_RESET}                                                Comma-separated list of apps to enable for FVT GitOps testing (e.g., 'suite,manage')
+      --fvt-gitops-image-repo ${COLOR_YELLOW}FVT_GITOPS_IMAGE_REPO${TEXT_RESET}                                                    Image repository for the FVT GitOps image (optional, defaults to the Artifactory registry)
+      --fvt-gitops-image-tag ${COLOR_YELLOW}FVT_GITOPS_IMAGE_TAG${TEXT_RESET}                                                      Image tag for the FVT GitOps image (optional, defaults to 'latest')
 
       Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
       where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
@@ -454,6 +458,14 @@ function gitops_suite_noninteractive() {
         export FVT_GITOPS_ENABLED_APPS=$1 && shift
         ;;
 
+      --fvt-gitops-image-repo)
+        export FVT_GITOPS_IMAGE_REPO=$1 && shift
+        ;;
+
+      --fvt-gitops-image-tag)
+        export FVT_GITOPS_IMAGE_TAG=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_suite_help
@@ -672,6 +684,8 @@ function gitops_suite() {
   echo_reset_dim "Production Database Access Type ............ ${COLOR_MAGENTA}${PRODUCTION_DATABASE_ACCESS_TYPE}"
   echo_reset_dim "FVT GitOps Enabled ......................... ${COLOR_MAGENTA}${FVT_GITOPS_ENABLED}"
   echo_reset_dim "FVT GitOps Enabled Apps .................... ${COLOR_MAGENTA}${FVT_GITOPS_ENABLED_APPS}"
+  echo_reset_dim "FVT GitOps Image Repo ...................... ${COLOR_MAGENTA}${FVT_GITOPS_IMAGE_REPO}"
+  echo_reset_dim "FVT GitOps Image Tag ....................... ${COLOR_MAGENTA}${FVT_GITOPS_IMAGE_TAG}"
   reset_colors
 
   if [[ -n "$DNS_PROVIDER" ]]; then

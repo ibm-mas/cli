@@ -307,6 +307,12 @@ spec:
     - name: fvt_gitops_enabled_apps
       type: string
       default: "suite,manage"
+    - name: fvt_gitops_image_repo
+      type: string
+      default: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/mas-devops/fvt-gitops"
+    - name: fvt_gitops_image_tag
+      type: string
+      default: "latest"
 
   tasks:
 
@@ -570,6 +576,10 @@ spec:
           value: $(params.fvt_gitops_enabled)
         - name: fvt_gitops_enabled_apps
           value: $(params.fvt_gitops_enabled_apps)
+        - name: fvt_gitops_image_repo
+          value: $(params.fvt_gitops_image_repo)
+        - name: fvt_gitops_image_tag
+          value: $(params.fvt_gitops_image_tag)
       taskRef:
         kind: Task
         name: gitops-suite
