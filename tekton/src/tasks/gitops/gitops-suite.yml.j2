@@ -184,6 +184,18 @@ spec:
     - name: production_database_access_type
       type: string
       default: ""
+    - name: fvt_gitops_enabled
+      type: string
+      default: "false"
+    - name: fvt_gitops_enabled_apps
+      type: string
+      default: "suite,manage"
+    - name: fvt_gitops_image_repo
+      type: string
+      default: ""
+    - name: fvt_gitops_image_tag
+      type: string
+      default: ""
   stepTemplate:
     env:
       - name: CLUSTER_URL
@@ -322,6 +334,14 @@ spec:
         value: $(params.application_admin_sa_namespace)
       - name: PRODUCTION_DATABASE_ACCESS_TYPE
         value: $(params.production_database_access_type)
+      - name: FVT_GITOPS_ENABLED
+        value: $(params.fvt_gitops_enabled)
+      - name: FVT_GITOPS_ENABLED_APPS
+        value: $(params.fvt_gitops_enabled_apps)
+      - name: FVT_GITOPS_IMAGE_REPO
+        value: $(params.fvt_gitops_image_repo)
+      - name: FVT_GITOPS_IMAGE_TAG
+        value: $(params.fvt_gitops_image_tag)
 
     envFrom:
       - configMapRef:
