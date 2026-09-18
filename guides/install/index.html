@@ -297,6 +297,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-260918-amd64/">
+    Sep 18 2026
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-260827-amd64/">
     Aug 27 2026
   </cds-side-nav-menu-item>
@@ -311,12 +317,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-260625-amd64/">
     Jun 25 2026
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-260527-amd64/">
-    May 27 2026
   </cds-side-nav-menu-item>
 
     
@@ -493,13 +493,13 @@
 </tr>
 <tr>
 <td><strong>IBM MAS Catalog</strong></td>
-<td><code>v9-260902-amd64</code></td>
+<td><code>v9-260918-amd64</code></td>
 <td>Specify exact catalog version</td>
 <td>Use immutable catalog version</td>
 </tr>
 <tr>
 <td><strong>MAS CLI Version</strong></td>
-<td><code>23.11.0</code></td>
+<td><code>23.12.0</code></td>
 <td>Use specific image tag</td>
 <td>Document exact version used</td>
 </tr>
@@ -546,8 +546,8 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <li><strong>All four pinned versions</strong>:</li>
 <li>OpenShift version (e.g., <code>4.18.3</code>)</li>
 <li>Red Hat catalog digests (all catalogs with full SHA256)</li>
-<li>IBM MAS catalog version (e.g., <code>v9-260902-amd64</code>)</li>
-<li>MAS CLI version (e.g., <code>23.11.0</code>)</li>
+<li>IBM MAS catalog version (e.g., <code>v9-260918-amd64</code>)</li>
+<li>MAS CLI version (e.g., <code>23.12.0</code>)</li>
 <li><strong>Reason for pinning</strong>: Business justification and requirements</li>
 <li><strong>Planned review date</strong>: When the configuration will be reviewed for updates</li>
 <li><strong>Responsible contact</strong>: Person or team responsible for maintenance</li>
@@ -684,7 +684,7 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <li><strong>Standalone Installation</strong>: For standalone AI Service installation, use the dedicated <code>mas aiservice-install</code> command to install AI Service independently of the main MAS installation.</li>
 </ul>
 </div>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:23.11.0 mas install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:23.12.0 mas install
 </code></pre>
 <p>The interactive install will guide you through a series of questioned designed to help you arrive at the best configuration for your scenario, it can be broken down as below:</p>
 <div>
@@ -833,10 +833,10 @@ registry.redhat.io/redhat/certified-operator-index@sha256:1df4aaf5...
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 SUPERUSER_PASSWORD=xxx
 
-docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:23.11.0  bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:23.12.0  bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas install \
-    --mas-catalog-version v9-260902-amd64 \
+    --mas-catalog-version v9-260918-amd64 \
     --mas-instance-id mas1 \
     --mas-workspace-id ws1 \
     --mas-workspace-name "My Workspace"
@@ -1058,7 +1058,7 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td><code>--domain</code></td>
       <td><code>string</code></td>
       <td>-</td>
-      <td>Configure MAS with a custom domain</td>
+      <td>Configure MAS with a custom domain, Same domain will be used for AI Service when AI Service is being installed.</td>
     </tr>
     <tr>
       <td><code>--disable-walkme</code></td>
@@ -1170,6 +1170,48 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td>-</td>
       <td>Optionally setup MAS instance as a subdomain under a multi-tenant CIS DNS record</td>
     </tr>
+    <tr>
+      <td><code>--cis-enhanced-security</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Configure enhanced security for CIS (enables WAF and proxy settings)</td>
+    </tr>
+    <tr>
+      <td><code>--cis-service-name</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>CIS service instance name</td>
+    </tr>
+    <tr>
+      <td><code>--update-dns-entries</code></td>
+      <td>flag</td>
+      <td><code>true</code></td>
+      <td>Update existing DNS entries in CIS if they already exist (default: true)</td>
+    </tr>
+    <tr>
+      <td><code>--cis-waf</code></td>
+      <td>flag</td>
+      <td><code>true</code></td>
+      <td>Enable Web Application Firewall (WAF) for CIS DNS entries</td>
+    </tr>
+    <tr>
+      <td><code>--cis-proxy</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Enable CIS proxy for DNS entries</td>
+    </tr>
+    <tr>
+      <td><code>--delete-wildcards</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Force deletion of wildcard DNS entries in CIS</td>
+    </tr>
+    <tr>
+      <td><code>--override-edge-certs</code></td>
+      <td>flag</td>
+      <td><code>true</code></td>
+      <td>Override and delete existing edge certificates in CIS instance</td>
+    </tr>
   </tbody>
 </table>
 
@@ -1214,6 +1256,51 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td><code>string</code></td>
       <td>-</td>
       <td>Required when DNS provider is Cloudflare</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dns-integration-aws-route53">DNS Integration - AWS Route53<a class="headerlink" href="#dns-integration-aws-route53" title="Permanent link">¶</a></h3>
+<p>Configuration options for AWS Route53 DNS provider, including hosted zone, region, subdomain, and email.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--route53-hosted-zone-name</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is Route53</td>
+    </tr>
+    <tr>
+      <td><code>--route53-hosted-zone-region</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is Route53</td>
+    </tr>
+    <tr>
+      <td><code>--route53-subdomain</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is Route53</td>
+    </tr>
+    <tr>
+      <td><code>--route53-email</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is Route53 and you want to use a Let's Encrypt ClusterIssuer</td>
     </tr>
   </tbody>
 </table>
@@ -1376,6 +1463,12 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td><code>string</code></td>
       <td>-</td>
       <td>Namespace for MongoDB Community Operator</td>
+    </tr>
+    <tr>
+      <td><code>--mongodb-provider</code></td>
+      <td><code>{community, mck, rotate}</code></td>
+      <td>-</td>
+      <td>Mongo provider to use (community or mck or rotate). Only valid with --dev-mode</td>
     </tr>
   </tbody>
 </table>
@@ -2833,6 +2926,12 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       <td>Set AWS access key ID for the target AWS account</td>
     </tr>
     <tr>
+      <td><code>--aws-secret-access-key</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set AWS secret access key for the target AWS account</td>
+    </tr>
+    <tr>
       <td><code>--secret-access-key</code></td>
       <td><code>string</code></td>
       <td>-</td>
@@ -3187,6 +3286,11 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
                       <li class="md-toc__item">
                         <a href="#dns-integration-cloudflare" class="md-toc__link" data-md-level="2">
                           DNS Integration - CloudFlare
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#dns-integration-aws-route53" class="md-toc__link" data-md-level="2">
+                          DNS Integration - AWS Route53
                         </a>
                       </li>
                       <li class="md-toc__item">
