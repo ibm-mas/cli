@@ -28,6 +28,9 @@ IBM RDS DB2:
       --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                       Flag to know that this is ReplicaDB instance
       --rds-db2-backup ${COLOR_YELLOW}RDS_DB2_BACKUP${TEXT_RESET}                                                Flag to know that this is RDS DB2 backup instance
+      --facilities-db2-schema ${COLOR_YELLOW}FACILITIES_DB2_SCHEMA${TEXT_RESET}                                  TRIRIGA schema name for Facilities (default: TRIDATA)
+
+
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -140,6 +143,9 @@ function gitops_rds_db2_database_noninteractive() {
       -R|--github-repo)
         export GITHUB_REPO=$1 && shift
         ;;
+      --facilities-db2-schema)
+        export FACILITIES_DB2_SCHEMA=$1 && shift
+        ;;
       -B|--git-branch)
         export GIT_BRANCH=$1 && shift
         ;;
@@ -149,7 +155,6 @@ function gitops_rds_db2_database_noninteractive() {
       -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
-
       # Other Commands
       -h|--help)
         gitops_rds_db2_database_help
@@ -216,6 +221,9 @@ function gitops_rds_db2_database() {
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     export DB2_INSTANCE_NAME=rds-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   fi
+  if [[ -z $FACILITIES_DB2_SCHEMA ]]; then
+    export FACILITIES_DB2_SCHEMA="TRIDATA"
+  fi
   export DB2_NAMESPACE="rds-${MAS_INSTANCE_ID}"
 
   if [ -z $GIT_SSH ]; then
@@ -272,6 +280,7 @@ function gitops_rds_db2_database() {
   echo_reset_dim "db2-instance-dbm-config-yaml .................. ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
   echo_reset_dim "db2-database-db-config-yaml ................... ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
   echo_reset_dim "db2-addons-audit-config-yaml .................. ${COLOR_MAGENTA}${DB2_ADDONS_AUDIT_CONFIG_YAML}"
+  echo_reset_dim "facilities-db2-schema ......................... ${COLOR_MAGENTA}${FACILITIES_DB2_SCHEMA}"
   reset_colors
 
   AVP_TYPE=aws  # Support for IBM will be added later
