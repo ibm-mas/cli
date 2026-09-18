@@ -650,6 +650,9 @@ spec:
     - name: cpd_scale_config
       type: string
       default: "medium"
+    - name: cpd_public_route_enabled
+      type: string
+      default: "false"
     - name: cpd_platform_install_plan
       type: string
       default: "Automatic"
@@ -2193,6 +2196,8 @@ spec:
           value: $(params.cpfs_size)
         - name: cpd_scale_config
           value: $(params.cpd_scale_config)
+        - name: cpd_public_route_enabled
+          value: $(params.cpd_public_route_enabled)
         - name: cpd_platform_install_plan
           value: $(params.cpd_platform_install_plan)
         - name: cpd_namespace_scope_install_plan
