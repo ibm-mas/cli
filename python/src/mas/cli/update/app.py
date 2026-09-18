@@ -449,15 +449,15 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             [
                 "Select MAS Catalog",
                 "  1) Sep 18 2026 Update (MAS 9.2.6, 9.1.25, 9.0.31, 8.11.34, &amp; 8.10.37)",
-                "  2) Sep 02 2026 Update (MAS 9.2.3, 9.1.22, 9.0.29, 8.11.34, &amp; 8.10.37)",
-                "  3) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
+                "  2) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
+                "  3) Jul 30 2026 Update (MAS 9.2.1, 9.1.20, 9.0.28, 8.11.34, &amp; 8.10.37)",
             ]
         )
 
         catalogOptions = [
             "v9-260918-amd64",
-            "v9-260902-amd64",
             "v9-260827-amd64",
+            "v9-260730-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
