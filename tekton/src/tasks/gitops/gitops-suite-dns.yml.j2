@@ -38,11 +38,16 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: cpd_public_route_enabled
+      type: string
+      default: "false"
 
   stepTemplate:
     env:
       - name: CLUSTER_URL
         value: $(params.cluster_url)
+      - name: CPD_PUBLIC_ROUTE_ENABLED
+        value: $(params.cpd_public_route_enabled)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
       - name: MAS_INSTANCE_ID
