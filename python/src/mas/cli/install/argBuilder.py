@@ -26,6 +26,8 @@ class installArgBuilderMixin:
             command += "export AWS_ACCESS_KEY_ID=x\n"
         if self.getParam("secret_access_key") != "":
             command += "export SECRET_ACCESS_KEY=x\n"
+        if self.getParam("aws_secret_access_key") != "":
+            command += "export AWS_SECRET_ACCESS_KEY=x\n"
         if self.getParam("artifactory_username") != "":
             command += "export ARTIFACTORY_USERNAME=x\nexport ARTIFACTORY_TOKEN=x\n"
 
@@ -151,12 +153,35 @@ class installArgBuilderMixin:
             command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
             command += f" --cis-crn \"{self.getParam('cis_crn')}\""
             command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
+            if self.getParam("cis_enhanced_security") == "true":
+                command += f"  --cis-enhanced-security{newline}"
+                if self.getParam("cis_service_name") != "":
+                    command += f"  --cis-service-name \"{self.getParam('cis_service_name')}\"{newline}"
+                if self.getParam("update_dns_entries") == "true":
+                    command += f"  --update-dns-entries{newline}"
+                if self.getParam("cis_waf") == "true":
+                    command += f"  --cis-waf{newline}"
+                if self.getParam("cis_proxy") == "true":
+                    command += f"  --cis-proxy{newline}"
+                if self.getParam("delete_wildcards") == "true":
+                    command += f"  --delete-wildcards{newline}"
+                if self.getParam("override_edge_certs") == "true":
+                    command += f"  --override-edge-certs{newline}"
 
         if self.getParam("dns_provider") == "cloudflare":
             command += f'  --dns-provider cloudflare --cloudflare-apitoken "$CLOUDFLARE_APITOKEN"{newline}'
             command += f"  --cloudflare-email \"{self.getParam('cloudflare_email')}\"{newline}"
             command += f"  --cloudflare-zone \"{self.getParam('cloudflare_zone')}\"{newline}"
             command += f"  --cloudflare-subdomain \"{self.getParam('cloudflare_subdomain')}\"{newline}"
+
+        if self.getParam("dns_provider") == "route53":
+            command += f"  --dns-provider route53{newline}"
+            command += f"  --route53-hosted-zone-name \"{self.getParam('route53_hosted_zone_name')}\"{newline}"
+            command += f"  --route53-hosted-zone-region \"{self.getParam('route53_hosted_zone_region')}\"{newline}"
+            command += f"  --route53-subdomain \"{self.getParam('route53_subdomain')}\"{newline}"
+            command += f"  --route53-email \"{self.getParam('route53_email')}\"{newline}"
+            command += f"  --aws-access-key-id $AWS_ACCESS_KEY_ID{newline}"
+            command += f"  --aws-secret-access-key $AWS_SECRET_ACCESS_KEY{newline}"
 
         if self.getParam("mas_cluster_issuer") != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
