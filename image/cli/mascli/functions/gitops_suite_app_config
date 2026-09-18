@@ -626,7 +626,7 @@ function gitops_suite_app_config() {
       
       # Set customer-level secret path (without trailing separator)
       export FACILITIES_VAULT_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities"
-      export FACILITIES_LIBERTY_EXTENSIONS_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities"
+      export FACILITIES_LIBERTY_EXTENSIONS_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities"
       
       # Get user-provided secret name from app spec (if any)
       USER_PROVIDED_VAULT_SECRET=$(yq eval '.mas_appws_spec.settings.vaultSecret.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
