@@ -448,7 +448,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) Sep 18 2026 Update (MAS 9.2.4, 9.1.23, 9.0.30, 8.11.34, &amp; 8.10.37)",
+                "  1) Sep 18 2026 Update (MAS 9.2.6, 9.1.25, 9.0.31, 8.11.34, &amp; 8.10.37)",
                 "  2) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
                 "  3) Jul 30 2026 Update (MAS 9.2.1, 9.1.20, 9.0.28, 8.11.34, &amp; 8.10.37)",
             ]
