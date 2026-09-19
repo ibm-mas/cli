@@ -15,6 +15,7 @@ from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from mas.devops.slack import SlackUtil
+from mas.toolchain.github.checks import createCheckRun, updateCheckRun
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
 import threading
@@ -162,6 +163,62 @@ def getcp4dCompsVersions():
             print("Unable to determine Cognos Analytics version: status.versions.reconciled unavailable")
     except Exception as e:
         print(f"Unable to determine Cognos Analytics version: {e}")
+
+
+# GHE repo slugs for each product operator — used to post check runs against
+# the commit that was deployed when FVT ran.
+# Format: productId (as used in knownProductIds) -> "org/repo" on github.ibm.com
+# -----------------------------------------------------------------------------
+PRODUCT_REPO_SLUGS = {
+    "ibm-mas": "maximoappsuite/ibm-mas",
+    "ibm-mas-assist": "maximoappsuite/ibm-mas-assist",
+    "ibm-mas-iot": "maximoappsuite/ibm-mas-iot",
+    "ibm-mas-manage": "maximoappsuite/ibm-mas-manage",
+    "ibm-mas-facilities": "maximoappsuite/ibm-mas-facilities",
+    "ibm-mas-monitor": "maximoappsuite/ibm-mas-monitor",
+    "ibm-mas-optimizer": "maximoappsuite/ibm-mas-optimizer",
+    "ibm-mas-predict": "maximoappsuite/ibm-mas-predict",
+    "ibm-mas-visualinspection": "maximoappsuite/ibm-mas-visualinspection",
+    "ibm-mas-data-dictionary": "maximoappsuite/ibm-mas-data-dictionary",
+    "ibm-sls": "maximoappsuite/ibm-sls",
+    "ibm-aiservice": "maximoappsuite/ibm-aiservice",
+}
+
+CHECK_RUN_NAME = "FVT Results"
+
+
+def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId):
+    """Post a GHE check run against the product repo commit that was under test.
+
+    Phase 1: simply links the FVT run back to the commit — no detailed output yet.
+    The check always completes as 'neutral' so it is purely informational and does
+    not block PRs or merges.
+
+    Args:
+        productId  (str): e.g. 'ibm-mas-manage'
+        commitId   (str): full SHA from the mas.ibm.com/commitId deployment label
+        repoSlug   (str): 'org/repo' on github.ibm.com
+        detailsUrl (str): URL of the FVT dashboard run (used as the 'Details' link)
+        runId      (str): human-readable run identifier, e.g. 'fvt92x:42'
+    """
+    try:
+        check_run_id = createCheckRun(
+            name=CHECK_RUN_NAME,
+            repoSlug=repoSlug,
+            commitSha=commitId,
+            detailsUrl=detailsUrl,
+        )
+        updateCheckRun(
+            checkRunId=check_run_id,
+            repoSlug=repoSlug,
+            conclusion="neutral",
+            detailsUrl=detailsUrl,
+            outputTitle="FVT run linked",
+            outputSummary=f"This commit was included in FVT run [{runId}]({detailsUrl}).",
+        )
+        print(f"GHE check run posted: {repoSlug}@{commitId[:8]} [{CHECK_RUN_NAME}]")
+    except Exception as e:
+        print(f"Failed to post GHE check run for {productId} ({repoSlug}@{commitId[:8]}): {e}")
 
 
 # Script start
@@ -624,6 +681,23 @@ if __name__ == "__main__":
         print(f"Run information updated in MongoDb (v2 data model) {setObject}")
     else:
         print("Run information NOT updated in MongoDb because DRY_RUN is set")
+
+    # Publish GHE check runs linked to each product repo commit
+    # Only runs when the build is finished and the GHE App key is available.
+    # Failures here are non-fatal — they print a warning and the script continues.
+    # -------------------------------------------------------------------------
+    if setFinished.lower() == "true" and os.getenv("GITHUB_APP_PRIVATE_KEY"):
+        details_url = os.getenv("TOOLCHAIN_PIPELINERUN_URL", f"https://dashboard.ibmmas.com/tests/{instanceId}")
+        for productId, repoSlug in PRODUCT_REPO_SLUGS.items():
+            commitId = setObject.get(f"products.{productId}.commitId")
+            if not commitId:
+                print(f"No commitId for {productId}, skipping GHE check run")
+                continue
+            publish_fvt_check_run(productId, commitId, repoSlug, details_url, runId)
+    elif setFinished.lower() != "true":
+        print("FVT run not yet finished, skipping GHE check runs")
+    else:
+        print("GITHUB_APP_PRIVATE_KEY not set, skipping GHE check runs")
 
     # Check pre-reqs for Slack integration
     # -------------------------------------------------------------------------
