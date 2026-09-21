@@ -25,11 +25,13 @@
     # Determine which Monitor FVT suite to run based on Monitor version and presence of Manage:
     #   - 8.10.x / 8.11.x: legacy suite (monitor_fvt_with_manage only, no health check)
     #   - 9.0.x:            legacy suite + health check (fvt_90x)
-    #   - 9.1.x / 9.2.x+:  new parallel suites (fvt_91x)
+    #   - 9.1.x / 9.2.x+ / 9.3.x+:  new parallel suites (fvt_91x)
     fvt_test_suite: >-
       {%- if '9.1' in mas_app_channel_monitor -%}
         fvt_91x
       {%- elif '9.2' in mas_app_channel_monitor -%}
+        fvt_91x
+      {%- elif '9.3' in mas_app_channel_monitor -%}
         fvt_91x
       {%- elif '9.0' in mas_app_channel_monitor -%}
         fvt_90x

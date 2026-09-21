@@ -250,7 +250,9 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 4. Routing Mode Configuration - Select path-based routing
         ".*Routing Mode.*": lambda msg: "1",  # Select path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
-        # 5. Service Mesh Configuration - to use service mesg
+        # 4.1. Let's Encrypt HTTP-01 - decline, use existing cert setup
+        ".*Do you want to use Let.*s Encrypt.*": lambda msg: "n",
+        # 5. Service Mesh Configuration - to use service mesh
         ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",  # Select to use service mesh
         # 5. Configure IngressController for path-based routing
         ".*Configure ingress namespace ownership.*": lambda msg: "y",  # Agree to configure
@@ -503,7 +505,7 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
     run_install_test(tmpdir, config)
 
 
-def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
+def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir, caplog):
     """Test non-interactive installation with path-based routing mode using CLI flags.
 
     This test verifies the complete non-interactive flow with path-based routing:
@@ -534,7 +536,7 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
             "--artifactory-token",
             "ARTIFACTORY_TOKEN",
             "--mas-catalog-version",
-            "v9-master-amd64",
+            "v9-260625-amd64",
             "--mas-instance-id",
             "fvtcore",
             "--mas-workspace-id",
@@ -645,8 +647,16 @@ def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir):
             "--no-confirm",
         ],
     )
-    # Run the test
-    run_install_test(tmpdir, config)
+    # Run the test and capture SystemExit to verify error message
+    with pytest.raises(SystemExit) as exc_info:
+        run_install_test(tmpdir, config)
+
+    # Verify the error message contains the expected text
+    assert exc_info.value.code != 0, "Expected non-zero exit code"
+
+    # Verify the error message was logged
+    error_message = "Path-based routing is not supported with this catalog"
+    assert any(error_message in record.message for record in caplog.records), f"Expected error message '{error_message}' not found in logs"
 
 
 def test_install_master_dev_mode_non_interactive_with_slack(tmpdir):

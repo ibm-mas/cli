@@ -202,6 +202,9 @@ spec:
     - name: mas_pod_template_yaml
       type: string
       default: ""
+    - name: mas_sls_pod_template_yaml
+      type: string
+      default: ""
     - name: mas_bascfg_pod_template_yaml
       type: string
       default: ""
@@ -260,7 +263,7 @@ spec:
       type: string
     - name: application_configuration
       type: string
-      default: "true"
+      default: ""
     - name: additional_resources_instances
       type: string
       default: ""
@@ -272,6 +275,7 @@ spec:
       default: ""
     - name: maf_enabled
       type: string
+      default: "false"
     - name: maf_storageClassName
       type: string
       default: ""
@@ -518,6 +522,8 @@ spec:
           value: /workspace/configs/manual_certs.yaml
         - name: mas_pod_template_yaml
           value: $(params.mas_pod_template_yaml)
+        - name: mas_sls_pod_template_yaml
+          value: $(params.mas_sls_pod_template_yaml)
         - name: mas_wipe_mongo_data
           value: $(params.mas_wipe_mongo_data)
         - name: mas_feature_usage
@@ -998,6 +1004,8 @@ spec:
     # 3. Deprovision app config
     # -------------------------------------------------------------------------
     - name: gitops-deprovision-maf-app-config
+      runAfter:
+        - gitops-suite-config
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}

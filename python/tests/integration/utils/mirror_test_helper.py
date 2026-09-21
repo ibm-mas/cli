@@ -201,8 +201,9 @@ class MirrorTestHelper:
                 # CP4D WSL version keys
                 "wsl_version": "11.0.0+20250521.202913.73",
                 "wsl_runtimes_version": "11.0.0+20250515.090949.21",
-                # CP4D WML version key
+                # CP4D WML version keys
                 "wml_version": "11.0.0+20250530.193146.282",
+                "redis_version": "1.3.1",
                 # CP4D Spark version key
                 "spark_version": "11.0.0+20250604.163055.2097",
                 # CP4D Cognos version key
