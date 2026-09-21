@@ -15,7 +15,7 @@ from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from mas.devops.slack import SlackUtil
-from mas.toolchain.github.checks import createCheckRun, updateCheckRun
+from mas.devops.github import createCheckRun, updateCheckRun
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
 import threading

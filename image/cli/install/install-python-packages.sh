@@ -5,9 +5,6 @@ python3 -m pip install pip --upgrade
 # We always install the version of the mas-cli package that we just built
 python3 -m pip install /tmp/install/mas_cli.tar.gz
 
-# Install mas-toolchain for GHE Checks API integration (used by finalizer.py)
-python3 -m pip install mas-toolchain
-
 if [[ -e /tmp/install/mas_devops.tar.gz ]]; then
     # If we have copied a pre-built version of the mas_devops collection then use that,
     # otherwise we will use the latest version that was installed when we installed the mas-cli package above
