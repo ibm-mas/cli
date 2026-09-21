@@ -177,6 +177,8 @@ class InstallSummarizerMixin:
         if self.getParam("mas_catalog_digest") != "":
             self.printParamSummary("Catalog Digest", "mas_catalog_digest")
         self.printParamSummary("Subscription Channel", "mas_channel")
+        if self.getParam("tsm_channel") != "":
+            self.printParamSummary("Truststore Manager Channel", "tsm_channel")
 
         print()
         self.printParamSummary("IBM Entitled Registry", "mas_icr_cp")

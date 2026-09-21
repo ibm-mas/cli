@@ -34,6 +34,11 @@ spec:
       description: AI Service Channel (independent, same for all apps)
       default: ""
 
+    - name: tsm_channel
+      type: string
+      default: ""
+      description: Custom ibm-truststore-mgr subscription channel
+
     # Custom Label Support
     - name: custom_labels
       type: string
@@ -448,6 +453,9 @@ spec:
       env:
         - name: DEVOPS_SUITE_NAME
           value: app-$(params.mas_app_id)-install
+
+        - name: TSM_CHANNEL
+          value: $(params.tsm_channel)
 
         # Pre-Release Support
         - name: ARTIFACTORY_USERNAME

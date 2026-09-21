@@ -331,6 +331,10 @@ class InstallApp(
         if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
             self.promptForString("Select channel", "mas_channel", default="9.2.x-dev")
+            default_tsm_channel = "1.x-stable"
+            if self.args.tsm_channel and self.args.tsm_channel != "":
+                default_tsm_channel = self.args.tsm_channel
+            self.promptForString("IBM Truststore Manager channel", "tsm_channel", default_tsm_channel)
         else:
             catalogInfo = getCurrentCatalog(self.dynamicClient)
             logger.debug(f"Installed catalog lookup result: {catalogInfo}")
@@ -2384,6 +2388,10 @@ class InstallApp(
                 if self.devMode:
                     if value is not None and value != "":
                         self.setParam("sls_channel", value)
+            elif key == "tsm_channel":
+                if self.devMode:
+                    if value is not None and value != "":
+                        self.setParam("tsm_channel", value)
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":

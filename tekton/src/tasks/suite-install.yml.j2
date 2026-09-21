@@ -15,6 +15,9 @@ spec:
       default: ""
     - name: mas_channel
       type: string
+    - name: tsm_channel
+      type: string
+      default: ""
     - name: mas_catalog_source
       type: string
       default: ""
@@ -156,6 +159,8 @@ spec:
       # General
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
+      - name: TSM_CHANNEL
+        value: $(params.tsm_channel)
       - name: MAS_CATALOG_SOURCE
         value: $(params.mas_catalog_source)
 

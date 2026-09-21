@@ -80,6 +80,8 @@ class installArgBuilderMixin:
         # MAS Basic Configuration
         # -----------------------------------------------------------------------------
         command += f"  --mas-channel {self.getParam('mas_channel')}"
+        if self.getParam("tsm_channel") != "":
+            command += f" --tsm-channel {self.getParam('tsm_channel')}"
         command += f" --mas-instance-id {self.getParam('mas_instance_id')}"
         command += f" --mas-workspace-id {self.getParam('mas_workspace_id')}"
         command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"

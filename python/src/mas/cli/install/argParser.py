@@ -93,6 +93,7 @@ masArgGroup.add_argument("-i", "--mas-instance-id", required=False, help="MAS In
 masArgGroup.add_argument("-w", "--mas-workspace-id", required=False, help="MAS Workspace ID")
 masArgGroup.add_argument("-W", "--mas-workspace-name", required=False, help="MAS Workspace Name")
 masArgGroup.add_argument("--mas-channel", required=False, help="Subscription channel for the Core Platform")
+masArgGroup.add_argument("--tsm-channel", required=False, help="Customize the ibm-truststore-mgr channel when in development mode")
 masArgGroup.add_argument("--aiservice-instance-id", required=False, help="AI Service Instance ID")
 masArgGroup.add_argument(
     "--configure-ai-assistant",
