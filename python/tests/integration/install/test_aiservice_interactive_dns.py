@@ -39,6 +39,7 @@ def _base_prompts(tmpdir):
         ".*Show advanced installation options.*": lambda msg: "y",
         ".*Select catalog source.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.2.x",
+        ".*IBM Truststore Manager channel.*": lambda msg: "1.x-stable",
         ".*Use the auto-detected storage classes.*": lambda msg: "y",
         ".*SLS Mode.*": lambda msg: "1",
         ".*SLS channel.*": lambda msg: "3.x",
