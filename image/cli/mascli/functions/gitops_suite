@@ -955,6 +955,30 @@ function gitops_suite() {
     echo -e "\n - INTERNAL_CERTIFICATE_AUTHORITY .................. ${INTERNAL_CERTIFICATE_AUTHORITY}"
   fi
 
+  # Auto-detect FVT GitOps enabled apps
+  # ---------------------------------------------------------------------------
+  # If FVT_GITOPS_ENABLED_APPS is empty, build the list automatically:
+  #   - "suite" is always included
+  #   - append any app name found via ibm-mas-masapp-<app>-install.yaml files
+  #     that already exist in the instance config directory (written by
+  #     gitops-suite-app-install runs that precede this step)
+  # If FVT_GITOPS_ENABLED_APPS is explicitly set, honour it as-is so callers
+  # can run a targeted subset without touching the installed app configs.
+  if [[ "${FVT_GITOPS_ENABLED}" == "true" ]]; then
+    if [[ -z "${FVT_GITOPS_ENABLED_APPS}" ]]; then
+      FVT_GITOPS_ENABLED_APPS="suite"
+      for install_file in ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-*-install.yaml; do
+        [[ -f "${install_file}" ]] || continue
+        app_name=$(basename "${install_file}" | sed 's/ibm-mas-masapp-//;s/-install\.yaml//')
+        FVT_GITOPS_ENABLED_APPS="${FVT_GITOPS_ENABLED_APPS},${app_name}"
+      done
+      export FVT_GITOPS_ENABLED_APPS
+      echo "- Auto-detected FVT GitOps enabled apps: ${FVT_GITOPS_ENABLED_APPS}"
+    else
+      echo "- Using explicit FVT GitOps enabled apps override: ${FVT_GITOPS_ENABLED_APPS}"
+    fi
+  fi
+
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo

@@ -84,8 +84,9 @@ production_database_access:
 {%- if FVT_GITOPS_ENABLED is defined and FVT_GITOPS_ENABLED == 'true' %}
 fvt_gitops:
   enabled: true
-  # enabled_apps: "suite" always runs; append app names from mas-apps-params.yaml
-  # that have a matching suite directory in the fvt-gitops image.
+  # enabled_apps is auto-detected by gitops_suite from ibm-mas-masapp-*-install.yaml
+  # files in the instance directory ("suite" always included). Set fvt_gitops.enabled_apps
+  # explicitly in saas-envs to override and run only a targeted subset of test suites.
   enabled_apps: "{{ FVT_GITOPS_ENABLED_APPS }}"
   image_repo: "{{ FVT_GITOPS_IMAGE_REPO }}"
   image_tag: "{{ FVT_GITOPS_IMAGE_TAG }}"
