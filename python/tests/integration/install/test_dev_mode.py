@@ -63,6 +63,7 @@ def test_install_master_dev_mode(tmpdir):
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.1.x-dev",
+        ".*IBM Truststore Manager channel.*": lambda msg: "1.x-stable",
         # 4. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: "y",
         # 5. SLS configuration
@@ -146,6 +147,7 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.1.x-dev",
+        ".*IBM Truststore Manager channel.*": lambda msg: "1.x-stable",
         # 4. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: "y",
         # 5. SLS configuration
@@ -247,6 +249,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.2.x-dev",  # Use 9.2.x-dev channel
+        ".*IBM Truststore Manager channel.*": lambda msg: "1.x-stable",
         # 4. Routing Mode Configuration - Select path-based routing
         ".*Routing Mode.*": lambda msg: "1",  # Select path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller

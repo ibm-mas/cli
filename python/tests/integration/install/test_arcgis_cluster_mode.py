@@ -34,6 +34,7 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.2.x-dev",  # Use 9.2.x-dev channel
+        ".*IBM Truststore Manager channel.*": lambda msg: "1.x-stable",
         # 4. Routing Mode Configuration - Select subdomain routing (simplest for this test)
         ".*Routing Mode.*": lambda msg: "2",  # Select subdomain routing, 1 for path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
@@ -198,6 +199,7 @@ def test_install_arcgis_namespace_mode_error(tmpdir, caplog):
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.2.x-dev",
+        ".*IBM Truststore Manager channel.*": lambda msg: "1.x-stable",
         # 4. Routing Mode Configuration
         ".*Routing Mode.*": lambda msg: "1",
         # 4.1. Let's Encrypt HTTP-01 - decline, use existing cert setup
@@ -341,6 +343,7 @@ def test_install_arcgis_minimal_mode_error(tmpdir, caplog):
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.2.x-dev",
+        ".*IBM Truststore Manager channel.*": lambda msg: "1.x-stable",
         # 4. Routing Mode Configuration
         ".*Routing Mode.*": lambda msg: "1",
         # 4.1. Let's Encrypt HTTP-01 - decline, use existing cert setup

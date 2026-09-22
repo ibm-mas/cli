@@ -2541,6 +2541,8 @@ class InstallApp(
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
         if not self.devMode:
+            if self.args.tsm_channel and self.args.tsm_channel != "":
+                self.fatalError("--tsm-channel is only supported in development mode (--dev-mode)")
             self.validateCatalogSource()
             self.licensePrompt()
             self.setParam("db2u_kind", "db2ucluster")

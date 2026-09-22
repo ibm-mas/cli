@@ -299,6 +299,7 @@ class TestInteractiveLetsEncryptIntegration:
             # Catalog
             ".*Select catalog.*": lambda msg: "v9-master-amd64",
             ".*Select channel.*": lambda msg: "9.2.x-dev",
+            ".*IBM Truststore Manager channel.*": lambda msg: "1.x-stable",
             # Routing Mode - path
             ".*Routing Mode.*": lambda msg: "1",
             # Let's Encrypt prompt - controlled by caller
