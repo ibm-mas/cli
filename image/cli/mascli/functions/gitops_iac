@@ -1378,6 +1378,7 @@ function gitops_iac_provision_rdsdb2(){
   fi
 
 
+
   # Clone the working branch to get latest changes from other tasks
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
