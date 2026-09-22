@@ -1,0 +1,300 @@
+#!/usr/bin/env bash
+
+function gitops_mongodb_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-mongodb [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration:
+  -d, --dir, --gitops-working-dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}  Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                          Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                          Cluster ID
+
+AWS Secrets Manager Configuration (Required):
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
+
+MongoDB Configuration (Required):
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}   The mongodb provider to use ('aws' or 'yaml')
+      --mongo-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET} Namespace where MongoDB is installed (default: 'mongoce')
+
+Internal Certificate Authority (Optional):
+      --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority value
+
+Automatic GitHub Push (Optional):
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
+  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}             Git ssh key path
+
+Other Commands:
+  -h, --help  Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function gitops_mongodb_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG="gitops-mongodb commit"
+
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+  export MONGODB_NAMESPACE=${MONGODB_NAMESPACE:-"mongoce"}
+  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir|--gitops-working-dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+
+      # MongoDB Configuration
+      --mongo-provider)
+        export MONGODB_PROVIDER=$1 && shift
+        ;;
+      --mongo-namespace)
+        export MONGODB_NAMESPACE=$1 && shift
+        ;;
+
+      # Internal Certificate Authority
+      --internal-cert-authority)
+        export INTERNAL_CERT_AUTHORITY=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_mongodb_help
+        ;;
+      *)
+        # unknown option
+        gitops_mongodb_help "Usage Error: Unsupported option \"${key}\" "
+        ;;
+      esac
+  done
+
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_mongodb_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_mongodb_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_mongodb_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_mongodb_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$SECRETS_PATH" ]] && gitops_mongodb_help "SECRETS_PATH is not set"
+  [[ -z "$MONGODB_PROVIDER" ]] && gitops_mongodb_help "MONGODB_PROVIDER is not set"
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_mongodb_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_mongodb_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_mongodb_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_mongodb_help "GIT_BRANCH is not set"
+  fi
+}
+
+
+function gitops_mongo_database() {
+  # Take the first parameter off (it will be gitops-mongo-database)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_mongodb_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_mongodb_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h4 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "MongoDB" "    "
+  echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+  echo_reset_dim "Mongo Namespace  ............... ${COLOR_MAGENTA}${MONGODB_NAMESPACE}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h4 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host ........................... ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization ................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ..................... ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ......................... ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h4 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+  # Set up secrets
+  # ---------------------------------------------------------------------------
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-mongodb
+  rm -rf $TEMP_DIR
+  mkdir -p $TEMP_DIR
+  AVP_TYPE=aws
+  sm_login
+
+  # Define cluster-level secrets used
+  # ---------------------------------------------------------------------------
+  # Note that this cluster-level secret is set up by gitops-mongo
+  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
+  export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
+  export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
+
+  # Read mongo info from AWS Secrets Manager
+  # ---------------------------------------------------------------------------
+  export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
+  export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
+
+  sm_verify_secret_exists ${SECRET_NAME_MONGO} "username,password,info"
+  sm_get_secret_file ${SECRET_NAME_MONGO} $MONGO_SECRET_FILE
+
+  # Extract the 'info' YAML field — this is what jinjanate uses as its data file
+  # It contains: config.hosts[], config.retryWrites, certificates[], etc.
+  jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
+
+  # DocDB federal / AWS IAM auth — if an AWS docdb secret exists, override auth mechanism
+  export DOCDB_FEDERAL_SECRET_FILE=$TEMP_DIR/docdb-federal-secret.json
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_SECRET_FILE
+  DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_SECRET_FILE)
+  if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} && ${DOCDB_FEDERAL_ACCESS_KEY} != "null" ]]; then
+    echo "gitops_mongodb: DOCDB_FEDERAL_ACCESS_KEY=${DOCDB_FEDERAL_ACCESS_KEY:0:8}<snip> found — enabling MONGODB-AWS auth"
+    export DOCDB_AUTHMECHANISM="MONGODB-AWS"
+    export DOCDB_CONFIGDB='$$external'
+  fi
+
+  # Optional: internal certificate authority
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+    export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
+  fi
+
+  if [[ -z "$GIT_SSH" ]]; then
+    export GIT_SSH="false"
+  fi
+
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
+  MONGODB_APP_NAME="mongodb.${CLUSTER_ID}"
+
+  validate_app_name "${CLUSTER_ROOT_APP}"
+  validate_app_name "${MONGODB_APP_NAME}"
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_CLUSTER_DIR}
+
+
+  # Generate ArgoApps
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating MongoDB Application"
+  echo "- IBM MongoDB"
+
+  jinjanate --quiet --undefined --import-env='' \
+    $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-mongodb.yaml.j2 \
+    $MONGO_CONFIG_FILE \
+    -o ${GITOPS_CLUSTER_DIR}/ibm-mongodb.yaml
+
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+  rm -rf $TEMP_DIR
+
+}

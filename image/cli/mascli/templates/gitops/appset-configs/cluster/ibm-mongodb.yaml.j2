@@ -1,0 +1,55 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+account:
+  id: {{ ACCOUNT_ID }}
+
+cluster:
+  id: {{ CLUSTER_ID }}
+
+region:
+  id: {{ REGION_ID }}
+
+sm:
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/aws#sm_aws_access_key_id>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/aws#sm_aws_secret_access_key>"
+
+ibm_mongodb:
+  mongodb_provider: "{{ MONGODB_PROVIDER }}"
+  mongodb_namespace: "{{ MONGODB_NAMESPACE }}"
+  run_sync_hooks: true
+  mongo_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>"
+  mongo_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>"
+  mongo_secret_name: mongo-credentials
+  mongo_spec:
+    authMechanism: {{ DOCDB_AUTHMECHANISM | default("DEFAULT") }}
+    configDb: {{ DOCDB_CONFIGDB | default("admin") }}
+    secretName: mongo-credentials
+{%- if config.retryWrites is sameas false %}
+    retryWrites: false
+{%- endif %}
+    nodes:
+{%- for mongo_host in config.hosts %}
+      - host: {{ mongo_host.host }}
+        port: {{ mongo_host.port }}
+{%- endfor %}
+    certificates:
+{%- if config.certificate %}
+{%- for mongo_certificate in config.certificate %}
+      - alias: {{ mongo_certificate.alias }}
+        crt: |
+          {% filter indent(width=10) -%}
+          {{ mongo_certificate.crt }}
+          {%- endfilter %}
+{%- endfor %}
+{%- elif certificates %}
+{%- for mongo_certificate in certificates %}
+      - alias: {{ mongo_certificate.alias }}
+        crt: |
+          {% filter indent(width=10) -%}
+          {{ mongo_certificate.crt }}
+          {%- endfilter %}
+{%- endfor -%}
+{%- endif -%}
+{% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
+  internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
+{% endif %}
