@@ -15,6 +15,7 @@ from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from mas.devops.slack import SlackUtil
+from mas.devops.mas import getPermissionMode
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
 import threading
@@ -268,6 +269,17 @@ if __name__ == "__main__":
             print("Unable to determine IBM Catalog Version: spec.displayName unavailable")
     except Exception as e:
         print(f"Unable to determine Catalog installed version: {e}")
+
+    # Lookup RBAC permission mode
+    # -------------------------------------------------------------------------
+    try:
+        rbacMode = getPermissionMode(dynClient, instanceId)
+        if rbacMode is not None:
+            setObject["target.rbacMode"] = rbacMode
+        else:
+            print("Unable to determine RBAC permission mode: no matching RBAC resources found")
+    except Exception as e:
+        print(f"Unable to determine RBAC permission mode: {e}")
 
     # Lookup version and build information for MAS Operators
     # -------------------------------------------------------------------------
