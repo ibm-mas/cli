@@ -243,6 +243,8 @@ class BaseApp(PrintMixin, PromptMixin):
         }
 
         self.upgrade_path: Dict[str, str] = {
+            "9.2.x-dev": "9.3.x-pr.kind",
+            "9.2.x": "9.3.x-pr.kind",
             "9.2.x-feature": "9.2.x",
             "9.1.x": "9.2.x",
             "9.1.x-feature": "9.1.x",
@@ -361,7 +363,7 @@ class BaseApp(PrintMixin, PromptMixin):
     @logMethodCall
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> List[str]:
         if coreChannel in self.compatibilityMatrix:
-            return self.compatibilityMatrix[coreChannel][appId]
+            return self.compatibilityMatrix[coreChannel].get(appId, [])
         else:
             return []
 
