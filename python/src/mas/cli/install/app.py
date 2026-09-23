@@ -308,19 +308,19 @@ class InstallApp(
                 for item in editorial["whats_new"]:
                     # Replace **text** with <b>text</b> in title
                     title = item.get("title", "")
-                    title = title.replace("**", "<b>", 1).replace("**", "</b>", 1)
+                    title = title.replace("&", "&amp;").replace("**", "<b>", 1).replace("**", "</b>", 1)
                     summary.append(title)
                     # Add details if present
                     if "details" in item and item["details"]:
                         for detail in item["details"]:
-                            summary.append(f" - {detail}")
+                            summary.append(f" - {detail.replace('&', '&amp;')}")
 
             # Add Known Issues section
             if "known_issues" in editorial and editorial["known_issues"]:
                 summary.append("")
                 summary.append("<u>Known Issues</u>")
                 for issue in editorial["known_issues"]:
-                    title = issue.get("title", "")
+                    title = issue.get("title", "").replace("&", "&amp;")
                     summary.append(f"- {title}")
 
         return summary
