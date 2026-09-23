@@ -14,12 +14,20 @@ Basic Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                          Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                          Cluster ID
 
-AVP Secrets Path (Required):
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}  Secrets path prefix used to build AVP <path:...> references in the rendered YAML
-
 MongoDB Configuration (Required):
-      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}   The mongodb provider to use ('aws' or 'yaml')
-      --mongo-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET} Namespace where MongoDB is installed (default: 'mongoce')
+      --mongo-provider  ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}   The mongodb provider ('community', 'aws', or 'ibm')
+      --mongo-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}  Namespace where MongoDB is installed (default: 'mongoce')
+
+MongoDB Configuration (Optional):
+      --mongo-version         ${COLOR_YELLOW}MONGODB_VERSION${TEXT_RESET}        MongoDB version to install
+      --mongo-storage-class   ${COLOR_YELLOW}MONGODB_STORAGE_CLASS${TEXT_RESET}  Storage class for MongoDB PVCs
+      --mongo-replicas        ${COLOR_YELLOW}MONGODB_REPLICAS${TEXT_RESET}        Number of MongoDB replicas (default: 3)
+      --mongo-cpu-requests    ${COLOR_YELLOW}MONGODB_CPU_REQUESTS${TEXT_RESET}    CPU requests for MongoDB pods
+      --mongo-install-plan    ${COLOR_YELLOW}MONGODB_INSTALL_PLAN${TEXT_RESET}    Subscription install plan ('Automatic' or 'Manual', default: 'Automatic')
+
+IBM Entitlement (Required):
+      --ibm-entitlement-key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}  IBM Entitlement Key for pulling images
+      --secrets-path        ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}         Secrets path prefix for AVP <path:...> references
 
 Internal Certificate Authority (Optional):
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority value
@@ -42,7 +50,6 @@ EOM
 
 function gitops_mongodb_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-mongodb commit"
 
   while [[ $# -gt 0 ]]
@@ -61,17 +68,35 @@ function gitops_mongodb_noninteractive() {
         export CLUSTER_ID=$1 && shift
         ;;
 
-      # AVP Secrets Path
-      --secrets-path)
-        export SECRETS_PATH=$1 && shift
-        ;;
-
       # MongoDB Configuration
       --mongo-provider)
         export MONGODB_PROVIDER=$1 && shift
         ;;
       --mongo-namespace)
         export MONGODB_NAMESPACE=$1 && shift
+        ;;
+      --mongo-version)
+        export MONGODB_VERSION=$1 && shift
+        ;;
+      --mongo-storage-class)
+        export MONGODB_STORAGE_CLASS=$1 && shift
+        ;;
+      --mongo-replicas)
+        export MONGODB_REPLICAS=$1 && shift
+        ;;
+      --mongo-cpu-requests)
+        export MONGODB_CPU_REQUESTS=$1 && shift
+        ;;
+      --mongo-install-plan)
+        export MONGODB_INSTALL_PLAN=$1 && shift
+        ;;
+
+      # IBM Entitlement
+      --ibm-entitlement-key)
+        export IBM_ENTITLEMENT_KEY=$1 && shift
+        ;;
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
         ;;
 
       # Internal Certificate Authority
@@ -114,14 +139,17 @@ function gitops_mongodb_noninteractive() {
   done
 
   export MONGODB_NAMESPACE=${MONGODB_NAMESPACE:-"mongoce"}
-  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"community"}
+  export MONGODB_REPLICAS=${MONGODB_REPLICAS:-3}
+  export MONGODB_INSTALL_PLAN=${MONGODB_INSTALL_PLAN:-"Automatic"}
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_mongodb_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_mongodb_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_mongodb_help "CLUSTER_ID is not set"
-  [[ -z "$SECRETS_PATH" ]] && gitops_mongodb_help "SECRETS_PATH is not set"
   [[ -z "$MONGODB_PROVIDER" ]] && gitops_mongodb_help "MONGODB_PROVIDER is not set"
   [[ -z "$MONGODB_NAMESPACE" ]] && gitops_mongodb_help "MONGODB_NAMESPACE is not set"
+  [[ -z "$IBM_ENTITLEMENT_KEY" ]] && gitops_mongodb_help "IBM_ENTITLEMENT_KEY is not set"
+  [[ -z "$SECRETS_PATH" ]] && gitops_mongodb_help "SECRETS_PATH is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_mongodb_help "GITHUB_HOST is not set"
@@ -165,6 +193,10 @@ function gitops_mongo_database() {
   echo_h4 "MongoDB" "    "
   echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
   echo_reset_dim "Mongo Namespace  ............... ${COLOR_MAGENTA}${MONGODB_NAMESPACE}"
+  echo_reset_dim "Mongo Version  ................. ${COLOR_MAGENTA}${MONGODB_VERSION}"
+  echo_reset_dim "Mongo Storage Class  ........... ${COLOR_MAGENTA}${MONGODB_STORAGE_CLASS}"
+  echo_reset_dim "Mongo Replicas  ................ ${COLOR_MAGENTA}${MONGODB_REPLICAS}"
+  echo_reset_dim "Mongo Install Plan  ............ ${COLOR_MAGENTA}${MONGODB_INSTALL_PLAN}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -183,13 +215,9 @@ function gitops_mongo_database() {
   fi
   reset_colors
 
-  # Build AVP secret path references used by the Jinja2 template.
-  # These are NOT resolved here — ArgoCD/AVP resolves them at sync time
-  # after it has created the mongo secret in AWS Secrets Manager.
+  # Build AVP secret key reference for IBM entitlement key
   # ---------------------------------------------------------------------------
-  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
-  export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
-  export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}/${CLUSTER_ID}/ibm_entitlement#image_pull_secret_b64
 
   # Optional: internal certificate authority
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
