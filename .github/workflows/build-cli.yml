@@ -498,7 +498,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-manifest
-    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
+    if: ${{ github.event_name == 'release' && !contains(github.event.release.body, '[doc]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -521,15 +521,15 @@ jobs:
           echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
 
           # Getting python-devops library version from the CLI container
-          PYTHON_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:23.12.4 -c "import importlib.metadata; print(importlib.metadata.version('mas-devops'))" 2>/dev/null)
-          echo "python-devops v${PYTHON_DEVOPS_VERSION} found in CLI v23.12.4"
+          PYTHON_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} -c "import importlib.metadata; print(importlib.metadata.version('mas-devops'))" 2>/dev/null)
+          echo "python-devops v${PYTHON_DEVOPS_VERSION} found in CLI v${{ env.DOCKER_TAG }}"
 
           # Getting ansible-devops from the CLI container
-          ANSIBLE_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:23.12.4 -c "import json; print(json.load(open('/opt/app-root/lib64/python3.12/site-packages/ansible_collections/ibm/mas_devops/MANIFEST.json'))['collection_info']['version'])" 2>/dev/null)
-          echo "ansible-devops v${ANSIBLE_DEVOPS_VERSION} found in CLI v23.12.4"
+          ANSIBLE_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} -c "import json; print(json.load(open('/opt/app-root/lib64/python3.12/site-packages/ansible_collections/ibm/mas_devops/MANIFEST.json'))['collection_info']['version'])" 2>/dev/null)
+          echo "ansible-devops v${ANSIBLE_DEVOPS_VERSION} found in CLI v${{ env.DOCKER_TAG }}"
 
           # Fetch the existing release body for the current tag
-          EXISTING_NOTES=$(gh release view "23.12.4" --json body --jq '.body')
+          EXISTING_NOTES=$(gh release view "$GITHUB_REF_NAME" --json body --jq '.body')
 
           # Write updated notes to a temp file to avoid YAML/shell quoting issues with pipe characters
           NOTES_FILE=$(mktemp)
@@ -539,7 +539,7 @@ jobs:
           echo "Preview of release notes:"
           cat ${NOTES_FILE}
           # Amend the GitHub release notes for the current tag
-          #gh release edit "$GITHUB_REF_NAME" --notes-file "${NOTES_FILE}"
+          gh release edit "$GITHUB_REF_NAME" --notes-file "${NOTES_FILE}"
           rm -f "${NOTES_FILE}"
           echo "Release notes updated for tag ${GITHUB_REF_NAME}"
 
