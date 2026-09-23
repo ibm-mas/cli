@@ -9,9 +9,19 @@ cluster:
 ibm_mongodb:
   mongodb_provider: "{{ MONGODB_PROVIDER }}"
   mongodb_namespace: "{{ MONGODB_NAMESPACE }}"
+  mongodb_install_plan: "{{ MONGODB_INSTALL_PLAN }}"
+  mongodb_replicas: {{ MONGODB_REPLICAS }}
+  ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
   run_sync_hooks: true
-  mongo_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>"
-  mongo_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>"
+{% if MONGODB_VERSION is defined and MONGODB_VERSION != '' %}
+  mongodb_version: "{{ MONGODB_VERSION }}"
+{% endif %}
+{% if MONGODB_STORAGE_CLASS is defined and MONGODB_STORAGE_CLASS != '' %}
+  mongodb_storage_class: "{{ MONGODB_STORAGE_CLASS }}"
+{% endif %}
+{% if MONGODB_CPU_REQUESTS is defined and MONGODB_CPU_REQUESTS != '' %}
+  mongodb_cpu_requests: "{{ MONGODB_CPU_REQUESTS }}"
+{% endif %}
 {% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
   internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
 {% endif %}
