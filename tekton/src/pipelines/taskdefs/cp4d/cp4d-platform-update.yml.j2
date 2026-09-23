@@ -10,14 +10,6 @@
     - name: cpd_product_version
       value: $(params.cpd_product_version)
 
-    # The mas-devops-cp4d role requires the ibm_entitlement_key parameter,
-    # but we don't need it for the update action, so we set skip_entitlement_key_flag
-    # to inform the role "not to worry"
-    #
-    # TODO: The role should be smart enough to know that it's doing an update
-    # and thus does not need this explicit flag
-    - name: ibm_entitlement_key
-      value: ""
     - name: skip_entitlement_key_flag
       value: "true"
 

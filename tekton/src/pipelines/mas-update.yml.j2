@@ -23,17 +23,6 @@ spec:
     - name: mas_catalog_version
       type: string
 
-    # Development Build Support
-    # -------------------------------------------------------------------------
-    - name: artifactory_username
-      default: ""
-      type: string
-      description: Required to install development MAS catalogs
-    - name: artifactory_token
-      default: ""
-      type: string
-      description: Required to install development MAS catalogs
-
     # ocs/odf storage action
     # -------------------------------------------------------------------------
     - name: ocs_action
@@ -239,13 +228,6 @@ spec:
           value: update-catalog
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
-
-        # Development catalog support
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
-
 
     # 3. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------

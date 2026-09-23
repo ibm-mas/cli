@@ -87,11 +87,6 @@ spec:
         - name: ibm_catalogs_action
           value: backup
 
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
-
       taskRef:
         kind: Task
         name: mas-devops-ibm-catalogs
@@ -423,10 +418,6 @@ spec:
           value: $(params.s3_endpoint_url)
 
         # Artifactory parameters
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
         - name: artifactory_url
           value: $(params.artifactory_url)
         - name: artifactory_repository

@@ -30,6 +30,24 @@
       name: mas-devops-slack
       key: SLACK_CHANNEL
       optional: true
+- name: IBM_ENTITLEMENT_KEY
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops-credentials
+      key: IBM_ENTITLEMENT_KEY
+      optional: true
+- name: ARTIFACTORY_TOKEN
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops-credentials
+      key: ARTIFACTORY_TOKEN
+      optional: true
+- name: ARTIFACTORY_USERNAME
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops-credentials
+      key: ARTIFACTORY_USERNAME
+      optional: true
 - name: PIPELINE_NAMESPACE
   value: $(params.pipelinerun_namespace)
 - name: PIPELINERUN_NAME

@@ -121,10 +121,6 @@ spec:
           value: $(params.s3_endpoint_url)
 
         # Artifactory parameters
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
         - name: artifactory_url
           value: $(params.artifactory_url)
         - name: artifactory_repository
@@ -329,8 +325,6 @@ spec:
           value: "$(params.dro_contact_firstname)"
         - name: dro_contact_lastname
           value: "$(params.dro_contact_lastname)"
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
         - name: dro_namespace
           value: $(params.dro_namespace)
         - name: dro_storage_class
