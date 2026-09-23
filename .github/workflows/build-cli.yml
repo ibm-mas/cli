@@ -537,7 +537,7 @@ jobs:
             "${EXISTING_NOTES}" "${ANSIBLE_DEVOPS_VERSION}" "${PYTHON_DEVOPS_VERSION}" "${PYTHON_DEVOPS_VERSION}" "${ANSIBLE_DEVOPS_VERSION}" > "${NOTES_FILE}"
 
           echo "Preview of release notes:"
-          echo ${NOTES_FILE}
+          cat ${NOTES_FILE}
           # Amend the GitHub release notes for the current tag
           #gh release edit "$GITHUB_REF_NAME" --notes-file "${NOTES_FILE}"
           rm -f "${NOTES_FILE}"
