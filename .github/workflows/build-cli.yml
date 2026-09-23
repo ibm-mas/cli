@@ -521,22 +521,22 @@ jobs:
           echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
 
           # Getting python-devops library version from the CLI container
-          PYTHON_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} -c "import importlib.metadata; print(importlib.metadata.version('mas-devops'))" 2>/dev/null)
-          echo "python-devops v${PYTHON_DEVOPS_VERSION} found in CLI v${{ env.DOCKER_TAG }}"
+          PYTHON_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:23.12.4 -c "import importlib.metadata; print(importlib.metadata.version('mas-devops'))" 2>/dev/null)
+          echo "python-devops v${PYTHON_DEVOPS_VERSION} found in CLI v23.12.4"
 
           # Getting ansible-devops from the CLI container
-          ANSIBLE_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} -c "import json; print(json.load(open('/opt/app-root/lib64/python3.12/site-packages/ansible_collections/ibm/mas_devops/MANIFEST.json'))['collection_info']['version'])" 2>/dev/null)
-          echo "ansible-devops v${ANSIBLE_DEVOPS_VERSION} found in CLI v${{ env.DOCKER_TAG }}"
+          ANSIBLE_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:23.12.4 -c "import json; print(json.load(open('/opt/app-root/lib64/python3.12/site-packages/ansible_collections/ibm/mas_devops/MANIFEST.json'))['collection_info']['version'])" 2>/dev/null)
+          echo "ansible-devops v${ANSIBLE_DEVOPS_VERSION} found in CLI v23.12.4"
 
           # Fetch the existing release body for the current tag
-          EXISTING_NOTES=$(gh release view "$GITHUB_REF_NAME" --json body --jq '.body')
+          EXISTING_NOTES=$(gh release view "23.12.4" --json body --jq '.body')
 
           # Write updated notes to a temp file to avoid YAML/shell quoting issues with pipe characters
           NOTES_FILE=$(mktemp)
           printf '%s\n\n## Content\n- https://github.com/ibm-mas/ansible-devops/releases/tag/%s\n- https://github.com/ibm-mas/python-devops/releases/tag/%s\n\n## Dependency Versions\n| Package | Version |\n|---------|---------|\n| [python-devops](https://github.com/ibm-mas/python-devops) | %s |\n| [ansible-devops](https://github.com/ibm-mas/ansible-devops) | %s |\n' \
             "${EXISTING_NOTES}" "${ANSIBLE_DEVOPS_VERSION}" "${PYTHON_DEVOPS_VERSION}" "${PYTHON_DEVOPS_VERSION}" "${ANSIBLE_DEVOPS_VERSION}" > "${NOTES_FILE}"
 
-
+          echo "Preview of release notes:"
           echo ${NOTES_FILE}
           # Amend the GitHub release notes for the current tag
           #gh release edit "$GITHUB_REF_NAME" --notes-file "${NOTES_FILE}"
