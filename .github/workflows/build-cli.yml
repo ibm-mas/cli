@@ -492,3 +492,54 @@ jobs:
               docker buildx imagetools create -t quay.io/ibmmas/cli:${BUILD_TAG} quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
             fi
           fi
+
+  update-release-notes:
+    name: Update Release Notes
+    runs-on: ubuntu-latest
+    needs:
+      - build-manifest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        # Without this option, we don't get the tag information
+        with:
+          fetch-depth: 0
+
+      - name: Initialise the build system
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
+      - name: Update the release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
+          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
+
+          # Getting python-devops library version from the CLI container
+          PYTHON_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} -c "import importlib.metadata; print(importlib.metadata.version('mas-devops'))" 2>/dev/null)
+          echo "python-devops v${PYTHON_DEVOPS_VERSION} found in CLI v${{ env.DOCKER_TAG }}"
+
+          # Getting ansible-devops from the CLI container
+          ANSIBLE_DEVOPS_VERSION=$(docker run --rm --entrypoint python3 quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} -c "import json; print(json.load(open('/opt/app-root/lib64/python3.12/site-packages/ansible_collections/ibm/mas_devops/MANIFEST.json'))['collection_info']['version'])" 2>/dev/null)
+          echo "ansible-devops v${ANSIBLE_DEVOPS_VERSION} found in CLI v${{ env.DOCKER_TAG }}"
+
+          # Fetch the existing release body for the current tag
+          EXISTING_NOTES=$(gh release view "$GITHUB_REF_NAME" --json body --jq '.body')
+
+          # Write updated notes to a temp file to avoid YAML/shell quoting issues with pipe characters
+          NOTES_FILE=$(mktemp)
+          printf '%s\n\n## Content\n- https://github.com/ibm-mas/ansible-devops/releases/tag/%s\n- https://github.com/ibm-mas/python-devops/releases/tag/%s\n\n## Dependency Versions\n| Package | Version |\n|---------|---------|\n| [python-devops](https://github.com/ibm-mas/python-devops) | %s |\n| [ansible-devops](https://github.com/ibm-mas/ansible-devops) | %s |\n' \
+            "${EXISTING_NOTES}" "${ANSIBLE_DEVOPS_VERSION}" "${PYTHON_DEVOPS_VERSION}" "${PYTHON_DEVOPS_VERSION}" "${ANSIBLE_DEVOPS_VERSION}" > "${NOTES_FILE}"
+
+
+          echo ${NOTES_FILE}
+          # Amend the GitHub release notes for the current tag
+          #gh release edit "$GITHUB_REF_NAME" --notes-file "${NOTES_FILE}"
+          rm -f "${NOTES_FILE}"
+          echo "Release notes updated for tag ${GITHUB_REF_NAME}"
+
