@@ -137,3 +137,7 @@ db2_backup_icd_auth_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_ICD_A
 allow_list:
   ips: {{ ALLOW_LIST }}
 {% endif %}
+
+{% if SECRET_KEY_DB2_LICENSE_FILE is defined and SECRET_KEY_DB2_LICENSE_FILE != '' %}
+db2_license_file: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_LICENSE_FILE }}>"
+{% endif %}
