@@ -35,7 +35,7 @@ The following environment variables are used to authenticate with registries.  W
 ```bash
 export IBM_ENTITLEMENT_KEY=xxx
 export REGISTRY_USERNAME=xxx
-export REGISTRY_PASSWORD=xxx
+export REGISTRY_PASSWORD=xxx #pragma: allowlist secret
 ```
 
 Alternatively, you can provide a pre-built Docker/Podman credentials file via `--authfile <path>` to bypass automatic credential generation.
@@ -70,7 +70,7 @@ export IBM_ENTITLEMENT_KEY=xxx
 export LOCAL_DIR=xxx
 export REGISTRY_HOST=xxx
 export REGISTRY_USERNAME=xxx
-export REGISTRY_PASSWORD=xxx
+export REGISTRY_PASSWORD=xxx #pragma: allowlist secret
 ```
 
 If the system that has internet access **cannot** reach your private registry, you will need to transfer the filesystem content (produced in the `m2d` phase) to a separate system on your private network before running the `d2m` phase.
