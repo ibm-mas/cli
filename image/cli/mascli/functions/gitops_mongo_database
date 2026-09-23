@@ -15,10 +15,7 @@ Basic Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                          Cluster ID
 
 AWS Secrets Manager Configuration (Required):
-      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
-      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
-      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}  Secrets Manager path (used to build AVP path references in the rendered YAML)
 
 MongoDB Configuration (Required):
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}   The mongodb provider to use ('aws' or 'yaml')
@@ -48,10 +45,6 @@ function gitops_mongodb_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-mongodb commit"
 
-  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
-  export MONGODB_NAMESPACE=${MONGODB_NAMESPACE:-"mongoce"}
-  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
-
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -73,12 +66,6 @@ function gitops_mongodb_noninteractive() {
         export SM_AWS_REGION=$1
         export REGION_ID=$1
         shift
-        ;;
-      --sm-aws-access-key)
-        export SM_AWS_ACCESS_KEY_ID=$1 && shift
-        ;;
-      --sm-aws-secret-key)
-        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
@@ -131,12 +118,20 @@ function gitops_mongodb_noninteractive() {
       esac
   done
 
+  # Apply defaults AFTER argument parsing so CLI args take precedence over
+  # any pre-existing env values, and so SM_AWS_REGION is already set before
+  # REGION_ID falls back to it.
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+  export MONGODB_NAMESPACE=${MONGODB_NAMESPACE:-"mongoce"}
+  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_mongodb_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_mongodb_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_mongodb_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_mongodb_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$SECRETS_PATH" ]] && gitops_mongodb_help "SECRETS_PATH is not set"
   [[ -z "$MONGODB_PROVIDER" ]] && gitops_mongodb_help "MONGODB_PROVIDER is not set"
+  [[ -z "$MONGODB_NAMESPACE" ]] && gitops_mongodb_help "MONGODB_NAMESPACE is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_mongodb_help "GITHUB_HOST is not set"
@@ -178,14 +173,6 @@ function gitops_mongo_database() {
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h4 "AWS Secrets Manager" "    "
-  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
-  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
-  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
-  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
-  reset_colors
-
-  echo "${TEXT_DIM}"
   echo_h4 "MongoDB" "    "
   echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
   echo_reset_dim "Mongo Namespace  ............... ${COLOR_MAGENTA}${MONGODB_NAMESPACE}"
@@ -207,43 +194,13 @@ function gitops_mongo_database() {
   fi
   reset_colors
 
-  # Set up secrets
+  # Build AVP secret path references used by the Jinja2 template.
+  # These are NOT resolved here — ArgoCD/AVP resolves them at sync time
+  # after it has created the mongo secret in AWS Secrets Manager.
   # ---------------------------------------------------------------------------
-  CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-mongodb
-  rm -rf $TEMP_DIR
-  mkdir -p $TEMP_DIR
-  AVP_TYPE=aws
-  sm_login
-
-  # Define cluster-level secrets used
-  # ---------------------------------------------------------------------------
-  # Note that this cluster-level secret is set up by gitops-mongo
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
   export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
   export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
-
-  # Read mongo info from AWS Secrets Manager
-  # ---------------------------------------------------------------------------
-  export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
-  export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
-
-  sm_verify_secret_exists ${SECRET_NAME_MONGO} "username,password,info"
-  sm_get_secret_file ${SECRET_NAME_MONGO} $MONGO_SECRET_FILE
-
-  # Extract the 'info' YAML field — this is what jinjanate uses as its data file
-  # It contains: config.hosts[], config.retryWrites, certificates[], etc.
-  jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
-
-  # DocDB federal / AWS IAM auth — if an AWS docdb secret exists, override auth mechanism
-  export DOCDB_FEDERAL_SECRET_FILE=$TEMP_DIR/docdb-federal-secret.json
-  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_SECRET_FILE
-  DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_SECRET_FILE)
-  if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} && ${DOCDB_FEDERAL_ACCESS_KEY} != "null" ]]; then
-    echo "gitops_mongodb: DOCDB_FEDERAL_ACCESS_KEY=${DOCDB_FEDERAL_ACCESS_KEY:0:8}<snip> found — enabling MONGODB-AWS auth"
-    export DOCDB_AUTHMECHANISM="MONGODB-AWS"
-    export DOCDB_CONFIGDB='$$external'
-  fi
 
   # Optional: internal certificate authority
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
@@ -280,10 +237,9 @@ function gitops_mongo_database() {
   echo_h2 "Generating MongoDB Application"
   echo "- IBM MongoDB"
 
-  jinjanate --quiet --undefined --import-env='' \
+  jinjanate_commmon \
     $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-mongodb.yaml.j2 \
-    $MONGO_CONFIG_FILE \
-    -o ${GITOPS_CLUSTER_DIR}/ibm-mongodb.yaml
+    ${GITOPS_CLUSTER_DIR}/ibm-mongodb.yaml
 
 
   # Commit and push to github target repo
@@ -294,7 +250,5 @@ function gitops_mongo_database() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
-
-  rm -rf $TEMP_DIR
 
 }

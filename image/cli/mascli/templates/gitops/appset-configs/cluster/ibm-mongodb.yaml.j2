@@ -19,37 +19,6 @@ ibm_mongodb:
   run_sync_hooks: true
   mongo_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>"
   mongo_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>"
-  mongo_secret_name: mongo-credentials
-  mongo_spec:
-    authMechanism: {{ DOCDB_AUTHMECHANISM | default("DEFAULT") }}
-    configDb: {{ DOCDB_CONFIGDB | default("admin") }}
-    secretName: mongo-credentials
-{%- if config.retryWrites is sameas false %}
-    retryWrites: false
-{%- endif %}
-    nodes:
-{%- for mongo_host in config.hosts %}
-      - host: {{ mongo_host.host }}
-        port: {{ mongo_host.port }}
-{%- endfor %}
-    certificates:
-{%- if config.certificate %}
-{%- for mongo_certificate in config.certificate %}
-      - alias: {{ mongo_certificate.alias }}
-        crt: |
-          {% filter indent(width=10) -%}
-          {{ mongo_certificate.crt }}
-          {%- endfilter %}
-{%- endfor %}
-{%- elif certificates %}
-{%- for mongo_certificate in certificates %}
-      - alias: {{ mongo_certificate.alias }}
-        crt: |
-          {% filter indent(width=10) -%}
-          {{ mongo_certificate.crt }}
-          {%- endfilter %}
-{%- endfor -%}
-{%- endif -%}
 {% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
   internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
 {% endif %}
