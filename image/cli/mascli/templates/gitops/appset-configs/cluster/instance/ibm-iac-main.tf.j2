@@ -454,14 +454,27 @@ locals {
           }
           dr_replicate         = var.enable_dr
         },
-        logs_ro = {
+        logs_rw = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix_manage}-logs"
           id                   = "${var.s3bucket_name_prefix_manage}-logs"
-          access_level         = "ro"
+          access_level         = "rw"
           s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-logs"
           secret_suffix        = "manage_logging/cos-logging"
+          cos_secret_format    = false
+          manage_secret_format = true
+          expiration           = null
+          dr_replicate         = var.enable_dr
+        },
+        logs_ro = {
+          name_prefix          = var.name_prefix
+          create               = false
+          name                 = "${var.s3bucket_name_prefix_manage}-logs"
+          id                   = "${var.s3bucket_name_prefix_manage}-logs"
+          access_level         = "ro"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-logs"
+          secret_suffix        = "manage_logging_customer/cos-logging"
           cos_secret_format    = false
           manage_secret_format = true
           expiration           = null
