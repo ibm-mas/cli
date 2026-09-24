@@ -34,6 +34,7 @@ IBM CP4D:
       --cpfs-size ${COLOR_YELLOW}CPFS_SIZE${TEXT_RESET}                                        CommonServices CR Size
       --cpd-cpfs-install-plan  ${COLOR_YELLOW}CPFS_INSTALL_PLAN${TEXT_RESET}                   CommonServices subscription install plan approval to use ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-scale-config ${COLOR_YELLOW}CPD_SCALE_CONFIG${TEXT_RESET}                          Scale config for IBM ZenServices
+      --cpd-public-route-enabled ${COLOR_YELLOW}CPD_PUBLIC_ROUTE_ENABLED${TEXT_RESET}          Enable public CPD URL (cpd-public.<subdomain>.<domain>) for external access without VPN
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -130,6 +131,9 @@ function gitops_cp4d_noninteractive() {
         ;;
       --cpd-cpfs-install-plan)
       export CPFS_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-public-route-enabled)
+      export CPD_PUBLIC_ROUTE_ENABLED=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -254,6 +258,7 @@ function gitops_cp4d() {
   echo_reset_dim "NAMESPACE_SCOPE_INSTALL_PLAN  ............ ${COLOR_MAGENTA}${NAMESPACE_SCOPE_INSTALL_PLAN}"
   echo_reset_dim "CPD_LICENSING_INSTALL_PLAN  .............. ${COLOR_MAGENTA}${CPD_LICENSING_INSTALL_PLAN}"
   echo_reset_dim "CPFS_INSTALL_PLAN  ....................... ${COLOR_MAGENTA}${CPFS_INSTALL_PLAN}"
+  echo_reset_dim "CPD_PUBLIC_ROUTE_ENABLED  ................ ${COLOR_MAGENTA}${CPD_PUBLIC_ROUTE_ENABLED}"
 
   reset_colors
 

@@ -13,8 +13,7 @@ The MAS restore process uses Tekton pipelines to orchestrate the restoration of 
 **Supported MAS versions**
 
 - MAS 9.1.x
-
-Note: MAS 9.0.x (Not supported yet, its in testing)
+- MAS 9.2.x
 
 **User Permissions Required**
 

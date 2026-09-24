@@ -18,11 +18,11 @@ from prompt_toolkit.completion import WordCompleter
 from halo import Halo
 
 from ..cli import BaseApp
-from ..validators import InstanceIDValidator
+from ..validators import InstanceIDValidator, StorageClassValidator
 from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
-from mas.devops.ocp import createNamespace
+from mas.devops.ocp import createNamespace, getStorageClasses, getStorageClass
 from mas.devops.mas import (
     listMasInstances,
     getMasChannel,
@@ -34,7 +34,7 @@ from mas.devops.mas import (
     getInstalledApps,
 )
 from mas.devops.utils import isVersionEqualOrAfter
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline, lookupPipelineStorageClass
 from mas.devops.pre_install import applyPreInstallMASRBAC
 from ..rbac_utils import evaluatePreinstallRBACAccess
 
@@ -42,6 +42,93 @@ logger = logging.getLogger(__name__)
 
 
 class UpgradeApp(BaseApp, UpgradeSettingsMixin):
+
+    def configPipelineStorageClass(self, instanceId: str) -> None:
+        """
+        Determine the storage class and access mode for the upgrade pipeline config-pvc.
+        Sets self.pipelineStorageClass and self.pipelineStorageAccessMode.
+        """
+
+        if self.pipelineStorageClass and self.pipelineStorageAccessMode:
+            if getStorageClass(self.dynamicClient, self.pipelineStorageClass) is None:
+                self.fatalError(f"Storage class '{self.pipelineStorageClass}' specified via --storage-pipeline is not available on this cluster.")
+            logger.debug(f"Using pipeline storage class from CLI args: {self.pipelineStorageClass} ({self.pipelineStorageAccessMode})")
+            return
+
+        # Read storage class from existing config-pvc on the cluster.
+        # This is the normal upgrade path - the PVC was created during the original
+        # install and already has the correct storage class for this cluster.
+        existingStorageClass, existingAccessMode = lookupPipelineStorageClass(self.dynamicClient, instanceId)
+        if existingStorageClass:
+            self.pipelineStorageClass = existingStorageClass
+            self.pipelineStorageAccessMode = existingAccessMode or ("ReadWriteOnce" if self.isSNO() else "ReadWriteMany")
+            logger.debug(f"Using pipeline storage class from existing config-pvc: {self.pipelineStorageClass} ({self.pipelineStorageAccessMode})")
+            return
+
+        # No existing config-pvc found — MAS was not installed via the CLI.
+        # Prompt the user to configure a storage class for the pipeline PVC,
+        self.printH1("Configure Pipeline Storage Class")
+        self.printDescription(
+            [
+                "The upgrade pipeline requires a PersistentVolumeClaim (config-pvc) to store pipeline data.",
+                "No existing config-pvc was found in the pipelines namespace.",
+            ]
+        )
+
+        # Try to auto-detect a known storage provider as a default suggestion
+        suggestedStorageClass = None
+        suggestedAccessMode = None
+        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+
+        if defaultStorageClasses.provider is not None:
+            if self.isSNO() or defaultStorageClasses.rwx is None:
+                suggestedStorageClass = defaultStorageClasses.rwo
+                suggestedAccessMode = "ReadWriteOnce"
+            else:
+                suggestedStorageClass = defaultStorageClasses.rwx
+                suggestedAccessMode = "ReadWriteMany"
+
+            print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class : {suggestedStorageClass}</LightSlateGrey>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Access mode   : {suggestedAccessMode}</LightSlateGrey>"))
+
+        # Accept the suggestion, or fall through to manual prompt
+        useDetected = False
+        if suggestedStorageClass:
+            if self.noConfirm:
+                # Non-interactive mode: accept auto-detected value without prompting
+                self.pipelineStorageClass = suggestedStorageClass
+                self.pipelineStorageAccessMode = suggestedAccessMode
+                return
+            useDetected = self.yesOrNo("Use the auto-detected storage class")
+
+        if not useDetected:
+            # No provider detected or user declined - fail fast in non-interactive mode
+            if self.noConfirm:
+                self.fatalError(
+                    "No storage class could be detected for the pipeline config-pvc and --no-confirm is set. "
+                    "Please re-run with --storage-pipeline and --storage-accessmode."
+                )
+
+            # Customer declined the suggested class — keep the suggested access mode,
+            # show the full list and let them pick a different storage class name.
+            accessMode = suggestedAccessMode or ("ReadWriteOnce" if self.isSNO() else "ReadWriteMany")
+            self.pipelineStorageAccessMode = accessMode
+
+            self.printDescription([f"Select a {accessMode} storage class from the list below:"])
+            for storageClass in getStorageClasses(self.dynamicClient):
+                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+            print()
+
+            self.pipelineStorageClass = prompt(
+                HTML(f"<Yellow>Enter the name of the {accessMode} storage class</Yellow> "),
+                validator=StorageClassValidator(),
+                validate_while_typing=False,
+            )
+        else:
+            self.pipelineStorageClass = suggestedStorageClass
+            self.pipelineStorageAccessMode = suggestedAccessMode
+
     def computeMonitorInstallOrderForUpgrade(self, instanceId):
         """
         Determine the installation order for Monitor relative to IoT based on TARGET Monitor version.
@@ -154,6 +241,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.applyPreInstallMASRBAC = False
         self.selectedAppsForRBAC = []
 
+        # Pre-populate pipeline storage class from CLI args so configPipelineStorageClass
+        self.pipelineStorageClass = args.storage_pipeline or None
+        self.pipelineStorageAccessMode = args.storage_accessmode or None
+
         # Set image_pull_policy if provided
         if args.image_pull_policy and args.image_pull_policy != "":
             self.setParam("image_pull_policy", args.image_pull_policy)
@@ -202,6 +293,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
                 self.nextChannel = prompt(HTML("<Yellow>Custom channel</Yellow> "))
             else:
+                # Fetch all installed app subscription channels once — used for both
+                # channel resolution and compatibility validation below
+                installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+
                 if self.nextChannel != "":
                     # --next-channel was explicitly provided by the user
                     if self.nextChannel == currentChannel:
@@ -218,14 +313,51 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     else:
                         self.fatalError(f"No upgrade path available from {currentChannel} to {self.nextChannel}")
                 else:
-                    # No --next-channel given: derive from upgrade_path
-                    if currentChannel not in self.upgrade_path:
-                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {currentChannel}")
-                    self.nextChannel = self.upgrade_path[currentChannel]
+                    # No --next-channel given: derive from upgrade_path using the
+                    # oldest channel across Core + all installed apps.
+                    # This handles partial upgrade resumption correctly — e.g. if Core
+                    # reached 9.1.x but Manage is still on 9.0.x, effectiveCurrentChannel
+                    # will be 9.0.x and the target will be 9.1.x instead of 9.2.x.
+                    allChannels = [currentChannel] + [app["channel"] for app in installedAppsChannel]
+
+                    def channelOrder(ch):
+                        keys = list(self.upgrade_path.keys())
+                        return keys.index(ch) if ch in keys else -1
+
+                    self.effectiveCurrentChannel = max(allChannels, key=channelOrder)
+
+                    # Early-exit BEFORE upgrade_path lookup:
+                    # If every component is on the same channel and that channel has no
+                    # further upgrade target, the instance is fully upgraded — exit cleanly
+                    # without needing a self-referencing entry (e.g. "9.2.x":"9.2.x") in upgrade_path.
+                    if self.effectiveCurrentChannel not in self.upgrade_path and all(ch == self.effectiveCurrentChannel for ch in allChannels):
+                        print_formatted_text(
+                            HTML(
+                                f"<LightSlateGrey>No action required, {instanceId} is already fully upgraded. "
+                                f"All components are on channel {self.effectiveCurrentChannel}.</LightSlateGrey>"
+                            )
+                        )
+                        return
+
+                    if self.effectiveCurrentChannel not in self.upgrade_path:
+                        self.fatalError(f"No upgrade available, {instanceId} is already on the latest release {self.effectiveCurrentChannel}")
+                    self.nextChannel = self.upgrade_path[self.effectiveCurrentChannel]
+
+                # Check if all components are already on the target channel.
+                # Covers both auto-detect and --next-channel paths.
+                # Only exits if Core AND every installed app are already on nextChannel.
+                # If any app is behind, this condition is False and pipeline launches normally.
+                if self.nextChannel == currentChannel and all(app["channel"] == self.nextChannel for app in installedAppsChannel):
+                    print_formatted_text(
+                        HTML(
+                            f"<LightSlateGrey>No action required, {instanceId} is already fully upgraded. "
+                            f"All components are on channel {self.nextChannel}.</LightSlateGrey>"
+                        )
+                    )
+                    return
 
                 # Validate installed apps compatibility with the target channel
                 if self.nextChannel in self.compatibilityMatrix:
-                    installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
                     incompatibleApps = []
 
                     for installedApp in installedAppsChannel:
@@ -336,11 +468,15 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 operation="upgrade",
             )
 
+        self.configPipelineStorageClass(instanceId)
+
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {self.nextChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Class .......... {self.pipelineStorageClass}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Access Mode .... {self.pipelineStorageAccessMode}</LightSlateGrey>"))
 
         if not self.noConfirm:
             print()
@@ -377,18 +513,11 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
-                defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
-                if self.isSNO() or defaultStorageClasses.rwx == "none":
-                    pipelineStorageClass = defaultStorageClasses.rwo
-                    pipelineStorageAccessMode = "ReadWriteOnce"
-                else:
-                    pipelineStorageClass = defaultStorageClasses.rwx
-                    pipelineStorageAccessMode = "ReadWriteMany"
                 preparePipelinesNamespace(
                     dynClient=self.dynamicClient,
                     instanceId=instanceId,
-                    storageClass=pipelineStorageClass,
-                    accessMode=pipelineStorageAccessMode,
+                    storageClass=self.pipelineStorageClass,
+                    accessMode=self.pipelineStorageAccessMode,
                 )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
@@ -416,8 +545,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                         # Regular upgrade with explicit --next-channel
                         masChannelParam = currentChannel
                 else:
-                    # No --next-channel provided: let ansible auto-determine
-                    masChannelParam = ""
+                    # No --next-channel provided: pass the effectiveCurrentChannel computed
+                    # earlier so Ansible targets the correct hop based on all component
+                    # channels, not just Core's channel.
+                    masChannelParam = self.effectiveCurrentChannel if hasattr(self, "effectiveCurrentChannel") else ""
 
                 pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
                 if pipelineURL is not None:

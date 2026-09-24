@@ -185,7 +185,7 @@ masAdvancedArgGroup.add_argument(
     "--domain",
     dest="mas_domain",
     required=False,
-    help="Configure MAS with a custom domain",
+    help="Configure MAS with a custom domain, Same domain will be used for AI Service when AI Service is being installed.",
 )
 masAdvancedArgGroup.add_argument(
     "--disable-walkme",
@@ -244,6 +244,13 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
+    "--le-email",
+    dest="mas_le_email",
+    required=False,
+    help="E-mail address to register with Let's Encrypt. Providing this implicitly enables Let's Encrypt HTTP-01 certificate management (path routing mode only, cluster must be publicly accessible on port 80)",
+)
+
+masAdvancedArgGroup.add_argument(
     "--mas-issuer-kind",
     dest="mas_issuer_kind",
     required=False,
@@ -296,6 +303,66 @@ cisArgGroup.add_argument(
     required=False,
     help="Optionally setup MAS instance as a subdomain under a multi-tenant CIS DNS record",
 )
+cisArgGroup.add_argument(
+    "--cis-enhanced-security",
+    dest="cis_enhanced_security",
+    required=False,
+    default="false",
+    help="Configure enhanced security for CIS (enables WAF and proxy settings)",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--cis-service-name",
+    dest="cis_service_name",
+    required=False,
+    help="CIS service instance name",
+)
+cisArgGroup.add_argument(
+    "--update-dns-entries",
+    dest="update_dns_entries",
+    required=False,
+    default="true",
+    help="Update existing DNS entries in CIS if they already exist (default: true)",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--cis-waf",
+    dest="cis_waf",
+    required=False,
+    default="true",
+    help="Enable Web Application Firewall (WAF) for CIS DNS entries",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--cis-proxy",
+    dest="cis_proxy",
+    required=False,
+    default="false",
+    help="Enable CIS proxy for DNS entries",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--delete-wildcards",
+    dest="delete_wildcards",
+    required=False,
+    default="false",
+    help="Force deletion of wildcard DNS entries in CIS",
+    action="store_const",
+    const="true",
+)
+cisArgGroup.add_argument(
+    "--override-edge-certs",
+    dest="override_edge_certs",
+    required=False,
+    default="true",
+    help="Override and delete existing edge certificates in CIS instance",
+    action="store_const",
+    const="true",
+)
 
 # DNS Integration - CloudFlare
 # -----------------------------------------------------------------------------
@@ -326,6 +393,37 @@ cloudFlareArgGroup.add_argument(
     dest="cloudflare_subdomain",
     required=False,
     help="Required when DNS provider is Cloudflare",
+)
+
+# DNS Integration - AWS Route53
+# -----------------------------------------------------------------------------
+route53ArgGroup = installArgParser.add_argument_group(
+    "DNS Integration - AWS Route53",
+    "Configuration options for AWS Route53 DNS provider, including hosted zone, region, subdomain, and email.",
+)
+route53ArgGroup.add_argument(
+    "--route53-hosted-zone-name",
+    dest="route53_hosted_zone_name",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
+route53ArgGroup.add_argument(
+    "--route53-hosted-zone-region",
+    dest="route53_hosted_zone_region",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
+route53ArgGroup.add_argument(
+    "--route53-subdomain",
+    dest="route53_subdomain",
+    required=False,
+    help="Required when DNS provider is Route53",
+)
+route53ArgGroup.add_argument(
+    "--route53-email",
+    dest="route53_email",
+    required=False,
+    help="Required when DNS provider is Route53 and you want to use a Let's Encrypt ClusterIssuer",
 )
 
 # Storage
@@ -426,6 +524,13 @@ mongoArgGroup.add_argument(
     "--mongodb-namespace",
     required=False,
     help="Namespace for MongoDB Community Operator",
+)
+
+mongoArgGroup.add_argument(
+    "--mongodb-provider",
+    required=False,
+    choices=["community", "mck", "rotate"],
+    help="Mongo provider to use (community or mck or rotate). Only valid with --dev-mode",
 )
 
 # OCP Configuration
@@ -1104,6 +1209,13 @@ aiServiceArgGroup.add_argument(
     help="Path to the YAML file that contains the scheduling configuration for tenant",
     type=lambda x: isValidFile(installArgParser, x),
 )
+aiServiceArgGroup.add_argument(
+    "--tenant-operator-config-file",
+    dest="tenant_operator_config_file",
+    required=False,
+    help="Path to the YAML file that contains the tenant operator customization settings",
+    type=lambda x: isValidFile(installArgParser, x),
+)
 
 # IBM Cloud Pak for Data
 # -----------------------------------------------------------------------------
@@ -1476,6 +1588,11 @@ cloudArgGroup.add_argument(
     "--aws-access-key-id",
     required=False,
     help="Set AWS access key ID for the target AWS account",
+)
+cloudArgGroup.add_argument(
+    "--aws-secret-access-key",
+    required=False,
+    help="Set AWS secret access key for the target AWS account",
 )
 cloudArgGroup.add_argument(
     "--secret-access-key",
