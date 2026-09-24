@@ -99,35 +99,37 @@ class TestValidateEntitlementKey:
 
     @patch("mas.cli.cli.validateIBMEntitlementKey")
     def test_validate_with_network_error(self, mock_validate):
-        """Test validation when network error occurs.
+        """Test validation when an unexpected network error occurs.
 
-        GIVEN a network error during validation
-        utils.py now catches RequestException internally and returns None.
+        GIVEN an unexpected network error during validation
+        utils.py re-raises non-SSL RequestException — cli.py catches it and returns False.
         WHEN validateEntitlementKey is called
-        THEN it should return None (key status unknown, not necessarily wrong).
+        THEN it should return False (unexpected error, treat as failure).
         """
-        mock_validate.return_value = None  # utils.py absorbs network errors and returns None
+        from requests.exceptions import ConnectionError as RequestsConnectionError
+        mock_validate.side_effect = RequestsConnectionError("Network unreachable")
         app = BaseApp()
 
         result = app.validateEntitlementKey("key-123")
 
-        assert result is None
+        assert result is False
 
     @patch("mas.cli.cli.validateIBMEntitlementKey")
     def test_validate_with_timeout(self, mock_validate):
-        """Test validation when timeout occurs.
+        """Test validation when a timeout occurs.
 
         GIVEN a timeout during validation
-        utils.py now catches RequestException (including timeout) internally and returns None.
+        utils.py re-raises non-SSL RequestException — cli.py catches it and returns False.
         WHEN validateEntitlementKey is called
-        THEN it should return None (key status unknown, not necessarily wrong).
+        THEN it should return False (unexpected error, treat as failure).
         """
-        mock_validate.return_value = None  # utils.py absorbs timeout and returns None
+        from requests.exceptions import Timeout as RequestsTimeout
+        mock_validate.side_effect = RequestsTimeout("Request timed out")
         app = BaseApp()
 
         result = app.validateEntitlementKey("key-123")
 
-        assert result is None
+        assert result is False
 
 
 class TestPromptForEntitlementKeyInteractive:

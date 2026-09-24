@@ -32,6 +32,7 @@ from prompt_toolkit import prompt, print_formatted_text, HTML
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO, getNodes
 from mas.devops.utils import validateIBMEntitlementKey
+from requests.exceptions import RequestException as RequestsException
 from .displayMixins import PrintMixin, PromptMixin
 
 # Configure the logger
@@ -574,17 +575,22 @@ class BaseApp(PrintMixin, PromptMixin):
             timeout: Timeout in seconds for validation. Defaults to 30.
 
         Returns:
-            True if the key is valid, False if authentication failed, None if an SSL error
-            or network error prevented validation (key status unknown, may still be valid).
+            True if the key is valid, False if authentication failed or an unexpected network
+            error occurred, None if an SSL error prevented validation (key may still be valid).
         """
         logger.info(f"Validating IBM entitlement key against repository: {repository}")
-        isValid = validateIBMEntitlementKey(entitlementKey, repository, timeout)
+        try:
+            isValid = validateIBMEntitlementKey(entitlementKey, repository, timeout)
+        except RequestsException as e:
+            logger.error(f"Unexpected network error validating IBM entitlement key: {e}")
+            logger.exception(e, stack_info=True)
+            return False
         if isValid is True:
             logger.info("IBM entitlement key validation successful")
         elif isValid is False:
             logger.warning("IBM entitlement key validation failed")
         else:
-            logger.warning("IBM entitlement key could not be validated (SSL/network error)")
+            logger.warning("IBM entitlement key could not be validated (SSL error)")
         return isValid
 
     @logMethodCall
