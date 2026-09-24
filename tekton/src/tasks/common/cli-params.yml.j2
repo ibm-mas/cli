@@ -22,6 +22,10 @@
   type: string
   description: Name of the Pipeline
   default: ""
+- name: task_registry_secret_name
+  type: string
+  description: Name of the Kubernetes Secret holding pipeline credentials (IBM_ENTITLEMENT_KEY, ARTIFACTORY_TOKEN, ARTIFACTORY_USERNAME)
+  default: ""
 - name: mas_use_service_mesh
   type: string
   description: Optional string parameter, either true or false (defaults to false), defines whether the suite will be configured to use redhat service mesh for networking

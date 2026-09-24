@@ -31,19 +31,19 @@
 - name: IBM_ENTITLEMENT_KEY
   valueFrom:
     secretKeyRef:
-      name: mas-devops-credentials
+      name: $(params.task_registry_secret_name)
       key: IBM_ENTITLEMENT_KEY
       optional: true
 - name: ARTIFACTORY_TOKEN
   valueFrom:
     secretKeyRef:
-      name: mas-devops-credentials
+      name: $(params.task_registry_secret_name)
       key: ARTIFACTORY_TOKEN
       optional: true
 - name: ARTIFACTORY_USERNAME
   valueFrom:
     secretKeyRef:
-      name: mas-devops-credentials
+      name: $(params.task_registry_secret_name)
       key: ARTIFACTORY_USERNAME
       optional: true
 - name: PIPELINE_NAMESPACE

@@ -18,6 +18,13 @@ spec:
       type: string
       default: ""
 
+    # Registry Credentials Secret
+    # -------------------------------------------------------------------------
+    - name: pipeline_registry_secret_name
+      type: string
+      default: ""
+      description: Name of the per-pipeline Kubernetes Secret holding registry credentials
+
     # Catalog Version
     # -------------------------------------------------------------------------
     - name: mas_catalog_version

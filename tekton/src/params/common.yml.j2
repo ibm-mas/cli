@@ -6,6 +6,12 @@
   default: IfNotPresent
   description: Pull policy for pipeline container images
 
+# Registry Credentials Secret
+- name: pipeline_registry_secret_name
+  type: string
+  default: ""
+  description: Name of the per-pipeline Kubernetes Secret holding registry credentials (IBM_ENTITLEMENT_KEY, ARTIFACTORY_TOKEN, ARTIFACTORY_USERNAME)
+
 # Custom Labels
 - name: custom_labels
   type: string

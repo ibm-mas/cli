@@ -9,3 +9,5 @@
   value: $(context.pipelineRun.name)
 - name: pipeline_name
   value: $(context.pipeline.name)
+- name: task_registry_secret_name
+  value: $(params.pipeline_registry_secret_name)
