@@ -50,6 +50,7 @@ EOM
 
 function gitops_mongodb_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-mongodb commit"
 
   while [[ $# -gt 0 ]]
@@ -137,6 +138,8 @@ function gitops_mongodb_noninteractive() {
         ;;
       esac
   done
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
+  export IBM_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
 
   export MONGODB_NAMESPACE=${MONGODB_NAMESPACE:-"mongoce"}
   export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"community"}
@@ -148,8 +151,6 @@ function gitops_mongodb_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_mongodb_help "CLUSTER_ID is not set"
   [[ -z "$MONGODB_PROVIDER" ]] && gitops_mongodb_help "MONGODB_PROVIDER is not set"
   [[ -z "$MONGODB_NAMESPACE" ]] && gitops_mongodb_help "MONGODB_NAMESPACE is not set"
-  [[ -z "$IBM_ENTITLEMENT_KEY" ]] && gitops_mongodb_help "IBM_ENTITLEMENT_KEY is not set"
-  [[ -z "$SECRETS_PATH" ]] && gitops_mongodb_help "SECRETS_PATH is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_mongodb_help "GITHUB_HOST is not set"
