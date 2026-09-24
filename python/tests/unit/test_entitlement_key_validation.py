@@ -107,6 +107,7 @@ class TestValidateEntitlementKey:
         THEN it should return False (unexpected error, treat as failure).
         """
         from requests.exceptions import ConnectionError as RequestsConnectionError
+
         mock_validate.side_effect = RequestsConnectionError("Network unreachable")
         app = BaseApp()
 
@@ -124,6 +125,7 @@ class TestValidateEntitlementKey:
         THEN it should return False (unexpected error, treat as failure).
         """
         from requests.exceptions import Timeout as RequestsTimeout
+
         mock_validate.side_effect = RequestsTimeout("Request timed out")
         app = BaseApp()
 
