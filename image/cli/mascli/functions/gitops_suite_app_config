@@ -425,7 +425,7 @@ function gitops_suite_app_config() {
   if [[ -n "${ICN}" ]]; then
     echo "✓ ICN successfully resolved: ${ICN}"
     echo "  This ICN will be used for customer-level secrets:"
-    echo "  - ibm-customer/${ICN}/facilities/manage-mref-keystore-password"
+    echo "  - ibm-customer/${ICN}/facilities/{workspace_id}-facilities-vs--sn"
     echo "  - ibm-customer/${ICN}/<app>/..."
   else
     echo "⚠ WARNING: ICN not available - customer-level secrets cannot be used"
@@ -626,11 +626,10 @@ function gitops_suite_app_config() {
       
       # Set customer-level secret path (without trailing separator)
       export FACILITIES_VAULT_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities"
-      export FACILITIES_LIBERTY_EXTENSIONS_SECRET="ibm-customer${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}facilities"
+      export FACILITIES_LIBERTY_EXTENSIONS_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities"
       
       # Get user-provided secret name from app spec (if any)
       USER_PROVIDED_VAULT_SECRET=$(yq eval '.mas_appws_spec.settings.vaultSecret.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
-      USER_PROVIDED_LIBERTY_SECRET=$(yq eval '.mas_appws_spec.settings.libertyExtensionXML.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
       
       # Handle vault secret name
       if [[ -n "${USER_PROVIDED_VAULT_SECRET}" ]]; then
@@ -640,11 +639,12 @@ function gitops_suite_app_config() {
         echo "- Verifying user-provided secret exists..."
       else
         # No user-provided name - use customer-level default
-        export FACILITIES_VAULT_SECRET_NAME="manage-mref-keystore-password"
+        export FACILITIES_VAULT_SECRET_NAME="${MAS_WORKSPACE_ID}-facilities-vs--sn"
         echo "- Using customer-level vault secret name: ${FACILITIES_VAULT_SECRET_NAME}"
+        local FACILITIES_AWS_SECRET_NAME="${MAS_WORKSPACE_ID}-facilities-vs--sn"
         
         # Ensure customer-level secret exists
-        manage_customer_mref_password "${ICN}" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${SECRETS_KEY_SEPERATOR}"
+        manage_customer_mref_password "${ICN}" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${MAS_WORKSPACE_ID}" "${SECRETS_KEY_SEPERATOR}"
         if [[ $? -ne 0 ]]; then
           echo "ERROR: Failed to create/retrieve customer-level MREF password"
           exit 1
@@ -652,13 +652,16 @@ function gitops_suite_app_config() {
       fi
       
       # Verify vault secret exists
-      sm_verify_secret_exists "${FACILITIES_VAULT_SECRET}${SECRETS_KEY_SEPERATOR}${FACILITIES_VAULT_SECRET_NAME}" "password"
+      sm_verify_secret_exists "${FACILITIES_VAULT_SECRET}${SECRETS_KEY_SEPERATOR}${FACILITIES_AWS_SECRET_NAME:-${FACILITIES_VAULT_SECRET_NAME}}" "pwd"
       
       # Handle liberty extensions secret name
-      if [[ -n "${USER_PROVIDED_LIBERTY_SECRET}" ]]; then
-        export FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME="${USER_PROVIDED_LIBERTY_SECRET}"
-        echo "- Using user-provided liberty extensions secret name: ${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}"
-        # Verify liberty secret exists
+      export FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.libertyExtensionXML.secretName // ""' ${MAS_APPWS_SPEC_YAML_RESOLVED})
+      if [[ -n "${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}" ]]; then
+        if [[ "${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}" != "${MAS_WORKSPACE_ID}-facilities-lexml--sn" ]]; then
+          echo "Error: Secret name ${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME} does not match ${MAS_WORKSPACE_ID}-facilities-lexml--sn"
+          exit 1
+        fi
+        echo "- Using liberty extensions secret name: ${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}"
         sm_verify_secret_exists "${FACILITIES_LIBERTY_EXTENSIONS_SECRET}${SECRETS_KEY_SEPERATOR}${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}" "b64_xml"
       fi
     fi # end if [[ "${MAS_APP_ID}" == "facilities" ]]
