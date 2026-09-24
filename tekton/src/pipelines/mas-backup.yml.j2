@@ -78,6 +78,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: devops_suite_name
           value: backup-ibm-catalogs
@@ -102,6 +103,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: devops_suite_name
           value: backup-cert-manager
@@ -129,6 +131,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: devops_suite_name
           value: backup-mongodb
@@ -168,6 +171,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -203,6 +207,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -235,6 +240,7 @@ spec:
           values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -283,6 +289,7 @@ spec:
           values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -317,6 +324,7 @@ spec:
           values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -365,6 +373,7 @@ spec:
           values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -399,6 +408,7 @@ spec:
           values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: backup_version
           value: $(params.backup_version)
