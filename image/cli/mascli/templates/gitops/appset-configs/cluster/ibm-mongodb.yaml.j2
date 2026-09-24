@@ -11,7 +11,7 @@ ibm_mongodb:
   mongodb_namespace: "{{ MONGODB_NAMESPACE }}"
   mongodb_install_plan: "{{ MONGODB_INSTALL_PLAN }}"
   mongodb_replicas: {{ MONGODB_REPLICAS }}
-  ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
+  ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ IBM_ENTITLEMENT_KEY }}>"
   run_sync_hooks: true
 {% if MONGODB_VERSION is defined and MONGODB_VERSION != '' %}
   mongodb_version: "{{ MONGODB_VERSION }}"
