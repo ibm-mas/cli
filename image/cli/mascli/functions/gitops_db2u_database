@@ -71,7 +71,7 @@ IBM DB2U:
       --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                        Flag to indicate whether enhanced HADR was configured manually
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                        List of IPs or CIDR range that will be whitelisted
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                Cluster domain if any tls route needs to be created. Only needed if redhat cert-manager is not installed.
-      --license-file-available ${COLOR_YELLOW}LICENSE_FILE_AVAILABLE${TEXT_RESET}                                Flag to indicate that a DB2 license file secret is available in Secrets Manager
+      --db2-license-file-available ${COLOR_YELLOW}DB2_LICENSE_FILE_AVAILABLE${TEXT_RESET}                                Flag to indicate that a DB2 license file secret is available in Secrets Manager
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                    Secrets Manager path
@@ -314,8 +314,8 @@ function gitops_db2u_database_noninteractive() {
       --cluster-domain)
       export CLUSTER_DOMAIN=$1 && shift
         ;;
-      --license-file-available)
-        export LICENSE_FILE_AVAILABLE=$1 && shift
+      --db2-license-file-available)
+        export DB2_LICENSE_FILE_AVAILABLE=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -634,7 +634,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   echo_reset_dim "allow-list .................................... ${COLOR_MAGENTA}${ALLOW_LIST}"
   echo_reset_dim "Cluster Domain ................................ ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
-  echo_reset_dim "license-file-available ........................ ${COLOR_MAGENTA}${LICENSE_FILE_AVAILABLE}"
+  echo_reset_dim "db2-license-file-available .................... ${COLOR_MAGENTA}${DB2_LICENSE_FILE_AVAILABLE}"
   reset_colors
 
 
@@ -711,9 +711,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     export BACKUP=true
   fi
 
-  # If LICENSE_FILE_AVAILABLE is true, verify the db2 license secret exists and set the secret key
+  # If DB2_LICENSE_FILE_AVAILABLE is true, verify the db2 license secret exists and set the secret key
   # ---------------------------------------------------------------------------
-  if [[ "${LICENSE_FILE_AVAILABLE}" == "true" ]]; then
+  if [[ "${DB2_LICENSE_FILE_AVAILABLE}" == "true" ]]; then
     echo
     echo_h2 "DB2 license file is available - verifying secret exists"
     DB2_LICENSE_SECRET_NAME="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_license"
