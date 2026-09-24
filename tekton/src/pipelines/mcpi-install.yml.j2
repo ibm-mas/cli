@@ -25,14 +25,6 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4) }}
 
-    - name: mas_instance_id
-      type: string
-      description: MAS Instance ID
-
-    - name: ibm_entitlement_key
-      type: string
-      description: IBM entitlement key
-
     # MCPI Add-on Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/install-mcpi.yml.j2') | indent(4) }}
