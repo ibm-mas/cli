@@ -8,16 +8,16 @@ cluster:
 
 ibm_mongodb:
   mongodb_provider: "{{ MONGODB_PROVIDER }}"
-  mongodb_namespace: "{{ MONGODB_NAMESPACE }}"
-  mongodb_install_plan: "{{ MONGODB_INSTALL_PLAN }}"
+  mongodb_namespace: "{{ MONGODB_CE_NAMESPACE }}"
+  mongodb_install_plan: "{{ MONGODB_CE_INSTALL }}"
   mongodb_replicas: {{ MONGODB_REPLICAS }}
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ IBM_ENTITLEMENT_KEY }}>"
   run_sync_hooks: true
-{% if MONGODB_VERSION is defined and MONGODB_VERSION != '' %}
-  mongodb_version: "{{ MONGODB_VERSION }}"
+{% if MONGODB_CE_VERSION is defined and MONGODB_CE_VERSION != '' %}
+  MONGODB_CE_VERSION: "{{ MONGODB_CE_VERSION }}"
 {% endif %}
-{% if MONGODB_STORAGE_CLASS is defined and MONGODB_STORAGE_CLASS != '' %}
-  mongodb_storage_class: "{{ MONGODB_STORAGE_CLASS }}"
+{% if MONGODB_CE_STORAGE_CLASS is defined and MONGODB_CE_STORAGE_CLASS != '' %}
+  MONGODB_CE_STORAGE_CLASS: "{{ MONGODB_CE_STORAGE_CLASS }}"
 {% endif %}
 {% if MONGODB_CPU_REQUESTS is defined and MONGODB_CPU_REQUESTS != '' %}
   mongodb_cpu_requests: "{{ MONGODB_CPU_REQUESTS }}"
