@@ -87,6 +87,25 @@ depsArgGroup.add_argument(
     default=False,
     help="Uninstall IBM User Data Services from the target cluster",
 )
+depsArgGroup.add_argument(
+    "--uninstall-cp4d",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Uninstall Cloud Pak for Data from the target cluster",
+)
+depsArgGroup.add_argument(
+    "--cpd-operators-namespace",
+    required=False,
+    default="",
+    help="CP4D operators namespace (default: ibm-cpd-operators)",
+)
+depsArgGroup.add_argument(
+    "--cpd-instance-namespace",
+    required=False,
+    default="",
+    help="CP4D instance namespace (default: ibm-cpd)",
+)
 
 otherArgGroup = uninstallArgParser.add_argument_group("More")
 otherArgGroup.add_argument(

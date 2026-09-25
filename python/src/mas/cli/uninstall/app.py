@@ -42,6 +42,9 @@ class UninstallApp(BaseApp):
         if args.image_pull_policy and args.image_pull_policy != "":
             self.setParam("image_pull_policy", args.image_pull_policy)
 
+        cpdOperatorsNamespace = args.cpd_operators_namespace
+        cpdInstanceNamespace = args.cpd_instance_namespace
+
         if args.uninstall_all_deps:
             uninstallGrafana = True
             uninstallIBMCatalog = True
@@ -49,6 +52,7 @@ class UninstallApp(BaseApp):
             uninstallDRO = True
             uninstallMongoDb = True
             uninstallSLS = True
+            uninstallCp4d = True
         else:
             uninstallGrafana = args.uninstall_grafana
             uninstallIBMCatalog = args.uninstall_ibm_catalog
@@ -56,6 +60,7 @@ class UninstallApp(BaseApp):
             uninstallDRO = args.uninstall_dro
             uninstallMongoDb = args.uninstall_mongodb
             uninstallSLS = args.uninstall_sls
+            uninstallCp4d = args.uninstall_cp4d
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -106,6 +111,7 @@ class UninstallApp(BaseApp):
                 uninstallDRO = True
                 uninstallMongoDb = True
                 uninstallSLS = True
+                uninstallCp4d = True
             else:
                 self.printDescription(["If you choose to uninstall MongoDb, IBM Suite License Service will be automatically set to uninstall as well"])
                 uninstallMongoDb = self.yesOrNo("Uninstall MongoDb")
@@ -116,6 +122,7 @@ class UninstallApp(BaseApp):
                     uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
 
                 uninstallGrafana = self.yesOrNo("Uninstall Grafana")
+                uninstallCp4d = self.yesOrNo("Uninstall Cloud Pak for Data")
                 self.printDescription(
                     [
                         "If you choose to uninstall the IBM Operator Catalog, IBM Common Services, IBM User Data Services, &amp; IBM Suite License Service will be automatically set to uninstall as well"
@@ -158,6 +165,7 @@ class UninstallApp(BaseApp):
         self.printSummary("Uninstall DRO", uninstallDRO)
         self.printSummary("Uninstall MongoDb", uninstallMongoDb)
         self.printSummary("Uninstall SLS", uninstallSLS)
+        self.printSummary("Uninstall CP4D", uninstallCp4d)
 
         if not self.noConfirm:
             print()
@@ -195,6 +203,9 @@ class UninstallApp(BaseApp):
                     uninstallMongoDb=uninstallMongoDb,
                     uninstallSLS=uninstallSLS,
                     droNamespace=droNamespace,
+                    uninstallCp4d=uninstallCp4d,
+                    cpdOperatorsNamespace=cpdOperatorsNamespace,
+                    cpdInstanceNamespace=cpdInstanceNamespace,
                 )
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} uninstall submitted")
