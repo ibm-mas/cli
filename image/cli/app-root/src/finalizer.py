@@ -15,7 +15,7 @@ from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from mas.devops.slack import SlackUtil
-from mas.devops.github import createCheckRun, updateCheckRun
+from mas.devops.github import createCheckRun, updateCheckRun, findCheckRun
 from mas.devops.mas import getPermissionMode
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
@@ -186,10 +186,16 @@ PRODUCT_REPO_SLUGS = {
 }
 
 
-def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId, productData):
-    """Post a GHE check run against the product repo commit that was under test.
+def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId, productData, runDoc):
+    """Post (or update) a GHE check run against the product repo commit that was under test.
 
-    The check always completes as 'neutral' — informational only, never blocks PRs.
+    Check name is 'FVT Results / {instanceId}' so each environment gets its own
+    distinct check on the commit. If a check with that name already exists on the
+    commit it is updated in-place rather than creating a duplicate.
+
+    Conclusion is 'failure' when there are test failures/errors (visible indicator
+    for developers), but the check is never added to branch protection rules so it
+    will never block a PR merge.
 
     Args:
         productId   (str):  e.g. 'ibm-mas-manage'
@@ -198,10 +204,18 @@ def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId, prod
         detailsUrl  (str):  URL of the FVT dashboard run (used as the Details link)
         runId       (str):  human-readable run identifier, e.g. 'usfvt:5124'
         productData (dict): product entry from the MongoDB run document
+        runDoc      (dict): full MongoDB run document (for run-level fields like timestamp)
     """
     version = productData.get("version", "unknown")
     instanceId, build = runId.split(":", 1)
-    checkName = f"FVT / {productId}"
+    checkName = f"FVT Results / {instanceId}"
+
+    # Format run timestamp — shown in the heading as e.g. "Sep 25 09:31"
+    run_ts = runDoc.get("timestamp") if runDoc else None
+    if run_ts:
+        build_date = run_ts.strftime("%b %d %H:%M")
+    else:
+        build_date = ""
 
     # Aggregate totals and build per-suite table rows
     total_tests = total_failures = total_errors = total_skipped = 0
@@ -216,18 +230,34 @@ def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId, prod
         suite_url = f"https://dashboard.ibmmas.com/tests/{instanceId}/testsuite/{productId}/{suite}"
         suite_rows.append(f"| {icon} [{suite}]({suite_url}) | {t} | {f} | {e} | {s} |")
 
+    # Conclusion — failure when tests failed/errored so developers get a clear
+    # red indicator on the commit, but this check is never added to branch
+    # protection rules so it will never block a PR merge.
+    if total_failures > 0 or total_errors > 0:
+        conclusion = "failure"
+        status_icon = "❌"
+    else:
+        conclusion = "success"
+        status_icon = "✅"
+
     # Title — single line shown in the checks list on the commit page
     if total_tests == 0:
-        output_title = f"{productId} — no test results recorded"
+        output_title = f"No test results recorded for {instanceId} #{build}"
     elif total_failures > 0 or total_errors > 0:
-        output_title = f"{productId} v{version} — {total_failures} failures, {total_errors} errors across {total_tests} tests"
+        output_title = f"{total_failures} failures, {total_errors} errors — {total_tests} tests run on {instanceId} #{build}"
     else:
-        output_title = f"{productId} v{version} — all {total_tests} tests passed"
+        output_title = f"All {total_tests} tests passed on {instanceId} #{build}"
 
-    # Body — full markdown rendered on the check run detail page
+    # Heading line — status icon + instance + build + date
+    heading_parts = [f"{status_icon} FVT Results — {instanceId} #{build}"]
+    if build_date:
+        heading_parts.append(f"| {build_date}")
+    heading = " ".join(heading_parts)
+
+    # Body — full markdown rendered on the check run detail pages
     dashboard_url = f"https://dashboard.ibmmas.com/tests/{instanceId}"
     lines = [
-        f"## FVT Results — `{productId}`",
+        f"## {heading}",
         "",
         "> This check is automatically posted by the MAS Functional Verification Test (FVT) pipeline.",
         f"> It shows the test outcome for the exact commit that was deployed and tested on environment **{instanceId}**.",
@@ -261,21 +291,35 @@ def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId, prod
     ]
 
     try:
-        check_run_id = createCheckRun(
-            name=checkName,
-            repoSlug=repoSlug,
-            commitSha=commitId,
-            detailsUrl=detailsUrl,
-        )
-        updateCheckRun(
-            checkRunId=check_run_id,
-            repoSlug=repoSlug,
-            conclusion="neutral",
-            detailsUrl=detailsUrl,
-            outputTitle=output_title,
-            outputSummary="\n".join(lines),
-        )
-        print(f"GHE check run posted: {repoSlug}@{commitId[:8]} [{checkName}]")
+        # Upsert — update existing check run for this instance+commit if one exists,
+        # otherwise create a new one. Prevents duplicate checks on repeat runs.
+        existing_id = findCheckRun(name=checkName, repoSlug=repoSlug, commitSha=commitId)
+        if existing_id:
+            updateCheckRun(
+                checkRunId=existing_id,
+                repoSlug=repoSlug,
+                conclusion=conclusion,
+                detailsUrl=detailsUrl,
+                outputTitle=output_title,
+                outputSummary="\n".join(lines),
+            )
+            print(f"GHE check run updated: {repoSlug}@{commitId[:8]} [{checkName}] (id={existing_id})")
+        else:
+            check_run_id = createCheckRun(
+                name=checkName,
+                repoSlug=repoSlug,
+                commitSha=commitId,
+                detailsUrl=detailsUrl,
+            )
+            updateCheckRun(
+                checkRunId=check_run_id,
+                repoSlug=repoSlug,
+                conclusion=conclusion,
+                detailsUrl=detailsUrl,
+                outputTitle=output_title,
+                outputSummary="\n".join(lines),
+            )
+            print(f"GHE check run posted: {repoSlug}@{commitId[:8]} [{checkName}] (id={check_run_id})")
     except Exception as e:
         print(f"Failed to post GHE check run for {productId} ({repoSlug}@{commitId[:8]}): {e}")
 
@@ -754,9 +798,23 @@ if __name__ == "__main__":
 
     # Publish GHE check runs linked to each product repo commit
     # Runs independently of Slack/Jira — only needs GITHUB_APP_PRIVATE_KEY and MongoDB.
+    # Only runs for instances in GHE_FVT_INSTANCES (comma-separated env var).
+    # Falls back to a hardcoded default list when the env var is not set.
     # Failures are non-fatal — never aborts the rest of the script.
     # -------------------------------------------------------------------------
-    if setFinished.lower() == "true" and os.getenv("GITHUB_APP_PRIVATE_KEY"):
+    _DEFAULT_GHE_INSTANCES = ["fvtstable", "fvtcpd", "uscpd", "usfvt"]
+    ghe_instances_raw = os.getenv("GHE_FVT_INSTANCES", "")
+    ghe_instances = [i.strip() for i in ghe_instances_raw.split(",") if i.strip()] or _DEFAULT_GHE_INSTANCES
+
+    if not os.getenv("GITHUB_APP_PRIVATE_KEY"):
+        print("GITHUB_APP_PRIVATE_KEY not set, skipping GHE check runs")
+    elif setFinished.lower() != "true":
+        print("FVT run not yet finished, skipping GHE check runs")
+    elif not ghe_instances:
+        print("GHE_FVT_INSTANCES not set, skipping GHE check runs")
+    elif instanceId not in ghe_instances:
+        print(f"Instance '{instanceId}' not in GHE_FVT_INSTANCES, skipping GHE check runs")
+    else:
         details_url = os.getenv("TOOLCHAIN_PIPELINERUN_URL", f"https://dashboard.ibmmas.com/tests/{instanceId}")
         ghe_result = db.runsv2.find_one({"_id": runId})
         for productId, repoSlug in PRODUCT_REPO_SLUGS.items():
@@ -765,11 +823,7 @@ if __name__ == "__main__":
             if not commitId:
                 print(f"No commitId for {productId}, skipping GHE check run")
                 continue
-            publish_fvt_check_run(productId, commitId, repoSlug, details_url, runId, productData)
-    elif setFinished.lower() != "true":
-        print("FVT run not yet finished, skipping GHE check runs")
-    else:
-        print("GITHUB_APP_PRIVATE_KEY not set, skipping GHE check runs")
+            publish_fvt_check_run(productId, commitId, repoSlug, details_url, runId, productData, ghe_result)
 
     # Check pre-reqs for Slack integration
     # -------------------------------------------------------------------------
