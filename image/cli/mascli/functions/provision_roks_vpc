@@ -42,6 +42,9 @@ Service Mesh Installation:
       --install-service-mesh       Install Redhat Openshift Service Mesh to handle cluster networking
       --install-kiali              Install Kiali as a monitoring UI for Redhat Openshift Service Mesh
 
+RHOAI Installation:
+      --ocp_enable_rhoai           Install Redhat Openshift AI-Service 
+
 Other Commands:
       --no-confirm                              Provision the cluster without prompting for confirmation
   -h, --help                                    Show this help message
@@ -127,6 +130,9 @@ function provision_roks_vpc_noninteractive() {
         INSTALL_KIALI=true
         ;;
 
+      --install-rhoai)
+        ocp_enable_rhoai=true
+        ;;
       # Other options
       --no-confirm)
         NO_CONFIRM=true
@@ -309,6 +315,8 @@ function provision_roks_vpc() {
   export INSTALL_SERVICE_MESH
   export INSTALL_KIALI
 
+  export ocp_enable_rhoai
+
   echo ""
   echo_h2 "Review Settings"
 
@@ -359,6 +367,11 @@ function provision_roks_vpc() {
   echo_h2 "Service Mesh Integration" "    "
   echo_reset_dim "Install Service Mesh ........ ${COLOR_MAGENTA}${INSTALL_SERVICE_MESH:-false}"
   echo_reset_dim "Install Kiali................ ${COLOR_MAGENTA}${INSTALL_KIALI:-false}"
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Service RHOAI" "    "
+  echo_reset_dim "Install RHOAI ........ ${COLOR_MAGENTA}${ocp_enable_rhoai:-false}"
 
   echo
   reset_colors
