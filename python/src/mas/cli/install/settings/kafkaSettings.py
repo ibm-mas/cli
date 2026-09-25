@@ -124,7 +124,7 @@ class KafkaSettingsMixin:
                     )
                     if self.showAdvancedOptions:
                         self.promptForString("Strimzi namespace", "kafka_namespace", default="strimzi")
-                    self.promptForString("Kafka version", "kafka_version", default="3.9.0")
+                    self.promptForString("Kafka version", "kafka_version", default="4.0.0")
 
                 elif self.getParam("kafka_provider") == "redhat":
                     self.printDescription(
@@ -137,7 +137,7 @@ class KafkaSettingsMixin:
                         ]
                     )
                     self.promptForString("Install namespace", "kafka_namespace", default="amq-streams")
-                    self.promptForString("Kafka version", "kafka_version", default="3.8.0")
+                    self.promptForString("Kafka version", "kafka_version", default="4.0.0")
 
                 elif self.getParam("kafka_provider") == "ibm":
                     print()
