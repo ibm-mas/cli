@@ -130,6 +130,7 @@ function provision_roks_vpc_noninteractive() {
         INSTALL_KIALI=true
         ;;
 
+      # Enable RHOAI
       --install-rhoai)
         ocp_enable_rhoai=true
         ;;
