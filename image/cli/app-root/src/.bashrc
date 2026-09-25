@@ -32,6 +32,7 @@ echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas must-gather${TEXT_RESET} to perform must
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas uninstall${TEXT_RESET} to uninstall a MAS instance"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas backup${TEXT_RESET} to backup a MAS instance"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas restore${TEXT_RESET} to restore a MAS instance"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas db2ucluster-migration${TEXT_RESET} to migrate Db2uCluster to Db2uInstance"
 
 # None of these functions are tested/supported on s390x /ppc64le yet
 if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
