@@ -7,20 +7,20 @@ cluster:
   id: {{ CLUSTER_ID }}
 
 ibm_mongodb:
-  mongodb_provider: "{{ MONGODB_PROVIDER }}"
-  namespace: "{{ MONGODB_CE_NAMESPACE }}"
-  install: "{{ MONGODB_CE_INSTALL }}"
-  mongodb_replicas: {{ MONGODB_REPLICAS }}
-  ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ IBM_ENTITLEMENT_KEY }}>"
+  install: "true"
+  namespace: "{{ MONGODB_CE_NAMESPACE | default('mongoce') }}"
+  instance_name: "{{ MONGODB_CE_INSTANCE_NAME | default('mas-mongo-ce') }}"
+  members: {{ MONGODB_CE_MEMBERS | default(3) }}
+  mongo_ce_version: "{{ MONGODB_CE_VERSION | default('7.0.5') }}"
+  storage_size: "{{ MONGODB_CE_STORAGE_SIZE | default('10Gi') }}"
+  channel: "{{ MONGODB_CE_CHANNEL | default('stable') }}"
+  install_plan: "{{ MONGODB_CE_INSTALL_PLAN | default('Automatic') }}"
+  source: "community-operators"
+  source_namespace: "openshift-marketplace"
   run_sync_hooks: true
-{% if MONGODB_CE_VERSION is defined and MONGODB_CE_VERSION != '' %}
-  mongo_ce_version: "{{ MONGODB_CE_VERSION }}"
-{% endif %}
+  ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ IBM_ENTITLEMENT_KEY }}>"
 {% if MONGODB_CE_STORAGE_CLASS is defined and MONGODB_CE_STORAGE_CLASS != '' %}
   mongo_ce_storage_class: "{{ MONGODB_CE_STORAGE_CLASS }}"
-{% endif %}
-{% if MONGODB_CPU_REQUESTS is defined and MONGODB_CPU_REQUESTS != '' %}
-  mongodb_cpu_requests: "{{ MONGODB_CPU_REQUESTS }}"
 {% endif %}
 {% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
   internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
