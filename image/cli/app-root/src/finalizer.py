@@ -240,24 +240,24 @@ def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId, prod
         conclusion = "success"
         status_icon = "✅"
 
-    # Title — single line shown in the checks list on the commit page
+    # Title (output.title) — rendered by GHE as a large heading above the body.
+    # This is the ❌/✅ status line the user sees first.
+    # Use "{instanceId}#{build}" with no space so GitHub doesn't auto-link #build as a PR.
+    build_date_suffix = f" | {build_date}" if build_date else ""
+    output_title = f"{status_icon} FVT Results — {instanceId}#{build}{build_date_suffix}"
+
+    # Subtitle (first line of output.summary body) — the stats line shown below the title.
     if total_tests == 0:
-        output_title = f"No test results recorded for {instanceId} #{build}"
+        stats_line = f"No test results recorded for {instanceId} #{build}"
     elif total_failures > 0 or total_errors > 0:
-        output_title = f"{total_failures} failures, {total_errors} errors — {total_tests} tests run on {instanceId} #{build}"
+        stats_line = f"{total_failures} failures, {total_errors} errors — {total_tests} tests run on {instanceId} #{build}"
     else:
-        output_title = f"All {total_tests} tests passed on {instanceId} #{build}"
+        stats_line = f"All {total_tests} tests passed on {instanceId} #{build}"
 
-    # Heading line — status icon + instance + build + date
-    heading_parts = [f"{status_icon} FVT Results — {instanceId} #{build}"]
-    if build_date:
-        heading_parts.append(f"| {build_date}")
-    heading = " ".join(heading_parts)
-
-    # Body — full markdown rendered on the check run detail pages
+    # Body — full markdown rendered on the check run detail page.
     dashboard_url = f"https://dashboard.ibmmas.com/tests/{instanceId}"
     lines = [
-        f"## {heading}",
+        f"**{stats_line}**",
         "",
         "> This check is automatically posted by the MAS Functional Verification Test (FVT) pipeline.",
         f"> It shows the test outcome for the exact commit that was deployed and tested on environment **{instanceId}**.",
