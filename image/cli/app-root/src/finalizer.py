@@ -802,7 +802,7 @@ if __name__ == "__main__":
     # Falls back to a hardcoded default list when the env var is not set.
     # Failures are non-fatal — never aborts the rest of the script.
     # -------------------------------------------------------------------------
-    _DEFAULT_GHE_INSTANCES = ["fvtstable", "fvtcpd", "uscpd", "usfvt"]
+    _DEFAULT_GHE_INSTANCES = ["fvtcore", "fvtcpd"]
     ghe_instances_raw = os.getenv("GHE_FVT_INSTANCES", "")
     ghe_instances = [i.strip() for i in ghe_instances_raw.split(",") if i.strip()] or _DEFAULT_GHE_INSTANCES
 
