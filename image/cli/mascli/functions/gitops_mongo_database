@@ -15,19 +15,17 @@ Basic Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                          Cluster ID
 
 MongoDB Configuration (Required):
-      --mongo-provider  ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}   The mongodb provider ('community', 'aws', or 'ibm')
       --mongo-namespace ${COLOR_YELLOW}MONGODB_CE_NAMESPACE${TEXT_RESET}  Namespace where MongoDB is installed (default: 'mongoce')
 
 MongoDB Configuration (Optional):
-      --mongo-version         ${COLOR_YELLOW}MONGODB_CE_VERSION${TEXT_RESET}        MongoDB version to install
-      --mongo-storage-class   ${COLOR_YELLOW}MONGODB_CE_STORAGE_CLASS${TEXT_RESET}  Storage class for MongoDB PVCs
-      --mongo-replicas        ${COLOR_YELLOW}MONGODB_REPLICAS${TEXT_RESET}        Number of MongoDB replicas (default: 3)
-      --mongo-cpu-requests    ${COLOR_YELLOW}MONGODB_CPU_REQUESTS${TEXT_RESET}    CPU requests for MongoDB pods
-      --mongo-install-plan    ${COLOR_YELLOW}MONGODB_CE_INSTALL${TEXT_RESET}    Subscription install plan ('Automatic' or 'Manual', default: 'Automatic')
+      --mongo-version        ${COLOR_YELLOW}MONGODB_CE_VERSION${TEXT_RESET}        MongoDB version to install (default: '7.0.5')
+      --mongo-instance-name  ${COLOR_YELLOW}MONGODB_CE_INSTANCE_NAME${TEXT_RESET}  MongoDBCommunity CR name (default: 'mas-mongo-ce')
+      --mongo-members        ${COLOR_YELLOW}MONGODB_CE_MEMBERS${TEXT_RESET}        Number of MongoDB replica members (default: 3)
+      --mongo-storage-size   ${COLOR_YELLOW}MONGODB_CE_STORAGE_SIZE${TEXT_RESET}   PVC storage size (default: '10Gi')
+      --mongo-storage-class  ${COLOR_YELLOW}MONGODB_CE_STORAGE_CLASS${TEXT_RESET}  Storage class for MongoDB PVCs
+      --mongo-channel        ${COLOR_YELLOW}MONGODB_CE_CHANNEL${TEXT_RESET}        OLM channel for the operator (default: 'stable')
+      --mongo-install-plan   ${COLOR_YELLOW}MONGODB_CE_INSTALL_PLAN${TEXT_RESET}   Subscription install plan ('Automatic' or 'Manual', default: 'Automatic')
 
-IBM Entitlement (Required):
-      --ibm-entitlement-key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}  IBM Entitlement Key for pulling images
-      --secrets-path        ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}         Secrets path prefix for AVP <path:...> references
 
 Internal Certificate Authority (Optional):
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority value
@@ -70,34 +68,29 @@ function gitops_mongodb_noninteractive() {
         ;;
 
       # MongoDB Configuration
-      --mongo-provider)
-        export MONGODB_PROVIDER=$1 && shift
-        ;;
       --mongo-namespace)
         export MONGODB_CE_NAMESPACE=$1 && shift
+        ;;
+      --mongo-instance-name)
+        export MONGODB_CE_INSTANCE_NAME=$1 && shift
         ;;
       --mongo-version)
         export MONGODB_CE_VERSION=$1 && shift
         ;;
+      --mongo-members)
+        export MONGODB_CE_MEMBERS=$1 && shift
+        ;;
+      --mongo-storage-size)
+        export MONGODB_CE_STORAGE_SIZE=$1 && shift
+        ;;
       --mongo-storage-class)
         export MONGODB_CE_STORAGE_CLASS=$1 && shift
         ;;
-      --mongo-replicas)
-        export MONGODB_REPLICAS=$1 && shift
-        ;;
-      --mongo-cpu-requests)
-        export MONGODB_CPU_REQUESTS=$1 && shift
+      --mongo-channel)
+        export MONGODB_CE_CHANNEL=$1 && shift
         ;;
       --mongo-install-plan)
-        export MONGODB_CE_INSTALL=$1 && shift
-        ;;
-
-      # IBM Entitlement
-      --ibm-entitlement-key)
-        export IBM_ENTITLEMENT_KEY=$1 && shift
-        ;;
-      --secrets-path)
-        export SECRETS_PATH=$1 && shift
+        export MONGODB_CE_INSTALL_PLAN=$1 && shift
         ;;
 
       # Internal Certificate Authority
@@ -142,14 +135,16 @@ function gitops_mongodb_noninteractive() {
   export IBM_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
 
   export MONGODB_CE_NAMESPACE=${MONGODB_CE_NAMESPACE:-"mongoce"}
-  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"community"}
-  export MONGODB_REPLICAS=${MONGODB_REPLICAS:-3}
-  export MONGODB_CE_INSTALL=${MONGODB_CE_INSTALL:-"Automatic"}
+  export MONGODB_CE_INSTANCE_NAME=${MONGODB_CE_INSTANCE_NAME:-"mas-mongo-ce"}
+  export MONGODB_CE_MEMBERS=${MONGODB_CE_MEMBERS:-3}
+  export MONGODB_CE_VERSION=${MONGODB_CE_VERSION:-"7.0.5"}
+  export MONGODB_CE_STORAGE_SIZE=${MONGODB_CE_STORAGE_SIZE:-"10Gi"}
+  export MONGODB_CE_CHANNEL=${MONGODB_CE_CHANNEL:-"stable"}
+  export MONGODB_CE_INSTALL_PLAN=${MONGODB_CE_INSTALL_PLAN:-"Automatic"}
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_mongodb_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_mongodb_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_mongodb_help "CLUSTER_ID is not set"
-  [[ -z "$MONGODB_PROVIDER" ]] && gitops_mongodb_help "MONGODB_PROVIDER is not set"
   [[ -z "$MONGODB_CE_NAMESPACE" ]] && gitops_mongodb_help "MONGODB_CE_NAMESPACE is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
@@ -192,12 +187,14 @@ function gitops_mongo_database() {
 
   echo "${TEXT_DIM}"
   echo_h4 "MongoDB" "    "
-  echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
   echo_reset_dim "Mongo Namespace  ............... ${COLOR_MAGENTA}${MONGODB_CE_NAMESPACE}"
+  echo_reset_dim "Mongo Instance Name  ........... ${COLOR_MAGENTA}${MONGODB_CE_INSTANCE_NAME}"
   echo_reset_dim "Mongo Version  ................. ${COLOR_MAGENTA}${MONGODB_CE_VERSION}"
+  echo_reset_dim "Mongo Members  ................. ${COLOR_MAGENTA}${MONGODB_CE_MEMBERS}"
+  echo_reset_dim "Mongo Storage Size  ............ ${COLOR_MAGENTA}${MONGODB_CE_STORAGE_SIZE}"
   echo_reset_dim "Mongo Storage Class  ........... ${COLOR_MAGENTA}${MONGODB_CE_STORAGE_CLASS}"
-  echo_reset_dim "Mongo Replicas  ................ ${COLOR_MAGENTA}${MONGODB_REPLICAS}"
-  echo_reset_dim "Mongo Install Plan  ............ ${COLOR_MAGENTA}${MONGODB_CE_INSTALL}"
+  echo_reset_dim "Mongo Channel  ................. ${COLOR_MAGENTA}${MONGODB_CE_CHANNEL}"
+  echo_reset_dim "Mongo Install Plan  ............ ${COLOR_MAGENTA}${MONGODB_CE_INSTALL_PLAN}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -215,10 +212,6 @@ function gitops_mongo_database() {
     echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
   reset_colors
-
-  # Build AVP secret key reference for IBM entitlement key
-  # ---------------------------------------------------------------------------
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}/${CLUSTER_ID}/ibm_entitlement#image_pull_secret_b64
 
   # Optional: internal certificate authority
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
