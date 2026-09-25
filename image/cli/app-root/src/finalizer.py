@@ -185,26 +185,84 @@ PRODUCT_REPO_SLUGS = {
     "ibm-aiservice": "maximoappsuite/ibm-aiservice",
 }
 
-CHECK_RUN_NAME = "FVT Results"
 
-
-def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId):
+def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId, productData):
     """Post a GHE check run against the product repo commit that was under test.
 
-    Phase 1: simply links the FVT run back to the commit — no detailed output yet.
-    The check always completes as 'neutral' so it is purely informational and does
-    not block PRs or merges.
+    The check always completes as 'neutral' — informational only, never blocks PRs.
 
     Args:
-        productId  (str): e.g. 'ibm-mas-manage'
-        commitId   (str): full SHA from the mas.ibm.com/commitId deployment label
-        repoSlug   (str): 'org/repo' on github.ibm.com
-        detailsUrl (str): URL of the FVT dashboard run (used as the 'Details' link)
-        runId      (str): human-readable run identifier, e.g. 'fvt92x:42'
+        productId   (str):  e.g. 'ibm-mas-manage'
+        commitId    (str):  full SHA from the mas.ibm.com/commitId deployment label
+        repoSlug    (str):  'org/repo' on github.ibm.com
+        detailsUrl  (str):  URL of the FVT dashboard run (used as the Details link)
+        runId       (str):  human-readable run identifier, e.g. 'usfvt:5124'
+        productData (dict): product entry from the MongoDB run document
     """
+    version = productData.get("version", "unknown")
+    instanceId, build = runId.split(":", 1)
+    checkName = f"FVT / {productId}"
+
+    # Aggregate totals and build per-suite table rows
+    total_tests = total_failures = total_errors = total_skipped = 0
+    suite_rows = []
+    for suite, r in sorted(productData.get("results", {}).items()):
+        t, f, e, s = r.get("tests", 0), r.get("failures", 0), r.get("errors", 0), r.get("skipped", 0)
+        total_tests += t
+        total_failures += f
+        total_errors += e
+        total_skipped += s
+        icon = "🔴" if f > 0 else ("🟡" if e > 0 else "🟢")
+        suite_url = f"https://dashboard.ibmmas.com/tests/{instanceId}/testsuite/{productId}/{suite}"
+        suite_rows.append(f"| {icon} [{suite}]({suite_url}) | {t} | {f} | {e} | {s} |")
+
+    # Title — single line shown in the checks list on the commit page
+    if total_tests == 0:
+        output_title = f"{productId} — no test results recorded"
+    elif total_failures > 0 or total_errors > 0:
+        output_title = f"{productId} v{version} — {total_failures} failures, {total_errors} errors across {total_tests} tests"
+    else:
+        output_title = f"{productId} v{version} — all {total_tests} tests passed"
+
+    # Body — full markdown rendered on the check run detail page
+    dashboard_url = f"https://dashboard.ibmmas.com/tests/{instanceId}"
+    lines = [
+        f"## FVT Results — `{productId}`",
+        "",
+        "> This check is automatically posted by the MAS Functional Verification Test (FVT) pipeline.",
+        f"> It shows the test outcome for the exact commit that was deployed and tested on environment **{instanceId}**.",
+        "",
+        "---",
+        "",
+        "| | |",
+        "| --- | --- |",
+        f"| **Product** | `{productId}` v{version} |",
+        f"| **Run** | [{instanceId}#{build}]({dashboard_url}) |",
+        f"| **Commit** | `{commitId[:12]}` |",
+        f"| **Results** | {total_tests} tests · {total_failures} failures · {total_errors} errors · {total_skipped} skipped |",
+        "",
+    ]
+
+    if suite_rows:
+        lines += [
+            "### Suite Breakdown",
+            "",
+            "| Suite | Tests | Failures | Errors | Skipped |",
+            "| ----- | ----: | -------: | -----: | ------: |",
+        ] + suite_rows
+    else:
+        lines.append("_No suite results were recorded for this product in this run._")
+
+    lines += [
+        "",
+        "---",
+        "",
+        f"[View full results on the FVT Dashboard]({detailsUrl})",
+    ]
+
     try:
         check_run_id = createCheckRun(
-            name=CHECK_RUN_NAME,
+            name=checkName,
             repoSlug=repoSlug,
             commitSha=commitId,
             detailsUrl=detailsUrl,
@@ -214,10 +272,10 @@ def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId):
             repoSlug=repoSlug,
             conclusion="neutral",
             detailsUrl=detailsUrl,
-            outputTitle="FVT run linked",
-            outputSummary=f"This commit was included in FVT run [{runId}]({detailsUrl}).",
+            outputTitle=output_title,
+            outputSummary="\n".join(lines),
         )
-        print(f"GHE check run posted: {repoSlug}@{commitId[:8]} [{CHECK_RUN_NAME}]")
+        print(f"GHE check run posted: {repoSlug}@{commitId[:8]} [{checkName}]")
     except Exception as e:
         print(f"Failed to post GHE check run for {productId} ({repoSlug}@{commitId[:8]}): {e}")
 
@@ -695,17 +753,19 @@ if __name__ == "__main__":
         print("Run information NOT updated in MongoDb because DRY_RUN is set")
 
     # Publish GHE check runs linked to each product repo commit
-    # Only runs when the build is finished and the GHE App key is available.
-    # Failures here are non-fatal — they print a warning and the script continues.
+    # Runs independently of Slack/Jira — only needs GITHUB_APP_PRIVATE_KEY and MongoDB.
+    # Failures are non-fatal — never aborts the rest of the script.
     # -------------------------------------------------------------------------
     if setFinished.lower() == "true" and os.getenv("GITHUB_APP_PRIVATE_KEY"):
         details_url = os.getenv("TOOLCHAIN_PIPELINERUN_URL", f"https://dashboard.ibmmas.com/tests/{instanceId}")
+        ghe_result = db.runsv2.find_one({"_id": runId})
         for productId, repoSlug in PRODUCT_REPO_SLUGS.items():
-            commitId = setObject.get(f"products.{productId}.commitId")
+            productData = ghe_result.get("products", {}).get(productId, {}) if ghe_result else {}
+            commitId = productData.get("commitId")
             if not commitId:
                 print(f"No commitId for {productId}, skipping GHE check run")
                 continue
-            publish_fvt_check_run(productId, commitId, repoSlug, details_url, runId)
+            publish_fvt_check_run(productId, commitId, repoSlug, details_url, runId, productData)
     elif setFinished.lower() != "true":
         print("FVT run not yet finished, skipping GHE check runs")
     else:
