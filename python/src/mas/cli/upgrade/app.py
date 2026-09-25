@@ -129,6 +129,65 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.pipelineStorageClass = suggestedStorageClass
             self.pipelineStorageAccessMode = suggestedAccessMode
 
+    def configStorageClasses(self) -> None:
+        """
+        Determine storage_class_rwo and storage_class_rwx for Manage Foundation Db2/PVC provisioning.
+        Only called when Manage Foundation is being installed during upgrade (9.0 → 9.1).
+
+        Priority:
+          1. CLI args (--storage-class-rwo / --storage-class-rwx) — already set in self.params
+          2. Auto-detected from getDefaultStorageClasses()
+          3. Interactive prompt (falls back to fatalError in --no-confirm mode)
+        """
+        # 1. Both already provided via CLI args — validate and return
+        if self.getParam("storage_class_rwo") and self.getParam("storage_class_rwx"):
+            if getStorageClass(self.dynamicClient, self.getParam("storage_class_rwo")) is None:
+                self.fatalError(f"Storage class '{self.getParam('storage_class_rwo')}' specified via --storage-class-rwo is not available on this cluster.")
+            if getStorageClass(self.dynamicClient, self.getParam("storage_class_rwx")) is None:
+                self.fatalError(f"Storage class '{self.getParam('storage_class_rwx')}' specified via --storage-class-rwx is not available on this cluster.")
+            logger.debug(f"Using storage classes from CLI args: RWO={self.getParam('storage_class_rwo')} RWX={self.getParam('storage_class_rwx')}")
+            return
+
+        # 2. Try auto-detection
+        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+        if defaultStorageClasses.provider is not None:
+            print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
+
+            useDetected = True
+            if not self.noConfirm:
+                useDetected = self.yesOrNo("Use the auto-detected storage classes")
+
+            if useDetected:
+                self.params["storage_class_rwo"] = defaultStorageClasses.rwo
+                self.params["storage_class_rwx"] = defaultStorageClasses.rwx
+                logger.debug(f"Using auto-detected storage classes: RWO={defaultStorageClasses.rwo} RWX={defaultStorageClasses.rwx}")
+                return
+
+        # 3. No provider detected or user declined — fail in non-interactive mode
+        if self.noConfirm:
+            self.fatalError(
+                "No storage classes could be detected for Manage Foundation Db2 instances and --no-confirm is set. "
+                "Please re-run with --storage-class-rwo and --storage-class-rwx."
+            )
+
+        self.printDescription(["Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:"])
+        for storageClass in getStorageClasses(self.dynamicClient):
+            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+        print()
+
+        self.params["storage_class_rwo"] = prompt(
+            HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
+            validator=StorageClassValidator(),
+            validate_while_typing=False,
+        )
+        self.params["storage_class_rwx"] = prompt(
+            HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "),
+            validator=StorageClassValidator(),
+            validate_while_typing=False,
+        )
+
     def computeMonitorInstallOrderForUpgrade(self, instanceId):
         """
         Determine the installation order for Monitor relative to IoT based on TARGET Monitor version.
@@ -244,6 +303,12 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         # Pre-populate pipeline storage class from CLI args so configPipelineStorageClass
         self.pipelineStorageClass = args.storage_pipeline or None
         self.pipelineStorageAccessMode = args.storage_accessmode or None
+
+        # Pre-populate RWO/RWX storage classes from CLI args (used for Manage Foundation Db2 instances)
+        if args.storage_class_rwo:
+            self.params["storage_class_rwo"] = args.storage_class_rwo
+        if args.storage_class_rwx:
+            self.params["storage_class_rwx"] = args.storage_class_rwx
 
         # Set image_pull_policy if provided
         if args.image_pull_policy and args.image_pull_policy != "":
@@ -430,7 +495,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.setParam("mas_app_settings_aio_flag", "false")
             self.setParam("mas_app_channel_manage", self.nextChannel)
             self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
-
+            self.configStorageClasses()
             self.configDb2(silentMode=True)
 
         # Compute Monitor install order for upgrade
