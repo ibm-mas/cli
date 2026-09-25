@@ -22,7 +22,7 @@ spec:
     # -------------------------------------------------------------------------
     - name: pipeline_registry_secret_name
       type: string
-      default: ""
+      default: "mas-update-secrets"
       description: Name of the per-pipeline Kubernetes Secret holding registry credentials
 
     # Catalog Version
@@ -231,6 +231,7 @@ spec:
         - pre-update-check
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-catalog
         - name: mas_catalog_version
@@ -257,6 +258,7 @@ spec:
         - post-update-verify
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-ocs
         - name: ocs_action
@@ -275,6 +277,7 @@ spec:
         - post-update-verify
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: grafana_action
           value: update
         - name: devops_suite_name
@@ -293,6 +296,7 @@ spec:
         - post-update-verify
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: dependencies-rhoai-migration
 
@@ -305,6 +309,7 @@ spec:
         - post-update-verify
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-db2
         - name: db2_action
@@ -330,6 +335,7 @@ spec:
         - post-update-verify
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-mongodb
         - name: mongodb_action
@@ -358,6 +364,7 @@ spec:
         - post-update-verify
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: update-kafka
         - name: kafka_action
@@ -407,6 +414,7 @@ spec:
         - post-update-verify
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: aiservice_instance_ids
           value: $(params.aiservice_instance_ids)
 
