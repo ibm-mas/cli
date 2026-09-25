@@ -208,7 +208,7 @@ def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId, prod
     """
     version = productData.get("version", "unknown")
     instanceId, build = runId.split(":", 1)
-    checkName = f"FVT Results / {instanceId}"
+    checkName = f"FVT Results Check ({instanceId})"
 
     # Format run timestamp — shown in the heading as e.g. "Sep 25 09:31"
     run_ts = runDoc.get("timestamp") if runDoc else None
