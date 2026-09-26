@@ -285,7 +285,7 @@ class installArgBuilderMixin:
         if self.installAIService:
             command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
             if self.getParam("configure_aiassistant") != "":
-                command += f"  --configure-aiassistant \"{self.getParam('configure_aiassistant')}\"{newline}"
+                command += f"  --configure-ai-assistant \"{self.getParam('configure_aiassistant')}\"{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
