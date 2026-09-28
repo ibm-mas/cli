@@ -938,6 +938,7 @@ function gitops_mas_config() {
     fi
 
 
+
     # Source: gitops_suite_idp_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
