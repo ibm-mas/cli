@@ -18,6 +18,40 @@ spec:
       default: ""
 
   steps:
+    # Patch ALM_ENV_FILE on the alm-agent deployment before AI tests run.
+    # The alm-agent deployment lives in mas-<instance_id>-core namespace
+    # and is named <instance_id>-alm-agent.
+    # This step only exists in mas-launchfvt-manage-ai, so it runs
+    # exclusively when LAUNCHFVT_MANAGE_AI=true triggers this task.
+    - name: patch-alm-agent-env
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      script: |
+        #!/usr/bin/env bash
+        set -e
+        ALM_NAMESPACE="mas-${MAS_INSTANCE_ID}-core"
+        ALM_DEPLOYMENT="${MAS_INSTANCE_ID}-alm-agent"
+        ALM_ENV_VALUE="./.env.fvt"
+
+        echo "Patching ALM_ENV_FILE=${ALM_ENV_VALUE} on deployment/${ALM_DEPLOYMENT} in ${ALM_NAMESPACE}"
+        oc set env deployment/${ALM_DEPLOYMENT} \
+          ALM_ENV_FILE="${ALM_ENV_VALUE}" \
+          -n "${ALM_NAMESPACE}"
+
+        echo "Waiting for rollout to complete..."
+        oc rollout status deployment/${ALM_DEPLOYMENT} \
+          -n "${ALM_NAMESPACE}" \
+          --timeout=300s
+
+        echo "ALM_ENV_FILE patched successfully"
+      env:
+        - name: MAS_INSTANCE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MAS_INSTANCE_ID
+              optional: false
+
     - name: start-pipelinerun
       image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
