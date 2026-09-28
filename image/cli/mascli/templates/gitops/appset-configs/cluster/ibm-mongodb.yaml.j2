@@ -15,8 +15,6 @@ ibm_mongodb:
   storage_size: "{{ MONGODB_CE_STORAGE_SIZE | default('10Gi') }}"
   channel: "{{ MONGODB_CE_CHANNEL | default('stable') }}"
   install_plan: "{{ MONGODB_CE_INSTALL_PLAN | default('Automatic') }}"
-  source: "community-operators"
-  source_namespace: "openshift-marketplace"
   run_sync_hooks: true
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ IBM_ENTITLEMENT_KEY }}>"
 {% if MONGODB_CE_STORAGE_CLASS is defined and MONGODB_CE_STORAGE_CLASS != '' %}
