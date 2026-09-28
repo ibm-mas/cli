@@ -1089,15 +1089,45 @@ spec:
       runAfter:
         - approval-manage
 
-    # 45-minute delay before Facilities FVT starts (2700 seconds)
-    # TODO: Remove once fix is delivered from Manage team
-    - name: delay-facilities
+    # Wait for Manage integration service URL to be populated before starting Facilities FVT.
+    # Facilities pods restart when bindingData.manage.integrationserviceurl is set late
+    # (written by Manage's create-integration-service.yml into ManageDeployment CR status),
+    # causing in-flight test failures.
+    # TODO: Remove once upstream Manage team resolves the race condition.
+    - name: waitfor-manage-integration-svc
       timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
       taskSpec:
+        params:
+          - name: mas_instance_id
+            type: string
         steps:
-          - name: sleep
+          - name: wait
             image: registry.redhat.io/ubi9/ubi-minimal:latest
-            command: ["/bin/sh", "-c", "echo 'Waiting 45 minutes before starting Facilities FVT...'; sleep 2700; echo 'Done.'"]
+            command:
+              - /bin/sh
+              - -c
+              - |
+                NAMESPACE="mas-$(params.mas_instance_id)-manage"
+                RETRIES=0
+                MAX_RETRIES=54
+                DELAY=50
+                echo "Polling ManageDeployment/manage-maxinst for svcIntegration.url in namespace ${NAMESPACE}"
+                while [ "${RETRIES}" -lt "${MAX_RETRIES}" ]; do
+                  URL=$(kubectl get managedeploy manage-maxinst -n "${NAMESPACE}" \
+                    -o jsonpath='{.status.svcIntegration.url}' 2>/dev/null || true)
+                  if [ -n "${URL}" ]; then
+                    echo "Manage integration service URL is set: ${URL}"
+                    exit 0
+                  fi
+                  RETRIES=$((RETRIES + 1))
+                  echo "Attempt ${RETRIES}/${MAX_RETRIES}: svcIntegration.url not yet set, retrying in ${DELAY}s..."
+                  sleep "${DELAY}"
+                done
+                echo "WARNING: svcIntegration.url was not set after $((MAX_RETRIES * DELAY))s — proceeding anyway"
+                exit 0
       when:
         - input: $(params.launchfvt_facilities)
           operator: in
@@ -1120,7 +1150,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - delay-facilities
+        - waitfor-manage-integration-svc
 
     - name: approval-facilities
       timeout: "0"
