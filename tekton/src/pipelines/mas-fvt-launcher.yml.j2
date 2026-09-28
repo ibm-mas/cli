@@ -1089,6 +1089,22 @@ spec:
       runAfter:
         - approval-manage
 
+    # 45-minute delay before Facilities FVT starts (2700 seconds)
+    # TODO: Remove once fix is delivered from Manage team
+    - name: delay-facilities
+      timeout: "0"
+      taskSpec:
+        steps:
+          - name: sleep
+            image: registry.redhat.io/ubi9/ubi-minimal:latest
+            command: ["/bin/sh", "-c", "echo 'Waiting 45 minutes before starting Facilities FVT...'; sleep 2700; echo 'Done.'"]
+      when:
+        - input: $(params.launchfvt_facilities)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-facilities
+
     - name: launchfvt-facilities
       timeout: "0"
       params:
@@ -1104,7 +1120,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-facilities
+        - delay-facilities
 
     - name: approval-facilities
       timeout: "0"
