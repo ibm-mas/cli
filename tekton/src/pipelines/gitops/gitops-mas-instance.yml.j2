@@ -263,7 +263,7 @@ spec:
       type: string
     - name: application_configuration
       type: string
-      default: "true"
+      default: ""
     - name: additional_resources_instances
       type: string
       default: ""
@@ -275,6 +275,7 @@ spec:
       default: ""
     - name: maf_enabled
       type: string
+      default: "false"
     - name: maf_storageClassName
       type: string
       default: ""
@@ -300,6 +301,18 @@ spec:
     - name: production_database_access_type
       type: string
       default: ""
+    - name: fvt_gitops_enabled
+      type: string
+      default: "false"
+    - name: fvt_gitops_enabled_apps
+      type: string
+      default: ""
+    - name: fvt_gitops_image_repo
+      type: string
+      default: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/mas-devops/fvt-gitops"
+    - name: fvt_gitops_image_tag
+      type: string
+      default: "latest"
 
   tasks:
 
@@ -559,6 +572,14 @@ spec:
           value: $(params.mas_use_service_mesh)
         - name: production_database_access_type
           value: $(params.production_database_access_type)
+        - name: fvt_gitops_enabled
+          value: $(params.fvt_gitops_enabled)
+        - name: fvt_gitops_enabled_apps
+          value: $(params.fvt_gitops_enabled_apps)
+        - name: fvt_gitops_image_repo
+          value: $(params.fvt_gitops_image_repo)
+        - name: fvt_gitops_image_tag
+          value: $(params.fvt_gitops_image_tag)
       taskRef:
         kind: Task
         name: gitops-suite
@@ -1003,6 +1024,8 @@ spec:
     # 3. Deprovision app config
     # -------------------------------------------------------------------------
     - name: gitops-deprovision-maf-app-config
+      runAfter:
+        - gitops-suite-config
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
