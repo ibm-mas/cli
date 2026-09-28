@@ -937,6 +937,7 @@ function gitops_mas_config() {
       export SECRET_KEY_KAFKA_PASSWORD=${AWS_MSK_SECRET}#password
     fi
 
+
     # Source: gitops_suite_idp_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
