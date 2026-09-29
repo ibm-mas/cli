@@ -139,12 +139,18 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
           2. Auto-detected from getDefaultStorageClasses()
           3. Interactive prompt (falls back to fatalError in --no-confirm mode)
         """
-        # 1. Both already provided via CLI args — validate and return
-        if self.getParam("storage_class_rwo") and self.getParam("storage_class_rwx"):
+        # 1. Validate any CLI args already provided (independently — partial args are allowed)
+        if self.getParam("storage_class_rwo"):
             if getStorageClass(self.dynamicClient, self.getParam("storage_class_rwo")) is None:
                 self.fatalError(f"Storage class '{self.getParam('storage_class_rwo')}' specified via --storage-class-rwo is not available on this cluster.")
+                return
+        if self.getParam("storage_class_rwx"):
             if getStorageClass(self.dynamicClient, self.getParam("storage_class_rwx")) is None:
                 self.fatalError(f"Storage class '{self.getParam('storage_class_rwx')}' specified via --storage-class-rwx is not available on this cluster.")
+                return
+
+        # Both provided and valid — nothing more to do
+        if self.getParam("storage_class_rwo") and self.getParam("storage_class_rwx"):
             logger.debug(f"Using storage classes from CLI args: RWO={self.getParam('storage_class_rwo')} RWX={self.getParam('storage_class_rwx')}")
             return
 
@@ -171,22 +177,26 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 "No storage classes could be detected for Manage Foundation Db2 instances and --no-confirm is set. "
                 "Please re-run with --storage-class-rwo and --storage-class-rwx."
             )
+            return
 
         self.printDescription(["Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:"])
         for storageClass in getStorageClasses(self.dynamicClient):
             print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
         print()
 
-        self.params["storage_class_rwo"] = prompt(
-            HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
-            validator=StorageClassValidator(),
-            validate_while_typing=False,
-        )
-        self.params["storage_class_rwx"] = prompt(
-            HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "),
-            validator=StorageClassValidator(),
-            validate_while_typing=False,
-        )
+        validator = StorageClassValidator(dynamic_client=self.dynamicClient)
+        if not self.getParam("storage_class_rwo"):
+            self.params["storage_class_rwo"] = prompt(
+                HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
+                validator=validator,
+                validate_while_typing=False,
+            )
+        if not self.getParam("storage_class_rwx"):
+            self.params["storage_class_rwx"] = prompt(
+                HTML("<Yellow>ReadWriteMany (RWX) storage class</Yellow> "),
+                validator=validator,
+                validate_while_typing=False,
+            )
 
     def computeMonitorInstallOrderForUpgrade(self, instanceId):
         """
