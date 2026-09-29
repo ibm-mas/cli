@@ -184,7 +184,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
         print()
 
-        validator = StorageClassValidator(dynamic_client=self.dynamicClient)
+        validator = StorageClassValidator()
         if not self.getParam("storage_class_rwo"):
             self.params["storage_class_rwo"] = prompt(
                 HTML("<Yellow>ReadWriteOnce (RWO) storage class</Yellow> "),
