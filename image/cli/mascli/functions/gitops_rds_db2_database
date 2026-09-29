@@ -29,8 +29,6 @@ IBM RDS DB2:
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                       Flag to know that this is ReplicaDB instance
       --rds-db2-backup ${COLOR_YELLOW}RDS_DB2_BACKUP${TEXT_RESET}                                                Flag to know that this is RDS DB2 backup instance                                     
 
-
-
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}   Secrets Manager key seperator string      
