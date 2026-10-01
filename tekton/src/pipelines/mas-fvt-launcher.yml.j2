@@ -489,9 +489,9 @@ spec:
           operator: in
           values: ["true", "True"]
         # All these launchers require manage in place to then run setup, therefore the criteria
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_manage_ai)$(params.launchfvt_predict)$(params.launchivt_manage)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_manage_ai)$(params.launchfvt_predict)$(params.launchivt_manage)$(params.launchfvt-facilities)
           operator: notin
-          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify
+          values: ["falsefalsefalsefalsefalsefalsefalse"] # case sensitive to simplify
       runAfter:
         - approval-suite-verify
 
@@ -1089,6 +1089,30 @@ spec:
       runAfter:
         - waitfor-manage
 
+    # 45-minute delay before Facilities FVT starts to allow the Manage integration
+    # service URL (bindingData.manage.integrationserviceurl) to be fully propagated
+    # into the Facilities namespace, preventing pod restarts mid-test.
+    # TODO: Remove once upstream Manage team resolves the race condition.
+    - name: waitfor-manage-integration-svc
+      timeout: "0"
+      taskSpec:
+        steps:
+          - name: wait
+            image: registry.redhat.io/ubi9/ubi-minimal:latest
+            command:
+              - /bin/sh
+              - -c
+              - |
+                echo "Waiting 45 minutes for Manage integration service URL to propagate..."
+                sleep 2700
+                echo "Done."
+      when:
+        - input: $(params.launchfvt_facilities)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-facilities
+
     - name: launchfvt-facilities
       timeout: "0"
       params:
@@ -1104,7 +1128,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-facilities
+        - waitfor-manage-integration-svc
 
     - name: approval-facilities
       timeout: "0"
