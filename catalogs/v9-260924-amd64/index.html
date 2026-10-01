@@ -425,12 +425,14 @@
 <li>IBM Maximo Real Estate and Facilities <a href="https://www.ibm.com/support/pages/node/7288833">v9.1.15</a> and <a href="https://www.ibm.com/support/pages/node/7289065">v9.2.3</a></li>
 <li>IBM Maximo AI Service <a href="https://www.ibm.com/support/pages/node/7287754">v9.1.19</a> and <a href="https://www.ibm.com/support/pages/node/7287755">v9.2.3</a></li>
 <li>IBM Suite License Service v3.13.2</li>
-<li>{'Mongo': '8.0.30'}</li>
+<li>Mongo: 8.0.30</li>
 </ul>
 </li>
 </ul>
 <h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">¶</a></h2>
-<p>There are no known issues for this catalog release.</p>
+<ul>
+<li>During an upgrade from MVI 9.0.x to 9.1.x, the vision-auth pod may fail to start due to an SSL hostname verification error when connecting to Valkey. Restart the Valkey and Auth deployments in the MVI namespace to resolve the issue.</li>
+</ul>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>MAS 8.10 and 8.11 standard support and software updates end on 30th April 2026, to ensure you are able to continue to receive monthly security updates and bug fixes we advise all customers to begin making upgrade plans for MAS 9.0 if you have not already done so.</p>
