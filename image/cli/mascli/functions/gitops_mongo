@@ -20,7 +20,7 @@ AWS Secrets Manager Configuration:
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
 
 MongoDb Provider Selection:
-      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws', 'yaml', or 'argocd')
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws', 'yaml', or 'mongoce')
 
 AWS MongoDb Provider (Required when MONGODB_PROVIDER is aws):
       --aws-access-key ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}                                       Access Key
@@ -42,12 +42,12 @@ YAML MongoDb Provider (Required when MONGODB_PROVIDER is yaml):
       --mongo-username ${COLOR_YELLOW}MONGO_USERNAME${TEXT_RESET}                      MongoDb Username
       --mongo-password ${COLOR_YELLOW}MONGO_PASSWORD${TEXT_RESET}                      MongoDb Password
 
-Automate MongoDb Provider / ArgoCD GitOps (Required when MONGODB_PROVIDER is argocd):
+Automate MongoDb Provider / ArgoCD GitOps (Required when MONGODB_PROVIDER is mongoce):
   -d, --dir, --gitops-working-dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}  Directory for GitOps repository
       --mongo-namespace ${COLOR_YELLOW}MONGODB_CE_NAMESPACE${TEXT_RESET}          Namespace where MongoDB is installed (default: 'mongoce')
 
-Automate MongoDb Provider / ArgoCD GitOps (Optional when MONGODB_PROVIDER is argocd):
-      --mongo-version        ${COLOR_YELLOW}MONGODB_CE_VERSION${TEXT_RESET}        MongoDB version to install (default: '7.0.12')
+Automate MongoDb Provider / ArgoCD GitOps (Optional when MONGODB_PROVIDER is mongoce):
+      --mongo-version        ${COLOR_YELLOW}MONGODB_CE_VERSION${TEXT_RESET}        MongoDB version to install (default: '8.0.30')
       --mongo-instance-name  ${COLOR_YELLOW}MONGODB_CE_INSTANCE_NAME${TEXT_RESET}  MongoDBCommunity CR name (default: 'mas-mongo-ce')
       --mongo-members        ${COLOR_YELLOW}MONGODB_CE_MEMBERS${TEXT_RESET}        Number of MongoDB replica members (default: 3)
       --mongo-storage-size   ${COLOR_YELLOW}MONGODB_CE_STORAGE_SIZE${TEXT_RESET}   PVC storage size (default: '10Gi')
@@ -56,7 +56,7 @@ Automate MongoDb Provider / ArgoCD GitOps (Optional when MONGODB_PROVIDER is arg
       --mongo-install-plan   ${COLOR_YELLOW}MONGODB_CE_INSTALL_PLAN${TEXT_RESET}   Subscription install plan ('Automatic' or 'Manual', default: 'Automatic')
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority value
 
-Automatic GitHub Push (Optional, used when MONGODB_PROVIDER is argocd):
+Automatic GitHub Push (Optional, used when MONGODB_PROVIDER is mongoce):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
   -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
@@ -191,7 +191,7 @@ function gitops_mongo_noninteractive() {
         export INTERNAL_CERT_AUTHORITY=$1 && shift
         ;;
 
-      # Automatic GitHub Push (used with argocd provider)
+      # Automatic GitHub Push (used with mongoce provider)
       -P|--github-push)
         export GITHUB_PUSH=true
         ;;
@@ -251,14 +251,14 @@ function gitops_mongo_noninteractive() {
     fi
   fi
 
-  if [ $MONGODB_PROVIDER == 'argocd' ]; then
+  if [ $MONGODB_PROVIDER == 'mongoce' ]; then
     export GITOPS_WORKING_DIR=${GITOPS_WORKING_DIR:-$PWD/working-dir}
     SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
     export IBM_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
     export MONGODB_CE_NAMESPACE=${MONGODB_CE_NAMESPACE:-"mongoce"}
     export MONGODB_CE_INSTANCE_NAME=${MONGODB_CE_INSTANCE_NAME:-"mas-mongo-ce"}
     export MONGODB_CE_MEMBERS=${MONGODB_CE_MEMBERS:-3}
-    export MONGODB_CE_VERSION=${MONGODB_CE_VERSION:-"7.0.12"}
+    export MONGODB_CE_VERSION=${MONGODB_CE_VERSION:-"8.0.30"}
     export MONGODB_CE_STORAGE_SIZE=${MONGODB_CE_STORAGE_SIZE:-"10Gi"}
     export MONGODB_CE_CHANNEL=${MONGODB_CE_CHANNEL:-"stable"}
     export MONGODB_CE_INSTALL_PLAN=${MONGODB_CE_INSTALL_PLAN:-"Automatic"}
@@ -291,10 +291,10 @@ function gitops_mongo() {
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   # -------------------------------------------------------------------------
-  # argocd (ArgoCD/GitOps) provider — generates ArgoCD appset config and
+  # mongoce (ArgoCD/GitOps) provider — generates ArgoCD appset config and
   # optionally pushes to GitHub.  This path does NOT touch Secrets Manager.
   # -------------------------------------------------------------------------
-  if [ $MONGODB_PROVIDER == 'argocd' ]; then
+  if [ $MONGODB_PROVIDER == 'mongoce' ]; then
     mkdir -p ${GITOPS_WORKING_DIR}
     GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
 
@@ -371,8 +371,8 @@ function gitops_mongo() {
     echo "- IBM MongoDB"
 
     jinjanate_commmon \
-      $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-mongodb.yaml.j2 \
-      ${GITOPS_CLUSTER_DIR}/ibm-mongodb.yaml
+      $CLI_DIR/templates/gitops/appset-configs/cluster/mongoce.yaml.j2 \
+      ${GITOPS_CLUSTER_DIR}/mongoce.yaml
 
     # Commit and push to github target repo
     # -----------------------------------------------------------------------

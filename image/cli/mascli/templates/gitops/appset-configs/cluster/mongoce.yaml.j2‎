@@ -6,13 +6,13 @@ account:
 cluster:
   id: {{ CLUSTER_ID }}
 
-ibm_mongodb:
+mongoce:
   install: "true"
-  namespace: "{{ MONGODB_CE_NAMESPACE | default('mongoce') }}"
-  instance_name: "{{ MONGODB_CE_INSTANCE_NAME | default('mas-mongo-ce') }}"
-  members: {{ MONGODB_CE_MEMBERS | default(3) }}
-  mongo_ce_version: "{{ MONGODB_CE_VERSION | default('7.0.12') }}"
-  storage_size: "{{ MONGODB_CE_STORAGE_SIZE | default('10Gi') }}"
+  namespace: "{{ MONGODB_CE_NAMESPACE }}"
+  instance_name: "{{ MONGODB_CE_INSTANCE_NAME }}"
+  members: {{ MONGODB_CE_MEMBERS }}
+  mongo_ce_version: "{{ MONGODB_CE_VERSION }}"
+  storage_size: "{{ MONGODB_CE_STORAGE_SIZE }}"
   run_sync_hooks: true
 {% if MONGODB_CE_STORAGE_CLASS is defined and MONGODB_CE_STORAGE_CLASS != '' %}
   mongo_ce_storage_class: "{{ MONGODB_CE_STORAGE_CLASS }}"
