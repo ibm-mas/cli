@@ -14,6 +14,7 @@ ibm_mongodb:
   mongo_ce_version: "{{ MONGODB_CE_VERSION | default('7.0.12') }}"
   storage_size: "{{ MONGODB_CE_STORAGE_SIZE | default('10Gi') }}"
   run_sync_hooks: true
+  test: "true"
 {% if MONGODB_CE_STORAGE_CLASS is defined and MONGODB_CE_STORAGE_CLASS != '' %}
   mongo_ce_storage_class: "{{ MONGODB_CE_STORAGE_CLASS }}"
 {% endif %}
