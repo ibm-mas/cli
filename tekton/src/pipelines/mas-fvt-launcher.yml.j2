@@ -1089,11 +1089,9 @@ spec:
       runAfter:
         - approval-manage
 
-    # Wait for integrationserviceurl to be non-empty in the Manage workspace binding secret
-    # inside the Facilities namespace before starting Facilities FVT.
-    # Facilities pods restart when this value is populated late, causing in-flight test failures.
-    # Polls: <instance-id>-<workspace-id>-manageworkspace-workspace-binding .data.integrationserviceurl
-    # Timeout: 54 retries x 50s = 45 minutes, then proceeds with a warning.
+    # 45-minute delay before Facilities FVT starts to allow the Manage integration
+    # service URL (bindingData.manage.integrationserviceurl) to be fully propagated
+    # into the Facilities namespace, preventing pod restarts mid-test.
     # TODO: Remove once upstream Manage team resolves the race condition.
     - name: waitfor-manage-integration-svc
       timeout: "0"
@@ -1101,43 +1099,13 @@ spec:
         steps:
           - name: wait
             image: registry.redhat.io/ubi9/ubi-minimal:latest
-            env:
-              - name: MAS_INSTANCE_ID
-                valueFrom:
-                  secretKeyRef:
-                    name: mas-devops
-                    key: MAS_INSTANCE_ID
-              - name: MAS_WORKSPACE_ID
-                valueFrom:
-                  secretKeyRef:
-                    name: mas-fvt-facilities
-                    key: MAS_WORKSPACE_ID
             command:
               - /bin/sh
               - -c
               - |
-                NAMESPACE="mas-${MAS_INSTANCE_ID}-facilities"
-                SECRET="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-manageworkspace-workspace-binding"
-                RETRIES=0
-                MAX_RETRIES=54
-                DELAY=50
-                echo "Polling secret ${SECRET} in namespace ${NAMESPACE} for integrationserviceurl"
-                while [ "${RETRIES}" -lt "${MAX_RETRIES}" ]; do
-                  URL=$(kubectl get secret "${SECRET}" -n "${NAMESPACE}" \
-                    -o jsonpath='{.data.integrationserviceurl}' 2>/dev/null \
-                    | base64 -d 2>/dev/null || true)
-                  case "${URL}" in
-                    https://*)
-                      echo "integrationserviceurl is set: ${URL}"
-                      exit 0
-                      ;;
-                  esac
-                  RETRIES=$((RETRIES + 1))
-                  echo "Attempt ${RETRIES}/${MAX_RETRIES}: integrationserviceurl not yet set, retrying in ${DELAY}s..."
-                  sleep "${DELAY}"
-                done
-                echo "WARNING: integrationserviceurl was not set after $((MAX_RETRIES * DELAY))s — proceeding anyway"
-                exit 0
+                echo "Waiting 45 minutes for Manage integration service URL to propagate..."
+                sleep 2700
+                echo "Done."
       when:
         - input: $(params.launchfvt_facilities)
           operator: in
