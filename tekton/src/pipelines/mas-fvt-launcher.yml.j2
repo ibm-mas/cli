@@ -489,9 +489,9 @@ spec:
           operator: in
           values: ["true", "True"]
         # All these launchers require manage in place to then run setup, therefore the criteria
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_manage_ai)$(params.launchfvt_predict)$(params.launchivt_manage)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_manage_ai)$(params.launchfvt_predict)$(params.launchivt_manage)$(params.launchfvt-facilities)
           operator: notin
-          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify
+          values: ["falsefalsefalsefalsefalsefalsefalse"] # case sensitive to simplify
       runAfter:
         - approval-suite-verify
 
