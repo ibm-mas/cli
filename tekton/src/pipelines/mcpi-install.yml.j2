@@ -25,6 +25,74 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4) }}
 
+    # IBM Operator Catalog Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') | indent(4) }}
+
+    # Certificate Manager Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-cert-manager.yml.j2') | indent(4) }}
+
+    # SLS Parameters
+    # -------------------------------------------------------------------------
+    - name: sls_namespace
+      type: string
+      default: ""
+    - name: sls_entitlement_file
+      type: string
+      default: ""
+    - name: sls_mongodb_cfg_file
+      type: string
+      default: "/workspace/configs/mongo-mongoce.yml"
+    - name: sls_catalog_source
+      type: string
+      default: ""
+    - name: sls_channel
+      type: string
+      default: ""
+    - name: sls_icr_cpopen
+      type: string
+      default: ""
+    - name: sls_action
+      type: string
+      default: ""
+
+    # DRO Parameters
+    # -------------------------------------------------------------------------
+    - name: dro_action
+      type: string
+      default: ""
+    - name: dro_contact_email
+      type: string
+      default: ""
+    - name: dro_contact_firstname
+      type: string
+      default: ""
+    - name: dro_contact_lastname
+      type: string
+      default: ""
+    - name: dro_namespace
+      type: string
+      default: ""
+    - name: aiservice_instance_id
+      type: string
+      default: ""
+    - name: ocp_ingress_tls_secret_name
+      type: string
+      default: ""
+
+    # MAS ICR / Service Mesh Parameters
+    # -------------------------------------------------------------------------
+    - name: mas_icr_cp
+      type: string
+      default: ""
+    - name: mas_icr_cpopen
+      type: string
+      default: ""
+    - name: mas_use_service_mesh
+      type: string
+      default: ""
+
     # MCPI Add-on Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/install-mcpi.yml.j2') | indent(4) }}

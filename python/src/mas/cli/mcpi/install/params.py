@@ -29,11 +29,19 @@ optionalParams = [
     # Pipeline
     "image_pull_policy",
     "service_account_name",
+    "skip_pre_check",
     # Catalogue
     "mas_catalog_digest",
+    # Certificate Manager
+    "cert_manager_provider",
+    "cert_manager_action",
     # SLS
     "sls_namespace",
+    "sls_channel",
+    "sls_entitlement_file",
+    "sls_action",
     # DRO
+    "dro_action",
     "dro_namespace",
     # MCPI routing
     "routing_mode",
