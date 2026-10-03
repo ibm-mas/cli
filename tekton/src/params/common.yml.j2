@@ -6,15 +6,11 @@
   default: IfNotPresent
   description: Pull policy for pipeline container images
 
-# Development Build Support
-- name: artifactory_username
-  default: ""
+# Registry Credentials Secret
+- name: pipeline_registry_secret_name
   type: string
-  description: Required to install development MAS catalogs
-- name: artifactory_token
   default: ""
-  type: string
-  description: Required to install development MAS catalogs
+  description: Name of the per-pipeline Kubernetes Secret holding registry credentials (IBM_ENTITLEMENT_KEY, ARTIFACTORY_TOKEN, ARTIFACTORY_USERNAME)
 
 # Custom Labels
 - name: custom_labels
