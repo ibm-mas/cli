@@ -44,3 +44,9 @@ spec:
               name: mas-fvt
               key: FVT_JIRA_TOKEN
               optional: true
+        - name: GITHUB_APP_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: GITHUB_APP_PRIVATE_KEY
+              optional: true
