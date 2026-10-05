@@ -68,6 +68,7 @@ IBM DB2U:
       --skip-backup-notification ${COLOR_YELLOW}SKIP_BACKUP_NOTIFICATION${TEXT_RESET}                            Flag to track if slack and icd backup notifications are needed.
       --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                                              MAS Annotations
       --auto-backup ${COLOR_YELLOW}AUTO_BACKUP${TEXT_RESET}                                                      Flag whether to install the Auto DB2 backup feature or not
+      --db2-audit-retention-days ${COLOR_YELLOW}DB2_AUDIT_RETENTION_DAYS${TEXT_RESET}                            Number of days to retain DB2 audit logs
       --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                        Flag to indicate whether enhanced HADR was configured manually
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                        List of IPs or CIDR range that will be whitelisted
       --facilities-db2-schema ${COLOR_YELLOW}FACILITIES_DB2_SCHEMA${TEXT_RESET}                                  TRIRIGA schema name for Facilities (default: TRIDATA)
@@ -301,6 +302,9 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --auto-backup)
         export AUTO_BACKUP=$1 && shift
+        ;;
+      --db2-audit-retention-days)
+        export DB2_AUDIT_RETENTION_DAYS=$1 && shift
         ;;
       --skip-backup-notification)
         export SKIP_BACKUP_NOTIFICATION=$1 && shift
@@ -633,6 +637,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "is-replica-task ............................... ${COLOR_MAGENTA}${IS_REPLICA_TASK}"
   echo_reset_dim "mas-annotations ............................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
   echo_reset_dim "auto-backup ................................... ${COLOR_MAGENTA}${AUTO_BACKUP}"
+  echo_reset_dim "db2-audit-retention-days ...................... ${COLOR_MAGENTA}${DB2_AUDIT_RETENTION_DAYS}"
   echo_reset_dim "skip-backup-notification ...................... ${COLOR_MAGENTA}${SKIP_BACKUP_NOTIFICATION}"
   echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   echo_reset_dim "allow-list .................................... ${COLOR_MAGENTA}${ALLOW_LIST}"
