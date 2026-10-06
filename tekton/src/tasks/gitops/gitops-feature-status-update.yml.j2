@@ -53,19 +53,43 @@ spec:
       default: ""
 
   stepTemplate:
-    envFrom:
-      - configMapRef:
-          name: environment-properties
-          optional: true
-      - secretRef:
-          name: secure-properties
     env:
+      - name: REGION
+        value: $(params.region)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: SUBSCRIPTION_ID
+        value: $(params.subscription_id)
+      - name: FEATURE_TYPE
+        value: $(params.feature_type)
+      - name: FEATURE_DETAILS
+        value: $(params.feature_details)
+      - name: STATUS
+        value: $(params.status)
+      - name: STATUS_DETAILS
+        value: $(params.status_details)
+      - name: STATUS_DETAILS_FILE
+        value: $(params.status_details_file)
+      - name: DEPLOYMENT_START
+        value: $(params.deployment_start)
+      - name: DEPLOYMENT_END
+        value: $(params.deployment_end)
       - name: DEVOPS_MONGO_URI
         valueFrom:
           secretKeyRef:
             name: mas-devops
             key: DEVOPS_MONGO_URI
             optional: true
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
 
   steps:
     - name: feature-status-update
@@ -81,38 +105,38 @@ spec:
           ARGS=""
 
           # Identity
-          ARGS="$ARGS --region $(params.region)"
-          ARGS="$ARGS --account $(params.account)"
-          ARGS="$ARGS --cluster $(params.cluster_name)"
+          ARGS="$ARGS --region $REGION"
+          ARGS="$ARGS --account $ACCOUNT"
+          ARGS="$ARGS --cluster $CLUSTER_NAME"
 
-          if [ -n "$(params.mas_instance_id)" ]; then
-            ARGS="$ARGS --instance-id $(params.mas_instance_id)"
+          if [ -n "$MAS_INSTANCE_ID" ]; then
+            ARGS="$ARGS --instance-id $MAS_INSTANCE_ID"
           fi
 
-          if [ -n "$(params.subscription_id)" ]; then
-            ARGS="$ARGS --subscription-id $(params.subscription_id)"
+          if [ -n "$SUBSCRIPTION_ID" ]; then
+            ARGS="$ARGS --subscription-id $SUBSCRIPTION_ID"
           fi
 
           # Feature
-          ARGS="$ARGS --type $(params.feature_type)"
-          ARGS="$ARGS --feature-details '$(params.feature_details)'"
+          ARGS="$ARGS --type $FEATURE_TYPE"
+          ARGS="$ARGS --feature-details '$FEATURE_DETAILS'"
 
           # Status
-          ARGS="$ARGS --status $(params.status)"
+          ARGS="$ARGS --status $STATUS"
 
-          if [ -n "$(params.status_details_file)" ]; then
-            ARGS="$ARGS --status-details-file $(params.status_details_file)"
+          if [ -n "$STATUS_DETAILS_FILE" ]; then
+            ARGS="$ARGS --status-details-file $STATUS_DETAILS_FILE"
           else
-            ARGS="$ARGS --status-details '$(params.status_details)'"
+            ARGS="$ARGS --status-details '$STATUS_DETAILS'"
           fi
 
           # Optional timestamps
-          if [ -n "$(params.deployment_start)" ]; then
-            ARGS="$ARGS --deployment-start $(params.deployment_start)"
+          if [ -n "$DEPLOYMENT_START" ]; then
+            ARGS="$ARGS --deployment-start $DEPLOYMENT_START"
           fi
 
-          if [ -n "$(params.deployment_end)" ]; then
-            ARGS="$ARGS --deployment-end $(params.deployment_end)"
+          if [ -n "$DEPLOYMENT_END" ]; then
+            ARGS="$ARGS --deployment-end $DEPLOYMENT_END"
           fi
 
           eval mas-devops-feature-status-update status-update $ARGS
@@ -120,4 +144,3 @@ spec:
 
   workspaces:
     - name: configs
-      optional: true
