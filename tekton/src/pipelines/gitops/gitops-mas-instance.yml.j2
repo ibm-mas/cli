@@ -246,6 +246,9 @@ spec:
     - name: sls_subscription_id
       type: string
       default: ""
+    - name: sls_license_sales_order_number
+      type: string
+      default: ""
 
     # oidc parameters
     # -------------------------------------------------------------------------
@@ -429,6 +432,8 @@ spec:
           value: $(params.sls_license_icn)
         - name: sls_subscription_id
           value: $(params.sls_subscription_id)
+        - name: sales_order_number
+          value: $(params.sls_license_sales_order_number)
       taskRef:
         kind: Task
         name: gitops-license-generator
