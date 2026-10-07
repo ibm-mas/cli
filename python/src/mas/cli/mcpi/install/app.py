@@ -119,8 +119,12 @@ class McpiInstallApp(BaseApp, McpiInstallArgBuilderMixin, McpiInstallSummarizerM
             else:
                 self.fatalError(f"Unknown option: {key} {value}")
 
-        if self.slsLicenseFileLocal is None:
-            self.fatalError("--license-file must be set for new SLS install")
+        if self.slsLicenseFileLocal is None and self.getParam("sls_action") not in ["install", "none"]:
+            # Only require license file if we're not reusing an existing SLS instance
+            # and not explicitly skipping SLS via --sls-action none
+            slsNamespace = self.getParam("sls_namespace")
+            if not slsNamespace or slsNamespace == "ibm-sls":
+                self.fatalError("--license-file must be set for new SLS install")
 
     @logMethodCall
     def install(self, argv) -> int:

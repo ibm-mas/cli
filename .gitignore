@@ -48,6 +48,8 @@ image/cli/mascli/fyre-dev.noble3.tgke-env.sh
 image/cli/mascli/fyre-dev.noble3.tgke-db2u-manage-env.sh
 image/cli/podman-build*
 
+build/lib/mas/cli
+
 python/.venv
 python/.venv-windows
 python/build
