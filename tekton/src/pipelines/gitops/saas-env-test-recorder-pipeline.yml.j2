@@ -1,0 +1,48 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: saas-env-test-recorder-pipeline
+spec:
+  description: >
+    Records a new parent collection document in MongoDB for a promoted catalog
+    build across all registered SaaS staging instances.  Triggered by the
+    pipeline launcher when catalog.build_id changes in a cluster-params.yaml.
+  workspaces:
+    - name: pipeline-pvc
+  params:
+    - name: catalog_version
+      type: string
+      description: "Catalog version string e.g. v9-260827-amd64"
+    - name: catalog_image
+      type: string
+      description: "Full catalog image path"
+    - name: build_id
+      type: string
+      description: "Numeric build identifier"
+    - name: instance_registry_file
+      type: string
+      description: "Relative path within saas-envs repo to the instance registry YAML"
+      default: "stg/instance-registry.yaml"
+    - name: git_branch
+      type: string
+      description: "Branch of the saas-envs repo to clone"
+      default: "dev"
+  tasks:
+    - name: record-build-collection
+      taskRef:
+        name: saas-env-test-recorder
+      workspaces:
+        - name: task-pvc
+          workspace: pipeline-pvc
+      params:
+        - name: catalog_version
+          value: $(params.catalog_version)
+        - name: catalog_image
+          value: $(params.catalog_image)
+        - name: build_id
+          value: $(params.build_id)
+        - name: instance_registry_file
+          value: $(params.instance_registry_file)
+        - name: git_branch
+          value: $(params.git_branch)

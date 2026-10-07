@@ -1,0 +1,75 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: saas-env-test-recorder
+spec:
+  params:
+    - name: catalog_version
+      type: string
+      description: "Catalog version string e.g. v9-260827-amd64"
+    - name: catalog_image
+      type: string
+      description: "Full catalog image path e.g. docker-na-public.../ibm-maximo-operator-catalog"
+    - name: build_id
+      type: string
+      description: "Numeric build identifier from the pipeline launcher"
+    - name: instance_registry_file
+      type: string
+      description: "Relative path within the saas-envs repo to the instance registry YAML"
+      default: "stg/instance-registry.yaml"
+    - name: git_branch
+      type: string
+      description: "Branch of the saas-envs repo to clone"
+      default: "dev"
+  workspaces:
+    - name: task-pvc
+      mountPath: /artifacts
+  steps:
+    - name: clone-registry
+      image: quay.io/ibmmas/cli:latest
+      env:
+        - name: GIT_BRANCH
+          value: $(params.git_branch)
+        - name: GITHUB_PAT
+          valueFrom:
+            secretKeyRef:
+              name: secure-properties
+              key: GITHUB_PAT
+              optional: false
+      envFrom:
+        - configMapRef:
+            name: environment-properties
+        - secretRef:
+            name: secure-properties
+      command: ["/bin/sh", "-c"]
+      args:
+        - |-
+          set -e -o pipefail
+          echo "Cloning branch $GIT_BRANCH of github.ibm.com/maximoappsuite/saas-envs"
+          cd /artifacts && git clone -b "$GIT_BRANCH" \
+            "https://${GITHUB_PAT}:@github.ibm.com/maximoappsuite/saas-envs"
+
+    - name: record-build-collection
+      image: quay.io/ibmmas/cli:latest
+      env:
+        - name: CATALOG_VERSION
+          value: $(params.catalog_version)
+        - name: CATALOG_IMAGE
+          value: $(params.catalog_image)
+        - name: BUILD_ID
+          value: $(params.build_id)
+        - name: INSTANCE_REGISTRY_FILE
+          value: /artifacts/saas-envs/$(params.instance_registry_file)
+        - name: DEVOPS_MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: secure-properties
+              key: DEVOPS_MONGO_URI
+              optional: false
+      command: ["/bin/sh", "-c"]
+      args:
+        - |-
+          set -e -o pipefail
+          echo "Recording build collection for catalog version: $CATALOG_VERSION build: $BUILD_ID"
+          python3 /opt/app-root/src/record-build-collection.py
