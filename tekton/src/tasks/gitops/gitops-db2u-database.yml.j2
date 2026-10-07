@@ -135,6 +135,9 @@ spec:
     - name: allow_list
       type: string
       default: ""
+    - name: facilities_db2_schema
+      type: string
+      default: "TRIDATA"
   stepTemplate:
     env:
       - name: CLUSTER_NAME
@@ -257,6 +260,8 @@ spec:
         value: $(params.manually_set_enhanced_hadr)
       - name: ALLOW_LIST
         value: $(params.allow_list)
+      - name: FACILITIES_DB2_SCHEMA
+        value: $(params.facilities_db2_schema)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -278,7 +283,8 @@ spec:
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --git-branch $GIT_BRANCH \
+        --facilities-db2-schema $FACILITIES_DB2_SCHEMA
 
         exit $?
       command:
