@@ -1,0 +1,155 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: gitops-s2svpn
+spec:
+  params:
+    - name: provider_region
+      type: string
+    - name: consumer_region
+      type: string
+    - name: health_check_interval
+      type: string
+      default: ''
+    - name: health_check_timeout
+      type: string
+      default: ''
+    - name: health_check_healthy_threshold
+      type: string
+      default: ''
+    - name: health_check_unhealthy_threshold
+      type: string
+      default: ''
+    - name: auto_create_ingress_rules
+      type: string
+      default: 'true'
+    - name: auto_create_egress_rules
+      type: string
+      default: 'false'
+    - name: customer_network_cidrs
+      type: string
+      default: ''
+    - name: enable_bgp
+      type: string
+      default: 'false'
+    - name: amazon_side_asn
+      type: string
+      default: ''
+    - name: customer_bgp_asn
+      type: string
+      default: ''
+    - name: customer_gateway_ip
+      type: string
+    - name: subnet_cidr
+      type: string
+    - name: vpc_cidr
+      type: string
+    - name: account_name
+      type: string
+    - name: customer_name
+      type: string
+    - name: customer_id
+      type: string
+    - name: aws_region
+      type: string
+    - name: business_unit
+      type: string
+      default: ''
+    - name: spend_env
+      type: string
+      default: ''
+    - name: product_line
+      type: string
+      default: ''
+
+  stepTemplate:
+    env:
+      - name: PROVIDER_REGION
+        value: $(params.provider_region)
+      - name: CONSUMER_REGION
+        value: $(params.consumer_region)
+      - name: HEALTH_CHECK_INTERVAL
+        value: $(params.health_check_interval)
+      - name: HEALTH_CHECK_TIMEOUT
+        value: $(params.health_check_timeout)
+      - name: HEALTH_CHECK_HEALTHY_THRESHOLD
+        value: $(params.health_check_healthy_threshold)
+      - name: HEALTH_CHECK_UNHEALTHY_THRESHOLD
+        value: $(params.health_check_unhealthy_threshold)
+      - name: AUTO_CREATE_INGRESS_RULES
+        value: $(params.auto_create_ingress_rules)
+      - name: AUTO_CREATE_EGRESS_RULES
+        value: $(params.auto_create_egress_rules)
+      - name: CUSTOMER_NETWORK_CIDRS
+        value: $(params.customer_network_cidrs)
+      - name: ENABLE_BGP
+        value: $(params.enable_bgp)
+      - name: AMAZON_SIDE_ASN
+        value: $(params.amazon_side_asn)
+      - name: CUSTOMER_BGP_ASN
+        value: $(params.customer_bgp_asn)
+      - name: CUSTOMER_GATEWAY_IP
+        value: $(params.customer_gateway_ip)
+      - name: SUBNET_CIDR
+        value: $(params.subnet_cidr)
+      - name: VPC_CIDR
+        value: $(params.vpc_cidr)
+      - name: ACCOUNT_NAME
+        value: $(params.account_name)
+      - name: CUSTOMER_NAME
+        value: $(params.customer_name)
+      - name: CUSTOMER_ID
+        value: $(params.customer_id)
+      - name: AWS_REGION
+        value: $(params.aws_region)
+      - name: BUSINESS_UNIT
+        value: $(params.business_unit)
+      - name: SPEND_ENV
+        value: $(params.spend_env)
+      - name: PRODUCT_LINE
+        value: $(params.product_line)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: provision-s2svpn
+      args:
+        - |-
+          CMD="mas gitops-s2svpn \
+            --account-name $ACCOUNT_NAME \
+            --customer-name $CUSTOMER_NAME \
+            --customer-id $CUSTOMER_ID \
+            --aws-region $AWS_REGION \
+            --provider-region $PROVIDER_REGION \
+            --consumer-region $CONSUMER_REGION \
+            --customer-gateway-ip $CUSTOMER_GATEWAY_IP \
+            --subnet-cidr $SUBNET_CIDR \
+            --vpc-cidr $VPC_CIDR \
+            --customer-network-cidrs \"$CUSTOMER_NETWORK_CIDRS\" \
+            --enable-bgp $ENABLE_BGP \
+            --amazon-side-asn $AMAZON_SIDE_ASN \
+            --customer-bgp-asn $CUSTOMER_BGP_ASN \
+            --health-check-interval $HEALTH_CHECK_INTERVAL \
+            --health-check-timeout $HEALTH_CHECK_TIMEOUT \
+            --health-check-healthy-threshold $HEALTH_CHECK_HEALTHY_THRESHOLD \
+            --health-check-unhealthy-threshold $HEALTH_CHECK_UNHEALTHY_THRESHOLD \
+            --auto-create-ingress-rules $AUTO_CREATE_INGRESS_RULES \
+            --auto-create-egress-rules $AUTO_CREATE_EGRESS_RULES"
+
+          echo "Executing: $CMD"
+          eval $CMD
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: IfNotPresent
+      image: "quay.io/ibmmas/cli:latest"
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-s2svpn

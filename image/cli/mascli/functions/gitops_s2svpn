@@ -1,0 +1,265 @@
+#!/usr/bin/env bash
+
+function gitops_s2svpn_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+
+Usage:
+  mas gitops-s2svpn [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+
+Customer Configuration:
+      --account-name          ${COLOR_YELLOW}ACCOUNT_NAME${TEXT_RESET}                  AWS account name
+      --customer-name         ${COLOR_YELLOW}CUSTOMER_NAME${TEXT_RESET}                 Customer name
+      --customer-id           ${COLOR_YELLOW}CUSTOMER_ID${TEXT_RESET}                   Customer ID
+      --aws-region            ${COLOR_YELLOW}AWS_REGION${TEXT_RESET}                    AWS region
+      --business-unit         ${COLOR_YELLOW}BUSINESS_UNIT${TEXT_RESET}                 Business unit
+      --spend-env             ${COLOR_YELLOW}SPEND_ENV${TEXT_RESET}                     Spend environment
+      --product-line          ${COLOR_YELLOW}PRODUCT_LINE${TEXT_RESET}                  Product line
+
+Network Configuration:
+      --provider-region       ${COLOR_YELLOW}PROVIDER_REGION${TEXT_RESET}               VPN provider region
+      --consumer-region       ${COLOR_YELLOW}CONSUMER_REGION${TEXT_RESET}               VPN consumer region
+      --subnet-cidr           ${COLOR_YELLOW}SUBNET_CIDR${TEXT_RESET}                   Subnet CIDR
+      --vpc-cidr              ${COLOR_YELLOW}VPC_CIDR${TEXT_RESET}                      VPC CIDR
+
+VPN Configuration:
+      --customer-gateway-ip   ${COLOR_YELLOW}CUSTOMER_GATEWAY_IP${TEXT_RESET}           Customer gateway public IP
+      --customer-network-cidrs ${COLOR_YELLOW}CUSTOMER_NETWORK_CIDRS${TEXT_RESET}       Comma-separated customer-side CIDRs
+      --enable-bgp            ${COLOR_YELLOW}ENABLE_BGP${TEXT_RESET}                    Enable BGP routing (true/false)
+      --amazon-side-asn       ${COLOR_YELLOW}AMAZON_SIDE_ASN${TEXT_RESET}               Amazon side ASN
+      --customer-bgp-asn      ${COLOR_YELLOW}CUSTOMER_BGP_ASN${TEXT_RESET}              Customer BGP ASN
+
+Health Check Configuration:
+      --health-check-interval           ${COLOR_YELLOW}HEALTH_CHECK_INTERVAL${TEXT_RESET}
+      --health-check-timeout            ${COLOR_YELLOW}HEALTH_CHECK_TIMEOUT${TEXT_RESET}
+      --health-check-healthy-threshold  ${COLOR_YELLOW}HEALTH_CHECK_HEALTHY_THRESHOLD${TEXT_RESET}
+      --health-check-unhealthy-threshold ${COLOR_YELLOW}HEALTH_CHECK_UNHEALTHY_THRESHOLD${TEXT_RESET}
+
+Ingress / Egress:
+      --auto-create-ingress-rules ${COLOR_YELLOW}AUTO_CREATE_INGRESS_RULES${TEXT_RESET}  (true/false)
+      --auto-create-egress-rules  ${COLOR_YELLOW}AUTO_CREATE_EGRESS_RULES${TEXT_RESET}   (true/false)
+
+Other Commands:
+  -h, --help                            Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_s2svpn_noninteractive() {
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    shift
+    case $key in
+      --account-name)
+        export ACCOUNT_NAME=$1 && shift ;;
+      --customer-name)
+        export CUSTOMER_NAME=$1 && shift ;;
+      --customer-id)
+        export CUSTOMER_ID=$1 && shift ;;
+      --aws-region)
+        export AWS_REGION=$1 && shift ;;
+      --business-unit)
+        export BUSINESS_UNIT=$1 && shift ;;
+      --spend-env)
+        export SPEND_ENV=$1 && shift ;;
+      --product-line)
+        export PRODUCT_LINE=$1 && shift ;;
+      --provider-region)
+        export PROVIDER_REGION=$1 && shift ;;
+      --consumer-region)
+        export CONSUMER_REGION=$1 && shift ;;
+      --subnet-cidr)
+        export SUBNET_CIDR=$1 && shift ;;
+      --vpc-cidr)
+        export VPC_CIDR=$1 && shift ;;
+      --customer-gateway-ip)
+        export CUSTOMER_GATEWAY_IP=$1 && shift ;;
+      --customer-network-cidrs)
+        export CUSTOMER_NETWORK_CIDRS=$1 && shift ;;
+      --enable-bgp)
+        export ENABLE_BGP=$1 && shift ;;
+      --amazon-side-asn)
+        export AMAZON_SIDE_ASN=$1 && shift ;;
+      --customer-bgp-asn)
+        export CUSTOMER_BGP_ASN=$1 && shift ;;
+      --health-check-interval)
+        export HEALTH_CHECK_INTERVAL=$1 && shift ;;
+      --health-check-timeout)
+        export HEALTH_CHECK_TIMEOUT=$1 && shift ;;
+      --health-check-healthy-threshold)
+        export HEALTH_CHECK_HEALTHY_THRESHOLD=$1 && shift ;;
+      --health-check-unhealthy-threshold)
+        export HEALTH_CHECK_UNHEALTHY_THRESHOLD=$1 && shift ;;
+      --auto-create-ingress-rules)
+        export AUTO_CREATE_INGRESS_RULES=$1 && shift ;;
+      --auto-create-egress-rules)
+        export AUTO_CREATE_EGRESS_RULES=$1 && shift ;;
+      -h|--help)
+        gitops_s2svpn_help ;;
+      *)
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_s2svpn_help "Usage Error: Unsupported option \"${key}\""
+        exit 1 ;;
+    esac
+  done
+
+  [[ -z "$ACCOUNT_NAME" ]]       && gitops_s2svpn_help "ACCOUNT_NAME is not set"
+  [[ -z "$CUSTOMER_NAME" ]]      && gitops_s2svpn_help "CUSTOMER_NAME is not set"
+  [[ -z "$CUSTOMER_ID" ]]        && gitops_s2svpn_help "CUSTOMER_ID is not set"
+  [[ -z "$AWS_REGION" ]]         && gitops_s2svpn_help "AWS_REGION is not set"
+  [[ -z "$PROVIDER_REGION" ]]    && gitops_s2svpn_help "PROVIDER_REGION is not set"
+  [[ -z "$CONSUMER_REGION" ]]    && gitops_s2svpn_help "CONSUMER_REGION is not set"
+  [[ -z "$CUSTOMER_GATEWAY_IP" ]] && gitops_s2svpn_help "CUSTOMER_GATEWAY_IP is not set"
+  [[ -z "$SUBNET_CIDR" ]]        && gitops_s2svpn_help "SUBNET_CIDR is not set"
+  [[ -z "$VPC_CIDR" ]]           && gitops_s2svpn_help "VPC_CIDR is not set"
+}
+
+function gitops_s2svpn() {
+  gitops_s2svpn_noninteractive "$@"
+
+  echo
+  echo_h2 "S2S VPN Configuration"
+  echo "============================"
+
+  # ── Identity / tagging ──────────────────────────────────────────────────────
+  echo
+  echo_h2 "Customer Details"
+  echo "  ACCOUNT_NAME              : ${ACCOUNT_NAME}"
+  echo "  CUSTOMER_NAME             : ${CUSTOMER_NAME}"
+  echo "  CUSTOMER_ID               : ${CUSTOMER_ID}"
+  echo "  AWS_REGION                : ${AWS_REGION}"
+  echo "  BUSINESS_UNIT             : ${BUSINESS_UNIT}"
+  echo "  SPEND_ENV                 : ${SPEND_ENV}"
+  echo "  PRODUCT_LINE              : ${PRODUCT_LINE}"
+
+  # ── Network ─────────────────────────────────────────────────────────────────
+  echo
+  echo_h2 "Network Configuration"
+  echo "  PROVIDER_REGION           : ${PROVIDER_REGION}"
+  echo "  CONSUMER_REGION           : ${CONSUMER_REGION}"
+  echo "  SUBNET_CIDR               : ${SUBNET_CIDR}"
+  echo "  VPC_CIDR                  : ${VPC_CIDR}"
+
+  # ── VPN ─────────────────────────────────────────────────────────────────────
+  echo
+  echo_h2 "VPN Configuration"
+  echo "  CUSTOMER_GATEWAY_IP       : ${CUSTOMER_GATEWAY_IP}"
+  echo "  CUSTOMER_NETWORK_CIDRS    : ${CUSTOMER_NETWORK_CIDRS}"
+  echo "  ENABLE_BGP                : ${ENABLE_BGP}"
+  echo "  AMAZON_SIDE_ASN           : ${AMAZON_SIDE_ASN}"
+  echo "  CUSTOMER_BGP_ASN          : ${CUSTOMER_BGP_ASN}"
+
+  # ── Health checks ────────────────────────────────────────────────────────────
+  echo
+  echo_h2 "Health Check Configuration"
+  echo "  HEALTH_CHECK_INTERVAL          : ${HEALTH_CHECK_INTERVAL}"
+  echo "  HEALTH_CHECK_TIMEOUT           : ${HEALTH_CHECK_TIMEOUT}"
+  echo "  HEALTH_CHECK_HEALTHY_THRESHOLD : ${HEALTH_CHECK_HEALTHY_THRESHOLD}"
+  echo "  HEALTH_CHECK_UNHEALTHY_THRESHOLD: ${HEALTH_CHECK_UNHEALTHY_THRESHOLD}"
+
+  # ── Ingress / Egress ─────────────────────────────────────────────────────────
+  echo
+  echo_h2 "Ingress / Egress Rules"
+  echo "  AUTO_CREATE_INGRESS_RULES : ${AUTO_CREATE_INGRESS_RULES}"
+  echo "  AUTO_CREATE_EGRESS_RULES  : ${AUTO_CREATE_EGRESS_RULES}"
+
+  # ── AWS CLI calls ────────────────────────────────────────────────────────────
+  echo
+  echo_h2 "Provisioning S2S VPN via AWS CLI"
+
+  # 1. Create Customer Gateway
+  echo
+  echo "Step 1: Creating Customer Gateway (IP: ${CUSTOMER_GATEWAY_IP}, BGP ASN: ${CUSTOMER_BGP_ASN})"
+  CUSTOMER_GATEWAY_ID=$(aws ec2 create-customer-gateway \
+    --type ipsec.1 \
+    --public-ip "${CUSTOMER_GATEWAY_IP}" \
+    --bgp-asn "${CUSTOMER_BGP_ASN}" \
+    --region "${AWS_REGION}" \
+    --query 'CustomerGateway.CustomerGatewayId' \
+    --output text)
+  echo "  CustomerGatewayId: ${CUSTOMER_GATEWAY_ID}"
+
+  # 2. Create Virtual Private Gateway
+  echo
+  echo "Step 2: Creating Virtual Private Gateway (Amazon ASN: ${AMAZON_SIDE_ASN})"
+  VGW_ID=$(aws ec2 create-vpn-gateway \
+    --type ipsec.1 \
+    --amazon-side-asn "${AMAZON_SIDE_ASN}" \
+    --region "${AWS_REGION}" \
+    --query 'VpnGateway.VpnGatewayId' \
+    --output text)
+  echo "  VpnGatewayId: ${VGW_ID}"
+
+  # 3. Attach VGW to VPC (look up VPC by CIDR)
+  echo
+  echo "Step 3: Looking up VPC by CIDR ${VPC_CIDR}"
+  VPC_ID=$(aws ec2 describe-vpcs \
+    --filters "Name=cidr,Values=${VPC_CIDR}" \
+    --region "${AWS_REGION}" \
+    --query 'Vpcs[0].VpcId' \
+    --output text)
+  echo "  VpcId: ${VPC_ID}"
+
+  echo
+  echo "Step 4: Attaching Virtual Private Gateway ${VGW_ID} to VPC ${VPC_ID}"
+  aws ec2 attach-vpn-gateway \
+    --vpn-gateway-id "${VGW_ID}" \
+    --vpc-id "${VPC_ID}" \
+    --region "${AWS_REGION}"
+
+  # 4. Create VPN Connection
+  echo
+  echo "Step 5: Creating VPN Connection"
+  VPN_CONNECTION_ID=$(aws ec2 create-vpn-connection \
+    --type ipsec.1 \
+    --customer-gateway-id "${CUSTOMER_GATEWAY_ID}" \
+    --vpn-gateway-id "${VGW_ID}" \
+    --options "StaticRoutesOnly=$([[ "${ENABLE_BGP}" == "true" ]] && echo false || echo true)" \
+    --region "${AWS_REGION}" \
+    --query 'VpnConnection.VpnConnectionId' \
+    --output text)
+  echo "  VpnConnectionId: ${VPN_CONNECTION_ID}"
+
+  # 5. Add static routes for each customer CIDR (when BGP is disabled)
+  if [[ "${ENABLE_BGP}" != "true" ]]; then
+    echo
+    echo "Step 6: Adding static routes (BGP disabled)"
+    IFS=',' read -ra CIDRS <<< "${CUSTOMER_NETWORK_CIDRS}"
+    for cidr in "${CIDRS[@]}"; do
+      cidr=$(echo "${cidr}" | tr -d ' ')
+      echo "  Adding static route: ${cidr}"
+      aws ec2 create-vpn-connection-route \
+        --vpn-connection-id "${VPN_CONNECTION_ID}" \
+        --destination-cidr-block "${cidr}" \
+        --region "${AWS_REGION}"
+    done
+  fi
+
+  # 6. Tag all created resources
+  echo
+  echo "Step 7: Tagging resources"
+  for resource_id in "${CUSTOMER_GATEWAY_ID}" "${VGW_ID}" "${VPN_CONNECTION_ID}"; do
+    aws ec2 create-tags \
+      --resources "${resource_id}" \
+      --tags \
+        "Key=customer_name,Value=${CUSTOMER_NAME}" \
+        "Key=customer_id,Value=${CUSTOMER_ID}" \
+        "Key=account_name,Value=${ACCOUNT_NAME}" \
+        "Key=business_unit,Value=${BUSINESS_UNIT}" \
+        "Key=spend_env,Value=${SPEND_ENV}" \
+        "Key=product_line,Value=${PRODUCT_LINE}" \
+      --region "${AWS_REGION}"
+    echo "  Tagged: ${resource_id}"
+  done
+
+  echo
+  echo_h2 "S2S VPN Provisioning Complete"
+  echo "  CustomerGatewayId : ${CUSTOMER_GATEWAY_ID}"
+  echo "  VpnGatewayId      : ${VGW_ID}"
+  echo "  VpcId             : ${VPC_ID}"
+  echo "  VpnConnectionId   : ${VPN_CONNECTION_ID}"
+
+  exit 0
+}

@@ -1,0 +1,119 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: gitops-s2svpn-pipeline
+spec:
+  params:
+    - name: provider_region
+      type: string
+    - name: consumer_region
+      type: string
+    - name: health_check_interval
+      type: string
+      default: ''
+    - name: health_check_timeout
+      type: string
+      default: ''
+    - name: health_check_healthy_threshold
+      type: string
+      default: ''
+    - name: health_check_unhealthy_threshold
+      type: string
+      default: ''
+    - name: auto_create_ingress_rules
+      type: string
+      default: 'true'
+    - name: auto_create_egress_rules
+      type: string
+      default: 'false'
+    - name: customer_network_cidrs
+      type: string
+      default: ''
+    - name: enable_bgp
+      type: string
+      default: 'false'
+    - name: amazon_side_asn
+      type: string
+      default: ''
+    - name: customer_bgp_asn
+      type: string
+      default: ''
+    - name: customer_gateway_ip
+      type: string
+    - name: subnet_cidr
+      type: string
+    - name: vpc_cidr
+      type: string
+    - name: account_name
+      type: string
+    - name: customer_name
+      type: string
+    - name: customer_id
+      type: string
+    - name: aws_region
+      type: string
+    - name: business_unit
+      type: string
+      default: ''
+    - name: spend_env
+      type: string
+      default: ''
+    - name: product_line
+      type: string
+      default: ''
+
+  workspaces:
+    - name: configs
+
+  tasks:
+    - name: gitops-s2svpn
+      taskRef:
+        name: gitops-s2svpn
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: provider_region
+          value: $(params.provider_region)
+        - name: consumer_region
+          value: $(params.consumer_region)
+        - name: health_check_interval
+          value: $(params.health_check_interval)
+        - name: health_check_timeout
+          value: $(params.health_check_timeout)
+        - name: health_check_healthy_threshold
+          value: $(params.health_check_healthy_threshold)
+        - name: health_check_unhealthy_threshold
+          value: $(params.health_check_unhealthy_threshold)
+        - name: auto_create_ingress_rules
+          value: $(params.auto_create_ingress_rules)
+        - name: auto_create_egress_rules
+          value: $(params.auto_create_egress_rules)
+        - name: customer_network_cidrs
+          value: $(params.customer_network_cidrs)
+        - name: enable_bgp
+          value: $(params.enable_bgp)
+        - name: amazon_side_asn
+          value: $(params.amazon_side_asn)
+        - name: customer_bgp_asn
+          value: $(params.customer_bgp_asn)
+        - name: customer_gateway_ip
+          value: $(params.customer_gateway_ip)
+        - name: subnet_cidr
+          value: $(params.subnet_cidr)
+        - name: vpc_cidr
+          value: $(params.vpc_cidr)
+        - name: account_name
+          value: $(params.account_name)
+        - name: customer_name
+          value: $(params.customer_name)
+        - name: customer_id
+          value: $(params.customer_id)
+        - name: aws_region
+          value: $(params.aws_region)
+        - name: business_unit
+          value: $(params.business_unit)
+        - name: spend_env
+          value: $(params.spend_env)
+        - name: product_line
+          value: $(params.product_line)
