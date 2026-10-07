@@ -134,5 +134,10 @@ db2_backup_icd_auth_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_ICD_A
 {% endif %}
 
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
-allow_list: {{ALLOW_LIST}}
+allow_list:
+  ips: {{ ALLOW_LIST }}
+{% endif %}
+
+{% if MAS_APP_ID == 'facilities' and FACILITIES_DB2_SCHEMA is defined and FACILITIES_DB2_SCHEMA != '' %}
+facilities_db2_schema: {{ FACILITIES_DB2_SCHEMA }}
 {% endif %}

@@ -44,6 +44,9 @@ spec:
       value: "{{ fvt_digest_manage_cypress }}"
     - name: ivt_digest_core
       value: "{{ ivt_digest_core }}"
+    # Manage flags
+    - name: manage_skip_image_build
+      value: "{{ manage_skip_image_build }}"
 
   workspaces:
     # The generated configuration files

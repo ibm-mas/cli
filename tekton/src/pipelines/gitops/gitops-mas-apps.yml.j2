@@ -573,6 +573,9 @@ spec:
     - name: auto_backup_facilities
       type: string
       default: ""
+    - name: facilities_db2_schema
+      type: string
+      default: "TRIDATA"
 
     - name: db2_instance_registry_yaml_manage
       type: string
@@ -650,6 +653,9 @@ spec:
     - name: cpd_scale_config
       type: string
       default: "medium"
+    - name: cpd_public_route_enabled
+      type: string
+      default: "false"
     - name: cpd_platform_install_plan
       type: string
       default: "Automatic"
@@ -1927,7 +1933,9 @@ spec:
           value: $(params.manually_set_enhanced_hadr_facilities)
         - name: auto_backup
           value: $(params.auto_backup_facilities)
-
+        - name: facilities_db2_schema
+          value: $(params.facilities_db2_schema)
+        
       workspaces:
         - name: configs
           workspace: configs
@@ -2095,6 +2103,8 @@ spec:
           value: $(params.replica_db_facilities)
         - name: manually_set_enhanced_hadr
           value: $(params.manually_set_enhanced_hadr_facilities)
+        - name: facilities_db2_schema
+          value: $(params.facilities_db2_schema)
         - name: mas_annotations
           value: $(params.mas_annotations)
         - name: is_replica_task
@@ -2193,6 +2203,8 @@ spec:
           value: $(params.cpfs_size)
         - name: cpd_scale_config
           value: $(params.cpd_scale_config)
+        - name: cpd_public_route_enabled
+          value: $(params.cpd_public_route_enabled)
         - name: cpd_platform_install_plan
           value: $(params.cpd_platform_install_plan)
         - name: cpd_namespace_scope_install_plan

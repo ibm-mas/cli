@@ -1,7 +1,7 @@
 module "s3buckets_instance_{{APP_NAME}}_bucket" {
   source = "{{ S3_SOURCE }}"
 
-  depends_on = [module.account_policy_{{APP_NAME}}_bucket]
+  depends_on = [module.account_policy_{{APP_NAME}}_bucket, time_sleep.wait_for_iam_{{APP_NAME}}_bucket]
 
   providers = {
     aws    = aws

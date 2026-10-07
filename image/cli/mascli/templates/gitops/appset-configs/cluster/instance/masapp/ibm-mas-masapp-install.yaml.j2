@@ -24,16 +24,12 @@ ibm_suite_app_{{ MAS_APP_ID }}_install:
   public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
   {% endif %}
 
-  {% if CA_CERT is defined and CA_CERT !='' %}
-  ca_cert: {{ CA_CERT }}
+  {% if MAS_MANUAL_CERT_MGMT == 'true' and MANUAL_CERT_APP_HAS_CERT == 'true' %}
+  {% if MANUAL_CERT_APP_HAS_CA == 'true' %}
+  ca_cert: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/{{ MAS_APP_ID }}#ca_crt>
   {% endif %}
-
-  {% if TLS_CERT is defined and TLS_CERT !='' %}
-  tls_cert: {{ TLS_CERT }}
-  {% endif %}
-
-  {% if TLS_KEY is defined and TLS_KEY !='' %}
-  tls_key: {{ TLS_KEY }}
+  tls_cert: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/{{ MAS_APP_ID }}#tls_crt>
+  tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/{{ MAS_APP_ID }}#tls_key>
   {% endif %}
 
   {% if GPU_REQUEST_QUOTA is defined and GPU_REQUEST_QUOTA != '' %}

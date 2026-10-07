@@ -22,8 +22,6 @@ spec:
     # MAS Info
     - name: mas_app_channel_monitor
       value: "{{ mas_app_channel_monitor }}"
-    - name: mas_app_channel_manage
-      value: "{{ mas_app_channel_manage }}"
     - name: mas_instance_id
       value: "{{ mas_instance_id }}"
     - name: mas_workspace_id
@@ -44,12 +42,12 @@ spec:
       value: "{{ ivt_digest_core }}"
     - name: fvt_digest_data_dictionary
       value: "{{ fvt_digest_data_dictionary }}"
-    # Which FVT suite to run ('monitor_fvt' or 'monitor_fvt_with_manage')
+    # Which FVT suite to run - computed from Monitor channel + Manage presence
+    # monitor_fvt_with_manage: 8.10.x, 8.11.x
+    # fvt_90x:                 9.0.x (monitor_fvt_with_manage + health check)
+    # fvt_91x:                 9.1.x and above, incl. 9.3.x+ (new parallel suites + health check)
     - name: fvt_test_suite
       value: "{{ fvt_test_suite }}"
-    # Product channel for version-specific test suite selection
-    - name: product_channel
-      value: "{{ mas_app_channel_monitor }}"
 
   workspaces:
     # The generated configuration files
