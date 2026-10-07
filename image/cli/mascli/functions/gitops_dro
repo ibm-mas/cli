@@ -34,6 +34,7 @@ IBM DRO & IMO Config (Optional):
       --imo-install-plan ${COLOR_YELLOW}IMO_INSTALL_PLAN${TEXT_RESET}   IMO subscription install plan approval('Automatic' or 'Manual'. Default is 'Automatic')
       --dro-public-domain ${COLOR_YELLOW}DRO_PUBLIC_DOMAIN${TEXT_RESET} Domain of DRO if it needs to be exposed publicly
       --dro-cis-crn ${COLOR_YELLOW}DRO_CIS_CRN${TEXT_RESET}             CIS CRN
+      --mas-environment-type ${COLOR_YELLOW}MAS_ENVIRONMENT_TYPE${TEXT_RESET} Environment type for the MAS instance ('production' or 'staging'). Determines which ClusterIssuer is used for certificate management (default: 'production')
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -123,6 +124,9 @@ function gitops_dro_noninteractive() {
         ;;
       --dro-cis-crn)
       export DRO_CIS_CRN=$1 && shift
+        ;;
+      --mas-environment-type)
+      export MAS_ENVIRONMENT_TYPE=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -240,6 +244,9 @@ function gitops_dro() {
   fi
   if [[ -n "$DRO_CIS_CRN" ]]; then
     echo_reset_dim "DRO_CIS_CRN .......................... ${COLOR_MAGENTA}${DRO_CIS_CRN}"
+  fi
+  if [[ -n "$MAS_ENVIRONMENT_TYPE" ]]; then
+    echo_reset_dim "MAS_ENVIRONMENT_TYPE .................... ${COLOR_MAGENTA}${MAS_ENVIRONMENT_TYPE}"
   fi
   reset_colors
 

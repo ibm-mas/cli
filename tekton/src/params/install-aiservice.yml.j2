@@ -104,6 +104,10 @@
   type: string
   description: Path to YAML file that contains scheduling constraints for AI workloads for tenant
   default: ""
+- name: tenant_operator_cfg_file
+  type: string
+  description: Path to YAML file that contains tenant operator customization settings
+  default: ""
 
 # MAS Application Configuration - IBM Maximo AI Service - Watstonx
 # -----------------------------------------------------------------------------
@@ -169,6 +173,13 @@
 - name: aiservice_certificate_issuer
   type: string
   description: Name of the Issuer to configure AI Service to issue certificates
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - DNS
+# -----------------------------------------------------------------------------
+- name: aiservice_domain
+  type: string
+  description: Custom domain for IBM Maximo AI Service
   default: ""
 
 # MAS Application Configuration - IBM Maximo AI Service - Database

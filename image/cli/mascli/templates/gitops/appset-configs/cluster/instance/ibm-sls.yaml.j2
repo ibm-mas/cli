@@ -58,3 +58,7 @@ ibm_sls:
 {% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
   internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
 {% endif %}
+{% if SLS_POD_TEMPLATE is defined and SLS_POD_TEMPLATE !='' %}
+  sls_pod_templates:
+    {{ SLS_POD_TEMPLATE | indent(4) }}
+{% endif %}

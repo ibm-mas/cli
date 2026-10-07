@@ -43,6 +43,7 @@ IBM Maximo Application Suite:
       --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                                      MAS Manual Cert Management
       --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}                                                    YAML file location containing combined MAS Manual Certs of core and all other apps
       --mas-pod-template-yaml ${COLOR_YELLOW}MAS_POD_TEMPLATE_YAML${TEXT_RESET}                                                    The location of a file containing the POD template
+      --mas-sls-pod-template-yaml ${COLOR_YELLOW}MAS_SLS_POD_TEMPLATE_YAML${TEXT_RESET}                                            The location of a file containing the SLS POD template
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                                          List of IPs or CIDR range to whitelist
       --additional-vpn ${COLOR_YELLOW}ADDITIONAL_VPN{TEXT_RESET}                                                                   Manage additional client VPN
       --application-configuration ${COLOR_YELLOW}APPLICATION_CONFIGURATION${TEXT_RESET}                                            Application Configuration enable/disable (true/false)
@@ -59,6 +60,10 @@ IBM Maximo Application Suite:
       --mas-routing-mode ${COLOR_YELLOW}MAS_ROUTING_MODE${TEXT_RESET}                                                              Configure MAS with path or subdomain routing (default: 'subdomain'). Note: path-based routing is supported from MAS 9.2 and later versions
       --mas-ingress-controller-name ${COLOR_YELLOW}MAS_INGRESS_CONTROLLER_NAME${TEXT_RESET}                                        (Optional) Name of the IngressController to use for path-based routing (default: 'default')
       --production-database-access-type ${COLOR_YELLOW}PRODUCTION_DATABASE_ACCESS_TYPE${TEXT_RESET}                                Production database access type (e.g., 'ITIC')
+      --fvt-gitops-enabled ${COLOR_YELLOW}FVT_GITOPS_ENABLED${TEXT_RESET}                                                          Enable FVT GitOps testing (true/false)
+      --fvt-gitops-enabled-apps ${COLOR_YELLOW}FVT_GITOPS_ENABLED_APPS${TEXT_RESET}                                                Comma-separated list of apps to enable for FVT GitOps testing (e.g., 'suite,manage')
+      --fvt-gitops-image-repo ${COLOR_YELLOW}FVT_GITOPS_IMAGE_REPO${TEXT_RESET}                                                    Image repository for the FVT GitOps image (optional, defaults to the Artifactory registry)
+      --fvt-gitops-image-tag ${COLOR_YELLOW}FVT_GITOPS_IMAGE_TAG${TEXT_RESET}                                                      Image tag for the FVT GitOps image (optional, defaults to 'latest')
 
       Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
       where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
@@ -277,6 +282,9 @@ function gitops_suite_noninteractive() {
       --mas-pod-template-yaml)
         export MAS_POD_TEMPLATE_YAML=$1 && shift
         ;;
+      --mas-sls-pod-template-yaml)
+        export MAS_SLS_POD_TEMPLATE_YAML=$1 && shift
+        ;;
 
       --mas-wipe-mongo-data)
         export MAS_WIPE_MONGO_DATA=$1 && shift
@@ -440,6 +448,22 @@ function gitops_suite_noninteractive() {
 
       --production-database-access-type)
         export PRODUCTION_DATABASE_ACCESS_TYPE=$1 && shift
+        ;;
+
+      --fvt-gitops-enabled)
+        export FVT_GITOPS_ENABLED=$1 && shift
+        ;;
+
+      --fvt-gitops-enabled-apps)
+        export FVT_GITOPS_ENABLED_APPS=$1 && shift
+        ;;
+
+      --fvt-gitops-image-repo)
+        export FVT_GITOPS_IMAGE_REPO=$1 && shift
+        ;;
+
+      --fvt-gitops-image-tag)
+        export FVT_GITOPS_IMAGE_TAG=$1 && shift
         ;;
 
       # Other Commands
@@ -636,6 +660,7 @@ function gitops_suite() {
   echo_reset_dim "Cert Manager Namespace ..................... ${COLOR_MAGENTA}${CERT_MANAGER_NAMESPACE}"
   echo_reset_dim "DNS Provider ............................... ${COLOR_MAGENTA}${DNS_PROVIDER}"
   echo_reset_dim "Pod Template YAML File  .................... ${COLOR_MAGENTA}${MAS_POD_TEMPLATE_YAML}"
+  echo_reset_dim "SLS Pod Template YAML File ................. ${COLOR_MAGENTA}${MAS_SLS_POD_TEMPLATE_YAML}"
   echo_reset_dim "OIDC Config ................................ ${COLOR_MAGENTA}${OIDC_CONFIG}"
   echo_reset_dim "Allow List ................................. ${COLOR_MAGENTA}${ALLOW_LIST}"
   echo_reset_dim "Additional VPN ............................. ${COLOR_MAGENTA}${ADDITIONAL_VPN}"
@@ -657,6 +682,10 @@ function gitops_suite() {
   fi
   echo_reset_dim "Default welcome message .................... ${COLOR_MAGENTA}${WELCOME_MESSAGE}"
   echo_reset_dim "Production Database Access Type ............ ${COLOR_MAGENTA}${PRODUCTION_DATABASE_ACCESS_TYPE}"
+  echo_reset_dim "FVT GitOps Enabled ......................... ${COLOR_MAGENTA}${FVT_GITOPS_ENABLED}"
+  echo_reset_dim "FVT GitOps Enabled Apps .................... ${COLOR_MAGENTA}${FVT_GITOPS_ENABLED_APPS}"
+  echo_reset_dim "FVT GitOps Image Repo ...................... ${COLOR_MAGENTA}${FVT_GITOPS_IMAGE_REPO}"
+  echo_reset_dim "FVT GitOps Image Tag ....................... ${COLOR_MAGENTA}${FVT_GITOPS_IMAGE_TAG}"
   reset_colors
 
   if [[ -n "$DNS_PROVIDER" ]]; then
@@ -897,6 +926,15 @@ function gitops_suite() {
     echo -e "\n - MAS_POD_TEMPLATE CONTENT .................. ${MAS_POD_TEMPLATE}"
   fi
 
+  # Set SLS pod template yaml
+  # ---------------------------------------------------------------------------
+  export SLS_POD_TEMPLATE=""
+  if [[ -n "$MAS_SLS_POD_TEMPLATE_YAML" && -s "$MAS_SLS_POD_TEMPLATE_YAML" ]]; then
+    export SLS_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SLS_POD_TEMPLATE_YAML})
+    echo -e "\n - SLS_POD_TEMPLATE CONTENT .................. ${SLS_POD_TEMPLATE}"
+  fi
+  SLS_POD_TEMPLATE="${SLS_POD_TEMPLATE}" yq eval -i '.SLS_POD_TEMPLATE = strenv(SLS_POD_TEMPLATE)' $MONGO_CONFIG_FILE
+
   # Set Suite Spec additional properties
   # ---------------------------------------------------------------------------
   echo_h2 "Generating Suite Spec additional properties"
@@ -915,6 +953,30 @@ function gitops_suite() {
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
     echo -e "\n - INTERNAL_CERTIFICATE_AUTHORITY .................. ${INTERNAL_CERTIFICATE_AUTHORITY}"
+  fi
+
+  # Auto-detect FVT GitOps enabled apps
+  # ---------------------------------------------------------------------------
+  # If FVT_GITOPS_ENABLED_APPS is empty, build the list automatically:
+  #   - "suite" is always included
+  #   - append any app name found via ibm-mas-masapp-<app>-install.yaml files
+  #     that already exist in the instance config directory (written by
+  #     gitops-suite-app-install runs that precede this step)
+  # If FVT_GITOPS_ENABLED_APPS is explicitly set, honour it as-is so callers
+  # can run a targeted subset without touching the installed app configs.
+  if [[ "${FVT_GITOPS_ENABLED}" == "true" ]]; then
+    if [[ -z "${FVT_GITOPS_ENABLED_APPS}" ]]; then
+      FVT_GITOPS_ENABLED_APPS="suite"
+      for install_file in ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-*-install.yaml; do
+        [[ -f "${install_file}" ]] || continue
+        app_name=$(basename "${install_file}" | sed 's/ibm-mas-masapp-//;s/-install\.yaml//')
+        FVT_GITOPS_ENABLED_APPS="${FVT_GITOPS_ENABLED_APPS},${app_name}"
+      done
+      export FVT_GITOPS_ENABLED_APPS
+      echo "- Auto-detected FVT GitOps enabled apps: ${FVT_GITOPS_ENABLED_APPS}"
+    else
+      echo "- Using explicit FVT GitOps enabled apps override: ${FVT_GITOPS_ENABLED_APPS}"
+    fi
   fi
 
   # Generate ArgoApps

@@ -231,10 +231,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-dns.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
-      when:
-        - input: "$(params.mas_instance_id)"
-          operator: notin
-          values: [""]
 
     # 5.3 Manual Certificates
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-certs.yml.j2') | indent(4) }}
@@ -441,6 +437,7 @@ spec:
         - minio
         - aiservice-odh
         - aiservice-rhoai
+        - suite-dns
 
     # 14.2 Generate AiCfg with auto-detected values
     # -------------------------------------------------------------------------

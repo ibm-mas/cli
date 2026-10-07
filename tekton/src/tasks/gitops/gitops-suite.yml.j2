@@ -128,6 +128,9 @@ spec:
     - name: mas_pod_template_yaml
       type: string
       default: ""
+    - name: mas_sls_pod_template_yaml
+      type: string
+      default: ""
     - name: mas_wipe_mongo_data
       type: string
       default: "false"
@@ -179,6 +182,18 @@ spec:
       type: string
       default: ""
     - name: production_database_access_type
+      type: string
+      default: ""
+    - name: fvt_gitops_enabled
+      type: string
+      default: "false"
+    - name: fvt_gitops_enabled_apps
+      type: string
+      default: ""
+    - name: fvt_gitops_image_repo
+      type: string
+      default: ""
+    - name: fvt_gitops_image_tag
       type: string
       default: ""
   stepTemplate:
@@ -277,6 +292,8 @@ spec:
         value: $(params.mas_manual_certs_yaml)
       - name: MAS_POD_TEMPLATE_YAML
         value: $(params.mas_pod_template_yaml)
+      - name: MAS_SLS_POD_TEMPLATE_YAML
+        value: $(params.mas_sls_pod_template_yaml)
       - name: MAS_WIPE_MONGO_DATA
         value: $(params.mas_wipe_mongo_data)
       - name: MAS_FEATURE_USAGE
@@ -317,6 +334,14 @@ spec:
         value: $(params.application_admin_sa_namespace)
       - name: PRODUCTION_DATABASE_ACCESS_TYPE
         value: $(params.production_database_access_type)
+      - name: FVT_GITOPS_ENABLED
+        value: $(params.fvt_gitops_enabled)
+      - name: FVT_GITOPS_ENABLED_APPS
+        value: $(params.fvt_gitops_enabled_apps)
+      - name: FVT_GITOPS_IMAGE_REPO
+        value: $(params.fvt_gitops_image_repo)
+      - name: FVT_GITOPS_IMAGE_TAG
+        value: $(params.fvt_gitops_image_tag)
 
     envFrom:
       - configMapRef:
@@ -386,7 +411,7 @@ spec:
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH \
-        --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA" \
+        --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA"
 
         exit $?
       command:
