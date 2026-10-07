@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class Db2MigrationApp(BaseApp):
-    """Application class for DB2 cluster migration"""
+    """Application class for Db2uCluster to Db2uInstance migration"""
 
     def detectDb2uClusters(self, namespace: str) -> List[Dict[str, Any]]:
         """Detect all Db2uCluster instances in the specified namespace.
@@ -35,47 +35,47 @@ class Db2MigrationApp(BaseApp):
         """
         try:
             db2ClusterAPI = self.dynamicClient.resources.get(api_version="db2u.databases.ibm.com/v1", kind="Db2uCluster")
-            clusters = db2ClusterAPI.get(namespace=namespace)
-            return clusters.items if clusters else []
+            db2_clusters = db2ClusterAPI.get(namespace=namespace)
+            return db2_clusters.items if db2_clusters else []
         except NotFoundError:
             return []
 
-    def promptForCluster(self, clusters: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Prompt user to select a cluster from the detected list.
+    def promptForDb2Cluster(self, db2_clusters: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Prompt user to select a Db2uCluster from the detected list.
 
         Args:
-            clusters (List[Dict[str, Any]]): List of available clusters
+            db2_clusters (List[Dict[str, Any]]): List of available Db2uCluster resources
 
         Returns:
-            Dict[str, Any]: Selected cluster resource
+            Dict[str, Any]: Selected Db2uCluster resource
         """
-        if len(clusters) == 1:
-            cluster = clusters[0]
-            clusterName = cluster.metadata.name
-            self.printHighlight(f"Found 1 Db2uCluster: {clusterName}")
-            return cluster
+        if len(db2_clusters) == 1:
+            db2_cluster = db2_clusters[0]
+            db2ClusterName = db2_cluster.metadata.name
+            self.printHighlight(f"Found 1 Db2uCluster: {db2ClusterName}")
+            return db2_cluster
 
-        # Multiple clusters - Prompt for selection
+        # Multiple Db2uClusters - Prompt for selection
         # self.printH2("Available Db2uClusters")
         # options = []
-        # for i, cluster in enumerate(clusters):
-        #    name = cluster.metadata.name
-        #    version = cluster.spec.version if hasattr(cluster.spec, "version") else "unknown"
-        #    status = cluster.status.state if hasattr(cluster, "status") and hasattr(cluster.status, "state") else "unknown"
+        # for i, db2_cluster in enumerate(db2_clusters):
+        #    name = db2_cluster.metadata.name
+        #    version = db2_cluster.spec.version if hasattr(db2_cluster.spec, "version") else "unknown"
+        #    status = db2_cluster.status.state if hasattr(db2_cluster, "status") and hasattr(db2_cluster.status, "state") else "unknown"
         #    options.append(f"{name} (version: {version}, status: {status})")
 
-        # selectedIndex = self.promptForListSelect("Select cluster to migrate", options)
-        # return clusters[selectedIndex]
+        # selectedIndex = self.promptForListSelect("Select Db2uCluster to migrate", options)
+        # return db2_clusters[selectedIndex]
 
         self.printH2("Available Db2uClusters")
-        for i, cluster in enumerate(clusters):
-            name = cluster.metadata.name
-            version = cluster.spec.version if hasattr(cluster.spec, "version") else "unknown"
-            status = cluster.status.state if hasattr(cluster, "status") and hasattr(cluster.status, "state") else "unknown"
+        for i, db2_cluster in enumerate(db2_clusters):
+            name = db2_cluster.metadata.name
+            version = db2_cluster.spec.version if hasattr(db2_cluster.spec, "version") else "unknown"
+            status = db2_cluster.status.state if hasattr(db2_cluster, "status") and hasattr(db2_cluster.status, "state") else "unknown"
             print(f"  {i+1}. {name} (version: {version}, status: {status})")
 
-        selectedIndex = self.promptForInt("Select cluster to migrate", min=1, max=len(clusters))
-        return clusters[selectedIndex - 1]
+        selectedIndex = self.promptForInt("Select Db2uCluster to migrate", min=1, max=len(db2_clusters))
+        return db2_clusters[selectedIndex - 1]
 
     def promptForBackup(self) -> bool:
         """Prompt user whether to perform backup before migration.
@@ -109,7 +109,7 @@ class Db2MigrationApp(BaseApp):
 
         if isInteractive:
             # Interactive mode
-            self.printH1("DB2 Cluster Migration")
+            self.printH1("Db2uCluster to Db2uInstance Migration")
 
             # List db2u namespaces
             with Halo(text="Detecting db2u namespaces", spinner=self.spinner) as h:
@@ -135,17 +135,17 @@ class Db2MigrationApp(BaseApp):
             # Prompt for namespace with default
             namespace = self.promptForString("Enter namespace containing Db2uClusters", default="db2u")
 
-            # Detect clusters
+            # Detect Db2uClusters
             with Halo(text=f"Detecting Db2uClusters in namespace {namespace}", spinner=self.spinner) as h:
-                clusters = self.detectDb2uClusters(namespace)
-                if not clusters:
+                db2_clusters = self.detectDb2uClusters(namespace)
+                if not db2_clusters:
                     h.fail(f"No Db2uClusters found in namespace {namespace}")
                     self.fatalError(f"No Db2uClusters found in namespace {namespace}")
-                h.succeed(f"Found {len(clusters)} Db2uCluster(s)")
+                h.succeed(f"Found {len(db2_clusters)} Db2uCluster(s)")
 
-            # Select cluster
-            selectedCluster = self.promptForCluster(clusters)
-            clusterName = selectedCluster.metadata.name
+            # Select Db2uCluster
+            selectedDb2Cluster = self.promptForDb2Cluster(db2_clusters)
+            db2ClusterName = selectedDb2Cluster.metadata.name
 
             # Prompt for backup
             enableBackup = self.promptForBackup()
@@ -153,24 +153,24 @@ class Db2MigrationApp(BaseApp):
         else:
             # Non-interactive mode
             namespace = args.namespace
-            clusterName = args.cluster_name
+            db2ClusterName = args.db2_cluster_name
             enableBackup = args.backup == "true" if args.backup else True
 
-            # Validate cluster exists if name provided
-            if clusterName:
-                clusters = self.detectDb2uClusters(namespace)
-                clusterNames = [c.metadata.name for c in clusters]
-                if clusterName not in clusterNames:
-                    self.fatalError(f"Cluster {clusterName} not found in namespace {namespace}")
+            # Validate Db2uCluster exists if name provided
+            if db2ClusterName:
+                db2_clusters = self.detectDb2uClusters(namespace)
+                db2ClusterNames = [c.metadata.name for c in db2_clusters]
+                if db2ClusterName not in db2ClusterNames:
+                    self.fatalError(f"Db2uCluster {db2ClusterName} not found in namespace {namespace}")
             else:
-                # Auto-select if only one cluster
-                clusters = self.detectDb2uClusters(namespace)
-                if len(clusters) == 0:
+                # Auto-select if only one Db2uCluster
+                db2_clusters = self.detectDb2uClusters(namespace)
+                if len(db2_clusters) == 0:
                     self.fatalError(f"No Db2uClusters found in namespace {namespace}")
-                elif len(clusters) == 1:
-                    clusterName = clusters[0].metadata.name
+                elif len(db2_clusters) == 1:
+                    db2ClusterName = db2_clusters[0].metadata.name
                 else:
-                    self.fatalError("Multiple clusters found. Please specify --cluster-name")
+                    self.fatalError("Multiple Db2uClusters found. Please specify --db2-cluster-name")
 
         # Confirmation
         if not self.noConfirm:
@@ -178,7 +178,7 @@ class Db2MigrationApp(BaseApp):
             print_formatted_text(
                 HTML(
                     f"<Yellow>Namespace:</Yellow> {namespace}\n"
-                    f"<Yellow>Cluster:</Yellow> {clusterName}\n"
+                    f"<Yellow>Db2uCluster:</Yellow> {db2ClusterName}\n"
                     f"<Yellow>Backup:</Yellow> {'Enabled' if enableBackup else 'Disabled'}\n"
                 )
             )
@@ -188,7 +188,7 @@ class Db2MigrationApp(BaseApp):
 
         # Set parameters
         self.setParam("db2_migration_namespace", namespace)
-        self.setParam("db2_migration_cluster_name", clusterName)
+        self.setParam("db2_migration_db2_cluster_name", db2ClusterName)
         self.setParam("db2_migration_backup_enabled", str(enableBackup).lower())
 
         # Prepare pipeline namespace

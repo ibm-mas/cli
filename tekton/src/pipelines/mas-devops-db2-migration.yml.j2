@@ -26,7 +26,7 @@ spec:
       type: string
       description: Namespace containing Db2uCluster to migrate
     
-    - name: db2_migration_cluster_name
+    - name: db2_migration_db2_cluster_name
       type: string
       description: Name of Db2uCluster to migrate
     
@@ -35,7 +35,7 @@ spec:
       default: "true"
       description: Whether to backup before migration
     
-    - name: db2_migration_cleanup_old_cluster
+    - name: db2_migration_cleanup_old_db2_cluster
       type: string
       default: "false"
       description: Whether to delete old Db2uCluster CR after migration
@@ -46,29 +46,6 @@ spec:
       description: IBM Entitlement Key
 
   tasks:
-    # 1. Wait for approval (auto-approved)
-    # -------------------------------------------------------------------------
-    #- name: waitfor-approval
-    #  timeout: "0"
-    #  taskRef:
-    #    kind: Task
-    #    name: mas-devops-wait-for-configmap-v2
-    #  params:
-    #    - name: image_pull_policy
-    #      value: $(params.image_pull_policy)
-    #    - name: configmap_name
-    #      value: approval-db2-migration
-    #    - name: configmap_initial_value
-    #      value: approved                   
-    #    - name: pipeline_status
-    #      value: Started
-    #    - name: pipeline_name
-    #      value: $(context.pipeline.name)
-    #    - name: pipelinerun_name
-    #      value: $(context.pipelineRun.name)
-    #    - name: pipelinerun_namespace
-    #      value: $(context.pipelineRun.namespace)
-
     # Run DB2 Migration
     # -------------------------------------------------------------------------
     - name: db2-migration
@@ -84,12 +61,12 @@ spec:
           value: $(params.db2_action)
         - name: db2_migration_namespace
           value: $(params.db2_migration_namespace)
-        - name: db2_migration_cluster_name
-          value: $(params.db2_migration_cluster_name)
+        - name: db2_migration_db2_cluster_name
+          value: $(params.db2_migration_db2_cluster_name)
         - name: db2_migration_backup_enabled
           value: $(params.db2_migration_backup_enabled)
-        - name: db2_migration_cleanup_old_cluster
-          value: $(params.db2_migration_cleanup_old_cluster)
+        - name: db2_migration_cleanup_old_db2_cluster
+          value: $(params.db2_migration_cleanup_old_db2_cluster)
       workspaces:
         - name: configs
           workspace: shared-configs

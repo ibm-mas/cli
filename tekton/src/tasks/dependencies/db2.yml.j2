@@ -224,7 +224,7 @@ spec:
       type: string
       description: Namespace containing Db2uCluster to migrate
       default: ""
-    - name: db2_migration_cluster_name
+    - name: db2_migration_db2_cluster_name
       type: string
       description: Name of Db2uCluster to migrate
       default: ""
@@ -232,7 +232,7 @@ spec:
       type: string
       description: Whether to backup before migration
       default: "true"
-    - name: db2_migration_cleanup_old_cluster
+    - name: db2_migration_cleanup_old_db2_cluster
       type: string
       description: Whether to delete old Db2uCluster CR after migration
       default: "false"
@@ -384,12 +384,12 @@ spec:
       # DB2 Migration specific
       - name: DB2_MIGRATION_NAMESPACE
         value: $(params.db2_migration_namespace)
-      - name: DB2_MIGRATION_CLUSTER_NAME
-        value: $(params.db2_migration_cluster_name)
+      - name: DB2_MIGRATION_DB2_CLUSTER_NAME
+        value: $(params.db2_migration_db2_cluster_name)
       - name: DB2_MIGRATION_BACKUP_ENABLED
         value: $(params.db2_migration_backup_enabled)
-      - name: DB2_MIGRATION_CLEANUP_OLD_CLUSTER
-        value: $(params.db2_migration_cleanup_old_cluster)
+      - name: DB2_MIGRATION_CLEANUP_OLD_DB2_CLUSTER
+        value: $(params.db2_migration_cleanup_old_db2_cluster)
   steps:
     - name: db2
       command:

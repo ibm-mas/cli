@@ -19,7 +19,7 @@ class Db2MigrationArgumentParser(argparse.ArgumentParser):
         prog = self.prog
         return (
             f"Usage (non-interactive mode):\n"
-            f"  {prog} --namespace NAMESPACE [--cluster-name CLUSTER_NAME]\n"
+            f"  {prog} --namespace NAMESPACE [--db2-cluster-name DB2_CLUSTER_NAME]\n"
             f"                  [--backup {{true,false}}] [--no-confirm]\n"
             f"\n"
             f"Usage (interactive mode):\n"
@@ -58,7 +58,7 @@ db2MigrationArgParser = Db2MigrationArgumentParser(
 
 migrationArgGroup = db2MigrationArgParser.add_argument_group("Migration Configuration", "Configure the DB2 migration parameters.")
 migrationArgGroup.add_argument("--namespace", required=False, help="Namespace containing Db2uCluster instances")
-migrationArgGroup.add_argument("--cluster-name", required=False, help="Specific Db2uCluster name to migrate")
+migrationArgGroup.add_argument("--db2-cluster-name", required=False, help="Specific Db2uCluster name to migrate")
 migrationArgGroup.add_argument("--backup", required=False, choices=["true", "false"], help="Enable or disable backup before migration")
 
 otherArgGroup = db2MigrationArgParser.add_argument_group("More", "Additional options.")
