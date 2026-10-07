@@ -845,11 +845,15 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
         with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
             try:
+                # Track instances per-kind so we can determine db2u_kind for the resolved namespace
+                instances_by_kind = {}
                 instances = []
                 for kind in kinds:
                     k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
-                    instances.extend(k8sAPI.get().to_dict()["items"])
-                    logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
+                    kind_instances = k8sAPI.get().to_dict()["items"]
+                    instances_by_kind[kind] = kind_instances
+                    instances.extend(kind_instances)
+                    logger.debug(f"Found {len(kind_instances)} {kind} instances on the cluster")
 
                 kindString = "/".join([kind + "s" for kind in kinds])
                 if len(instances) > 0:
@@ -890,6 +894,14 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                             for index, ns in enumerate(sorted(namespaces), start=1):
                                 self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
+
+                    # Determine db2u_kind from the resource kind present in the resolved namespace
+                    resolvedNamespace = self.getParam(paramName)
+                    for kind, kind_instances in instances_by_kind.items():
+                        if any(i["metadata"]["namespace"] == resolvedNamespace for i in kind_instances):
+                            self.setParam("db2u_kind", kind.lower())
+                            logger.debug(f"Setting db2u_kind to {kind.lower()} based on resources in namespace '{resolvedNamespace}'")
+                            break
 
                     # Version comparison logic - check if Db2u needs major version upgrade
                     if len(instances) > 0:

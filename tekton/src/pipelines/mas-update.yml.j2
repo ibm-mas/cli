@@ -63,6 +63,10 @@ spec:
       type: string
       description: Db2 channel to be upgraded
       default: ""
+    - name: db2u_kind
+      type: string
+      description: Db2 Openshift Custom Resource kind (db2ucluster or db2uinstance)
+      default: ""
 
     # mongodb update
     # -------------------------------------------------------------------------
@@ -328,6 +332,8 @@ spec:
           value: $(params.db2_license_file)
         - name: db2_channel
           value: $(params.db2_channel)
+        - name: db2u_kind
+          value: $(params.db2u_kind)
       workspaces:
         - name: db2
           workspace: shared-db2

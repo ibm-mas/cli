@@ -408,6 +408,7 @@ class UpdateTestHelper:
             with contextlib.ExitStack() as stack:
                 # Define all patches
                 patches = [
+                    ("which_kubectl", mock.patch("mas.cli.cli.which", return_value="/usr/bin/kubectl")),
                     ("dynamic_client_class", mock.patch("mas.cli.cli.DynamicClient")),
                     ("get_nodes", mock.patch("mas.cli.cli.getNodes")),
                     ("get_current_catalog", mock.patch("mas.cli.update.app.getCurrentCatalog")),
