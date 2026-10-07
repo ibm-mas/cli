@@ -23,7 +23,7 @@ from .argParser import upgradeArgParser
 
 from mas.devops.ocp import createNamespace
 from mas.devops.aiservice import listAiServiceInstances, getAiserviceChannel
-from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchAiServiceUpgradePipeline, prepareAiServiceUpgradeSecrets
+from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchAiServiceUpgradePipeline
 from kubernetes.dynamic.exceptions import ResourceNotFoundError
 
 logger = logging.getLogger(__name__)
@@ -104,12 +104,6 @@ class AiServiceUpgradeApp(BaseApp):
                 if not self.yesOrNo("Do you accept the license terms"):
                     exit(1)
 
-        self.printH1("Configure IBM Container Registry")
-        self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
-        if self.devMode:
-            self.promptForString("Artifactory username", "artifactory_username")
-            self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
-
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>AI Service Instance ID ..................... {aiserviceInstanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current AI Service Channel ............. {currentAiserviceChannel}</LightSlateGrey>"))
@@ -135,13 +129,6 @@ class AiServiceUpgradeApp(BaseApp):
 
             with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
-                prepareAiServiceUpgradeSecrets(
-                    dynClient=self.dynamicClient,
-                    namespace=pipelinesNamespace,
-                    ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
-                    artifactory_token=self.getParam("artifactory_token"),
-                    artifactory_username=self.getParam("artifactory_username"),
-                )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:

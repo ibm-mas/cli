@@ -22,7 +22,8 @@
   type: string
   description: Name of the Pipeline
   default: ""
-# "mas-secrets" avoids empty-string secretKeyRef.name which Kubernetes rejects at pod scheduling
+
+# "mas-secrets" as default avoids empty-string secretKeyRef.name which Kubernetes rejects at pod scheduling
 # even with optional: true. Taskdefs with registry-secret-param.yml.j2 always override this except FVTs tasks.
 - name: task_registry_secret_name
   type: string
