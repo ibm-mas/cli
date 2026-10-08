@@ -10,3 +10,12 @@ instana_agent_operator:
   env:
     {{ INSTANA_AGENT_OPERATOR_ENV | indent }}
 {%- endif %}
+
+{%- if INSTANA_AGENT_OPERATOR_ARGOCD_PLUGIN_ENABLED is defined and INSTANA_AGENT_OPERATOR_ARGOCD_PLUGIN_ENABLED %}
+  argocd_plugin_enabled: true
+  argocd_insecure_skip_tls: {{ INSTANA_AGENT_OPERATOR_ARGOCD_INSECURE_SKIP_TLS }}
+  argocd_url: "{{ INSTANA_AGENT_OPERATOR_ARGOCD_URL }}"
+  argocd_clusters: {{ INSTANA_AGENT_OPERATOR_ARGOCD_CLUSTERS | toYaml }}
+  argocd_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_ARGOCD_USERNAME }}>"
+  argocd_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_ARGOCD_PASSWORD }}>"
+{%- endif %}
