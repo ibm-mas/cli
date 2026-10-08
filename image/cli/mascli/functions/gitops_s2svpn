@@ -255,6 +255,7 @@ function gitops_s2svpn() {
   echo "  Stack status: ${STACK_STATUS:-<not found>}"
 
 
+
   # ── PLAN: create changeset without executing — review before apply ────────────
   echo
   echo_h2 "Running CloudFormation Plan (--no-execute-changeset)"
