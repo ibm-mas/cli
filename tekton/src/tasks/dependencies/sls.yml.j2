@@ -48,20 +48,6 @@ spec:
       type: string
       default: ""
 
-    # Entitlement (only used for artifactory auth since 3.8.0)
-    - name: ibm_entitlement_key
-      type: string
-      default: ""
-
-    - name: artifactory_username
-      default: ""
-      type: string
-      description: Required to use development MAS builds
-    - name: artifactory_token
-      default: ""
-      type: string
-      description: Required to use development MAS builds
-
     # Optional parameter to uninstall SLS
     - name: sls_action
       type: string
@@ -106,15 +92,6 @@ spec:
       # New way of bootstrapping license file since SLS 3.7.0
       - name: SLS_ENTITLEMENT_FILE
         value: $(params.sls_entitlement_file)
-
-      # Entitlement (only used for artifactory auth since 3.8.0)
-      - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
-
-      - name: ARTIFACTORY_USERNAME
-        value: $(params.artifactory_username)
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
 
       # Optional parameter to uninstall SLS
       - name: SLS_ACTION
