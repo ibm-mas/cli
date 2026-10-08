@@ -5,28 +5,30 @@ metadata:
   name: gitops-s2svpn
 spec:
   params:
-    - name: provider_region
+    # Customer identity
+    - name: account_name
       type: string
-    - name: consumer_region
+    - name: customer_name
       type: string
-    - name: health_check_interval
+    - name: customer_id
       type: string
-      default: ''
-    - name: health_check_timeout
+    - name: aws_region
       type: string
-      default: ''
-    - name: health_check_healthy_threshold
-      type: string
-      default: ''
-    - name: health_check_unhealthy_threshold
+
+    # Customer tagging
+    - name: business_unit
       type: string
       default: ''
-    - name: auto_create_ingress_rules
+    - name: spend_env
       type: string
-      default: 'true'
-    - name: auto_create_egress_rules
+      default: ''
+    - name: product_line
       type: string
-      default: 'false'
+      default: ''
+
+    # VPN configuration
+    - name: customer_gateway_ip
+      type: string
     - name: customer_network_cidrs
       type: string
       default: ''
@@ -39,62 +41,98 @@ spec:
     - name: customer_bgp_asn
       type: string
       default: ''
-    - name: customer_gateway_ip
-      type: string
     - name: subnet_cidr
       type: string
+      default: ''
     - name: vpc_cidr
-      type: string
-    - name: account_name
-      type: string
-    - name: customer_name
-      type: string
-    - name: customer_id
-      type: string
-    - name: aws_region
-      type: string
-    - name: business_unit
-      type: string
-      default: ''
-    - name: spend_env
-      type: string
-      default: ''
-    - name: product_line
       type: string
       default: ''
 
+    # Customer VPC (existing)
+    - name: customer_vpc_id
+      type: string
+    - name: customer_route_table_id
+      type: string
+
+    # Tunnel config
+    - name: tunnel1_inside_cidr
+      type: string
+      default: ''
+    - name: tunnel2_inside_cidr
+      type: string
+      default: ''
+    - name: tunnel1_psk
+      type: string
+      default: ''
+    - name: tunnel2_psk
+      type: string
+      default: ''
+
+    # DB2 Access Endpoint
+    - name: db2_name
+      type: string
+    - name: db2_type
+      type: string
+      default: ''
+    - name: db2_listener_port
+      type: string
+      default: ''
+    - name: db2_target_port
+      type: string
+      default: ''
+    - name: cluster_key
+      type: string
+      default: ''
+    - name: app_key
+      type: string
+      default: ''
+    - name: nlb_arn
+      type: string
+    - name: provider_vpc_id
+      type: string
+    - name: provider_security_group_id
+      type: string
+      default: ''
+    - name: endpoint_service_name
+      type: string
+    - name: consumer_vpc_id
+      type: string
+    - name: consumer_subnet_ids
+      type: string
+    - name: consumer_security_group_id
+      type: string
+
+    # Region routing
+    - name: provider_region
+      type: string
+    - name: consumer_region
+      type: string
+
+    # Health checks
+    - name: health_check_interval
+      type: string
+      default: ''
+    - name: health_check_timeout
+      type: string
+      default: ''
+    - name: health_check_healthy_threshold
+      type: string
+      default: ''
+    - name: health_check_unhealthy_threshold
+      type: string
+      default: ''
+
+    # Ingress/egress
+    - name: auto_create_ingress_rules
+      type: string
+      default: 'true'
+    - name: auto_create_egress_rules
+      type: string
+      default: 'false'
+
   stepTemplate:
     env:
-      - name: PROVIDER_REGION
-        value: $(params.provider_region)
-      - name: CONSUMER_REGION
-        value: $(params.consumer_region)
-      - name: HEALTH_CHECK_INTERVAL
-        value: $(params.health_check_interval)
-      - name: HEALTH_CHECK_TIMEOUT
-        value: $(params.health_check_timeout)
-      - name: HEALTH_CHECK_HEALTHY_THRESHOLD
-        value: $(params.health_check_healthy_threshold)
-      - name: HEALTH_CHECK_UNHEALTHY_THRESHOLD
-        value: $(params.health_check_unhealthy_threshold)
-      - name: AUTO_CREATE_INGRESS_RULES
-        value: $(params.auto_create_ingress_rules)
-      - name: AUTO_CREATE_EGRESS_RULES
-        value: $(params.auto_create_egress_rules)
-      - name: CUSTOMER_NETWORK_CIDRS
-        value: $(params.customer_network_cidrs)
-      - name: ENABLE_BGP
-        value: $(params.enable_bgp)
-      - name: AMAZON_SIDE_ASN
-        value: $(params.amazon_side_asn)
-      - name: CUSTOMER_BGP_ASN
-        value: $(params.customer_bgp_asn)
-      - name: CUSTOMER_GATEWAY_IP
-        value: $(params.customer_gateway_ip)
-      - name: SUBNET_CIDR
-        value: $(params.subnet_cidr)
-      - name: VPC_CIDR
-        value: $(params.vpc_cidr)
+      # Customer identity
       - name: ACCOUNT_NAME
         value: $(params.account_name)
       - name: CUSTOMER_NAME
@@ -103,12 +141,97 @@ spec:
         value: $(params.customer_id)
       - name: AWS_REGION
         value: $(params.aws_region)
+
+      # Customer tagging
       - name: BUSINESS_UNIT
         value: $(params.business_unit)
       - name: SPEND_ENV
         value: $(params.spend_env)
       - name: PRODUCT_LINE
         value: $(params.product_line)
+
+      # VPN configuration
+      - name: CUSTOMER_GATEWAY_IP
+        value: $(params.customer_gateway_ip)
+      - name: CUSTOMER_NETWORK_CIDRS
+        value: $(params.customer_network_cidrs)
+      - name: ENABLE_BGP
+        value: $(params.enable_bgp)
+      - name: AMAZON_SIDE_ASN
+        value: $(params.amazon_side_asn)
+      - name: CUSTOMER_BGP_ASN
+        value: $(params.customer_bgp_asn)
+      - name: SUBNET_CIDR
+        value: $(params.subnet_cidr)
+      - name: VPC_CIDR
+        value: $(params.vpc_cidr)
+
+      # Customer VPC
+      - name: CUSTOMER_VPC_ID
+        value: $(params.customer_vpc_id)
+      - name: CUSTOMER_ROUTE_TABLE_ID
+        value: $(params.customer_route_table_id)
+
+      # Tunnel config
+      - name: TUNNEL1_INSIDE_CIDR
+        value: $(params.tunnel1_inside_cidr)
+      - name: TUNNEL2_INSIDE_CIDR
+        value: $(params.tunnel2_inside_cidr)
+      - name: TUNNEL1_PSK
+        value: $(params.tunnel1_psk)
+      - name: TUNNEL2_PSK
+        value: $(params.tunnel2_psk)
+
+      # DB2 Access Endpoint
+      - name: DB2_NAME
+        value: $(params.db2_name)
+      - name: DB2_TYPE
+        value: $(params.db2_type)
+      - name: DB2_LISTENER_PORT
+        value: $(params.db2_listener_port)
+      - name: DB2_TARGET_PORT
+        value: $(params.db2_target_port)
+      - name: CLUSTER_KEY
+        value: $(params.cluster_key)
+      - name: APP_KEY
+        value: $(params.app_key)
+      - name: NLB_ARN
+        value: $(params.nlb_arn)
+      - name: PROVIDER_VPC_ID
+        value: $(params.provider_vpc_id)
+      - name: PROVIDER_SECURITY_GROUP_ID
+        value: $(params.provider_security_group_id)
+      - name: ENDPOINT_SERVICE_NAME
+        value: $(params.endpoint_service_name)
+      - name: CONSUMER_VPC_ID
+        value: $(params.consumer_vpc_id)
+      - name: CONSUMER_SUBNET_IDS
+        value: $(params.consumer_subnet_ids)
+      - name: CONSUMER_SECURITY_GROUP_ID
+        value: $(params.consumer_security_group_id)
+
+      # Region routing
+      - name: PROVIDER_REGION
+        value: $(params.provider_region)
+      - name: CONSUMER_REGION
+        value: $(params.consumer_region)
+
+      # Health checks
+      - name: HEALTH_CHECK_INTERVAL
+        value: $(params.health_check_interval)
+      - name: HEALTH_CHECK_TIMEOUT
+        value: $(params.health_check_timeout)
+      - name: HEALTH_CHECK_HEALTHY_THRESHOLD
+        value: $(params.health_check_healthy_threshold)
+      - name: HEALTH_CHECK_UNHEALTHY_THRESHOLD
+        value: $(params.health_check_unhealthy_threshold)
+
+      # Ingress/egress
+      - name: AUTO_CREATE_INGRESS_RULES
+        value: $(params.auto_create_ingress_rules)
+      - name: AUTO_CREATE_EGRESS_RULES
+        value: $(params.auto_create_egress_rules)
+
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -125,21 +248,30 @@ spec:
             --customer-name \"${CUSTOMER_NAME}\" \
             --customer-id \"${CUSTOMER_ID}\" \
             --aws-region \"${AWS_REGION}\" \
-            --provider-region \"${PROVIDER_REGION}\" \
-            --consumer-region \"${CONSUMER_REGION}\" \
+            --customer-vpc-id \"${CUSTOMER_VPC_ID}\" \
+            --customer-route-table-id \"${CUSTOMER_ROUTE_TABLE_ID}\" \
             --customer-gateway-ip \"${CUSTOMER_GATEWAY_IP}\" \
-            --subnet-cidr \"${SUBNET_CIDR}\" \
-            --vpc-cidr \"${VPC_CIDR}\" \
             --customer-network-cidrs \"${CUSTOMER_NETWORK_CIDRS:-""}\" \
             --enable-bgp \"${ENABLE_BGP:-""}\" \
             --amazon-side-asn \"${AMAZON_SIDE_ASN:-""}\" \
             --customer-bgp-asn \"${CUSTOMER_BGP_ASN:-""}\" \
-            --health-check-interval \"${HEALTH_CHECK_INTERVAL:-""}\" \
-            --health-check-timeout \"${HEALTH_CHECK_TIMEOUT:-""}\" \
-            --health-check-healthy-threshold \"${HEALTH_CHECK_HEALTHY_THRESHOLD:-""}\" \
-            --health-check-unhealthy-threshold \"${HEALTH_CHECK_UNHEALTHY_THRESHOLD:-""}\" \
-            --auto-create-ingress-rules \"${AUTO_CREATE_INGRESS_RULES:-""}\" \
-            --auto-create-egress-rules \"${AUTO_CREATE_EGRESS_RULES:-""}\" \
+            --tunnel1-inside-cidr \"${TUNNEL1_INSIDE_CIDR:-""}\" \
+            --tunnel2-inside-cidr \"${TUNNEL2_INSIDE_CIDR:-""}\" \
+            --tunnel1-psk \"${TUNNEL1_PSK:-""}\" \
+            --tunnel2-psk \"${TUNNEL2_PSK:-""}\" \
+            --db2-name \"${DB2_NAME}\" \
+            --db2-type \"${DB2_TYPE:-""}\" \
+            --db2-listener-port \"${DB2_LISTENER_PORT:-""}\" \
+            --db2-target-port \"${DB2_TARGET_PORT:-""}\" \
+            --cluster-key \"${CLUSTER_KEY:-""}\" \
+            --app-key \"${APP_KEY:-""}\" \
+            --nlb-arn \"${NLB_ARN}\" \
+            --provider-vpc-id \"${PROVIDER_VPC_ID}\" \
+            --provider-security-group-id \"${PROVIDER_SECURITY_GROUP_ID:-""}\" \
+            --endpoint-service-name \"${ENDPOINT_SERVICE_NAME}\" \
+            --consumer-vpc-id \"${CONSUMER_VPC_ID}\" \
+            --consumer-subnet-ids \"${CONSUMER_SUBNET_IDS}\" \
+            --consumer-security-group-id \"${CONSUMER_SECURITY_GROUP_ID}\" \
             --business-unit \"${BUSINESS_UNIT:-""}\" \
             --spend-env \"${SPEND_ENV:-""}\" \
             --product-line \"${PRODUCT_LINE:-""}\""

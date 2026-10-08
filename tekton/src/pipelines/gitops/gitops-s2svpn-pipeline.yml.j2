@@ -4,28 +4,30 @@ metadata:
   name: gitops-s2svpn-pipeline
 spec:
   params:
-    - name: provider_region
+    # Customer identity
+    - name: account_name
       type: string
-    - name: consumer_region
+    - name: customer_name
       type: string
-    - name: health_check_interval
+    - name: customer_id
       type: string
-      default: ''
-    - name: health_check_timeout
+    - name: aws_region
       type: string
-      default: ''
-    - name: health_check_healthy_threshold
-      type: string
-      default: ''
-    - name: health_check_unhealthy_threshold
+
+    # Customer tagging
+    - name: business_unit
       type: string
       default: ''
-    - name: auto_create_ingress_rules
+    - name: spend_env
       type: string
-      default: 'true'
-    - name: auto_create_egress_rules
+      default: ''
+    - name: product_line
       type: string
-      default: 'false'
+      default: ''
+
+    # VPN configuration
+    - name: customer_gateway_ip
+      type: string
     - name: customer_network_cidrs
       type: string
       default: ''
@@ -38,29 +40,94 @@ spec:
     - name: customer_bgp_asn
       type: string
       default: ''
-    - name: customer_gateway_ip
-      type: string
     - name: subnet_cidr
       type: string
+      default: ''
     - name: vpc_cidr
       type: string
-    - name: account_name
+      default: ''
+
+    # Customer VPC (existing)
+    - name: customer_vpc_id
       type: string
-    - name: customer_name
+    - name: customer_route_table_id
       type: string
-    - name: customer_id
-      type: string
-    - name: aws_region
-      type: string
-    - name: business_unit
+
+    # Tunnel config
+    - name: tunnel1_inside_cidr
       type: string
       default: ''
-    - name: spend_env
+    - name: tunnel2_inside_cidr
       type: string
       default: ''
-    - name: product_line
+    - name: tunnel1_psk
       type: string
       default: ''
+    - name: tunnel2_psk
+      type: string
+      default: ''
+
+    # DB2 Access Endpoint
+    - name: db2_name
+      type: string
+    - name: db2_type
+      type: string
+      default: ''
+    - name: db2_listener_port
+      type: string
+      default: ''
+    - name: db2_target_port
+      type: string
+      default: ''
+    - name: cluster_key
+      type: string
+      default: ''
+    - name: app_key
+      type: string
+      default: ''
+    - name: nlb_arn
+      type: string
+    - name: provider_vpc_id
+      type: string
+    - name: provider_security_group_id
+      type: string
+      default: ''
+    - name: endpoint_service_name
+      type: string
+    - name: consumer_vpc_id
+      type: string
+    - name: consumer_subnet_ids
+      type: string
+    - name: consumer_security_group_id
+      type: string
+
+    # Region routing
+    - name: provider_region
+      type: string
+    - name: consumer_region
+      type: string
+
+    # Health checks
+    - name: health_check_interval
+      type: string
+      default: ''
+    - name: health_check_timeout
+      type: string
+      default: ''
+    - name: health_check_healthy_threshold
+      type: string
+      default: ''
+    - name: health_check_unhealthy_threshold
+      type: string
+      default: ''
+
+    # Ingress/egress
+    - name: auto_create_ingress_rules
+      type: string
+      default: 'true'
+    - name: auto_create_egress_rules
+      type: string
+      default: 'false'
 
   workspaces:
     - name: configs
@@ -73,36 +140,7 @@ spec:
         - name: configs
           workspace: configs
       params:
-        - name: provider_region
-          value: $(params.provider_region)
-        - name: consumer_region
-          value: $(params.consumer_region)
-        - name: health_check_interval
-          value: $(params.health_check_interval)
-        - name: health_check_timeout
-          value: $(params.health_check_timeout)
-        - name: health_check_healthy_threshold
-          value: $(params.health_check_healthy_threshold)
-        - name: health_check_unhealthy_threshold
-          value: $(params.health_check_unhealthy_threshold)
-        - name: auto_create_ingress_rules
-          value: $(params.auto_create_ingress_rules)
-        - name: auto_create_egress_rules
-          value: $(params.auto_create_egress_rules)
-        - name: customer_network_cidrs
-          value: $(params.customer_network_cidrs)
-        - name: enable_bgp
-          value: $(params.enable_bgp)
-        - name: amazon_side_asn
-          value: $(params.amazon_side_asn)
-        - name: customer_bgp_asn
-          value: $(params.customer_bgp_asn)
-        - name: customer_gateway_ip
-          value: $(params.customer_gateway_ip)
-        - name: subnet_cidr
-          value: $(params.subnet_cidr)
-        - name: vpc_cidr
-          value: $(params.vpc_cidr)
+        # Customer identity
         - name: account_name
           value: $(params.account_name)
         - name: customer_name
@@ -111,6 +149,8 @@ spec:
           value: $(params.customer_id)
         - name: aws_region
           value: $(params.aws_region)
+
+        # Customer tagging
         - name: business_unit
           value: $(params.business_unit)
         - name: spend_env
@@ -118,4 +158,84 @@ spec:
         - name: product_line
           value: $(params.product_line)
 
+        # VPN configuration
+        - name: customer_gateway_ip
+          value: $(params.customer_gateway_ip)
+        - name: customer_network_cidrs
+          value: $(params.customer_network_cidrs)
+        - name: enable_bgp
+          value: $(params.enable_bgp)
+        - name: amazon_side_asn
+          value: $(params.amazon_side_asn)
+        - name: customer_bgp_asn
+          value: $(params.customer_bgp_asn)
+        - name: subnet_cidr
+          value: $(params.subnet_cidr)
+        - name: vpc_cidr
+          value: $(params.vpc_cidr)
 
+        # Customer VPC
+        - name: customer_vpc_id
+          value: $(params.customer_vpc_id)
+        - name: customer_route_table_id
+          value: $(params.customer_route_table_id)
+
+        # Tunnel config
+        - name: tunnel1_inside_cidr
+          value: $(params.tunnel1_inside_cidr)
+        - name: tunnel2_inside_cidr
+          value: $(params.tunnel2_inside_cidr)
+        - name: tunnel1_psk
+          value: $(params.tunnel1_psk)
+        - name: tunnel2_psk
+          value: $(params.tunnel2_psk)
+
+        # DB2 Access Endpoint
+        - name: db2_name
+          value: $(params.db2_name)
+        - name: db2_type
+          value: $(params.db2_type)
+        - name: db2_listener_port
+          value: $(params.db2_listener_port)
+        - name: db2_target_port
+          value: $(params.db2_target_port)
+        - name: cluster_key
+          value: $(params.cluster_key)
+        - name: app_key
+          value: $(params.app_key)
+        - name: nlb_arn
+          value: $(params.nlb_arn)
+        - name: provider_vpc_id
+          value: $(params.provider_vpc_id)
+        - name: provider_security_group_id
+          value: $(params.provider_security_group_id)
+        - name: endpoint_service_name
+          value: $(params.endpoint_service_name)
+        - name: consumer_vpc_id
+          value: $(params.consumer_vpc_id)
+        - name: consumer_subnet_ids
+          value: $(params.consumer_subnet_ids)
+        - name: consumer_security_group_id
+          value: $(params.consumer_security_group_id)
+
+        # Region routing
+        - name: provider_region
+          value: $(params.provider_region)
+        - name: consumer_region
+          value: $(params.consumer_region)
+
+        # Health checks
+        - name: health_check_interval
+          value: $(params.health_check_interval)
+        - name: health_check_timeout
+          value: $(params.health_check_timeout)
+        - name: health_check_healthy_threshold
+          value: $(params.health_check_healthy_threshold)
+        - name: health_check_unhealthy_threshold
+          value: $(params.health_check_unhealthy_threshold)
+
+        # Ingress/egress
+        - name: auto_create_ingress_rules
+          value: $(params.auto_create_ingress_rules)
+        - name: auto_create_egress_rules
+          value: $(params.auto_create_egress_rules)
