@@ -1,0 +1,146 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: gitops-feature-status-update
+spec:
+  params:
+    # Identity
+    - name: region
+      type: string
+      description: "AWS region (e.g. us-east-2)"
+    - name: account
+      type: string
+      description: "GitOps account name (e.g. fyre-noble10-dev)"
+    - name: cluster_name
+      type: string
+      description: "GitOps cluster name (e.g. noble10)"
+    - name: mas_instance_id
+      type: string
+      description: "MAS instance ID (e.g. inst02). Supply empty string for cluster-level feature types."
+      default: ""
+    - name: subscription_id
+      type: string
+      description: "Subscription ID. Required for instance-level feature types; supply empty string for cluster-level types."
+      default: ""
+    # Feature
+    - name: feature_type
+      type: string
+      description: "Feature type (e.g. allow-list)"
+    - name: feature_details
+      type: string
+      description: "JSON object with type-specific fields (e.g. '{\"ips\": [\"1.2.3.4/32\"]}')"
+    # Status
+    - name: status
+      type: string
+      description: "Feature lifecycle status: REQUESTED | IN_PROGRESS | ACTIVE | ERROR | DEACTIVATED"
+    - name: status_details
+      type: string
+      description: "JSON object describing the outcome. Mutually exclusive with status_details_file."
+      default: ""
+    - name: status_details_file
+      type: string
+      description: "Path to a JSON file containing the status-details object. Mutually exclusive with status_details."
+      default: ""
+    # Timestamps (all optional)
+    - name: deployment_start
+      type: string
+      description: "ISO-8601 deployment start timestamp (optional)"
+      default: ""
+    - name: deployment_end
+      type: string
+      description: "ISO-8601 deployment end timestamp (optional)"
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: REGION
+        value: $(params.region)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: SUBSCRIPTION_ID
+        value: $(params.subscription_id)
+      - name: FEATURE_TYPE
+        value: $(params.feature_type)
+      - name: FEATURE_DETAILS
+        value: $(params.feature_details)
+      - name: STATUS
+        value: $(params.status)
+      - name: STATUS_DETAILS
+        value: $(params.status_details)
+      - name: STATUS_DETAILS_FILE
+        value: $(params.status_details_file)
+      - name: DEPLOYMENT_START
+        value: $(params.deployment_start)
+      - name: DEPLOYMENT_END
+        value: $(params.deployment_end)
+      - name: DEVOPS_MONGO_URI
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_MONGO_URI
+            optional: true
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: feature-status-update
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: IfNotPresent
+      command:
+        - /bin/sh
+        - -c
+      args:
+        - |-
+          set -e
+
+          ARGS=""
+
+          # Identity
+          ARGS="$ARGS --region $REGION"
+          ARGS="$ARGS --account $ACCOUNT"
+          ARGS="$ARGS --cluster $CLUSTER_NAME"
+
+          if [ -n "$MAS_INSTANCE_ID" ]; then
+            ARGS="$ARGS --instance-id $MAS_INSTANCE_ID"
+          fi
+
+          if [ -n "$SUBSCRIPTION_ID" ]; then
+            ARGS="$ARGS --subscription-id $SUBSCRIPTION_ID"
+          fi
+
+          # Feature
+          ARGS="$ARGS --type $FEATURE_TYPE"
+          ARGS="$ARGS --feature-details '$FEATURE_DETAILS'"
+
+          # Status
+          ARGS="$ARGS --status $STATUS"
+
+          if [ -n "$STATUS_DETAILS_FILE" ]; then
+            ARGS="$ARGS --status-details-file $STATUS_DETAILS_FILE"
+          else
+            ARGS="$ARGS --status-details '$STATUS_DETAILS'"
+          fi
+
+          # Optional timestamps
+          if [ -n "$DEPLOYMENT_START" ]; then
+            ARGS="$ARGS --deployment-start $DEPLOYMENT_START"
+          fi
+
+          if [ -n "$DEPLOYMENT_END" ]; then
+            ARGS="$ARGS --deployment-end $DEPLOYMENT_END"
+          fi
+
+          eval mas-devops-feature-status-update status-update $ARGS
+          exit $?
+
+  workspaces:
+    - name: configs
