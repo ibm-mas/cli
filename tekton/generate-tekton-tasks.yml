@@ -268,4 +268,4 @@
         - gitops-iac-provision-msk
         - gitops-rds-db2-database
         - gitops-iac-provision-rdsdb2
-        - saas-env-test-recorder
+        - gitops-test-recorder

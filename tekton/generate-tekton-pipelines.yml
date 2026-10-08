@@ -101,7 +101,7 @@
         - gitops-deprovision-aiservice-pipeline
         - gitops-deprovision-aiservice-tenant-pipeline
         - gitops-iac-pipeline
-        - saas-env-test-recorder-pipeline
+        - gitops-test-recorder-pipeline
       when: pipeline_name == ''
 
     # 4. Generate Gitops Pipelines with waits

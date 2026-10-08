@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: saas-env-test-recorder-pipeline
+  name: gitops-test-recorder-pipeline
 spec:
   description: >
     Records a new parent collection document in MongoDB for a promoted catalog
@@ -31,7 +31,7 @@ spec:
   tasks:
     - name: record-build-collection
       taskRef:
-        name: saas-env-test-recorder
+        name: gitops-test-recorder
       workspaces:
         - name: task-pvc
           workspace: pipeline-pvc
