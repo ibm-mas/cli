@@ -77,6 +77,7 @@ def _base_prompts(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "y",
+        ".*Install MCPI.*": lambda msg: "n",
         ".*Custom channel for AI Service.*": lambda msg: "9.2.x",
         ".*Customize database settings.*": lambda msg: "n",
         ".*Enter AI Service Tenant ID to bind with Manage:.*": lambda msg: "user",

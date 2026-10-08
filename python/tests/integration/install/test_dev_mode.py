@@ -98,6 +98,7 @@ def test_install_master_dev_mode(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
+        ".*Install MCPI.*": lambda msg: "n",
         # 11. Grafana configuration
         ".*Install Grafana.*": lambda msg: "y",
         # 12. MongoDB configuration
@@ -181,6 +182,7 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
+        ".*Install MCPI.*": lambda msg: "n",
         # 11. Grafana configuration
         ".*Install Grafana.*": lambda msg: "y",
         # 12. MongoDB configuration
@@ -322,6 +324,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
+        ".*Install MCPI.*": lambda msg: "n",
         # 23. Grafana configuration (appears when advanced options are enabled)
         ".*Install Grafana.*": lambda msg: "y",
         # 24. MongoDB configuration

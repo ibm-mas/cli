@@ -361,6 +361,7 @@ class TestInteractiveLetsEncryptIntegration:
             ".*Install Visual Inspection.*": lambda msg: "n",
             ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
             ".*Install AI Service.*": lambda msg: "n",
+            ".*Install MCPI.*": lambda msg: "n",
             ".*Do you want to configure AiCfg.*": lambda msg: "n",
             ".*Install Grafana.*": lambda msg: "y",
             # MongoDB

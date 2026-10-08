@@ -128,6 +128,7 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
+        ".*Install MCPI.*": lambda msg: "n",
         ".*Include IBM Maximo Location Services for Esri.*": lambda msg: "y",
         ".*Do you accept the license terms?.*": lambda msg: "y",
         # 23. Grafana configuration (appears when advanced options are enabled)
@@ -290,6 +291,7 @@ def test_install_arcgis_namespace_mode_error(tmpdir, caplog):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
+        ".*Install MCPI.*": lambda msg: "n",
         # ERROR OCCURS HERE - after selecting ArcGIS with cluster mode
         ".*Include IBM Maximo Location Services for Esri.*": lambda msg: "y",
     }
@@ -433,6 +435,7 @@ def test_install_arcgis_minimal_mode_error(tmpdir, caplog):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
+        ".*Install MCPI.*": lambda msg: "n",
         # ERROR OCCURS HERE - after selecting ArcGIS with minimal mode
         ".*Include IBM Maximo Location Services for Esri.*": lambda msg: "y",
     }

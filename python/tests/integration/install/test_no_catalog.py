@@ -61,6 +61,7 @@ def test_install_interactive_no_catalog(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
+        ".*Install MCPI.*": lambda msg: "n",
         # 12a. Grafana configuration
         ".*Install Grafana.*": lambda msg: "y",
         # 12. MongoDB configuration
