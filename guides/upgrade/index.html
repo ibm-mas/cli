@@ -297,6 +297,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-261007-amd64/">
+    Oct 07 2026
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-260924-amd64/">
     Sep 24 2026
   </cds-side-nav-menu-item>
@@ -311,12 +317,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-260730-amd64/">
     Jul 30 2026
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-260625-amd64/">
-    Jun 25 2026
   </cds-side-nav-menu-item>
 
     
@@ -493,7 +493,7 @@
 </table>
 
 <h3 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">¶</a></h3>
-<p>Storage class configuration for the upgrade pipeline PVC.</p>
+<p>Storage class configuration for the upgrade pipeline PVC and Manage Foundation Db2 instances.</p>
 <table style="width: 100%; table-layout: fixed;">
   <colgroup>
     <col style="width: 25%;">
@@ -521,6 +521,18 @@
       <td><code>{ReadWriteMany, ReadWriteOnce}</code></td>
       <td>-</td>
       <td>Pipeline storage class access mode (ReadWriteMany or ReadWriteOnce). Auto-detected from the existing config-pvc when omitted.</td>
+    </tr>
+    <tr>
+      <td><code>--storage-class-rwo</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>ReadWriteOnce storage class used for Db2 and Manage Foundation PVCs when installing Manage Foundation during upgrade (9.0 to 9.1). Auto-detected when omitted.</td>
+    </tr>
+    <tr>
+      <td><code>--storage-class-rwx</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>ReadWriteMany storage class used for Db2 and Manage Foundation PVCs when installing Manage Foundation during upgrade (9.0 to 9.1). Auto-detected when omitted.</td>
     </tr>
   </tbody>
 </table>
@@ -552,7 +564,7 @@
 <p>This command can also be run non-interactively. For full details refer to the <a href="../image-mirroring/">image mirroring</a> guide.</p>
 <pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-260924-amd64 -C 9.2.x \
+  -c v9-261007-amd64 -C 9.2.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
