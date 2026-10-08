@@ -21,7 +21,7 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Optional
 from kubernetes.dynamic import DynamicClient
-from jsonpath_ng.ext import parse
+from jsonpath_ng.ext.parser import parse
 
 logger = logging.getLogger(__name__)
 
