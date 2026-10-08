@@ -123,6 +123,13 @@ function gitops_s2svpn() {
   shift
   gitops_s2svpn_noninteractive "$@"
 
+  # ── AWS authentication ────────────────────────────────────────────────────────
+  # Credentials arrive as SM_AWS_ACCESS_KEY_ID / SM_AWS_SECRET_ACCESS_KEY via
+  # the secure-properties Secret (injected by stepTemplate.envFrom in the Task).
+  # SM_AWS_REGION is required by sm_login; fall back to the AWS_REGION param.
+  SM_AWS_REGION="${SM_AWS_REGION:-${AWS_REGION}}"
+  sm_login
+
   # ── Defaults for optional params ─────────────────────────────────────────────
   ENABLE_BGP="${ENABLE_BGP:-false}"
   AMAZON_SIDE_ASN="${AMAZON_SIDE_ASN:-64512}"
