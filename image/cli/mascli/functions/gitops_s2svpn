@@ -117,6 +117,8 @@ function gitops_s2svpn_noninteractive() {
 }
 
 function gitops_s2svpn() {
+  # Take the first parameter off (it will be "gitops-s2svpn")
+  shift
   gitops_s2svpn_noninteractive "$@"
 
   echo
