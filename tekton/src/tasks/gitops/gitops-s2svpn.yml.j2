@@ -121,25 +121,28 @@ spec:
       args:
         - |-
           CMD="mas gitops-s2svpn \
-            --account-name $ACCOUNT_NAME \
-            --customer-name $CUSTOMER_NAME \
-            --customer-id $CUSTOMER_ID \
-            --aws-region $AWS_REGION \
-            --provider-region $PROVIDER_REGION \
-            --consumer-region $CONSUMER_REGION \
-            --customer-gateway-ip $CUSTOMER_GATEWAY_IP \
-            --subnet-cidr $SUBNET_CIDR \
-            --vpc-cidr $VPC_CIDR \
-            --customer-network-cidrs \"$CUSTOMER_NETWORK_CIDRS\" \
-            --enable-bgp $ENABLE_BGP \
-            --amazon-side-asn $AMAZON_SIDE_ASN \
-            --customer-bgp-asn $CUSTOMER_BGP_ASN \
-            --health-check-interval $HEALTH_CHECK_INTERVAL \
-            --health-check-timeout $HEALTH_CHECK_TIMEOUT \
-            --health-check-healthy-threshold $HEALTH_CHECK_HEALTHY_THRESHOLD \
-            --health-check-unhealthy-threshold $HEALTH_CHECK_UNHEALTHY_THRESHOLD \
-            --auto-create-ingress-rules $AUTO_CREATE_INGRESS_RULES \
-            --auto-create-egress-rules $AUTO_CREATE_EGRESS_RULES"
+            --account-name \"${ACCOUNT_NAME}\" \
+            --customer-name \"${CUSTOMER_NAME}\" \
+            --customer-id \"${CUSTOMER_ID}\" \
+            --aws-region \"${AWS_REGION}\" \
+            --provider-region \"${PROVIDER_REGION}\" \
+            --consumer-region \"${CONSUMER_REGION}\" \
+            --customer-gateway-ip \"${CUSTOMER_GATEWAY_IP}\" \
+            --subnet-cidr \"${SUBNET_CIDR}\" \
+            --vpc-cidr \"${VPC_CIDR}\" \
+            --customer-network-cidrs \"${CUSTOMER_NETWORK_CIDRS:-""}\" \
+            --enable-bgp \"${ENABLE_BGP:-""}\" \
+            --amazon-side-asn \"${AMAZON_SIDE_ASN:-""}\" \
+            --customer-bgp-asn \"${CUSTOMER_BGP_ASN:-""}\" \
+            --health-check-interval \"${HEALTH_CHECK_INTERVAL:-""}\" \
+            --health-check-timeout \"${HEALTH_CHECK_TIMEOUT:-""}\" \
+            --health-check-healthy-threshold \"${HEALTH_CHECK_HEALTHY_THRESHOLD:-""}\" \
+            --health-check-unhealthy-threshold \"${HEALTH_CHECK_UNHEALTHY_THRESHOLD:-""}\" \
+            --auto-create-ingress-rules \"${AUTO_CREATE_INGRESS_RULES:-""}\" \
+            --auto-create-egress-rules \"${AUTO_CREATE_EGRESS_RULES:-""}\" \
+            --business-unit \"${BUSINESS_UNIT:-""}\" \
+            --spend-env \"${SPEND_ENV:-""}\" \
+            --product-line \"${PRODUCT_LINE:-""}\""
 
           echo "Executing: $CMD"
           eval $CMD
