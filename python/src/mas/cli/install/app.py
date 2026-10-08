@@ -1355,6 +1355,12 @@ class InstallApp(
         else:
             self.installAIService = False
 
+        # MCPI is available from MAS 9.1 onwards (no OLM channel — CR only)
+        if isVersionEqualOrAfter("9.1.0", self.getParam("mas_channel")):
+            self.installMcpi = self.yesOrNo("Install MCPI")
+        else:
+            self.installMcpi = False
+
     @logMethodCall
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
@@ -1762,6 +1768,29 @@ class InstallApp(
                         "mas_ws_facilities_config_file",
                         "/workspace/configs/facilities-configs.yaml",
                     )
+
+    @logMethodCall
+    def mcpiSettings(self) -> None:
+        if self.installMcpi:
+            instanceId = self.getParam("mas_instance_id")
+            self.selectLocalConfigDir()
+            if self.localConfigDir is not None:
+                mcpiCfgFile = path.join(self.localConfigDir, f"mcpicfg-{instanceId}-system.yaml")
+                with open(mcpiCfgFile, "w") as f:
+                    f.write(f"""---
+apiVersion: config.mas.ibm.com/v1
+kind: McpiCfg
+metadata:
+  name: "{instanceId}-mcpi-system"
+  namespace: "mas-{instanceId}-core"
+  labels:
+    mas.ibm.com/configScope: system
+    mas.ibm.com/instanceId: {instanceId}
+spec:
+  displayName: "MCPI"
+  config:
+    enabled: true
+""")
 
     @logMethodCall
     def configAIService(self):
@@ -2173,6 +2202,7 @@ class InstallApp(
         self.predictSettings()
         self.assistSettings()
         self.facilitiesSettings()
+        self.mcpiSettings()
 
         self.aiServiceSettings()
         self.aiServiceTenantSettings()
@@ -2210,6 +2240,7 @@ class InstallApp(
         self.installArcgis = False
         self.installOptimizer = False
         self.installFacilities = False
+        self.installMcpi = False
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
@@ -2385,6 +2416,9 @@ class InstallApp(
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_facilities", value)
                     self.installFacilities = True
+            elif key == "mcpi":
+                if value is not None and value is True:
+                    self.installMcpi = True
             elif key == "aiservice_channel":
                 if value is not None and value != "":
                     self.setParam("aiservice_channel", value)

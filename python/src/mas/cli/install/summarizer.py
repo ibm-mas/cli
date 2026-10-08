@@ -48,6 +48,7 @@ class InstallSummarizerMixin:
         installInspection: bool
         installOptimizer: bool
         installFacilities: bool
+        installMcpi: bool
         installAIService: bool
         installArcgis: bool
         dynamicClient: DynamicClient
@@ -383,6 +384,12 @@ class InstallSummarizerMixin:
         else:
             self.printSummary("Facilities", "Do Not Install")
 
+    def mcpiSummary(self) -> None:
+        if self.installMcpi:
+            self.printSummary("MCPI", "Enabled")
+        else:
+            self.printSummary("MCPI", "Do Not Install")
+
     def aiServiceSummary(self) -> None:
         if self.installAIService:
             self.printH2("AI Service")
@@ -665,6 +672,7 @@ class InstallSummarizerMixin:
         self.assistSummary()
         self.inspectionSummary()
         self.facilitiesSummary()
+        self.mcpiSummary()
         self.aiServiceSummary()
 
         # Application Dependencies

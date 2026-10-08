@@ -286,6 +286,8 @@ class installArgBuilderMixin:
             command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
             if self.getParam("configure_aiassistant") != "":
                 command += f"  --configure-aiassistant \"{self.getParam('configure_aiassistant')}\"{newline}"
+        if self.installMcpi:
+            command += f"  --mcpi{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
