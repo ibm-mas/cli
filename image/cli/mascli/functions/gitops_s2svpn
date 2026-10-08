@@ -206,7 +206,46 @@ function gitops_s2svpn() {
   [[ ! -f "${S2SVPN_CFN_TEMPLATE}" ]] && echo_warning "CloudFormation template not found: ${S2SVPN_CFN_TEMPLATE}" && exit 1
 
   # ── Build parameter overrides ─────────────────────────────────────────────────
-  PARAM_OVERRIDES=(
+  # deploy uses Key=Value format; create-stack/update-stack use ParameterKey=K,ParameterValue=V format.
+
+  # For: aws cloudformation deploy --parameter-overrides
+  DEPLOY_PARAMS=(
+    "CustomerId=${CUSTOMER_ID}"
+    "CustomerName=${CUSTOMER_NAME}"
+    "AccountName=${ACCOUNT_NAME}"
+    "AwsRegion=${AWS_REGION}"
+    "CustomerVpcId=${CUSTOMER_VPC_ID}"
+    "CustomerRouteTableId=${CUSTOMER_ROUTE_TABLE_ID}"
+    "CustomerGatewayIp=${CUSTOMER_GATEWAY_IP}"
+    "CustomerBgpAsn=${CUSTOMER_BGP_ASN}"
+    "AmazonSideAsn=${AMAZON_SIDE_ASN}"
+    "EnableBgp=${ENABLE_BGP}"
+    "CustomerNetworkCidrs=${CUSTOMER_NETWORK_CIDRS}"
+    "Tunnel1InsideCidr=${TUNNEL1_INSIDE_CIDR}"
+    "Tunnel2InsideCidr=${TUNNEL2_INSIDE_CIDR}"
+    "Tunnel1Psk=${TUNNEL1_PSK}"
+    "Tunnel2Psk=${TUNNEL2_PSK}"
+    "Db2Type=${DB2_TYPE}"
+    "Db2ListenerPort=${DB2_LISTENER_PORT}"
+    "Db2TargetPort=${DB2_TARGET_PORT}"
+    "Db2Name=${DB2_NAME}"
+    "ClusterKey=${CLUSTER_KEY}"
+    "AppKey=${APP_KEY}"
+    "NlbArn=${NLB_ARN}"
+    "ProviderVpcId=${PROVIDER_VPC_ID}"
+    "ProviderSecurityGroupId=${PROVIDER_SECURITY_GROUP_ID}"
+    "EndpointServiceName=${ENDPOINT_SERVICE_NAME}"
+    "ConsumerVpcId=${CONSUMER_VPC_ID}"
+    "ConsumerSubnetIds=${CONSUMER_SUBNET_IDS}"
+    "ConsumerSecurityGroupId=${CONSUMER_SECURITY_GROUP_ID}"
+    "BusinessUnit=${BUSINESS_UNIT}"
+    "SpendEnv=${SPEND_ENV}"
+    "ProductLine=${PRODUCT_LINE}"
+    "Environment=${SPEND_ENV}"
+  )
+
+  # For: aws cloudformation create-stack/update-stack --parameters
+  STACK_PARAMS=(
     "ParameterKey=CustomerId,ParameterValue=${CUSTOMER_ID}"
     "ParameterKey=CustomerName,ParameterValue=${CUSTOMER_NAME}"
     "ParameterKey=AccountName,ParameterValue=${ACCOUNT_NAME}"
@@ -255,17 +294,17 @@ function gitops_s2svpn() {
   echo "  Stack status: ${STACK_STATUS:-<not found>}"
 
 
-
   # ── PLAN: create changeset without executing — review before apply ────────────
   echo
   echo_h2 "Running CloudFormation Plan (--no-execute-changeset)"
   aws cloudformation deploy \
     --stack-name "${STACK_NAME}" \
     --template-file "${S2SVPN_CFN_TEMPLATE}" \
-    --parameter-overrides "${PARAM_OVERRIDES[@]}" \
+    --parameter-overrides "${DEPLOY_PARAMS[@]}" \
     --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
     --no-execute-changeset \
-    --region "${AWS_REGION}"
+    --region "${AWS_REGION}" \
+    --no-cli-pager
   PLAN_RC=$?
 
   # exit code 0  → changeset created (changes detected)
@@ -290,9 +329,10 @@ function gitops_s2svpn() {
     aws cloudformation create-stack \
       --stack-name "${STACK_NAME}" \
       --template-body "file://${S2SVPN_CFN_TEMPLATE}" \
-      --parameters "${PARAM_OVERRIDES[@]}" \
+      --parameters "${STACK_PARAMS[@]}" \
       --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-      --region "${AWS_REGION}"
+      --region "${AWS_REGION}" \
+      --no-cli-pager
     CREATE_RC=$?
     if [[ ${CREATE_RC} -ne 0 ]]; then
       echo_warning "create-stack failed with exit code ${CREATE_RC}"
@@ -326,9 +366,10 @@ function gitops_s2svpn() {
     UPDATE_ERR=$(aws cloudformation update-stack \
       --stack-name "${STACK_NAME}" \
       --template-body "file://${S2SVPN_CFN_TEMPLATE}" \
-      --parameters "${PARAM_OVERRIDES[@]}" \
+      --parameters "${STACK_PARAMS[@]}" \
       --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-      --region "${AWS_REGION}" 2>&1)
+      --region "${AWS_REGION}" \
+      --no-cli-pager 2>&1)
     UPDATE_RC=$?
 
     # "No updates are to be performed" is returned on stderr with a non-zero exit — not a real error
