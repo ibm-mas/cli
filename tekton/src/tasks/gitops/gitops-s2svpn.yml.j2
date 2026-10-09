@@ -6,231 +6,198 @@ metadata:
 spec:
   params:
     # Customer identity
-    - name: account_name
+    - name: CustomerId
       type: string
-    - name: customer_name
+    - name: CustomerName
       type: string
-    - name: customer_id
+    - name: AccountName
       type: string
-    - name: aws_region
+    - name: AwsRegion
       type: string
 
-    # Customer tagging
-    - name: business_unit
+    # Customer VPC — created by this stack
+    - name: VpcCidr
+      type: string
+    - name: SubnetCidr
+      type: string
+
+    # VPN — existing resources (optional)
+    - name: ExistingCustomerGatewayId
       type: string
       default: ''
-    - name: spend_env
-      type: string
-      default: ''
-    - name: product_line
+    - name: ExistingVpnGatewayId
       type: string
       default: ''
 
-    # VPN configuration
-    - name: customer_gateway_ip
+    # VPN — on-premises appliance
+    - name: CustomerGatewayIp
       type: string
-    - name: customer_network_cidrs
+    - name: CustomerBgpAsn
       type: string
-      default: ''
-    - name: enable_bgp
+      default: '65000'
+    - name: AmazonSideAsn
+      type: string
+      default: '64512'
+    - name: EnableBgp
       type: string
       default: 'false'
-    - name: amazon_side_asn
-      type: string
-      default: ''
-    - name: customer_bgp_asn
-      type: string
-      default: ''
-    - name: subnet_cidr
-      type: string
-      default: ''
-    - name: vpc_cidr
+    - name: CustomerNetworkCidrs
       type: string
       default: ''
 
-    # Customer VPC (existing)
-    - name: customer_vpc_id
-      type: string
-    - name: customer_route_table_id
-      type: string
-
-    # Tunnel config
-    - name: tunnel1_inside_cidr
+    # VPN — tunnel config (optional)
+    - name: Tunnel1InsideCidr
       type: string
       default: ''
-    - name: tunnel2_inside_cidr
+    - name: Tunnel2InsideCidr
       type: string
       default: ''
-    - name: tunnel1_psk
+    - name: Tunnel1Psk
       type: string
       default: ''
-    - name: tunnel2_psk
+    - name: Tunnel2Psk
       type: string
       default: ''
 
     # DB2 Access Endpoint
-    - name: db2_name
+    - name: Db2Type
       type: string
-    - name: db2_type
-      type: string
-      default: ''
-    - name: db2_listener_port
+      default: 'RDSDB2'
+    - name: Db2ListenerPort
       type: string
       default: ''
-    - name: db2_target_port
+    - name: Db2TargetPort
       type: string
       default: ''
-    - name: cluster_key
+    - name: Db2Name
+      type: string
+    - name: ClusterKey
       type: string
       default: ''
-    - name: app_key
+    - name: AppKey
       type: string
       default: ''
-    - name: nlb_arn
+    - name: NlbArn
       type: string
-    - name: provider_vpc_id
+    - name: ProviderVpcId
       type: string
-    - name: provider_security_group_id
-      type: string
-      default: ''
-    - name: endpoint_service_name
-      type: string
-    - name: consumer_vpc_id
-      type: string
-    - name: consumer_subnet_ids
-      type: string
-    - name: consumer_security_group_id
-      type: string
-
-    # Region routing
-    - name: provider_region
-      type: string
-    - name: consumer_region
-      type: string
-
-    # Health checks
-    - name: health_check_interval
+    - name: ProviderSecurityGroupId
       type: string
       default: ''
-    - name: health_check_timeout
+    - name: EndpointServiceName
       type: string
-      default: ''
-    - name: health_check_healthy_threshold
-      type: string
-      default: ''
-    - name: health_check_unhealthy_threshold
+    - name: AdditionalIngressCidrs
       type: string
       default: ''
 
-    # Ingress/egress
-    - name: auto_create_ingress_rules
+    # Tagging
+    - name: BusinessUnit
       type: string
-      default: 'true'
-    - name: auto_create_egress_rules
+      default: ''
+    - name: SpendEnv
       type: string
-      default: 'false'
+      default: ''
+    - name: ProductLine
+      type: string
+      default: ''
+    - name: AdditionalTagKey1
+      type: string
+      default: ''
+    - name: AdditionalTagValue1
+      type: string
+      default: ''
+    - name: AdditionalTagKey2
+      type: string
+      default: ''
+    - name: AdditionalTagValue2
+      type: string
+      default: ''
 
   stepTemplate:
     env:
       # Customer identity
-      - name: ACCOUNT_NAME
-        value: $(params.account_name)
-      - name: CUSTOMER_NAME
-        value: $(params.customer_name)
       - name: CUSTOMER_ID
-        value: $(params.customer_id)
+        value: $(params.CustomerId)
+      - name: CUSTOMER_NAME
+        value: $(params.CustomerName)
+      - name: ACCOUNT_NAME
+        value: $(params.AccountName)
       - name: AWS_REGION
-        value: $(params.aws_region)
-
-      # Customer tagging
-      - name: BUSINESS_UNIT
-        value: $(params.business_unit)
-      - name: SPEND_ENV
-        value: $(params.spend_env)
-      - name: PRODUCT_LINE
-        value: $(params.product_line)
-
-      # VPN configuration
-      - name: CUSTOMER_GATEWAY_IP
-        value: $(params.customer_gateway_ip)
-      - name: CUSTOMER_NETWORK_CIDRS
-        value: $(params.customer_network_cidrs)
-      - name: ENABLE_BGP
-        value: $(params.enable_bgp)
-      - name: AMAZON_SIDE_ASN
-        value: $(params.amazon_side_asn)
-      - name: CUSTOMER_BGP_ASN
-        value: $(params.customer_bgp_asn)
-      - name: SUBNET_CIDR
-        value: $(params.subnet_cidr)
-      - name: VPC_CIDR
-        value: $(params.vpc_cidr)
+        value: $(params.AwsRegion)
 
       # Customer VPC
-      - name: CUSTOMER_VPC_ID
-        value: $(params.customer_vpc_id)
-      - name: CUSTOMER_ROUTE_TABLE_ID
-        value: $(params.customer_route_table_id)
+      - name: VPC_CIDR
+        value: $(params.VpcCidr)
+      - name: SUBNET_CIDR
+        value: $(params.SubnetCidr)
 
-      # Tunnel config
+      # VPN existing resources
+      - name: EXISTING_CUSTOMER_GATEWAY_ID
+        value: $(params.ExistingCustomerGatewayId)
+      - name: EXISTING_VPN_GATEWAY_ID
+        value: $(params.ExistingVpnGatewayId)
+
+      # VPN on-premises
+      - name: CUSTOMER_GATEWAY_IP
+        value: $(params.CustomerGatewayIp)
+      - name: CUSTOMER_BGP_ASN
+        value: $(params.CustomerBgpAsn)
+      - name: AMAZON_SIDE_ASN
+        value: $(params.AmazonSideAsn)
+      - name: ENABLE_BGP
+        value: $(params.EnableBgp)
+      - name: CUSTOMER_NETWORK_CIDRS
+        value: $(params.CustomerNetworkCidrs)
+
+      # VPN tunnel config
       - name: TUNNEL1_INSIDE_CIDR
-        value: $(params.tunnel1_inside_cidr)
+        value: $(params.Tunnel1InsideCidr)
       - name: TUNNEL2_INSIDE_CIDR
-        value: $(params.tunnel2_inside_cidr)
+        value: $(params.Tunnel2InsideCidr)
       - name: TUNNEL1_PSK
-        value: $(params.tunnel1_psk)
+        value: $(params.Tunnel1Psk)
       - name: TUNNEL2_PSK
-        value: $(params.tunnel2_psk)
+        value: $(params.Tunnel2Psk)
 
       # DB2 Access Endpoint
-      - name: DB2_NAME
-        value: $(params.db2_name)
       - name: DB2_TYPE
-        value: $(params.db2_type)
+        value: $(params.Db2Type)
       - name: DB2_LISTENER_PORT
-        value: $(params.db2_listener_port)
+        value: $(params.Db2ListenerPort)
       - name: DB2_TARGET_PORT
-        value: $(params.db2_target_port)
+        value: $(params.Db2TargetPort)
+      - name: DB2_NAME
+        value: $(params.Db2Name)
       - name: CLUSTER_KEY
-        value: $(params.cluster_key)
+        value: $(params.ClusterKey)
       - name: APP_KEY
-        value: $(params.app_key)
+        value: $(params.AppKey)
       - name: NLB_ARN
-        value: $(params.nlb_arn)
+        value: $(params.NlbArn)
       - name: PROVIDER_VPC_ID
-        value: $(params.provider_vpc_id)
+        value: $(params.ProviderVpcId)
       - name: PROVIDER_SECURITY_GROUP_ID
-        value: $(params.provider_security_group_id)
+        value: $(params.ProviderSecurityGroupId)
       - name: ENDPOINT_SERVICE_NAME
-        value: $(params.endpoint_service_name)
-      - name: CONSUMER_VPC_ID
-        value: $(params.consumer_vpc_id)
-      - name: CONSUMER_SUBNET_IDS
-        value: $(params.consumer_subnet_ids)
-      - name: CONSUMER_SECURITY_GROUP_ID
-        value: $(params.consumer_security_group_id)
+        value: $(params.EndpointServiceName)
+      - name: ADDITIONAL_INGRESS_CIDRS
+        value: $(params.AdditionalIngressCidrs)
 
-      # Region routing
-      - name: PROVIDER_REGION
-        value: $(params.provider_region)
-      - name: CONSUMER_REGION
-        value: $(params.consumer_region)
-
-      # Health checks
-      - name: HEALTH_CHECK_INTERVAL
-        value: $(params.health_check_interval)
-      - name: HEALTH_CHECK_TIMEOUT
-        value: $(params.health_check_timeout)
-      - name: HEALTH_CHECK_HEALTHY_THRESHOLD
-        value: $(params.health_check_healthy_threshold)
-      - name: HEALTH_CHECK_UNHEALTHY_THRESHOLD
-        value: $(params.health_check_unhealthy_threshold)
-
-      # Ingress/egress
-      - name: AUTO_CREATE_INGRESS_RULES
-        value: $(params.auto_create_ingress_rules)
-      - name: AUTO_CREATE_EGRESS_RULES
-        value: $(params.auto_create_egress_rules)
+      # Tagging
+      - name: BUSINESS_UNIT
+        value: $(params.BusinessUnit)
+      - name: SPEND_ENV
+        value: $(params.SpendEnv)
+      - name: PRODUCT_LINE
+        value: $(params.ProductLine)
+      - name: ADDITIONAL_TAG_KEY1
+        value: $(params.AdditionalTagKey1)
+      - name: ADDITIONAL_TAG_VALUE1
+        value: $(params.AdditionalTagValue1)
+      - name: ADDITIONAL_TAG_KEY2
+        value: $(params.AdditionalTagKey2)
+      - name: ADDITIONAL_TAG_VALUE2
+        value: $(params.AdditionalTagValue2)
 
     envFrom:
       - configMapRef:
@@ -244,37 +211,41 @@ spec:
       args:
         - |-
           CMD="mas gitops-s2svpn \
-            --account-name \"${ACCOUNT_NAME}\" \
-            --customer-name \"${CUSTOMER_NAME}\" \
             --customer-id \"${CUSTOMER_ID}\" \
+            --customer-name \"${CUSTOMER_NAME}\" \
+            --account-name \"${ACCOUNT_NAME}\" \
             --aws-region \"${AWS_REGION}\" \
-            --customer-vpc-id \"${CUSTOMER_VPC_ID}\" \
-            --customer-route-table-id \"${CUSTOMER_ROUTE_TABLE_ID}\" \
+            --vpc-cidr \"${VPC_CIDR}\" \
+            --subnet-cidr \"${SUBNET_CIDR}\" \
+            --existing-customer-gateway-id \"${EXISTING_CUSTOMER_GATEWAY_ID:-""}\" \
+            --existing-vpn-gateway-id \"${EXISTING_VPN_GATEWAY_ID:-""}\" \
             --customer-gateway-ip \"${CUSTOMER_GATEWAY_IP}\" \
-            --customer-network-cidrs \"${CUSTOMER_NETWORK_CIDRS:-""}\" \
-            --enable-bgp \"${ENABLE_BGP:-""}\" \
-            --amazon-side-asn \"${AMAZON_SIDE_ASN:-""}\" \
             --customer-bgp-asn \"${CUSTOMER_BGP_ASN:-""}\" \
+            --amazon-side-asn \"${AMAZON_SIDE_ASN:-""}\" \
+            --enable-bgp \"${ENABLE_BGP:-""}\" \
+            --customer-network-cidrs \"${CUSTOMER_NETWORK_CIDRS:-""}\" \
             --tunnel1-inside-cidr \"${TUNNEL1_INSIDE_CIDR:-""}\" \
             --tunnel2-inside-cidr \"${TUNNEL2_INSIDE_CIDR:-""}\" \
             --tunnel1-psk \"${TUNNEL1_PSK:-""}\" \
             --tunnel2-psk \"${TUNNEL2_PSK:-""}\" \
-            --db2-name \"${DB2_NAME}\" \
             --db2-type \"${DB2_TYPE:-""}\" \
             --db2-listener-port \"${DB2_LISTENER_PORT:-""}\" \
             --db2-target-port \"${DB2_TARGET_PORT:-""}\" \
+            --db2-name \"${DB2_NAME}\" \
             --cluster-key \"${CLUSTER_KEY:-""}\" \
             --app-key \"${APP_KEY:-""}\" \
             --nlb-arn \"${NLB_ARN}\" \
             --provider-vpc-id \"${PROVIDER_VPC_ID}\" \
             --provider-security-group-id \"${PROVIDER_SECURITY_GROUP_ID:-""}\" \
             --endpoint-service-name \"${ENDPOINT_SERVICE_NAME}\" \
-            --consumer-vpc-id \"${CONSUMER_VPC_ID}\" \
-            --consumer-subnet-ids \"${CONSUMER_SUBNET_IDS}\" \
-            --consumer-security-group-id \"${CONSUMER_SECURITY_GROUP_ID}\" \
+            --additional-ingress-cidrs \"${ADDITIONAL_INGRESS_CIDRS:-""}\" \
             --business-unit \"${BUSINESS_UNIT:-""}\" \
             --spend-env \"${SPEND_ENV:-""}\" \
-            --product-line \"${PRODUCT_LINE:-""}\""
+            --product-line \"${PRODUCT_LINE:-""}\" \
+            --additional-tag-key1 \"${ADDITIONAL_TAG_KEY1:-""}\" \
+            --additional-tag-value1 \"${ADDITIONAL_TAG_VALUE1:-""}\" \
+            --additional-tag-key2 \"${ADDITIONAL_TAG_KEY2:-""}\" \
+            --additional-tag-value2 \"${ADDITIONAL_TAG_VALUE2:-""}\""
 
           echo "Executing: $CMD"
           eval $CMD

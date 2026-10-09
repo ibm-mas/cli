@@ -5,129 +5,112 @@ metadata:
 spec:
   params:
     # Customer identity
-    - name: account_name
+    - name: CustomerId
       type: string
-    - name: customer_name
+    - name: CustomerName
       type: string
-    - name: customer_id
+    - name: AccountName
       type: string
-    - name: aws_region
+    - name: AwsRegion
       type: string
 
-    # Customer tagging
-    - name: business_unit
+    # Customer VPC — created by this stack
+    - name: VpcCidr
+      type: string
+    - name: SubnetCidr
+      type: string
+
+    # VPN — existing resources (optional)
+    - name: ExistingCustomerGatewayId
       type: string
       default: ''
-    - name: spend_env
-      type: string
-      default: ''
-    - name: product_line
+    - name: ExistingVpnGatewayId
       type: string
       default: ''
 
-    # VPN configuration
-    - name: customer_gateway_ip
+    # VPN — on-premises appliance
+    - name: CustomerGatewayIp
       type: string
-    - name: customer_network_cidrs
+    - name: CustomerBgpAsn
       type: string
-      default: ''
-    - name: enable_bgp
+      default: '65000'
+    - name: AmazonSideAsn
+      type: string
+      default: '64512'
+    - name: EnableBgp
       type: string
       default: 'false'
-    - name: amazon_side_asn
-      type: string
-      default: ''
-    - name: customer_bgp_asn
-      type: string
-      default: ''
-    - name: subnet_cidr
-      type: string
-      default: ''
-    - name: vpc_cidr
+    - name: CustomerNetworkCidrs
       type: string
       default: ''
 
-    # Customer VPC (existing)
-    - name: customer_vpc_id
-      type: string
-    - name: customer_route_table_id
-      type: string
-
-    # Tunnel config
-    - name: tunnel1_inside_cidr
+    # VPN — tunnel config (optional)
+    - name: Tunnel1InsideCidr
       type: string
       default: ''
-    - name: tunnel2_inside_cidr
+    - name: Tunnel2InsideCidr
       type: string
       default: ''
-    - name: tunnel1_psk
+    - name: Tunnel1Psk
       type: string
       default: ''
-    - name: tunnel2_psk
+    - name: Tunnel2Psk
       type: string
       default: ''
 
     # DB2 Access Endpoint
-    - name: db2_name
+    - name: Db2Type
       type: string
-    - name: db2_type
-      type: string
-      default: ''
-    - name: db2_listener_port
+      default: 'RDSDB2'
+    - name: Db2ListenerPort
       type: string
       default: ''
-    - name: db2_target_port
+    - name: Db2TargetPort
       type: string
       default: ''
-    - name: cluster_key
+    - name: Db2Name
+      type: string
+    - name: ClusterKey
       type: string
       default: ''
-    - name: app_key
+    - name: AppKey
       type: string
       default: ''
-    - name: nlb_arn
+    - name: NlbArn
       type: string
-    - name: provider_vpc_id
+    - name: ProviderVpcId
       type: string
-    - name: provider_security_group_id
-      type: string
-      default: ''
-    - name: endpoint_service_name
-      type: string
-    - name: consumer_vpc_id
-      type: string
-    - name: consumer_subnet_ids
-      type: string
-    - name: consumer_security_group_id
-      type: string
-
-    # Region routing
-    - name: provider_region
-      type: string
-    - name: consumer_region
-      type: string
-
-    # Health checks
-    - name: health_check_interval
+    - name: ProviderSecurityGroupId
       type: string
       default: ''
-    - name: health_check_timeout
+    - name: EndpointServiceName
       type: string
-      default: ''
-    - name: health_check_healthy_threshold
-      type: string
-      default: ''
-    - name: health_check_unhealthy_threshold
+    - name: AdditionalIngressCidrs
       type: string
       default: ''
 
-    # Ingress/egress
-    - name: auto_create_ingress_rules
+    # Tagging
+    - name: BusinessUnit
       type: string
-      default: 'true'
-    - name: auto_create_egress_rules
+      default: ''
+    - name: SpendEnv
       type: string
-      default: 'false'
+      default: ''
+    - name: ProductLine
+      type: string
+      default: ''
+    - name: AdditionalTagKey1
+      type: string
+      default: ''
+    - name: AdditionalTagValue1
+      type: string
+      default: ''
+    - name: AdditionalTagKey2
+      type: string
+      default: ''
+    - name: AdditionalTagValue2
+      type: string
+      default: ''
 
   workspaces:
     - name: configs
@@ -141,101 +124,85 @@ spec:
           workspace: configs
       params:
         # Customer identity
-        - name: account_name
-          value: $(params.account_name)
-        - name: customer_name
-          value: $(params.customer_name)
-        - name: customer_id
-          value: $(params.customer_id)
-        - name: aws_region
-          value: $(params.aws_region)
-
-        # Customer tagging
-        - name: business_unit
-          value: $(params.business_unit)
-        - name: spend_env
-          value: $(params.spend_env)
-        - name: product_line
-          value: $(params.product_line)
-
-        # VPN configuration
-        - name: customer_gateway_ip
-          value: $(params.customer_gateway_ip)
-        - name: customer_network_cidrs
-          value: $(params.customer_network_cidrs)
-        - name: enable_bgp
-          value: $(params.enable_bgp)
-        - name: amazon_side_asn
-          value: $(params.amazon_side_asn)
-        - name: customer_bgp_asn
-          value: $(params.customer_bgp_asn)
-        - name: subnet_cidr
-          value: $(params.subnet_cidr)
-        - name: vpc_cidr
-          value: $(params.vpc_cidr)
+        - name: CustomerId
+          value: $(params.CustomerId)
+        - name: CustomerName
+          value: $(params.CustomerName)
+        - name: AccountName
+          value: $(params.AccountName)
+        - name: AwsRegion
+          value: $(params.AwsRegion)
 
         # Customer VPC
-        - name: customer_vpc_id
-          value: $(params.customer_vpc_id)
-        - name: customer_route_table_id
-          value: $(params.customer_route_table_id)
+        - name: VpcCidr
+          value: $(params.VpcCidr)
+        - name: SubnetCidr
+          value: $(params.SubnetCidr)
 
-        # Tunnel config
-        - name: tunnel1_inside_cidr
-          value: $(params.tunnel1_inside_cidr)
-        - name: tunnel2_inside_cidr
-          value: $(params.tunnel2_inside_cidr)
-        - name: tunnel1_psk
-          value: $(params.tunnel1_psk)
-        - name: tunnel2_psk
-          value: $(params.tunnel2_psk)
+        # VPN existing resources
+        - name: ExistingCustomerGatewayId
+          value: $(params.ExistingCustomerGatewayId)
+        - name: ExistingVpnGatewayId
+          value: $(params.ExistingVpnGatewayId)
+
+        # VPN on-premises
+        - name: CustomerGatewayIp
+          value: $(params.CustomerGatewayIp)
+        - name: CustomerBgpAsn
+          value: $(params.CustomerBgpAsn)
+        - name: AmazonSideAsn
+          value: $(params.AmazonSideAsn)
+        - name: EnableBgp
+          value: $(params.EnableBgp)
+        - name: CustomerNetworkCidrs
+          value: $(params.CustomerNetworkCidrs)
+
+        # VPN tunnel config
+        - name: Tunnel1InsideCidr
+          value: $(params.Tunnel1InsideCidr)
+        - name: Tunnel2InsideCidr
+          value: $(params.Tunnel2InsideCidr)
+        - name: Tunnel1Psk
+          value: $(params.Tunnel1Psk)
+        - name: Tunnel2Psk
+          value: $(params.Tunnel2Psk)
 
         # DB2 Access Endpoint
-        - name: db2_name
-          value: $(params.db2_name)
-        - name: db2_type
-          value: $(params.db2_type)
-        - name: db2_listener_port
-          value: $(params.db2_listener_port)
-        - name: db2_target_port
-          value: $(params.db2_target_port)
-        - name: cluster_key
-          value: $(params.cluster_key)
-        - name: app_key
-          value: $(params.app_key)
-        - name: nlb_arn
-          value: $(params.nlb_arn)
-        - name: provider_vpc_id
-          value: $(params.provider_vpc_id)
-        - name: provider_security_group_id
-          value: $(params.provider_security_group_id)
-        - name: endpoint_service_name
-          value: $(params.endpoint_service_name)
-        - name: consumer_vpc_id
-          value: $(params.consumer_vpc_id)
-        - name: consumer_subnet_ids
-          value: $(params.consumer_subnet_ids)
-        - name: consumer_security_group_id
-          value: $(params.consumer_security_group_id)
+        - name: Db2Type
+          value: $(params.Db2Type)
+        - name: Db2ListenerPort
+          value: $(params.Db2ListenerPort)
+        - name: Db2TargetPort
+          value: $(params.Db2TargetPort)
+        - name: Db2Name
+          value: $(params.Db2Name)
+        - name: ClusterKey
+          value: $(params.ClusterKey)
+        - name: AppKey
+          value: $(params.AppKey)
+        - name: NlbArn
+          value: $(params.NlbArn)
+        - name: ProviderVpcId
+          value: $(params.ProviderVpcId)
+        - name: ProviderSecurityGroupId
+          value: $(params.ProviderSecurityGroupId)
+        - name: EndpointServiceName
+          value: $(params.EndpointServiceName)
+        - name: AdditionalIngressCidrs
+          value: $(params.AdditionalIngressCidrs)
 
-        # Region routing
-        - name: provider_region
-          value: $(params.provider_region)
-        - name: consumer_region
-          value: $(params.consumer_region)
-
-        # Health checks
-        - name: health_check_interval
-          value: $(params.health_check_interval)
-        - name: health_check_timeout
-          value: $(params.health_check_timeout)
-        - name: health_check_healthy_threshold
-          value: $(params.health_check_healthy_threshold)
-        - name: health_check_unhealthy_threshold
-          value: $(params.health_check_unhealthy_threshold)
-
-        # Ingress/egress
-        - name: auto_create_ingress_rules
-          value: $(params.auto_create_ingress_rules)
-        - name: auto_create_egress_rules
-          value: $(params.auto_create_egress_rules)
+        # Tagging
+        - name: BusinessUnit
+          value: $(params.BusinessUnit)
+        - name: SpendEnv
+          value: $(params.SpendEnv)
+        - name: ProductLine
+          value: $(params.ProductLine)
+        - name: AdditionalTagKey1
+          value: $(params.AdditionalTagKey1)
+        - name: AdditionalTagValue1
+          value: $(params.AdditionalTagValue1)
+        - name: AdditionalTagKey2
+          value: $(params.AdditionalTagKey2)
+        - name: AdditionalTagValue2
+          value: $(params.AdditionalTagValue2)
