@@ -37,12 +37,8 @@ class McpiInstallArgBuilderMixin:
         # MAS Instance ID
         command += f"  --mas-instance-id \"{self.getParam('mas_instance_id')}\"{newline}"
 
-        # MCPI channel & routing
+        # MCPI channel
         command += f"  --mcpi-channel \"{self.getParam('mcpi_channel')}\"{newline}"
-        if self.getParam("routing_mode") != "":
-            command += f"  --routing-mode \"{self.getParam('routing_mode')}\"{newline}"
-        if self.getParam("manual_route_mgmt") != "":
-            command += f"  --manual-route-mgmt \"{self.getParam('manual_route_mgmt')}\"{newline}"
 
         # MAS Advanced Configuration
         if self.localConfigDir is not None:

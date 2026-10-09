@@ -113,6 +113,8 @@ class McpiInstallApp(BaseApp, McpiInstallArgBuilderMixin, McpiInstallSummarizerM
                 "help",
                 "advanced",
                 "simplified",
+                "routing_mode",
+                "manual_route_mgmt",
             ]:
                 pass
 

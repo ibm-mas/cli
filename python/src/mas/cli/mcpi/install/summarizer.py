@@ -42,10 +42,6 @@ class McpiInstallSummarizerMixin:
         self.printH2("Maximo Cluster Performance Insights (MCPI)")
         self.printParamSummary("MAS Instance ID", "mas_instance_id")
         self.printParamSummary("Subscription Channel", "mcpi_channel")
-        if self.getParam("routing_mode") != "":
-            self.printParamSummary("Routing Mode", "routing_mode")
-        if self.getParam("manual_route_mgmt") != "":
-            self.printParamSummary("Manual Route Management", "manual_route_mgmt")
 
     def droSummary(self) -> None:
         """Print DRO configuration summary."""

@@ -64,10 +64,6 @@ mcpiArgGroup.add_argument("-i", "--mas-instance-id", required=False, dest="mas_i
 # -----------------------------------------------------------------------------
 mcpiAdvancedArgGroup = mcpiInstallArgParser.add_argument_group("MCPI Advanced Configuration")
 mcpiAdvancedArgGroup.add_argument("--mcpi-channel", required=False, dest="mcpi_channel", help="Subscription channel for Maximo Cluster Performance Insights")
-mcpiAdvancedArgGroup.add_argument(
-    "--routing-mode", required=False, dest="routing_mode", choices=["subdomain", "path"], help="Routing mode for MCPI (subdomain or path)"
-)
-mcpiAdvancedArgGroup.add_argument("--manual-route-mgmt", required=False, dest="manual_route_mgmt", help="Disable automatic route management for MCPI")
 
 # MAS Advanced Configuration
 # -----------------------------------------------------------------------------
@@ -92,6 +88,7 @@ storageArgGroup.add_argument(
 slsArgGroup = mcpiInstallArgParser.add_argument_group("IBM Suite License Service")
 slsArgGroup.add_argument("--license-file", required=False, help="Path to MAS license file", type=lambda x: isValidFile(mcpiInstallArgParser, x))
 slsArgGroup.add_argument("--sls-namespace", required=False, help="Customize the SLS install namespace", default="ibm-sls")
+slsArgGroup.add_argument("--sls-action", required=False, dest="sls_action", help="Override the SLS action (e.g. 'none' to skip SLS install)")
 slsArgGroup.add_argument("--dedicated-sls", action="store_true", default=False, help="Set the SLS namespace to mas-<instanceid>-sls")
 
 # IBM Data Reporting Operator (DRO)

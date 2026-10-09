@@ -43,9 +43,6 @@ optionalParams = [
     # DRO
     "dro_action",
     "dro_namespace",
-    # MCPI routing
-    "routing_mode",
-    "manual_route_mgmt",
     # Dev Mode
     "artifactory_username",
     "artifactory_token",

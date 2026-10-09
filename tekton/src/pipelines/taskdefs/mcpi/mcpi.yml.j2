@@ -20,16 +20,10 @@
       value: $(params.mas_instance_id)
     - name: mcpi_channel
       value: "$(params.mcpi_channel)"
-    - name: routing_mode
-      value: $(params.routing_mode)
-    - name: manual_route_mgmt
-      value: $(params.manual_route_mgmt)
     - name: mas_icr_cp
       value: $(params.mas_icr_cp)
     - name: mas_icr_cpopen
       value: $(params.mas_icr_cpopen)
-    - name: mas_use_service_mesh
-      value: $(params.mas_use_service_mesh)
 
   taskRef:
     name: mas-devops-mcpi

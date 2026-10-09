@@ -26,20 +26,10 @@ spec:
       type: string
       description: MAS Instance ID
 
-    # MCPI Operator
+    # MCPI
     - name: mcpi_channel
       type: string
-      description: Catalog channel for the MCPI operator subscription
-
-    # MCPI Routing
-    - name: routing_mode
-      type: string
-      default: ""
-      description: Routing mode for MCPI (subdomain or path)
-    - name: manual_route_mgmt
-      type: string
-      default: ""
-      description: Disable automatic route management for MCPI
+      description: Catalog channel for the MCPI operator (used by gencfg step)
 
     # Custom Label Support
     - name: custom_labels
@@ -72,14 +62,12 @@ spec:
       # MAS instance
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
 
       # MCPI
       - name: MCPI_CHANNEL
         value: $(params.mcpi_channel)
-      - name: ROUTING_MODE
-        value: $(params.routing_mode)
-      - name: MANUAL_ROUTE_MGMT
-        value: $(params.manual_route_mgmt)
 
       # Labels
       - name: CUSTOM_LABELS
@@ -92,12 +80,20 @@ spec:
         value: $(params.mas_icr_cpopen)
 
   steps:
-    - name: mcpicfg
+    - name: gencfg-mcpicfg
       image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/run-role.sh
-        - mcpicfg
+        - gencfg_mcpicfg
+      workingDir: /workspace/configs
+
+    - name: suite-config
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_config
       workingDir: /workspace/configs
 
   workspaces:
