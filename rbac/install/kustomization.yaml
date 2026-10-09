@@ -28,6 +28,7 @@ resources:
   - pipeline/mas-x-pipelines.yaml
   - pipeline/mongoce.yaml
   - pipeline/openshift-config.yaml
+  - pipeline/openshift-console.yaml
   - pipeline/openshift-ingress-operator.yaml
   - pipeline/openshift-ingress.yaml
   - pipeline/openshift-marketplace.yaml
