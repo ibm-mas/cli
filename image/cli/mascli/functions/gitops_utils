@@ -2605,3 +2605,4 @@ function delete_branch() {
   done
   return 0
 }
+
