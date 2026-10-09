@@ -6,15 +6,13 @@
   default: IfNotPresent
   description: Pull policy for pipeline container images
 
-# Development Build Support
-- name: artifactory_username
-  default: ""
+# Registry Credentials Secret
+# "mas-secrets" as default avoids empty-string secretKeyRef.name which Kubernetes rejects at pod scheduling
+# even with optional: true. Taskdefs with registry-secret-param.yml.j2 always override this except FVTs tasks.
+- name: pipeline_registry_secret_name
   type: string
-  description: Required to install development MAS catalogs
-- name: artifactory_token
-  default: ""
-  type: string
-  description: Required to install development MAS catalogs
+  default: "mas-secrets"
+  description: Name of the per-pipeline Kubernetes Secret holding registry credentials (IBM_ENTITLEMENT_KEY, ARTIFACTORY_TOKEN, ARTIFACTORY_USERNAME)
 
 # Custom Labels
 - name: custom_labels

@@ -2,11 +2,14 @@
   timeout: "0"
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: suite-verify
 
     - name: mas_instance_id
       value: $(params.mas_instance_id)
+    - name: mas_routing_mode
+      value: $(params.mas_routing_mode)
   taskRef:
     kind: Task
     name: mas-devops-suite-verify
