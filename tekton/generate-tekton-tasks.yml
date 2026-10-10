@@ -42,7 +42,16 @@
         - sls
         - turbonomic
 
-    # 3. Generate Tasks (AI Service)
+    # 3. Generate Tasks (MCPI)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (MCPI)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/mcpi/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - mcpi
+
+    # 4. Generate Tasks (AI Service)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (AI Service)
       ansible.builtin.template:
