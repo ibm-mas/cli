@@ -604,6 +604,11 @@ masAppsArgGroup.add_argument(
     required=False,
     help="Subscription channel for Maximo AI Service",
 )
+masAppsArgGroup.add_argument(
+    "--mcpi-channel",
+    required=False,
+    help="Subscription channel for Maximo Cluster Performance Insights",
+)
 
 # Arcgis
 # -----------------------------------------------------------------------------

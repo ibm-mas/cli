@@ -570,3 +570,342 @@ After both phases are complete:
 - Tekton YAML contains `mas-devops-mcpi` task and `mcpi-install` pipeline
 - MCPI task appears in `mas-install` pipeline guarded by `when: mcpi_channel != ""`
 - No regressions in existing test suite
+
+---
+
+## Testing on a New Cluster — Checklist
+
+### Step 1 — Login
+
+```bash
+oc login --web --server=https://<API_URL>:6443
+oc whoami --show-server   # confirm correct cluster
+```
+
+### Step 2 — Discover cluster values
+
+```bash
+# MAS instance ID
+oc get suite -A
+
+# Storage classes
+oc get storageclass
+
+# Existing SLS namespace
+oc get namespace | grep sls
+
+# MongoDB namespace
+oc get mongodbcommunity -A
+
+# Entitlement key
+oc get secret ibm-entitlement -n mas-<INSTANCE_ID>-core \
+  -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | \
+  jq -r '.auths["cp.icr.io"].password'
+
+# Dev CLI image (from existing FVT pipeline pods)
+oc get pod -n mas-<INSTANCE_ID>-pipelines -l tekton.dev/pipelineTask=suite-install \
+  -o jsonpath='{.items[0].spec.containers[0].image}'
+```
+
+### Step 3 — Set up CLI from source
+
+```bash
+cd /Users/tahamadou/Source/MAS/public-ibm-mas/cli
+
+# Install as editable — required so ibm-mas-tekton.yaml is read from source tree
+uv tool uninstall mas-cli 2>/dev/null
+uv tool install --editable . --with-editable ../python-devops
+```
+
+> **Do NOT use `uvx --from .`** — it builds a wheel that excludes `ibm-mas-tekton.yaml` (a generated file not in git).
+
+### Step 4 — Generate the Tekton template (macOS only)
+
+`build/bin/build-tekton.sh` uses `sed -i` which fails on macOS. Use this Python script instead (run from repo root after the Ansible playbooks have generated `tekton/target/`):
+
+```bash
+python3 - <<'EOF'
+import os, glob
+
+# Replace with the dev image digest from Step 2
+IMAGE = "quay.io/ibmmas/cli@sha256:<DIGEST_FROM_STEP_2>"
+OUT = "python/src/mas/cli/templates/ibm-mas-tekton.yaml"
+skip = ("fvt-", "ivt-", "aiservice-fvt", "aiservice-launchfvt")
+tasks = sorted(glob.glob("tekton/target/tasks/*.yaml"))
+pipelines = sorted(glob.glob("tekton/target/pipelines/*.yaml"))
+
+with open(OUT, "w") as out:
+    for f in tasks + pipelines:
+        name = os.path.basename(f)
+        if any(name.startswith(s) or s in name for s in skip):
+            continue
+        content = open(f).read().replace("quay.io/ibmmas/cli:latest", IMAGE)
+        out.write(content + "\n")
+print(f"Done - {sum(1 for _ in open(OUT))} lines")
+EOF
+```
+
+### Step 5 — Copy `mas-devops` secret (dev clusters only)
+
+Dev FVT clusters have a `mas-devops` secret in `mas-<INSTANCE_ID>-pipelines` that the `pipeline-start` task needs to generate the MongoDB config file. Copy it to the MCPI namespace before the first run:
+
+```bash
+oc get secret mas-devops -n mas-<INSTANCE_ID>-pipelines -o yaml | \
+  sed "s/namespace: mas-<INSTANCE_ID>-pipelines/namespace: mcpi-<INSTANCE_ID>-pipelines/" | \
+  oc apply -f -
+```
+
+> This only needs to be done once. The namespace is created by the CLI during the first run, so run the install command first, wait for the namespace to appear, copy the secret, then re-run.
+
+### Step 6 — Run the install
+
+```bash
+mas-cli mcpi-install \
+  --mas-catalog-version v9-250828-amd64 \
+  --ibm-entitlement-key "<FROM_STEP_2>" \
+  --mas-instance-id <INSTANCE_ID> \
+  --storage-class-rwo <RWO_CLASS> \
+  --storage-class-rwx <RWX_CLASS> \
+  --storage-pipeline <RWX_CLASS> \
+  --storage-accessmode ReadWriteMany \
+  --sls-namespace sls-<INSTANCE_ID> \
+  --sls-action none \
+  --mongodb-namespace <MONGO_NAMESPACE> \
+  --contact-email <YOUR_EMAIL> \
+  --contact-firstname <FIRSTNAME> \
+  --contact-lastname <LASTNAME> \
+  --mcpi-channel v9.2 \
+  --image-pull-policy IfNotPresent \
+  --accept-license \
+  --no-confirm
+```
+
+### Step 7 — Monitor
+
+```bash
+# Watch pipeline progress
+oc get pipelinerun -n mcpi-<INSTANCE_ID>-pipelines -w
+
+# Check task statuses
+oc get taskrun -n mcpi-<INSTANCE_ID>-pipelines \
+  -o custom-columns='TASK:.metadata.labels.tekton\.dev/pipelineTask,STATUS:.status.conditions[0].reason' \
+  --sort-by='.metadata.creationTimestamp'
+
+# Tail a specific task's logs
+oc logs -n mcpi-<INSTANCE_ID>-pipelines -l tekton.dev/pipelineTask=<TASK_NAME> --tail=50
+```
+
+---
+
+## Testing Session Notes (2025-01-31 / Cluster: pfvt-thierno-bah1-261006-18)
+
+### Cluster Values Used
+
+| Resource | Value |
+|---|---|
+| API URL | `https://api.pfvt-thierno-bah1-261006-18.cp.fyre.ibm.com:6443` |
+| Console URL | `https://console-openshift-console.apps.pfvt-thierno-bah1-261006-18.cp.fyre.ibm.com` |
+| MAS Instance ID | `thierno` |
+| MAS Core Namespace | `mas-thierno-core` |
+| MAS Pipelines Namespace | `mas-thierno-pipelines` |
+| MCPI Pipelines Namespace | `mcpi-thierno-pipelines` |
+| SLS Namespace | `sls-thierno` |
+| MongoDB Namespace | `mongoce` |
+| Storage Class (RWO + RWX) | `nfs-client` |
+| Entitlement Secret | `ibm-entitlement` in `mas-thierno-core` (Artifactory JWT, not standard ICR key) |
+| Dev CLI Image Digest | `quay.io/ibmmas/cli@sha256:d2591b6d413e08efbd7185d7ca574ffd82cb7409b92bcde3da11f87f19c6e29b` |
+
+### Pipeline Task Results (latest run)
+
+| Task | Status | Notes |
+|---|---|---|
+| `pipeline-start` | ✅ Succeeded | |
+| `ibm-catalogs` | ✅ Succeeded | |
+| `cert-manager` | ✅ Succeeded | |
+| `dro` | ✅ Succeeded | |
+| `sls` | ⏭ Skipped | `--sls-action none` used to bypass existing SLS |
+| `mcpi` | ❌ Failed | `mcpicfg` role not found in published CLI image |
+| `pipeline-finish` | ✅ Succeeded | |
+| `sync-install` | ✅ Succeeded | |
+
+---
+
+## Open Issues
+
+#### 1. `mcpicfg` role missing from published CLI image
+**Severity:** Blocker for end-to-end validation
+**Root cause:** The Tekton `mcpi` task uses `quay.io/ibmmas/cli:latest` which is the published image. The `mcpicfg` Ansible role only exists on the `mcpi-cli-install` branch of `ansible-devops` and hasn't been built into an image yet.
+**Workaround:** Use the dev image digest from the FVT pipeline (see Step 2 above).
+**Fix:** Build and publish a CLI image from the `mcpi-cli-install` branch and use that image reference in the Tekton task.
+
+#### 2. `--license-file` unconditionally required (Bug — Fixed)
+**Severity:** Real bug affecting all users
+**Root cause:** `nonInteractiveMode()` in `app.py` always errors if `--license-file` is not set, even when `--sls-namespace` points to an existing SLS.
+**Fix applied:** [`app.py`](python/src/mas/cli/mcpi/install/app.py:122) — skip the check when a non-default `sls_namespace` is set.
+**Note:** Same bug exists in `aiservice/install/app.py:437` — should be fixed there too.
+
+#### 3. `--sls-action` flag — dev workaround only
+**Severity:** Low
+**Fix applied:** Added to `argParser.py` to allow `--sls-action none` to skip SLS on dev clusters.
+**Recommendation:** Remove before merging to production — not needed for real installs.
+
+#### 4. `pipeline-start` needs `mas-devops` secret for MongoDB config generation
+**Severity:** Dev cluster only
+**Root cause:** `pipeline-start` reads `DEVOPS_MONGO_URI` from `mas-devops` secret to write `mongo-<namespace>.yml` to the workspace. This secret only exists in `mas-<id>-pipelines`, not the new `mcpi-<id>-pipelines` namespace.
+**Workaround:** Copy secret (see Step 5 above).
+**Recommendation:** `prepareMcpiPipelinesNamespace()` should auto-copy `mas-devops` from `mas-{instanceId}-pipelines` if it exists.
+
+#### 5. macOS `build/bin/build-tekton.sh` fails
+**Severity:** Dev workflow only
+**Root cause:** macOS `sed -i` requires a backup suffix extension.
+**Workaround:** Use the Python script in Step 4 above.
+**Recommendation:** Add macOS note to `CONTRIBUTING.md` or add `gsed` fallback to the script.
+
+#### 6. `build/lib/` not in `.gitignore`
+**Status:** Fixed.
+
+
+---
+
+## Testing Session Notes (2025-02-XX / Cluster: visionary)
+
+### Cluster Values Used
+
+| Resource | Value |
+|---|---|
+| MAS Instance ID | `visionary` |
+| MAS Core Namespace | `mas-visionary-core` |
+| MCPI Pipelines Namespace | `mcpi-visionary-pipelines` |
+| SLS Namespace | `sls-visionary` |
+| MongoDB Namespace | `mongoce` |
+| Storage Class (RWO + RWX) | `nfs-client` (single class, NFS supports RWX) |
+| MAS Version | `9.2.3-pre.maint92cpi` |
+| Entity Manager | `visionary-entitymgr-mcpicfg` (running in `mas-visionary-core`) |
+| Dev CLI Image Digest | `quay.io/ibmmas/cli@sha256:865097dd25032aaad9fe462e6433faf76d34b758c34832fb5701795bc38d85aa` |
+
+### Pipeline Task Results (this run)
+
+| Task | Status | Notes |
+|---|---|---|
+| `pipeline-start` | ❌ Failed | `ibm-mas-tekton.yaml` had literal `<DIGEST_FROM_STEP_2>` placeholder — Step 4 had not been run |
+| All tasks | ❌ Failed | `TaskRunImagePullFailed` on every task due to invalid image reference |
+
+---
+
+## Architecture Discovery (2025-02-XX)
+
+This session uncovered a fundamental design error in the original implementation. The following documents what was discovered and what was changed.
+
+### Discovery 1 — `McpiCfg` is owned by the existing `ibm-mas` operator
+
+The `ibm-mas` CSV already owns and watches `McpiCfg` CRs. There is **no separate MCPI operator subscription** to install. The entity manager deployment `visionary-entitymgr-mcpicfg` is already running in `mas-visionary-core` and reconciles any `McpiCfg` CR automatically.
+
+**Implication:** The pipeline's only job is to create the `McpiCfg` CR. Everything else (TLS certs, routes, deployment, OAuth registration) is handled by the operator.
+
+### Discovery 2 — The `mcpicfg` role in `ansible-devops` was a copy of the operator's internal role
+
+A `diff` showed the role was byte-for-byte identical to `ibm-mas/operator/ibm-mas-cfg-mcpi/roles/mcpicfg/`. Running it as a Tekton task was wrong for three reasons:
+
+1. It requires `ansible_operator_meta` vars (CR name/namespace) only available inside the operator container
+2. It requires the `operator_sdk` collection not installed in the CLI image
+3. It looks itself up via `k8s_info` on the `McpiCfg` CR — which doesn't exist yet at pipeline time
+
+### Discovery 3 — `mcpi_channel` was wired to nothing
+
+The param flowed from CLI → pipeline → task → env var `MCPI_CHANNEL`, but nothing in the `mcpicfg` role ever read it. Confirmed by `grep` returning zero results across the entire role.
+
+### Discovery 4 — `routing_mode` / `manual_route_mgmt` / `mas_use_service_mesh` were dead params
+
+These were copied from the `mas-install` pattern but the `mcpicfg` role never consumed them. They were threaded all the way through pipeline → taskdef → task → Python CLI with no effect.
+
+### Discovery 5 — `ibm-mas-tekton.yaml` had a literal placeholder
+
+The template still contained `quay.io/ibmmas/cli@sha256:<DIGEST_FROM_STEP_2>` because Step 4 of the testing checklist had never been run. This caused all pipeline task pods to fail with `TaskRunImagePullFailed`.
+
+### Discovery 6 — `gencfg_mcpicfg` role was missing entirely
+
+The correct Ansible role — generating a `McpiCfg` YAML file into the pipeline workspace — did not exist. The `suite_config` pattern (generate CR → apply CR → operator reconciles) was never implemented.
+
+---
+
+## Refactor Applied (2025-02-XX)
+
+### What was removed
+
+| What | Repo | Reason |
+|---|---|---|
+| Entire `mcpicfg` role (16 files) | `ansible-devops` | Operator's internal logic — belongs only inside `ibm-mas-cfg-mcpi` image |
+| `run-role.sh mcpicfg` Tekton step | `cli` | Replaced with correct two-step pattern |
+| `routing_mode`, `manual_route_mgmt` params | `cli` (Tekton + Python) | No consumer in any role |
+| `mas_use_service_mesh` param | `cli` (Tekton pipeline) | No consumer in MCPI context |
+| `--routing-mode`, `--manual-route-mgmt` CLI flags | `cli` (argParser/argBuilder/summarizer) | Removed from CLI surface |
+
+### What was added
+
+| What | Repo | Purpose |
+|---|---|---|
+| `gencfg_mcpicfg` role (4 files) | `ansible-devops` | Validates `mas_instance_id` + `mas_config_dir`, renders `McpiCfg` CR YAML to workspace |
+| `gencfg-mcpicfg` Tekton step | `cli` | Runs `gencfg_mcpicfg` role to write CR to workspace |
+| `suite-config` Tekton step | `cli` | Applies workspace YAML to cluster via `suite_config` role |
+| `routing_mode`/`manual_route_mgmt` in ignored keys | `cli` (`app.py`) | Backward compat — old scripts with these flags won't crash |
+
+### Correct flow post-refactor
+
+```
+CLI → mcpi-install Pipeline
+         ↓
+    mcpi Task
+    ① gencfg_mcpicfg role  →  writes <instanceId>-mcpi-system.yml to /workspace/configs
+    ② suite_config role    →  kubectl apply → McpiCfg CR created in mas-<instanceId>-core
+         ↓
+    visionary-entitymgr-mcpicfg (already running — watches McpiCfg)
+         ↓  reconciles automatically
+    Deploys: TLS certs, Routes, Deployment, Services, NetworkPolicy, OAuth redirect URI
+```
+
+### Commits
+
+| Repo | Commit | Change |
+|---|---|---|
+| `ansible-devops` | `refactor(mcpicfg): remove mcpicfg operator role` | Deleted 16-file `mcpicfg` role |
+| `ansible-devops` | `feat(mcpicfg): add gencfg_mcpicfg role` | Added 4-file `gencfg_mcpicfg` role |
+| `cli` | `refactor(mcpi-cli-install): remove routing mode and service mesh params, add sls-action arg` | All Python + Tekton cleanup |
+
+---
+
+## Open Issues (Updated)
+
+#### 1. ~~`mcpicfg` role missing from published CLI image~~ — **Root cause was wrong**
+**Status:** Closed / redesigned
+**What actually happened:** The `mcpicfg` role was a copy of the operator's internal reconcile logic and was never the right approach. Replaced by `gencfg_mcpicfg` which generates the CR YAML, and `suite_config` which applies it.
+
+#### 2. `--license-file` unconditionally required (Bug — Fixed)
+**Severity:** Real bug affecting all users
+**Root cause:** `nonInteractiveMode()` in `app.py` always errors if `--license-file` is not set, even when `--sls-namespace` points to an existing SLS.
+**Fix applied:** [`app.py`](python/src/mas/cli/mcpi/install/app.py:122) — skip the check when a non-default `sls_namespace` is set.
+**Note:** Same bug exists in `aiservice/install/app.py:437` — should be fixed there too.
+
+#### 3. `--sls-action` flag — dev workaround only
+**Severity:** Low
+**Fix applied:** Added to `argParser.py` to allow `--sls-action none` to skip SLS on dev clusters.
+**Recommendation:** Remove before merging to production — not needed for real installs.
+
+#### 4. `pipeline-start` needs `mas-devops` secret for MongoDB config generation
+**Severity:** Dev cluster only
+**Root cause:** `pipeline-start` reads `DEVOPS_MONGO_URI` from `mas-devops` secret to write `mongo-<namespace>.yml` to the workspace. This secret only exists in `mas-<id>-pipelines`, not the new `mcpi-<id>-pipelines` namespace.
+**Workaround:** Copy secret (see Step 5 above).
+**Recommendation:** `prepareMcpiPipelinesNamespace()` should auto-copy `mas-devops` from `mas-{instanceId}-pipelines` if it exists.
+
+#### 5. macOS `build/bin/build-tekton.sh` fails
+**Severity:** Dev workflow only
+**Root cause:** macOS `sed -i` requires a backup suffix extension.
+**Workaround:** Use the Python script in Step 4 above.
+**Recommendation:** Add macOS note to `CONTRIBUTING.md` or add `gsed` fallback to the script.
+
+#### 6. `build/lib/` not in `.gitignore`
+**Status:** Fixed.
+
+#### 7. `mcpi_channel` param is accepted but unused
+**Severity:** Low — cosmetic
+**Root cause:** `mcpi_channel` flows through the pipeline to the `mcpi` task env var `MCPI_CHANNEL`, but `gencfg_mcpicfg` does not read it (the channel is an operator subscription concern, not a CR field).
+**Recommendation:** Either remove `mcpi_channel` from the pipeline entirely (the operator handles its own subscription via the catalog) or keep as a no-op for future use if a channel field is added to the `McpiCfg` spec.

@@ -1355,6 +1355,10 @@ class InstallApp(
         else:
             self.installAIService = False
 
+        self.installMcpi = self.yesOrNo("Install Maximo Cluster Performance Insights (MCPI)")
+        if self.installMcpi:
+            self.promptForString("MCPI subscription channel", "mcpi_channel", validator=NotEmptyValidator())
+
     @logMethodCall
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
@@ -2214,6 +2218,7 @@ class InstallApp(
         self.db2SetAffinity = False
         self.db2SetTolerations = False
         self.installAIService = False
+        self.installMcpi = False
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
@@ -2385,6 +2390,10 @@ class InstallApp(
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_facilities", value)
                     self.installFacilities = True
+            elif key == "mcpi_channel":
+                if value is not None and value != "":
+                    self.setParam("mcpi_channel", value)
+                    self.installMcpi = True
             elif key == "aiservice_channel":
                 if value is not None and value != "":
                     self.setParam("aiservice_channel", value)
