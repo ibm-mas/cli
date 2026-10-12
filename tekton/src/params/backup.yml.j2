@@ -10,6 +10,10 @@
   description: Name of the TLS secret for OCP ingress
   default: ""
 
+- name: mas_routing_mode
+  type: string
+  default: ""
+
 # Backup/Restore Configuration
 # -----------------------------------------------------------------------------
 - name: mas_backup_dir
@@ -190,11 +194,6 @@
   description: Required for DRO installation during restore
 
 - name: dro_storage_class
-  type: string
-  default: ""
-  description: Required for DRO installation during restore
-
-- name: ibm_entitlement_key
   type: string
   default: ""
   description: Required for DRO installation during restore

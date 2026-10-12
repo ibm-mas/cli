@@ -83,6 +83,8 @@ def test_prepare_namespace_creates_namespace_and_secrets():
             slack_token="test-token",
             slack_channel="test-channel",
             db2LicenseFile=None,
+            artifactory_token="",
+            artifactory_username="",
         )
 
     assert success is True

@@ -84,6 +84,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/restore-params.yml.j2') | indent(8) }}
 
@@ -121,10 +122,6 @@ spec:
           value: $(params.s3_endpoint_url)
 
         # Artifactory parameters
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
         - name: artifactory_url
           value: $(params.artifactory_url)
         - name: artifactory_repository
@@ -150,6 +147,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/restore-params.yml.j2') | indent(8) }}
 
@@ -177,6 +175,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/restore-params.yml.j2') | indent(8) }}
 
@@ -204,6 +203,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/restore-params.yml.j2') | indent(8) }}
 
@@ -230,6 +230,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/restore-params.yml.j2') | indent(8) }}
 
@@ -272,6 +273,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/restore-params.yml.j2') | indent(8) }}
 
@@ -310,6 +312,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/restore-params.yml.j2') | indent(8) }}
 
@@ -329,8 +332,6 @@ spec:
           value: "$(params.dro_contact_firstname)"
         - name: dro_contact_lastname
           value: "$(params.dro_contact_lastname)"
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
         - name: dro_namespace
           value: $(params.dro_namespace)
         - name: dro_storage_class
@@ -356,6 +357,7 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/restore-params.yml.j2') | indent(8) }}
 
@@ -418,6 +420,7 @@ spec:
           values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: db2_action
           value: restore
@@ -457,6 +460,7 @@ spec:
           values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -497,6 +501,7 @@ spec:
           values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: db2_action
           value: restore
@@ -536,6 +541,7 @@ spec:
           values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)

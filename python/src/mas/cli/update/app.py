@@ -235,6 +235,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin, CatalogMixin, DependencyDetecti
             slack_token=self.getParam("slack_token"),
             slack_channel=self.getParam("slack_channel"),
             db2LicenseFile=self.db2LicenseFileSecret,
+            artifactory_token=self.getParam("artifactory_token"),
+            artifactory_username=self.getParam("artifactory_username"),
         )
         return True, namespace
 

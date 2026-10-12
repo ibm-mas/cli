@@ -109,4 +109,29 @@ optionalParams = [
     # Slack
     "slack_token",
     "slack_channel",
+    # DNS Providers
+    "dns_provider",
+    "aiservice_domain",
+    "ocp_ingress",
+    # CIS
+    "cis_email",
+    "cis_apikey",
+    "cis_crn",
+    "cis_subdomain",
+    "cis_service_name",
+    "cis_enhanced_security",
+    "update_dns_entries",
+    "override_edge_certs",
+    "cis_proxy",
+    "cis_waf",
+    "delete_wildcards",
+    # AWS Route53
+    "aws_access_key_id",
+    "aws_secret_access_key",
+    "route53_hosted_zone_name",
+    "route53_hosted_zone_region",
+    "route53_subdomain",
+    "route53_email",
+    # OCP Ingress
+    "ocp_ingress_tls_secret_name",
 ]

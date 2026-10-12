@@ -206,12 +206,12 @@ def test_detectCP4D_valid_upgrade_path_sets_params_and_returns_will_be_updated()
 def test_detectCP4D_already_at_target_returns_already_at_target():
     """Test detectCP4D when the instance is already at the target version.
 
-    GIVEN instance at "5.2.0" and catalog target "5.2.0"
+    GIVEN instance at "5.3.1" and catalog target "5.3.1"
     WHEN detectCP4D is called
     THEN ok=True and message contains "already at the target version".
     """
-    stub = _makeStub(catalogCpdVersion="5.2.0")
-    _mockCpdApi(stub, [_cpdItem("ibm-cpd", "5.2.0")])
+    stub = _makeStub(catalogCpdVersion="5.3.1")
+    _mockCpdApi(stub, [_cpdItem("ibm-cpd", "5.3.1")])
 
     result = stub.detectCP4D()
 

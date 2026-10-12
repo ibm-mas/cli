@@ -35,7 +35,7 @@ class aiServiceInstallSummarizerMixin:
         self.printH2("Maximo Operator Catalog")
         self.printParamSummary("Catalog Version", "mas_catalog_version")
         # We only list the digest if it's specified (primary use case is when running development builds in airgap environments)
-        if self.getParam("mas_catalog_digest" != ""):
+        if self.getParam("mas_catalog_digest") != "":
             self.printParamSummary("Catalog Digest", "mas_catalog_digest")
 
         self.printH2("IBM Container Registry")
@@ -48,9 +48,36 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("Environment Type", "environment_type")
         self.printSummary("AI Data Science Platform", "Red Hat OpenShift AI (RHOAI)" if self.getParam("rhoai") == "true" else "Open Data Hub (ODH)")
 
-        if "aiservice_certificate_issuer" in self.params:
+        if "aiservice_domain" in self.params:
+            print()
+            self.printParamSummary("Domain Name", "aiservice_domain")
+            self.printParamSummary("DNS Provider", "dns_provider")
             self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
+            if self.getParam("ocp_ingress") != "":
+                self.printParamSummary("OCP Ingress", "ocp_ingress")
+            if self.getParam("dns_provider") == "cis":
+                self.printParamSummary("CIS e-mail", "cis_email")
+                self.printParamSummary("CIS API Key", "cis_apikey")
+                self.printParamSummary("CIS CRN", "cis_crn")
+                self.printParamSummary("CIS subdomain", "cis_subdomain")
+                self.printSummary("Enhanced Security", "Yes" if self.getParam("cis_enhanced_security") == "true" else "No")
+                if self.getParam("cis_enhanced_security") == "true":
+                    self.printParamSummary("CIS Service Name", "cis_service_name")
+                    self.printSummary("Update Existing DNS Entries", "Yes" if self.getParam("update_dns_entries") == "true" else "No")
+                    self.printSummary("WAF Enabled", "Yes" if self.getParam("cis_waf") == "true" else "No")
+                    self.printSummary("Proxy Enabled", "Yes" if self.getParam("cis_proxy") == "true" else "No")
+                    self.printSummary("Delete Wildcard DNS Entries", "Yes" if self.getParam("delete_wildcards") == "true" else "No")
+                    self.printSummary("Override Edge Certificates", "Yes" if self.getParam("override_edge_certs") == "true" else "No")
+            elif self.getParam("dns_provider") == "route53":
+                self.printParamSummary("Route 53 e-mail", "route53_email")
+                self.printParamSummary("Route 53 hosted zone name", "route53_hosted_zone_name")
+                self.printParamSummary("Route 53 hosted zone region", "route53_hosted_zone_region")
+                self.printParamSummary("Route 53 subdomain", "route53_subdomain")
+            elif self.getParam("dns_provider") == "":
+                pass
+
+        print()
         self.printParamSummary("Configure AI Service to run in IPv6 mode", "enable_ipv6")
 
         self.printH2("AI Service Tenant Configuration")
