@@ -378,6 +378,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel"),
                     db2LicenseFile=self.db2LicenseFileSecret,
+                    artifactory_token=self.getParam("artifactory_token"),
+                    artifactory_username=self.getParam("artifactory_username"),
                 )
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
@@ -448,16 +450,16 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) Sep 02 2026 Update (MAS 9.2.3, 9.1.22, 9.0.29, 8.11.34, &amp; 8.10.37)",
-                "  2) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
-                "  3) Jul 30 2026 Update (MAS 9.2.1, 9.1.20, 9.0.28, 8.11.34, &amp; 8.10.37)",
+                "  1) Oct 07 2026 Update (MAS 9.2.8, 9.1.27, 9.0.33, 8.11.34, &amp; 8.10.37)",
+                "  2) Sep 24 2026 Update (MAS 9.2.7, 9.1.26, 9.0.32, 8.11.34, &amp; 8.10.37)",
+                "  3) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
             ]
         )
 
         catalogOptions = [
-            "v9-260902-amd64",
+            "v9-261007-amd64",
+            "v9-260924-amd64",
             "v9-260827-amd64",
-            "v9-260730-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -712,6 +714,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     return
                 elif len(cpds) == 1:
                     cpdUpgradePath = {
+                        "5.3.1": "5.3.1",
                         "5.2.0": "5.3.1",
                         "5.1.3": "5.2.0",
                         "5.0.0": "5.1.3",

@@ -10,6 +10,9 @@ spec:
     # General
     - name: mas_instance_id
       type: string
+    - name: mas_routing_mode
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -18,6 +21,8 @@ spec:
       # General
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: MAS_ROUTING_MODE
+        value: $(params.mas_routing_mode)
 
   steps:
     # Run the suite verification role

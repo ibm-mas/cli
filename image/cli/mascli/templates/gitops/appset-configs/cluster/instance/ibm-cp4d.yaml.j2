@@ -22,3 +22,6 @@ ibm_cp4d:
     cpd_iam_integration: "{{ CPD_IAM_INTEGRATION }}"
     cpd_primary_storage_class: "{{ CPD_PRIMARY_STORAGE_CLASS }}"
     cpd_metadata_storage_class: "{{ CPD_METADATA_STORAGE_CLASS }}"
+{%- if CPD_PUBLIC_ROUTE_ENABLED is defined and CPD_PUBLIC_ROUTE_ENABLED == 'true' %}
+    cpd_public_route_enabled: true
+{%- endif %}
