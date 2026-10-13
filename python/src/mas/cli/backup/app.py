@@ -22,7 +22,7 @@ from ..validators import InstanceIDValidator, StorageClassValidator
 from .argParser import backupArgParser
 from mas.devops.ocp import createNamespace, getConsoleURL, getStorageClasses
 from mas.devops.mas import listMasInstances, getDefaultStorageClasses, getWorkspaceId
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchBackupPipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchBackupPipeline, prepareBackupSecrets
 
 logger = logging.getLogger(__name__)
 
@@ -248,6 +248,12 @@ class BackupApp(BaseApp):
                     createConfigPVC=False,
                     createBackupPVC=True,
                     backupStorageSize=backupStorageSize,
+                )
+                prepareBackupSecrets(
+                    dynClient=self.dynamicClient,
+                    namespace=pipelinesNamespace,
+                    artifactory_token=self.getParam("artifactory_token"),
+                    artifactory_username=self.getParam("artifactory_username"),
                 )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
