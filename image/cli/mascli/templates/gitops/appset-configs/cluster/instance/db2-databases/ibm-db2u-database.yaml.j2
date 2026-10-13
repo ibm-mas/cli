@@ -120,6 +120,9 @@ storage_class_definitions:
 {% endif %}
 
 auto_backup: {{ AUTO_BACKUP }}
+{% if DB2_AUDIT_RETENTION_DAYS is defined and DB2_AUDIT_RETENTION_DAYS != '' %}
+db2_audit_retention_days: {{ DB2_AUDIT_RETENTION_DAYS }}
+{% endif %}
 {% if BACKUP %}
 db2_backup_bucket_name: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_NAME }}>
 db2_backup_bucket_endpoint: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_ENDPOINT }}>
