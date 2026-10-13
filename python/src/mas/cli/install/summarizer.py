@@ -464,7 +464,7 @@ class InstallSummarizerMixin:
 
     def mcpiSummary(self) -> None:
         if self.installMcpi:
-            self.printSummary("Maximo Cluster Performance Insights (MCPI)", self.getParam("mcpi_channel"))
+            self.printSummary("Maximo Cluster Performance Insights (MCPI)", "Install")
         else:
             self.printSummary("Maximo Cluster Performance Insights (MCPI)", "Do Not Install")
 

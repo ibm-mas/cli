@@ -98,7 +98,6 @@ def test_install_master_dev_mode(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
-        ".*Install Maximo Cluster Performance Insights.*": lambda msg: "n",
         # 11. Grafana configuration
         ".*Install Grafana.*": lambda msg: "y",
         # 12. MongoDB configuration
@@ -182,7 +181,6 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
-        ".*Install Maximo Cluster Performance Insights.*": lambda msg: "n",
         # 11. Grafana configuration
         ".*Install Grafana.*": lambda msg: "y",
         # 12. MongoDB configuration
