@@ -120,6 +120,9 @@ spec:
     - name: auto_backup
       type: string
       default: ""
+    - name: db2_audit_retention_days
+      type: string
+      default: ""
     - name: replica_db
       type: string
       default: "false"
@@ -250,6 +253,8 @@ spec:
         value: $(params.db2_backup_notify_slack_url)
       - name: AUTO_BACKUP
         value: $(params.auto_backup)
+      - name: DB2_AUDIT_RETENTION_DAYS
+        value: $(params.db2_audit_retention_days)
       - name: REPLICA_DB
         value: $(params.replica_db)
       - name: IS_REPLICA_TASK
