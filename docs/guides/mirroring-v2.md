@@ -13,6 +13,13 @@ Two-phase mirroring (`m2d` followed by `d2m`) is recommended in most cases.  It 
 This guide assumes you are targeting the latest release (**@@MAS_LATEST_CHANNEL@@**) from the most recent catalog (**@@MAS_LATEST_CATALOG@@**).  Remove any `--<package>` flags that correspond to applications or dependencies you are not deploying.
 
 
+Prerequisites
+-------------------------------------------------------------------------------
+- The `oc-mirror` executable must be available on the `PATH` of the system running `mas mirror` (the command fails immediately if it is not found).
+- Catalog **v9-260129-amd64** (January 2026) or newer is required, earlier catalogs are not supported by `mas mirror`.  Use `mas mirror-images` for older catalogs.
+- The image set configurations are read from `~/.ibm-mas/image-set-configs` and are automatically downloaded from [ibm-mas/image-set-configs](https://github.com/ibm-mas/image-set-configs) if not present, so the system running the command needs access to GitHub (or the files must be pre-populated in that directory).
+
+
 Usage
 -------------------------------------------------------------------------------
 For full usage information run:
@@ -20,6 +27,10 @@ For full usage information run:
 ```bash
 mas mirror --help
 ```
+
+The following arguments are always required: `--catalog`, `--release`, `--mode` and `--dir`.  `--target-registry` is additionally required for the `m2m` and `d2m` modes.  The IBM Maximo Operator Catalog is always mirrored, the `--<package>` flags (or `--all`) select which additional content is mirrored.
+
+The architecture of the mirrored images is determined by the suffix of the catalog name (`-amd64`, `-ppc64le` or `-s390x`).
 
 
 Environment Variables
@@ -41,19 +52,9 @@ export REGISTRY_PASSWORD=xxx #pragma: allowlist secret
 Alternatively, you can provide a pre-built Docker/Podman credentials file via `--authfile <path>` to bypass automatic credential generation.
 
 
-Interactive Image Mirroring
+Image Mirroring
 -------------------------------------------------------------------------------
-Start image mirroring by running `mas mirror` with no extra flags.  You will be prompted to choose a mirror mode, a working directory, and which content to mirror:
-
-```bash
-LOCAL_DIR=/home/david/mirrorfiles
-docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ mas mirror
-```
-
-
-Non-Interactive Image Mirroring
--------------------------------------------------------------------------------
-The sections below walk through mirroring content in four stages using the two-phase approach (`m2d` + `d2m`).  Clear milestones make it easier to diagnose failures and measure progress:
+`mas mirror` does not have an interactive mode, all options must be provided as command line arguments.  The sections below walk through mirroring content in four stages, with a tab for each mirror mode.  Clear milestones make it easier to diagnose failures and measure progress:
 
 - [Preparation](#preparation)
 - [Stage 1 — MAS Core & Catalog](#stage-1-mas-core--catalog)
@@ -89,10 +90,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:@@CLI_LATEST_VERSION@@ $R
 ```
 
 !!! note
-    To mirror single-architecture images and save storage, export `MIRROR_SINGLE_ARCH` before running any stage. Supported values: `amd64`, `ppc64le`, `s390x`.
-    ```bash
-    export MIRROR_SINGLE_ARCH=amd64
-    ```
+    Only images for the architecture of the selected catalog are mirrored.  To mirror a different architecture, choose the matching catalog, for example `v9-260129-ppc64le` instead of `v9-260129-amd64`.
 
 
 ### Stage 1 — MAS Core & Catalog
