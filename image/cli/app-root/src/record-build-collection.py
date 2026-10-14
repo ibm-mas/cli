@@ -63,10 +63,14 @@ def build_instance_entry(instance):
         "instance_metadata": {
             "mas_workspace_id": metadata.get("mas_workspace_id", ""),
             "mas_channel": metadata.get("mas_channel", ""),
+            "install_plan": metadata.get("install_plan", ""),
             "edition": metadata.get("edition", ""),
             "operational_mode": metadata.get("operational_mode", ""),
             "instance_domain": metadata.get("instance_domain", ""),
-            "mas_capabilities": metadata.get("mas_capabilities", []),
+            "cis_mas_domain": metadata.get("cis_mas_domain", ""),
+            "cis_service_name": metadata.get("cis_service_name", ""),
+            # registry uses "capabilities"; fall back to legacy "mas_capabilities"
+            "capabilities": metadata.get("capabilities", metadata.get("mas_capabilities", [])),
         },
     }
 
