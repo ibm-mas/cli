@@ -146,6 +146,7 @@ optionalParams = [
     # COS
     "cos_type",
     "cos_resourcegroup",
+    "cos_region",
     "cos_apikey",
     "cos_instance_name",
     "cos_bucket_name",

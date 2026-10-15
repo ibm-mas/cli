@@ -91,6 +91,10 @@ spec:
       type: string
       description: Name of an existing COS Resource Group in IBM Cloud account
       default: ""
+    - name: cos_region
+      type: string
+      description: Region for COS instance
+      default: ""
     - name: cos_action
       type: string
       description: COS action to be performed (provision or deprovision)
@@ -237,6 +241,8 @@ spec:
           value: $(params.cos_type)
         - name: cos_resourcegroup
           value: $(params.cos_resourcegroup)
+        - name: cos_region
+          value: $(params.cos_region)
         - name: cos_apikey
           value: $(params.cos_apikey)
         - name: cos_use_hmac
