@@ -42,20 +42,6 @@ spec:
 
     # Install Step
     # -------------------------------------------------------------------------
-    # Pre-Release Support
-    - name: artifactory_username
-      default: ''
-      type: string
-      description: Required to use development MAS builds
-    - name: artifactory_token
-      default: ''
-      type: string
-      description: Required to use development MAS builds
-
-    # Entitlement
-    - name: ibm_entitlement_key
-      type: string
-
     # Application - Operator
     - name: mas_app_channel
       type: string
@@ -448,16 +434,6 @@ spec:
       env:
         - name: DEVOPS_SUITE_NAME
           value: app-$(params.mas_app_id)-install
-
-        # Pre-Release Support
-        - name: ARTIFACTORY_USERNAME
-          value: $(params.artifactory_username)
-        - name: ARTIFACTORY_TOKEN
-          value: $(params.artifactory_token)
-
-        # Entitlement
-        - name: IBM_ENTITLEMENT_KEY
-          value: $(params.ibm_entitlement_key)
 
         - name: MAS_USE_SERVICE_MESH
           value: $(params.mas_use_service_mesh)
