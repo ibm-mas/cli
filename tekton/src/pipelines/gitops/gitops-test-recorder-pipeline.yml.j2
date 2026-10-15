@@ -20,14 +20,26 @@ spec:
     - name: build_id
       type: string
       description: "Numeric build identifier"
-    - name: instance_registry_file
+    - name: github_host
       type: string
-      description: "Relative path within saas-envs repo to the instance registry YAML"
-      default: "gitops/aws-stg/instance-registry.yaml"
+      description: "GitHub host"
+      default: "github.ibm.com"
+    - name: github_org
+      type: string
+      description: "GitHub organization"
+      default: "maximoappsuite"
+    - name: github_repo
+      type: string
+      description: "GitHub repository"
+      default: "saas-envs"
     - name: git_branch
       type: string
-      description: "Branch of the saas-envs repo to clone"
+      description: "Branch of the repo to clone"
       default: "dev"
+    - name: instance_registry_file
+      type: string
+      description: "Relative path within the cloned repo to the instance registry YAML"
+      default: "gitops/aws-stg/instance-registry.yaml"
   tasks:
     - name: record-build-collection
       taskRef:
@@ -42,7 +54,13 @@ spec:
           value: $(params.catalog_image)
         - name: build_id
           value: $(params.build_id)
-        - name: instance_registry_file
-          value: $(params.instance_registry_file)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
         - name: git_branch
           value: $(params.git_branch)
+        - name: instance_registry_file
+          value: $(params.instance_registry_file)

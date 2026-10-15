@@ -14,14 +14,26 @@ spec:
     - name: build_id
       type: string
       description: "Numeric build identifier from the pipeline launcher"
-    - name: instance_registry_file
+    - name: github_host
       type: string
-      description: "Relative path within the saas-envs repo to the instance registry YAML"
-      default: "gitops/aws-stg/instance-registry.yaml"
+      description: "GitHub hostname"
+      default: "github.ibm.com"
+    - name: github_org
+      type: string
+      description: "GitHub organization e.g. maximoappsuite or sreaiapps"
+      default: "maximoappsuite"
+    - name: github_repo
+      type: string
+      description: "GitHub repository name e.g. saas-envs or mas-stg-gitops"
+      default: "saas-envs"
     - name: git_branch
       type: string
-      description: "Branch of the saas-envs repo to clone"
+      description: "Branch of the repo to clone"
       default: "dev"
+    - name: instance_registry_file
+      type: string
+      description: "Relative path within the cloned repo to the instance registry YAML"
+      default: "gitops/aws-stg/instance-registry.yaml"
   workspaces:
     - name: task-pvc
       mountPath: /artifacts
@@ -29,6 +41,12 @@ spec:
     - name: clone-registry
       image: quay.io/ibmmas/cli:latest
       env:
+        - name: GITHUB_HOST
+          value: $(params.github_host)
+        - name: GITHUB_ORG
+          value: $(params.github_org)
+        - name: GITHUB_REPO
+          value: $(params.github_repo)
         - name: GIT_BRANCH
           value: $(params.git_branch)
         - name: GITHUB_PAT
@@ -40,15 +58,17 @@ spec:
       envFrom:
         - configMapRef:
             name: environment-properties
+            optional: true
         - secretRef:
             name: secure-properties
       command: ["/bin/sh", "-c"]
       args:
         - |-
           set -e -o pipefail
-          echo "Cloning branch $GIT_BRANCH of github.ibm.com/maximoappsuite/saas-envs"
-          cd /artifacts && git clone -b "$GIT_BRANCH" \
-            "https://${GITHUB_PAT}:@github.ibm.com/maximoappsuite/saas-envs"
+          echo "Cloning branch $GIT_BRANCH of https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}"
+          rm -rf /artifacts/repo
+          git clone -b "$GIT_BRANCH" \
+            "https://${GITHUB_PAT}:@${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}.git" /artifacts/repo
 
     - name: record-build-collection
       image: quay.io/ibmmas/cli:latest
@@ -60,7 +80,7 @@ spec:
         - name: BUILD_ID
           value: $(params.build_id)
         - name: INSTANCE_REGISTRY_FILE
-          value: /artifacts/saas-envs/$(params.instance_registry_file)
+          value: /artifacts/repo/$(params.instance_registry_file)
         - name: DEVOPS_MONGO_URI
           valueFrom:
             secretKeyRef:
