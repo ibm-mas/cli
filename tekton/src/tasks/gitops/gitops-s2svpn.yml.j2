@@ -1,0 +1,261 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: gitops-s2svpn
+spec:
+  params:
+    # Customer identity
+    - name: CustomerId
+      type: string
+    - name: CustomerName
+      type: string
+    - name: AccountName
+      type: string
+    - name: AwsRegion
+      type: string
+
+    # Customer VPC — created by this stack
+    - name: VpcCidr
+      type: string
+    - name: SubnetCidr
+      type: string
+
+    # VPN — existing resources (optional)
+    - name: ExistingCustomerGatewayId
+      type: string
+      default: ''
+    - name: ExistingVpnGatewayId
+      type: string
+      default: ''
+
+    # VPN — on-premises appliance
+    - name: CustomerGatewayIp
+      type: string
+    - name: CustomerBgpAsn
+      type: string
+      default: '65000'
+    - name: AmazonSideAsn
+      type: string
+      default: '64512'
+    - name: EnableBgp
+      type: string
+      default: 'false'
+    - name: CustomerNetworkCidrs
+      type: string
+      default: ''
+
+    # VPN — tunnel config (optional)
+    - name: Tunnel1InsideCidr
+      type: string
+      default: ''
+    - name: Tunnel2InsideCidr
+      type: string
+      default: ''
+    - name: Tunnel1Psk
+      type: string
+      default: ''
+    - name: Tunnel2Psk
+      type: string
+      default: ''
+
+    # DB2 Access Endpoint
+    - name: Db2Type
+      type: string
+      default: 'RDSDB2'
+    - name: Db2ListenerPort
+      type: string
+      default: ''
+    - name: Db2TargetPort
+      type: string
+      default: ''
+    - name: Db2Name
+      type: string
+    - name: ClusterKey
+      type: string
+      default: ''
+    - name: AppKey
+      type: string
+      default: ''
+    - name: NlbArn
+      type: string
+    - name: ProviderVpcId
+      type: string
+    - name: ProviderSecurityGroupId
+      type: string
+      default: ''
+    - name: EndpointServiceName
+      type: string
+    - name: AdditionalIngressCidrs
+      type: string
+      default: ''
+
+    # Tagging
+    - name: BusinessUnit
+      type: string
+      default: ''
+    - name: SpendEnv
+      type: string
+      default: ''
+    - name: ProductLine
+      type: string
+      default: ''
+    - name: AdditionalTagKey1
+      type: string
+      default: ''
+    - name: AdditionalTagValue1
+      type: string
+      default: ''
+    - name: AdditionalTagKey2
+      type: string
+      default: ''
+    - name: AdditionalTagValue2
+      type: string
+      default: ''
+
+  stepTemplate:
+    env:
+      # Customer identity
+      - name: CUSTOMER_ID
+        value: $(params.CustomerId)
+      - name: CUSTOMER_NAME
+        value: $(params.CustomerName)
+      - name: ACCOUNT_NAME
+        value: $(params.AccountName)
+      - name: AWS_REGION
+        value: $(params.AwsRegion)
+
+      # Customer VPC
+      - name: VPC_CIDR
+        value: $(params.VpcCidr)
+      - name: SUBNET_CIDR
+        value: $(params.SubnetCidr)
+
+      # VPN existing resources
+      - name: EXISTING_CUSTOMER_GATEWAY_ID
+        value: $(params.ExistingCustomerGatewayId)
+      - name: EXISTING_VPN_GATEWAY_ID
+        value: $(params.ExistingVpnGatewayId)
+
+      # VPN on-premises
+      - name: CUSTOMER_GATEWAY_IP
+        value: $(params.CustomerGatewayIp)
+      - name: CUSTOMER_BGP_ASN
+        value: $(params.CustomerBgpAsn)
+      - name: AMAZON_SIDE_ASN
+        value: $(params.AmazonSideAsn)
+      - name: ENABLE_BGP
+        value: $(params.EnableBgp)
+      - name: CUSTOMER_NETWORK_CIDRS
+        value: $(params.CustomerNetworkCidrs)
+
+      # VPN tunnel config
+      - name: TUNNEL1_INSIDE_CIDR
+        value: $(params.Tunnel1InsideCidr)
+      - name: TUNNEL2_INSIDE_CIDR
+        value: $(params.Tunnel2InsideCidr)
+      - name: TUNNEL1_PSK
+        value: $(params.Tunnel1Psk)
+      - name: TUNNEL2_PSK
+        value: $(params.Tunnel2Psk)
+
+      # DB2 Access Endpoint
+      - name: DB2_TYPE
+        value: $(params.Db2Type)
+      - name: DB2_LISTENER_PORT
+        value: $(params.Db2ListenerPort)
+      - name: DB2_TARGET_PORT
+        value: $(params.Db2TargetPort)
+      - name: DB2_NAME
+        value: $(params.Db2Name)
+      - name: CLUSTER_KEY
+        value: $(params.ClusterKey)
+      - name: APP_KEY
+        value: $(params.AppKey)
+      - name: NLB_ARN
+        value: $(params.NlbArn)
+      - name: PROVIDER_VPC_ID
+        value: $(params.ProviderVpcId)
+      - name: PROVIDER_SECURITY_GROUP_ID
+        value: $(params.ProviderSecurityGroupId)
+      - name: ENDPOINT_SERVICE_NAME
+        value: $(params.EndpointServiceName)
+      - name: ADDITIONAL_INGRESS_CIDRS
+        value: $(params.AdditionalIngressCidrs)
+
+      # Tagging
+      - name: BUSINESS_UNIT
+        value: $(params.BusinessUnit)
+      - name: SPEND_ENV
+        value: $(params.SpendEnv)
+      - name: PRODUCT_LINE
+        value: $(params.ProductLine)
+      - name: ADDITIONAL_TAG_KEY1
+        value: $(params.AdditionalTagKey1)
+      - name: ADDITIONAL_TAG_VALUE1
+        value: $(params.AdditionalTagValue1)
+      - name: ADDITIONAL_TAG_KEY2
+        value: $(params.AdditionalTagKey2)
+      - name: ADDITIONAL_TAG_VALUE2
+        value: $(params.AdditionalTagValue2)
+
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: provision-s2svpn
+      args:
+        - |-
+          CMD="mas gitops-s2svpn \
+            --customer-id \"${CUSTOMER_ID}\" \
+            --customer-name \"${CUSTOMER_NAME}\" \
+            --account-name \"${ACCOUNT_NAME}\" \
+            --aws-region \"${AWS_REGION}\" \
+            --vpc-cidr \"${VPC_CIDR}\" \
+            --subnet-cidr \"${SUBNET_CIDR}\" \
+            --existing-customer-gateway-id \"${EXISTING_CUSTOMER_GATEWAY_ID:-""}\" \
+            --existing-vpn-gateway-id \"${EXISTING_VPN_GATEWAY_ID:-""}\" \
+            --customer-gateway-ip \"${CUSTOMER_GATEWAY_IP}\" \
+            --customer-bgp-asn \"${CUSTOMER_BGP_ASN:-""}\" \
+            --amazon-side-asn \"${AMAZON_SIDE_ASN:-""}\" \
+            --enable-bgp \"${ENABLE_BGP:-""}\" \
+            --customer-network-cidrs \"${CUSTOMER_NETWORK_CIDRS:-""}\" \
+            --tunnel1-inside-cidr \"${TUNNEL1_INSIDE_CIDR:-""}\" \
+            --tunnel2-inside-cidr \"${TUNNEL2_INSIDE_CIDR:-""}\" \
+            --tunnel1-psk \"${TUNNEL1_PSK:-""}\" \
+            --tunnel2-psk \"${TUNNEL2_PSK:-""}\" \
+            --db2-type \"${DB2_TYPE:-""}\" \
+            --db2-listener-port \"${DB2_LISTENER_PORT:-""}\" \
+            --db2-target-port \"${DB2_TARGET_PORT:-""}\" \
+            --db2-name \"${DB2_NAME}\" \
+            --cluster-key \"${CLUSTER_KEY:-""}\" \
+            --app-key \"${APP_KEY:-""}\" \
+            --nlb-arn \"${NLB_ARN}\" \
+            --provider-vpc-id \"${PROVIDER_VPC_ID}\" \
+            --provider-security-group-id \"${PROVIDER_SECURITY_GROUP_ID:-""}\" \
+            --endpoint-service-name \"${ENDPOINT_SERVICE_NAME}\" \
+            --additional-ingress-cidrs \"${ADDITIONAL_INGRESS_CIDRS:-""}\" \
+            --business-unit \"${BUSINESS_UNIT:-""}\" \
+            --spend-env \"${SPEND_ENV:-""}\" \
+            --product-line \"${PRODUCT_LINE:-""}\" \
+            --additional-tag-key1 \"${ADDITIONAL_TAG_KEY1:-""}\" \
+            --additional-tag-value1 \"${ADDITIONAL_TAG_VALUE1:-""}\" \
+            --additional-tag-key2 \"${ADDITIONAL_TAG_KEY2:-""}\" \
+            --additional-tag-value2 \"${ADDITIONAL_TAG_VALUE2:-""}\""
+
+          echo "Executing: $CMD"
+          eval $CMD
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: Always
+      image: "quay.io/ibmmas/cli:latest"
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-s2svpn

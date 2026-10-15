@@ -1,0 +1,208 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: gitops-s2svpn-pipeline
+spec:
+  params:
+    # Customer identity
+    - name: CustomerId
+      type: string
+    - name: CustomerName
+      type: string
+    - name: AccountName
+      type: string
+    - name: AwsRegion
+      type: string
+
+    # Customer VPC — created by this stack
+    - name: VpcCidr
+      type: string
+    - name: SubnetCidr
+      type: string
+
+    # VPN — existing resources (optional)
+    - name: ExistingCustomerGatewayId
+      type: string
+      default: ''
+    - name: ExistingVpnGatewayId
+      type: string
+      default: ''
+
+    # VPN — on-premises appliance
+    - name: CustomerGatewayIp
+      type: string
+    - name: CustomerBgpAsn
+      type: string
+      default: '65000'
+    - name: AmazonSideAsn
+      type: string
+      default: '64512'
+    - name: EnableBgp
+      type: string
+      default: 'false'
+    - name: CustomerNetworkCidrs
+      type: string
+      default: ''
+
+    # VPN — tunnel config (optional)
+    - name: Tunnel1InsideCidr
+      type: string
+      default: ''
+    - name: Tunnel2InsideCidr
+      type: string
+      default: ''
+    - name: Tunnel1Psk
+      type: string
+      default: ''
+    - name: Tunnel2Psk
+      type: string
+      default: ''
+
+    # DB2 Access Endpoint
+    - name: Db2Type
+      type: string
+      default: 'RDSDB2'
+    - name: Db2ListenerPort
+      type: string
+      default: ''
+    - name: Db2TargetPort
+      type: string
+      default: ''
+    - name: Db2Name
+      type: string
+    - name: ClusterKey
+      type: string
+      default: ''
+    - name: AppKey
+      type: string
+      default: ''
+    - name: NlbArn
+      type: string
+    - name: ProviderVpcId
+      type: string
+    - name: ProviderSecurityGroupId
+      type: string
+      default: ''
+    - name: EndpointServiceName
+      type: string
+    - name: AdditionalIngressCidrs
+      type: string
+      default: ''
+
+    # Tagging
+    - name: BusinessUnit
+      type: string
+      default: ''
+    - name: SpendEnv
+      type: string
+      default: ''
+    - name: ProductLine
+      type: string
+      default: ''
+    - name: AdditionalTagKey1
+      type: string
+      default: ''
+    - name: AdditionalTagValue1
+      type: string
+      default: ''
+    - name: AdditionalTagKey2
+      type: string
+      default: ''
+    - name: AdditionalTagValue2
+      type: string
+      default: ''
+
+  workspaces:
+    - name: configs
+
+  tasks:
+    - name: gitops-s2svpn
+      taskRef:
+        name: gitops-s2svpn
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        # Customer identity
+        - name: CustomerId
+          value: $(params.CustomerId)
+        - name: CustomerName
+          value: $(params.CustomerName)
+        - name: AccountName
+          value: $(params.AccountName)
+        - name: AwsRegion
+          value: $(params.AwsRegion)
+
+        # Customer VPC
+        - name: VpcCidr
+          value: $(params.VpcCidr)
+        - name: SubnetCidr
+          value: $(params.SubnetCidr)
+
+        # VPN existing resources
+        - name: ExistingCustomerGatewayId
+          value: $(params.ExistingCustomerGatewayId)
+        - name: ExistingVpnGatewayId
+          value: $(params.ExistingVpnGatewayId)
+
+        # VPN on-premises
+        - name: CustomerGatewayIp
+          value: $(params.CustomerGatewayIp)
+        - name: CustomerBgpAsn
+          value: $(params.CustomerBgpAsn)
+        - name: AmazonSideAsn
+          value: $(params.AmazonSideAsn)
+        - name: EnableBgp
+          value: $(params.EnableBgp)
+        - name: CustomerNetworkCidrs
+          value: $(params.CustomerNetworkCidrs)
+
+        # VPN tunnel config
+        - name: Tunnel1InsideCidr
+          value: $(params.Tunnel1InsideCidr)
+        - name: Tunnel2InsideCidr
+          value: $(params.Tunnel2InsideCidr)
+        - name: Tunnel1Psk
+          value: $(params.Tunnel1Psk)
+        - name: Tunnel2Psk
+          value: $(params.Tunnel2Psk)
+
+        # DB2 Access Endpoint
+        - name: Db2Type
+          value: $(params.Db2Type)
+        - name: Db2ListenerPort
+          value: $(params.Db2ListenerPort)
+        - name: Db2TargetPort
+          value: $(params.Db2TargetPort)
+        - name: Db2Name
+          value: $(params.Db2Name)
+        - name: ClusterKey
+          value: $(params.ClusterKey)
+        - name: AppKey
+          value: $(params.AppKey)
+        - name: NlbArn
+          value: $(params.NlbArn)
+        - name: ProviderVpcId
+          value: $(params.ProviderVpcId)
+        - name: ProviderSecurityGroupId
+          value: $(params.ProviderSecurityGroupId)
+        - name: EndpointServiceName
+          value: $(params.EndpointServiceName)
+        - name: AdditionalIngressCidrs
+          value: $(params.AdditionalIngressCidrs)
+
+        # Tagging
+        - name: BusinessUnit
+          value: $(params.BusinessUnit)
+        - name: SpendEnv
+          value: $(params.SpendEnv)
+        - name: ProductLine
+          value: $(params.ProductLine)
+        - name: AdditionalTagKey1
+          value: $(params.AdditionalTagKey1)
+        - name: AdditionalTagValue1
+          value: $(params.AdditionalTagValue1)
+        - name: AdditionalTagKey2
+          value: $(params.AdditionalTagKey2)
+        - name: AdditionalTagValue2
+          value: $(params.AdditionalTagValue2)

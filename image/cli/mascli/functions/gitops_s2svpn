@@ -1,0 +1,438 @@
+#!/usr/bin/env bash
+
+# CloudFormation template path (baked into the CLI image)
+S2SVPN_CFN_TEMPLATE="${CLI_DIR}/templates/cloudformation/s2s-vpn-setup-2.yaml"
+
+function gitops_s2svpn_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+
+Usage:
+  mas gitops-s2svpn [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+
+Customer Configuration:
+      --customer-id             ${COLOR_YELLOW}CUSTOMER_ID${TEXT_RESET}                   Customer ID
+      --customer-name           ${COLOR_YELLOW}CUSTOMER_NAME${TEXT_RESET}                 Customer name
+      --account-name            ${COLOR_YELLOW}ACCOUNT_NAME${TEXT_RESET}                  AWS account name
+      --aws-region              ${COLOR_YELLOW}AWS_REGION${TEXT_RESET}                    AWS region
+
+Customer VPC (created by this stack):
+      --vpc-cidr                ${COLOR_YELLOW}VPC_CIDR${TEXT_RESET}                      New VPC CIDR (e.g. 179.0.0.0/16)
+      --subnet-cidr             ${COLOR_YELLOW}SUBNET_CIDR${TEXT_RESET}                   New subnet CIDR (e.g. 179.0.1.0/24)
+
+VPN — Existing Resources (optional):
+      --existing-customer-gateway-id ${COLOR_YELLOW}EXISTING_CUSTOMER_GATEWAY_ID${TEXT_RESET}  Reuse existing CGW ID
+      --existing-vpn-gateway-id      ${COLOR_YELLOW}EXISTING_VPN_GATEWAY_ID${TEXT_RESET}       Reuse existing VGW ID
+
+VPN — On-Premises Appliance:
+      --customer-gateway-ip     ${COLOR_YELLOW}CUSTOMER_GATEWAY_IP${TEXT_RESET}           Customer gateway public IP
+      --customer-bgp-asn        ${COLOR_YELLOW}CUSTOMER_BGP_ASN${TEXT_RESET}              Customer BGP ASN
+      --amazon-side-asn         ${COLOR_YELLOW}AMAZON_SIDE_ASN${TEXT_RESET}               Amazon side BGP ASN
+      --enable-bgp              ${COLOR_YELLOW}ENABLE_BGP${TEXT_RESET}                    Enable BGP routing (true/false)
+      --customer-network-cidrs  ${COLOR_YELLOW}CUSTOMER_NETWORK_CIDRS${TEXT_RESET}        Comma-separated customer-side CIDRs
+
+VPN — Tunnel Configuration (optional):
+      --tunnel1-inside-cidr     ${COLOR_YELLOW}TUNNEL1_INSIDE_CIDR${TEXT_RESET}           Tunnel 1 inside /30 CIDR
+      --tunnel2-inside-cidr     ${COLOR_YELLOW}TUNNEL2_INSIDE_CIDR${TEXT_RESET}           Tunnel 2 inside /30 CIDR
+      --tunnel1-psk             ${COLOR_YELLOW}TUNNEL1_PSK${TEXT_RESET}                   Tunnel 1 pre-shared key (blank = auto-generate)
+      --tunnel2-psk             ${COLOR_YELLOW}TUNNEL2_PSK${TEXT_RESET}                   Tunnel 2 pre-shared key (blank = auto-generate)
+
+DB2 Access Endpoint:
+      --db2-type                ${COLOR_YELLOW}DB2_TYPE${TEXT_RESET}                      RDSDB2 or INCLUSTERDB2
+      --db2-listener-port       ${COLOR_YELLOW}DB2_LISTENER_PORT${TEXT_RESET}             NLB listener port
+      --db2-target-port         ${COLOR_YELLOW}DB2_TARGET_PORT${TEXT_RESET}               DB2 backend target port
+      --db2-name                ${COLOR_YELLOW}DB2_NAME${TEXT_RESET}                      DB2Name tag value
+      --cluster-key             ${COLOR_YELLOW}CLUSTER_KEY${TEXT_RESET}                   Cluster key
+      --app-key                 ${COLOR_YELLOW}APP_KEY${TEXT_RESET}                       Application key
+      --nlb-arn                 ${COLOR_YELLOW}NLB_ARN${TEXT_RESET}                       Existing NLB ARN
+      --provider-vpc-id         ${COLOR_YELLOW}PROVIDER_VPC_ID${TEXT_RESET}               Provider VPC ID
+      --provider-security-group-id ${COLOR_YELLOW}PROVIDER_SECURITY_GROUP_ID${TEXT_RESET} Provider SG ID (INCLUSTERDB2 only)
+      --endpoint-service-name   ${COLOR_YELLOW}ENDPOINT_SERVICE_NAME${TEXT_RESET}         VPC Endpoint Service name
+      --additional-ingress-cidrs ${COLOR_YELLOW}ADDITIONAL_INGRESS_CIDRS${TEXT_RESET}     Extra consumer SG ingress CIDR
+
+Tagging:
+      --business-unit           ${COLOR_YELLOW}BUSINESS_UNIT${TEXT_RESET}                 Business unit
+      --spend-env               ${COLOR_YELLOW}SPEND_ENV${TEXT_RESET}                     Spend environment (prod/staging/dev)
+      --product-line            ${COLOR_YELLOW}PRODUCT_LINE${TEXT_RESET}                  Product line
+      --additional-tag-key1     ${COLOR_YELLOW}ADDITIONAL_TAG_KEY1${TEXT_RESET}           Additional tag key 1
+      --additional-tag-value1   ${COLOR_YELLOW}ADDITIONAL_TAG_VALUE1${TEXT_RESET}         Additional tag value 1
+      --additional-tag-key2     ${COLOR_YELLOW}ADDITIONAL_TAG_KEY2${TEXT_RESET}           Additional tag key 2
+      --additional-tag-value2   ${COLOR_YELLOW}ADDITIONAL_TAG_VALUE2${TEXT_RESET}         Additional tag value 2
+
+Other Commands:
+  -h, --help                              Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_s2svpn_noninteractive() {
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    shift
+    case $key in
+      --customer-id)                    export CUSTOMER_ID=$1 && shift ;;
+      --customer-name)                  export CUSTOMER_NAME=$1 && shift ;;
+      --account-name)                   export ACCOUNT_NAME=$1 && shift ;;
+      --aws-region)                     export AWS_REGION=$1 && shift ;;
+      --vpc-cidr)                       export VPC_CIDR=$1 && shift ;;
+      --subnet-cidr)                    export SUBNET_CIDR=$1 && shift ;;
+      --existing-customer-gateway-id)   export EXISTING_CUSTOMER_GATEWAY_ID=$1 && shift ;;
+      --existing-vpn-gateway-id)        export EXISTING_VPN_GATEWAY_ID=$1 && shift ;;
+      --customer-gateway-ip)            export CUSTOMER_GATEWAY_IP=$1 && shift ;;
+      --customer-bgp-asn)               export CUSTOMER_BGP_ASN=$1 && shift ;;
+      --amazon-side-asn)                export AMAZON_SIDE_ASN=$1 && shift ;;
+      --enable-bgp)                     export ENABLE_BGP=$1 && shift ;;
+      --customer-network-cidrs)         export CUSTOMER_NETWORK_CIDRS=$1 && shift ;;
+      --tunnel1-inside-cidr)            export TUNNEL1_INSIDE_CIDR=$1 && shift ;;
+      --tunnel2-inside-cidr)            export TUNNEL2_INSIDE_CIDR=$1 && shift ;;
+      --tunnel1-psk)                    export TUNNEL1_PSK=$1 && shift ;;
+      --tunnel2-psk)                    export TUNNEL2_PSK=$1 && shift ;;
+      --db2-type)                       export DB2_TYPE=$1 && shift ;;
+      --db2-listener-port)              export DB2_LISTENER_PORT=$1 && shift ;;
+      --db2-target-port)                export DB2_TARGET_PORT=$1 && shift ;;
+      --db2-name)                       export DB2_NAME=$1 && shift ;;
+      --cluster-key)                    export CLUSTER_KEY=$1 && shift ;;
+      --app-key)                        export APP_KEY=$1 && shift ;;
+      --nlb-arn)                        export NLB_ARN=$1 && shift ;;
+      --provider-vpc-id)                export PROVIDER_VPC_ID=$1 && shift ;;
+      --provider-security-group-id)     export PROVIDER_SECURITY_GROUP_ID=$1 && shift ;;
+      --endpoint-service-name)          export ENDPOINT_SERVICE_NAME=$1 && shift ;;
+      --additional-ingress-cidrs)       export ADDITIONAL_INGRESS_CIDRS=$1 && shift ;;
+      --business-unit)                  export BUSINESS_UNIT=$1 && shift ;;
+      --spend-env)                      export SPEND_ENV=$1 && shift ;;
+      --product-line)                   export PRODUCT_LINE=$1 && shift ;;
+      --additional-tag-key1)            export ADDITIONAL_TAG_KEY1=$1 && shift ;;
+      --additional-tag-value1)          export ADDITIONAL_TAG_VALUE1=$1 && shift ;;
+      --additional-tag-key2)            export ADDITIONAL_TAG_KEY2=$1 && shift ;;
+      --additional-tag-value2)          export ADDITIONAL_TAG_VALUE2=$1 && shift ;;
+      -h|--help)
+        gitops_s2svpn_help ;;
+      *)
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_s2svpn_help "Usage Error: Unsupported option \"${key}\""
+        exit 1 ;;
+    esac
+  done
+
+  [[ -z "$CUSTOMER_ID" ]]           && gitops_s2svpn_help "CUSTOMER_ID is not set"
+  [[ -z "$CUSTOMER_NAME" ]]         && gitops_s2svpn_help "CUSTOMER_NAME is not set"
+  [[ -z "$ACCOUNT_NAME" ]]          && gitops_s2svpn_help "ACCOUNT_NAME is not set"
+  [[ -z "$AWS_REGION" ]]            && gitops_s2svpn_help "AWS_REGION is not set"
+  [[ -z "$VPC_CIDR" ]]              && gitops_s2svpn_help "VPC_CIDR is not set"
+  [[ -z "$SUBNET_CIDR" ]]           && gitops_s2svpn_help "SUBNET_CIDR is not set"
+  [[ -z "$CUSTOMER_GATEWAY_IP" ]]   && gitops_s2svpn_help "CUSTOMER_GATEWAY_IP is not set"
+  [[ -z "$NLB_ARN" ]]               && gitops_s2svpn_help "NLB_ARN is not set"
+  [[ -z "$PROVIDER_VPC_ID" ]]       && gitops_s2svpn_help "PROVIDER_VPC_ID is not set"
+  [[ -z "$ENDPOINT_SERVICE_NAME" ]] && gitops_s2svpn_help "ENDPOINT_SERVICE_NAME is not set"
+  [[ -z "$DB2_NAME" ]]              && gitops_s2svpn_help "DB2_NAME is not set"
+}
+
+function gitops_s2svpn() {
+  # Take the first parameter off (it will be "gitops-s2svpn")
+  shift
+  gitops_s2svpn_noninteractive "$@"
+
+  # ── AWS authentication ────────────────────────────────────────────────────────
+  # Credentials arrive as SM_AWS_ACCESS_KEY_ID / SM_AWS_SECRET_ACCESS_KEY via
+  # the secure-properties Secret (injected by stepTemplate.envFrom in the Task).
+  # SM_AWS_REGION is required by sm_login; fall back to the AWS_REGION param.
+  SM_AWS_REGION="${SM_AWS_REGION:-${AWS_REGION}}"
+  sm_login
+
+  # ── Defaults for optional params ─────────────────────────────────────────────
+  EXISTING_CUSTOMER_GATEWAY_ID="${EXISTING_CUSTOMER_GATEWAY_ID:-}"
+  EXISTING_VPN_GATEWAY_ID="${EXISTING_VPN_GATEWAY_ID:-}"
+  ENABLE_BGP="${ENABLE_BGP:-false}"
+  AMAZON_SIDE_ASN="${AMAZON_SIDE_ASN:-64512}"
+  CUSTOMER_BGP_ASN="${CUSTOMER_BGP_ASN:-65000}"
+  CUSTOMER_NETWORK_CIDRS="${CUSTOMER_NETWORK_CIDRS:-10.0.0.0/16}"
+  TUNNEL1_INSIDE_CIDR="${TUNNEL1_INSIDE_CIDR:-}"
+  TUNNEL2_INSIDE_CIDR="${TUNNEL2_INSIDE_CIDR:-}"
+  TUNNEL1_PSK="${TUNNEL1_PSK:-}"
+  TUNNEL2_PSK="${TUNNEL2_PSK:-}"
+  DB2_TYPE="${DB2_TYPE:-RDSDB2}"
+  DB2_LISTENER_PORT="${DB2_LISTENER_PORT:-25055}"
+  DB2_TARGET_PORT="${DB2_TARGET_PORT:-50001}"
+  CLUSTER_KEY="${CLUSTER_KEY:-}"
+  APP_KEY="${APP_KEY:-}"
+  PROVIDER_SECURITY_GROUP_ID="${PROVIDER_SECURITY_GROUP_ID:-}"
+  ADDITIONAL_INGRESS_CIDRS="${ADDITIONAL_INGRESS_CIDRS:-}"
+  BUSINESS_UNIT="${BUSINESS_UNIT:-ssw}"
+  SPEND_ENV="${SPEND_ENV:-prod}"
+  PRODUCT_LINE="${PRODUCT_LINE:-mas}"
+  ADDITIONAL_TAG_KEY1="${ADDITIONAL_TAG_KEY1:-}"
+  ADDITIONAL_TAG_VALUE1="${ADDITIONAL_TAG_VALUE1:-}"
+  ADDITIONAL_TAG_KEY2="${ADDITIONAL_TAG_KEY2:-}"
+  ADDITIONAL_TAG_VALUE2="${ADDITIONAL_TAG_VALUE2:-}"
+
+  # ── Stack name ────────────────────────────────────────────────────────────────
+  STACK_NAME="s2s-vpn-${CUSTOMER_ID}"
+
+  echo
+  echo_h2 "S2S VPN CloudFormation Execution"
+  echo "================================="
+
+  echo
+  echo_h2 "Customer Details"
+  echo "  CUSTOMER_ID               : ${CUSTOMER_ID}"
+  echo "  CUSTOMER_NAME             : ${CUSTOMER_NAME}"
+  echo "  ACCOUNT_NAME              : ${ACCOUNT_NAME}"
+  echo "  AWS_REGION                : ${AWS_REGION}"
+  echo "  BUSINESS_UNIT             : ${BUSINESS_UNIT}"
+  echo "  SPEND_ENV                 : ${SPEND_ENV}"
+  echo "  PRODUCT_LINE              : ${PRODUCT_LINE}"
+
+  echo
+  echo_h2 "Customer VPC (created by stack)"
+  echo "  VPC_CIDR                  : ${VPC_CIDR}"
+  echo "  SUBNET_CIDR               : ${SUBNET_CIDR}"
+
+  echo
+  echo_h2 "VPN Configuration"
+  echo "  EXISTING_CUSTOMER_GW_ID   : ${EXISTING_CUSTOMER_GATEWAY_ID:-<new>}"
+  echo "  EXISTING_VPN_GW_ID        : ${EXISTING_VPN_GATEWAY_ID:-<new>}"
+  echo "  CUSTOMER_GATEWAY_IP       : ${CUSTOMER_GATEWAY_IP}"
+  echo "  CUSTOMER_NETWORK_CIDRS    : ${CUSTOMER_NETWORK_CIDRS}"
+  echo "  ENABLE_BGP                : ${ENABLE_BGP}"
+  echo "  AMAZON_SIDE_ASN           : ${AMAZON_SIDE_ASN}"
+  echo "  CUSTOMER_BGP_ASN          : ${CUSTOMER_BGP_ASN}"
+  echo "  TUNNEL1_INSIDE_CIDR       : ${TUNNEL1_INSIDE_CIDR:-<cfn default>}"
+  echo "  TUNNEL2_INSIDE_CIDR       : ${TUNNEL2_INSIDE_CIDR:-<cfn default>}"
+
+  echo
+  echo_h2 "DB2 Access Endpoint"
+  echo "  DB2_TYPE                  : ${DB2_TYPE}"
+  echo "  DB2_LISTENER_PORT         : ${DB2_LISTENER_PORT}"
+  echo "  DB2_TARGET_PORT           : ${DB2_TARGET_PORT}"
+  echo "  DB2_NAME                  : ${DB2_NAME}"
+  echo "  CLUSTER_KEY               : ${CLUSTER_KEY}"
+  echo "  APP_KEY                   : ${APP_KEY}"
+  echo "  NLB_ARN                   : ${NLB_ARN}"
+  echo "  PROVIDER_VPC_ID           : ${PROVIDER_VPC_ID}"
+  echo "  PROVIDER_SECURITY_GROUP_ID: ${PROVIDER_SECURITY_GROUP_ID}"
+  echo "  ENDPOINT_SERVICE_NAME     : ${ENDPOINT_SERVICE_NAME}"
+  echo "  ADDITIONAL_INGRESS_CIDRS  : ${ADDITIONAL_INGRESS_CIDRS}"
+
+  echo
+  echo_h2 "CloudFormation Stack"
+  echo "  STACK_NAME                : ${STACK_NAME}"
+  echo "  TEMPLATE                  : ${S2SVPN_CFN_TEMPLATE}"
+
+  # ── Verify template exists ───────────────────────────────────────────────────
+  [[ ! -f "${S2SVPN_CFN_TEMPLATE}" ]] && echo_warning "CloudFormation template not found: ${S2SVPN_CFN_TEMPLATE}" && exit 1
+
+  # ── Build parameter arrays ───────────────────────────────────────────────────
+  # DEPLOY_PARAMS: Key=Value format for `aws cloudformation deploy --parameter-overrides`
+  # STACK_PARAMS:  ParameterKey=K,ParameterValue=V format for create-stack / update-stack
+  #                Commas in values escaped with \, to prevent AWS CLI list-splitting.
+
+  DEPLOY_PARAMS=(
+    "CustomerId=${CUSTOMER_ID}"
+    "CustomerName=${CUSTOMER_NAME}"
+    "AccountName=${ACCOUNT_NAME}"
+    "AwsRegion=${AWS_REGION}"
+    "VpcCidr=${VPC_CIDR}"
+    "SubnetCidr=${SUBNET_CIDR}"
+    "ExistingCustomerGatewayId=${EXISTING_CUSTOMER_GATEWAY_ID}"
+    "ExistingVpnGatewayId=${EXISTING_VPN_GATEWAY_ID}"
+    "CustomerGatewayIp=${CUSTOMER_GATEWAY_IP}"
+    "CustomerBgpAsn=${CUSTOMER_BGP_ASN}"
+    "AmazonSideAsn=${AMAZON_SIDE_ASN}"
+    "EnableBgp=${ENABLE_BGP}"
+    "CustomerNetworkCidrs=${CUSTOMER_NETWORK_CIDRS}"
+    "Tunnel1InsideCidr=${TUNNEL1_INSIDE_CIDR}"
+    "Tunnel2InsideCidr=${TUNNEL2_INSIDE_CIDR}"
+    "Tunnel1Psk=${TUNNEL1_PSK}"
+    "Tunnel2Psk=${TUNNEL2_PSK}"
+    "Db2Type=${DB2_TYPE}"
+    "Db2ListenerPort=${DB2_LISTENER_PORT}"
+    "Db2TargetPort=${DB2_TARGET_PORT}"
+    "Db2Name=${DB2_NAME}"
+    "ClusterKey=${CLUSTER_KEY}"
+    "AppKey=${APP_KEY}"
+    "NlbArn=${NLB_ARN}"
+    "ProviderVpcId=${PROVIDER_VPC_ID}"
+    "ProviderSecurityGroupId=${PROVIDER_SECURITY_GROUP_ID}"
+    "EndpointServiceName=${ENDPOINT_SERVICE_NAME}"
+    "AdditionalIngressCidrs=${ADDITIONAL_INGRESS_CIDRS}"
+    "BusinessUnit=${BUSINESS_UNIT}"
+    "SpendEnv=${SPEND_ENV}"
+    "ProductLine=${PRODUCT_LINE}"
+    "AdditionalTagKey1=${ADDITIONAL_TAG_KEY1}"
+    "AdditionalTagValue1=${ADDITIONAL_TAG_VALUE1}"
+    "AdditionalTagKey2=${ADDITIONAL_TAG_KEY2}"
+    "AdditionalTagValue2=${ADDITIONAL_TAG_VALUE2}"
+  )
+
+  STACK_PARAMS=(
+    "ParameterKey=CustomerId,ParameterValue=${CUSTOMER_ID}"
+    "ParameterKey=CustomerName,ParameterValue=${CUSTOMER_NAME}"
+    "ParameterKey=AccountName,ParameterValue=${ACCOUNT_NAME}"
+    "ParameterKey=AwsRegion,ParameterValue=${AWS_REGION}"
+    "ParameterKey=VpcCidr,ParameterValue=${VPC_CIDR}"
+    "ParameterKey=SubnetCidr,ParameterValue=${SUBNET_CIDR}"
+    "ParameterKey=ExistingCustomerGatewayId,ParameterValue=${EXISTING_CUSTOMER_GATEWAY_ID}"
+    "ParameterKey=ExistingVpnGatewayId,ParameterValue=${EXISTING_VPN_GATEWAY_ID}"
+    "ParameterKey=CustomerGatewayIp,ParameterValue=${CUSTOMER_GATEWAY_IP}"
+    "ParameterKey=CustomerBgpAsn,ParameterValue=${CUSTOMER_BGP_ASN}"
+    "ParameterKey=AmazonSideAsn,ParameterValue=${AMAZON_SIDE_ASN}"
+    "ParameterKey=EnableBgp,ParameterValue=${ENABLE_BGP}"
+    "ParameterKey=CustomerNetworkCidrs,ParameterValue=${CUSTOMER_NETWORK_CIDRS//,/\\,}"
+    "ParameterKey=Tunnel1InsideCidr,ParameterValue=${TUNNEL1_INSIDE_CIDR}"
+    "ParameterKey=Tunnel2InsideCidr,ParameterValue=${TUNNEL2_INSIDE_CIDR}"
+    "ParameterKey=Tunnel1Psk,ParameterValue=${TUNNEL1_PSK}"
+    "ParameterKey=Tunnel2Psk,ParameterValue=${TUNNEL2_PSK}"
+    "ParameterKey=Db2Type,ParameterValue=${DB2_TYPE}"
+    "ParameterKey=Db2ListenerPort,ParameterValue=${DB2_LISTENER_PORT}"
+    "ParameterKey=Db2TargetPort,ParameterValue=${DB2_TARGET_PORT}"
+    "ParameterKey=Db2Name,ParameterValue=${DB2_NAME}"
+    "ParameterKey=ClusterKey,ParameterValue=${CLUSTER_KEY}"
+    "ParameterKey=AppKey,ParameterValue=${APP_KEY}"
+    "ParameterKey=NlbArn,ParameterValue=${NLB_ARN}"
+    "ParameterKey=ProviderVpcId,ParameterValue=${PROVIDER_VPC_ID}"
+    "ParameterKey=ProviderSecurityGroupId,ParameterValue=${PROVIDER_SECURITY_GROUP_ID}"
+    "ParameterKey=EndpointServiceName,ParameterValue=${ENDPOINT_SERVICE_NAME}"
+    "ParameterKey=AdditionalIngressCidrs,ParameterValue=${ADDITIONAL_INGRESS_CIDRS}"
+    "ParameterKey=BusinessUnit,ParameterValue=${BUSINESS_UNIT}"
+    "ParameterKey=SpendEnv,ParameterValue=${SPEND_ENV}"
+    "ParameterKey=ProductLine,ParameterValue=${PRODUCT_LINE}"
+    "ParameterKey=AdditionalTagKey1,ParameterValue=${ADDITIONAL_TAG_KEY1}"
+    "ParameterKey=AdditionalTagValue1,ParameterValue=${ADDITIONAL_TAG_VALUE1}"
+    "ParameterKey=AdditionalTagKey2,ParameterValue=${ADDITIONAL_TAG_KEY2}"
+    "ParameterKey=AdditionalTagValue2,ParameterValue=${ADDITIONAL_TAG_VALUE2}"
+  )
+
+  # ── Check whether the stack already exists BEFORE the plan step ───────────────
+  # Must be done first: aws cloudformation deploy --no-execute-changeset creates
+  # the stack in REVIEW_IN_PROGRESS state even for brand-new stacks, so checking
+  # after the plan would always find the stack and incorrectly branch to update-stack.
+  echo
+  echo_h2 "Checking if CloudFormation stack exists: ${STACK_NAME}"
+  STACK_STATUS=$(aws cloudformation describe-stacks \
+    --stack-name "${STACK_NAME}" \
+    --region "${AWS_REGION}" \
+    --query 'Stacks[0].StackStatus' \
+    --output text 2>/dev/null)
+  echo "  Stack status: ${STACK_STATUS:-<not found>}"
+
+  # ── PLAN: create changeset without executing — review before apply ────────────
+  echo
+  echo_h2 "Running CloudFormation Plan (--no-execute-changeset)"
+  aws cloudformation deploy \
+    --stack-name "${STACK_NAME}" \
+    --template-file "${S2SVPN_CFN_TEMPLATE}" \
+    --parameter-overrides "${DEPLOY_PARAMS[@]}" \
+    --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+    --no-execute-changeset \
+    --region "${AWS_REGION}" \
+    --no-cli-pager
+  PLAN_RC=$?
+
+  # exit code 0  → changeset created (changes detected)
+  # exit code 255 → "The submitted information didn't contain changes" (no-op — safe to continue)
+  if [[ ${PLAN_RC} -ne 0 && ${PLAN_RC} -ne 255 ]]; then
+    echo_warning "Plan step failed with exit code ${PLAN_RC}"
+    exit ${PLAN_RC}
+  fi
+
+  echo
+  echo_h2 "Plan complete — changeset created for stack: ${STACK_NAME}"
+  echo "  Review in AWS Console → CloudFormation → ${STACK_NAME} → Change Sets"
+
+  # ── APPLY: create or update the stack ─────────────────────────────────────────
+  # REVIEW_IN_PROGRESS means a previous --no-execute-changeset run registered the
+  # stack but never deployed it — treat as new and use create-stack.
+  if [[ -z "${STACK_STATUS}" || "${STACK_STATUS}" == "None" || "${STACK_STATUS}" == "REVIEW_IN_PROGRESS" ]]; then
+    # ── Stack does not exist (or was never deployed) → CREATE ─────────────────
+    echo "  Stack not found (status: ${STACK_STATUS:-<not found>}) — running create-stack"
+    echo
+    echo_h2 "Creating CloudFormation stack: ${STACK_NAME}"
+
+    aws cloudformation create-stack \
+      --stack-name "${STACK_NAME}" \
+      --template-body "file://${S2SVPN_CFN_TEMPLATE}" \
+      --parameters "${STACK_PARAMS[@]}" \
+      --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+      --region "${AWS_REGION}" \
+      --no-cli-pager
+    CREATE_RC=$?
+    if [[ ${CREATE_RC} -ne 0 ]]; then
+      echo_warning "create-stack failed with exit code ${CREATE_RC}"
+      exit ${CREATE_RC}
+    fi
+
+    echo "  Waiting for stack creation to complete..."
+    aws cloudformation wait stack-create-complete \
+      --stack-name "${STACK_NAME}" \
+      --region "${AWS_REGION}"
+    WAIT_RC=$?
+    if [[ ${WAIT_RC} -ne 0 ]]; then
+      echo_warning "Stack creation did not complete successfully (exit code ${WAIT_RC})"
+      aws cloudformation describe-stack-events \
+        --stack-name "${STACK_NAME}" \
+        --region "${AWS_REGION}" \
+        --query 'StackEvents[?ResourceStatus==`CREATE_FAILED`].[LogicalResourceId,ResourceStatusReason]' \
+        --output table
+      exit ${WAIT_RC}
+    fi
+
+    echo
+    echo_h2 "Stack created successfully: ${STACK_NAME}"
+
+  else
+    # ── Stack exists → UPDATE ──────────────────────────────────────────────────
+    echo "  Stack found (status: ${STACK_STATUS}) — running update-stack"
+    echo
+    echo_h2 "Updating CloudFormation stack: ${STACK_NAME}"
+
+    UPDATE_ERR=$(aws cloudformation update-stack \
+      --stack-name "${STACK_NAME}" \
+      --template-body "file://${S2SVPN_CFN_TEMPLATE}" \
+      --parameters "${STACK_PARAMS[@]}" \
+      --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+      --region "${AWS_REGION}" \
+      --no-cli-pager 2>&1)
+    UPDATE_RC=$?
+
+    # "No updates are to be performed" is returned on stderr with a non-zero exit — not a real error
+    if [[ ${UPDATE_RC} -ne 0 ]]; then
+      if echo "${UPDATE_ERR}" | grep -q "No updates are to be performed"; then
+        echo "  No changes to apply — stack is already up to date"
+      else
+        echo_warning "update-stack failed: ${UPDATE_ERR}"
+        exit ${UPDATE_RC}
+      fi
+    else
+      echo "  Waiting for stack update to complete..."
+      aws cloudformation wait stack-update-complete \
+        --stack-name "${STACK_NAME}" \
+        --region "${AWS_REGION}"
+      WAIT_RC=$?
+      if [[ ${WAIT_RC} -ne 0 ]]; then
+        echo_warning "Stack update did not complete successfully (exit code ${WAIT_RC})"
+        aws cloudformation describe-stack-events \
+          --stack-name "${STACK_NAME}" \
+          --region "${AWS_REGION}" \
+          --query 'StackEvents[?ResourceStatus==`UPDATE_FAILED`].[LogicalResourceId,ResourceStatusReason]' \
+          --output table
+        exit ${WAIT_RC}
+      fi
+
+      echo
+      echo_h2 "Stack updated successfully: ${STACK_NAME}"
+    fi
+  fi
+
+  # ── Print stack outputs ───────────────────────────────────────────────────────
+  echo
+  echo_h2 "Stack Outputs"
+  aws cloudformation describe-stacks \
+    --stack-name "${STACK_NAME}" \
+    --region "${AWS_REGION}" \
+    --query 'Stacks[0].Outputs' \
+    --output table
+
+  exit 0
+}

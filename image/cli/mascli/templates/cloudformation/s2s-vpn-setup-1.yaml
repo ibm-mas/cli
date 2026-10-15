@@ -1,0 +1,705 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  S2S VPN Production Setup — Phase 1 (VPN) + Phase 2 (DB2 Access Endpoints).
+  Accepts existing customer VPC/subnet/route-table as inputs. Creates a Virtual
+  Private Gateway, Customer Gateway, Site-to-Site VPN connection with PSK storage,
+  NLB target group, NLB listener, VPC Interface Endpoint, and security group rules.
+  Audience: SRE Engineers | Environment: Production (aws-prd)
+
+# ==============================================================================
+# Metadata — Console grouping and parameter labels
+# ==============================================================================
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Customer Identity"
+        Parameters:
+          - CustomerId
+          - CustomerName
+          - AccountName
+          - AwsRegion
+      - Label:
+          default: "Customer VPC (existing — supplied as inputs)"
+        Parameters:
+          - CustomerVpcId
+          - CustomerRouteTableId
+      - Label:
+          default: "VPN — On-Premises Appliance"
+        Parameters:
+          - CustomerGatewayIp
+          - CustomerBgpAsn
+          - AmazonSideAsn
+          - EnableBgp
+          - CustomerNetworkCidrs
+      - Label:
+          default: "VPN — Tunnel Configuration"
+        Parameters:
+          - Tunnel1InsideCidr
+          - Tunnel2InsideCidr
+          - Tunnel1Psk
+          - Tunnel2Psk
+      - Label:
+          default: "Phase 2 — DB2 Access Endpoint (Provider Side)"
+        Parameters:
+          - Db2Type
+          - Db2ListenerPort
+          - Db2TargetPort
+          - Db2Name
+          - ClusterKey
+          - AppKey
+          - NlbArn
+          - ProviderVpcId
+          - ProviderSecurityGroupId
+          - EndpointServiceName
+      - Label:
+          default: "Phase 2 — DB2 Access Endpoint (Consumer Side)"
+        Parameters:
+          - ConsumerVpcId
+          - ConsumerSubnetIds
+          - ConsumerSecurityGroupId
+      - Label:
+          default: "Tagging"
+        Parameters:
+          - BusinessUnit
+          - SpendEnv
+          - ProductLine
+          - Environment
+    ParameterLabels:
+      CustomerId:
+        default: "Customer ID (e.g. cust123)"
+      CustomerName:
+        default: "Customer Name (e.g. Acme Corp)"
+      AccountName:
+        default: "AWS Account Name (e.g. aws-prd)"
+      AwsRegion:
+        default: "AWS Region (e.g. us-east-1)"
+      CustomerVpcId:
+        default: "Existing Customer VPC ID"
+      CustomerRouteTableId:
+        default: "Existing Route Table ID (VGW propagation will be enabled on this)"
+      CustomerGatewayIp:
+        default: "Customer Gateway Public IP"
+      CustomerBgpAsn:
+        default: "Customer BGP ASN"
+      AmazonSideAsn:
+        default: "Amazon Side BGP ASN"
+      EnableBgp:
+        default: "Enable BGP Dynamic Routing"
+      CustomerNetworkCidrs:
+        default: "Customer On-Prem Network CIDRs (comma-separated)"
+      Tunnel1InsideCidr:
+        default: "Tunnel 1 Inside /30 CIDR"
+      Tunnel2InsideCidr:
+        default: "Tunnel 2 Inside /30 CIDR"
+      Tunnel1Psk:
+        default: "Tunnel 1 Pre-Shared Key (leave blank to auto-generate)"
+      Tunnel2Psk:
+        default: "Tunnel 2 Pre-Shared Key (leave blank to auto-generate)"
+      Db2Type:
+        default: "DB2 Type (RDSDB2 or INCLUSTERDB2)"
+      Db2ListenerPort:
+        default: "DB2 NLB Listener Port (e.g. 25055)"
+      Db2TargetPort:
+        default: "DB2 Backend Target Port (e.g. 50001)"
+      Db2Name:
+        default: "DB2Name tag value (e.g. cust123-manage)"
+      ClusterKey:
+        default: "Cluster Key (e.g. mas-cluster-8)"
+      AppKey:
+        default: "Application Key (e.g. manage)"
+      NlbArn:
+        default: "Existing NLB ARN (provider account)"
+      ProviderVpcId:
+        default: "Provider VPC ID (where NLB lives)"
+      ProviderSecurityGroupId:
+        default: "Provider Security Group ID (INCLUSTERDB2 only — worker node SG)"
+      EndpointServiceName:
+        default: "Endpoint Service Name (com.amazonaws.vpce.*)"
+      ConsumerVpcId:
+        default: "Consumer VPC ID"
+      ConsumerSubnetIds:
+        default: "Consumer Subnet IDs (comma-separated)"
+      ConsumerSecurityGroupId:
+        default: "Consumer Security Group ID"
+
+# ==============================================================================
+# Parameters
+# ==============================================================================
+Parameters:
+
+  # ── Identity ────────────────────────────────────────────────────────────────
+  CustomerId:
+    Type: String
+    Description: "Unique customer identifier used in resource naming and tagging."
+    AllowedPattern: "^[a-zA-Z0-9_-]+$"
+    ConstraintDescription: "Alphanumeric characters, hyphens, and underscores only."
+
+  CustomerName:
+    Type: String
+    Description: "Human-readable customer name used in tagging."
+
+  AccountName:
+    Type: String
+    Default: "aws-prd"
+    Description: "AWS account name — used in Secrets Manager path hierarchy."
+
+  AwsRegion:
+    Type: String
+    Default: "us-east-1"
+    Description: "AWS region — used in resource naming and Secrets Manager path."
+
+  # ── Customer VPC (existing — provided as inputs) ─────────────────────────────
+  CustomerVpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: "Existing customer VPC ID — the VGW will be attached to this VPC."
+
+  CustomerRouteTableId:
+    Type: String
+    Description: "Existing route table ID in the customer VPC — VGW route propagation will be enabled on this table."
+    AllowedPattern: "^rtb-[a-z0-9]+$"
+    ConstraintDescription: "Must be a valid route table ID (e.g. rtb-0abc123def456789)."
+
+  # ── VPN ─────────────────────────────────────────────────────────────────────
+  CustomerGatewayIp:
+    Type: String
+    Description: >
+      Public IP address of the customer's on-premises VPN appliance.
+      Must be a publicly routable IP (not a private/RFC1918 address).
+    AllowedPattern: "^(\\d{1,3}\\.){3}\\d{1,3}$"
+    ConstraintDescription: "Must be a valid IPv4 address."
+
+  CustomerBgpAsn:
+    Type: Number
+    Default: 65000
+    MinValue: 1
+    MaxValue: 4294967295
+    Description: "BGP ASN of the customer's on-premises VPN appliance."
+
+  AmazonSideAsn:
+    Type: Number
+    Default: 64512
+    MinValue: 1
+    MaxValue: 4294967295
+    Description: "BGP ASN for the AWS Virtual Private Gateway."
+
+  EnableBgp:
+    Type: String
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
+    Description: "Set to true to use BGP dynamic routing; false = static routes only."
+
+  CustomerNetworkCidrs:
+    Type: CommaDelimitedList
+    Default: "10.0.0.0/16"
+    Description: >
+      Comma-separated list of customer on-premises network CIDRs
+      reachable via the VPN tunnel (e.g. 10.0.0.0/16,192.168.0.0/16).
+
+  Tunnel1InsideCidr:
+    Type: String
+    Default: "169.254.0.0/30"
+    Description: "Inside /30 CIDR for VPN tunnel 1 (RFC 6890 link-local range)."
+
+  Tunnel2InsideCidr:
+    Type: String
+    Default: "169.254.1.0/30"
+    Description: "Inside /30 CIDR for VPN tunnel 2 (RFC 6890 link-local range)."
+
+  Tunnel1Psk:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: "Pre-shared key for tunnel 1. Leave blank to have AWS auto-generate one."
+
+  Tunnel2Psk:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: "Pre-shared key for tunnel 2. Leave blank to have AWS auto-generate one."
+
+  # ── Phase 2: DB2 Access Endpoints ──────────────────────────────────────────
+  Db2Type:
+    Type: String
+    Default: "RDSDB2"
+    AllowedValues:
+      - "RDSDB2"
+      - "INCLUSTERDB2"
+    Description: "RDSDB2 → target type ip; INCLUSTERDB2 → target type instance."
+
+  Db2ListenerPort:
+    Type: Number
+    Default: 25055
+    MinValue: 400
+    MaxValue: 65535
+    Description: "Unique TCP port on the NLB that this customer's DB2 listens on."
+
+  Db2TargetPort:
+    Type: Number
+    Default: 50001
+    MinValue: 400
+    MaxValue: 65535
+    Description: "Backend TCP port the DB2 instance listens on."
+
+  Db2Name:
+    Type: String
+    Description: "DB2Name tag value identifying the backend (e.g. cust123-manage)."
+
+  ClusterKey:
+    Type: String
+    Default: "mas-cluster-8"
+    Description: "Cluster key used in resource naming and tagging."
+
+  AppKey:
+    Type: String
+    Default: "manage"
+    Description: "Application key used in resource naming and tagging."
+
+  NlbArn:
+    Type: String
+    Description: "ARN of the existing shared Network Load Balancer in the provider account."
+    AllowedPattern: "^arn:aws:elasticloadbalancing:.+"
+    ConstraintDescription: "Must be a valid AWS ELB ARN."
+
+  ProviderVpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: "VPC ID in the provider account where the NLB and target groups reside."
+
+  ProviderSecurityGroupId:
+    Type: String
+    Default: ""
+    Description: >
+      Provider-side security group ID (worker node / DB2 pod SG) that needs an
+      ingress rule for INCLUSTERDB2 target port. Leave blank for RDSDB2.
+
+  EndpointServiceName:
+    Type: String
+    Description: "VPC Endpoint Service name (com.amazonaws.vpce.<region>.vpce-svc-...) attached to the cluster NLB."
+    AllowedPattern: "^com\\.amazonaws\\.vpce\\..+"
+    ConstraintDescription: "Must start with com.amazonaws.vpce."
+
+  ConsumerVpcId:
+    Type: String
+    Description: "VPC ID in the consumer (customer) account where the Interface Endpoint will be created."
+
+  ConsumerSubnetIds:
+    Type: CommaDelimitedList
+    Description: "Comma-separated subnet IDs in the consumer account for endpoint placement (≥ 1 required)."
+
+  ConsumerSecurityGroupId:
+    Type: String
+    Description: "Security group ID in the consumer account attached to the Interface Endpoint."
+
+  # ── Tagging ─────────────────────────────────────────────────────────────────
+  BusinessUnit:
+    Type: String
+    Default: "ssw"
+    Description: "BusinessUnit tag value."
+
+  SpendEnv:
+    Type: String
+    Default: "prod"
+    AllowedValues:
+      - "prod"
+      - "staging"
+      - "dev"
+    Description: "SpendEnv tag value."
+
+  ProductLine:
+    Type: String
+    Default: "mas"
+    Description: "ProductLine tag value."
+
+  Environment:
+    Type: String
+    Default: "prod"
+    Description: "Environment tag value."
+
+# ==============================================================================
+# Conditions
+# ==============================================================================
+Conditions:
+  # Use custom PSK for tunnel 1 if provided; otherwise AWS auto-generates
+  HasTunnel1Psk: !Not [!Equals [!Ref Tunnel1Psk, ""]]
+  HasTunnel2Psk: !Not [!Equals [!Ref Tunnel2Psk, ""]]
+
+  # INCLUSTERDB2 requires provider-side SG ingress rules
+  IsInClusterDb2: !Equals [!Ref Db2Type, "INCLUSTERDB2"]
+
+  # BGP enabled → StaticRoutesOnly = false; static-only → StaticRoutesOnly = true
+  EnableBgpRouting: !Equals [!Ref EnableBgp, "true"]
+
+  # Static routing in use (inverse of EnableBgpRouting) — used for VPN static routes
+  UseStaticRoutes: !Equals [!Ref EnableBgp, "false"]
+
+  # Provider SG rule only when INCLUSTERDB2 AND a provider SG ID is supplied
+  NeedsProviderSgRule:
+    !And
+      - !Condition IsInClusterDb2
+      - !Not [!Equals [!Ref ProviderSecurityGroupId, ""]]
+
+# ==============================================================================
+# Resources
+# ==============================================================================
+Resources:
+
+  # ============================================================================
+  # PHASE 1 — S2S VPN
+  # ============================================================================
+
+  # ── Step 5: Virtual Private Gateway ─────────────────────────────────────────
+  VirtualPrivateGateway:
+    Type: AWS::EC2::VPNGateway
+    Properties:
+      Type: ipsec.1
+      AmazonSideAsn: !Ref AmazonSideAsn
+      Tags:
+        - Key: Name
+          Value: !Sub "s2s-${CustomerId}-vgw"
+        - Key: Customer
+          Value: !Ref CustomerId
+        - Key: CustomerName
+          Value: !Ref CustomerName
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: BusinessUnit
+          Value: !Ref BusinessUnit
+        - Key: SpendEnv
+          Value: !Ref SpendEnv
+        - Key: ProductLine
+          Value: !Ref ProductLine
+
+  # Attach VGW to the existing customer VPC (Step 5)
+  VpnGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref CustomerVpcId
+      VpnGatewayId: !Ref VirtualPrivateGateway
+
+  # ── Step 3 / Step 6: Enable VGW route propagation on the existing route table ─
+  VpnGatewayRoutePropagation:
+    Type: AWS::EC2::VPNGatewayRoutePropagation
+    DependsOn: VpnGatewayAttachment
+    Properties:
+      RouteTableIds:
+        - !Ref CustomerRouteTableId
+      VpnGatewayId: !Ref VirtualPrivateGateway
+
+  # ── Step 7: Customer Gateway ─────────────────────────────────────────────────
+  CustomerGateway:
+    Type: AWS::EC2::CustomerGateway
+    Properties:
+      BgpAsn: !Ref CustomerBgpAsn
+      IpAddress: !Ref CustomerGatewayIp
+      Type: ipsec.1
+      Tags:
+        - Key: Name
+          Value: !Sub "s2s-${CustomerId}-cgw"
+        - Key: Customer
+          Value: !Ref CustomerId
+        - Key: CustomerName
+          Value: !Ref CustomerName
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: BusinessUnit
+          Value: !Ref BusinessUnit
+        - Key: SpendEnv
+          Value: !Ref SpendEnv
+        - Key: ProductLine
+          Value: !Ref ProductLine
+
+  # ── Step 8: Site-to-Site VPN Connection ─────────────────────────────────────
+  VpnConnection:
+    Type: AWS::EC2::VPNConnection
+    DependsOn: VpnGatewayAttachment
+    Properties:
+      Type: ipsec.1
+      CustomerGatewayId: !Ref CustomerGateway
+      VpnGatewayId: !Ref VirtualPrivateGateway
+      StaticRoutesOnly: !If [EnableBgpRouting, false, true]
+      VpnTunnelOptionsSpecifications:
+        - TunnelInsideCidr: !Ref Tunnel1InsideCidr
+          PreSharedKey: !If [HasTunnel1Psk, !Ref Tunnel1Psk, !Ref AWS::NoValue]
+        - TunnelInsideCidr: !Ref Tunnel2InsideCidr
+          PreSharedKey: !If [HasTunnel2Psk, !Ref Tunnel2Psk, !Ref AWS::NoValue]
+      Tags:
+        - Key: Name
+          Value: !Sub "s2s-${CustomerId}-vpn-connection"
+        - Key: Customer
+          Value: !Ref CustomerId
+        - Key: CustomerName
+          Value: !Ref CustomerName
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: BusinessUnit
+          Value: !Ref BusinessUnit
+        - Key: SpendEnv
+          Value: !Ref SpendEnv
+        - Key: ProductLine
+          Value: !Ref ProductLine
+
+  # ── Step 6 (Static Routes): VPN Connection Static Routes ────────────────────
+  # Creates one static route per CIDR in CustomerNetworkCidrs.
+  # CloudFormation does not support for_each; add additional
+  # VpnConnectionRoute resources below for more than one CIDR.
+  # Route 1 — primary customer network CIDR
+  VpnStaticRoute1:
+    Type: AWS::EC2::VPNConnectionRoute
+    Condition: UseStaticRoutes
+    Properties:
+      VpnConnectionId: !Ref VpnConnection
+      DestinationCidrBlock: !Select [0, !Ref CustomerNetworkCidrs]
+
+  # ── Step 9: Store Tunnel 1 PSK in Secrets Manager ───────────────────────────
+  # Secret path: {account_name}/{region}/{customer_id}/{vpn_connection_id}/tunnel1
+  # Note: The actual PSK value must be populated manually after stack creation
+  # (or via a Custom Resource Lambda) because CloudFormation cannot intrinsically
+  # read the VPN Connection's generated PSK. If you provided Tunnel1Psk above,
+  # you can store it here directly.
+  SecretTunnel1Psk:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "${AccountName}/${AwsRegion}/${CustomerId}/${VpnConnection}/tunnel1"
+      Description: !Sub "VPN Tunnel 1 Pre-Shared Key for ${CustomerName}"
+      SecretString: !If
+        - HasTunnel1Psk
+        - !Sub '{"psk":"${Tunnel1Psk}"}'
+        - '{"psk":"REPLACE_WITH_AUTO_GENERATED_PSK_FROM_VPN_CONNECTION_TUNNEL_DETAILS"}'
+      Tags:
+        - Key: Name
+          Value: !Sub "s2s-${CustomerId}-vpn-tunnel1-psk"
+        - Key: Customer
+          Value: !Ref CustomerId
+        - Key: CustomerName
+          Value: !Ref CustomerName
+        - Key: Tunnel
+          Value: "1"
+        - Key: Environment
+          Value: !Ref Environment
+
+  SecretTunnel2Psk:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "${AccountName}/${AwsRegion}/${CustomerId}/${VpnConnection}/tunnel2"
+      Description: !Sub "VPN Tunnel 2 Pre-Shared Key for ${CustomerName}"
+      SecretString: !If
+        - HasTunnel2Psk
+        - !Sub '{"psk":"${Tunnel2Psk}"}'
+        - '{"psk":"REPLACE_WITH_AUTO_GENERATED_PSK_FROM_VPN_CONNECTION_TUNNEL_DETAILS"}'
+      Tags:
+        - Key: Name
+          Value: !Sub "s2s-${CustomerId}-vpn-tunnel2-psk"
+        - Key: Customer
+          Value: !Ref CustomerId
+        - Key: CustomerName
+          Value: !Ref CustomerName
+        - Key: Tunnel
+          Value: "2"
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ============================================================================
+  # PHASE 2 — DB2 Access Endpoints
+  # ============================================================================
+
+  # ── Step 11: NLB Target Group ────────────────────────────────────────────────
+  # Target type: ip for RDSDB2, instance for INCLUSTERDB2
+  Db2TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Select
+        - 0
+        - !Split
+          - "___PAD___"
+          - !Sub "${CustomerId}-tg-${ClusterKey}-${AppKey}___PAD___"
+      Protocol: TCP
+      Port: !Ref Db2TargetPort
+      VpcId: !Ref ProviderVpcId
+      TargetType: !If [IsInClusterDb2, "instance", "ip"]
+      HealthCheckEnabled: true
+      HealthCheckProtocol: TCP
+      HealthCheckPort: !Sub "${Db2TargetPort}"
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+      Tags:
+        - Key: Name
+          Value: !Sub "${CustomerId}-tg-${ClusterKey}-${AppKey}"
+        - Key: Customer
+          Value: !Ref CustomerId
+        - Key: CustomerName
+          Value: !Ref CustomerName
+        - Key: DB2Name
+          Value: !Ref Db2Name
+        - Key: ClusterKey
+          Value: !Ref ClusterKey
+        - Key: AppKey
+          Value: !Ref AppKey
+        - Key: ListenerPort
+          Value: !Sub "${Db2ListenerPort}"
+        - Key: TargetPort
+          Value: !Sub "${Db2TargetPort}"
+        - Key: DB2Type
+          Value: !Ref Db2Type
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: BusinessUnit
+          Value: !Ref BusinessUnit
+        - Key: SpendEnv
+          Value: !Ref SpendEnv
+        - Key: ProductLine
+          Value: !Ref ProductLine
+        - Key: Purpose
+          Value: "RDS-DB2-PrivateLink"
+
+  # ── Step 12: NLB Listener ────────────────────────────────────────────────────
+  Db2NlbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref NlbArn
+      Protocol: TCP
+      Port: !Ref Db2ListenerPort
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref Db2TargetGroup
+      Tags:
+        - Key: Name
+          Value: !Sub "s2s-${CustomerId}-listener-${ClusterKey}-${AppKey}"
+        - Key: Customer
+          Value: !Ref CustomerId
+        - Key: CustomerName
+          Value: !Ref CustomerName
+        - Key: ClusterKey
+          Value: !Ref ClusterKey
+        - Key: AppKey
+          Value: !Ref AppKey
+        - Key: ListenerPort
+          Value: !Sub "${Db2ListenerPort}"
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Purpose
+          Value: "RDS-DB2-PrivateLink"
+
+  # ── Step 13a: VPC Interface Endpoint (Consumer Side) ────────────────────────
+  # NOTE: This endpoint is created in the provider account targeting the
+  # consumer VPC. For a true cross-account setup, create this resource in
+  # the consumer account separately using the ConsumerVpcId / ConsumerSubnetIds
+  # / ConsumerSecurityGroupId parameters below.
+  ConsumerVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName: !Ref EndpointServiceName
+      VpcId: !Ref ConsumerVpcId
+      VpcEndpointType: Interface
+      SubnetIds: !Ref ConsumerSubnetIds
+      SecurityGroupIds:
+        - !Ref ConsumerSecurityGroupId
+      PrivateDnsEnabled: false
+      Tags:
+        - Key: Name
+          Value: !Sub "vpce-${CustomerId}-db2-access"
+        - Key: Customer
+          Value: !Ref CustomerId
+        - Key: CustomerName
+          Value: !Ref CustomerName
+        - Key: ClusterKey
+          Value: !Ref ClusterKey
+        - Key: Purpose
+          Value: "RDS-DB2-PrivateLink"
+
+  # ── Step 14a: Consumer Security Group Ingress Rule ───────────────────────────
+  # Allows traffic from customer network to the Interface Endpoint on DB2 listener port
+  ConsumerSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ConsumerSecurityGroupId
+      IpProtocol: tcp
+      FromPort: !Ref Db2ListenerPort
+      ToPort: !Ref Db2ListenerPort
+      CidrIp: "0.0.0.0/0"
+      Description: !Sub "DB2 access for ${CustomerId} on listener port ${Db2ListenerPort}"
+
+  # ── Step 14b: Provider Security Group Ingress Rule (INCLUSTERDB2 only) ───────
+  # For INCLUSTERDB2: allow NLB to reach the DB2 target port on the worker-node SG.
+  ProviderSgIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: NeedsProviderSgRule
+    Properties:
+      GroupId: !Ref ProviderSecurityGroupId
+      IpProtocol: tcp
+      FromPort: !Ref Db2TargetPort
+      ToPort: !Ref Db2TargetPort
+      CidrIp: "0.0.0.0/0"
+      Description: !Sub "Allow NLB to reach INCLUSTERDB2 target port ${Db2TargetPort} for ${CustomerId}/${ClusterKey}/${AppKey}"
+
+# ==============================================================================
+# Outputs
+# ==============================================================================
+Outputs:
+
+  # Phase 1 outputs
+  VirtualPrivateGatewayId:
+    Description: "Virtual Private Gateway ID"
+    Value: !Ref VirtualPrivateGateway
+    Export:
+      Name: !Sub "${AWS::StackName}-VgwId"
+
+  CustomerGatewayId:
+    Description: "Customer Gateway ID"
+    Value: !Ref CustomerGateway
+    Export:
+      Name: !Sub "${AWS::StackName}-CgwId"
+
+  VpnConnectionId:
+    Description: "Site-to-Site VPN Connection ID — use this to retrieve tunnel details and PSKs from the AWS Console"
+    Value: !Ref VpnConnection
+    Export:
+      Name: !Sub "${AWS::StackName}-VpnConnectionId"
+
+  SecretTunnel1PskArn:
+    Description: "Secrets Manager ARN for Tunnel 1 PSK"
+    Value: !Ref SecretTunnel1Psk
+    Export:
+      Name: !Sub "${AWS::StackName}-SecretTunnel1PskArn"
+
+  SecretTunnel2PskArn:
+    Description: "Secrets Manager ARN for Tunnel 2 PSK"
+    Value: !Ref SecretTunnel2Psk
+    Export:
+      Name: !Sub "${AWS::StackName}-SecretTunnel2PskArn"
+
+  # Phase 2 outputs
+  Db2TargetGroupArn:
+    Description: "NLB Target Group ARN for the customer DB2 instance"
+    Value: !Ref Db2TargetGroup
+    Export:
+      Name: !Sub "${AWS::StackName}-Db2TargetGroupArn"
+
+  Db2NlbListenerArn:
+    Description: "NLB Listener ARN for the customer DB2 instance"
+    Value: !Ref Db2NlbListener
+    Export:
+      Name: !Sub "${AWS::StackName}-Db2NlbListenerArn"
+
+  ConsumerVpcEndpointId:
+    Description: "VPC Interface Endpoint ID in the consumer account"
+    Value: !Ref ConsumerVpcEndpoint
+    Export:
+      Name: !Sub "${AWS::StackName}-ConsumerVpcEndpointId"
+
+  # ── Post-Creation Checklist (informational) ──────────────────────────────────
+  PostCreationNote:
+    Description: >
+      IMPORTANT — After stack creation: (1) Go to VPC → Site-to-Site VPN Connections
+      → select the VPN Connection ID → Tunnel details tab to verify tunnel status.
+      (2) If AWS auto-generated PSKs, retrieve them from the Pre-shared keys tab and
+      update the Secrets Manager secrets created by this stack.
+      (3) Register targets on the Db2TargetGroup (RDS endpoint IP for RDSDB2,
+      or EC2 instance IDs for INCLUSTERDB2).
+      (4) Accept the VPC Endpoint connection from VPC → Endpoint services →
+      Pending connections tab (if acceptance_required is enabled on the service).
+      (5) Provide the tunnel IPs, ASNs, PSKs, and Endpoint Service Name to the
+      customer to configure their on-premises VPN appliance.
+    Value: "See description for post-creation steps."
