@@ -246,6 +246,9 @@ spec:
     - name: sls_subscription_id
       type: string
       default: ""
+    - name: sls_license_sales_order_number
+      type: string
+      default: ""
 
     # oidc parameters
     # -------------------------------------------------------------------------
@@ -301,6 +304,18 @@ spec:
     - name: production_database_access_type
       type: string
       default: ""
+    - name: fvt_gitops_enabled
+      type: string
+      default: "false"
+    - name: fvt_gitops_enabled_apps
+      type: string
+      default: ""
+    - name: fvt_gitops_image_repo
+      type: string
+      default: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/mas-devops/fvt-gitops"
+    - name: fvt_gitops_image_tag
+      type: string
+      default: "latest"
 
   tasks:
 
@@ -417,6 +432,8 @@ spec:
           value: $(params.sls_license_icn)
         - name: sls_subscription_id
           value: $(params.sls_subscription_id)
+        - name: sales_order_number
+          value: $(params.sls_license_sales_order_number)
       taskRef:
         kind: Task
         name: gitops-license-generator
@@ -560,6 +577,14 @@ spec:
           value: $(params.mas_use_service_mesh)
         - name: production_database_access_type
           value: $(params.production_database_access_type)
+        - name: fvt_gitops_enabled
+          value: $(params.fvt_gitops_enabled)
+        - name: fvt_gitops_enabled_apps
+          value: $(params.fvt_gitops_enabled_apps)
+        - name: fvt_gitops_image_repo
+          value: $(params.fvt_gitops_image_repo)
+        - name: fvt_gitops_image_tag
+          value: $(params.fvt_gitops_image_tag)
       taskRef:
         kind: Task
         name: gitops-suite
