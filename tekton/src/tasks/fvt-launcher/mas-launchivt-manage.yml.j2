@@ -118,6 +118,12 @@ spec:
               name: mas-fvt-manage
               key: FVT_WHITELIST_IS
               optional: false
+        - name: JDBC_TYPE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: JDBC_TYPE
+              optional: true
 
     - name: wait-for-pipelinerun
       image: "quay.io/ibmmas/cli:latest"
