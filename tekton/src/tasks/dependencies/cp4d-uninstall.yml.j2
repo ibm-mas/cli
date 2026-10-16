@@ -1,0 +1,48 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: mas-devops-cp4d-uninstall
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    # CP4D Namespace configuration (Optional, defaults built into Ansible role)
+    - name: cpd_operators_namespace
+      type: string
+      default: ""
+    - name: cpd_instance_namespace
+      type: string
+      default: ""
+
+    # Uninstall options (Optional, defaults built into Ansible role)
+    - name: cpd_uninstall_delete_pvcs
+      type: string
+      default: ""
+    - name: cpd_uninstall_delete_namespaces
+      type: string
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # Namespace configuration
+      - name: CPD_OPERATORS_NAMESPACE
+        value: $(params.cpd_operators_namespace)
+      - name: CPD_INSTANCE_NAMESPACE
+        value: $(params.cpd_instance_namespace)
+
+      # Uninstall options
+      - name: CPD_UNINSTALL_DELETE_PVCS
+        value: $(params.cpd_uninstall_delete_pvcs)
+      - name: CPD_UNINSTALL_DELETE_NAMESPACES
+        value: $(params.cpd_uninstall_delete_namespaces)
+
+  steps:
+    - name: cp4d-uninstall
+      command:
+        - /opt/app-root/src/run-role.sh
+        - cp4d_uninstall
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
