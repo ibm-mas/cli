@@ -38,6 +38,9 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: cis_allowed_ips
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -69,6 +72,8 @@ spec:
         value: $(params.mas_config_dir)
       - name: CIS_SERVICE_NAME
         value: $(params.cis_service_name)
+      - name: CIS_ALLOWED_IPS
+        value: $(params.cis_allowed_ips)
     envFrom:
       - configMapRef:
           name: environment-properties
