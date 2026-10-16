@@ -1,0 +1,851 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Image Mirroring (v2) - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled="">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+    <link href="../../stylesheets/mas-arch-diagram.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active="" target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden="">
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable=""></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/mirroring-v2.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="OpenShift Management">
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/">
+    IBM Cloud ROKS
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-aws/">
+    AWS (IPI)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/">
+    IBM DevIT FYRE
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/">
+    Airgap Configuration
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Image Mirroring">
+    
+      
+  <cds-side-nav-menu-item href="../private-registry/">
+    Private Registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-mirroring/">
+    Image Mirroring (IBM)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/">
+    Image Mirroring (Red Hat)
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Install and Configure">
+    
+      
+  <cds-side-nav-menu-item href="../install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/">
+    OIDC Config Tool
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../aiservice-install/">
+    AI Service Install
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Update and Upgrade">
+    
+      
+  <cds-side-nav-menu-item href="../update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Backup and Restore">
+    
+      
+  <cds-side-nav-menu-item href="../backup/">
+    Backup
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../restore/">
+    Restore
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Troubleshooting">
+    
+      
+  <cds-side-nav-menu-item href="../../commands/debug/">
+    Debug
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../must-gather/">
+    Must-Gather
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-261007-amd64/">
+    Oct 07 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260924-amd64/">
+    Sep 24 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260827-amd64/">
+    Aug 27 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-260730-amd64/">
+    Jul 30 2026
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies-92/">
+    Dependencies (9.2)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies-91/">
+    Dependencies (9.1)
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash="">
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#image-mirroring-v2">Image Mirroring (v2)</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#prerequisites">Prerequisites</cds-select-item>
+    
+      <cds-select-item value="#usage">Usage</cds-select-item>
+    
+      <cds-select-item value="#environment-variables">Environment Variables</cds-select-item>
+    
+      <cds-select-item value="#image-mirroring">Image Mirroring</cds-select-item>
+    
+      <cds-select-item value="#mirror-all-packages">Mirror All Packages</cds-select-item>
+    
+      <cds-select-item value="#advanced-options">Advanced Options</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="image-mirroring-v2">Image Mirroring (v2)<a class="headerlink" href="#image-mirroring-v2" title="Permanent link">¶</a></h1>
+<p>The <code>mas mirror</code> command is the next-generation Python-based image mirroring tool, replacing the legacy <code>mas mirror-images</code> bash command.  It uses <a href="https://docs.openshift.com/container-platform/latest/installing/disconnected_install/installing-mirroring-disconnected.html">oc-mirror</a> under the hood and supports three mirror modes:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>m2m</code></td>
+<td><strong>Mirror to mirror</strong> — pull from IBM registries and push directly to your private registry</td>
+</tr>
+<tr>
+<td><code>m2d</code></td>
+<td><strong>Mirror to disk</strong> — pull from IBM registries and save to the local filesystem</td>
+</tr>
+<tr>
+<td><code>d2m</code></td>
+<td><strong>Disk to mirror</strong> — push previously saved filesystem content to your private registry</td>
+</tr>
+</tbody>
+</table>
+<p>Two-phase mirroring (<code>m2d</code> followed by <code>d2m</code>) is recommended in most cases.  It requires more storage but cleanly separates the internet-facing download from the private-network upload, making it easier to recover from network interruptions.</p>
+<p>This guide assumes you are targeting the latest release (<strong>9.2.x</strong>) from the most recent catalog (<strong>v9-261007-amd64</strong>).  Remove any <code>--&lt;package&gt;</code> flags that correspond to applications or dependencies you are not deploying.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¶</a></h2>
+<ul>
+<li>The <code>oc-mirror</code> executable must be available on the <code>PATH</code> of the system running <code>mas mirror</code> (the command fails immediately if it is not found).</li>
+<li>Catalog <strong>v9-260129-amd64</strong> (January 2026) or newer is required, earlier catalogs are not supported by <code>mas mirror</code>.  Use <code>mas mirror-images</code> for older catalogs.</li>
+<li>The image set configurations are read from <code>~/.ibm-mas/image-set-configs</code> and are automatically downloaded from <a href="https://github.com/ibm-mas/image-set-configs">ibm-mas/image-set-configs</a> if not present, so the system running the command needs access to GitHub (or the files must be pre-populated in that directory).</li>
+</ul>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
+<p>For full usage information run:</p>
+<pre><code class="language-bash">mas mirror --help
+</code></pre>
+<p>The following arguments are always required: <code>--catalog</code>, <code>--release</code>, <code>--mode</code> and <code>--dir</code>.  <code>--target-registry</code> is additionally required for the <code>m2m</code> and <code>d2m</code> modes.  The IBM Maximo Operator Catalog is always mirrored, the <code>--&lt;package&gt;</code> flags (or <code>--all</code>) select which additional content is mirrored.</p>
+<p>The architecture of the mirrored images is determined by the suffix of the catalog name (<code>-amd64</code>, <code>-ppc64le</code> or <code>-s390x</code>).</p>
+<h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">¶</a></h2>
+<p>The following environment variables are used to authenticate with registries.  Which ones are required depends on the mirror mode in use:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Required for modes</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IBM_ENTITLEMENT_KEY</code></td>
+<td><code>m2m</code>, <code>m2d</code></td>
+<td>IBM Entitlement Key to pull images from <code>cp.icr.io</code></td>
+</tr>
+<tr>
+<td><code>REGISTRY_USERNAME</code></td>
+<td><code>m2m</code>, <code>d2m</code></td>
+<td>Username for your private target registry</td>
+</tr>
+<tr>
+<td><code>REGISTRY_PASSWORD</code></td>
+<td><code>m2m</code>, <code>d2m</code></td>
+<td>Password for your private target registry</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">export IBM_ENTITLEMENT_KEY=xxx
+export REGISTRY_USERNAME=xxx
+export REGISTRY_PASSWORD=xxx #pragma: allowlist secret
+</code></pre>
+<p>Alternatively, you can provide a pre-built Docker/Podman credentials file via <code>--authfile &lt;path&gt;</code> to bypass automatic credential generation.</p>
+<h2 id="image-mirroring">Image Mirroring<a class="headerlink" href="#image-mirroring" title="Permanent link">¶</a></h2>
+<p><code>mas mirror</code> does not have an interactive mode, all options must be provided as command line arguments.  The sections below walk through mirroring content in four stages, with a tab for each mirror mode.  Clear milestones make it easier to diagnose failures and measure progress:</p>
+<ul>
+<li><a href="#preparation">Preparation</a></li>
+<li><a href="#stage-1-mas-core--catalog">Stage 1 — MAS Core &amp; Catalog</a></li>
+<li><a href="#stage-2-mas-applications">Stage 2 — MAS Applications</a></li>
+<li><a href="#stage-3-cloud-pak-for-data">Stage 3 — Cloud Pak for Data</a></li>
+<li><a href="#stage-4-other-dependencies">Stage 4 — Other Dependencies</a></li>
+</ul>
+<h3 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¶</a></h3>
+<p>Set these environment variables once; they are reused in every stage:</p>
+<pre><code class="language-bash">export IBM_ENTITLEMENT_KEY=xxx
+export LOCAL_DIR=xxx
+export REGISTRY_HOST=xxx
+export REGISTRY_USERNAME=xxx
+export REGISTRY_PASSWORD=xxx #pragma: allowlist secret
+</code></pre>
+<p>If the system that has internet access <strong>cannot</strong> reach your private registry, you will need to transfer the filesystem content (produced in the <code>m2d</code> phase) to a separate system on your private network before running the <code>d2m</code> phase.</p>
+<p>To bootstrap the MAS CLI container itself into an air-gapped environment, first mirror it to the filesystem from an internet-connected system:</p>
+<pre><code class="language-bash">oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:23.15.0 file://ibmmas/cli:23.15.0 --filter-by-os='.*'
+</code></pre>
+<p>Transfer <code>$LOCAL_DIR/cli</code> to your private-network system and push the image to your mirror registry:</p>
+<pre><code class="language-bash">docker login $REGISTRY_HOST -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
+oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ibmmas/cli:23.15.0 --filter-by-os='.*'
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only images for the architecture of the selected catalog are mirrored.  To mirror a different architecture, choose the matching catalog, for example <code>v9-260129-ppc64le</code> instead of <code>v9-260129-amd64</code>.</p>
+</div>
+<h3 id="stage-1-mas-core-catalog">Stage 1 — MAS Core &amp; Catalog<a class="headerlink" href="#stage-1-mas-core-catalog" title="Permanent link">¶</a></h3>
+<p><cds-tabs trigger-content="Select an item" value="m2m">
+  <cds-tab id="tab-m2m-core" target="panel-m2m-core" value="m2m">Mirror to Mirror</cds-tab>
+  <cds-tab id="tab-m2d-core" target="panel-m2d-core" value="m2d">Mirror to Disk</cds-tab>
+  <cds-tab id="tab-d2m-core" target="panel-d2m-core" value="d2m">Disk to Mirror</cds-tab>
+</cds-tabs></p>
+<div class="tab-panel">
+  <div id="panel-m2m-core" role="tabpanel" aria-labelledby="tab-m2m-core" hidden="">
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
+  -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
+  -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
+  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode m2m --target-registry $REGISTRY_HOST \
+  --dir /mnt/registry/core \
+  --core
+</code></pre>
+
+
+  </div>
+  <div id="panel-m2d-core" role="tabpanel" aria-labelledby="tab-m2d-core" hidden="">
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
+  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode m2d \
+  --dir /mnt/registry/core \
+  --core
+</code></pre>
+
+
+  </div>
+  <div id="panel-d2m-core" role="tabpanel" aria-labelledby="tab-d2m-core" hidden="">
+    <p>Transfer the contents of <code>$LOCAL_DIR/core</code> to your system in the private network and run the disk-to-mirror phase using the CLI image from your mirror registry.</p>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
+  -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
+  $REGISTRY_HOST/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode d2m --target-registry $REGISTRY_HOST \
+  --dir /mnt/registry/core \
+  --core
+</code></pre>
+
+
+  </div>
+</div>
+
+<h3 id="stage-2-mas-applications">Stage 2 — MAS Applications<a class="headerlink" href="#stage-2-mas-applications" title="Permanent link">¶</a></h3>
+<p><cds-tabs trigger-content="Select an item" value="m2m">
+  <cds-tab id="tab-m2m-apps" target="panel-m2m-apps" value="m2m">Mirror to Mirror</cds-tab>
+  <cds-tab id="tab-m2d-apps" target="panel-m2d-apps" value="m2d">Mirror to Disk</cds-tab>
+  <cds-tab id="tab-d2m-apps" target="panel-d2m-apps" value="d2m">Disk to Mirror</cds-tab>
+</cds-tabs></p>
+<div class="tab-panel">
+  <div id="panel-m2m-apps" role="tabpanel" aria-labelledby="tab-m2m-apps" hidden="">
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
+  -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
+  -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
+  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode m2m --target-registry $REGISTRY_HOST \
+  --dir /mnt/registry/apps \
+  --assist --iot --manage --manage-icd --monitor --optimizer --predict --visualinspection --facilities
+</code></pre>
+
+
+  </div>
+  <div id="panel-m2d-apps" role="tabpanel" aria-labelledby="tab-m2d-apps" hidden="">
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
+  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode m2d \
+  --dir /mnt/registry/apps \
+  --assist --iot --manage --manage-icd --monitor --optimizer --predict --visualinspection --facilities
+</code></pre>
+
+
+  </div>
+  <div id="panel-d2m-apps" role="tabpanel" aria-labelledby="tab-d2m-apps" hidden="">
+    <p>Transfer the contents of <code>$LOCAL_DIR/apps</code> to your system in the private network and run the disk-to-mirror phase.</p>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
+  -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
+  $REGISTRY_HOST/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode d2m --target-registry $REGISTRY_HOST \
+  --dir /mnt/registry/apps \
+  --assist --iot --manage --manage-icd --monitor --optimizer --predict --visualinspection --facilities
+</code></pre>
+
+
+  </div>
+</div>
+
+<h3 id="stage-3-cloud-pak-for-data">Stage 3 — Cloud Pak for Data<a class="headerlink" href="#stage-3-cloud-pak-for-data" title="Permanent link">¶</a></h3>
+<p><cds-tabs trigger-content="Select an item" value="m2m">
+  <cds-tab id="tab-m2m-cp4d" target="panel-m2m-cp4d" value="m2m">Mirror to Mirror</cds-tab>
+  <cds-tab id="tab-m2d-cp4d" target="panel-m2d-cp4d" value="m2d">Mirror to Disk</cds-tab>
+  <cds-tab id="tab-d2m-cp4d" target="panel-d2m-cp4d" value="d2m">Disk to Mirror</cds-tab>
+</cds-tabs></p>
+<div class="tab-panel">
+  <div id="panel-m2m-cp4d" role="tabpanel" aria-labelledby="tab-m2m-cp4d" hidden="">
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
+  -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
+  -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
+  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode m2m --target-registry $REGISTRY_HOST \
+  --dir /mnt/registry/cp4d \
+  --cp4d-platform --cp4d-wsl --cp4d-wml --cp4d-spark --cp4d-cognos
+</code></pre>
+
+
+  </div>
+  <div id="panel-m2d-cp4d" role="tabpanel" aria-labelledby="tab-m2d-cp4d" hidden="">
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
+  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode m2d \
+  --dir /mnt/registry/cp4d \
+  --cp4d-platform --cp4d-wsl --cp4d-wml --cp4d-spark --cp4d-cognos
+</code></pre>
+
+
+  </div>
+  <div id="panel-d2m-cp4d" role="tabpanel" aria-labelledby="tab-d2m-cp4d" hidden="">
+    <p>Transfer the contents of <code>$LOCAL_DIR/cp4d</code> to your system in the private network and run the disk-to-mirror phase.</p>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
+  -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
+  $REGISTRY_HOST/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode d2m --target-registry $REGISTRY_HOST \
+  --dir /mnt/registry/cp4d \
+  --cp4d-platform --cp4d-wsl --cp4d-wml --cp4d-spark --cp4d-cognos
+</code></pre>
+
+
+  </div>
+</div>
+
+<h3 id="stage-4-other-dependencies">Stage 4 — Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link">¶</a></h3>
+<p><cds-tabs trigger-content="Select an item" value="m2m">
+  <cds-tab id="tab-m2m-deps" target="panel-m2m-deps" value="m2m">Mirror to Mirror</cds-tab>
+  <cds-tab id="tab-m2d-deps" target="panel-m2d-deps" value="m2d">Mirror to Disk</cds-tab>
+  <cds-tab id="tab-d2m-deps" target="panel-d2m-deps" value="d2m">Disk to Mirror</cds-tab>
+</cds-tabs></p>
+<div class="tab-panel">
+  <div id="panel-m2m-deps" role="tabpanel" aria-labelledby="tab-m2m-deps" hidden="">
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
+  -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
+  -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
+  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode m2m --target-registry $REGISTRY_HOST \
+  --dir /mnt/registry/deps \
+  --sls --tsm --mongodb-ce --db2u-s11 --db2u-s12 --data-dictionary --amlen
+</code></pre>
+
+
+  </div>
+  <div id="panel-m2d-deps" role="tabpanel" aria-labelledby="tab-m2d-deps" hidden="">
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
+  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode m2d \
+  --dir /mnt/registry/deps \
+  --sls --tsm --mongodb-ce --db2u-s11 --db2u-s12 --data-dictionary --amlen
+</code></pre>
+
+
+  </div>
+  <div id="panel-d2m-deps" role="tabpanel" aria-labelledby="tab-d2m-deps" hidden="">
+    <p>Transfer the contents of <code>$LOCAL_DIR/deps</code> to your system in the private network and run the disk-to-mirror phase.</p>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
+  -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
+  $REGISTRY_HOST/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode d2m --target-registry $REGISTRY_HOST \
+  --dir /mnt/registry/deps \
+  --sls --tsm --mongodb-ce --db2u-s11 --db2u-s12 --data-dictionary --amlen
+</code></pre>
+
+
+  </div>
+</div>
+
+<h2 id="mirror-all-packages">Mirror All Packages<a class="headerlink" href="#mirror-all-packages" title="Permanent link">¶</a></h2>
+<p>To mirror every supported package in one command, use <code>--all</code>.  This is convenient but will require significantly more storage and time than mirroring only what you need.</p>
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
+  -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
+  -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
+  -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
+  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  --catalog v9-261007-amd64 --release 9.2.x \
+  --mode m2m --target-registry $REGISTRY_HOST \
+  --dir /mnt/registry/all \
+  --all
+</code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a href="https://ibm-mas.github.io/cli/commands/mirror-redhat-images">Mirror Red Hat images</a> to install required Red Hat dependencies (DRO, Cert Manager, and Grafana) needed for MAS installation. Missing this step will result in installation failures.</p>
+</div>
+<h2 id="advanced-options">Advanced Options<a class="headerlink" href="#advanced-options" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--authfile &lt;path&gt;</code></td>
+<td>—</td>
+<td>Path to an existing Docker/Podman auth file; skips credential auto-generation</td>
+</tr>
+<tr>
+<td><code>--dest-tls-verify</code></td>
+<td><code>true</code></td>
+<td>Verify TLS certificates for the destination registry (<code>true</code>/<code>false</code>)</td>
+</tr>
+<tr>
+<td><code>--image-timeout</code></td>
+<td><code>20m</code></td>
+<td>Per-image operation timeout (e.g., <code>1h20m10s</code>, <code>1h</code>, <code>20m</code>, <code>10s</code>)</td>
+</tr>
+</tbody>
+</table>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#prerequisites" class="md-toc__link" data-md-level="1">
+                  Prerequisites
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#environment-variables" class="md-toc__link" data-md-level="1">
+                  Environment Variables
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#image-mirroring" class="md-toc__link" data-md-level="1">
+                  Image Mirroring
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#preparation" class="md-toc__link" data-md-level="2">
+                          Preparation
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#stage-1-mas-core-catalog" class="md-toc__link" data-md-level="2">
+                          Stage 1 — MAS Core &amp; Catalog
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#stage-2-mas-applications" class="md-toc__link" data-md-level="2">
+                          Stage 2 — MAS Applications
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#stage-3-cloud-pak-for-data" class="md-toc__link" data-md-level="2">
+                          Stage 3 — Cloud Pak for Data
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#stage-4-other-dependencies" class="md-toc__link" data-md-level="2">
+                          Stage 4 — Other Dependencies
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#mirror-all-packages" class="md-toc__link" data-md-level="1">
+                  Mirror All Packages
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#advanced-options" class="md-toc__link" data-md-level="1">
+                  Advanced Options
+                </a>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>
