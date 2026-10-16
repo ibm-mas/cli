@@ -25,7 +25,6 @@ COS Provider:
       --cos-action ${COLOR_YELLOW}COS_ACTION${TEXT_RESET}                                                  provision or deprovision
       --cos-type ${COLOR_YELLOW}COS_TYPE${TEXT_RESET}                                                      COS type, only ibm supported
       --cos-resourcegroup ${COLOR_YELLOW}COS_RESOURCEGROUP${TEXT_RESET}                                    IBM Cloud resource group to set
-      --cos-region ${COLOR_YELLOW}COS_REGION${TEXT_RESET}                                                  IBM Cloud COS region to set
       --cos-apikey ${COLOR_YELLOW}COS_APIKEY${TEXT_RESET}                                                  IBM Cloud APIkey
 
 Other Commands:
@@ -80,9 +79,6 @@ function gitops_cos_noninteractive() {
         ;;
       --cos-resourcegroup)
         export COS_RESOURCEGROUP=$1 && shift
-        ;;
-      --cos-region)
-        export COS_REGION=$1 && shift
         ;;
       --cos-apikey)
         export COS_APIKEY=$1 && shift
@@ -154,9 +150,6 @@ function gitops_cos() {
   echo_reset_dim "COS type  ............................. ${COLOR_MAGENTA}${COS_TYPE}"
   if [[ "${COS_TYPE}" == "ibm" ]]; then
     echo_reset_dim "COS Resource Group  ................... ${COLOR_MAGENTA}${COS_RESOURCEGROUP}"
-    if [[ -n "${COS_REGION}" ]]; then
-      echo_reset_dim "COS Region  ........................... ${COLOR_MAGENTA}${COS_REGION}"
-    fi
     echo_reset_dim "COS ApiKey ............................ ${COLOR_MAGENTA}${COS_APIKEY:0:8}<snip>"
   fi
   
