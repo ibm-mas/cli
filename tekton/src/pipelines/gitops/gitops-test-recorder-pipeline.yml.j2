@@ -34,11 +34,11 @@ spec:
       default: "saas-envs"
     - name: git_branch
       type: string
-      description: "Branch of the repo to clone"
+      description: "Branch of the repo to fetch from"
       default: "dev"
     - name: instance_registry_file
       type: string
-      description: "Relative path within the cloned repo to the instance registry YAML"
+      description: "Relative path within the repo to the instance registry YAML"
       default: "gitops/aws-stg/instance-registry.yaml"
   tasks:
     - name: record-build-collection

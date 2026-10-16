@@ -28,17 +28,17 @@ spec:
       default: "saas-envs"
     - name: git_branch
       type: string
-      description: "Branch of the repo to clone"
+      description: "Branch of the repo to fetch from"
       default: "dev"
     - name: instance_registry_file
       type: string
-      description: "Relative path within the cloned repo to the instance registry YAML"
+      description: "Relative path within the repo to the instance registry YAML"
       default: "gitops/aws-stg/instance-registry.yaml"
   workspaces:
     - name: task-pvc
       mountPath: /artifacts
   steps:
-    - name: clone-registry
+    - name: fetch-registry
       image: quay.io/ibmmas/cli:latest
       env:
         - name: GITHUB_HOST
@@ -49,6 +49,8 @@ spec:
           value: $(params.github_repo)
         - name: GIT_BRANCH
           value: $(params.git_branch)
+        - name: INSTANCE_REGISTRY_FILE
+          value: $(params.instance_registry_file)
         - name: GITHUB_PAT
           valueFrom:
             secretKeyRef:
@@ -65,10 +67,19 @@ spec:
       args:
         - |-
           set -e -o pipefail
-          echo "Cloning branch $GIT_BRANCH of https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}"
-          rm -rf /artifacts/repo
-          git clone -b "$GIT_BRANCH" \
-            "https://${GITHUB_PAT}:@${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}.git" /artifacts/repo
+          if [ "$GITHUB_HOST" = "github.com" ]; then
+            API_BASE="https://api.github.com"
+          else
+            API_BASE="https://${GITHUB_HOST}/api/v3"
+          fi
+
+          echo "Fetching ${INSTANCE_REGISTRY_FILE} from ${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO} (ref: ${GIT_BRANCH})..."
+          mkdir -p /artifacts
+          curl -sSL -f \
+            -H "Authorization: Bearer ${GITHUB_PAT}" \
+            -H "Accept: application/vnd.github.raw" \
+            "${API_BASE}/repos/${GITHUB_ORG}/${GITHUB_REPO}/contents/${INSTANCE_REGISTRY_FILE}?ref=${GIT_BRANCH}" \
+            -o /artifacts/instance-registry.yaml
 
     - name: record-build-collection
       image: quay.io/ibmmas/cli:latest
@@ -80,7 +91,7 @@ spec:
         - name: BUILD_ID
           value: $(params.build_id)
         - name: INSTANCE_REGISTRY_FILE
-          value: /artifacts/repo/$(params.instance_registry_file)
+          value: /artifacts/instance-registry.yaml
         - name: DEVOPS_MONGO_URI
           valueFrom:
             secretKeyRef:
