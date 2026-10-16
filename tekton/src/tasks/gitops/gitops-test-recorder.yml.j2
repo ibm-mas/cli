@@ -39,7 +39,7 @@ spec:
       mountPath: /artifacts
   steps:
     - name: fetch-registry
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       env:
         - name: GITHUB_HOST
           value: $(params.github_host)
@@ -82,7 +82,7 @@ spec:
             -o /artifacts/instance-registry.yaml
 
     - name: record-build-collection
-      image: quay.io/ibmmas/cli:latest
+      image: "quay.io/ibmmas/cli:latest"
       env:
         - name: CATALOG_VERSION
           value: $(params.catalog_version)
