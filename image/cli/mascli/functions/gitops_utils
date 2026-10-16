@@ -633,6 +633,7 @@ for ((attempt=1; attempt<=retries; attempt++)); do
   if (( attempt < retries )); then
     sleep "$retry_delay"
   else
+    echo "git: Failed to clone ${GITHUB_REPO} branch ${GIT_BRANCH} after ${retries} attempts, exit with error"
     exit 1
   fi
 done
