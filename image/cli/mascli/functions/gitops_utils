@@ -607,17 +607,36 @@ function clone_target_git_repo() {
   SSH_PATH=$6
   CURRENT_DIR=$PWD
   cd $LOCAL_DIR
+
+  retries=5
+  retry_delay=30
+
+for ((attempt=1; attempt<=retries; attempt++)); do
   if [ "$SSH_PATH" == "false" ]; then
     echo ""
     echo "$(logts) git clone https://git:****@$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH"
     echo "-------------------------------------------------"
-    git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1
+    git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH
   else
     echo ""
     echo "$(logts) git -c \"core.sshCommand=ssh -i $SSH_PATH -F /dev/null\" clone git@$GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH"
     echo "-------------------------------------------------"
-    git -c "core.sshCommand=ssh -i $SSH_PATH -F /dev/null" clone git@$GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1
+    git -c "core.sshCommand=ssh -i $SSH_PATH -F /dev/null" clone git@$GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH
   fi
+
+  if [[ $? -eq 0 ]]; then
+    break
+  fi
+
+  rm -rf "${LOCAL_DIR}/${GITHUB_REPO}"
+
+  if (( attempt < retries )); then
+    sleep "$retry_delay"
+  else
+    echo "git: Failed to clone ${GITHUB_REPO} branch ${GIT_BRANCH} after ${retries} attempts, exit with error"
+    exit 1
+  fi
+done
   cd $PWD
 }
 
@@ -655,26 +674,33 @@ function save_to_target_git_repo() {
     interval=30
     index=0
     while true; do
+      return_code=0
       echo ""
       echo "$(logts) git fetch origin $GIT_BRANCH"
       echo "-------------------------------------------------"
-      git fetch origin $GIT_BRANCH || exit 1
+      git fetch origin $GIT_BRANCH || return_code=$?
 
-      echo ""
-      echo "$(logts) git pull origin --rebase"
-      echo "-------------------------------------------------"
-      git pull origin --rebase || exit 1
+      if [ $return_code -eq 0 ]; then
+        echo ""
+        echo "$(logts) git pull origin --rebase"
+        echo "-------------------------------------------------"
+        git pull origin --rebase || return_code=$?
 
-      echo ""
-      echo "$(logts) git pull origin $GIT_BRANCH --rebase"
-      echo "-------------------------------------------------"
-      git pull origin $GIT_BRANCH --rebase || exit 1
+        if [ $return_code -eq 0 ]; then
+          echo ""
+          echo "$(logts) git pull origin $GIT_BRANCH --rebase"
+          echo "-------------------------------------------------"
+          git pull origin $GIT_BRANCH --rebase || return_code=$?
 
-      echo ""
-      echo "$(logts) git push -u origin $GIT_BRANCH"
-      echo "-------------------------------------------------"
-      git push -u origin $GIT_BRANCH
-      return_code=$?
+          if [ $return_code -eq 0 ]; then
+            echo ""
+            echo "$(logts) git push -u origin $GIT_BRANCH"
+            echo "-------------------------------------------------"
+            git push -u origin $GIT_BRANCH || return_code=$?
+          fi
+        fi
+      fi
+  
       if [ $return_code -eq 0 ]; then
         echo "git: Pushing changes to branch $GIT_BRANCH success"
         sleep 10
