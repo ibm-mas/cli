@@ -402,7 +402,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             self.fatalError("Unable to locate existing install of the IBM Maximo Operator Catalog")
         elif catalogInfo["catalogId"] is None:
             self.printWarning("Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
-            self.installedCatalogId = "unknown"
         else:
             self.installedCatalogId = catalogInfo["catalogId"]
             self.printH1("Review Installed Catalog")
