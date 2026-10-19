@@ -246,6 +246,9 @@ spec:
     - name: auto_backup_manage
       type: string
       default: ""
+    - name: db2_license_file_available_manage
+      type: string
+      default: "false"
     - name: db2_audit_retention_days_manage
       type: string
       default: ""
@@ -358,6 +361,9 @@ spec:
     - name: auto_backup_iot
       type: string
       default: ""
+    - name: db2_license_file_available_iot
+      type: string
+      default: "false"
     - name: db2_audit_retention_days_iot
       type: string
       default: ""
@@ -470,6 +476,9 @@ spec:
     - name: auto_backup_monitor
       type: string
       default: ""
+    - name: db2_license_file_available_monitor
+      type: string
+      default: "false"
     - name: db2_audit_retention_days_monitor
       type: string
       default: ""
@@ -582,6 +591,9 @@ spec:
     - name: auto_backup_facilities
       type: string
       default: ""
+    - name: db2_license_file_available_facilities
+      type: string
+      default: "false"
     - name: db2_audit_retention_days_facilities
       type: string
       default: ""
@@ -1194,6 +1206,8 @@ spec:
           value: $(params.db2_backup_notify_slack_url_iot)
         - name: auto_backup
           value: $(params.auto_backup_iot)
+        - name: db2_license_file_available
+          value: $(params.db2_license_file_available_iot)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_iot)
         - name: allow_list
@@ -1398,6 +1412,8 @@ spec:
           value: $(params.db2_backup_notify_slack_url_monitor)
         - name: auto_backup
           value: $(params.auto_backup_monitor)
+        - name: db2_license_file_available
+          value: $(params.db2_license_file_available_monitor)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_monitor)
         - name: allow_list
@@ -1608,6 +1624,8 @@ spec:
           value: $(params.manually_set_enhanced_hadr_manage)
         - name: auto_backup
           value: $(params.auto_backup_manage)
+        - name: db2_license_file_available
+          value: $(params.db2_license_file_available_manage)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_manage)
         - name: allow_list
@@ -1776,6 +1794,8 @@ spec:
           value: $(params.db2_backup_notify_slack_url_manage)
         - name: auto_backup
           value: $(params.auto_backup_manage)
+        - name: db2_license_file_available
+          value: $(params.db2_license_file_available_manage)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_manage)
         - name: replica_db
@@ -1953,6 +1973,8 @@ spec:
           value: $(params.manually_set_enhanced_hadr_facilities)
         - name: auto_backup
           value: $(params.auto_backup_facilities)
+        - name: db2_license_file_available
+          value: $(params.db2_license_file_available_facilities)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_facilities)
         - name: facilities_db2_schema
@@ -2121,6 +2143,8 @@ spec:
           value: $(params.db2_backup_notify_slack_url_facilities)
         - name: auto_backup
           value: $(params.auto_backup_facilities)
+        - name: db2_license_file_available
+          value: $(params.db2_license_file_available_facilities)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_facilities)
         - name: replica_db

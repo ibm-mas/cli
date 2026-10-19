@@ -812,7 +812,7 @@ function gitops_cluster() {
       sm_verify_secret_exists $SECRET_NAME_FALCON_CLIENT "client_secret,client_id"
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
     fi
-
+    
     if [[ "$CLUSTER_LOGGING_OPERATOR_INSTALL" == "true" ]]; then
       echo "- Cluster Logging Operator"
       sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
@@ -829,6 +829,9 @@ function gitops_cluster() {
         sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
       fi
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
+    elif [[ "$CLUSTER_LOGGING_OPERATOR_INSTALL" == "false" ]] && [[ -f "${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml" ]]; then
+      echo "- Removing Cluster Logging Operator config (CLUSTER_LOGGING_OPERATOR_INSTALL is false)"
+      rm -f ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
     fi
 
     if [[ "$INSTANA_AGENT_OPERATOR_INSTALL" == "true" ]]; then
