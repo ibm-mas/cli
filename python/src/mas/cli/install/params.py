@@ -150,9 +150,19 @@ optionalParams = [
     "cos_apikey",
     "cos_instance_name",
     "cos_bucket_name",
-    # Attachments
+    # Attachments / S3 (CRD spec approach)
     "mas_manage_attachments_provider",
     "mas_manage_attachment_configuration_mode",
+    "mas_manage_default_s3_region",
+    "mas_manage_attachments_accesskey",
+    "mas_manage_attachments_secret_access_key",
+    "mas_manage_attachments_bucket",
+    "mas_manage_attachments_region",
+    "mas_manage_attachments_s3url",
+    "mas_manage_attachments_secret_name",
+    "mas_app_settings_customization_archive_s3_access_key",
+    "mas_app_settings_customization_archive_s3_secret_access_key",
+    "mas_app_settings_customization_archive_s3_secret_name",
     # ECK
     "eck_action",
     "eck_enable_logstash",

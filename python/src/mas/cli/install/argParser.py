@@ -785,13 +785,13 @@ manageArgGroup.add_argument(
     metavar="{regularUpgrade,onlineUpgrade}",
 )
 
-# Manage Attachments
+# Manage Attachments / S3 (CRD spec approach)
 # -----------------------------------------------------------------------------
 manageArgGroup.add_argument(
     "--manage-attachments-provider",
     dest="mas_manage_attachments_provider",
     required=False,
-    help="Storage provider type for Maximo Manage attachments",
+    help="Storage provider type for Maximo Manage attachments (spec.settings.db.attachmentProvider.providerType)",
     choices=ATTACHMENT_PROVIDERS,
     metavar="{filestorage,ibm,aws}",
 )
@@ -802,6 +802,66 @@ manageArgGroup.add_argument(
     help="How attachment properties will be configured in Manage",
     choices=ATTACHMENT_MODES,
     metavar="{cr,db}",
+)
+manageArgGroup.add_argument(
+    "--manage-default-s3-region",
+    dest="mas_manage_default_s3_region",
+    required=False,
+    help="Default S3 region for all Manage S3 operations (spec.defaultRegion)",
+)
+manageArgGroup.add_argument(
+    "--manage-attachments-accesskey",
+    dest="mas_manage_attachments_accesskey",
+    required=False,
+    help="S3 access key ID for Manage attachment provider",
+)
+manageArgGroup.add_argument(
+    "--manage-attachments-secret-access-key",
+    dest="mas_manage_attachments_secret_access_key",
+    required=False,
+    help="S3 secret access key for Manage attachment provider",
+)
+manageArgGroup.add_argument(
+    "--manage-attachments-bucket",
+    dest="mas_manage_attachments_bucket",
+    required=False,
+    help="S3 bucket name for Manage attachment provider",
+)
+manageArgGroup.add_argument(
+    "--manage-attachments-region",
+    dest="mas_manage_attachments_region",
+    required=False,
+    help="S3 bucket region for Manage attachment provider",
+)
+manageArgGroup.add_argument(
+    "--manage-attachments-s3url",
+    dest="mas_manage_attachments_s3url",
+    required=False,
+    help="Custom S3 endpoint URL for Manage attachment provider (optional)",
+)
+manageArgGroup.add_argument(
+    "--manage-attachments-secret-name",
+    dest="mas_manage_attachments_secret_name",
+    required=False,
+    help="Override the k8s Secret name for attachment provider credentials",
+)
+manageArgGroup.add_argument(
+    "--manage-customization-archive-s3-accesskey",
+    dest="mas_app_settings_customization_archive_s3_access_key",
+    required=False,
+    help="S3 access key ID for downloading the customization archive (useS3 block)",
+)
+manageArgGroup.add_argument(
+    "--manage-customization-archive-s3-secret-access-key",
+    dest="mas_app_settings_customization_archive_s3_secret_access_key",
+    required=False,
+    help="S3 secret access key for downloading the customization archive (useS3 block)",
+)
+manageArgGroup.add_argument(
+    "--manage-customization-archive-s3-secret-name",
+    dest="mas_app_settings_customization_archive_s3_secret_name",
+    required=False,
+    help="Override the k8s Secret name for customization archive S3 credentials",
 )
 
 manageArgGroup.add_argument(

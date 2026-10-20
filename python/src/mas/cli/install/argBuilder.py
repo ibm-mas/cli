@@ -41,6 +41,10 @@ class installArgBuilderMixin:
 
         if self.getParam("mas_app_settings_customization_archive_password") != "":
             command += "export CUSTOMIZATION_PASSWORD=x\n"
+        if self.getParam("mas_manage_attachments_accesskey") != "":
+            command += "export MANAGE_ATTACHMENTS_ACCESSKEY=x\nexport MANAGE_ATTACHMENTS_SECRET_ACCESS_KEY=x\n"
+        if self.getParam("mas_app_settings_customization_archive_s3_access_key") != "":
+            command += "export MANAGE_CUSTOMIZATION_ARCHIVE_S3_ACCESSKEY=x\nexport MANAGE_CUSTOMIZATION_ARCHIVE_S3_SECRET_ACCESS_KEY=x\n"
         if self.getParam("mas_manage_encryptionsecret_crypto_key") != "":
             command += "export CRYPTO_KEY=x\n"
         if self.getParam("mas_manage_encryptionsecret_cryptox_key") != "":
@@ -349,6 +353,25 @@ class installArgBuilderMixin:
 
             if self.getParam("mas_manage_attachment_configuration_mode") != "":
                 command += f"  --manage-attachments-mode \"{self.getParam('mas_manage_attachment_configuration_mode')}\"{newline}"
+
+            if self.getParam("mas_manage_default_s3_region") != "":
+                command += f"  --manage-default-s3-region \"{self.getParam('mas_manage_default_s3_region')}\"{newline}"
+
+            if self.getParam("mas_manage_attachments_accesskey") != "":
+                command += f"  --manage-attachments-accesskey \"$MANAGE_ATTACHMENTS_ACCESSKEY\"{newline}"
+                command += f"  --manage-attachments-secret-access-key \"$MANAGE_ATTACHMENTS_SECRET_ACCESS_KEY\"{newline}"
+                command += f"  --manage-attachments-bucket \"{self.getParam('mas_manage_attachments_bucket')}\"{newline}"
+                command += f"  --manage-attachments-region \"{self.getParam('mas_manage_attachments_region')}\"{newline}"
+                if self.getParam("mas_manage_attachments_s3url") != "":
+                    command += f"  --manage-attachments-s3url \"{self.getParam('mas_manage_attachments_s3url')}\"{newline}"
+                if self.getParam("mas_manage_attachments_secret_name") != "":
+                    command += f"  --manage-attachments-secret-name \"{self.getParam('mas_manage_attachments_secret_name')}\"{newline}"
+
+            if self.getParam("mas_app_settings_customization_archive_s3_access_key") != "":
+                command += f"  --manage-customization-archive-s3-accesskey \"$MANAGE_CUSTOMIZATION_ARCHIVE_S3_ACCESSKEY\"{newline}"
+                command += f"  --manage-customization-archive-s3-secret-access-key \"$MANAGE_CUSTOMIZATION_ARCHIVE_S3_SECRET_ACCESS_KEY\"{newline}"
+                if self.getParam("mas_app_settings_customization_archive_s3_secret_name") != "":
+                    command += f"  --manage-customization-archive-s3-secret-name \"{self.getParam('mas_app_settings_customization_archive_s3_secret_name')}\"{newline}"
 
             if self.getParam("mas_appws_bindings_health_wsl_flag") == "true":
                 command += f"  --manage-health-wsl{newline}"
