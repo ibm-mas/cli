@@ -17,7 +17,7 @@ nav:
       - "Private Registry": guides/private-registry.md
       - "Image Mirroring (IBM)": guides/image-mirroring.md
       - "Image Mirroring (Red Hat)": commands/mirror-redhat-images.md
-      - "Image Mirroring (v2): guides/mirroring-v2.md"
+      - "Image Mirroring (v2)": guides/mirroring-v2.md
   - "Install and Configure":
       - "Install": guides/install.md
       - "Uninstall": guides/uninstall.md
