@@ -93,6 +93,7 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         ".*Does the Watsonxai AI use a self-signed certificate.*": lambda msg: "n",
         ".*Watsonxai Deployment ID.*": lambda msg: "",
         ".*Watsonxai Space ID.*": lambda msg: "",
+        ".*Configure an additional LLM provider.*": lambda msg: "n",
         # 13. RSL Integration
         ".*Does the RSL API use a self-signed certificate.*": lambda msg: "n",
         # 14. Database configuration
@@ -164,6 +165,7 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Does the Watsonxai AI use a self-signed certificate.*": lambda msg: "n",
         ".*Watsonxai Deployment ID.*": lambda msg: "",
         ".*Watsonxai Space ID.*": lambda msg: "",
+        ".*Configure an additional LLM provider.*": lambda msg: "n",
         # 13. RSL Integration
         ".*Does the RSL API use a self-signed certificate.*": lambda msg: "n",
         # 14. Database configuration

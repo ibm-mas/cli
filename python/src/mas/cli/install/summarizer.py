@@ -461,6 +461,13 @@ class InstallSummarizerMixin:
             self.printParamSummary("URL", "aiservice_watsonxai_url")
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
+            if self.getParam("aiservice_llm_client_id") != "":
+                self.printH2("LLM Provider")
+                self.printParamSummary("Provider", "aiservice_llm_provider")
+                self.printParamSummary("Model ID", "aiservice_llm_model_id")
+                self.printParamSummary("Base URL", "aiservice_llm_base_url")
+                self.printParamSummary("OAuth Client ID", "aiservice_llm_client_id")
+
     def db2Summary(self) -> None:
         if (
             self.getParam("db2_action_system") == "install"

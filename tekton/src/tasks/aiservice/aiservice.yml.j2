@@ -71,6 +71,26 @@ spec:
       type: string
       default: "This option is mandatory"
 
+    # LLM provider params
+    - name: aiservice_llm_provider
+      type: string
+      default: ""
+    - name: aiservice_llm_model_id
+      type: string
+      default: ""
+    - name: aiservice_llm_client_id
+      type: string
+      default: ""
+    - name: aiservice_llm_client_secret
+      type: string
+      default: ""
+    - name: aiservice_llm_refresh_token
+      type: string
+      default: ""
+    - name: aiservice_llm_base_url
+      type: string
+      default: ""
+
     # AI Service storage
     - name: aiservice_s3_accesskey
       type: string
@@ -217,6 +237,20 @@ spec:
         value: $(params.aiservice_watsonxai_on_prem)
       - name: AISERVICE_WATSONXAI_VERIFY
         value: $(params.aiservice_watsonxai_verify)
+
+      # LLM provider
+      - name: AISERVICE_LLM_PROVIDER
+        value: $(params.aiservice_llm_provider)
+      - name: AISERVICE_LLM_MODEL_ID
+        value: $(params.aiservice_llm_model_id)
+      - name: AISERVICE_LLM_CLIENT_ID
+        value: $(params.aiservice_llm_client_id)
+      - name: AISERVICE_LLM_CLIENT_SECRET
+        value: $(params.aiservice_llm_client_secret)
+      - name: AISERVICE_LLM_REFRESH_TOKEN
+        value: $(params.aiservice_llm_refresh_token)
+      - name: AISERVICE_LLM_BASE_URL
+        value: $(params.aiservice_llm_base_url)
 
       # Opendatahub storage details
       - name: AISERVICE_S3_ACCESSKEY

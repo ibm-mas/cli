@@ -67,6 +67,10 @@ class installArgBuilderMixin:
         # AI Service Credentials
         if self.getParam("aiservice_watsonxai_apikey") != "":
             command += "export AISERVICE_WATSONXAI_APIKEY=x\n"
+        if self.getParam("aiservice_llm_client_secret") != "":
+            command += "export AISERVICE_LLM_CLIENT_SECRET=x\n"
+        if self.getParam("aiservice_llm_refresh_token") != "":
+            command += "export AISERVICE_LLM_REFRESH_TOKEN=x\n"
         if self.getParam("minio_root_user") != "":
             command += "export MINIO_ROOT_USER=x\n"
         if self.getParam("minio_root_password") != "":
@@ -493,6 +497,19 @@ class installArgBuilderMixin:
                 command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
             if self.getParam("aiservice_watsonxai_on_prem") != "":
                 command += f"  --watsonxai-onprem \"{self.getParam('aiservice_watsonxai_on_prem')}\"{newline}"
+
+            if self.getParam("aiservice_llm_provider") != "":
+                command += f"  --llm-provider \"{self.getParam('aiservice_llm_provider')}\"{newline}"
+            if self.getParam("aiservice_llm_model_id") != "":
+                command += f"  --llm-model-id \"{self.getParam('aiservice_llm_model_id')}\"{newline}"
+            if self.getParam("aiservice_llm_client_id") != "":
+                command += f"  --llm-client-id \"{self.getParam('aiservice_llm_client_id')}\"{newline}"
+            if self.getParam("aiservice_llm_client_secret") != "":
+                command += f'  --llm-client-secret "$AISERVICE_LLM_CLIENT_SECRET"{newline}'
+            if self.getParam("aiservice_llm_refresh_token") != "":
+                command += f'  --llm-refresh-token "$AISERVICE_LLM_REFRESH_TOKEN"{newline}'
+            if self.getParam("aiservice_llm_base_url") != "":
+                command += f"  --llm-base-url \"{self.getParam('aiservice_llm_base_url')}\"{newline}"
 
             if self.getParam("minio_root_user") != "":
                 command += f"  --install-minio {newline}"
