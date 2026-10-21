@@ -284,7 +284,6 @@ function gitops_aiservice_tenant_noninteractive() {
         ;;
 
       --auto-delete)
-        shift
         export AUTO_DELETE=$1 && shift
         ;;
 
