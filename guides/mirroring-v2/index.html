@@ -485,11 +485,11 @@ export REGISTRY_PASSWORD=xxx #pragma: allowlist secret
 </code></pre>
 <p>If the system that has internet access <strong>cannot</strong> reach your private registry, you will need to transfer the filesystem content (produced in the <code>m2d</code> phase) to a separate system on your private network before running the <code>d2m</code> phase.</p>
 <p>To bootstrap the MAS CLI container itself into an air-gapped environment, first mirror it to the filesystem from an internet-connected system:</p>
-<pre><code class="language-bash">oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:23.15.0 file://ibmmas/cli:23.15.0 --filter-by-os='.*'
+<pre><code class="language-bash">oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:23.16.0 file://ibmmas/cli:23.16.0 --filter-by-os='.*'
 </code></pre>
 <p>Transfer <code>$LOCAL_DIR/cli</code> to your private-network system and push the image to your mirror registry:</p>
 <pre><code class="language-bash">docker login $REGISTRY_HOST -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
-oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ibmmas/cli:23.15.0 --filter-by-os='.*'
+oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.16.0 $REGISTRY_HOST/ibmmas/cli:23.16.0 --filter-by-os='.*'
 </code></pre>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -509,7 +509,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
   -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
   -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
   -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
-  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  quay.io/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode m2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/core \
@@ -523,7 +523,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
 
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
-  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  quay.io/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode m2d \
   --dir /mnt/registry/core \
@@ -539,7 +539,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
   -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
-  $REGISTRY_HOST/ibmmas/cli:23.15.0 mas mirror \
+  $REGISTRY_HOST/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode d2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/core \
@@ -564,7 +564,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
   -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
   -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
   -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
-  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  quay.io/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode m2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/apps \
@@ -578,7 +578,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
 
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
-  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  quay.io/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode m2d \
   --dir /mnt/registry/apps \
@@ -594,7 +594,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
   -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
-  $REGISTRY_HOST/ibmmas/cli:23.15.0 mas mirror \
+  $REGISTRY_HOST/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode d2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/apps \
@@ -619,7 +619,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
   -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
   -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
   -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
-  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  quay.io/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode m2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/cp4d \
@@ -633,7 +633,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
 
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
-  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  quay.io/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode m2d \
   --dir /mnt/registry/cp4d \
@@ -649,7 +649,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
   -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
-  $REGISTRY_HOST/ibmmas/cli:23.15.0 mas mirror \
+  $REGISTRY_HOST/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode d2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/cp4d \
@@ -674,7 +674,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
   -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
   -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
   -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
-  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  quay.io/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode m2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/deps \
@@ -688,7 +688,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
 
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
-  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  quay.io/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode m2d \
   --dir /mnt/registry/deps \
@@ -704,7 +704,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
   -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
-  $REGISTRY_HOST/ibmmas/cli:23.15.0 mas mirror \
+  $REGISTRY_HOST/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode d2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/deps \
@@ -721,7 +721,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:23.15.0 $REGISTRY_HOST/ib
   -e IBM_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY \
   -e REGISTRY_USERNAME=$REGISTRY_USERNAME \
   -e REGISTRY_PASSWORD=$REGISTRY_PASSWORD \
-  quay.io/ibmmas/cli:23.15.0 mas mirror \
+  quay.io/ibmmas/cli:23.16.0 mas mirror \
   --catalog v9-261007-amd64 --release 9.2.x \
   --mode m2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/all \
