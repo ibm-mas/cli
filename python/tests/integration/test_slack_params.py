@@ -32,9 +32,7 @@ class TestSlackParameters:
 
     def test_slack_notify_on_fail_in_optional_params(self):
         """Verify slack_notify_on_fail is in the optionalParams list"""
-        assert "slack_notify_on_fail" in optionalParams, (
-            "slack_notify_on_fail should be in optionalParams to support tagging a user on pipeline failure"
-        )
+        assert "slack_notify_on_fail" in optionalParams, "slack_notify_on_fail should be in optionalParams to support tagging a user on pipeline failure"
 
     def test_slack_params_are_optional(self):
         """Verify Slack parameters are optional (not required)"""
