@@ -635,6 +635,8 @@ class InstallSummarizerMixin:
         self.printH2("Slack Notifications")
         if self.getParam("slack_channel") != "":
             self.printParamSummary("Channel", "slack_channel")
+            if self.getParam("slack_notify_on_fail") != "":
+                self.printParamSummary("Tag on Failure", "slack_notify_on_fail")
         else:
             self.printSummary("Channel", "Disabled")
 

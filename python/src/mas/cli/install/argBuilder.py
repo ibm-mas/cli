@@ -689,6 +689,8 @@ class installArgBuilderMixin:
         # -----------------------------------------------------------------------------
         if self.getParam("slack_channel") != "" and self.getParam("slack_token"):
             command += f"  --slack-channel \"{self.getParam('slack_channel')}\"  --slack-token $SLACK_TOKEN{newline}"
+        if self.getParam("slack_notify_on_fail") != "":
+            command += f"  --slack-notify-on-fail \"{self.getParam('slack_notify_on_fail')}\"{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------

@@ -30,12 +30,19 @@ class TestSlackParameters:
         """Verify slack_channel is in the optionalParams list"""
         assert "slack_channel" in optionalParams, "slack_channel should be in optionalParams to support Slack notifications"
 
+    def test_slack_notify_on_fail_in_optional_params(self):
+        """Verify slack_notify_on_fail is in the optionalParams list"""
+        assert "slack_notify_on_fail" in optionalParams, (
+            "slack_notify_on_fail should be in optionalParams to support tagging a user on pipeline failure"
+        )
+
     def test_slack_params_are_optional(self):
         """Verify Slack parameters are optional (not required)"""
         from mas.cli.install.params import requiredParams
 
         assert "slack_token" not in requiredParams, "slack_token should be optional, not required"
         assert "slack_channel" not in requiredParams, "slack_channel should be optional, not required"
+        assert "slack_notify_on_fail" not in requiredParams, "slack_notify_on_fail should be optional, not required"
 
     def test_slack_params_documentation(self):
         """Document the purpose of Slack parameters"""
@@ -43,8 +50,9 @@ class TestSlackParameters:
         slack_params_doc = {
             "slack_token": "OAuth token for Slack API authentication (optional)",
             "slack_channel": "Comma-separated list of Slack channels for notifications (optional)",
+            "slack_notify_on_fail": "Slack user ID (e.g. U012AB3CD) to tag in the thread when the pipeline fails (optional)",
         }
 
-        # Verify both parameters exist
+        # Verify all parameters exist
         for param, description in slack_params_doc.items():
             assert param in optionalParams, f"{param} should be in optionalParams. Purpose: {description}"
