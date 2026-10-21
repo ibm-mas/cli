@@ -30,6 +30,7 @@ ibm_aiservice_tenant(required):
       --tenant-scheduling-config-file ${COLOR_YELLOW}TENANT_SCHEDULING_CONFIG_FILE${TEXT_RESET}             Path to tenant scheduling configuration file (tolerations and nodeSelector)
       --tenant-operator-config-file ${COLOR_YELLOW}TENANT_OPERATOR_CONFIG_FILE${TEXT_RESET}                 Path to tenant operator configuration file
       --enable-deprovisioning ${COLOR_YELLOW}AISERVICE_ENABLE_DEPROVISIONING${TEXT_RESET}                   When true, the tenant is deprovisioned when its AIServiceTenant CR is deleted
+      --auto-delete ${COLOR_YELLOW}AUTO_DELETE${TEXT_RESET}                                                 When true, the tenant app will sync automatically
 
 AiService :
 --aiservice-namespace ${COLOR_YELLOW}AISERVICE_NAMESPACE${TEXT_RESET}                                       The namespace where AI Service is deployed
@@ -122,6 +123,8 @@ function gitops_aiservice_tenant_noninteractive() {
   export AISERVICE_SLS_SUBSCRIPTION_ID=${AISERVICE_SLS_SUBSCRIPTION_ID:-"001"}
   # -- STORAGE Defaults
   export AISERVICE_STORAGE_REGION=${AISERVICE_STORAGE_REGION:-""}
+  # -- AUTO DELETE
+  export AUTO_DELETE=${AUTO_DELETE:-"false"}
 
   while [[ $# -gt 0 ]]
   do
@@ -278,6 +281,11 @@ function gitops_aiservice_tenant_noninteractive() {
 
       --enable-deprovisioning)
         export AISERVICE_ENABLE_DEPROVISIONING=$1 && shift
+        ;;
+
+      --auto-delete)
+        shift
+        export AUTO_DELETE=$1 && shift
         ;;
 
       # Automatic GitHub Push

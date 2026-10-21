@@ -12,6 +12,9 @@ ibm_aiservice_tenant:
 {% if AISERVICE_ENABLE_DEPROVISIONING is defined and AISERVICE_ENABLE_DEPROVISIONING != '' %}
   enable_deprovisioning: {{ AISERVICE_ENABLE_DEPROVISIONING }}
 {% endif %}
+{% if AUTO_DELETE is defined and AUTO_DELETE != '' %}
+  auto_delete: {{ AUTO_DELETE }}
+{% endif %}
 
   mas_icr_cp: "{{ MAS_ICR_CP }}"
   mas_icr_cpopen: "{{ MAS_ICR_CPOPEN }}"
