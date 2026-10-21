@@ -55,6 +55,9 @@ function install_buildx() {
   curl --silent -L "https://github.com/docker/buildx/releases/download/v0.31.1/buildx-v0.31.1.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
   chmod a+x ~/.docker/cli-plugins/docker-buildx
 
+  # Remove failing third-party Microsoft apt repo on GitHub runner if present
+  sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list /etc/apt/sources.list.d/azure-cli.list 2>/dev/null || true
+
   sudo apt-get update
   sudo apt-get install -y qemu-user-static
   qemu-aarch64-static --version
