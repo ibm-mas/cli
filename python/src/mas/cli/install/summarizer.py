@@ -49,6 +49,7 @@ class InstallSummarizerMixin:
         installOptimizer: bool
         installFacilities: bool
         installAIService: bool
+        installMcpi: bool
         installArcgis: bool
         dynamicClient: DynamicClient
         applyPreInstallMASRBAC: bool
@@ -461,6 +462,12 @@ class InstallSummarizerMixin:
             self.printParamSummary("URL", "aiservice_watsonxai_url")
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
+    def mcpiSummary(self) -> None:
+        if self.installMcpi:
+            self.printSummary("Maximo Cluster Performance Insights (MCPI)", "Install")
+        else:
+            self.printSummary("Maximo Cluster Performance Insights (MCPI)", "Do Not Install")
+
     def db2Summary(self) -> None:
         if (
             self.getParam("db2_action_system") == "install"
@@ -668,6 +675,7 @@ class InstallSummarizerMixin:
         self.inspectionSummary()
         self.facilitiesSummary()
         self.aiServiceSummary()
+        self.mcpiSummary()
 
         # Application Dependencies
         self.mongoSummary()
