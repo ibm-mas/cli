@@ -1221,6 +1221,19 @@ class TestParameterValidation:
             app.setParam("mas_routing_mode", mode)
             assert app.getParam("mas_routing_mode") == mode
 
+    def test_path_routing_with_service_mesh_bypasses_ingress_check(self):
+        """Test that path routing with Service Mesh enabled does not require IngressController validation."""
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "true")
+
+        # In interactive mode, selecting path routing with service mesh enabled sets path mode directly
+        app.configRoutingMode()
+        assert app.getParam("mas_routing_mode") == "path"
+        assert app.getParam("mas_ingress_controller_name") == ""
+        # Ingress controller checks should not have been called
+        app.promptForInt.assert_called_once()
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
