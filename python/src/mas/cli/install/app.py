@@ -1516,6 +1516,7 @@ class InstallApp(
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
                 self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
+                self.promptForString("IBM Cloud COS Region", "cos_region")
 
     @logMethodCall
     def facilitiesSettings(self) -> None:

@@ -1565,6 +1565,12 @@ cosArgGroup.add_argument(
     help="When using IBM COS, set the resource group where the instance will run",
 )
 cosArgGroup.add_argument(
+    "--cos-region",
+    dest="cos_region",
+    required=False,
+    help="When using IBM COS, set the COS region (e.g. us-south, us-east, etc.)",
+)
+cosArgGroup.add_argument(
     "--cos-apikey",
     dest="cos_apikey",
     required=False,
