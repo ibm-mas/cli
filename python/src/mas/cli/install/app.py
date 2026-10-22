@@ -2634,6 +2634,12 @@ class InstallApp(
         if self.getParam("mas_issuer_kind") != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--mas-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
 
+        if self.getParam("mas_use_service_mesh") == "true" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            self.fatalError(f"--servicemesh is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+
+        if self.getParam("mas_manual_route_mgmt") == "true" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            self.fatalError(f"--manual-routes is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+
         # Validate admin mode based on MAS version
         if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             # MAS 9.2+: --admin-mode is REQUIRED
