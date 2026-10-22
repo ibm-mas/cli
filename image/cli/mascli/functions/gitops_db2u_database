@@ -63,6 +63,7 @@ IBM DB2U:
       --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                    DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
       --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                      Slack URL to notify DB2 backup failures
+      --db2-backup-day-of-week ${COLOR_YELLOW}DB2_BACKUP_DAY_OF_WEEK${TEXT_RESET}                                 Day of the week for DB2 backup (optional, default: sat)
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                       Flag to know that this is ReplicaDB instance
       --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}                                              To check if this is invoked by replica task
       --skip-backup-notification ${COLOR_YELLOW}SKIP_BACKUP_NOTIFICATION${TEXT_RESET}                            Flag to track if slack and icd backup notifications are needed.
@@ -294,6 +295,9 @@ function gitops_db2u_database_noninteractive() {
       # Optional DB2 Backup details
       --db2-backup-notify-slack-url)
         export DB2_BACKUP_NOTIFY_SLACK_URL=$1 && shift
+        ;;
+      --db2-backup-day-of-week)
+        export DB2_BACKUP_DAY_OF_WEEK=$1 && shift
         ;;
       --replica-db)
         export REPLICA_DB=$1 && shift
@@ -535,6 +539,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -z $AUTO_BACKUP ]]; then
     export AUTO_BACKUP=false
   fi
+  if [[ -z $DB2_BACKUP_DAY_OF_WEEK ]]; then
+    export DB2_BACKUP_DAY_OF_WEEK=sat
+  fi
   # Option to track icd and slack notifications, and if they need to be set in secret manager. The default behavior for commercial SaaS is false.
   if [[ -z $SKIP_BACKUP_NOTIFICATION ]]; then
     export SKIP_BACKUP_NOTIFICATION=false
@@ -641,6 +648,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "is-replica-task ............................... ${COLOR_MAGENTA}${IS_REPLICA_TASK}"
   echo_reset_dim "mas-annotations ............................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
   echo_reset_dim "auto-backup ................................... ${COLOR_MAGENTA}${AUTO_BACKUP}"
+  echo_reset_dim "db2-backup-day-of-week ........................ ${COLOR_MAGENTA}${DB2_BACKUP_DAY_OF_WEEK}"
   echo_reset_dim "db2-audit-retention-days ...................... ${COLOR_MAGENTA}${DB2_AUDIT_RETENTION_DAYS}"
   echo_reset_dim "skip-backup-notification ...................... ${COLOR_MAGENTA}${SKIP_BACKUP_NOTIFICATION}"
   echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
