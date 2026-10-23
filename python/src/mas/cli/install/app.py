@@ -3166,6 +3166,7 @@ class InstallApp(
                     aiserviceConfig=self.aiserviceConfigSecret,
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel"),
+                    slack_notify_on_fail=self.getParam("slack_notify_on_fail"),
                     ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
                     artifactory_token=self.getParam("artifactory_token"),
                     artifactory_username=self.getParam("artifactory_username"),

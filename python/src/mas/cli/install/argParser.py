@@ -1708,6 +1708,12 @@ otherArgGroup.add_argument(
     required=False,
     help="Slack channel(s) for notifications (comma-separated for multiple channels)",
 )
+otherArgGroup.add_argument(
+    "--slack-notify-on-fail",
+    dest="slack_notify_on_fail",
+    required=False,
+    help="Slack user ID to tag in the thread when the pipeline fails (e.g. U012AB3CD). " "Set via SLACK_USER environment variable or this flag.",
+)
 
 otherArgGroup.add_argument(
     "--accept-license",
