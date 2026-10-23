@@ -143,33 +143,36 @@ class TestSupportedCatalogVersionFormat:
 
 
 class TestCatalogsFileFormatForBashrc:
-    """Validate that catalogs.py raw file format is compatible with the grep/sed
-    pattern used in .bashrc to display supported catalog versions at startup.
+    """Validate that catalogs.py raw file format is compatible with the grep/sed/uniq
+    pipeline used in .bashrc to display supported catalog versions at startup.
 
     The .bashrc line reads:
-      grep "\"v[0-9]*-[0-9]*-${arch}\"" /mascli/site-packages/mas/cli/install/catalogs.py
-        | sed 's/.*"\\(v[^"]*\\)".*/  - \\1/'
+      grep -o '"v[0-9]*-[0-9]*-[^"]*"' /mascli/site-packages/mas/cli/install/catalogs.py
+        | sed 's/.*"(v[0-9]*-[0-9]*)-[^"]*".*/  - \\1/'
+        | sort -t'-' -k2 -r | uniq
 
-    This requires each version string to appear as a double-quoted literal on
-    its own line in the source file.
+    This extracts unique version dates (without arch suffix) sorted newest first.
     """
 
-    @pytest.mark.parametrize("arch", SUPPORTED_ARCHES)
-    def test_bashrc_grep_pattern_matches_all_versions(self, arch):
-        """Test that the .bashrc grep pattern extracts all expected versions.
+    def test_bashrc_grep_pattern_extracts_unique_dates(self):
+        """Test that the .bashrc grep/sed/sort/uniq pipeline extracts unique version dates.
 
-        GIVEN the catalogs.py source file and a target architecture
-        WHEN the same grep/sed pattern used in .bashrc is run via subprocess
-        THEN it should return exactly the versions in supportedCatalogs for that arch.
+        GIVEN the catalogs.py source file
+        WHEN the same pipeline used in .bashrc is run via subprocess
+        THEN it should return unique version dates (without arch suffix) sorted newest first.
         """
         result = subprocess.run(
-            ["bash", "-c", f"grep '\"v[0-9]*-[0-9]*-{arch}\"' {_CATALOGS_PATH} | sed 's/.*\"\\(v[^\"]*\\)\".*/\\1/' | sort -t'-' -k2 -r"],
+            [
+                "bash",
+                "-c",
+                f"grep -o '\"v[0-9]*-[0-9]*-[^\"]*\"' {_CATALOGS_PATH} | sed 's/.*\"\\(v[0-9]*-[0-9]*\\)-[^\"]*\".*/\\1/' | sort -t'-' -k2 -r | uniq",
+            ],
             capture_output=True,
             text=True,
         )
         extracted = [line.strip() for line in result.stdout.strip().splitlines() if line.strip()]
-        expected = sorted(supportedCatalogs[arch], key=lambda v: v.split("-")[1], reverse=True)
-        assert extracted == expected, f"grep/sed/sort extracted {extracted} for arch '{arch}', expected {expected}"
+        expected = sorted(set(v.rsplit("-", 1)[0] for v in supportedCatalogs["amd64"]), key=lambda v: v.split("-")[1], reverse=True)
+        assert extracted == expected, f"grep/sed/sort/uniq extracted {extracted}, expected {expected}"
 
     def test_versions_use_double_quotes_in_source(self):
         """Test that all version strings appear as double-quoted literals in the source file.

@@ -22,8 +22,8 @@ arch=$(uname -i)
 echo "${TEXT_UNDERLINE}IBM Maximo Application Suite CLI Container ${TEXT_BOLD}v${VERSION}${TEXT_RESET}"
 echo "---"
 echo "Supported ibm-operator-catalog versions:"
-if [[ -n "${arch}" && "${arch}" != "unknown" && -f /mascli/site-packages/mas/cli/install/catalogs.py ]]; then
-    grep "\"v[0-9]*-[0-9]*-${arch}\"" /mascli/site-packages/mas/cli/install/catalogs.py 2>/dev/null | sed 's/.*"\(v[^"]*\)".*/  - \1/' | sort -t'-' -k2 -r || true
+if [[ -f /mascli/site-packages/mas/cli/install/catalogs.py ]]; then
+    grep -o '"v[0-9]*-[0-9]*-[^"]*"' /mascli/site-packages/mas/cli/install/catalogs.py 2>/dev/null | sed 's/.*"\(v[0-9]*-[0-9]*\)-[^"]*".*/  - \1/' | sort -t'-' -k2 -r | uniq || true
 fi
 echo "---"
 echo
