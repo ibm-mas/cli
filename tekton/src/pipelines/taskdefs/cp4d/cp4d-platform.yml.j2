@@ -2,11 +2,10 @@
   timeout: "0"
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: setup-cp4d
 
-    - name: ibm_entitlement_key
-      value: $(params.ibm_entitlement_key)
     - name: cpd_product_version
       value: $(params.cpd_product_version)
     - name: cpd_primary_storage_class
