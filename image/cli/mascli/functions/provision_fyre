@@ -179,6 +179,9 @@ function provision_fyre_noninteractive() {
       esac
   done
 
+  INSTALL_SERVICE_MESH=true
+  INSTALL_KIALI=true
+
   # Check all args have been set
   [[ -z "$FYRE_USERNAME" ]] && provision_fyre_help "FYRE_USERNAME is not set"
   [[ -z "$FYRE_APIKEY" ]] && provision_fyre_help "FYRE_APIKEY is not set"
