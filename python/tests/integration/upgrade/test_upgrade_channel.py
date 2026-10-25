@@ -231,7 +231,7 @@ class TestUpgradeChannelLogic:
         """
         with patch("mas.cli.upgrade.app.getMasChannel", return_value="9.2.x"):
             with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=[]):
-                with patch("mas.devops.tekton.launchUpgradePipeline") as mock_launch:
+                with patch("mas.devops.tekton.launchUpgradePipeline"):
                     with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
                         with patch("mas.devops.tekton.updateTektonDefinitions"):
                             with patch("mas.devops.ocp.createNamespace"):
