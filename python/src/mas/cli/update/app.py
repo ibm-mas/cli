@@ -747,6 +747,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         )
                         return
 
+                    if cpdInstanceVersion == cpdTargetVersion:
+                        h.stop_and_persist(
+                            symbol=self.successIcon,
+                            text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already at the target version {cpdTargetVersion}, no update required",
+                        )
+                        return
+
                     if cpdInstanceVersion not in cpdUpgradePath:
                         h.stop_and_persist(
                             symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) is too old to update to this catalog"
