@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 # Kafka-specific custom resources to collect (apiVersion, kind)
 # API version will be auto-discovered by dynamic client
 KAFKA_RESOURCES = [
-    ("kafka.strimzi.io/v1beta2", "Kafka"),
-    ("kafka.strimzi.io/v1beta2", "KafkaUser"),
+    ("kafka.strimzi.io/v1", "Kafka"),
+    ("kafka.strimzi.io/v1", "KafkaUser"),
 ]
 
 

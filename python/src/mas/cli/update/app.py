@@ -1016,14 +1016,18 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
     def detectKafka(self) -> None:
         """Detect Kafka instances to update and determine the provider."""
         haloStartingMessage = "Checking for Kafka instances to update"
-        apiVersion = "kafka.strimzi.io/v1beta2"
+        apiVersion = "kafka.strimzi.io/v1"
         kind = "Kafka"
         paramName = "kafka_namespace"
         mode = "kafka"
 
         with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
             try:
-                k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
+                try:
+                    k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
+                except (ResourceNotFoundError, NotFoundError):
+                    apiVersion = "kafka.strimzi.io/v1beta2"
+                    k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
                 instances = k8sAPI.get().to_dict()["items"]
                 logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
 
