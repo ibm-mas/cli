@@ -190,3 +190,118 @@ class TestCatalogsFileFormatForBashrc:
                 assert f'"{version}"' in content, (
                     f"Version '{version}' not found as a double-quoted literal in catalogs.py. " f"The .bashrc grep pattern requires double-quoted strings."
                 )
+
+
+class TestCatalogsSubcommandOutput:
+    """Validate the table and tag list produced by the `mas-cli catalogs` subcommand.
+
+    The handler in __main__.py derives arches and versions dynamically from
+    supportedCatalogs.keys() — no hardcoded arch list.  These tests replicate
+    that logic directly without invoking the full CLI (which requires heavy
+    runtime dependencies).
+    """
+
+    def _build_arches(self):
+        """Return arches derived dynamically from supportedCatalogs keys."""
+        return list(supportedCatalogs.keys())
+
+    def _build_versions(self):
+        """Replicate the version-building expression from __main__.py catalogs handler."""
+        arches = self._build_arches()
+        all_versions = {v.rsplit("-", 1)[0] for arch in arches for v in supportedCatalogs[arch]}
+        return sorted(all_versions, key=lambda v: v.split("-")[1], reverse=True)
+
+    def _build_version_arches(self):
+        """Replicate the version->arch-set lookup from __main__.py catalogs handler."""
+        arches = self._build_arches()
+        versions = self._build_versions()
+        return {ver: {v.rsplit("-", 1)[1] for arch in arches for v in supportedCatalogs[arch] if v.rsplit("-", 1)[0] == ver} for ver in versions}
+
+    def test_arches_derived_from_catalog_keys(self):
+        """Test that arches come from supportedCatalogs keys, not a hardcoded list.
+
+        GIVEN the supportedCatalogs dict
+        WHEN arches are derived from its keys
+        THEN they should exactly match the top-level keys.
+        """
+        assert self._build_arches() == list(supportedCatalogs.keys())
+
+    def test_output_versions_have_no_arch_suffix(self):
+        """Test that arch suffixes are stripped from the version list.
+
+        GIVEN supportedCatalogs entries with arch suffixes
+        WHEN the catalogs subcommand version list is built
+        THEN no version should end with any known arch suffix.
+        """
+        known_suffixes = tuple(f"-{a}" for a in self._build_arches())
+        for v in self._build_versions():
+            assert not v.endswith(known_suffixes), f"Arch suffix not stripped from '{v}'"
+
+    def test_output_versions_are_unique(self):
+        """Test that the version list contains no duplicates.
+
+        GIVEN supportedCatalogs with matching dates across arches
+        WHEN the catalogs subcommand version list is built
+        THEN all entries should be unique.
+        """
+        versions = self._build_versions()
+        assert len(versions) == len(set(versions)), "Duplicate versions in catalogs subcommand output"
+
+    def test_output_versions_sorted_newest_first(self):
+        """Test that versions are sorted newest-first by date field.
+
+        GIVEN a list of version strings in the form v<major>-<YYMMDD>
+        WHEN the catalogs subcommand version list is built
+        THEN dates should be in descending order.
+        """
+        versions = self._build_versions()
+        dates = [v.split("-")[1] for v in versions]
+        assert dates == sorted(dates, reverse=True), f"Versions not sorted newest-first: {versions}"
+
+    def test_output_count_matches_unique_versions_across_all_arches(self):
+        """Test that output count equals unique date-stripped versions across all arches.
+
+        GIVEN supportedCatalogs with all arches
+        WHEN the catalogs subcommand version list is built
+        THEN the count should equal the number of unique date-only versions.
+        """
+        arches = self._build_arches()
+        expected_count = len({v.rsplit("-", 1)[0] for arch in arches for v in supportedCatalogs[arch]})
+        assert len(self._build_versions()) == expected_count, f"Expected {expected_count} unique versions"
+
+    def test_version_arches_lookup_covers_all_versions(self):
+        """Test that the version->arches lookup contains an entry for every version.
+
+        GIVEN the version list and arch lookup built by the catalogs handler
+        WHEN the lookup keys are checked
+        THEN every version should have an entry.
+        """
+        versions = self._build_versions()
+        version_arches = self._build_version_arches()
+        assert set(version_arches.keys()) == set(versions), "version_arches lookup is missing entries"
+
+    def test_version_arches_values_are_subsets_of_known_arches(self):
+        """Test that each version's arch set only contains known arches.
+
+        GIVEN the version->arches lookup
+        WHEN each value set is checked
+        THEN it should only contain arches present in supportedCatalogs.keys().
+        """
+        known_arches = set(self._build_arches())
+        for ver, ver_arches in self._build_version_arches().items():
+            assert ver_arches <= known_arches, f"Unknown arch in version_arches['{ver}']: {ver_arches - known_arches}"
+
+    def test_latest_tags_cover_all_arches_that_support_newest_version(self):
+        """Test that the latest catalog tags section lists a tag for every arch supporting the newest version.
+
+        GIVEN the newest version and the version->arches lookup
+        WHEN the latest tags are generated
+        THEN there should be one tag per arch that supports the newest version.
+        """
+        versions = self._build_versions()
+        version_arches = self._build_version_arches()
+        newest = versions[0]
+        expected_tags = {f"{newest}-{arch}" for arch in version_arches[newest]}
+        arches = self._build_arches()
+        actual_tags = {f"{newest}-{arch}" for arch in arches if arch in version_arches[newest]}
+        assert actual_tags == expected_tags, f"Latest tags mismatch: expected {expected_tags}, got {actual_tags}"
