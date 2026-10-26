@@ -49,6 +49,7 @@ from mas.cli.validators import (
     BucketPrefixValidator,
     NotEmptyValidator,
     FileExistsValidator,
+    ArcGISLicenseValidator,
 )
 
 from mas.devops.ocp import (
@@ -513,13 +514,18 @@ class InstallApp(
                 self.printDescription(description)
 
                 if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
-                    self.setParam("mas_arcgis_channel", channel)
-                    self.installArcgis = True
-
                     # ArcGIS requires cluster admin mode for MAS 9.2.0+
                     if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
                         if self.mas_admin_mode != "cluster":
                             self.fatalError(f"--arcgis-channel requires --admin-mode cluster (current: {self.mas_admin_mode})")
+
+                    self.promptForString(
+                        "ArcGIS subscription channel",
+                        param="mas_arcgis_channel",
+                        default=channel,
+                        validator=NotEmptyValidator(),
+                    )
+                    self.installArcgis = True
 
                     self.printDescription(
                         [
@@ -533,6 +539,28 @@ class InstallApp(
 
                     if not self.yesOrNo("Do you accept the license terms"):
                         exit(1)
+
+                    self.printDescription(
+                        [
+                            "",
+                            "ArcGIS Enterprise Organization Configuration",
+                            "Provide organization administrator and infrastructure settings to configure ArcGIS Enterprise",
+                        ]
+                    )
+                    self.promptForString("ArcGIS admin username", param="arcgis_admin_username", validator=NotEmptyValidator())
+                    self.promptForString("ArcGIS admin password", param="arcgis_admin_password", isPassword=True, validator=NotEmptyValidator())
+                    self.promptForString("ArcGIS admin email", param="arcgis_admin_email", validator=NotEmptyValidator())
+                    self.promptForString("ArcGIS admin first name", param="arcgis_admin_first_name", validator=NotEmptyValidator())
+                    self.promptForString("ArcGIS admin last name", param="arcgis_admin_last_name", validator=NotEmptyValidator())
+                    self.promptForString(
+                        "Architecture profile",
+                        param="arcgis_arch_profile",
+                        default="development",
+                        completer=WordCompleter(["development", "standard-availability", "enhanced-availability"]),
+                    )
+                    self.promptForString("Path to ArcGIS license file (.json or .lic)", param="arcgis_license_file", validator=ArcGISLicenseValidator())
+                    self.promptForString("Storage class name", param="arcgis_storage_class", validator=NotEmptyValidator())
+                    self.setParam("arcgis_configure_org", "true")
 
     @logMethodCall
     def configSpecialCharacters(self):

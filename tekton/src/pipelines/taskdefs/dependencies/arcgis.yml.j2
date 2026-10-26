@@ -18,6 +18,24 @@
       value: $(params.custom_labels)
     - name: mas_arcgis_channel
       value: $(params.mas_arcgis_channel)
+    - name: arcgis_configure_org
+      value: "$(params.arcgis_configure_org)"
+    - name: arcgis_admin_username
+      value: "$(params.arcgis_admin_username)"
+    - name: arcgis_admin_password
+      value: "$(params.arcgis_admin_password)"
+    - name: arcgis_admin_email
+      value: "$(params.arcgis_admin_email)"
+    - name: arcgis_admin_first_name
+      value: "$(params.arcgis_admin_first_name)"
+    - name: arcgis_admin_last_name
+      value: "$(params.arcgis_admin_last_name)"
+    - name: arcgis_arch_profile
+      value: "$(params.arcgis_arch_profile)"
+    - name: arcgis_license_file
+      value: "$(params.arcgis_license_file)"
+    - name: arcgis_storage_class
+      value: "$(params.arcgis_storage_class)"
   taskRef:
     name: mas-devops-arcgis
     kind: Task

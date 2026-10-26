@@ -241,6 +241,12 @@ class InstallSummarizerMixin:
     def arcgisSummary(self) -> None:
         if self.installArcgis:
             self.printSummary("Loc Srv Esri (arcgis)", self.params["mas_arcgis_channel"])
+            if self.params.get("arcgis_configure_org"):
+                self.printSummary(" + Configure Org", "Yes")
+                self.printSummary(" + Admin user", self.params.get("arcgis_admin_username", "-"))
+                self.printSummary(" + Arch profile", self.params.get("arcgis_arch_profile", "development"))
+                self.printSummary(" + Storage class", self.params.get("arcgis_storage_class", "-"))
+                self.printSummary(" + License file", self.params.get("arcgis_license_file", "-"))
         else:
             self.printSummary("Loc Srv Esri (arcgis)", "Do Not Install")
 

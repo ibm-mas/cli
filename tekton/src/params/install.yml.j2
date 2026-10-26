@@ -721,6 +721,42 @@
   type: string
   description: Subscription channel for IBM Maximo Location Services for ESRI. Setting this will trigger ArcGIS installation.
   default: "" # default is handled by ansible-devops
+- name: arcgis_configure_org
+  type: string
+  description: Configure ArcGIS Enterprise Organization post-installation
+  default: "false"
+- name: arcgis_admin_username
+  type: string
+  description: ArcGIS Enterprise organization administrator username
+  default: ""
+- name: arcgis_admin_password
+  type: string
+  description: ArcGIS Enterprise organization administrator password
+  default: ""
+- name: arcgis_admin_email
+  type: string
+  description: ArcGIS Enterprise organization administrator email
+  default: ""
+- name: arcgis_admin_first_name
+  type: string
+  description: ArcGIS Enterprise organization administrator first name
+  default: ""
+- name: arcgis_admin_last_name
+  type: string
+  description: ArcGIS Enterprise organization administrator last name
+  default: ""
+- name: arcgis_arch_profile
+  type: string
+  description: ArcGIS Enterprise system architecture profile
+  default: "development"
+- name: arcgis_license_file
+  type: string
+  description: Path to ArcGIS Enterprise license file (.json or .lic)
+  default: ""
+- name: arcgis_storage_class
+  type: string
+  description: Storage class name for ArcGIS Enterprise persistent volumes
+  default: ""
 
 # MAS Application Configuration - Health Application
 # -----------------------------------------------------------------------------

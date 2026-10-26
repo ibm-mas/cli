@@ -255,3 +255,51 @@ class NotEmptyValidator(Validator):
 
         if not match(r"^.+$", value):
             raise ValidationError(message="Enter a value", cursor_position=0)
+
+
+class ArcGISLicenseValidator(Validator):
+    def validate(self, document: Document) -> None:
+        """
+        Validate that a file exists and is a valid ArcGIS Enterprise license file (.json or .lic)
+        """
+        response = document.text.strip()
+        if not path.isfile(response):
+            raise ValidationError(message=f"{response} does not exist, or is not a file", cursor_position=len(response))
+
+        try:
+            with open(response, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+        except Exception as e:
+            raise ValidationError(message=f"Could not read license file: {str(e)}", cursor_position=len(response))
+
+        if not content:
+            raise ValidationError(message="License file is empty", cursor_position=len(response))
+
+        # Check JSON format and ArcGIS license signature/userTypes
+        try:
+            data = loads(content)
+            content_str = str(data)
+            has_arcgis_markers = any(
+                marker in content_str
+                for marker in [
+                    "creatorUT",
+                    "GISProfessional",
+                    "userTypes",
+                    "provisioning",
+                    "ArcGIS",
+                    "arcgis",
+                    "features",
+                ]
+            )
+            if not has_arcgis_markers:
+                raise ValidationError(
+                    message="File is not a valid ArcGIS Enterprise license (missing administrator user type 'creatorUT')",
+                    cursor_position=len(response),
+                )
+        except JSONDecodeError:
+            # If plain text / .lic license
+            if not any(marker in content for marker in ["ARC/INFO", "ArcGIS", "arcgis", "FEATURE", "INCREMENT", "SERVER"]):
+                raise ValidationError(
+                    message="License file must be a valid ArcGIS Enterprise license (.json or .lic)",
+                    cursor_position=len(response),
+                )

@@ -261,6 +261,17 @@ optionalParams = [
     "skip_grafana_install",
     "grafana_v5_namespace",
     "grafana_instance_storage_size",
+    # ArcGIS Enterprise
+    "mas_arcgis_channel",
+    "arcgis_configure_org",
+    "arcgis_admin_username",
+    "arcgis_admin_password",
+    "arcgis_admin_email",
+    "arcgis_admin_first_name",
+    "arcgis_admin_last_name",
+    "arcgis_arch_profile",
+    "arcgis_license_file",
+    "arcgis_storage_class",
     # Slack Integration
     "slack_token",
     "slack_channel",

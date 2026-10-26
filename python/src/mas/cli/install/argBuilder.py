@@ -291,6 +291,24 @@ class installArgBuilderMixin:
         # -----------------------------------------------------------------------------
         if self.installArcgis:
             command += f"  --arcgis-channel \"{self.getParam('mas_arcgis_channel')}\"{newline}"
+            if self.getParam("arcgis_configure_org"):
+                command += f"  --arcgis-configure-org{newline}"
+            if self.getParam("arcgis_admin_username") != "":
+                command += f"  --arcgis-admin-username \"{self.getParam('arcgis_admin_username')}\"{newline}"
+            if self.getParam("arcgis_admin_password") != "":
+                command += f"  --arcgis-admin-password \"{self.getParam('arcgis_admin_password')}\"{newline}"
+            if self.getParam("arcgis_admin_email") != "":
+                command += f"  --arcgis-admin-email \"{self.getParam('arcgis_admin_email')}\"{newline}"
+            if self.getParam("arcgis_admin_first_name") != "":
+                command += f"  --arcgis-admin-first-name \"{self.getParam('arcgis_admin_first_name')}\"{newline}"
+            if self.getParam("arcgis_admin_last_name") != "":
+                command += f"  --arcgis-admin-last-name \"{self.getParam('arcgis_admin_last_name')}\"{newline}"
+            if self.getParam("arcgis_arch_profile") != "":
+                command += f"  --arcgis-arch-profile \"{self.getParam('arcgis_arch_profile')}\"{newline}"
+            if self.getParam("arcgis_license_file") != "":
+                command += f"  --arcgis-license-file \"{self.getParam('arcgis_license_file')}\"{newline}"
+            if self.getParam("arcgis_storage_class") != "":
+                command += f"  --arcgis-storage-class \"{self.getParam('arcgis_storage_class')}\"{newline}"
 
         # Manage Advanced Settings
         # -----------------------------------------------------------------------------

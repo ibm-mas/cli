@@ -614,6 +614,63 @@ arcgisArgGroup.add_argument(
     required=False,
     help="Subscription channel for IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial or Facilities",
 )
+arcgisArgGroup.add_argument(
+    "--arcgis-configure-org",
+    dest="arcgis_configure_org",
+    required=False,
+    action="store_true",
+    help="Configure ArcGIS Enterprise Organization post-installation",
+)
+arcgisArgGroup.add_argument(
+    "--arcgis-admin-username",
+    dest="arcgis_admin_username",
+    required=False,
+    help="ArcGIS Enterprise organization administrator username",
+)
+arcgisArgGroup.add_argument(
+    "--arcgis-admin-password",
+    dest="arcgis_admin_password",
+    required=False,
+    help="ArcGIS Enterprise organization administrator password",
+)
+arcgisArgGroup.add_argument(
+    "--arcgis-admin-email",
+    dest="arcgis_admin_email",
+    required=False,
+    help="ArcGIS Enterprise organization administrator email",
+)
+arcgisArgGroup.add_argument(
+    "--arcgis-admin-first-name",
+    dest="arcgis_admin_first_name",
+    required=False,
+    help="ArcGIS Enterprise organization administrator first name",
+)
+arcgisArgGroup.add_argument(
+    "--arcgis-admin-last-name",
+    dest="arcgis_admin_last_name",
+    required=False,
+    help="ArcGIS Enterprise organization administrator last name",
+)
+arcgisArgGroup.add_argument(
+    "--arcgis-arch-profile",
+    dest="arcgis_arch_profile",
+    choices=["development", "standard-availability", "enhanced-availability"],
+    default="development",
+    required=False,
+    help="ArcGIS Enterprise system architecture profile",
+)
+arcgisArgGroup.add_argument(
+    "--arcgis-license-file",
+    dest="arcgis_license_file",
+    required=False,
+    help="Path to ArcGIS Enterprise license file (.json or .lic)",
+)
+arcgisArgGroup.add_argument(
+    "--arcgis-storage-class",
+    dest="arcgis_storage_class",
+    required=False,
+    help="Storage class name for ArcGIS Enterprise persistent volumes",
+)
 
 # Manage Advanced Settings
 # -----------------------------------------------------------------------------

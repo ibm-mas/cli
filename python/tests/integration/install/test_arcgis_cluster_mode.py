@@ -25,6 +25,9 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
     component is installed with cluster admin mode on MAS 9.2+.
     """
 
+    # Create mock ArcGIS license file with creatorUT userType
+    tmpdir.join("arcgis.json").write('{"userTypes": [{"id": "creatorUT"}]}')
+
     # Define prompt handlers
     prompt_handlers = {
         # 1. Cluster connection
@@ -129,7 +132,16 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
         ".*Include IBM Maximo Location Services for Esri.*": lambda msg: "y",
+        ".*ArcGIS subscription channel.*": lambda msg: "9.2.x-dev",
         ".*Do you accept the license terms?.*": lambda msg: "y",
+        ".*ArcGIS admin username.*": lambda msg: "arcgisadmin",
+        ".*ArcGIS admin password.*": lambda msg: "ArcgisAdmin123!",
+        ".*ArcGIS admin email.*": lambda msg: "admin@example.com",
+        ".*ArcGIS admin first name.*": lambda msg: "ArcGIS",
+        ".*ArcGIS admin last name.*": lambda msg: "Admin",
+        ".*Architecture profile.*": lambda msg: "development",
+        ".*Path to ArcGIS license file.*": lambda msg: f"{tmpdir}/arcgis.json",
+        ".*Storage class name.*": lambda msg: "nfs-client",
         # 23. Grafana configuration (appears when advanced options are enabled)
         ".*Install Grafana.*": lambda msg: "y",
         # 24. MongoDB configuration
