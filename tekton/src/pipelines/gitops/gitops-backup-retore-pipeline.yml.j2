@@ -1,0 +1,90 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: gitops-backup-restore-pipeline
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: cluster_url
+      type: string
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+
+
+  workspaces:
+    - name: configs
+    - name: shared-gitops-configs
+
+  tasks:
+
+    # Task 1: Invoke Backup AAP
+    # -------------------------------------------------------------------------
+    - name: gitops-backup-aap
+      taskRef:
+        name: gitops-backup-aap
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+
+
+    # Task 2: Invoke Restore AAP
+    # -------------------------------------------------------------------------
+    - name: gitops-restore-aap
+     # when:
+      #  - input: "$(params.is_s3)"
+       #   operator: in
+        #  values: ["true"]
+     # runAfter:
+    #    - gitops-iac-config
+      taskRef:
+        name: gitops-iac-provision-s3
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: region_name
+          value: $(params.region_name)

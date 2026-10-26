@@ -1,0 +1,256 @@
+#!/usr/bin/env bash
+
+function gitops_invoke_backup_aap_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+
+
+Usage:
+  mas gitops-invoke_backup_aap [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration:
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                    Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                    Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}          MAS Instance ID
+  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}                      Region ID
+  --region-name ${COLOR_YELLOW}REGION_NAME${TEXT_RESET}                      Region Name
+
+Target Cluster (Optional):
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                  Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+
+Automatic GitHub Push (Optional):
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                  Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}                  GitHub Hostname for your GitOps repository
+  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}                    Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}                  Github repo for your GitOps repository
+  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}                       Git ssh key path
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}                    Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}            Git commit message to use when committing to of your GitOps repository
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_invoke_backup_aap_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"invoke_backup_aap provision"}
+
+  # Set default values
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
+  
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        export CLUSTER_NAME=$1  # For backward compatibility
+        ;;
+      
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+
+     --region-name)
+        export REGION_NAME=$1 && shift
+        ;;
+
+      # Target Cluster (Optional)
+      --cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_invoke_backup_aap_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_invoke_backup_aap_help "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  # Validate required parameters - only basic ones that all commands need
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_invoke_backup_aap_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_invoke_backup_aap_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_invoke_backup_aap_help "CLUSTER_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_invoke_backup_aap_help "MAS_INSTANCE_ID is not set"
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_invoke_backup_aap_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_invoke_backup_aap_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_invoke_backup_aap_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_invoke_backup_aap_help "GIT_BRANCH is not set"
+  fi
+}
+
+
+
+# ============================================================================
+# Function 1: Create New Branch from Target Branch
+# ============================================================================
+# Clones the target branch (GIT_BRANCH) and creates a NEW working branch from it
+# The new branch will be used for all commits and will be merged back to GIT_BRANCH via PR
+#
+# Parameters: Uses environment variables set by gitops_invoke_backup_aap_noninteractive
+# Exports: NEW_BRANCH_NAME (saved to file for other tasks)
+function gitops_invoke_backup_aap_create_branch() {
+  echo
+  echo_h2 "Invoking backup AAP Playbook ${GIT_BRANCH}"
+  
+  # Validate required parameters
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_invoke_backup_aap_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITHUB_HOST" ]] && gitops_invoke_backup_aap_help "GITHUB_HOST is not set"
+  [[ -z "$GITHUB_ORG" ]] && gitops_invoke_backup_aap_help "GITHUB_ORG is not set"
+  [[ -z "$GITHUB_REPO" ]] && gitops_invoke_backup_aap_help "GITHUB_REPO is not set"
+  [[ -z "$GIT_BRANCH" ]] && gitops_invoke_backup_aap_help "GIT_BRANCH is not set (target branch)"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_invoke_backup_aap_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_invoke_backup_aap_help "CLUSTER_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_invoke_backup_aap_help "MAS_INSTANCE_ID is not set"
+
+  
+  # AAP / AWX credentials and settings are expected in the environment:
+  #   AAP_URL               - Base URL, e.g. https://aap.example.com
+  #   AAP_JOB_TEMPLATE_ID   - ID (or name) of the job template to launch
+  #   AAP_TOKEN             - OAuth2 token (preferred), or
+  #   AAP_USERNAME/AAP_PASSWORD - basic auth credentials
+  # Optional:
+  #   AAP_API_PREFIX        - API path prefix (default: /api/controller/v2 for AAP 2.x, use /api/v2 for AWX)
+  #   AAP_VERIFY_SSL        - set to "false" to skip TLS verification (default: true)
+  #   AAP_POLL_INTERVAL     - seconds between status checks (default: 15)
+  #   AAP_TIMEOUT           - max seconds to wait for completion (default: 3600)
+  [[ -z "$AAP_URL" ]] && gitops_invoke_backup_aap_help "AAP_URL is not set"
+  [[ -z "$AAP_JOB_TEMPLATE_ID" ]] && gitops_invoke_backup_aap_help "AAP_JOB_TEMPLATE_ID is not set"
+  if [[ -z "$AAP_TOKEN" && ( -z "$AAP_USERNAME" || -z "$AAP_PASSWORD" ) ]]; then
+    gitops_invoke_backup_aap_help "Either AAP_TOKEN or both AAP_USERNAME and AAP_PASSWORD must be set"
+  fi
+
+  local AAP_BASE="${AAP_URL%/}${AAP_API_PREFIX:-/api/controller/v2}"
+  local POLL_INTERVAL="${AAP_POLL_INTERVAL:-15}"
+  local TIMEOUT="${AAP_TIMEOUT:-3600}"
+
+  local CURL_OPTS=(-s)
+  [[ "$AAP_VERIFY_SSL" == "false" ]] && CURL_OPTS+=(-k)
+  if [[ -n "$AAP_TOKEN" ]]; then
+    CURL_OPTS+=(-H "Authorization: Bearer ${AAP_TOKEN}")
+  else
+    CURL_OPTS+=(-u "${AAP_USERNAME}:${AAP_PASSWORD}")
+  fi
+
+  # Extra vars passed to the playbook
+  local EXTRA_VARS
+  EXTRA_VARS=$(jq -n \
+    --arg account_id "${ACCOUNT_ID}" \
+    --arg cluster_id "${CLUSTER_ID}" \
+    --arg mas_instance_id "${MAS_INSTANCE_ID}" \
+    --arg region_id "${REGION_ID}" \
+    --arg region_name "${REGION_NAME}" \
+    '{extra_vars: {account_id: $account_id, cluster_id: $cluster_id, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name}}')
+
+  # Launch the job template
+  echo "Launching AAP job template ${AAP_JOB_TEMPLATE_ID} ..."
+  local LAUNCH_RESPONSE
+  LAUNCH_RESPONSE=$(curl "${CURL_OPTS[@]}" -X POST \
+    -H "Content-Type: application/json" \
+    -d "${EXTRA_VARS}" \
+    "${AAP_BASE}/job_templates/${AAP_JOB_TEMPLATE_ID}/launch/")
+
+  local JOB_ID
+  JOB_ID=$(echo "${LAUNCH_RESPONSE}" | jq -r '.job // empty' 2>/dev/null)
+  if [[ -z "$JOB_ID" ]]; then
+    echo_warning "Failed to launch AAP job template ${AAP_JOB_TEMPLATE_ID}: ${LAUNCH_RESPONSE}"
+    exit 1
+  fi
+  echo "AAP job launched: ID ${JOB_ID} (${AAP_URL%/}/#/jobs/playbook/${JOB_ID})"
+
+  # Poll until the job reaches a terminal state
+  local ELAPSED=0
+  local JOB_STATUS=""
+  while true; do
+    JOB_STATUS=$(curl "${CURL_OPTS[@]}" "${AAP_BASE}/jobs/${JOB_ID}/" | jq -r '.status // empty')
+    echo "AAP job ${JOB_ID} status: ${JOB_STATUS:-unknown} (${ELAPSED}s elapsed)"
+    case "$JOB_STATUS" in
+      successful|failed|error|canceled)
+        break
+        ;;
+    esac
+    if [[ $ELAPSED -ge $TIMEOUT ]]; then
+      echo_warning "Timed out after ${TIMEOUT}s waiting for AAP job ${JOB_ID}"
+      exit 1
+    fi
+    sleep "$POLL_INTERVAL"
+    ELAPSED=$((ELAPSED + POLL_INTERVAL))
+  done
+
+  # Print job output
+  echo_h2 "AAP job ${JOB_ID} output"
+  curl "${CURL_OPTS[@]}" "${AAP_BASE}/jobs/${JOB_ID}/stdout/?format=txt"
+  echo
+
+  if [[ "$JOB_STATUS" != "successful" ]]; then
+    echo_warning "AAP job ${JOB_ID} finished with status: ${JOB_STATUS}"
+    exit 1
+  fi
+
+  echo "AAP job ${JOB_ID} completed successfully"
+  exit 0
+}
+
+
+# ============================================================================
+# Command Wrappers - Make functions callable as separate commands
+# ============================================================================
+
+# Wrapper for gitops-invoke_backup_aap-create-branch command
+function gitops_invoke_backup_aap_cmd() {
+  shift  # Remove command name
+  if [[ $# -gt 0 ]]; then
+    gitops_invoke_backup_aap_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+  fi
+  
+  # Call the actual function
+  gitops_invoke_backup_aap_create_branch
+}
