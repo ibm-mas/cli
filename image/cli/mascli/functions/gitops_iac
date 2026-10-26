@@ -1439,15 +1439,19 @@ function gitops_iac_provision_rdsdb2(){
       case "$app" in
         manage)
           export RDS_DB2_ENGINE_VERSION="${RDS_MANAGE_DB2_ENGINE_VERSION}"
+          export RDS_REPLICA_DB="${RDS_MANAGE_REPLICA_DB}"
           ;;
         iot)
           export RDS_DB2_ENGINE_VERSION="${RDS_IOT_DB2_ENGINE_VERSION}"
+          export RDS_REPLICA_DB="${RDS_IOT_REPLICA_DB}"
           ;;
         facilities)
           export RDS_DB2_ENGINE_VERSION="${RDS_FACILITIES_DB2_ENGINE_VERSION}"
+          export RDS_REPLICA_DB="${RDS_FACILITIES_REPLICA_DB}"
           ;;
         monitor)
           export RDS_DB2_ENGINE_VERSION="${RDS_MONITOR_DB2_ENGINE_VERSION}"
+          export RDS_REPLICA_DB="${RDS_MONITOR_REPLICA_DB}"
           ;;
       esac
 
