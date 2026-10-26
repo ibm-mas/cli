@@ -26,6 +26,7 @@ ibm_aiservice_tenant(required):
       --sm-aws-secret-region ${TEXT_RESET}SM_AWS_REGION${TEXT_RESET}                                         AWS Region
       --sm-aws-access-key ${TEXT_RESET}SM_AWS_ACCESS_KEY${TEXT_RESET}                                        AWS Access key ID
       --sm-aws-secret-key ${TEXT_RESET}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}                                 AWS Secreat Access key ID
+      --delete-secrets ${COLOR_YELLOW}DELETE_SECRETS${TEXT_RESET}                                             Whether to delete secrets from Secrets Manager (default: false)
 
 
 Automatic GitHub Push (Optional):
@@ -48,8 +49,9 @@ function gitops_deprovision_aiservice_tenant_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-aiservice-tenant-deprovision commit"
 
-  # adding default values 
+  # adding default values
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+  export DELETE_SECRETS=${DELETE_SECRETS:-"false"}
 
   while [[ $# -gt 0 ]]
   do
@@ -86,9 +88,12 @@ function gitops_deprovision_aiservice_tenant_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
-        ;;  
+        ;;
       --tenant-id)
         export TENANT_ID=$1 && shift
+        ;;
+      --delete-secrets)
+        export DELETE_SECRETS=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -204,29 +209,12 @@ function gitops_deprovision_aiservice_tenant() {
   # -- aiservice
   
   echo_reset_dim "AI Service Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
-   
-  echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
-  
-  echo -e "login aws"
+  echo_reset_dim "Tenant ID .............................. ${COLOR_MAGENTA}${TENANT_ID}"
+  echo_reset_dim "Delete Secrets ......................... ${COLOR_MAGENTA}${DELETE_SECRETS}"
 
- AVP_TYPE=aws  # Support for IBM will be added later
-  sm_login
-
-  # Created for tenant secrets
-  echo "Finding Secrets for Tenant Deprovision"
-  TENANT_SECRETS=($(sm_list_tenant_secrets ${ACCOUNT_ID} ${CLUSTER_ID} ${AISERVICE_INSTANCE_ID} ${TENANT_ID}))
-  PATTERN='^[^\/]+\/[^\/]+\/[^\/]+\/'${TENANT_ID}'\/[^\/]+$'
-  echo $PATTERN
-  for SECRET_NAME in "${TENANT_SECRETS[@]}"; do
-    echo "Checking secret ${SECRET_NAME} for pattern"
-    if [[ "$SECRET_NAME" =~ $PATTERN ]]; then
-      export TENANT_SECRET_NAME=${SECRET_NAME}
-      echo "Delete $TENANT_SECRET_NAME from Secrets Manager"
-      sm_delete_secret $TENANT_SECRET_NAME
-    fi 
-  done
-
-  # finally push them into the git repo
+  # Step 1: Remove tenant manifest configuration files and push to GitOps repo
+  # NOTE: AWS Secrets are intentionally NOT deleted here to ensure ArgoCD Vault Plugin (AVP)
+  # renders cleanly during the ArgoCD teardown and tenant operator finalizer execution.
 
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
@@ -241,19 +229,42 @@ function gitops_deprovision_aiservice_tenant() {
     fi
 
 
-    # Generate ArgoApps
+    # Delete Tenant Manifests from GitOps Repo
     # ---------------------------------------------------------------------------
     echo
     echo_h2 "Deleting application configuration files"
-    echo "- Deleting aiservice tenant"
+    echo "- Deleting aiservice tenant manifests for ${TENANT_ID}"
    
-   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant-base.yaml
-   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant.yaml
+    rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant-base.yaml
+    rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant.yaml
+    rm -rf ${GITOPS_CLUSTER_DIR}
+
     if [ "$GITHUB_PUSH" == "true" ]; then
       echo
       echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
       save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
       remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    fi
+
+    # Step 2: Delete Secrets only if explicitly enabled (e.g. called in post-cleanup step)
+    if [[ "$DELETE_SECRETS" == "true" ]]; then
+      echo
+      echo_h2 "Purging Secrets from AWS Secrets Manager for ${TENANT_ID}"
+      AVP_TYPE=aws
+      sm_login
+
+      TENANT_SECRETS=($(sm_list_tenant_secrets ${ACCOUNT_ID} ${CLUSTER_ID} ${AISERVICE_INSTANCE_ID} ${TENANT_ID}))
+      PATTERN='^[^\/]+\/[^\/]+\/[^\/]+\/'${TENANT_ID}'(\/.*)?$'
+      echo "Matching pattern: $PATTERN"
+      for SECRET_NAME in "${TENANT_SECRETS[@]}"; do
+        if [[ "$SECRET_NAME" =~ $PATTERN ]]; then
+          echo "Deleting ${SECRET_NAME} from Secrets Manager"
+          sm_delete_secret $SECRET_NAME
+        fi
+      done
+    else
+      echo
+      echo_h2 "Preserving Secrets in AWS Secrets Manager (DELETE_SECRETS=${DELETE_SECRETS})"
     fi
 
 }
