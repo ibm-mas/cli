@@ -850,7 +850,7 @@ case $1 in
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! catalogs                                                                  !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-    # Display supported ibm-operator-catalog versions on demand.
+    # Display supported IBM Maximo Operator Catalog versions on demand.
     # Delegates to mas-cli (Python) which reads supportedCatalogs directly
     # from the installed package — no grep/awk needed, no cluster connection
     # required.  Arch suffixes are stripped; the local host arch is irrelevant

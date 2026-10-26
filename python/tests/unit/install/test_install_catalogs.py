@@ -12,7 +12,7 @@
 """Tests for the supportedCatalogs data structure in install/catalogs.py.
 
 Also validates the raw file format is compatible with the grep/sed pattern
-used in image/cli/app-root/src/.bashrc to display supported catalog versions
+used in image/cli/app-root/src/.bashrc to display supported IBM Maximo Operator Catalog versions
 at container startup.
 """
 

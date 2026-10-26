@@ -50,8 +50,8 @@ def usage() -> None:
             + " - <ForestGreen>mas-cli must-gather</ForestGreen> Collect diagnostic information\n"
             + " - <ForestGreen>mas-cli setup-rbac</ForestGreen>  Set up RBAC resources for MAS installation\n"
             + " - <ForestGreen>mas-cli pre-install</ForestGreen>  Set up pre-install RBAC for MAS\n"
-            + "\n<b>Information:</b>\n"
-            + " - <ForestGreen>mas-cli catalogs</ForestGreen>  List supported ibm-operator-catalog versions\n"
+            + "\n<b>Utilities:</b>\n"
+            + " - <ForestGreen>mas-cli catalogs</ForestGreen>  List supported IBM Maximo Operator Catalog versions\n"
         )
     )
     print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
@@ -160,7 +160,7 @@ def main() -> None:
             # Use print_formatted_text exclusively to avoid stdout ordering issues
             # that arise when mixing print() (buffered) with print_formatted_text()
             # (unbuffered prompt_toolkit output).
-            print_formatted_text(HTML(f"\n<u>Supported ibm-operator-catalog versions (CLI v{VERSION})</u>\n"))
+            print_formatted_text(HTML(f"\n<u>Supported IBM Maximo Operator Catalog versions (CLI v{VERSION})</u>\n"))
             print_formatted_text(HTML(header))
             print_formatted_text(HTML(divider))
             for ver in versions:
@@ -172,7 +172,7 @@ def main() -> None:
             # The tag format is <version>-<arch> — e.g. v9-261007-amd64 — which
             # is the value users supply as the CatalogSource tag in their cluster.
             newest = versions[0]
-            print_formatted_text(HTML("\n  <b>Latest catalog tags (use as CatalogSource tag for your cluster arch):</b>"))
+            print_formatted_text(HTML("\n  <b>Latest IBM Maximo Operator Catalog tags:</b>"))
             for arch in arches:
                 if arch in version_arches[newest]:
                     print_formatted_text(HTML(f"    <ForestGreen>{newest}-{arch}</ForestGreen>"))
