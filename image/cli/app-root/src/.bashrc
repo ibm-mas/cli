@@ -29,6 +29,7 @@ echo "  Run ${TEXT_BOLD}mas catalogs${TEXT_RESET} for full details"
 echo
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops${TEXT_RESET}"
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/cli${TEXT_RESET}"
+echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm-mas.github.io/cli/catalogs${TEXT_RESET}"
 echo
 echo "MAS Management:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas install${TEXT_RESET} to install a new MAS instance"

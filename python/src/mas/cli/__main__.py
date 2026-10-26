@@ -134,6 +134,14 @@ def main() -> None:
             app.mustGather(argv[2:])
             return
         if function == "catalogs":
+            if len(argv) > 2 and argv[2] in ["-h", "--help"]:
+                print_formatted_text(
+                    HTML(
+                        "\nUsage: <ForestGreen>mas-cli catalogs</ForestGreen>\n\nList supported IBM Maximo Operator Catalog versions with architecture availability.\n\nFor more information: <DarkGoldenRod><u>https://ibm-mas.github.io/cli/catalogs</u></DarkGoldenRod>\n"
+                    )
+                )
+                raise SystemExit(0)
+
             from mas.cli.install.catalogs import supportedCatalogs
 
             # Derive arches and versions dynamically from supportedCatalogs so
@@ -176,7 +184,7 @@ def main() -> None:
             for arch in arches:
                 if arch in version_arches[newest]:
                     print_formatted_text(HTML(f"    <ForestGreen>{newest}-{arch}</ForestGreen>"))
-            print_formatted_text(HTML(""))
+            print_formatted_text(HTML("\n  For more information: <DarkGoldenRod><u>https://ibm-mas.github.io/cli/catalogs</u></DarkGoldenRod>\n"))
             raise SystemExit(0)
         if function in ["-h", "--help"]:
             usage()
