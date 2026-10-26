@@ -83,8 +83,16 @@ def postMessage(channelName, messageBlocks, threadId=None):
 
 def getKafkaVersion(namespace):
     try:
-        crs = dynClient.resources.get(api_version="kafka.strimzi.io/v1beta2", kind="Kafka")
-        cr = crs.get(name=f"mas-{instanceId}-system", namespace=f"{namespace}")
+        try:
+            crs = dynClient.resources.get(api_version="kafka.strimzi.io/v1", kind="Kafka")
+        except Exception:
+            crs = dynClient.resources.get(api_version="kafka.strimzi.io/v1beta2", kind="Kafka")
+
+        try:
+            cr = crs.get(name=f"{instanceId}-kfk", namespace=f"{namespace}")
+        except Exception:
+            cr = crs.get(name=f"mas-{instanceId}-system", namespace=f"{namespace}")
+
         if cr.status and cr.status.kafkaVersion:
             return cr.status.kafkaVersion
         else:
