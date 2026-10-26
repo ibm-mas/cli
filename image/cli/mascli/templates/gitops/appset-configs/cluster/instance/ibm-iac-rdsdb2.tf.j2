@@ -54,5 +54,5 @@ module "db2rds-{{RDS_APP}}" {
   s3_bucket_name_for_backup_restore   = join("-", [var.cluster_name, var.instance_name, "{{RDS_APP}}"])
   rds_admin_db_name                   = "rdsadmin"
   db2_parameters_apply_type           = var.db2_parameters_apply_type
-  enable_db2_read_replica             = false
+  enable_db2_read_replica             = {{ 'true' if RDS_REPLICA_DB|string|lower == 'true' else 'false' }}
 }
