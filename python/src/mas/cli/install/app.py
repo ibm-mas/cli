@@ -2594,6 +2594,12 @@ class InstallApp(
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
 
+        # If slack_notify_on_fail was not provided via --slack-notify-on-fail, fall back to SLACK_USER env var
+        if self.getParam("slack_notify_on_fail") == "":
+            slackUserEnv = getenv("SLACK_USER", "")
+            if slackUserEnv:
+                self.setParam("slack_notify_on_fail", slackUserEnv)
+
         if self.installManage:
             # Configure Storage and Access mode
             self.manageStorageAndAccessMode()
