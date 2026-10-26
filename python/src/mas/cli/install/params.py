@@ -245,8 +245,6 @@ optionalParams = [
     "aiservice_db_ca_cert",
     "install_db2",
     "db2_action_aiservice",
-    "minio_root_user",
-    "minio_root_password",
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",

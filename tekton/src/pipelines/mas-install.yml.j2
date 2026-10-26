@@ -198,11 +198,19 @@ spec:
       runAfter:
         - ibm-catalogs
 
-    # 4.4 Install Minio ( for AI Service )
+    # 4.4 Install Ceph (ODF) and create the S3 buckets ( for AI Service )
     # -------------------------------------------------------------------------
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/minio.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/ocs.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
+
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/cos-bucket.yml.j2', template_vars={'suffix': 'km-tenants', 'bucket_name': '$(params.aiservice_s3_tenants_bucket)'}) | indent(4) }}
+      runAfter:
+        - ocs
+
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/cos-bucket.yml.j2', template_vars={'suffix': 'km-templates', 'bucket_name': '$(params.aiservice_s3_templates_bucket)'}) | indent(4) }}
+      runAfter:
+        - cos-bucket-km-tenants
 
     # 4.5 Opendatahub ( for AI Service )
     # -------------------------------------------------------------------------
@@ -434,7 +442,8 @@ spec:
         - sls
         - dro
         - db2-aiservice
-        - minio
+        - cos-bucket-km-tenants
+        - cos-bucket-km-templates
         - aiservice-odh
         - aiservice-rhoai
         - suite-dns

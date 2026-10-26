@@ -446,13 +446,14 @@ class InstallSummarizerMixin:
 
             self.printH2("S3 Configuration")
             # self.printParamSummary("Storage provider", "aiservice_s3_provider")
-            if self.getParam("minio_root_user") is not None and self.getParam("minio_root_user") != "":
-                self.printParamSummary("Minio Root Username", "minio_root_user")
-            print()
-            self.printParamSummary("Host", "aiservice_s3_host")
-            self.printParamSummary("Port", "aiservice_s3_port")
-            self.printParamSummary("SSL Enabled", "aiservice_s3_ssl")
-            self.printParamSummary("Region", "aiservice_s3_region")
+            if self.getParam("install_ceph") == "true":
+                self.printSummary("Storage provider", "Ceph (ODF) - connection details are auto-detected")
+            else:
+                print()
+                self.printParamSummary("Host", "aiservice_s3_host")
+                self.printParamSummary("Port", "aiservice_s3_port")
+                self.printParamSummary("SSL Enabled", "aiservice_s3_ssl")
+                self.printParamSummary("Region", "aiservice_s3_region")
             self.printParamSummary("Bucket Prefix", "aiservice_s3_bucket_prefix")
             self.printParamSummary("Templates Bucket Name", "aiservice_s3_templates_bucket")
             self.printParamSummary("Tenants Bucket Name", "aiservice_s3_tenants_bucket")

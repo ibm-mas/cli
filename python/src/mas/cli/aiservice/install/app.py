@@ -232,8 +232,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if value is not None:
                     self.setParam(key, value)
 
-            elif key == "install_minio_aiservice":
-                incompatibleWithMinioInstall = [
+            elif key == "install_ceph":
+                incompatibleWithCephInstall = [
                     "aiservice_s3_accesskey",
                     "aiservice_s3_secretkey",
                     "aiservice_s3_host",
@@ -243,36 +243,17 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     "aiservice_s3_region",
                 ]
                 if value is None:
-                    for uKey in incompatibleWithMinioInstall:
+                    for uKey in incompatibleWithCephInstall:
                         if vars(self.args)[uKey] is None:
-                            self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
-                elif value is not None and value == "true":
-                    # If user is installing Minio in-cluster then we know how to connect to it already
-                    for uKey in incompatibleWithMinioInstall:
+                            self.fatalError(f"Parameter is required when --install-ceph is not set: {uKey}")
+                elif value == "true":
+                    # If user is using Ceph in-cluster then the aiservice role auto-detects how to connect to it
+                    for uKey in incompatibleWithCephInstall:
                         if vars(self.args)[uKey] is not None:
-                            self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
-                    for rKey in ["minio_root_user", "minio_root_password"]:
-                        if vars(self.args)[rKey] is None:
-                            self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
-
-                    # self.setParam("aiservice_s3_provider", "minio")
-
-                    self.setParam("aiservice_s3_accesskey", self.args.minio_root_user)
-                    self.setParam("aiservice_s3_secretkey", self.args.minio_root_password)
-
-                    # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
-                    # especially when we don't need them for the tenant?
-                    self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
-                    self.setParam("aiservice_s3_port", "9000")
-                    self.setParam("aiservice_s3_ssl", "false")
-                    self.setParam("aiservice_s3_region", "none")
-                    self.setParam("aiservice_s3_bucket_prefix", "s3-")
-
-                    # Set default bucket names
-                    self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
-                    self.setParam("aiservice_s3_templates_bucket", "km-templates")
+                            self.fatalError(f"Unsupported parameter for --install-ceph: {uKey}")
+                    self._setCephStorageDefaults()
                 else:
-                    self.fatalError(f"Unsupported value for --install-minio: {value}")
+                    self.fatalError(f"Unsupported value for --install-ceph: {value}")
 
             elif key == "aiservice_s3_bucket_prefix":
                 if len(value) == 0 or len(value) > 4:
@@ -655,21 +636,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def aiServiceSettings(self) -> None:
         self.printH1("AI Service Settings")
 
-        # Ask about MinIO installation FIRST (moved from aiServiceDependencies)
+        # Ask about Ceph installation FIRST (moved from aiServiceDependencies)
         self.printH2("Storage Configuration")
         self.printDescription(
             [
-                "AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."
+                "AI Service requires object storage for pipelines, tenants, and templates. You can either use Ceph (OpenShift Data Foundation) in-cluster or connect to external storage.",
+                "If OpenShift Data Foundation is not already installed it will be installed, which requires a spare raw disk on each of 3 worker nodes.",
             ]
         )
 
-        if self.yesOrNo("Install Minio"):
-            # Only ask for MinIO credentials
-            self.promptForString("minio root username", "minio_root_user")
-            self.promptForString("minio root password", "minio_root_password", isPassword=True)
-
-            # Auto-set MinIO storage defaults (same as non-interactive mode)
-            self._setMinioStorageDefaults()
+        if self.yesOrNo("Install Ceph (ODF)"):
+            # Auto-set Ceph storage defaults (same as non-interactive mode)
+            self._setCephStorageDefaults()
         else:
             # Ask for external storage configuration
             self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
@@ -864,18 +842,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     "Scheduling configuration YAML file", mustExist=True, envVar="AISERVICE_TENANT_SCHEDULING_CONFIG_FILE"
                 )
 
-    def _setMinioStorageDefaults(self) -> None:
+    def _setCephStorageDefaults(self) -> None:
         """
-        Set MinIO storage defaults when MinIO is being installed in-cluster.
-        This mirrors the logic from non-interactive mode.
+        Set Ceph (ODF) storage defaults when Ceph is used as the AI Service S3 provider.
+        This mirrors the logic from non-interactive mode.  The S3 host, port, credentials
+        and CA certificate are auto-detected by the aiservice role from the ObjectBucketClaims.
         """
-        # self.setParam("aiservice_s3_provider", "minio")
-        self.setParam("aiservice_s3_accesskey", self.getParam("minio_root_user"))
-        self.setParam("aiservice_s3_secretkey", self.getParam("minio_root_password"))
-        self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
-        self.setParam("aiservice_s3_port", "9000")
-        self.setParam("aiservice_s3_ssl", "false")
-        self.setParam("aiservice_s3_region", "none")
+        self.setParam("install_ceph", "true")
         self.setParam("aiservice_s3_bucket_prefix", "s3-")
 
         # Set default bucket names

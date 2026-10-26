@@ -127,19 +127,16 @@ rhoaiArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 s3ArgGroup = aiServiceinstallArgParser.add_argument_group("S3 Storage")
 
-# S3 - Minio
+# S3 - Ceph
 # -----------------------------------------------------------------------------
 s3ArgGroup.add_argument(
-    "--install-minio",
-    dest="install_minio_aiservice",
+    "--install-ceph",
+    dest="install_ceph",
     required=False,
-    help="Install Minio and configure it as the S3 provider for AI Service",
+    help="Use Ceph (OpenShift Data Foundation) as the S3 provider for AI Service. ODF is installed if it is not already present",
     action="store_const",
     const="true",
 )
-
-s3ArgGroup.add_argument("--minio-root-user", dest="minio_root_user", required=False, help="Root user for minio")
-s3ArgGroup.add_argument("--minio-root-password", dest="minio_root_password", required=False, help="Password for minio root user")
 
 # S3 - External Connection
 # -----------------------------------------------------------------------------

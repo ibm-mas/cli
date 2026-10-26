@@ -80,10 +80,8 @@ def test_aiservice_install_master_dev_mode(tmpdir):
         ".*Instance ID.*": lambda msg: "testinst",
         # 9. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
-        # 10. Storage Configuration (MinIO)
-        ".*Install Minio.*": lambda msg: "y",
-        ".*minio root username.*": lambda msg: "miniouser",
-        ".*minio root password.*": lambda msg: "miniopass",
+        # 10. Storage Configuration (Ceph)
+        ".*Install Ceph.*": lambda msg: "y",
         # 11. Tenant Settings
         ".*Entitlement end date.*": lambda msg: "2027-02-16",
         # 12. WatsonX Integration
@@ -151,10 +149,8 @@ def test_aiservice_install_master_dev_mode_existing_catalog(tmpdir):
         ".*Instance ID.*": lambda msg: "testinst",
         # 9. Operational mode
         ".*Operational Mode.*": lambda msg: "1",
-        # 10. Storage Configuration (MinIO)
-        ".*Install Minio.*": lambda msg: "y",
-        ".*minio root username.*": lambda msg: "miniouser",
-        ".*minio root password.*": lambda msg: "miniopass",
+        # 10. Storage Configuration (Ceph)
+        ".*Install Ceph.*": lambda msg: "y",
         # 11. Tenant Settings
         ".*Entitlement end date.*": lambda msg: "2027-02-16",
         # 12. WatsonX Integration
@@ -245,11 +241,7 @@ def test_aiservice_install_master_dev_mode_non_interactive(tmpdir):
             "redhat-marketplace",
             "--mongodb-namespace",
             "mongoce",
-            "--install-minio",
-            "--minio-root-user",
-            "miniouser",
-            "--minio-root-password",
-            "miniopass",
+            "--install-ceph",
             "--tenant-entitlement-type",
             "standard",
             "--tenant-entitlement-start-date",

@@ -194,8 +194,8 @@ MAS 9.1 Application Dependencies
       <div class="mas-arch-node mas-arch-rhos" tabindex="0">Data Reporter Operator
         <span class="mas-arch-tip"><div class="mas-arch-tip-kind">Red Hat OpenShift dependency</div><div class="mas-arch-tip-name">Data Reporter Operator</div>OpenShift operator that collects and reports software usage data to IBM License Service for compliance tracking.</span>
       </div>
-      <div class="mas-arch-node mas-arch-other" tabindex="0">Minio
-        <span class="mas-arch-tip"><div class="mas-arch-tip-kind">Required dependency</div><div class="mas-arch-tip-name">Minio</div>High-performance, S3-compatible object storage used for storing AI model artefacts, training datasets, and inference outputs.</span>
+      <div class="mas-arch-node mas-arch-other" tabindex="0">Ceph (ODF)
+        <span class="mas-arch-tip"><div class="mas-arch-tip-kind">Required dependency</div><div class="mas-arch-tip-name">Ceph (ODF)</div>S3-compatible object storage provided by OpenShift Data Foundation, used for storing AI model artefacts, training datasets, and inference outputs.</span>
       </div>
       <div class="mas-arch-node mas-arch-other" tabindex="0">Suite License Service
         <span class="mas-arch-tip"><div class="mas-arch-tip-kind">Required dependency</div><div class="mas-arch-tip-name">Suite License Service</div>Manages IBM MAS license entitlements. Required by Maximo AI Service to verify and enforce software licensing.</span>

@@ -1,0 +1,44 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: mas-devops-cos-bucket
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: cos_type
+      type: string
+      description: Bucket provider (odf is supported by this task)
+      default: "odf"
+    - name: cos_bucket_name
+      type: string
+      description: Name of the bucket to manage
+    - name: cos_bucket_action
+      type: string
+      description: Bucket action to be performed (create or delete)
+      default: "create"
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: COS_TYPE
+        value: $(params.cos_type)
+      - name: COS_BUCKET_NAME
+        value: $(params.cos_bucket_name)
+      - name: COS_BUCKET_ACTION
+        value: $(params.cos_bucket_action)
+
+  steps:
+    - name: cos-bucket
+      command:
+        - /opt/app-root/src/run-role.sh
+        - cos_bucket
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+      optional: true

@@ -125,7 +125,7 @@ def test_install_noninteractive(tmpdir):
                         "--aiservice-certificate-issuer",
                         "testInstanceId-cis-le-prod",
                         "--enable-ipv6",
-                        "--install-minio",
+                        "--install-ceph",
                         "--s3-tenants-bucket",
                         "km-tenants",
                         "--s3-templates-bucket",
@@ -150,10 +150,6 @@ def test_install_noninteractive(tmpdir):
                         "testWxVersion",
                         "--watsonxai-onprem",
                         "testWxonprem",
-                        "--minio-root-user",
-                        "test",
-                        "--minio-root-password",
-                        "test",
                         "--tenant-entitlement-type",
                         "standard",
                         "--tenant-entitlement-start-date",
@@ -294,12 +290,8 @@ def test_install_interactive_advanced(tmpdir):
                     return ""
                 if re.match(".*Operational Mode.*", message):
                     return "1"
-                if re.match(".*Install Minio.*", message):
+                if re.match(".*Install Ceph.*", message):
                     return "y"
-                if re.match(".*minio root username.*", message):
-                    return "username"
-                if re.match(".*minio root password.*", message):
-                    return "password"
                 if re.match(".*Cluster ingress certificate secret name.*", message):
                     return ""
                 if re.match(".*Configure.*domain.*certificate management.*", message):
@@ -478,12 +470,8 @@ def test_install_interactive_simplified(tmpdir):
                     return "apmdevops"
                 if re.match(".*Operational Mode.*", message):
                     return "1"
-                if re.match(".*Install Minio.*", message):
+                if re.match(".*Install Ceph.*", message):
                     return "y"
-                if re.match(".*minio root username.*", message):
-                    return "username"
-                if re.match(".*minio root password.*", message):
-                    return "password"
                 if re.match(".*Entitlement end date.*", message):
                     return "2027-02-16"
                 if re.match(".*Watsonxai api key.*", message):
@@ -638,11 +626,7 @@ def test_install_noninteractive_route53(tmpdir):
                         "aiservice",
                         "--route53-email",
                         "route53@example.com",
-                        "--install-minio",
-                        "--minio-root-user",
-                        "test",
-                        "--minio-root-password",
-                        "test",
+                        "--install-ceph",
                         "--watsonxai-apikey",
                         "test",
                         "--watsonxai-url",
@@ -770,11 +754,7 @@ def test_install_noninteractive_cis_enhanced_security(tmpdir):
                         "--override-edge-certs",
                         "--aiservice-certificate-issuer",
                         "testInstanceId-cis-le-prod",
-                        "--install-minio",
-                        "--minio-root-user",
-                        "test",
-                        "--minio-root-password",
-                        "test",
+                        "--install-ceph",
                         "--watsonxai-apikey",
                         "test",
                         "--watsonxai-url",

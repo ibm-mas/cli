@@ -82,7 +82,7 @@ The interactive install will guide you through the following steps:
       <ul>
         <li><strong>Instance ID:</strong> Unique identifier for your AI Service instance</li>
         <li><strong>Channel:</strong> AI Service version channel (e.g., 9.1.x)</li>
-        <li><strong>S3 Storage Configuration:</strong> Configure object storage for AI Service data (MinIO or external S3)</li>
+        <li><strong>S3 Storage Configuration:</strong> Configure object storage for AI Service data (Ceph via OpenShift Data Foundation, or external S3)</li>
         <li><strong>Certificate Issuer (Advanced Mode Only):</strong> Optionally configure a pre-configured certificate issuer for AI Service</li>
         <li><strong>Network configuration (Advanced Mode Only):</strong> Optionally enable IPv6 SingleStack network configuration for AI Service</li>
         <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
@@ -98,7 +98,7 @@ The interactive install will guide you through the following steps:
         <li><strong>IBM Suite License Service (SLS):</strong> Install new instance or use existing SLS</li>
         <li><strong>Database (Db2):</strong> Install in-cluster Db2 or provide connection to existing database</li>
         <li><strong>IBM Data Reporter Operator (DRO):</strong> Install DRO or provide alternative configuration</li>
-        <li><strong>MinIO:</strong> Configure object storage for AI Service</li>
+        <li><strong>Ceph (ODF):</strong> Use OpenShift Data Foundation for AI Service object storage (installed if not already present)</li>
       </ul>
       <p>For each dependency, you can choose to install it automatically or provide connection details to an existing instance.</p>
     </cds-accordion-item>
@@ -147,9 +147,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
     --watsonxai-url your_watsonx_url \
     --watsonxai-project-id your_project_id \
     \
-    --install-minio
-    --minio-root-user minio \
-    --minio-root-password minio123 \
+    --install-ceph \
     \
     --tenant-entitlement-type standard \
     --tenant-entitlement-start-date 2025-01-01 \
@@ -207,15 +205,17 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 
 ### S3 Storage Configuration
 
+Use either `--install-ceph` (see [Ceph Configuration](#ceph-configuration)) or the external S3 parameters below. The two cannot be combined.
+
 | Parameter | Description | Required | Example |
 |-----------|-------------|----------|---------|
-| `--s3-accesskey` | S3 access key | Yes | `minio` |
-| `--s3-secretkey` | S3 secret key | Yes | `minio123` |
-| `--s3-host` | S3 service host | Yes | `minio-service.minio.svc.cluster.local` |
-| `--s3-port` | S3 service port | Yes | `9000` |
-| `--s3-ssl` | Enable SSL for S3 connection | Yes | `false` |
-| `--s3-region` | S3 region | Yes | `none` |
-| `--s3-bucket-prefix` | Prefix for S3 buckets | Yes | `s3-` |
+| `--s3-accesskey` | S3 access key | Yes (external S3) | `myaccesskey` |
+| `--s3-secretkey` | S3 secret key | Yes (external S3) | `mysecretkey` |
+| `--s3-host` | S3 service host | Yes (external S3) | `s3.example.com` |
+| `--s3-port` | S3 service port | Yes (external S3) | `443` |
+| `--s3-ssl` | Enable SSL for S3 connection | Yes (external S3) | `true` |
+| `--s3-region` | S3 region | Yes (external S3) | `us-east-1` |
+| `--s3-bucket-prefix` | Prefix for S3 buckets | Yes (external S3) | `s3-` |
 | `--s3-tenants-bucket` | S3 bucket for tenant data | Yes | `km-tenants` |
 | `--s3-templates-bucket` | S3 bucket for templates | Yes | `km-templates` |
 
@@ -245,12 +245,14 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 | `--watsonxai-url` | Watson AI service URL | Optional | `https://us-south.ml.cloud.ibm.com` |
 | `--watsonxai-project-id` | Watson AI project ID | Optional | `your_project_id` |
 
-### MinIO Configuration
+### Ceph Configuration
 
 | Parameter | Description | Required | Example |
 |-----------|-------------|----------|---------|
-| `--minio-root-user` | MinIO root username | Yes | `minio` |
-| `--minio-root-password` | MinIO root password | Yes | `minio123` |
+| `--install-ceph` | Use Ceph (OpenShift Data Foundation) as the S3 provider. Creates the `km-tenants` and `km-templates` buckets and auto-detects the S3 host, port, credentials and CA certificate | No | N/A |
+
+!!! note
+    If OpenShift Data Foundation is already installed and its StorageCluster is Ready, the install is skipped and only the buckets are created. If ODF is not installed, the CLI installs it using the Local Storage Operator, which requires an unused raw disk of at least 200Gi at `/dev/vdb` on at least 3 worker nodes.
 
 ### Tenant Configuration
 
@@ -330,7 +332,7 @@ The AI Service installation automatically handles the following dependencies:
 - **IBM Suite License Service (SLS)**: Manages licensing for AI Service. Automatically installed if not present, or can use existing SLS instance.
 - **IBM Data Reporter Operator (DRO)**: Handles data reporting and metrics
 - **Red Hat Certificate Manager**: Manages TLS certificates
-- **MinIO**: Provides S3-compatible object storage for AI Service data
+- **Ceph (OpenShift Data Foundation)**: Provides S3-compatible object storage for AI Service data, unless external S3 is used
 - **Db2**: Database for AI Service metadata and configuration
 
 ### Optional Dependencies

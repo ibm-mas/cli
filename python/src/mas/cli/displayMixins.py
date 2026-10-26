@@ -62,9 +62,6 @@ SENSITIVE_PARAMS = {
     "aiservice_watsonxai_apikey",
     "aiservice_db_username",
     "aiservice_db_password",
-    # Minio Credentials
-    "minio_root_user",
-    "minio_root_password",
 }
 
 

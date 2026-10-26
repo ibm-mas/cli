@@ -29,27 +29,27 @@
 # -----------------------------------------------------------------------------
 - name: aiservice_s3_accesskey
   type: string
-  description: S3/Minio storage access ket for IBM Maximo AI Service
+  description: S3 storage access ket for IBM Maximo AI Service
   default: ""
 - name: aiservice_s3_secretkey
   type: string
-  description: S3/Minio storage secret key for IBM Maximo AI Service
+  description: S3 storage secret key for IBM Maximo AI Service
   default: ""
 - name: aiservice_s3_host
   type: string
-  description: S3/Minio storage host for IBM Maximo AI Service
+  description: S3 storage host for IBM Maximo AI Service
   default: ""
 - name: aiservice_s3_region
   type: string
-  description: S3/Minio storage region for IBM Maximo AI Service
+  description: S3 storage region for IBM Maximo AI Service
   default: ""
 - name: aiservice_s3_port
   type: string
-  description: S3/Minio storage port for IBM Maximo AI Service
+  description: S3 storage port for IBM Maximo AI Service
   default: ""
 - name: aiservice_s3_ssl
   type: string
-  description: S3/Minio storage ssl for IBM Maximo AI Service
+  description: S3 storage ssl for IBM Maximo AI Service
   default: ""
 - name: aiservice_s3_bucket_prefix
   type: string
@@ -57,11 +57,11 @@
   default: ""
 - name: aiservice_s3_tenants_bucket
   type: string
-  description: S3/Minio storage tenants bucket for IBM Maximo AI Service
+  description: S3 storage tenants bucket for IBM Maximo AI Service
   default: ""
 - name: aiservice_s3_templates_bucket
   type: string
-  description: S3/Minio storage template bucket for IBM Maximo AI Service
+  description: S3 storage template bucket for IBM Maximo AI Service
   default: ""
 
 - name: aiservice_odh_model_deployment_type
@@ -77,13 +77,9 @@
   description: flag to install rhoai
   default: ""
 
-- name: minio_root_user
+- name: install_ceph
   type: string
-  description: root user for minio
-  default: ""
-- name: minio_root_password
-  type: string
-  description: password for minio root user
+  description: Install Ceph (ODF) and create the AI Service S3 buckets (true/false)
   default: ""
 
 # MAS Application Configuration - IBM Maximo AI Service - Tenant

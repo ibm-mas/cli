@@ -26,6 +26,7 @@
         - appconnect
         - cert-manager
         - cos
+        - cos-bucket
         - cp4d-service
         - cp4d-service-update
         - cp4d
@@ -49,7 +50,6 @@
         src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - minio
         - aiservice
         - odh
         - rhoai

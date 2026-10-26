@@ -29,10 +29,7 @@ class aiServiceInstallArgBuilderMixin:
             command += "export ARTIFACTORY_USERNAME=x\nexport ARTIFACTORY_TOKEN=x\n"
 
         # Object Storage Credentials
-        if self.getParam("minio_root_user") != "" and self.getParam("minio_root_password") != "":
-            command += "export MINIO_ROOT_USER=x\n"
-            command += "export MINIO_ROOT_PASSWORD=x\n"
-        else:
+        if self.getParam("install_ceph") != "true":
             if self.getParam("aiservice_s3_accesskey") != "":
                 command += "export AISERVICE_S3_ACCESSKEY=x\n"
             if self.getParam("aiservice_s3_secretkey") != "":
@@ -174,10 +171,8 @@ class aiServiceInstallArgBuilderMixin:
             command += f"  --enable-ipv6{newline}"
 
         # Object storage
-        if self.getParam("minio_root_user") != "" and self.getParam("minio_root_password") != "":
-            command += f"  --install-minio{newline}"
-            command += f'  --minio-root-user "$MINIO_ROOT_USER"{newline}'
-            command += f'  --minio-root-password "$MINIO_ROOT_PASSWORD"{newline}'
+        if self.getParam("install_ceph") == "true":
+            command += f"  --install-ceph{newline}"
         else:
             if self.getParam("aiservice_s3_accesskey") != "":
                 command += f'  --s3-accesskey "$AISERVICE_S3_ACCESSKEY"{newline}'

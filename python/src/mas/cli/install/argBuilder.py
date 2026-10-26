@@ -67,11 +67,6 @@ class installArgBuilderMixin:
         # AI Service Credentials
         if self.getParam("aiservice_watsonxai_apikey") != "":
             command += "export AISERVICE_WATSONXAI_APIKEY=x\n"
-        if self.getParam("minio_root_user") != "":
-            command += "export MINIO_ROOT_USER=x\n"
-        if self.getParam("minio_root_password") != "":
-            command += "export MINIO_ROOT_PASSWORD=x\n"
-
         command += f"mas install --mas-catalog-version {self.getParam('mas_catalog_version')}"
 
         if self.getParam("mas_catalog_digest") != "":
@@ -442,19 +437,19 @@ class installArgBuilderMixin:
                 if self.getParam("aiservice_db_ca_cert") != "":
                     command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
 
-            if self.getParam("aiservice_s3_accesskey") != "" and self.getParam("minio_root_user") == "":
+            if self.getParam("aiservice_s3_accesskey") != "" and self.getParam("install_ceph") == "":
                 command += f'  --s3-accesskey "$AISERVICE_S3_ACCESSKEY"{newline}'
-            if self.getParam("aiservice_s3_secretkey") != "" and self.getParam("minio_root_user") == "":
+            if self.getParam("aiservice_s3_secretkey") != "" and self.getParam("install_ceph") == "":
                 command += f'  --s3-secretkey "$AISERVICE_S3_SECRETKEY"{newline}'
-            if self.getParam("aiservice_s3_host") != "" and self.getParam("minio_root_user") == "":
+            if self.getParam("aiservice_s3_host") != "" and self.getParam("install_ceph") == "":
                 command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
-            if self.getParam("aiservice_s3_port") != "" and self.getParam("minio_root_user") == "":
+            if self.getParam("aiservice_s3_port") != "" and self.getParam("install_ceph") == "":
                 command += f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
-            if self.getParam("aiservice_s3_ssl") != "" and self.getParam("minio_root_user") == "":
+            if self.getParam("aiservice_s3_ssl") != "" and self.getParam("install_ceph") == "":
                 command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
-            if self.getParam("aiservice_s3_region") != "" and self.getParam("minio_root_user") == "":
+            if self.getParam("aiservice_s3_region") != "" and self.getParam("install_ceph") == "":
                 command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
-            if self.getParam("aiservice_s3_bucket_prefix") != "" and self.getParam("minio_root_user") == "":
+            if self.getParam("aiservice_s3_bucket_prefix") != "" and self.getParam("install_ceph") == "":
                 command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
             if self.getParam("aiservice_s3_tenants_bucket") != "":
                 command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
@@ -494,11 +489,8 @@ class installArgBuilderMixin:
             if self.getParam("aiservice_watsonxai_on_prem") != "":
                 command += f"  --watsonxai-onprem \"{self.getParam('aiservice_watsonxai_on_prem')}\"{newline}"
 
-            if self.getParam("minio_root_user") != "":
-                command += f"  --install-minio {newline}"
-                command += f'  --minio-root-user "$MINIO_ROOT_USER"{newline}'
-            if self.getParam("minio_root_password") != "":
-                command += f'  --minio-root-password "$MINIO_ROOT_PASSWORD"{newline}'
+            if self.getParam("install_ceph") == "true":
+                command += f"  --install-ceph{newline}"
 
             if self.getParam("tenant_entitlement_type") != "":
                 command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
