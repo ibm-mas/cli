@@ -2621,8 +2621,17 @@ class InstallApp(
             self.processCatalogChoice()
         except NoSuchCatalogError:
             if self.devMode:
-                self.chosenCatalog = getCatalog(getNewestCatalogTag())
+                # Custom dev image tags have no YAML — fall back to the newest known catalog
+                # for metadata, but keep the original tag as the catalog version parameter
+                # so it is used when pulling the actual catalog image.
+                newestTag = getNewestCatalogTag()
+                self.chosenCatalog = getCatalog(newestTag)
+                # processCatalogChoice reads mas_catalog_version for getCatalogEditorial;
+                # temporarily point it at the fallback tag so it resolves correctly.
+                originalTag = self.getParam("mas_catalog_version")
+                self.setParam("mas_catalog_version", newestTag)
                 self.processCatalogChoice()
+                self.setParam("mas_catalog_version", originalTag)
             else:
                 self.fatalError(
                     f"Catalog '{self.getParam('mas_catalog_version')}' is unknown. Use a valid catalog tag or run with --dev-mode for custom dev image tags"
