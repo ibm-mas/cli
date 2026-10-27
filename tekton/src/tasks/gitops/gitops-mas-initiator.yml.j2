@@ -287,6 +287,20 @@ spec:
         cp --no-clobber $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
         set -e -o pipefail
 
+        # cluster-params.yaml.j2 (FVT SaaS only) holds the cluster wide EFS StorageClass, which carries the MAS version
+        # of the first instance, e.g. efsfvtsaas-92. The file is shared by both FVT instances, so it is rendered once by the
+        # first initiator run; the second run (fvtsaas2) must not overwrite it, just as --no-clobber did for the plain file.
+        CLUSTER_PARAMS_DIR="$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME"
+        if [ -f "$CLUSTER_PARAMS_DIR/cluster-params.yaml.j2" ]; then
+          if [ -f "$CLUSTER_PARAMS_DIR/cluster-params.yaml" ]; then
+            echo "gitops-mas-initiator: cluster-params.yaml already exists, not rendering cluster-params.yaml.j2"
+          else
+            jinjanate_commmon "$CLUSTER_PARAMS_DIR/cluster-params.yaml.j2" > "$CLUSTER_PARAMS_DIR/cluster-params.yaml"
+            echo "Processed: $CLUSTER_PARAMS_DIR/cluster-params.yaml.j2 -> $CLUSTER_PARAMS_DIR/cluster-params.yaml"
+          fi
+          rm "$CLUSTER_PARAMS_DIR/cluster-params.yaml.j2"
+        fi
+
         mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/order-status
         echo "copy $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/order-status/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/order-status"
         cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/order-status/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/order-status
