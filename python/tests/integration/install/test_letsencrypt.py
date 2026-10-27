@@ -286,27 +286,29 @@ class TestNonInteractiveLetsEncryptValidation:
 class TestInteractiveLetsEncryptIntegration:
     """Full interactive install flow tests covering the LE prompt."""
 
-    def _common_handlers(self, tmpdir, le_response):
+    def _common_handlers(self, tmpdir, le_response, use_service_mesh=True):
         """Full prompt handler set for a 9.2.x-dev advanced install with path routing.
 
         Installs IoT + Monitor + Manage so that the system Db2 and Kafka prompts
         are exercised — matching the same app mix as test_dev_mode path routing test.
+
+        Service Mesh is asked before the routing mode. When enabled, path routing is set
+        directly with no IngressController prompts. When disabled, the user is prompted to
+        configure the IngressController namespace ownership policy.
         """
-        return {
+        handlers = {
             # Cluster connection
             ".*Proceed with this cluster?.*": lambda msg: "y",
             ".*Show advanced installation options.*": lambda msg: "y",
             # Catalog
             ".*Select catalog.*": lambda msg: "v9-master-amd64",
             ".*Select channel.*": lambda msg: "9.2.x-dev",
+            # Service Mesh - asked before routing mode
+            ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y" if use_service_mesh else "n",
             # Routing Mode - path
             ".*Routing Mode.*": lambda msg: "1",
             # Let's Encrypt prompt - controlled by caller
             ".*Do you want to use Let.s Encrypt.*": lambda msg: le_response,
-            # Service Mesh
-            ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",
-            # IngressController config
-            ".*Configure ingress namespace ownership.*": lambda msg: "y",
             # Storage
             ".*Use the auto-detected storage classes.*": lambda msg: "y",
             # SLS
@@ -387,10 +389,15 @@ class TestInteractiveLetsEncryptIntegration:
             ".*Use additional configurations.*": lambda msg: "n",
             ".*Proceed with these settings.*": lambda msg: "y",
         }
+        # IngressController config - only prompted when Service Mesh is not enabled
+        if not use_service_mesh:
+            handlers[".*Configure ingress namespace ownership.*"] = lambda msg: "y"
+        return handlers
 
-    def test_interactive_le_enabled_path_routing(self, tmpdir):
+    @pytest.mark.parametrize("use_service_mesh", [True, False], ids=["service_mesh_enabled", "service_mesh_disabled"])
+    def test_interactive_le_enabled_path_routing(self, tmpdir, use_service_mesh):
         """Interactive: select path routing, opt into LE, provide email — LE enabled."""
-        handlers = self._common_handlers(tmpdir, le_response="y")
+        handlers = self._common_handlers(tmpdir, le_response="y", use_service_mesh=use_service_mesh)
         # Insert email prompt after the LE yes answer
         handlers[".*Let.s Encrypt e-mail.*"] = lambda msg: "test@ibm.com"
 
@@ -409,9 +416,10 @@ class TestInteractiveLetsEncryptIntegration:
         )
         run_install_test(tmpdir, config)
 
-    def test_interactive_le_disabled_path_routing(self, tmpdir):
+    @pytest.mark.parametrize("use_service_mesh", [True, False], ids=["service_mesh_enabled", "service_mesh_disabled"])
+    def test_interactive_le_disabled_path_routing(self, tmpdir, use_service_mesh):
         """Interactive: select path routing, decline LE — normal DNS-01 flow continues."""
-        handlers = self._common_handlers(tmpdir, le_response="n")
+        handlers = self._common_handlers(tmpdir, le_response="n", use_service_mesh=use_service_mesh)
 
         config = InstallTestConfig(
             prompt_handlers=handlers,
