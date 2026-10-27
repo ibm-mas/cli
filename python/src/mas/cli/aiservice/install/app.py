@@ -976,7 +976,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 "Optionally configure credentials for an LLM provider other than watsonx.ai, for example Google GEAP.",
                 "These are stored in the same tenant secret as the watsonx.ai credentials, so both can be configured.",
                 "",
-                "The OAuth client ID, client secret, refresh token and base URL must all be provided together.",
+                "The OAuth client ID, client secret and refresh token must all be provided together.",
+                "The base URL is taken from the WatsonX URL (--watsonxai-url).",
                 "",
             ]
         )
@@ -986,7 +987,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("LLM OAuth client ID", "aiservice_llm_client_id")
             self.promptForString("LLM OAuth client secret", "aiservice_llm_client_secret", isPassword=True)
             self.promptForString("LLM OAuth refresh token", "aiservice_llm_refresh_token", isPassword=True)
-            self.promptForString("LLM base URL", "aiservice_llm_base_url")
 
         self.printH1("RSL Integration")
         self.printDescription(

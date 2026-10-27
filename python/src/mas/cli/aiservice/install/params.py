@@ -99,7 +99,6 @@ optionalParams = [
     "aiservice_llm_client_id",
     "aiservice_llm_client_secret",
     "aiservice_llm_refresh_token",
-    "aiservice_llm_base_url",
     "minio_root_user",
     "minio_root_password",
     "tenant_entitlement_type",

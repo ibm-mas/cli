@@ -190,7 +190,6 @@ llmArgGroup.add_argument("--llm-model-id", dest="aiservice_llm_model_id", requir
 llmArgGroup.add_argument("--llm-client-id", dest="aiservice_llm_client_id", required=False, help="OAuth client ID for the LLM provider")
 llmArgGroup.add_argument("--llm-client-secret", dest="aiservice_llm_client_secret", required=False, help="OAuth client secret for the LLM provider")
 llmArgGroup.add_argument("--llm-refresh-token", dest="aiservice_llm_refresh_token", required=False, help="OAuth refresh token for the LLM provider")
-llmArgGroup.add_argument("--llm-base-url", dest="aiservice_llm_base_url", required=False, help="Base URL of the LLM provider API")
 
 # AI Service
 # -----------------------------------------------------------------------------

@@ -245,8 +245,6 @@ class aiServiceInstallArgBuilderMixin:
             command += f'  --llm-client-secret "$AISERVICE_LLM_CLIENT_SECRET"{newline}'
         if self.getParam("aiservice_llm_refresh_token") != "":
             command += f'  --llm-refresh-token "$AISERVICE_LLM_REFRESH_TOKEN"{newline}'
-        if self.getParam("aiservice_llm_base_url") != "":
-            command += f"  --llm-base-url \"{self.getParam('aiservice_llm_base_url')}\"{newline}"
 
         if self.getParam("tenant_entitlement_type") != "":
             command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
