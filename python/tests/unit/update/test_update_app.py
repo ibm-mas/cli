@@ -23,13 +23,11 @@ Fix 2 – CPD already at target version:
   THEN it exits cleanly with a success message instead of raising a fatal error
 """
 
-import pytest
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 from mas.cli.update.app import UpdateApp
 from mas.devops.data import NoSuchCatalogError
-
 
 # ---------------------------------------------------------------------------
 # Helpers

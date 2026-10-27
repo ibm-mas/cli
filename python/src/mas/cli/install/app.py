@@ -2624,7 +2624,9 @@ class InstallApp(
                 self.chosenCatalog = getCatalog(getNewestCatalogTag())
                 self.processCatalogChoice()
             else:
-                self.fatalError(f"Catalog '{self.getParam('mas_catalog_version')}' is unknown. Use a valid catalog tag or run with --dev-mode for custom dev image tags")
+                self.fatalError(
+                    f"Catalog '{self.getParam('mas_catalog_version')}' is unknown. Use a valid catalog tag or run with --dev-mode for custom dev image tags"
+                )
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:

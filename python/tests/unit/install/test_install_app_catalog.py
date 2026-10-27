@@ -31,12 +31,10 @@ Fix 3 – Install non-interactive catalog handling:
   THEN getCatalog is called once and chosenCatalog is set
 """
 
-import pytest
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 from mas.cli.install.app import InstallApp
 from mas.devops.data import NoSuchCatalogError
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -72,7 +70,9 @@ def _run_catalog_block(app: InstallApp, catalog_version: str) -> None:
             app.chosenCatalog = getCatalog(getNewestCatalogTag())
             app.processCatalogChoice()
         else:
-            app.fatalError(f"Catalog '{app.getParam('mas_catalog_version')}' is unknown. Use a valid catalog tag or run with --dev-mode for custom dev image tags")
+            app.fatalError(
+                f"Catalog '{app.getParam('mas_catalog_version')}' is unknown. Use a valid catalog tag or run with --dev-mode for custom dev image tags"
+            )
 
 
 # ---------------------------------------------------------------------------
