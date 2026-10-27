@@ -37,6 +37,14 @@ spec:
       type: string
       description: Download Manage App archive
       default: "false"
+    - name: include_facilities_app_archive
+      type: string
+      description: Download Facilities App archive
+      default: "false"
+    - name: include_facilities_db_archive
+      type: string
+      description: Download Facilities DB archive
+      default: "false"
 
     # S3 download parameters
     - name: aws_access_key_id
@@ -61,14 +69,6 @@ spec:
       default: ""
 
     # Artifactory download parameters
-    - name: artifactory_username
-      type: string
-      description: Artifactory username for backup download
-      default: ""
-    - name: artifactory_token
-      type: string
-      description: Artifactory token for backup download
-      default: ""
     - name: artifactory_url
       type: string
       description: Artifactory URL for backup download
@@ -101,6 +101,10 @@ spec:
         value: $(params.include_manage_db_archive)
       - name: INCLUDE_MANAGE_APP_ARCHIVE
         value: $(params.include_manage_app_archive)
+      - name: INCLUDE_FACILITIES_APP_ARCHIVE
+        value: $(params.include_facilities_app_archive)
+      - name: INCLUDE_FACILITIES_DB_ARCHIVE
+        value: $(params.include_facilities_db_archive)
 
       # S3 credentials
       - name: S3_ACCESS_KEY_ID
@@ -115,10 +119,6 @@ spec:
         value: $(params.s3_endpoint_url)
 
       # Artifactory credentials
-      - name: ARTIFACTORY_USERNAME
-        value: $(params.artifactory_username)
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
       - name: ARTIFACTORY_URL
         value: $(params.artifactory_url)
       - name: ARTIFACTORY_REPOSITORY

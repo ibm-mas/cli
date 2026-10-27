@@ -378,6 +378,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel"),
                     db2LicenseFile=self.db2LicenseFileSecret,
+                    artifactory_token=self.getParam("artifactory_token"),
+                    artifactory_username=self.getParam("artifactory_username"),
                 )
 
             with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
@@ -448,16 +450,16 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) Aug 05 2026 Update (MAS 9.2.2, 9.1.20, 9.0.28, 8.11.34, &amp; 8.10.37)",
-                "  2) Jul 30 2026 Update (MAS 9.2.1, 9.1.20, 9.0.28, 8.11.34, &amp; 8.10.37)",
-                "  3) Jun 25 2026 Update (MAS 9.2.0, 9.1.19, 9.0.27, 8.11.34, &amp; 8.10.37)",
+                "  1) Oct 07 2026 Update (MAS 9.2.8, 9.1.27, 9.0.33, 8.11.34, &amp; 8.10.37)",
+                "  2) Sep 24 2026 Update (MAS 9.2.7, 9.1.26, 9.0.32, 8.11.34, &amp; 8.10.37)",
+                "  3) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
             ]
         )
 
         catalogOptions = [
-            "v9-260805-amd64",
-            "v9-260730-amd64",
-            "v9-260625-amd64",
+            "v9-261007-amd64",
+            "v9-260924-amd64",
+            "v9-260827-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -712,7 +714,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     return
                 elif len(cpds) == 1:
                     cpdUpgradePath = {
-                        "5.2.0": "5.2.0",
+                        "5.3.1": "5.4.0",
+                        "5.2.0": ["5.3.1", "5.4.0"],
                         "5.1.3": "5.2.0",
                         "5.0.0": "5.1.3",
                     }
@@ -747,13 +750,18 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         self.fatalError(
                             "Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nContact IBM support for assistance"
                         )
-                    elif cpdUpgradePath[cpdInstanceVersion] != cpdTargetVersion:
+
+                    validNextVersions = cpdUpgradePath[cpdInstanceVersion]
+                    if isinstance(validNextVersions, str):
+                        validNextVersions = [validNextVersions]
+
+                    if cpdTargetVersion not in validNextVersions:
                         h.stop_and_persist(
                             symbol=self.successIcon,
                             text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) can not be updated to {cpdTargetVersion} directly",
                         )
                         self.fatalError(
-                            f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{cpdUpgradePath[cpdInstanceVersion]}:\n- https://ibm-mas.github.io/cli/catalogs"
+                            f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{validNextVersions[0]}:\n- https://ibm-mas.github.io/cli/catalogs"
                         )
 
                     currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"

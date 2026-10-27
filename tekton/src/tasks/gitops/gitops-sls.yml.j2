@@ -54,6 +54,8 @@ spec:
       type: string
     - name: github_ssh
       type: string
+    - name: mas_sls_pod_template_yaml
+      type: string
     - name: mas_slscfg_pod_template_yaml
       type: string
 
@@ -108,6 +110,8 @@ spec:
         value: $(params.git_commit_msg)
       - name: GIT_SSH
         value: $(params.github_ssh)
+      - name: MAS_SLS_POD_TEMPLATE_YAML
+        value: $(params.mas_sls_pod_template_yaml)
       - name: POD_TEMPLATE
         value: $(params.mas_slscfg_pod_template_yaml)
 

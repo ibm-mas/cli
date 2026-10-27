@@ -285,6 +285,10 @@
   type: string
   description: Name of an existing COS Resource Group in IBM Cloud account
   default: ""
+- name: cos_region
+  type: string
+  description: Region for COS instance
+  default: ""
 - name: cos_apikey
   type: string
   default: ""
@@ -385,6 +389,18 @@
 - name: cis_proxy
   type: string
   default: "false"
+- name: cis_waf
+  type: string
+  default: "true"
+- name: delete_wildcards
+  type: string
+  default: "false"
+- name: update_dns_entries
+  type: string
+  default: "true"
+- name: cis_entries_to_add
+  type: string
+  default: "all"
 
 # AWS basic info
 # -------------------------------------------------------------------------
@@ -465,6 +481,10 @@
   type: string
   default: ""
   description: Name of the IngressController to use for path-based routing
+- name: mas_le_email
+  type: string
+  default: ""
+  description: E-mail address to register with Let's Encrypt. When set, Let's Encrypt HTTP-01 is automatically enabled (path routing mode only, cluster must be publicly accessible on port 80)
 - name: mas_trust_default_cas
   type: string
   default: ""

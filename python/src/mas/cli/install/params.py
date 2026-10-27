@@ -71,15 +71,28 @@ optionalParams = [
     # SLS
     "sls_namespace",
     # DNS Providers
-    # TODO: Route53 support
     "dns_provider",
     "mas_cluster_issuer",
     "ocp_ingress",
+    # Route53
+    "route53_hosted_zone_name",
+    "route53_hosted_zone_region",
+    "route53_subdomain",
+    "route53_email",
+    # Let's Encrypt HTTP-01
+    "mas_le_email",
     # CIS
     "cis_email",
     "cis_apikey",
     "cis_crn",
     "cis_subdomain",
+    "cis_service_name",
+    "cis_enhanced_security",
+    "update_dns_entries",
+    "override_edge_certs",
+    "cis_proxy",
+    "cis_waf",
+    "delete_wildcards",
     # CloudFlare
     "cloudflare_email",
     "cloudflare_apitoken",
@@ -133,6 +146,7 @@ optionalParams = [
     # COS
     "cos_type",
     "cos_resourcegroup",
+    "cos_region",
     "cos_apikey",
     "cos_instance_name",
     "cos_bucket_name",
@@ -150,6 +164,7 @@ optionalParams = [
     "aws_region",
     "aws_access_key_id",
     "secret_access_key",
+    "aws_secret_access_key",
     "aws_vpc_id",
     # Dev Mode
     "artifactory_username",
@@ -238,6 +253,8 @@ optionalParams = [
     "rsl_ca_crt",
     "environment_type",
     "configure_aiassistant",
+    # AI Service Domain
+    "aiservice_domain",
     # Certificate Issuer
     "aiservice_certificate_issuer",
     # Grafana

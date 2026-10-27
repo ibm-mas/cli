@@ -192,17 +192,20 @@ class MirrorTestHelper:
                 "common_svcs_version": "4.13.0",
                 "ibm_zen_version": "6.2.0+20250530.152516.232",
                 "cp4d_platform_version": "5.2.0+20250709.170324",
+                "swhub_version": "5.10.0",
                 "ibm_licensing_version": "4.2.17",
                 "ccs_build": "11.0.0+20250605.130237.468",
                 "postgress_version": "5.16.0+20250827.110911.2626",
+                "pg_operator_version": "1.21.1+20250818.185726.1055",
                 "datarefinery_version": "11.0.0+20250513.203727.232",
                 "elasticsearch_version": "1.1.2667",
                 "opensearch_version": "1.1.2494",
                 # CP4D WSL version keys
                 "wsl_version": "11.0.0+20250521.202913.73",
                 "wsl_runtimes_version": "11.0.0+20250515.090949.21",
-                # CP4D WML version key
+                # CP4D WML version keys
                 "wml_version": "11.0.0+20250530.193146.282",
+                "redis_version": "1.3.1",
                 # CP4D Spark version key
                 "spark_version": "11.0.0+20250604.163055.2097",
                 # CP4D Cognos version key
