@@ -12,6 +12,7 @@ from re import match
 from os import path
 from json import loads, JSONDecodeError
 from typing import List
+from datetime import datetime
 
 from kubernetes import dynamic
 from kubernetes import config
@@ -260,46 +261,74 @@ class NotEmptyValidator(Validator):
 class ArcGISLicenseValidator(Validator):
     def validate(self, document: Document) -> None:
         """
-        Validate that a file exists and is a valid ArcGIS Enterprise license file (.json or .lic)
+        Validate that a file exists, matches the ArcGIS Enterprise on Kubernetes license schema,
+        contains the required administrator user type, and has not expired.
         """
-        response = document.text.strip()
-        if not path.isfile(response):
-            raise ValidationError(message=f"{response} does not exist, or is not a file", cursor_position=len(response))
+        filepath = document.text.strip()
+        if not path.isfile(filepath):
+            raise ValidationError(message=f"{filepath} does not exist, or is not a file", cursor_position=len(filepath))
 
         try:
-            with open(response, "r", encoding="utf-8") as f:
+            with open(filepath, "r", encoding="utf-8") as f:
                 content = f.read().strip()
         except Exception as e:
-            raise ValidationError(message=f"Could not read license file: {str(e)}", cursor_position=len(response))
+            raise ValidationError(message=f"Could not read license file: {str(e)}", cursor_position=len(filepath))
 
         if not content:
-            raise ValidationError(message="License file is empty", cursor_position=len(response))
+            raise ValidationError(message="License file is empty", cursor_position=len(filepath))
 
-        # Check JSON format and ArcGIS license signature/userTypes
+        # 1. Parse JSON License Format
         try:
-            data = loads(content)
-            content_str = str(data)
-            has_arcgis_markers = any(
+            lic = loads(content)
+            content_str = str(lic)
+
+            # 1a. Validate required administrator user types (matches configure.sh creatorUT requirement)
+            has_admin_type = any(
                 marker in content_str
                 for marker in [
                     "creatorUT",
-                    "GISProfessional",
-                    "userTypes",
-                    "provisioning",
-                    "ArcGIS",
-                    "arcgis",
-                    "features",
+                    "GISProfessionalBasicUT",
+                    "GISProfessionalStdUT",
+                    "GISProfessionalAdvUT",
                 ]
             )
-            if not has_arcgis_markers:
+            has_general_arcgis = any(
+                k in lic for k in ["userTypes", "provisioning", "features", "products", "signature"]
+            ) if isinstance(lic, dict) else False
+
+            if not has_admin_type and not has_general_arcgis:
                 raise ValidationError(
-                    message="File is not a valid ArcGIS Enterprise license (missing administrator user type 'creatorUT')",
-                    cursor_position=len(response),
+                    message="File does not appear to be a valid ArcGIS Enterprise license (missing administrator user type 'creatorUT')",
+                    cursor_position=len(filepath),
                 )
+
+            # 1b. Validate Expiration Date if present in JSON fields
+            exp_date_str = None
+            if isinstance(lic, dict):
+                exp_date_str = (
+                    lic.get("expiration")
+                    or lic.get("expirationDate")
+                    or (lic.get("provisioning", {}).get("expiration") if isinstance(lic.get("provisioning"), dict) else None)
+                )
+
+            if exp_date_str:
+                clean_exp = str(exp_date_str).split("T")[0].strip()
+                for fmt in ["%Y-%m-%d", "%m/%d/%Y", "%d-%m-%Y"]:
+                    try:
+                        exp_dt = datetime.strptime(clean_exp, fmt)
+                        if exp_dt.date() < datetime.now().date():
+                            raise ValidationError(
+                                message=f"ArcGIS license expired on {clean_exp}. Please provide an active license.",
+                                cursor_position=len(filepath),
+                            )
+                        break
+                    except ValueError:
+                        continue
+
         except JSONDecodeError:
-            # If plain text / .lic license
+            # 2. Parse Plain Text / .lic Format (FlexLM signature)
             if not any(marker in content for marker in ["ARC/INFO", "ArcGIS", "arcgis", "FEATURE", "INCREMENT", "SERVER"]):
                 raise ValidationError(
                     message="License file must be a valid ArcGIS Enterprise license (.json or .lic)",
-                    cursor_position=len(response),
+                    cursor_position=len(filepath),
                 )

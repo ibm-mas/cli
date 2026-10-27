@@ -25,8 +25,8 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
     component is installed with cluster admin mode on MAS 9.2+.
     """
 
-    # Create mock ArcGIS license file with creatorUT userType
-    tmpdir.join("arcgis.json").write('{"userTypes": [{"id": "creatorUT"}]}')
+    # Create mock ArcGIS license file with creatorUT userType and valid future expiration
+    tmpdir.join("arcgis.json").write('{"userTypes": [{"id": "creatorUT"}], "expiration": "2030-12-31"}')
 
     # Define prompt handlers
     prompt_handlers = {
