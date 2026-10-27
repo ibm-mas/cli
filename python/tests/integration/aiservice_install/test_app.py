@@ -674,8 +674,6 @@ def test_install_interactive_llm_provider(tmpdir):
                     return "testLlmClientSecret"
                 if re.match(".*LLM OAuth refresh token.*", message):
                     return "testLlmRefreshToken"
-                if re.match(".*LLM base URL.*", message):
-                    return "https://aiplatform.googleapis.com/v1/projects/test/locations/global/endpoints/openapi"
                 if re.match(".*Does the RSL API use a self-signed certificate.*", message):
                     return "n"
                 if re.match(".*Do you want to use an external database.*", message):
@@ -723,7 +721,6 @@ def test_install_interactive_llm_provider(tmpdir):
             assert app.getParam("aiservice_llm_client_id") == "testLlmClientId"
             assert app.getParam("aiservice_llm_client_secret") == "testLlmClientSecret"
             assert app.getParam("aiservice_llm_refresh_token") == "testLlmRefreshToken"
-            assert app.getParam("aiservice_llm_base_url").startswith("https://aiplatform.googleapis.com/")
 
 
 def test_install_noninteractive_route53(tmpdir):
@@ -1102,8 +1099,6 @@ def test_install_noninteractive_llm_provider(tmpdir):
                         "testLlmClientSecret",
                         "--llm-refresh-token",
                         "testLlmRefreshToken",
-                        "--llm-base-url",
-                        "https://aiplatform.googleapis.com/v1/projects/test/locations/global/endpoints/openapi",
                         "--tenant-entitlement-type",
                         "standard",
                         "--tenant-entitlement-start-date",
@@ -1121,7 +1116,6 @@ def test_install_noninteractive_llm_provider(tmpdir):
                 assert app.getParam("aiservice_llm_client_id") == "testLlmClientId"
                 assert app.getParam("aiservice_llm_client_secret") == "testLlmClientSecret"
                 assert app.getParam("aiservice_llm_refresh_token") == "testLlmRefreshToken"
-                assert app.getParam("aiservice_llm_base_url").startswith("https://aiplatform.googleapis.com/")
                 # The same params must reach the pipeline launch
                 launched_params = launch_ai_service_install_pipeline.call_args.kwargs["params"]
                 assert launched_params["aiservice_llm_client_id"] == "testLlmClientId"
