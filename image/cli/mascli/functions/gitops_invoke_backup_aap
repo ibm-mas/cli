@@ -229,6 +229,36 @@ function gitops_invoke_backup_aap() {
   command -v curl >/dev/null || gitops_invoke_backup_aap_help "curl is required"
   command -v jq >/dev/null || gitops_invoke_backup_aap_help "jq is required"
 
+  # Display all parameters and AAP settings (AAP_TOKEN is never printed, AAP_PASSWORD is masked)
+  echo "Parameters:"
+  echo "  GITOPS_WORKING_DIR = ${GITOPS_WORKING_DIR}"
+  echo "  ACCOUNT_ID         = ${ACCOUNT_ID}"
+  echo "  CLUSTER_ID         = ${CLUSTER_ID}"
+  echo "  CLUSTER_NAME       = ${CLUSTER_NAME}"
+  echo "  MAS_INSTANCE_ID    = ${MAS_INSTANCE_ID}"
+  echo "  REGION_ID          = ${REGION_ID:-}"
+  echo "  REGION_NAME        = ${REGION_NAME:-}"
+  echo "  CLUSTER_URL        = ${CLUSTER_URL:-}"
+  echo "  GITHUB_PUSH        = ${GITHUB_PUSH:-}"
+  echo "  GITHUB_HOST        = ${GITHUB_HOST}"
+  echo "  GITHUB_ORG         = ${GITHUB_ORG}"
+  echo "  GITHUB_REPO        = ${GITHUB_REPO}"
+  echo "  GIT_SSH            = ${GIT_SSH:-}"
+  echo "  GIT_BRANCH         = ${GIT_BRANCH}"
+  echo "  GIT_COMMIT_MSG     = ${GIT_COMMIT_MSG:-}"
+  echo "AAP environment variables:"
+  echo "  AAP_URL            = ${AAP_URL}"
+  echo "  AAP_JOB            = ${AAP_JOB}"
+  echo "  AAP_USERNAME       = ${AAP_USERNAME:-}"
+  echo "  AAP_INSECURE       = ${AAP_INSECURE:-}"
+  echo "  AAP_POLL_INTERVAL  = ${AAP_POLL_INTERVAL:-}"
+  echo "  AAP_TIMEOUT        = ${AAP_TIMEOUT:-}"
+  echo "  AAP_API_PREFIX     = ${AAP_API_PREFIX:-}"
+  echo "  AAP_MAX_RETRIES    = ${AAP_MAX_RETRIES:-}"
+  echo "  AAP_RETRY_DELAY    = ${AAP_RETRY_DELAY:-}"
+  echo "  AAP_JOB_RETRIES    = ${AAP_JOB_RETRIES:-}"
+  echo
+
   local POLL_INTERVAL="${AAP_POLL_INTERVAL:-10}"
   local TIMEOUT="${AAP_TIMEOUT:-3600}"
   local JOB_RETRIES="${AAP_JOB_RETRIES:-1}"
@@ -279,11 +309,11 @@ function gitops_invoke_backup_aap() {
   local EXTRA_VARS
   EXTRA_VARS=$(jq -n \
     --arg account_id "${ACCOUNT_ID}" \
-    --arg cluster_id "${CLUSTER_ID}" \
+    --arg k8s_cluster_name "${CLUSTER_ID}" \
     --arg mas_instance_id "${MAS_INSTANCE_ID}" \
     --arg region_id "${REGION_ID:-}" \
     --arg region_name "${REGION_NAME:-}" \
-    '{extra_vars: {account_id: $account_id, cluster_id: $cluster_id, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name}}')
+    '{extra_vars: {account_id: $account_id, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name}}')
 
   local ATTEMPT=0 JOB_ID JOB_STATUS ELAPSED
   while (( ATTEMPT < MAX_ATTEMPTS )); do
