@@ -41,6 +41,21 @@ spec:
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
 
+####################################################################################
+    - name: force-fail
+      timeout: "0"
+      taskSpec:
+        steps:
+          - name: fail
+            image: registry.redhat.io/ubi9/ubi-minimal:latest
+            script: |
+              #!/bin/sh
+              echo "Forcing failure to test slack notification changes"
+              exit 1
+      runAfter:
+        - pipeline-start
+####################################################################################
+
     # Delete IBM Cloud services
     # -------------------------------------------------------------------------
     # COS
