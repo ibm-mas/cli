@@ -876,8 +876,7 @@ case $1 in
     ;;
 
   gitops-invoke-backup-aap)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Invoke Backup Ansible Playbook (v${VERSION})
-    ${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Invoke Backup Ansible Playbook (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors

@@ -7,7 +7,7 @@ function gitops_invoke_backup_aap_help() {
 
 
 Usage:
-  mas gitops-invoke_backup_aap [options]
+  mas gitops-invoke-backup-aap [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -140,16 +140,59 @@ function gitops_invoke_backup_aap_noninteractive() {
   fi
 }
 
+# ============================================================================
+# AAP HTTP helper
+# ============================================================================
+# Usage: gitops_invoke_backup_aap_request METHOD PATH [JSON_BODY]
+# Reads AAP_CURL_OPTS (array) and AAP_BASE from the caller (bash dynamic scoping).
+# Prints the response body on stdout. Retries transient failures (curl errors,
+# HTTP 429 and 5xx) with exponential back-off. Returns 1 on any other failure.
+function gitops_invoke_backup_aap_request() {
+  local METHOD="$1" REQ_PATH="$2" BODY="${3:-}"
+  local MAX_RETRIES="${AAP_MAX_RETRIES:-5}"
+  local DELAY="${AAP_RETRY_DELAY:-5}"
+  local TRY=0 HTTP_CODE CURL_RC TMP
+  local ARGS=("${AAP_CURL_OPTS[@]}" -X "$METHOD")
+  [[ -n "$BODY" ]] && ARGS+=(-d "$BODY")
+
+  TMP=$(mktemp) || return 1
+  while true; do
+    HTTP_CODE=$(curl "${ARGS[@]}" -o "$TMP" -w '%{http_code}' "${AAP_BASE}${REQ_PATH}" 2>/dev/null)
+    CURL_RC=$?
+    if [[ $CURL_RC -eq 0 && "$HTTP_CODE" =~ ^2[0-9][0-9]$ ]]; then
+      cat "$TMP"
+      rm -f "$TMP"
+      return 0
+    fi
+    # Anything other than a connection failure, 429 or 5xx is not worth retrying
+    if [[ $CURL_RC -eq 0 && "$HTTP_CODE" != "429" && ! "$HTTP_CODE" =~ ^5[0-9][0-9]$ ]]; then
+      echo "AAP request ${METHOD} ${REQ_PATH} failed with HTTP ${HTTP_CODE}: $(cat "$TMP")" >&2
+      rm -f "$TMP"
+      return 1
+    fi
+    if (( TRY >= MAX_RETRIES )); then
+      echo "AAP request ${METHOD} ${REQ_PATH} failed after ${MAX_RETRIES} retries (curl exit ${CURL_RC}, HTTP ${HTTP_CODE})" >&2
+      rm -f "$TMP"
+      return 1
+    fi
+    TRY=$((TRY + 1))
+    echo "AAP request ${METHOD} ${REQ_PATH} failed (curl exit ${CURL_RC}, HTTP ${HTTP_CODE}), retry ${TRY}/${MAX_RETRIES} in ${DELAY}s ..." >&2
+    sleep "$DELAY"
+    DELAY=$((DELAY * 2))
+    (( DELAY > 60 )) && DELAY=60
+  done
+}
+
+
 
 
 # ============================================================================
-# Function 1: Create New Branch from Target Branch
+# Invoke the backup job template on AAP and wait for it to finish
 # ============================================================================
-# Clones the target branch (GIT_BRANCH) and creates a NEW working branch from it
-# The new branch will be used for all commits and will be merged back to GIT_BRANCH via PR
+# Launches the AAP job template (AAP_JOB), polls until it finishes and prints its output.
+# Exits 0 on success, 1 otherwise.
 #
 # Parameters: Uses environment variables set by gitops_invoke_backup_aap_noninteractive
-# Exports: NEW_BRANCH_NAME (saved to file for other tasks)
 function gitops_invoke_backup_aap() {
   echo
   echo_h2 "Invoking backup AAP Playbook ${GIT_BRANCH}"
@@ -308,7 +351,7 @@ function gitops_invoke_backup_aap() {
 # Command Wrappers - Make functions callable as separate commands
 # ============================================================================
 
-# Wrapper for gitops-invoke_backup_aap-create-branch command
+# Wrapper for gitops-invoke-backup-aap command
 function gitops_invoke_backup_aap_cmd() {
   shift  # Remove command name
   if [[ $# -gt 0 ]]; then
