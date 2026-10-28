@@ -1041,14 +1041,15 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-app-cfg-aiservice
-        - name: configmap_value 
+        - name: configmap_value
           value: approved
       when:
         - input: $(params.sync_with_install)
           operator: in
-          values: ["true", "True"]    
+          values: ["true", "True"]
       runAfter:
         - launchfvt-aiservice
+        - waitfor-suite-verify
 
 
 
@@ -1182,7 +1183,7 @@ spec:
         # granted approval for the install to progress, and both IoT and Monitor FVT is complete.
         - launchivt-manage  # Also ensures completion of launchfvt-mobile, launchfvt-monitor, & approval-visualinspection
         - approval-facilities
-        - approval-aiservice  # Ensures AI Service FVT completes before the install pipeline is allowed to proceed
+        - launchfvt-aiservice  # Ensures AI Service FVT completes before must-gather is triggered
 
     # Day 2 activity FVT
     # -------------------------------------------------------------------------
