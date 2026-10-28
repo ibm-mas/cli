@@ -108,6 +108,12 @@ class aiServiceInstallSummarizerMixin:
         self.printParamSummary("URL", "aiservice_watsonxai_url")
         self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
+        if self.getParam("aiservice_llm_client_id") != "":
+            self.printH2("LLM Provider")
+            self.printParamSummary("Provider", "aiservice_llm_provider")
+            self.printParamSummary("Model ID", "aiservice_llm_model_id")
+            self.printParamSummary("OAuth Client ID", "aiservice_llm_client_id")
+
     def db2Summary(self) -> None:
         self.printH2("Database Configuration")
 

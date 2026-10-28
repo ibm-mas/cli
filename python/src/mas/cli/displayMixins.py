@@ -60,6 +60,8 @@ SENSITIVE_PARAMS = {
     "cos_apikey",
     # AI Service Credentials
     "aiservice_watsonxai_apikey",
+    "aiservice_llm_client_secret",
+    "aiservice_llm_refresh_token",
     "aiservice_db_username",
     "aiservice_db_password",
     # Minio Credentials

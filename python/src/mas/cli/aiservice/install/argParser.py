@@ -181,6 +181,16 @@ watsonxArgGroup.add_argument("--watsonxai-username", dest="aiservice_watsonxai_u
 watsonxArgGroup.add_argument("--watsonxai-version", dest="aiservice_watsonxai_version", required=False, help="WatsonX version")
 watsonxArgGroup.add_argument("--watsonxai-onprem", dest="aiservice_watsonxai_on_prem", required=False, help="WatsonX deployed on prem")
 
+# LLM provider (e.g. Google GEAP)
+# -----------------------------------------------------------------------------
+llmArgGroup = aiServiceinstallArgParser.add_argument_group("LLM Provider")
+
+llmArgGroup.add_argument("--llm-provider", dest="aiservice_llm_provider", required=False, help="Name of the LLM provider (optional)")
+llmArgGroup.add_argument("--llm-model-id", dest="aiservice_llm_model_id", required=False, help="Model ID to use with the LLM provider (optional)")
+llmArgGroup.add_argument("--llm-client-id", dest="aiservice_llm_client_id", required=False, help="OAuth client ID for the LLM provider")
+llmArgGroup.add_argument("--llm-client-secret", dest="aiservice_llm_client_secret", required=False, help="OAuth client secret for the LLM provider")
+llmArgGroup.add_argument("--llm-refresh-token", dest="aiservice_llm_refresh_token", required=False, help="OAuth refresh token for the LLM provider")
+
 # AI Service
 # -----------------------------------------------------------------------------
 aiServiceArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Service")

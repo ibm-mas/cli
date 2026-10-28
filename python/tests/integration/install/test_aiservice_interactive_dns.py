@@ -95,6 +95,7 @@ def _base_prompts(tmpdir):
         ".*Does the Watsonxai AI use a self-signed certificate.*": lambda msg: "n",
         ".*Watsonxai Deployment ID.*": lambda msg: "",
         ".*Watsonxai Space ID.*": lambda msg: "",
+        ".*Configure an additional LLM provider.*": lambda msg: "n",
         ".*Does the RSL API use a self-signed certificate.*": lambda msg: "n",
         ".*Create MongoDb cluster.*": lambda msg: "y",
         ".*MongoDb namespace.*": lambda msg: "mongoce",

@@ -969,6 +969,25 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Watsonxai Instance ID (optional)", "aiservice_watsonxai_instance_id")
             self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
             self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
+
+        self.printH1("LLM Provider Integration")
+        self.printDescription(
+            [
+                "Optionally configure credentials for an LLM provider other than watsonx.ai, for example Google GEAP.",
+                "These are stored in the same tenant secret as the watsonx.ai credentials, so both can be configured.",
+                "",
+                "The OAuth client ID, client secret and refresh token must all be provided together.",
+                "The base URL is taken from the WatsonX URL (--watsonxai-url).",
+                "",
+            ]
+        )
+        if self.yesOrNo("Configure an additional LLM provider"):
+            self.promptForString("LLM provider (optional)", "aiservice_llm_provider")
+            self.promptForString("LLM model ID (optional)", "aiservice_llm_model_id")
+            self.promptForString("LLM OAuth client ID", "aiservice_llm_client_id")
+            self.promptForString("LLM OAuth client secret", "aiservice_llm_client_secret", isPassword=True)
+            self.promptForString("LLM OAuth refresh token", "aiservice_llm_refresh_token", isPassword=True)
+
         self.printH1("RSL Integration")
         self.printDescription(
             [

@@ -292,6 +292,8 @@ def test_install_interactive_advanced(tmpdir):
                     return ""
                 if re.match(".*Watsonxai Space ID.*", message):
                     return ""
+                if re.match(".*Configure an additional LLM provider.*", message):
+                    return "n"
                 if re.match(".*Operational Mode.*", message):
                     return "1"
                 if re.match(".*Install Minio.*", message):
@@ -498,6 +500,8 @@ def test_install_interactive_simplified(tmpdir):
                     return ""
                 if re.match(".*Watsonxai Space ID.*", message):
                     return ""
+                if re.match(".*Configure an additional LLM provider.*", message):
+                    return "n"
                 if re.match(".*Does the RSL API use a self-signed certificate.*", message):
                     return "n"
                 if re.match(".*Do you want to use an external database.*", message):
@@ -539,6 +543,184 @@ def test_install_interactive_simplified(tmpdir):
             storage_class.metadata.name = "nfs-client"
             app = AiServiceInstallApp()
             app.install(argv=[])
+
+
+def test_install_interactive_llm_provider(tmpdir):
+    """Test interactive AI Service install configuring an additional LLM provider.
+
+    GIVEN simplified interactive answers including an additional LLM provider (e.g. Google GEAP)
+    WHEN the install command runs interactively
+    THEN the LLM provider answers are stored in the pipeline params.
+    """
+    tmpdir.join("authorized_entitlement.lic").write("testLicense")
+    tmpdir.join("mongodb-system.yaml").write("#")
+    tmpdir.join("cert.crt").write("#")
+    with mock.patch("mas.cli.cli.config"):
+        dynamic_client = MagicMock(DynamicClient)
+        resources = MagicMock()
+        dynamic_client.resources = resources
+        routes_api = MagicMock()
+        catalog_api = MagicMock()
+        crd_api = MagicMock()
+        namespace_api = MagicMock()
+        cluster_role_binding_api = MagicMock()
+        pvc_api = MagicMock()
+        secret_api = MagicMock()
+        storage_class_api = MagicMock()
+        license_api = MagicMock()
+        resource_apis = {
+            "CatalogSource": catalog_api,
+            "Route": routes_api,
+            "CustomResourceDefinition": crd_api,
+            "Namespace": namespace_api,
+            "ClusterRoleBinding": cluster_role_binding_api,
+            "PersistentVolumeClaim": pvc_api,
+            "Secret": secret_api,
+            "StorageClass": storage_class_api,
+            "LicenseService": license_api,
+        }
+        resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs["kind"], None)
+        route = MagicMock()
+        route.spec = MagicMock()
+        route.spec.host = "maximo.ibm.com"
+        route.spec.displayName = supportedCatalogs["amd64"][1]
+        routes_api.get.return_value = route
+        catalog_api.get.side_effect = NotFoundError(ApiException(status="404"))
+        with (
+            mock.patch("mas.cli.cli.DynamicClient") as dynamic_client_class,
+            mock.patch("mas.cli.cli.getNodes") as get_nodes,
+            mock.patch("mas.cli.cli.isAirgapInstall") as is_airgap_install,
+            mock.patch("mas.cli.aiservice.install.app.getCurrentCatalog") as get_current_catalog,
+            mock.patch("mas.cli.aiservice.install.app.installOpenShiftPipelines"),
+            mock.patch("mas.cli.aiservice.install.app.updateTektonDefinitions"),
+            mock.patch("mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace"),
+            mock.patch("mas.cli.aiservice.install.app.launchInstallPipeline") as launch_ai_service_install_pipeline,
+            mock.patch("mas.cli.cli.isSNO") as is_sno,
+            mock.patch("mas.cli.displayMixins.prompt") as mixins_prompt,
+            mock.patch("mas.cli.aiservice.install.app.prompt") as app_prompt,
+            mock.patch("mas.cli.aiservice.install.app.getStorageClasses") as get_storage_classes,
+            mock.patch("mas.cli.displayMixins.PromptSession") as prompt_session_class,
+        ):
+            dynamic_client_class.return_value = dynamic_client
+            get_nodes.return_value = [{"status": {"nodeInfo": {"architecture": "amd64"}}}]
+            is_airgap_install.return_value = False
+            get_current_catalog.return_value = {"catalogId": supportedCatalogs["amd64"][1]}
+            launch_ai_service_install_pipeline.return_value = "https://pipeline.test.maximo.ibm.com"
+            is_sno.return_value = False
+
+            def set_mixin_prompt_input(**kwargs):
+                message = str(kwargs["message"])
+                if re.match(".*Proceed with this cluster?.*", message):
+                    return "y"
+                if re.match(".*Show advanced installation options?.*", message):
+                    return "n"
+                if re.match(".*Select release.*", message):
+                    return "9.1"
+                if re.match(".*Do you accept the license terms?.*", message):
+                    return "y"
+                if re.match(".*ReadWriteOnce (RWO) storage class.*", message):
+                    return "nfs-client"
+                if re.match(".*ReadWriteMany (RWX) storage class.*", message):
+                    return "nfs-client"
+                if re.match(".*SLS Mode.*", message):
+                    return "1"
+                if re.match(".*>License file<.*", message):
+                    return f"{tmpdir}/authorized_entitlement.lic"
+                if re.match(".*>Db2 License file<.*", message):
+                    return ""
+                if re.match(".*Contact e-mail address.*", message):
+                    return "maximo@ibm.com"
+                if re.match(".*Contact first name.*", message):
+                    return "Test"
+                if re.match(".*Contact last name.*", message):
+                    return "Test"
+                if re.match(r".*IBM Data Reporter Operator \(DRO\) Namespace.*", message):
+                    return "redhat-marketplace"
+                if re.match(".*IBM entitlement key.*", message):
+                    return "testEntitlementKey"
+                if re.match(".*Instance ID.*", message):
+                    return "apmdevops"
+                if re.match(".*Operational Mode.*", message):
+                    return "1"
+                if re.match(".*Install Minio.*", message):
+                    return "y"
+                if re.match(".*minio root username.*", message):
+                    return "username"
+                if re.match(".*minio root password.*", message):
+                    return "password"
+                if re.match(".*Entitlement end date.*", message):
+                    return "2027-02-16"
+                if re.match(".*Watsonxai api key.*", message):
+                    return "testWxApiKey"
+                if re.match(".*Watsonxai machine learning url.*", message):
+                    return "https://us-south.ml.cloud.ibm.com"
+                if re.match(".*Watsonxai project id.*", message):
+                    return "testProjectId"
+                if re.match(".*Does the Watsonxai AI use a self-signed certificate.*", message):
+                    return "n"
+                if re.match(".*Watsonxai Deployment ID.*", message):
+                    return ""
+                if re.match(".*Watsonxai Space ID.*", message):
+                    return ""
+                if re.match(".*Configure an additional LLM provider.*", message):
+                    return "y"
+                if re.match(".*LLM provider \\(optional\\).*", message):
+                    return "openai"
+                if re.match(".*LLM model ID.*", message):
+                    return "openai/gpt-oss-120b-maas"
+                if re.match(".*LLM OAuth client ID.*", message):
+                    return "testLlmClientId"
+                if re.match(".*LLM OAuth client secret.*", message):
+                    return "testLlmClientSecret"
+                if re.match(".*LLM OAuth refresh token.*", message):
+                    return "testLlmRefreshToken"
+                if re.match(".*Does the RSL API use a self-signed certificate.*", message):
+                    return "n"
+                if re.match(".*Do you want to use an external database.*", message):
+                    return "n"
+                if re.match(".*Create MongoDb cluster.*", message):
+                    return "n"
+                if re.match(".*Select Local configuration directory.*", message):
+                    return str(tmpdir)
+                if re.match(".*MongoDb Username.*", message):
+                    return "mongodbUser"
+                if re.match(".*MongoDb Password.*", message):
+                    return "mongodbPassword"
+                if re.match(".*Path to certificate file.*", message):
+                    return f"{tmpdir}/cert.crt"
+                if re.match(".*System mongodb configuration file 'mongodb-system.yaml' already exists", message):
+                    return "n"
+                if re.match(".*Proceed with these settings.*", message):
+                    return "y"
+                if re.match(".*Wait for PVCs to bind.*", message):
+                    return "n"
+
+            mixins_prompt.side_effect = set_mixin_prompt_input
+            prompt_session_instance = MagicMock()
+            prompt_session_class.return_value = prompt_session_instance
+            prompt_session_instance.prompt.side_effect = set_mixin_prompt_input
+
+            def set_app_prompt_input(**kwargs):
+                message = str(kwargs["message"])
+                if re.match(".*ReadWriteOnce (RWO) storage class.*", message):
+                    return "nfs-client"
+                if re.match(".*ReadWriteMany (RWX) storage class.*", message):
+                    return "nfs-client"
+
+            app_prompt.side_effect = set_app_prompt_input
+
+            storage_class = MagicMock()
+            get_storage_classes.return_value = [storage_class]
+            storage_class.metadata = MagicMock()
+            storage_class.metadata.name = "nfs-client"
+            app = AiServiceInstallApp()
+            app.install(argv=[])
+
+            assert app.getParam("aiservice_llm_provider") == "openai"
+            assert app.getParam("aiservice_llm_model_id") == "openai/gpt-oss-120b-maas"
+            assert app.getParam("aiservice_llm_client_id") == "testLlmClientId"
+            assert app.getParam("aiservice_llm_client_secret") == "testLlmClientSecret"
+            assert app.getParam("aiservice_llm_refresh_token") == "testLlmRefreshToken"
 
 
 def test_install_noninteractive_route53(tmpdir):
@@ -801,3 +983,139 @@ def test_install_noninteractive_cis_enhanced_security(tmpdir):
                 assert app.getParam("override_edge_certs") == "true"
                 assert app.getParam("cis_service_name") == "test-cis-service"
                 assert app.getParam("cis_entries_to_add") == "aiservice"
+
+
+def test_install_noninteractive_llm_provider(tmpdir):
+    """Test non-interactive AI Service install with LLM provider (e.g. Google GEAP) options.
+
+    GIVEN a complete set of CLI arguments including the --llm-* flags
+    WHEN the install command runs in non-interactive mode
+    THEN the LLM provider values are passed through to the pipeline params.
+    """
+    tmpdir.join("authorized_entitlement.lic").write("testLicense")
+    with mock.patch("mas.cli.cli.config"):
+        dynamic_client = MagicMock(DynamicClient)
+        resources = MagicMock()
+        dynamic_client.resources = resources
+        routes_api = MagicMock()
+        catalog_api = MagicMock()
+        crd_api = MagicMock()
+        namespace_api = MagicMock()
+        cluster_role_binding_api = MagicMock()
+        pvc_api = MagicMock()
+        secret_api = MagicMock()
+        resource_apis = {
+            "CatalogSource": catalog_api,
+            "Route": routes_api,
+            "CustomResourceDefinition": crd_api,
+            "Namespace": namespace_api,
+            "ClusterRoleBinding": cluster_role_binding_api,
+            "PersistentVolumeClaim": pvc_api,
+            "Secret": secret_api,
+        }
+        resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs["kind"], None)
+        route = MagicMock()
+        route.spec = MagicMock()
+        route.spec.host = "maximo.ibm.com"
+        route.spec.displayName = supportedCatalogs["amd64"][1]
+        routes_api.get.return_value = route
+        catalog_api.get.side_effect = NotFoundError(ApiException(status="404"))
+        with (
+            mock.patch("mas.cli.cli.DynamicClient") as dynamic_client_class,
+            mock.patch("mas.cli.cli.getNodes") as get_nodes,
+            mock.patch("mas.cli.cli.isAirgapInstall") as is_airgap_install,
+            mock.patch("mas.cli.aiservice.install.app.getCurrentCatalog") as get_current_catalog,
+            mock.patch("mas.cli.aiservice.install.app.installOpenShiftPipelines"),
+            mock.patch("mas.cli.aiservice.install.app.updateTektonDefinitions"),
+            mock.patch("mas.cli.aiservice.install.app.prepareAiServicePipelinesNamespace"),
+            mock.patch("mas.cli.aiservice.install.app.launchInstallPipeline") as launch_ai_service_install_pipeline,
+        ):
+            dynamic_client_class.return_value = dynamic_client
+            get_nodes.return_value = [{"status": {"nodeInfo": {"architecture": "amd64"}}}]
+            is_airgap_install.return_value = False
+            get_current_catalog.return_value = {"catalogId": supportedCatalogs["amd64"][1]}
+            launch_ai_service_install_pipeline.return_value = "https://pipeline.test.maximo.ibm.com"
+            with mock.patch("mas.cli.cli.isSNO") as is_sno:
+                is_sno.return_value = False
+                app = AiServiceInstallApp()
+                app.install(
+                    [
+                        "--mas-catalog-version",
+                        "v9-250828-amd64",
+                        "--ibm-entitlement-key",
+                        "testEntitlementKey",
+                        "--aiservice-instance-id",
+                        "testInstanceId",
+                        "--storage-class-rwo",
+                        "nfs-client",
+                        "--storage-class-rwx",
+                        "nfs-client",
+                        "--storage-pipeline",
+                        "nfs-client",
+                        "--storage-accessmode",
+                        "ReadWriteMany",
+                        "--license-file",
+                        f"{tmpdir}/authorized_entitlement.lic",
+                        "--contact-email",
+                        "maximo@ibm.com",
+                        "--contact-firstname",
+                        "Test",
+                        "--contact-lastname",
+                        "Test",
+                        "--aiservice-channel",
+                        "9.1.x",
+                        "--domain",
+                        "aiservice.example.com",
+                        "--dns-provider",
+                        "cis",
+                        "--cis-email",
+                        "cis@example.com",
+                        "--cis-apikey",
+                        "testCisApiKey",
+                        "--cis-crn",
+                        "crn:v1:test",
+                        "--cis-subdomain",
+                        "aiservice",
+                        "--aiservice-certificate-issuer",
+                        "testInstanceId-cis-le-prod",
+                        "--install-minio",
+                        "--minio-root-user",
+                        "test",
+                        "--minio-root-password",
+                        "test",
+                        "--watsonxai-apikey",
+                        "test",
+                        "--watsonxai-url",
+                        "https://us-south.ml.cloud.ibm.com",
+                        "--watsonxai-project-id",
+                        "test",
+                        "--llm-provider",
+                        "openai",
+                        "--llm-model-id",
+                        "openai/gpt-oss-120b-maas",
+                        "--llm-client-id",
+                        "testLlmClientId",
+                        "--llm-client-secret",
+                        "testLlmClientSecret",
+                        "--llm-refresh-token",
+                        "testLlmRefreshToken",
+                        "--tenant-entitlement-type",
+                        "standard",
+                        "--tenant-entitlement-start-date",
+                        "2025-08-28",
+                        "--tenant-entitlement-end-date",
+                        "2026-08-28",
+                        "--accept-license",
+                        "--no-confirm",
+                        "--skip-pre-check",
+                    ]
+                )
+
+                assert app.getParam("aiservice_llm_provider") == "openai"
+                assert app.getParam("aiservice_llm_model_id") == "openai/gpt-oss-120b-maas"
+                assert app.getParam("aiservice_llm_client_id") == "testLlmClientId"
+                assert app.getParam("aiservice_llm_client_secret") == "testLlmClientSecret"
+                assert app.getParam("aiservice_llm_refresh_token") == "testLlmRefreshToken"
+                # The same params must reach the pipeline launch
+                launched_params = launch_ai_service_install_pipeline.call_args.kwargs["params"]
+                assert launched_params["aiservice_llm_client_id"] == "testLlmClientId"
