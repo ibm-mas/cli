@@ -70,14 +70,18 @@ function gitops_invoke_backup_aap_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
-        export CLUSTER_NAME=$1  # For backward compatibility
+        export CLUSTER_NAME=$CLUSTER_ID  # For backward compatibility
         ;;
       
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
 
-     --region-name)
+      -r|--region-id)
+        export REGION_ID=$1 && shift
+        ;;
+
+      --region-name)
         export REGION_NAME=$1 && shift
         ;;
 

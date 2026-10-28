@@ -19,6 +19,9 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
+    - name: region_name
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -36,6 +39,8 @@ spec:
         value: $(params.github_repo)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: REGION_NAME
+        value: $(params.region_name)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -44,26 +49,27 @@ spec:
           name: secure-properties
 
   steps:
-    - name: create-branch
+    - name: invoke-backup-aap
       args:
         - |-
           git config --global user.name "MAS Automation"
           git config --global user.email "you@example.com"
-          git config --global user.password $GITHUB_PAT
+          git config --global user.password "$GITHUB_PAT"
 
-          mkdir -p /workspace/gitops-iac
+          mkdir -p /workspace/gitops-invoke-backup-aap
 
-          # Call the create branch function
-          mas gitops-iac-create-branch \
-            -a $ACCOUNT \
-            -c $CLUSTER_NAME \
-            -m $MAS_INSTANCE_ID \
-            --dir /workspace/gitops-iac \
+          # Invoke the backup AAP job (AAP_* settings come from secure-properties)
+          mas gitops-invoke-backup-aap \
+            -a "$ACCOUNT" \
+            -c "$CLUSTER_NAME" \
+            -m "$MAS_INSTANCE_ID" \
+            --region-name "$REGION_NAME" \
+            --dir /workspace/gitops-invoke-backup-aap \
             --github-push \
-            --github-host $GITHUB_HOST \
-            --github-org $GITHUB_ORG \
-            --github-repo $GITHUB_REPO \
-            --git-branch $GIT_BRANCH
+            --github-host "$GITHUB_HOST" \
+            --github-org "$GITHUB_ORG" \
+            --github-repo "$GITHUB_REPO" \
+            --git-branch "$GIT_BRANCH"
 
           exit $?
       command:
@@ -74,4 +80,4 @@ spec:
 
   workspaces:
     - name: configs
-      mountPath: /workspace/gitops-iac
+      mountPath: /workspace/gitops-invoke-backup-aap
