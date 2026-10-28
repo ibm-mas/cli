@@ -13,6 +13,8 @@ mas_workspace_id: {{ MAS_WORKSPACE_ID }}
 customization_archive_secret_names:
 {%- for customization_archive_secret_name in CUSTOMIZATION_ARCHIVE_SECRET_NAMES %}
   - secret_name: {{ customization_archive_secret_name }}
+    password: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#password>
+    username: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#username>
     access_secret_key: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#access_secret_key>
 {%- endfor %}
 {%- endif %}
