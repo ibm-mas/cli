@@ -21,15 +21,6 @@ Basic Configuration:
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                  Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
-Automatic GitHub Push (Optional):
-  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                  Enable automatic push to GitHub
-  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}                  GitHub Hostname for your GitOps repository
-  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}                    Github org for your GitOps repository
-  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}                  Github repo for your GitOps repository
-  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}                       Git ssh key path
-  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}                    Git branch to commit to of your GitOps repository
-  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}            Git commit message to use when committing to of your GitOps repository
-
 AAP Configuration (environment variables only):
   AAP_URL                  AAP base URL, e.g. https://aap.example.com (required)
   AAP_JOB                  Job template name or numeric ID (required)
@@ -51,7 +42,6 @@ EOM
 function gitops_invoke_backup_aap_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"invoke_backup_aap provision"}
 
   # Set default values
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
@@ -90,29 +80,6 @@ function gitops_invoke_backup_aap_noninteractive() {
         export CLUSTER_URL=$1 && shift
         ;;
 
-      # Automatic GitHub Push
-      -P|--github-push)
-        export GITHUB_PUSH=true
-        ;;
-      -H|--github-host)
-        export GITHUB_HOST=$1 && shift
-        ;;
-      -O|--github-org)
-        export GITHUB_ORG=$1 && shift
-        ;;
-      -R|--github-repo)
-        export GITHUB_REPO=$1 && shift
-        ;;
-      -S|--github-ssh)
-        export GIT_SSH=$1 && shift
-        ;;
-      -B|--git-branch)
-        export GIT_BRANCH=$1 && shift
-        ;;
-      -M|--git-commit-msg)
-        export GIT_COMMIT_MSG=$1 && shift
-        ;;
-
       # Other Commands
       -h|--help)
         gitops_invoke_backup_aap_help
@@ -131,13 +98,6 @@ function gitops_invoke_backup_aap_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_invoke_backup_aap_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_invoke_backup_aap_help "CLUSTER_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_invoke_backup_aap_help "MAS_INSTANCE_ID is not set"
-
-  if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_invoke_backup_aap_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_invoke_backup_aap_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_invoke_backup_aap_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_invoke_backup_aap_help "GIT_BRANCH is not set"
-  fi
 }
 
 # ============================================================================
@@ -195,14 +155,10 @@ function gitops_invoke_backup_aap_request() {
 # Parameters: Uses environment variables set by gitops_invoke_backup_aap_noninteractive
 function gitops_invoke_backup_aap() {
   echo
-  echo_h2 "Invoking backup AAP Playbook ${GIT_BRANCH}"
+  echo_h2 "Invoking backup AAP Playbook"
   
   # Validate required parameters
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_invoke_backup_aap_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$GITHUB_HOST" ]] && gitops_invoke_backup_aap_help "GITHUB_HOST is not set"
-  [[ -z "$GITHUB_ORG" ]] && gitops_invoke_backup_aap_help "GITHUB_ORG is not set"
-  [[ -z "$GITHUB_REPO" ]] && gitops_invoke_backup_aap_help "GITHUB_REPO is not set"
-  [[ -z "$GIT_BRANCH" ]] && gitops_invoke_backup_aap_help "GIT_BRANCH is not set (target branch)"
   [[ -z "$ACCOUNT_ID" ]] && gitops_invoke_backup_aap_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_invoke_backup_aap_help "CLUSTER_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_invoke_backup_aap_help "MAS_INSTANCE_ID is not set"
@@ -239,13 +195,6 @@ function gitops_invoke_backup_aap() {
   echo "  REGION_ID          = ${REGION_ID:-}"
   echo "  REGION_NAME        = ${REGION_NAME:-}"
   echo "  CLUSTER_URL        = ${CLUSTER_URL:-}"
-  echo "  GITHUB_PUSH        = ${GITHUB_PUSH:-}"
-  echo "  GITHUB_HOST        = ${GITHUB_HOST}"
-  echo "  GITHUB_ORG         = ${GITHUB_ORG}"
-  echo "  GITHUB_REPO        = ${GITHUB_REPO}"
-  echo "  GIT_SSH            = ${GIT_SSH:-}"
-  echo "  GIT_BRANCH         = ${GIT_BRANCH}"
-  echo "  GIT_COMMIT_MSG     = ${GIT_COMMIT_MSG:-}"
   echo "AAP environment variables:"
   echo "  AAP_URL            = ${AAP_URL}"
   echo "  AAP_JOB            = ${AAP_JOB}"
