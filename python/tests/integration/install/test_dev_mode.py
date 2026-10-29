@@ -217,17 +217,27 @@ def test_install_master_dev_mode_existing_catalog(tmpdir):
     run_install_test(tmpdir, config)
 
 
-@pytest.mark.parametrize("use_service_mesh", [True, False], ids=["service_mesh_enabled", "service_mesh_disabled"])
-def test_install_master_dev_mode_with_path_routing(tmpdir, use_service_mesh):
+@pytest.mark.parametrize(
+    "use_service_mesh, disable_route_creation, expected_manual_routes",
+    [
+        (True, None, "true"),  # Service Mesh forces manual routes, the question is not asked
+        (False, True, "true"),  # Service Mesh disabled, user chooses manual routes
+        (False, False, "false"),  # Service Mesh disabled, user keeps automatic routes
+    ],
+    ids=["service_mesh_enabled", "service_mesh_disabled_manual_routes", "service_mesh_disabled_automatic_routes"],
+)
+def test_install_master_dev_mode_with_path_routing(tmpdir, use_service_mesh, disable_route_creation, expected_manual_routes):
     """Test interactive installation with 9.2.0 channel including path-based routing mode configuration.
 
     Service Mesh is configured before the routing mode, and the routing mode flow depends on the answer.
 
     Service Mesh enabled:
+    - Manual route management is always true, and the "Disable Route Creation" question is not asked
     - Istio Ingress Gateway handles traffic, so path-based routing is set directly
     - No IngressController checks and no "Configure ingress namespace ownership" prompt
 
     Service Mesh disabled:
+    - User chooses manual route management (true or false) via the "Disable Route Creation" question
     - Mock IngressController is initially NOT configured (namespaceOwnership='Strict')
     - User selects path-based routing mode
     - CLI checks permissions (mocked to succeed)
@@ -349,9 +359,10 @@ def test_install_master_dev_mode_with_path_routing(tmpdir, use_service_mesh):
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
-    # 5. Configure IngressController for path-based routing - only prompted when Service Mesh is not enabled.
-    # When Service Mesh is enabled this handler is intentionally omitted, so an unexpected prompt fails the test.
+    # 5. Prompts that are only asked when Service Mesh is not enabled.
+    # When Service Mesh is enabled these handlers are intentionally omitted, so an unexpected prompt fails the test.
     if not use_service_mesh:
+        prompt_handlers[".*Disable Route Creation.*"] = lambda msg: "y" if disable_route_creation else "n"
         prompt_handlers[".*Configure ingress namespace ownership.*"] = lambda msg: "y"  # Agree to configure
 
     # Create test configuration with --dev-mode flag and 9.2.x-dev channel
@@ -370,11 +381,39 @@ def test_install_master_dev_mode_with_path_routing(tmpdir, use_service_mesh):
     )
 
     # Run the test
-    run_install_test(tmpdir, config)
+    app = run_install_test(tmpdir, config)
+
+    # Service Mesh always forces manual route management. Without Service Mesh it follows the user's answer.
+    assert app.getParam("mas_use_service_mesh") == ("true" if use_service_mesh else "false")
+    assert app.getParam("mas_manual_route_mgmt") == expected_manual_routes
 
 
-def test_install_master_dev_mode_non_interactive(tmpdir):
-    """Test non-interactive installation when no catalog is installed with --dev-mode flag."""
+@pytest.mark.parametrize(
+    "extra_args, expected_service_mesh, expected_manual_routes",
+    [
+        ([], "false", "false"),
+        (["--manual-routes"], "false", "true"),
+        (["--servicemesh", "false"], "false", "false"),
+        (["--servicemesh", "false", "--manual-routes"], "false", "true"),
+        (["--servicemesh", "true"], "true", "true"),
+        (["--servicemesh", "true", "--manual-routes"], "true", "true"),
+    ],
+    ids=[
+        "defaults",
+        "manual_routes_only",
+        "service_mesh_false",
+        "service_mesh_false_manual_routes",
+        "service_mesh_true_forces_manual_routes",
+        "service_mesh_true_manual_routes",
+    ],
+)
+def test_install_master_dev_mode_non_interactive(tmpdir, extra_args, expected_service_mesh, expected_manual_routes):
+    """Test non-interactive installation when no catalog is installed with --dev-mode flag.
+
+    Also verifies the Service Mesh / manual routes combinations:
+    - --servicemesh true  -> manual route management is always true
+    - --servicemesh false -> manual route management follows --manual-routes (true or false)
+    """
 
     # Define prompt handlers with expected patterns and responses
     prompt_handlers = {}
@@ -502,10 +541,14 @@ def test_install_master_dev_mode_non_interactive(tmpdir):
             "100:300:true",
             "--accept-license",
             "--no-confirm",
-        ],
+        ]
+        + extra_args,
     )
     # Run the test
-    run_install_test(tmpdir, config)
+    app = run_install_test(tmpdir, config)
+
+    assert app.getParam("mas_use_service_mesh") == expected_service_mesh
+    assert app.getParam("mas_manual_route_mgmt") == expected_manual_routes
 
 
 def test_install_master_dev_mode_non_interactive_with_path_routing(tmpdir, caplog):

@@ -389,8 +389,9 @@ class TestInteractiveLetsEncryptIntegration:
             ".*Use additional configurations.*": lambda msg: "n",
             ".*Proceed with these settings.*": lambda msg: "y",
         }
-        # IngressController config - only prompted when Service Mesh is not enabled
+        # Only prompted when Service Mesh is not enabled
         if not use_service_mesh:
+            handlers[".*Disable Route Creation.*"] = lambda msg: "n"
             handlers[".*Configure ingress namespace ownership.*"] = lambda msg: "y"
         return handlers
 

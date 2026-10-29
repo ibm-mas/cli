@@ -1025,9 +1025,17 @@ class InstallApp(
                 ]
             )
             self.yesOrNo("Enable OpenShift Service Mesh support for MAS", "mas_use_service_mesh")
+
+            if self.getParam("mas_use_service_mesh") == "true":
+                # Service Mesh manages the routes externally, so manual route management is always required
+                self.setParam("mas_manual_route_mgmt", "true")
+            else:
+                self.printH1("Configure Routes Manually")
+                self.printDescription(["Disable automatic route creation."])
+                self.yesOrNo("Disable Route Creation", "mas_manual_route_mgmt")
         else:
             self.setParam("mas_use_service_mesh", "false")
-        self.setParam("mas_manual_route_mgmt", "false")
+            self.setParam("mas_manual_route_mgmt", "false")
 
     @logMethodCall
     def configAnnotations(self):
@@ -2641,6 +2649,10 @@ class InstallApp(
 
         if self.getParam("mas_use_service_mesh") == "true" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--servicemesh is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+
+        # Service Mesh always requires manual route management. Without Service Mesh, --manual-routes is honoured as provided.
+        if self.getParam("mas_use_service_mesh") == "true":
+            self.setParam("mas_manual_route_mgmt", "true")
 
         if self.getParam("mas_manual_route_mgmt") == "true" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--manual-routes is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
