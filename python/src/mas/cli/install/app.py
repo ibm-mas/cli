@@ -61,7 +61,7 @@ from mas.devops.ocp import (
 from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.sls import findSLSByNamespace
-from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError
+from mas.devops.data import getCatalog, getCatalogEditorial, NoSuchCatalogError, getNewestCatalogTag
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     enablePipelinesConsolePlugin,
@@ -2637,12 +2637,30 @@ class InstallApp(
                 self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
                 self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
 
-        # Load the catalog information
+        # Load the catalog information.
+        # In dev mode the catalog tag may be a custom image tag with no YAML definition —
+        # fall back to the newest known catalog so metadata (CPD version, Db2 channel, etc.)
+        # is still available. In non-dev mode an unknown catalog tag is a hard error.
         try:
             self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
             self.processCatalogChoice()
         except NoSuchCatalogError:
-            pass
+            if self.devMode:
+                # Custom dev image tags have no YAML — fall back to the newest known catalog
+                # for metadata, but keep the original tag as the catalog version parameter
+                # so it is used when pulling the actual catalog image.
+                newestTag = getNewestCatalogTag()
+                self.chosenCatalog = getCatalog(newestTag)
+                # processCatalogChoice reads mas_catalog_version for getCatalogEditorial;
+                # temporarily point it at the fallback tag so it resolves correctly.
+                originalTag = self.getParam("mas_catalog_version")
+                self.setParam("mas_catalog_version", newestTag)
+                self.processCatalogChoice()
+                self.setParam("mas_catalog_version", originalTag)
+            else:
+                self.fatalError(
+                    f"Catalog '{self.getParam('mas_catalog_version')}' is unknown. Use a valid catalog tag or run with --dev-mode for custom dev image tags"
+                )
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:

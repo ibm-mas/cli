@@ -20,7 +20,7 @@ from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser
-from mas.devops.data import getCatalog, getNewestCatalogTag
+from mas.devops.data import getCatalog, getNewestCatalogTag, NoSuchCatalogError
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog, getMasChannel, getInstalledApps, getPermissionMode
 from mas.devops.aiservice import listAiServiceInstances
@@ -243,9 +243,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         if not self.devMode:
             self.validateCatalog()
         else:
-            # In dev mode, load the user-specified catalog (or newest if not specified)
+            # In dev mode the catalog version may be a custom dev image tag that has no
+            # corresponding YAML definition, so fall back to the newest known catalog.
             catalogVersion = self.getParam("mas_catalog_version") if self.args.mas_catalog_version else getNewestCatalogTag()
-            self.chosenCatalog = getCatalog(catalogVersion)
+            try:
+                self.chosenCatalog = getCatalog(catalogVersion)
+            except NoSuchCatalogError:
+                self.chosenCatalog = getCatalog(getNewestCatalogTag())
 
         self.printH1("Dependency Update Checks")
         with Halo(text="Checking for IBM Watson Discovery", spinner=self.spinner) as h:
@@ -740,6 +744,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                                 "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
                                 "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli",
                             ]
+                        )
+                        return
+
+                    if cpdInstanceVersion == cpdTargetVersion:
+                        h.stop_and_persist(
+                            symbol=self.successIcon,
+                            text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already at the target version {cpdTargetVersion}, no update required",
                         )
                         return
 
