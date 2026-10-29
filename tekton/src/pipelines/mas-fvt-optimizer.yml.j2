@@ -138,7 +138,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -181,7 +181,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -224,7 +224,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -267,7 +267,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -310,7 +310,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -353,7 +353,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -396,7 +396,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -438,7 +438,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -479,7 +479,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -520,7 +520,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -561,7 +561,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -602,7 +602,7 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
@@ -636,10 +636,10 @@ spec:
           value: ibm-mas-optimizer
         - name: fvt_test_suite
           value: optimizer-api-authorization-service
-      timeout: "0"
       taskRef:
         kind: Task
         name: mas-fvt-manage-pytest
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_manage_pytest)"
           operator: notin
@@ -676,10 +676,10 @@ spec:
           value: ibm-mas-optimizer
         - name: fvt_test_suite
           value: optimizer-api-endpoints
-      timeout: "0"
       taskRef:
         kind: Task
         name: mas-fvt-manage-pytest
+      timeout: "0"
       when:
         - input: "$(params.fvt_digest_manage_pytest)"
           operator: notin
@@ -715,10 +715,10 @@ spec:
           values: [""]
 
     - name: pipeline-finish
-      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-pipeline-status
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)

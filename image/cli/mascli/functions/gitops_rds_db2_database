@@ -27,7 +27,7 @@ IBM RDS DB2:
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the rds db2 cluster addons audit config section.
       --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                       Flag to know that this is ReplicaDB instance
-      --rds-db2-backup ${COLOR_YELLOW}RDS_DB2_BACKUP${TEXT_RESET}                                                Flag to know that this is RDS DB2 backup instance
+      --rds-db2-backup ${COLOR_YELLOW}RDS_DB2_BACKUP${TEXT_RESET}                                                Flag to know that this is RDS DB2 backup instance                                     
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -149,7 +149,6 @@ function gitops_rds_db2_database_noninteractive() {
       -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
-
       # Other Commands
       -h|--help)
         gitops_rds_db2_database_help
@@ -216,6 +215,7 @@ function gitops_rds_db2_database() {
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     export DB2_INSTANCE_NAME=rds-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   fi
+  
   export DB2_NAMESPACE="rds-${MAS_INSTANCE_ID}"
 
   if [ -z $GIT_SSH ]; then
