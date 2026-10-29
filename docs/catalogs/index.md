@@ -50,11 +50,11 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-261029</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
+          <td><span style="font-weight: bold">v9-261029</span><br/><a href="v9-261029-amd64/">amd64</a> | <a href="v9-261029-s390x/">s390x</a> | <a href="v9-261029-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.18 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.4.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-261007</span><br/><a href="v9-261007-amd64/">amd64</a> | <a href="v9-261007-s390x/">s390x</a> | <a href="v9-261007-ppc64le/">ppc64le</a></td>
