@@ -2594,6 +2594,12 @@ class InstallApp(
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
 
+        # If slack_notify_on_fail was not provided via --slack-notify-on-fail, fall back to SLACK_USER env var
+        if self.getParam("slack_notify_on_fail") == "":
+            slackUserEnv = getenv("SLACK_USER", "")
+            if slackUserEnv:
+                self.setParam("slack_notify_on_fail", slackUserEnv)
+
         if self.installManage:
             # Configure Storage and Access mode
             self.manageStorageAndAccessMode()
@@ -3184,6 +3190,7 @@ class InstallApp(
                     aiserviceConfig=self.aiserviceConfigSecret,
                     slack_token=self.getParam("slack_token"),
                     slack_channel=self.getParam("slack_channel"),
+                    slack_notify_on_fail=self.getParam("slack_notify_on_fail"),
                     ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
                     artifactory_token=self.getParam("artifactory_token"),
                     artifactory_username=self.getParam("artifactory_username"),

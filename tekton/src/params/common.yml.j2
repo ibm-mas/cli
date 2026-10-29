@@ -29,6 +29,10 @@
   type: string
   default: ""
   description: Slack channel(s) for notifications (comma-separated for multiple channels)
+- name: slack_notify_on_fail
+  type: string
+  default: ""
+  description: Slack user ID to tag in the failure notification thread (e.g. U012AB3CD). Set via SLACK_USER env var.
 
 {% if application is not defined %}
 

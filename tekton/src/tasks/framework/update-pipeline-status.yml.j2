@@ -57,6 +57,12 @@ spec:
               name: mas-devops-slack
               key: SLACK_CHANNEL
               optional: true
+        - name: SLACK_USER
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops-slack
+              key: SLACK_USER
+              optional: true
         - name: PIPELINE_STATUS
           value: $(params.pipeline_status)
         - name: PIPELINE_NAME
