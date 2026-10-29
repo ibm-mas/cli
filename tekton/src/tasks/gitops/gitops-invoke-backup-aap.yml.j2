@@ -14,6 +14,12 @@ spec:
     - name: region_name
       type: string
       default: ""
+    - name: backup_enabled
+      type: string
+      default: 'false'
+    - name: restore_enabled
+      type: string
+      default: 'false'
 
   stepTemplate:
     env:
@@ -25,6 +31,10 @@ spec:
         value: $(params.mas_instance_id)
       - name: REGION_NAME
         value: $(params.region_name)
+      - name: BACKUP_ENABLED
+        value: $(params.backup_enabled)
+      - name: RESTORE_ENABLED
+        value: $(params.restore_enabled)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -44,6 +54,8 @@ spec:
             -c "$CLUSTER_NAME" \
             -m "$MAS_INSTANCE_ID" \
             --region-name "$REGION_NAME" \
+            --backup-enabled "$BACKUP_ENABLED" \
+            --restore-enabled "$RESTORE_ENABLED" \
             --dir /workspace/gitops-invoke-backup-aap
 
           exit $?

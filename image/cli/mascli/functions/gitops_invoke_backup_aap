@@ -17,6 +17,8 @@ Basic Configuration:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}          MAS Instance ID
   -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}                      Region ID
   --region-name ${COLOR_YELLOW}REGION_NAME${TEXT_RESET}                      Region Name
+  --backup-enabled ${COLOR_YELLOW}BACKUP_ENABLED${TEXT_RESET}                'true' or 'false' (default: false), passed to the AAP job as backup_enabled
+  --restore-enabled ${COLOR_YELLOW}RESTORE_ENABLED${TEXT_RESET}              'true' or 'false' (default: false), passed to the AAP job as restore_enabled
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                  Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -42,6 +44,8 @@ EOM
 function gitops_invoke_backup_aap_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
+  BACKUP_ENABLED=${BACKUP_ENABLED:-false}
+  RESTORE_ENABLED=${RESTORE_ENABLED:-false}
 
   # Set default values
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
@@ -73,6 +77,14 @@ function gitops_invoke_backup_aap_noninteractive() {
 
       --region-name)
         export REGION_NAME=$1 && shift
+        ;;
+
+      --backup-enabled)
+        export BACKUP_ENABLED=$1 && shift
+        ;;
+
+      --restore-enabled)
+        export RESTORE_ENABLED=$1 && shift
         ;;
 
       # Target Cluster (Optional)
@@ -194,6 +206,8 @@ function gitops_invoke_backup_aap() {
   echo "  MAS_INSTANCE_ID    = ${MAS_INSTANCE_ID}"
   echo "  REGION_ID          = ${REGION_ID:-}"
   echo "  REGION_NAME        = ${REGION_NAME:-}"
+  echo "  BACKUP_ENABLED     = ${BACKUP_ENABLED}"
+  echo "  RESTORE_ENABLED    = ${RESTORE_ENABLED}"
   echo "  CLUSTER_URL        = ${CLUSTER_URL:-}"
   echo "AAP environment variables:"
   echo "  AAP_URL            = ${AAP_URL}"
@@ -262,7 +276,9 @@ function gitops_invoke_backup_aap() {
     --arg mas_instance_id "${MAS_INSTANCE_ID}" \
     --arg region_id "${REGION_ID:-}" \
     --arg region_name "${REGION_NAME:-}" \
-    '{extra_vars: {account_id: $account_id, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name}}')
+    --arg backup_enabled "${BACKUP_ENABLED}" \
+    --arg restore_enabled "${RESTORE_ENABLED}" \
+    '{extra_vars: {account_id: $account_id, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name, backup_enabled: ($backup_enabled == "true"), restore_enabled: ($restore_enabled == "true")}}')
 
   local ATTEMPT=0 JOB_ID JOB_STATUS ELAPSED
   while (( ATTEMPT < MAX_ATTEMPTS )); do
