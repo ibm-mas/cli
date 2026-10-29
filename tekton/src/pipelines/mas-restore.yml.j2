@@ -428,6 +428,8 @@ spec:
           value: manage
         - name: mas_config_dir
           value: /workspace/backups/configs
+        - name: db2_dbname
+          value: $(params.manage_db2_dbname)
 
         # restore specific parameters
         - name: db2_backup_version
@@ -509,6 +511,8 @@ spec:
           value: facilities
         - name: mas_config_dir
           value: /workspace/backups/configs
+        - name: db2_dbname
+          value: $(params.facilities_db2_dbname)
 
         # restore specific parameters
         - name: db2_backup_version
