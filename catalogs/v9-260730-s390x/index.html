@@ -297,8 +297,8 @@
 
     
       
-  <cds-side-nav-menu-item href="../v9-261007-amd64/">
-    Oct 07 2026
+  <cds-side-nav-menu-item href="../v9-261029-amd64/">
+    Oct 29 2026
   </cds-side-nav-menu-item>
 
     
@@ -416,6 +416,7 @@
 <h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">¶</a></h2>
 <ul>
 <li>A known issue exists in the 9.0.x release affecting IBM Maximo Manage customers upgrading from 8.7.x to 9.0.x with the Civil component and Image Stitching deployed; the Image Stitching CR will not recover post-upgrade without manual intervention. To recover, patch the ManageWorkspace CR with kubectl -n mas-{instanceId}-manage patch manageworkspace {instanceId}-{workspaceId} --type merge -p '{"spec":{"components":{"civil":{"imagestitchingpvcname":"imagestitching-pvc-in"}}}}', replacing imagestitching-pvc-in with the value obtained by running kubectl -n mas-{instanceId}-manage get pvc -l app.kubernetes.io/component=imagestitching-api and stripping the {instanceId}-{workspaceId}- prefix from the returned PVC name.</li>
+<li>A Known issue (DT499705) After moving a rotating asset from an operating location to a storeroom bin using Move,Modify Asset, the inventory balance (INVBALANCES) may not be updated correctly. As a result, the bin balance may not increase, or the bin record may not be created. This issue was encountered in the v9-260625 catalog and remediated in the v9-260924 catalog. Affected versions 9.0.27 to 9.0.29, 9.1.19 to 9.1.22, and 9.2.0 to 9.2.2) If you use Move,Modify Asset for rotating assets, avoid upgrading to the affected versions. Upgrade to a fixed version or a later available version 9.0.32, 9.1.25, or 9.2.4.</li>
 </ul>
 <h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¶</a></h2>
 <p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v9-260730-s390x.yaml</code></p>

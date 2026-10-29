@@ -297,8 +297,8 @@
 
     
       
-  <cds-side-nav-menu-item href="../v9-261007-amd64/">
-    Oct 07 2026
+  <cds-side-nav-menu-item href="../v9-261029-amd64/">
+    Oct 29 2026
   </cds-side-nav-menu-item>
 
     
@@ -438,6 +438,7 @@
 <ul>
 <li>During upgrades from MAS Manage 9.0.x to 9.1.x using the online-offline upgrade process, some environments may fail during the offline phase because the PLGCOUNT table does not contain the expected MAXPRODUCTID column. This issue is upgrade-blocking and was identified late in the release validation cycle. Due to the August 27, 2026 GA release timeline, MAS Manage 9.1.x was released with this documented as a known limitation. A corrective fix has been developed, and an Interim Fix (IFIX) release is being prepared. Customers encountering this issue should contact IBM Support and reference the <a href="https://www.ibm.com/support/pages/node/7285399">technote</a></li>
 <li>Known Limitation: Explainable Anomaly Detection on CPD 5.3.1. Starting with CPD 5.3.1, Predict Explainable Anomaly Detection notebooks will fail when the WML Explainability shadow-function pod exceeds its configured ephemeral storage limit, resulting in pod eviction and notebook execution failures. This limitation is associated with the ephemeral storage constraints introduced in CPD 5.3.x. Workaround: CPD 5.4.0 provides configurable ephemeral storage settings to address this limitation. With the appropriate storage configuration, Predict Explainable Anomaly Detection notebooks will run successfully on CPD 5.4.0. For more information, refer to the CPD 5.3.x WML known issues: https://www.ibm.com/docs/en/software-hub/5.3.x?topic=issues-watson-machine-learning#wml_known_issues__batch-large-files-fail and CPD 5.4.x ephemeral storage configuration documentation : https://www.ibm.com/docs/en/software-hub/5.4.x?topic=administering-configuring-ephemeral-storage</li>
+<li>A Known issue (DT499705) After moving a rotating asset from an operating location to a storeroom bin using Move,Modify Asset, the inventory balance (INVBALANCES) may not be updated correctly. As a result, the bin balance may not increase, or the bin record may not be created. This issue was encountered in the v9-260625 catalog and remediated in the v9-260924 catalog. Affected versions 9.0.27 to 9.0.29, 9.1.19 to 9.1.22, and 9.2.0 to 9.2.2) If you use Move,Modify Asset for rotating assets, avoid upgrading to the affected versions. Upgrade to a fixed version or a later available version 9.0.32, 9.1.25, or 9.2.4.</li>
 </ul>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
