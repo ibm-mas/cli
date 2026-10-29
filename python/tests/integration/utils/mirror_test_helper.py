@@ -185,6 +185,7 @@ class MirrorTestHelper:
                 "aiservice_tenant_version": {"9.1.x": "9.1.0"},
                 "odh_version": "2.32.0",
                 "minio_extras_version": "1.0.0",
+                "minio_version": "RELEASE.2025-06-13T11-33-47Z",
                 "dd_version": "1.0.0",
                 "mongo_extras_version_default": "6.0.0",
                 "couchdb_version": "1.0.13",
