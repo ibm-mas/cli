@@ -72,11 +72,12 @@ spec:
           echo "Pipeline status: $(params.pipeline_status)"
           echo ""
 
+          ########################forcing failure for testing##################################
           # Check if deprovision is disabled
           if [[ "$(params.deprovision)" != "true" && "$(params.deprovision)" != "True" ]]; then
             echo "Deprovision is disabled (deprovision=$(params.deprovision))"
             echo "Skipping cluster deprovision"
-            exit 0
+            exit 1
           fi
 
           # Check if pipeline succeeded
