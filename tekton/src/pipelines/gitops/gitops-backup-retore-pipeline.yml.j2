@@ -44,12 +44,6 @@ spec:
     # Task 2: Invoke Restore AAP
     # -------------------------------------------------------------------------
     - name: gitops-restore-aap
-     # when:
-      #  - input: "$(params.is_s3)"
-       #   operator: in
-        #  values: ["true"]
-     # runAfter:
-    #    - gitops-iac-config
       taskRef:
         name: gitops-backup-aap
       workspaces:
