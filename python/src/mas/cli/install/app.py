@@ -3216,6 +3216,14 @@ class InstallApp(
                     text=f"Latest Tekton definitions are installed (v{self.version})",
                 )
 
+            cmAPI = self.dynamicClient.resources.get(api_version="v1", kind="ConfigMap")
+            try:
+                logger.debug(f"Deleting sync-install ConfigMap in namespace {pipelinesNamespace} before launching install pipeline")
+                cmAPI.delete(name="sync-install", namespace=pipelinesNamespace)
+                logger.debug(f"Deleted stale sync-install ConfigMap in {pipelinesNamespace}")
+            except NotFoundError:
+                logger.debug(f"sync-install ConfigMap not found in {pipelinesNamespace}, nothing to delete")
+
             with Halo(
                 text=f"Submitting PipelineRun for {self.getParam('mas_instance_id')} install",
                 spinner=self.spinner,
