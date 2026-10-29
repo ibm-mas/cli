@@ -369,12 +369,32 @@
   </cds-breadcrumb-item>
       <cds-breadcrumb-item>Operator Catalogs</cds-breadcrumb-item>
   <cds-breadcrumb-item>
-    <cds-breadcrumb-link href="#ibm-maximo-application-suite">IBM Maximo Application Suite</cds-breadcrumb-link>
+    <cds-breadcrumb-link href="#ibm-maximo-operator-catalog-v9-261029">IBM Maximo Operator Catalog v9 (261029)</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
   <cds-breadcrumb-item aria-current="page">
     <cds-select id="breadcrumbs-toc" inline="" placeholder="..." oninput="changeAnchor(this.value)">
     
+    
+      <cds-select-item value="#details">Details</cds-select-item>
+    
+      <cds-select-item value="#whats-new">What's New</cds-select-item>
+    
+      <cds-select-item value="#known-issues">Known Issues</cds-select-item>
+    
+      <cds-select-item value="#manual-installation">Manual Installation</cds-select-item>
+    
+      <cds-select-item value="#source">Source</cds-select-item>
+    
+      <cds-select-item value="#red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support</cds-select-item>
+    
+      <cds-select-item value="#ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility</cds-select-item>
+    
+      <cds-select-item value="#mongodb-compatibility">MongoDB Compatibility</cds-select-item>
+    
+      <cds-select-item value="#software-product-compatibility-reports">Software Product Compatibility Reports</cds-select-item>
+    
+      <cds-select-item value="#package-manifest">Package Manifest</cds-select-item>
     
     </cds-select>
   </cds-breadcrumb-item>
@@ -384,7 +404,152 @@
           <!-- Page content -->
           <div class="rst-content">
             
-            <h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link">¶</a></h3>
+            <h1 id="ibm-maximo-operator-catalog-v9-261029">IBM Maximo Operator Catalog v9 (261029)<a class="headerlink" href="#ibm-maximo-operator-catalog-v9-261029" title="Permanent link">¶</a></h1>
+<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">¶</a></h2>
+<table>
+  <tbody><tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</td></tr>
+  <tr><td>Tag</td><td>v9-261029-amd64</td></tr>
+  <tr><td>Digest</td><td>sha256:06a14be3c6b0c55a3035e8947e647583511c77d8410f80e217546f2d2cf3112c</td></tr>
+</tbody></table>
+
+<h2 id="whats-new">What's New<a class="headerlink" href="#whats-new" title="Permanent link">¶</a></h2>
+<ul>
+<li>New October Feature Channel<ul>
+<li>IBM Maximo Application Suite Core Platform <a href="https://www.ibm.com/support/pages/node/7294633">v9.3-October Feature Channel</a></li>
+<li>IBM Maximo Manage <a href="https://www.ibm.com/support/pages/node/7293290">v9.3-October Feature Channel</a></li>
+<li>IBM Maximo Monitor/IoT <a href="https://www.ibm.com/support/pages/node/7294218">v9.3-October Feature Channel</a></li>
+<li>IBM Maximo Optimizer <a href="https://www.ibm.com/support/pages/node/7270113">v9.3-October Feature Channel</a></li>
+<li>IBM Maximo Predict <a href="https://www.ibm.com/support/pages/node/7294004">v9.3-October Feature Channel</a></li>
+<li>IBM Maximo Visual Inspection <a href="https://www.ibm.com/support/pages/node/7294221">v9.3-October Feature Channel</a></li>
+<li>IBM Maximo Real Estate and Facilities <a href="https://www.ibm.com/support/pages/node/7294189">v9.3-October Feature Channel</a></li>
+<li>IBM Maximo AI Service <a href="https://www.ibm.com/support/pages/node/7294448">v9.3-October Feature Channel</a></li>
+<li>IBM Maximo AI Service Tenant v9.3-October Feature Channel</li>
+</ul>
+</li>
+<li><strong>Security updates and bug fixes</strong><ul>
+<li>IBM Maximo Application Suite Core Platform <a href="https://www.ibm.com/support/pages/node/7294035">v9.0.34</a>, <a href="https://www.ibm.com/support/pages/node/7294036">v9.1.28</a> and <a href="https://www.ibm.com/support/pages/node/7294037">v9.2.9</a></li>
+<li>IBM Maximo Manage <a href="https://www.ibm.com/support/pages/node/7294062">v9.0.33</a>,<a href="https://www.ibm.com/support/pages/node/7294060">v9.1.26</a> and <a href="https://www.ibm.com/support/pages/node/7294059">v9.2.5</a></li>
+<li>IBM Maximo IoT <a href="https://www.ibm.com/support/pages/node/7294029">v9.0.25</a> ,<a href="https://www.ibm.com/support/pages/node/7294030">v9.1.16</a> and <a href="https://www.ibm.com/support/pages/node/7294031">v9.2.5</a></li>
+<li>IBM Maximo Monitor <a href="https://www.ibm.com/support/pages/node/7294200">v9.0.26</a>,<a href="https://www.ibm.com/support/pages/node/7294202">v9.1.16</a> and <a href="https://www.ibm.com/support/pages/node/7294205">v9.2.5</a></li>
+<li>IBM Maximo Optimizer <a href="https://www.ibm.com/support/pages/node/7293858">v9.0.28</a>,<a href="https://www.ibm.com/support/pages/node/7293862">v9.1.17</a> and <a href="https://www.ibm.com/support/pages/node/7293864">v9.2.4</a></li>
+<li>IBM Maximo Assist/Collaborate <a href="https://www.ibm.com/support/pages/node/7294023">v9.0.22</a>, <a href="https://www.ibm.com/support/pages/node/7294024">v9.1.16</a></li>
+<li>IBM Maximo Predict <a href="https://www.ibm.com/support/pages/node/7293463">v9.0.19</a>, <a href="https://www.ibm.com/support/pages/node/7293462">v9.1.12</a> and <a href="https://www.ibm.com/support/pages/node/7293459">v9.2.3</a></li>
+<li>IBM Maximo Visual Inspection <a href="https://www.ibm.com/support/pages/node/7294215">v9.0.25</a> ,<a href="https://www.ibm.com/support/pages/node/7294214">v9.1.22</a> and <a href="https://www.ibm.com/support/pages/node/7294212">v9.2.4</a></li>
+<li>IBM Maximo Real Estate and Facilities <a href="https://www.ibm.com/support/pages/node/7294001">v9.1.16</a> and <a href="https://www.ibm.com/support/pages/node/7294183">v9.2.4</a></li>
+<li>IBM Maximo AI Service <a href="https://www.ibm.com/support/pages/node/7293005">v9.1.20</a> and <a href="https://www.ibm.com/support/pages/node/7293006">v9.2.4</a></li>
+<li>IBM Data Dictionary v1.1.24</li>
+<li>IBM Suite License Service v3.13.3</li>
+<li>IBM Suite Truststore Manager v1.7.10</li>
+<li>Mongo: 8.0.32</li>
+<li>CP4D: 5.4.0</li>
+<li>db2u: v120105.0.3</li>
+</ul>
+</li>
+</ul>
+<h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">¶</a></h2>
+<p>There are no known issues for this catalog release.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>MAS 8.10 and 8.11 standard support and software updates end on 30th April 2026, to ensure you are able to continue to receive monthly security updates and bug fixes we advise all customers to begin making upgrade plans for MAS 9.0 if you have not already done so.</p>
+</div>
+<h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¶</a></h2>
+<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v9-261029-amd64.yaml</code></p>
+<h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link">¶</a></h2>
+<pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Maximo Operators (v9-261029-amd64)
+  publisher: IBM
+  description: Static Catalog Source for IBM Maximo Application Suite
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:06a14be3c6b0c55a3035e8947e647583511c77d8410f80e217546f2d2cf3112c
+  priority: 90
+</code></pre>
+<h2 id="red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support<a class="headerlink" href="#red-hat-openshift-container-platform-support" title="Permanent link">¶</a></h2>
+<p>For more information about the OCP lifecycle refer to the <a href="https://access.redhat.com/support/policy/updates/openshift/">Red Hat OpenShift Container Platform Life Cycle Policy</a>.</p>
+<p>IBM Maximo Application Suite customers receive a standard Red Hat OpenShift Container Platform subscription as part of their purchase. This includes 18 months of maintenance support for each OpenShift minor release.  A further 6 months support is available to purchase as an Extended Update Support (EUS) Add-on to x86-64 versions of Red Hat OpenShift Kubernetes Engine, Red Hat OpenShift Container Platform, and Red Hat OpenShift Platform Plus Standard subscriptions.</p>
+<p>The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, any support dates stated refer to the EUS1 end dates.</p>
+<p>For more details refer to the <a href="https://access.redhat.com/support/policy/updates/openshift">OCP lifecycle policy</a>.  Also note that non-EUS release support expires before the extended support for the previous EUS release, for example extended support for OCP 4.18 expires on Feb 25, 2027, while standard support for OCP 4.17 expires on April 1, 2026.</p>
+<table class="compatabilityMatrix">
+  <tbody><tr>
+    <th>OCP</th><td rowspan="6" class="spacer"></td>
+    <th>General Availability</th>
+    <th>Standard Support</th>
+    <th>Extended Support</th>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.18</td>
+    <td>February 25, 2025</td>
+    <td>August 25, 2026</td>
+    <td>February 25, 2028</td>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.19</td>
+    <td>June 17, 2025</td>
+    <td>December 17, 2026</td>
+    <td> N/A </td>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.20</td>
+    <td>October 21, 2025</td>
+    <td>April 21, 2027</td>
+    <td>October 21, 2028</td>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.21</td>
+    <td>February 3, 2026</td>
+    <td>August 3, 2027</td>
+    <td> N/A </td>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.22</td>
+    <td>June 9, 2026</td>
+    <td>December 31, 2027</td>
+    <td>June 30, 2028</td>
+  </tr>
+</tbody></table>
+
+<h3 id="certified-operators">Certified Operators<a class="headerlink" href="#certified-operators" title="Permanent link">¶</a></h3>
+<p>The following packages from the <code>registry.redhat.io/redhat/certified-operator-index</code> catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>gpu-operator-certified</strong> required by <code>ibm.mas_devops.nvidia_gpu</code> role</li>
+<li><strong>kubeturbo-certified</strong> required by <code>ibm.mas_devops.kubeturbo</code> role</li>
+</ul>
+<h3 id="community-operators">Community Operators<a class="headerlink" href="#community-operators" title="Permanent link">¶</a></h3>
+<p>The following packages from the <code>registry.redhat.io/redhat/community-operator-index</code> catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.grafana</code> role</li>
+<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.opentelemetry</code> role</li>
+<li><strong>strimzi-kafka-operator</strong> required by <code>ibm.mas_devops.kafka</code> role (if using Strimzi as Kakfa provider)</li>
+</ul>
+<h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link">¶</a></h3>
+<p>The following packages from the <code>registry.redhat.io/redhat/redhat-operator-index</code> catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>amq-streams</strong> required by <code>ibm.mas_devops.kafka</code> role (if using AMQ Streams as Kakfa provider)</li>
+<li><strong>openshift-pipelines-operator-rh</strong> required by the MAS CLI</li>
+<li><strong>nfd</strong> required by <code>ibm.mas_devops.nvidia_gpu</code> role</li>
+<li><strong>aws-efs-csi-driver-operator</strong>  required by <code>ibm.mas_devops.ocp_efs</code> role</li>
+<li><strong>local-storage-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role</li>
+<li><strong>odf-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role</li>
+</ul>
+<h2 id="ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility<a class="headerlink" href="#ibm-cloud-pak-for-data-compatibility" title="Permanent link">¶</a></h2>
+<p>This catalog is certified compatible with <strong>IBM Cloud Pak for Data v5.2.0</strong>.</p>
+<p>For more information on Cloud Pak for Data's support policy review this <a href="https://www.ibm.com/support/pages/node/6593147">IBM Cloud Pak for Data Software Support Lifecycle Addendum</a>.</p>
+<h2 id="mongodb-compatibility">MongoDB Compatibility<a class="headerlink" href="#mongodb-compatibility" title="Permanent link">¶</a></h2>
+<p>This catalog is certified compatible with MongoDB <strong><a href="https://www.mongodb.com/docs/v7.0/">v7.0</a></strong> and <strong><a href="https://www.mongodb.com/docs/v8.0/">v8.0</a></strong>, this applies to both MongoDB Community Edition (CE) and MongoDB Enterprise Edition (EE).</p>
+<p>By default an in-cluster MongoDb (CE) instance will be created when you install MAS, using the <a href="https://github.com/mongodb/mongodb-kubernetes-operator">MongoDB Community Kubernetes Operator</a>; however MAS supports use with any type of MongoDb instance, including but not limited to the following hosted solutions:</p>
+<ul>
+<li><a href="https://www.ibm.com/products/databases-for-mongodb">IBM Cloud Databases for MongoDB</a></li>
+<li><a href="https://www.mongodb.com/products/platform/atlas-database">MongoDB Atlas</a></li>
+</ul>
+<p><a href="https://aws.amazon.com/documentdb/">Amazon DocumentDB</a> provides <a href="https://docs.aws.amazon.com/documentdb/latest/developerguide/compatibility.html">MongoDb compatability</a> and may be used as an alternative to MongoDb.  This catalog is certified compatible with <strong>DocumentDb Engine Version v5.0.0</strong>.</p>
+<h2 id="software-product-compatibility-reports">Software Product Compatibility Reports<a class="headerlink" href="#software-product-compatibility-reports" title="Permanent link">¶</a></h2>
+<p>Please refer to the official compatibility reports by searching for “Maximo Application Suite” using <a href="https://www.ibm.com/software/reports/compatibility/clarity/index.html">link</a>. to review the complete list of compatibility requirements. Services that are not explicitly listed are not supported.</p>
+<h2 id="package-manifest">Package Manifest<a class="headerlink" href="#package-manifest" title="Permanent link">¶</a></h2>
+<h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -1094,44 +1259,113 @@
         <div class="md-toc__title">On this page</div>
         <ul class="md-toc__list">
               <li class="md-toc__item">
-                <a href="#ibm-maximo-application-suite" class="md-toc__link" data-md-level="1">
-                  IBM Maximo Application Suite
+                <a href="#details" class="md-toc__link" data-md-level="1">
+                  Details
                 </a>
               </li>
               <li class="md-toc__item">
-                <a href="#ibm-utilities" class="md-toc__link" data-md-level="1">
-                  IBM Utilities
+                <a href="#whats-new" class="md-toc__link" data-md-level="1">
+                  What's New
                 </a>
               </li>
               <li class="md-toc__item">
-                <a href="#ibm-cloud-pak-foundational-services" class="md-toc__link" data-md-level="1">
-                  IBM Cloud Pak Foundational Services
+                <a href="#known-issues" class="md-toc__link" data-md-level="1">
+                  Known Issues
                 </a>
               </li>
               <li class="md-toc__item">
-                <a href="#ibm-cloud-pak-for-data" class="md-toc__link" data-md-level="1">
-                  IBM Cloud Pak for Data
+                <a href="#manual-installation" class="md-toc__link" data-md-level="1">
+                  Manual Installation
                 </a>
               </li>
               <li class="md-toc__item">
-                <a href="#ibm-db2-universal-operator" class="md-toc__link" data-md-level="1">
-                  IBM Db2 Universal Operator
+                <a href="#source" class="md-toc__link" data-md-level="1">
+                  Source
                 </a>
               </li>
               <li class="md-toc__item">
-                <a href="#ibm-appconnect" class="md-toc__link" data-md-level="1">
-                  IBM AppConnect
+                <a href="#red-hat-openshift-container-platform-support" class="md-toc__link" data-md-level="1">
+                  Red Hat OpenShift Container Platform Support
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#certified-operators" class="md-toc__link" data-md-level="2">
+                          Certified Operators
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#community-operators" class="md-toc__link" data-md-level="2">
+                          Community Operators
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#red-hat-operators" class="md-toc__link" data-md-level="2">
+                          Red Hat Operators
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#ibm-cloud-pak-for-data-compatibility" class="md-toc__link" data-md-level="1">
+                  IBM Cloud Pak for Data Compatibility
                 </a>
               </li>
               <li class="md-toc__item">
-                <a href="#eclipse-amlen" class="md-toc__link" data-md-level="1">
-                  Eclipse Amlen
+                <a href="#mongodb-compatibility" class="md-toc__link" data-md-level="1">
+                  MongoDB Compatibility
                 </a>
               </li>
               <li class="md-toc__item">
-                <a href="#open-data-hub" class="md-toc__link" data-md-level="1">
-                  Open Data Hub
+                <a href="#software-product-compatibility-reports" class="md-toc__link" data-md-level="1">
+                  Software Product Compatibility Reports
                 </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#package-manifest" class="md-toc__link" data-md-level="1">
+                  Package Manifest
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#ibm-maximo-application-suite" class="md-toc__link" data-md-level="2">
+                          IBM Maximo Application Suite
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-utilities" class="md-toc__link" data-md-level="2">
+                          IBM Utilities
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-pak-foundational-services" class="md-toc__link" data-md-level="2">
+                          IBM Cloud Pak Foundational Services
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-pak-for-data" class="md-toc__link" data-md-level="2">
+                          IBM Cloud Pak for Data
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-db2-universal-operator" class="md-toc__link" data-md-level="2">
+                          IBM Db2 Universal Operator
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-appconnect" class="md-toc__link" data-md-level="2">
+                          IBM AppConnect
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#eclipse-amlen" class="md-toc__link" data-md-level="2">
+                          Eclipse Amlen
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#open-data-hub" class="md-toc__link" data-md-level="2">
+                          Open Data Hub
+                        </a>
+                      </li>
+                  </ul>
               </li>
         </ul>
       </div>
