@@ -25,7 +25,9 @@ spec:
       image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
       command:
-        - /opt/app-root/src/update-pipeline-status.py
+        - /bin/bash
+        - -c
+        - /opt/app-root/src/update-pipeline-status.py; exit 1
       env:
         - name: DEVOPS_MONGO_URI
           valueFrom:
