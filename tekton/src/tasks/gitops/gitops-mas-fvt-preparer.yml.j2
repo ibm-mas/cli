@@ -796,7 +796,13 @@ spec:
 
         # Get the trailing number of the MAS instanceid so we can modify the sync window duration. This is because
         # you can't have two sync windows with the same schedule and duration even if for different apps
-        RESULT=$(get_trailing_number $MAS_INSTANCE_ID)
+        # FVT SaaS instance ids carry a MAS version suffix (e.g. fvtsaas-91, fvtsaas2-101). Strip it so the
+        # trailing number stays the instance number (fvtsaas -> 4h, fvtsaas2 -> 6h) and not the MAS version.
+        WINDOW_INSTANCE_ID="$MAS_INSTANCE_ID"
+        if [[ "$MAS_INSTANCE_ID" =~ ^(fvtsaas2?)-[0-9]+$ ]]; then
+          WINDOW_INSTANCE_ID="${BASH_REMATCH[1]}"
+        fi
+        RESULT=$(get_trailing_number $WINDOW_INSTANCE_ID)
         if [[ -n "$RESULT" ]]; then
           WINDOW_DURATION=$((4 + RESULT))
         else
