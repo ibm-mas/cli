@@ -979,6 +979,13 @@ rhoaiArgGroup.add_argument(
 )
 
 rhoaiArgGroup.add_argument(
+    "--rhoai-channel",
+    dest="rhoai_channel",
+    required=False,
+    help="Subscription channel for RedHat Openshift AI (e.g. stable, stable-3.x). Defaults to the aiservice_rhoai role default",
+)
+
+rhoaiArgGroup.add_argument(
     "--rhoai",
     dest="rhoai",
     required=False,
