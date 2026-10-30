@@ -201,6 +201,8 @@ manageAppArgGroup.add_argument("--manage-db-storage-class-rwo", required=False, 
 
 manageAppArgGroup.add_argument("--manage-db-storage-class-rwx", required=False, dest="manage_db_storage_class_rwx", help="RWX Storage class for DB2 storage")
 
+manageAppArgGroup.add_argument("--manage-db2-dbname", dest="manage_db2_dbname", required=False, help="Manage Db2 database name for restore (default: BLUDB)")
+
 facilitiesAppArgGroup = restoreArgParser.add_argument_group(
     "Facilities Application Restore", "Configure restore of the Facilities application and its database."
 )
@@ -264,6 +266,10 @@ facilitiesAppArgGroup.add_argument(
 
 facilitiesAppArgGroup.add_argument(
     "--facilities-db-storage-class-rwx", required=False, dest="facilities_db_storage_class_rwx", help="RWX Storage class for Facilities DB2 storage"
+)
+
+facilitiesAppArgGroup.add_argument(
+    "--facilities-db2-dbname", dest="facilities_db2_dbname", required=False, help="Facilities Db2 database name for restore (default: BLUDB)"
 )
 
 componentsArgGroup = restoreArgParser.add_argument_group("Components", "Configure which components to include in the restore.")

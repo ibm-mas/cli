@@ -34,7 +34,14 @@ from mas.devops.mas import (
     getInstalledApps,
 )
 from mas.devops.utils import isVersionEqualOrAfter
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline, lookupPipelineStorageClass
+from mas.devops.tekton import (
+    preparePipelinesNamespace,
+    installOpenShiftPipelines,
+    updateTektonDefinitions,
+    launchUpgradePipeline,
+    lookupPipelineStorageClass,
+    prepareUpgradeSecrets,
+)
 from mas.devops.pre_install import applyPreInstallMASRBAC
 from ..rbac_utils import evaluatePreinstallRBACAccess
 
@@ -593,6 +600,13 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     instanceId=instanceId,
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
+                )
+                prepareUpgradeSecrets(
+                    dynClient=self.dynamicClient,
+                    namespace=pipelinesNamespace,
+                    ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
+                    artifactory_token=self.getParam("artifactory_token"),
+                    artifactory_username=self.getParam("artifactory_username"),
                 )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 

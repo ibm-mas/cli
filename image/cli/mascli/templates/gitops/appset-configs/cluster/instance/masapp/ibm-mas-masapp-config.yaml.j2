@@ -15,6 +15,7 @@ customization_archive_secret_names:
   - secret_name: {{ customization_archive_secret_name }}
     password: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#password>
     username: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#username>
+    access_secret_key: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#access_secret_key>
 {%- endfor %}
 {%- endif %}
 
