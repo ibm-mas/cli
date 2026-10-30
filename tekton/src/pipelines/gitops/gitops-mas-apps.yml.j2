@@ -252,6 +252,9 @@ spec:
     - name: db2_audit_retention_days_manage
       type: string
       default: ""
+    - name: db2_backup_day_of_week_manage
+      type: string
+      default: "sat"
 
     - name: db2_meta_storage_class_iot
       type: string
@@ -367,6 +370,9 @@ spec:
     - name: db2_audit_retention_days_iot
       type: string
       default: ""
+    - name: db2_backup_day_of_week_iot
+      type: string
+      default: "sat"
 
     - name: db2_meta_storage_class_monitor
       type: string
@@ -482,6 +488,9 @@ spec:
     - name: db2_audit_retention_days_monitor
       type: string
       default: ""
+    - name: db2_backup_day_of_week_monitor
+      type: string
+      default: "sat"
 
     - name: db2_meta_storage_class_facilities
       type: string
@@ -597,6 +606,9 @@ spec:
     - name: db2_audit_retention_days_facilities
       type: string
       default: ""
+    - name: db2_backup_day_of_week_facilities
+      type: string
+      default: "sat"
     - name: facilities_db2_schema
       type: string
       default: "TRIDATA"
@@ -1210,6 +1222,8 @@ spec:
           value: $(params.db2_license_file_available_iot)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_iot)
+        - name: db2_backup_day_of_week
+          value: $(params.db2_backup_day_of_week_iot)
         - name: allow_list
           value: $(params.allow_list)
 
@@ -1416,6 +1430,8 @@ spec:
           value: $(params.db2_license_file_available_monitor)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_monitor)
+        - name: db2_backup_day_of_week
+          value: $(params.db2_backup_day_of_week_monitor)
         - name: allow_list
           value: $(params.allow_list)
 
@@ -1628,6 +1644,8 @@ spec:
           value: $(params.db2_license_file_available_manage)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_manage)
+        - name: db2_backup_day_of_week
+          value: $(params.db2_backup_day_of_week_manage)
         - name: allow_list
           value: $(params.allow_list)
         
@@ -1798,6 +1816,8 @@ spec:
           value: $(params.db2_license_file_available_manage)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_manage)
+        - name: db2_backup_day_of_week
+          value: $(params.db2_backup_day_of_week_manage)
         - name: replica_db
           value: $(params.replica_db_manage)
         - name: manually_set_enhanced_hadr
@@ -1977,6 +1997,8 @@ spec:
           value: $(params.db2_license_file_available_facilities)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_facilities)
+        - name: db2_backup_day_of_week
+          value: $(params.db2_backup_day_of_week_facilities)
         - name: facilities_db2_schema
           value: $(params.facilities_db2_schema)
         
@@ -2147,6 +2169,8 @@ spec:
           value: $(params.db2_license_file_available_facilities)
         - name: db2_audit_retention_days
           value: $(params.db2_audit_retention_days_facilities)
+        - name: db2_backup_day_of_week
+          value: $(params.db2_backup_day_of_week_facilities)
         - name: replica_db
           value: $(params.replica_db_facilities)
         - name: manually_set_enhanced_hadr
