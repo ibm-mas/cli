@@ -39,7 +39,7 @@ nav:
       - "Image Validation": guides/image-validation.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
-      - "Oct 07 2026": catalogs/v9-261007-amd64.md
+      - "Oct 29 2026": catalogs/v9-261029-amd64.md
       - "Sep 24 2026": catalogs/v9-260924-amd64.md
       - "Aug 27 2026": catalogs/v9-260827-amd64.md
       - "Jul 30 2026": catalogs/v9-260730-amd64.md

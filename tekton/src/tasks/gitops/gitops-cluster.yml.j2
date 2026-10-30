@@ -159,6 +159,9 @@ spec:
     - name: instana_agent_operator_jks_storage_class
       type: string
       default: ''
+    - name: instana_agent_operator_pod_template_yaml
+      type: string
+      default: ''
     - name: application_admin_role
       type: string
       default: ""
@@ -280,6 +283,8 @@ spec:
         value: $(params.instana_agent_operator_env)
       - name: INSTANA_AGENT_OPERATOR_JKS_STORAGE_CLASS
         value: $(params.instana_agent_operator_jks_storage_class)
+      - name: INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML
+        value: $(params.instana_agent_operator_pod_template_yaml)
       - name: APPLICATION_ADMIN_ROLE
         value: $(params.application_admin_role)
 
