@@ -72,6 +72,10 @@
   type: string
   description: Model deployment type for Redhat Openshift AI. Must be one of; [raw, serverless]
   default: "raw"
+- name: rhoai_channel
+  type: string
+  description: Subscription channel for Redhat Openshift AI (empty to use the aiservice_rhoai role default)
+  default: ""
 - name: rhoai
   type: string
   description: flag to install rhoai
