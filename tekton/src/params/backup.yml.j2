@@ -305,6 +305,11 @@
   description: Manage Db2 instance name for backup
   default: ""
 
+- name: manage_db2_dbname
+  type: string
+  description: Manage Db2 database name for backup (default BLUDB if not set)
+  default: ""
+
 - name: manage_db2_backup_type
   type: string
   description: Type of Manage Db2 backup (online or offline)
@@ -418,6 +423,11 @@
 - name: facilities_db2_instance_name
   type: string
   description: Facilities Db2 instance name for backup
+  default: ""
+
+- name: facilities_db2_dbname
+  type: string
+  description: Facilities Db2 database name for backup (default BLUDB if not set)
   default: ""
 
 - name: facilities_db2_backup_type
