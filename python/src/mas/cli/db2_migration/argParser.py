@@ -57,7 +57,11 @@ db2MigrationArgParser = Db2MigrationArgumentParser(
 )
 
 migrationArgGroup = db2MigrationArgParser.add_argument_group("Migration Configuration", "Configure the DB2 migration parameters.")
-migrationArgGroup.add_argument("--db2-namespace", required=False, help="Namespace containing Db2uCluster instances (e.g. db2u, or db2-<instanceid> in SaaS). If omitted, db2u namespaces are detected and you are prompted to choose")
+migrationArgGroup.add_argument(
+    "--db2-namespace",
+    required=False,
+    help="Namespace containing Db2uCluster instances (e.g. db2u, or db2-<instanceid> in SaaS). If omitted, db2u namespaces are detected and you are prompted to choose",
+)
 migrationArgGroup.add_argument("--db2-cluster-name", required=False, help="Specific Db2uCluster name to migrate")
 migrationArgGroup.add_argument("--backup", required=False, choices=["true", "false"], help="Enable or disable backup before migration")
 
