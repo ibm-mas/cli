@@ -22,6 +22,9 @@ customization_archive_secret_names:
 manage_logging_secret_name: {{ MANAGE_LOGGING_SECRET_NAME }}
 manage_logging_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_LOGGING_SECRET }}{{ MANAGE_LOGGING_SECRET_NAME }}#access_secret_key>
 {%- endif %}
+{%- if MANAGE_ATTACHMENTS_SECRET_NAME is defined and MANAGE_ATTACHMENTS_SECRET_NAME !='' %}
+manage_attachments_secret_name: {{ MANAGE_ATTACHMENTS_SECRET_NAME }}
+{%- endif %}
 
 {%- if MAS_APP_GLOBAL_SECRETS is defined and MAS_APP_GLOBAL_SECRETS !='' %}
 {{ MAS_APP_GLOBAL_SECRETS | indent(2) }}
