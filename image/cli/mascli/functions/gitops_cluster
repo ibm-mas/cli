@@ -843,7 +843,7 @@ function gitops_cluster() {
       echo "- Instana Agent Operator"
       sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
       if [[ -n "$INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML" && -s "$INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML" ]]; then
-        export INSTANA_AGENT_OPERATOR_POD_TEMPLATE=$(yq eval '.podTemplates' ${INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML})
+        export INSTANA_AGENT_OPERATOR_POD_TEMPLATE=$(yq eval '.podTemplates[0].containers[0].resources // .podTemplates[0].resources // .podTemplates[0] // .' ${INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML})
       fi
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml
     fi
