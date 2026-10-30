@@ -1,0 +1,70 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: gitops-backup-aap
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: region_name
+      type: string
+      default: ""
+    - name: backup_enabled
+      type: string
+      default: 'false'
+    - name: restore_enabled
+      type: string
+      default: 'false'
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: BACKUP_ENABLED
+        value: $(params.backup_enabled)
+      - name: RESTORE_ENABLED
+        value: $(params.restore_enabled)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: invoke-backup-aap
+      args:
+        - |-
+          mkdir -p /workspace/gitops-invoke-backup-aap
+
+          # Invoke the backup AAP job (AAP_* settings come from secure-properties)
+          mas gitops-invoke-backup-aap \
+            -a "$ACCOUNT" \
+            -c "$CLUSTER_NAME" \
+            -m "$MAS_INSTANCE_ID" \
+            --region-name "$REGION_NAME" \
+            --backup-enabled "$BACKUP_ENABLED" \
+            --restore-enabled "$RESTORE_ENABLED" \
+            --dir /workspace/gitops-invoke-backup-aap
+
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: IfNotPresent
+      image: "quay.io/ibmmas/cli:latest"
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-invoke-backup-aap

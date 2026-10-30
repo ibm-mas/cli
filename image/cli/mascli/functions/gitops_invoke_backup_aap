@@ -1,0 +1,362 @@
+#!/usr/bin/env bash
+
+function gitops_invoke_backup_aap_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+
+
+Usage:
+  mas gitops-invoke-backup-aap [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration:
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                    Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                    Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}          MAS Instance ID
+  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}                      Region ID
+  --region-name ${COLOR_YELLOW}REGION_NAME${TEXT_RESET}                      Region Name
+  --backup-enabled ${COLOR_YELLOW}BACKUP_ENABLED${TEXT_RESET}                'true' or 'false' (default: false), passed to the AAP job as backup_enabled
+  --restore-enabled ${COLOR_YELLOW}RESTORE_ENABLED${TEXT_RESET}              'true' or 'false' (default: false), passed to the AAP job as restore_enabled
+
+Target Cluster (Optional):
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                  Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+
+AAP Configuration (environment variables only):
+  AAP_URL                  AAP base URL, e.g. https://aap.example.com (required)
+  AAP_JOB                  Job template name or numeric ID (required)
+  AAP_TOKEN                OAuth2/personal access token, or AAP_USERNAME and AAP_PASSWORD
+  AAP_INSECURE             Set to 'true' to skip TLS verification (default: false)
+  AAP_POLL_INTERVAL        Seconds between job status checks (default: 10)
+  AAP_TIMEOUT              Max seconds to wait for a job run (default: 3600)
+  AAP_API_PREFIX           API path prefix (default: auto-detect)
+  AAP_MAX_RETRIES          Retries per HTTP request on transient errors (default: 5)
+  AAP_RETRY_DELAY          Initial retry back-off in seconds, doubles each retry (default: 5)
+  AAP_JOB_RETRIES          Times to relaunch the job after it fails (default: 1)
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_invoke_backup_aap_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+  BACKUP_ENABLED=${BACKUP_ENABLED:-false}
+  RESTORE_ENABLED=${RESTORE_ENABLED:-false}
+
+  # Set default values
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
+  
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        export CLUSTER_NAME=$CLUSTER_ID  # For backward compatibility
+        ;;
+      
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+
+      -r|--region-id)
+        export REGION_ID=$1 && shift
+        ;;
+
+      --region-name)
+        export REGION_NAME=$1 && shift
+        ;;
+
+      --backup-enabled)
+        export BACKUP_ENABLED=$1 && shift
+        ;;
+
+      --restore-enabled)
+        export RESTORE_ENABLED=$1 && shift
+        ;;
+
+      # Target Cluster (Optional)
+      --cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_invoke_backup_aap_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_invoke_backup_aap_help "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  # Validate required parameters - only basic ones that all commands need
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_invoke_backup_aap_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_invoke_backup_aap_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_invoke_backup_aap_help "CLUSTER_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_invoke_backup_aap_help "MAS_INSTANCE_ID is not set"
+}
+
+# ============================================================================
+# AAP HTTP helper
+# ============================================================================
+# Usage: gitops_invoke_backup_aap_request METHOD PATH [JSON_BODY]
+# Reads AAP_CURL_OPTS (array) and AAP_BASE from the caller (bash dynamic scoping).
+# Prints the response body on stdout. Retries transient failures (curl errors,
+# HTTP 429 and 5xx) with exponential back-off. Returns 1 on any other failure.
+function gitops_invoke_backup_aap_request() {
+  local METHOD="$1" REQ_PATH="$2" BODY="${3:-}"
+  local MAX_RETRIES="${AAP_MAX_RETRIES:-5}"
+  local DELAY="${AAP_RETRY_DELAY:-5}"
+  local TRY=0 HTTP_CODE CURL_RC TMP
+  local ARGS=("${AAP_CURL_OPTS[@]}" -X "$METHOD")
+  [[ -n "$BODY" ]] && ARGS+=(-d "$BODY")
+
+  TMP=$(mktemp) || return 1
+  while true; do
+    HTTP_CODE=$(curl "${ARGS[@]}" -o "$TMP" -w '%{http_code}' "${AAP_BASE}${REQ_PATH}" 2>/dev/null)
+    CURL_RC=$?
+    if [[ $CURL_RC -eq 0 && "$HTTP_CODE" =~ ^2[0-9][0-9]$ ]]; then
+      cat "$TMP"
+      rm -f "$TMP"
+      return 0
+    fi
+    # Anything other than a connection failure, 429 or 5xx is not worth retrying
+    if [[ $CURL_RC -eq 0 && "$HTTP_CODE" != "429" && ! "$HTTP_CODE" =~ ^5[0-9][0-9]$ ]]; then
+      echo "AAP request ${METHOD} ${REQ_PATH} failed with HTTP ${HTTP_CODE}: $(cat "$TMP")" >&2
+      rm -f "$TMP"
+      return 1
+    fi
+    if (( TRY >= MAX_RETRIES )); then
+      echo "AAP request ${METHOD} ${REQ_PATH} failed after ${MAX_RETRIES} retries (curl exit ${CURL_RC}, HTTP ${HTTP_CODE})" >&2
+      rm -f "$TMP"
+      return 1
+    fi
+    TRY=$((TRY + 1))
+    echo "AAP request ${METHOD} ${REQ_PATH} failed (curl exit ${CURL_RC}, HTTP ${HTTP_CODE}), retry ${TRY}/${MAX_RETRIES} in ${DELAY}s ..." >&2
+    sleep "$DELAY"
+    DELAY=$((DELAY * 2))
+    (( DELAY > 60 )) && DELAY=60
+  done
+}
+
+
+
+
+# ============================================================================
+# Invoke the backup job template on AAP and wait for it to finish
+# ============================================================================
+# Launches the AAP job template (AAP_JOB), polls until it finishes and prints its output.
+# Exits 0 on success, 1 otherwise.
+#
+# Parameters: Uses environment variables set by gitops_invoke_backup_aap_noninteractive
+function gitops_invoke_backup_aap() {
+  echo
+  echo_h2 "Invoking backup AAP Playbook"
+  
+  # Validate required parameters
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_invoke_backup_aap_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_invoke_backup_aap_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_invoke_backup_aap_help "CLUSTER_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_invoke_backup_aap_help "MAS_INSTANCE_ID is not set"
+
+  
+  # AAP / AWX connection settings are read from the environment:
+  #   AAP_URL                - Base URL, e.g. https://aap.example.com (required)
+  #   AAP_JOB                - Job template name or numeric ID (required)
+  #   AAP_TOKEN              - OAuth2 / personal access token (preferred), or
+  #   AAP_USERNAME/AAP_PASSWORD - basic auth credentials
+  # Optional:
+  #   AAP_INSECURE           - "true" to skip TLS verification (default: false)
+  #   AAP_POLL_INTERVAL      - seconds between job status checks (default: 10)
+  #   AAP_TIMEOUT            - max seconds to wait for one job run (default: 3600)
+  #   AAP_API_PREFIX         - API path prefix (default: auto-detect /api/controller/v2 or /api/v2)
+  #   AAP_MAX_RETRIES        - retries per HTTP request on transient errors (default: 5)
+  #   AAP_RETRY_DELAY        - initial back-off in seconds, doubled each retry, capped at 60 (default: 5)
+  #   AAP_JOB_RETRIES        - times to relaunch the job if it finishes failed/error/canceled/timed out (default: 1)
+  [[ -z "$AAP_URL" ]] && gitops_invoke_backup_aap_help "AAP_URL is not set"
+  [[ -z "$AAP_JOB" ]] && gitops_invoke_backup_aap_help "AAP_JOB is not set"
+  if [[ -z "$AAP_TOKEN" && ( -z "$AAP_USERNAME" || -z "$AAP_PASSWORD" ) ]]; then
+    gitops_invoke_backup_aap_help "Either AAP_TOKEN or both AAP_USERNAME and AAP_PASSWORD must be set"
+  fi
+  command -v curl >/dev/null || gitops_invoke_backup_aap_help "curl is required"
+  command -v jq >/dev/null || gitops_invoke_backup_aap_help "jq is required"
+
+  # Display all parameters and AAP settings (AAP_TOKEN is never printed, AAP_PASSWORD is masked)
+  echo "Parameters:"
+  echo "  GITOPS_WORKING_DIR = ${GITOPS_WORKING_DIR}"
+  echo "  ACCOUNT_ID         = ${ACCOUNT_ID}"
+  echo "  CLUSTER_ID         = ${CLUSTER_ID}"
+  echo "  CLUSTER_NAME       = ${CLUSTER_NAME}"
+  echo "  MAS_INSTANCE_ID    = ${MAS_INSTANCE_ID}"
+  echo "  REGION_ID          = ${REGION_ID:-}"
+  echo "  REGION_NAME        = ${REGION_NAME:-}"
+  echo "  BACKUP_ENABLED     = ${BACKUP_ENABLED}"
+  echo "  RESTORE_ENABLED    = ${RESTORE_ENABLED}"
+  echo "  CLUSTER_URL        = ${CLUSTER_URL:-}"
+  echo "AAP environment variables:"
+  echo "  AAP_URL            = ${AAP_URL}"
+  echo "  AAP_JOB            = ${AAP_JOB}"
+  echo "  AAP_USERNAME       = ${AAP_USERNAME:-}"
+  echo "  AAP_INSECURE       = ${AAP_INSECURE:-}"
+  echo "  AAP_POLL_INTERVAL  = ${AAP_POLL_INTERVAL:-}"
+  echo "  AAP_TIMEOUT        = ${AAP_TIMEOUT:-}"
+  echo "  AAP_API_PREFIX     = ${AAP_API_PREFIX:-}"
+  echo "  AAP_MAX_RETRIES    = ${AAP_MAX_RETRIES:-}"
+  echo "  AAP_RETRY_DELAY    = ${AAP_RETRY_DELAY:-}"
+  echo "  AAP_JOB_RETRIES    = ${AAP_JOB_RETRIES:-}"
+  echo
+
+  local POLL_INTERVAL="${AAP_POLL_INTERVAL:-10}"
+  local TIMEOUT="${AAP_TIMEOUT:-3600}"
+  local JOB_RETRIES="${AAP_JOB_RETRIES:-1}"
+  local RETRY_DELAY="${AAP_RETRY_DELAY:-5}"
+  local MAX_ATTEMPTS=$((JOB_RETRIES + 1))
+
+  # AAP_CURL_OPTS and AAP_BASE are read by gitops_invoke_backup_aap_request (bash dynamic scoping)
+  local AAP_CURL_OPTS=(-sS --connect-timeout 10 --max-time 120 -H "Content-Type: application/json")
+  [[ "${AAP_INSECURE:-false}" == "true" ]] && AAP_CURL_OPTS+=(--insecure)
+  if [[ -n "$AAP_TOKEN" ]]; then
+    AAP_CURL_OPTS+=(-H "Authorization: Bearer ${AAP_TOKEN}")
+  else
+    AAP_CURL_OPTS+=(-u "${AAP_USERNAME}:${AAP_PASSWORD}")
+  fi
+
+  # AAP 2.5+ serves the controller API under /api/controller/v2, older AAP/AWX under /api/v2
+  local API_PREFIX="${AAP_API_PREFIX:-}"
+  if [[ -z "$API_PREFIX" ]]; then
+    local PING_CODE
+    PING_CODE=$(curl "${AAP_CURL_OPTS[@]}" -o /dev/null -w '%{http_code}' "${AAP_URL%/}/api/controller/v2/ping/" 2>/dev/null) || true
+    if [[ "$PING_CODE" == "404" ]]; then
+      API_PREFIX="/api/v2"
+    else
+      API_PREFIX="/api/controller/v2"
+    fi
+  fi
+  local AAP_BASE="${AAP_URL%/}${API_PREFIX}"
+
+  # Resolve the job template ID (AAP_JOB may be a name or an ID)
+  local JOB_TEMPLATE_ID RESPONSE
+  if [[ "$AAP_JOB" =~ ^[0-9]+$ ]]; then
+    JOB_TEMPLATE_ID="$AAP_JOB"
+  else
+    local ENCODED_NAME
+    ENCODED_NAME=$(jq -rn --arg n "$AAP_JOB" '$n|@uri')
+    RESPONSE=$(gitops_invoke_backup_aap_request GET "/job_templates/?name=${ENCODED_NAME}") || exit 1
+    local MATCHES
+    MATCHES=$(echo "$RESPONSE" | jq -r '.count // 0')
+    if [[ "$MATCHES" != "1" ]]; then
+      echo_warning "Expected exactly 1 AAP job template named '${AAP_JOB}', found ${MATCHES}"
+      exit 1
+    fi
+    JOB_TEMPLATE_ID=$(echo "$RESPONSE" | jq -r '.results[0].id')
+  fi
+  echo "AAP job template ID: ${JOB_TEMPLATE_ID}"
+
+  # Extra vars passed to the playbook
+  local EXTRA_VARS
+  EXTRA_VARS=$(jq -n \
+    --arg account_id "${ACCOUNT_ID}" \
+    --arg k8s_cluster_name "${CLUSTER_ID}" \
+    --arg mas_instance_id "${MAS_INSTANCE_ID}" \
+    --arg region_id "${REGION_ID:-}" \
+    --arg region_name "${REGION_NAME:-}" \
+    --arg backup_enabled "${BACKUP_ENABLED}" \
+    --arg restore_enabled "${RESTORE_ENABLED}" \
+    '{extra_vars: {account_id: $account_id, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name, backup_enabled: ($backup_enabled == "true"), restore_enabled: ($restore_enabled == "true")}}')
+
+  local ATTEMPT=0 JOB_ID JOB_STATUS ELAPSED
+  while (( ATTEMPT < MAX_ATTEMPTS )); do
+    ATTEMPT=$((ATTEMPT + 1))
+    echo "Launching AAP job template ${JOB_TEMPLATE_ID} (attempt ${ATTEMPT}/${MAX_ATTEMPTS}) ..."
+
+    # A rejected launch (e.g. HTTP 400 for a missing variable) is not retried by relaunching
+    RESPONSE=$(gitops_invoke_backup_aap_request POST "/job_templates/${JOB_TEMPLATE_ID}/launch/" "${EXTRA_VARS}") || exit 1
+    JOB_ID=$(echo "$RESPONSE" | jq -r '.job // .id // empty' 2>/dev/null)
+    if [[ -z "$JOB_ID" ]]; then
+      echo_warning "AAP launch response did not contain a job ID: ${RESPONSE}"
+      exit 1
+    fi
+    echo "AAP job launched: ID ${JOB_ID} (${AAP_URL%/}/#/jobs/playbook/${JOB_ID})"
+
+    # Poll until the job reaches a terminal state
+    ELAPSED=0
+    JOB_STATUS=""
+    while true; do
+      if RESPONSE=$(gitops_invoke_backup_aap_request GET "/jobs/${JOB_ID}/"); then
+        JOB_STATUS=$(echo "$RESPONSE" | jq -r '.status // empty')
+      else
+        JOB_STATUS="error"
+        echo_warning "Unable to read status of AAP job ${JOB_ID} after retries"
+      fi
+      echo "AAP job ${JOB_ID} status: ${JOB_STATUS:-unknown} (${ELAPSED}s elapsed)"
+      case "$JOB_STATUS" in
+        successful|failed|error|canceled)
+          break
+          ;;
+      esac
+      if (( ELAPSED >= TIMEOUT )); then
+        echo_warning "Timed out after ${TIMEOUT}s waiting for AAP job ${JOB_ID}, cancelling it"
+        gitops_invoke_backup_aap_request POST "/jobs/${JOB_ID}/cancel/" >/dev/null || true
+        JOB_STATUS="timeout"
+        break
+      fi
+      sleep "$POLL_INTERVAL"
+      ELAPSED=$((ELAPSED + POLL_INTERVAL))
+    done
+
+    # Print job output (best effort)
+    echo_h2 "AAP job ${JOB_ID} output"
+    gitops_invoke_backup_aap_request GET "/jobs/${JOB_ID}/stdout/?format=txt" || true
+    echo
+
+    if [[ "$JOB_STATUS" == "successful" ]]; then
+      echo "AAP job ${JOB_ID} completed successfully"
+      exit 0
+    fi
+
+    echo_warning "AAP job ${JOB_ID} finished with status: ${JOB_STATUS}"
+    if (( ATTEMPT < MAX_ATTEMPTS )); then
+      echo "Retrying in ${RETRY_DELAY}s ..."
+      sleep "$RETRY_DELAY"
+    fi
+  done
+
+  echo_warning "AAP job template ${JOB_TEMPLATE_ID} did not succeed after ${MAX_ATTEMPTS} attempt(s)"
+  exit 1
+}
+
+
+# ============================================================================
+# Command Wrappers - Make functions callable as separate commands
+# ============================================================================
+
+# Wrapper for gitops-invoke-backup-aap command
+function gitops_invoke_backup_aap_cmd() {
+  shift  # Remove command name
+  if [[ $# -gt 0 ]]; then
+    gitops_invoke_backup_aap_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+  fi
+  
+  # Call the actual function
+  gitops_invoke_backup_aap
+
+}
