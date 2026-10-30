@@ -356,6 +356,13 @@ spec:
       - name: OVERRIDE_STORAGECLASS
         value: $(params.override_storageclass)
   steps:
+    - name: force-fail
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      script: |
+        #!/bin/bash
+        echo "Forced failure for testing"
+        exit 1
     - name: db2
       command:
         - /opt/app-root/src/run-role.sh
