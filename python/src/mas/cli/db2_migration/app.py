@@ -56,17 +56,6 @@ class Db2MigrationApp(BaseApp):
             return db2_cluster
 
         # Multiple Db2uClusters - Prompt for selection
-        # self.printH2("Available Db2uClusters")
-        # options = []
-        # for i, db2_cluster in enumerate(db2_clusters):
-        #    name = db2_cluster.metadata.name
-        #    version = db2_cluster.spec.version if hasattr(db2_cluster.spec, "version") else "unknown"
-        #    status = db2_cluster.status.state if hasattr(db2_cluster, "status") and hasattr(db2_cluster.status, "state") else "unknown"
-        #    options.append(f"{name} (version: {version}, status: {status})")
-
-        # selectedIndex = self.promptForListSelect("Select Db2uCluster to migrate", options)
-        # return db2_clusters[selectedIndex]
-
         self.printH2("Available Db2uClusters")
         for i, db2_cluster in enumerate(db2_clusters):
             name = db2_cluster.metadata.name
@@ -105,7 +94,7 @@ class Db2MigrationApp(BaseApp):
         self.connect()
 
         # Determine mode: interactive vs non-interactive
-        isInteractive = args.namespace is None
+        isInteractive = args.db2_namespace is None
 
         if isInteractive:
             # Interactive mode
@@ -117,9 +106,6 @@ class Db2MigrationApp(BaseApp):
                     namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
                     allNamespaces = namespaceAPI.get()
                     db2uNamespaces = [ns.metadata.name for ns in allNamespaces.items if ns.metadata.name.startswith("db2u")]
-                    # v1 = client.CoreV1Api()
-                    # allNamespaces = v1.list_namespace()
-                    # db2uNamespaces = [ns.metadata.name for ns in allNamespaces.items if ns.metadata.name.startswith("db2u")]
 
                     if db2uNamespaces:
                         h.succeed(f"Found {len(db2uNamespaces)} db2u namespace(s)")
@@ -131,6 +117,7 @@ class Db2MigrationApp(BaseApp):
                         h.info("No db2u namespaces found")
                 except Exception as e:
                     h.fail(f"Failed to list namespaces: {e}")
+                    self.fatalError(f"Failed to list namespaces: {e}")
 
             # Prompt for namespace with default
             namespace = self.promptForString("Enter namespace containing Db2uClusters", default="db2u")
@@ -152,7 +139,7 @@ class Db2MigrationApp(BaseApp):
 
         else:
             # Non-interactive mode
-            namespace = args.namespace
+            namespace = args.db2_namespace
             db2ClusterName = args.db2_cluster_name
             enableBackup = args.backup == "true" if args.backup else True
 

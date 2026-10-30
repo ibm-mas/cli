@@ -17,11 +17,6 @@ spec:
     
     # DB2 Migration Parameters
     # -------------------------------------------------------------------------
-    - name: db2_action
-      type: string
-      default: "migrate"
-      description: Action for db2 role (must be 'migrate')
-    
     - name: db2_migration_namespace
       type: string
       description: Namespace containing Db2uCluster to migrate
@@ -39,11 +34,6 @@ spec:
       type: string
       default: "false"
       description: Whether to delete old Db2uCluster CR after migration
-    
-    - name: ibm_entitlement_key
-      type: string
-      default: ""
-      description: IBM Entitlement Key
 
   tasks:
     # Run DB2 Migration
@@ -58,7 +48,7 @@ spec:
         - name: devops_suite_name
           value: db2-migration
         - name: db2_action
-          value: $(params.db2_action)
+          value: migrate
         - name: db2_migration_namespace
           value: $(params.db2_migration_namespace)
         - name: db2_migration_db2_cluster_name
