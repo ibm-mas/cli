@@ -50,6 +50,9 @@ function gitops_mas_fvt_preparer_noninteractive() {
   [[ -z "$FVT_IMAGE_REGISTRY" ]] && gitops_mas_fvt_preparer_help "FVT_IMAGE_REGISTRY is not set"
   [[ -z "$FVT_VERSION_CORE" ]] && gitops_mas_fvt_preparer_help "FVT_VERSION_CORE is not set"
   [[ -z "$IVT_VERSION_CORE" ]] && gitops_mas_fvt_preparer_help "IVT_VERSION_CORE is not set"
+  
+  # Export ENABLE_TRANSITION_TESTING with default value
+  export ENABLE_TRANSITION_TESTING=${ENABLE_TRANSITION_TESTING:-false}
 }
 
 function gitops_mas_fvt_preparer() {
