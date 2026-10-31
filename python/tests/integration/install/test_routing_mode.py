@@ -54,6 +54,8 @@ def create_mock_app():
     app._checkIngressControllerForPathRouting = InstallApp._checkIngressControllerForPathRouting.__get__(app, InstallApp)
     app._promptForIngressController = InstallApp._promptForIngressController.__get__(app, InstallApp)
     app._getMasDomainForDisplay = InstallApp._getMasDomainForDisplay.__get__(app, InstallApp)
+    # Same order as the install flow: Service Mesh is configured before the routing mode
+    app.configServiceMesh = InstallApp.configServiceMesh.__get__(app, InstallApp)
     app.configRoutingMode = InstallApp.configRoutingMode.__get__(app, InstallApp)
 
     return app
@@ -1220,6 +1222,79 @@ class TestParameterValidation:
         for mode in valid_modes:
             app.setParam("mas_routing_mode", mode)
             assert app.getParam("mas_routing_mode") == mode
+
+    def test_path_routing_with_service_mesh_bypasses_ingress_check(self):
+        """Test that path routing with Service Mesh enabled does not require IngressController validation."""
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "true")
+
+        # In interactive mode, selecting path routing with service mesh enabled sets path mode directly
+        app.configRoutingMode()
+        assert app.getParam("mas_routing_mode") == "path"
+        assert app.getParam("mas_ingress_controller_name") == ""
+        # Ingress controller checks should not have been called
+        app.promptForInt.assert_called_once()
+
+
+class TestServiceMeshManualRoutes:
+    """Test the Service Mesh / manual route management combinations in interactive mode.
+
+    - Service Mesh enabled  -> manual routes is always true (no prompt)
+    - Service Mesh disabled -> manual routes is whatever the user chooses (true or false)
+    """
+
+    @staticmethod
+    def _answers(app, serviceMesh, manualRoutes=None):
+        """Make yesOrNo answer the Service Mesh prompt, then the Disable Route Creation prompt."""
+
+        def _yesOrNo(message, param=None):
+            if "Service Mesh" in message:
+                answer = serviceMesh
+            elif "Disable Route Creation" in message:
+                answer = manualRoutes
+            else:
+                raise AssertionError(f"Unexpected prompt: {message}")
+            if param is not None:
+                app.setParam(param, "true" if answer else "false")
+            return answer
+
+        app.yesOrNo = MagicMock(side_effect=_yesOrNo)
+
+    def test_service_mesh_enabled_forces_manual_routes(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        self._answers(app, serviceMesh=True)
+
+        app.configServiceMesh()
+
+        assert app.getParam("mas_use_service_mesh") == "true"
+        assert app.getParam("mas_manual_route_mgmt") == "true"
+        # The manual routes question is not asked when Service Mesh is enabled
+        assert app.yesOrNo.call_count == 1
+
+    @pytest.mark.parametrize("manualRoutes", [True, False], ids=["manual_routes_true", "manual_routes_false"])
+    def test_service_mesh_disabled_honours_user_choice(self, manualRoutes):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        self._answers(app, serviceMesh=False, manualRoutes=manualRoutes)
+
+        app.configServiceMesh()
+
+        assert app.getParam("mas_use_service_mesh") == "false"
+        assert app.getParam("mas_manual_route_mgmt") == ("true" if manualRoutes else "false")
+        assert app.yesOrNo.call_count == 2
+
+    def test_pre_92_defaults_to_false_without_prompting(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.1.x")
+        app.yesOrNo = MagicMock()
+
+        app.configServiceMesh()
+
+        assert app.getParam("mas_use_service_mesh") == "false"
+        assert app.getParam("mas_manual_route_mgmt") == "false"
+        app.yesOrNo.assert_not_called()
 
 
 if __name__ == "__main__":

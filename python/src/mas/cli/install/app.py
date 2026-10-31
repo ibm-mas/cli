@@ -663,9 +663,8 @@ class InstallApp(
         self.configCATrust()
         self.configDNSAndCerts()
 
-        self.configRoutingMode()
-
         self.configServiceMesh()
+        self.configRoutingMode()
         self.configSSOProperties()
         self.configSpecialCharacters()
         self.configReportAdoptionMetricsFlag()
@@ -889,66 +888,71 @@ class InstallApp(
             selectedMode = routingModeOptions[routingModeInt - 1]
 
             if selectedMode == "path":
-                canConfigure = self._checkIngressControllerPermissions()
-                if not canConfigure:
-                    self.printDescription(
-                        [
-                            "",
-                            "<Yellow>Your cluster ingress currently does not support path-based routing</Yellow>",
-                            "",
-                            "If you wish to configure MAS with path-based routing, contact your OpenShift",
-                            "administrator to apply the following configuration:",
-                            "",
-                            "  <Cyan>spec:",
-                            "    routeAdmission:",
-                            "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
-                            "",
-                            "MAS will be configured to use subdomain-based routing.",
-                        ]
-                    )
-                    self.setParam("mas_routing_mode", "subdomain")
+                if self.getParam("mas_use_service_mesh") == "true":
+                    self.setParam("mas_routing_mode", "path")
                     self.setParam("mas_ingress_controller_name", "")
+                    self.printDescription(["<Green>Path-based routing enabled with Service Mesh ingress.</Green>"])
                 else:
-                    selectedController = self._promptForIngressController()
-                    self.setParam("mas_ingress_controller_name", selectedController)
-
-                    # Check if selected IngressController is configured for path-based routing
-                    _, isConfigured = self._checkIngressControllerForPathRouting(selectedController)
-
-                    if isConfigured:
-                        self.setParam("mas_routing_mode", "path")
-                        self.printDescription([f"<Green>IngressController '{selectedController}' is configured for path-based routing.</Green>"])
-                    else:
+                    canConfigure = self._checkIngressControllerPermissions()
+                    if not canConfigure:
                         self.printDescription(
                             [
                                 "",
                                 "<Yellow>Your cluster ingress currently does not support path-based routing</Yellow>",
                                 "",
-                                "The following setting needs to be applied to the IngressController:",
+                                "If you wish to configure MAS with path-based routing, contact your OpenShift",
+                                "administrator to apply the following configuration:",
                                 "",
                                 "  <Cyan>spec:",
                                 "    routeAdmission:",
                                 "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
                                 "",
+                                "MAS will be configured to use subdomain-based routing.",
                             ]
                         )
+                        self.setParam("mas_routing_mode", "subdomain")
+                        self.setParam("mas_ingress_controller_name", "")
+                    else:
+                        selectedController = self._promptForIngressController()
+                        self.setParam("mas_ingress_controller_name", selectedController)
 
-                        if self.yesOrNo("Configure ingress namespace ownership policy to enable path-based routing for MAS"):
+                        # Check if selected IngressController is configured for path-based routing
+                        _, isConfigured = self._checkIngressControllerForPathRouting(selectedController)
+
+                        if isConfigured:
                             self.setParam("mas_routing_mode", "path")
-                            self.setParam("mas_configure_ingress", "true")
-                            self.printDescription(
-                                [f"<Green>IngressController '{selectedController}' will be configured before MAS installation begins.</Green>"]
-                            )
+                            self.printDescription([f"<Green>IngressController '{selectedController}' is configured for path-based routing.</Green>"])
                         else:
                             self.printDescription(
                                 [
                                     "",
-                                    "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
-                                    "MAS will be configured to use subdomain-based routing.",
+                                    "<Yellow>Your cluster ingress currently does not support path-based routing</Yellow>",
+                                    "",
+                                    "The following setting needs to be applied to the IngressController:",
+                                    "",
+                                    "  <Cyan>spec:",
+                                    "    routeAdmission:",
+                                    "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
+                                    "",
                                 ]
                             )
-                            self.setParam("mas_routing_mode", "subdomain")
-                            self.setParam("mas_ingress_controller_name", "")
+
+                            if self.yesOrNo("Configure ingress namespace ownership policy to enable path-based routing for MAS"):
+                                self.setParam("mas_routing_mode", "path")
+                                self.setParam("mas_configure_ingress", "true")
+                                self.printDescription(
+                                    [f"<Green>IngressController '{selectedController}' will be configured before MAS installation begins.</Green>"]
+                                )
+                            else:
+                                self.printDescription(
+                                    [
+                                        "",
+                                        "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
+                                        "MAS will be configured to use subdomain-based routing.",
+                                    ]
+                                )
+                                self.setParam("mas_routing_mode", "subdomain")
+                                self.setParam("mas_ingress_controller_name", "")
             else:
                 self.setParam("mas_routing_mode", "subdomain")
 
@@ -1021,9 +1025,17 @@ class InstallApp(
                 ]
             )
             self.yesOrNo("Enable OpenShift Service Mesh support for MAS", "mas_use_service_mesh")
+
+            if self.getParam("mas_use_service_mesh") == "true":
+                # Service Mesh manages the routes externally, so manual route management is always required
+                self.setParam("mas_manual_route_mgmt", "true")
+            else:
+                self.printH1("Configure Routes Manually")
+                self.printDescription(["Disable automatic route creation."])
+                self.yesOrNo("Disable Route Creation", "mas_manual_route_mgmt")
         else:
             self.setParam("mas_use_service_mesh", "false")
-        self.setParam("mas_manual_route_mgmt", "false")
+            self.setParam("mas_manual_route_mgmt", "false")
 
     @logMethodCall
     def configAnnotations(self):
@@ -2653,6 +2665,16 @@ class InstallApp(
         if self.getParam("mas_issuer_kind") != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--mas-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
 
+        if self.getParam("mas_use_service_mesh") == "true" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            self.fatalError(f"--servicemesh is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+
+        # Service Mesh always requires manual route management. Without Service Mesh, --manual-routes is honoured as provided.
+        if self.getParam("mas_use_service_mesh") == "true":
+            self.setParam("mas_manual_route_mgmt", "true")
+
+        if self.getParam("mas_manual_route_mgmt") == "true" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            self.fatalError(f"--manual-routes is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
+
         # Validate admin mode based on MAS version
         if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             # MAS 9.2+: --admin-mode is REQUIRED
@@ -2965,7 +2987,8 @@ class InstallApp(
                 )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
-        if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path":
+        # When Service Mesh is enabled, Istio Ingress Gateway handles traffic routing rather than OpenShift IngressController
+        if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path" and self.getParam("mas_use_service_mesh") != "true":
             ingressControllerName = None
             if hasattr(self.args, "mas_ingress_controller_name") and self.args.mas_ingress_controller_name:
                 ingressControllerName = self.args.mas_ingress_controller_name
@@ -3145,7 +3168,11 @@ class InstallApp(
                     )
                     # Note: This is non-fatal as the plugin can be enabled manually
 
-            if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
+            if (
+                self.getParam("mas_routing_mode") == "path"
+                and self.getParam("mas_use_service_mesh") != "true"
+                and self.getParam("mas_configure_ingress") == "true"
+            ):
                 with Halo(
                     text="Configuring cluster for path-based routing",
                     spinner=self.spinner,

@@ -283,7 +283,7 @@ class TestCollectorsFlag:
         """
         parser = mustGatherArgParser
         args = parser.parse_args([])
-        expected = "ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,rhoai,aiservice,lic,pipelines,amlen"
+        expected = "ocp,db2,kafka,mongodb,cp4d,cert-manager,grafana,sls,mas,rhoai,aiservice,lic,pipelines,amlen,servicemesh"
         assert args.collectors == expected
 
     def test_parser_collectors_single_collector(self):

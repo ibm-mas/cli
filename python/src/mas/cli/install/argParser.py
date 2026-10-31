@@ -166,6 +166,7 @@ masAdvancedArgGroup.add_argument(
     required=False,
     help="Configure MAS to use Service Mesh networking (default: false)",
     choices=["true", "false"],
+    default="false",
 )
 masAdvancedArgGroup.add_argument(
     "--manual-routes",
