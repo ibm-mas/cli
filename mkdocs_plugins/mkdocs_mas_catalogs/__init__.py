@@ -214,7 +214,10 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
 
     def _render_whats_new(self, catalog_tag):
         """Render the What's New section."""
-        editorial = getCatalogEditorial(catalog_tag)
+        try:
+            editorial = getCatalogEditorial(catalog_tag)
+        except NoSuchCatalogError:
+            return ""
 
         if not editorial:
             return ""  # No editorial content, return empty string
@@ -251,7 +254,10 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
 
     def _render_known_issues(self, catalog_tag):
         """Render the Known Issues section."""
-        editorial = getCatalogEditorial(catalog_tag)
+        try:
+            editorial = getCatalogEditorial(catalog_tag)
+        except NoSuchCatalogError:
+            return ""
 
         # If no editorial data exists, show "no known issues"
         if not editorial:
