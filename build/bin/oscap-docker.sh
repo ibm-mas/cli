@@ -85,11 +85,8 @@ OSCAP_PROBE_ROOT="$(cd "$DIR" && pwd)" || die "Unable to change current director
 export OSCAP_EVALUATION_TARGET="$TARGET"
 shift 1
 
-#echo_begingroup "OSCAP scan report for $NAMESPACE/$IMAGE"
-$OSCAP_BINARY "$@" | echo
+$OSCAP_BINARY "$@"
 EXIT_CODE=$?
-#echo_debug "EXIT_CODE:$EXIT_CODE"
-#echo_endgroup
 
 if [ $CLEANUP -eq 1 ]; then
     # docker-rm should handle also unmounting of the container filesystem.
