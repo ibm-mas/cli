@@ -126,7 +126,13 @@ if [[ "$TARGET_PLATFORM" == "amd64" ]]; then
       exit 1
     fi
     if [ -f "$OSCAP_DIR/$image_name-results.xml" ]; then
-      sudo oscap xccdf generate fix --fix-type bash --output $OSCAP_DIR/$image_name-remediation.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_stig $OSCAP_DIR/$image_name-results.xml || exit 1
+      # oscap generate fix also returns 1 when there are findings to remediate - only fail on 2 (error)
+      sudo oscap xccdf generate fix --fix-type bash --output $OSCAP_DIR/$image_name-remediation.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_stig $OSCAP_DIR/$image_name-results.xml
+      FIX_EXIT=$?
+      if [[ $FIX_EXIT -eq 2 ]]; then
+        echo "ERROR: oscap generate fix failed with exit code $FIX_EXIT"
+        exit 1
+      fi
     else
       echo "ERROR: OSCAP results file not found: $OSCAP_DIR/$image_name-results.xml"
       exit 1
