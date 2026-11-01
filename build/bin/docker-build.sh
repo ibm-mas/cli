@@ -114,11 +114,16 @@ if [[ "$TARGET_PLATFORM" == "amd64" ]]; then
     echo "Generating OSCAP scan report"
     image_name="${REPOSITORY##*/}"
     if [[ "$TARGET_PLATFORM" == "" ]]; then
-      sudo $DIR/oscap-docker.sh $REPOSITORY:latest xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml
+      sudo $DIR/oscap-docker.sh $REPOSITORY:latest xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml || exit 1
     else
-      sudo $DIR/oscap-docker.sh $REPOSITORY:$DOCKER_TAG-$TARGET_PLATFORM xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml
+      sudo $DIR/oscap-docker.sh $REPOSITORY:$DOCKER_TAG-$TARGET_PLATFORM xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml || exit 1
     fi
-    sudo oscap xccdf generate fix --fix-type bash --output $OSCAP_DIR/$image_name-remediation.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_stig $OSCAP_DIR/$image_name-results.xml
+    if [ -f "$OSCAP_DIR/$image_name-results.xml" ]; then
+      sudo oscap xccdf generate fix --fix-type bash --output $OSCAP_DIR/$image_name-remediation.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_stig $OSCAP_DIR/$image_name-results.xml || exit 1
+    else
+      echo "ERROR: OSCAP results file not found: $OSCAP_DIR/$image_name-results.xml"
+      exit 1
+    fi
 
     # Upload the results to Artifactory
     artifactory_upload $OSCAP_DIR/$image_name-report.html $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/$image_name/$DOCKER_TAG/$image_name-report.html

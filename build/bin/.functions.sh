@@ -57,7 +57,6 @@ function install_buildx() {
 
   sudo apt-get update
   sudo apt-get install -y qemu-user-binfmt
-  qemu-aarch64-static --version || true
 
   docker version || exit 1
   docker buildx version || exit 1
