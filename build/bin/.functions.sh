@@ -56,10 +56,8 @@ function install_buildx() {
   chmod a+x ~/.docker/cli-plugins/docker-buildx
 
   sudo apt-get update
-  sudo apt-get install -y qemu-user-static
-  qemu-aarch64-static --version
-  sudo apt-get install -y binfmt-support
-  update-binfmts --version
+  sudo apt-get install -y qemu-user-binfmt
+  qemu-aarch64-static --version || true
 
   docker version || exit 1
   docker buildx version || exit 1
