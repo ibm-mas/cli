@@ -113,10 +113,17 @@ if [[ "$TARGET_PLATFORM" == "amd64" ]]; then
     echo "SCAP Data Stream: ${SCAP_DATA_STREAM}.xml"
     echo "Generating OSCAP scan report"
     image_name="${REPOSITORY##*/}"
+    # oscap xccdf eval exit codes: 0=pass, 1=findings, 2=error
+    # Exit code 1 (rule failures) is expected and not a failure of the scan itself
     if [[ "$TARGET_PLATFORM" == "" ]]; then
-      sudo $DIR/oscap-docker.sh $REPOSITORY:latest xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml || exit 1
+      sudo $DIR/oscap-docker.sh $REPOSITORY:latest xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml
     else
-      sudo $DIR/oscap-docker.sh $REPOSITORY:$DOCKER_TAG-$TARGET_PLATFORM xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml || exit 1
+      sudo $DIR/oscap-docker.sh $REPOSITORY:$DOCKER_TAG-$TARGET_PLATFORM xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml
+    fi
+    OSCAP_EXIT=$?
+    if [[ $OSCAP_EXIT -eq 2 ]]; then
+      echo "ERROR: OSCAP scan failed with exit code $OSCAP_EXIT"
+      exit 1
     fi
     if [ -f "$OSCAP_DIR/$image_name-results.xml" ]; then
       sudo oscap xccdf generate fix --fix-type bash --output $OSCAP_DIR/$image_name-remediation.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_stig $OSCAP_DIR/$image_name-results.xml || exit 1
