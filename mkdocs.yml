@@ -20,6 +20,7 @@ nav:
   - "Install and Configure":
       - "Install": guides/install.md
       - "Uninstall": guides/uninstall.md
+      - "Configure MCPI": commands/configure-mcpi.md
       - "OIDC Config Tool": commands/configtool-oidc.md
       - "AI Service Install": guides/aiservice-install.md
   - "Update and Upgrade":
