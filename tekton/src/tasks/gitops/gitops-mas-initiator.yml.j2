@@ -353,8 +353,14 @@ spec:
 
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$VERSIONED_INSTANCE_ID/manual-certs
 
-          # Copy manual certs using the plain instance ID (devops-configs folder is not versioned)
-          cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$VERSIONED_INSTANCE_ID/manual-certs
+          # Copy manual certs from the versioned instance folder in devops-configs (e.g. certs/fvtsaas-90) if it exists,
+          # otherwise fall back to the plain instance ID folder
+          MANUAL_CERTS_SRC_ID="$VERSIONED_INSTANCE_ID"
+          if [ ! -d "$TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/$MANUAL_CERTS_SRC_ID" ]; then
+            MANUAL_CERTS_SRC_ID="$MAS_INSTANCE_ID"
+          fi
+          echo "gitops-mas-initiator: copying manual certs from devops-configs/certs/$MANUAL_CERTS_SRC_ID"
+          cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/$MANUAL_CERTS_SRC_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$VERSIONED_INSTANCE_ID/manual-certs
 
           # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
 
