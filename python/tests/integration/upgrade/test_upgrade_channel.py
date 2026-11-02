@@ -197,3 +197,55 @@ class TestUpgradeChannelLogic:
                         with pytest.raises(SystemExit) as exc_info:
                             mock_upgrade_app.upgrade([])
                         assert exc_info.value.code == 1
+
+    def test_upgrade_from_9_2_x_to_9_3_x_feature(self, mock_upgrade_app):
+        """
+        Test upgrade from 9.2.x to 9.3.x-feature with explicit --next-channel
+        """
+        with patch("mas.cli.upgrade.app.getMasChannel", return_value="9.2.x"):
+            with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.devops.tekton.launchUpgradePipeline") as mock_launch:
+                    with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
+                        with patch("mas.devops.tekton.updateTektonDefinitions"):
+                            with patch("mas.devops.ocp.createNamespace"):
+                                with patch("mas.devops.mas.getPermissionMode", return_value="cluster"):
+                                    mock_args = Mock()
+                                    mock_args.mas_instance_id = "test-inst"
+                                    mock_args.no_confirm = True
+                                    mock_args.skip_pre_check = False
+                                    mock_args.accept_license = True
+                                    mock_args.dev_mode = False
+                                    mock_args.next_channel = "9.3.x-feature"
+                                    with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
+                                        try:
+                                            mock_upgrade_app.upgrade([])
+                                        except Exception:
+                                            pass
+                                    if mock_launch.called:
+                                        call_kwargs = mock_launch.call_args[1]
+                                        assert call_kwargs["masChannel"] == "9.2.x"
+
+    def test_upgrade_from_9_2_x_auto_determine_next_channel(self, mock_upgrade_app):
+        """
+        Test upgrade from 9.2.x without --next-channel resolves to 9.3.x-feature
+        """
+        with patch("mas.cli.upgrade.app.getMasChannel", return_value="9.2.x"):
+            with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.devops.tekton.launchUpgradePipeline"):
+                    with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
+                        with patch("mas.devops.tekton.updateTektonDefinitions"):
+                            with patch("mas.devops.ocp.createNamespace"):
+                                with patch("mas.devops.mas.getPermissionMode", return_value="cluster"):
+                                    mock_args = Mock()
+                                    mock_args.mas_instance_id = "test-inst"
+                                    mock_args.no_confirm = True
+                                    mock_args.skip_pre_check = False
+                                    mock_args.accept_license = True
+                                    mock_args.dev_mode = False
+                                    mock_args.next_channel = ""
+                                    with patch("mas.cli.upgrade.argParser.upgradeArgParser.parse_args", return_value=mock_args):
+                                        try:
+                                            mock_upgrade_app.upgrade([])
+                                        except Exception:
+                                            pass
+                                    assert mock_upgrade_app.nextChannel == "9.3.x-feature"

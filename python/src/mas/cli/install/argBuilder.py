@@ -637,6 +637,8 @@ class installArgBuilderMixin:
             command += f"  --cos \"{self.getParam('cos_type')}\""
             if self.getParam("cos_resourcegroup") != "":
                 command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
+            if self.getParam("cos_region") != "":
+                command += f" --cos-region \"{self.getParam('cos_region')}\""
             if self.getParam("cos_apikey") != "":
                 command += ' --cos-apikey "$COS_APIKEY"'
             if self.getParam("cos_instance_name") != "":

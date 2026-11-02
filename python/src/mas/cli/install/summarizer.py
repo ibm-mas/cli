@@ -569,6 +569,8 @@ class InstallSummarizerMixin:
             self.printParamSummary("Type", "cos_type")
             if self.getParam("cos_resourcegroup") != "":
                 self.printParamSummary("Resource Group", "cos_resourcegroup")
+            if self.getParam("cos_region") != "":
+                self.printParamSummary("Region", "cos_region")
         else:
             self.printSummary("Type", "None")
 
