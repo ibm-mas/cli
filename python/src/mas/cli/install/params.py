@@ -264,4 +264,5 @@ optionalParams = [
     # Slack Integration
     "slack_token",
     "slack_channel",
+    "slack_notify_on_fail",
 ]
