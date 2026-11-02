@@ -393,6 +393,9 @@ class TestInteractiveLetsEncryptIntegration:
         if not use_service_mesh:
             handlers[".*Disable Route Creation.*"] = lambda msg: "n"
             handlers[".*Configure ingress namespace ownership.*"] = lambda msg: "y"
+        else:
+            # TODO: Once Service Mesh supports Maximo Visual Inspection (MVI), remove this bypass since MVI will be promptable
+            handlers.pop(".*Install Visual Inspection.*", None)
         return handlers
 
     @pytest.mark.parametrize("use_service_mesh", [True, False], ids=["service_mesh_enabled", "service_mesh_disabled"])

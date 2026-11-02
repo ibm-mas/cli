@@ -1350,9 +1350,14 @@ class InstallApp(
         if self.installOptimizer:
             self.configAppChannel("optimizer")
 
-        self.installInspection = self.yesOrNo("Install Visual Inspection")
-        if self.installInspection:
-            self.configAppChannel("visualinspection")
+        if self.getParam("mas_use_service_mesh") == "true":
+            # TODO: Remove this warning and restriction once Service Mesh is fully compatible/supported with Maximo Visual Inspection (MVI)
+            self.printDescription(["", "<Yellow>Visual Inspection cannot be installed when Service Mesh is enabled.</Yellow>", ""])
+            self.installInspection = False
+        else:
+            self.installInspection = self.yesOrNo("Install Visual Inspection")
+            if self.installInspection:
+                self.configAppChannel("visualinspection")
 
         if isVersionEqualOrAfter("9.1.0", self.getParam("mas_channel")) and self.getParam("mas_channel") != "9.1.x-feature":
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
@@ -2673,6 +2678,11 @@ class InstallApp(
         # Service Mesh always requires manual route management. Without Service Mesh, --manual-routes is honoured as provided.
         if self.getParam("mas_use_service_mesh") == "true":
             self.setParam("mas_manual_route_mgmt", "true")
+
+        # Service Mesh is incompatible with Maximo Visual Inspection (MVI)
+        # TODO: Remove this restriction once Service Mesh is fully compatible/supported with Maximo Visual Inspection (MVI)
+        if self.getParam("mas_use_service_mesh") == "true" and self.installInspection:
+            self.fatalError("Service Mesh cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
 
         if self.getParam("mas_manual_route_mgmt") == "true" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--manual-routes is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")

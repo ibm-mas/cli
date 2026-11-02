@@ -361,6 +361,9 @@ def test_install_master_dev_mode_with_path_routing(tmpdir, use_service_mesh, dis
 
     # 5. Prompts that depend on the Service Mesh / manual routes answers.
     # Handlers for prompts that must not appear are intentionally omitted, so an unexpected prompt fails the test.
+    if use_service_mesh:
+        # TODO: Once Service Mesh supports Maximo Visual Inspection (MVI), remove this bypass since MVI will be promptable
+        prompt_handlers.pop(".*Install Visual Inspection.*", None)
     if not use_service_mesh:
         prompt_handlers[".*Disable Route Creation.*"] = lambda msg: "y" if disable_route_creation else "n"
     # The IngressController is only configured when routes are not managed manually

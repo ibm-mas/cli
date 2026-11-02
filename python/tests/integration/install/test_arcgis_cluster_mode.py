@@ -159,6 +159,9 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
+    # TODO: Once Service Mesh supports Maximo Visual Inspection (MVI), remove this bypass since MVI will be promptable
+    prompt_handlers.pop(".*Install Visual Inspection.*", None)
+
     # Create test configuration
     config = InstallTestConfig(
         prompt_handlers=prompt_handlers,
@@ -292,6 +295,9 @@ def test_install_arcgis_namespace_mode_error(tmpdir, caplog):
         # ERROR OCCURS HERE - after selecting ArcGIS with cluster mode
         ".*Include IBM Maximo Location Services for Esri.*": lambda msg: "y",
     }
+
+    # TODO: Once Service Mesh supports Maximo Visual Inspection (MVI), remove this bypass since MVI will be promptable
+    prompt_handlers.pop(".*Install Visual Inspection.*", None)
 
     # Create test configuration expecting SystemExit
     config = InstallTestConfig(

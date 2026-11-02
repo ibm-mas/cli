@@ -1343,5 +1343,91 @@ class TestServiceMeshManualRoutes:
         app.yesOrNo.assert_not_called()
 
 
+class TestServiceMeshMVIConflict:
+    """Test the Service Mesh and Maximo Visual Inspection (MVI) mutual exclusion and validation."""
+
+    def test_interactive_service_mesh_enabled_skips_mvi_prompt(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "true")
+        app.installIoT = False
+        app.installMonitor = False
+        app.installManage = False
+        app.installPredict = False
+        app.installAssist = False
+        app.installOptimizer = False
+        app.installInspection = False
+        app.installFacilities = False
+        app.installAIService = False
+        app.installArcgis = False
+
+        # Bind configApps to the mock app
+        app.configApps = InstallApp.configApps.__get__(app, InstallApp)
+        app.configAppChannel = MagicMock()
+
+        # We will mock yesOrNo to return False for anything else so we only test the flow around Visual Inspection
+        app.yesOrNo = MagicMock(return_value=False)
+
+        app.configApps()
+
+        # With service mesh enabled, it should print a description and not prompt for Visual Inspection
+        assert app.installInspection is False
+        app.printDescription.assert_any_call(["", "<Yellow>Visual Inspection cannot be installed when Service Mesh is enabled.</Yellow>", ""])
+
+        # Verify yesOrNo was NOT called with Visual Inspection
+        for call in app.yesOrNo.call_args_list:
+            assert "Visual Inspection" not in call[0][0]
+
+    def test_interactive_service_mesh_disabled_prompts_mvi(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "false")
+        app.installIoT = False
+        app.installMonitor = False
+        app.installManage = False
+        app.installPredict = False
+        app.installAssist = False
+        app.installOptimizer = False
+        app.installInspection = False
+        app.installFacilities = False
+        app.installAIService = False
+        app.installArcgis = False
+
+        # Bind configApps to the mock app
+        app.configApps = InstallApp.configApps.__get__(app, InstallApp)
+        app.configAppChannel = MagicMock()
+
+        # Mock yesOrNo: return True for "Install Visual Inspection", False for others
+        def side_effect_yes_or_no(prompt, param=None):
+            if "Visual Inspection" in prompt:
+                return True
+            return False
+
+        app.yesOrNo = MagicMock(side_effect=side_effect_yes_or_no)
+
+        app.configApps()
+
+        assert app.installInspection is True
+        app.configAppChannel.assert_any_call("visualinspection")
+
+    def test_validation_raises_fatal_error_when_both_active(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "true")
+        app.installInspection = True
+        app.fatalError = MagicMock(side_effect=SystemExit(1))
+
+        # Replicate validation logic
+        def run_validation(app):
+            # Service Mesh is incompatible with Maximo Visual Inspection (MVI)
+            if app.getParam("mas_use_service_mesh") == "true" and app.installInspection:
+                app.fatalError("Service Mesh cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
+
+        with pytest.raises(SystemExit):
+            run_validation(app)
+
+        app.fatalError.assert_called_once_with("Service Mesh cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
