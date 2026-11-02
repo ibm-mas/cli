@@ -322,6 +322,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
+        ".*Install Maximo Cluster Performance Insights.*": lambda msg: "n",
         # 23. Grafana configuration (appears when advanced options are enabled)
         ".*Install Grafana.*": lambda msg: "y",
         # 24. MongoDB configuration
