@@ -98,7 +98,9 @@ fi
 # -----------------------------------------------------------------------------
 cp $VERSION_FILE $VERSION_FILE_NOPREREL
 if [[ "${GITHUB_REF_TYPE}" == "branch" ]]; then
-    semver bump prerel pre.$GITHUB_REF_NAME $(cat $VERSION_FILE) > $VERSION_FILE
+    # Sanitise branch name: semver pre-release identifiers cannot contain '/'
+    SAFE_REF_NAME="${GITHUB_REF_NAME//\//-}"
+    semver bump prerel pre.$SAFE_REF_NAME $(cat $VERSION_FILE) > $VERSION_FILE
     echo "Pre-release build: $(cat $VERSION_FILE)"
 fi
 
