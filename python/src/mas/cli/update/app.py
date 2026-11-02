@@ -20,7 +20,7 @@ from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser
-from mas.devops.data import getCatalog, getNewestCatalogTag
+from mas.devops.data import getCatalog, getNewestCatalogTag, NoSuchCatalogError
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog, getMasChannel, getInstalledApps, getPermissionMode
 from mas.devops.aiservice import listAiServiceInstances
@@ -243,9 +243,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         if not self.devMode:
             self.validateCatalog()
         else:
-            # In dev mode, load the user-specified catalog (or newest if not specified)
+            # In dev mode the catalog version may be a custom dev image tag that has no
+            # corresponding YAML definition, so fall back to the newest known catalog.
             catalogVersion = self.getParam("mas_catalog_version") if self.args.mas_catalog_version else getNewestCatalogTag()
-            self.chosenCatalog = getCatalog(catalogVersion)
+            try:
+                self.chosenCatalog = getCatalog(catalogVersion)
+            except NoSuchCatalogError:
+                self.chosenCatalog = getCatalog(getNewestCatalogTag())
 
         self.printH1("Dependency Update Checks")
         with Halo(text="Checking for IBM Watson Discovery", spinner=self.spinner) as h:
@@ -450,15 +454,15 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) Oct 29 2026 Update (MAS 9.2.9, 9.1.28, 9.0.34, 8.11.34, &amp; 8.10.37)",
-                "  2) Oct 07 2026 Update (MAS 9.2.8, 9.1.27, 9.0.33, 8.11.34, &amp; 8.10.37)",
+                "  1) Nov 26 2026 Update (MAS 9.2.10, 9.1.29, 9.0.35, 8.11.34, &amp; 8.10.37)",
+                "  2) Oct 29 2026 Update (MAS 9.2.9, 9.1.28, 9.0.34, 8.11.34, &amp; 8.10.37)",
                 "  3) Sep 24 2026 Update (MAS 9.2.7, 9.1.26, 9.0.32, 8.11.34, &amp; 8.10.37)",
             ]
         )
 
         catalogOptions = [
+            "v9-261126-amd64",
             "v9-261029-amd64",
-            "v9-261007-amd64",
             "v9-260924-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
@@ -740,6 +744,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                                 "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
                                 "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli",
                             ]
+                        )
+                        return
+
+                    if cpdInstanceVersion == cpdTargetVersion:
+                        h.stop_and_persist(
+                            symbol=self.successIcon,
+                            text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already at the target version {cpdTargetVersion}, no update required",
                         )
                         return
 
