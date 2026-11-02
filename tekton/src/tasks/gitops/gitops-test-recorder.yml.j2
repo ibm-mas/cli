@@ -1,0 +1,106 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: gitops-test-recorder
+spec:
+  params:
+    - name: catalog_version
+      type: string
+      description: "Catalog version string e.g. v9-260827-amd64"
+    - name: catalog_image
+      type: string
+      description: "Full catalog image path e.g. docker-na-public.../ibm-maximo-operator-catalog"
+    - name: build_id
+      type: string
+      description: "Numeric build identifier from the pipeline launcher"
+    - name: github_host
+      type: string
+      description: "GitHub hostname"
+      default: "github.ibm.com"
+    - name: github_org
+      type: string
+      description: "GitHub organization e.g. maximoappsuite or sreaiapps"
+      default: "maximoappsuite"
+    - name: github_repo
+      type: string
+      description: "GitHub repository name e.g. saas-envs or mas-stg-gitops"
+      default: "saas-envs"
+    - name: git_branch
+      type: string
+      description: "Branch of the repo to fetch from"
+      default: "dev"
+    - name: instance_registry_file
+      type: string
+      description: "Relative path within the repo to the instance registry YAML"
+      default: "gitops/aws-stg/instance-registry.yaml"
+  workspaces:
+    - name: task-pvc
+      mountPath: /artifacts
+  steps:
+    - name: fetch-registry
+      image: "quay.io/ibmmas/cli:latest"
+      env:
+        - name: GITHUB_HOST
+          value: $(params.github_host)
+        - name: GITHUB_ORG
+          value: $(params.github_org)
+        - name: GITHUB_REPO
+          value: $(params.github_repo)
+        - name: GIT_BRANCH
+          value: $(params.git_branch)
+        - name: INSTANCE_REGISTRY_FILE
+          value: $(params.instance_registry_file)
+        - name: GITHUB_PAT
+          valueFrom:
+            secretKeyRef:
+              name: secure-properties
+              key: GITHUB_PAT
+              optional: false
+      envFrom:
+        - configMapRef:
+            name: environment-properties
+            optional: true
+        - secretRef:
+            name: secure-properties
+      command: ["/bin/sh", "-c"]
+      args:
+        - |-
+          set -e -o pipefail
+          if [ "$GITHUB_HOST" = "github.com" ]; then
+            API_BASE="https://api.github.com"
+          else
+            API_BASE="https://${GITHUB_HOST}/api/v3"
+          fi
+
+          echo "Fetching ${INSTANCE_REGISTRY_FILE} from ${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO} (ref: ${GIT_BRANCH})..."
+          mkdir -p /artifacts
+          curl -sSL -f \
+            -H "Authorization: Bearer ${GITHUB_PAT}" \
+            -H "Accept: application/vnd.github.raw" \
+            "${API_BASE}/repos/${GITHUB_ORG}/${GITHUB_REPO}/contents/${INSTANCE_REGISTRY_FILE}?ref=${GIT_BRANCH}" \
+            -o /artifacts/instance-registry.yaml
+
+    - name: record-build-collection
+      image: "quay.io/ibmmas/cli:latest"
+      env:
+        - name: CATALOG_VERSION
+          value: $(params.catalog_version)
+        - name: CATALOG_IMAGE
+          value: $(params.catalog_image)
+        - name: BUILD_ID
+          value: $(params.build_id)
+        - name: INSTANCE_REGISTRY_FILE
+          value: /artifacts/instance-registry.yaml
+        - name: DEVOPS_MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: secure-properties
+              key: DEVOPS_MONGO_URI
+              optional: false
+      command: ["/bin/sh", "-c"]
+      args:
+        - |-
+          set -e -o pipefail
+          echo "Recording build collection for catalog version: $CATALOG_VERSION build: $BUILD_ID"
+          python3 /opt/app-root/src/record-build-collection.py

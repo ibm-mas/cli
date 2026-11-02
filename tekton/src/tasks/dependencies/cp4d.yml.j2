@@ -28,9 +28,6 @@ spec:
       type: string
       default: ""
 
-    # Entitlement
-    - name: ibm_entitlement_key
-      type: string
     - name: skip_entitlement_key_flag
       type: string
       default: ""
@@ -55,9 +52,6 @@ spec:
       - name: CPD_METADATA_STORAGE_CLASS
         value: $(params.cpd_metadata_storage_class)
 
-      # Entitlement
-      - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
       - name: SKIP_ENTITLEMENT_KEY_FLAG
         value: $(params.skip_entitlement_key_flag)
   steps:

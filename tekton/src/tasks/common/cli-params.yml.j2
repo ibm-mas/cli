@@ -22,6 +22,13 @@
   type: string
   description: Name of the Pipeline
   default: ""
+
+# "mas-secrets" as default avoids empty-string secretKeyRef.name which Kubernetes rejects at pod scheduling
+# even with optional: true. Taskdefs with registry-secret-param.yml.j2 always override this except FVTs tasks.
+- name: task_registry_secret_name
+  type: string
+  description: Name of the Kubernetes Secret holding pipeline credentials (IBM_ENTITLEMENT_KEY, ARTIFACTORY_TOKEN, ARTIFACTORY_USERNAME)
+  default: "mas-secrets"
 - name: mas_use_service_mesh
   type: string
   description: Optional string parameter, either true or false (defaults to false), defines whether the suite will be configured to use redhat service mesh for networking

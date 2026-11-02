@@ -50,6 +50,7 @@ def usage() -> None:
             + " - <ForestGreen>mas-cli must-gather</ForestGreen> Collect diagnostic information\n"
             + " - <ForestGreen>mas-cli setup-rbac</ForestGreen>  Set up RBAC resources for MAS installation\n"
             + " - <ForestGreen>mas-cli pre-install</ForestGreen>  Set up pre-install RBAC for MAS\n"
+            + " - <ForestGreen>mas-cli configure-mcpi</ForestGreen> Apply Maximo Cluster Performance Insights configuration\n"
         )
     )
     print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
@@ -124,6 +125,12 @@ def main() -> None:
 
             app = SetupPreinstallRBACApp()
             app.setupPreinstallRBAC(argv[2:])
+            return
+        if function == "configure-mcpi":
+            from mas.cli.configure_mcpi.app import ConfigureMcpiApp
+
+            app = ConfigureMcpiApp()
+            app.configureMcpi(argv[2:])
             return
         if function == "must-gather":
             from mas.cli.must_gather.app import MustGatherApp

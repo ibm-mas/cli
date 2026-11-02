@@ -22,6 +22,7 @@ Worker Node Configuration (Required):
       --worker-count ${COLOR_YELLOW}ROKS_WORKERS${TEXT_RESET}               Number of worker nodes to provision
       --worker-flavor ${COLOR_YELLOW}ROKS_FLAVOR${TEXT_RESET}               The flavour of worker node to use (e.g. bx2.8x32)
       --worker-zone ${COLOR_YELLOW}ROKS_ZONE${TEXT_RESET}                   VPC zone where the worker nodes should be provisioned. (e.g. dal10-1)
+      --secondary-storage ${COLOR_YELLOW}ROKS_SECONDARY_STORAGE${TEXT_RESET}   Optional secondary block storage to attach to each worker node (e.g. 300gb.5iops-tier)
 
 GPU Support (Optional):
       --gpu-worker-count ${COLOR_YELLOW}GPU_WORKERS${TEXT_RESET}            Number of GPU worker nodes to provision
@@ -83,6 +84,9 @@ function provision_roks_vpc_noninteractive() {
         ;;
       --worker-zone)
         ROKS_ZONE=$1 && shift
+        ;;
+      --secondary-storage)
+        ROKS_SECONDARY_STORAGE=$1 && shift
         ;;
 
       # GPU
@@ -288,6 +292,7 @@ function provision_roks_vpc() {
   export ROKS_WORKERS
   export ROKS_FLAVOR
   export ROKS_ZONE
+  export ROKS_SECONDARY_STORAGE
 
   # GPU
   export OCP_PROVISION_GPU
@@ -329,6 +334,7 @@ function provision_roks_vpc() {
   echo_reset_dim "Worker Flavour ............ $ROKS_FLAVOR"
   echo_reset_dim "Worker Pool Zone .......... $ROKS_ZONE"
   echo_reset_dim "Worker Pool Size .......... $ROKS_WORKERS"
+  echo_reset_dim "Secondary Storage ......... ${ROKS_SECONDARY_STORAGE:-<not set>}"
   echo_reset_dim "Add GPU Worker Nodes ...... ${OCP_PROVISION_GPU:-false}"
   if [[ $OCP_PROVISION_GPU == "true" ]]; then
     echo_reset_dim "GPU Worker Pool Size ...... $GPU_WORKERS"

@@ -95,6 +95,7 @@ class RestoreApp(BaseApp):
                 "manage_db_override_storageclass",
                 "manage_db_storage_class_rwx",
                 "manage_db_storage_class_rwo",
+                "manage_db2_dbname",
                 # Facilities App Restore
                 "restore_facilities_app",
                 "restore_facilities_include_pvc",
@@ -105,6 +106,7 @@ class RestoreApp(BaseApp):
                 "facilities_db_override_storageclass",
                 "facilities_db_storage_class_rwx",
                 "facilities_db_storage_class_rwo",
+                "facilities_db2_dbname",
                 # MongoDB Storage Class Override
                 "override_mongodb_storageclass",
                 "mongodb_storageclass_name",
@@ -332,7 +334,14 @@ class RestoreApp(BaseApp):
                 )
 
                 # Apply config file secrets to the namespace
-                prepareRestoreSecrets(dynClient=self.dynamicClient, namespace=pipelinesNamespace, restoreConfigs=self.configSecret)
+                prepareRestoreSecrets(
+                    dynClient=self.dynamicClient,
+                    namespace=pipelinesNamespace,
+                    restoreConfigs=self.configSecret,
+                    ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
+                    artifactory_token=self.getParam("artifactory_token"),
+                    artifactory_username=self.getParam("artifactory_username"),
+                )
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
