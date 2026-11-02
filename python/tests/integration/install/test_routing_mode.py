@@ -1228,13 +1228,59 @@ class TestParameterValidation:
         app = create_mock_app()
         app.setParam("mas_channel", "9.2.0")
         app.setParam("mas_use_service_mesh", "true")
+        # Service Mesh always forces manual route management (see configServiceMesh)
+        app.setParam("mas_manual_route_mgmt", "true")
 
         # In interactive mode, selecting path routing with service mesh enabled sets path mode directly
         app.configRoutingMode()
         assert app.getParam("mas_routing_mode") == "path"
         assert app.getParam("mas_ingress_controller_name") == ""
+        assert app.getParam("mas_configure_ingress") == ""
         # Ingress controller checks should not have been called
         app.promptForInt.assert_called_once()
+        assert not any(c.kwargs.get("kind") == "IngressController" for c in app.dynamicClient.resources.get.call_args_list)
+
+    def test_path_routing_with_manual_routes_bypasses_ingress_check(self):
+        """Test that path routing with manual route management (no Service Mesh) does not touch the IngressController."""
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "false")
+        app.setParam("mas_manual_route_mgmt", "true")
+
+        app.configRoutingMode()
+        assert app.getParam("mas_routing_mode") == "path"
+        assert app.getParam("mas_ingress_controller_name") == ""
+        assert app.getParam("mas_configure_ingress") == ""
+        # Only the routing mode prompt is asked: no ingress controller selection or "configure ingress" question
+        app.promptForInt.assert_called_once()
+        assert not any(c.kwargs.get("kind") == "IngressController" for c in app.dynamicClient.resources.get.call_args_list)
+
+    def test_path_routing_without_manual_routes_checks_ingress(self):
+        """Test that path routing without manual route management still validates the IngressController."""
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "false")
+        app.setParam("mas_manual_route_mgmt", "false")
+
+        controller = create_ingress_controller_mock(namespace_ownership="InterNamespaceAllowed")
+        ingress_api = MagicMock()
+        ingress_api.get.side_effect = [
+            controller,  # permission check
+            MagicMock(items=[controller]),  # list controllers
+            controller,  # configuration check
+        ]
+        ingress_config_api = MagicMock()
+        ingress_config_api.get.return_value.spec.get.return_value = "apps.cluster.example.com"
+
+        def get_side_effect(api_version, kind):
+            return ingress_api if kind == "IngressController" else ingress_config_api
+
+        app.dynamicClient.resources.get.side_effect = get_side_effect
+
+        app.configRoutingMode()
+        assert app.getParam("mas_routing_mode") == "path"
+        assert app.getParam("mas_ingress_controller_name") == "default"
+        ingress_api.get.assert_called()
 
 
 class TestServiceMeshManualRoutes:

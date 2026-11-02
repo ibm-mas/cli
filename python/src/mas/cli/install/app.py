@@ -888,10 +888,12 @@ class InstallApp(
             selectedMode = routingModeOptions[routingModeInt - 1]
 
             if selectedMode == "path":
-                if self.getParam("mas_use_service_mesh") == "true":
+                if self.getParam("mas_manual_route_mgmt") == "true":
                     self.setParam("mas_routing_mode", "path")
                     self.setParam("mas_ingress_controller_name", "")
-                    self.printDescription(["<Green>Path-based routing enabled with Service Mesh ingress.</Green>"])
+                    self.printDescription(
+                        ["<Green>Path-based routing enabled. Routes are managed manually, so the IngressController will not be configured.</Green>"]
+                    )
                 else:
                     canConfigure = self._checkIngressControllerPermissions()
                     if not canConfigure:
@@ -2987,8 +2989,9 @@ class InstallApp(
                 )
 
         # Validate IngressController configuration for path-based routing (non-interactive mode only)
-        # When Service Mesh is enabled, Istio Ingress Gateway handles traffic routing rather than OpenShift IngressController
-        if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path" and self.getParam("mas_use_service_mesh") != "true":
+        # When manual route management is enabled (always the case with Service Mesh), MAS does not create routes
+        # so the OpenShift IngressController is not validated or patched
+        if not self.isInteractiveMode and self.getParam("mas_routing_mode") == "path" and self.getParam("mas_manual_route_mgmt") != "true":
             ingressControllerName = None
             if hasattr(self.args, "mas_ingress_controller_name") and self.args.mas_ingress_controller_name:
                 ingressControllerName = self.args.mas_ingress_controller_name
@@ -3170,7 +3173,7 @@ class InstallApp(
 
             if (
                 self.getParam("mas_routing_mode") == "path"
-                and self.getParam("mas_use_service_mesh") != "true"
+                and self.getParam("mas_manual_route_mgmt") != "true"
                 and self.getParam("mas_configure_ingress") == "true"
             ):
                 with Halo(
