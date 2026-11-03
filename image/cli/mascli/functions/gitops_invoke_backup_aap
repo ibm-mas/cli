@@ -352,6 +352,7 @@ function gitops_invoke_backup_aap() {
     --arg atlas_restore_databases "${ATLAS_RESTORE_DATABASES:-}" \
     '{extra_vars: {account_id: $account_id, cluster_id: $k8s_cluster_name, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name, backup_enabled: ($backup_enabled == "true"), restore_enabled: ($restore_enabled == "true"), iam_user_name: $iam_user_name, s3_bucket_name: $s3_bucket_name, aws_region: $aws_region, sync_to_test_framework: ($sync_to_test_framework == "true"), backup_retention_profile: $backup_retention_profile, backup_release_tag: $backup_release_tag, backup_ticket_id: $backup_ticket_id, catalog_build_id: $catalog_build_id, atlas_public_key: $atlas_public_key, atlas_private_key: $atlas_private_key, atlas_restore_databases: $atlas_restore_databases}}')
 
+
   local ATTEMPT=0 JOB_ID JOB_STATUS ELAPSED
   while (( ATTEMPT < MAX_ATTEMPTS )); do
     ATTEMPT=$((ATTEMPT + 1))
