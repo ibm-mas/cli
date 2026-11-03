@@ -23,9 +23,8 @@ spec:
     - name: iam_user_name
       type: string
       default: ""
-    - name: aws_region
+    - name: avp_aws_secret_region
       type: string
-      default: ""
     - name: sync_to_test_framework
       type: string
       default: 'false'
@@ -61,8 +60,8 @@ spec:
         value: $(params.restore_enabled)
       - name: IAM_USER_NAME
         value: $(params.iam_user_name)
-      - name: AWS_REGION
-        value: $(params.aws_region)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
       - name: SYNC_TO_TEST_FRAMEWORK
         value: $(params.sync_to_test_framework)
       - name: BACKUP_RETENTION_PROFILE
@@ -97,7 +96,6 @@ spec:
             --backup-enabled "$BACKUP_ENABLED" \
             --restore-enabled "$RESTORE_ENABLED" \
             --iam-user-name "$IAM_USER_NAME" \
-            --aws-region "$AWS_REGION" \
             --sync-to-test-framework "$SYNC_TO_TEST_FRAMEWORK" \
             --backup-retention-profile "$BACKUP_RETENTION_PROFILE" \
             --backup-release-tag "$BACKUP_RELEASE_TAG" \
