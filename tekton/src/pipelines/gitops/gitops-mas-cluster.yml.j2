@@ -250,6 +250,9 @@ spec:
     - name: instana_agent_operator_jks_storage_class
       type: string
       default: ''
+    - name: instana_agent_operator_pod_template_yaml
+      type: string
+      default: ''
 
     - name: provisioner_namespace
       type: string
@@ -425,6 +428,8 @@ spec:
           value: $(params.instana_agent_operator_env)
         - name: instana_agent_operator_jks_storage_class
           value: $(params.instana_agent_operator_jks_storage_class)
+        - name: instana_agent_operator_pod_template_yaml
+          value: $(params.instana_agent_operator_pod_template_yaml)
 
       taskRef:
         kind: Task
