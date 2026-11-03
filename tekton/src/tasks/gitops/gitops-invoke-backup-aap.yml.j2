@@ -23,8 +23,6 @@ spec:
     - name: iam_user_name
       type: string
       default: ""
-    - name: avp_aws_secret_region
-      type: string
     - name: sync_to_test_framework
       type: string
       default: 'false'
@@ -60,8 +58,6 @@ spec:
         value: $(params.restore_enabled)
       - name: IAM_USER_NAME
         value: $(params.iam_user_name)
-      - name: SM_AWS_REGION
-        value: $(params.avp_aws_secret_region)
       - name: SYNC_TO_TEST_FRAMEWORK
         value: $(params.sync_to_test_framework)
       - name: BACKUP_RETENTION_PROFILE

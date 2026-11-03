@@ -28,8 +28,8 @@ Backup Configuration (Optional):
   --backup-ticket-id ${COLOR_YELLOW}BACKUP_TICKET_ID${TEXT_RESET}            Backup ticket ID
 
 Backup S3 Bucket (Secrets Manager, environment variables only):
-  SM_AWS_ACCESS_KEY_ID, SM_AWS_SECRET_ACCESS_KEY, SM_AWS_REGION   AWS Secrets Manager credentials (SM_AWS_SESSION_TOKEN is optional)
-  SM_AWS_REGION is also passed to the AAP job as aws_region
+  SM_AWS_ACCESS_KEY_ID, SM_AWS_SECRET_ACCESS_KEY   AWS Secrets Manager credentials (SM_AWS_SESSION_TOKEN is optional)
+  The Secrets Manager region is REGION_NAME (--region-name), which is also passed to the AAP job as aws_region
   The S3 bucket name is read from the 'bucketName' key of the secret '<ACCOUNT_ID>/<CLUSTER_ID>/<MAS_INSTANCE_ID>/db2_backup'
   and passed to the AAP job as s3_bucket_name.
 
@@ -65,8 +65,6 @@ function gitops_invoke_backup_aap_noninteractive() {
   BACKUP_ENABLED=${BACKUP_ENABLED:-false}
   RESTORE_ENABLED=${RESTORE_ENABLED:-false}
   SYNC_TO_TEST_FRAMEWORK=${SYNC_TO_TEST_FRAMEWORK:-false}
-  # AWS_REGION may be provided in the environment instead of SM_AWS_REGION
-  export SM_AWS_REGION=${SM_AWS_REGION:-${AWS_REGION}}
 
   # Set default values
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
@@ -250,10 +248,11 @@ function gitops_invoke_backup_aap() {
   #   <ACCOUNT_ID>/<CLUSTER_ID>/<MAS_INSTANCE_ID>/db2_backup  ->  { "bucketName": "...", ... }
   [[ -z "$SM_AWS_ACCESS_KEY_ID" ]] && gitops_invoke_backup_aap_help "SM_AWS_ACCESS_KEY_ID is not set"
   [[ -z "$SM_AWS_SECRET_ACCESS_KEY" ]] && gitops_invoke_backup_aap_help "SM_AWS_SECRET_ACCESS_KEY is not set"
-  [[ -z "$SM_AWS_REGION" ]] && gitops_invoke_backup_aap_help "SM_AWS_REGION is not set"
+  [[ -z "$REGION_NAME" ]] && gitops_invoke_backup_aap_help "REGION_NAME is not set"
 
-  # The Secrets Manager region is also the AWS region passed to the AAP job
-  export AWS_REGION=${AWS_REGION:-${SM_AWS_REGION}}
+  # REGION_NAME is the AWS region, used for Secrets Manager and passed to the AAP job
+  export SM_AWS_REGION="$REGION_NAME"
+  export AWS_REGION="$REGION_NAME"
   AVP_TYPE=aws
   sm_login
   local DB2_BACKUP_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup"

@@ -23,8 +23,6 @@ spec:
     - name: iam_user_name
       type: string
       default: ""
-    - name: avp_aws_secret_region
-      type: string
     - name: sync_to_test_framework
       type: string
       default: 'false'
@@ -78,8 +76,6 @@ spec:
           value: $(params.restore_enabled)
         - name: iam_user_name
           value: $(params.iam_user_name)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
         - name: sync_to_test_framework
           value: $(params.sync_to_test_framework)
         - name: backup_retention_profile
@@ -123,8 +119,6 @@ spec:
           value: $(params.restore_enabled)
         - name: iam_user_name
           value: $(params.iam_user_name)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
         - name: sync_to_test_framework
           value: $(params.sync_to_test_framework)
         - name: backup_retention_profile
