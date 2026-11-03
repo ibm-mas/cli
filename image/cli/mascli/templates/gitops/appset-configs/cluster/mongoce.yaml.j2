@@ -1,0 +1,22 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+account:
+  id: {{ ACCOUNT_ID }}
+
+cluster:
+  id: {{ CLUSTER_ID }}
+
+mongoce:
+  install: "true"
+  namespace: "{{ MONGODB_CE_NAMESPACE }}"
+  instance_name: "{{ MONGODB_CE_INSTANCE_NAME }}"
+  members: {{ MONGODB_CE_MEMBERS }}
+  mongo_ce_version: "{{ MONGODB_CE_VERSION }}"
+  storage_size: "{{ MONGODB_CE_STORAGE_SIZE }}"
+  run_sync_hooks: true
+{% if MONGODB_CE_STORAGE_CLASS is defined and MONGODB_CE_STORAGE_CLASS != '' %}
+  mongo_ce_storage_class: "{{ MONGODB_CE_STORAGE_CLASS }}"
+{% endif %}
+{% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
+  internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
+{% endif %}

@@ -82,3 +82,4 @@ endif
 .PHONY: run
 run:
 	podman run --rm -it -e IBM_ENTITLEMENT_KEY --pull Always quay.io/ibmmas/cli:master bash
+
