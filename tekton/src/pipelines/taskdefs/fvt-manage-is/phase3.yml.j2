@@ -206,4 +206,5 @@
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
+    - fvt-manage-lbs-api
     - fvt-manage-lbs-linear-ui
