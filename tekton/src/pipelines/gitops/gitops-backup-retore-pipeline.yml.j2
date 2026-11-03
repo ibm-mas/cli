@@ -23,9 +23,6 @@ spec:
     - name: iam_user_name
       type: string
       default: ""
-    - name: s3_bucket_name
-      type: string
-      default: ""
     - name: aws_region
       type: string
       default: ""
@@ -82,8 +79,6 @@ spec:
           value: $(params.restore_enabled)
         - name: iam_user_name
           value: $(params.iam_user_name)
-        - name: s3_bucket_name
-          value: $(params.s3_bucket_name)
         - name: aws_region
           value: $(params.aws_region)
         - name: sync_to_test_framework
@@ -129,8 +124,6 @@ spec:
           value: $(params.restore_enabled)
         - name: iam_user_name
           value: $(params.iam_user_name)
-        - name: s3_bucket_name
-          value: $(params.s3_bucket_name)
         - name: aws_region
           value: $(params.aws_region)
         - name: sync_to_test_framework

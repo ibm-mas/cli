@@ -22,12 +22,17 @@ Basic Configuration:
 
 Backup Configuration (Optional):
   --iam-user-name ${COLOR_YELLOW}IAM_USER_NAME${TEXT_RESET}                  IAM user name, passed to the AAP job as iam_user_name
-  --s3-bucket-name ${COLOR_YELLOW}S3_BUCKET_NAME${TEXT_RESET}                S3 bucket name, passed to the AAP job as s3_bucket_name
   --aws-region ${COLOR_YELLOW}AWS_REGION${TEXT_RESET}                        AWS region, passed to the AAP job as aws_region
   --sync-to-test-framework ${COLOR_YELLOW}SYNC_TO_TEST_FRAMEWORK${TEXT_RESET}  'true' or 'false' (default: false), passed to the AAP job as sync_to_test_framework
   --backup-retention-profile ${COLOR_YELLOW}BACKUP_RETENTION_PROFILE${TEXT_RESET}  Backup retention profile (e.g. daily, release, adhoc, golden)
   --backup-release-tag ${COLOR_YELLOW}BACKUP_RELEASE_TAG${TEXT_RESET}        Backup release tag
   --backup-ticket-id ${COLOR_YELLOW}BACKUP_TICKET_ID${TEXT_RESET}            Backup ticket ID
+
+Backup S3 Bucket (Secrets Manager, environment variables only):
+  SM_AWS_ACCESS_KEY_ID, SM_AWS_SECRET_ACCESS_KEY   AWS Secrets Manager credentials (SM_AWS_SESSION_TOKEN is optional)
+  AWS_REGION (--aws-region) is used as the Secrets Manager region (SM_AWS_REGION)
+  The S3 bucket name is read from the 'bucketName' key of the secret '<ACCOUNT_ID>/<CLUSTER_ID>/<MAS_INSTANCE_ID>/db2_backup'
+  and passed to the AAP job as s3_bucket_name.
 
 Atlas Restore Configuration (Optional):
   --catalog-build-id ${COLOR_YELLOW}CATALOG_BUILD_ID${TEXT_RESET}            Catalog build ID, passed to the AAP job as catalog_build_id
@@ -104,10 +109,6 @@ function gitops_invoke_backup_aap_noninteractive() {
 
       --iam-user-name)
         export IAM_USER_NAME=$1 && shift
-        ;;
-
-      --s3-bucket-name)
-        export S3_BUCKET_NAME=$1 && shift
         ;;
 
       --aws-region)
@@ -247,6 +248,25 @@ function gitops_invoke_backup_aap() {
   fi
   command -v curl >/dev/null || gitops_invoke_backup_aap_help "curl is required"
   command -v jq >/dev/null || gitops_invoke_backup_aap_help "jq is required"
+
+  # Fetch the backup S3 bucket name from AWS Secrets Manager:
+  #   <ACCOUNT_ID>/<CLUSTER_ID>/<MAS_INSTANCE_ID>/db2_backup  ->  { "bucketName": "...", ... }
+  [[ -z "$SM_AWS_ACCESS_KEY_ID" ]] && gitops_invoke_backup_aap_help "SM_AWS_ACCESS_KEY_ID is not set"
+  [[ -z "$SM_AWS_SECRET_ACCESS_KEY" ]] && gitops_invoke_backup_aap_help "SM_AWS_SECRET_ACCESS_KEY is not set"
+  [[ -z "$AWS_REGION" ]] && gitops_invoke_backup_aap_help "AWS_REGION is not set"
+
+  export SM_AWS_REGION="$AWS_REGION"
+  AVP_TYPE=aws
+  sm_login
+  local DB2_BACKUP_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup"
+  S3_BUCKET_NAME=$(sm_get_secret_value "${DB2_BACKUP_SECRET}" bucketName)
+  if [[ -z "$S3_BUCKET_NAME" || "$S3_BUCKET_NAME" == "null" ]]; then
+    S3_BUCKET_NAME=""
+    if [[ "$BACKUP_ENABLED" == "true" ]]; then
+      echo_warning "Unable to read 'bucketName' from secret ${DB2_BACKUP_SECRET}"
+      exit 1
+    fi
+  fi
 
   # Display all parameters and AAP settings (AAP_TOKEN is never printed, AAP_PASSWORD is masked)
   echo "Parameters:"
