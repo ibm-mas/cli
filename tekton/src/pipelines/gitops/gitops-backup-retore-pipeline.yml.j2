@@ -20,6 +20,33 @@ spec:
     - name: restore_enabled
       type: string
       default: 'false'
+    - name: iam_user_name
+      type: string
+      default: ""
+    - name: s3_bucket_name
+      type: string
+      default: ""
+    - name: aws_region
+      type: string
+      default: ""
+    - name: sync_to_test_framework
+      type: string
+      default: 'false'
+    - name: backup_retention_profile
+      type: string
+      default: ""
+    - name: backup_release_tag
+      type: string
+      default: ""
+    - name: backup_ticket_id
+      type: string
+      default: ""
+    - name: catalog_build_id
+      type: string
+      default: ""
+    - name: atlas_restore_databases
+      type: string
+      default: ""
 
 
   workspaces:
@@ -53,6 +80,24 @@ spec:
           value: $(params.backup_enabled)
         - name: restore_enabled
           value: $(params.restore_enabled)
+        - name: iam_user_name
+          value: $(params.iam_user_name)
+        - name: s3_bucket_name
+          value: $(params.s3_bucket_name)
+        - name: aws_region
+          value: $(params.aws_region)
+        - name: sync_to_test_framework
+          value: $(params.sync_to_test_framework)
+        - name: backup_retention_profile
+          value: $(params.backup_retention_profile)
+        - name: backup_release_tag
+          value: $(params.backup_release_tag)
+        - name: backup_ticket_id
+          value: $(params.backup_ticket_id)
+        - name: catalog_build_id
+          value: $(params.catalog_build_id)
+        - name: atlas_restore_databases
+          value: $(params.atlas_restore_databases)
 
 
     # Task 2: Invoke Restore AAP
@@ -82,3 +127,21 @@ spec:
           value: $(params.backup_enabled)
         - name: restore_enabled
           value: $(params.restore_enabled)
+        - name: iam_user_name
+          value: $(params.iam_user_name)
+        - name: s3_bucket_name
+          value: $(params.s3_bucket_name)
+        - name: aws_region
+          value: $(params.aws_region)
+        - name: sync_to_test_framework
+          value: $(params.sync_to_test_framework)
+        - name: backup_retention_profile
+          value: $(params.backup_retention_profile)
+        - name: backup_release_tag
+          value: $(params.backup_release_tag)
+        - name: backup_ticket_id
+          value: $(params.backup_ticket_id)
+        - name: catalog_build_id
+          value: $(params.catalog_build_id)
+        - name: atlas_restore_databases
+          value: $(params.atlas_restore_databases)

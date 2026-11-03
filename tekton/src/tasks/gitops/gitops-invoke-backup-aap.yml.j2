@@ -20,6 +20,33 @@ spec:
     - name: restore_enabled
       type: string
       default: 'false'
+    - name: iam_user_name
+      type: string
+      default: ""
+    - name: s3_bucket_name
+      type: string
+      default: ""
+    - name: aws_region
+      type: string
+      default: ""
+    - name: sync_to_test_framework
+      type: string
+      default: 'false'
+    - name: backup_retention_profile
+      type: string
+      default: ""
+    - name: backup_release_tag
+      type: string
+      default: ""
+    - name: backup_ticket_id
+      type: string
+      default: ""
+    - name: catalog_build_id
+      type: string
+      default: ""
+    - name: atlas_restore_databases
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -35,6 +62,24 @@ spec:
         value: $(params.backup_enabled)
       - name: RESTORE_ENABLED
         value: $(params.restore_enabled)
+      - name: IAM_USER_NAME
+        value: $(params.iam_user_name)
+      - name: S3_BUCKET_NAME
+        value: $(params.s3_bucket_name)
+      - name: AWS_REGION
+        value: $(params.aws_region)
+      - name: SYNC_TO_TEST_FRAMEWORK
+        value: $(params.sync_to_test_framework)
+      - name: BACKUP_RETENTION_PROFILE
+        value: $(params.backup_retention_profile)
+      - name: BACKUP_RELEASE_TAG
+        value: $(params.backup_release_tag)
+      - name: BACKUP_TICKET_ID
+        value: $(params.backup_ticket_id)
+      - name: CATALOG_BUILD_ID
+        value: $(params.catalog_build_id)
+      - name: ATLAS_RESTORE_DATABASES
+        value: $(params.atlas_restore_databases)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -48,7 +93,7 @@ spec:
         - |-
           mkdir -p /workspace/gitops-invoke-backup-aap
 
-          # Invoke the backup AAP job (AAP_* settings come from secure-properties)
+          # Invoke the backup AAP job (AAP_* settings and ATLAS_PUBLIC_KEY/ATLAS_PRIVATE_KEY come from secure-properties)
           mas gitops-invoke-backup-aap \
             -a "$ACCOUNT" \
             -c "$CLUSTER_NAME" \
@@ -56,6 +101,15 @@ spec:
             --region-name "$REGION_NAME" \
             --backup-enabled "$BACKUP_ENABLED" \
             --restore-enabled "$RESTORE_ENABLED" \
+            --iam-user-name "$IAM_USER_NAME" \
+            --s3-bucket-name "$S3_BUCKET_NAME" \
+            --aws-region "$AWS_REGION" \
+            --sync-to-test-framework "$SYNC_TO_TEST_FRAMEWORK" \
+            --backup-retention-profile "$BACKUP_RETENTION_PROFILE" \
+            --backup-release-tag "$BACKUP_RELEASE_TAG" \
+            --backup-ticket-id "$BACKUP_TICKET_ID" \
+            --catalog-build-id "$CATALOG_BUILD_ID" \
+            --atlas-restore-databases "$ATLAS_RESTORE_DATABASES" \
             --dir /workspace/gitops-invoke-backup-aap
 
           exit $?
