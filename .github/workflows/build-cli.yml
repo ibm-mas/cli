@@ -25,7 +25,7 @@ concurrency:
 jobs:
   build-tekton:
     name: Build Tekton Definitions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     steps:
       # 1. Initialize the build
@@ -73,7 +73,7 @@ jobs:
 
   build-python:
     name: Build Python Package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs: build-tekton
     steps:
@@ -175,7 +175,7 @@ jobs:
 
   build-arm64-container:
     name: Build Container Image (arm64)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
@@ -246,7 +246,7 @@ jobs:
 
   build-amd64-container:
     name: Build Container Image (amd64)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
@@ -317,7 +317,7 @@ jobs:
 
   build-s390x-container:
     name: Build Container Image (s390x)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
@@ -388,7 +388,7 @@ jobs:
 
   build-ppc64le-container:
     name: Build Container Image(ppc64le)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
@@ -459,7 +459,7 @@ jobs:
 
   build-manifest:
     name: Build Manifest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs:
       - build-amd64-container
       - build-s390x-container
@@ -510,7 +510,7 @@ jobs:
 
   update-release-notes:
     name: Update Release Notes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs:
       - build-manifest
     if: ${{ github.event_name == 'release' }}
