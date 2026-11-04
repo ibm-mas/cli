@@ -21,7 +21,6 @@ Basic Configuration:
   --restore-enabled ${COLOR_YELLOW}RESTORE_ENABLED${TEXT_RESET}              'true' or 'false' (default: false), passed to the AAP job as restore_enabled
 
 Backup Configuration (Optional):
-  --iam-user-name ${COLOR_YELLOW}IAM_USER_NAME${TEXT_RESET}                  IAM user name, passed to the AAP job as iam_user_name
   --sync-to-test-framework ${COLOR_YELLOW}SYNC_TO_TEST_FRAMEWORK${TEXT_RESET}  'true' or 'false' (default: false), passed to the AAP job as sync_to_test_framework
   --backup-retention-profile ${COLOR_YELLOW}BACKUP_RETENTION_PROFILE${TEXT_RESET}  Backup retention profile (e.g. daily, release, adhoc, golden)
   --backup-release-tag ${COLOR_YELLOW}BACKUP_RELEASE_TAG${TEXT_RESET}        Backup release tag
@@ -30,6 +29,7 @@ Backup Configuration (Optional):
 Backup S3 Bucket (Secrets Manager, environment variables only):
   SM_AWS_ACCESS_KEY_ID, SM_AWS_SECRET_ACCESS_KEY   AWS Secrets Manager credentials (SM_AWS_SESSION_TOKEN is optional)
   The Secrets Manager region is REGION_NAME (--region-name), which is also passed to the AAP job as aws_region
+  The IAM user name is not an input; it is built as 'massaas-cos-<MAS_INSTANCE_ID>-<CLUSTER_ID>-backup-rw' and passed to the AAP job as iam_user_name.
   The S3 bucket name is read from the 'bucketName' key of the secret '<ACCOUNT_ID>/<CLUSTER_ID>/<MAS_INSTANCE_ID>/db2_backup'
   and passed to the AAP job as s3_bucket_name.
 
@@ -104,10 +104,6 @@ function gitops_invoke_backup_aap_noninteractive() {
 
       --restore-enabled)
         export RESTORE_ENABLED=$1 && shift
-        ;;
-
-      --iam-user-name)
-        export IAM_USER_NAME=$1 && shift
         ;;
 
       --sync-to-test-framework)
@@ -265,6 +261,9 @@ function gitops_invoke_backup_aap() {
     fi
   fi
 
+  # IAM user used for the backup bucket, derived from the MAS instance and cluster
+  IAM_USER_NAME="massaas-cos-${MAS_INSTANCE_ID}-${CLUSTER_ID}-backup-rw"
+
   # Display all parameters and AAP settings (AAP_TOKEN is never printed, AAP_PASSWORD is masked)
   echo "Parameters:"
   echo "  GITOPS_WORKING_DIR = ${GITOPS_WORKING_DIR}"
@@ -276,7 +275,7 @@ function gitops_invoke_backup_aap() {
   echo "  REGION_NAME        = ${REGION_NAME:-}"
   echo "  BACKUP_ENABLED     = ${BACKUP_ENABLED}"
   echo "  RESTORE_ENABLED    = ${RESTORE_ENABLED}"
-  echo "  IAM_USER_NAME      = ${IAM_USER_NAME:-}"
+  echo "  IAM_USER_NAME      = ${IAM_USER_NAME}"
   echo "  S3_BUCKET_NAME     = ${S3_BUCKET_NAME:-}"
   echo "  AWS_REGION         = ${AWS_REGION:-}"
   echo "  SYNC_TO_TEST_FRAMEWORK   = ${SYNC_TO_TEST_FRAMEWORK}"
@@ -356,7 +355,7 @@ function gitops_invoke_backup_aap() {
     --arg region_name "${REGION_NAME:-}" \
     --arg backup_enabled "${BACKUP_ENABLED}" \
     --arg restore_enabled "${RESTORE_ENABLED}" \
-    --arg iam_user_name "${IAM_USER_NAME:-}" \
+    --arg iam_user_name "${IAM_USER_NAME}" \
     --arg s3_bucket_name "${S3_BUCKET_NAME:-}" \
     --arg aws_region "${AWS_REGION:-}" \
     --arg sync_to_test_framework "${SYNC_TO_TEST_FRAMEWORK}" \

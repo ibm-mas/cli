@@ -20,9 +20,6 @@ spec:
     - name: restore_enabled
       type: string
       default: 'false'
-    - name: iam_user_name
-      type: string
-      default: ""
     - name: sync_to_test_framework
       type: string
       default: 'false'
@@ -74,8 +71,6 @@ spec:
           value: $(params.backup_enabled)
         - name: restore_enabled
           value: $(params.restore_enabled)
-        - name: iam_user_name
-          value: $(params.iam_user_name)
         - name: sync_to_test_framework
           value: $(params.sync_to_test_framework)
         - name: backup_retention_profile
@@ -117,8 +112,6 @@ spec:
           value: $(params.backup_enabled)
         - name: restore_enabled
           value: $(params.restore_enabled)
-        - name: iam_user_name
-          value: $(params.iam_user_name)
         - name: sync_to_test_framework
           value: $(params.sync_to_test_framework)
         - name: backup_retention_profile
