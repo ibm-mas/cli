@@ -123,6 +123,9 @@ spec:
     - name: db2_audit_retention_days
       type: string
       default: ""
+    - name: db2_backup_day_of_week
+      type: string
+      default: "sat"
     - name: replica_db
       type: string
       default: "false"
@@ -258,6 +261,8 @@ spec:
         value: $(params.auto_backup)
       - name: DB2_AUDIT_RETENTION_DAYS
         value: $(params.db2_audit_retention_days)
+      - name: DB2_BACKUP_DAY_OF_WEEK
+        value: $(params.db2_backup_day_of_week)
       - name: REPLICA_DB
         value: $(params.replica_db)
       - name: IS_REPLICA_TASK

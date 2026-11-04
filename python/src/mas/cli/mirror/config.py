@@ -18,7 +18,7 @@ PACKAGE_CONFIGS = [
     ("Optional Dependencies", "aiservice", "ibm-aiservice", "aiservice_version", False),
     ("Optional Dependencies", "aiservice", "ibm-aiservice-tenant", "aiservice_tenant_version", False),
     ("Optional Dependencies", "aiservice", "opendatahub", "odh_version", False),
-    ("Optional Dependencies", "aiservice", "minio", "minio_extras_version", False),
+    ("Optional Dependencies", "aiservice", "minio", "minio_version", False),
     ("Optional Dependencies", "data-dictionary", "ibm-data-dictionary", "dd_version", False),
     ("Optional Dependencies", "db2u-s11", "ibm-db2uoperator-s11", "db2u_version", False),
     ("Optional Dependencies", "db2u-s12", "ibm-db2uoperator-s12", "db2u_version", False),
