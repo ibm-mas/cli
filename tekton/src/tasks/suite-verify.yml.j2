@@ -38,6 +38,9 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - servicemesh_domain_config
+      env:
+        - name: MAS_USE_SERVICE_MESH
+          value: $(params.mas_use_service_mesh)
       image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
 
