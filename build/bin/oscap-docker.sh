@@ -86,8 +86,12 @@ export OSCAP_EVALUATION_TARGET="$TARGET"
 shift 1
 
 #echo_begingroup "OSCAP scan report for $NAMESPACE/$IMAGE"
-$OSCAP_BINARY "$@" | echo
-EXIT_CODE=$?
+EXIT_CODE=0
+$OSCAP_BINARY "$@" || EXIT_CODE=$?
+# OpenSCAP returns 0 (pass) or 2 (compliance failures found). Both mean evaluation finished successfully.
+if [ "$EXIT_CODE" -eq 2 ]; then
+    EXIT_CODE=0
+fi
 #echo_debug "EXIT_CODE:$EXIT_CODE"
 #echo_endgroup
 
