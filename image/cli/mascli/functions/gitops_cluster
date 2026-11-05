@@ -100,6 +100,7 @@ Cluster Logging Operator (Optional):
 
 Instana Agent Operator (Optional):
       --install-instana-agent-operator ${COLOR_YELLOW}INSTANA_AGENT_OPERATOR_INSTALL${TEXT_RESET}                                        Install the Instana Agent Operator
+      --instana-agent-operator-pod-template-yaml ${COLOR_YELLOW}INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML${TEXT_RESET}                    The location of a file containing the Instana Agent Pod template
 
 MAS CLI Image (Optional):
       --mas-cli-image-repo ${COLOR_YELLOW}MAS_CLI_IMAGE_REPO${TEXT_RESET}                                                                The repo that holds the MAS CLI image to be pulled in ArgoCD. Only needed if using a mirror registry, and not quay.io
@@ -354,6 +355,9 @@ function gitops_cluster_noninteractive() {
       --install-instana-agent-operator)
         export INSTANA_AGENT_OPERATOR_INSTALL=true
         ;;
+      --instana-agent-operator-pod-template-yaml)
+        export INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML=$1 && shift
+        ;;
 
       # Image repository mirror
       --image-repo-mirror)
@@ -600,6 +604,7 @@ function gitops_cluster() {
   echo "${TEXT_DIM}"
   echo_h2 "Instana Agent Operator" "    "
   echo_reset_dim "Install the Instana Agent Operator ........... ${COLOR_MAGENTA}${INSTANA_AGENT_OPERATOR_INSTALL}"
+  echo_reset_dim "Pod Template YAML File ....................... ${COLOR_MAGENTA}${INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML}"
   reset_colors
 
   if [[ -n "$MAS_CLI_IMAGE_REPO" ]]; then
@@ -837,6 +842,9 @@ function gitops_cluster() {
     if [[ "$INSTANA_AGENT_OPERATOR_INSTALL" == "true" ]]; then
       echo "- Instana Agent Operator"
       sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
+      if [[ -n "$INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML" && -s "$INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML" ]]; then
+        export INSTANA_AGENT_OPERATOR_POD_TEMPLATE=$(yq eval '.podTemplates[0].containers[0].resources // .podTemplates[0].resources // .podTemplates[0] // .' ${INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML})
+      fi
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml
     fi
 

@@ -1355,6 +1355,12 @@ class InstallApp(
         else:
             self.installAIService = False
 
+        # MCPI is only available from MAS 9.2
+        if isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            self.installMcpi = self.yesOrNo("Install Maximo Cluster Performance Insights (MCPI)")
+        else:
+            self.installMcpi = False
+
     @logMethodCall
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
@@ -2215,6 +2221,7 @@ class InstallApp(
         self.db2SetAffinity = False
         self.db2SetTolerations = False
         self.installAIService = False
+        self.installMcpi = False
         self.slsLicenseFileLocal = None
         self.db2LicenseFileLocal = None
         self.aiserviceTenantSchedulingConfigFileLocal = None
@@ -2386,6 +2393,9 @@ class InstallApp(
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_facilities", value)
                     self.installFacilities = True
+            elif key == "install_mcpi":
+                if value:
+                    self.installMcpi = True
             elif key == "aiservice_channel":
                 if value is not None and value != "":
                     self.setParam("aiservice_channel", value)
@@ -2649,6 +2659,9 @@ class InstallApp(
             self.validateCatalogSource()
             self.licensePrompt()
             self.setParam("db2u_kind", "db2ucluster")
+
+        if self.installMcpi and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
+            self.fatalError(f"--install-mcpi is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
 
         if self.getParam("mas_issuer_kind") != "" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--mas-issuer-kind is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")
