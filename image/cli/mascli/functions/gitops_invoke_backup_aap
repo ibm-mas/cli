@@ -22,6 +22,7 @@ Basic Configuration:
 
 Backup Configuration (Optional):
   --db2u-config ${COLOR_YELLOW}DB2U_CONFIG${TEXT_RESET}                      'db2u' settings as JSON. Every object-valued key except 'backup' (e.g. manage, iot) is a DB2 app
+  -s, --sls-service ${COLOR_YELLOW}SLS_SERVICE${TEXT_RESET}                  Centralized SLS param file reference, e.g. <ref:gitops/aws-dev/icn/0X1/bedd3ceac223/sls-params.yaml>. Leave empty for a dedicated SLS
   --sync-to-test-framework ${COLOR_YELLOW}SYNC_TO_TEST_FRAMEWORK${TEXT_RESET}  'true' or 'false' (default: false), passed to the AAP job as sync_to_test_framework
   --backup-retention-profile ${COLOR_YELLOW}BACKUP_RETENTION_PROFILE${TEXT_RESET}  Backup retention profile (e.g. daily, release, adhoc, golden)
   --backup-release-tag ${COLOR_YELLOW}BACKUP_RELEASE_TAG${TEXT_RESET}        Backup release tag
@@ -38,9 +39,14 @@ Backup S3 Bucket (Secrets Manager, environment variables only):
   where <prefix> depends on BACKUP_RETENTION_PROFILE: daily (default) | releases/<release tag>/db2 | adhoc/<ticket id> | golden/<release tag>
 
 Atlas Restore Configuration (Optional):
+  The SLS database is passed to the AAP job as atlas_sls_database:
+    mas-<MAS_INSTANCE_ID>-sls_sls_licensing                      when SLS_SERVICE is not set
+    mas-<ibm customer number>-<subscription id>-sls_sls_licensing when SLS_SERVICE is set (lower case; both read from its path)
   --catalog-build-id ${COLOR_YELLOW}CATALOG_BUILD_ID${TEXT_RESET}            Catalog build ID, passed to the AAP job as catalog_build_id
   --atlas-restore-databases ${COLOR_YELLOW}ATLAS_RESTORE_DATABASES${TEXT_RESET}  Databases to restore, passed to the AAP job as atlas_restore_databases
   ATLAS_PUBLIC_KEY, ATLAS_PRIVATE_KEY            Atlas API keys (environment variables only), passed to the AAP job as atlas_public_key and atlas_private_key
+  --atlas-cluster-name ${COLOR_YELLOW}ATLAS_CLUSTER_NAME${TEXT_RESET}        Atlas cluster name, passed to the AAP job as atlas_cluster_name
+  --atlas-project-id ${COLOR_YELLOW}ATLAS_PROJECT_ID${TEXT_RESET}            Atlas project ID, passed to the AAP job as atlas_project_id
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                  Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -110,6 +116,10 @@ function gitops_invoke_backup_aap_noninteractive() {
         export RESTORE_ENABLED=$1 && shift
         ;;
 
+      -s|--sls-service)
+        export SLS_SERVICE=$1 && shift
+        ;;
+
       --db2u-config)
         export DB2U_CONFIG=$1 && shift
         ;;
@@ -136,6 +146,14 @@ function gitops_invoke_backup_aap_noninteractive() {
 
       --atlas-restore-databases)
         export ATLAS_RESTORE_DATABASES=$1 && shift
+        ;;
+
+      --atlas-cluster-name)
+        export ATLAS_CLUSTER_NAME=$1 && shift
+        ;;
+
+      --atlas-project-id)
+        export ATLAS_PROJECT_ID=$1 && shift
         ;;
 
       # Target Cluster (Optional)
@@ -272,6 +290,23 @@ function gitops_invoke_backup_aap() {
   # IAM user used for the backup bucket, derived from the MAS instance and cluster
   IAM_USER_NAME="massaas-cos-${MAS_INSTANCE_ID}-${CLUSTER_ID}-backup-rw"
 
+  # Atlas SLS database. A centralized SLS is referenced by path:
+  #   <ref:gitops/<account>/icn/<icn>/<subscription_id>/sls-params.yaml>  ->  mas-<icn>-<subscription_id>-sls_sls_licensing
+  # otherwise the SLS is dedicated to the instance:  mas-<instance>-sls_sls_licensing
+  local SLS_PARTS SLS_ICN SLS_SUBSCRIPTION_ID
+  if [[ -n "${SLS_SERVICE:-}" ]]; then
+    IFS='/' read -r -a SLS_PARTS <<< "$(echo "$SLS_SERVICE" | sed 's#<ref:##; s#>##')"
+    if [[ ${#SLS_PARTS[@]} -lt 6 || -z "${SLS_PARTS[3]}" || -z "${SLS_PARTS[4]}" ]]; then
+      echo_warning "Invalid SLS service parameter file path ${SLS_SERVICE}, expected gitops/<account>/icn/<icn>/<subscription id>/<file>"
+      exit 1
+    fi
+    SLS_ICN=$(echo "${SLS_PARTS[3]}" | tr '[:upper:]' '[:lower:]')
+    SLS_SUBSCRIPTION_ID="${SLS_PARTS[4]}"
+    ATLAS_SLS_DATABASE="mas-${SLS_ICN}-${SLS_SUBSCRIPTION_ID}-sls_sls_licensing"
+  else
+    ATLAS_SLS_DATABASE="mas-${MAS_INSTANCE_ID}-sls_sls_licensing"
+  fi
+
   # Test framework S3 path, one per DB2 app. DB2 apps are the object-valued keys of db2u (manage, iot, ...),
   # except 'backup' which holds the backup settings of db2u itself.
   local DB2_APP_LIST APP PATH_PREFIX
@@ -308,6 +343,8 @@ function gitops_invoke_backup_aap() {
   echo "  IAM_USER_NAME      = ${IAM_USER_NAME}"
   echo "  S3_BUCKET_NAME     = ${S3_BUCKET_NAME:-}"
   echo "  AWS_REGION         = ${AWS_REGION:-}"
+  echo "  SLS_SERVICE        = ${SLS_SERVICE:-}"
+  echo "  ATLAS_SLS_DATABASE = ${ATLAS_SLS_DATABASE}"
   echo "  DB2_APP_NAMES      = ${DB2_APP_LIST//$'\n'/ }"
   echo "  TEST_FRAMEWORK_S3_PATH   = ${TEST_FRAMEWORK_S3_PATHS//$'\n'/ }"
   echo "  SYNC_TO_TEST_FRAMEWORK   = ${SYNC_TO_TEST_FRAMEWORK}"
@@ -317,6 +354,8 @@ function gitops_invoke_backup_aap() {
   echo "  CATALOG_BUILD_ID   = ${CATALOG_BUILD_ID:-}"
   echo "  ATLAS_RESTORE_DATABASES  = ${ATLAS_RESTORE_DATABASES:-}"
   echo "  ATLAS_PUBLIC_KEY   = ${ATLAS_PUBLIC_KEY:+<set>}"
+  echo "  ATLAS_CLUSTER_NAME = ${ATLAS_CLUSTER_NAME:-}"
+  echo "  ATLAS_PROJECT_ID   = ${ATLAS_PROJECT_ID:-}"
   echo "  CLUSTER_URL        = ${CLUSTER_URL:-}"
   echo "AAP environment variables:"
   echo "  AAP_URL            = ${AAP_URL}"
@@ -399,7 +438,10 @@ function gitops_invoke_backup_aap() {
     --arg catalog_build_id "${CATALOG_BUILD_ID:-}" \
     --arg atlas_public_key "${ATLAS_PUBLIC_KEY:-}" \
     --arg atlas_restore_databases "${ATLAS_RESTORE_DATABASES:-}" \
-    --arg atlas_private_key "${ATLAS_PRIVATE_KEY:-}" '{extra_vars: {account_id: $account_id, cluster_id: $k8s_cluster_name, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name, backup_enabled: ($backup_enabled == "true"), restore_enabled: ($restore_enabled == "true"), iam_user_name: $iam_user_name, s3_bucket_name: $s3_bucket_name, aws_region: $aws_region, sync_to_test_framework: ($sync_to_test_framework == "true"), backup_retention_profile: $backup_retention_profile, backup_release_tag: $backup_release_tag, backup_ticket_id: $backup_ticket_id, catalog_build_id: $catalog_build_id, atlas_public_key: $atlas_public_key, atlas_private_key: $atlas_private_key, atlas_restore_databases: $atlas_restore_databases, db2_app_names: ($db2_app_names | split("\n") | map(select(length > 0))), test_framework_s3_path: ($test_framework_s3_path | split("\n") | map(select(length > 0)))}}')  # pragma: allowlist secret
+    --arg atlas_sls_database "${ATLAS_SLS_DATABASE}" \
+    --arg atlas_cluster_name "${ATLAS_CLUSTER_NAME:-}" \
+    --arg atlas_project_id "${ATLAS_PROJECT_ID:-}" \
+    --arg atlas_private_key "${ATLAS_PRIVATE_KEY:-}" '{extra_vars: {account_id: $account_id, cluster_id: $k8s_cluster_name, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name, backup_enabled: ($backup_enabled == "true"), restore_enabled: ($restore_enabled == "true"), iam_user_name: $iam_user_name, s3_bucket_name: $s3_bucket_name, aws_region: $aws_region, sync_to_test_framework: ($sync_to_test_framework == "true"), backup_retention_profile: $backup_retention_profile, backup_release_tag: $backup_release_tag, backup_ticket_id: $backup_ticket_id, catalog_build_id: $catalog_build_id, atlas_public_key: $atlas_public_key, atlas_private_key: $atlas_private_key, atlas_restore_databases: $atlas_restore_databases, atlas_sls_database: $atlas_sls_database, atlas_cluster_name: $atlas_cluster_name, atlas_project_id: $atlas_project_id, db2_app_names: ($db2_app_names | split("\n") | map(select(length > 0))), test_framework_s3_path: ($test_framework_s3_path | split("\n") | map(select(length > 0)))}}')  # pragma: allowlist secret
 
 
   local ATTEMPT=0 JOB_ID JOB_STATUS ELAPSED

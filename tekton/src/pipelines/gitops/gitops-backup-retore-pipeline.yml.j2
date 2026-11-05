@@ -38,7 +38,16 @@ spec:
     - name: atlas_restore_databases
       type: string
       default: ""
+    - name: atlas_cluster_name
+      type: string
+      default: ""
+    - name: atlas_project_id
+      type: string
+      default: ""
     - name: db2u_config
+      type: string
+      default: ""
+    - name: sls_service
       type: string
       default: ""
 
@@ -86,8 +95,14 @@ spec:
           value: $(params.catalog_build_id)
         - name: atlas_restore_databases
           value: $(params.atlas_restore_databases)
+        - name: atlas_cluster_name
+          value: $(params.atlas_cluster_name)
+        - name: atlas_project_id
+          value: $(params.atlas_project_id)
         - name: db2u_config
           value: $(params.db2u_config)
+        - name: sls_service
+          value: $(params.sls_service)
 
 
     # Task 2: Invoke Restore AAP
@@ -129,5 +144,11 @@ spec:
           value: $(params.catalog_build_id)
         - name: atlas_restore_databases
           value: $(params.atlas_restore_databases)
+        - name: atlas_cluster_name
+          value: $(params.atlas_cluster_name)
+        - name: atlas_project_id
+          value: $(params.atlas_project_id)
         - name: db2u_config
           value: $(params.db2u_config)
+        - name: sls_service
+          value: $(params.sls_service)
