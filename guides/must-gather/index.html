@@ -722,10 +722,6 @@ Available collectors: ocp, db2, kafka, mongodb, cp4d, cert-manager, grafana, sls
 <p>Collect data for all MAS instances, critical cluster resources, and most MAS dependencies (Db2, Cloud Pak Foundational Services, Cloud Pak for Data, etc).</p>
 <pre><code class="language-bash">uvx mas-cli must-gather -d /mnt/home/must-gather
 </code></pre>
-<h3 id="include-secret-data">Include Secret Data<a class="headerlink" href="#include-secret-data" title="Permanent link">¶</a></h3>
-<p>By default secret data is not included in the must-gather archive, only the existence of the secret is recorded and how many fields it contains. Adding the <code>--secret-data</code> flag will trigger the inclusion of the secret data as well.</p>
-<pre><code class="language-bash">uvx mas-cli must-gather -d /mnt/home/must-gather --secret-data
-</code></pre>
 <h3 id="quick-collection">Quick Collection<a class="headerlink" href="#quick-collection" title="Permanent link">¶</a></h3>
 <p>This must-gather will omit pod logs, it runs faster but collects less diagnostic data.</p>
 <pre><code class="language-bash">uvx mas-cli must-gather -d /mnt/home/must-gather --no-logs
@@ -859,11 +855,6 @@ podman run --rm -v /data:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login -
                       <li class="md-toc__item">
                         <a href="#basic-collection" class="md-toc__link" data-md-level="2">
                           Basic Collection
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
-                        <a href="#include-secret-data" class="md-toc__link" data-md-level="2">
-                          Include Secret Data
                         </a>
                       </li>
                       <li class="md-toc__item">
