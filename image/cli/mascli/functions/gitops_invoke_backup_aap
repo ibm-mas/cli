@@ -21,6 +21,7 @@ Basic Configuration:
   --restore-enabled ${COLOR_YELLOW}RESTORE_ENABLED${TEXT_RESET}              'true' or 'false' (default: false), passed to the AAP job as restore_enabled
 
 Backup Configuration (Optional):
+  --db2u-config ${COLOR_YELLOW}DB2U_CONFIG${TEXT_RESET}                      'db2u' settings as JSON. Every object-valued key except 'backup' (e.g. manage, iot) is a DB2 app
   --sync-to-test-framework ${COLOR_YELLOW}SYNC_TO_TEST_FRAMEWORK${TEXT_RESET}  'true' or 'false' (default: false), passed to the AAP job as sync_to_test_framework
   --backup-retention-profile ${COLOR_YELLOW}BACKUP_RETENTION_PROFILE${TEXT_RESET}  Backup retention profile (e.g. daily, release, adhoc, golden)
   --backup-release-tag ${COLOR_YELLOW}BACKUP_RELEASE_TAG${TEXT_RESET}        Backup release tag
@@ -32,6 +33,9 @@ Backup S3 Bucket (Secrets Manager, environment variables only):
   The IAM user name is not an input; it is built as 'massaas-cos-<MAS_INSTANCE_ID>-<CLUSTER_ID>-backup-rw' and passed to the AAP job as iam_user_name.
   The S3 bucket name is read from the 'bucketName' key of the secret '<ACCOUNT_ID>/<CLUSTER_ID>/<MAS_INSTANCE_ID>/db2_backup'
   and passed to the AAP job as s3_bucket_name.
+  The test framework S3 path is built per DB2 app and passed to the AAP job as test_framework_s3_path (a list); the app names are passed as db2_app_names:
+    s3://standard-backups/<prefix>/backups-<app>/c-db2wh-<MAS_INSTANCE_ID>-<app>-db2u-0/
+  where <prefix> depends on BACKUP_RETENTION_PROFILE: daily (default) | releases/<release tag>/db2 | adhoc/<ticket id> | golden/<release tag>
 
 Atlas Restore Configuration (Optional):
   --catalog-build-id ${COLOR_YELLOW}CATALOG_BUILD_ID${TEXT_RESET}            Catalog build ID, passed to the AAP job as catalog_build_id
@@ -104,6 +108,10 @@ function gitops_invoke_backup_aap_noninteractive() {
 
       --restore-enabled)
         export RESTORE_ENABLED=$1 && shift
+        ;;
+
+      --db2u-config)
+        export DB2U_CONFIG=$1 && shift
         ;;
 
       --sync-to-test-framework)
@@ -264,6 +272,28 @@ function gitops_invoke_backup_aap() {
   # IAM user used for the backup bucket, derived from the MAS instance and cluster
   IAM_USER_NAME="massaas-cos-${MAS_INSTANCE_ID}-${CLUSTER_ID}-backup-rw"
 
+  # Test framework S3 path, one per DB2 app. DB2 apps are the object-valued keys of db2u (manage, iot, ...),
+  # except 'backup' which holds the backup settings of db2u itself.
+  local DB2_APP_LIST APP PATH_PREFIX
+  local TEST_FRAMEWORK_S3_PATHS=""
+  if [[ -n "${DB2U_CONFIG:-}" ]]; then
+    DB2_APP_LIST=$(echo "$DB2U_CONFIG" | jq -r 'if type == "object" then to_entries[] | select((.value | type) == "object" and .key != "backup") | .key else empty end' 2>/dev/null)
+  fi
+  case "${BACKUP_RETENTION_PROFILE:-daily}" in
+    release) PATH_PREFIX="releases/${BACKUP_RELEASE_TAG}/db2" ;;
+    adhoc)   PATH_PREFIX="adhoc/${BACKUP_TICKET_ID}" ;;
+    golden)  PATH_PREFIX="golden/${BACKUP_RELEASE_TAG}" ;;
+    *)       PATH_PREFIX="daily" ;;
+  esac
+  while IFS= read -r APP; do
+    [[ -z "$APP" ]] && continue
+    TEST_FRAMEWORK_S3_PATHS+="s3://standard-backups/${PATH_PREFIX}/backups-${APP}/c-db2wh-${MAS_INSTANCE_ID}-${APP}-db2u-0/"$'\n'
+  done <<< "$DB2_APP_LIST"
+  if [[ "$SYNC_TO_TEST_FRAMEWORK" == "true" && -z "$DB2_APP_LIST" ]]; then
+    echo_warning "No DB2 apps found in DB2U_CONFIG, unable to build the test framework S3 path"
+    exit 1
+  fi
+
   # Display all parameters and AAP settings (AAP_TOKEN is never printed, AAP_PASSWORD is masked)
   echo "Parameters:"
   echo "  GITOPS_WORKING_DIR = ${GITOPS_WORKING_DIR}"
@@ -278,6 +308,8 @@ function gitops_invoke_backup_aap() {
   echo "  IAM_USER_NAME      = ${IAM_USER_NAME}"
   echo "  S3_BUCKET_NAME     = ${S3_BUCKET_NAME:-}"
   echo "  AWS_REGION         = ${AWS_REGION:-}"
+  echo "  DB2_APP_NAMES      = ${DB2_APP_LIST//$'\n'/ }"
+  echo "  TEST_FRAMEWORK_S3_PATH   = ${TEST_FRAMEWORK_S3_PATHS//$'\n'/ }"
   echo "  SYNC_TO_TEST_FRAMEWORK   = ${SYNC_TO_TEST_FRAMEWORK}"
   echo "  BACKUP_RETENTION_PROFILE = ${BACKUP_RETENTION_PROFILE:-}"
   echo "  BACKUP_RELEASE_TAG = ${BACKUP_RELEASE_TAG:-}"
@@ -358,15 +390,16 @@ function gitops_invoke_backup_aap() {
     --arg iam_user_name "${IAM_USER_NAME}" \
     --arg s3_bucket_name "${S3_BUCKET_NAME:-}" \
     --arg aws_region "${AWS_REGION:-}" \
+    --arg db2_app_names "${DB2_APP_LIST}" \
+    --arg test_framework_s3_path "${TEST_FRAMEWORK_S3_PATHS}" \
     --arg sync_to_test_framework "${SYNC_TO_TEST_FRAMEWORK}" \
     --arg backup_retention_profile "${BACKUP_RETENTION_PROFILE:-}" \
     --arg backup_release_tag "${BACKUP_RELEASE_TAG:-}" \
     --arg backup_ticket_id "${BACKUP_TICKET_ID:-}" \
     --arg catalog_build_id "${CATALOG_BUILD_ID:-}" \
     --arg atlas_public_key "${ATLAS_PUBLIC_KEY:-}" \
-    --arg atlas_private_key "${ATLAS_PRIVATE_KEY:-}" \      # pragma: allowlist secret
     --arg atlas_restore_databases "${ATLAS_RESTORE_DATABASES:-}" \
-    '{extra_vars: {account_id: $account_id, cluster_id: $k8s_cluster_name, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name, backup_enabled: ($backup_enabled == "true"), restore_enabled: ($restore_enabled == "true"), iam_user_name: $iam_user_name, s3_bucket_name: $s3_bucket_name, aws_region: $aws_region, sync_to_test_framework: ($sync_to_test_framework == "true"), backup_retention_profile: $backup_retention_profile, backup_release_tag: $backup_release_tag, backup_ticket_id: $backup_ticket_id, catalog_build_id: $catalog_build_id, atlas_public_key: $atlas_public_key, atlas_private_key: $atlas_private_key, atlas_restore_databases: $atlas_restore_databases}}')
+    --arg atlas_private_key "${ATLAS_PRIVATE_KEY:-}" '{extra_vars: {account_id: $account_id, cluster_id: $k8s_cluster_name, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name, backup_enabled: ($backup_enabled == "true"), restore_enabled: ($restore_enabled == "true"), iam_user_name: $iam_user_name, s3_bucket_name: $s3_bucket_name, aws_region: $aws_region, sync_to_test_framework: ($sync_to_test_framework == "true"), backup_retention_profile: $backup_retention_profile, backup_release_tag: $backup_release_tag, backup_ticket_id: $backup_ticket_id, catalog_build_id: $catalog_build_id, atlas_public_key: $atlas_public_key, atlas_private_key: $atlas_private_key, atlas_restore_databases: $atlas_restore_databases, db2_app_names: ($db2_app_names | split("\n") | map(select(length > 0))), test_framework_s3_path: ($test_framework_s3_path | split("\n") | map(select(length > 0)))}}')  # pragma: allowlist secret
 
 
   local ATTEMPT=0 JOB_ID JOB_STATUS ELAPSED

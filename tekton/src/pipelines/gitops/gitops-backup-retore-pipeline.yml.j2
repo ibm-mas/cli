@@ -38,6 +38,9 @@ spec:
     - name: atlas_restore_databases
       type: string
       default: ""
+    - name: db2u_config
+      type: string
+      default: ""
 
 
   workspaces:
@@ -83,6 +86,8 @@ spec:
           value: $(params.catalog_build_id)
         - name: atlas_restore_databases
           value: $(params.atlas_restore_databases)
+        - name: db2u_config
+          value: $(params.db2u_config)
 
 
     # Task 2: Invoke Restore AAP
@@ -124,3 +129,5 @@ spec:
           value: $(params.catalog_build_id)
         - name: atlas_restore_databases
           value: $(params.atlas_restore_databases)
+        - name: db2u_config
+          value: $(params.db2u_config)

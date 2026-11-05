@@ -38,6 +38,9 @@ spec:
     - name: atlas_restore_databases
       type: string
       default: ""
+    - name: db2u_config
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -65,6 +68,8 @@ spec:
         value: $(params.catalog_build_id)
       - name: ATLAS_RESTORE_DATABASES
         value: $(params.atlas_restore_databases)
+      - name: DB2U_CONFIG
+        value: $(params.db2u_config)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -92,6 +97,7 @@ spec:
             --backup-ticket-id "$BACKUP_TICKET_ID" \
             --catalog-build-id "$CATALOG_BUILD_ID" \
             --atlas-restore-databases "$ATLAS_RESTORE_DATABASES" \
+            --db2u-config "$DB2U_CONFIG" \
             --dir /workspace/gitops-invoke-backup-aap
 
           exit $?
