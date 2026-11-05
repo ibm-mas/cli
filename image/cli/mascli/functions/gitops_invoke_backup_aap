@@ -44,6 +44,7 @@ Atlas Restore Configuration (Optional):
     mas-<ibm customer number>-<subscription id>-sls_sls_licensing when SLS_SERVICE is set (lower case; both read from its path)
   --catalog-build-id ${COLOR_YELLOW}CATALOG_BUILD_ID${TEXT_RESET}            Catalog build ID, passed to the AAP job as catalog_build_id
   --atlas-restore-databases ${COLOR_YELLOW}ATLAS_RESTORE_DATABASES${TEXT_RESET}  Databases to restore, passed to the AAP job as atlas_restore_databases
+  The MongoDB credentials secret name is not an input; it is built as '<ACCOUNT_ID>/mongodb-atlas' and passed to the AAP job as mongodb_credentials_secret_name.
   ATLAS_PUBLIC_KEY, ATLAS_PRIVATE_KEY            Atlas API keys (environment variables only), passed to the AAP job as atlas_public_key and atlas_private_key
   --atlas-cluster-name ${COLOR_YELLOW}ATLAS_CLUSTER_NAME${TEXT_RESET}        Atlas cluster name, passed to the AAP job as atlas_cluster_name
   --atlas-project-id ${COLOR_YELLOW}ATLAS_PROJECT_ID${TEXT_RESET}            Atlas project ID, passed to the AAP job as atlas_project_id
@@ -287,6 +288,8 @@ function gitops_invoke_backup_aap() {
     fi
   fi
 
+  MONGODB_CREDENTIALS_SECRET_NAME="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}mongodb-atlas"
+
   # IAM user used for the backup bucket, derived from the MAS instance and cluster
   IAM_USER_NAME="massaas-cos-${MAS_INSTANCE_ID}-${CLUSTER_ID}-backup-rw"
 
@@ -341,6 +344,7 @@ function gitops_invoke_backup_aap() {
   echo "  BACKUP_ENABLED     = ${BACKUP_ENABLED}"
   echo "  RESTORE_ENABLED    = ${RESTORE_ENABLED}"
   echo "  IAM_USER_NAME      = ${IAM_USER_NAME}"
+  echo "  MONGODB_CREDENTIALS_SECRET_NAME = ${MONGODB_CREDENTIALS_SECRET_NAME}" #pragma: allowlist secret
   echo "  S3_BUCKET_NAME     = ${S3_BUCKET_NAME:-}"
   echo "  AWS_REGION         = ${AWS_REGION:-}"
   echo "  SLS_SERVICE        = ${SLS_SERVICE:-}"
@@ -427,6 +431,7 @@ function gitops_invoke_backup_aap() {
     --arg backup_enabled "${BACKUP_ENABLED}" \
     --arg restore_enabled "${RESTORE_ENABLED}" \
     --arg iam_user_name "${IAM_USER_NAME}" \
+    --arg mongodb_credentials_secret_name "${MONGODB_CREDENTIALS_SECRET_NAME}" \
     --arg s3_bucket_name "${S3_BUCKET_NAME:-}" \
     --arg aws_region "${AWS_REGION:-}" \
     --arg db2_app_names "${DB2_APP_LIST}" \
@@ -441,7 +446,7 @@ function gitops_invoke_backup_aap() {
     --arg atlas_sls_database "${ATLAS_SLS_DATABASE}" \
     --arg atlas_cluster_name "${ATLAS_CLUSTER_NAME:-}" \
     --arg atlas_project_id "${ATLAS_PROJECT_ID:-}" \
-    --arg atlas_private_key "${ATLAS_PRIVATE_KEY:-}" '{extra_vars: {account_id: $account_id, cluster_id: $k8s_cluster_name, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name, backup_enabled: ($backup_enabled == "true"), restore_enabled: ($restore_enabled == "true"), iam_user_name: $iam_user_name, s3_bucket_name: $s3_bucket_name, aws_region: $aws_region, sync_to_test_framework: ($sync_to_test_framework == "true"), backup_retention_profile: $backup_retention_profile, backup_release_tag: $backup_release_tag, backup_ticket_id: $backup_ticket_id, catalog_build_id: $catalog_build_id, atlas_public_key: $atlas_public_key, atlas_private_key: $atlas_private_key, atlas_restore_databases: $atlas_restore_databases, atlas_sls_database: $atlas_sls_database, atlas_cluster_name: $atlas_cluster_name, atlas_project_id: $atlas_project_id, db2_app_names: ($db2_app_names | split("\n") | map(select(length > 0))), test_framework_s3_path: ($test_framework_s3_path | split("\n") | map(select(length > 0)))}}')  # pragma: allowlist secret
+    --arg atlas_private_key "${ATLAS_PRIVATE_KEY:-}" '{extra_vars: {account_id: $account_id, cluster_id: $k8s_cluster_name, k8s_cluster_name: $k8s_cluster_name, mas_instance_id: $mas_instance_id, region_id: $region_id, region_name: $region_name, backup_enabled: ($backup_enabled == "true"), restore_enabled: ($restore_enabled == "true"), iam_user_name: $iam_user_name, mongodb_credentials_secret_name: $mongodb_credentials_secret_name, s3_bucket_name: $s3_bucket_name, aws_region: $aws_region, sync_to_test_framework: ($sync_to_test_framework == "true"), backup_retention_profile: $backup_retention_profile, backup_release_tag: $backup_release_tag, backup_ticket_id: $backup_ticket_id, catalog_build_id: $catalog_build_id, atlas_public_key: $atlas_public_key, atlas_private_key: $atlas_private_key, atlas_restore_databases: $atlas_restore_databases, atlas_sls_database: $atlas_sls_database, atlas_cluster_name: $atlas_cluster_name, atlas_project_id: $atlas_project_id, db2_app_names: ($db2_app_names | split("\n") | map(select(length > 0))), test_framework_s3_path: ($test_framework_s3_path | split("\n") | map(select(length > 0)))}}')  # pragma: allowlist secret
 
 
   local ATTEMPT=0 JOB_ID JOB_STATUS ELAPSED
