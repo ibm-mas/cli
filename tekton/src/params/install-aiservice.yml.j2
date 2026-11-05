@@ -24,6 +24,10 @@
   type: string
   description: Configure AI Assistant integration
   default: ""
+- name: launchfvt_manage_ai
+  type: string
+  description: When "true" (and configure_aiassistant is "pipeline"), the alm-agent is created with LAUNCHFVT_MANAGE_AI=true so it loads .env.fvt
+  default: ""
 
 # MAS Application Configuration - IBM Maximo AI Service - S3
 # -----------------------------------------------------------------------------

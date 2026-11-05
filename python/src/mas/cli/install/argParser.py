@@ -101,6 +101,12 @@ masArgGroup.add_argument(
     help="Configure AI Assistant in silent mode (for example: pipeline, configure, none)",
 )
 masArgGroup.add_argument(
+    "--launchfvt-manage-ai",
+    dest="launchfvt_manage_ai",
+    required=False,
+    help="FVT only: set LAUNCHFVT_MANAGE_AI=true on the AI Assistant (alm-agent) so it loads .env.fvt. Only applies with --configure-ai-assistant pipeline (for example: true, false)",
+)
+masArgGroup.add_argument(
     "--allow-special-chars",
     dest="mas_special_characters",
     required=False,

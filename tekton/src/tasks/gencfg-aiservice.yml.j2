@@ -17,6 +17,9 @@ spec:
     - name: aiservice_channel
       type: string
       default: ""
+    - name: launchfvt_manage_ai
+      type: string
+      default: ""
 
   workspaces:
     - name: shared-configs
@@ -34,6 +37,8 @@ spec:
           value: $(params.aiservice_instance_id)
         - name: AISERVICE_CHANNEL
           value: $(params.aiservice_channel)
+        - name: LAUNCHFVT_MANAGE_AI
+          value: $(params.launchfvt_manage_ai)
 
       workingDir: /workspace/shared-configs
 
@@ -138,6 +143,60 @@ spec:
               crt: |-
         $(echo "${CERTIFICATE}" | sed 's/^/        /')
         EOF
+
+        # Optional: make the alm-agent load .env.fvt (FVT only)
+        # ---------------------------------------------------------------------
+        # The AiCfg CRD has no way to set environment variables on the alm-agent
+        # pod, so we ship a Kyverno mutate policy that adds LAUNCHFVT_MANAGE_AI=true
+        # to the alm-agent Deployment. The operator can then reconcile the
+        # Deployment freely without losing the variable.
+        # Nothing is generated unless LAUNCHFVT_MANAGE_AI is "true".
+        if [[ "${LAUNCHFVT_MANAGE_AI,,}" == "true" ]]; then
+          echo "LAUNCHFVT_MANAGE_AI=true: adding Kyverno policy so alm-agent loads .env.fvt"
+          if ! oc get crd policies.kyverno.io > /dev/null 2>&1; then
+            echo "ERROR: LAUNCHFVT_MANAGE_AI=true requires Kyverno (policies.kyverno.io) but it is not installed"
+            exit 1
+          fi
+          # The policy must be applied BEFORE the AiCfg, so write it first and append the AiCfg
+          cat > "aicfg-${MAS_INSTANCE_ID}-system.yaml.new" <<EOF
+        ---
+        apiVersion: kyverno.io/v1
+        kind: Policy
+        metadata:
+          name: ${MAS_INSTANCE_ID}-alm-agent-fvt-env
+          namespace: mas-${MAS_INSTANCE_ID}-core
+          annotations:
+            policies.kyverno.io/description: Sets LAUNCHFVT_MANAGE_AI=true on the alm-agent so it loads .env.fvt (FVT only)
+        spec:
+          background: false
+          rules:
+            - name: set-launchfvt-manage-ai
+              match:
+                any:
+                  - resources:
+                      kinds:
+                        - Deployment
+                      names:
+                        - ${MAS_INSTANCE_ID}-alm-agent
+                      operations:
+                        - CREATE
+                        - UPDATE
+              mutate:
+                patchStrategicMerge:
+                  spec:
+                    template:
+                      spec:
+                        containers:
+                          - (name): assistantagent
+                            env:
+                              - name: LAUNCHFVT_MANAGE_AI
+                                value: "true"
+        EOF
+          cat "aicfg-${MAS_INSTANCE_ID}-system.yaml" >> "aicfg-${MAS_INSTANCE_ID}-system.yaml.new"
+          mv "aicfg-${MAS_INSTANCE_ID}-system.yaml.new" "aicfg-${MAS_INSTANCE_ID}-system.yaml"
+        else
+          echo "LAUNCHFVT_MANAGE_AI is not true: alm-agent will use its default env file"
+        fi
 
         echo "✓ AiCfg file created: aicfg-${MAS_INSTANCE_ID}-system.yaml"
         echo ""

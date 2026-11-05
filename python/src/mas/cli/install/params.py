@@ -254,6 +254,7 @@ optionalParams = [
     "rsl_ca_crt",
     "environment_type",
     "configure_aiassistant",
+    "launchfvt_manage_ai",
     # AI Service Domain
     "aiservice_domain",
     # Certificate Issuer

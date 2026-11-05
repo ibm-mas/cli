@@ -286,6 +286,8 @@ class installArgBuilderMixin:
             command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
             if self.getParam("configure_aiassistant") != "":
                 command += f"  --configure-aiassistant \"{self.getParam('configure_aiassistant')}\"{newline}"
+            if self.getParam("launchfvt_manage_ai") != "":
+                command += f"  --launchfvt-manage-ai \"{self.getParam('launchfvt_manage_ai')}\"{newline}"
         if self.installMcpi:
             command += f"  --install-mcpi{newline}"
 
