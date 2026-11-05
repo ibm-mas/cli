@@ -6,8 +6,9 @@
 # - fvt-manage-transportation-ui       # Transportation
 # - fvt-manage-lbs-api                 # LBS
 # - fvt-manage-lbs-spatial-ui          # LBS
-# - fvt-manage-lbs-utilities-ui      # LBS
-# - fvt-manage-lbs-linear-ui       # LBS
+# - fvt-manage-lbs-utilities-ui        # LBS
+# - fvt-manage-lbs-linear-ui           # LBS
+# - fvt-manage-spatial-maps            # LBS
 # -----------------------------------------------------------------------------
 
 
@@ -117,12 +118,7 @@
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
-    - fvt-manage-acm-api
-    - fvt-manage-acm-ui
-    - fvt-manage-hse-api
-    - fvt-manage-hse-ui
-    - fvt-manage-serviceprovider-api
-    - fvt-manage-serviceprovider-ui
+    - fvt-manage-setup-is
 
 # LBS - Spatial
 - name: fvt-manage-lbs-spatial-ui
@@ -141,12 +137,7 @@
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
-    - fvt-manage-acm-api
-    - fvt-manage-acm-ui
-    - fvt-manage-hse-api
-    - fvt-manage-hse-ui
-    - fvt-manage-serviceprovider-api
-    - fvt-manage-serviceprovider-ui
+    - fvt-manage-lbs-api
 
 # LBS - Utilities
 - name: fvt-manage-lbs-utilities-ui
@@ -165,7 +156,7 @@
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
-    - fvt-manage-lbs-spatial-ui
+    - fvt-manage-lbs-api
 
 # LBS - Linear
 - name: fvt-manage-lbs-linear-ui
@@ -184,7 +175,7 @@
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
-    - fvt-manage-lbs-utilities-ui
+    - fvt-manage-lbs-api
 
 # LBS - Run "cypress/manage/spatial-ui-maps/indoorsValidation.cy.js"
 - name: fvt-manage-spatial-maps
@@ -207,4 +198,3 @@
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-lbs-api
-    - fvt-manage-lbs-linear-ui
