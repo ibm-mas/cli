@@ -372,3 +372,85 @@ def test_db2u_combined_namespace_and_version_upgrade(tmpdir, resource_kind):
     )
 
     run_update_test(tmpdir, config)
+
+
+def test_db2u_kind_is_set_for_cluster(tmpdir):
+    """Test that db2u_kind is set to 'db2ucluster' when Db2uCluster resources are detected.
+
+    GIVEN a cluster with Db2uCluster resources in a single namespace
+    WHEN update runs in non-interactive mode
+    THEN db2u_kind pipeline parameter is set to 'db2ucluster'.
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind="Db2uCluster",
+        db2u_version="11.5.9.0",
+        db2u_target_version="v11.5",
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--no-confirm"],
+        timeout_seconds=30,
+    )
+
+    helper = UpdateTestHelper(tmpdir, config)
+    helper.run_update_test()
+
+    assert helper.app is not None
+    assert helper.app.getParam("db2u_kind") == "db2ucluster"
+
+
+def test_db2u_kind_is_set_for_instance(tmpdir):
+    """Test that db2u_kind is set to 'db2uinstance' when Db2uInstance resources are detected.
+
+    GIVEN a cluster with Db2uInstance resources in a single namespace
+    WHEN update runs in non-interactive mode
+    THEN db2u_kind pipeline parameter is set to 'db2uinstance'.
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=["db2u-system"],
+        db2u_resource_kind="Db2uInstance",
+        db2u_version="11.5.9.0",
+        db2u_target_version="v11.5",
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--no-confirm"],
+        timeout_seconds=30,
+    )
+
+    helper = UpdateTestHelper(tmpdir, config)
+    helper.run_update_test()
+
+    assert helper.app is not None
+    assert helper.app.getParam("db2u_kind") == "db2uinstance"
+
+
+def test_db2u_kind_not_set_when_no_db2u(tmpdir):
+    """Test that db2u_kind is not set when no Db2U resources are found.
+
+    GIVEN a cluster with no Db2U resources
+    WHEN update runs in non-interactive mode
+    THEN db2u_kind pipeline parameter remains empty.
+    """
+
+    config = UpdateTestConfig(
+        prompt_handlers={},
+        installed_catalog_id="v9-251231-amd64",
+        target_catalog_version="v9-260129-amd64",
+        db2u_namespaces=[],
+        db2u_resource_kind="Db2uCluster",
+        mas_instances=[{"metadata": {"name": "inst1"}, "status": {"versions": {"reconciled": "9.1.7"}}}],
+        argv=["--catalog", "v9-260129-amd64", "--no-confirm"],
+        timeout_seconds=30,
+    )
+
+    helper = UpdateTestHelper(tmpdir, config)
+    helper.run_update_test()
+
+    assert helper.app is not None
+    assert helper.app.getParam("db2u_kind") == ""
