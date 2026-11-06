@@ -35,6 +35,9 @@ spec:
     - name: catalog_build_id
       type: string
       default: ""
+    - name: catalog_version
+      type: string
+      default: ""
     - name: atlas_restore_databases
       type: string
       default: ""
@@ -75,6 +78,8 @@ spec:
         value: $(params.backup_ticket_id)
       - name: CATALOG_BUILD_ID
         value: $(params.catalog_build_id)
+      - name: CATALOG_VERSION
+        value: $(params.catalog_version)
       - name: ATLAS_RESTORE_DATABASES
         value: $(params.atlas_restore_databases)
       - name: ATLAS_CLUSTER_NAME
@@ -111,6 +116,7 @@ spec:
             --backup-release-tag "$BACKUP_RELEASE_TAG" \
             --backup-ticket-id "$BACKUP_TICKET_ID" \
             --catalog-build-id "$CATALOG_BUILD_ID" \
+            --catalog-version "$CATALOG_VERSION" \
             --atlas-restore-databases "$ATLAS_RESTORE_DATABASES" \
             --atlas-cluster-name "$ATLAS_CLUSTER_NAME" \
             --atlas-project-id "$ATLAS_PROJECT_ID" \
