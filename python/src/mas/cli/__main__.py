@@ -50,6 +50,7 @@ def usage() -> None:
             + " - <ForestGreen>mas-cli must-gather</ForestGreen> Collect diagnostic information\n"
             + " - <ForestGreen>mas-cli setup-rbac</ForestGreen>  Set up RBAC resources for MAS installation\n"
             + " - <ForestGreen>mas-cli pre-install</ForestGreen>  Set up pre-install RBAC for MAS\n"
+            + " - <ForestGreen>mas-cli db2ucluster-migration</ForestGreen> Migrate Db2uCluster to Db2uInstance\n"
             + " - <ForestGreen>mas-cli configure-mcpi</ForestGreen> Apply Maximo Cluster Performance Insights configuration\n"
         )
     )
@@ -137,6 +138,12 @@ def main() -> None:
 
             app = MustGatherApp()
             app.mustGather(argv[2:])
+            return
+        if function == "db2ucluster-migration":
+            from mas.cli.db2_migration.app import Db2MigrationApp
+
+            app = Db2MigrationApp()
+            app.migrate(argv[2:])
             return
         if function in ["-h", "--help"]:
             usage()
