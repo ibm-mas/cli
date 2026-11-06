@@ -27,6 +27,9 @@ spec:
     - name: mas_catalog_version
       type: string
       default: ""
+    - name: mas_catalog_build_id
+      type: string
+      default: ""
     - name: mas_catalog_image
       type: string
       default: ""
@@ -159,6 +162,9 @@ spec:
     - name: instana_agent_operator_jks_storage_class
       type: string
       default: ''
+    - name: instana_agent_operator_pod_template_yaml
+      type: string
+      default: ''
     - name: application_admin_role
       type: string
       default: ""
@@ -185,6 +191,8 @@ spec:
         value: $(params.git_commit_msg)
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)
+      - name: MAS_CATALOG_BUILD_ID
+        value: $(params.mas_catalog_build_id)
       - name: MAS_CATALOG_IMAGE
         value: $(params.mas_catalog_image)
       - name: SM_AWS_REGION
@@ -280,6 +288,8 @@ spec:
         value: $(params.instana_agent_operator_env)
       - name: INSTANA_AGENT_OPERATOR_JKS_STORAGE_CLASS
         value: $(params.instana_agent_operator_jks_storage_class)
+      - name: INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML
+        value: $(params.instana_agent_operator_pod_template_yaml)
       - name: APPLICATION_ADMIN_ROLE
         value: $(params.application_admin_role)
 

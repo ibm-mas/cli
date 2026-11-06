@@ -1246,9 +1246,24 @@ spec:
                 return hs
               end
               if obj.status.state == "Ready" then
-                hs.status = "Healthy"
-                hs.message = obj.status.conditions.status
-                return hs
+                if obj.spec == nil or obj.spec.version == nil or obj.status.version == nil then
+                  hs.status = "Progressing"
+                  hs.message = "Waiting for Db2uInstance version info to be available"
+                  return hs
+                end
+                if obj.spec.version ~= obj.status.version then
+                  hs.status = "Progressing"
+                  hs.message = "Waiting for version upgrade: spec.version=" .. obj.spec.version .. " status.version=" .. obj.status.version
+                  return hs
+                end
+                if obj.status.state == "Ready" and obj.spec.version == obj.status.version then
+                  hs.status = "Healthy"
+                  hs.message = "Ready"
+                  if obj.status.conditions ~= nil and type(obj.status.conditions) == "table" and obj.status.conditions.status ~= nil then
+                    hs.message = obj.status.conditions.status
+                  end
+                  return hs
+                end
               end
             end
           end

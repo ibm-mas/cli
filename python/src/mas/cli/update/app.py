@@ -20,7 +20,7 @@ from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser
-from mas.devops.data import getCatalog, getNewestCatalogTag
+from mas.devops.data import getCatalog, getNewestCatalogTag, NoSuchCatalogError
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, getCurrentCatalog, getMasChannel, getInstalledApps, getPermissionMode
 from mas.devops.aiservice import listAiServiceInstances
@@ -243,9 +243,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         if not self.devMode:
             self.validateCatalog()
         else:
-            # In dev mode, load the user-specified catalog (or newest if not specified)
+            # In dev mode the catalog version may be a custom dev image tag that has no
+            # corresponding YAML definition, so fall back to the newest known catalog.
             catalogVersion = self.getParam("mas_catalog_version") if self.args.mas_catalog_version else getNewestCatalogTag()
-            self.chosenCatalog = getCatalog(catalogVersion)
+            try:
+                self.chosenCatalog = getCatalog(catalogVersion)
+            except NoSuchCatalogError:
+                self.chosenCatalog = getCatalog(getNewestCatalogTag())
 
         self.printH1("Dependency Update Checks")
         with Halo(text="Checking for IBM Watson Discovery", spinner=self.spinner) as h:
@@ -277,6 +281,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
         self.detectGrafana4()
         self.detectODH()
+        self.detectRHOAIv2()
         self.detectMongoDb()
         self.detectDb2u()
         self.detectKafka()
@@ -318,9 +323,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
         self.printH2("Required Migrations")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
-        self.printSummary(
-            "AI Service Data Science Platform", "Migrate from ODH to RHOAI" if self.getParam("odh_to_rhoai_migration") != "" else "No action required"
-        )
+        if self.getParam("odh_to_rhoai_migration") == "":
+            aiServiceDataScienceMigration = "No action required"
+        elif self.rhoaiV2Detected:
+            aiServiceDataScienceMigration = "Upgrade from RHOAI v2 to RHOAI v3"
+        else:
+            aiServiceDataScienceMigration = "Migrate from ODH to RHOAI"
+        self.printSummary("AI Service Data Science Platform", aiServiceDataScienceMigration)
 
         if not self.noConfirm:
             print()
@@ -450,16 +459,16 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) Sep 24 2026 Update (MAS 9.2.7, 9.1.26, 9.0.32, 8.11.34, &amp; 8.10.37)",
-                "  2) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
-                "  3) Jul 30 2026 Update (MAS 9.2.1, 9.1.20, 9.0.28, 8.11.34, &amp; 8.10.37)",
+                "  1) Oct 29 2026 Update (MAS 9.2.9, 9.1.28, 9.0.34, 8.11.34, &amp; 8.10.37)",
+                "  2) Sep 24 2026 Update (MAS 9.2.7, 9.1.26, 9.0.32, 8.11.34, &amp; 8.10.37)",
+                "  3) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
             ]
         )
 
         catalogOptions = [
+            "v9-261029-amd64",
             "v9-260924-amd64",
             "v9-260827-amd64",
-            "v9-260730-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -583,6 +592,44 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
             except (ResourceNotFoundError, NotFoundError):
                 h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
+                return False
+
+    def detectRHOAIv2(self) -> bool:
+        """
+        Detect if RHOAI v2 is installed. RHOAI can not be upgraded in place from v2 to v3,
+        so the aiservice_rhoai role removes v2 and installs v3 (the same pipeline task is used
+        as for the ODH to RHOAI migration).
+        """
+        self.rhoaiV2Detected = False
+        with Halo(text="Checking for Red Hat OpenShift AI (RHOAI) v2", spinner=self.spinner) as h:
+            try:
+                subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
+                subscriptions = subscriptionAPI.get(namespace="redhat-ods-operator", name="rhods-operator")
+                installedCSV = subscriptions.to_dict().get("status", {}).get("installedCSV", "")
+                match = re.match(r"^rhods-operator\.v?(\d+)\.", installedCSV)
+
+                if match and int(match.group(1)) == 2:
+                    h.stop_and_persist(symbol=self.successIcon, text=f"RHOAI v2 detected ({installedCSV}) - upgrade to RHOAI v3 will be performed")
+                    self.printDescription(
+                        [
+                            "<u>Required Migration Notice</u>",
+                            "Red Hat OpenShift AI (RHOAI) v2 is currently installed and will be replaced with RHOAI v3",
+                            "- An in-place upgrade from RHOAI v2 to v3 is not supported, so RHOAI v2 will be uninstalled and RHOAI v3 installed",
+                            "- DSCInitialization and DataScienceCluster will be recreated",
+                            "",
+                            "<u>Expected Downtime</u>",
+                            "- AI Service model serving will be unavailable during the upgrade",
+                        ]
+                    )
+                    self.setParam("odh_to_rhoai_migration", "true")
+                    self.rhoaiV2Detected = True
+                    return True
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="RHOAI v2 is not installed")
+                    return False
+
+            except (ResourceNotFoundError, NotFoundError):
+                h.stop_and_persist(symbol=self.successIcon, text="RHOAI v2 is not installed")
                 return False
 
     def detectMongoDb(self) -> None:
@@ -714,8 +761,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                     return
                 elif len(cpds) == 1:
                     cpdUpgradePath = {
-                        "5.3.1": "5.3.1",
-                        "5.2.0": "5.3.1",
+                        "5.3.1": "5.4.0",
+                        "5.2.0": ["5.3.1", "5.4.0"],
                         "5.1.3": "5.2.0",
                         "5.0.0": "5.1.3",
                     }
@@ -743,6 +790,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         )
                         return
 
+                    if cpdInstanceVersion == cpdTargetVersion:
+                        h.stop_and_persist(
+                            symbol=self.successIcon,
+                            text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already at the target version {cpdTargetVersion}, no update required",
+                        )
+                        return
+
                     if cpdInstanceVersion not in cpdUpgradePath:
                         h.stop_and_persist(
                             symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) is too old to update to this catalog"
@@ -750,13 +804,18 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         self.fatalError(
                             "Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nContact IBM support for assistance"
                         )
-                    elif cpdUpgradePath[cpdInstanceVersion] != cpdTargetVersion:
+
+                    validNextVersions = cpdUpgradePath[cpdInstanceVersion]
+                    if isinstance(validNextVersions, str):
+                        validNextVersions = [validNextVersions]
+
+                    if cpdTargetVersion not in validNextVersions:
                         h.stop_and_persist(
                             symbol=self.successIcon,
                             text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) can not be updated to {cpdTargetVersion} directly",
                         )
                         self.fatalError(
-                            f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{cpdUpgradePath[cpdInstanceVersion]}:\n- https://ibm-mas.github.io/cli/catalogs"
+                            f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{validNextVersions[0]}:\n- https://ibm-mas.github.io/cli/catalogs"
                         )
 
                     currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"

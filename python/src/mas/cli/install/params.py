@@ -146,6 +146,7 @@ optionalParams = [
     # COS
     "cos_type",
     "cos_resourcegroup",
+    "cos_region",
     "cos_apikey",
     "cos_instance_name",
     "cos_bucket_name",
@@ -213,6 +214,7 @@ optionalParams = [
     "aiservice_odh_model_deployment_type",
     # RHOAI
     "aiservice_rhoai_model_deployment_type",
+    "rhoai_channel",
     "rhoai",
     # AI Service
     "aiservice_s3_accesskey",

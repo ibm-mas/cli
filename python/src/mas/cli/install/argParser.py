@@ -604,6 +604,14 @@ masAppsArgGroup.add_argument(
     required=False,
     help="Subscription channel for Maximo AI Service",
 )
+masAppsArgGroup.add_argument(
+    "--install-mcpi",
+    dest="install_mcpi",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Install Maximo Cluster Performance Insights (MAS 9.2 or later)",
+)
 
 # Arcgis
 # -----------------------------------------------------------------------------
@@ -976,6 +984,13 @@ rhoaiArgGroup.add_argument(
     required=False,
     default="raw",
     help="Model deployment type for RedHat Openshift AI",
+)
+
+rhoaiArgGroup.add_argument(
+    "--rhoai-channel",
+    dest="rhoai_channel",
+    required=False,
+    help="Subscription channel for RedHat Openshift AI (e.g. stable, stable-3.x). Defaults to the aiservice_rhoai role default",
 )
 
 rhoaiArgGroup.add_argument(
@@ -1555,6 +1570,12 @@ cosArgGroup.add_argument(
     dest="cos_resourcegroup",
     required=False,
     help="When using IBM COS, set the resource group where the instance will run",
+)
+cosArgGroup.add_argument(
+    "--cos-region",
+    dest="cos_region",
+    required=False,
+    help="When using IBM COS, set the COS region (e.g. us-south, us-east, etc.)",
 )
 cosArgGroup.add_argument(
     "--cos-apikey",

@@ -45,6 +45,9 @@ spec:
 
     - name: mas_catalog_version
       type: string
+    - name: mas_catalog_build_id
+      type: string
+      default: ""
     - name: mas_catalog_image
       type: string
 
@@ -117,7 +120,7 @@ spec:
       default: nvidia-gpu-operator
     - name: gpu_channel
       type: string
-      default: v24.3
+      default: v26.3
     - name: gpu_install_plan
       type: string
       default: "Automatic"
@@ -250,6 +253,9 @@ spec:
     - name: instana_agent_operator_jks_storage_class
       type: string
       default: ''
+    - name: instana_agent_operator_pod_template_yaml
+      type: string
+      default: ''
 
     - name: provisioner_namespace
       type: string
@@ -339,6 +345,8 @@ spec:
 
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
+        - name: mas_catalog_build_id
+          value: $(params.mas_catalog_build_id)
         - name: mas_catalog_image
           value: $(params.mas_catalog_image)
 
@@ -425,6 +433,8 @@ spec:
           value: $(params.instana_agent_operator_env)
         - name: instana_agent_operator_jks_storage_class
           value: $(params.instana_agent_operator_jks_storage_class)
+        - name: instana_agent_operator_pod_template_yaml
+          value: $(params.instana_agent_operator_pod_template_yaml)
 
       taskRef:
         kind: Task
