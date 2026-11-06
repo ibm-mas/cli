@@ -20,9 +20,6 @@ spec:
     - name: restore_enabled
       type: string
       default: 'false'
-    - name: sync_to_test_framework
-      type: string
-      default: 'false'
     - name: backup_retention_profile
       type: string
       default: ""
@@ -68,8 +65,6 @@ spec:
         value: $(params.backup_enabled)
       - name: RESTORE_ENABLED
         value: $(params.restore_enabled)
-      - name: SYNC_TO_TEST_FRAMEWORK
-        value: $(params.sync_to_test_framework)
       - name: BACKUP_RETENTION_PROFILE
         value: $(params.backup_retention_profile)
       - name: BACKUP_RELEASE_TAG
@@ -111,7 +106,6 @@ spec:
             --region-name "$REGION_NAME" \
             --backup-enabled "$BACKUP_ENABLED" \
             --restore-enabled "$RESTORE_ENABLED" \
-            --sync-to-test-framework "$SYNC_TO_TEST_FRAMEWORK" \
             --backup-retention-profile "$BACKUP_RETENTION_PROFILE" \
             --backup-release-tag "$BACKUP_RELEASE_TAG" \
             --backup-ticket-id "$BACKUP_TICKET_ID" \

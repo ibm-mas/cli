@@ -20,9 +20,6 @@ spec:
     - name: restore_enabled
       type: string
       default: 'false'
-    - name: sync_to_test_framework
-      type: string
-      default: 'false'
     - name: backup_retention_profile
       type: string
       default: ""
@@ -86,8 +83,6 @@ spec:
           value: $(params.backup_enabled)
         - name: restore_enabled
           value: $(params.restore_enabled)
-        - name: sync_to_test_framework
-          value: $(params.sync_to_test_framework)
         - name: backup_retention_profile
           value: $(params.backup_retention_profile)
         - name: backup_release_tag
@@ -137,8 +132,6 @@ spec:
           value: $(params.backup_enabled)
         - name: restore_enabled
           value: $(params.restore_enabled)
-        - name: sync_to_test_framework
-          value: $(params.sync_to_test_framework)
         - name: backup_retention_profile
           value: $(params.backup_retention_profile)
         - name: backup_release_tag
