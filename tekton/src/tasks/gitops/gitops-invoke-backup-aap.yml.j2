@@ -1,0 +1,130 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: gitops-backup-aap
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: region_name
+      type: string
+      default: ""
+    - name: backup_enabled
+      type: string
+      default: 'false'
+    - name: restore_enabled
+      type: string
+      default: 'false'
+    - name: backup_retention_profile
+      type: string
+      default: ""
+    - name: backup_release_tag
+      type: string
+      default: ""
+    - name: backup_ticket_id
+      type: string
+      default: ""
+    - name: catalog_build_id
+      type: string
+      default: ""
+    - name: catalog_version
+      type: string
+      default: ""
+    - name: atlas_restore_databases
+      type: string
+      default: ""
+    - name: atlas_cluster_name
+      type: string
+      default: ""
+    - name: atlas_project_id
+      type: string
+      default: ""
+    - name: db2u_config
+      type: string
+      default: ""
+    - name: sls_service
+      type: string
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: BACKUP_ENABLED
+        value: $(params.backup_enabled)
+      - name: RESTORE_ENABLED
+        value: $(params.restore_enabled)
+      - name: BACKUP_RETENTION_PROFILE
+        value: $(params.backup_retention_profile)
+      - name: BACKUP_RELEASE_TAG
+        value: $(params.backup_release_tag)
+      - name: BACKUP_TICKET_ID
+        value: $(params.backup_ticket_id)
+      - name: CATALOG_BUILD_ID
+        value: $(params.catalog_build_id)
+      - name: CATALOG_VERSION
+        value: $(params.catalog_version)
+      - name: ATLAS_RESTORE_DATABASES
+        value: $(params.atlas_restore_databases)
+      - name: ATLAS_CLUSTER_NAME
+        value: $(params.atlas_cluster_name)
+      - name: ATLAS_PROJECT_ID
+        value: $(params.atlas_project_id)
+      - name: DB2U_CONFIG
+        value: $(params.db2u_config)
+      - name: SLS_SERVICE
+        value: $(params.sls_service)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: invoke-backup-aap
+      args:
+        - |-
+          mkdir -p /workspace/gitops-invoke-backup-aap
+
+          # Invoke the backup AAP job (AAP_* settings and ATLAS_PUBLIC_KEY/ATLAS_PRIVATE_KEY come from secure-properties)
+          mas gitops-invoke-backup-aap \
+            -a "$ACCOUNT" \
+            -c "$CLUSTER_NAME" \
+            -m "$MAS_INSTANCE_ID" \
+            --region-name "$REGION_NAME" \
+            --backup-enabled "$BACKUP_ENABLED" \
+            --restore-enabled "$RESTORE_ENABLED" \
+            --backup-retention-profile "$BACKUP_RETENTION_PROFILE" \
+            --backup-release-tag "$BACKUP_RELEASE_TAG" \
+            --backup-ticket-id "$BACKUP_TICKET_ID" \
+            --catalog-build-id "$CATALOG_BUILD_ID" \
+            --catalog-version "$CATALOG_VERSION" \
+            --atlas-restore-databases "$ATLAS_RESTORE_DATABASES" \
+            --atlas-cluster-name "$ATLAS_CLUSTER_NAME" \
+            --atlas-project-id "$ATLAS_PROJECT_ID" \
+            --db2u-config "$DB2U_CONFIG" \
+            --sls-service "$SLS_SERVICE" \
+            --dir /workspace/gitops-invoke-backup-aap
+
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: IfNotPresent
+      image: "quay.io/ibmmas/cli:latest"
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-invoke-backup-aap
