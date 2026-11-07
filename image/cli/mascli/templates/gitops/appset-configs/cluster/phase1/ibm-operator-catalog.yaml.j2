@@ -2,5 +2,8 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
 ibm_operator_catalog:
     mas_catalog_version: {{ MAS_CATALOG_VERSION }}
+{%- if MAS_CATALOG_BUILD_ID is defined and MAS_CATALOG_BUILD_ID != '' %}
+    mas_catalog_build_id: "{{ MAS_CATALOG_BUILD_ID }}"
+{%- endif %}
     mas_catalog_image: {{ MAS_CATALOG_IMAGE }}
     ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
