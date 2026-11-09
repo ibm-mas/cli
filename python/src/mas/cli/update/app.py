@@ -337,9 +337,11 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printSummary("AI Service Data Science Platform", aiServiceDataScienceMigration)
         self.printSummary(
             "AI Service Object Storage",
-            f"Migrate from MinIO to Ceph/ODF ({self.getParam('aiservice_s3_migration_instance_ids')})"
-            if self.getParam("aiservice_s3_migration_instance_ids") != ""
-            else "No action required",
+            (
+                f"Migrate from MinIO to Ceph/ODF ({self.getParam('aiservice_s3_migration_instance_ids')})"
+                if self.getParam("aiservice_s3_migration_instance_ids") != ""
+                else "No action required"
+            ),
         )
 
         if not self.noConfirm:
