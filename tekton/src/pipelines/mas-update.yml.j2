@@ -439,6 +439,7 @@ spec:
       runAfter:
         - update-ocs
         - update-rhoai
+        - update-db2
         - aiservice-migration
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
