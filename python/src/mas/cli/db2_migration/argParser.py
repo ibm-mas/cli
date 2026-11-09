@@ -63,7 +63,12 @@ migrationArgGroup.add_argument(
     help="Namespace containing Db2uCluster instances (e.g. db2u, or db2-<instanceid> in SaaS). If omitted, db2u namespaces are detected and you are prompted to choose",
 )
 migrationArgGroup.add_argument("--db2-cluster-name", required=False, help="Specific Db2uCluster name to migrate")
-migrationArgGroup.add_argument("--backup", required=False, choices=["true", "false"], help="Enable or disable backup before migration")
+migrationArgGroup.add_argument(
+    "--backup",
+    required=False,
+    choices=["true", "false"],
+    help="Set to true to confirm a manual backup of the required databases has been taken before migration. The pipeline does not take a backup. If not set to true, a warning is shown and the migration proceeds at your own risk",
+)
 
 otherArgGroup = db2MigrationArgParser.add_argument_group("More", "Additional options.")
 otherArgGroup.add_argument("--no-confirm", required=False, action="store_true", default=False, help="Launch without prompting for confirmation")

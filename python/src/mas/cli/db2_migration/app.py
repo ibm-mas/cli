@@ -67,19 +67,21 @@ class Db2MigrationApp(BaseApp):
         return db2_clusters[selectedIndex - 1]
 
     def promptForBackup(self) -> bool:
-        """Prompt user whether to perform backup before migration.
+        """Ask user to confirm that a manual backup was taken before migration.
+
+        The migration pipeline does not take a backup itself.
 
         Returns:
-            bool: True if backup should be performed, False otherwise
+            bool: True if the user confirms a manual backup has been taken, False otherwise
         """
-        self.printH2("Backup Configuration")
+        self.printH2("Backup Confirmation")
         print_formatted_text(
             HTML(
-                "<Yellow>It is strongly recommended to backup before migration.</Yellow>\n"
-                "This will create a full database backup that can be used for rollback.\n"
+                "<Yellow>The migration pipeline does not take a database backup.</Yellow>\n"
+                "Take a manual backup of the required databases before proceeding, so you can roll back if needed.\n"
             )
         )
-        return self.yesOrNo("Perform backup before migration")
+        return self.yesOrNo("Confirm you have taken a manual backup of the required databases before proceeding with the migration")
 
     def migrate(self, argv: List[str]) -> None:
         """Main entry point for DB2 migration command.
@@ -141,7 +143,7 @@ class Db2MigrationApp(BaseApp):
             # Non-interactive mode
             namespace = args.db2_namespace
             db2ClusterName = args.db2_cluster_name
-            enableBackup = args.backup == "true" if args.backup else True
+            enableBackup = args.backup == "true"
 
             # Validate Db2uCluster exists if name provided
             if db2ClusterName:
@@ -159,6 +161,9 @@ class Db2MigrationApp(BaseApp):
                 else:
                     self.fatalError("Multiple Db2uClusters found. Please specify --db2-cluster-name")
 
+        if not enableBackup:
+            print_formatted_text(HTML("<Red>WARNING: No manual database backup has been confirmed. Proceeding without a backup is at your own risk.</Red>\n"))
+
         # Confirmation
         if not self.noConfirm:
             self.printH2("Migration Summary")
@@ -166,7 +171,7 @@ class Db2MigrationApp(BaseApp):
                 HTML(
                     f"<Yellow>Namespace:</Yellow> {namespace}\n"
                     f"<Yellow>Db2uCluster:</Yellow> {db2ClusterName}\n"
-                    f"<Yellow>Backup:</Yellow> {'Enabled' if enableBackup else 'Disabled'}\n"
+                    f"<Yellow>Manual backup confirmed:</Yellow> {'Yes' if enableBackup else 'No'}\n"
                 )
             )
             if not self.yesOrNo("Proceed with migration"):
