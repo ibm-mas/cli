@@ -20,22 +20,10 @@ spec:
     - name: restore_enabled
       type: string
       default: 'false'
-    - name: backup_retention_profile
-      type: string
-      default: ""
-    - name: backup_release_tag
-      type: string
-      default: ""
-    - name: backup_ticket_id
-      type: string
-      default: ""
     - name: catalog_build_id
       type: string
       default: ""
     - name: catalog_version
-      type: string
-      default: ""
-    - name: atlas_restore_databases
       type: string
       default: ""
     - name: atlas_cluster_name
@@ -83,18 +71,10 @@ spec:
           value: $(params.backup_enabled)
         - name: restore_enabled
           value: $(params.restore_enabled)
-        - name: backup_retention_profile
-          value: $(params.backup_retention_profile)
-        - name: backup_release_tag
-          value: $(params.backup_release_tag)
-        - name: backup_ticket_id
-          value: $(params.backup_ticket_id)
         - name: catalog_build_id
           value: $(params.catalog_build_id)
         - name: catalog_version
           value: $(params.catalog_version)
-        - name: atlas_restore_databases
-          value: $(params.atlas_restore_databases)
         - name: atlas_cluster_name
           value: $(params.atlas_cluster_name)
         - name: atlas_project_id
@@ -132,18 +112,10 @@ spec:
           value: $(params.backup_enabled)
         - name: restore_enabled
           value: $(params.restore_enabled)
-        - name: backup_retention_profile
-          value: $(params.backup_retention_profile)
-        - name: backup_release_tag
-          value: $(params.backup_release_tag)
-        - name: backup_ticket_id
-          value: $(params.backup_ticket_id)
         - name: catalog_build_id
           value: $(params.catalog_build_id)
         - name: catalog_version
           value: $(params.catalog_version)
-        - name: atlas_restore_databases
-          value: $(params.atlas_restore_databases)
         - name: atlas_cluster_name
           value: $(params.atlas_cluster_name)
         - name: atlas_project_id
