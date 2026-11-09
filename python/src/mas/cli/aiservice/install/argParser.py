@@ -120,6 +120,13 @@ rhoaiArgGroup.add_argument(
 )
 
 rhoaiArgGroup.add_argument(
+    "--rhoai-channel",
+    dest="rhoai_channel",
+    required=False,
+    help="Subscription channel for RedHat Openshift AI (e.g. stable, stable-3.x). Defaults to the aiservice_rhoai role default",
+)
+
+rhoaiArgGroup.add_argument(
     "--rhoai", dest="rhoai", required=False, help="temporary flag to install Redhat Openshift AI instead of Opendatahub", action="store_const", const="true"
 )
 

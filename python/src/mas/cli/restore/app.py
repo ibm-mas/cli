@@ -95,6 +95,7 @@ class RestoreApp(BaseApp):
                 "manage_db_override_storageclass",
                 "manage_db_storage_class_rwx",
                 "manage_db_storage_class_rwo",
+                "manage_db2_dbname",
                 # Facilities App Restore
                 "restore_facilities_app",
                 "restore_facilities_include_pvc",
@@ -105,6 +106,7 @@ class RestoreApp(BaseApp):
                 "facilities_db_override_storageclass",
                 "facilities_db_storage_class_rwx",
                 "facilities_db_storage_class_rwo",
+                "facilities_db2_dbname",
                 # MongoDB Storage Class Override
                 "override_mongodb_storageclass",
                 "mongodb_storageclass_name",

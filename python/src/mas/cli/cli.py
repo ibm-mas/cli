@@ -161,6 +161,15 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture: str | None = None
 
         self.compatibilityMatrix: Dict[str, Dict[str, List[str]]] = {
+            "9.3.x-feature": {
+                "manage": ["9.2.x", "9.3.x-feature"],
+                "optimizer": ["9.2.x", "9.3.x-feature"],
+                "visualinspection": ["9.2.x", "9.3.x-feature"],
+                "iot": ["9.2.x", "9.3.x-feature"],
+                "monitor": ["9.2.x", "9.3.x-feature"],
+                "predict": ["9.2.x", "9.3.x-feature"],
+                "facilities": ["9.2.x", "9.3.x-feature"],
+            },
             "9.2.x": {
                 "manage": ["9.2.x", "9.2.x-feature", "9.1.x"],
                 "optimizer": ["9.2.x", "9.2.x-feature", "9.1.x"],
@@ -240,9 +249,11 @@ class BaseApp(PrintMixin, PromptMixin):
             "aibroker-9.2.x-feature": " - <u>https://ibm.biz/MAS91-License</u>",
             "9.2.x-feature": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
             "9.2.x": " - <u>https://ibm.biz/MAS92-License</u>\n - <u>https://ibm.biz/MAXIT92-License</u>\n - <u>https://ibm.biz/MAXESRI92-License</u>",
+            "9.3.x-feature": " - <u>https://ibm.biz/MAS92-License</u>\n - <u>https://ibm.biz/MAXIT92-License</u>\n - <u>https://ibm.biz/MAXESRI92-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
         }
 
         self.upgrade_path: Dict[str, str] = {
+            "9.2.x": "9.3.x-feature",
             "9.2.x-feature": "9.2.x",
             "9.1.x": "9.2.x",
             "9.1.x-feature": "9.1.x",

@@ -281,6 +281,8 @@ class installArgBuilderMixin:
             command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
             if self.getParam("configure_aiassistant") != "":
                 command += f"  --configure-aiassistant \"{self.getParam('configure_aiassistant')}\"{newline}"
+        if self.installMcpi:
+            command += f"  --install-mcpi{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
@@ -460,6 +462,8 @@ class installArgBuilderMixin:
                 command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
             if self.getParam("aiservice_rhoai_model_deployment_type") != "":
                 command += f"  --rhoai-model-deployment-type \"{self.getParam('aiservice_rhoai_model_deployment_type')}\"{newline}"
+            if self.getParam("rhoai_channel") != "":
+                command += f"  --rhoai-channel \"{self.getParam('rhoai_channel')}\"{newline}"
             if self.getParam("rhoai") == "true":
                 command += f"  --rhoai{newline}"
 
