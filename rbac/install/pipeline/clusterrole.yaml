@@ -159,3 +159,14 @@ rules:
       - admin
       - edit
       - view
+
+  # suite_dns grants the anyuid SCC to the cert-manager-webhook-ibm-cis service account
+  # (oc adm policy add-scc-to-user anyuid), which creates a RoleBinding to this ClusterRole
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+    verbs:
+      - bind
+    resourceNames:
+      - system:openshift:scc:anyuid
