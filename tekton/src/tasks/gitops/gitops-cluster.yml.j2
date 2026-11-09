@@ -27,6 +27,9 @@ spec:
     - name: mas_catalog_version
       type: string
       default: ""
+    - name: mas_catalog_build_id
+      type: string
+      default: ""
     - name: mas_catalog_image
       type: string
       default: ""
@@ -188,6 +191,8 @@ spec:
         value: $(params.git_commit_msg)
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)
+      - name: MAS_CATALOG_BUILD_ID
+        value: $(params.mas_catalog_build_id)
       - name: MAS_CATALOG_IMAGE
         value: $(params.mas_catalog_image)
       - name: SM_AWS_REGION
