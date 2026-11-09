@@ -1,0 +1,96 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: mas-devops-aiservice-s3-migration
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: aiservice_s3_migration_instance_ids
+      type: string
+      default: ""
+      description: Comma-separated IDs of the AI Service instances whose S3 storage will be migrated from MinIO to ODF
+    - name: minio_namespace
+      type: string
+      default: "minio"
+      description: Namespace of the in-cluster MinIO
+    - name: minio_instance_name
+      type: string
+      default: "minio"
+      description: Name of the MinIO deployment
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: MINIO_NAMESPACE
+        value: $(params.minio_namespace)
+      - name: MINIO_INSTANCE_NAME
+        value: $(params.minio_instance_name)
+      # Scratch space shared by the backup and restore roles (see the volume below)
+      - name: MAS_CONFIG_DIR
+        value: /migration
+
+  steps:
+    # The migration is the aiservice_minio_to_ceph playbook of the ansible-devops collection: it installs ODF when
+    # needed, enables the odf-console plugin, backs up MinIO, restores the backup into ODF and points the AI Service
+    # instance at ODF.
+    #
+    # The backup and the restore cover every bucket in MinIO, so they only need to run once: the playbook is run for
+    # the first instance, any further instance only needs the aiservice update action.
+    # Instances that are no longer on MinIO are skipped, so the task can be re-run safely
+    - name: aiservice-s3-migration
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /migration
+      volumeMounts:
+        - name: migration
+          mountPath: /migration
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        INSTANCE_IDS='$(params.aiservice_s3_migration_instance_ids)'
+        MARKER="minio-service.${MINIO_NAMESPACE}.svc"
+
+        if [ -z "${INSTANCE_IDS}" ]; then
+          echo "No AI Service instances selected for S3 migration, skipping"
+          exit 0
+        fi
+
+        # Only touch instances that are still on the in-cluster MinIO
+        TO_MIGRATE=()
+        IFS=',' read -ra IDS <<< "${INSTANCE_IDS}"
+        for id in "${IDS[@]}"; do
+          id="$(echo "$id" | xargs)"
+          [ -z "$id" ] && continue
+          url="$(oc get aiserviceapp "$id" -n "aiservice-$id" -o jsonpath='{.spec.settings.s3.url}')"
+          if [[ "$url" == *"$MARKER"* ]]; then
+            TO_MIGRATE+=("$id")
+          else
+            echo "AI Service instance '$id' is not on the in-cluster MinIO ($url), skipping"
+          fi
+        done
+
+        if [ -z "${TO_MIGRATE[*]:-}" ]; then
+          echo "Nothing to migrate"
+          exit 0
+        fi
+        echo "Migrating S3 storage to ODF for: ${TO_MIGRATE[*]}"
+
+        # First instance: ODF install, odf-console plugin, MinIO backup, restore into ODF and the AI Service update
+        echo "Migrating AI Service instance: ${TO_MIGRATE[0]}"
+        AISERVICE_INSTANCE_ID="${TO_MIGRATE[0]}" /opt/app-root/src/run-playbook.sh aiservice_minio_to_ceph
+
+        # The buckets are already in ODF, the other instances only need to be pointed at it
+        for id in "${TO_MIGRATE[@]:1}"; do
+          echo "Updating AI Service instance: $id"
+          AISERVICE_ACTION=update AISERVICE_INSTANCE_ID="$id" /opt/app-root/src/run-role.sh aiservice
+        done
+
+  volumes:
+    # Holds the MinIO backup between the backup and restore roles.
+    # It is node-local ephemeral storage, so it must be large enough for all of the MinIO data.
+    - name: migration
+      emptyDir: {}

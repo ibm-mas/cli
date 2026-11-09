@@ -171,6 +171,10 @@ spec:
       type: string
       default: ""
       description: Comma-separated list of AI Service instance IDs
+    - name: aiservice_s3_migration_instance_ids
+      type: string
+      default: ""
+      description: Comma-separated list of AI Service instance IDs whose S3 storage will be migrated from MinIO to ODF
 
   tasks:
     # 0. Pipeline Start - Track pipeline status in MongoDB
@@ -418,6 +422,32 @@ spec:
         - name: aiservice_instance_ids
           value: $(params.aiservice_instance_ids)
 
+    # 6.1 Migrate the S3 storage of selected AI Service instances from MinIO to ODF.
+    # Only runs when the user approved it, it needs ODF so it waits for update-ocs.
+    # It also waits for update-rhoai (skipped when there is no ODH to migrate): the ODH to RHOAI migration recreates
+    # the DSCInitialization, so the ODF service CA has to be added to it afterwards
+    # -------------------------------------------------------------------------
+    - name: aiservice-s3-migration
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-aiservice-s3-migration
+      when:
+        - input: $(params.aiservice_s3_migration_instance_ids)
+          operator: notin
+          values: [""]
+      runAfter:
+        - update-ocs
+        - update-rhoai
+        - aiservice-migration
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
+        - name: devops_suite_name
+          value: aiservice-s3-migration
+        - name: aiservice_s3_migration_instance_ids
+          value: $(params.aiservice_s3_migration_instance_ids)
+
     # 7. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
@@ -435,6 +465,7 @@ spec:
         - update-analytics-engine
         - update-cognos
         - update-rhoai
+        - aiservice-s3-migration
 
   finally:
     # Pipeline Finish - Track final pipeline status in MongoDB

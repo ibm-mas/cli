@@ -31,6 +31,7 @@ class UpdateArgumentParser(argparse.ArgumentParser):
             f"                  [--artifactory-username ARTIFACTORY_USERNAME]\n"
             f"                  [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode]\n"
             f"                  [--cp4d-version CPD_PRODUCT_VERSION] [--no-confirm] [--skip-pre-check]\n"
+            f"                  [--migrate-minio-to-ceph]\n"
             f"\n"
             f"Usage (interactive mode):\n"
             f"  {prog}\n"
@@ -170,6 +171,14 @@ depsArgGroup.add_argument(
     required=False,
     choices=["redhat", "strimzi"],
     help="The type of Kakfa operator installed in the target namespace for updte",
+)
+
+depsArgGroup.add_argument(
+    "--migrate-minio-to-ceph",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Migrate AI Service instances that use the in-cluster MinIO to Ceph (ODF). Ceph is installed first if it is not ready",
 )
 
 # More Options

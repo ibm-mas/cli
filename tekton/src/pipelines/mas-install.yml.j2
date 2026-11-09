@@ -219,9 +219,12 @@ spec:
 
     # 4.6 Redhat Openshift AI ( for AI Service )
     # -------------------------------------------------------------------------
+    # Runs after the Ceph (ODF) tasks so the RHOAI trusted CA bundle can include the ODF service CA.
+    # Those tasks are skipped when Ceph is not requested, which does not hold this task back.
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/rhoai.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - cert-manager
+        - cos-bucket-km-templates
 
     # 5. Install & Configure IBM MAS
     # -------------------------------------------------------------------------

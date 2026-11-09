@@ -49,6 +49,26 @@ IBM Certificate-Manager is deprecated, its replacement is Red Hat Certificate-Ma
 #### Grafana Operator v4
 In December 2024 it was announced that support for the Grafana v4 Operator would cease later that month. MAS customers updating from a catalog older than **February 2024** will see their Grafana installation automatically migrated to the Grafana v5 Operator.
 
+### Optional Migrations
+
+#### AI Service object storage: MinIO to Ceph
+New AI Service installations use Ceph (OpenShift Data Foundation) for object storage rather than the in-cluster MinIO. If `mas update` finds an AI Service instance whose object storage is still the in-cluster MinIO it will offer to migrate it. This is optional, nothing is migrated unless you agree to it.
+
+If Ceph (ODF) is not ready on the cluster the update installs it first with the `ocs` role, using the default local disk path `/dev/vdb`. The update will:
+
+1. Install ODF if it is not ready, and enable the `odf-console` plugin in the OpenShift console if it is missing
+2. Back up every bucket in MinIO
+3. Restore the backup into Ceph, creating one bucket for each MinIO bucket, with the same name
+4. Reconfigure the AI Service instance (and its tenants) to use Ceph, add the Ceph service CA to the RHOAI trusted CA bundle if it is missing, then restart it
+
+The AI Service is unavailable while it restarts. MinIO is **not** removed, so you can fall back to it until you have verified AI Service on Ceph. Remove it yourself afterwards.
+
+- In interactive mode you are asked whether to migrate.
+- In non-interactive mode add `--migrate-minio-to-ceph`. Without it the instances are left on MinIO and a warning is shown.
+
+!!! note
+    The backup is held in temporary storage of the pipeline pod, make sure the node has enough ephemeral storage for all of the data in MinIO.
+
 ### Rollback Considerations
 Undoing an update is a lot of work as it's reversing a lot of changes throughout the cluster. Generally it shouldn't be needed as updates are just bringing security and bug fixes. Think of it like applying a Windows update; there's no easy "undo" and if something slipped through we would fast track a new update so that rather than needing to revert from 8.9.5 to 8.9.4 there would be an 8.9.6 provided in double quick time that either reverted whatever caused the regression in 8.9.5 or addressed whatever the issue was.
 

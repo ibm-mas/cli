@@ -208,6 +208,10 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 elif key in ["no_confirm", "help"]:
                     pass
 
+                # Handled by detectMinioToCeph()
+                elif key == "migrate_minio_to_ceph":
+                    pass
+
                 # Db2 License file has special handling
                 elif key == "db2_license_file":
                     if value is not None and value != "":
@@ -282,6 +286,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.detectGrafana4()
         self.detectODH()
         self.detectRHOAIv2()
+        self.detectMinioToCeph()
         self.detectMongoDb()
         self.detectDb2u()
         self.detectKafka()
@@ -330,6 +335,12 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         else:
             aiServiceDataScienceMigration = "Migrate from ODH to RHOAI"
         self.printSummary("AI Service Data Science Platform", aiServiceDataScienceMigration)
+        self.printSummary(
+            "AI Service Object Storage",
+            f"Migrate from MinIO to Ceph/ODF ({self.getParam('aiservice_s3_migration_instance_ids')})"
+            if self.getParam("aiservice_s3_migration_instance_ids") != ""
+            else "No action required",
+        )
 
         if not self.noConfirm:
             print()
@@ -631,6 +642,56 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             except (ResourceNotFoundError, NotFoundError):
                 h.stop_and_persist(symbol=self.successIcon, text="RHOAI v2 is not installed")
                 return False
+
+    def detectMinioToCeph(self) -> None:
+        """
+        Detect AI Service instances that still store their data in the in-cluster MinIO and offer to move
+        them to Ceph (ODF). The migration backs up MinIO, restores it into ODF and then points the instance
+        at ODF. It is never done without the user's consent: either the --migrate-minio-to-ceph flag, or a
+        yes answer to the prompt.
+        """
+        self.setParam("aiservice_s3_migration_instance_ids", "")
+        with Halo(text="Checking for AI Service instances using MinIO", spinner=self.spinner) as h:
+            try:
+                instances = listAiServiceInstances(self.dynamicClient)
+            except (ResourceNotFoundError, NotFoundError):
+                instances = []
+
+            # Same check as the aiservice_minio_to_ceph playbook: the service created by the minio role in its
+            # default namespace, minio-service.minio.svc
+            onMinio = [
+                instance["metadata"]["name"]
+                for instance in instances
+                if "minio-service.minio.svc" in (instance.get("spec", {}).get("settings", {}).get("s3", {}).get("url") or "")
+            ]
+
+            if len(onMinio) == 0:
+                h.stop_and_persist(symbol=self.successIcon, text="No AI Service instance is using MinIO")
+                return
+            h.stop_and_persist(symbol=self.successIcon, text=f"AI Service instances using MinIO: {', '.join(onMinio)}")
+
+        self.printDescription(
+            [
+                "<u>Optional Migration: MinIO to Ceph</u>",
+                "MinIO is no longer installed for new AI Service instances, Ceph (ODF) is used instead",
+                "- MinIO is backed up, restored into Ceph, and the AI Service is reconfigured to use Ceph",
+                "- Ceph (ODF) is installed first if it is not ready on the cluster",
+                "- The AI Service will be unavailable while it restarts",
+                "- MinIO is NOT removed, so you can fall back to it until you have verified the result",
+            ]
+        )
+
+        if self.args.migrate_minio_to_ceph:
+            migrate = True
+        elif self.args.mas_catalog_version:
+            # Non-interactive mode, the user has to opt in with the flag
+            self.printWarning("Use --migrate-minio-to-ceph to migrate these instances, they are left on MinIO for now")
+            migrate = False
+        else:
+            migrate = self.yesOrNo("Migrate the AI Service object storage from MinIO to Ceph")
+
+        if migrate:
+            self.setParam("aiservice_s3_migration_instance_ids", ",".join(onMinio))
 
     def detectMongoDb(self) -> None:
         with Halo(text="Checking for MongoDb CE", spinner=self.spinner) as h:

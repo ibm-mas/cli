@@ -55,6 +55,7 @@
         - rhoai
         - aiservice-upgrade
         - aiservice-migration
+        - aiservice-s3-migration
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
