@@ -90,6 +90,7 @@
         - mas-fvt-sls
         - mas-fvt-start-update
         - mas-fvt-start-upgrade
+        - mas-fvt-start-backup
         - mas-fvt-start-uninstall
         - mas-fvt-pre-update
         - mas-fvt-pre-upgrade
