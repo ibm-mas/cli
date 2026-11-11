@@ -32,6 +32,7 @@ spec:
 
         BACKUP_FLAGS=(
           --instance-id "$MAS_INSTANCE_ID"
+          --backup-storage-class "$BACKUP_STORAGE_CLASS"
           --upload-backup
           --artifactory-url "$ARTIFACTORY_URL"
           --artifactory-repository "$ARTIFACTORY_REPOSITORY"
@@ -65,6 +66,11 @@ spec:
           value: $(params.mas_instance_id)
         - name: BACKUP_MANAGE_APP
           value: $(params.backup_manage_app)
+        - name: BACKUP_STORAGE_CLASS
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-backup
+              key: BACKUP_STORAGE_CLASS
         - name: ARTIFACTORY_URL
           valueFrom:
             secretKeyRef:
