@@ -119,6 +119,9 @@ spec:
     - name: centralised_sls
       type: string
       default: ""
+    - name: path_based_routing_flag
+      type: string
+      default: ""
     - name: is_gitops_fvt_env
       type: string
       default: ""
@@ -220,6 +223,8 @@ spec:
         value: $(params.artifactory_token)
       - name: CENTRALISED_SLS
         value: $(params.centralised_sls)
+      - name: PATH_BASED_ROUTING_FLAG
+        value: $(params.path_based_routing_flag)
   steps:
     - args:
       - |-

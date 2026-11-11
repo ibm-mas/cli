@@ -127,6 +127,9 @@ spec:
     - name: centralised_sls
       type: string
       default: ""
+    - name: path_based_routing_flag
+      type: string
+      default: ""
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -234,6 +237,8 @@ spec:
           value: $(params.artifactory_token)
         - name: centralised_sls
           value: $(params.centralised_sls)
+        - name: path_based_routing_flag
+          value: $(params.path_based_routing_flag)
       taskRef:
         kind: Task
         name: gitops-mas-initiator
