@@ -58,6 +58,9 @@ spec:
     - name: deprovision-cluster
       image: "quay.io/ibmmas/cli:latest"
       imagePullPolicy: $(params.image_pull_policy)
+      # The ibmcloud CLI config & plugins in ~/.bluemix are not accessible to the arbitrary UID that OpenShift assigns
+      securityContext:
+        runAsUser: 0
       command:
         - /bin/bash
         - -c

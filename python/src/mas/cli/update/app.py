@@ -27,6 +27,7 @@ from mas.devops.aiservice import listAiServiceInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, prepareUpdateSecrets
 from mas.devops.pre_install import applyPreInstallMASRBAC
 from mas.devops.utils import isVersionEqualOrAfter
+from ..install.app import InstallApp
 from ..install.settings import AdditionalConfigsMixin
 from ..rbac_utils import evaluatePreinstallRBACAccess
 
@@ -153,6 +154,42 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             logger.error(f"Error while evaluating pre-install RBAC: {e}")
             self.printWarning(f"Failed to evaluate pre-install RBAC: {e}\nContinuing with update, but RBAC may need to be applied manually.")
 
+    def checkRoutingModeForUpdate(self) -> None:
+        """Block the update when a MAS 9.2+ instance has routingMode "path" and is moving off a catalog without path routing support.
+
+        Catalogs listed in InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS do not support path-based routing, but a
+        routingMode of "path" may have been accidentally written to Suite CRs while on them. Updating to a catalog
+        that does support path-based routing would cause an unintended routing mode switch, so the update is stopped
+        with remediation guidance.
+
+        The check is skipped when the installed catalog is unknown, already supports path routing, or when the target
+        catalog also lacks path routing support.
+        """
+        unsupportedCatalogs = InstallApp._PATH_ROUTING_UNSUPPORTED_CATALOGS
+        targetCatalog = self.getParam("mas_catalog_version")
+
+        if not self.installedCatalogId or not any(c in self.installedCatalogId for c in unsupportedCatalogs):
+            return
+        if any(c in targetCatalog for c in unsupportedCatalogs):
+            return
+
+        for instance in listMasInstances(self.dynamicClient):
+            instanceId = instance["metadata"]["name"]
+            if not isVersionEqualOrAfter("9.2.0", self.getReconciledVersion(instance)):
+                continue
+
+            if instance.get("spec", {}).get("settings", {}).get("routingMode") == "path":
+                self.fatalError(
+                    f'Cannot update from catalog {self.installedCatalogId} to {targetCatalog}: spec.settings.routingMode is set to "path" '
+                    f"on the Suite CR for instance {instanceId}.\n\n"
+                    f"Catalog {self.installedCatalogId} does not support path-based routing, so this value was set in error and the update\n"
+                    "would attempt an unintended routing mode switch.\n\n"
+                    "To resolve this, remove the field from the Suite CR before retrying the update:\n\n"
+                    f"  oc patch suite {instanceId} -n mas-{instanceId}-core --type=json \\\n"
+                    '    -p \'[{"op":"remove","path":"/spec/settings/routingMode"}]\'\n\n'
+                    "After applying the patch, re-run the update."
+                )
+
     def update(self, argv):
         """
         Update MAS instance
@@ -251,6 +288,8 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             except NoSuchCatalogError:
                 self.chosenCatalog = getCatalog(getNewestCatalogTag())
 
+        self.checkRoutingModeForUpdate()
+
         self.printH1("Dependency Update Checks")
         with Halo(text="Checking for IBM Watson Discovery", spinner=self.spinner) as h:
             if self.isWatsonDiscoveryInstalled():
@@ -281,6 +320,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
         self.detectGrafana4()
         self.detectODH()
+        self.detectRHOAIv2()
         self.detectMongoDb()
         self.detectDb2u()
         self.detectKafka()
@@ -322,9 +362,13 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
         self.printH2("Required Migrations")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
-        self.printSummary(
-            "AI Service Data Science Platform", "Migrate from ODH to RHOAI" if self.getParam("odh_to_rhoai_migration") != "" else "No action required"
-        )
+        if self.getParam("odh_to_rhoai_migration") == "":
+            aiServiceDataScienceMigration = "No action required"
+        elif self.rhoaiV2Detected:
+            aiServiceDataScienceMigration = "Upgrade from RHOAI v2 to RHOAI v3"
+        else:
+            aiServiceDataScienceMigration = "Migrate from ODH to RHOAI"
+        self.printSummary("AI Service Data Science Platform", aiServiceDataScienceMigration)
 
         if not self.noConfirm:
             print()
@@ -454,16 +498,16 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.printDescription(
             [
                 "Select MAS Catalog",
-                "  1) Oct 29 2026 Update (MAS 9.2.9, 9.1.28, 9.0.34, 8.11.34, &amp; 8.10.37)",
-                "  2) Sep 24 2026 Update (MAS 9.2.7, 9.1.26, 9.0.32, 8.11.34, &amp; 8.10.37)",
-                "  3) Aug 27 2026 Update (MAS 9.2.3, 9.1.21, 9.0.29, 8.11.34, &amp; 8.10.37)",
+                "  1) Nov 05 2026 Update (MAS 9.2.10, 9.1.29, 9.0.35, 8.11.34, &amp; 8.10.37)",
+                "  2) Oct 29 2026 Update (MAS 9.2.9, 9.1.28, 9.0.34, 8.11.34, &amp; 8.10.37)",
+                "  3) Sep 24 2026 Update (MAS 9.2.7, 9.1.26, 9.0.32, 8.11.34, &amp; 8.10.37)",
             ]
         )
 
         catalogOptions = [
+            "v9-261105-amd64",
             "v9-261029-amd64",
             "v9-260924-amd64",
-            "v9-260827-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -587,6 +631,44 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
             except (ResourceNotFoundError, NotFoundError):
                 h.stop_and_persist(symbol=self.successIcon, text="Open Data Hub is not installed")
+                return False
+
+    def detectRHOAIv2(self) -> bool:
+        """
+        Detect if RHOAI v2 is installed. RHOAI can not be upgraded in place from v2 to v3,
+        so the aiservice_rhoai role removes v2 and installs v3 (the same pipeline task is used
+        as for the ODH to RHOAI migration).
+        """
+        self.rhoaiV2Detected = False
+        with Halo(text="Checking for Red Hat OpenShift AI (RHOAI) v2", spinner=self.spinner) as h:
+            try:
+                subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
+                subscriptions = subscriptionAPI.get(namespace="redhat-ods-operator", name="rhods-operator")
+                installedCSV = subscriptions.to_dict().get("status", {}).get("installedCSV", "")
+                match = re.match(r"^rhods-operator\.v?(\d+)\.", installedCSV)
+
+                if match and int(match.group(1)) == 2:
+                    h.stop_and_persist(symbol=self.successIcon, text=f"RHOAI v2 detected ({installedCSV}) - upgrade to RHOAI v3 will be performed")
+                    self.printDescription(
+                        [
+                            "<u>Required Migration Notice</u>",
+                            "Red Hat OpenShift AI (RHOAI) v2 is currently installed and will be replaced with RHOAI v3",
+                            "- An in-place upgrade from RHOAI v2 to v3 is not supported, so RHOAI v2 will be uninstalled and RHOAI v3 installed",
+                            "- DSCInitialization and DataScienceCluster will be recreated",
+                            "",
+                            "<u>Expected Downtime</u>",
+                            "- AI Service model serving will be unavailable during the upgrade",
+                        ]
+                    )
+                    self.setParam("odh_to_rhoai_migration", "true")
+                    self.rhoaiV2Detected = True
+                    return True
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="RHOAI v2 is not installed")
+                    return False
+
+            except (ResourceNotFoundError, NotFoundError):
+                h.stop_and_persist(symbol=self.successIcon, text="RHOAI v2 is not installed")
                 return False
 
     def detectMongoDb(self) -> None:
