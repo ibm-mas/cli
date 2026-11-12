@@ -76,7 +76,8 @@ Notifications (Optional):
       --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET}                                                                    Slack channel for ArgoCD to notify when an app sync has completed or failed
 
 Selenium Grid (Optional):
-      --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}                                                          Install Selenium Grid
+      --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}
+      --selenium-grid-repo-url ${COLOR_YELLOW}SELENIUM_GRID_REPO_URL${TEXT_RESET}                                                          Install Selenium Grid
 
 Group Sync Operator (Optional):
       --install-group-sync-operator ${COLOR_YELLOW}INSTALL_GROUP_SYNC_OPERATOR${TEXT_RESET}                                              Install the Group Sync Operator
@@ -299,6 +300,9 @@ function gitops_cluster_noninteractive() {
         ;;
       --install-selenium-grid)
         export INSTALL_SELENIUM_GRID=true
+        ;;
+      --selenium-grid-repo-url)
+        export SELENIUM_GRID_REPO_URL=$1 && shift
         ;;
 
       # Custom Cluster Service Accounts
@@ -576,6 +580,9 @@ function gitops_cluster() {
   echo "${TEXT_DIM}"
   echo_h2 "Selenium Grid" "    "
   echo_reset_dim "Install Selenium Grid ........... ${COLOR_MAGENTA}${INSTALL_SELENIUM_GRID}"
+  if [[ -n "$SELENIUM_GRID_REPO_URL" ]]; then
+    echo_reset_dim "Selenium Grid Repo Url .......... ${COLOR_MAGENTA}${SELENIUM_GRID_REPO_URL}"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"
