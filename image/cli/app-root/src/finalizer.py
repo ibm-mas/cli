@@ -324,6 +324,156 @@ def publish_fvt_check_run(productId, commitId, repoSlug, detailsUrl, runId, prod
         print(f"Failed to post GHE check run for {productId} ({repoSlug}@{commitId[:8]}): {e}")
 
 
+# Single check shared by all "personal" FVT environments (any instance that is not
+# in the default GHE instance list). There is exactly one of these per product repo
+# commit; it is rebuilt from MongoDb on every run so each environment shows its
+# latest build for that commit.
+PERSONAL_CHECK_NAME = "Personal FVT Results Check"
+PERSONAL_MAX_DETAILED_ENVS = 15  # environments that get a full per-suite block
+PERSONAL_MAX_TABLE_ENVS = 50  # environments listed in the overview table
+
+
+def _summarise_suite_results(productId, instanceId, productData):
+    """Return (totals, suite_rows) for one product's results in one run."""
+    totals = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
+    suite_rows = []
+    for suite, r in sorted(productData.get("results", {}).items()):
+        t, f, e, s = r.get("tests", 0), r.get("failures", 0), r.get("errors", 0), r.get("skipped", 0)
+        totals["tests"] += t
+        totals["failures"] += f
+        totals["errors"] += e
+        totals["skipped"] += s
+        icon = "🔴" if f > 0 else ("🟡" if e > 0 else "🟢")
+        suite_url = f"https://dashboard.ibmmas.com/tests/{instanceId}/testsuite/{productId}/{suite}"
+        suite_rows.append(f"| {icon} [{suite}]({suite_url}) | {t} | {f} | {e} | {s} |")
+    return totals, suite_rows
+
+
+def publish_personal_fvt_check_run(productId, commitId, repoSlug, detailsUrl, db, excludedInstances):
+    """Post (or update) the single 'Personal FVT Results Check' for a product repo commit.
+
+    Collects every run in MongoDb whose deployed commit for this product is commitId,
+    excluding the instances in excludedInstances (those have their own per-environment
+    check) and any run with no results for this product. Only the latest build of each
+    environment is kept. The whole check body is regenerated each time and upserted.
+
+    The conclusion is always 'neutral' so a personal environment can never put a red
+    mark on a commit.
+    """
+    envs = {}
+    for doc in db.runsv2.find({f"products.{productId}.commitId": commitId}):
+        parts = str(doc["_id"]).split(":", 1)
+        if len(parts) != 2:
+            continue
+        instanceId, build = parts
+        if instanceId in excludedInstances:
+            continue
+        productData = doc.get("products", {}).get(productId, {})
+        if not productData.get("results"):
+            continue
+        ts = doc.get("timestamp") or datetime.min
+        if instanceId in envs and envs[instanceId]["ts"] >= ts:
+            continue
+        totals, suite_rows = _summarise_suite_results(productId, instanceId, productData)
+        envs[instanceId] = {
+            "instanceId": instanceId,
+            "build": build,
+            "ts": ts,
+            "version": productData.get("version", "unknown"),
+            "totals": totals,
+            "suite_rows": suite_rows,
+        }
+
+    if not envs:
+        print(f"No personal FVT runs with {productId} results for {commitId[:8]}, skipping personal check run")
+        return
+
+    runs = sorted(envs.values(), key=lambda r: r["ts"], reverse=True)
+
+    def is_bad(r):
+        return r["totals"]["failures"] > 0 or r["totals"]["errors"] > 0
+
+    def fmt_date(r):
+        return r["ts"].strftime("%b %d %H:%M") if r["ts"] != datetime.min else "n/a"
+
+    bad = sum(1 for r in runs if is_bad(r))
+    good = len(runs) - bad
+    output_title = f"🧪 Personal FVT — {len(runs)} environment{'s' if len(runs) != 1 else ''} · {bad} ❌ · {good} ✅"
+
+    # Summary — overview table with one row per environment
+    summary = [
+        f"**Personal FVT runs for commit `{commitId[:12]}`**",
+        "",
+        "> This check is automatically posted by the MAS Functional Verification Test (FVT) pipeline.",
+        "> It collects the latest personal-environment run for this commit. Failures here never block a PR merge.",
+        "",
+        f"Product: `{productId}` v{runs[0]['version']} · Last updated {datetime.now(UTC).strftime('%b %d %H:%M')} UTC",
+        "",
+        "| | Environment | Build | Date | Tests | Failures | Errors | Skipped |",
+        "| --- | --- | --- | --- | ---: | ---: | ---: | ---: |",
+    ]
+    for r in runs[:PERSONAL_MAX_TABLE_ENVS]:
+        t = r["totals"]
+        icon = "🔴" if t["failures"] > 0 else ("🟡" if t["errors"] > 0 else "🟢")
+        env_url = f"https://dashboard.ibmmas.com/tests/{r['instanceId']}"
+        summary.append(
+            f"| {icon} | [{r['instanceId']}]({env_url}) | #{r['build']} | {fmt_date(r)} | {t['tests']} | {t['failures']} | {t['errors']} | {t['skipped']} |"
+        )
+    if len(runs) > PERSONAL_MAX_TABLE_ENVS:
+        summary.append(f"\n_{len(runs) - PERSONAL_MAX_TABLE_ENVS} older environments not shown._")
+    summary += ["", f"[View full results on the FVT Dashboard]({detailsUrl})"]
+
+    # Text — one block per environment, same layout as the default-environment check
+    text = []
+    for r in runs[:PERSONAL_MAX_DETAILED_ENVS]:
+        t = r["totals"]
+        icon = "❌" if is_bad(r) else "✅"
+        env_url = f"https://dashboard.ibmmas.com/tests/{r['instanceId']}"
+        if t["tests"] == 0:
+            stats_line = f"No test results recorded for {r['instanceId']} #{r['build']}"
+        elif is_bad(r):
+            stats_line = f"{t['failures']} failures, {t['errors']} errors — {t['tests']} tests run on {r['instanceId']} #{r['build']}"
+        else:
+            stats_line = f"All {t['tests']} tests passed on {r['instanceId']} #{r['build']}"
+        text += (
+            [
+                f"### {icon} [{r['instanceId']}#{r['build']}]({env_url}) | {fmt_date(r)}",
+                "",
+                f"**{stats_line}**",
+                "",
+                f"{t['tests']} tests · {t['failures']} failures · {t['errors']} errors · {t['skipped']} skipped",
+                "",
+                "| Suite | Tests | Failures | Errors | Skipped |",
+                "| ----- | ----: | -------: | -----: | ------: |",
+            ]
+            + r["suite_rows"]
+            + ["", "---", ""]
+        )
+    if len(runs) > PERSONAL_MAX_DETAILED_ENVS:
+        text.append(f"_{len(runs) - PERSONAL_MAX_DETAILED_ENVS} older environments are listed in the summary only. See the FVT Dashboard for details._")
+
+    try:
+        existing_id = findCheckRun(name=PERSONAL_CHECK_NAME, repoSlug=repoSlug, commitSha=commitId)
+        if existing_id:
+            check_run_id = existing_id
+            verb = "updated"
+        else:
+            check_run_id = createCheckRun(name=PERSONAL_CHECK_NAME, repoSlug=repoSlug, commitSha=commitId, detailsUrl=detailsUrl)
+            verb = "posted"
+        updateCheckRun(
+            checkRunId=check_run_id,
+            repoSlug=repoSlug,
+            conclusion="neutral",
+            detailsUrl=detailsUrl,
+            outputTitle=output_title,
+            outputSummary="\n".join(summary),
+            outputText="\n".join(text),
+        )
+        print(f"GHE personal check run {verb}: {repoSlug}@{commitId[:8]} [{PERSONAL_CHECK_NAME}] (id={check_run_id}, {len(runs)} environments)")
+    except Exception as e:
+        print(f"Failed to post GHE personal check run for {productId} ({repoSlug}@{commitId[:8]}): {e}")
+
+
 # Script start
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -813,7 +963,18 @@ if __name__ == "__main__":
     elif not ghe_instances:
         print("GHE_FVT_INSTANCES not set, skipping GHE check runs")
     elif instanceId not in ghe_instances:
-        print(f"Instance '{instanceId}' not in GHE_FVT_INSTANCES, skipping GHE check runs")
+        # Personal / non-default environment: update the single shared
+        # "Personal FVT Results Check" for each product commit that this run tested.
+        print(f"Instance '{instanceId}' not in GHE_FVT_INSTANCES, publishing to personal FVT check run")
+        details_url = os.getenv("TOOLCHAIN_PIPELINERUN_URL", f"https://dashboard.ibmmas.com/tests/{instanceId}")
+        ghe_result = db.runsv2.find_one({"_id": runId})
+        for productId, repoSlug in PRODUCT_REPO_SLUGS.items():
+            productData = ghe_result.get("products", {}).get(productId, {}) if ghe_result else {}
+            commitId = productData.get("commitId")
+            if not commitId or not productData.get("results"):
+                print(f"No commitId or results for {productId}, skipping personal GHE check run")
+                continue
+            publish_personal_fvt_check_run(productId, commitId, repoSlug, details_url, db, ghe_instances)
     else:
         details_url = os.getenv("TOOLCHAIN_PIPELINERUN_URL", f"https://dashboard.ibmmas.com/tests/{instanceId}")
         ghe_result = db.runsv2.find_one({"_id": runId})
