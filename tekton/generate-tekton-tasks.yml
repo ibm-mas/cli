@@ -270,3 +270,5 @@
         - gitops-iac-provision-rdsdb2
         - gitops-test-recorder
         - gitops-invoke-backup-aap
+        - gitops-invoke-restore-aap
+
