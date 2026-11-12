@@ -326,6 +326,34 @@ class TestCollectorsIntegration:
             mustGatherApp.planCollection(args, "/tmp/test-output")
             assert "aiservice" not in args.collectors
 
+    def test_servicemesh_collector_enabled_by_default(self, mustGatherApp):
+        """Test that Service Mesh collector is enabled by default.
+
+        GIVEN default collectors configuration
+        WHEN planCollection is called
+        THEN ServiceMesh resources are included in collection plan.
+        """
+        parser = mustGatherArgParser
+        args = parser.parse_args([])
+
+        with patch.object(mustGatherApp, "_collectMustGather"):
+            mustGatherApp.planCollection(args, "/tmp/test-output")
+            assert "servicemesh" in args.collectors
+
+    def test_servicemesh_collector_disabled_when_excluded(self, mustGatherApp):
+        """Test that Service Mesh collector is disabled when excluded from collectors.
+
+        GIVEN collectors configuration without aiservice
+        WHEN planCollection is called
+        THEN AIService resources are not included in collection plan.
+        """
+        parser = mustGatherArgParser
+        args = parser.parse_args(["--collectors", "ocp,mas"])
+
+        with patch.object(mustGatherApp, "_collectMustGather"):
+            mustGatherApp.planCollection(args, "/tmp/test-output")
+            assert "servicemesh" not in args.collectors
+
     def test_multiple_collectors_combination(self, mustGatherApp):
         """Test that multiple collectors can be combined.
 

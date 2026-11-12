@@ -60,10 +60,13 @@ def _base_prompts(tmpdir):
         ".*Trust default CAs.*": lambda msg: "y",
         ".*Cluster ingress certificate secret name.*": lambda msg: "",
         ".*Configure manual certificates.*": lambda msg: "n",
-        ".*Routing Mode.*": lambda msg: "1",
-        ".*Do you want to use Let's Encrypt for certificate management.*": lambda msg: "n",
-        ".*Configure ingress namespace ownership policy to enable path-based routing for MAS.*": lambda msg: "y",
+        # Service Mesh is configured before the routing mode. It is disabled here, so the
+        # manual routes and IngressController prompts are asked.
         ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "n",
+        ".*Disable Route Creation.*": lambda msg: "n",  # Only asked when Service Mesh is not enabled
+        ".*Routing Mode.*": lambda msg: "1",
+        ".*Configure ingress namespace ownership policy to enable path-based routing for MAS.*": lambda msg: "y",  # Only asked when Service Mesh is not enabled
+        ".*Do you want to use Let's Encrypt for certificate management.*": lambda msg: "n",
         ".*Configure SSO properties.*": lambda msg: "n",
         ".*Allow special characters for user IDs.*": lambda msg: "n",
         ".*Enable feature adoption metrics.*": lambda msg: "n",

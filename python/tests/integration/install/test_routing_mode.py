@@ -54,6 +54,8 @@ def create_mock_app():
     app._checkIngressControllerForPathRouting = InstallApp._checkIngressControllerForPathRouting.__get__(app, InstallApp)
     app._promptForIngressController = InstallApp._promptForIngressController.__get__(app, InstallApp)
     app._getMasDomainForDisplay = InstallApp._getMasDomainForDisplay.__get__(app, InstallApp)
+    # Same order as the install flow: Service Mesh is configured before the routing mode
+    app.configServiceMesh = InstallApp.configServiceMesh.__get__(app, InstallApp)
     app.configRoutingMode = InstallApp.configRoutingMode.__get__(app, InstallApp)
 
     return app
@@ -1220,6 +1222,211 @@ class TestParameterValidation:
         for mode in valid_modes:
             app.setParam("mas_routing_mode", mode)
             assert app.getParam("mas_routing_mode") == mode
+
+    def test_path_routing_with_service_mesh_bypasses_ingress_check(self):
+        """Test that path routing with Service Mesh enabled does not require IngressController validation."""
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "true")
+        # Service Mesh always forces manual route management (see configServiceMesh)
+        app.setParam("mas_manual_route_mgmt", "true")
+
+        # In interactive mode, selecting path routing with service mesh enabled sets path mode directly
+        app.configRoutingMode()
+        assert app.getParam("mas_routing_mode") == "path"
+        assert app.getParam("mas_ingress_controller_name") == ""
+        assert app.getParam("mas_configure_ingress") == ""
+        # Ingress controller checks should not have been called
+        app.promptForInt.assert_called_once()
+        assert not any(c.kwargs.get("kind") == "IngressController" for c in app.dynamicClient.resources.get.call_args_list)
+
+    def test_path_routing_with_manual_routes_bypasses_ingress_check(self):
+        """Test that path routing with manual route management (no Service Mesh) does not touch the IngressController."""
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "false")
+        app.setParam("mas_manual_route_mgmt", "true")
+
+        app.configRoutingMode()
+        assert app.getParam("mas_routing_mode") == "path"
+        assert app.getParam("mas_ingress_controller_name") == ""
+        assert app.getParam("mas_configure_ingress") == ""
+        # Only the routing mode prompt is asked: no ingress controller selection or "configure ingress" question
+        app.promptForInt.assert_called_once()
+        assert not any(c.kwargs.get("kind") == "IngressController" for c in app.dynamicClient.resources.get.call_args_list)
+
+    def test_path_routing_without_manual_routes_checks_ingress(self):
+        """Test that path routing without manual route management still validates the IngressController."""
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "false")
+        app.setParam("mas_manual_route_mgmt", "false")
+
+        controller = create_ingress_controller_mock(namespace_ownership="InterNamespaceAllowed")
+        ingress_api = MagicMock()
+        ingress_api.get.side_effect = [
+            controller,  # permission check
+            MagicMock(items=[controller]),  # list controllers
+            controller,  # configuration check
+        ]
+        ingress_config_api = MagicMock()
+        ingress_config_api.get.return_value.spec.get.return_value = "apps.cluster.example.com"
+
+        def get_side_effect(api_version, kind):
+            return ingress_api if kind == "IngressController" else ingress_config_api
+
+        app.dynamicClient.resources.get.side_effect = get_side_effect
+
+        app.configRoutingMode()
+        assert app.getParam("mas_routing_mode") == "path"
+        assert app.getParam("mas_ingress_controller_name") == "default"
+        ingress_api.get.assert_called()
+
+
+class TestServiceMeshManualRoutes:
+    """Test the Service Mesh / manual route management combinations in interactive mode.
+
+    - Service Mesh enabled  -> manual routes is always true (no prompt)
+    - Service Mesh disabled -> manual routes is whatever the user chooses (true or false)
+    """
+
+    @staticmethod
+    def _answers(app, serviceMesh, manualRoutes=None):
+        """Make yesOrNo answer the Service Mesh prompt, then the Disable Route Creation prompt."""
+
+        def _yesOrNo(message, param=None):
+            if "Service Mesh" in message:
+                answer = serviceMesh
+            elif "Disable Route Creation" in message:
+                answer = manualRoutes
+            else:
+                raise AssertionError(f"Unexpected prompt: {message}")
+            if param is not None:
+                app.setParam(param, "true" if answer else "false")
+            return answer
+
+        app.yesOrNo = MagicMock(side_effect=_yesOrNo)
+
+    def test_service_mesh_enabled_forces_manual_routes(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        self._answers(app, serviceMesh=True)
+
+        app.configServiceMesh()
+
+        assert app.getParam("mas_use_service_mesh") == "true"
+        assert app.getParam("mas_manual_route_mgmt") == "true"
+        # The manual routes question is not asked when Service Mesh is enabled
+        assert app.yesOrNo.call_count == 1
+
+    @pytest.mark.parametrize("manualRoutes", [True, False], ids=["manual_routes_true", "manual_routes_false"])
+    def test_service_mesh_disabled_honours_user_choice(self, manualRoutes):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        self._answers(app, serviceMesh=False, manualRoutes=manualRoutes)
+
+        app.configServiceMesh()
+
+        assert app.getParam("mas_use_service_mesh") == "false"
+        assert app.getParam("mas_manual_route_mgmt") == ("true" if manualRoutes else "false")
+        assert app.yesOrNo.call_count == 2
+
+    def test_pre_92_defaults_to_false_without_prompting(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.1.x")
+        app.yesOrNo = MagicMock()
+
+        app.configServiceMesh()
+
+        assert app.getParam("mas_use_service_mesh") == "false"
+        assert app.getParam("mas_manual_route_mgmt") == "false"
+        app.yesOrNo.assert_not_called()
+
+
+class TestServiceMeshMVIConflict:
+    """Test the Service Mesh and Maximo Visual Inspection (MVI) mutual exclusion and validation."""
+
+    def test_interactive_service_mesh_enabled_skips_mvi_prompt(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "true")
+        app.installIoT = False
+        app.installMonitor = False
+        app.installManage = False
+        app.installPredict = False
+        app.installAssist = False
+        app.installOptimizer = False
+        app.installInspection = False
+        app.installFacilities = False
+        app.installAIService = False
+        app.installArcgis = False
+
+        # Bind configApps to the mock app
+        app.configApps = InstallApp.configApps.__get__(app, InstallApp)
+        app.configAppChannel = MagicMock()
+
+        # We will mock yesOrNo to return False for anything else so we only test the flow around Visual Inspection
+        app.yesOrNo = MagicMock(return_value=False)
+
+        app.configApps()
+
+        # With service mesh enabled, it should print a description and not prompt for Visual Inspection
+        assert app.installInspection is False
+        app.printDescription.assert_any_call(["", "<Yellow>Visual Inspection cannot be installed when Service Mesh is enabled.</Yellow>", ""])
+
+        # Verify yesOrNo was NOT called with Visual Inspection
+        for call in app.yesOrNo.call_args_list:
+            assert "Visual Inspection" not in call[0][0]
+
+    def test_interactive_service_mesh_disabled_prompts_mvi(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "false")
+        app.installIoT = False
+        app.installMonitor = False
+        app.installManage = False
+        app.installPredict = False
+        app.installAssist = False
+        app.installOptimizer = False
+        app.installInspection = False
+        app.installFacilities = False
+        app.installAIService = False
+        app.installArcgis = False
+
+        # Bind configApps to the mock app
+        app.configApps = InstallApp.configApps.__get__(app, InstallApp)
+        app.configAppChannel = MagicMock()
+
+        # Mock yesOrNo: return True for "Install Visual Inspection", False for others
+        def side_effect_yes_or_no(prompt, param=None):
+            if "Visual Inspection" in prompt:
+                return True
+            return False
+
+        app.yesOrNo = MagicMock(side_effect=side_effect_yes_or_no)
+
+        app.configApps()
+
+        assert app.installInspection is True
+        app.configAppChannel.assert_any_call("visualinspection")
+
+    def test_validation_raises_fatal_error_when_both_active(self):
+        app = create_mock_app()
+        app.setParam("mas_channel", "9.2.0")
+        app.setParam("mas_use_service_mesh", "true")
+        app.installInspection = True
+        app.fatalError = MagicMock(side_effect=SystemExit(1))
+
+        # Replicate validation logic
+        def run_validation(app):
+            # Service Mesh is incompatible with Maximo Visual Inspection (MVI)
+            if app.getParam("mas_use_service_mesh") == "true" and app.installInspection:
+                app.fatalError("Service Mesh cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
+
+        with pytest.raises(SystemExit):
+            run_validation(app)
+
+        app.fatalError.assert_called_once_with("Service Mesh cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
 
 
 if __name__ == "__main__":

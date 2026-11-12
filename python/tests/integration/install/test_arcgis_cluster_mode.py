@@ -34,13 +34,13 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.2.x-dev",  # Use 9.2.x-dev channel
-        # 4. Routing Mode Configuration - Select subdomain routing (simplest for this test)
+        # 4. Service Mesh Configuration - asked before the routing mode
+        ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",
+        # 4.1. Routing Mode Configuration - Select subdomain routing (simplest for this test)
         ".*Routing Mode.*": lambda msg: "2",  # Select subdomain routing, 1 for path-based routing
         # Note: IngressController selection prompt does NOT appear because there's only one controller
-        # 4.1. Let's Encrypt HTTP-01 - decline, use existing cert setup
+        # 4.2. Let's Encrypt HTTP-01 - decline, use existing cert setup
         # ".*Do you want to use Let.*s Encrypt.*": lambda msg: "n",
-        # 5. Service Mesh Configuration
-        ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",
         # 5. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: "y",
         # 6. SLS configuration
@@ -160,6 +160,9 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         ".*Proceed with these settings.*": lambda msg: "y",
     }
 
+    # TODO: Once Service Mesh supports Maximo Visual Inspection (MVI), remove this bypass since MVI will be promptable
+    prompt_handlers.pop(".*Install Visual Inspection.*", None)
+
     # Create test configuration
     config = InstallTestConfig(
         prompt_handlers=prompt_handlers,
@@ -199,14 +202,13 @@ def test_install_arcgis_namespace_mode_error(tmpdir, caplog):
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.2.x-dev",
-        # 4. Routing Mode Configuration
-        ".*Routing Mode.*": lambda msg: "1",
-        # 4.1. Let's Encrypt HTTP-01 - decline, use existing cert setup
-        ".*Do you want to use Let.*s Encrypt.*": lambda msg: "n",
-        # 5. Service Mesh Configuration
+        # 4. Service Mesh Configuration - asked before the routing mode
         ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",
-        # 6. Configure IngressController
-        ".*Configure ingress namespace ownership.*": lambda msg: "y",
+        # 4.1. Routing Mode Configuration - path routing. With Service Mesh enabled there are
+        # no IngressController prompts (e.g. "Configure ingress namespace ownership").
+        ".*Routing Mode.*": lambda msg: "1",
+        # 4.2. Let's Encrypt HTTP-01 - decline, use existing cert setup
+        ".*Do you want to use Let.*s Encrypt.*": lambda msg: "n",
         # 7. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: "y",
         # 8. SLS configuration
@@ -296,6 +298,9 @@ def test_install_arcgis_namespace_mode_error(tmpdir, caplog):
         ".*Include IBM Maximo Location Services for Esri.*": lambda msg: "y",
     }
 
+    # TODO: Once Service Mesh supports Maximo Visual Inspection (MVI), remove this bypass since MVI will be promptable
+    prompt_handlers.pop(".*Install Visual Inspection.*", None)
+
     # Create test configuration expecting SystemExit
     config = InstallTestConfig(
         prompt_handlers=prompt_handlers,
@@ -343,13 +348,15 @@ def test_install_arcgis_minimal_mode_error(tmpdir, caplog):
         # 3. Catalog selection
         ".*Select catalog.*": lambda msg: "v9-master-amd64",
         ".*Select channel.*": lambda msg: "9.2.x-dev",
-        # 4. Routing Mode Configuration
+        # 4. Service Mesh Configuration - asked before the routing mode.
+        # Service Mesh disabled, so the manual routes and IngressController prompts are asked.
+        ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "n",
+        ".*Disable Route Creation.*": lambda msg: "n",
+        # 4.1. Routing Mode Configuration - path routing
         ".*Routing Mode.*": lambda msg: "1",
-        # 4.1. Let's Encrypt HTTP-01 - decline, use existing cert setup
+        # 4.2. Let's Encrypt HTTP-01 - decline, use existing cert setup
         ".*Do you want to use Let.*s Encrypt.*": lambda msg: "n",
-        # 5. Service Mesh Configuration
-        ".*Enable OpenShift Service Mesh support for MAS.*": lambda msg: "y",
-        # 6. Configure IngressController
+        # 5. Configure IngressController (only asked when Service Mesh is not enabled)
         ".*Configure ingress namespace ownership.*": lambda msg: "y",
         # 7. Storage classes
         ".*Use the auto-detected storage classes.*": lambda msg: "y",

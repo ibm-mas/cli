@@ -660,6 +660,23 @@ spec:
         - name: MAS_FACILITIES_SCHEDULERAGENT_DEPLOYMENTMODE
           value: $(params.mas_ws_facilities_scheduleragent_deploymentmode)
 
+    # configure service mesh domain routing
+    - name: servicemesh-domain-config
+      script: |
+        #!/bin/bash
+
+        # Only configure service mesh domain routing when service mesh is enabled
+        if [[ "$MAS_USE_SERVICE_MESH" != "true" ]]; then
+            echo "MAS_USE_SERVICE_MESH is not true, skipping servicemesh_domain_config"
+            exit 0
+        fi
+        /opt/app-root/src/run-role.sh servicemesh_domain_config
+      env:
+        - name: MAS_USE_SERVICE_MESH
+          value: $(params.mas_use_service_mesh)
+      image: "quay.io/ibmmas/cli:latest"
+      imagePullPolicy: $(params.image_pull_policy)
+
     - name: app-wait-for-approval
       # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
       command:
