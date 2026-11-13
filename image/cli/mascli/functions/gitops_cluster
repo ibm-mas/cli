@@ -32,6 +32,7 @@ Target Cluster (Optional):
 
 Operator Catalog (Optional):
       --catalog-version, --mas-catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}                                           Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')
+      --catalog-build-id, --mas-catalog-build-id ${COLOR_YELLOW}MAS_CATALOG_BUILD_ID${TEXT_RESET}                                        Build id of the IBM Maximo Operator Catalog release (optional, when set the SaaS release tests are run)
       --catalog-image, --mas-catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}                                                 Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
 
 Redhat Cert Manager (Optional):
@@ -192,6 +193,9 @@ function gitops_cluster_noninteractive() {
       # Operator Catalog
       --catalog-version|--mas-catalog-version)
         export MAS_CATALOG_VERSION=$1 && shift
+        ;;
+      --catalog-build-id|--mas-catalog-build-id)
+        export MAS_CATALOG_BUILD_ID=$1 && shift
         ;;
       --catalog-image|--mas-catalog-image)
         export MAS_CATALOG_IMAGE=$1 && shift
@@ -517,6 +521,7 @@ function gitops_cluster() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Operator Catalog" "    "
   echo_reset_dim "Catalog Version ................ ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
+  echo_reset_dim "Catalog Build ID ............... ${COLOR_MAGENTA}${MAS_CATALOG_BUILD_ID}"
   echo_reset_dim "Catalog Image .................. ${COLOR_MAGENTA}${MAS_CATALOG_IMAGE}"
   reset_colors
 
