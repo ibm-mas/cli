@@ -17,11 +17,20 @@ dependencies require an explicit confirmation before the update can proceed:
 - IBM Db2 major-version update
 - Db2 v11 to v12 activation license file path
 
+The Db2 license path input is rendered inline in the IBM Db2 section: for a
+v11 to v12 upgrade, providing the license file path is itself the
+confirmation, so no separate Db2 checkbox is shown in that case.  A Db2
+checkbox is only rendered for major-version upgrades that do not need a
+license file.  The entered path is validated to point at an existing file
+before the step can complete, so a typo fails at confirmation time rather
+than when the pipeline launch reads the file.
+
 The step is only shown when ``UpdateApp.upgradeConfirmationsPending()`` is
 True; otherwise the workflow skips straight to review.
 """
 
-from typing import Any
+from os import path
+from typing import Any, Optional
 
 try:
     from textual.app import ComposeResult
@@ -40,9 +49,11 @@ class ConfirmUpgradesScreen(VerticalScroll):
     Composed lazily when the step becomes active (after the dependency checks
     have run), so the pending-confirmation state read from the app instance
     is current.  The Confirm button is blocked until every required
-    confirmation is checked and (for Db2 v11 to v12) a license file path is
-    provided.  Confirm writes the corresponding params and posts
-    StepCompleted; Abort exits the application.
+    confirmation is satisfied: MongoDB and Db2 checkboxes (where rendered)
+    must be checked, and the Db2 v11 to v12 license path (when needed) must
+    be provided — for that upgrade, entering the path is the confirmation.
+    Confirm writes the corresponding params and posts StepCompleted; Abort
+    exits the application.
 
     Attributes:
         _mas_app: MAS CLI app instance (UpdateApp).
@@ -69,8 +80,9 @@ class ConfirmUpgradesScreen(VerticalScroll):
 
         Yields:
             Heading, description, one section per pending confirmation
-            (MongoDB notice + checkbox, Db2 checkbox, Db2 license path input),
-            an error label, and Confirm / Abort buttons.
+            (MongoDB notice + checkbox, Db2 section with either a checkbox
+            or, for the v11 to v12 license-requiring upgrade, an inline
+            license path input), an error label, and Confirm / Abort buttons.
         """
         yield Label(self._step.heading, id=f"heading-{self._step.id}")
         for para in self._step.description:
@@ -96,31 +108,32 @@ class ConfirmUpgradesScreen(VerticalScroll):
                     classes="confirm-checkbox",
                 )
 
-        if self._mas_app.db2UpgradeConfirmationPending():
+        db2UpgradePending = self._mas_app.db2UpgradeConfirmationPending()
+        db2LicenseNeeded = self._mas_app.db2LicenseFileNeeded()
+        if db2UpgradePending or db2LicenseNeeded:
             current = self._mas_app.db2CurrentMajorVersion
             target = self._mas_app.db2TargetMajorVersion
+            namespace = self._mas_app.getParam("db2_namespace")
             with Vertical(id="confirm-db2-section", classes="confirm-section"):
                 yield Label("IBM Db2", classes="confirm-section-heading")
-                yield Label(
-                    f"Db2 {current} instances in {self._mas_app.getParam('db2_namespace')} will be updated to {target}",
-                    classes="confirm-section-para",
-                )
-                yield Checkbox(
-                    f"Confirm update from Db2 {current} to {target}",
-                    id="confirm-db2",
-                    classes="confirm-checkbox",
-                )
-
-        if self._mas_app.db2LicenseFileNeeded():
-            with Vertical(id="db2-license-section", classes="confirm-section"):
-                yield Label("Db2 v12 Activation License File", classes="confirm-section-heading")
-                yield Label(
-                    "Db2 v11 to v12 upgrades require a valid Db2 v12 activation license file.\n"
-                    "If you cannot provide a valid file, the update must be aborted.",
-                    classes="confirm-section-para",
-                )
-                yield Label("Path to a valid Db2 v12 license file", classes="field-label")
-                yield Input(placeholder="/path/to/db2/license/file", id="input-db2-license")
+                if db2LicenseNeeded:
+                    # For the v11 to v12 upgrade the license file path input
+                    # is the confirmation itself — no separate checkbox.
+                    yield Label(
+                        f"Db2 {current} instances in {namespace} will be updated to {target}, this update requires a license file",
+                        classes="confirm-section-para",
+                    )
+                    yield Input(placeholder="Path to a valid Db2 v12 license file", id="input-db2-license")
+                else:
+                    yield Label(
+                        f"Db2 {current} instances in {namespace} will be updated to {target}",
+                        classes="confirm-section-para",
+                    )
+                    yield Checkbox(
+                        f"Confirm update from Db2 {current} to {target}",
+                        id="confirm-db2",
+                        classes="confirm-checkbox",
+                    )
 
         yield Label("", id=f"validator-error-{self._step.id}", classes="validator-error")
         with Horizontal(id="confirm-buttons"):
@@ -133,6 +146,10 @@ class ConfirmUpgradesScreen(VerticalScroll):
     def _requiredChecked(self) -> bool:
         """Return True when every required confirmation checkbox is checked.
 
+        The Db2 checkbox is only rendered (and therefore only required) for
+        major-version upgrades that do not need a license file — for the
+        v11 to v12 upgrade, providing the license path is the confirmation.
+
         Returns:
             bool: True when the MongoDB and Db2 confirmations (as applicable)
                 are checked.
@@ -143,7 +160,7 @@ class ConfirmUpgradesScreen(VerticalScroll):
                     return False
             except Exception:
                 return False
-        if self._mas_app.db2UpgradeConfirmationPending():
+        if self._mas_app.db2UpgradeConfirmationPending() and not self._mas_app.db2LicenseFileNeeded():
             try:
                 if not self.query_one("#confirm-db2", Checkbox).value:
                     return False
@@ -165,6 +182,23 @@ class ConfirmUpgradesScreen(VerticalScroll):
         except Exception:
             return False
 
+    def _licensePath(self) -> Optional[str]:
+        """Return the license path to store, or None when not needed/empty.
+
+        The entered path is whitespace-trimmed and user-expanded (``~``) so
+        that what is stored points at the file the launch path will open.
+
+        Returns:
+            Optional[str]: Expanded license path, or None when no license
+                file is needed or no path has been entered.
+        """
+        if not self._mas_app.db2LicenseFileNeeded():
+            return None
+        try:
+            return path.expanduser(self.query_one("#input-db2-license", Input).value.strip())
+        except Exception:
+            return None
+
     def _writeConfirmations(self) -> None:
         """Write the confirmed upgrade params and license file path to the app."""
         if self._mas_app.mongoUpgradeConfirmationPending():
@@ -173,8 +207,8 @@ class ConfirmUpgradesScreen(VerticalScroll):
         if self._mas_app.db2UpgradeConfirmationPending():
             targetMajor = self._mas_app.db2TargetMajorVersion
             self._mas_app.setParam(f"db2_v{targetMajor}_upgrade", "true")
-        if self._mas_app.db2LicenseFileNeeded():
-            licensePath = self.query_one("#input-db2-license", Input).value.strip()
+        licensePath = self._licensePath()
+        if licensePath:
             self._mas_app.db2LicenseFileLocal = licensePath
 
     def on_checkbox_changed(self, _event: Checkbox.Changed) -> None:
@@ -219,8 +253,11 @@ class ConfirmUpgradesScreen(VerticalScroll):
         """Handle Confirm and Abort buttons.
 
         Confirm is blocked with an inline error until every required
-        confirmation is checked and the license path (when needed) is
-        provided.  Abort exits the application.
+        confirmation is satisfied: MongoDB and Db2 checkboxes (where
+        rendered) must be checked, and the Db2 v11 to v12 license path
+        (when needed) must be entered and point at an existing file — a
+        path that only fails when the pipeline launch reads it is caught
+        here instead.  Abort exits the application.
 
         Args:
             event (Button.Pressed): The button press event.
@@ -231,9 +268,15 @@ class ConfirmUpgradesScreen(VerticalScroll):
                 error_label.update("All upgrade confirmations must be checked before you can continue.")
                 error_label.add_class("validator-error--visible")
                 return
-            if not self._licenseProvided():
+            licensePath = self._licensePath()
+            if self._mas_app.db2LicenseFileNeeded() and not licensePath:
                 error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
                 error_label.update("A path to a valid Db2 v12 license file is required.")
+                error_label.add_class("validator-error--visible")
+                return
+            if licensePath is not None and not path.isfile(licensePath):
+                error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
+                error_label.update(f"License file not found at {licensePath}")
                 error_label.add_class("validator-error--visible")
                 return
             self._writeConfirmations()

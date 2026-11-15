@@ -1366,6 +1366,19 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         """
         return self.mongoUpgradeConfirmationPending() or self.db2UpgradeConfirmationPending() or self.db2LicenseFileNeeded()
 
+    def resetWorkflowState(self) -> None:
+        """Clear user-collected state so a TUI workflow reset re-collects it.
+
+        Called by the Textual shell on WorkflowReset.  Params are cleared by
+        the shell itself and the dependency detectors re-populate the version
+        state when the checks re-run, but the Db2 license path is user input
+        with no detector: without this method a stale path would silently
+        survive a reset (and the license input would not be re-rendered,
+        because ``db2LicenseFileNeeded`` only checks for None).
+        """
+        self.db2LicenseFileLocal = None
+        self.db2LicenseFileSecret = None
+
     def reviewDependencyUpgrades(self) -> None:
         """Prompt for or validate upgrade confirmations for MongoDB and Db2 major-version upgrades.
 

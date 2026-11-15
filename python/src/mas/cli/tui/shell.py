@@ -333,11 +333,19 @@ class TextualShell(App):
     def on_workflow_reset(self, _event: WorkflowReset) -> None:
         """Reset the workflow: clear completed state and return to the first step.
 
+        Clears completed steps and params, resets any command-specific
+        interactive state the app collected during the workflow (via the
+        optional ``resetWorkflowState`` hook, e.g. the update command's Db2
+        license path), then returns to the first step.
+
         Args:
             _event (WorkflowReset): The reset event (unused payload).
         """
         self._completed.clear()
         self._mas_app.params.clear()
+        reset_state = getattr(self._mas_app, "resetWorkflowState", None)
+        if callable(reset_state):
+            reset_state()
         self._refresh_sidebar_conditions()
         for s in self._definition:
             try:
