@@ -223,7 +223,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   --catalog @@MAS_LATEST_CATALOG@@ --release @@MAS_LATEST_CHANNEL@@ \
   --mode m2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/cp4d \
-  --cp4d-platform --cp4d-wsl --cp4d-wml --cp4d-spark --cp4d-cognos
+  --cp4d-platform --cp4d-wsl --cp4d-wml --cp4d-spark
 ```
 
   </div>
@@ -236,7 +236,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   --catalog @@MAS_LATEST_CATALOG@@ --release @@MAS_LATEST_CHANNEL@@ \
   --mode m2d \
   --dir /mnt/registry/cp4d \
-  --cp4d-platform --cp4d-wsl --cp4d-wml --cp4d-spark --cp4d-cognos
+  --cp4d-platform --cp4d-wsl --cp4d-wml --cp4d-spark
 ```
 
   </div>
@@ -251,7 +251,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
   --catalog @@MAS_LATEST_CATALOG@@ --release @@MAS_LATEST_CHANNEL@@ \
   --mode d2m --target-registry $REGISTRY_HOST \
   --dir /mnt/registry/cp4d \
-  --cp4d-platform --cp4d-wsl --cp4d-wml --cp4d-spark --cp4d-cognos
+  --cp4d-platform --cp4d-wsl --cp4d-wml --cp4d-spark
 ```
 
   </div>
