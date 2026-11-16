@@ -76,8 +76,8 @@ Notifications (Optional):
       --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET}                                                                    Slack channel for ArgoCD to notify when an app sync has completed or failed
 
 Selenium Grid (Optional):
-      --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}
-      --selenium-grid-repo-url ${COLOR_YELLOW}SELENIUM_GRID_REPO_URL${TEXT_RESET}                                                          Install Selenium Grid
+      --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}                                                          Install Selenium Grid
+      --selenium-grid-repo-url ${COLOR_YELLOW}SELENIUM_GRID_REPO_URL${TEXT_RESET}                                                        Set to change the repo url to a specific private repo url where the helm charts reside
 
 Group Sync Operator (Optional):
       --install-group-sync-operator ${COLOR_YELLOW}INSTALL_GROUP_SYNC_OPERATOR${TEXT_RESET}                                              Install the Group Sync Operator
