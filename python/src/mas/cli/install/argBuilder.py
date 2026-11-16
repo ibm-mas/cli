@@ -522,8 +522,6 @@ class installArgBuilderMixin:
         # -----------------------------------------------------------------------------
         if self.getParam("cpd_product_version") != "":
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
-            if self.getParam("cpd_install_cognos") == "true":
-                command += " --cp4d-install-cognos"
             if self.getParam("cpd_install_ws") == "true":
                 command += " --cp4d-install-ws"
             if self.getParam("cpd_install_wml") == "true":
