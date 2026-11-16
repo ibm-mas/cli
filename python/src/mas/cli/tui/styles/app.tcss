@@ -166,6 +166,28 @@ ConnectStepScreen {
     height: auto;
 }
 
+/* Busy indicator shown while the connect worker runs.  Follows the same
+   class-toggle pattern as .dep-error / .dep-error--visible above. */
+#connect-busy {
+    display: none;
+    height: auto;
+    margin-top: 1;
+}
+
+#connect-busy.connect-busy--visible {
+    display: block;
+}
+
+#connect-busy-spinner {
+    width: 3;
+    height: 1;
+}
+
+#connect-busy-label {
+    margin-left: 1;
+    color: $text-muted;
+}
+
 /* ---------- AutoRunScreen ------------------------------------------------- */
 
 AutoRunScreen {
@@ -346,6 +368,32 @@ ReviewScreen {
 StepScreen {
     height: 100%;
     padding: 1 2;
+}
+
+/* Read-only context panel shown between the description and the fields
+   (e.g. the installed catalog on the update choose-catalog step).  Mirrors
+   the .confirm-section panel style. */
+.step-context {
+    height: auto;
+    margin-top: 1;
+    margin-bottom: 1;
+    padding: 1;
+    border: round $panel-lighten-2;
+}
+
+.context-row {
+    height: auto;
+}
+
+.context-label {
+    width: 30;
+    color: $text-muted;
+}
+
+.context-value {
+    width: 1fr;
+    text-wrap: wrap;
+    color: $accent;
 }
 
 /* ---------- ConfirmUpgradesScreen ---------------------------------------- */

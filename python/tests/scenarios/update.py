@@ -35,6 +35,13 @@ UPDATE_SCENARIOS = {
         "params": {},
         "attrs": {},
     },
+    # Installed catalog detected by the connect step's post-connect checks —
+    # the state the choose-catalog step renders as context alongside the
+    # target catalog options.
+    "installed-catalog": {
+        "params": {},
+        "attrs": {"installedCatalogId": "v9-261022-amd64"},
+    },
     # Db2 11 detected in a single namespace, target catalog moves to 12 —
     # the v11 to v12 upgrade requiring a license file.
     "db2-v11-to-v12": {

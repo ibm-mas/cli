@@ -97,9 +97,10 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
        the post-connection cluster review (``_postConnectChecks``) which
        detects the installed catalog and verifies MAS/AI Service instances
        exist.
-    2. **choose-catalog** — Select the target Maximo Operator Catalog version.
-       Validates OCP compatibility, catalog ordering, and the routing-mode
-       pre-flight check (``validateCatalogSelection``).
+    2. **choose-catalog** — Select the target Maximo Operator Catalog version,
+       with the currently installed catalog shown as context.  Validates OCP
+       compatibility, catalog ordering, and the routing-mode pre-flight check
+       (``validateCatalogSelection``).
     3. **dependency-checks** — Auto-running checklist that detects installed
        dependencies and populates params.
     4. **confirm-upgrades** — Conditional step shown only when a MongoDB or
@@ -131,6 +132,12 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
         heading_level="h1",
         description=[
             "Select the IBM Maximo Operator Catalog version to update to.",
+        ],
+        # Read-only context panel: the catalog detected by the connect step's
+        # post-connect checks.  The panel composes lazily (after connect), so
+        # installedCatalogId is already populated when the values resolve.
+        context=[
+            WorkflowSummaryItem(label="Installed Catalog", attr="installedCatalogId"),
         ],
         fields=[
             WorkflowField(

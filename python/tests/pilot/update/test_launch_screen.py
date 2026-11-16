@@ -45,10 +45,18 @@ def _make_screen(launch_update):
 
 
 def _succeed(progressCallback=None, startCallback=None):
-    """Report every launch stage as succeeding."""
-    for label in ("Validate OpenShift Pipelines", "Prepare pipelines namespace", "Install Tekton definitions", "Submit PipelineRun"):
+    """Report every launch stage as succeeding.
+
+    Mirrors the real launchUpdate contract: the Submit PipelineRun stage
+    reports the pipeline run URL as its detail (not a completion message),
+    because the screen displays that detail as the URL and the Copy URL
+    button copies it.
+    """
+    for label in ("Validate OpenShift Pipelines", "Prepare pipelines namespace", "Install Tekton definitions"):
         startCallback(label)
         progressCallback(label, True, "done")
+    startCallback("Submit PipelineRun")
+    progressCallback("Submit PipelineRun", True, "https://example.com/pipelinerun")
 
 
 def test_successful_launch_reveals_done():
@@ -70,6 +78,38 @@ def test_successful_launch_reveals_done():
     app = run_screen_pilot(screen, drive)
 
     assert app.return_value == 0
+
+
+def test_successful_launch_shows_and_copies_pipeline_url(monkeypatch):
+    """Test that the pipeline URL is shown and copied, not the completion message.
+
+    GIVEN a stubbed app whose launchUpdate succeeds, with the Submit
+        PipelineRun stage reporting the pipeline URL as its detail
+    WHEN the launch step becomes active and Copy URL is clicked
+    THEN the URL label shows the URL, the Copy URL button is revealed, and
+        the clipboard receives the URL itself — not a message like
+        "PipelineRun for MAS update submitted".
+    """
+
+    class FakePyperclip:
+        """Stand-in for the optional pyperclip module, recording copies."""
+
+        copied = None
+
+        @classmethod
+        def copy(cls, text):
+            cls.copied = text
+
+    monkeypatch.setattr("mas.cli.tui.screens.launch.pyperclip", FakePyperclip)
+    screen, _ = _make_screen(_succeed)
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#btn-copy-url", Button).display)
+        assert "https://example.com/pipelinerun" in str(app.query_one("#pipeline-url", Label).render())
+        await click_button(pilot, "#btn-copy-url")
+        assert FakePyperclip.copied == "https://example.com/pipelinerun"
+
+    run_screen_pilot(screen, drive)
 
 
 def test_failed_launch_reveals_dismiss_with_error():

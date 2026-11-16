@@ -1585,10 +1585,11 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         reporter.start("Submit PipelineRun")
         success, detail = self._submitPipelineRun()
         if success:
-            reporter.success("Submit PipelineRun", "PipelineRun for MAS update submitted")
-            if progressCallback is None:
-                # CLI path: print URL
-                print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{detail}</u></Cyan>\n"))
+            # ``detail`` is the pipeline run URL: the CLI success line ends
+            # with it, and the TUI renders it beneath the step list (where
+            # the Copy URL button gets it from).  Reporting a static message
+            # here would leave the TUI copying that message as the "URL".
+            reporter.success("Submit PipelineRun", detail)
         else:
             reporter.failure("Submit PipelineRun", "Failed to submit PipelineRun for MAS update, see log file for details")
             if progressCallback is None:

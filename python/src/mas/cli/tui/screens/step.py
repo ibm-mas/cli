@@ -14,22 +14,24 @@ from typing import Any, List
 
 try:
     from textual.app import ComposeResult
-    from textual.containers import VerticalScroll
+    from textual.containers import Horizontal, Vertical, VerticalScroll
     from textual.widgets import Button, Checkbox, Input, Label, Select, Switch
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
 from mas.cli.tui.messages import StepCompleted
-from mas.cli.tui.models import WorkflowField, WorkflowStep
+from mas.cli.tui.models import WorkflowField, WorkflowStep, WorkflowSummaryItem
 
 
 class StepScreen(VerticalScroll):
     """Content panel for a single WorkflowStep.
 
-    Renders the step heading, description paragraphs, and a field widget
-    for each WorkflowField.  A "Next →" button at the bottom validates
-    required fields, writes values to app.params, optionally runs the step
-    validator, then posts StepCompleted.
+    Renders the step heading, description paragraphs, an optional read-only
+    context panel (from ``step.context``, e.g. the installed catalog on the
+    update command's choose-catalog step), and a field widget for each
+    WorkflowField.  A "Next →" button at the bottom validates required
+    fields, writes values to app.params, optionally runs the step validator,
+    then posts StepCompleted.
 
     Attributes:
         _mas_app: MAS CLI app providing params dict.
@@ -54,17 +56,45 @@ class StepScreen(VerticalScroll):
         """Build the step screen content.
 
         Yields:
-            Heading, description paragraphs, field widgets, validator error
-            label (hidden initially), and Next button.
+            Heading, description paragraphs, optional context panel rows,
+            field widgets, validator error label (hidden initially), and
+            Next button.
         """
         yield Label(self._step.heading, id=f"heading-{self._step.id}")
         for para in self._step.description:
             yield Label(para, classes="description-para")
+        if self._step.context:
+            with Vertical(classes="step-context"):
+                for item in self._step.context:
+                    with Horizontal(classes="context-row"):
+                        yield Label(f"{item.label}:", classes="context-label")
+                        yield Label(self._context_value(item), classes="context-value")
         for field in self._step.fields:
             yield Label(field.label, classes="field-label")
             yield self._build_field_widget(field)
         yield Label("", id=f"validator-error-{self._step.id}", classes="validator-error")
         yield Button("Next →", id=f"btn-next-{self._step.id}", classes="btn-next", variant="primary")
+
+    def _context_value(self, item: WorkflowSummaryItem) -> str:
+        """Resolve a context row's display value from the app instance.
+
+        Args:
+            item (WorkflowSummaryItem): Context row with ``attr`` or ``param``
+                identifying where the value lives.
+
+        Returns:
+            str: Display string — the resolved value, "***" for sensitive
+            items, or "—" when the value is missing or empty.
+        """
+        if item.attr:
+            raw = getattr(self._mas_app, item.attr, None)
+        else:
+            raw = self._mas_app.params.get(item.param, None)
+        if item.sensitive:
+            return "***"
+        if raw is None or str(raw).strip() == "":
+            return "—"
+        return str(raw)
 
     def start_dynamic_loaders(self) -> None:
         """No-op — satisfies the interface expected by TextualShell."""

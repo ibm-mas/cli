@@ -15,7 +15,7 @@ from typing import Any, Callable, Optional
 try:
     from textual.app import ComposeResult
     from textual.containers import Horizontal, VerticalScroll
-    from textual.widgets import Button, ContentSwitcher, Input, Label, Switch
+    from textual.widgets import Button, ContentSwitcher, Input, Label, LoadingIndicator, Switch
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
@@ -77,7 +77,7 @@ class ConnectStepScreen(VerticalScroll):
 
         Yields:
             ContentSwitcher containing the reuse and new-credentials sub-screens,
-            followed by a shared error label visible on both.
+            followed by a shared busy indicator and error label visible on both.
         """
         yield Label("Connect to OpenShift Cluster", classes="connect-heading")
         with ContentSwitcher(id="connect-switcher", initial="connect-reuse"):
@@ -94,8 +94,12 @@ class ConnectStepScreen(VerticalScroll):
                 yield Label("Skip TLS Verify", classes="connect-field-label")
                 yield Switch(value=False, id="switch-skip-tls")
                 yield Button("Connect", id="btn-connect", variant="primary")
-        # Shared error label — rendered outside the switcher so it is always
-        # visible regardless of which sub-screen is active.
+        # Shared busy indicator and error label — rendered outside the
+        # switcher so they are always visible regardless of which sub-screen
+        # is active.
+        with Horizontal(id="connect-busy"):
+            yield LoadingIndicator(id="connect-busy-spinner")
+            yield Label("", id="connect-busy-label")
         yield Label("", id="connect-error-label", classes="connect-error")
 
     def on_mount(self) -> None:
@@ -145,6 +149,47 @@ class ConnectStepScreen(VerticalScroll):
     def start_dynamic_loaders(self) -> None:
         """No-op — satisfies the interface expected by TextualShell."""
 
+    def _set_busy(self, message: str) -> None:
+        """Show the busy indicator and disable all connect buttons.
+
+        Called on the event-loop thread when a connection worker starts, so
+        the screen visibly responds to the button press while the connection
+        and post-connect checks run in the background.
+
+        Args:
+            message (str): Status text shown next to the spinner.
+        """
+        busy = self.query_one("#connect-busy", Horizontal)
+        busy.add_class("connect-busy--visible")
+        self.query_one("#connect-busy-label", Label).update(message)
+        for btn_id in ("#btn-reuse-yes", "#btn-reuse-no", "#btn-connect"):
+            try:
+                self.query_one(btn_id, Button).disabled = True
+            except Exception:
+                pass
+
+    def _update_busy_message(self, message: str) -> None:
+        """Update the busy indicator status text without toggling buttons.
+
+        Args:
+            message (str): New status text shown next to the spinner.
+        """
+        self.query_one("#connect-busy-label", Label).update(message)
+
+    def _clear_busy(self) -> None:
+        """Hide the busy indicator and re-enable all connect buttons.
+
+        Called on the event-loop thread when a connection attempt fails, so
+        the user can correct the inputs and retry.
+        """
+        busy = self.query_one("#connect-busy", Horizontal)
+        busy.remove_class("connect-busy--visible")
+        for btn_id in ("#btn-reuse-yes", "#btn-reuse-no", "#btn-connect"):
+            try:
+                self.query_one(btn_id, Button).disabled = False
+            except Exception:
+                pass
+
     def _do_reuse_connect(self) -> None:
         """Reuse the active kubeconfig connection in a worker thread.
 
@@ -153,6 +198,7 @@ class ConnectStepScreen(VerticalScroll):
         """
         self._mas_app._connectFromParams()
         if self._post_connect is not None:
+            self.app.call_from_thread(self._update_busy_message, "Checking cluster configuration…")
             self._post_connect()
 
     def _do_new_connect(self, serverUrl: str, loginToken: str, skipTls: bool) -> None:
@@ -171,6 +217,7 @@ class ConnectStepScreen(VerticalScroll):
         self._mas_app.params["skip_tls_verify"] = "true" if skipTls else "false"
         self._mas_app._connectFromParams()
         if self._post_connect is not None:
+            self.app.call_from_thread(self._update_busy_message, "Checking cluster configuration…")
             self._post_connect()
 
     def _on_connect_success(self) -> None:
@@ -186,14 +233,9 @@ class ConnectStepScreen(VerticalScroll):
         Args:
             exc (Exception): The exception raised by the connection attempt.
         """
+        self._clear_busy()
         error_label = self.query_one("#connect-error-label", Label)
         error_label.update(str(exc))
-        try:
-            btn = self.query_one("#btn-connect", Button)
-            btn.disabled = False
-            btn.label = "Connect"
-        except Exception:
-            pass
 
     def _run_reuse(self) -> None:
         """Worker: run reuse connection then report success or error."""
@@ -230,6 +272,7 @@ class ConnectStepScreen(VerticalScroll):
         btn_id = event.button.id
 
         if btn_id == "btn-reuse-yes":
+            self._set_busy("Connecting to cluster…")
             self.run_worker(self._run_reuse, thread=True)
 
         elif btn_id == "btn-reuse-no":
@@ -245,8 +288,7 @@ class ConnectStepScreen(VerticalScroll):
                 error_label = self.query_one("#connect-error-label", Label)
                 error_label.update("Server URL is required.")
                 return
-            event.button.disabled = True
-            event.button.label = "Connecting…"
+            self._set_busy("Connecting to cluster…")
             error_label = self.query_one("#connect-error-label", Label)
             error_label.update("")
             self.run_worker(lambda: self._run_new(serverUrl, loginToken, skipTls), thread=True)

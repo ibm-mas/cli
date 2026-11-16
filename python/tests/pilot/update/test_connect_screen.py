@@ -108,13 +108,64 @@ def test_new_credentials_flow_advances():
     assert mas_app.params["skip_tls_verify"] == "true"
 
 
+def test_busy_indicator_while_connecting():
+    """Test that a busy indicator is shown while the connect worker runs.
+
+    GIVEN a stubbed app whose _connectFromParams and post-connect hook each
+        block until released
+    WHEN the user clicks Yes on the reuse sub-screen
+    THEN the busy indicator appears immediately with a status message, the
+        connect buttons are disabled, the message advances once the
+        connection succeeds, and the screen posts StepCompleted on release.
+    """
+    import threading
+    from unittest.mock import MagicMock
+
+    mas_app = MagicMock()
+    mas_app.params = {}
+    mas_app.getActiveConsoleURL.return_value = "https://console.example.com"
+
+    connect_release = threading.Event()
+    post_release = threading.Event()
+    mas_app._connectFromParams.side_effect = lambda: connect_release.wait(timeout=5)
+
+    def _blocking_post_connect():
+        post_release.wait(timeout=5)
+
+    step = WorkflowStep(id="connect-cluster", heading="Connect to OpenShift Cluster")
+    screen = ConnectStepScreen(mas_app, step, 0, post_connect=_blocking_post_connect)
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-reuse")
+        await click_button(pilot, "#btn-reuse-yes")
+        # The indicator must appear with the button press so the screen does
+        # not feel unresponsive during the background work.  The connect
+        # worker is still blocked here, so the first message is stable.
+        busy = app.query_one("#connect-busy")
+        assert "connect-busy--visible" in busy.classes
+        assert "Connecting to cluster" in str(app.query_one("#connect-busy-label", Label).render())
+        assert app.query_one("#btn-reuse-yes", Button).disabled is True
+        # Once the connection itself succeeds the message advances to the
+        # post-connect phase (catalog detection etc.) while still blocked.
+        connect_release.set()
+        await wait_for(lambda: "Checking cluster configuration" in str(app.query_one("#connect-busy-label", Label).render()))
+        assert app.query_one("#btn-reuse-yes", Button).disabled is True
+        post_release.set()
+        await wait_for(lambda: app.posted)
+
+    app = run_screen_pilot(screen, drive)
+
+    assert ("step_completed", 0) in app.posted
+    assert mas_app._connectFromParams.called
+
+
 def test_connect_error_displayed_inline():
     """Test that a connection failure is displayed inline without advancing.
 
     GIVEN a stubbed app whose _connectFromParams raises
     WHEN the user submits credentials
-    THEN the error is shown on the shared error label, the Connect button
-        is re-enabled, and nothing is posted.
+    THEN the error is shown on the shared error label, the busy indicator is
+        hidden, the Connect button is re-enabled, and nothing is posted.
     """
     screen, mas_app, _ = _make_screen(getActiveConsoleURL=None, connectRaises=RuntimeError("connection refused"))
 
@@ -125,6 +176,7 @@ def test_connect_error_displayed_inline():
         await click_button(pilot, "#btn-connect")
         await wait_for(lambda: "connection refused" in str(app.query_one("#connect-error-label", Label).render()))
         assert app.posted == []
+        assert "connect-busy--visible" not in app.query_one("#connect-busy").classes
         btn = app.query_one("#btn-connect", Button)
         assert btn.disabled is False
         assert btn.label == "Connect"

@@ -101,6 +101,12 @@ class WorkflowStep:
         heading: Text rendered as the step heading.
         heading_level: "h1" or "h2" — controls the heading CSS class.
         description: List of paragraph strings shown below the heading.
+        context: Read-only label/value rows (WorkflowSummaryItem) shown in a
+            bordered panel between the description and the fields — cluster
+            state the user needs alongside the inputs (e.g. the installed
+            catalog on the update command's choose-catalog step).  Values are
+            resolved from the app instance at screen-compose time, so items
+            may reference attributes populated by earlier steps.
         fields: Input fields collected on this step's screen.
         summary: Items included in the review-screen DataTable for this step.
         action: Optional blocking callable run in a worker thread after the
@@ -123,6 +129,7 @@ class WorkflowStep:
     heading: str
     heading_level: str = "h1"
     description: List[str] = field(default_factory=list)
+    context: List[WorkflowSummaryItem] = field(default_factory=list)
     fields: List[WorkflowField] = field(default_factory=list)
     summary: List[WorkflowSummaryItem] = field(default_factory=list)
     action: Optional[Callable] = None

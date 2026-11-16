@@ -114,6 +114,23 @@ def test_choose_catalog_field_is_select_type():
     assert field.options == ["v9-260625-amd64", "v9-260527-amd64", "v9-260430-amd64"]
 
 
+def test_choose_catalog_step_has_installed_catalog_context():
+    """Test the choose-catalog step shows the installed catalog as context.
+
+    GIVEN an app instance mock
+    WHEN buildUpdateWorkflow(app) is called
+    THEN the 'choose-catalog' step has a context item backed by the
+         installedCatalogId attribute, so the step screen can display the
+         catalog detected by the connect step's post-connect checks
+         (installedCatalogId is populated by then because step panels
+         compose lazily, after the connect step completes).
+    """
+    definition = buildUpdateWorkflow(_make_app())
+    step = next(s for s in definition if s.id == "choose-catalog")
+    attrs = [item.attr for item in step.context]
+    assert "installedCatalogId" in attrs, f"Expected 'installedCatalogId' as attr in choose-catalog context: {attrs}"
+
+
 def test_dependency_checks_step_has_summary_items():
     """Test the dependency-checks step carries all review summary items.
 

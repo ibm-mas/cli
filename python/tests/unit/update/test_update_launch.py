@@ -176,6 +176,39 @@ def test_launchUpdate_with_progress_callback_calls_callback():
     ), f"Expected a recognisable stage label, got: {labels}"
 
 
+def test_launchUpdate_reports_pipeline_url_to_progress_callback():
+    """Test that the Submit PipelineRun stage reports the URL as its detail.
+
+    GIVEN launchUpdatePipeline returns a pipeline run URL
+    WHEN launchUpdate(progressCallback) is called
+    THEN the (label, ok, detail) tuple for the Submit PipelineRun stage has
+        the URL itself as the detail — the TUI displays this detail beneath
+        the step list and the Copy URL button copies it, so anything else
+        (e.g. a static "submitted" message) would be copied as the "URL".
+    """
+    app = _make_update_app()
+    collected = []
+
+    def cb(label, ok, detail):
+        collected.append((label, ok, detail))
+
+    with (
+        patch(f"{_DEVOPS_PATCH_BASE}.installOpenShiftPipelines", return_value=True),
+        patch(f"{_DEVOPS_PATCH_BASE}.createNamespace"),
+        patch(f"{_DEVOPS_PATCH_BASE}.preparePipelinesNamespace"),
+        patch(f"{_DEVOPS_PATCH_BASE}.prepareUpdateSecrets"),
+        patch(f"{_DEVOPS_PATCH_BASE}.updateTektonDefinitions"),
+        patch(f"{_DEVOPS_PATCH_BASE}.launchUpdatePipeline", return_value="http://example.com/run"),
+    ):
+        app.launchUpdate(progressCallback=cb)
+
+    assert (
+        "Submit PipelineRun",
+        True,
+        "http://example.com/run",
+    ) in collected, f"Expected Submit PipelineRun to report the pipeline URL as detail, got: {collected}"
+
+
 def test_launchUpdate_with_start_callback_calls_start_before_progress():
     """Test that launchUpdate calls startCallback before progressCallback for each stage.
 
