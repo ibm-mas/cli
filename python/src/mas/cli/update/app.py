@@ -29,6 +29,7 @@ from mas.devops.pre_install import applyPreInstallMASRBAC
 from mas.devops.utils import isVersionEqualOrAfter
 from ..install.app import InstallApp
 from ..install.settings import AdditionalConfigsMixin
+from ..install.settings.aiSettings import getRhoaiChannelForCatalog
 from ..rbac_utils import evaluatePreinstallRBACAccess
 
 logger = logging.getLogger(__name__)
@@ -287,6 +288,11 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 self.chosenCatalog = getCatalog(catalogVersion)
             except NoSuchCatalogError:
                 self.chosenCatalog = getCatalog(getNewestCatalogTag())
+
+        # The RHOAI channel (and so the RHOAI major version) is determined by the target catalog
+        rhoaiChannel = getRhoaiChannelForCatalog(self.chosenCatalog)
+        if rhoaiChannel is not None:
+            self.setParam("rhoai_channel", rhoaiChannel)
 
         self.checkRoutingModeForUpdate()
 
@@ -638,8 +644,15 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         Detect if RHOAI v2 is installed. RHOAI can not be upgraded in place from v2 to v3,
         so the aiservice_rhoai role removes v2 and installs v3 (the same pipeline task is used
         as for the ODH to RHOAI migration).
+
+        This only applies when the target catalog uses RHOAI v3 (channel stable-3.x), catalogs
+        before November 2026 stay on RHOAI v2 so there is nothing to upgrade.
         """
         self.rhoaiV2Detected = False
+        if "-3." not in self.getParam("rhoai_channel"):
+            logger.debug(f"RHOAI channel '{self.getParam('rhoai_channel')}' is not a v3 channel, skipping RHOAI v2 upgrade check")
+            return False
+
         with Halo(text="Checking for Red Hat OpenShift AI (RHOAI) v2", spinner=self.spinner) as h:
             try:
                 subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")

@@ -127,6 +127,10 @@ spec:
       type: string
       default: ""
       description: Set to "true" to trigger ODH to RHOAI migration during update
+    - name: rhoai_channel
+      type: string
+      default: ""
+      description: Subscription channel for RHOAI (empty to use the aiservice_rhoai role default)
 
     # CP4D update
     # -------------------------------------------------------------------------
@@ -299,6 +303,8 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: devops_suite_name
           value: dependencies-rhoai-migration
+        - name: rhoai_channel
+          value: $(params.rhoai_channel)
 
     - name: update-db2
       timeout: "0"
