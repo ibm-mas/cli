@@ -98,7 +98,6 @@ def test_install_arcgis_cluster_mode_success(tmpdir):
         ".*Manage server timezone.*": lambda msg: "GMT",
         ".*Base language.*": lambda msg: "EN",
         ".*Secondary language.*": lambda msg: "",
-        ".*Enable integration with Cognos Analytics.*": lambda msg: "n",
         ".*Enable integration with Watson Studio Local.*": lambda msg: "n",
         ".*Select components to enable.*": lambda msg: "y",
         # 11.1. Manage Component Selection (individual prompts)
@@ -261,7 +260,6 @@ def test_install_arcgis_namespace_mode_error(tmpdir, caplog):
         ".*Manage server timezone.*": lambda msg: "GMT",
         ".*Base language.*": lambda msg: "EN",
         ".*Secondary language.*": lambda msg: "",
-        ".*Enable integration with Cognos Analytics.*": lambda msg: "n",
         ".*Enable integration with Watson Studio Local.*": lambda msg: "n",
         ".*Select components to enable.*": lambda msg: "y",
         # 24. Manage Component Selection
@@ -405,7 +403,6 @@ def test_install_arcgis_minimal_mode_error(tmpdir, caplog):
         ".*Manage server timezone.*": lambda msg: "GMT",
         ".*Base language.*": lambda msg: "EN",
         ".*Secondary language.*": lambda msg: "",
-        ".*Enable integration with Cognos Analytics.*": lambda msg: "n",
         ".*Enable integration with Watson Studio Local.*": lambda msg: "n",
         ".*Select components to enable.*": lambda msg: "y",
         # 24. Manage Component Selection

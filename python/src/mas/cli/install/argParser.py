@@ -1236,21 +1236,13 @@ aiServiceArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 cpdAppsArgGroup = installArgParser.add_argument_group(
     "IBM Cloud Pak for Data",
-    "Configure IBM Cloud Pak for Data applications including Watson Studio, Watson Machine Learning, Watson Discovery, Analytics Engine (Spark), Cognos Analytics, SPSS Modeler, and Canvas Base.",
+    "Configure IBM Cloud Pak for Data",
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-version",
     dest="cpd_product_version",
     required=False,
     help="Product version of CP4D to use",
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-cognos",
-    dest="cpd_install_cognos",
-    required=False,
-    help="Add Cognos as part of Cloud Pak for Data",
-    action="store_const",
-    const="install",
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-install-ws",
