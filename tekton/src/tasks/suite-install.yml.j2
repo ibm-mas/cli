@@ -99,18 +99,6 @@ spec:
       description: Certificate issuer kind for MAS Suite CR (Issuer or ClusterIssuer)
       default: ""
 
-    - name: ibm_entitlement_key
-      type: string
-
-    - name: artifactory_username
-      default: ''
-      type: string
-      description: Required to install development MAS catalogs
-    - name: artifactory_token
-      default: ''
-      type: string
-      description: Required to install development MAS catalogs
-
     # Special characters configuration
     - name: mas_special_characters
       type: string
@@ -202,11 +190,6 @@ spec:
       - name: MAS_SUPERUSER_PASSWORD
         value: $(params.mas_superuser_password)
 
-      - name: ARTIFACTORY_USERNAME
-        value: $(params.artifactory_username)
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
-
       - name: MAS_ICR_CP
         value: $(params.mas_icr_cp)
       - name: MAS_ICR_CPOPEN
@@ -220,9 +203,6 @@ spec:
         value: $(params.mas_deployment_progression)
       - name: MAS_ISSUER_KIND
         value: $(params.mas_issuer_kind)
-
-      - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates

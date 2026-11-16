@@ -866,6 +866,16 @@ case $1 in
     mas-cli pre-install "$@"
     ;;
 
+  configure-mcpi)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! configure-mcpi                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "configure-mcpi")
+    shift
+    # Run the new Python-based configure-mcpi command
+    mas-cli configure-mcpi "$@"
+    ;;
+
   gitops)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Functions (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"

@@ -45,6 +45,9 @@ spec:
 
     - name: mas_catalog_version
       type: string
+    - name: mas_catalog_build_id
+      type: string
+      default: ""
     - name: mas_catalog_image
       type: string
 
@@ -96,6 +99,9 @@ spec:
     - name: dro_cis_crn
       type: string
       default: ""
+    - name: mas_environment_type
+      type: string
+      default: ""
 
     - name: nvidia_gpu_action
       type: string
@@ -114,7 +120,7 @@ spec:
       default: nvidia-gpu-operator
     - name: gpu_channel
       type: string
-      default: v24.3
+      default: v26.3
     - name: gpu_install_plan
       type: string
       default: "Automatic"
@@ -207,6 +213,12 @@ spec:
     - name: cluster_logging_operator_use_syslog_forwarder
       type: string
       default: "false"
+    - name: cluster_logging_operator_environment_type
+      type: string
+      default: ""
+    - name: cluster_logging_operator_additional_exclude_containers
+      type: string
+      default: ""
     - name: cluster_logging_operator_install_plan
       type: string
       default: "Automatic"
@@ -239,6 +251,9 @@ spec:
       type: string
       default: ''
     - name: instana_agent_operator_jks_storage_class
+      type: string
+      default: ''
+    - name: instana_agent_operator_pod_template_yaml
       type: string
       default: ''
 
@@ -330,6 +345,8 @@ spec:
 
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
+        - name: mas_catalog_build_id
+          value: $(params.mas_catalog_build_id)
         - name: mas_catalog_image
           value: $(params.mas_catalog_image)
 
@@ -389,6 +406,10 @@ spec:
           value: $(params.cluster_logging_operator_install)
         - name: cluster_logging_operator_use_syslog_forwarder
           value: $(params.cluster_logging_operator_use_syslog_forwarder)
+        - name: cluster_logging_operator_environment_type
+          value: $(params.cluster_logging_operator_environment_type)
+        - name: cluster_logging_operator_additional_exclude_containers
+          value: $(params.cluster_logging_operator_additional_exclude_containers)
         - name: cluster_logging_operator_install_plan
           value: $(params.cluster_logging_operator_install_plan)
         - name: cluster_logging_operator_channel
@@ -412,6 +433,8 @@ spec:
           value: $(params.instana_agent_operator_env)
         - name: instana_agent_operator_jks_storage_class
           value: $(params.instana_agent_operator_jks_storage_class)
+        - name: instana_agent_operator_pod_template_yaml
+          value: $(params.instana_agent_operator_pod_template_yaml)
 
       taskRef:
         kind: Task
@@ -512,6 +535,8 @@ spec:
           value: $(params.dro_public_domain)
         - name: dro_cis_crn
           value: $(params.dro_cis_crn)
+        - name: mas_environment_type
+          value: $(params.mas_environment_type)
       taskRef:
         kind: Task
         name: gitops-dro

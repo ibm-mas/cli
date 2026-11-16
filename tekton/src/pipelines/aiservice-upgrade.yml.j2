@@ -73,6 +73,7 @@ spec:
     - name: aiservice-upgrade
       timeout: "0"
       params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(8) }}
         - name: aiservice_instance_id
           value: $(params.aiservice_instance_id)
         - name: aiservice_channel

@@ -1,0 +1,8 @@
+INHERIT: mkdocs.yml
+
+# Development override: exclude the entire catalogs subtree so mkdocs only
+# processes the ~20 guide/reference/command pages you are actively editing.
+# Use:  make mkdocs-serve-dev
+# For full site preview (including catalogs):  make mkdocs-serve
+exclude_docs: |
+  catalogs/*

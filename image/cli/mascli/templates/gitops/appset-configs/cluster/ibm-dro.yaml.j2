@@ -13,6 +13,9 @@ ibm_dro:
     tls_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KET_DRO_TLS_KEY }} | base64decode >"
     cis_crn: "{{ DRO_CIS_CRN }}"
 {% endif %}
+{% if MAS_ENVIRONMENT_TYPE is defined and MAS_ENVIRONMENT_TYPE != '' %}
+    mas_environment_type: {{ MAS_ENVIRONMENT_TYPE }}
+{% endif %}
 {% if DRO_CMM_SETUP is defined and DRO_CMM_SETUP %}
     dro_cmm:
         auth_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_CMM_AUTH_APIKEY }}>"

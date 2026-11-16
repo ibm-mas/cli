@@ -67,7 +67,8 @@ Not all functions supported in the container image are available in the standalo
 | [must-gather](guides/must-gather.md)                                |    ✅    |   ✅  |
 | [backup](guides/backup.md)                                          |    ✅    |   ✅  |
 | [restore](guides/restore.md)                                        |    ✅    |   ✅  |
-| [mirror](guides/image-mirroring.md)                                 |    ✅    |   ✅  |
+| [mirror](guides/mirroring-v2.md)                                 |    ✅    |   ✅  |
+| [configure-mcpi](commands/configure-mcpi.md)                        |    ✅    |   ✅  |
 | [mirror-images](guides/image-mirroring.md) (deprecated)             |    ✅    |   ❌  |
 | [mirror-redhat-images](commands/mirror-redhat-images.md)            |    ✅    |   ❌  |
 | [configure-airgap](guides/configure-airgap.md)                      |    ✅    |   ❌  |

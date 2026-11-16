@@ -27,6 +27,9 @@ spec:
     - name: mas_catalog_version
       type: string
       default: ""
+    - name: mas_catalog_build_id
+      type: string
+      default: ""
     - name: mas_catalog_image
       type: string
       default: ""
@@ -119,6 +122,12 @@ spec:
     - name: cluster_logging_operator_use_syslog_forwarder
       type: string
       default: "false"
+    - name: cluster_logging_operator_environment_type
+      type: string
+      default: ""
+    - name: cluster_logging_operator_additional_exclude_containers
+      type: string
+      default: ""
     - name: cluster_logging_operator_install_plan
       type: string
       default: "Automatic"
@@ -153,6 +162,9 @@ spec:
     - name: instana_agent_operator_jks_storage_class
       type: string
       default: ''
+    - name: instana_agent_operator_pod_template_yaml
+      type: string
+      default: ''
     - name: application_admin_role
       type: string
       default: ""
@@ -179,6 +191,8 @@ spec:
         value: $(params.git_commit_msg)
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)
+      - name: MAS_CATALOG_BUILD_ID
+        value: $(params.mas_catalog_build_id)
       - name: MAS_CATALOG_IMAGE
         value: $(params.mas_catalog_image)
       - name: SM_AWS_REGION
@@ -247,6 +261,10 @@ spec:
         value: $(params.cluster_logging_operator_install)
       - name: CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER
         value: $(params.cluster_logging_operator_use_syslog_forwarder)
+      - name: CLUSTER_LOGGING_OPERATOR_ENVIRONMENT_TYPE
+        value: $(params.cluster_logging_operator_environment_type)
+      - name: CLUSTER_LOGGING_OPERATOR_ADDITIONAL_EXCLUDE_CONTAINERS
+        value: $(params.cluster_logging_operator_additional_exclude_containers)
       - name: CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN
         value: $(params.cluster_logging_operator_install_plan)
       - name: CLUSTER_LOGGING_OPERATOR_CHANNEL
@@ -270,6 +288,8 @@ spec:
         value: $(params.instana_agent_operator_env)
       - name: INSTANA_AGENT_OPERATOR_JKS_STORAGE_CLASS
         value: $(params.instana_agent_operator_jks_storage_class)
+      - name: INSTANA_AGENT_OPERATOR_POD_TEMPLATE_YAML
+        value: $(params.instana_agent_operator_pod_template_yaml)
       - name: APPLICATION_ADMIN_ROLE
         value: $(params.application_admin_role)
 

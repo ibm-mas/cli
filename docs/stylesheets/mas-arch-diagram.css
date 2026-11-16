@@ -1,0 +1,252 @@
+/* ── Diagram-scoped CSS custom properties ────────────────────────────────────
+   Default values = Carbon "white" (light) theme.
+   Overridden for g10 (light gray), g90 (dark gray) and g100 (dark) via the
+   data-carbon-theme attribute that the mkdocs-carbon theme sets on <html>.   */
+.mas-arch-scroll {
+  /* node surface */
+  --mas-arch-node-bg:        #ffffff;
+  --mas-arch-node-text:      #161616;
+  --mas-arch-node-text-sub:  #525252;
+  /* MAS panel */
+  --mas-arch-panel-bg:       #e8f4fd;
+  --mas-arch-panel-border:   #6cb4e4;
+  --mas-arch-panel-title:    #161616;
+  /* MAS node (blue tinted) */
+  --mas-arch-mas-bg:         #e8f4fd;
+  --mas-arch-mas-border:     #6cb4e4;
+  /* node border colours by type */
+  --mas-arch-cpf-border:     #00897b;
+  --mas-arch-cpd-border:     #9c27b0;
+  --mas-arch-rhos-border:    #da1e28;
+  --mas-arch-other-border:   #6f6f6f;
+  --mas-arch-opt-border:     #6f6f6f;
+  /* arrows & legend divider */
+  --mas-arch-arrow:          #525252;
+  --mas-arch-legend-border:  #e0e0e0;
+  --mas-arch-legend-text:    #525252;
+  --mas-arch-connector:      #525252;
+  /* tooltip */
+  --mas-arch-tip-bg:         #393939;
+  --mas-arch-tip-text:       #f4f4f4;
+  /* hover */
+  --mas-arch-hover-filter:   brightness(0.93);
+  /* pin outline */
+  --mas-arch-pin-outline:    #0f62fe;
+}
+
+/* g10 (light gray) — almost identical to white, slightly tinted panel */
+[data-carbon-theme="g10"] .mas-arch-scroll {
+  --mas-arch-node-bg:        #ffffff;
+  --mas-arch-panel-bg:       #ddedfb;
+  --mas-arch-mas-bg:         #ddedfb;
+}
+
+/* g90 (dark gray) */
+[data-carbon-theme="g90"] .mas-arch-scroll {
+  --mas-arch-node-bg:        #393939;
+  --mas-arch-node-text:      #f4f4f4;
+  --mas-arch-node-text-sub:  #c6c6c6;
+  --mas-arch-panel-bg:       #1e3a4f;
+  --mas-arch-panel-border:   #4a8dbf;
+  --mas-arch-panel-title:    #f4f4f4;
+  --mas-arch-mas-bg:         #1e3a4f;
+  --mas-arch-mas-border:     #4a8dbf;
+  --mas-arch-cpf-border:     #08bdba;
+  --mas-arch-cpd-border:     #be95ff;
+  --mas-arch-rhos-border:    #ff8389;
+  --mas-arch-other-border:   #a8a8a8;
+  --mas-arch-opt-border:     #a8a8a8;
+  --mas-arch-arrow:          #c6c6c6;
+  --mas-arch-legend-border:  #525252;
+  --mas-arch-legend-text:    #c6c6c6;
+  --mas-arch-connector:      #c6c6c6;
+  --mas-arch-tip-bg:         #161616;
+  --mas-arch-pin-outline:    #78a9ff;
+  --mas-arch-hover-filter:   brightness(1.15);
+}
+
+/* g100 (dark) */
+[data-carbon-theme="g100"] .mas-arch-scroll {
+  --mas-arch-node-bg:        #262626;
+  --mas-arch-node-text:      #f4f4f4;
+  --mas-arch-node-text-sub:  #c6c6c6;
+  --mas-arch-panel-bg:       #12293d;
+  --mas-arch-panel-border:   #4a8dbf;
+  --mas-arch-panel-title:    #f4f4f4;
+  --mas-arch-mas-bg:         #12293d;
+  --mas-arch-mas-border:     #4a8dbf;
+  --mas-arch-cpf-border:     #08bdba;
+  --mas-arch-cpd-border:     #be95ff;
+  --mas-arch-rhos-border:    #ff8389;
+  --mas-arch-other-border:   #a8a8a8;
+  --mas-arch-opt-border:     #a8a8a8;
+  --mas-arch-arrow:          #c6c6c6;
+  --mas-arch-legend-border:  #393939;
+  --mas-arch-legend-text:    #c6c6c6;
+  --mas-arch-connector:      #c6c6c6;
+  --mas-arch-tip-bg:         #161616;
+  --mas-arch-pin-outline:    #78a9ff;
+  --mas-arch-hover-filter:   brightness(1.2);
+}
+
+/* ── Scroll wrapper ──────────────────────────────────────────────────────── */
+.mas-arch-scroll { overflow-x: auto; padding: 16px 16px 8px; }
+
+/* ── Outer layout ────────────────────────────────────────────────────────── */
+.mas-arch-root {
+  display: flex; gap: 0;
+  align-items: flex-start; width: 100%; min-width: 1150px;
+}
+
+/* ── MAS panel ───────────────────────────────────────────────────────────── */
+.mas-arch-panel {
+  border: 2px solid var(--mas-arch-panel-border); border-radius: 6px;
+  background: var(--mas-arch-panel-bg); position: relative;
+}
+.mas-arch-panel-mas { flex: 1 1 auto; }
+.mas-arch-panel-ai  { flex: 0 0 190px; min-width: 190px; margin-left: 28px; padding: 12px 12px 14px; }
+.mas-arch-panel-title {
+  font-size: 12px; font-weight: 600; color: var(--mas-arch-panel-title);
+  font-family: -apple-system,"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  position: absolute; top: 10px; left: 14px;
+}
+.mas-arch-panel-ai-title {
+  font-size: 12px; font-weight: 600; color: var(--mas-arch-panel-title); margin-bottom: 12px;
+  font-family: -apple-system,"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+}
+
+/* ── Connector label ─────────────────────────────────────────────────────── */
+.mas-arch-connector {
+  display: flex; align-items: flex-start; padding: 46px 6px 0;
+  color: var(--mas-arch-connector); font-size: 13px; white-space: nowrap; user-select: none;
+  font-family: -apple-system,"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+}
+
+/* ── App groups ──────────────────────────────────────────────────────────── */
+.mas-arch-group {
+  position: absolute; display: flex; flex-direction: column; gap: 5px;
+  width: 185px;
+}
+
+/* ── Node boxes ──────────────────────────────────────────────────────────── */
+.mas-arch-node {
+  border: 1.5px solid var(--mas-arch-other-border); border-radius: 4px;
+  background: var(--mas-arch-node-bg); padding: 5px 10px;
+  white-space: nowrap; cursor: pointer; position: relative;
+  transition: filter .15s; font-size: 12px; width: 100%; box-sizing: border-box;
+  user-select: none; font-family: -apple-system,"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  line-height: 1.4; color: var(--mas-arch-node-text); z-index: 2; display: block;
+}
+.mas-arch-node:hover,
+.mas-arch-node:focus { z-index: 200; filter: var(--mas-arch-hover-filter); }
+.mas-arch-node:focus-visible { outline: 2px solid var(--mas-arch-pin-outline); outline-offset: 2px; }
+
+.mas-arch-mas   { border-color: var(--mas-arch-mas-border); background: var(--mas-arch-mas-bg); }
+.mas-arch-cpf   { border-color: var(--mas-arch-cpf-border); }
+.mas-arch-cpd   { border-color: var(--mas-arch-cpd-border); }
+.mas-arch-rhos  { border-color: var(--mas-arch-rhos-border); }
+.mas-arch-other { border-color: var(--mas-arch-other-border); }
+.mas-arch-opt   { border-style: dashed; }
+
+/* ── Alternative node: indented + dashed tree connector ─────────────────── */
+/* Indent = 22px: leaves room for bar + diamond + small gap before the border.  */
+.mas-arch-alt {
+  border-style: dashed;
+  border-color: var(--mas-arch-opt-border);
+  margin-left: 36px;
+  width: calc(100% - 36px);
+  position: relative;
+  overflow: visible;
+}
+
+/* ── ::before — filled diamond at end of horizontal tick ────────────────────
+   bar at left=-22px, tick width=8px → diamond left = -22+8 = -14px           */
+.mas-arch-alt::before {
+  content: "◆";
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--mas-arch-opt-border);
+  pointer-events: none;
+}
+
+/* ── ::after — nth alt (prev sibling is also an alt) ────────────────────────
+   Bar runs from the midpoint of the previous alt down to this node's midpoint.
+   gap=5px, alt-height≈26px → half=13px.
+   top  = -(5+13) = -18px; use -19 to close any sub-pixel gap.
+   h    = 19+13 = 32px → border-bottom at -19+32=13px (this node's midpoint) ✓ */
+.mas-arch-alt::after {
+  content: "";
+  position: absolute;
+  top: -19px;
+  left: -22px;
+  width: 8px;
+  height: 32px;
+  border-left: 1.5px solid var(--mas-arch-opt-border);
+  border-bottom: 1.5px solid var(--mas-arch-opt-border);
+  pointer-events: none;
+}
+
+/* ── First alt (prev sibling is a primary node, NOT an alt) ─────────────────
+   Bar starts at the BOTTOM of the primary node and ends at this node's midpoint.
+   gap=5px → top=-5px; height = 5+13 = 18px → border-bottom at -5+18=13px ✓   */
+:not(.mas-arch-alt).mas-arch-node + .mas-arch-alt::after {
+  top: -5px;
+  height: 18px;
+}
+.mas-arch-sub   { font-size: 10px; color: var(--mas-arch-node-text-sub); }
+
+/* ── AI panel column ─────────────────────────────────────────────────────── */
+.mas-arch-ai-col { display: flex; flex-direction: column; gap: 6px; }
+.mas-arch-ai-col .mas-arch-node { width: 100%; }
+
+/* ── SVG arrow canvas ───────────────────────────────────────────────────── */
+#mas-arch-svg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; overflow: visible; z-index: 1;
+}
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────── */
+.mas-arch-tip {
+  display: none; position: absolute; z-index: 9999;
+  top: calc(100% + 6px); left: 0;
+  background: var(--mas-arch-tip-bg); color: var(--mas-arch-tip-text);
+  border-radius: 5px; padding: 8px 10px; font-size: 12px; line-height: 1.5;
+  width: 240px; white-space: normal; pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,.35);
+}
+.mas-arch-tip::before {
+  content: ""; position: absolute; bottom: 100%;
+  left: var(--caret, 50%); transform: translateX(-50%);
+  border: 5px solid transparent; border-bottom-color: var(--mas-arch-tip-bg);
+}
+.mas-arch-node:hover .mas-arch-tip,
+.mas-arch-node.mas-arch-pinned .mas-arch-tip { display: block; }
+.mas-arch-node.mas-arch-pinned { outline: 2px solid var(--mas-arch-pin-outline); outline-offset: 2px; }
+.mas-arch-tip-up { top: auto; bottom: calc(100% + 6px); }
+.mas-arch-tip-up::before { bottom: auto; top: 100%; border-bottom-color: transparent; border-top-color: var(--mas-arch-tip-bg); }
+.mas-arch-tip-kind { font-size: 10px; opacity: .7; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+.mas-arch-tip-name { font-weight: 700; color: var(--mas-arch-tip-text); margin-bottom: 4px; }
+
+/* ── Legend ──────────────────────────────────────────────────────────────── */
+.mas-arch-legend {
+  margin-top: 14px; padding: 10px 0 4px; border-top: 1px solid var(--mas-arch-legend-border);
+  display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 11px;
+  color: var(--mas-arch-legend-text);
+  font-family: -apple-system,"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+}
+.mas-arch-li { display: flex; align-items: center; gap: 6px; }
+.mas-arch-lb { width: 28px; height: 16px; border-radius: 3px; border: 1.5px solid; flex-shrink: 0; background: var(--mas-arch-node-bg); }
+
+/* legend swatch colours — use CSS vars so dark/light themes apply */
+.mas-arch-lb-mas  { border-color: var(--mas-arch-mas-border);   background: var(--mas-arch-mas-bg); }
+.mas-arch-lb-cpd  { border-color: var(--mas-arch-cpd-border); }
+.mas-arch-lb-cpf  { border-color: var(--mas-arch-cpf-border); }
+.mas-arch-lb-rhos { border-color: var(--mas-arch-rhos-border); }
+.mas-arch-lb-other{ border-color: var(--mas-arch-other-border); }
+.mas-arch-lb-opt  { border-color: var(--mas-arch-opt-border); border-style: dashed; }
+
+.mas-arch-legend-icon { font-size: 14px; color: var(--mas-arch-legend-text); }

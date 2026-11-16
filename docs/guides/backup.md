@@ -13,8 +13,7 @@ The MAS backup process uses Tekton pipelines to orchestrate the backup of multip
 **Supported MAS versions**
 
 - MAS 9.1.x
-
-Note: MAS 9.0.x (Not supported yet, its in testing)
+- MAS 9.2.x
 
 **User Permissions Required**
 

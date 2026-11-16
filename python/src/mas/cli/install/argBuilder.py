@@ -26,6 +26,8 @@ class installArgBuilderMixin:
             command += "export AWS_ACCESS_KEY_ID=x\n"
         if self.getParam("secret_access_key") != "":
             command += "export SECRET_ACCESS_KEY=x\n"
+        if self.getParam("aws_secret_access_key") != "":
+            command += "export AWS_SECRET_ACCESS_KEY=x\n"
         if self.getParam("artifactory_username") != "":
             command += "export ARTIFACTORY_USERNAME=x\nexport ARTIFACTORY_TOKEN=x\n"
 
@@ -151,12 +153,35 @@ class installArgBuilderMixin:
             command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
             command += f" --cis-crn \"{self.getParam('cis_crn')}\""
             command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
+            if self.getParam("cis_enhanced_security") == "true":
+                command += f"  --cis-enhanced-security{newline}"
+                if self.getParam("cis_service_name") != "":
+                    command += f"  --cis-service-name \"{self.getParam('cis_service_name')}\"{newline}"
+                if self.getParam("update_dns_entries") == "true":
+                    command += f"  --update-dns-entries{newline}"
+                if self.getParam("cis_waf") == "true":
+                    command += f"  --cis-waf{newline}"
+                if self.getParam("cis_proxy") == "true":
+                    command += f"  --cis-proxy{newline}"
+                if self.getParam("delete_wildcards") == "true":
+                    command += f"  --delete-wildcards{newline}"
+                if self.getParam("override_edge_certs") == "true":
+                    command += f"  --override-edge-certs{newline}"
 
         if self.getParam("dns_provider") == "cloudflare":
             command += f'  --dns-provider cloudflare --cloudflare-apitoken "$CLOUDFLARE_APITOKEN"{newline}'
             command += f"  --cloudflare-email \"{self.getParam('cloudflare_email')}\"{newline}"
             command += f"  --cloudflare-zone \"{self.getParam('cloudflare_zone')}\"{newline}"
             command += f"  --cloudflare-subdomain \"{self.getParam('cloudflare_subdomain')}\"{newline}"
+
+        if self.getParam("dns_provider") == "route53":
+            command += f"  --dns-provider route53{newline}"
+            command += f"  --route53-hosted-zone-name \"{self.getParam('route53_hosted_zone_name')}\"{newline}"
+            command += f"  --route53-hosted-zone-region \"{self.getParam('route53_hosted_zone_region')}\"{newline}"
+            command += f"  --route53-subdomain \"{self.getParam('route53_subdomain')}\"{newline}"
+            command += f"  --route53-email \"{self.getParam('route53_email')}\"{newline}"
+            command += f"  --aws-access-key-id $AWS_ACCESS_KEY_ID{newline}"
+            command += f"  --aws-secret-access-key $AWS_SECRET_ACCESS_KEY{newline}"
 
         if self.getParam("mas_cluster_issuer") != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
@@ -219,6 +244,9 @@ class installArgBuilderMixin:
         if self.getParam("mongodb_namespace") != "":
             command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
 
+        if self.devMode and self.getParam("mongodb_provider") != "":
+            command += f"  --mongodb-provider \"{self.getParam('mongodb_provider')}\"{newline}"
+
         # OCP Configuration
         # -----------------------------------------------------------------------------
         if self.getParam("ocp_ingress_tls_secret_name") != "":
@@ -258,6 +286,8 @@ class installArgBuilderMixin:
             command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
             if self.getParam("configure_aiassistant") != "":
                 command += f"  --configure-aiassistant \"{self.getParam('configure_aiassistant')}\"{newline}"
+        if self.installMcpi:
+            command += f"  --install-mcpi{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
@@ -437,6 +467,8 @@ class installArgBuilderMixin:
                 command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
             if self.getParam("aiservice_rhoai_model_deployment_type") != "":
                 command += f"  --rhoai-model-deployment-type \"{self.getParam('aiservice_rhoai_model_deployment_type')}\"{newline}"
+            if self.getParam("rhoai_channel") != "":
+                command += f"  --rhoai-channel \"{self.getParam('rhoai_channel')}\"{newline}"
             if self.getParam("rhoai") == "true":
                 command += f"  --rhoai{newline}"
 
@@ -480,6 +512,8 @@ class installArgBuilderMixin:
                 command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
             if self.aiserviceTenantSchedulingConfigFileLocal:
                 command += f'  --tenant-scheduling-config-file "{self.aiserviceTenantSchedulingConfigFileLocal}"{newline}'
+            if self.aiserviceTenantOperatorConfigFileLocal:
+                command += f'  --tenant-operator-config-file "{self.aiserviceTenantOperatorConfigFileLocal}"{newline}'
 
             if self.getParam("rsl_ca_crt") != "":
                 command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
@@ -607,6 +641,8 @@ class installArgBuilderMixin:
             command += f"  --cos \"{self.getParam('cos_type')}\""
             if self.getParam("cos_resourcegroup") != "":
                 command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
+            if self.getParam("cos_region") != "":
+                command += f" --cos-region \"{self.getParam('cos_region')}\""
             if self.getParam("cos_apikey") != "":
                 command += ' --cos-apikey "$COS_APIKEY"'
             if self.getParam("cos_instance_name") != "":

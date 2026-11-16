@@ -20,7 +20,7 @@ AWS Secrets Manager Configuration:
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
 
 MongoDb Provider Selection:
-      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws' or 'yaml')
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws', 'yaml', or 'mongoce')
 
 AWS MongoDb Provider (Required when MONGODB_PROVIDER is aws):
       --aws-access-key ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}                                       Access Key
@@ -42,6 +42,29 @@ YAML MongoDb Provider (Required when MONGODB_PROVIDER is yaml):
       --mongo-username ${COLOR_YELLOW}MONGO_USERNAME${TEXT_RESET}                      MongoDb Username
       --mongo-password ${COLOR_YELLOW}MONGO_PASSWORD${TEXT_RESET}                      MongoDb Password
 
+Automate MongoDb Provider / ArgoCD GitOps (Required when MONGODB_PROVIDER is mongoce):
+  -d, --dir, --gitops-working-dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}  Directory for GitOps repository
+      --mongo-namespace ${COLOR_YELLOW}MONGODB_CE_NAMESPACE${TEXT_RESET}          Namespace where MongoDB is installed (default: 'mongoce')
+
+Automate MongoDb Provider / ArgoCD GitOps (Optional when MONGODB_PROVIDER is mongoce):
+      --mongo-version        ${COLOR_YELLOW}MONGODB_CE_VERSION${TEXT_RESET}        MongoDB version to install (default: '8.0.30')
+      --mongo-instance-name  ${COLOR_YELLOW}MONGODB_CE_INSTANCE_NAME${TEXT_RESET}  MongoDBCommunity CR name (default: 'mas-mongo-ce')
+      --mongo-members        ${COLOR_YELLOW}MONGODB_CE_MEMBERS${TEXT_RESET}        Number of MongoDB replica members (default: 3)
+      --mongo-storage-size   ${COLOR_YELLOW}MONGODB_CE_STORAGE_SIZE${TEXT_RESET}   PVC storage size (default: '10Gi')
+      --mongo-storage-class  ${COLOR_YELLOW}MONGODB_CE_STORAGE_CLASS${TEXT_RESET}  Storage class for MongoDB PVCs
+      --mongo-channel        ${COLOR_YELLOW}MONGODB_CE_CHANNEL${TEXT_RESET}        OLM channel for the operator (default: 'stable')
+      --mongo-install-plan   ${COLOR_YELLOW}MONGODB_CE_INSTALL_PLAN${TEXT_RESET}   Subscription install plan ('Automatic' or 'Manual', default: 'Automatic')
+      --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority value
+
+Automatic GitHub Push (Optional, used when MONGODB_PROVIDER is mongoce):
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
+  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}             Git ssh key path
+
 Other Commands:
   -h, --help                                      Show this help message
 EOM
@@ -51,6 +74,7 @@ EOM
 
 function gitops_mongo_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG="gitops-mongo commit"
 
   while [[ $# -gt 0 ]]
   do
@@ -135,6 +159,61 @@ function gitops_mongo_noninteractive() {
         export MONGO_PASSWORD=$1 && shift
         ;;
 
+      # Automate (ArgoCD/GitOps) MongoDb provider
+      -d|--dir|--gitops-working-dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      --mongo-namespace)
+        export MONGODB_CE_NAMESPACE=$1 && shift
+        ;;
+      --mongo-instance-name)
+        export MONGODB_CE_INSTANCE_NAME=$1 && shift
+        ;;
+      --mongo-version)
+        export MONGODB_CE_VERSION=$1 && shift
+        ;;
+      --mongo-members)
+        export MONGODB_CE_MEMBERS=$1 && shift
+        ;;
+      --mongo-storage-size)
+        export MONGODB_CE_STORAGE_SIZE=$1 && shift
+        ;;
+      --mongo-storage-class)
+        export MONGODB_CE_STORAGE_CLASS=$1 && shift
+        ;;
+      --mongo-channel)
+        export MONGODB_CE_CHANNEL=$1 && shift
+        ;;
+      --mongo-install-plan)
+        export MONGODB_CE_INSTALL_PLAN=$1 && shift
+        ;;
+      --internal-cert-authority)
+        export INTERNAL_CERT_AUTHORITY=$1 && shift
+        ;;
+
+      # Automatic GitHub Push (used with mongoce provider)
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_mongo_help
@@ -171,6 +250,29 @@ function gitops_mongo_noninteractive() {
       exit 1
     fi
   fi
+
+  if [ $MONGODB_PROVIDER == 'mongoce' ]; then
+    export GITOPS_WORKING_DIR=${GITOPS_WORKING_DIR:-$PWD/working-dir}
+    SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
+    export IBM_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
+    export MONGODB_CE_NAMESPACE=${MONGODB_CE_NAMESPACE:-"mongoce"}
+    export MONGODB_CE_INSTANCE_NAME=${MONGODB_CE_INSTANCE_NAME:-"mas-mongo-ce"}
+    export MONGODB_CE_MEMBERS=${MONGODB_CE_MEMBERS:-3}
+    export MONGODB_CE_VERSION=${MONGODB_CE_VERSION:-"8.0.30"}
+    export MONGODB_CE_STORAGE_SIZE=${MONGODB_CE_STORAGE_SIZE:-"10Gi"}
+    export MONGODB_CE_CHANNEL=${MONGODB_CE_CHANNEL:-"stable"}
+    export MONGODB_CE_INSTALL_PLAN=${MONGODB_CE_INSTALL_PLAN:-"Automatic"}
+
+    [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_mongo_help "GITOPS_WORKING_DIR is not set"
+    [[ -z "$MONGODB_CE_NAMESPACE" ]] && gitops_mongo_help "MONGODB_CE_NAMESPACE is not set"
+
+    if [[ "$GITHUB_PUSH" == "true" ]]; then
+      [[ -z "$GITHUB_HOST" ]] && gitops_mongo_help "GITHUB_HOST is not set"
+      [[ -z "$GITHUB_ORG" ]] && gitops_mongo_help "GITHUB_ORG is not set"
+      [[ -z "$GITHUB_REPO" ]] && gitops_mongo_help "GITHUB_REPO is not set"
+      [[ -z "$GIT_BRANCH" ]] && gitops_mongo_help "GIT_BRANCH is not set"
+    fi
+  fi
 }
 
 function gitops_mongo() {
@@ -188,6 +290,105 @@ function gitops_mongo() {
   set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
+  # -------------------------------------------------------------------------
+  # mongoce (ArgoCD/GitOps) provider — generates ArgoCD appset config and
+  # optionally pushes to GitHub.  This path does NOT touch Secrets Manager.
+  # -------------------------------------------------------------------------
+  if [ $MONGODB_PROVIDER == 'mongoce' ]; then
+    mkdir -p ${GITOPS_WORKING_DIR}
+    GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
+
+    echo
+    reset_colors
+    echo_h2 "Review Settings"
+
+    echo "${TEXT_DIM}"
+    echo_h4 "Target" "    "
+    echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+    echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+    echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+    reset_colors
+
+    echo "${TEXT_DIM}"
+    echo_h4 "MongoDB" "    "
+    echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+    echo_reset_dim "Mongo Namespace  ............... ${COLOR_MAGENTA}${MONGODB_CE_NAMESPACE}"
+    echo_reset_dim "Mongo Instance Name  ........... ${COLOR_MAGENTA}${MONGODB_CE_INSTANCE_NAME}"
+    echo_reset_dim "Mongo Version  ................. ${COLOR_MAGENTA}${MONGODB_CE_VERSION}"
+    echo_reset_dim "Mongo Members  ................. ${COLOR_MAGENTA}${MONGODB_CE_MEMBERS}"
+    echo_reset_dim "Mongo Storage Size  ............ ${COLOR_MAGENTA}${MONGODB_CE_STORAGE_SIZE}"
+    echo_reset_dim "Mongo Storage Class  ........... ${COLOR_MAGENTA}${MONGODB_CE_STORAGE_CLASS}"
+    echo_reset_dim "Mongo Channel  ................. ${COLOR_MAGENTA}${MONGODB_CE_CHANNEL}"
+    echo_reset_dim "Mongo Install Plan  ............ ${COLOR_MAGENTA}${MONGODB_CE_INSTALL_PLAN}"
+    reset_colors
+
+    echo "${TEXT_DIM}"
+    if [[ "$GITHUB_PUSH" == "true" ]]; then
+      echo_h4 "GitOps Target" "    "
+      echo_reset_dim "Automatic Push ................. ${COLOR_GREEN}Enabled"
+      echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+      echo_reset_dim "Host ........................... ${COLOR_MAGENTA}${GITHUB_HOST}"
+      echo_reset_dim "Organization ................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+      echo_reset_dim "Repository ..................... ${COLOR_MAGENTA}${GITHUB_REPO}"
+      echo_reset_dim "Branch ......................... ${COLOR_MAGENTA}${GIT_BRANCH}"
+    else
+      echo_h4 "GitOps Target" "    "
+      echo_reset_dim "Automatic Push ................. ${COLOR_RED}Disabled"
+      echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    fi
+    reset_colors
+
+    # Optional: internal certificate authority
+    if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+      export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
+    fi
+
+    if [[ -z "$GIT_SSH" ]]; then
+      export GIT_SSH="false"
+    fi
+
+    # Set and Validate App Names
+    # -----------------------------------------------------------------------
+    CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
+    MONGODB_APP_NAME="mongodb.${CLUSTER_ID}"
+
+    validate_app_name "${CLUSTER_ROOT_APP}"
+    validate_app_name "${MONGODB_APP_NAME}"
+
+    # Clone github target repo
+    # -----------------------------------------------------------------------
+    if [[ "$GITHUB_PUSH" == "true" ]]; then
+      echo
+      echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+    fi
+    mkdir -p ${GITOPS_CLUSTER_DIR}
+
+    # Generate ArgoApps
+    # -----------------------------------------------------------------------
+    echo
+    echo_h2 "Generating MongoDB Application"
+    echo "- IBM MongoDB"
+
+    jinjanate_commmon \
+      $CLI_DIR/templates/gitops/appset-configs/cluster/mongoce.yaml.j2 \
+      ${GITOPS_CLUSTER_DIR}/mongoce.yaml
+
+    # Commit and push to github target repo
+    # -----------------------------------------------------------------------
+    if [[ "$GITHUB_PUSH" == "true" ]]; then
+      echo
+      echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+      remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    fi
+
+    exit 0
+  fi
+
+  # -------------------------------------------------------------------------
+  # AWS and YAML providers — Secrets Manager-backed paths (existing behaviour)
+  # -------------------------------------------------------------------------
   echo
   reset_colors
   echo_h2 "Review Settings"
