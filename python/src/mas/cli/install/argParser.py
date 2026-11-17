@@ -604,6 +604,14 @@ masAppsArgGroup.add_argument(
     required=False,
     help="Subscription channel for Maximo AI Service",
 )
+masAppsArgGroup.add_argument(
+    "--install-mcpi",
+    dest="install_mcpi",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Install Maximo Cluster Performance Insights (MAS 9.2 or later)",
+)
 
 # Arcgis
 # -----------------------------------------------------------------------------
@@ -979,6 +987,13 @@ rhoaiArgGroup.add_argument(
 )
 
 rhoaiArgGroup.add_argument(
+    "--rhoai-channel",
+    dest="rhoai_channel",
+    required=False,
+    help="Subscription channel for RedHat Openshift AI (e.g. stable, stable-3.x). Defaults to the aiservice_rhoai role default",
+)
+
+rhoaiArgGroup.add_argument(
     "--rhoai",
     dest="rhoai",
     required=False,
@@ -1221,21 +1236,13 @@ aiServiceArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 cpdAppsArgGroup = installArgParser.add_argument_group(
     "IBM Cloud Pak for Data",
-    "Configure IBM Cloud Pak for Data applications including Watson Studio, Watson Machine Learning, Watson Discovery, Analytics Engine (Spark), Cognos Analytics, SPSS Modeler, and Canvas Base.",
+    "Configure IBM Cloud Pak for Data",
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-version",
     dest="cpd_product_version",
     required=False,
     help="Product version of CP4D to use",
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-cognos",
-    dest="cpd_install_cognos",
-    required=False,
-    help="Add Cognos as part of Cloud Pak for Data",
-    action="store_const",
-    const="install",
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-install-ws",
@@ -1555,6 +1562,12 @@ cosArgGroup.add_argument(
     dest="cos_resourcegroup",
     required=False,
     help="When using IBM COS, set the resource group where the instance will run",
+)
+cosArgGroup.add_argument(
+    "--cos-region",
+    dest="cos_region",
+    required=False,
+    help="When using IBM COS, set the COS region (e.g. us-south, us-east, etc.)",
 )
 cosArgGroup.add_argument(
     "--cos-apikey",

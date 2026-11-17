@@ -120,13 +120,6 @@ Collect data for all MAS instances, critical cluster resources, and most MAS dep
 uvx mas-cli must-gather -d /mnt/home/must-gather
 ```
 
-### Include Secret Data
-By default secret data is not included in the must-gather archive, only the existence of the secret is recorded and how many fields it contains. Adding the `--secret-data` flag will trigger the inclusion of the secret data as well.
-
-```bash
-uvx mas-cli must-gather -d /mnt/home/must-gather --secret-data
-```
-
 ### Quick Collection
 This must-gather will omit pod logs, it runs faster but collects less diagnostic data.
 

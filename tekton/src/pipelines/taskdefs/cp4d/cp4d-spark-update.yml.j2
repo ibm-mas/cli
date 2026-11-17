@@ -1,6 +1,7 @@
 - name: update-analytics-engine
   timeout: "0"
   params:
+    {{ lookup('template', 'taskdefs/common/registry-secret-param.yml.j2') | indent(4) }}
     # Controls the image pull policy for the ibmmas/cli image
     - name: image_pull_policy
       value: $(params.image_pull_policy)

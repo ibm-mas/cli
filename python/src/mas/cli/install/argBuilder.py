@@ -286,6 +286,8 @@ class installArgBuilderMixin:
             command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
             if self.getParam("configure_aiassistant") != "":
                 command += f"  --configure-ai-assistant \"{self.getParam('configure_aiassistant')}\"{newline}"
+        if self.installMcpi:
+            command += f"  --install-mcpi{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
@@ -465,6 +467,8 @@ class installArgBuilderMixin:
                 command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
             if self.getParam("aiservice_rhoai_model_deployment_type") != "":
                 command += f"  --rhoai-model-deployment-type \"{self.getParam('aiservice_rhoai_model_deployment_type')}\"{newline}"
+            if self.getParam("rhoai_channel") != "":
+                command += f"  --rhoai-channel \"{self.getParam('rhoai_channel')}\"{newline}"
             if self.getParam("rhoai") == "true":
                 command += f"  --rhoai{newline}"
 
@@ -518,8 +522,6 @@ class installArgBuilderMixin:
         # -----------------------------------------------------------------------------
         if self.getParam("cpd_product_version") != "":
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
-            if self.getParam("cpd_install_cognos") == "true":
-                command += " --cp4d-install-cognos"
             if self.getParam("cpd_install_ws") == "true":
                 command += " --cp4d-install-ws"
             if self.getParam("cpd_install_wml") == "true":
@@ -637,6 +639,8 @@ class installArgBuilderMixin:
             command += f"  --cos \"{self.getParam('cos_type')}\""
             if self.getParam("cos_resourcegroup") != "":
                 command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
+            if self.getParam("cos_region") != "":
+                command += f" --cos-region \"{self.getParam('cos_region')}\""
             if self.getParam("cos_apikey") != "":
                 command += ' --cos-apikey "$COS_APIKEY"'
             if self.getParam("cos_instance_name") != "":

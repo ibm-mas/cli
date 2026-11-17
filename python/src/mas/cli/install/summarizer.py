@@ -49,6 +49,7 @@ class InstallSummarizerMixin:
         installOptimizer: bool
         installFacilities: bool
         installAIService: bool
+        installMcpi: bool
         installArcgis: bool
         dynamicClient: DynamicClient
         applyPreInstallMASRBAC: bool
@@ -461,6 +462,12 @@ class InstallSummarizerMixin:
             self.printParamSummary("URL", "aiservice_watsonxai_url")
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
 
+    def mcpiSummary(self) -> None:
+        if self.installMcpi:
+            self.printSummary("Maximo Cluster Performance Insights (MCPI)", "Install")
+        else:
+            self.printSummary("Maximo Cluster Performance Insights (MCPI)", "Do Not Install")
+
     def db2Summary(self) -> None:
         if (
             self.getParam("db2_action_system") == "install"
@@ -539,11 +546,6 @@ class InstallSummarizerMixin:
                     ("Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install"),
                 )
 
-            self.printSummary(
-                "Cognos Analytics",
-                ("Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install"),
-            )
-
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")
         self.printParamSummary("Contact e-mail", "dro_contact_email")
@@ -569,6 +571,8 @@ class InstallSummarizerMixin:
             self.printParamSummary("Type", "cos_type")
             if self.getParam("cos_resourcegroup") != "":
                 self.printParamSummary("Resource Group", "cos_resourcegroup")
+            if self.getParam("cos_region") != "":
+                self.printParamSummary("Region", "cos_region")
         else:
             self.printSummary("Type", "None")
 
@@ -666,6 +670,7 @@ class InstallSummarizerMixin:
         self.inspectionSummary()
         self.facilitiesSummary()
         self.aiServiceSummary()
+        self.mcpiSummary()
 
         # Application Dependencies
         self.mongoSummary()

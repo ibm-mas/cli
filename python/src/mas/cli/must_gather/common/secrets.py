@@ -17,6 +17,8 @@ import logging
 
 from kubernetes.client import CoreV1Api
 
+from .sanitize import stripLastAppliedConfiguration
+
 logger = logging.getLogger(__name__)
 
 
@@ -109,10 +111,11 @@ def _writeYaml(secretDict: dict, outputFile: str) -> None:
         secretDict (dict): Secret dictionary to write
         outputFile (str): Path to output file
     """
+    # ALWAYS remove the last-applied-configuration annotation (contains a full copy of the secret)
+    secretDict = stripLastAppliedConfiguration(secretDict)
+
     # ALWAYS remove secret data
-    if "data" in secretDict:
-        secretDict = secretDict.copy()
-        secretDict.pop("data", None)
+    secretDict.pop("data", None)
 
     with open(outputFile, "w") as f:
         yaml.dump(secretDict, f, default_flow_style=False, sort_keys=False)

@@ -235,6 +235,7 @@
         - gitops-mas-provisioner
         - gitops-mongo
         - gitops-nvidia-gpu
+        - gitops-process-manual-certs
         - gitops-process-mongo-user
         - gitops-rosa
         - gitops-sls
@@ -268,3 +269,4 @@
         - gitops-iac-provision-msk
         - gitops-rds-db2-database
         - gitops-iac-provision-rdsdb2
+        - gitops-test-recorder
