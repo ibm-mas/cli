@@ -846,6 +846,18 @@ case $1 in
     reset_colors
     gitops_suite_license_service "$@"
     ;;
+  catalogs)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! catalogs                                                                  !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Display supported IBM Maximo Operator Catalog versions on demand.
+    # Delegates to mas-cli (Python) which reads supportedCatalogs directly
+    # from the installed package — no grep/awk needed, no cluster connection
+    # required.  Arch suffixes are stripped; the local host arch is irrelevant
+    # because the CLI connects to OCP clusters remotely.
+    mas-cli catalogs
+    ;;
+
   setup-rbac)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! setup-rbac                                                                !!" >> $LOGFILE
