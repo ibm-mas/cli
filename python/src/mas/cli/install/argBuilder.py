@@ -38,9 +38,13 @@ class installArgBuilderMixin:
             command += "export ES_PASSWORD=x\n"
         if self.getParam("kafka_password") != "":
             command += "export KAFKA_PASSWORD=x\n"
+        if self.getParam("slack_token") != "":
+            command += "export SLACK_TOKEN=x\n"
 
         if self.getParam("mas_app_settings_customization_archive_password") != "":
             command += "export CUSTOMIZATION_PASSWORD=x\n"
+        if self.getParam("mas_app_settings_customization_archive_username") != "":
+            command += "export CUSTOMIZATION_ARCHIVE_USERNAME=x\n"
         if self.getParam("mas_manage_encryptionsecret_crypto_key") != "":
             command += "export CRYPTO_KEY=x\n"
         if self.getParam("mas_manage_encryptionsecret_cryptox_key") != "":
@@ -67,6 +71,10 @@ class installArgBuilderMixin:
         # AI Service Credentials
         if self.getParam("aiservice_watsonxai_apikey") != "":
             command += "export AISERVICE_WATSONXAI_APIKEY=x\n"
+        if self.getParam("aiservice_db_username") != "":
+            command += "export AISERVICE_DB_USERNAME=x\n"
+        if self.getParam("aiservice_db_password") != "":
+            command += "export AISERVICE_DB_PASSWORD=x\n"
         if self.getParam("minio_root_user") != "":
             command += "export MINIO_ROOT_USER=x\n"
         if self.getParam("minio_root_password") != "":
@@ -87,27 +95,28 @@ class installArgBuilderMixin:
         command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
 
         if self.getParam("mas_special_characters") == "true":
-            command += f" --allow-special-chars {newline}"
+            command += f"  --allow-special-chars{newline}"
 
         # ECK Integration
         # -----------------------------------------------------------------------------
         if self.getParam("eck_action") == "install":
-            command += "--eck"
-        if self.getParam("eck_enable_logstash") == "true":
-            command += f"--eck-enable-logstash{newline}"
-        if self.getParam("eck_remote_es_hosts") != "":
-            command += f"--eck-remote-es-hosts \"{self.getParam('eck_remote_es_hosts')}\"{newline}"
-        if self.getParam("eck_remote_es_username") != "":
-            command += f"--eck-remote-es-username \"{self.getParam('eck_remote_es_username')}\""
-        if self.getParam("eck_remote_es_password") != "":
-            command += f"--eck-remote-es-password $ES_PASSWORD{newline}"
+            command += "  --eck"
+            if self.getParam("eck_enable_logstash") == "true":
+                command += " --eck-enable-logstash"
+            if self.getParam("eck_remote_es_hosts") != "":
+                command += f" --eck-remote-es-hosts \"{self.getParam('eck_remote_es_hosts')}\""
+            if self.getParam("eck_remote_es_username") != "":
+                command += f" --eck-remote-es-username \"{self.getParam('eck_remote_es_username')}\""
+            if self.getParam("eck_remote_es_password") != "":
+                command += " --eck-remote-es-password $ES_PASSWORD"
+            command += newline
 
         # MAS Advanced Configuration
         # -----------------------------------------------------------------------------
         if self.getParam("mas_superuser_username") != "":
-            command += f"  --mas-superuser-username \"{self.getParam('mas_superuser_username')}\""
+            command += f"  --superuser-username \"{self.getParam('mas_superuser_username')}\""
         if self.getParam("mas_superuser_password") != "":
-            command += f" --mas-superuser-password $SUPERUSER_PASSWORD{newline}"
+            command += f" --superuser-password $SUPERUSER_PASSWORD{newline}"
 
         if self.localConfigDir is not None:
             command += f'  --additional-configs "{self.localConfigDir}"{newline}'
@@ -256,7 +265,7 @@ class installArgBuilderMixin:
 
         # Grafana
         # -----------------------------------------------------------------------------
-        if self.getParam("skip_grafana_install") is True:
+        if self.skipGrafanaInstall:
             command += f"  --skip-grafana-install{newline}"
         if self.getParam("grafana_v5_namespace") != "":
             command += f"  --grafana-v5-namespace \"{self.getParam('grafana_v5_namespace')}\"{newline}"
@@ -305,7 +314,7 @@ class installArgBuilderMixin:
             if self.getParam("mas_app_settings_server_bundles_size") != "":
                 command += f"  --manage-server-bundle-size \"{self.getParam('mas_app_settings_server_bundles_size')}\"{newline}"
             if self.getParam("mas_app_settings_default_jms") != "":
-                command += f"  --manage-jms {newline}"
+                command += f"  --manage-jms{newline}"
             if self.getParam("mas_app_settings_persistent_volumes_flag") == "true":
                 command += f"  --manage-persistent-volumes{newline}"
             if self.getParam("mas_app_settings_demodata") == "true":
@@ -316,7 +325,7 @@ class installArgBuilderMixin:
             if self.getParam("mas_app_settings_customization_archive_url") != "":
                 command += f"  --manage-customization-archive-url \"{self.getParam('mas_app_settings_customization_archive_url')}\"{newline}"
             if self.getParam("mas_app_settings_customization_archive_username") != "":
-                command += f"  --manage-customization-archive-username \"{self.getParam('mas_app_settings_customization_archive_username')}\"{newline}"
+                command += f"  --manage-customization-archive-username $CUSTOMIZATION_ARCHIVE_USERNAME{newline}"
             if self.getParam("mas_app_settings_customization_archive_password") != "":
                 command += f"  --manage-customization-archive-password $CUSTOMIZATION_PASSWORD{newline}"
 
@@ -355,7 +364,7 @@ class installArgBuilderMixin:
             if self.getParam("mas_appws_bindings_health_wsl_flag") == "true":
                 command += f"  --manage-health-wsl{newline}"
 
-            if self.getParam("mas_appws_upgrade_type") == "true":
+            if self.getParam("mas_appws_upgrade_type") != "":
                 command += f"  --manage-upgrade-type \"{self.getParam('mas_appws_upgrade_type')}\"{newline}"
 
             if self.getParam("manage_bind_aiservice_instance_id") != "":
@@ -420,7 +429,7 @@ class installArgBuilderMixin:
         # -----------------------------------------------------------------------------
         if self.installAIService:
             if self.getParam("aiservice_instance_id") != "":
-                command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
+                command += f"  --aiservice-instance-id \"{self.getParam('aiservice_instance_id')}\"{newline}"
             if self.getParam("aiservice_channel") != "":
                 command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
 
@@ -439,8 +448,8 @@ class installArgBuilderMixin:
             elif self.getParam("aiservice_db_jdbc_url") != "":
                 # External database (Oracle/SQL Server/DB2)
                 command += f"  --aiservice-db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
-                command += f"  --aiservice-db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
-                command += f"  --aiservice-db-password \"{self.getParam('aiservice_db_password')}\"{newline}"
+                command += f"  --aiservice-db-username $AISERVICE_DB_USERNAME{newline}"
+                command += f"  --aiservice-db-password $AISERVICE_DB_PASSWORD{newline}"
                 if self.getParam("aiservice_db_ca_cert") != "":
                     command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
 
@@ -499,7 +508,7 @@ class installArgBuilderMixin:
                 command += f"  --watsonxai-onprem \"{self.getParam('aiservice_watsonxai_on_prem')}\"{newline}"
 
             if self.getParam("minio_root_user") != "":
-                command += f"  --install-minio {newline}"
+                command += f"  --install-minio{newline}"
                 command += f'  --minio-root-user "$MINIO_ROOT_USER"{newline}'
             if self.getParam("minio_root_password") != "":
                 command += f'  --minio-root-password "$MINIO_ROOT_PASSWORD"{newline}'
@@ -557,7 +566,7 @@ class installArgBuilderMixin:
             if self.getParam("db2_action_facilities") == "install":
                 if self.getParam("db2_facilities_timezone") != "":
                     command += f"  --db2-facilities-timezone \"{self.getParam('db2_facilities_timezone')}\"{newline}"
-            if self.db2LicenseFileLocal != "":
+            if self.db2LicenseFileLocal:
                 command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
 
             if self.getParam("db2_affinity_key") != "":
@@ -620,8 +629,8 @@ class installArgBuilderMixin:
                 command += f" --msk-instance-volume-size \"{self.getParam('aws_msk_instance_volume_size')}\"{newline}"
 
                 command += f"  --msk-cidr-az1 \"{self.getParam('aws_msk_cidr_az1')}\""
-                command += f" --msk-cidr-az2 \"{self.getParam('aws_msk_cidr_az1')}\""
-                command += f" --msk-cidr-az3 \"{self.getParam('aws_msk_cidr_az1')}\"{newline}"
+                command += f" --msk-cidr-az2 \"{self.getParam('aws_msk_cidr_az2')}\""
+                command += f" --msk-cidr-az3 \"{self.getParam('aws_msk_cidr_az3')}\"{newline}"
 
                 command += f"  --msk-cidr-egress \"{self.getParam('aws_msk_egress_cidr')}\""
                 command += f" --msk-cidr-ingress \"{self.getParam('aws_msk_ingress_cidr')}\"{newline}"
@@ -691,14 +700,14 @@ class installArgBuilderMixin:
 
         # Slack
         # -----------------------------------------------------------------------------
-        if self.getParam("slack_channel") != "" and self.getParam("slack_token"):
-            command += f"  --slack-channel \"{self.getParam('slack_channel')}\"  --slack-token $SLACK_TOKEN{newline}"
+        if self.getParam("slack_channel") != "" and self.getParam("slack_token") != "":
+            command += f"  --slack-channel \"{self.getParam('slack_channel')}\" --slack-token $SLACK_TOKEN{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------
         if self.devMode:
             command += f"  --dev-mode{newline}"
-        if self.getParam("skip_pre_check") is True:
+        if self.getParam("skip_pre_check") == "true":
             command += f"  --skip-pre-check{newline}"
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"

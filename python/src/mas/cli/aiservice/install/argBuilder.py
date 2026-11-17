@@ -45,7 +45,9 @@ class aiServiceInstallArgBuilderMixin:
         if self.getParam("cis_apikey") != "":
             command += "export CIS_APIKEY=x\n"
 
-        # Database password
+        # Database credentials
+        if self.getParam("aiservice_db_username") != "":
+            command += "export AISERVICE_DB_USERNAME=x\n"
         if self.getParam("aiservice_db_password") != "":
             command += "export AISERVICE_DB_PASSWORD=x\n"
 
@@ -57,7 +59,7 @@ class aiServiceInstallArgBuilderMixin:
         command += f" --ibm-entitlement-key $IBM_ENTITLEMENT_KEY{newline}"
 
         # AI Service Instance Id
-        command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
+        command += f"  --aiservice-instance-id \"{self.getParam('aiservice_instance_id')}\"{newline}"
 
         # AI Service Advanced Configuration
         # -----------------------------------------------------------------------------
@@ -75,7 +77,7 @@ class aiServiceInstallArgBuilderMixin:
         # IBM Suite License Service
         # -----------------------------------------------------------------------------
         if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls":
-            if self.getParam("aiservice_instance_id") and self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
+            if self.getParam("aiservice_instance_id") and self.getParam("sls_namespace") == f"mas-{self.getParam('aiservice_instance_id')}-sls":
                 command += "  --dedicated-sls"
             else:
                 command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\""
@@ -115,7 +117,7 @@ class aiServiceInstallArgBuilderMixin:
         # -----------------------------------------------------------------------------
         if self.devMode:
             command += f"  --dev-mode{newline}"
-        if self.getParam("skip_pre_check") is True:
+        if self.getParam("skip_pre_check") == "true":
             command += f"  --skip-pre-check{newline}"
         if self.getParam("image_pull_policy") != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
@@ -257,7 +259,7 @@ class aiServiceInstallArgBuilderMixin:
         elif self.getParam("aiservice_db_jdbc_url") != "":
             # External database (Oracle/SQL Server/DB2)
             command += f"  --aiservice-db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
-            command += f"  --aiservice-db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
+            command += f"  --aiservice-db-username $AISERVICE_DB_USERNAME{newline}"
             command += f'  --aiservice-db-password "$AISERVICE_DB_PASSWORD"{newline}'
             if self.getParam("aiservice_db_ca_cert") != "":
                 command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
