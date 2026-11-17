@@ -80,6 +80,7 @@ class BackupApp(BaseApp):
                 "backup_manage_db",
                 "manage_db2_namespace",
                 "manage_db2_instance_name",
+                "manage_db2_dbname",
                 "manage_db2_backup_type",
                 "manage_db2_backup_vendor",
                 # Facilities App Backup
@@ -89,6 +90,7 @@ class BackupApp(BaseApp):
                 "backup_facilities_db",
                 "facilities_db2_namespace",
                 "facilities_db2_instance_name",
+                "facilities_db2_dbname",
                 "facilities_db2_backup_type",
                 "facilities_db2_backup_vendor",
             ]
@@ -194,6 +196,7 @@ class BackupApp(BaseApp):
             if self.getParam("backup_manage_db") == "true":
                 self.printSummary("Db2 Namespace", self.getParam("manage_db2_namespace"))
                 self.printSummary("Db2 Instance Name", self.getParam("manage_db2_instance_name"))
+                self.printSummary("Db2 Database Name", self.getParam("manage_db2_dbname") if self.getParam("manage_db2_dbname") else "BLUDB (default)")
                 self.printSummary("Db2 Backup Type", self.getParam("manage_db2_backup_type"))
 
         if self.getParam("backup_facilities_app") == "true":
@@ -205,6 +208,7 @@ class BackupApp(BaseApp):
             if self.getParam("backup_facilities_db") == "true":
                 self.printSummary("Db2 Namespace", self.getParam("facilities_db2_namespace"))
                 self.printSummary("Db2 Instance Name", self.getParam("facilities_db2_instance_name"))
+                self.printSummary("Db2 Database Name", self.getParam("facilities_db2_dbname") if self.getParam("facilities_db2_dbname") else "BLUDB (default)")
                 self.printSummary("Db2 Backup Type", self.getParam("facilities_db2_backup_type"))
 
         continueWithBackup = True
@@ -640,6 +644,11 @@ class BackupApp(BaseApp):
         workspaceID = self.getParam(f"{appId}_workspace_id")
         db2InstanceName = self.promptForString("Enter Db2 instance name", default=f"mas-{instanceId}-{workspaceID}-{appId}")
         self.setParam(f"{appId}_db2_instance_name", db2InstanceName)
+
+        # DB2 database name
+        db2Dbname = self.promptForString("Enter Db2 database name (leave blank to use default BLUDB)", default="")
+        if db2Dbname:
+            self.setParam(f"{appId}_db2_dbname", db2Dbname)
 
         # Backup type
         self.printDescription(

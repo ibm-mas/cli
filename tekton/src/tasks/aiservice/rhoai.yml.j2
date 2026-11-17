@@ -38,6 +38,12 @@ spec:
       description: Model deployment type for RHOAI
       default: "raw"
 
+    # RHOAI subscription channel
+    - name: rhoai_channel
+      type: string
+      description: Subscription channel for RHOAI (empty to use the aiservice_rhoai role default)
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -57,6 +63,10 @@ spec:
       # Model deployment type
       - name: AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE
         value: $(params.aiservice_rhoai_model_deployment_type)
+
+      # RHOAI subscription channel
+      - name: RHOAI_CHANNEL
+        value: $(params.rhoai_channel)
 
   steps:
     - name: aiservice-rhoai

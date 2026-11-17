@@ -125,7 +125,6 @@ optionalParams = [
     "db2u_kind",
     # CP4D
     "cpd_product_version",
-    "cpd_install_cognos",
     "cpd_install_ws",
     "cpd_install_wml",
     "cpd_install_ae",
@@ -214,6 +213,7 @@ optionalParams = [
     "aiservice_odh_model_deployment_type",
     # RHOAI
     "aiservice_rhoai_model_deployment_type",
+    "rhoai_channel",
     "rhoai",
     # AI Service
     "aiservice_s3_accesskey",

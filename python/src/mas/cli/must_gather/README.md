@@ -175,9 +175,6 @@ mas must-gather --collectors mas
 # Skip pod logs
 mas must-gather --no-logs
 
-# Include secret data
-mas must-gather --secret-data
-
 # Keep temporary files
 mas must-gather --keep-files
 ```

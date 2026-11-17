@@ -111,7 +111,6 @@ All bash parameters map 1:1 to Python arguments:
 - `-k, --keep-files` → `--keep-files`
 - `--summary-only` → `--summary-only`
 - `--no-logs` → `--no-logs`
-- `--secret-data` → `--secret-data`
 - `--pods-only` → `--pods-only`
 - `--mas-instance-ids` → `--mas-instance-ids`
 - `--mas-app-ids` → `--mas-app-ids`
@@ -199,7 +198,6 @@ All bash parameters map 1:1 to Python arguments:
   - [x] Test namespace vs cluster-scoped resources
 - [x] **2.3** Implement `python/src/mas/cli/must_gather/common/secrets.py`
   - [x] `collectSecrets()` function
-  - [x] Support `--secret-data` flag (YAML vs describe)
   - [x] Generate summary and detailed output (9 tests passing)
 - [x] **2.4** Implement `python/src/mas/cli/must_gather/common/pods.py`
   - [x] `collectPods()` function
