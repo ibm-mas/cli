@@ -451,7 +451,6 @@ The engine that performs all tasks is written in Ansible, you can directly use t
         - Watson Studio Local
         - Watson Machine Learning
         - Analytics Engine (Apache Spark)
-        - Cognos Analytics
     - Grafana
 - Suite core services installation
 - Suite application installation

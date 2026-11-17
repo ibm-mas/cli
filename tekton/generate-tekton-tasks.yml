@@ -235,6 +235,7 @@
         - gitops-mas-provisioner
         - gitops-mongo
         - gitops-nvidia-gpu
+        - gitops-process-manual-certs
         - gitops-process-mongo-user
         - gitops-rosa
         - gitops-sls

@@ -354,7 +354,6 @@ class TestInteractiveLetsEncryptIntegration:
             ".*Manage server timezone.*": lambda msg: "GMT",
             ".*Base language.*": lambda msg: "EN",
             ".*Secondary language.*": lambda msg: "",
-            ".*Enable integration with Cognos Analytics.*": lambda msg: "n",
             ".*Enable integration with Watson Studio Local.*": lambda msg: "n",
             ".*Select components to enable.*": lambda msg: "n",
             ".*Include customization archive.*": lambda msg: "n",
