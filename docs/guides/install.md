@@ -194,11 +194,11 @@ The registry will be setup running on port 32500.  For more details on this step
 ### Mirror Container Images
 Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:
 
-- **direct** mirrors images directly from the source registry to your private registry
-- **to-filesystem** mirrors images from the source to a local directory
-- **from-filesystem** mirrors images from a local directory to your private registry
+- **m2m** mirrors images directly from the source registry to your private registry
+- **m2d** mirrors images from the source registry to a local directory
+- **d2m** mirrors images from a local directory to your private registry
 
-For full details on this process review the [image mirroring](image-mirroring.md) guide.
+For full details on this process review the [image mirroring](mirroring-v2.md) guide.
 
 
 ### Configure OpenShift to use your Private Registry

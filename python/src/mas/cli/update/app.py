@@ -19,6 +19,8 @@ from prompt_toolkit import print_formatted_text, HTML
 from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
+from ..common.commandBuilder import offerCommandScript
+from .argBuilder import updateArgBuilderMixin
 from .argParser import updateArgParser
 from .dependencies import DetectResult, _DEPENDENCY_CHECKS as _DEPENDENCY_CHECKS_REGISTRY
 from mas.devops.data import getCatalog, getNewestCatalogTag, NoSuchCatalogError
@@ -35,7 +37,7 @@ from ..rbac_utils import evaluatePreinstallRBACAccess
 logger = logging.getLogger(__name__)
 
 
-class UpdateApp(BaseApp, AdditionalConfigsMixin):
+class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
     """Orchestrator for the ``mas-cli update`` command.
 
     The ``update()`` method drives both the non-interactive path (``--catalog``
@@ -241,6 +243,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.mongoTargetVersion = None
         self.db2CurrentMajorVersion = None
         self.db2TargetMajorVersion = None
+        self.isInteractiveMode = self.args.mas_catalog_version is None
 
         if self.args.mas_catalog_version:
             # Non-interactive mode
@@ -341,6 +344,19 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
         print()
 
+        # Show the equivalent non-interactive command before the review screen
+        nonInteractiveCommand = self.buildCommand()
+        self.printH1("Non-Interactive Update Command")
+        self.printDescription(
+            [
+                "Save and re-use the following script to re-run this update without needing to answer the interactive prompts again",
+                "",
+                nonInteractiveCommand,
+            ]
+        )
+        if self.isInteractiveMode:
+            offerCommandScript(self, nonInteractiveCommand, f"mas-update-{self.getParam('mas_catalog_version')}.sh")
+
         self.printH1("Review Settings")
         self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
@@ -389,9 +405,19 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
             self.printH1("Launch Update")
             self.launchUpdate()
 
-    # ------------------------------------------------------------------
-    # Catalog selection and review
-    # ------------------------------------------------------------------
+            # ------------------------------------------------------------------
+            # Catalog selection and review
+            # ------------------------------------------------------------------
+
+            # Re-print the command so it is not lost in the scrollback above the
+            # pipeline launch output
+            self.printDescription(
+                [
+                    "For reference, the non-interactive command equivalent to this update:",
+                    "",
+                    nonInteractiveCommand,
+                ]
+            )
 
     def reviewCurrentCatalog(self) -> None:
         """Detect and display the currently installed Maximo Operator Catalog.
