@@ -315,7 +315,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
 
 Mirror All Packages
 -------------------------------------------------------------------------------
-To mirror every supported package in one command, use `--all`.  This is convenient but will require significantly more storage and time than mirroring only what you need.
+To mirror every supported package in one command, use `--all`.  This dynamically selects all packages available in the specified operator catalog for your chosen MAS release.  Packages that are not present in the catalog for that release (for example, applications removed in newer MAS releases) are automatically skipped.
 
 ```bash
 docker run -ti --rm -v $LOCAL_DIR:/mnt/registry \
