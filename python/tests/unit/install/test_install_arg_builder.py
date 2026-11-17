@@ -216,8 +216,8 @@ def test_round_trip_msk_cidrs():
         params={
             "kafka_provider": "aws",
             "aws_msk_instance_type": "kafka.m5.large",
-            "aws_msk_instance_nodes": "3",
-            "aws_msk_instance_volume_size": "100",
+            "aws_msk_instance_number": "3",
+            "aws_msk_volume_size": "100",
             "aws_msk_cidr_az1": "10.0.1.0/24",
             "aws_msk_cidr_az2": "10.0.2.0/24",
             "aws_msk_cidr_az3": "10.0.3.0/24",
@@ -226,13 +226,19 @@ def test_round_trip_msk_cidrs():
         }
     )
     script = app.buildCommand()
-    args, _, _, _ = parse_generated_command(script)
+    args, _, _, argv = parse_generated_command(script)
 
     assert args.kafka_provider == "aws"
     assert args.aws_msk_instance_type == "kafka.m5.large"
+    assert args.aws_msk_instance_number == "3"
+    assert args.aws_msk_volume_size == "100"
     assert args.aws_msk_cidr_az1 == "10.0.1.0/24"
     assert args.aws_msk_cidr_az2 == "10.0.2.0/24"
     assert args.aws_msk_cidr_az3 == "10.0.3.0/24"
+    # The broker node count and volume size must be carried as values, not
+    # emitted as empty strings (the builder used to read params that don't exist)
+    assert "--msk-instance-nodes" in argv
+    assert argv[argv.index("--msk-instance-nodes") + 1] == "3"
 
 
 def test_round_trip_skip_flags():
@@ -332,3 +338,72 @@ def test_round_trip_sensitive_params_masked():
     for var in ("CIS_APIKEY", "KAFKA_PASSWORD", "SUPERUSER_PASSWORD", "CRYPTO_KEY"):
         assert var in referenced and var in exports
     assert_no_plaintext_secrets(app, script)
+
+
+def test_round_trip_shell_escaping():
+    """GIVEN values containing spaces and quotes
+    WHEN the generated command is parsed
+    THEN the values round-trip intact (shlex-safe quoting)
+    """
+    app = make_app(
+        params={
+            "mas_workspace_name": 'My "Workspace" name',
+            "mas_domain": "mas.example.com",
+            "mas_cluster_issuer": "inst1'issuer",
+        }
+    )
+    script = app.buildCommand()
+    args, _, _, _ = parse_generated_command(script)
+
+    assert args.mas_workspace_name == 'My "Workspace" name'
+    assert args.mas_domain == "mas.example.com"
+    assert args.mas_cluster_issuer == "inst1'issuer"
+
+
+def test_round_trip_ingress_controller_name():
+    """GIVEN a custom ingress controller is configured for path-based routing
+    WHEN the generated command is parsed
+    THEN --ingress-controller-name round-trips (the builder used to emit
+        --ingress-controller, which the parser rejects)
+    """
+    app = make_app(params={"mas_ingress_controller_name": "custom-controller"})
+    script = app.buildCommand()
+    args, _, _, argv = parse_generated_command(script)
+
+    assert args.mas_ingress_controller_name == "custom-controller"
+    assert "--ingress-controller " not in " ".join(argv)
+
+
+def test_round_trip_eventstreams():
+    """GIVEN IBM Event Streams is used as the Kafka provider
+    WHEN the generated command is parsed
+    THEN the eventstreams flags round-trip (the builder used to gate this
+        block on a parameter that is never set)
+    """
+    app = make_app(
+        params={
+            "kafka_provider": "ibm",
+            "eventstreams_resourcegroup": "rg-1",
+            "eventstreams_name": "eventstreams-inst1",
+            "eventstreams_location": "us-south",
+        }
+    )
+    script = app.buildCommand()
+    args, _, _, _ = parse_generated_command(script)
+
+    assert args.eventstreams_resourcegroup == "rg-1"
+    assert args.eventstreams_name == "eventstreams-inst1"
+    assert args.eventstreams_location == "us-south"
+
+
+def test_spec_flags_resolve_in_parser():
+    """GIVEN the declarative install command spec
+    WHEN every entry is resolved against the real argument parser
+    THEN each dest maps to a flag (no typos, no flags the parser rejects)
+    """
+    from mas.cli.common.commandBuilder import parserFlagMap
+    from mas.cli.install.argBuilder import INSTALL_COMMAND_ARGS
+
+    flags = parserFlagMap(installArgParser)
+    for arg in INSTALL_COMMAND_ARGS:
+        assert arg.dest in flags, f"dest '{arg.dest}' has no flag in installArgParser"
