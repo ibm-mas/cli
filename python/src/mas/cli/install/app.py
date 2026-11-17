@@ -2110,7 +2110,7 @@ class InstallApp(
                 " - Configure a custom domain, DNS integrations, routing mode and manual certificates",
                 " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
                 ' - Customize Maximo Manage server bundle configuration (defaults to "all" configuration)',
-                " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
+                " - Enable optional Maximo Manage integration with Watson Studio Local",
                 " - Enable optional Real Estate and Facilities configurations",
                 " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
                 " - Choose alternative Apache Kafka providers (default to Strimzi)",

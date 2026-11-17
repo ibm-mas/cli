@@ -285,7 +285,7 @@ class installArgBuilderMixin:
         if self.installAIService:
             command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
             if self.getParam("configure_aiassistant") != "":
-                command += f"  --configure-aiassistant \"{self.getParam('configure_aiassistant')}\"{newline}"
+                command += f"  --configure-ai-assistant \"{self.getParam('configure_aiassistant')}\"{newline}"
         if self.installMcpi:
             command += f"  --install-mcpi{newline}"
 
@@ -522,8 +522,6 @@ class installArgBuilderMixin:
         # -----------------------------------------------------------------------------
         if self.getParam("cpd_product_version") != "":
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
-            if self.getParam("cpd_install_cognos") == "true":
-                command += " --cp4d-install-cognos"
             if self.getParam("cpd_install_ws") == "true":
                 command += " --cp4d-install-ws"
             if self.getParam("cpd_install_wml") == "true":
