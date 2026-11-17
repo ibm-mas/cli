@@ -16,9 +16,19 @@ gives a fast local loop without the live-UI tests.
 """
 
 import pytest
+from pathlib import Path
 
 
-def pytest_collection_modifyitems(items):
-    """Tag every test collected under tests/pilot with the pilot marker."""
+def pytest_collection_modifyitems(config, items):
+    """Tag every test collected under tests/pilot with the pilot marker.
+
+    The hook receives every item in the session (conftest hooks are not
+    scoped to their directory), so guard on the item's path -- the same
+    approach as the other marker conftests -- to avoid leaking the pilot
+    marker to unit and integration tests.
+    """
+    pilot_dir = Path(__file__).parent
     for item in items:
-        item.add_marker(pytest.mark.pilot)
+        item_path = Path(item.fspath)
+        if pilot_dir in item_path.parents or item_path.parent == pilot_dir:
+            item.add_marker(pytest.mark.pilot)
