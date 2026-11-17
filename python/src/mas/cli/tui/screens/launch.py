@@ -23,6 +23,7 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Button, Label, ListItem, ListView
 
+from mas.cli.tui.links import linkText
 from mas.cli.tui.models import WorkflowStep
 
 # Fixed pipeline stage labels shown upfront (unconditional stages only).
@@ -188,7 +189,9 @@ class LaunchScreen(VerticalScroll):
                 # Show only the step name in the list; URL goes in the dedicated label.
                 item.query_one(Label).update(f"{icon} {label}")
                 url_label = self.query_one("#pipeline-url", Label)
-                url_label.update(detail)
+                # The URL is stylized as an OSC 8 hyperlink so ctrl+click opens
+                # the full URL even though the text wraps in a narrow panel.
+                url_label.update(linkText(detail))
                 url_label.display = True
                 # Store URL and show Copy URL button
                 self._pipeline_url = detail

@@ -105,7 +105,12 @@ def test_successful_launch_shows_and_copies_pipeline_url(monkeypatch):
 
     async def drive(pilot, app):
         await wait_for(lambda: app.query_one("#btn-copy-url", Button).display)
-        assert "https://example.com/pipelinerun" in str(app.query_one("#pipeline-url", Label).render())
+        rendered = app.query_one("#pipeline-url", Label).render()
+        assert "https://example.com/pipelinerun" in str(rendered)
+        # The URL must carry a link style (rendered by Textual as an OSC 8
+        # terminal hyperlink) so ctrl+click opens it even when wrapped.
+        link_styles = [str(span.style) for span in getattr(rendered, "spans", [])]
+        assert any("link" in style and "https://example.com/pipelinerun" in style for style in link_styles)
         await click_button(pilot, "#btn-copy-url")
         assert FakePyperclip.copied == "https://example.com/pipelinerun"
 

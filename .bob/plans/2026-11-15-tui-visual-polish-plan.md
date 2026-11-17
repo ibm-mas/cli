@@ -1,6 +1,60 @@
 # TUI Visual Polish Plan
 
-**Status:** phase 1 implemented (November 2026) · phases 2–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+**Status:** phase 1 + 2 implemented (November 2026) · phases 3–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+
+> **Implementation notes (phase 2, landed November 2026):**
+>
+> - Content measure: **tried and reverted** — panels were capped at
+>   `max-width: 100`, but on review the capped left-aligned column read
+>   worse than a full-width content area, so the RHS now expands to fill
+>   all horizontal space again (guarded by
+>   `test_step_panel_fills_content_area`). The wrap rules added for the
+>   capped layout (`.connect-url`, `.connect-error`) are kept — long
+>   URLs still fold on terminals narrower than the URL.
+> - `#action-dialog` / `#params-dialog` gained `max-width: 100` (kept —
+>   dialogs ballooning across 200 columns still looked bad).
+> - Minimum terminal size: Textual 8.2.8 (the latest release — the
+>   dependency is unpinned, nothing newer to upgrade to) has no
+>   `App.MIN_WIDTH` / `MIN_HEIGHT`, so the shell implements it itself:
+>   `MIN_WIDTH = 70` / `MIN_HEIGHT = 20` class attributes plus an
+>   `on_resize` handler that pushes/pops a blocking
+>   `TerminalTooSmallScreen` modal (new `tui/screens/size_notice.py`,
+>   `width: 44` dialog with `max-width/max-height: 100%` so it fits even
+>   at tiny sizes). If the terminal recovers while another modal sits
+>   above the notice, the notice is marked stale and pops itself on
+>   `ScreenResume`. The app-level `q` binding still works while shown.
+> - Responsive: `TextualShell.HORIZONTAL_BREAKPOINTS = [(0, "-narrow"),
+>   (100, "-normal")]` plus a `Screen.-narrow #sidebar { display: none }`
+>   rule hides the sidebar below 100 columns. Note this also hides it at
+>   the pilot default 80×24 — existing sidebar queries still pass because
+>   display:none widgets remain in the DOM.
+> - Regression tests: `tests/unit/tui/test_tui_shell_sizing.py` (notice
+>   shown / removed on recovery / not shown at normal size; sidebar hidden
+>   below the breakpoint and visible above it; panel and params-dialog
+>   width caps at 160 cols). Full TUI unit + pilot suites green
+>   (227 passed), black and flake8 clean.
+> - Follow-up fix (same day): the content cap clipped long unbreakable
+>   strings — the connect screen's reuse-connection URL (117 chars) was
+>   cut off at the panel edge because `.connect-url` had `width: auto`
+>   and no wrap. `.connect-url` and `.connect-error` now carry
+>   `width: 100%; text-wrap: wrap` (Textual folds words longer than the
+>   line, so the URL wraps onto two lines and stays fully visible).
+>   Audited the other long-value widgets — `.context-value`,
+>   `#pipeline-url`, `.description-para`, checklist items, and the review
+>   screen's Markdown paragraphs all already fold. Regression test:
+>   `test_long_console_url_wraps` in `pilot/update/test_connect_screen.py`
+>   (228 passed total).
+> - Second follow-up: ctrl+click on a *folded* plain-text URL only
+>   selected the line fragment under the cursor. New
+>   `tui/links.py::linkText(url, prefix="")` builds a Rich `Text` whose
+>   URL portion carries a `link` style — Textual renders Rich link styles
+>   as OSC 8 terminal hyperlinks (verified end-to-end: every folded line
+>   is wrapped in an escape pointing at the full URL), so ctrl+click now
+>   opens the complete URL. Applied to the connect reuse URL and the
+>   launch pipeline URL; both pilot tests assert the link span. This
+>   partially delivers phase 4's "Clickable URLs" item (the two
+>   interactive URLs are done; rendering description paragraphs through
+>   `Markdown` for autolinkified doc links remains open).
 
 > **Implementation notes (phase 1, landed November 2026):**
 >
@@ -141,16 +195,61 @@ more amateur, not less) but constrain the internals:
   (`App.breakpoints`) — hide the sidebar below ~100 columns via a
   `.-narrow` CSS variant. Only if cheap.
 
-## Phase 3 — Consistency and component extraction (~half day)
+## Phase 3 — Consistency and component extraction (~1 day)
 
 ### 3.1 Unify content padding and footer patterns
 
-Content padding is currently `1 2` (StepScreen, ConfirmUpgradesScreen),
-`1` (ConnectStepScreen, `#dep-content`, `#launch-content`), and `0`
-(`#review-content` inner). The gutter changing width between steps reads
-as inconsistent. Pick one (`padding: 1 2`) and give every screen's
-scrollable content the same class/id. Align the near-identical footer
-patterns (`#dep-footer` / `#launch-footer` / `#review-footer`).
+Two distinct levels of consistency are in play here, and it's worth
+naming them separately:
+
+1. **Consistent framework** — the shell-level chrome (Header, step
+   sidebar, Footer keybinding bar, mounted once in
+   `TextualShell.compose()`). This is *already* persistent across every
+   screen and must stay that way; nothing in this phase should touch it.
+2. **Consistent screen layout** — the pattern *inside* `#step-content`.
+   Today this splits into two camps: `auto_run` / `launch` / `review`
+   each hand-roll a pinned footer (`#dep-footer` / `#launch-footer` /
+   `#review-footer`, all `height: auto`), while `StepScreen` and
+   `ConfirmUpgradesScreen` have no action bar at all — their "Next →"
+   button and validator error trail the scrollable content, so the
+   button's position depends on how many fields the step has and can
+   scroll out of view. `ConnectStepScreen` is a hybrid: buttons live
+   inside the scrollable sub-screens (like StepScreen) while only the
+   busy indicator and error label are pinned below.
+
+The goal for level 2 is **not** "every screen must have an action bar" —
+future screen types may legitimately not need one (a read-only
+interstitial, a log viewer, etc.). The goal is that **if a screen needs
+an action bar, there is a single way to achieve it**, and the result is
+pixel-identical across screens:
+
+```
+------------------------- header --------------------------
+[LHS sidebar] | [scrollable step content]
+              | --------------------------------------------
+              | [status message row — reserved, may be empty]
+              | [action buttons — always the same row]
+------------------------- menu -----------------------------
+```
+
+Concretely:
+
+- **Content padding:** currently `1 2` (StepScreen,
+  ConfirmUpgradesScreen), `1` (ConnectStepScreen, `#dep-content`,
+  `#launch-content`), and `0` (`#review-content` inner). The gutter
+  changing width between steps reads as inconsistent. Pick one
+  (`padding: 1 2`) and give every screen's scrollable content the same
+  class/id.
+- **Action bar height:** fixed, not `height: auto` — the
+  content/action-bar boundary must sit at the same row on every screen.
+- **Reserved status row:** the prompt/error label keeps its row even
+  when empty or hidden, so revealing an error message or a button never
+  shifts the layout. (Today `#dep-footer` grows when `dep-error` appears,
+  pushing the content area up.)
+- **StepScreen / ConfirmUpgradesScreen conversion:** move "Next →" and
+  the validator error label out of the scrollable content and into the
+  shared action bar (see 3.2), so their buttons sit at the same position
+  as every other screen's.
 
 ### 3.2 Extract a shared `StepChecklist` widget
 
@@ -159,7 +258,27 @@ patterns (`#dep-footer` / `#launch-footer` / `#review-footer`).
 `app.tcss` carries three copies of the "strip ListView highlighting"
 block. Extract one `StepChecklist` widget (list + state machine + one
 CSS block): ~150 lines removed, and the two screens are guaranteed to
-look identical forever. Same for a shared footer/action-bar component.
+look identical forever.
+
+Extract a shared **`ActionBar`** component alongside it — this is the
+mechanism behind 3.1's "single way to get an action bar". One widget
+owning the fixed-height bar, the reserved status row (prompt / error /
+guidance text), and the button row; one CSS block replacing
+`#dep-footer` / `#launch-footer` / `#review-footer` and their per-screen
+button/prompt/error rules. Screens declare buttons and status text; the
+component guarantees position and styling. Screens that need no action
+bar simply don't compose one — the framework (3.1 level 1) is
+unaffected either way. This is also where the
+StepScreen / ConfirmUpgradesScreen conversion (3.1) lands: their
+"Next →" and validator error move into the ActionBar. ConnectStepScreen
+converts the same way (its Yes/No/Connect buttons move out of the
+scrollable sub-screens into the action bar; the busy indicator and
+error label become the status row). Note the action bar stays *inside*
+each screen's panel rather than hoisted to the shell — hoisting would
+rework how screens communicate actions to the shell for no visible
+gain, since the fixed height makes per-screen copies pixel-identical
+anyway.
+
 Revisit the phase-3 pilot tests in the pilot-test plan afterwards — they
 should largely survive a mechanical extraction.
 
@@ -226,7 +345,7 @@ otherwise fine.
 |---|---|---|
 | 1 | Headings, icons, buttons, sidebar/border | ~half day |
 | 2 | Sizing constraints | ~2–3 hours |
-| 3 | Padding unification, StepChecklist extraction | ~half day |
+| 3 | Padding unification, StepChecklist + ActionBar extraction, StepScreen/Connect conversion | ~1 day |
 | 4 | UX niceties | ~half day |
 | 5 | SVG export, CSS regression test | ~2 hours |
 

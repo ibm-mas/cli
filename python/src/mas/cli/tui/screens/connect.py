@@ -19,6 +19,7 @@ try:
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
+from mas.cli.tui.links import linkText
 from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowStep
 
@@ -125,7 +126,9 @@ class ConnectStepScreen(VerticalScroll):
         switcher = self.query_one("#connect-switcher", ContentSwitcher)
         if url:
             label = self.query_one("#reuse-url-label", Label)
-            label.update(f"Re-use active connection:\n  {url}")
+            # The URL is stylized as an OSC 8 hyperlink so ctrl+click opens
+            # the full URL even though the text wraps in a narrow panel.
+            label.update(linkText(url, prefix="Re-use active connection:\n  "))
             switcher.current = "connect-reuse"
             self.query_one("#btn-reuse-yes", Button).focus()
         else:

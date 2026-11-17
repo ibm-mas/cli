@@ -19,6 +19,7 @@ Each module in this package provides one focused screen class:
 - :mod:`launch` — launch screen: submits the pipeline, streams progress, reveals Done.
 - :mod:`params_overlay` — debug modal showing current pipeline params.
 - :mod:`review` — review screen with Confirm / Quit.
+- :mod:`size_notice` — blocking notice shown when the terminal is too small.
 - :mod:`step` — generic step screen rendering WorkflowField widgets.
 """
 
@@ -29,6 +30,7 @@ from mas.cli.tui.screens.connect import ConnectStepScreen
 from mas.cli.tui.screens.launch import LaunchScreen
 from mas.cli.tui.screens.params_overlay import ParamsOverlay
 from mas.cli.tui.screens.review import ReviewScreen
+from mas.cli.tui.screens.size_notice import TerminalTooSmallScreen
 from mas.cli.tui.screens.step import StepScreen
 
 __all__ = [
@@ -40,4 +42,5 @@ __all__ = [
     "ParamsOverlay",
     "ReviewScreen",
     "StepScreen",
+    "TerminalTooSmallScreen",
 ]

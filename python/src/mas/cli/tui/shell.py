@@ -26,13 +26,22 @@ from typing import Any, List
 try:
     from textual.app import App, ComposeResult
     from textual.containers import Horizontal, VerticalScroll
+    from textual.events import Resize
     from textual.widgets import ContentSwitcher, Footer, Header, Label, ListItem, ListView
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
 from mas.cli.tui.messages import ActionComplete, StepCompleted
 from mas.cli.tui.models import WorkflowDefinition, WorkflowStep
-from mas.cli.tui.screens import ActionOverlay, AutoRunScreen, ConnectStepScreen, ParamsOverlay, ReviewScreen, StepScreen
+from mas.cli.tui.screens import (
+    ActionOverlay,
+    AutoRunScreen,
+    ConnectStepScreen,
+    ParamsOverlay,
+    ReviewScreen,
+    StepScreen,
+    TerminalTooSmallScreen,
+)
 
 # Re-export screen classes so existing workflow modules can import them from
 # this module (e.g. ``from mas.cli.tui.shell import AutoRunScreen``).
@@ -72,6 +81,22 @@ class TextualShell(App):
         ("q", "quit_app", "Quit"),
     ]
 
+    # Minimum usable terminal size.  Below this the layout breaks down
+    # (wrapped fields, overflowing footers); on_resize pushes a blocking
+    # "terminal too small" notice instead — this Textual release has no
+    # built-in App.MIN_WIDTH / MIN_HEIGHT support.
+    MIN_WIDTH = 70
+    MIN_HEIGHT = 20
+
+    # Responsive breakpoints (Textual applies these as classes on every
+    # Screen): below 100 columns the fixed-width sidebar is hidden — see
+    # the Screen.-narrow rule in app.tcss — so the content area keeps a
+    # usable width.
+    HORIZONTAL_BREAKPOINTS = [
+        (0, "-narrow"),
+        (100, "-normal"),
+    ]
+
     # Monochrome state glyphs for the sidebar steps — the CSS classes
     # (step-active / step-completed / step-skipped) provide the colour, so
     # the glyphs only need to differ by shape.  Coloured emoji are avoided:
@@ -98,6 +123,7 @@ class TextualShell(App):
         self._definition: WorkflowDefinition = definition
         self._active_index: int = 0
         self._completed: set = set()
+        self._size_notice: TerminalTooSmallScreen | None = None
         version = getattr(mas_app, "version", "")
         cmd = command.capitalize() if command else ""
         self.title = f"MAS {cmd} v{version}" if cmd else f"MAS CLI v{version}"
@@ -290,6 +316,33 @@ class TextualShell(App):
     # ------------------------------------------------------------------
     # Event handlers
     # ------------------------------------------------------------------
+
+    def on_resize(self, event: Resize) -> None:
+        """Push or remove the terminal-too-small notice as the size changes.
+
+        While the terminal is below MIN_WIDTH x MIN_HEIGHT a blocking
+        TerminalTooSmallScreen is kept on top of the screen stack so a
+        cramped layout cannot be mis-clicked.  It is popped as soon as the
+        terminal is big enough again.
+
+        Args:
+            event (Resize): Terminal resize event carrying the new size.
+        """
+        too_small = event.size.width < self.MIN_WIDTH or event.size.height < self.MIN_HEIGHT
+        if too_small:
+            if self._size_notice is None:
+                self._size_notice = TerminalTooSmallScreen(self.MIN_WIDTH, self.MIN_HEIGHT)
+                self.push_screen(self._size_notice)
+        elif self._size_notice is not None:
+            notice = self._size_notice
+            self._size_notice = None
+            if self.screen is notice:
+                self.pop_screen()
+            else:
+                # A modal (e.g. the ActionOverlay) was pushed while the
+                # terminal was too small; the notice pops itself when it
+                # becomes the top screen again.
+                notice.mark_stale()
 
     def on_step_completed(self, event: StepCompleted) -> None:
         """Handle step completion: fire action (if any) or advance.

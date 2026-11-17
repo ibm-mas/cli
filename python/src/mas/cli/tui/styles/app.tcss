@@ -45,6 +45,13 @@ TextualShell {
     height: 100%;
 }
 
+/* Responsive: below 100 columns (the Screen.-narrow class is applied by
+   TextualShell.HORIZONTAL_BREAKPOINTS) the sidebar is hidden so the
+   content area keeps a usable width. */
+Screen.-narrow #sidebar {
+    display: none;
+}
+
 /* ---------- Sidebar ListView — strip all built-in highlighting ------------- */
 
 #step-list,
@@ -121,6 +128,7 @@ ActionOverlay {
 
 #action-dialog {
     width: 70%;
+    max-width: 100;
     height: auto;
     max-height: 80%;
     background: $surface;
@@ -162,11 +170,15 @@ ConnectStepScreen {
 .connect-url {
     color: $accent;
     margin-bottom: 1;
+    width: 100%;
+    text-wrap: wrap;
 }
 
 .connect-error {
     color: $error;
     margin-top: 1;
+    width: 100%;
+    text-wrap: wrap;
 }
 
 .connect-field-label {
@@ -450,6 +462,7 @@ ParamsOverlay {
 
 #params-dialog {
     width: 70%;
+    max-width: 100;
     height: 80%;
     background: $surface;
     border: round $primary-darken-2;
@@ -467,4 +480,33 @@ ParamsOverlay {
 
 #btn-params-close {
     margin-top: 1;
+}
+
+/* ---------- TerminalTooSmallScreen ---------------------------------------- */
+
+TerminalTooSmallScreen {
+    align: center middle;
+}
+
+#size-notice-dialog {
+    width: 44;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+    background: $surface;
+    border: round $warning;
+    padding: 1 2;
+    overflow: hidden;
+}
+
+.size-notice-heading {
+    text-style: bold;
+    color: $warning;
+    margin-bottom: 1;
+}
+
+.size-notice-para {
+    width: 100%;
+    text-wrap: wrap;
+    color: $text-muted;
 }

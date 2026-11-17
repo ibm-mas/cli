@@ -79,6 +79,37 @@ def test_active_connection_reuse_advances():
     assert calls["post_connect"] == 1
 
 
+def test_long_console_url_wraps():
+    """Test that a very long console URL wraps and stays fully clickable.
+
+    GIVEN a stubbed app reporting an active connection whose console URL is
+        longer than the content area width
+    WHEN the reuse sub-screen is shown
+    THEN the URL label folds onto multiple lines within the content area
+        instead of overflowing it, and the URL carries an OSC 8 hyperlink
+        style so ctrl+click opens the full URL despite the wrap.
+    """
+    long_url = "https://console-openshift-console.clidemo-6f1620198115433da1cac8216c06779b" "-0000.us-south.containers.appdomain.cloud"
+    screen, _, _ = _make_screen(getActiveConsoleURL=long_url)
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-reuse")
+        label = app.query_one("#reuse-url-label", Label)
+        rendered = label.render()
+        assert long_url in str(rendered)
+        # The URL portion must carry a link style (rendered by Textual as an
+        # OSC 8 terminal hyperlink) covering the whole URL.
+        link_styles = [str(span.style) for span in getattr(rendered, "spans", [])]
+        assert any("link" in style and long_url in style for style in link_styles)
+        # Harness runs at 100 columns; the panel content area is 98 wide
+        # (ConnectStepScreen padding: 1).  The label must stay within it
+        # and wrap (height grows) rather than overflow (width > 98).
+        assert label.region.width <= 98
+        assert label.region.height >= 3
+
+    run_screen_pilot(screen, drive)
+
+
 def test_new_credentials_flow_advances():
     """Test the new-credentials sub-screen collects params and connects.
 
