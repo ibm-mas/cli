@@ -313,7 +313,6 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         ".*Manage server timezone.*": lambda msg: "GMT",  # Use GMT timezone
         ".*Base language.*": lambda msg: "EN",  # Use English as base language
         ".*Secondary language.*": lambda msg: "",  # No secondary language
-        ".*Enable integration with Cognos Analytics.*": lambda msg: "n",
         ".*Enable integration with Watson Studio Local.*": lambda msg: "n",
         ".*Select components to enable.*": lambda msg: "n",
         ".*Include customization archive.*": lambda msg: "n",

@@ -982,7 +982,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 self.detectCpdService("WS", "ws.cpd.ibm.com/v1beta1", "Watson Studio", "cp4d_update_ws")
                 self.detectCpdService("WmlBase", "wml.cpd.ibm.com/v1beta1", "Watson Machine Learning", "cp4d_update_wml")
                 self.detectCpdService("AnalyticsEngine", "ae.cpd.ibm.com/v1", "Analytics Engine", "cp4d_update_spark")
-                self.detectCpdService("CAService", "ca.cpd.ibm.com/v1", "Cognos Analytics", "cp4d_update_cognos")
 
                 return DetectResult(
                     ok=True,

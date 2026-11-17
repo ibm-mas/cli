@@ -227,7 +227,7 @@ def test_mirror_all_cp4d_packages(tmpdir):
     Test mirroring all CP4D packages together.
 
     This scenario tests:
-    - All CP4D packages: cp4d-platform, cp4d-wsl, cp4d-wml, cp4d-spark, cp4d-cognos
+    - All CP4D packages: cp4d-platform, cp4d-wsl, cp4d-wml, cp4d-spark
     - Mode: m2m
     - Should generate config with all CP4D package images
     """
@@ -242,7 +242,6 @@ def test_mirror_all_cp4d_packages(tmpdir):
             "cp4d-wsl": True,
             "cp4d-wml": True,
             "cp4d-spark": True,
-            "cp4d-cognos": True,
         },
         mock_oc_mirror_output=[
             "2026/02/09 17:00:00  [INFO]   : Hello, welcome to oc-mirror",
