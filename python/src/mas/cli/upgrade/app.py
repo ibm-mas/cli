@@ -18,7 +18,9 @@ from prompt_toolkit.completion import WordCompleter
 from halo import Halo
 
 from ..cli import BaseApp
+from ..common.commandBuilder import offerCommandScript
 from ..validators import InstanceIDValidator, StorageClassValidator
+from .argBuilder import upgradeArgBuilderMixin
 from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
@@ -48,7 +50,7 @@ from ..rbac_utils import evaluatePreinstallRBACAccess
 logger = logging.getLogger(__name__)
 
 
-class UpgradeApp(BaseApp, UpgradeSettingsMixin):
+class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
 
     def configPipelineStorageClass(self, instanceId: str) -> None:
         """
@@ -356,6 +358,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.devMode = args.dev_mode
         self.applyPreInstallMASRBAC = False
         self.selectedAppsForRBAC = []
+        self.isInteractiveMode = instanceId is None
 
         # Pre-populate pipeline storage class from CLI args so configPipelineStorageClass
         self.pipelineStorageClass = args.storage_pipeline or None
@@ -595,6 +598,20 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         self.configPipelineStorageClass(instanceId)
 
+        # Show the equivalent non-interactive command before the review screen
+        self.masInstanceId = instanceId
+        nonInteractiveCommand = self.buildCommand()
+        self.printH1("Non-Interactive Upgrade Command")
+        self.printDescription(
+            [
+                "Save and re-use the following script to re-run this upgrade without needing to answer the interactive prompts again",
+                "",
+                nonInteractiveCommand,
+            ]
+        )
+        if self.isInteractiveMode:
+            offerCommandScript(self, nonInteractiveCommand, f"mas-upgrade-{instanceId}.sh")
+
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
@@ -689,3 +706,13 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {instanceId} upgrade, see log file for details")
                     print()
+
+            # Re-print the command so it is not lost in the scrollback above the
+            # pipeline launch output
+            self.printDescription(
+                [
+                    "For reference, the non-interactive command equivalent to this upgrade:",
+                    "",
+                    nonInteractiveCommand,
+                ]
+            )
