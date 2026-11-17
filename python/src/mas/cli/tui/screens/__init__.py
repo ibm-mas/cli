@@ -18,7 +18,7 @@ Each module in this package provides one focused screen class:
 - :mod:`auto_run` — auto-run with progress: runs work, streams results, reveals Next.
 - :mod:`launch` — launch screen: submits the pipeline, streams progress, reveals Done.
 - :mod:`params_overlay` — debug modal showing current pipeline params.
-- :mod:`review` — review screen with Confirm / Reset / Quit.
+- :mod:`review` — review screen with Confirm / Quit.
 - :mod:`step` — generic step screen rendering WorkflowField widgets.
 """
 

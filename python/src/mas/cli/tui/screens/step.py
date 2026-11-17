@@ -60,7 +60,7 @@ class StepScreen(VerticalScroll):
             field widgets, validator error label (hidden initially), and
             Next button.
         """
-        yield Label(self._step.heading, id=f"heading-{self._step.id}")
+        yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
         for para in self._step.description:
             yield Label(para, classes="description-para")
         if self._step.context:
@@ -252,24 +252,6 @@ class StepScreen(VerticalScroll):
         error_label.add_class("validator-error--visible")
         btn = self.query_one(f"#btn-next-{self._step.id}", Button)
         btn.disabled = False
-
-    def reset(self) -> None:
-        """Clear any validator error and re-enable Next for a workflow reset.
-
-        Called by TextualShell.on_workflow_reset() so the step is ready for
-        a second pass without stale error state.
-        """
-        try:
-            error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
-            error_label.update("")
-            error_label.remove_class("validator-error--visible")
-        except Exception:
-            pass
-        try:
-            btn = self.query_one(f"#btn-next-{self._step.id}", Button)
-            btn.disabled = False
-        except Exception:
-            pass
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle Next button press.

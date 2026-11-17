@@ -72,7 +72,7 @@ def test_successful_launch_reveals_done():
     async def drive(pilot, app):
         await wait_for(lambda: app.query_one("#btn-done", Button).display)
         rendered = " ".join(str(item.query_one(Label).render()) for item in app.query("#launch-step-list ListItem"))
-        assert "✅" in rendered
+        assert "✓" in rendered
         await click_button(pilot, "#btn-done")
 
     app = run_screen_pilot(screen, drive)
@@ -134,7 +134,7 @@ def test_failed_launch_reveals_dismiss_with_error():
         await wait_for(lambda: app.query_one("#btn-dismiss-error", Button).display)
         assert not app.query_one("#btn-done", Button).display
         rendered = " ".join(str(item.query_one(Label).render()) for item in app.query("#launch-step-list ListItem"))
-        assert "❌" in rendered
+        assert "✗" in rendered
         assert app.posted == []
 
     run_screen_pilot(screen, drive)

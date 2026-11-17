@@ -67,10 +67,6 @@ class ScreenPilotApp(App):
         """Record a StepCompleted message posted by the screen."""
         self.posted.append(("step_completed", event.step_index))
 
-    def on_workflow_reset(self, event) -> None:
-        """Record a WorkflowReset message posted by the screen."""
-        self.posted.append(("workflow_reset", None))
-
     def on_action_complete(self, event) -> None:
         """Record an ActionComplete message posted by the screen."""
         self.posted.append(("action_complete", event.step_index))
@@ -128,8 +124,8 @@ async def click_button(pilot, selector: str) -> bool:
     clicks on the same button reliable.
 
     The button is resolved before the click and the animation wait stops
-    early if the click's action unmounts it (e.g. a reset that removes the
-    panel the button lives on).
+    early if the click's action unmounts it (e.g. an exit that tears down
+    the panel the button lives on).
 
     Args:
         pilot: The active Textual pilot.

@@ -19,12 +19,12 @@ try:
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
-from mas.cli.tui.messages import StepCompleted, WorkflowReset
+from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowStep
 
 
 class ReviewScreen(Vertical):
-    """Content panel showing a Markdown summary with Confirm, Reset, and Quit buttons.
+    """Content panel showing a Markdown summary with Confirm and Quit buttons.
 
     The screen is split into two fixed sections:
 
@@ -38,7 +38,7 @@ class ReviewScreen(Vertical):
     2. ``step.summary`` items — generic label/value table built from WorkflowSummaryItem.
 
     The Confirm button posts ``StepCompleted(step_index)`` so the shell advances
-    to the launch step.  Reset posts ``WorkflowReset`` to restart from step 0.
+    to the launch step.  Quit exits the application.
 
     Attributes:
         _mas_app: The MAS CLI app providing params and instance attributes.
@@ -111,9 +111,8 @@ class ReviewScreen(Vertical):
                 id="review-prompt",
             )
             with Horizontal(id="review-buttons"):
-                yield Button("✓ Confirm & Launch", id="btn-confirm", variant="success")
-                yield Button("↺ Reset", id="btn-reset", variant="warning")
-                yield Button("✕ Quit", id="btn-quit", variant="error")
+                yield Button("Confirm & Launch", id="btn-confirm", variant="success")
+                yield Button("Quit", id="btn-quit", variant="error")
 
     def start_dynamic_loaders(self) -> None:
         """Refresh the review Markdown when the step becomes active.
@@ -125,14 +124,12 @@ class ReviewScreen(Vertical):
         md.update(self._build_markdown())
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Handle Confirm, Reset, and Quit buttons.
+        """Handle Confirm and Quit buttons.
 
         Args:
             event (Button.Pressed): The button press event.
         """
         if event.button.id == "btn-confirm":
             self.post_message(StepCompleted(self._step_index))
-        elif event.button.id == "btn-reset":
-            self.post_message(WorkflowReset())
         elif event.button.id == "btn-quit":
             self.app.exit(1)

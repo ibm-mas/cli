@@ -33,10 +33,6 @@ class StepCompleted(_TxtMessage):
         self.step_index = step_index
 
 
-class WorkflowReset(_TxtMessage):
-    """Posted by ReviewScreen when the user clicks Reset — restarts the workflow."""
-
-
 class ActionComplete(_TxtMessage):
     """Posted by ActionOverlay when the step action completes successfully."""
 

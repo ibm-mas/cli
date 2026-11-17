@@ -103,7 +103,7 @@ def test_auto_run_screen_mark_done_updates_label_text():
 
     GIVEN an AutoRunScreen with a step-list
     WHEN _mark_done(label, ok=True, detail="Not installed") is called
-    THEN the Label inside the matching ListItem shows "✅ <label>: <detail>".
+    THEN the Label inside the matching ListItem shows "✓ <label>: <detail>".
     """
     screen = _make_screen()
 
@@ -115,15 +115,15 @@ def test_auto_run_screen_mark_done_updates_label_text():
     with patch.object(screen, "query_one", return_value=mock_item):
         screen._mark_done("IBM Db2", True, "All Db2uCluster instances in ibm-db2")
 
-    mock_label.update.assert_called_once_with("✅ IBM Db2: All Db2uCluster instances in ibm-db2")
+    mock_label.update.assert_called_once_with("✓ IBM Db2: All Db2uCluster instances in ibm-db2")
 
 
 def test_auto_run_screen_mark_done_failure_uses_cross():
-    """Test that _mark_done uses ❌ prefix when ok=False.
+    """Test that _mark_done uses ✗ prefix when ok=False.
 
     GIVEN an AutoRunScreen with a step-list
     WHEN _mark_done(label, ok=False, detail="Installed — update cannot proceed") is called
-    THEN the Label text starts with "❌".
+    THEN the Label text starts with "✗".
     """
     screen = _make_screen()
 
@@ -135,72 +135,16 @@ def test_auto_run_screen_mark_done_failure_uses_cross():
         screen._mark_done("IBM Watson Discovery", False, "Installed — update cannot proceed")
 
     call_text = mock_label.update.call_args[0][0]
-    assert call_text.startswith("❌"), f"Expected text starting with '❌', got: {call_text!r}"
-
-
-def test_auto_run_screen_reset_restores_original_labels():
-    """Test that reset() restores each ListItem Label to its original plain label text.
-
-    GIVEN an AutoRunScreen whose items have been updated with result text
-    WHEN reset() is called
-    THEN query_one is called for each step and the Label is restored to the plain label.
-    """
-    screen = _make_screen()
-
-    updated_labels = {}
-
-    def fake_query_one(selector, widget_type=None):
-        # Return a mock ListItem whose child Label records update() calls
-        label_mock = MagicMock()
-        item_mock = MagicMock()
-        item_mock.query_one = MagicMock(return_value=label_mock)
-        updated_labels[selector] = label_mock
-        return item_mock
-
-    with patch.object(screen, "query_one", side_effect=fake_query_one):
-        screen.reset()
-
-    # Each label should be restored to the pending-prefixed text (⬜ <label>)
-    for selector, label_mock in updated_labels.items():
-        if label_mock.update.called:
-            restored_text = label_mock.update.call_args[0][0]
-            assert restored_text.startswith("⬜"), f"Reset should restore pending prefix '⬜', got: {restored_text!r}"
+    assert call_text.startswith("✗"), f"Expected text starting with '✗', got: {call_text!r}"
 
 
 def test_auto_run_screen_pending_label_has_prefix():
-    """Test that _step_labels items are prefixed with the pending icon when composed.
+    """Test that _step_labels items are prefixed with the pending glyph when composed.
 
     GIVEN an AutoRunScreen
     WHEN the initial label text for a step-list item is produced
-    THEN it starts with the pending icon (⬜).
+    THEN it starts with the pending glyph (○).
     """
     screen = _make_screen()
     first_label = screen._step_labels[0]
-    assert _pending_label(first_label).startswith("⬜"), f"Expected pending label to start with '⬜', got: {_pending_label(first_label)!r}"
-
-
-def test_auto_run_screen_reset_restores_pending_prefix():
-    """Test that reset() restores each ListItem Label to its pending-prefixed text.
-
-    GIVEN an AutoRunScreen
-    WHEN reset() is called
-    THEN the Label is restored to "⬜ <label>" (pending prefix, not plain label).
-    """
-    screen = _make_screen()
-
-    updated_labels = {}
-
-    def fake_query_one(selector, widget_type=None):
-        label_mock = MagicMock()
-        item_mock = MagicMock()
-        item_mock.query_one = MagicMock(return_value=label_mock)
-        updated_labels[selector] = label_mock
-        return item_mock
-
-    with patch.object(screen, "query_one", side_effect=fake_query_one):
-        screen.reset()
-
-    for selector, label_mock in updated_labels.items():
-        if label_mock.update.called:
-            restored_text = label_mock.update.call_args[0][0]
-            assert restored_text.startswith("⬜"), f"Reset should restore pending prefix '⬜', got: {restored_text!r}"
+    assert _pending_label(first_label).startswith("○"), f"Expected pending label to start with '○', got: {_pending_label(first_label)!r}"

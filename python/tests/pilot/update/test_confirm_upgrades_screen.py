@@ -17,14 +17,12 @@ confirm/abort/validation matrix per scenario, including the Db2 v11 to v12
 case where entering the license path is itself the confirmation.
 """
 
-import asyncio
-
 import pytest
 from textual.widgets import Checkbox, Input, Label
 
 from mas.cli.tui.models import WorkflowStep
 from mas.cli.tui.screens.confirm_upgrades import ConfirmUpgradesScreen
-from pilot.harness import click_button, run_screen_pilot, wait_for, wait_for_widget
+from pilot.harness import click_button, run_screen_pilot, wait_for
 from scenarios.update import update_scenario
 
 pytestmark = pytest.mark.pilot
@@ -295,54 +293,3 @@ def test_abort_button_exits_app():
 
     assert app.posted == []
     assert app.return_value == 1
-
-
-def test_workflow_reset_clears_license_state(tmp_path):
-    """Test that a workflow reset clears the collected license path.
-
-    GIVEN a real TextualShell over a real UpdateApp in the db2-v11-to-v12
-        scenario, with confirm-upgrades as the first step and review second
-    WHEN the user confirms with a license path, then resets from the
-        review step
-    THEN the license path (and params) are cleared so the workflow
-        re-collects them — a stale path must not silently survive a reset,
-        because db2LicenseFileNeeded() only checks for None and would skip
-        the license input on the second pass.
-    """
-    from mas.cli.tui.screens.review import ReviewScreen
-    from mas.cli.tui.shell import TextualShell
-
-    license_file = tmp_path / "db2.lic"
-    license_file.write_text("license")
-
-    mas_app = update_scenario("db2-v11-to-v12")
-    confirm_step = WorkflowStep(
-        id="confirm-upgrades",
-        heading="Confirm Upgrade Requirements",
-        screen_class=ConfirmUpgradesScreen,
-    )
-    review_step = WorkflowStep(id="review", heading="Review Settings", screen_class=ReviewScreen)
-    shell = TextualShell(mas_app, [confirm_step, review_step])
-
-    async def run():
-        async with shell.run_test(size=(100, 40)) as pilot:
-            await pilot.pause()
-            shell.query_one("#input-db2-license", Input).value = str(license_file)
-            await pilot.pause()
-            await click_button(pilot, "#btn-confirm-upgrades")
-            # The review panel mounts lazily once the confirm step completes
-            assert await wait_for_widget(pilot, "#btn-reset")
-            # Now on the review step; the license has been collected
-            assert mas_app.db2LicenseFileLocal == str(license_file)
-            assert mas_app.getParam("db2_v12_upgrade") == "true"
-
-            await click_button(pilot, "#btn-reset")
-            await pilot.pause()
-            # Back at the confirm step: everything re-collectable
-            assert mas_app.db2LicenseFileLocal is None
-            assert mas_app.db2LicenseFileSecret is None
-            assert mas_app.getParam("db2_v12_upgrade") == ""
-            assert mas_app.upgradeConfirmationsPending() is True
-            assert shell.query_one("#input-db2-license", Input).value == ""
-
-    asyncio.run(run())

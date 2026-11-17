@@ -84,7 +84,7 @@ class ConfirmUpgradesScreen(VerticalScroll):
             or, for the v11 to v12 license-requiring upgrade, an inline
             license path input), an error label, and Confirm / Abort buttons.
         """
-        yield Label(self._step.heading, id=f"heading-{self._step.id}")
+        yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
         for para in self._step.description:
             yield Label(para, classes="description-para")
 
@@ -137,8 +137,8 @@ class ConfirmUpgradesScreen(VerticalScroll):
 
         yield Label("", id=f"validator-error-{self._step.id}", classes="validator-error")
         with Horizontal(id="confirm-buttons"):
-            yield Button("✓ Confirm & Continue", id="btn-confirm-upgrades", variant="success")
-            yield Button("✕ Abort Update", id="btn-abort-upgrades", variant="error")
+            yield Button("Confirm & Continue", id="btn-confirm-upgrades", variant="success")
+            yield Button("Abort Update", id="btn-abort-upgrades", variant="error")
 
     def start_dynamic_loaders(self) -> None:
         """No-op — satisfies the interface expected by TextualShell."""
@@ -230,24 +230,6 @@ class ConfirmUpgradesScreen(VerticalScroll):
         error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
         error_label.update("")
         error_label.remove_class("validator-error--visible")
-
-    def reset(self) -> None:
-        """Clear checkbox and input state for a workflow reset."""
-        for checkbox_id in ("#confirm-mongodb", "#confirm-db2"):
-            try:
-                self.query_one(checkbox_id, Checkbox).value = False
-            except Exception:
-                pass
-        try:
-            self.query_one("#input-db2-license", Input).value = ""
-        except Exception:
-            pass
-        try:
-            error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
-            error_label.update("")
-            error_label.remove_class("validator-error--visible")
-        except Exception:
-            pass
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle Confirm and Abort buttons.

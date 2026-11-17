@@ -31,15 +31,17 @@ TextualShell {
     height: 1fr;
 }
 
+/* Fixed width rather than a percentage: predictable at any terminal size
+   (25% is 20 chars at 80 cols — headings wrap — and 50 chars at 200 cols). */
 #sidebar {
-    width: 25%;
+    width: 34;
     height: 100%;
-    border-right: solid $primary;
+    border-right: solid $primary-darken-3;
     padding: 1;
 }
 
 #step-content {
-    width: 75%;
+    width: 1fr;
     height: 100%;
 }
 
@@ -76,11 +78,21 @@ TextualShell {
 
 /* ---------- Shared field / description styles ----------------------------- */
 
+/* Text hierarchy: step headings are the only bold full-contrast text;
+   descriptions are muted; field labels keep normal contrast so input
+   values (full contrast) stand out against them. */
+.step-heading {
+    text-style: bold;
+    color: $text;
+    margin-bottom: 1;
+}
+
 .field-label {
     margin-top: 1;
 }
 
 .description-para {
+    color: $text-muted;
     margin-bottom: 1;
     width: 100%;
     text-wrap: wrap;
@@ -112,7 +124,7 @@ ActionOverlay {
     height: auto;
     max-height: 80%;
     background: $surface;
-    border: thick $primary;
+    border: round $primary-darken-2;
     padding: 1 2;
 }
 
@@ -440,7 +452,7 @@ ParamsOverlay {
     width: 70%;
     height: 80%;
     background: $surface;
-    border: thick $primary;
+    border: round $primary-darken-2;
     padding: 1 2;
 }
 

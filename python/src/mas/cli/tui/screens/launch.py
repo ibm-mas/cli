@@ -42,9 +42,9 @@ def _pending_label(label: str) -> str:
         label (str): Plain step label.
 
     Returns:
-        str: Label prefixed with the pending icon.
+        str: Label prefixed with the pending glyph.
     """
-    return f"⬜ {label}"
+    return f"○ {label}"
 
 
 class LaunchScreen(VerticalScroll):
@@ -92,7 +92,7 @@ class LaunchScreen(VerticalScroll):
             ReviewScreen layout.  Both buttons are hidden until work completes.
         """
         with VerticalScroll(id="launch-content"):
-            yield Label(self._step.heading, id=f"heading-{self._step.id}")
+            yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
             for para in self._step.description:
                 yield Label(para, classes="description-para")
             with ListView(id="launch-step-list"):
@@ -102,9 +102,9 @@ class LaunchScreen(VerticalScroll):
         with Vertical(id="launch-footer"):
             yield Label("View the pipeline run:", id="launch-prompt")
             with Horizontal(id="launch-buttons"):
-                yield Button("📋 Copy URL", id="btn-copy-url", classes="btn-copy-url", variant="primary")
-                yield Button("✓ Done", id="btn-done", classes="btn-launch-done", variant="success")
-                yield Button("✕ Dismiss", id="btn-dismiss-error", classes="btn-launch-dismiss", variant="error")
+                yield Button("Copy URL", id="btn-copy-url", classes="btn-copy-url", variant="primary")
+                yield Button("Done", id="btn-done", classes="btn-launch-done", variant="success")
+                yield Button("Dismiss", id="btn-dismiss-error", classes="btn-launch-dismiss", variant="error")
 
     def on_mount(self) -> None:
         """Hide action buttons and pipeline URL label on mount."""
@@ -160,7 +160,7 @@ class LaunchScreen(VerticalScroll):
             item = new_item
         item.remove_class("step-skipped", "step-completed", "step-error")
         item.add_class("step-active")
-        item.query_one(Label).update(f"⏳ {label}")
+        item.query_one(Label).update(f"◐ {label}")
 
     def _mark_done(self, label: str, ok: bool, detail: str) -> None:
         """Mark a stage list item as completed or failed and update its text.
@@ -175,7 +175,7 @@ class LaunchScreen(VerticalScroll):
             ok (bool): True for success, False for failure.
             detail (str): Short result text (pipeline URL for the last stage).
         """
-        icon = "✅" if ok else "❌"
+        icon = "✓" if ok else "✗"
         item_id = f"#launch-step-{_label_to_id(label)}"
         try:
             item = self.query_one(item_id, ListItem)
@@ -211,7 +211,7 @@ class LaunchScreen(VerticalScroll):
                 if "step-active" in item.classes or "step-skipped" in item.classes:
                     item.remove_class("step-active", "step-skipped")
                     item.add_class("step-error")
-                    item.query_one(Label).update(f"❌ {label}: {message}")
+                    item.query_one(Label).update(f"✗ {label}: {message}")
                     break
             except Exception:
                 pass
@@ -223,38 +223,6 @@ class LaunchScreen(VerticalScroll):
     def _enable_dismiss(self) -> None:
         """Reveal the Dismiss button after a failed pipeline submission."""
         self.query_one("#btn-dismiss-error", Button).display = True
-
-    def reset(self) -> None:
-        """Reset all stage items to pending, clear the URL label, and re-hide both buttons."""
-        self._step_labels = list(_LAUNCH_STEPS)
-        for label in self._step_labels:
-            item_id = f"#launch-step-{_label_to_id(label)}"
-            try:
-                item = self.query_one(item_id, ListItem)
-                item.remove_class("step-active", "step-completed", "step-error")
-                item.add_class("step-skipped")
-                item.query_one(Label).update(_pending_label(label))
-            except Exception:
-                pass
-        try:
-            url_label = self.query_one("#pipeline-url", Label)
-            url_label.update("")
-            url_label.display = False
-        except Exception:
-            pass
-        try:
-            self.query_one("#btn-copy-url", Button).display = False
-        except Exception:
-            pass
-        try:
-            self.query_one("#btn-done", Button).display = False
-        except Exception:
-            pass
-        try:
-            self.query_one("#btn-dismiss-error", Button).display = False
-        except Exception:
-            pass
-        self._pipeline_url = None
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle Copy URL, Done and Dismiss buttons.
@@ -269,7 +237,7 @@ class LaunchScreen(VerticalScroll):
                     # Provide visual feedback by temporarily updating button text
                     button = event.button
                     original_label = button.label
-                    button.label = "✓ Copied!"
+                    button.label = "Copied!"
                     self.set_timer(2.0, lambda: setattr(button, "label", original_label))
                 except Exception:
                     # If clipboard fails, silently ignore (pyperclip may not be available on all systems)

@@ -30,7 +30,7 @@ try:
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
-from mas.cli.tui.messages import ActionComplete, StepCompleted, WorkflowReset
+from mas.cli.tui.messages import ActionComplete, StepCompleted
 from mas.cli.tui.models import WorkflowDefinition, WorkflowStep
 from mas.cli.tui.screens import ActionOverlay, AutoRunScreen, ConnectStepScreen, ParamsOverlay, ReviewScreen, StepScreen
 
@@ -71,6 +71,14 @@ class TextualShell(App):
         ("p", "show_params", "Debug params"),
         ("q", "quit_app", "Quit"),
     ]
+
+    # Monochrome state glyphs for the sidebar steps — the CSS classes
+    # (step-active / step-completed / step-skipped) provide the colour, so
+    # the glyphs only need to differ by shape.  Coloured emoji are avoided:
+    # they ignore CSS colours and render inconsistently across terminals.
+    _GLYPH_PENDING = "○"
+    _GLYPH_ACTIVE = "◐"
+    _GLYPH_COMPLETED = "✓"
 
     def __init__(
         self,
@@ -137,7 +145,7 @@ class TextualShell(App):
         list_view.can_focus = False
         list_view.can_focus_children = False
         for step in self._definition:
-            item = ListItem(Label(f"⬜ {step.heading}"), id=f"sidebar-{step.id}")
+            item = ListItem(Label(f"{self._GLYPH_PENDING} {step.heading}"), id=f"sidebar-{step.id}")
             if self._is_skipped(step):
                 item.add_class("step-skipped")
             await list_view.append(item)
@@ -204,7 +212,7 @@ class TextualShell(App):
                 if s.id in self._completed:
                     item.add_class("step-completed")
                     item.remove_class("step-skipped")
-                    item.query_one(Label).update(f"✅ {s.heading}")
+                    item.query_one(Label).update(f"{self._GLYPH_COMPLETED} {s.heading}")
                 elif self._is_skipped(s):
                     item.add_class("step-skipped")
             except Exception:
@@ -214,7 +222,7 @@ class TextualShell(App):
             active_item = self.query_one(f"#sidebar-{step.id}", ListItem)
             active_item.add_class("step-active")
             active_item.remove_class("step-skipped")
-            active_item.query_one(Label).update(f"⏳ {step.heading}")
+            active_item.query_one(Label).update(f"{self._GLYPH_ACTIVE} {step.heading}")
         except Exception:
             pass
 
@@ -329,44 +337,6 @@ class TextualShell(App):
         Bound to the ``q`` key.
         """
         self.exit(1)
-
-    def on_workflow_reset(self, _event: WorkflowReset) -> None:
-        """Reset the workflow: clear completed state and return to the first step.
-
-        Clears completed steps and params, resets any command-specific
-        interactive state the app collected during the workflow (via the
-        optional ``resetWorkflowState`` hook, e.g. the update command's Db2
-        license path), then returns to the first step.
-
-        Args:
-            _event (WorkflowReset): The reset event (unused payload).
-        """
-        self._completed.clear()
-        self._mas_app.params.clear()
-        reset_state = getattr(self._mas_app, "resetWorkflowState", None)
-        if callable(reset_state):
-            reset_state()
-        self._refresh_sidebar_conditions()
-        for s in self._definition:
-            try:
-                item = self.query_one(f"#sidebar-{s.id}", ListItem)
-                item.remove_class("step-active", "step-completed")
-                item.query_one(Label).update(f"⬜ {s.heading}")
-                if self._is_skipped(s):
-                    item.add_class("step-skipped")
-            except Exception:
-                pass
-        switcher = self.query_one("#step-content", ContentSwitcher)
-        # Remove all lazily-mounted panels (steps 1+) so they recompose fresh
-        # with current app state on next activation.  Reset step 0 in place.
-        first_id = f"step-panel-{self._definition[0].id}" if self._definition else None
-        for widget in list(switcher.children):
-            if first_id and widget.id == first_id:
-                if hasattr(widget, "reset"):
-                    widget.reset()
-            else:
-                widget.remove()
-        self._activate_step(self._find_first_active_index())
 
 
 def serveTuiMode(command: str, argv: List[str]) -> None:

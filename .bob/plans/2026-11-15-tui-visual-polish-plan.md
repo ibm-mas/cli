@@ -1,6 +1,32 @@
 # TUI Visual Polish Plan
 
-**Status:** proposed (not started) · **Branch:** `textual-update` · **Date:** November 2026
+**Status:** phase 1 implemented (November 2026) · phases 2–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+
+> **Implementation notes (phase 1, landed November 2026):**
+>
+> - All four screens' heading Labels now carry `classes="step-heading"`;
+>   `.description-para` is `$text-muted`. One deviation from the hierarchy
+>   table: field labels keep normal `$text` (Textual has no "slightly
+>   muted" variable between `$text` and `$text-muted`) — muted
+>   descriptions, normal labels, full-contrast input values reads clean.
+> - Glyphs: `○` pending, `◐` active, `✓` done, `✗` failed, everywhere
+>   (sidebar, dep/launch checklists, error prefixes). All button icons
+>   removed ("Confirm & Continue", "Abort Update", "Copy URL", "Done",
+>   "Dismiss", "Quit", "Reset", "Copied!"); `Next →` keeps its arrow.
+> - Sidebar is `width: 34` with `border-right: solid $primary-darken-3`;
+>   `#step-content` switched from `75%` to `1fr`. Dialogs use
+>   `border: round $primary-darken-2`.
+> - The active-step glyph is a static `◐` everywhere: a sidebar
+>   `set_interval` spinner (cycling `◐◓◑◒`) was tried and removed the same
+>   day — the constant motion next to steady text read as noise. Textual
+>   8.2.8 has no `Spinner` widget, so an animated variant would have to be
+>   timer-driven; revisit only with a calmer cadence or a screen-level
+>   (not sidebar-level) activity indicator.
+> - Tests updated to the new glyphs: `unit/update/
+>   test_update_auto_run_screen.py`, `pilot/update/test_launch_screen.py`
+>   (button-label tests select by widget id, so label changes needed no
+>   test edits). Full TUI unit + pilot suites green (216 passed), black
+>   and flake8 clean.
 
 > Design review of the Textual TUI (`mas update` vertical slice) for
 > appearance / quality / professional finish. No changes made yet — this
