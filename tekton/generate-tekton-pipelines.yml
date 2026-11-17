@@ -22,6 +22,7 @@
       - mas-update
       - mas-upgrade
       - mas-uninstall
+      - mas-devops-db2-migration 
       # MAS FVT Pipelines
       - mas-fvt-assist
       - mas-fvt-core
