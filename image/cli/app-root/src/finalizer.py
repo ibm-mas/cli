@@ -440,6 +440,24 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Unable to determine RBAC permission mode: {e}")
 
+    # Lookup whether FIPS mode is enabled on the cluster
+    # -------------------------------------------------------------------------
+    try:
+        mcs = dynClient.resources.get(api_version="machineconfiguration.openshift.io/v1", kind="MachineConfig")
+        setObject["target.fipsEnabled"] = any(mc.spec and mc.spec.fips for mc in mcs.get().items)
+    except Exception as e:
+        print(f"Unable to determine FIPS mode: {e}")
+
+    # Lookup whether IPv6 is enabled on the cluster (IPv6 or dual-stack pod/service networks)
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="config.openshift.io/v1", kind="Network")
+        cr = crs.get(name="cluster")
+        cidrs = [n.cidr for n in (cr.status.clusterNetwork or [])] + list(cr.status.serviceNetwork or [])
+        setObject["target.ipv6Enabled"] = any(":" in cidr for cidr in cidrs)
+    except Exception as e:
+        print(f"Unable to determine IPv6 mode: {e}")
+
     # Lookup version and build information for MAS Operators
     # -------------------------------------------------------------------------
     knownProductIds = {
