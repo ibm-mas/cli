@@ -43,7 +43,7 @@ from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowStep
 
 
-class ConfirmUpgradesScreen(VerticalScroll):
+class ConfirmUpgradesScreen(Vertical):
     """Content panel collecting the interactive upgrade confirmations.
 
     Composed lazily when the step becomes active (after the dependency checks
@@ -54,6 +54,10 @@ class ConfirmUpgradesScreen(VerticalScroll):
     be provided — for that upgrade, entering the path is the confirmation.
     Confirm writes the corresponding params and posts StepCompleted; Abort
     exits the application.
+
+    The scrollable confirmation sections sit in a ``.content-scroll`` area
+    with a fixed ``.action-bar`` pinned below (status row + Confirm/Abort
+    buttons), matching every other screen's layout.
 
     Attributes:
         _mas_app: MAS CLI app instance (UpdateApp).
@@ -79,66 +83,69 @@ class ConfirmUpgradesScreen(VerticalScroll):
         """Build the confirmation sections for each pending upgrade.
 
         Yields:
-            Heading, description, one section per pending confirmation
-            (MongoDB notice + checkbox, Db2 section with either a checkbox
-            or, for the v11 to v12 license-requiring upgrade, an inline
-            license path input), an error label, and Confirm / Abort buttons.
+            A scrollable area with the heading, description and one section
+            per pending confirmation (MongoDB notice + checkbox, Db2 section
+            with either a checkbox or, for the v11 to v12 license-requiring
+            upgrade, an inline license path input), then a fixed action bar
+            with the error status row and Confirm / Abort buttons.
         """
-        yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
-        for para in self._step.description:
-            yield Label(para, classes="description-para")
+        with VerticalScroll(classes="content-scroll"):
+            yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
+            for para in self._step.description:
+                yield Label(para, classes="description-para")
 
-        if self._mas_app.mongoUpgradeConfirmationPending():
-            target = self._mas_app.mongoTargetVersion
-            current = self._mas_app.mongoCurrentVersion or "(current)"
-            with Vertical(id="confirm-mongodb-section", classes="confirm-section"):
-                yield Label("MongoDB Community Edition", classes="confirm-section-heading")
-                yield Label(
-                    f"MongoDB Community Edition is currently running version {current} and will be updated to {target}",
-                    classes="confirm-section-para",
-                )
-                yield Label(
-                    "It is recommended that you backup your MongoDB instance before proceeding:\n"
-                    "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application",
-                    classes="confirm-section-para",
-                )
-                yield Checkbox(
-                    f"Confirm update to MongoDB {target}",
-                    id="confirm-mongodb",
-                    classes="confirm-checkbox",
-                )
-
-        db2UpgradePending = self._mas_app.db2UpgradeConfirmationPending()
-        db2LicenseNeeded = self._mas_app.db2LicenseFileNeeded()
-        if db2UpgradePending or db2LicenseNeeded:
-            current = self._mas_app.db2CurrentMajorVersion
-            target = self._mas_app.db2TargetMajorVersion
-            namespace = self._mas_app.getParam("db2_namespace")
-            with Vertical(id="confirm-db2-section", classes="confirm-section"):
-                yield Label("IBM Db2", classes="confirm-section-heading")
-                if db2LicenseNeeded:
-                    # For the v11 to v12 upgrade the license file path input
-                    # is the confirmation itself — no separate checkbox.
+            if self._mas_app.mongoUpgradeConfirmationPending():
+                target = self._mas_app.mongoTargetVersion
+                current = self._mas_app.mongoCurrentVersion or "(current)"
+                with Vertical(id="confirm-mongodb-section", classes="confirm-section"):
+                    yield Label("MongoDB Community Edition", classes="confirm-section-heading")
                     yield Label(
-                        f"Db2 {current} instances in {namespace} will be updated to {target}, this update requires a license file",
+                        f"MongoDB Community Edition is currently running version {current} and will be updated to {target}",
                         classes="confirm-section-para",
                     )
-                    yield Input(placeholder="Path to a valid Db2 v12 license file", id="input-db2-license")
-                else:
                     yield Label(
-                        f"Db2 {current} instances in {namespace} will be updated to {target}",
+                        "It is recommended that you backup your MongoDB instance before proceeding:\n"
+                        "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application",
                         classes="confirm-section-para",
                     )
                     yield Checkbox(
-                        f"Confirm update from Db2 {current} to {target}",
-                        id="confirm-db2",
+                        f"Confirm update to MongoDB {target}",
+                        id="confirm-mongodb",
                         classes="confirm-checkbox",
                     )
 
-        yield Label("", id=f"validator-error-{self._step.id}", classes="validator-error")
-        with Horizontal(id="confirm-buttons"):
-            yield Button("Confirm & Continue", id="btn-confirm-upgrades", variant="success")
-            yield Button("Abort Update", id="btn-abort-upgrades", variant="error")
+            db2UpgradePending = self._mas_app.db2UpgradeConfirmationPending()
+            db2LicenseNeeded = self._mas_app.db2LicenseFileNeeded()
+            if db2UpgradePending or db2LicenseNeeded:
+                current = self._mas_app.db2CurrentMajorVersion
+                target = self._mas_app.db2TargetMajorVersion
+                namespace = self._mas_app.getParam("db2_namespace")
+                with Vertical(id="confirm-db2-section", classes="confirm-section"):
+                    yield Label("IBM Db2", classes="confirm-section-heading")
+                    if db2LicenseNeeded:
+                        # For the v11 to v12 upgrade the license file path input
+                        # is the confirmation itself — no separate checkbox.
+                        yield Label(
+                            f"Db2 {current} instances in {namespace} will be updated to {target}, this update requires a license file",
+                            classes="confirm-section-para",
+                        )
+                        yield Input(placeholder="Path to a valid Db2 v12 license file", id="input-db2-license")
+                    else:
+                        yield Label(
+                            f"Db2 {current} instances in {namespace} will be updated to {target}",
+                            classes="confirm-section-para",
+                        )
+                        yield Checkbox(
+                            f"Confirm update from Db2 {current} to {target}",
+                            id="confirm-db2",
+                            classes="confirm-checkbox",
+                        )
+
+        with Vertical(classes="action-bar"):
+            yield Label("", id=f"validator-error-{self._step.id}", classes="action-status")
+            with Horizontal(classes="action-buttons"):
+                yield Button("Confirm & Continue", id="btn-confirm-upgrades", variant="success")
+                yield Button("Abort Update", id="btn-abort-upgrades", variant="error")
 
     def start_dynamic_loaders(self) -> None:
         """No-op — satisfies the interface expected by TextualShell."""
@@ -219,7 +226,7 @@ class ConfirmUpgradesScreen(VerticalScroll):
         """
         error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
         error_label.update("")
-        error_label.remove_class("validator-error--visible")
+        error_label.remove_class("action-status--error")
 
     def on_input_changed(self, _event: Input.Changed) -> None:
         """Clear the inline error when the license path input changes.
@@ -229,7 +236,7 @@ class ConfirmUpgradesScreen(VerticalScroll):
         """
         error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
         error_label.update("")
-        error_label.remove_class("validator-error--visible")
+        error_label.remove_class("action-status--error")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle Confirm and Abort buttons.
@@ -248,18 +255,18 @@ class ConfirmUpgradesScreen(VerticalScroll):
             if not self._requiredChecked():
                 error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
                 error_label.update("All upgrade confirmations must be checked before you can continue.")
-                error_label.add_class("validator-error--visible")
+                error_label.add_class("action-status--error")
                 return
             licensePath = self._licensePath()
             if self._mas_app.db2LicenseFileNeeded() and not licensePath:
                 error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
                 error_label.update("A path to a valid Db2 v12 license file is required.")
-                error_label.add_class("validator-error--visible")
+                error_label.add_class("action-status--error")
                 return
             if licensePath is not None and not path.isfile(licensePath):
                 error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
                 error_label.update(f"License file not found at {licensePath}")
-                error_label.add_class("validator-error--visible")
+                error_label.add_class("action-status--error")
                 return
             self._writeConfirmations()
             self.post_message(StepCompleted(self._step_index))

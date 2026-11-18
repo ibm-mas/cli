@@ -1,6 +1,77 @@
 # TUI Visual Polish Plan
 
-**Status:** phase 1 + 2 implemented (November 2026) · phases 3–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+**Status:** phase 1 + 2 + 3.1 implemented (November 2026) · 3.2 rescoped to the two widget extractions (see its notes) · phases 3.3–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+
+> **Implementation notes (phase 3.1, landed November 2026):**
+>
+> - Content padding: new shared `.content-scroll` class (`padding: 1 2`,
+>   `height: 1fr`) carried by every screen's scrollable content — the
+>   inner scrolls of StepScreen / ConfirmUpgradesScreen, `#dep-content`,
+>   `#launch-content`, `#review-content`, and the connect screen's root
+>   (which *is* the scroll). Review's Markdown widget padding is stripped
+>   (`#review-content Markdown { padding: 0 }`) because its own `0 2`
+>   previously combined with the screen padding — every screen's content
+>   now starts at the same column.
+> - Action bar: shared `.action-bar` / `.action-status` / `.action-buttons`
+>   classes replace the per-screen `#dep-footer` / `#launch-footer` /
+>   `#review-footer` rules. The bar height is **fixed at 6** (border-top 1 +
+>   status row 1 + gap 1 + buttons 3; vertical padding is 0 — the border
+>   already separates the bar from the content and the buttons sit flush
+>   against the panel's bottom edge) so the content/action-bar boundary
+>   sits on the same row on every screen. (First pass used padding 1 2 for
+>   a height of 8; tuned down to 6 the same day — three blank rows read
+>   as excessive dead space.)
+> - Reserved status row: `.action-status` is always one row (`height: 1`,
+>   `text-wrap: nowrap`, `text-overflow: ellipsis` — verified end-to-end
+>   that a long message paints with a trailing `…` rather than wrapping).
+>   The dep screen's prompt and error labels merged into that one row
+>   (`#dep-prompt` shows guidance until a failure, then the `✗` error in
+>   red bold via `.action-status--error`); the dropped "The update cannot
+>   proceed…" second sentence was redundant next to the error itself.
+>   StepScreen / ConfirmUpgradesScreen validator errors render in the same
+>   reserved row (same class toggle) instead of a `display:none → block`
+>   label that grew the layout.
+> - StepScreen / ConfirmUpgradesScreen conversion: roots changed
+>   `VerticalScroll` → `Vertical` with the content wrapped in an inner
+>   `.content-scroll`; "Next →" / "Confirm & Continue" and the validator
+>   error moved out of the scrollable content into the pinned action bar,
+>   so those buttons no longer scroll out of view and sit at the same
+>   position as every other screen's. AutoRunScreen / LaunchScreen roots
+>   also changed to `Vertical` (the root scroll previously wrapped
+>   content + footer, making the "pinned" footer technically scrollable).
+> - The review prompt was shortened ("Review your choices carefully —
+>   mistakes are easier to fix now.") because the old two-sentence prompt
+>   wrapped to two lines below ~120 columns, which the single reserved
+>   row cannot do.
+> - ConnectStepScreen converted the same day (it had been deferred to
+>   3.2): root is now a Vertical with a `.content-scroll` area (heading +
+>   ContentSwitcher, sub-screens are plain Verticals) and the shared
+>   action bar below.  The Yes / No / Connect buttons moved out of the
+>   scrollable sub-screens into the bar's button row, with visibility
+>   following the active sub-screen (`_set_mode`); the busy indicator and
+>   error label became the reserved status row — a Horizontal carrying
+>   `.action-status` with a hidden `LoadingIndicator` spinner leading it
+>   and `#connect-status-label` as the text (`.action-status > Label`
+>   rules in the shared block apply the muted/ellipsis/error treatment to
+>   the inner label).  The old `#reuse-buttons`, `#connect-busy`,
+>   `#connect-busy-label`, `#connect-error-label` and `.connect-error`
+>   rules are gone.  The credentials sub-screen's bar shows Connect plus
+>  Cancel: Connect is disabled until both the server URL and login token
+>  are entered (live via `on_input_changed`, replacing the old click-time
+>  "Server URL is required" error), and Cancel returns to the reuse
+>  sub-screen untouched — it is only shown when a connection was detected
+>  (otherwise there is nothing to go back to).  With this, every screen in the update vertical slice
+>   follows the standardized shape; 3.2's remaining work is the pure
+>   Python extraction (ActionBar + StepChecklist widgets), not layout.
+> - Regression tests: new `tests/pilot/tui/test_screen_layout.py` (bar
+>   exactly 6 rows with a one-row status row and the same boundary row on
+>   step/auto-run/launch/review/connect; uniform 1 2 content gutter incl.
+>   the connect screen; a failing validator fills the reserved status row
+>   without changing the bar height).  The dep failure pilot test was
+>   updated for the merged status row; the connect pilot tests were
+>   updated for the status-row ids and gained button-mode swap, disabled-
+>   until-credentials, and cancel tests.  Full TUI unit + pilot suites
+>   green (234 passed), black and flake8 clean.
 
 > **Implementation notes (phase 2, landed November 2026):**
 >
@@ -195,7 +266,7 @@ more amateur, not less) but constrain the internals:
   (`App.breakpoints`) — hide the sidebar below ~100 columns via a
   `.-narrow` CSS variant. Only if cheap.
 
-## Phase 3 — Consistency and component extraction (~1 day)
+## Phase 3 — Consistency and component extraction (3.1 landed with the ~1 day; 3.2's extraction ~half day)
 
 ### 3.1 Unify content padding and footer patterns
 
@@ -251,36 +322,87 @@ Concretely:
   shared action bar (see 3.2), so their buttons sit at the same position
   as every other screen's.
 
-### 3.2 Extract a shared `StepChecklist` widget
+### 3.2 Extract the shared `StepChecklist` and `ActionBar` widgets
 
-`auto_run.py` and `launch.py` each duplicate `_pending_label`,
-`_label_to_id`, `_mark_active`, `_mark_done`, `_mark_error`, `reset`;
-`app.tcss` carries three copies of the "strip ListView highlighting"
-block. Extract one `StepChecklist` widget (list + state machine + one
-CSS block): ~150 lines removed, and the two screens are guaranteed to
-look identical forever.
+> **Rescoped November 2026, after the 3.1 implementation:** everything
+> this section originally promised *visually* — the
+> StepScreen/ConfirmUpgradesScreen and ConnectStepScreen conversions, and
+> the single CSS block replacing `#dep-footer` / `#launch-footer` /
+> `#review-footer` — landed with 3.1 (see the implementation notes at
+> the top). What remains is pure Python extraction with **no intended
+> visual change**: the shared CSS plus
+> `tests/pilot/tui/test_screen_layout.py` already lock the layout
+> contract, so this is a maintainability refactor, not a design one.
+> Acceptance for the whole phase: the full TUI unit + pilot suites
+> (234 tests) stay green, black and flake8 clean, and
+> `test_screen_layout.py` passes **unchanged**.
 
-Extract a shared **`ActionBar`** component alongside it — this is the
-mechanism behind 3.1's "single way to get an action bar". One widget
-owning the fixed-height bar, the reserved status row (prompt / error /
-guidance text), and the button row; one CSS block replacing
-`#dep-footer` / `#launch-footer` / `#review-footer` and their per-screen
-button/prompt/error rules. Screens declare buttons and status text; the
-component guarantees position and styling. Screens that need no action
-bar simply don't compose one — the framework (3.1 level 1) is
-unaffected either way. This is also where the
-StepScreen / ConfirmUpgradesScreen conversion (3.1) lands: their
-"Next →" and validator error move into the ActionBar. ConnectStepScreen
-converts the same way (its Yes/No/Connect buttons move out of the
-scrollable sub-screens into the action bar; the busy indicator and
-error label become the status row). Note the action bar stays *inside*
-each screen's panel rather than hoisted to the shell — hoisting would
-rework how screens communicate actions to the shell for no visible
-gain, since the fixed height makes per-screen copies pixel-identical
-anyway.
+#### 3.2a `StepChecklist`
 
-Revisit the phase-3 pilot tests in the pilot-test plan afterwards — they
-should largely survive a mechanical extraction.
+`tui/screens/auto_run.py` and `tui/screens/launch.py` still duplicate:
+
+- `_pending_label` and `_label_to_id` — byte-identical module functions;
+- `_mark_active` / `_mark_done` — near-identical methods;
+- three copies of the ListView highlight-strip CSS block in `app.tcss`
+  (`#step-list` in the sidebar, `#dep-step-list`, `#launch-step-list`).
+
+(The original wording here also listed a `reset` method — it no longer
+exists in either screen — and estimated ~150 lines removed, which dated
+from before the CSS unification.)
+
+Extract one widget (new `tui/widgets/` package,
+`tui/widgets/step_checklist.py`) owning the ListView, the
+pending/active/done/error class transitions and the glyph updates. This
+is **not** a copy-paste-merge — the two screens genuinely differ, so the
+widget needs hook points:
+
+- **id prefix** (`dep-step-` vs `launch-step-`) — constructor arg; keep
+  the resulting item ids stable, the pilot tests query them
+  (`#dep-step-*`, `#launch-step-*`, `#launch-step-list`).
+- **dynamic items** — launch's `_mark_active` appends labels it doesn't
+  know (RBAC stages evaluated at runtime); build append-on-unknown into
+  the widget or expose an `on_unknown_label` hook.
+- **per-item completion side effects** — launch's `_mark_done`
+  special-cases "Submit PipelineRun" (the URL goes to the dedicated
+  `#pipeline-url` label and reveals Copy URL); expose an
+  `on_done(label, ok, detail)` hook or a subclass override point.
+- **`_mark_error` stays in the screens** — the two implementations do
+  different things (dep: status-row error + Quit reveal; launch: mark
+  the first still-pending list item); only the underlying item-marking
+  primitive moves into the widget.
+
+CSS: one `.step-checklist` class carrying the strip rules replaces the
+three per-id blocks — including the sidebar's `#step-list`, which speaks
+the same visual language.
+
+Test touch points: `tests/unit/update/test_update_auto_run_screen.py`
+imports `_pending_label` from `auto_run` — re-export it from the screen
+module or move the import to the widget. Its `_mark_done` unit tests
+test widget behaviour, not screen behaviour — move them to a new
+`tests/unit/tui/` module for the widget.
+
+#### 3.2b `ActionBar`
+
+Six screens hand-compose the same structure
+(`Vertical(.action-bar)` → status row + `Horizontal(.action-buttons)`),
+and four of them duplicate the status-row error show/clear pattern
+(`update(text)` + add/remove `action-status--error`). Extract one widget
+(`tui/widgets/action_bar.py`) owning:
+
+- the reserved status row — `set_status(text)` / `set_error(text)` /
+  `clear_status()`;
+- the button row — screens pass their `Button`s in and keep owning their
+  `on_button_pressed` logic;
+- the optional leading busy spinner (connect only) — `busy=True`
+  constructor arg with show/hide helpers replacing connect's
+  `connect-busy--visible` class toggling.
+
+Keep the status label ids that screens and tests query (`#dep-prompt`,
+`#validator-error-{step.id}`, `#connect-status-label`) — accept a
+`status_id` constructor arg. The bar stays inside each screen's panel
+(not hoisted to the shell), as before: hoisting would rework how screens
+communicate actions to the shell for no gain, since the fixed height
+makes per-screen copies pixel-identical anyway.
 
 ### 3.3 Header / Footer chrome
 
@@ -345,7 +467,7 @@ otherwise fine.
 |---|---|---|
 | 1 | Headings, icons, buttons, sidebar/border | ~half day |
 | 2 | Sizing constraints | ~2–3 hours |
-| 3 | Padding unification, StepChecklist + ActionBar extraction, StepScreen/Connect conversion | ~1 day |
+| 3 | 3.1 done; remaining: StepChecklist + ActionBar widget extraction | ~half day |
 | 4 | UX niceties | ~half day |
 | 5 | SVG export, CSS regression test | ~2 hours |
 

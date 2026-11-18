@@ -23,15 +23,20 @@ from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowField, WorkflowStep, WorkflowSummaryItem
 
 
-class StepScreen(VerticalScroll):
+class StepScreen(Vertical):
     """Content panel for a single WorkflowStep.
 
-    Renders the step heading, description paragraphs, an optional read-only
+    Splits the panel into a scrollable content area (``.content-scroll``)
+    holding the step heading, description paragraphs, an optional read-only
     context panel (from ``step.context``, e.g. the installed catalog on the
     update command's choose-catalog step), and a field widget for each
-    WorkflowField.  A "Next →" button at the bottom validates required
-    fields, writes values to app.params, optionally runs the step validator,
-    then posts StepCompleted.
+    WorkflowField, plus a fixed-height action bar (``.action-bar``) pinned
+    below it with a reserved status row and the "Next →" button.
+
+    The Next button validates required fields, writes values to app.params,
+    optionally runs the step validator, then posts StepCompleted.  The
+    validator error is shown in the reserved status row, so revealing it
+    never shifts the layout.
 
     Attributes:
         _mas_app: MAS CLI app providing params dict.
@@ -56,24 +61,28 @@ class StepScreen(VerticalScroll):
         """Build the step screen content.
 
         Yields:
-            Heading, description paragraphs, optional context panel rows,
-            field widgets, validator error label (hidden initially), and
-            Next button.
+            A scrollable area with the heading, description paragraphs,
+            optional context panel rows and field widgets, then a fixed
+            action bar with the validator error status row (empty until a
+            validation fails) and the Next button.
         """
-        yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
-        for para in self._step.description:
-            yield Label(para, classes="description-para")
-        if self._step.context:
-            with Vertical(classes="step-context"):
-                for item in self._step.context:
-                    with Horizontal(classes="context-row"):
-                        yield Label(f"{item.label}:", classes="context-label")
-                        yield Label(self._context_value(item), classes="context-value")
-        for field in self._step.fields:
-            yield Label(field.label, classes="field-label")
-            yield self._build_field_widget(field)
-        yield Label("", id=f"validator-error-{self._step.id}", classes="validator-error")
-        yield Button("Next →", id=f"btn-next-{self._step.id}", classes="btn-next", variant="primary")
+        with VerticalScroll(classes="content-scroll"):
+            yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
+            for para in self._step.description:
+                yield Label(para, classes="description-para")
+            if self._step.context:
+                with Vertical(classes="step-context"):
+                    for item in self._step.context:
+                        with Horizontal(classes="context-row"):
+                            yield Label(f"{item.label}:", classes="context-label")
+                            yield Label(self._context_value(item), classes="context-value")
+            for field in self._step.fields:
+                yield Label(field.label, classes="field-label")
+                yield self._build_field_widget(field)
+        with Vertical(classes="action-bar"):
+            yield Label("", id=f"validator-error-{self._step.id}", classes="action-status")
+            with Horizontal(classes="action-buttons"):
+                yield Button("Next →", id=f"btn-next-{self._step.id}", classes="btn-next", variant="primary")
 
     def _context_value(self, item: WorkflowSummaryItem) -> str:
         """Resolve a context row's display value from the app instance.
@@ -242,14 +251,14 @@ class StepScreen(VerticalScroll):
         self.post_message(StepCompleted(self._step_index))
 
     def _on_validator_error(self, exc: Exception) -> None:
-        """Display the validator error inline and re-enable the Next button.
+        """Display the validator error in the action bar status row and re-enable the Next button.
 
         Args:
             exc (Exception): The exception raised by the validator.
         """
         error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
         error_label.update(str(exc))
-        error_label.add_class("validator-error--visible")
+        error_label.add_class("action-status--error")
         btn = self.query_one(f"#btn-next-{self._step.id}", Button)
         btn.disabled = False
 
@@ -270,7 +279,7 @@ class StepScreen(VerticalScroll):
         self._write_params()
         error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
         error_label.update("")
-        error_label.remove_class("validator-error--visible")
+        error_label.remove_class("action-status--error")
         if self._step.validator is not None:
             btn = self.query_one(f"#btn-next-{self._step.id}", Button)
             btn.disabled = True

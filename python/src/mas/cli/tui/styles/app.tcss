@@ -105,19 +105,65 @@ Screen.-narrow #sidebar {
     text-wrap: wrap;
 }
 
-/* ---------- Validator error labels ---------------------------------------- */
+/* ---------- Shared screen layout (phase 3.1) ------------------------------- */
 
-.validator-error {
-    display: none;
+/* Scrollable content area inside a step panel.  Every screen's scrollable
+   content carries this class so the gutter is identical between steps —
+   it previously varied (0, 1 or 1 2 depending on the screen), which read
+   as the content jumping sideways when moving between steps. */
+.content-scroll {
+    height: 1fr;
+    padding: 1 2;
 }
 
-.validator-error--visible {
-    display: block;
-    color: $error;
-    margin-top: 1;
-    text-style: bold;
+/* Fixed-height action bar pinned below the scrollable content.  The height
+   is fixed (border-top 1 + status row 1 + gap 1 + buttons 3 = 6) so the
+   content / action-bar boundary sits on the same row on every screen, and
+   nothing revealed mid-flow can shift the layout: the status row keeps
+   its height whether it holds guidance text, an error, or nothing, and
+   buttons hidden with display:none appear without moving anything.
+   Vertical padding is deliberately 0 — the border-top already separates
+   the bar from the content, and the buttons belong flush to the panel's
+   bottom edge. */
+.action-bar {
+    height: 6;
+    padding: 0 2;
+    border-top: solid $panel-lighten-2;
+}
+
+/* Reserved status row: one line of muted guidance, or the error styling
+   via .action-status--error.  Long messages are truncated with an
+   ellipsis rather than wrapped so the row can never grow. */
+.action-status {
+    height: 1;
+    margin-bottom: 1;
     width: 100%;
-    text-wrap: wrap;
+    color: $text-muted;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+.action-status--error {
+    color: $error;
+    text-style: bold;
+}
+
+/* Status rows that host a leading busy spinner (the connect screen): the
+   geometry stays on the row, the text treatment applies to its Label. */
+.action-status > Label {
+    width: 1fr;
+    color: $text-muted;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+.action-status > .action-status--error {
+    color: $error;
+    text-style: bold;
+}
+
+.action-buttons {
+    height: 3;
 }
 
 /* ---------- ActionOverlay ------------------------------------------------- */
@@ -147,11 +193,9 @@ ActionOverlay {
 }
 
 /* ---------- ConnectStepScreen --------------------------------------------- */
-
-ConnectStepScreen {
-    height: 100%;
-    padding: 1;
-}
+/* Root is a Vertical: a .content-scroll area (heading + ContentSwitcher)
+   with the shared .action-bar below (status row + Yes/No/Connect buttons —
+   which buttons are visible follows the active sub-screen). */
 
 #connect-switcher {
     height: 1fr;
@@ -174,42 +218,22 @@ ConnectStepScreen {
     text-wrap: wrap;
 }
 
-.connect-error {
-    color: $error;
-    margin-top: 1;
-    width: 100%;
-    text-wrap: wrap;
-}
-
 .connect-field-label {
     margin-top: 1;
 }
 
-#reuse-buttons {
-    margin-top: 2;
-    height: auto;
-}
-
-/* Busy indicator shown while the connect worker runs.  Follows the same
-   class-toggle pattern as .dep-error / .dep-error--visible above. */
-#connect-busy {
-    display: none;
-    height: auto;
-    margin-top: 1;
-}
-
-#connect-busy.connect-busy--visible {
-    display: block;
-}
-
+/* Busy spinner leading the action bar's status row while a connect worker
+   runs — hidden otherwise.  Follows the same class-toggle pattern as the
+   dep screen's button reveals. */
 #connect-busy-spinner {
+    display: none;
     width: 3;
     height: 1;
+    margin-right: 1;
 }
 
-#connect-busy-label {
-    margin-left: 1;
-    color: $text-muted;
+#connect-busy-spinner.connect-busy--visible {
+    display: block;
 }
 
 /* ---------- AutoRunScreen ------------------------------------------------- */
@@ -218,10 +242,7 @@ AutoRunScreen {
     height: 100%;
 }
 
-#dep-content {
-    height: 1fr;
-    padding: 1;
-}
+/* #dep-content carries .content-scroll (padding 1 2 + height 1fr). */
 
 #dep-step-list {
     height: auto;
@@ -244,20 +265,8 @@ AutoRunScreen {
     text-wrap: wrap;
 }
 
-#dep-footer {
-    height: auto;
-    padding: 1 2;
-    border-top: solid $panel-lighten-2;
-}
-
-#dep-prompt {
-    margin-bottom: 1;
-    color: $text-muted;
-}
-
-#dep-buttons {
-    height: auto;
-}
+/* #dep-footer / #dep-prompt / #dep-buttons carry the shared action-bar /
+   action-status / action-buttons classes — see the shared layout block. */
 
 #btn-next-dep {
     display: none;
@@ -275,29 +284,14 @@ AutoRunScreen {
     display: block;
 }
 
-.dep-error {
-    display: none;
-}
-
-.dep-error--visible {
-    display: block;
-    color: $error;
-    margin-bottom: 1;
-    text-style: bold;
-    width: 100%;
-    text-wrap: wrap;
-}
-
 /* ---------- LaunchScreen -------------------------------------------------- */
 
 LaunchScreen {
     height: 100%;
 }
 
-#launch-content {
-    height: 1fr;
-    padding: 1;
-}
+/* #launch-content carries .content-scroll; #launch-footer / #launch-prompt /
+   #launch-buttons carry the shared action-bar classes. */
 
 #launch-step-list {
     height: auto;
@@ -327,21 +321,6 @@ LaunchScreen {
     color: $accent;
 }
 
-#launch-footer {
-    height: auto;
-    padding: 1 2;
-    border-top: solid $panel-lighten-2;
-}
-
-#launch-prompt {
-    margin-bottom: 1;
-    color: $text-muted;
-}
-
-#launch-buttons {
-    height: auto;
-}
-
 /* ---------- Shared step-error state --------------------------------------- */
 
 .step-error {
@@ -353,17 +332,17 @@ LaunchScreen {
 
 ReviewScreen {
     height: 100%;
-    padding: 1;
 }
 
-#review-content {
-    height: 1fr;
-    padding: 0;
-}
+/* #review-content carries .content-scroll; #review-footer / #review-prompt /
+   #review-buttons carry the shared action-bar classes. */
 
 #review-content Markdown {
     margin-top: 0;
-    padding-top: 0;
+    /* The Markdown widget's own 0 2 padding is stripped so the review text
+       sits at the same gutter as every other screen's content (the
+       .content-scroll padding already provides the 1 2). */
+    padding: 0;
 }
 
 /* MarkdownH2 inherits margin: 2 0 1 0 from MarkdownHeader — strip the
@@ -372,26 +351,10 @@ ReviewScreen {
     margin-top: 0;
 }
 
-#review-footer {
-    height: auto;
-    padding: 1 2;
-    border-top: solid $panel-lighten-2;
-}
-
-#review-prompt {
-    margin-bottom: 1;
-    color: $text-muted;
-}
-
-#review-buttons {
-    height: auto;
-}
-
 /* ---------- StepScreen ---------------------------------------------------- */
 
 StepScreen {
     height: 100%;
-    padding: 1 2;
 }
 
 /* Read-only context panel shown between the description and the fields
@@ -424,7 +387,6 @@ StepScreen {
 
 ConfirmUpgradesScreen {
     height: 100%;
-    padding: 1 2;
 }
 
 .confirm-section {
@@ -446,11 +408,6 @@ ConfirmUpgradesScreen {
 }
 
 .confirm-checkbox {
-    margin-top: 1;
-}
-
-#confirm-buttons {
-    height: auto;
     margin-top: 1;
 }
 

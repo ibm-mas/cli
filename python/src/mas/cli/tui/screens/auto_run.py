@@ -36,7 +36,7 @@ def _pending_label(label: str) -> str:
     return f"○ {label}"
 
 
-class AutoRunScreen(VerticalScroll):
+class AutoRunScreen(Vertical):
     """Content panel that runs dependency checks automatically, shows a step-list, then reveals Next.
 
     All steps are shown upfront in a sidebar-style list (using the same CSS
@@ -48,6 +48,11 @@ class AutoRunScreen(VerticalScroll):
     completed (or error).  When all checks finish without failure, the Next
     button is revealed; a failed check blocks advancement (quit with ``q``),
     matching the CLI path where any failed check is fatal.
+
+    The scrollable heading / description / step-list sit in a
+    ``.content-scroll`` area with a fixed ``.action-bar`` pinned below:
+    a reserved status row (guidance text, replaced by the error on
+    failure) and the Next / Quit buttons.
 
     Attributes:
         _mas_app: MAS CLI app instance.
@@ -74,22 +79,23 @@ class AutoRunScreen(VerticalScroll):
         """Build the screen: heading, description, step-list, then footer with Next button.
 
         Yields:
-            Label heading, description paragraphs, ListView of steps, then a
-            footer section (border-top, guidance, error label, Next and Quit
-            buttons).  The error label and Quit button are hidden until a
-            check fails.
+            A scrollable area (``.content-scroll``) with the heading,
+            description paragraphs and the ListView of steps, then a fixed
+            action bar (``.action-bar``) with a reserved status row
+            (guidance text until a check fails, the error afterwards) and
+            the Next and Quit buttons.  The Quit button is hidden until a
+            check fails; revealing either button never shifts the layout.
         """
-        with VerticalScroll(id="dep-content"):
+        with VerticalScroll(id="dep-content", classes="content-scroll"):
             yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
             for para in self._step.description:
                 yield Label(para, classes="description-para")
             with ListView(id="dep-step-list"):
                 for label in self._step_labels:
                     yield ListItem(Label(_pending_label(label)), id=f"dep-step-{_label_to_id(label)}", classes="step-skipped")
-        with Vertical(id="dep-footer"):
-            yield Label("All checks must pass before you can continue.", id="dep-prompt")
-            yield Label("", id="dep-error-label", classes="dep-error")
-            with Horizontal(id="dep-buttons"):
+        with Vertical(id="dep-footer", classes="action-bar"):
+            yield Label("All checks must pass before you can continue.", id="dep-prompt", classes="action-status")
+            with Horizontal(id="dep-buttons", classes="action-buttons"):
                 yield Button("Next →", id="btn-next-dep", classes="btn-next", variant="primary")
                 yield Button("Quit", id="btn-quit-dep", classes="btn-quit-dep", variant="error")
 
@@ -162,10 +168,11 @@ class AutoRunScreen(VerticalScroll):
             pass
 
     def _mark_error(self, message: str) -> None:
-        """Show a blocking error in the footer and reveal the Quit button.
+        """Show a blocking error in the action bar status row and reveal the Quit button.
 
-        The message is displayed in a persistent red label below the step
-        list (list items that already completed are left untouched — the
+        The reserved status row swaps its muted guidance text for the error
+        message (red, bold) without changing height, so the layout does not
+        shift (list items that already completed are left untouched — the
         failure is not attributable to any single pending check).  Because a
         failed check blocks advancement, the only available action is to
         quit (the ``q`` key binding or the revealed Quit button).
@@ -173,11 +180,9 @@ class AutoRunScreen(VerticalScroll):
         Args:
             message (str): Error message describing why the checks failed.
         """
-        error_label = self.query_one("#dep-error-label", Label)
-        error_label.update(f"✗ {message}")
-        error_label.add_class("dep-error--visible")
-        prompt = self.query_one("#dep-prompt", Label)
-        prompt.update("The update cannot proceed. Resolve the issue above and re-run.")
+        status = self.query_one("#dep-prompt", Label)
+        status.update(f"✗ {message}")
+        status.add_class("action-status--error")
         quit_btn = self.query_one("#btn-quit-dep", Button)
         quit_btn.add_class("dep-failed")
 

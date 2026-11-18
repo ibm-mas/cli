@@ -78,7 +78,8 @@ def test_failed_check_blocks_and_shows_quit():
 
     GIVEN a stubbed app whose dependency checks raise after one failure
     WHEN the screen becomes active
-    THEN the blocking error is shown, the prompt changes, the Quit button
+    THEN the reserved status row shows the blocking error (with the error
+        styling) without changing the action bar height, the Quit button
         is revealed, the Next button stays hidden, and nothing is posted.
     """
 
@@ -93,10 +94,14 @@ def test_failed_check_blocks_and_shows_quit():
     screen, _ = _make_screen(_fail)
 
     async def drive(pilot, app):
-        await wait_for(lambda: "Dependency checks failed" in str(app.query_one("#dep-error-label", Label).render()))
+        bar = app.query_one("#dep-footer")
+        height_before = bar.region.height
+        await wait_for(lambda: "Dependency checks failed" in str(app.query_one("#dep-prompt", Label).render()))
+        status = app.query_one("#dep-prompt", Label)
+        assert status.has_class("action-status--error")
+        assert bar.region.height == height_before
         assert app.query_one("#btn-quit-dep", Button).has_class("dep-failed")
         assert not app.query_one("#btn-next-dep", Button).has_class("dep-ready")
-        assert "cannot proceed" in str(app.query_one("#dep-prompt", Label).render())
         assert app.posted == []
 
     run_screen_pilot(screen, drive)

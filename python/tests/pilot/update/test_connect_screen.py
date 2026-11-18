@@ -101,10 +101,10 @@ def test_long_console_url_wraps():
         # OSC 8 terminal hyperlink) covering the whole URL.
         link_styles = [str(span.style) for span in getattr(rendered, "spans", [])]
         assert any("link" in style and long_url in style for style in link_styles)
-        # Harness runs at 100 columns; the panel content area is 98 wide
-        # (ConnectStepScreen padding: 1).  The label must stay within it
-        # and wrap (height grows) rather than overflow (width > 98).
-        assert label.region.width <= 98
+        # Harness runs at 100 columns; the content area is 96 wide
+        # (.content-scroll padding 1 2).  The label must stay within it
+        # and wrap (height grows) rather than overflow (width > 96).
+        assert label.region.width <= 96
         assert label.region.height >= 3
 
     run_screen_pilot(screen, drive)
@@ -137,6 +137,35 @@ def test_new_credentials_flow_advances():
     assert mas_app.params["server_url"] == "https://api.cluster.example.com:6443"
     assert mas_app.params["login_token"] == "sha256~token"
     assert mas_app.params["skip_tls_verify"] == "true"
+
+
+def test_action_buttons_follow_sub_screen():
+    """Test that the action bar buttons swap with the active sub-screen.
+
+    GIVEN a stubbed app reporting an active connection (reuse sub-screen)
+    WHEN the screen is shown, then the user clicks No
+    THEN the action bar shows Yes / No on the reuse sub-screen and swaps
+        to Connect / Cancel on the credentials sub-screen, without the
+        bar's fixed rows changing.
+    """
+    screen, _, _ = _make_screen(getActiveConsoleURL="https://console.example.com")
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-reuse")
+        assert app.query_one("#btn-reuse-yes", Button).display is True
+        assert app.query_one("#btn-reuse-no", Button).display is True
+        assert app.query_one("#btn-connect", Button).display is False
+        bar = app.query_one(".action-bar")
+        height_before = bar.region.height
+        await click_button(pilot, "#btn-reuse-no")
+        await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-new")
+        assert app.query_one("#btn-reuse-yes", Button).display is False
+        assert app.query_one("#btn-reuse-no", Button).display is False
+        assert app.query_one("#btn-connect", Button).display is True
+        assert app.query_one("#btn-connect-cancel", Button).display is True
+        assert bar.region.height == height_before
+
+    run_screen_pilot(screen, drive)
 
 
 def test_busy_indicator_while_connecting():
@@ -172,14 +201,14 @@ def test_busy_indicator_while_connecting():
         # The indicator must appear with the button press so the screen does
         # not feel unresponsive during the background work.  The connect
         # worker is still blocked here, so the first message is stable.
-        busy = app.query_one("#connect-busy")
+        busy = app.query_one("#connect-busy-spinner")
         assert "connect-busy--visible" in busy.classes
-        assert "Connecting to cluster" in str(app.query_one("#connect-busy-label", Label).render())
+        assert "Connecting to cluster" in str(app.query_one("#connect-status-label", Label).render())
         assert app.query_one("#btn-reuse-yes", Button).disabled is True
         # Once the connection itself succeeds the message advances to the
         # post-connect phase (catalog detection etc.) while still blocked.
         connect_release.set()
-        await wait_for(lambda: "Checking cluster configuration" in str(app.query_one("#connect-busy-label", Label).render()))
+        await wait_for(lambda: "Checking cluster configuration" in str(app.query_one("#connect-status-label", Label).render()))
         assert app.query_one("#btn-reuse-yes", Button).disabled is True
         post_release.set()
         await wait_for(lambda: app.posted)
@@ -195,7 +224,7 @@ def test_connect_error_displayed_inline():
 
     GIVEN a stubbed app whose _connectFromParams raises
     WHEN the user submits credentials
-    THEN the error is shown on the shared error label, the busy indicator is
+    THEN the error is shown on the status row, the busy indicator is
         hidden, the Connect button is re-enabled, and nothing is posted.
     """
     screen, mas_app, _ = _make_screen(getActiveConsoleURL=None, connectRaises=RuntimeError("connection refused"))
@@ -203,11 +232,12 @@ def test_connect_error_displayed_inline():
     async def drive(pilot, app):
         await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-new")
         app.query_one("#input-server-url", Input).value = "https://api.cluster.example.com:6443"
+        app.query_one("#input-login-token", Input).value = "sha256~token"
         await pilot.pause()
         await click_button(pilot, "#btn-connect")
-        await wait_for(lambda: "connection refused" in str(app.query_one("#connect-error-label", Label).render()))
+        await wait_for(lambda: "connection refused" in str(app.query_one("#connect-status-label", Label).render()))
         assert app.posted == []
-        assert "connect-busy--visible" not in app.query_one("#connect-busy").classes
+        assert "connect-busy--visible" not in app.query_one("#connect-busy-spinner").classes
         btn = app.query_one("#btn-connect", Button)
         assert btn.disabled is False
         assert btn.label == "Connect"
@@ -216,21 +246,77 @@ def test_connect_error_displayed_inline():
     assert app.posted == []
 
 
-def test_server_url_required():
-    """Test that clicking Connect without a server URL shows an inline error.
+def test_connect_disabled_until_credentials_provided():
+    """Test that Connect stays disabled until both credentials are entered.
 
-    GIVEN the new-credentials sub-screen with an empty server URL
-    WHEN the user clicks Connect
-    THEN "Server URL is required." is shown and no worker starts.
+    GIVEN the new-credentials sub-screen with empty inputs
+    WHEN the user enters only the server URL, then the login token
+    THEN the Connect button is disabled until both are provided, and no
+        connection is attempted while it is disabled.
     """
     screen, mas_app, _ = _make_screen(getActiveConsoleURL=None)
 
     async def drive(pilot, app):
         await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-new")
-        await click_button(pilot, "#btn-connect")
+        btn = app.query_one("#btn-connect", Button)
+        assert btn.disabled is True
+        app.query_one("#input-server-url", Input).value = "https://api.cluster.example.com:6443"
         await pilot.pause()
-        assert "Server URL is required" in str(app.query_one("#connect-error-label", Label).render())
+        assert btn.disabled is True
+        app.query_one("#input-login-token", Input).value = "sha256~token"
+        await pilot.pause()
+        assert btn.disabled is False
 
     run_screen_pilot(screen, drive)
 
     assert not mas_app._connectFromParams.called
+
+
+def test_cancel_returns_to_reuse_screen():
+    """Test that Cancel returns to the reuse sub-screen without connecting.
+
+    GIVEN an active connection was detected and the user chose No
+        (credentials sub-screen)
+    WHEN the user clicks Cancel
+    THEN the reuse sub-screen and its Yes / No buttons are shown again,
+        no connection is attempted, and nothing is posted.
+    """
+    screen, mas_app, _ = _make_screen(getActiveConsoleURL="https://console.example.com")
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-reuse")
+        await click_button(pilot, "#btn-reuse-no")
+        await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-new")
+        # Partially entered credentials must survive a cancel round-trip
+        # but never reach the app.
+        app.query_one("#input-server-url", Input).value = "https://api.cluster.example.com:6443"
+        await pilot.pause()
+        await click_button(pilot, "#btn-connect-cancel")
+        await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-reuse")
+        assert app.query_one("#btn-reuse-yes", Button).display is True
+        assert app.query_one("#btn-reuse-no", Button).display is True
+        assert app.query_one("#btn-connect", Button).display is False
+
+    app = run_screen_pilot(screen, drive)
+
+    assert not mas_app._connectFromParams.called
+    assert app.posted == []
+
+
+def test_cancel_hidden_without_active_connection():
+    """Test that Cancel is not offered when there is nothing to return to.
+
+    GIVEN a stubbed app with no active connection
+    WHEN the credentials sub-screen is shown
+    THEN only the Connect button is visible — Cancel is hidden because the
+        reuse sub-screen has no connection to go back to.
+    """
+    screen, _, _ = _make_screen(getActiveConsoleURL=None)
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#connect-switcher", ContentSwitcher).current == "connect-new")
+        assert app.query_one("#btn-connect", Button).display is True
+        assert app.query_one("#btn-connect-cancel", Button).display is False
+        assert app.query_one("#btn-reuse-yes", Button).display is False
+
+    run_screen_pilot(screen, drive)

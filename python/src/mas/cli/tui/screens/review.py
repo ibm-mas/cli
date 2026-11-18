@@ -100,17 +100,19 @@ class ReviewScreen(Vertical):
         """Build the review screen layout.
 
         Yields:
-            A scrollable top section with the Markdown summary, then a fixed
-            bottom section with the review prompt and action buttons.
+            A scrollable area (``.content-scroll``) with the Markdown
+            summary, then a fixed action bar (``.action-bar``) with the
+            status row and the Confirm / Quit buttons — the same layout
+            contract as every other screen.
         """
-        with VerticalScroll(id="review-content"):
+        with VerticalScroll(id="review-content", classes="content-scroll"):
             yield Markdown("", id="review-markdown")
-        with Vertical(id="review-footer"):
-            yield Label(
-                "Please carefully review your choices above. " "Correcting mistakes now is much easier than after the update has begun.",
-                id="review-prompt",
-            )
-            with Horizontal(id="review-buttons"):
+        with Vertical(id="review-footer", classes="action-bar"):
+            # Short enough to fit the single reserved status row at the
+            # pilot-default 80 columns (the .action-status rule truncates
+            # with an ellipsis rather than wrapping).
+            yield Label("Review your choices carefully — mistakes are easier to fix now.", id="review-prompt", classes="action-status")
+            with Horizontal(id="review-buttons", classes="action-buttons"):
                 yield Button("Confirm & Launch", id="btn-confirm", variant="success")
                 yield Button("Quit", id="btn-quit", variant="error")
 

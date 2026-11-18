@@ -48,7 +48,7 @@ def _pending_label(label: str) -> str:
     return f"○ {label}"
 
 
-class LaunchScreen(VerticalScroll):
+class LaunchScreen(Vertical):
     """Content panel that submits the Tekton pipeline and shows a step-list.
 
     Auto-starts when start_dynamic_loaders() is called (i.e. when the step
@@ -60,7 +60,10 @@ class LaunchScreen(VerticalScroll):
     completes, ``progressCallback`` marks it completed (or error).
 
     Reveals a Done button on success, or a Dismiss button on failure.
-    Done calls app.exit(0).
+    Done calls app.exit(0).  The scrollable content sits in a
+    ``.content-scroll`` area with a fixed ``.action-bar`` pinned below
+    (status row + Copy URL / Done / Dismiss buttons); the hidden buttons
+    are revealed without shifting the layout.
 
     Attributes:
         _mas_app: MAS CLI app instance.
@@ -88,11 +91,14 @@ class LaunchScreen(VerticalScroll):
         """Build the screen: heading, description, step-list, then footer with action buttons.
 
         Yields:
-            Scrollable content with heading, description and ListView, then a fixed
-            footer section (border-top, guidance, Done/Dismiss buttons) matching
-            ReviewScreen layout.  Both buttons are hidden until work completes.
+            A scrollable area (``.content-scroll``) with the heading,
+            description, ListView and pipeline URL label, then a fixed
+            action bar (``.action-bar``) with the status row and the
+            Copy URL / Done / Dismiss buttons.  All three buttons are
+            hidden until work completes; revealing them never shifts
+            the layout.
         """
-        with VerticalScroll(id="launch-content"):
+        with VerticalScroll(id="launch-content", classes="content-scroll"):
             yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
             for para in self._step.description:
                 yield Label(para, classes="description-para")
@@ -100,9 +106,9 @@ class LaunchScreen(VerticalScroll):
                 for label in self._step_labels:
                     yield ListItem(Label(_pending_label(label)), id=f"launch-step-{_label_to_id(label)}", classes="step-skipped")
             yield Label("", id="pipeline-url")
-        with Vertical(id="launch-footer"):
-            yield Label("View the pipeline run:", id="launch-prompt")
-            with Horizontal(id="launch-buttons"):
+        with Vertical(id="launch-footer", classes="action-bar"):
+            yield Label("View the pipeline run:", id="launch-prompt", classes="action-status")
+            with Horizontal(id="launch-buttons", classes="action-buttons"):
                 yield Button("Copy URL", id="btn-copy-url", classes="btn-copy-url", variant="primary")
                 yield Button("Done", id="btn-done", classes="btn-launch-done", variant="success")
                 yield Button("Dismiss", id="btn-dismiss-error", classes="btn-launch-dismiss", variant="error")
