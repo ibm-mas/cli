@@ -651,8 +651,19 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         them to Ceph (ODF). The migration backs up MinIO, restores it into ODF and then points the instance
         at ODF. It is never done without the user's consent: either the --migrate-minio-to-ceph flag, or a
         yes answer to the prompt.
+
+        The migration is only offered when the chosen catalog has ``aiservice_s3_provider_default: ceph``.
+        Catalogs that pre-date Ceph support omit the field entirely.
         """
         self.setParam("aiservice_s3_migration_instance_ids", "")
+
+        if self.chosenCatalog.get("aiservice_s3_provider_default") != "ceph":
+            logger.debug(
+                "Skipping MinIO → Ceph migration check: target catalog " "%s does not support Ceph",
+                self.getParam("mas_catalog_version"),
+            )
+            return
+
         with Halo(text="Checking for AI Service instances using MinIO", spinner=self.spinner) as h:
             try:
                 instances = listAiServiceInstances(self.dynamicClient)

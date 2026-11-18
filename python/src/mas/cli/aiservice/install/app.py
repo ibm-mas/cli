@@ -636,31 +636,39 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def aiServiceSettings(self) -> None:
         self.printH1("AI Service Settings")
 
-        # Ask about Ceph installation FIRST (moved from aiServiceDependencies)
         self.printH2("Storage Configuration")
-        self.printDescription(
-            [
-                "AI Service requires object storage for pipelines, tenants, and templates. You can either use Ceph (OpenShift Data Foundation) in-cluster or connect to external storage.",
-                "If OpenShift Data Foundation is not already installed it will be installed, which requires a spare raw disk on each of 3 worker nodes.",
-            ]
-        )
 
-        if self.yesOrNo("Install Ceph (ODF)"):
-            # Auto-set Ceph storage defaults (same as non-interactive mode)
-            self._setCephStorageDefaults()
+        cephSupported = self.chosenCatalog.get("aiservice_s3_provider_default") == "ceph"
+
+        if cephSupported:
+            self.printDescription(
+                [
+                    "AI Service requires object storage for pipelines, tenants, and templates. You can either use Ceph (OpenShift Data Foundation) in-cluster or connect to external storage.",
+                    "If OpenShift Data Foundation is not already installed it will be installed, which requires a spare raw disk on each of 3 worker nodes.",
+                ]
+            )
+            if self.yesOrNo("Install Ceph (ODF)"):
+                self._setCephStorageDefaults()
+                return
         else:
-            # Ask for external storage configuration
-            self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-            self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
-            self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
-            self.promptForString("Storage host", "aiservice_s3_host")
-            self.promptForString("Storage port", "aiservice_s3_port")
-            self.promptForString("Storage ssl", "aiservice_s3_ssl")
-            self.promptForString("Storage region", "aiservice_s3_region")
-            self.printDescription(["", "Storage bucket prefix restrictions:", " - Must be 1-4 characters long"])
-            self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
-            self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
-            self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
+            self.printDescription(
+                [
+                    "AI Service requires object storage for pipelines, tenants, and templates.",
+                    "Connect to your external S3-compatible storage (e.g. MinIO).",
+                ]
+            )
+
+        self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
+        self.promptForString("Storage access key", "aiservice_s3_accesskey", isPassword=True)
+        self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
+        self.promptForString("Storage host", "aiservice_s3_host")
+        self.promptForString("Storage port", "aiservice_s3_port")
+        self.promptForString("Storage ssl", "aiservice_s3_ssl")
+        self.promptForString("Storage region", "aiservice_s3_region")
+        self.printDescription(["", "Storage bucket prefix restrictions:", " - Must be 1-4 characters long"])
+        self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
+        self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
+        self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
         # AI Data Science Platform - defaults to Red Hat OpenShift AI (RHOAI)
         self.setParam("rhoai", "true")

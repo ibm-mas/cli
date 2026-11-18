@@ -10,7 +10,7 @@
 # *****************************************************************************
 
 """
-Unit tests for UpdateApp focusing on the two dev-mode bug fixes.
+Unit tests for UpdateApp.
 
 Fix 1 – Dev mode catalog fallback:
   GIVEN dev mode is active and the user-specified catalog tag has no YAML definition
@@ -21,6 +21,11 @@ Fix 2 – CPD already at target version:
   GIVEN a Cloud Pak for Data instance whose installed version equals the catalog target version
   WHEN detectCP4D runs
   THEN it exits cleanly with a success message instead of raising a fatal error
+
+Fix 3 – MinIO → Ceph catalog gate:
+  The minio-to-ceph migration is only offered when the target catalog carries the field
+  ``aiservice_s3_provider_default: ceph``.  Catalogs that pre-date Ceph support omit
+  the field entirely and must skip the migration check.
 """
 
 from types import SimpleNamespace
@@ -263,3 +268,92 @@ class TestDetectCP4DVersionCheck:
         # Confirm the update params were set
         app.setParam.assert_any_call("cpd_product_version", "5.4.0")
         app.setParam.assert_any_call("cp4d_update", "true")
+
+
+# ---------------------------------------------------------------------------
+# Fix 3: MinIO → Ceph catalog gate
+# ---------------------------------------------------------------------------
+
+
+class TestDetectMinioToCephCatalogGate:
+    """detectMinioToCeph() is gated by catalog field aiservice_s3_provider_default.
+
+    - v9-261007-amd64 onwards: field present, value "ceph"  → run
+    - All older catalogs: field absent                       → skip
+    """
+
+    def _make_minio_app(self, s3_provider: str | None, catalog_version: str) -> UpdateApp:
+        app = _make_app()
+        app.args = _make_args(mas_catalog_version=catalog_version, migrate_minio_to_ceph=False)
+        app.noConfirm = True
+        catalog: dict = {}
+        if s3_provider is not None:
+            catalog["aiservice_s3_provider_default"] = s3_provider
+        app.chosenCatalog = catalog
+
+        def _get_param(key):
+            return catalog_version if key == "mas_catalog_version" else ""
+
+        def _set_param(key, value):
+            app.params[key] = value
+
+        app.getParam = MagicMock(side_effect=_get_param)
+        app.setParam = MagicMock(side_effect=_set_param)
+        app.yesOrNo = MagicMock(return_value=False)
+        app.printDescription = MagicMock()
+        app.printWarning = MagicMock()
+        return app
+
+    @patch("mas.cli.update.app.listAiServiceInstances")
+    @patch("mas.cli.update.app.Halo")
+    def test_pre_ceph_catalog_skips_minio_check(self, mock_halo, mock_list):
+        """Pre-ceph catalog (aiservice_s3_provider_default: minio) must skip the check.
+
+        GIVEN v9-260924-amd64 is the target catalog (aiservice_s3_provider_default=minio)
+        WHEN detectMinioToCeph runs
+        THEN listAiServiceInstances is never called — gate exits early.
+        """
+        app = self._make_minio_app(s3_provider="minio", catalog_version="v9-260924-amd64")
+
+        app.detectMinioToCeph()
+
+        mock_list.assert_not_called()
+        mock_halo.assert_not_called()
+
+    @patch("mas.cli.update.app.listAiServiceInstances")
+    @patch("mas.cli.update.app.Halo")
+    def test_ceph_era_catalog_runs_minio_check(self, mock_halo, mock_list):
+        """First ceph-era catalog (aiservice_s3_provider_default: ceph) must run the check.
+
+        GIVEN v9-261007-amd64 is the target catalog (aiservice_s3_provider_default=ceph)
+        AND no instances are using MinIO
+        WHEN detectMinioToCeph runs
+        THEN listAiServiceInstances is called.
+        """
+        app = self._make_minio_app(s3_provider="ceph", catalog_version="v9-261007-amd64")
+        mock_list.return_value = []
+
+        mock_halo_instance = MagicMock()
+        mock_halo_instance.__enter__ = MagicMock(return_value=mock_halo_instance)
+        mock_halo_instance.__exit__ = MagicMock(return_value=False)
+        mock_halo.return_value = mock_halo_instance
+
+        app.detectMinioToCeph()
+
+        mock_list.assert_called_once()
+
+    @patch("mas.cli.update.app.listAiServiceInstances")
+    @patch("mas.cli.update.app.Halo")
+    def test_catalog_missing_field_skips_minio_check(self, mock_halo, mock_list):
+        """A catalog without the field (pre-ceph or unknown) must skip the check.
+
+        GIVEN a catalog omits aiservice_s3_provider_default entirely
+        WHEN detectMinioToCeph runs
+        THEN listAiServiceInstances is never called — gate exits early.
+        """
+        app = self._make_minio_app(s3_provider=None, catalog_version="v9-260924-amd64")
+
+        app.detectMinioToCeph()
+
+        mock_list.assert_not_called()
+        mock_halo.assert_not_called()
