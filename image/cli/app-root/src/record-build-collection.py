@@ -23,12 +23,20 @@
 # The document is upserted using _id = "saas-env-tests:build:<BUILD_ID>"
 # so repeated runs for the same build are idempotent (they only overwrite
 # fields that are expected to be re-initialised on a re-run).
+#
+# If an instance has a non-empty instance_metadata.mongo_uri_secret it is
+# recorded with the instance. It must be an AWS Secrets Manager reference of
+# the form <path:arn:aws:secretsmanager:<region>:<account>:secret:<name>#<key>>;
+# any other value fails the run before MongoDB is contacted.
 
 import os
+import re
 import sys
 import yaml
 from datetime import datetime, UTC
 from pymongo import MongoClient
+
+MONGO_URI_SECRET_PATTERN = re.compile(r"<path:arn:aws:secretsmanager:[a-z0-9-]+:\d{12}:secret:[^#<>\s]+#[^#<>\s]+>")
 
 
 def load_registry(registry_file):
@@ -42,10 +50,13 @@ def load_registry(registry_file):
 
 
 def build_instance_entry(instance):
-    """Build a single instance sub-document with PENDING status."""
+    """Build a single instance sub-document with PENDING status.
+
+    Raises ValueError if instance_metadata.mongo_uri_secret is set but is not a valid AWS secret reference.
+    """
     identity = instance.get("instance_identity", {})
     metadata = instance.get("instance_metadata", {})
-    return {
+    entry = {
         "instance_identity": {
             "instance_id": identity.get("instance_id", ""),
             "cluster_name": identity.get("cluster_name", ""),
@@ -73,6 +84,16 @@ def build_instance_entry(instance):
             "capabilities": metadata.get("capabilities", metadata.get("mas_capabilities", [])),
         },
     }
+
+    mongoUriSecret = metadata.get("mongo_uri_secret")
+    if mongoUriSecret is not None and not (isinstance(mongoUriSecret, str) and mongoUriSecret.strip() == ""):
+        if not isinstance(mongoUriSecret, str) or not MONGO_URI_SECRET_PATTERN.fullmatch(mongoUriSecret):
+            raise ValueError(
+                f"Instance '{identity.get('instance_id', 'unknown')}': mongo_uri_secret must match "
+                f"<path:arn:aws:secretsmanager:<region>:<account>:secret:<name>#<key>>, got {mongoUriSecret!r}"
+            )
+        entry["instance_metadata"]["mongo_uri_secret"] = mongoUriSecret
+    return entry
 
 
 if __name__ == "__main__":
@@ -105,7 +126,11 @@ if __name__ == "__main__":
         print(f"  - {inst.get('instance_identity', {}).get('instance_id', 'unknown')}")
 
     # Build instance sub-documents
-    instanceDocs = [build_instance_entry(inst) for inst in instances]
+    try:
+        instanceDocs = [build_instance_entry(inst) for inst in instances]
+    except ValueError as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
 
     # Compose the parent document _id
     docId = f"saas-env-tests:build:{buildId}"
