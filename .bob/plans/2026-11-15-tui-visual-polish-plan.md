@@ -1,6 +1,26 @@
 # TUI Visual Polish Plan
 
-**Status:** phases 1–3 implemented (November 2026) · phases 4–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+**Status:** phases 1–3.3 implemented (November 2026) · 3.4 (custom theme) and phases 4–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+
+> **Implementation notes (phase 3.3, landed November 2026):**
+>
+> - Chrome tint: the Header/Footer override blocks in `app.tcss` changed
+>   `background: $background` → `background: $surface` — one subtle step
+>   lighter, so the chrome reads as a frame around the content instead of
+>   disappearing into it.  (Eyeball with
+>   `textual run --dev mas.cli.tui.dev`; reverting is the one-line CSS
+>   swap back to `$background`.)
+> - The rule uses the `$surface` *variable*, not a literal colour, so the
+>   tint follows whatever theme is active — it stays correct when the
+>   phase 3.4 custom theme lands (or if that theme is later rolled back).
+> - Regression test: `tests/unit/tui/test_tui_shell_chrome.py` asserts the
+>   computed Header/Footer backgrounds equal the active theme's `$surface`
+>   (and that `$surface` differs from `$background`, so the rule can never
+>   silently become a no-op).  Theme-agnostic by construction.  Full TUI
+>   unit + pilot suites green (103 passed), black and flake8 clean.
+> - Deliberately **kept separate from 3.4**: this change is CSS-only plus
+>   its test, in its own commit, so the custom-theme work can be reverted
+>   independently of the chrome tint.
 
 > **Implementation notes (phase 3.2, landed November 2026):**
 >

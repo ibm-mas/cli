@@ -8,8 +8,12 @@
 
 /* ---------- Header / Footer overrides ------------------------------------- */
 
+/* Chrome tint (phase 3.3): $surface rather than $background — one subtle
+   step lighter, so the header/footer read as a frame around the content
+   instead of disappearing into it.  Uses a theme variable, so the tint
+   follows whatever theme the app runs (see tui/theme.py). */
 Header, HeaderIcon, HeaderClockSpace, HeaderClock {
-    background: $background;
+    background: $surface;
 }
 
 /* Prevent the header from expanding when clicked. */
@@ -18,7 +22,7 @@ Header.-tall {
 }
 
 Footer, FooterKey {
-    background: $background;
+    background: $surface;
 }
 
 /* ---------- TextualShell layout ------------------------------------------- */
