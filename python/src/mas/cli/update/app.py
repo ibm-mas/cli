@@ -19,6 +19,8 @@ from prompt_toolkit import print_formatted_text, HTML
 from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
+from ..common.commandBuilder import offerCommandScript
+from .argBuilder import updateArgBuilderMixin
 from .argParser import updateArgParser
 from mas.devops.data import getCatalog, getNewestCatalogTag, NoSuchCatalogError
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
@@ -34,7 +36,7 @@ from ..rbac_utils import evaluatePreinstallRBACAccess
 logger = logging.getLogger(__name__)
 
 
-class UpdateApp(BaseApp, AdditionalConfigsMixin):
+class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
 
     def shouldApplyRBACForInstance(self, instanceId, currentVersion, targetCatalog) -> bool:
         """
@@ -200,6 +202,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
         self.db2LicenseFileLocal = None
         self.instancesNeedingRBAC = []
         self.applyPreInstallMASRBAC = False
+        self.isInteractiveMode = self.args.mas_catalog_version is None
 
         if self.args.mas_catalog_version:
             # Non-interactive mode
@@ -331,6 +334,19 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
         print()
 
+        # Show the equivalent non-interactive command before the review screen
+        nonInteractiveCommand = self.buildCommand()
+        self.printH1("Non-Interactive Update Command")
+        self.printDescription(
+            [
+                "Save and re-use the following script to re-run this update without needing to answer the interactive prompts again",
+                "",
+                nonInteractiveCommand,
+            ]
+        )
+        if self.isInteractiveMode:
+            offerCommandScript(self, nonInteractiveCommand, f"mas-update-{self.getParam('mas_catalog_version')}.sh")
+
         self.printH1("Review Settings")
         self.printDescription(["Connected to:", f" - <u>{getConsoleURL(self.dynamicClient)}</u>"])
 
@@ -442,6 +458,16 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text="Failed to submit PipelineRun for MAS update, see log file for details")
                     print()
+
+            # Re-print the command so it is not lost in the scrollback above the
+            # pipeline launch output
+            self.printDescription(
+                [
+                    "For reference, the non-interactive command equivalent to this update:",
+                    "",
+                    nonInteractiveCommand,
+                ]
+            )
 
     def reviewCurrentCatalog(self) -> None:
         catalogInfo = getCurrentCatalog(self.dynamicClient)
@@ -906,7 +932,6 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                         self.detectCpdService("WS", "ws.cpd.ibm.com/v1beta1", "Watson Studio", "cp4d_update_ws")
                         self.detectCpdService("WmlBase", "wml.cpd.ibm.com/v1beta1", "Watson Machine Learning", "cp4d_update_wml")
                         self.detectCpdService("AnalyticsEngine", "ae.cpd.ibm.com/v1", "Analytics Engine", "cp4d_update_spark")
-                        self.detectCpdService("CAService", "ca.cpd.ibm.com/v1", "Cognos Analytics", "cp4d_update_cognos")
                     else:
                         h.stop_and_persist(
                             symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already installed at version {cpdTargetVersion}"
