@@ -34,13 +34,14 @@ from typing import Any, Optional
 
 try:
     from textual.app import ComposeResult
-    from textual.containers import Horizontal, Vertical, VerticalScroll
+    from textual.containers import Vertical, VerticalScroll
     from textual.widgets import Button, Checkbox, Input, Label
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
 from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowStep
+from mas.cli.tui.widgets.action_bar import ActionBar
 
 
 class ConfirmUpgradesScreen(Vertical):
@@ -141,11 +142,22 @@ class ConfirmUpgradesScreen(Vertical):
                             classes="confirm-checkbox",
                         )
 
-        with Vertical(classes="action-bar"):
-            yield Label("", id=f"validator-error-{self._step.id}", classes="action-status")
-            with Horizontal(classes="action-buttons"):
-                yield Button("Confirm & Continue", id="btn-confirm-upgrades", variant="success")
-                yield Button("Abort Update", id="btn-abort-upgrades", variant="error")
+        yield ActionBar(
+            "",
+            status_id=f"validator-error-{self._step.id}",
+            buttons=[
+                Button("Confirm & Continue", id="btn-confirm-upgrades", variant="success"),
+                Button("Abort Update", id="btn-abort-upgrades", variant="error"),
+            ],
+        )
+
+    def _action_bar(self) -> ActionBar:
+        """Return this screen's action bar.
+
+        Returns:
+            ActionBar: The pinned status + buttons bar.
+        """
+        return self.query_one(ActionBar)
 
     def start_dynamic_loaders(self) -> None:
         """No-op — satisfies the interface expected by TextualShell."""
@@ -224,9 +236,7 @@ class ConfirmUpgradesScreen(Vertical):
         Args:
             _event (Checkbox.Changed): The checkbox change event (unused).
         """
-        error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
-        error_label.update("")
-        error_label.remove_class("action-status--error")
+        self._action_bar().clear_status()
 
     def on_input_changed(self, _event: Input.Changed) -> None:
         """Clear the inline error when the license path input changes.
@@ -234,9 +244,7 @@ class ConfirmUpgradesScreen(Vertical):
         Args:
             _event (Input.Changed): The input change event (unused).
         """
-        error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
-        error_label.update("")
-        error_label.remove_class("action-status--error")
+        self._action_bar().clear_status()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle Confirm and Abort buttons.
@@ -253,20 +261,14 @@ class ConfirmUpgradesScreen(Vertical):
         """
         if event.button.id == "btn-confirm-upgrades":
             if not self._requiredChecked():
-                error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
-                error_label.update("All upgrade confirmations must be checked before you can continue.")
-                error_label.add_class("action-status--error")
+                self._action_bar().set_error("All upgrade confirmations must be checked before you can continue.")
                 return
             licensePath = self._licensePath()
             if self._mas_app.db2LicenseFileNeeded() and not licensePath:
-                error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
-                error_label.update("A path to a valid Db2 v12 license file is required.")
-                error_label.add_class("action-status--error")
+                self._action_bar().set_error("A path to a valid Db2 v12 license file is required.")
                 return
             if licensePath is not None and not path.isfile(licensePath):
-                error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
-                error_label.update(f"License file not found at {licensePath}")
-                error_label.add_class("action-status--error")
+                self._action_bar().set_error(f"License file not found at {licensePath}")
                 return
             self._writeConfirmations()
             self.post_message(StepCompleted(self._step_index))

@@ -14,14 +14,15 @@ from typing import Any, Callable, Optional
 
 try:
     from textual.app import ComposeResult
-    from textual.containers import Horizontal, Vertical, VerticalScroll
-    from textual.widgets import Button, ContentSwitcher, Input, Label, LoadingIndicator, Switch
+    from textual.containers import Vertical, VerticalScroll
+    from textual.widgets import Button, ContentSwitcher, Input, Label, Switch
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
 from mas.cli.tui.links import linkText
 from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowStep
+from mas.cli.tui.widgets.action_bar import ActionBar
 
 
 class ConnectStepScreen(Vertical):
@@ -105,15 +106,17 @@ class ConnectStepScreen(Vertical):
                     yield Input(placeholder="sha256~…", password=True, id="input-login-token")
                     yield Label("Skip TLS Verify", classes="connect-field-label")
                     yield Switch(value=False, id="switch-skip-tls")
-        with Vertical(classes="action-bar"):
-            with Horizontal(classes="action-status", id="connect-status"):
-                yield LoadingIndicator(id="connect-busy-spinner")
-                yield Label("", id="connect-status-label")
-            with Horizontal(classes="action-buttons", id="connect-buttons"):
-                yield Button("Yes — reuse this connection", id="btn-reuse-yes", variant="success")
-                yield Button("No — connect to a different cluster", id="btn-reuse-no", variant="default")
-                yield Button("Connect", id="btn-connect", variant="primary")
-                yield Button("Cancel", id="btn-connect-cancel", variant="default")
+        yield ActionBar(
+            "",
+            status_id="connect-status-label",
+            busy=True,
+            buttons=[
+                Button("Yes — reuse this connection", id="btn-reuse-yes", variant="success"),
+                Button("No — connect to a different cluster", id="btn-reuse-no", variant="default"),
+                Button("Connect", id="btn-connect", variant="primary"),
+                Button("Cancel", id="btn-connect-cancel", variant="default"),
+            ],
+        )
 
     def on_mount(self) -> None:
         """Detect active connection and configure initial sub-screen.
@@ -204,6 +207,14 @@ class ConnectStepScreen(Vertical):
     def start_dynamic_loaders(self) -> None:
         """No-op — satisfies the interface expected by TextualShell."""
 
+    def _action_bar(self) -> ActionBar:
+        """Return this screen's action bar.
+
+        Returns:
+            ActionBar: The pinned status + buttons bar (with busy spinner).
+        """
+        return self.query_one(ActionBar)
+
     def _set_busy(self, message: str) -> None:
         """Show the busy spinner and message in the status row, disabling all connect buttons.
 
@@ -214,10 +225,7 @@ class ConnectStepScreen(Vertical):
         Args:
             message (str): Status text shown next to the spinner.
         """
-        self.query_one("#connect-busy-spinner", LoadingIndicator).add_class("connect-busy--visible")
-        label = self.query_one("#connect-status-label", Label)
-        label.update(message)
-        label.remove_class("action-status--error")
+        self._action_bar().show_busy(message)
         for btn_id in ("#btn-reuse-yes", "#btn-reuse-no", "#btn-connect", "#btn-connect-cancel"):
             try:
                 self.query_one(btn_id, Button).disabled = True
@@ -230,7 +238,7 @@ class ConnectStepScreen(Vertical):
         Args:
             message (str): New status text shown next to the spinner.
         """
-        self.query_one("#connect-status-label", Label).update(message)
+        self._action_bar().set_status(message)
 
     def _clear_busy(self) -> None:
         """Hide the busy spinner and clear the status row, re-enabling the connect buttons.
@@ -240,10 +248,9 @@ class ConnectStepScreen(Vertical):
         through ``_refresh_connect_enabled`` so it stays disabled when the
         credentials are still incomplete.
         """
-        self.query_one("#connect-busy-spinner", LoadingIndicator).remove_class("connect-busy--visible")
-        label = self.query_one("#connect-status-label", Label)
-        label.update("")
-        label.remove_class("action-status--error")
+        bar = self._action_bar()
+        bar.hide_busy()
+        bar.clear_status()
         for btn_id in ("#btn-reuse-yes", "#btn-reuse-no", "#btn-connect-cancel"):
             try:
                 self.query_one(btn_id, Button).disabled = False
@@ -266,10 +273,9 @@ class ConnectStepScreen(Vertical):
         if event.input.id not in ("input-server-url", "input-login-token"):
             return
         self._refresh_connect_enabled()
-        label = self.query_one("#connect-status-label", Label)
-        if label.has_class("action-status--error"):
-            label.update("")
-            label.remove_class("action-status--error")
+        bar = self._action_bar()
+        if bar.has_error:
+            bar.clear_status()
 
     def _do_reuse_connect(self) -> None:
         """Reuse the active kubeconfig connection in a worker thread.
@@ -316,9 +322,7 @@ class ConnectStepScreen(Vertical):
             exc (Exception): The exception raised by the connection attempt.
         """
         self._clear_busy()
-        label = self.query_one("#connect-status-label", Label)
-        label.update(str(exc))
-        label.add_class("action-status--error")
+        self._action_bar().set_error(str(exc))
 
     def _run_reuse(self) -> None:
         """Worker: run reuse connection then report success or error."""

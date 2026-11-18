@@ -12,14 +12,16 @@
 
 Covers structural contracts — labels pre-populated from _DEPENDENCY_CHECKS
 and the startCallback/progressCallback wiring — without requiring a running
-Textual app.
+Textual app.  The step-list marking behaviour itself (mark_done text and
+class transitions) lives on the StepChecklist widget and is covered by
+tests/unit/tui/test_step_checklist.py.
 """
 
 import pytest
 from unittest.mock import MagicMock, patch
 
 from mas.cli.tui.models import WorkflowStep
-from mas.cli.tui.screens.auto_run import _pending_label
+from mas.cli.tui.widgets.step_checklist import pending_label
 from mas.cli.update.dependencies import _DEPENDENCY_CHECKS
 
 pytestmark = pytest.mark.tui
@@ -98,46 +100,6 @@ def test_auto_run_screen_run_checks_calls_start_and_progress():
     assert callable(received_kwargs["progressCallback"]), "Expected progressCallback to be callable"
 
 
-def test_auto_run_screen_mark_done_updates_label_text():
-    """Test that _mark_done updates the Label text inside the ListItem with result detail.
-
-    GIVEN an AutoRunScreen with a step-list
-    WHEN _mark_done(label, ok=True, detail="Not installed") is called
-    THEN the Label inside the matching ListItem shows "✓ <label>: <detail>".
-    """
-    screen = _make_screen()
-
-    # Simulate the Textual query_one returning a mock ListItem with a child Label
-    mock_label = MagicMock()
-    mock_item = MagicMock()
-    mock_item.query_one = MagicMock(return_value=mock_label)
-
-    with patch.object(screen, "query_one", return_value=mock_item):
-        screen._mark_done("IBM Db2", True, "All Db2uCluster instances in ibm-db2")
-
-    mock_label.update.assert_called_once_with("✓ IBM Db2: All Db2uCluster instances in ibm-db2")
-
-
-def test_auto_run_screen_mark_done_failure_uses_cross():
-    """Test that _mark_done uses ✗ prefix when ok=False.
-
-    GIVEN an AutoRunScreen with a step-list
-    WHEN _mark_done(label, ok=False, detail="Installed — update cannot proceed") is called
-    THEN the Label text starts with "✗".
-    """
-    screen = _make_screen()
-
-    mock_label = MagicMock()
-    mock_item = MagicMock()
-    mock_item.query_one = MagicMock(return_value=mock_label)
-
-    with patch.object(screen, "query_one", return_value=mock_item):
-        screen._mark_done("IBM Watson Discovery", False, "Installed — update cannot proceed")
-
-    call_text = mock_label.update.call_args[0][0]
-    assert call_text.startswith("✗"), f"Expected text starting with '✗', got: {call_text!r}"
-
-
 def test_auto_run_screen_pending_label_has_prefix():
     """Test that _step_labels items are prefixed with the pending glyph when composed.
 
@@ -147,4 +109,4 @@ def test_auto_run_screen_pending_label_has_prefix():
     """
     screen = _make_screen()
     first_label = screen._step_labels[0]
-    assert _pending_label(first_label).startswith("○"), f"Expected pending label to start with '○', got: {_pending_label(first_label)!r}"
+    assert pending_label(first_label).startswith("○"), f"Expected pending label to start with '○', got: {pending_label(first_label)!r}"

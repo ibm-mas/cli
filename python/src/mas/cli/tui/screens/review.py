@@ -14,13 +14,14 @@ from typing import Any, Callable, Optional
 
 try:
     from textual.app import ComposeResult
-    from textual.containers import Horizontal, Vertical, VerticalScroll
-    from textual.widgets import Button, Label, Markdown
+    from textual.containers import Vertical, VerticalScroll
+    from textual.widgets import Button, Markdown
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
 from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowStep
+from mas.cli.tui.widgets.action_bar import ActionBar
 
 
 class ReviewScreen(Vertical):
@@ -107,14 +108,18 @@ class ReviewScreen(Vertical):
         """
         with VerticalScroll(id="review-content", classes="content-scroll"):
             yield Markdown("", id="review-markdown")
-        with Vertical(id="review-footer", classes="action-bar"):
+        yield ActionBar(
             # Short enough to fit the single reserved status row at the
             # pilot-default 80 columns (the .action-status rule truncates
             # with an ellipsis rather than wrapping).
-            yield Label("Review your choices carefully — mistakes are easier to fix now.", id="review-prompt", classes="action-status")
-            with Horizontal(id="review-buttons", classes="action-buttons"):
-                yield Button("Confirm & Launch", id="btn-confirm", variant="success")
-                yield Button("Quit", id="btn-quit", variant="error")
+            "Review your choices carefully — mistakes are easier to fix now.",
+            status_id="review-prompt",
+            id="review-footer",
+            buttons=[
+                Button("Confirm & Launch", id="btn-confirm", variant="success"),
+                Button("Quit", id="btn-quit", variant="error"),
+            ],
+        )
 
     def start_dynamic_loaders(self) -> None:
         """Refresh the review Markdown when the step becomes active.

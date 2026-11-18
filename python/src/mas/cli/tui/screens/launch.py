@@ -20,11 +20,13 @@ except ModuleNotFoundError:
     pyperclip = None
 
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical, VerticalScroll
-from textual.widgets import Button, Label, ListItem, ListView
+from textual.containers import Vertical, VerticalScroll
+from textual.widgets import Button, Label
 
 from mas.cli.tui.links import linkText
 from mas.cli.tui.models import WorkflowStep
+from mas.cli.tui.widgets.action_bar import ActionBar
+from mas.cli.tui.widgets.step_checklist import GLYPH_DONE, StepChecklist
 
 # Fixed pipeline stage labels shown upfront (unconditional stages only).
 # RBAC stages are inserted dynamically when applyPreInstallMASRBAC is set.
@@ -34,18 +36,6 @@ _LAUNCH_STEPS: List[str] = [
     "Install Tekton definitions",
     "Submit PipelineRun",
 ]
-
-
-def _pending_label(label: str) -> str:
-    """Return the pending-state display text for a step-list item.
-
-    Args:
-        label (str): Plain step label.
-
-    Returns:
-        str: Label prefixed with the pending glyph.
-    """
-    return f"○ {label}"
 
 
 class LaunchScreen(Vertical):
@@ -70,6 +60,7 @@ class LaunchScreen(Vertical):
         _step: The WorkflowStep being rendered.
         _step_index: Zero-based position in the definition.
         _step_labels: Ordered list of stage labels pre-populated at construction.
+        _pipeline_url: Pipeline run URL once the PipelineRun is submitted.
     """
 
     def __init__(self, mas_app: Any, step: WorkflowStep, step_index: int) -> None:
@@ -92,26 +83,34 @@ class LaunchScreen(Vertical):
 
         Yields:
             A scrollable area (``.content-scroll``) with the heading,
-            description, ListView and pipeline URL label, then a fixed
-            action bar (``.action-bar``) with the status row and the
+            description, StepChecklist and pipeline URL label, then a fixed
+            ActionBar (``.action-bar``) with the status row and the
             Copy URL / Done / Dismiss buttons.  All three buttons are
-            hidden until work completes; revealing them never shifts
-            the layout.
+            hidden until work completes; revealing them never shifts the
+            layout.
         """
         with VerticalScroll(id="launch-content", classes="content-scroll"):
             yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
             for para in self._step.description:
                 yield Label(para, classes="description-para")
-            with ListView(id="launch-step-list"):
-                for label in self._step_labels:
-                    yield ListItem(Label(_pending_label(label)), id=f"launch-step-{_label_to_id(label)}", classes="step-skipped")
+            yield StepChecklist(
+                self._step_labels,
+                "launch-step-",
+                id="launch-step-list",
+                classes="step-checklist--boxed",
+                on_done=self._on_checklist_done,
+            )
             yield Label("", id="pipeline-url")
-        with Vertical(id="launch-footer", classes="action-bar"):
-            yield Label("View the pipeline run:", id="launch-prompt", classes="action-status")
-            with Horizontal(id="launch-buttons", classes="action-buttons"):
-                yield Button("Copy URL", id="btn-copy-url", classes="btn-copy-url", variant="primary")
-                yield Button("Done", id="btn-done", classes="btn-launch-done", variant="success")
-                yield Button("Dismiss", id="btn-dismiss-error", classes="btn-launch-dismiss", variant="error")
+        yield ActionBar(
+            "View the pipeline run:",
+            status_id="launch-prompt",
+            id="launch-footer",
+            buttons=[
+                Button("Copy URL", id="btn-copy-url", classes="btn-copy-url", variant="primary"),
+                Button("Done", id="btn-done", classes="btn-launch-done", variant="success"),
+                Button("Dismiss", id="btn-dismiss-error", classes="btn-launch-dismiss", variant="error"),
+            ],
+        )
 
     def on_mount(self) -> None:
         """Hide action buttons and pipeline URL label on mount."""
@@ -128,6 +127,45 @@ class LaunchScreen(Vertical):
         """
         self.run_worker(self._run_launch, thread=True)
 
+    def _checklist(self) -> StepChecklist:
+        """Return this screen's step checklist widget.
+
+        Returns:
+            StepChecklist: The pipeline-stage list.
+        """
+        return self.query_one("#launch-step-list", StepChecklist)
+
+    def _on_checklist_done(self, label: str, ok: bool, detail: str):
+        """Completion hook for the step checklist (Submit PipelineRun special case).
+
+        For the "Submit PipelineRun" stage the pipeline URL is rendered in a
+        dedicated ``#pipeline-url`` Label outside the bordered list box, keeping
+        the URL on a single unbroken line that Textual can make ctrl+clickable;
+        the list item then shows only the step name.  All other stages return
+        None so the checklist shows its default ``"<glyph> <label>: <detail>"``
+        text.
+
+        Args:
+            label (str): Human-readable stage name.
+            ok (bool): True for success, False for failure.
+            detail (str): Short result text (pipeline URL for the last stage).
+
+        Returns:
+            Optional[str]: Override text for the list item, or None for the
+            checklist default.
+        """
+        if label == "Submit PipelineRun" and ok and detail:
+            url_label = self.query_one("#pipeline-url", Label)
+            # The URL is stylized as an OSC 8 hyperlink so ctrl+click opens
+            # the full URL even though the text wraps in a narrow panel.
+            url_label.update(linkText(detail))
+            url_label.display = True
+            # Store URL and show Copy URL button
+            self._pipeline_url = detail
+            self.query_one("#btn-copy-url", Button).display = True
+            return f"{GLYPH_DONE} {label}"
+        return None
+
     def _run_launch(self) -> None:
         """Submit the pipeline in a worker thread.
 
@@ -138,74 +176,13 @@ class LaunchScreen(Vertical):
         """
         try:
             self._mas_app.launchUpdate(
-                progressCallback=lambda label, ok, detail: self.app.call_from_thread(self._mark_done, label, ok, detail),
-                startCallback=lambda label: self.app.call_from_thread(self._mark_active, label),
+                progressCallback=lambda label, ok, detail: self.app.call_from_thread(self._checklist().mark_done, label, ok, detail),
+                startCallback=lambda label: self.app.call_from_thread(self._checklist().mark_active, label),
             )
             self.app.call_from_thread(self._enable_done)
         except Exception as exc:  # noqa: BLE001
             self.app.call_from_thread(self._mark_error, str(exc))
             self.app.call_from_thread(self._enable_dismiss)
-
-    def _mark_active(self, label: str) -> None:
-        """Mark a stage list item as in-progress (active).
-
-        If the label is not yet in the list (e.g. a dynamic RBAC stage), a new
-        item is appended before being marked active.
-
-        Args:
-            label (str): Human-readable stage name.
-        """
-        item_id = f"#launch-step-{_label_to_id(label)}"
-        try:
-            item = self.query_one(item_id, ListItem)
-        except Exception:
-            # Dynamic RBAC stage — not in the pre-populated list; append it.
-            list_view = self.query_one("#launch-step-list", ListView)
-            new_item = ListItem(Label(_pending_label(label)), id=f"launch-step-{_label_to_id(label)}", classes="step-skipped")
-            list_view.append(new_item)
-            self._step_labels.append(label)
-            item = new_item
-        item.remove_class("step-skipped", "step-completed", "step-error")
-        item.add_class("step-active")
-        item.query_one(Label).update(f"◐ {label}")
-
-    def _mark_done(self, label: str, ok: bool, detail: str) -> None:
-        """Mark a stage list item as completed or failed and update its text.
-
-        For the "Submit PipelineRun" stage, the pipeline URL is rendered in a
-        dedicated ``#pipeline-url`` Label outside the bordered list box, keeping
-        the URL on a single unbroken line that Textual can make ctrl+clickable.
-        All other stages show their detail inline in the list item as normal.
-
-        Args:
-            label (str): Human-readable stage name.
-            ok (bool): True for success, False for failure.
-            detail (str): Short result text (pipeline URL for the last stage).
-        """
-        icon = "✓" if ok else "✗"
-        item_id = f"#launch-step-{_label_to_id(label)}"
-        try:
-            item = self.query_one(item_id, ListItem)
-            item.remove_class("step-active", "step-skipped")
-            if ok:
-                item.add_class("step-completed")
-            else:
-                item.add_class("step-error")
-            if label == "Submit PipelineRun" and ok and detail:
-                # Show only the step name in the list; URL goes in the dedicated label.
-                item.query_one(Label).update(f"{icon} {label}")
-                url_label = self.query_one("#pipeline-url", Label)
-                # The URL is stylized as an OSC 8 hyperlink so ctrl+click opens
-                # the full URL even though the text wraps in a narrow panel.
-                url_label.update(linkText(detail))
-                url_label.display = True
-                # Store URL and show Copy URL button
-                self._pipeline_url = detail
-                self.query_one("#btn-copy-url", Button).display = True
-            else:
-                item.query_one(Label).update(f"{icon} {label}: {detail}")
-        except Exception:
-            pass
 
     def _mark_error(self, message: str) -> None:
         """Mark all still-pending items as error on an unexpected exception.
@@ -213,17 +190,7 @@ class LaunchScreen(Vertical):
         Args:
             message (str): Error message shown on the first still-active item.
         """
-        for label in self._step_labels:
-            item_id = f"#launch-step-{_label_to_id(label)}"
-            try:
-                item = self.query_one(item_id, ListItem)
-                if "step-active" in item.classes or "step-skipped" in item.classes:
-                    item.remove_class("step-active", "step-skipped")
-                    item.add_class("step-error")
-                    item.query_one(Label).update(f"✗ {label}: {message}")
-                    break
-            except Exception:
-                pass
+        self._checklist().mark_error_first_pending(message)
 
     def _enable_done(self) -> None:
         """Reveal the Done button after successful pipeline submission."""
@@ -255,18 +222,3 @@ class LaunchScreen(Vertical):
             self.app.exit(0)
         elif event.button.id == "btn-dismiss-error":
             self.app.exit(1)
-
-
-def _label_to_id(label: str) -> str:
-    """Convert a human-readable label to a CSS-safe identifier fragment.
-
-    Replaces spaces and special characters with hyphens and lowercases the
-    result so it is safe to use as a DOM id suffix.
-
-    Args:
-        label (str): Human-readable step label.
-
-    Returns:
-        str: CSS-safe id fragment.
-    """
-    return "".join(c if c.isalnum() else "-" for c in label.lower()).strip("-")

@@ -157,13 +157,16 @@ def test_launch_screen_run_launch_passes_start_callback():
 
 
 def test_mark_done_pipeline_run_does_not_put_url_in_list_item():
-    """Test that _mark_done for Submit PipelineRun stores URL separately, not in the list item.
+    """Test that mark_done for Submit PipelineRun stores URL separately, not in the list item.
 
-    GIVEN a LaunchScreen with a mocked widget tree
-    WHEN _mark_done("Submit PipelineRun", True, "https://example.com/run") is called
-    THEN the ListItem Label does NOT contain the URL text, only the step name.
+    GIVEN a LaunchScreen's StepChecklist (wired to the screen's on_done hook)
+        with a mocked widget tree
+    WHEN mark_done("Submit PipelineRun", True, "https://example.com/run") is called
+    THEN the ListItem Label does NOT contain the URL text, only the step name,
+        and the #pipeline-url label receives the URL.
     """
     from mas.cli.tui.screens.launch import LaunchScreen
+    from mas.cli.tui.widgets.step_checklist import StepChecklist
     from unittest.mock import patch, MagicMock
 
     mas_app = MagicMock()
@@ -171,48 +174,49 @@ def test_mark_done_pipeline_run_does_not_put_url_in_list_item():
     screen = LaunchScreen.__new__(LaunchScreen)
     LaunchScreen.__init__(screen, mas_app, step, 4)
 
-    list_label_text = {}
-    url_label_text = {}
+    checklist = StepChecklist(screen._step_labels, "launch-step-", on_done=screen._on_checklist_done)
 
-    def fake_query_one(selector, widget_type=None):
-        mock_label = MagicMock()
-        mock_item = MagicMock()
-        mock_item.classes = set()
-        mock_item.remove_class = MagicMock()
-        mock_item.add_class = MagicMock(side_effect=lambda c: mock_item.classes.add(c))
-        mock_item.query_one = MagicMock(return_value=mock_label)
-        if selector == "#pipeline-url":
-            url_label_text["widget"] = mock_label
-            return mock_label
-        list_label_text[selector] = mock_label
-        return mock_item
+    list_label = MagicMock()
+    mock_item = MagicMock()
+    mock_item.query_one = MagicMock(return_value=list_label)
 
-    with patch.object(screen, "query_one", side_effect=fake_query_one):
-        screen._mark_done("Submit PipelineRun", True, "https://example.com/run")
+    screen_widgets = {}
+
+    def fake_screen_query_one(selector, widget_type=None):
+        mock = MagicMock()
+        screen_widgets[selector] = mock
+        return mock
+
+    with (
+        patch.object(screen, "query_one", side_effect=fake_screen_query_one),
+        patch.object(checklist, "query_one", return_value=mock_item),
+    ):
+        checklist.mark_done("Submit PipelineRun", True, "https://example.com/run")
 
     # The list item label should show the step name only, not the URL
-    if list_label_text:
-        for selector, lbl in list_label_text.items():
-            if lbl.update.called:
-                updated = lbl.update.call_args[0][0]
-                assert "https://" not in updated, f"URL should not be in list item label, got: {updated!r}"
+    updated = list_label.update.call_args[0][0]
+    assert "https://" not in updated, f"URL should not be in list item label, got: {updated!r}"
+    assert updated == "✓ Submit PipelineRun"
 
     # The pipeline-url label should have been updated with the URL
-    assert "widget" in url_label_text, "Expected #pipeline-url label to be queried"
-    url_widget = url_label_text["widget"]
+    assert "#pipeline-url" in screen_widgets, "Expected #pipeline-url label to be queried"
+    url_widget = screen_widgets["#pipeline-url"]
     assert url_widget.update.called, "Expected #pipeline-url label to be updated"
     updated_url = url_widget.update.call_args[0][0]
-    assert "https://example.com/run" in updated_url, f"Expected URL in #pipeline-url update, got: {updated_url!r}"
+    assert "https://example.com/run" in str(updated_url), f"Expected URL in #pipeline-url update, got: {updated_url!r}"
+    assert screen._pipeline_url == "https://example.com/run"
 
 
 def test_mark_done_non_pipeline_step_puts_detail_in_list_item():
-    """Test that _mark_done for non-PipelineRun steps puts detail in the list item as normal.
+    """Test that mark_done for non-PipelineRun steps puts detail in the list item as normal.
 
-    GIVEN a LaunchScreen
-    WHEN _mark_done("Validate OpenShift Pipelines", True, "Operator is ready") is called
+    GIVEN a LaunchScreen's StepChecklist (wired to the screen's on_done hook)
+        with a mocked widget tree
+    WHEN mark_done("Validate OpenShift Pipelines", True, "Operator is ready") is called
     THEN the ListItem Label contains both the step name and detail text.
     """
     from mas.cli.tui.screens.launch import LaunchScreen
+    from mas.cli.tui.widgets.step_checklist import StepChecklist
     from unittest.mock import patch, MagicMock
 
     mas_app = MagicMock()
@@ -220,24 +224,15 @@ def test_mark_done_non_pipeline_step_puts_detail_in_list_item():
     screen = LaunchScreen.__new__(LaunchScreen)
     LaunchScreen.__init__(screen, mas_app, step, 4)
 
-    list_label_text = {}
+    checklist = StepChecklist(screen._step_labels, "launch-step-", on_done=screen._on_checklist_done)
 
-    def fake_query_one(selector, widget_type=None):
-        mock_label = MagicMock()
-        mock_item = MagicMock()
-        mock_item.classes = set()
-        mock_item.remove_class = MagicMock()
-        mock_item.add_class = MagicMock(side_effect=lambda c: mock_item.classes.add(c))
-        mock_item.query_one = MagicMock(return_value=mock_label)
-        list_label_text[selector] = mock_label
-        return mock_item
+    list_label = MagicMock()
+    mock_item = MagicMock()
+    mock_item.query_one = MagicMock(return_value=list_label)
 
-    with patch.object(screen, "query_one", side_effect=fake_query_one):
-        screen._mark_done("Validate OpenShift Pipelines", True, "Operator is ready")
+    with patch.object(checklist, "query_one", return_value=mock_item):
+        checklist.mark_done("Validate OpenShift Pipelines", True, "Operator is ready")
 
-    matched = [lbl for sel, lbl in list_label_text.items() if "validate-openshift-pipelines" in sel.lower() or "launch-step" in sel.lower()]
-    assert any(lbl.update.called for lbl in matched), "Expected ListItem label to be updated"
-    for lbl in matched:
-        if lbl.update.called:
-            updated = lbl.update.call_args[0][0]
-            assert "Operator is ready" in updated, f"Expected detail in list item label, got: {updated!r}"
+    updated = list_label.update.call_args[0][0]
+    assert "Operator is ready" in updated, f"Expected detail in list item label, got: {updated!r}"
+    assert "Validate OpenShift Pipelines" in updated, f"Expected step name in list item label, got: {updated!r}"

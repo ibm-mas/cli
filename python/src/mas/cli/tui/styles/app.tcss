@@ -52,20 +52,43 @@ Screen.-narrow #sidebar {
     display: none;
 }
 
-/* ---------- Sidebar ListView — strip all built-in highlighting ------------- */
+/* ---------- Sidebar ListView ---------------------------------------------- */
+/* The sidebar list carries the shared .step-checklist class (see the shared
+   step checklist block below) — it speaks the same visual language as the
+   StepChecklist widget's in-content lists. */
 
-#step-list,
-#step-list:focus,
-#step-list:focus-within {
+/* ---------- Shared step checklist (StepChecklist widget + sidebar list) ---- */
+
+/* Strip all built-in ListView highlighting: state is communicated by the
+   step-* classes and monochrome glyphs, not by selection / hover / focus
+   backgrounds.  Shared by the StepChecklist widget (dep / launch screens)
+   and the sidebar's #step-list. */
+.step-checklist,
+.step-checklist:focus,
+.step-checklist:focus-within {
     background: $background;
 }
 
-#step-list > ListItem,
-#step-list > ListItem:hover,
-#step-list > ListItem.--highlight,
-#step-list:focus > ListItem.--highlight,
-#step-list:focus-within > ListItem.--highlight {
+.step-checklist > ListItem,
+.step-checklist > ListItem:hover,
+.step-checklist > ListItem.--highlight,
+.step-checklist:focus > ListItem.--highlight,
+.step-checklist:focus-within > ListItem.--highlight {
     background: $background;
+    height: auto;
+}
+
+.step-checklist > ListItem > Label {
+    width: 100%;
+    text-wrap: wrap;
+}
+
+/* Checklists shown inside the scrollable content area are bordered boxes
+   (the sidebar list is not). */
+.step-checklist--boxed {
+    height: auto;
+    border: solid $primary-darken-3;
+    margin-top: 1;
 }
 
 /* ---------- Sidebar step states ------------------------------------------- */
@@ -166,6 +189,16 @@ Screen.-narrow #sidebar {
     height: 3;
 }
 
+/* Busy spinner leading the ActionBar's status row while a worker runs
+   (ActionBar(busy=True), currently the connect screen).  Visibility is
+   managed in Python by the widget's show_busy / hide_busy helpers; the
+   geometry lives here. */
+#action-busy-spinner {
+    width: 3;
+    height: 1;
+    margin-right: 1;
+}
+
 /* ---------- ActionOverlay ------------------------------------------------- */
 
 ActionOverlay {
@@ -194,7 +227,7 @@ ActionOverlay {
 
 /* ---------- ConnectStepScreen --------------------------------------------- */
 /* Root is a Vertical: a .content-scroll area (heading + ContentSwitcher)
-   with the shared .action-bar below (status row + Yes/No/Connect buttons —
+   with the shared ActionBar below (busy status row + Yes/No/Connect buttons —
    which buttons are visible follows the active sub-screen). */
 
 #connect-switcher {
@@ -222,51 +255,15 @@ ActionOverlay {
     margin-top: 1;
 }
 
-/* Busy spinner leading the action bar's status row while a connect worker
-   runs — hidden otherwise.  Follows the same class-toggle pattern as the
-   dep screen's button reveals. */
-#connect-busy-spinner {
-    display: none;
-    width: 3;
-    height: 1;
-    margin-right: 1;
-}
-
-#connect-busy-spinner.connect-busy--visible {
-    display: block;
-}
-
 /* ---------- AutoRunScreen ------------------------------------------------- */
 
 AutoRunScreen {
     height: 100%;
 }
 
-/* #dep-content carries .content-scroll (padding 1 2 + height 1fr). */
-
-#dep-step-list {
-    height: auto;
-    border: solid $primary-darken-3;
-    margin-top: 1;
-    background: $background;
-}
-
-#dep-step-list > ListItem,
-#dep-step-list > ListItem:hover,
-#dep-step-list > ListItem.--highlight,
-#dep-step-list:focus > ListItem.--highlight,
-#dep-step-list:focus-within > ListItem.--highlight {
-    background: $background;
-    height: auto;
-}
-
-#dep-step-list > ListItem > Label {
-    width: 100%;
-    text-wrap: wrap;
-}
-
-/* #dep-footer / #dep-prompt / #dep-buttons carry the shared action-bar /
-   action-status / action-buttons classes — see the shared layout block. */
+/* #dep-content carries .content-scroll (padding 1 2 + height 1fr); the step
+   list is a StepChecklist (.step-checklist rules) and the footer an
+   ActionBar (.action-bar rules). */
 
 #btn-next-dep {
     display: none;
@@ -290,29 +287,8 @@ LaunchScreen {
     height: 100%;
 }
 
-/* #launch-content carries .content-scroll; #launch-footer / #launch-prompt /
-   #launch-buttons carry the shared action-bar classes. */
-
-#launch-step-list {
-    height: auto;
-    border: solid $primary-darken-3;
-    margin-top: 1;
-    background: $background;
-}
-
-#launch-step-list > ListItem,
-#launch-step-list > ListItem:hover,
-#launch-step-list > ListItem.--highlight,
-#launch-step-list:focus > ListItem.--highlight,
-#launch-step-list:focus-within > ListItem.--highlight {
-    background: $background;
-    height: auto;
-}
-
-#launch-step-list > ListItem > Label {
-    width: 100%;
-    text-wrap: wrap;
-}
+/* #launch-content carries .content-scroll; the step list is a StepChecklist
+   (.step-checklist rules) and the footer an ActionBar (.action-bar rules). */
 
 #pipeline-url {
     margin-top: 1;
@@ -334,8 +310,8 @@ ReviewScreen {
     height: 100%;
 }
 
-/* #review-content carries .content-scroll; #review-footer / #review-prompt /
-   #review-buttons carry the shared action-bar classes. */
+/* #review-content carries .content-scroll; the footer is an ActionBar
+   (.action-bar rules). */
 
 #review-content Markdown {
     margin-top: 0;

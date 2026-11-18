@@ -201,8 +201,9 @@ def test_busy_indicator_while_connecting():
         # The indicator must appear with the button press so the screen does
         # not feel unresponsive during the background work.  The connect
         # worker is still blocked here, so the first message is stable.
-        busy = app.query_one("#connect-busy-spinner")
-        assert "connect-busy--visible" in busy.classes
+        # (The ActionBar's show_busy helper reveals the spinner.)
+        busy = app.query_one("#action-busy-spinner")
+        assert busy.display is True
         assert "Connecting to cluster" in str(app.query_one("#connect-status-label", Label).render())
         assert app.query_one("#btn-reuse-yes", Button).disabled is True
         # Once the connection itself succeeds the message advances to the
@@ -237,7 +238,8 @@ def test_connect_error_displayed_inline():
         await click_button(pilot, "#btn-connect")
         await wait_for(lambda: "connection refused" in str(app.query_one("#connect-status-label", Label).render()))
         assert app.posted == []
-        assert "connect-busy--visible" not in app.query_one("#connect-busy-spinner").classes
+        # hide_busy concealed the spinner again after the failure.
+        assert app.query_one("#action-busy-spinner").display is False
         btn = app.query_one("#btn-connect", Button)
         assert btn.disabled is False
         assert btn.label == "Connect"

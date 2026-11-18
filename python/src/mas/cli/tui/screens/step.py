@@ -21,6 +21,7 @@ except ModuleNotFoundError as exc:
 
 from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowField, WorkflowStep, WorkflowSummaryItem
+from mas.cli.tui.widgets.action_bar import ActionBar
 
 
 class StepScreen(Vertical):
@@ -79,10 +80,21 @@ class StepScreen(Vertical):
             for field in self._step.fields:
                 yield Label(field.label, classes="field-label")
                 yield self._build_field_widget(field)
-        with Vertical(classes="action-bar"):
-            yield Label("", id=f"validator-error-{self._step.id}", classes="action-status")
-            with Horizontal(classes="action-buttons"):
-                yield Button("Next →", id=f"btn-next-{self._step.id}", classes="btn-next", variant="primary")
+        yield ActionBar(
+            "",
+            status_id=f"validator-error-{self._step.id}",
+            buttons=[
+                Button("Next →", id=f"btn-next-{self._step.id}", classes="btn-next", variant="primary"),
+            ],
+        )
+
+    def _action_bar(self) -> ActionBar:
+        """Return this screen's action bar.
+
+        Returns:
+            ActionBar: The pinned status + buttons bar.
+        """
+        return self.query_one(ActionBar)
 
     def _context_value(self, item: WorkflowSummaryItem) -> str:
         """Resolve a context row's display value from the app instance.
@@ -256,9 +268,7 @@ class StepScreen(Vertical):
         Args:
             exc (Exception): The exception raised by the validator.
         """
-        error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
-        error_label.update(str(exc))
-        error_label.add_class("action-status--error")
+        self._action_bar().set_error(str(exc))
         btn = self.query_one(f"#btn-next-{self._step.id}", Button)
         btn.disabled = False
 
@@ -277,9 +287,7 @@ class StepScreen(Vertical):
         if not self._validate_required():
             return
         self._write_params()
-        error_label = self.query_one(f"#validator-error-{self._step.id}", Label)
-        error_label.update("")
-        error_label.remove_class("action-status--error")
+        self._action_bar().clear_status()
         if self._step.validator is not None:
             btn = self.query_one(f"#btn-next-{self._step.id}", Button)
             btn.disabled = True

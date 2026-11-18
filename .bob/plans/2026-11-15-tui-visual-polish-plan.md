@@ -1,6 +1,60 @@
 # TUI Visual Polish Plan
 
-**Status:** phase 1 + 2 + 3.1 implemented (November 2026) · 3.2 rescoped to the two widget extractions (see its notes) · phases 3.3–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+**Status:** phases 1–3 implemented (November 2026) · phases 4–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+
+> **Implementation notes (phase 3.2, landed November 2026):**
+>
+> - Pure Python extraction, **no visual change**:
+>   `tests/pilot/tui/test_screen_layout.py` passed unchanged; full TUI
+>   unit + pilot suites green (240 passed — 206 unit + 34 pilot, net +6:
+>   8 new widget tests, 2 auto-run `_mark_done` tests moved), black and
+>   flake8 clean.  (The one failure in the wider repo suite,
+>   `must_gather/test_timer.py`, is a known load-sensitive timing flake
+>   that passes in isolation and touches nothing TUI-related.)
+> - New `tui/widgets/` package exporting `StepChecklist` and `ActionBar`.
+> - **StepChecklist(ListView)**: owns the item list, the
+>   pending/active/done/error class transitions, the glyph text updates,
+>   and the module helpers `pending_label` / `label_to_id` (previously
+>   byte-duplicated as `_pending_label` / `_label_to_id` in auto_run.py
+>   and launch.py).  Constructor takes the labels plus an id prefix
+>   (`dep-step-` / `launch-step-`), keeping the item and list ids the
+>   pilot tests query.  `mark_active` appends unknown labels (launch's
+>   dynamic RBAC stages); `mark_done` accepts an
+>   `on_done(label, ok, detail) -> text | None` hook — launch's Submit
+>   PipelineRun special case (URL to `#pipeline-url`, name-only item
+>   text, Copy URL reveal) became the screen's `_on_checklist_done`
+>   hook returning override text; `mark_error_first_pending` carries
+>   launch's first-still-pending error marking, while dep's status-row
+>   error stays in the screen.  `_mark_error` therefore remains a screen
+>   method on both, delegating to the primitive where applicable.
+> - **ActionBar(Vertical)**: owns the reserved status row —
+>   `set_status` / `set_error` / `clear_status` / `has_error` — the
+>   button row (screens pass their Buttons in and keep owning
+>   `on_button_pressed`), and the optional leading busy spinner
+>   (`busy=True` + `show_busy` / `hide_busy`).  The spinner id changed
+>   `connect-busy-spinner` → `action-busy-spinner` and visibility is now
+>   Python display-toggling, so the `connect-busy--visible` CSS class
+>   rules are gone (the two connect pilot busy assertions now check
+>   `.display` instead of the class).  The widget applies the shared
+>   `action-bar` class itself; status label ids are kept via a
+>   `status_id` arg (`dep-prompt`, `launch-prompt`, `review-prompt`,
+>   `validator-error-{step.id}`, `connect-status-label`).  The dropped
+>   `#connect-status` and `#*-buttons` row ids were queried by nothing.
+> - CSS: one `.step-checklist` class (background/hover/focus stripping +
+>   item Label wrap) is shared by the StepChecklist widget **and the
+>   sidebar's `#step-list`** (which just carries the class in
+>   `shell.compose`); a `.step-checklist--boxed` variant carries the
+>   bordered-box geometry the two in-content lists need and the sidebar
+>   must not get.  The three per-id blocks (`#step-list`,
+>   `#dep-step-list`, `#launch-step-list`) are gone.
+> - Tests: new `tests/unit/tui/test_step_checklist.py` covers the
+>   marking primitives and the on_done hook contract; auto_run's
+>   `_mark_done` unit tests moved there and its `_pending_label` import
+>   now points at the widget's `pending_label`; the two launch
+>   `_mark_done` unit tests were rewritten to drive a real StepChecklist
+>   wired to the screen's hook.  Screens keep `_step_labels` as
+>   construction-time data (the widget copies it; the widget's `labels`
+>   property is the live list that grows with dynamic stages).
 
 > **Implementation notes (phase 3.1, landed November 2026):**
 >
@@ -266,7 +320,7 @@ more amateur, not less) but constrain the internals:
   (`App.breakpoints`) — hide the sidebar below ~100 columns via a
   `.-narrow` CSS variant. Only if cheap.
 
-## Phase 3 — Consistency and component extraction (3.1 landed with the ~1 day; 3.2's extraction ~half day)
+## Phase 3 — Consistency and component extraction (~1 day; landed November 2026)
 
 ### 3.1 Unify content padding and footer patterns
 
@@ -324,7 +378,9 @@ Concretely:
 
 ### 3.2 Extract the shared `StepChecklist` and `ActionBar` widgets
 
-> **Rescoped November 2026, after the 3.1 implementation:** everything
+> **Rescoped November 2026, after the 3.1 implementation** (and landed
+> later that month — see the phase 3.2 implementation notes at the top):
+> everything
 > this section originally promised *visually* — the
 > StepScreen/ConfirmUpgradesScreen and ConnectStepScreen conversions, and
 > the single CSS block replacing `#dep-footer` / `#launch-footer` /
@@ -467,7 +523,7 @@ otherwise fine.
 |---|---|---|
 | 1 | Headings, icons, buttons, sidebar/border | ~half day |
 | 2 | Sizing constraints | ~2–3 hours |
-| 3 | 3.1 done; remaining: StepChecklist + ActionBar widget extraction | ~half day |
+| 3 | Screen layout unification + StepChecklist / ActionBar widget extraction | done |
 | 4 | UX niceties | ~half day |
 | 5 | SVG export, CSS regression test | ~2 hours |
 

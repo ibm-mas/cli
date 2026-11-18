@@ -14,26 +14,16 @@ from typing import Any, List
 
 try:
     from textual.app import ComposeResult
-    from textual.containers import Horizontal, Vertical, VerticalScroll
-    from textual.widgets import Button, Label, ListItem, ListView
+    from textual.containers import Vertical, VerticalScroll
+    from textual.widgets import Button, Label
 except ModuleNotFoundError as exc:
     raise ImportError("The Textual TUI requires textual to be installed. Install it with: pip install mas-cli[tui]") from exc
 
 from mas.cli.tui.messages import StepCompleted
 from mas.cli.tui.models import WorkflowStep
+from mas.cli.tui.widgets.action_bar import ActionBar
+from mas.cli.tui.widgets.step_checklist import StepChecklist, GLYPH_ERROR
 from mas.cli.update.dependencies import dependencyCheckLabels
-
-
-def _pending_label(label: str) -> str:
-    """Return the pending-state display text for a step-list item.
-
-    Args:
-        label (str): Plain step label.
-
-    Returns:
-        str: Label prefixed with the pending glyph.
-    """
-    return f"○ {label}"
 
 
 class AutoRunScreen(Vertical):
@@ -80,24 +70,32 @@ class AutoRunScreen(Vertical):
 
         Yields:
             A scrollable area (``.content-scroll``) with the heading,
-            description paragraphs and the ListView of steps, then a fixed
-            action bar (``.action-bar``) with a reserved status row
-            (guidance text until a check fails, the error afterwards) and
-            the Next and Quit buttons.  The Quit button is hidden until a
-            check fails; revealing either button never shifts the layout.
+            description paragraphs and the StepChecklist of dependency
+            checks, then a fixed ActionBar (``.action-bar``) with a reserved
+            status row (guidance text until a check fails, the error
+            afterwards) and the Next and Quit buttons.  The Quit button is
+            hidden until a check fails; revealing either button never shifts
+            the layout.
         """
         with VerticalScroll(id="dep-content", classes="content-scroll"):
             yield Label(self._step.heading, id=f"heading-{self._step.id}", classes="step-heading")
             for para in self._step.description:
                 yield Label(para, classes="description-para")
-            with ListView(id="dep-step-list"):
-                for label in self._step_labels:
-                    yield ListItem(Label(_pending_label(label)), id=f"dep-step-{_label_to_id(label)}", classes="step-skipped")
-        with Vertical(id="dep-footer", classes="action-bar"):
-            yield Label("All checks must pass before you can continue.", id="dep-prompt", classes="action-status")
-            with Horizontal(id="dep-buttons", classes="action-buttons"):
-                yield Button("Next →", id="btn-next-dep", classes="btn-next", variant="primary")
-                yield Button("Quit", id="btn-quit-dep", classes="btn-quit-dep", variant="error")
+            yield StepChecklist(
+                self._step_labels,
+                "dep-step-",
+                id="dep-step-list",
+                classes="step-checklist--boxed",
+            )
+        yield ActionBar(
+            "All checks must pass before you can continue.",
+            status_id="dep-prompt",
+            id="dep-footer",
+            buttons=[
+                Button("Next →", id="btn-next-dep", classes="btn-next", variant="primary"),
+                Button("Quit", id="btn-quit-dep", classes="btn-quit-dep", variant="error"),
+            ],
+        )
 
     def on_mount(self) -> None:
         """No-op on mount — checks start only when the step becomes active."""
@@ -110,6 +108,22 @@ class AutoRunScreen(Vertical):
         """
         self.run_worker(self._run_checks, thread=True)
 
+    def _checklist(self) -> StepChecklist:
+        """Return this screen's step checklist widget.
+
+        Returns:
+            StepChecklist: The dependency-checks list.
+        """
+        return self.query_one("#dep-step-list", StepChecklist)
+
+    def _action_bar(self) -> ActionBar:
+        """Return this screen's action bar.
+
+        Returns:
+            ActionBar: The pinned status + buttons bar.
+        """
+        return self.query_one(ActionBar)
+
     def _run_checks(self) -> None:
         """Run all dependency checks in a worker thread.
 
@@ -121,51 +135,12 @@ class AutoRunScreen(Vertical):
         """
         try:
             self._mas_app.runDependencyChecks(
-                progressCallback=lambda label, ok, detail: self.app.call_from_thread(self._mark_done, label, ok, detail),
-                startCallback=lambda label: self.app.call_from_thread(self._mark_active, label),
+                progressCallback=lambda label, ok, detail: self.app.call_from_thread(self._checklist().mark_done, label, ok, detail),
+                startCallback=lambda label: self.app.call_from_thread(self._checklist().mark_active, label),
             )
             self.app.call_from_thread(self._enable_next)
         except Exception as exc:  # noqa: BLE001
             self.app.call_from_thread(self._mark_error, str(exc))
-
-    def _mark_active(self, label: str) -> None:
-        """Mark a step list item as in-progress (active).
-
-        Args:
-            label (str): Human-readable check name matching a list item.
-        """
-        item_id = f"#dep-step-{_label_to_id(label)}"
-        try:
-            item = self.query_one(item_id, ListItem)
-            item.remove_class("step-skipped", "step-completed", "step-error")
-            item.add_class("step-active")
-            item.query_one(Label).update(f"◐ {label}")
-        except Exception:
-            pass
-
-    def _mark_done(self, label: str, ok: bool, detail: str) -> None:
-        """Mark a step list item as completed or failed and update its text.
-
-        Updates the Label inside the ListItem to show the result detail,
-        matching the previous Markdown-log format but in the step-list widget.
-
-        Args:
-            label (str): Human-readable check name.
-            ok (bool): True for success, False for failure.
-            detail (str): Short result text from the detector.
-        """
-        icon = "✓" if ok else "✗"
-        item_id = f"#dep-step-{_label_to_id(label)}"
-        try:
-            item = self.query_one(item_id, ListItem)
-            item.remove_class("step-active", "step-skipped")
-            if ok:
-                item.add_class("step-completed")
-            else:
-                item.add_class("step-error")
-            item.query_one(Label).update(f"{icon} {label}: {detail}")
-        except Exception:
-            pass
 
     def _mark_error(self, message: str) -> None:
         """Show a blocking error in the action bar status row and reveal the Quit button.
@@ -180,9 +155,7 @@ class AutoRunScreen(Vertical):
         Args:
             message (str): Error message describing why the checks failed.
         """
-        status = self.query_one("#dep-prompt", Label)
-        status.update(f"✗ {message}")
-        status.add_class("action-status--error")
+        self._action_bar().set_error(f"{GLYPH_ERROR} {message}")
         quit_btn = self.query_one("#btn-quit-dep", Button)
         quit_btn.add_class("dep-failed")
 
@@ -200,18 +173,3 @@ class AutoRunScreen(Vertical):
             self.post_message(StepCompleted(self._step_index))
         elif event.button.id == "btn-quit-dep":
             self.app.exit(1)
-
-
-def _label_to_id(label: str) -> str:
-    """Convert a human-readable label to a CSS-safe identifier fragment.
-
-    Replaces spaces and special characters with hyphens and lowercases the
-    result so it is safe to use as a DOM id suffix.
-
-    Args:
-        label (str): Human-readable step label.
-
-    Returns:
-        str: CSS-safe id fragment.
-    """
-    return "".join(c if c.isalnum() else "-" for c in label.lower()).strip("-")

@@ -138,7 +138,9 @@ class TextualShell(App):
         yield Header()
         with Horizontal(id="main-horizontal"):
             with VerticalScroll(id="sidebar"):
-                yield ListView(id="step-list")
+                # The sidebar list shares the .step-checklist class with the
+                # StepChecklist widget — same highlight-stripping treatment.
+                yield ListView(id="step-list", classes="step-checklist")
             yield ContentSwitcher(id="step-content")
         yield Footer()
 
