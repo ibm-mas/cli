@@ -36,11 +36,15 @@ TextualShell {
 }
 
 /* Fixed width rather than a percentage: predictable at any terminal size
-   (25% is 20 chars at 80 cols — headings wrap — and 50 chars at 200 cols). */
+   (25% is 20 chars at 80 cols — headings wrap — and 50 chars at 200 cols).
+   Border tone: neutral $panel-lighten-2, matching every other border in
+   the app — borders structure the layout, they don't advertise the brand
+   colour (a primary-derived blue reads as a loud stripe next to the
+   Carbon greys). */
 #sidebar {
     width: 34;
     height: 100%;
-    border-right: solid $primary-darken-3;
+    border-right: solid $panel-lighten-2;
     padding: 1;
 }
 
@@ -91,7 +95,7 @@ Screen.-narrow #sidebar {
    (the sidebar list is not). */
 .step-checklist--boxed {
     height: auto;
-    border: solid $primary-darken-3;
+    border: solid $panel-lighten-2;
     margin-top: 1;
 }
 
@@ -215,13 +219,13 @@ ActionOverlay {
     height: auto;
     max-height: 80%;
     background: $surface;
-    border: round $primary-darken-2;
+    border: round $panel-lighten-2;
     padding: 1 2;
 }
 
 #action-log {
     height: 10;
-    border: solid $primary-darken-3;
+    border: solid $panel-lighten-2;
 }
 
 #btn-dismiss {
@@ -429,7 +433,7 @@ ParamsOverlay {
     max-width: 100;
     height: 80%;
     background: $surface;
-    border: round $primary-darken-2;
+    border: round $panel-lighten-2;
     padding: 1 2;
 }
 

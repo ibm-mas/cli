@@ -32,6 +32,19 @@
 >   Full TUI unit + pilot suites green (107 passed), black and flake8
 >   clean.  A dark/light toggle keybinding remains future work, as the
 >   plan section anticipated.
+> - Follow-up fix (same day): the primary-derived border colours —
+>   `$primary-darken-3` sidebar / boxed-checklist / action-log borders and
+>   `$primary-darken-2` dialog borders — rendered as a saturated navy
+>   (`#002FBC`) under the MAS theme and dominated the Carbon greys.
+>   Every border in `app.tcss` now uses the neutral `$panel-lighten-2`
+>   already used by `.command-panel` / `.step-context` /
+>   `.confirm-section`, leaving the brand blue to interactive and stateful
+>   elements only.  With this, the stylesheet contains no `$primary`
+>   references at all.  Landed as its own commit (CSS + a regression
+>   test in `test_tui_shell_chrome.py` asserting the sidebar border is
+>   `$panel-lighten-2` and not the brand primary), so reverting the theme
+>   keeps the neutral borders — they read fine under the default Textual
+>   theme too.  Full suites green (108 passed).
 
 > **Implementation notes (phase 3.3, landed November 2026):**
 >

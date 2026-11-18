@@ -85,3 +85,45 @@ def test_chrome_uses_surface_tint():
     # The tint must be a real step away from the background, otherwise the
     # rule is a visual no-op.
     assert surface != background
+
+
+# ---------------------------------------------------------------------------
+# Neutral border tone
+# ---------------------------------------------------------------------------
+
+
+def test_borders_use_neutral_panel_tone():
+    """Test that layout borders use the neutral panel tone, not brand blue.
+
+    GIVEN the shell running under the custom MAS theme
+    WHEN the sidebar's right border renders
+    THEN its colour is the neutral $panel-lighten-2 — matching the panel
+        borders (.command-panel, .step-context, …) — and is not a
+        primary-derived blue, which reads as a loud stripe next to the
+        Carbon grey surfaces.  Borders structure the layout; only
+        interactive / stateful elements carry the brand colour.
+
+    Like the chrome-tint test this compares against the active theme's
+    own variables, so it holds under any theme.
+    """
+    from textual.color import Color
+
+    from mas.cli.tui.shell import TextualShell
+
+    definition = [WorkflowStep(id="test-step", heading="Test Step")]
+
+    async def run():
+        shell = TextualShell(_make_app(), definition)
+        async with shell.run_test() as pilot:
+            await pilot.pause()
+            variables = shell.get_css_variables()
+            border_style, border_color = shell.query_one("#sidebar").styles.border_right
+            return border_style, border_color, Color.parse(variables["panel-lighten-2"]), Color.parse(variables["primary"])
+
+    border_style, border_color, panel_lighten_2, primary = asyncio.run(run())
+    assert border_style == "solid"
+    assert border_color == panel_lighten_2
+    # Not a primary-derived blue: the border hue must sit far from the
+    # brand primary (the old rule rendered $primary-darken-3, a saturated
+    # navy that dominated the grey palette).
+    assert border_color != primary

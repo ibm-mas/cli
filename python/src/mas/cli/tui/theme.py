@@ -24,7 +24,7 @@ the entire custom-theme change.  Reverting the phase 3.4 commit (new
 files ``tui/theme.py`` / ``tests/unit/tui/test_tui_theme.py``, plus the
 import and two registration lines in ``shell.py``) restores the default
 Textual theme with no other behaviour change — the stylesheet only ever
-references theme *variables* (``$surface``, ``$primary-darken-3``, …),
+references theme *variables* (``$surface``, ``$panel-lighten-2``, …),
 never literal colours.
 """
 
