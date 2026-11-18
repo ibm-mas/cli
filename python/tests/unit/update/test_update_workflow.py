@@ -312,3 +312,80 @@ def test_review_step_has_summary_items():
     ]:
         assert expected_param in params, f"Expected '{expected_param}' in review step summary params"
     assert "installedCatalogId" in attrs, "Expected 'installedCatalogId' as attr in review step summary"
+
+
+def test_review_step_command_builder_delegates_to_buildCommand():
+    """Test the review step renders the non-interactive command via buildCommand.
+
+    GIVEN an app instance mock whose buildCommand returns a sentinel
+    WHEN buildUpdateWorkflow(app) is called and the review step's
+        command_builder is invoked with the app
+    THEN it returns the app's buildCommand() output, so the TUI review
+        screen shows exactly what the classic interactive wizard prints
+        (the round-trip-tested updateArgBuilderMixin from PR #2713).
+    """
+    app = _make_app()
+    app.buildCommand.return_value = "mas update --no-confirm"
+    definition = buildUpdateWorkflow(app)
+    step = next(s for s in definition if s.id == "review")
+    command_builder = step.screen_kwargs.get("command_builder")
+    assert callable(command_builder), "Expected 'command_builder' in review step screen_kwargs"
+    assert command_builder(app) == "mas update --no-confirm"
+    app.buildCommand.assert_called_once()
+
+
+def test_review_step_script_filename_mirrors_interactive_flow():
+    """Test the review step's Save Script default filename.
+
+    GIVEN an app instance mock with mas_catalog_version set
+    WHEN the review step's script_filename_builder is invoked
+    THEN it returns mas-update-<catalog-version>.sh, mirroring the filename
+        the classic interactive flow offers (app.py offerCommandScript).
+    """
+    app = _make_app()
+    app.getParam.return_value = "v9-261102-amd64"
+    definition = buildUpdateWorkflow(app)
+    step = next(s for s in definition if s.id == "review")
+    filename_builder = step.screen_kwargs.get("script_filename_builder")
+    assert callable(filename_builder), "Expected 'script_filename_builder' in review step screen_kwargs"
+    assert filename_builder(app) == "mas-update-v9-261102-amd64.sh"
+
+
+def test_launch_step_command_builder_delegates_to_buildCommand():
+    """Test the launch step re-displays the non-interactive command.
+
+    GIVEN an app instance mock whose buildCommand returns a sentinel
+    WHEN the launch step's command_builder is invoked with the app
+    THEN it returns the app's buildCommand() output, so the command is
+        re-printed after pipeline submission (as the CLI does) rather than
+        being lost when the review screen is gone.
+    """
+    app = _make_app()
+    app.buildCommand.return_value = "mas update --no-confirm"
+    definition = buildUpdateWorkflow(app)
+    step = next(s for s in definition if s.id == "launch")
+    command_builder = step.screen_kwargs.get("command_builder")
+    assert callable(command_builder), "Expected 'command_builder' in launch step screen_kwargs"
+    assert command_builder(app) == "mas update --no-confirm"
+
+
+def test_command_builder_renders_real_update_command():
+    """Test the wired builder renders a real command from a scenario app.
+
+    GIVEN a real UpdateApp scenario (tests/scenarios/update.py) with a
+        target catalog version chosen
+    WHEN the review step's command_builder is invoked
+    THEN the output is a mas update command referencing the chosen catalog
+        and the always-required --no-confirm flag.
+    """
+    from scenarios.update import update_scenario
+
+    mas_app = update_scenario("clean")
+    mas_app.setParam("mas_catalog_version", "v9-261102-amd64")
+    definition = buildUpdateWorkflow(mas_app)
+    step = next(s for s in definition if s.id == "review")
+    command = step.screen_kwargs["command_builder"](mas_app)
+
+    assert command.startswith("mas update \\")
+    assert "--catalog v9-261102-amd64" in command
+    assert "--no-confirm" in command

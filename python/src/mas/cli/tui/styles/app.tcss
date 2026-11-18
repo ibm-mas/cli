@@ -327,6 +327,33 @@ ReviewScreen {
     margin-top: 0;
 }
 
+/* ---------- Non-interactive command panel --------------------------------- */
+
+/* Bordered panel showing the equivalent non-interactive command — on the
+   review screen (below the summary) and the launch screen (below the
+   pipeline URL).  Mirrors the .confirm-section / .step-context panel
+   treatment. */
+.command-panel {
+    height: auto;
+    margin-top: 1;
+    margin-bottom: 1;
+    padding: 1;
+    border: round $panel-lighten-2;
+}
+
+.command-panel-caption {
+    color: $text-muted;
+    margin-bottom: 1;
+    text-wrap: wrap;
+}
+
+/* The command itself: shell text with continuation lines — wrapped rather
+   than clipped so narrow terminals still show the whole command. */
+.command-text {
+    text-wrap: wrap;
+    color: $accent;
+}
+
 /* ---------- StepScreen ---------------------------------------------------- */
 
 StepScreen {

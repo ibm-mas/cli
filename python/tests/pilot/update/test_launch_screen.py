@@ -18,7 +18,7 @@ run reveals the Done button, a failure reveals Dismiss with the error.
 from unittest.mock import MagicMock
 
 import pytest
-from textual.widgets import Button, Label
+from textual.widgets import Button, Label, Static
 
 from mas.cli.tui.models import WorkflowStep
 from mas.cli.tui.screens.launch import LaunchScreen
@@ -27,12 +27,14 @@ from pilot.harness import click_button, run_screen_pilot, wait_for
 pytestmark = pytest.mark.pilot
 
 
-def _make_screen(launch_update):
+def _make_screen(launch_update, command_builder=None):
     """Return (screen, mas_app) with launchUpdate stubbed.
 
     Args:
         launch_update (Callable): Implementation for launchUpdate; it
             receives the progressCallback and startCallback keywords.
+        command_builder (Callable, optional): Optional ``(mas_app) -> str``
+            renderer for the non-interactive command reference.
 
     Returns:
         tuple: (LaunchScreen, mas_app stub).
@@ -41,7 +43,7 @@ def _make_screen(launch_update):
     mas_app.params = {}
     mas_app.launchUpdate.side_effect = launch_update
     step = WorkflowStep(id="launch", heading="Launch Update")
-    return LaunchScreen(mas_app, step, 5), mas_app
+    return LaunchScreen(mas_app, step, 5, command_builder=command_builder), mas_app
 
 
 def _succeed(progressCallback=None, startCallback=None):
@@ -141,5 +143,61 @@ def test_failed_launch_reveals_dismiss_with_error():
         rendered = " ".join(str(item.query_one(Label).render()) for item in app.query("#launch-step-list ListItem"))
         assert "✗" in rendered
         assert app.posted == []
+
+    run_screen_pilot(screen, drive)
+
+
+def test_successful_launch_shows_and_copies_noninteractive_command(monkeypatch):
+    """Test that the non-interactive command is re-displayed after submission.
+
+    GIVEN a stubbed app whose launchUpdate succeeds, with a command_builder
+        wired (as the update workflow does), and the clipboard helper
+        stubbed to record copies
+    WHEN the launch step becomes active and Copy Command is clicked
+    THEN the reference caption and command text are revealed below the
+        pipeline URL, and the clipboard receives the rendered command —
+        the TUI equivalent of the CLI re-printing the command at end of run.
+    """
+    command = "mas update \\n  --mas-catalog-version v9-261102-amd64 \\n  --no-confirm\n"
+    copied = []
+
+    import mas.cli.tui.screens.launch as launch_module
+
+    monkeypatch.setattr(launch_module, "copyToClipboard", lambda text: copied.append(text) or True)
+    screen, _ = _make_screen(_succeed, command_builder=lambda app: command)
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#btn-done", Button).display)
+        await wait_for(lambda: app.query_one("#btn-copy-command", Button).display)
+        caption = str(app.query_one("#launch-command-caption", Label).render())
+        assert "non-interactive command" in caption
+        rendered = str(app.query_one("#launch-command-text", Static).render())
+        assert "mas update" in rendered
+        assert "--no-confirm" in rendered
+        await click_button(pilot, "#btn-copy-command")
+        assert copied == [command]
+
+    run_screen_pilot(screen, drive)
+
+
+def test_failed_launch_does_not_show_noninteractive_command():
+    """Test that the command reference stays hidden on failure.
+
+    GIVEN a stubbed app whose launchUpdate raises, with a command_builder wired
+    WHEN the launch step becomes active and fails
+    THEN the command reference caption, text and Copy Command button all
+        stay hidden — there is nothing to re-run when nothing was launched.
+    """
+
+    def _fail(progressCallback=None, startCallback=None):
+        raise RuntimeError("Failed to submit PipelineRun")
+
+    screen, _ = _make_screen(_fail, command_builder=lambda app: "mas update --no-confirm")
+
+    async def drive(pilot, app):
+        await wait_for(lambda: app.query_one("#btn-dismiss-error", Button).display)
+        assert not app.query_one("#launch-command-caption", Label).display
+        assert not app.query_one("#launch-command-text", Static).display
+        assert not app.query_one("#btn-copy-command", Button).display
 
     run_screen_pilot(screen, drive)

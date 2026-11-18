@@ -22,6 +22,38 @@ from mas.cli.tui.shell import AutoRunScreen
 from mas.cli.common.workflow import connectClusterStep
 
 
+def _nonInteractiveCommand(appInstance: Any) -> str:
+    """Render the equivalent non-interactive ``mas update`` command.
+
+    Delegates to ``UpdateApp.buildCommand()`` (the ``updateArgBuilderMixin``
+    from PR #2713, round-trip tested in
+    ``tests/unit/update/test_update_arg_builder.py``) so the TUI shows exactly
+    what the classic interactive wizard would print.
+
+    Args:
+        appInstance (Any): A ``UpdateApp`` instance with populated params.
+
+    Returns:
+        str: The rendered command, secrets masked as environment variables.
+    """
+    return appInstance.buildCommand()
+
+
+def _scriptFilename(appInstance: Any) -> str:
+    """Default filename for the review screen's Save Script button.
+
+    Mirrors the filename offered by the classic interactive flow
+    (``app.py`` offerCommandScript call).
+
+    Args:
+        appInstance (Any): A ``UpdateApp`` instance.
+
+    Returns:
+        str: e.g. ``mas-update-v9-261102-amd64.sh``.
+    """
+    return f"mas-update-{appInstance.getParam('mas_catalog_version')}.sh"
+
+
 def buildUpdateReview(appInstance: Any) -> str:
     """Build the Markdown review text for the update command.
 
@@ -106,9 +138,11 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
     4. **confirm-upgrades** — Conditional step shown only when a MongoDB or
        Db2 major-version upgrade confirmation (or the Db2 v11 to v12 license
        file) is still required.
-    5. **review** — Review all settings before proceeding.  The Confirm button
-       advances to the launch step.
-    6. **launch** — Submits the Tekton pipeline.  The Done button exits the app.
+    5. **review** — Review all settings before proceeding, including the
+       equivalent non-interactive ``mas update`` command (with copy /
+       save-as-script).  The Confirm button advances to the launch step.
+    6. **launch** — Submits the Tekton pipeline, then re-displays the
+       non-interactive command for reference.  The Done button exits the app.
 
     Args:
         appInstance (Any): A ``UpdateApp`` instance whose methods are used
@@ -192,7 +226,11 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
         heading_level="h1",
         description=["Please carefully review your choices below."],
         screen_class=ReviewScreen,
-        screen_kwargs={"review_builder": buildUpdateReview},
+        screen_kwargs={
+            "review_builder": buildUpdateReview,
+            "command_builder": _nonInteractiveCommand,
+            "script_filename_builder": _scriptFilename,
+        },
         summary=[
             WorkflowSummaryItem(label="Installed Catalog", attr="installedCatalogId"),
             WorkflowSummaryItem(label="Target Catalog Version", param="mas_catalog_version"),
@@ -211,6 +249,7 @@ def buildUpdateWorkflow(appInstance: Any) -> WorkflowDefinition:
         heading_level="h1",
         description=["Submitting the Tekton pipeline for MAS update."],
         screen_class=LaunchScreen,
+        screen_kwargs={"command_builder": _nonInteractiveCommand},
     )
 
     return [
