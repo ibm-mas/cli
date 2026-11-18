@@ -1,6 +1,37 @@
 # TUI Visual Polish Plan
 
-**Status:** phases 1–3.3 implemented (November 2026) · 3.4 (custom theme) and phases 4–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+**Status:** phases 1–3.4 implemented (November 2026) · phases 4–5 pending · **Branch:** `textual-update` · **Date:** November 2026
+
+> **Implementation notes (phase 3.4, landed November 2026):**
+>
+> - Custom theme: new `tui/theme.py` defines `MAS_THEME` — an IBM
+>   Carbon-derived dark palette (primary Blue 60 `#0F62FE`, accent /
+>   secondary Blue 40 `#78A9FF`, background / surface / panel Gray
+>   100 / 90 / 80, success Green 40, warning Yellow 30, error Red 40) —
+>   registered and selected by two lines in `TextualShell.__init__`
+>   (`register_theme(MAS_THEME)` + `self.theme = "mas"`).
+> - **Rollback isolation (the point of landing 3.3 and 3.4 separately):**
+>   the entire 3.4 change is `tui/theme.py`, `tests/unit/tui/
+>   test_tui_theme.py`, and the import + two registration lines in
+>   `shell.py` — one commit, revertable with `git revert` to restore the
+>   default Textual theme with no other behaviour change.  This works
+>   because the stylesheet only ever references theme *variables*
+>   (`$surface`, `$primary-darken-3`, …), never literal colours: the 3.3
+>   chrome tint follows whichever theme is active (there is a test
+>   proving it renders the MAS theme's surface).
+> - Every semantic colour is specified explicitly — Textual derives
+>   unspecified theme colours from `primary`, which turns success /
+>   warning / error blue and makes the sidebar / checklist state glyphs
+>   indistinguishable (guarded by
+>   `test_mas_theme_defines_semantic_colors`).
+> - Tests: `tests/unit/tui/test_tui_theme.py` (4 tests — theme selected
+>   and variables resolve to the brand palette, chrome tint follows the
+>   custom theme, semantic colours explicit, dark=True).  Colour
+>   comparisons parse and use a per-channel tolerance of 2 because
+>   Textual's HSL variable generation can shift a channel by one.
+>   Full TUI unit + pilot suites green (107 passed), black and flake8
+>   clean.  A dark/light toggle keybinding remains future work, as the
+>   plan section anticipated.
 
 > **Implementation notes (phase 3.3, landed November 2026):**
 >
@@ -487,6 +518,11 @@ Try a very subtle tint (`$surface`) and compare. Defensible either way —
 eyeball it.
 
 ### 3.4 Custom theme (optional)
+
+> **Landed November 2026** — see the phase 3.4 implementation notes at the
+> top.  Landed in its own commit, deliberately isolated from 3.3 so the
+> custom theme can be reverted with a single `git revert` if the palette
+> doesn't land well.
 
 Consider registering a Textual 1.x custom `Theme` (brand primary/accent,
 or pin a known-good built-in) instead of the default theme variables.

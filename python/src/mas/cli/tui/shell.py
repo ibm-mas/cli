@@ -42,6 +42,7 @@ from mas.cli.tui.screens import (
     StepScreen,
     TerminalTooSmallScreen,
 )
+from mas.cli.tui.theme import MAS_THEME
 
 # Re-export screen classes so existing workflow modules can import them from
 # this module (e.g. ``from mas.cli.tui.shell import AutoRunScreen``).
@@ -119,6 +120,11 @@ class TextualShell(App):
             command (str, optional): CLI command name used in the header title.
         """
         super().__init__()
+        # Custom MAS theme (phase 3.4, see tui/theme.py for the palette and
+        # the rollback note — removing these two lines plus that module
+        # restores the default Textual theme).
+        self.register_theme(MAS_THEME)
+        self.theme = "mas"
         self._mas_app = mas_app
         self._definition: WorkflowDefinition = definition
         self._active_index: int = 0
