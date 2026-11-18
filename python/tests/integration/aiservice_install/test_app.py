@@ -348,6 +348,10 @@ def test_install_interactive_advanced(tmpdir):
                     return "n"
                 if re.match(".*Proceed with these settings.*", message):
                     return "y"
+                if re.match(".*Copy this command to your clipboard.*", message):
+                    return "n"
+                if re.match(".*Save this command as a script file.*", message):
+                    return "n"
                 if re.match(".*Wait for PVCs to bind.*", message):
                     return "n"
 
@@ -504,6 +508,10 @@ def test_install_interactive_simplified(tmpdir):
                     return "n"
                 if re.match(".*Proceed with these settings.*", message):
                     return "y"
+                if re.match(".*Copy this command to your clipboard.*", message):
+                    return "n"
+                if re.match(".*Save this command as a script file.*", message):
+                    return "n"
                 if re.match(".*Wait for PVCs to bind.*", message):
                     return "n"
 

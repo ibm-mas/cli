@@ -6,7 +6,7 @@ This catalog is a **curated** catalog, the Maximo Application Suite team take a 
 All versions of the catalog are available **indefinitely**, but they have a useful lifespan limited by the support statements of the packages available in the catalog and the OCP release the catalog is certified on.  We **never** remove catalog images from the IBM Container Registry (ICR); even the [first](v8-220717-amd64.md) Maximo Operator Catalog ever published is still available today, however it's usefulness is questionable due to the end of life of all compatible OCP releases.
 
 ### CLI Support
-The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror-images, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.
+The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.
 
 
 ### Catalog Directory
@@ -107,7 +107,7 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260430</span><br/><a href="v9-260430-amd64/">amd64</a> | <a href="v9-260430-s390x/">s390x</a> | <a href="v9-260430-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
           <td>20.2.0</td>
@@ -537,7 +537,7 @@ The packages available in these catalogs are fixed. Multiple installations at di
 #### Disconnected Install
 > I want to run a disconnected environment using a private mirror registry
 
-The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../guides/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
+The MAS CLI [mirror](../guides/mirroring-v2.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../guides/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
 
 
 ### Dynamic Catalog

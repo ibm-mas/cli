@@ -209,8 +209,6 @@ class MirrorTestHelper:
                 "redis_version": "1.3.1",
                 # CP4D Spark version key
                 "spark_version": "11.0.0+20250604.163055.2097",
-                # CP4D Cognos version key
-                "cognos_version": "28.0.0+20250515.175459.10054",
             }
 
         # Mock YAML config file content

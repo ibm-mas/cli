@@ -29,26 +29,20 @@ Disconnected Upgrade Preparation
 -------------------------------------------------------------------------------
 Before you start the upgrade, you must mirror the images for the new catalog that you wish to upgrade to. Mirroring the images is a simple but time consuming process. Three modes are available for the mirror process:
 
-- **direct** - mirrors images directly from the source registry to your private registry
-- **to-filesystem** - mirrors images from the source to a local directory
-- **from-filesystem** - mirrors images from a local directory to your private registry
+- **m2m** - mirrors images directly from the source registry to your private registry
+- **m2d** - mirrors images from the source registry to a local directory
+- **d2m** - mirrors images from a local directory to your private registry
+
+`mas mirror` does not have an interactive mode, all options must be provided as command line arguments. For full details refer to the [image mirroring](mirroring-v2.md) guide.
 
 ```bash
-docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images
-```
-
-You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](../catalogs/index.md) and the subset of content that you wish to mirror. You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well as reducing the storage requirements of the registry.
-
-This command can also be run non-interactively. For full details refer to the [image mirroring](image-mirroring.md) guide.
-
-```bash
-mas mirror-images -m direct -d /mnt/local-mirror \
-  -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
-  --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
-  --no-confirm
+docker run -ti --rm -e IBM_ENTITLEMENT_KEY -e REGISTRY_USERNAME -e REGISTRY_PASSWORD \
+  quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ mas mirror \
+  --catalog @@MAS_LATEST_CATALOG@@ --release @@MAS_LATEST_CHANNEL@@ \
+  --mode m2m --target-registry myprivateregistry.com \
+  --dir /mnt/local-mirror \
+  --core --iot --manage \
+  --sls --tsm --mongodb-ce --db2u-s11 --db2u-s12
 ```
 
 !!! important

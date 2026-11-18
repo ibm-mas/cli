@@ -547,11 +547,6 @@ class InstallSummarizerMixin:
                     ("Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install"),
                 )
 
-            self.printSummary(
-                "Cognos Analytics",
-                ("Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install"),
-            )
-
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")
         self.printParamSummary("Contact e-mail", "dro_contact_email")

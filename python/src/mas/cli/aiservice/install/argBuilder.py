@@ -8,254 +8,201 @@
 #
 # *****************************************************************************
 
-import logging
+"""
+Declarative specification of the non-interactive `mas aiservice-install`
+command that the interactive wizard prints at the end of a run.
 
-logger = logging.getLogger(__name__)
+Each entry names the argparse dest it maps to; the flag spelling is resolved
+from the real aiServiceinstallArgParser at render time (see
+common.commandBuilder).  Only what argparse cannot express is spelled out
+here: where a value comes from, which parameters are secrets (env-masked
+with an export placeholder), and the conditions under which a flag is
+emitted.
+"""
+
+from ...common.commandBuilder import CommandArg, paramIsTrue, renderCommand
+from .argParser import aiServiceinstallArgParser
+
+# ---------------------------------------------------------------------------
+# Condition helpers
+# ---------------------------------------------------------------------------
+
+# Boolean conditions use paramIsTrue from common.commandBuilder: interactive
+# runs store 'true'/'false' strings, non-interactive runs copy argparse's
+# native booleans into params, and both must work.
+_isTrue = paramIsTrue
+
+
+def _eq(param: str, expected: str):
+    return lambda app: app.getParam(param) == expected
+
+
+def _ne(param: str, unexpected: str):
+    return lambda app: app.getParam(param) != unexpected
+
+
+def _attr(name: str, default=None):
+    return lambda app: getattr(app, name, default)
+
+
+def _attrTruthy(name: str):
+    return lambda app: bool(getattr(app, name, False))
+
+
+def _dedicatedSls(app) -> bool:
+    instanceId = app.getParam("aiservice_instance_id")
+    return instanceId != "" and app.getParam("sls_namespace") == f"mas-{instanceId}-sls"
+
+
+# CIS enhanced security options are only prompted for when enhanced security is enabled
+_cis = _eq("dns_provider", "cis")
+_cisEnhanced = lambda app: _cis(app) and _isTrue("cis_enhanced_security")(app)  # noqa: E731
+
+# Minio credentials are only valid as a pair; without them an external S3-compatible store is used
+_minio = lambda app: app.getParam("minio_root_user") != "" and app.getParam("minio_root_password") != ""  # noqa: E731
+
+
+# ---------------------------------------------------------------------------
+# Command specification
+# ---------------------------------------------------------------------------
+
+AISERVICE_INSTALL_COMMAND_ARGS = [
+    # MAS Catalog Selection & Entitlement
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="mas_catalog_version"),
+    CommandArg(dest="mas_catalog_digest"),
+    CommandArg(dest="ibm_entitlement_key", env_var="IBM_ENTITLEMENT_KEY", required=True),
+    # AI Service Instance
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="aiservice_instance_id"),
+    CommandArg(dest="additional_configs", value=_attr("localConfigDir")),
+    # Storage
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="storage_class_rwo"),
+    CommandArg(dest="storage_class_rwx"),
+    CommandArg(dest="storage_pipeline", value=_attr("pipelineStorageClass")),
+    CommandArg(dest="storage_accessmode", value=_attr("pipelineStorageAccessMode")),
+    # IBM Suite License Service
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="dedicated_sls", const=True, when=_dedicatedSls),
+    CommandArg(dest="sls_namespace", when=lambda app: _ne("sls_namespace", "ibm-sls")(app) and not _dedicatedSls(app)),
+    CommandArg(dest="license_file", value=_attr("slsLicenseFileLocal")),
+    # IBM Data Reporting Operator (DRO)
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="dro_contact_email"),
+    CommandArg(dest="dro_contact_firstname"),
+    CommandArg(dest="dro_contact_lastname"),
+    CommandArg(dest="dro_namespace"),
+    # MongoDb Community Operator
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="mongodb_namespace"),
+    # AI Service Channel
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="aiservice_channel"),
+    # Development Mode
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="artifactory_username", env_var="ARTIFACTORY_USERNAME", extra_exports=("ARTIFACTORY_TOKEN",)),
+    CommandArg(dest="artifactory_token", env_var="ARTIFACTORY_TOKEN", when=_ne("artifactory_username", "")),
+    # Approvals
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="approval_aiservice"),
+    # More Options
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="dev_mode", const=True, when=_attrTruthy("devMode")),
+    CommandArg(dest="skip_pre_check", const=True, when=_isTrue("skip_pre_check")),
+    CommandArg(dest="image_pull_policy"),
+    CommandArg(dest="service_account_name"),
+    # OCP Configuration
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="ocp_ingress_tls_secret_name"),
+    CommandArg(dest="ocp_ingress"),
+    # Certificate Issuer & Domain
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="aiservice_certificate_issuer"),
+    CommandArg(dest="aiservice_domain"),
+    # DNS Provider
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="dns_provider"),
+    CommandArg(dest="cis_apikey", env_var="CIS_APIKEY", when=_cis),
+    CommandArg(dest="cis_subdomain", when=_cis),
+    CommandArg(dest="cis_crn", when=_cis),
+    CommandArg(dest="cis_email", when=_cis),
+    CommandArg(dest="cis_enhanced_security", const=True, when=_cisEnhanced),
+    CommandArg(dest="cis_service_name", when=_cisEnhanced),
+    CommandArg(dest="update_dns_entries", const=True, when=lambda app: _cisEnhanced(app) and _isTrue("update_dns_entries")(app)),
+    CommandArg(dest="cis_waf", const=True, when=lambda app: _cisEnhanced(app) and _isTrue("cis_waf")(app)),
+    CommandArg(dest="cis_proxy", const=True, when=lambda app: _cisEnhanced(app) and _isTrue("cis_proxy")(app)),
+    CommandArg(dest="delete_wildcards", const=True, when=lambda app: _cisEnhanced(app) and _isTrue("delete_wildcards")(app)),
+    CommandArg(dest="override_edge_certs", const=True, when=lambda app: _cisEnhanced(app) and _isTrue("override_edge_certs")(app)),
+    CommandArg(dest="route53_hosted_zone_name", when=_eq("dns_provider", "route53")),
+    CommandArg(dest="route53_hosted_zone_region", when=_eq("dns_provider", "route53")),
+    CommandArg(dest="route53_subdomain", when=_eq("dns_provider", "route53")),
+    CommandArg(dest="route53_email", when=_eq("dns_provider", "route53")),
+    CommandArg(dest="aws_access_key_id", env_var="AWS_ACCESS_KEY_ID", when=_eq("dns_provider", "route53")),
+    CommandArg(dest="aws_secret_access_key", env_var="AWS_SECRET_ACCESS_KEY", when=_eq("dns_provider", "route53")),
+    CommandArg(dest="enable_ipv6", const=True, when=_isTrue("enable_ipv6")),
+    # Object Storage
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="install_minio_aiservice", const=True, when=_minio),
+    CommandArg(dest="minio_root_user", env_var="MINIO_ROOT_USER", when=_minio),
+    CommandArg(dest="minio_root_password", env_var="MINIO_ROOT_PASSWORD", when=_minio),
+    CommandArg(dest="aiservice_s3_accesskey", env_var="AISERVICE_S3_ACCESSKEY", when=lambda app: not _minio(app)),
+    CommandArg(dest="aiservice_s3_secretkey", env_var="AISERVICE_S3_SECRETKEY", when=lambda app: not _minio(app)),
+    CommandArg(dest="aiservice_s3_host", when=lambda app: not _minio(app)),
+    CommandArg(dest="aiservice_s3_port", when=lambda app: not _minio(app)),
+    CommandArg(dest="aiservice_s3_ssl", when=lambda app: not _minio(app)),
+    CommandArg(dest="aiservice_s3_region", when=lambda app: not _minio(app)),
+    CommandArg(dest="aiservice_s3_bucket_prefix", when=lambda app: not _minio(app)),
+    CommandArg(dest="aiservice_s3_tenants_bucket"),
+    CommandArg(dest="aiservice_s3_templates_bucket"),
+    # Model Deployment
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="aiservice_odh_model_deployment_type"),
+    CommandArg(dest="aiservice_rhoai_model_deployment_type"),
+    CommandArg(dest="rhoai_channel"),
+    CommandArg(dest="rhoai", const=True, when=_isTrue("rhoai")),
+    # Watsonx
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="aiservice_watsonxai_apikey", env_var="AISERVICE_WATSONXAI_APIKEY"),
+    CommandArg(dest="aiservice_watsonxai_url"),
+    CommandArg(dest="aiservice_watsonxai_project_id"),
+    CommandArg(dest="aiservice_watsonx_action"),
+    CommandArg(dest="aiservice_watsonxai_ca_crt"),
+    CommandArg(dest="aiservice_watsonxai_deployment_id"),
+    CommandArg(dest="aiservice_watsonxai_space_id"),
+    CommandArg(dest="aiservice_watsonxai_instance_id"),
+    CommandArg(dest="aiservice_watsonxai_username"),
+    CommandArg(dest="aiservice_watsonxai_version"),
+    CommandArg(dest="aiservice_watsonxai_on_prem"),
+    # Tenant Entitlement
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="tenant_entitlement_type"),
+    CommandArg(dest="tenant_entitlement_start_date"),
+    CommandArg(dest="tenant_entitlement_end_date"),
+    CommandArg(dest="tenant_scheduling_config_file", value=_attr("aiserviceTenantSchedulingConfigFileLocal")),
+    CommandArg(dest="tenant_operator_config_file", value=_attr("aiserviceTenantOperatorConfigFileLocal")),
+    CommandArg(dest="rsl_ca_crt"),
+    # Database Configuration
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="db2_action_aiservice", const=True, when=_eq("db2_action_aiservice", "install")),
+    CommandArg(dest="db2_channel", when=_eq("db2_action_aiservice", "install")),
+    CommandArg(dest="db2_license_file", value=_attr("db2LicenseFileLocal"), when=_eq("db2_action_aiservice", "install")),
+    CommandArg(dest="aiservice_db_jdbc_url"),
+    CommandArg(dest="aiservice_db_username", env_var="AISERVICE_DB_USERNAME"),
+    CommandArg(dest="aiservice_db_password", env_var="AISERVICE_DB_PASSWORD"),
+    CommandArg(dest="aiservice_db_ca_cert"),
+    # Footer
+    # -----------------------------------------------------------------------------
+    CommandArg(dest="accept_license", const=True, required=True),
+    CommandArg(dest="no_confirm", const=True, required=True),
+]
 
 
 class aiServiceInstallArgBuilderMixin:
     def buildCommand(self) -> str:
-        # MAS Catalog Selection & Entitlement
-        # -----------------------------------------------------------------------------
-        newline = " \\\n"
-        command = "export IBM_ENTITLEMENT_KEY=x\n"
-        if self.getParam("ibmcloud_apikey") != "":
-            command += "export IBMCLOUD_APIKEY=x\n"
-        if self.getParam("aws_access_key_id") != "":
-            command += "export AWS_ACCESS_KEY_ID=x\n"
-        if self.getParam("aws_secret_access_key") != "":
-            command += "export AWS_SECRET_ACCESS_KEY=x\n"
-        if self.getParam("artifactory_username") != "":
-            command += "export ARTIFACTORY_USERNAME=x\nexport ARTIFACTORY_TOKEN=x\n"
-
-        # Object Storage Credentials
-        if self.getParam("install_ceph") != "true":
-            if self.getParam("aiservice_s3_accesskey") != "":
-                command += "export AISERVICE_S3_ACCESSKEY=x\n"
-            if self.getParam("aiservice_s3_secretkey") != "":
-                command += "export AISERVICE_S3_SECRETKEY=x\n"
-
-        # Watsonx Credentials
-        if self.getParam("aiservice_watsonxai_apikey") != "":
-            command += "export AISERVICE_WATSONXAI_APIKEY=x\n"
-
-        if self.getParam("cis_apikey") != "":
-            command += "export CIS_APIKEY=x\n"
-
-        # Database password
-        if self.getParam("aiservice_db_password") != "":
-            command += "export AISERVICE_DB_PASSWORD=x\n"
-
-        command += f"mas aiservice-install --mas-catalog-version {self.getParam('mas_catalog_version')}"
-
-        if self.getParam("mas_catalog_digest") != "":
-            command += f" --mas-catalog-digest {self.getParam('mas_catalog_digest')}"
-
-        command += f" --ibm-entitlement-key $IBM_ENTITLEMENT_KEY{newline}"
-
-        # AI Service Instance Id
-        command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
-
-        # AI Service Advanced Configuration
-        # -----------------------------------------------------------------------------
-
-        if self.localConfigDir is not None:
-            command += f'  --additional-configs "{self.localConfigDir}"{newline}'
-
-        # Storage
-        # -----------------------------------------------------------------------------
-        command += f"  --storage-class-rwo \"{self.getParam('storage_class_rwo')}\""
-        command += f" --storage-class-rwx \"{self.getParam('storage_class_rwx')}\"{newline}"
-        command += f'  --storage-pipeline "{self.pipelineStorageClass}"'
-        command += f' --storage-accessmode "{self.pipelineStorageAccessMode}"{newline}'
-
-        # IBM Suite License Service
-        # -----------------------------------------------------------------------------
-        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls":
-            if self.getParam("aiservice_instance_id") and self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
-                command += "  --dedicated-sls"
-            else:
-                command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\""
-        if self.slsLicenseFileLocal:
-            command += f'  --license-file "{self.slsLicenseFileLocal}"'
-        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls" or self.slsLicenseFileLocal:
-            command += newline
-
-        # IBM Data Reporting Operator (DRO)
-        # -----------------------------------------------------------------------------
-        command += f"  --contact-email \"{self.getParam('dro_contact_email')}\""
-        command += f" --contact-firstname \"{self.getParam('dro_contact_firstname')}\""
-        command += f" --contact-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
-        if self.getParam("dro_namespace") != "":
-            command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
-
-        # MongoDb Community Operator
-        # -----------------------------------------------------------------------------
-        if self.getParam("mongodb_namespace") != "":
-            command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
-
-        # Aibroker Channel
-        # -----------------------------------------------------------------------------
-        command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
-
-        # Development Mode
-        # -----------------------------------------------------------------------------
-        if self.getParam("artifactory_username") != "":
-            command += f"  --artifactory-username $ARTIFACTORY_USERNAME --artifactory-token $ARTIFACTORY_TOKEN{newline}"
-
-        # Approvals
-        # -----------------------------------------------------------------------------
-        if self.getParam("approval_aiservice") != "":
-            command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
-
-        # More Options
-        # -----------------------------------------------------------------------------
-        if self.devMode:
-            command += f"  --dev-mode{newline}"
-        if self.getParam("skip_pre_check") is True:
-            command += f"  --skip-pre-check{newline}"
-        if self.getParam("image_pull_policy") != "":
-            command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
-        if self.getParam("service_account_name") != "":
-            command += f"  --service-account {self.getParam('service_account_name')}{newline}"
-
-        # OCP Configuration
-        # -----------------------------------------------------------------------------
-        if self.getParam("ocp_ingress_tls_secret_name") != "":
-            command += f"  --ocp-ingress-tls-secret-name \"{self.getParam('ocp_ingress_tls_secret_name')}\"{newline}"
-        if self.getParam("ocp_ingress") != "":
-            command += f"  --ocp-ingress \"{self.getParam('ocp_ingress')}\"{newline}"
-
-        # AI Service Advanced Settings
-        # -----------------------------------------------------------------------------
-
-        # Certificate Issuer
-        if self.getParam("aiservice_certificate_issuer") != "":
-            command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
-
-        if self.getParam("aiservice_domain") != "":
-            command += f"  --domain \"{self.getParam('aiservice_domain')}\"{newline}"
-
-        if self.getParam("dns_provider") == "cis":
-            command += f"  --dns-provider cis{newline}"
-            command += f'  --cis-apikey "$CIS_APIKEY"{newline}'
-            command += f"  --cis-subdomain \"{self.getParam('cis_subdomain')}\"{newline}"
-            command += f"  --cis-crn \"{self.getParam('cis_crn')}\"{newline}"
-            command += f"  --cis-email \"{self.getParam('cis_email')}\"{newline}"
-            if self.getParam("cis_enhanced_security") == "true":
-                command += f"  --cis-enhanced-security{newline}"
-                if self.getParam("cis_service_name") != "":
-                    command += f"  --cis-service-name \"{self.getParam('cis_service_name')}\"{newline}"
-                if self.getParam("update_dns_entries") == "true":
-                    command += f"  --update-dns-entries{newline}"
-                if self.getParam("cis_waf") == "true":
-                    command += f"  --cis-waf{newline}"
-                if self.getParam("cis_proxy") == "true":
-                    command += f"  --cis-proxy{newline}"
-                if self.getParam("delete_wildcards") == "true":
-                    command += f"  --delete-wildcards{newline}"
-                if self.getParam("override_edge_certs") == "true":
-                    command += f"  --override-edge-certs{newline}"
-
-        if self.getParam("dns_provider") == "route53":
-            command += f"  --dns-provider route53{newline}"
-            command += f"  --route53-subdomain \"{self.getParam('route53_subdomain')}\"{newline}"
-            command += f"  --route53-email \"{self.getParam('route53_email')}\"{newline}"
-            command += f"  --route53-hosted-zone-name \"{self.getParam('route53_hosted_zone_name')}\"{newline}"
-            command += f"  --route53-hosted-zone-region \"{self.getParam('route53_hosted_zone_region')}\"{newline}"
-            command += f'  --aws-access-key-id "$AWS_ACCESS_KEY_ID"{newline}'
-            command += f'  --aws-secret-access-key "$AWS_SECRET_ACCESS_KEY"{newline}'
-
-        # Enable IPv6 networking
-        if self.getParam("enable_ipv6").lower() == "true":
-            command += f"  --enable-ipv6{newline}"
-
-        # Object storage
-        if self.getParam("install_ceph") == "true":
-            command += f"  --install-ceph{newline}"
-        else:
-            if self.getParam("aiservice_s3_accesskey") != "":
-                command += f'  --s3-accesskey "$AISERVICE_S3_ACCESSKEY"{newline}'
-            if self.getParam("aiservice_s3_secretkey") != "":
-                command += f'  --s3-secretkey "$AISERVICE_S3_SECRETKEY"{newline}'
-            if self.getParam("aiservice_s3_host") != "":
-                command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
-            if self.getParam("aiservice_s3_port") != "":
-                command += f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
-            if self.getParam("aiservice_s3_ssl") != "":
-                command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
-            if self.getParam("aiservice_s3_region") != "":
-                command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
-            if self.getParam("aiservice_s3_bucket_prefix") != "":
-                command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
-
-        if self.getParam("aiservice_s3_tenants_bucket") != "":
-            command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
-        if self.getParam("aiservice_s3_templates_bucket") != "":
-            command += f"  --s3-templates-bucket \"{self.getParam('aiservice_s3_templates_bucket')}\"{newline}"
-
-        if self.getParam("aiservice_odh_model_deployment_type") != "":
-            command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
-        if self.getParam("aiservice_rhoai_model_deployment_type") != "":
-            command += f"  --rhoai-model-deployment-type \"{self.getParam('aiservice_rhoai_model_deployment_type')}\"{newline}"
-        if self.getParam("rhoai_channel") != "":
-            command += f"  --rhoai-channel \"{self.getParam('rhoai_channel')}\"{newline}"
-        if self.getParam("rhoai") == "true":
-            command += f"  --rhoai{newline}"
-
-        if self.getParam("aiservice_watsonxai_apikey") != "":
-            command += f'  --watsonxai-apikey "$AISERVICE_WATSONXAI_APIKEY"{newline}'
-        if self.getParam("aiservice_watsonxai_url") != "":
-            command += f"  --watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
-        if self.getParam("aiservice_watsonxai_project_id") != "":
-            command += f"  --watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
-        if self.getParam("aiservice_watsonx_action") != "":
-            command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
-        if self.getParam("aiservice_watsonxai_ca_crt") != "":
-            command += f"  --watsonxai-ca-crt \"{self.getParam('aiservice_watsonxai_ca_crt')}\"{newline}"
-        if self.getParam("aiservice_watsonxai_deployment_id") != "":
-            command += f"  --watsonxai-deployment-id \"{self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
-        if self.getParam("aiservice_watsonxai_space_id") != "":
-            command += f"  --watsonxai-space-id \"{self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
-        if self.getParam("aiservice_watsonxai_instance_id") != "":
-            command += f"  --watsonxai-instance-id \"{self.getParam('aiservice_watsonxai_instance_id')}\"{newline}"
-        if self.getParam("aiservice_watsonxai_username") != "":
-            command += f"  --watsonxai-username \"{self.getParam('aiservice_watsonxai_username')}\"{newline}"
-        if self.getParam("aiservice_watsonxai_version") != "":
-            command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
-        if self.getParam("aiservice_watsonxai_on_prem") != "":
-            command += f"  --watsonxai-onprem \"{self.getParam('aiservice_watsonxai_on_prem')}\"{newline}"
-
-        if self.getParam("tenant_entitlement_type") != "":
-            command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
-        if self.getParam("tenant_entitlement_start_date") != "":
-            command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
-        if self.getParam("tenant_entitlement_end_date") != "":
-            command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
-        if self.aiserviceTenantSchedulingConfigFileLocal:
-            command += f'  --tenant-scheduling-config-file "{self.aiserviceTenantSchedulingConfigFileLocal}"{newline}'
-        if self.aiserviceTenantOperatorConfigFileLocal:
-            command += f'  --tenant-operator-config-file "{self.aiserviceTenantOperatorConfigFileLocal}"{newline}'
-
-        if self.getParam("rsl_ca_crt") != "":
-            command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
-
-        # Database Configuration
-        # -----------------------------------------------------------------------------
-        if self.getParam("db2_action_aiservice") == "install":
-            # In-cluster DB2 installation
-            command += f"  --db2-aiservice{newline}"
-            if self.getParam("db2_channel") != "":
-                command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
-            if self.db2LicenseFileLocal:
-                command += f'  --db2-license-file "{self.db2LicenseFileLocal}"{newline}'
-        elif self.getParam("aiservice_db_jdbc_url") != "":
-            # External database (Oracle/SQL Server/DB2)
-            command += f"  --aiservice-db-jdbc-url \"{self.getParam('aiservice_db_jdbc_url')}\"{newline}"
-            command += f"  --aiservice-db-username \"{self.getParam('aiservice_db_username')}\"{newline}"
-            command += f'  --aiservice-db-password "$AISERVICE_DB_PASSWORD"{newline}'
-            if self.getParam("aiservice_db_ca_cert") != "":
-                command += f"  --aiservice-db-ca-cert \"{self.getParam('aiservice_db_ca_cert')}\"{newline}"
-
-        command += "  --accept-license --no-confirm"
-        return command
+        """
+        Render the equivalent non-interactive `mas aiservice-install` command
+        for the current wizard state, with secrets replaced by environment
+        variables.
+        """
+        return renderCommand("mas aiservice-install", AISERVICE_INSTALL_COMMAND_ARGS, self, aiServiceinstallArgParser)

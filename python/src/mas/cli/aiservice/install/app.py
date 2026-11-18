@@ -26,6 +26,7 @@ from halo import Halo
 from ...cli import BaseApp
 from ...gencfg import ConfigGeneratorMixin
 from .argBuilder import aiServiceInstallArgBuilderMixin
+from ...common.commandBuilder import offerCommandScript
 from .argParser import aiServiceinstallArgParser
 from .summarizer import aiServiceInstallSummarizerMixin
 from .params import requiredParams, optionalParams
@@ -542,10 +543,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.aiserviceConfig()
 
         # Show a summary of the installation configuration
+        nonInteractiveCommand = self.buildCommand()
         self.printH1("Non-Interactive Install Command")
         self.printDescription(
-            ["Save and re-use the following script to re-run this install without needing to answer the interactive prompts again", "", self.buildCommand()]
+            ["Save and re-use the following script to re-run this install without needing to answer the interactive prompts again", "", nonInteractiveCommand]
         )
+        if self.isInteractiveMode:
+            offerCommandScript(self, nonInteractiveCommand, f"mas-aiservice-install-{self.getParam('aiservice_instance_id')}.sh")
 
         self.displayInstallSummary()
 
@@ -616,6 +620,16 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                         text=f"Failed to submit PipelineRun for {self.getParam('aiservice_instance_id')} install, see log file for details",
                     )
                     print()
+
+            # Re-print the command so it is not lost in the scrollback above the
+            # pipeline launch output
+            self.printDescription(
+                [
+                    "For reference, the non-interactive command equivalent to this install:",
+                    "",
+                    nonInteractiveCommand,
+                ]
+            )
 
     @logMethodCall
     def setupApprovals(self, namespace: str) -> None:

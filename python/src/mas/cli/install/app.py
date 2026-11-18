@@ -32,6 +32,7 @@ from halo import Halo
 from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
 from .argBuilder import installArgBuilderMixin
+from ..common.commandBuilder import offerCommandScript
 from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
@@ -2102,7 +2103,7 @@ class InstallApp(
                 " - Configure a custom domain, DNS integrations, routing mode and manual certificates",
                 " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
                 ' - Customize Maximo Manage server bundle configuration (defaults to "all" configuration)',
-                " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
+                " - Enable optional Maximo Manage integration with Watson Studio Local",
                 " - Enable optional Real Estate and Facilities configurations",
                 " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
                 " - Choose alternative Apache Kafka providers (default to Strimzi)",
@@ -2905,14 +2906,17 @@ class InstallApp(
         self.aiserviceConfig()
 
         # Show a summary of the installation configuration
+        nonInteractiveCommand = self.buildCommand()
         self.printH1("Non-Interactive Install Command")
         self.printDescription(
             [
                 "Save and re-use the following script to re-run this install without needing to answer the interactive prompts again",
                 "",
-                self.buildCommand(),
+                nonInteractiveCommand,
             ]
         )
+        if self.isInteractiveMode:
+            offerCommandScript(self, nonInteractiveCommand, f"mas-install-{self.getParam('mas_instance_id')}.sh")
 
         # Reject path-based routing for unsupported channel versions or catalogs
         if self.getParam("mas_routing_mode") == "path":
@@ -3218,6 +3222,16 @@ class InstallApp(
                         text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details",
                     )
                     print()
+
+            # Re-print the command so it is not lost in the scrollback above the
+            # pipeline launch output
+            self.printDescription(
+                [
+                    "For reference, the non-interactive command equivalent to this install:",
+                    "",
+                    nonInteractiveCommand,
+                ]
+            )
 
     @logMethodCall
     def setupApprovals(self, namespace: str) -> None:

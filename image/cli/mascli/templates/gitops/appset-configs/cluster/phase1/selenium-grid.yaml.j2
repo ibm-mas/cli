@@ -2,12 +2,15 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
 selenium_grid:
   namespace: selenium
-  version: 0.36.1
+  version: 0.63.0
+{%- if SELENIUM_GRID_REPO_URL is defined and SELENIUM_GRID_REPO_URL != '' %}
+  repo_url: {{ SELENIUM_GRID_REPO_URL }}
+{%- endif %}
   values:
     hub:
-      imageTag: 4.23.0-20240727
+      imageTag: 4.52.0-20261101
     chromeNode:
-      imageTag: 4.23.0-20240727
+      imageTag: 4.52.0-20261101
       imageName: node-chromium
       resources:
         requests:
