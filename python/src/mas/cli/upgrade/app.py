@@ -59,7 +59,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
     path.  The Textual TUI path (``mas-cli upgrade`` with no arguments)
     drives the same logic through the workflow definition in
     ``upgrade/workflow.py`` via ``fetchInstalledInstanceIds``,
-    ``prepareUpgrade`` and ``launchUpgrade``.
+    ``prepareUpgrade``, ``prepareManageFoundation`` and ``launchUpgrade``.
     """
 
     def __init__(self) -> None:
@@ -86,6 +86,17 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         self.applyPreInstallMASRBAC: bool = False
         self.selectedAppsForRBAC: list = []
         self.detectedMode: Optional[str] = None
+        # Manage Foundation state: isManageFoundation is set by prepareUpgrade()
+        # when the 9.0.x -> 9.1.x upgrade needs to install Manage; the
+        # install flags and app name are set by prepareManageFoundation()
+        # (and inline in upgrade()) for configDb2 to read
+        self.isManageFoundation: bool = False
+        self.installIoT: bool = False
+        self.installMonitor: bool = False
+        self.installFacilities: bool = False
+        self.installManage: bool = False
+        self.manageAppName: Optional[str] = None
+        self.showAdvancedOptions: bool = False
         # Pipeline storage class resolved by configPipelineStorageClass()
         self.pipelineStorageClass: Optional[str] = None
         self.pipelineStorageAccessMode: Optional[str] = None
@@ -112,11 +123,12 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
 
         Raises:
             RuntimeError: If the instance is already fully upgraded, the
-                upgrade path is invalid, apps are incompatible with the
-                target channel, or the upgrade requires prompts the TUI
-                does not support.  License acceptance is not enforced here —
-                the conditional license-acceptance step collects it after
-                this validator has run (see ``licenseAcceptancePending``).
+                upgrade path is invalid, or apps are incompatible with the
+                target channel.  License acceptance and the Manage Foundation
+                inputs are not enforced here — the conditional
+                license-acceptance and manage-foundation steps collect them
+                after this validator has run (see ``licenseAcceptancePending``
+                and ``manageFoundationPending``).
         """
         instanceId = self.params.get("mas_instance_id", "")
         self.masInstanceId = instanceId
@@ -218,16 +230,17 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # execute and the review screen has the full upgrade state.
 
         # The only scenario where Manage Foundation needs to be installed during an upgrade is
-        # from 9.0.x to 9.1.x (if Manage was not already installed in 9.0.x).  That path needs
-        # interactive prompts (entitlement key, storage classes, Db2 configuration) the TUI
-        # does not support yet, so direct the user to the classic CLI.
-        self.setParam("should_install_manage_foundation", "false")
-        if self.nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
-            raise RuntimeError(
-                f"Upgrading {instanceId} to {self.nextChannel} requires installing Manage Foundation, which needs interactive "
-                "prompts the TUI does not support yet.  Re-run with the classic CLI:\n"
-                f"  mas upgrade --mas-instance-id {instanceId} --no-confirm"
-            )
+        # from 9.0.x to 9.1.x (if Manage was not already installed in 9.0.x).  The conditional
+        # manage-foundation step collects the inputs that path needs (entitlement key and
+        # storage classes — see manageFoundationPending / prepareManageFoundation).
+        self.isManageFoundation = False
+        if knownChannel and self.nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
+            self.isManageFoundation = True
+        else:
+            # Reset on re-validation (e.g. the user went back and selected a
+            # different instance) so the manage-foundation step is not shown
+            # and the pipeline param carries the correct value.
+            self.setParam("should_install_manage_foundation", "false")
 
         # Compute Monitor install order for upgrade
         if knownChannel:
@@ -284,6 +297,85 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
             bool: True when the license-acceptance step must be shown.
         """
         return not self.licenseAccepted and not self.devMode and self.nextChannel in self.licenses
+
+    def manageFoundationPending(self) -> bool:
+        """Return True when the manage-foundation step must be shown.
+
+        Drives the ``condition`` of the TUI manage-foundation step: the step
+        is only shown when ``prepareUpgrade`` detected that this upgrade
+        needs to install Manage Foundation (9.0.x to 9.1.x without Manage)
+        and its inputs have not been collected yet.  Once
+        ``prepareManageFoundation`` completes, ``should_install_manage_foundation``
+        is set and the step is skipped on re-navigation (e.g. going back to
+        instance-selection and returning).
+
+        Returns:
+            bool: True when the manage-foundation step must be shown.
+        """
+        return self.isManageFoundation and self.getParam("should_install_manage_foundation") != "true"
+
+    def prepareManageFoundation(self) -> None:
+        """Validate the Manage Foundation inputs and configure its installation.
+
+        Called as the ``validator`` on the TUI manage-foundation step, after
+        the entitlement key and (optionally) the storage classes have been
+        written to ``self.params``.  Performs the same configuration as the
+        classic wizard's Manage Foundation block: sets the install flags and
+        pipeline params, resolves the Db2 storage classes (validating any
+        provided values against the cluster, auto-detecting the rest), and
+        runs the silent-mode Db2 configuration.
+
+        The entitlement key is validated against the IBM Container Registry
+        on a warn-only basis (matching the classic ``--no-confirm``
+        behaviour) so that air-gapped environments are not blocked.
+
+        Raises:
+            RuntimeError: When a provided storage class does not exist on
+                the cluster, or no storage classes can be resolved.
+        """
+        instanceId = self.params.get("mas_instance_id", "")
+
+        # The TUI cannot run interactive prompts, so every configuration
+        # below uses its non-interactive variant (matching the classic
+        # --no-confirm behaviour).
+        self.noConfirm = True
+
+        # Validate the entitlement key against the registry.  Warn-only: an
+        # invalid key surfaces again at pipeline launch, and blocking here
+        # would make the TUI unusable where the registry is unreachable
+        # (air-gapped clusters).
+        entitlementKey = self.getParam("ibm_entitlement_key")
+        if entitlementKey and not self.validateEntitlementKey(entitlementKey):
+            logger.warning(
+                "IBM entitlement key validation against the IBM Container Registry failed - continuing, but the upgrade pipeline will fail if the key is invalid"
+            )
+
+        # Attributes configDb2 reads (the same ones the classic wizard sets)
+        self.manageAppName = "Manage foundation"
+        self.showAdvancedOptions = False
+        self.installIoT = False
+        self.installMonitor = False
+        self.installFacilities = False
+        self.installManage = True
+
+        self.setParam("mas_appws_components", "")
+        self.setParam("mas_app_settings_aio_flag", "false")
+        self.setParam("mas_app_channel_manage", self.nextChannel)
+        self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
+
+        # Storage classes for the Manage Foundation Db2 instances: validates
+        # the provided values against the cluster, auto-detecting when left
+        # blank (or failing with guidance to enter them on this step)
+        self.configStorageClasses()
+
+        # Silent-mode Db2 configuration: defaults for everything the classic
+        # wizard prompts for (dedicated Db2 Warehouse instance for Manage)
+        self.configDb2(silentMode=True)
+
+        # Mark the Manage Foundation installation configured only now that
+        # every input has validated — a failure above leaves the step
+        # pending so the user can correct the inputs and retry
+        self.setParam("should_install_manage_foundation", "true")
 
     def fetchInstalledInstanceIds(self) -> None:
         """Fetch and cache the MAS instance IDs from the connected cluster.
@@ -502,9 +594,10 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
                 suggestedStorageClass = defaultStorageClasses.rwx
                 suggestedAccessMode = "ReadWriteMany"
 
-            print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class : {suggestedStorageClass}</LightSlateGrey>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Access mode   : {suggestedAccessMode}</LightSlateGrey>"))
+            if not self.tuiMode:
+                print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class : {suggestedStorageClass}</LightSlateGrey>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Access mode   : {suggestedAccessMode}</LightSlateGrey>"))
 
         # Accept the suggestion, or fall through to manual prompt
         useDetected = False
@@ -519,6 +612,11 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         if not useDetected:
             # No provider detected or user declined - fail fast in non-interactive mode
             if self.noConfirm:
+                if self.tuiMode:
+                    self.fatalError(
+                        "No storage class could be detected for the pipeline config-pvc. "
+                        "The upgrade pipeline requires one to create the config-pvc; re-run with --storage-pipeline and --storage-accessmode."
+                    )
                 self.fatalError(
                     "No storage class could be detected for the pipeline config-pvc and --no-confirm is set. "
                     "Please re-run with --storage-pipeline and --storage-accessmode."
@@ -571,9 +669,10 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # 2. Try auto-detection
         defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
         if defaultStorageClasses.provider is not None:
-            print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
+            if not self.tuiMode:
+                print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
 
             useDetected = True
             if not self.noConfirm:
@@ -587,6 +686,13 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
 
         # 3. No provider detected or user declined — fail in non-interactive mode
         if self.noConfirm:
+            if self.tuiMode:
+                # The manage-foundation step's storage class fields are the
+                # TUI equivalent of the CLI flags named in the classic message
+                self.fatalError(
+                    "No storage classes could be detected for the Manage Foundation Db2 instances. "
+                    "Enter the ReadWriteOnce and ReadWriteMany storage classes to use on this step."
+                )
             self.fatalError(
                 "No storage classes could be detected for Manage Foundation Db2 instances and --no-confirm is set. "
                 "Please re-run with --storage-class-rwo and --storage-class-rwx."

@@ -43,9 +43,10 @@ def test_build_upgrade_workflow_step_ids():
     GIVEN an app instance mock
     WHEN buildUpgradeWorkflow(app) is called
     THEN the step IDs are 'connect-cluster', 'instance-selection',
-         'license-acceptance', 'review', 'launch' in that order.
+         'license-acceptance', 'manage-foundation', 'review', 'launch' in
+         that order.
     """
-    expected_ids = ["connect-cluster", "instance-selection", "license-acceptance", "review", "launch"]
+    expected_ids = ["connect-cluster", "instance-selection", "license-acceptance", "manage-foundation", "review", "launch"]
     definition = buildUpgradeWorkflow(_make_app())
     step_ids = [step.id for step in definition]
     assert step_ids == expected_ids, f"Expected step ids {expected_ids}, got {step_ids}"
@@ -203,6 +204,114 @@ def test_license_acceptance_step_condition_with_real_scenario_apps():
     unresolved_definition = buildUpgradeWorkflow(unresolved)
     unresolved_step = next(s for s in unresolved_definition if s.id == "license-acceptance")
     assert unresolved_step.condition({}) is False
+
+
+def test_manage_foundation_step_has_validator_and_fields():
+    """Test the manage-foundation step collects the Manage Foundation inputs.
+
+    GIVEN an app instance mock
+    WHEN buildUpgradeWorkflow(app) is called
+    THEN the 'manage-foundation' step has prepareManageFoundation as its
+         validator, a required password field for the entitlement key, and
+         optional storage class fields (blank = auto-detect).
+    """
+    app = _make_app()
+    definition = buildUpgradeWorkflow(app)
+    step = next(s for s in definition if s.id == "manage-foundation")
+    assert step.screen_class is None
+    assert step.validator is app.prepareManageFoundation
+    fields = {field.id: field for field in step.fields}
+    assert fields["ibm_entitlement_key"].type == "password"
+    assert fields["ibm_entitlement_key"].required is True
+    assert fields["ibm_entitlement_key"].sensitive is True
+    assert fields["storage_class_rwo"].required is False
+    assert fields["storage_class_rwx"].required is False
+
+
+def test_manage_foundation_step_condition_reads_app_state():
+    """Test the manage-foundation step condition calls manageFoundationPending.
+
+    GIVEN an app instance mock whose manageFoundationPending returns True,
+        then False
+    WHEN the step condition is evaluated with a params dict
+    THEN it returns True (the step is shown) and then False (skipped), and
+         the app method was called.
+    """
+    app = _make_app()
+    app.manageFoundationPending.return_value = True
+    definition = buildUpgradeWorkflow(app)
+    step = next(s for s in definition if s.id == "manage-foundation")
+    assert step.condition is not None
+    assert step.condition({}) is True
+    app.manageFoundationPending.assert_called()
+
+    app.manageFoundationPending.reset_mock()
+    app.manageFoundationPending.return_value = False
+    assert step.condition({}) is False
+
+
+def test_manage_foundation_step_condition_with_real_scenario_apps():
+    """Test the manage-foundation step condition against real app states.
+
+    GIVEN real UpgradeApp scenario apps: one where prepareUpgrade detected
+        a Manage Foundation upgrade (before and after its step completed),
+        and one where Manage Foundation is not involved
+    WHEN the manage-foundation step condition is evaluated
+    THEN it is True only before the step has completed — the step appears
+         after the license step, and once its inputs are collected it is
+         skipped even when navigating back and forward.
+    """
+    from scenarios.upgrade import upgrade_scenario
+
+    pending = upgrade_scenario("manage-foundation")
+    definition = buildUpgradeWorkflow(pending)
+    step = next(s for s in definition if s.id == "manage-foundation")
+    assert step.condition({}) is True
+
+    configured = upgrade_scenario("manage-foundation-configured")
+    configured_definition = buildUpgradeWorkflow(configured)
+    configured_step = next(s for s in configured_definition if s.id == "manage-foundation")
+    assert configured_step.condition({}) is False
+
+    plain = upgrade_scenario("upgrade-9-1-to-9-2")
+    plain_definition = buildUpgradeWorkflow(plain)
+    plain_step = next(s for s in plain_definition if s.id == "manage-foundation")
+    assert plain_step.condition({}) is False
+
+
+def test_review_builder_renders_manage_foundation_section():
+    """Test buildUpgradeReview renders the Manage Foundation inputs.
+
+    GIVEN a scenario app whose manage-foundation step completed
+    WHEN buildUpgradeReview(app) is called
+    THEN the Markdown includes a Manage Foundation section with the Db2
+        storage classes — and no entitlement key (it is a secret).
+    """
+    from scenarios.upgrade import upgrade_scenario
+
+    mas_app = upgrade_scenario("manage-foundation-configured")
+    review = buildUpgradeReview(mas_app)
+
+    assert "Manage Foundation" in review
+    assert "ocs-storagecluster-ceph-rbd" in review
+    assert "ocs-storagecluster-cephfs" in review
+    # The entitlement key is a secret and must never appear in the review
+    assert "entitlement" not in review.lower()
+
+
+def test_review_builder_omits_manage_foundation_section_when_not_needed():
+    """Test buildUpgradeReview omits the Manage Foundation section by default.
+
+    GIVEN a scenario app for a plain 9.1.x to 9.2.x upgrade
+    WHEN buildUpgradeReview(app) is called
+    THEN the Markdown has no Manage Foundation section.
+    """
+    from scenarios.upgrade import upgrade_scenario
+
+    mas_app = upgrade_scenario("upgrade-9-1-to-9-2")
+    review = buildUpgradeReview(mas_app)
+
+    assert "Manage Foundation" not in review
 
 
 def test_review_step_uses_review_screen_class():

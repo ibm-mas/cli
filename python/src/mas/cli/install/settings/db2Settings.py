@@ -261,10 +261,17 @@ class Db2SettingsMixin:
             or self.getParam("db2_action_manage") == "install"
             or self.getParam("db2_action_facilities") == "install"
         ):
-            self.printDescription(
-                ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
-            )
-            self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
+            if getattr(self, "tuiMode", False):
+                # Under the Textual TUI there is no license file prompt: the
+                # upgrade pipeline launch does not consume db2LicenseFileLocal
+                # (see prepareUpgradeSecrets and the pipelinerun-upgrade
+                # template), so collecting a file here would silently drop it.
+                pass
+            else:
+                self.printDescription(
+                    ["Db2 Universal Operator for v12 onwards requires to add a License activation key", "If you don't have a license press enter to continue."]
+                )
+                self.db2LicenseFileLocal = self.promptForFile("Db2 License file", envVar="DB2_LICENSE_FILE", default="", mustExist=False)
             if self.showAdvancedOptions:
                 self.printH2("Installation Namespace")
                 self.promptForString("Install namespace", "db2_namespace", default="db2u")

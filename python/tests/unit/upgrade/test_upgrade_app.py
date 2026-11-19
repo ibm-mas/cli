@@ -42,6 +42,9 @@ def _make_app(**attrs) -> UpgradeApp:
     app = UpgradeApp()
     app.tuiMode = True
     app._dynClient = MagicMock()
+    # Pin the SNO detection so setDB2DefaultSettings takes a deterministic
+    # branch instead of querying the mocked client
+    app._isSNO = False
     app.lookupTargetArchitecture = MagicMock()
     for key, value in attrs.items():
         setattr(app, key, value)
@@ -305,25 +308,186 @@ def test_prepare_upgrade_unknown_channel_proceeds_with_placeholders():
     assert app.nextChannel == "Unknown"
 
 
-def test_prepare_upgrade_manage_foundation_directs_to_cli():
-    """Test that a Manage Foundation upgrade directs the user to the classic CLI.
+def test_prepare_upgrade_detects_manage_foundation():
+    """Test that a Manage Foundation upgrade is detected, not blocked.
 
-    GIVEN a 9.0.x instance without Manage installed (9.0.x to 9.1.x needs
-        Manage Foundation)
+    GIVEN a 9.0.x instance without Manage installed (the 9.0.x to 9.1.x
+        upgrade that needs to install Manage Foundation)
     WHEN prepareUpgrade runs
-    THEN RuntimeError is raised directing the user to the classic CLI,
-         because the entitlement / storage / Db2 prompts have no TUI yet.
+    THEN it completes without raising, isManageFoundation is set and
+         manageFoundationPending() is True, so the conditional
+         manage-foundation step collects the inputs instead of the
+         validator dead-ending the workflow.
     """
     app = _make_app(licenseAccepted=True)
     app.params["mas_instance_id"] = "inst1"
 
     patchers = _run_patches(_patch_cluster(getMasChannel="9.0.x", verifyAppInstance=False))
     try:
-        with pytest.raises(RuntimeError, match="Manage Foundation"):
-            app.prepareUpgrade()
+        app.prepareUpgrade()
     finally:
         for p in patchers:
             p.stop()
+
+    assert app.isManageFoundation is True
+    assert app.manageFoundationPending() is True
+    assert app.nextChannel == "9.1.x"
+
+
+def test_prepare_upgrade_resets_manage_foundation_for_other_instances():
+    """Test that a non-Manage-Foundation upgrade resets the pending state.
+
+    GIVEN an app that previously detected a Manage Foundation upgrade
+        (should_install_manage_foundation set)
+    WHEN prepareUpgrade re-runs for an instance that does not need Manage
+        Foundation (e.g. the user went back and changed the selection)
+    THEN isManageFoundation is False, the step is no longer pending, and
+         should_install_manage_foundation is reset to "false" for the
+         pipeline.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.isManageFoundation = True
+    app.setParam("should_install_manage_foundation", "true")
+
+    patchers = _run_patches(_patch_cluster())
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.isManageFoundation is False
+    assert app.manageFoundationPending() is False
+    assert app.getParam("should_install_manage_foundation") == "false"
+
+
+def test_prepare_manage_foundation_configures_installation():
+    """Test prepareManageFoundation sets the Manage Foundation pipeline params.
+
+    GIVEN an app in the post-prepareUpgrade state for a Manage Foundation
+        upgrade, with the entitlement key and both storage classes entered
+        on the manage-foundation step, and the cluster functions mocked
+    WHEN prepareManageFoundation runs as the step validator
+    THEN the install flags and Manage Foundation params are set (matching
+         the classic wizard's block), the storage classes are validated
+         against the cluster, the silent-mode Db2 configuration runs, and
+         the step is no longer pending.
+    """
+    app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["ibm_entitlement_key"] = "ent-key"
+    app.params["storage_class_rwo"] = "rwo-sc"
+    app.params["storage_class_rwx"] = "rwx-sc"
+    app.validateEntitlementKey = MagicMock(return_value=True)
+
+    with (
+        patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1") as mock_workspace,
+        patch("mas.cli.upgrade.app.getStorageClass", return_value=object()) as mock_get_sc,
+        patch("mas.cli.upgrade.app.getDefaultStorageClasses") as mock_defaults,
+    ):
+        app.prepareManageFoundation()
+
+    mock_workspace.assert_called_once_with(app._dynClient, "inst1")
+    mock_get_sc.assert_any_call(app._dynClient, "rwo-sc")
+    mock_get_sc.assert_any_call(app._dynClient, "rwx-sc")
+    mock_defaults.assert_not_called()  # both classes provided — no auto-detection
+
+    assert app.installManage is True
+    assert app.installIoT is False
+    assert app.manageAppName == "Manage foundation"
+    assert app.getParam("should_install_manage_foundation") == "true"
+    assert app.getParam("mas_app_channel_manage") == "9.1.x"
+    assert app.getParam("mas_workspace_id") == "workspace1"
+    assert app.getParam("mas_appws_components") == ""
+    assert app.getParam("mas_app_settings_aio_flag") == "false"
+    # Silent-mode Db2 configuration: dedicated Db2 Warehouse for Manage
+    assert app.getParam("db2_action_manage") == "install"
+    assert app.getParam("mas_appws_bindings_jdbc_manage") == "workspace-application"
+    assert app.getParam("db2_type") == "db2wh"
+    assert app.manageFoundationPending() is False
+
+
+def test_prepare_manage_foundation_auto_detects_blank_storage_classes():
+    """Test blank storage class fields fall back to cluster auto-detection.
+
+    GIVEN an app in the post-prepareUpgrade state for a Manage Foundation
+        upgrade with no storage classes entered
+    WHEN prepareManageFoundation runs and the cluster has a detectable
+        storage provider
+    THEN the auto-detected classes are used and no error is raised.
+    """
+    app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["ibm_entitlement_key"] = "ent-key"
+    app.validateEntitlementKey = MagicMock(return_value=True)
+
+    defaults = MagicMock()
+    defaults.provider = "ocs"
+    defaults.rwo = "auto-rwo"
+    defaults.rwx = "auto-rwx"
+    with (
+        patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
+        patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=defaults) as mock_defaults,
+    ):
+        app.prepareManageFoundation()
+
+    mock_defaults.assert_called_once()
+    assert app.getParam("storage_class_rwo") == "auto-rwo"
+    assert app.getParam("storage_class_rwx") == "auto-rwx"
+
+
+def test_prepare_manage_foundation_invalid_storage_class_raises():
+    """Test a storage class that does not exist on the cluster blocks the step.
+
+    GIVEN an app with a storage class entered that is not on the cluster
+    WHEN prepareManageFoundation runs
+    THEN RuntimeError is raised naming the storage class, shown inline on
+         the manage-foundation step.
+    """
+    app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["ibm_entitlement_key"] = "ent-key"
+    app.params["storage_class_rwo"] = "missing-sc"
+    app.validateEntitlementKey = MagicMock(return_value=True)
+
+    with (
+        patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
+        patch("mas.cli.upgrade.app.getStorageClass", return_value=None),
+    ):
+        with pytest.raises(RuntimeError, match="missing-sc"):
+            app.prepareManageFoundation()
+
+    # The step is still pending — the failed validation did not configure
+    # the Manage Foundation installation
+    assert app.manageFoundationPending() is True
+
+
+def test_prepare_manage_foundation_invalid_entitlement_key_warns_only():
+    """Test an entitlement key that fails validation does not block the step.
+
+    GIVEN an app whose entitlement key fails validation against the IBM
+        Container Registry (e.g. an air-gapped cluster)
+    WHEN prepareManageFoundation runs
+    THEN the configuration completes anyway (warn-only, matching the
+         classic --no-confirm behaviour) — the key surfaces again at
+         pipeline launch if it is genuinely invalid.
+    """
+    app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["ibm_entitlement_key"] = "bad-key"
+    app.params["storage_class_rwo"] = "rwo-sc"
+    app.params["storage_class_rwx"] = "rwx-sc"
+    app.validateEntitlementKey = MagicMock(return_value=False)
+
+    with (
+        patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
+        patch("mas.cli.upgrade.app.getStorageClass", return_value=object()),
+        patch("mas.cli.upgrade.app.getDefaultStorageClasses"),
+    ):
+        app.prepareManageFoundation()
+
+    assert app.getParam("should_install_manage_foundation") == "true"
 
 
 def test_prepare_upgrade_detects_rbac_mode_for_9_2_target():

@@ -80,6 +80,20 @@ def buildUpgradeReview(appInstance: Any) -> str:
         _row("Next MAS Channel", getattr(appInstance, "nextChannel", None)),
         _row("Skip Pre-Upgrade Checks", getattr(appInstance, "skipPreCheck", None)),
         "",
+    ]
+
+    # Only present when the manage-foundation step configured an installation
+    if appInstance.params.get("should_install_manage_foundation") == "true":
+        lines += [
+            "## Manage Foundation",
+            "",
+            _row("Installation", "Will be installed during this upgrade"),
+            _row("Db2 Storage Class (RWO)", appInstance.params.get("storage_class_rwo")),
+            _row("Db2 Storage Class (RWX)", appInstance.params.get("storage_class_rwx")),
+            "",
+        ]
+
+    lines += [
         "## Pipeline Storage",
         "",
         _row("Storage Class", getattr(appInstance, "pipelineStorageClass", None)),
@@ -95,7 +109,7 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
     Constructs the ordered list of steps shown in the TUI when the user
     invokes ``mas-cli upgrade`` without arguments.
 
-    The five steps are:
+    The six steps are:
 
     1. **connect-cluster** — Collect OCP credentials and connect, then fetch
        the list of installed MAS instance IDs via ``post_connect``.  If no
@@ -109,10 +123,15 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
        channel resolved by ``prepareUpgrade`` carries a license that has not
        been accepted yet (``licenseAcceptancePending``): the TUI equivalent
        of the classic wizard's license prompt and of ``--accept-license``.
-    4. **review** — Review all settings before proceeding, including the
+    4. **manage-foundation** — Conditional step shown only when the upgrade
+       needs to install Manage Foundation (9.0.x to 9.1.x without Manage,
+       ``manageFoundationPending``): collects the IBM entitlement key and
+       the Db2 storage classes (blank = auto-detect), then runs the same
+       configuration as the classic wizard's Manage Foundation block.
+    5. **review** — Review all settings before proceeding, including the
        equivalent non-interactive ``mas upgrade`` command (with copy /
        save-as-script).  The Confirm button advances to the launch step.
-    5. **launch** — Submits the Tekton upgrade pipeline, then re-displays
+    6. **launch** — Submits the Tekton upgrade pipeline, then re-displays
        the non-interactive command for reference.  The Done button exits
        the app.
 
@@ -161,6 +180,30 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
         condition=lambda p: appInstance.licenseAcceptancePending(),
     )
 
+    # Only shown when prepareUpgrade detected that this upgrade needs to
+    # install Manage Foundation (9.0.x to 9.1.x without Manage).  The storage
+    # class fields are optional: leaving them blank uses the classes
+    # auto-detected from the cluster.  The condition closes over the app
+    # instance so it reads the validator's state; once the step completes,
+    # should_install_manage_foundation is set and it is skipped on
+    # re-navigation.
+    manageFoundationStep = WorkflowStep(
+        id="manage-foundation",
+        heading="Configure Manage Foundation",
+        heading_level="h1",
+        description=[
+            "Upgrading to MAS 9.1.x will install Manage Foundation: the User, Security groups, Application configurator and Mobile configurator capabilities.",
+            "Provide the IBM entitlement key used to pull the Manage images, and the storage classes for the Manage Foundation Db2 instances. Leave the storage classes blank to use the storage classes auto-detected from the cluster.",
+        ],
+        fields=[
+            WorkflowField(id="ibm_entitlement_key", label="IBM Entitlement Key", type="password", required=True, sensitive=True),
+            WorkflowField(id="storage_class_rwo", label="ReadWriteOnce (RWO) Storage Class", type="string", required=False),
+            WorkflowField(id="storage_class_rwx", label="ReadWriteMany (RWX) Storage Class", type="string", required=False),
+        ],
+        validator=appInstance.prepareManageFoundation,
+        condition=lambda p: appInstance.manageFoundationPending(),
+    )
+
     reviewStep = WorkflowStep(
         id="review",
         heading="Review Settings",
@@ -198,6 +241,7 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
         connectStep,
         instanceSelectionStep,
         licenseAcceptanceStep,
+        manageFoundationStep,
         reviewStep,
         launchStep,
     ]

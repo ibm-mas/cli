@@ -65,6 +65,40 @@ UPGRADE_SCENARIOS = {
             "nextChannel": "Unknown",
         },
     },
+    # 9.0.x to 9.1.x without Manage installed: the upgrade installs Manage
+    # Foundation — the state after prepareUpgrade detects it, before the
+    # manage-foundation step has collected its inputs.
+    "manage-foundation": {
+        "params": {"mas_instance_id": "inst1"},
+        "attrs": {
+            "masInstanceId": "inst1",
+            "currentChannel": "9.0.x",
+            "nextChannel": "9.1.x",
+            "effectiveCurrentChannel": "9.0.x",
+            "isManageFoundation": True,
+        },
+    },
+    # The same upgrade with the manage-foundation step completed: inputs
+    # collected and params configured (the state the review step renders).
+    "manage-foundation-configured": {
+        "params": {
+            "mas_instance_id": "inst1",
+            "should_install_manage_foundation": "true",
+            "mas_app_channel_manage": "9.1.x",
+            "storage_class_rwo": "ocs-storagecluster-ceph-rbd",
+            "storage_class_rwx": "ocs-storagecluster-cephfs",
+            "db2_action_manage": "install",
+        },
+        "attrs": {
+            "masInstanceId": "inst1",
+            "currentChannel": "9.0.x",
+            "nextChannel": "9.1.x",
+            "effectiveCurrentChannel": "9.0.x",
+            "isManageFoundation": True,
+            "pipelineStorageClass": "ocs-storagecluster-cephfs",
+            "pipelineStorageAccessMode": "ReadWriteMany",
+        },
+    },
     # Instance already on the latest channel — nothing to upgrade.
     "already-on-latest-channel": {
         "params": {"mas_instance_id": "inst1"},
