@@ -301,9 +301,11 @@ class TestDetectRHOAIv2:
         assert app.detectRHOAIv2() is False
         assert app.getParam("odh_to_rhoai_migration") == ""
 
+
 # ---------------------------------------------------------------------------
 # launchUpdate stage helpers
 # ---------------------------------------------------------------------------
+
 
 def test_validate_openshift_pipelines_success():
     """Test _validateOpenShiftPipelines returns success when operator installs.
