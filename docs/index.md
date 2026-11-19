@@ -77,3 +77,4 @@ Not all functions supported in the container image are available in the standalo
 | [provision-aws](guides/provision-aws.md)                            |    ✅    |   ❌  |
 | [provision-fyre](guides/provision-fyre.md)                          |    ✅    |   ❌  |
 | [provision-roks](guides/provision-roks.md)                          |    ✅    |   ❌  |
+| [provision-rosa](guides/provision-rosa.md)                          |    ✅    |   ❌  |
