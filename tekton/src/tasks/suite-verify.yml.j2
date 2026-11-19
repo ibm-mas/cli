@@ -13,6 +13,9 @@ spec:
     - name: mas_routing_mode
       type: string
       default: ""
+    - name: mas_manual_route_mgmt
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -23,6 +26,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: MAS_ROUTING_MODE
         value: $(params.mas_routing_mode)
+      - name: MAS_MANUAL_ROUTE_MGMT
+        value: $(params.mas_manual_route_mgmt)
 
   steps:
     # Run the suite verification role
