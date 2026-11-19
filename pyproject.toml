@@ -76,6 +76,9 @@ namespaces = true
 "mas.cli.must_gather.web_viewer" = [
   "templates/*.html",
 ]
+"mas.cli.tui" = [
+  "styles/*.tcss",
+]
 
 [tool.setuptools.dynamic]
 version = { attr = "mas.cli.__version__" }
