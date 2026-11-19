@@ -59,6 +59,7 @@ def test_launch_screen_calls_launch_update_on_app():
     screen._step = step
     screen._step_index = 4
     screen._step_labels = list([])
+    screen._launch_method = "launchUpdate"
 
     mock_app = MagicMock()
     # call_from_thread is a no-op — we only care that launchUpdate was called,
@@ -154,6 +155,41 @@ def test_launch_screen_run_launch_passes_start_callback():
     assert "progressCallback" in received_kwargs, "Expected progressCallback kwarg passed to launchUpdate"
     assert callable(received_kwargs["startCallback"]), "Expected startCallback to be callable"
     assert callable(received_kwargs["progressCallback"]), "Expected progressCallback to be callable"
+
+
+def test_launch_screen_dispatches_to_overridden_launch_method():
+    """Test that the launch_method constructor argument selects the app method called.
+
+    GIVEN a stub app with launchUpdate and launchUpgrade methods, and a
+        LaunchScreen constructed with launch_method="launchUpgrade" (as the
+        upgrade workflow wires)
+    WHEN _run_launch() is invoked
+    THEN launchUpgrade is called (not launchUpdate) with the progress
+         callbacks, so each command submits its own pipeline.
+    """
+    from mas.cli.tui.screens.launch import LaunchScreen
+    from unittest.mock import patch
+
+    received_kwargs = {}
+
+    def fake_launch_upgrade(**kwargs):
+        received_kwargs.update(kwargs)
+
+    mas_app = MagicMock()
+    mas_app.launchUpgrade = fake_launch_upgrade
+
+    step = WorkflowStep(id="launch", heading="Launch Upgrade")
+    screen = LaunchScreen(mas_app, step, 3, launch_method="launchUpgrade")
+
+    mock_app = MagicMock()
+    mock_app.call_from_thread = MagicMock()
+
+    with patch.object(type(screen), "app", new_callable=lambda: property(lambda self: mock_app)):
+        screen._run_launch()
+
+    mas_app.launchUpdate.assert_not_called()
+    assert "progressCallback" in received_kwargs, "Expected progressCallback kwarg passed to launchUpgrade"
+    assert "startCallback" in received_kwargs, "Expected startCallback kwarg passed to launchUpgrade"
 
 
 def test_mark_done_pipeline_run_does_not_put_url_in_list_item():
