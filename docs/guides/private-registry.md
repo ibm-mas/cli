@@ -201,7 +201,7 @@ docker login registry.example.com:5000 -u admin -p password
 ### Next Steps
 With your private registry deployed, you can proceed to:
 
-- [Mirror images](image-mirroring.md) to the registry
+- [Mirror images](mirroring-v2.md) to the registry
 - [Configure airgap](configure-airgap.md) environment
 - [Install MAS](install.md) using the private registry
 

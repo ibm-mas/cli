@@ -15,7 +15,6 @@ nav:
       - "Airgap Configuration": guides/configure-airgap.md
   - "Image Mirroring":
       - "Private Registry": guides/private-registry.md
-      - "Image Mirroring (IBM)": guides/image-mirroring.md
       - "Image Mirroring (Red Hat)": commands/mirror-redhat-images.md
       - "Image Mirroring (v2)": guides/mirroring-v2.md
   - "Install and Configure":
@@ -96,7 +95,8 @@ plugins:
         "guides/backup-and-restore.md": "guides/backup.md"
         "guides/mas-pods-explained.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-pod-details"
         "guides/choosing-the-right-catalog.md": "catalogs/index.md"
-        "commands/mirror-images.md": "guides/image-mirroring.md"
+        "commands/mirror-images.md": "guides/mirroring-v2.md"
+        "guides/image-mirroring.md": "guides/mirroring-v2.md"
         "commands/install.md": "guides/install.md"
         "commands/update.md": "guides/update.md"
         "commands/upgrade.md": "guides/upgrade.md"
