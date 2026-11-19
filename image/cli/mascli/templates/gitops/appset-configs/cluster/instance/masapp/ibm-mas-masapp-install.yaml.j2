@@ -32,7 +32,7 @@ ibm_suite_app_{{ MAS_APP_ID }}_install:
   tls_key: <path:{{ SECRETS_PATH }}:{{ SECRET_NAME_MANUAL_CERTS_PREFIX }}/{{ MAS_APP_ID }}#tls_key>
   {% endif %}
 
-  {% if GPU_REQUEST_QUOTA is defined and GPU_REQUEST_QUOTA != '' %}
+  {% if MAS_APP_ID == 'visualinspection' and GPU_REQUEST_QUOTA is defined and GPU_REQUEST_QUOTA != '' %}
   gpu_request_quota: {{ GPU_REQUEST_QUOTA }}
   {% endif %}
 
