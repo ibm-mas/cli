@@ -158,11 +158,26 @@ def test_base_app_reports_missing_manifests_as_fatal_error(isolatedEnvironment):
     THEN the app exits with status 1.
     """
     app = BaseApp.__new__(BaseApp)
+    app.tuiMode = False
 
     with pytest.raises(SystemExit) as exitInfo:
         app.getPreinstallRBACRootDir()
 
     assert exitInfo.value.code == 1
+
+
+def test_base_app_raises_instead_of_exiting_in_tui_mode(isolatedEnvironment):
+    """Test that a missing manifest tree is reported to the Textual TUI rather than killing the process.
+
+    GIVEN no manifests anywhere and an app running under the Textual TUI
+    WHEN BaseApp.getPreinstallRBACRootDir() is called
+    THEN a RuntimeError is raised so the step screen can show it inline.
+    """
+    app = BaseApp.__new__(BaseApp)
+    app.tuiMode = True
+
+    with pytest.raises(RuntimeError, match="Could not find the pre-install RBAC manifests"):
+        app.getPreinstallRBACRootDir()
 
 
 def test_base_app_returns_resolved_root(isolatedEnvironment):
@@ -174,6 +189,7 @@ def test_base_app_returns_resolved_root(isolatedEnvironment):
     """
     packaged = makeRBACRoot(isolatedEnvironment / "packaged")
     app = BaseApp.__new__(BaseApp)
+    app.tuiMode = False
 
     assert app.getPreinstallRBACRootDir() == str(packaged)
 
