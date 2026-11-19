@@ -1,0 +1,226 @@
+#!/bin/bash
+
+function provision_rosa_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas provision-rosa [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+ROSA Credentials (Required):
+  -t, --rosa-token ${COLOR_YELLOW}ROSA_TOKEN${TEXT_RESET}                          Red Hat OpenShift Cluster Manager API token
+  -p, --admin-password ${COLOR_YELLOW}ROSA_CLUSTER_ADMIN_PASSWORD${TEXT_RESET}     Password for the cluster-admin user
+
+AWS Credentials (Required):
+  -a, --accesskeyid ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}                  AWS ACCESS KEY ID
+  -k, --secretkey ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY${TEXT_RESET}                AWS SECRET ACCESS KEY
+  -r, --region ${COLOR_YELLOW}AWS_DEFAULT_REGION${TEXT_RESET}                      AWS region used for the cluster (e.g. us-east-1)
+
+Cluster Configuration (Required):
+  -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}                      Name of the cluster to be provisioned
+  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}                        OCP version to use (e.g. 4.22.8)
+
+Worker Node Configuration (Required):
+      --worker-count ${COLOR_YELLOW}ROSA_COMPUTE_NODES${TEXT_RESET}                Number of worker nodes to provision
+      --worker-flavor ${COLOR_YELLOW}ROSA_COMPUTE_MACHINE_TYPE${TEXT_RESET}        AWS machine type of the worker nodes (e.g. m5.4xlarge)
+
+Turbonomic Integration (Optional):
+      --turbonomic-name ${COLOR_YELLOW}TURBONOMIC_TARGET_NAME${TEXT_RESET}         Target name in Turbonomic
+      --turbonomic-url ${COLOR_YELLOW}TURBONOMIC_SERVER_URL${TEXT_RESET}           Turbonomic server URL
+      --turbonomic-version ${COLOR_YELLOW}TURBONOMIC_SERVER_VERSION${TEXT_RESET}   Turbonomic server version
+      --turbonomic-username ${COLOR_YELLOW}TURBONOMIC_USERNAME${TEXT_RESET}        Turbonomic username
+      --turbonomic-password ${COLOR_YELLOW}TURBONOMIC_PASSWORD${TEXT_RESET}        Turbonomic password
+
+Other Commands:
+      --no-confirm                              Provision the cluster without prompting for confirmation
+  -h, --help                                    Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function provision_rosa_noninteractive() {
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -t|--rosa-token)
+        ROSA_TOKEN=$1 && shift
+        ;;
+      -p|--admin-password)
+        ROSA_CLUSTER_ADMIN_PASSWORD=$1 && shift
+        ;;
+      -a|--accesskeyid)
+        AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      -k|--secretkey)
+        AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      -r|--region)
+        AWS_DEFAULT_REGION=$1 && shift
+        ;;
+      -c|--cluster-name)
+        CLUSTER_NAME=$1 && shift
+        ;;
+      -v|--ocp-version)
+        OCP_VERSION=$1 && shift
+        ;;
+      --worker-count)
+        ROSA_COMPUTE_NODES=$1 && shift
+        ;;
+      --worker-flavor)
+        ROSA_COMPUTE_MACHINE_TYPE=$1 && shift
+        ;;
+
+      # Turbonomic
+      --turbonomic-name)
+        TURBONOMIC_TARGET_NAME=$1 && shift
+        ;;
+      --turbonomic-url)
+        TURBONOMIC_SERVER_URL=$1 && shift
+        ;;
+      --turbonomic-version)
+        TURBONOMIC_SERVER_VERSION=$1 && shift
+        ;;
+      --turbonomic-username)
+        TURBONOMIC_USERNAME=$1 && shift
+        ;;
+      --turbonomic-password)
+        TURBONOMIC_PASSWORD=$1 && shift
+        ;;
+
+      # Other options
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        provision_rosa_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
+        provision_rosa_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Check all args have been set
+  [[ -z "$ROSA_TOKEN" ]] && provision_rosa_help "ROSA_TOKEN is not set"
+  [[ -z "$ROSA_CLUSTER_ADMIN_PASSWORD" ]] && provision_rosa_help "ROSA_CLUSTER_ADMIN_PASSWORD is not set"
+  [[ -z "$AWS_ACCESS_KEY_ID" ]] && provision_rosa_help "AWS_ACCESS_KEY_ID is not set"
+  [[ -z "$AWS_SECRET_ACCESS_KEY" ]] && provision_rosa_help "AWS_SECRET_ACCESS_KEY is not set"
+  [[ -z "$CLUSTER_NAME" ]] && provision_rosa_help "CLUSTER_NAME is not set"
+  [[ -z "$OCP_VERSION" ]] && provision_rosa_help "OCP_VERSION is not set"
+  [[ -z "$ROSA_COMPUTE_NODES" ]] && provision_rosa_help "ROSA_COMPUTE_NODES is not set"
+}
+
+function provision_rosa_interactive() {
+
+  echo_h2 "ROSA Credentials"
+  echo "Provide your Red Hat OpenShift Cluster Manager API token, available from"
+  echo "https://console.redhat.com/openshift/token/rosa/show"
+  echo ""
+  prompt_for_secret "ROSA Token" ROSA_TOKEN "Re-use saved ROSA Token?" && export ROSA_TOKEN
+  prompt_for_secret "Cluster Admin Password" ROSA_CLUSTER_ADMIN_PASSWORD "Re-use saved Cluster Admin Password?" && export ROSA_CLUSTER_ADMIN_PASSWORD
+
+  echo ""
+  echo_h2 "AWS Credentials"
+  prompt_for_secret "AWS Access Key ID" AWS_ACCESS_KEY_ID "Re-use saved AWS Access Key ID?" && export AWS_ACCESS_KEY_ID
+  prompt_for_secret "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY "Re-use saved AWS Secret Access Key?" && export AWS_SECRET_ACCESS_KEY
+  prompt_for_input "AWS Region" AWS_DEFAULT_REGION "us-east-1" && export AWS_DEFAULT_REGION
+
+  echo ""
+  echo_h2 "ROSA Cluster Configuration"
+  if [[ ! -z "$1" ]]; then
+    CLUSTER_NAME=$1
+  fi
+  prompt_for_input "Cluster Name" CLUSTER_NAME && export CLUSTER_NAME
+  prompt_for_input "OCP Version (e.g. 4.22.8)" OCP_VERSION "4.22.8" && export OCP_VERSION
+  prompt_for_input "Worker Node Type" ROSA_COMPUTE_MACHINE_TYPE "m5.4xlarge" && export ROSA_COMPUTE_MACHINE_TYPE
+  prompt_for_input "Number of Worker Nodes" ROSA_COMPUTE_NODES "3" && export ROSA_COMPUTE_NODES
+
+  echo
+  echo_h2 "Turbonomic Integration:"
+  echo "Leave name empty if you do not want to enable Turbonomic integration in this cluster"
+  prompt_for_input "Turbonomic Name" TURBONOMIC_TARGET_NAME
+  if [[ "$TURBONOMIC_TARGET_NAME" != "" ]]; then
+    prompt_for_input "Server URL" TURBONOMIC_SERVER_URL
+    prompt_for_input "Server Version" TURBONOMIC_SERVER_VERSION
+    prompt_for_input "Username" TURBONOMIC_USERNAME
+    prompt_for_secret "Password" TURBONOMIC_PASSWORD
+  fi
+}
+
+
+function provision_rosa() {
+  # Take the first parameter off (it will be provision-rosa)
+  shift
+  if [[ $# -gt 0 ]]; then
+    provision_rosa_noninteractive "$@"
+  else
+    provision_rosa_interactive
+  fi
+
+  # Ensure all environment variables are available to ansible-playbook
+  export ROSA_TOKEN
+  export ROSA_CLUSTER_ADMIN_PASSWORD
+  export ROSA_COMPUTE_NODES
+  export ROSA_COMPUTE_MACHINE_TYPE
+  export AWS_ACCESS_KEY_ID
+  export AWS_SECRET_ACCESS_KEY
+  export AWS_DEFAULT_REGION
+  export CLUSTER_TYPE=rosa
+  export CLUSTER_NAME
+  export OCP_VERSION
+
+  export TURBONOMIC_TARGET_NAME
+  export TURBONOMIC_SERVER_URL
+  export TURBONOMIC_SERVER_VERSION
+  export TURBONOMIC_USERNAME
+  export TURBONOMIC_PASSWORD
+
+  echo ""
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Cluster Configuration" "    "
+  echo_reset_dim "Cluster Name .............. $CLUSTER_NAME"
+  echo_reset_dim "OCP Version ............... $OCP_VERSION"
+  echo_reset_dim "AWS Region ................ ${AWS_DEFAULT_REGION:-<default>}"
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Worker Configuration" "    "
+  echo_reset_dim "Worker Flavour ............ ${ROSA_COMPUTE_MACHINE_TYPE:-m5.4xlarge}"
+  echo_reset_dim "Worker Pool Size .......... $ROSA_COMPUTE_NODES"
+
+  if [[ "${TURBONOMIC_TARGET_NAME}" != "" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "Turbonomic Integration" "    "
+    echo_reset_dim "Target Name ................. ${COLOR_MAGENTA}${TURBONOMIC_TARGET_NAME}"
+    echo_reset_dim "Server URL .................. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_URL}"
+    echo_reset_dim "Server Version .............. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_VERSION}"
+  fi
+
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
+
+  ansible-playbook ibm.mas_devops.ocp_rosa_provision
+  result=$?
+
+  if [[ "$result" == "0" ]]; then
+    echo ""
+    echo "AWS ROSA cluster is ready to use"
+    OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+  fi
+
+  exit $result
+}

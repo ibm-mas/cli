@@ -40,6 +40,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/provision_roks
 . $CLI_DIR/functions/provision_roks_vpc
 . $CLI_DIR/functions/provision_aws
+. $CLI_DIR/functions/provision_rosa
 # Airgap support
 . $CLI_DIR/functions/setup_registry
 . $CLI_DIR/functions/teardown_registry
@@ -145,6 +146,18 @@ case $1 in
     echo
     reset_colors
     provision_roks_vpc "$@"
+    ;;
+
+  rosa|provision-rosa)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! provision-rosa                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite ROSA Cluster Provisioner (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    reset_colors
+    provision_rosa "$@"
     ;;
 
   aws|provision-aws)
