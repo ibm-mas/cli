@@ -1115,9 +1115,19 @@ class MirrorApp(BaseApp):
                 "mas_optimizer_version",
                 "mas_visualinspection_version",
             ]
+
+            # If any package in this argName group uses a per-release key, verify the feature exists for this release
+            argPerReleaseKeys = [key for _, aName, _, key, _ in PACKAGE_CONFIGS if aName == argName and key in perReleaseVersions]
+            if argPerReleaseKeys:
+                hasReleaseContent = any(key in catalog and release in catalog[key] and catalog[key][release] for key in argPerReleaseKeys)
+                if not hasReleaseContent or (release == "8.10.x" and packageName == "ibm-mas-manage-icd"):
+                    logger.info(f"No content available for {packageName} in MAS release {release}")
+                    displayName = f"{packageName} ({arch})"
+                    print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} No content to mirror for MAS release {release}")
+                    continue
+
             if catalogKey in perReleaseVersions:
-                # Check if the catalogKey exists in the catalog first
-                if catalogKey not in catalog or release not in catalog[catalogKey] or (release == "8.10.x" and packageName == "ibm-mas-manage-icd"):
+                if catalogKey not in catalog or release not in catalog[catalogKey]:
                     logger.info(f"No content available for {packageName} in MAS release {release}")
                     displayName = f"{packageName} ({arch})"
                     print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} No content to mirror for MAS release {release}")
@@ -1125,6 +1135,11 @@ class MirrorApp(BaseApp):
 
                 version = catalog[catalogKey][release]
             else:
+                if catalogKey not in catalog:
+                    logger.info(f"No content available for {packageName} in MAS release {release}")
+                    displayName = f"{packageName} ({arch})"
+                    print(f"{displayName.ljust(50)} ⏭️ {EMPTY_PROGRESS_BAR} No content to mirror for MAS release {release}")
+                    continue
                 version = catalog[catalogKey]
 
             # Check if version is empty or None (content exists in catalog but is empty)

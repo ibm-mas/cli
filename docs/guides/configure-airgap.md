@@ -86,7 +86,7 @@ Before configuring airgap, ensure all required images are mirrored to your priva
 - **Dependency Images** - MongoDB, Db2, Certificate Manager, etc.
 - **Red Hat Images** - OpenShift operators and components
 
-Refer to the [Image Mirroring Guide](image-mirroring.md) for detailed mirroring instructions.
+Refer to the [Image Mirroring Guide](mirroring-v2.md) for detailed mirroring instructions.
 
 
 Configuration Process
