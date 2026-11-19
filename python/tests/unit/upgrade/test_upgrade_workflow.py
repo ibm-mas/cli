@@ -207,24 +207,24 @@ def test_license_acceptance_step_condition_with_real_scenario_apps():
 
 
 def test_manage_foundation_step_has_validator_and_fields():
-    """Test the manage-foundation step collects the Manage Foundation inputs.
+    """Test the manage-foundation step collects only the storage classes.
 
     GIVEN an app instance mock
     WHEN buildUpgradeWorkflow(app) is called
     THEN the 'manage-foundation' step has prepareManageFoundation as its
-         validator, an optional password field for the entitlement key
-         (blank = read the key back from the cluster's ibm-entitlement
-         secret), and optional storage class fields (blank = auto-detect).
+         validator and optional storage class fields (blank = auto-detect),
+         and no entitlement key field — the key is read from the cluster's
+         ibm-entitlement secret by the validator, never collected as an
+         input.
     """
     app = _make_app()
     definition = buildUpgradeWorkflow(app)
     step = next(s for s in definition if s.id == "manage-foundation")
     assert step.screen_class is None
     assert step.validator is app.prepareManageFoundation
+    fieldIds = [field.id for field in step.fields]
+    assert "ibm_entitlement_key" not in fieldIds
     fields = {field.id: field for field in step.fields}
-    assert fields["ibm_entitlement_key"].type == "password"
-    assert fields["ibm_entitlement_key"].required is False
-    assert fields["ibm_entitlement_key"].sensitive is True
     assert fields["storage_class_rwo"].required is False
     assert fields["storage_class_rwx"].required is False
 

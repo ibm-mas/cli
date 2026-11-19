@@ -366,33 +366,36 @@ def test_prepare_manage_foundation_configures_installation():
     """Test prepareManageFoundation sets the Manage Foundation pipeline params.
 
     GIVEN an app in the post-prepareUpgrade state for a Manage Foundation
-        upgrade, with the entitlement key and both storage classes entered
-        on the manage-foundation step, and the cluster functions mocked
+        upgrade, with both storage classes entered on the manage-foundation
+        step, the entitlement key readable from the cluster, and the cluster
+        functions mocked
     WHEN prepareManageFoundation runs as the step validator
     THEN the install flags and Manage Foundation params are set (matching
-         the classic wizard's block), the storage classes are validated
-         against the cluster, the silent-mode Db2 configuration runs, and
-         the step is no longer pending.
+         the classic wizard's block), the entitlement key from the cluster
+         is stored for the launch secrets step, the storage classes are
+         validated against the cluster, the silent-mode Db2 configuration
+         runs, and the step is no longer pending.
     """
     app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
     app.params["mas_instance_id"] = "inst1"
-    app.params["ibm_entitlement_key"] = "ent-key"
     app.params["storage_class_rwo"] = "rwo-sc"
     app.params["storage_class_rwx"] = "rwx-sc"
-    app.validateEntitlementKey = MagicMock(return_value=True)
 
     with (
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1") as mock_workspace,
         patch("mas.cli.upgrade.app.getStorageClass", return_value=object()) as mock_get_sc,
         patch("mas.cli.upgrade.app.getDefaultStorageClasses") as mock_defaults,
+        patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key") as mock_lookup,
     ):
         app.prepareManageFoundation()
 
+    mock_lookup.assert_called_once_with("inst1")
     mock_workspace.assert_called_once_with(app._dynClient, "inst1")
     mock_get_sc.assert_any_call(app._dynClient, "rwo-sc")
     mock_get_sc.assert_any_call(app._dynClient, "rwx-sc")
     mock_defaults.assert_not_called()  # both classes provided — no auto-detection
 
+    assert app.getParam("ibm_entitlement_key") == "cluster-key"
     assert app.installManage is True
     assert app.installIoT is False
     assert app.manageAppName == "Manage foundation"
@@ -419,8 +422,6 @@ def test_prepare_manage_foundation_auto_detects_blank_storage_classes():
     """
     app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
     app.params["mas_instance_id"] = "inst1"
-    app.params["ibm_entitlement_key"] = "ent-key"
-    app.validateEntitlementKey = MagicMock(return_value=True)
 
     defaults = MagicMock()
     defaults.provider = "ocs"
@@ -429,6 +430,7 @@ def test_prepare_manage_foundation_auto_detects_blank_storage_classes():
     with (
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
         patch("mas.cli.upgrade.app.getDefaultStorageClasses", return_value=defaults) as mock_defaults,
+        patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key"),
     ):
         app.prepareManageFoundation()
 
@@ -447,13 +449,12 @@ def test_prepare_manage_foundation_invalid_storage_class_raises():
     """
     app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
     app.params["mas_instance_id"] = "inst1"
-    app.params["ibm_entitlement_key"] = "ent-key"
     app.params["storage_class_rwo"] = "missing-sc"
-    app.validateEntitlementKey = MagicMock(return_value=True)
 
     with (
         patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
         patch("mas.cli.upgrade.app.getStorageClass", return_value=None),
+        patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key"),
     ):
         with pytest.raises(RuntimeError, match="missing-sc"):
             app.prepareManageFoundation()
@@ -461,33 +462,6 @@ def test_prepare_manage_foundation_invalid_storage_class_raises():
     # The step is still pending — the failed validation did not configure
     # the Manage Foundation installation
     assert app.manageFoundationPending() is True
-
-
-def test_prepare_manage_foundation_invalid_entitlement_key_warns_only():
-    """Test an entitlement key that fails validation does not block the step.
-
-    GIVEN an app whose entitlement key fails validation against the IBM
-        Container Registry (e.g. an air-gapped cluster)
-    WHEN prepareManageFoundation runs
-    THEN the configuration completes anyway (warn-only, matching the
-         classic --no-confirm behaviour) — the key surfaces again at
-         pipeline launch if it is genuinely invalid.
-    """
-    app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
-    app.params["mas_instance_id"] = "inst1"
-    app.params["ibm_entitlement_key"] = "bad-key"
-    app.params["storage_class_rwo"] = "rwo-sc"
-    app.params["storage_class_rwx"] = "rwx-sc"
-    app.validateEntitlementKey = MagicMock(return_value=False)
-
-    with (
-        patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
-        patch("mas.cli.upgrade.app.getStorageClass", return_value=object()),
-        patch("mas.cli.upgrade.app.getDefaultStorageClasses"),
-    ):
-        app.prepareManageFoundation()
-
-    assert app.getParam("should_install_manage_foundation") == "true"
 
 
 # ---------------------------------------------------------------------------
@@ -553,8 +527,7 @@ def test_lookup_entitlement_key_returns_none_when_secret_missing():
     GIVEN a cluster with no ibm-entitlement secret in the instance's core
         namespace
     WHEN lookupEntitlementKey is called
-    THEN None is returned (no raise) — the caller decides whether to ask
-         for the key instead.
+    THEN None is returned (no raise) — the caller registers the fatal error.
     """
     from kubernetes.dynamic.exceptions import ResourceNotFoundError
 
@@ -578,42 +551,14 @@ def test_lookup_entitlement_key_returns_none_without_cp_credentials():
     assert app.lookupEntitlementKey("inst1") is None
 
 
-def test_prepare_manage_foundation_reads_entitlement_from_cluster():
-    """Test that a blank entitlement field falls back to the cluster secret.
-
-    GIVEN an app in the post-prepareUpgrade state for a Manage Foundation
-        upgrade with no entitlement key entered, whose cluster has an
-        ibm-entitlement secret
-    WHEN prepareManageFoundation runs
-    THEN the key from the cluster secret is stored in the params (ready for
-         the launch secrets step) and the configuration completes.
-    """
-    app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
-    app.params["mas_instance_id"] = "inst1"
-    app.params["storage_class_rwo"] = "rwo-sc"
-    app.params["storage_class_rwx"] = "rwx-sc"
-    app.validateEntitlementKey = MagicMock(return_value=True)
-
-    with (
-        patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
-        patch("mas.cli.upgrade.app.getStorageClass", return_value=object()),
-        patch("mas.cli.upgrade.app.getDefaultStorageClasses"),
-        patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key"),
-    ):
-        app.prepareManageFoundation()
-
-    assert app.getParam("ibm_entitlement_key") == "cluster-key"
-    assert app.getParam("should_install_manage_foundation") == "true"
-
-
 def test_prepare_manage_foundation_entitlement_not_resolvable_raises():
-    """Test that a missing entitlement key everywhere blocks with guidance.
+    """Test that a missing entitlement key on the cluster is a fatal error.
 
-    GIVEN an app with no entitlement key entered and no ibm-entitlement
-        secret on the cluster
+    GIVEN an app for a Manage Foundation upgrade whose cluster has no
+        ibm-entitlement secret with cp.icr.io credentials
     WHEN prepareManageFoundation runs
-    THEN RuntimeError is raised telling the user to enter the key on the
-         step, shown inline so the input can be corrected.
+    THEN the fatal error is registered (RuntimeError under the TUI, shown
+         inline) with remediation guidance, and the step stays pending.
     """
     app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
     app.params["mas_instance_id"] = "inst1"

@@ -11,10 +11,11 @@
 
 Mounts the real manage-foundation WorkflowStep (from buildUpgradeWorkflow)
 in a StepScreen against a scenario app whose upgrade needs to install
-Manage Foundation, verifying that the entitlement key and storage class
-fields render, that the optional fields do not block advancement, and that
-a failing prepareManageFoundation validator surfaces its error in the
-reserved status row without advancing the step.
+Manage Foundation, verifying that the storage class fields render (with no
+entitlement key input — the key is read from the cluster by the validator),
+that the optional fields do not block advancement, and that a failing
+prepareManageFoundation validator surfaces its error in the reserved status
+row without advancing the step.
 """
 
 import pytest
@@ -48,28 +49,29 @@ def _make_screen(scenario="manage-foundation", prepareManageFoundation=None):
     return StepScreen(mas_app, step, 3), mas_app
 
 
-def test_manage_foundation_renders_entitlement_and_storage_fields():
-    """Test that the step collects the entitlement key and storage classes.
+def test_manage_foundation_renders_storage_fields_only():
+    """Test that the step collects only the storage classes.
 
     GIVEN a scenario app whose upgrade needs Manage Foundation
     WHEN the manage-foundation step screen is shown
-    THEN a password input for the entitlement key and plain inputs for the
-        (optional) RWO / RWX storage classes are rendered.
+    THEN plain inputs for the (optional) RWO / RWX storage classes are
+        rendered, and there is no entitlement key input — the key is read
+        from the cluster's ibm-entitlement secret by the validator.
     """
     screen, _ = _make_screen()
 
     result = {}
 
     async def drive(pilot, app):
-        result["entitlement"] = app.query_one("#field-ibm_entitlement_key", Input)
         result["rwo"] = app.query_one("#field-storage_class_rwo", Input)
         result["rwx"] = app.query_one("#field-storage_class_rwx", Input)
+        result["entitlement_fields"] = len(app.query("#field-ibm_entitlement_key"))
 
     run_screen_pilot(screen, drive)
 
-    assert result["entitlement"].password is True
     assert result["rwo"] is not None
     assert result["rwx"] is not None
+    assert result["entitlement_fields"] == 0
 
 
 def test_blank_fields_do_not_block_required_validation():
@@ -91,15 +93,16 @@ def test_blank_fields_do_not_block_required_validation():
     run_screen_pilot(screen, drive)
 
     # Blank inputs are written as empty strings; the validator resolves them
-    assert mas_app.params.get("ibm_entitlement_key") == ""
+    assert mas_app.params.get("storage_class_rwo") == ""
 
 
 def test_validator_failure_shown_in_status_row():
     """Test that a failing prepareManageFoundation blocks and shows inline.
 
-    GIVEN a scenario app whose prepareManageFoundation raises (e.g. a
-        storage class that is not on the cluster)
-    WHEN the entitlement key is entered and Next is clicked
+    GIVEN a scenario app whose prepareManageFoundation raises (e.g. the
+        entitlement key cannot be read from the cluster, or a storage class
+        is not on the cluster)
+    WHEN the storage classes are entered and Next is clicked
     THEN the error appears in the reserved status row and no StepCompleted
         is posted, so the user can correct the inputs and retry.
     """
@@ -112,7 +115,7 @@ def test_validator_failure_shown_in_status_row():
     result = {}
 
     async def drive(pilot, app):
-        app.query_one("#field-ibm_entitlement_key", Input).value = "ent-key"
+        app.query_one("#field-storage_class_rwo", Input).value = "missing-sc"
         await pilot.pause()
         await click_button(pilot, "#btn-next-manage-foundation")
         await wait_for(lambda: "missing-sc" in str(app.query_one("#validator-error-manage-foundation", Label).render()))
@@ -123,7 +126,7 @@ def test_validator_failure_shown_in_status_row():
 
     # The field values are still written to params even when validation
     # fails, so the user's entries survive going back and returning.
-    assert mas_app.params["ibm_entitlement_key"] == "ent-key"
+    assert mas_app.params["storage_class_rwo"] == "missing-sc"
     assert result["posted"] == []
     assert result["next_disabled"] is False
 
@@ -132,7 +135,7 @@ def test_successful_validation_advances_and_writes_params():
     """Test that a successful validator run writes the inputs and advances.
 
     GIVEN a scenario app whose prepareManageFoundation succeeds
-    WHEN the entitlement key and storage classes are entered and Next clicked
+    WHEN the storage classes are entered and Next clicked
     THEN the field values are written to the app params (ready for the
         validator's configuration and the pipeline launch) and the step
         completes.
@@ -140,7 +143,6 @@ def test_successful_validation_advances_and_writes_params():
     screen, mas_app = _make_screen(prepareManageFoundation=lambda: None)
 
     async def drive(pilot, app):
-        app.query_one("#field-ibm_entitlement_key", Input).value = "ent-key"
         app.query_one("#field-storage_class_rwo", Input).value = "rwo-sc"
         app.query_one("#field-storage_class_rwx", Input).value = "rwx-sc"
         await pilot.pause()
@@ -149,6 +151,5 @@ def test_successful_validation_advances_and_writes_params():
 
     run_screen_pilot(screen, drive)
 
-    assert mas_app.params["ibm_entitlement_key"] == "ent-key"
     assert mas_app.params["storage_class_rwo"] == "rwo-sc"
     assert mas_app.params["storage_class_rwx"] == "rwx-sc"

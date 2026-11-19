@@ -354,27 +354,23 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         return None
 
     def prepareManageFoundation(self) -> None:
-        """Validate the Manage Foundation inputs and configure its installation.
+        """Configure the Manage Foundation installation for the TUI path.
 
         Called as the ``validator`` on the TUI manage-foundation step, after
-        the (optional) entitlement key and storage classes have been written
-        to ``self.params``.  Performs the same configuration as the classic
-        wizard's Manage Foundation block: resolves the entitlement key
-        (entered on the step, or read back from the cluster's
-        ``ibm-entitlement`` secret), sets the install flags and pipeline
-        params, resolves the Db2 storage classes (validating any provided
-        values against the cluster, auto-detecting the rest), and runs the
+        the (optional) storage classes have been written to ``self.params``.
+        Performs the same configuration as the classic wizard's Manage
+        Foundation block: reads the IBM entitlement key back from the
+        cluster's ``ibm-entitlement`` secret (it is never prompted for or
+        accepted as an input), sets the install flags and pipeline params,
+        resolves the Db2 storage classes (validating any provided values
+        against the cluster, auto-detecting the rest), and runs the
         silent-mode Db2 configuration.
 
-        The entitlement key is validated against the IBM Container Registry
-        on a warn-only basis (matching the classic ``--no-confirm``
-        behaviour) so that air-gapped environments are not blocked.
-
         Raises:
-            RuntimeError: When no entitlement key can be resolved (neither
-                entered nor found on the cluster), a provided storage class
-                does not exist on the cluster, or no storage classes can be
-                resolved.
+            RuntimeError: When the entitlement key cannot be read from the
+                cluster (fatal — the key is a prerequisite, not an input), a
+                provided storage class does not exist on the cluster, or no
+                storage classes can be resolved.
         """
         instanceId = self.params.get("mas_instance_id", "")
 
@@ -383,27 +379,16 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # --no-confirm behaviour).
         self.noConfirm = True
 
-        # The entitlement key: use the one entered on this step, or read it
-        # back from the cluster's ibm-entitlement secret (written during the
-        # original installation) — the key does not normally need re-entering.
-        entitlementKey = self.getParam("ibm_entitlement_key")
-        if not entitlementKey:
-            entitlementKey = self.lookupEntitlementKey(instanceId)
-            if not entitlementKey:
-                raise RuntimeError(
-                    f"Unable to read the IBM entitlement key from the cluster (no 'ibm-entitlement' secret with cp.icr.io "
-                    f"credentials found in the mas-{instanceId}-core namespace).  Enter the IBM entitlement key on this step."
-                )
-            self.setParam("ibm_entitlement_key", entitlementKey)
-
-        # Validate the entitlement key against the registry.  Warn-only: an
-        # invalid key surfaces again at pipeline launch, and blocking here
-        # would make the TUI unusable where the registry is unreachable
-        # (air-gapped clusters).
-        if not self.validateEntitlementKey(entitlementKey):
-            logger.warning(
-                "IBM entitlement key validation against the IBM Container Registry failed - continuing, but the upgrade pipeline will fail if the key is invalid"
+        # The entitlement key is read from the cluster's ibm-entitlement
+        # secret (written during the original installation).  There is no
+        # input for it: if it cannot be found the upgrade cannot proceed.
+        entitlementKey = self.lookupEntitlementKey(instanceId)
+        if entitlementKey is None:
+            self.fatalError(
+                f"Unable to read the IBM entitlement key from the cluster (no 'ibm-entitlement' secret with cp.icr.io "
+                f"credentials found in the mas-{instanceId}-core namespace).  Restore the secret and re-run the upgrade."
             )
+        self.setParam("ibm_entitlement_key", entitlementKey)
 
         # Attributes configDb2 reads (the same ones the classic wizard sets)
         self.manageAppName = "Manage foundation"
@@ -1109,9 +1094,17 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
                 [f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."]
             )
 
-            # TODO: Why do we need to ask the user from their entitlement key, we should look it up from the cluster.
-            self.printH1("Configure IBM Container Registry")
-            self.promptForEntitlementKey("IBM entitlement key", "ibm_entitlement_key")
+            # The IBM entitlement key is read from the cluster's ibm-entitlement
+            # secret (written during the original installation) — it is neither
+            # prompted for nor accepted as a CLI argument.
+            entitlementKey = self.lookupEntitlementKey(instanceId)
+            if entitlementKey is None:
+                self.fatalError(
+                    f"Unable to read the IBM entitlement key from the cluster (no 'ibm-entitlement' secret with cp.icr.io "
+                    f"credentials found in the mas-{instanceId}-core namespace).  Restore the secret and re-run the upgrade."
+                )
+            self.setParam("ibm_entitlement_key", entitlementKey)
+
             if self.devMode:
                 self.promptForString("Artifactory username", "artifactory_username")
                 self.promptForString("Artifactory token", "artifactory_token", isPassword=True)

@@ -127,9 +127,9 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
        needs to install Manage Foundation (9.0.x to 9.1.x without Manage,
        ``manageFoundationPending``): collects the Db2 storage classes
        (blank = auto-detect) and runs the same configuration as the classic
-       wizard's Manage Foundation block — the IBM entitlement key is read
-       back from the cluster's ``ibm-entitlement`` secret, with the field
-       as a fallback when it cannot be found there.
+       wizard's Manage Foundation block.  The IBM entitlement key is read
+       back from the cluster's ``ibm-entitlement`` secret — it is not an
+       input; a missing key is a fatal error.
     5. **review** — Review all settings before proceeding, including the
        equivalent non-interactive ``mas upgrade`` command (with copy /
        save-as-script).  The Confirm button advances to the launch step.
@@ -185,10 +185,12 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
     # Only shown when prepareUpgrade detected that this upgrade needs to
     # install Manage Foundation (9.0.x to 9.1.x without Manage).  The storage
     # class fields are optional: leaving them blank uses the classes
-    # auto-detected from the cluster.  The condition closes over the app
-    # instance so it reads the validator's state; once the step completes,
-    # should_install_manage_foundation is set and it is skipped on
-    # re-navigation.
+    # auto-detected from the cluster.  The IBM entitlement key is not
+    # collected here — prepareManageFoundation reads it from the cluster's
+    # ibm-entitlement secret and fails fatally when it is missing.  The
+    # condition closes over the app instance so it reads the validator's
+    # state; once the step completes, should_install_manage_foundation is
+    # set and it is skipped on re-navigation.
     manageFoundationStep = WorkflowStep(
         id="manage-foundation",
         heading="Configure Manage Foundation",
@@ -196,10 +198,8 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
         description=[
             "Upgrading to MAS 9.1.x will install Manage Foundation: the User, Security groups, Application configurator and Mobile configurator capabilities.",
             "Provide the storage classes for the Manage Foundation Db2 instances — leave them blank to use the storage classes auto-detected from the cluster.",
-            "The IBM entitlement key is read from the cluster's ibm-entitlement secret; only enter a key if it could not be found there.",
         ],
         fields=[
-            WorkflowField(id="ibm_entitlement_key", label="IBM Entitlement Key", type="password", required=False, sensitive=True),
             WorkflowField(id="storage_class_rwo", label="ReadWriteOnce (RWO) Storage Class", type="string", required=False),
             WorkflowField(id="storage_class_rwx", label="ReadWriteMany (RWX) Storage Class", type="string", required=False),
         ],
