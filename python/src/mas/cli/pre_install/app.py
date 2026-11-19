@@ -163,6 +163,9 @@ class SetupPreinstallRBACApp(BaseApp):
         if not continueWithSetup:
             self.fatalError("Pre-install RBAC setup aborted")
 
+        # Resolve before the spinner starts so a failure is reported cleanly
+        rbacRootDir = self.getPreinstallRBACRootDir()
+
         with Halo(text=f"Setting up pre-install RBAC for MAS instance {self.mas_instance_id}...", spinner=self.spinner) as h:
             applyPreInstallMASRBAC(
                 dynClient=self.dynamicClient,
@@ -170,6 +173,7 @@ class SetupPreinstallRBACApp(BaseApp):
                 masInstanceId=self.mas_instance_id,
                 adminMode=self.admin_mode,
                 selectedApps=selectedApps,
+                rbacRootDir=rbacRootDir,
             )
             h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC for MAS is ready for {self.mas_instance_id}")
 

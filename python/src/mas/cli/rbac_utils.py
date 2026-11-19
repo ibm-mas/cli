@@ -14,13 +14,91 @@ Common utilities for handling RBAC permission checks and pre-install operations
 across install, upgrade, and update commands.
 """
 
+import json
 import logging
-from typing import Callable
+from os import environ, path
+from typing import Any, Callable
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.pre_install import permissionCheckForRBAC
 from mas.devops.mas import getInstalledApps
 
 logger = logging.getLogger(__name__)
+
+# Environment variable that overrides the location of the pre-install RBAC manifests
+PREINSTALL_RBAC_DIR_ENV = "MAS_PREINSTALL_RBAC_DIR"
+
+# Location populated during the container image build (see the RBAC copy step in image/cli/Dockerfile)
+LEGACY_PREINSTALL_RBAC_DIR = "/opt/app-root/rbac"
+
+# Location populated during the python package build (see build/bin/bundle-preinstall-rbac.sh), used by uvx and uv tool installs
+PACKAGED_PREINSTALL_RBAC_DIR = path.join(path.abspath(path.dirname(__file__)), "rbac", "preinstall")
+
+# Written next to the bundled manifests by the package build, records which pre-install commit they came from
+PREINSTALL_RBAC_SOURCE_FILE = "SOURCE.json"
+
+
+def getPreinstallRBACSource(rootDir: str) -> dict[str, Any] | None:
+    """Read the provenance recorded alongside the bundled pre-install RBAC manifests.
+
+    Provenance is informational only, so a missing or unreadable file results in None rather than an error.
+    The container image and user overrides do not have this file.
+
+    Args:
+        rootDir (str): RBAC root directory returned by getPreinstallRBACRootDir
+
+    Returns:
+        dict[str, Any] | None: The recorded repository, branch and commit, or None if unavailable
+    """
+    try:
+        with open(path.join(rootDir, PREINSTALL_RBAC_SOURCE_FILE), "r", encoding="utf-8") as sourceFile:
+            source = json.load(sourceFile)
+    except (OSError, ValueError):
+        return None
+    return source if isinstance(source, dict) else None
+
+
+def _describeRBACRoot(rootDir: str) -> str:
+    """Build the log description of a resolved RBAC root, including provenance when known."""
+    source = getPreinstallRBACSource(rootDir)
+    if source is None:
+        return rootDir
+    return f"{rootDir} (pre-install branch={source.get('branch', 'unknown')}, commit={source.get('commit', 'unknown')})"
+
+
+def getPreinstallRBACRootDir() -> str:
+    """Locate the directory holding the pre-install RBAC manifests.
+
+    Candidates are tried in order and the first one that exists wins. Which manifests inside the directory
+    are applied is decided by mas.devops.pre_install, not here:
+
+    1. The directory named by the MAS_PREINSTALL_RBAC_DIR environment variable. If it is set but is not a
+       directory this is an error, rather than silently using a different set of manifests.
+    2. /opt/app-root/rbac, which is populated in the container image.
+    3. The rbac/preinstall directory bundled inside the mas.cli package, used by uvx and uv tool installs.
+
+    Returns:
+        str: The RBAC root directory to pass as rbacRootDir
+
+    Raises:
+        FileNotFoundError: If no candidate directory exists
+    """
+    override = environ.get(PREINSTALL_RBAC_DIR_ENV, "").strip()
+    if override:
+        if path.isdir(override):
+            logger.info(f"Using pre-install RBAC manifests from {PREINSTALL_RBAC_DIR_ENV}={_describeRBACRoot(override)}")
+            return override
+        raise FileNotFoundError(f"{PREINSTALL_RBAC_DIR_ENV} is set to '{override}' but it is not a directory")
+
+    for candidate in (LEGACY_PREINSTALL_RBAC_DIR, PACKAGED_PREINSTALL_RBAC_DIR):
+        if path.isdir(candidate):
+            logger.info(f"Using pre-install RBAC manifests from {_describeRBACRoot(candidate)}")
+            return candidate
+
+    raise FileNotFoundError(
+        "Could not find the pre-install RBAC manifests. "
+        f"Looked in {LEGACY_PREINSTALL_RBAC_DIR} and {PACKAGED_PREINSTALL_RBAC_DIR}. "
+        f"Set {PREINSTALL_RBAC_DIR_ENV} to a directory containing a checkout of the ibm-mas/pre-install RBAC folders."
+    )
 
 
 def handleRBACPermissionDenied(
