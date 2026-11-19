@@ -25,6 +25,8 @@ dependencies = [
   "tabulate",
   "prettytable",
   "jsonpath-ng",
+  "textual",
+  "pyperclip",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",

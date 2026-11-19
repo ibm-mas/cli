@@ -6,7 +6,7 @@ This catalog is a **curated** catalog, the Maximo Application Suite team take a 
 All versions of the catalog are available **indefinitely**, but they have a useful lifespan limited by the support statements of the packages available in the catalog and the OCP release the catalog is certified on.  We **never** remove catalog images from the IBM Container Registry (ICR); even the [first](v8-220717-amd64.md) Maximo Operator Catalog ever published is still available today, however it's usefulness is questionable due to the end of life of all compatible OCP releases.
 
 ### CLI Support
-The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror-images, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.
+The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.
 
 
 ### Catalog Directory
@@ -50,74 +50,88 @@ For more details refer to the [OCP lifecycle policy](https://access.redhat.com/s
           <td style="font-style: italic">N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-261029</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
+          <td><span style="font-weight: bold">v9-261105</span><br/><a href="v9-261105-amd64/">amd64</a> | <a href="v9-261105-s390x/">s390x</a> | <a href="v9-261105-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.18 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.4.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260924</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
+          <td><span style="font-weight: bold">v9-261029</span><br/><a href="v9-261029-amd64/">amd64</a> | <a href="v9-261029-s390x/">s390x</a> | <a href="v9-261029-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.18 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.4.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260827</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
+          <td><span style="font-weight: bold">v9-261007</span><br/><a href="v9-261007-amd64/">amd64</a> | <a href="v9-261007-s390x/">s390x</a> | <a href="v9-261007-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.18 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.3.1</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260730</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">N/A</td>
+          <td><span style="font-weight: bold">v9-260924</span><br/><a href="v9-260924-amd64/">amd64</a> | <a href="v9-260924-s390x/">s390x</a> | <a href="v9-260924-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.18 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.3.1</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-260827</span><br/><a href="v9-260827-amd64/">amd64</a> | <a href="v9-260827-s390x/">s390x</a> | <a href="v9-260827-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.22</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.3.1</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
+        </tr>
+        <tr>
+          <td><span style="font-weight: bold">v9-260730</span><br/><a href="v9-260730-amd64/">amd64</a> | <a href="v9-260730-s390x/">s390x</a> | <a href="v9-260730-ppc64le/">ppc64le</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260625</span><br/><a href="v9-260625-amd64/">amd64</a> | <a href="v9-260625-s390x/">s390x</a> | <a href="v9-260625-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest</td>
+          <td>latest/ 21.10.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260527</span><br/><a href="v9-260527-amd64/">amd64</a> | <a href="v9-260527-s390x/">s390x</a> | <a href="v9-260527-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Aug 3, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest</td>
+          <td>latest/ 21.5.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260430</span><br/><a href="v9-260430-amd64/">amd64</a> | <a href="v9-260430-s390x/">s390x</a> | <a href="v9-260430-ppc64le/">ppc64le</a></td>
-          <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
+          <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest</td>
+          <td>20.2.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260326</span><br/><a href="v9-260326-amd64/">amd64</a> | <a href="v9-260326-s390x/">s390x</a> | <a href="v9-260326-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.21</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest/ 19.4.0</td>
+          <td>19.4.0</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260226</span><br/><a href="v9-260226-amd64/">amd64</a> | <a href="v9-260226-s390x/">s390x</a> | <a href="v9-260226-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.20</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Oct 21, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest/ 18.18.1</td>
+          <td>18.18.1</td>
         </tr>
         <tr>
           <td><span style="font-weight: bold">v9-260129</span><br/><a href="v9-260129-amd64/">amd64</a> | <a href="v9-260129-s390x/">s390x</a> | <a href="v9-260129-ppc64le/">ppc64le</a></td>
           <td><span style="font-weight: bold">4.16 - 4.19</span><br/><a href="https://access.redhat.com/support/policy/updates/openshift" target="_blank">EOS Feb 25, 2027 ↗</a></td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest/ 18.11.0</td>
+          <td>18.11.0</td>
         </tr>
         </tbody>
     </table>
@@ -523,7 +537,7 @@ The packages available in these catalogs are fixed. Multiple installations at di
 #### Disconnected Install
 > I want to run a disconnected environment using a private mirror registry
 
-The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../guides/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
+The MAS CLI [mirror](../guides/mirroring-v2.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../guides/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
 
 
 ### Dynamic Catalog

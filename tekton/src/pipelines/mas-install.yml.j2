@@ -50,7 +50,6 @@ spec:
     # 12. Install & Configure Visual Inspection
     # 13. Install & Configure Facilities
     # 14. Install & Configure AI Service with Default Tenant
-
     - name: pipeline-start
       timeout: "0"
       taskRef:
@@ -169,12 +168,7 @@ spec:
       runAfter:
         - cp4d
 
-    # 3.5 Cognos Analytics
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-cognos.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
-
-    # 3.6 Configure Watson Studio in MAS
+    # 3.5 Configure Watson Studio in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
@@ -231,10 +225,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-dns.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
-      when:
-        - input: "$(params.mas_instance_id)"
-          operator: notin
-          values: [""]
 
     # 5.3 Manual Certificates
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-certs.yml.j2') | indent(4) }}
@@ -441,6 +431,7 @@ spec:
         - minio
         - aiservice-odh
         - aiservice-rhoai
+        - suite-dns
 
     # 14.2 Generate AiCfg with auto-detected values
     # -------------------------------------------------------------------------
@@ -475,7 +466,6 @@ spec:
         - app-install-facilities
         - arcgis
         - eck
-        - cognos
         - aiservice
 
   finally:

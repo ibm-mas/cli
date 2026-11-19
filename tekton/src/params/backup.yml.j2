@@ -10,6 +10,10 @@
   description: Name of the TLS secret for OCP ingress
   default: ""
 
+- name: mas_routing_mode
+  type: string
+  default: ""
+
 # Backup/Restore Configuration
 # -----------------------------------------------------------------------------
 - name: mas_backup_dir
@@ -194,11 +198,6 @@
   default: ""
   description: Required for DRO installation during restore
 
-- name: ibm_entitlement_key
-  type: string
-  default: ""
-  description: Required for DRO installation during restore
-
 # Restore-specific Configuration
 # -----------------------------------------------------------------------------
 - name: mas_domain_on_restore
@@ -304,6 +303,11 @@
 - name: manage_db2_instance_name
   type: string
   description: Manage Db2 instance name for backup
+  default: ""
+
+- name: manage_db2_dbname
+  type: string
+  description: Manage Db2 database name for backup (default BLUDB if not set)
   default: ""
 
 - name: manage_db2_backup_type
@@ -419,6 +423,11 @@
 - name: facilities_db2_instance_name
   type: string
   description: Facilities Db2 instance name for backup
+  default: ""
+
+- name: facilities_db2_dbname
+  type: string
+  description: Facilities Db2 database name for backup (default BLUDB if not set)
   default: ""
 
 - name: facilities_db2_backup_type

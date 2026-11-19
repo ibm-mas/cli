@@ -11,11 +11,15 @@ pytest python/tests/
 # Run by category
 pytest -m unit              # Fast unit tests only
 pytest -m integration       # Integration tests only
+pytest -m pilot             # Live Textual TUI pilot tests only
 
 # Run by feature
 pytest -m mirror            # Mirror functionality
 pytest -m install           # Installation tests
 pytest -m must-gather       # Must-gather tests
+
+# Fast local loop without the live-UI tests
+pytest -m "not pilot"
 ```
 
 ## Directory Structure
@@ -24,9 +28,18 @@ pytest -m must-gather       # Must-gather tests
 tests/
 ├── conftest.py              # Global fixtures and pytest configuration
 ├── README.md               # This file - overview and global configuration
+├── scenarios/               # Shared named app states (params + detector state)
+│   └── update.py           #   UpdateApp scenarios, used by unit AND pilot tests
 ├── unit/                    # Unit tests (fast, no external dependencies)
 │   ├── conftest.py         # Unit test marker configuration
-│   └── must_gather/        # Must-gather unit tests
+│   ├── must_gather/        # Must-gather unit tests
+│   ├── tui/                # TUI framework tests (shell, models, generic screens)
+│   └── update/             # Update tests (app logic + update-specific screens)
+├── pilot/                   # Pilot tests (live Textual pilot drives a single screen)
+│   ├── conftest.py         # Auto-applies the pilot marker to every test here
+│   ├── harness.py          # ScreenPilotApp + click_button/wait_for helpers
+│   ├── tui/                # Framework screens (generic step, review, overlays)
+│   └── update/             # Update screens (confirm-upgrades, auto-run, connect, launch)
 ├── integration/             # Integration tests (mocked external services)
 │   ├── conftest.py         # Integration test marker configuration
 │   ├── README.md           # Integration-specific documentation
@@ -91,6 +104,21 @@ def test_function_behavior():
     """
     # Test implementation
 ```
+
+### Pilot Tests (`pilot/`)
+
+Live Textual [`run_test()`](https://textual.textualize.io/guide/testing/)
+pilots that mount a single TUI screen against a stubbed or scenario app
+and drive it with real events — rendering, focus, and compose structure
+are exercised. Rule of thumb: logic-only assertions stay in `unit/`;
+anything involving rendering, events, focus, or compose structure becomes
+a pilot test.
+
+**Characteristics:**
+- Real screen widget in a bare Textual app (production stylesheet)
+- Assert on posted workflow messages and written params, not shell navigation
+- Use `scenarios/` for app state and `pilot/harness.py` helpers
+  (`run_screen_pilot`, `click_button`, `wait_for`, `wait_for_widget`)
 
 ### Integration Tests (`integration/`)
 

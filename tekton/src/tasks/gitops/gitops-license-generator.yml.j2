@@ -26,6 +26,9 @@ spec:
       type: string
     - name: sls_subscription_id
       type: string
+    - name: sales_order_number
+      type: string
+      default: ""
   stepTemplate:
     env:
       - name: CLUSTER_NAME
@@ -49,6 +52,8 @@ spec:
         value: $(params.sls_license_icn)
       - name: SAAS_SUB_ID
         value: $(params.sls_subscription_id)
+      - name: SALES_ORDER_NUMBER
+        value: $(params.sales_order_number)
     envFrom:
       - configMapRef:
           name: environment-properties

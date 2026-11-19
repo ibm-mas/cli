@@ -37,6 +37,7 @@ class InstallSummarizerMixin:
         localConfigDir: str | None
         slsLicenseFileLocal: str | None
         aiserviceTenantSchedulingConfigFileLocal: str | None
+        aiserviceTenantOperatorConfigFileLocal: str | None
         facilitiesPropertiesFileLocal: str | None
         deployCP4D: bool
         installAssist: bool
@@ -48,6 +49,7 @@ class InstallSummarizerMixin:
         installOptimizer: bool
         installFacilities: bool
         installAIService: bool
+        installMcpi: bool
         installArcgis: bool
         dynamicClient: DynamicClient
         applyPreInstallMASRBAC: bool
@@ -124,11 +126,15 @@ class InstallSummarizerMixin:
         else:
             self.printSummary("Install Mode", "Connected Install")
 
-        if "mas_domain" in self.params:
+        # AI Service domain is added to the AI Service section along with other AI Service-specific configurations.
+        # The condition below prevents the DNS provider summary from being displayed twice when the MAS and AI Service domains are configured.
+        if "mas_domain" in self.params or "aiservice_domain" in self.params:
             print()
-            self.printParamSummary("Domain Name", "mas_domain")
+            if self.getParam("mas_domain") != "":
+                self.printParamSummary("Domain Name", "mas_domain")
             self.printParamSummary("DNS Provider", "dns_provider")
-            self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
+            if self.getParam("mas_cluster_issuer") != "":
+                self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
 
             if self.getParam("ocp_ingress") != "":
                 self.printParamSummary("OCP Ingress", "ocp_ingress")
@@ -142,8 +148,19 @@ class InstallSummarizerMixin:
                 self.printParamSummary("CIS API Key", "cis_apikey")
                 self.printParamSummary("CIS CRN", "cis_crn")
                 self.printParamSummary("CIS subdomain", "cis_subdomain")
+                self.printSummary("Enhanced Security", "Yes" if self.getParam("cis_enhanced_security") == "true" else "No")
+                if self.getParam("cis_enhanced_security") == "true":
+                    self.printParamSummary("CIS Service Name", "cis_service_name")
+                    self.printSummary("Update Existing DNS Entries", "Yes" if self.getParam("update_dns_entries") == "true" else "No")
+                    self.printSummary("WAF Enabled", "Yes" if self.getParam("cis_waf") == "true" else "No")
+                    self.printSummary("Proxy Enabled", "Yes" if self.getParam("cis_proxy") == "true" else "No")
+                    self.printSummary("Delete Wildcard DNS Entries", "Yes" if self.getParam("delete_wildcards") == "true" else "No")
+                    self.printSummary("Override Edge Certificates", "Yes" if self.getParam("override_edge_certs") == "true" else "No")
             elif self.getParam("dns_provider") == "route53":
-                pass
+                self.printParamSummary("Route53 e-mail", "route53_email")
+                self.printParamSummary("Route53 hosted zone name", "route53_hosted_zone_name")
+                self.printParamSummary("Route53 hosted zone region", "route53_hosted_zone_region")
+                self.printParamSummary("Route53 subdomain", "route53_subdomain")
             elif self.getParam("dns_provider") == "":
                 pass
 
@@ -152,6 +169,12 @@ class InstallSummarizerMixin:
         if self.getParam("mas_routing_mode") == "path":
             self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
             self.printParamSummary("Configure IngressController", "mas_configure_ingress")
+            if self.getParam("mas_le_email") != "":
+                self.printSummary("Let's Encrypt HTTP-01", "Enabled")
+                self.printParamSummary("Let's Encrypt e-mail", "mas_le_email")
+                self.printParamSummary("Let's Encrypt Issuer", "mas_cluster_issuer")
+            else:
+                self.printSummary("Let's Encrypt HTTP-01", "Disabled")
 
         if self.getParam("mas_manual_route_mgmt") == "true":
             self.printParamSummary("Manual Routes", "mas_manual_route_mgmt")
@@ -367,8 +390,12 @@ class InstallSummarizerMixin:
             self.printParamSummary("Release", "aiservice_channel")
             self.printParamSummary("Instance ID", "aiservice_instance_id")
             self.printParamSummary("Environment Type", "environment_type")
+            self.printSummary("AI Data Science Platform", "Red Hat OpenShift AI (RHOAI)" if self.getParam("rhoai") == "true" else "Open Data Hub (ODH)")
 
-            if "aiservice_certificate_issuer" in self.params:
+            if self.getParam("aiservice_domain") != "":
+                print()
+                self.printParamSummary("Domain Name", "aiservice_domain")
+                self.printParamSummary("DNS Provider", "dns_provider")
                 self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
             # Database configuration - matches standalone aiservice-install pattern
@@ -412,6 +439,11 @@ class InstallSummarizerMixin:
                     "Scheduling configuration file",
                     self.aiserviceTenantSchedulingConfigFileLocal,
                 )
+            if self.aiserviceTenantOperatorConfigFileLocal:
+                self.printSummary(
+                    "Tenant operator configuration file",
+                    self.aiserviceTenantOperatorConfigFileLocal,
+                )
 
             self.printH2("S3 Configuration")
             # self.printParamSummary("Storage provider", "aiservice_s3_provider")
@@ -429,6 +461,12 @@ class InstallSummarizerMixin:
             self.printH2("IBM WatsonX")
             self.printParamSummary("URL", "aiservice_watsonxai_url")
             self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
+
+    def mcpiSummary(self) -> None:
+        if self.installMcpi:
+            self.printSummary("Maximo Cluster Performance Insights (MCPI)", "Install")
+        else:
+            self.printSummary("Maximo Cluster Performance Insights (MCPI)", "Do Not Install")
 
     def db2Summary(self) -> None:
         if (
@@ -508,11 +546,6 @@ class InstallSummarizerMixin:
                     ("Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install"),
                 )
 
-            self.printSummary(
-                "Cognos Analytics",
-                ("Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install"),
-            )
-
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")
         self.printParamSummary("Contact e-mail", "dro_contact_email")
@@ -538,6 +571,8 @@ class InstallSummarizerMixin:
             self.printParamSummary("Type", "cos_type")
             if self.getParam("cos_resourcegroup") != "":
                 self.printParamSummary("Resource Group", "cos_resourcegroup")
+            if self.getParam("cos_region") != "":
+                self.printParamSummary("Region", "cos_region")
         else:
             self.printSummary("Type", "None")
 
@@ -556,6 +591,9 @@ class InstallSummarizerMixin:
         if self.getParam("mongodb_action") == "install":
             self.printSummary("Type", "MongoCE Operator")
             self.printParamSummary("Install Namespace", "mongodb_namespace")
+            mongodb_provider = self.getParam("mongodb_provider")
+            if mongodb_provider:
+                self.printParamSummary("MongoDB Provider", "mongodb_provider")
         elif self.getParam("mongodb_action") == "byo":
             self.printSummary("Type", "BYO (mongodb-system.yaml)")
         else:
@@ -632,6 +670,7 @@ class InstallSummarizerMixin:
         self.inspectionSummary()
         self.facilitiesSummary()
         self.aiServiceSummary()
+        self.mcpiSummary()
 
         # Application Dependencies
         self.mongoSummary()

@@ -1,3 +1,4 @@
+---
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
@@ -72,6 +73,17 @@ spec:
       type: string
       default: ''
     - name: efs_monitor_db2_throughput_mode
+      type: string
+      default: ''
+
+    # iac-efs monitor-main params
+    - name: efs_monitor_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_monitor_main_mount_count
+      type: string
+      default: ''
+    - name: efs_monitor_main_throughput_mode
       type: string
       default: ''
 
@@ -387,6 +399,12 @@ spec:
           value: $(params.efs_monitor_db2_mount_count)
         - name: efs_monitor_db2_throughput_mode
           value: $(params.efs_monitor_db2_throughput_mode)
+        - name: efs_monitor_main_performance_mode
+          value: $(params.efs_monitor_main_performance_mode)
+        - name: efs_monitor_main_mount_count
+          value: $(params.efs_monitor_main_mount_count)
+        - name: efs_monitor_main_throughput_mode
+          value: $(params.efs_monitor_main_throughput_mode)
         - name: efs_facilities_db2_performance_mode
           value: $(params.efs_facilities_db2_performance_mode)
         - name: efs_facilities_db2_mount_count
@@ -676,6 +694,12 @@ spec:
           value: $(params.efs_monitor_db2_mount_count)
         - name: efs_monitor_db2_throughput_mode
           value: $(params.efs_monitor_db2_throughput_mode)
+        - name: efs_monitor_main_performance_mode
+          value: $(params.efs_monitor_main_performance_mode)
+        - name: efs_monitor_main_mount_count
+          value: $(params.efs_monitor_main_mount_count)
+        - name: efs_monitor_main_throughput_mode
+          value: $(params.efs_monitor_main_throughput_mode)
         - name: efs_facilities_db2_performance_mode
           value: $(params.efs_facilities_db2_performance_mode)
         - name: efs_facilities_db2_mount_count

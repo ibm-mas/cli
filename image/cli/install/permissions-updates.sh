@@ -16,4 +16,10 @@ if [ -d /masfvt ]; then
 fi
 chmod +x /usr/bin/gather
 chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops
+# The ibmcloud CLI reads & writes its config (including plugins/config.json) on every command, including
+# "ibmcloud login".  Pods run as an arbitrary UID in the root group, so the whole tree must be group-writable
+if [ -d /opt/app-root/src/.bluemix ]; then
+  chgrp -R 0 /opt/app-root/src/.bluemix
+  chmod -R g+rwX /opt/app-root/src/.bluemix
+fi
 ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops

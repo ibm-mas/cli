@@ -127,6 +127,9 @@ class StorageClassValidator(Validator):
         """
         name = document.text
 
+        if not name or not name.strip():
+            raise ValidationError(message="Please enter a storage class name", cursor_position=0)
+
         dynClient = dynamic.DynamicClient(api_client.ApiClient(configuration=config.load_kube_config()))
         if getStorageClass(dynClient, name) is None:
             raise ValidationError(message="Specified storage class is not available on this cluster", cursor_position=len(name))

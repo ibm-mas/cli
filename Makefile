@@ -73,7 +73,7 @@ tekton/target:
 .PHONY: pytest-tekton
 pytest-tekton:
 ifeq ($(TEST),yes)
-	.venv/bin/pytest tekton/test_schema.py -v
+	.venv/bin/pytest tekton/test_schema.py tekton/test_bundles.py -v
 endif
 
 
@@ -82,3 +82,4 @@ endif
 .PHONY: run
 run:
 	podman run --rm -it -e IBM_ENTITLEMENT_KEY --pull Always quay.io/ibmmas/cli:master bash
+

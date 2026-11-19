@@ -2,6 +2,7 @@
   timeout: "0"
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/registry-secret-param.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: dependencies-cos
 
@@ -21,6 +22,8 @@
       value: $(params.cos_apikey)
     - name: cos_resourcegroup
       value: $(params.cos_resourcegroup)
+    - name: cos_region
+      value: $(params.cos_region)
 
     - name: custom_labels
       value: $(params.custom_labels)

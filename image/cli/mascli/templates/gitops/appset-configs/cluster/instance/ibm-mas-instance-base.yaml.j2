@@ -42,7 +42,8 @@ mas_wipe_mongo_data: false
 {% endif %}
 
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
-allow_list: {{ ALLOW_LIST }}
+allow_list:
+  ips: {{ ALLOW_LIST }}
 {% endif %}
 
 {% if ADDITIONAL_VPN is defined and ADDITIONAL_VPN != '' %}
@@ -78,4 +79,15 @@ cli_image_repo: {{ MAS_CLI_IMAGE_REPO }}
 {%- if PRODUCTION_DATABASE_ACCESS_TYPE is defined and PRODUCTION_DATABASE_ACCESS_TYPE != '' %}
 production_database_access:
   type: {{ PRODUCTION_DATABASE_ACCESS_TYPE }}
+{%- endif %}
+
+{%- if FVT_GITOPS_ENABLED is defined and FVT_GITOPS_ENABLED == 'true' %}
+fvt_gitops:
+  enabled: true
+  # enabled_apps is auto-detected by gitops_suite from ibm-mas-masapp-*-install.yaml
+  # files in the instance directory ("suite" always included). Set fvt_gitops.enabled_apps
+  # explicitly in saas-envs to override and run only a targeted subset of test suites.
+  enabled_apps: "{{ FVT_GITOPS_ENABLED_APPS }}"
+  image_repo: "{{ FVT_GITOPS_IMAGE_REPO }}"
+  image_tag: "{{ FVT_GITOPS_IMAGE_TAG }}"
 {%- endif %}

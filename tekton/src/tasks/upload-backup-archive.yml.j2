@@ -39,14 +39,6 @@ spec:
       default: ""
 
     # Artifactory Upload parameters
-    - name: artifactory_username
-      type: string
-      description: Artifactory username for backup upload
-      default: ""
-    - name: artifactory_token
-      type: string
-      description: Artifactory token for backup upload
-      default: ""
     - name: artifactory_url
       type: string
       description: Artifactory URL for backup upload
@@ -81,10 +73,6 @@ spec:
         value: $(params.s3_endpoint_url)
 
       # Artifactory credentials
-      - name: ARTIFACTORY_USERNAME
-        value: $(params.artifactory_username)
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
       - name: ARTIFACTORY_URL
         value: $(params.artifactory_url)
       - name: ARTIFACTORY_REPOSITORY
