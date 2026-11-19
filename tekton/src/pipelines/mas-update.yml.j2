@@ -154,10 +154,6 @@ spec:
       type: string
       default: ""
       description: Flag that determines if Analytics Engine must be upgraded
-    - name: cp4d_update_cognos
-      type: string
-      default: ""
-      description: Flag that determines if Cognos Analytics must be upgraded
 
     # TODO: CP4D update needs to just look up the storage classes already in use
     - name: storage_class_rwo
@@ -402,11 +398,6 @@ spec:
       runAfter:
         - update-cp4d
 
-    # 5.5 Cognos Analytics
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos-update.yml.j2') | indent(4) }}
-      runAfter:
-        - update-cp4d
-
     # 6. Migrate any AI Service instances. Updating to a new feature channel release
     # could require migration as release 9.2 introduces a significant architectural change.
     # AI Service migration
@@ -439,7 +430,6 @@ spec:
         - update-watson-studio
         - update-watson-machine-learning
         - update-analytics-engine
-        - update-cognos
         - update-rhoai
 
   finally:

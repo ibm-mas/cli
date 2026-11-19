@@ -49,7 +49,6 @@ PACKAGE_CONFIGS = [
     ("Cloud Pak for Data - WML", "cp4d-wml", "ibm-wml-cpd", "wml_version", True),
     ("Cloud Pak for Data - WML", "cp4d-wml", "ibm-redis-cp", "redis_version", True),
     ("Cloud Pak for Data - Spark", "cp4d-spark", "ibm-analyticsengine", "spark_version", True),
-    ("Cloud Pak for Data - Cognos", "cp4d-cognos", "ibm-cognos-analytics-prod", "cognos_version", True),
 ]
 
 # Helm-chart-only CASE bundles: no standalone ISC image files exist for these.

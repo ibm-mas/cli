@@ -25,6 +25,8 @@ dependencies = [
   "tabulate",
   "prettytable",
   "jsonpath-ng",
+  "textual",
+  "pyperclip",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -70,6 +72,9 @@ namespaces = true
 ]
 "mas.cli.must_gather.web_viewer" = [
   "templates/*.html",
+]
+"mas.cli.tui" = [
+  "styles/*.tcss",
 ]
 
 [tool.setuptools.dynamic]

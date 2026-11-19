@@ -27,6 +27,7 @@ The other values can be left at their defaults.  Finally, click **Generate** and
 You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index).  The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
 - [AWS](provision-aws.md)
+- [AWS ROSA](provision-rosa.md)
 - [IBM Cloud](provision-roks.md)
 - [IBM DevIT FYRE (Internal)](provision-fyre.md)
 
@@ -194,11 +195,11 @@ The registry will be setup running on port 32500.  For more details on this step
 ### Mirror Container Images
 Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:
 
-- **direct** mirrors images directly from the source registry to your private registry
-- **to-filesystem** mirrors images from the source to a local directory
-- **from-filesystem** mirrors images from a local directory to your private registry
+- **m2m** mirrors images directly from the source registry to your private registry
+- **m2d** mirrors images from the source registry to a local directory
+- **d2m** mirrors images from a local directory to your private registry
 
-For full details on this process review the [image mirroring](image-mirroring.md) guide.
+For full details on this process review the [image mirroring](mirroring-v2.md) guide.
 
 
 ### Configure OpenShift to use your Private Registry
@@ -451,7 +452,6 @@ The engine that performs all tasks is written in Ansible, you can directly use t
         - Watson Studio Local
         - Watson Machine Learning
         - Analytics Engine (Apache Spark)
-        - Cognos Analytics
     - Grafana
 - Suite core services installation
 - Suite application installation
