@@ -71,3 +71,4 @@ pytest.log
 /dist
 /.bob/.bob-errors
 /.mkdocs_cache
+/.claude/scratch
