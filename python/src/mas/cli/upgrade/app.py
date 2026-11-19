@@ -18,7 +18,9 @@ from prompt_toolkit.completion import WordCompleter
 from halo import Halo
 
 from ..cli import BaseApp
+from ..common.commandBuilder import offerCommandScript
 from ..validators import InstanceIDValidator, StorageClassValidator
+from .argBuilder import upgradeArgBuilderMixin
 from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
@@ -48,7 +50,7 @@ from ..rbac_utils import evaluatePreinstallRBACAccess
 logger = logging.getLogger(__name__)
 
 
-class UpgradeApp(BaseApp, UpgradeSettingsMixin):
+class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
 
     def configPipelineStorageClass(self, instanceId: str) -> None:
         """
@@ -303,6 +305,46 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             logger.warning(f"Could not query ManageWorkspace CR for Civil component check: {e}")
             # Don't fail the upgrade if we can't query - let ansible handle it
 
+    def checkRoutingModeForUpgrade(self, instanceId: str, currentChannel: str) -> None:
+        """Block the upgrade when a pre-9.2 Suite CR has spec.settings.routingMode set to "path".
+
+        A routingMode value was accidentally written to Suite CRs on pre-9.2 instances.
+        If that stale value is present when upgrading from pre-9.2 to 9.2+, the pipeline will
+        attempt an unintended routing mode switch. This check fails early with clear remediation guidance.
+
+        Upgrades where the current channel is already 9.2+ are not blocked — routingMode=path
+        on a 9.2+ instance was set intentionally and must be preserved.
+
+        Args:
+            instanceId (str): The MAS instance ID to inspect.
+            currentChannel (str): The currently installed MAS channel.
+        """
+        # Only relevant when upgrading TO 9.2+
+        if not self.nextChannel or not isVersionEqualOrAfter("9.2.0", self.nextChannel):
+            return
+
+        # Already on 9.2+: routingMode=path was set intentionally, do not block
+        if currentChannel and isVersionEqualOrAfter("9.2.0", currentChannel):
+            return
+
+        try:
+            suiteAPI = self.dynamicClient.resources.get(api_version="core.mas.ibm.com/v1", kind="Suite")
+            suite = suiteAPI.get(name=instanceId, namespace=f"mas-{instanceId}-core")
+            routingMode = suite.get("spec", {}).get("settings", {}).get("routingMode")
+
+            if routingMode == "path":
+                self.fatalError(
+                    f'Cannot upgrade to {self.nextChannel}: spec.settings.routingMode is set to "path" on the Suite CR.\n\n'
+                    "This value was accidentally written to pre-9.2 Suite CRs and will cause the upgrade\n"
+                    "pipeline to attempt an unintended routing mode switch.\n\n"
+                    "To resolve this, remove the field from the Suite CR before retrying the upgrade:\n\n"
+                    f"  oc patch suite {instanceId} -n mas-{instanceId}-core --type=json \\\n"
+                    '    -p \'[{"op":"remove","path":"/spec/settings/routingMode"}]\'\n\n'
+                    "After applying the patch, re-run the upgrade."
+                )
+        except Exception as e:
+            logger.warning(f"Could not query Suite CR to check routingMode for upgrade pre-flight check: {e}")
+
     def upgrade(self, argv):
         """
         Upgrade MAS instance
@@ -316,6 +358,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.devMode = args.dev_mode
         self.applyPreInstallMASRBAC = False
         self.selectedAppsForRBAC = []
+        self.isInteractiveMode = instanceId is None
 
         # Pre-populate pipeline storage class from CLI args so configPipelineStorageClass
         self.pipelineStorageClass = args.storage_pipeline or None
@@ -521,6 +564,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         # Validate Kafka requirements for Civil component during upgrade
         self.validateKafkaForCivilUpgrade(instanceId)
 
+        # Block upgrade if Suite CR has a stale routingMode=path from a pre-9.2 install
+        self.checkRoutingModeForUpgrade(instanceId, currentChannel)
+
         detectedMode = None
 
         # Determine admin mode based on upgrade path
@@ -551,6 +597,20 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             )
 
         self.configPipelineStorageClass(instanceId)
+
+        # Show the equivalent non-interactive command before the review screen
+        self.masInstanceId = instanceId
+        nonInteractiveCommand = self.buildCommand()
+        self.printH1("Non-Interactive Upgrade Command")
+        self.printDescription(
+            [
+                "Save and re-use the following script to re-run this upgrade without needing to answer the interactive prompts again",
+                "",
+                nonInteractiveCommand,
+            ]
+        )
+        if self.isInteractiveMode:
+            offerCommandScript(self, nonInteractiveCommand, f"mas-upgrade-{instanceId}.sh")
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
@@ -646,3 +706,13 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {instanceId} upgrade, see log file for details")
                     print()
+
+            # Re-print the command so it is not lost in the scrollback above the
+            # pipeline launch output
+            self.printDescription(
+                [
+                    "For reference, the non-interactive command equivalent to this upgrade:",
+                    "",
+                    nonInteractiveCommand,
+                ]
+            )

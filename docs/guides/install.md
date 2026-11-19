@@ -194,11 +194,11 @@ The registry will be setup running on port 32500.  For more details on this step
 ### Mirror Container Images
 Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:
 
-- **direct** mirrors images directly from the source registry to your private registry
-- **to-filesystem** mirrors images from the source to a local directory
-- **from-filesystem** mirrors images from a local directory to your private registry
+- **m2m** mirrors images directly from the source registry to your private registry
+- **m2d** mirrors images from the source registry to a local directory
+- **d2m** mirrors images from a local directory to your private registry
 
-For full details on this process review the [image mirroring](image-mirroring.md) guide.
+For full details on this process review the [image mirroring](mirroring-v2.md) guide.
 
 
 ### Configure OpenShift to use your Private Registry
@@ -340,10 +340,18 @@ The interactive install will guide you through a series of questioned designed t
         <li>Assist and Predict are only available for install if Monitor is selected</li>
         <li>From MAS 9.1 onwards, Assist will be rebranded as Collaborate in the MAS UI. It will still appear as Assist in the MAS CLI and within the OpenShift Cluster, but from the MAS UI it will appear as Collaborate.</li>
         <li><strong>NEW UPDATE:</strong> AI Service is now available as an installation option during the application selection step.</li>
+        <li><strong>NEW UPDATE:</strong> Maximo Cluster Performance Insights (MCPI) can be enabled during installation for MAS 9.2 or later (using the <code>--install-mcpi</code> flag or via the interactive prompt).</li>
       </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Application Configuration">
       <p>Some Maximo applications support additional configuration, you will be taken through the configuration options for each application that you chose to install.</p>
+      <h4>NEW UPDATE: Maximo Cluster Performance Insights (MCPI)</h4>
+      <p><strong>NEW UPDATE:</strong> Starting with MAS 9.2.0, you can configure Maximo Cluster Performance Insights (MCPI) during installation:</p>
+      <ul>
+        <li><strong>Interactive Mode:</strong> When installing MAS 9.2 or later, you will be prompted whether to install MCPI.</li>
+        <li><strong>Non-Interactive Mode:</strong> Use the <code>--install-mcpi</code> flag to enable MCPI during installation. Note that <code>--install-mcpi</code> is only supported for MAS channel 9.2.x and later.</li>
+        <li><strong>Post-Installation:</strong> MCPI can also be configured on an existing MAS 9.2+ instance at any time using the <code>mas configure-mcpi</code> command (see <a href="../commands/configure-mcpi.md">configure-mcpi reference</a>).</li>
+      </ul>
       <h4>NEW UPDATE: Maximo Manage - AI Service Binding</h4>
       <p><strong>NEW UPDATE:</strong> When installing Maximo Manage, you can optionally bind it to an AI Service Tenant. This integration enables AI capabilities within Manage through the AI Config Application.</p>
       <ul>
@@ -437,12 +445,12 @@ The engine that performs all tasks is written in Ansible, you can directly use t
 - Optional dependency installation:
     - Apache Kafka
     - IBM Maximo AI Service
+    - IBM Maximo Cluster Performance Insights (MCPI)
     - IBM Db2
     - IBM Cloud Pak for Data Platform and Services
         - Watson Studio Local
         - Watson Machine Learning
         - Analytics Engine (Apache Spark)
-        - Cognos Analytics
     - Grafana
 - Suite core services installation
 - Suite application installation

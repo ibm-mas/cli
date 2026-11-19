@@ -227,7 +227,7 @@ def test_mirror_all_cp4d_packages(tmpdir):
     Test mirroring all CP4D packages together.
 
     This scenario tests:
-    - All CP4D packages: cp4d-platform, cp4d-wsl, cp4d-wml, cp4d-spark, cp4d-cognos
+    - All CP4D packages: cp4d-platform, cp4d-wsl, cp4d-wml, cp4d-spark
     - Mode: m2m
     - Should generate config with all CP4D package images
     """
@@ -242,7 +242,6 @@ def test_mirror_all_cp4d_packages(tmpdir):
             "cp4d-wsl": True,
             "cp4d-wml": True,
             "cp4d-spark": True,
-            "cp4d-cognos": True,
         },
         mock_oc_mirror_output=[
             "2026/02/09 17:00:00  [INFO]   : Hello, welcome to oc-mirror",
@@ -345,6 +344,72 @@ def test_mirror_assist_with_couchdb(tmpdir):
             "HOME": str(tmpdir),
         },
         config_exists_locally=True,
+    )
+
+    run_mirror_test(tmpdir, config)
+
+
+def test_mirror_all_flag_9_2_excludes_assist(tmpdir):
+    """Test mirroring with --all flag on MAS 9.2.x where Assist is removed.
+
+    GIVEN a catalog for release 9.2.x where Assist is not present
+    WHEN mirroring is run with --all
+    THEN Assist and CouchDB are excluded from mirroring without errors.
+    """
+    # Catalog data for 9.2.x without assist entry
+    catalog_data_9_2 = {
+        "sls_version": "3.10.0",
+        "tsm_version": "1.5.0",
+        "mas_core_version": {"9.2.x": "9.2.0"},
+        "mas_assist_version": {"9.1.x": "9.1.0"},  # Only 9.1.x
+        "couchdb_version": "1.0.13",
+        "mas_iot_version": {"9.2.x": "9.2.0"},
+        "mas_manage_version": {"9.2.x": "9.2.0"},
+        "mas_monitor_version": {"9.2.x": "9.2.0"},
+        "mas_predict_version": {"9.2.x": "9.2.0"},
+        "mas_optimizer_version": {"9.2.x": "9.2.0"},
+        "mas_visualinspection_version": {"9.2.x": "9.2.0"},
+        "mas_facilities_version": {"9.2.x": "9.2.0"},
+        "db2u_version": "11.5.9.0",
+        "mongo_extras_version_default": "6.0.0",
+        "cpd_product_version_default": "5.1.0",
+    }
+
+    config = MirrorTestConfig(
+        mode="m2m",
+        catalog_version="v9-260129-amd64",
+        release="9.2.x",
+        target_registry="registry.example.com/mas",
+        root_dir=str(tmpdir),
+        packages={},
+        mock_catalog_data=catalog_data_9_2,
+        mock_oc_mirror_output=[
+            "2026/02/09 17:00:00  [INFO]   : Hello, welcome to oc-mirror",
+            "2026/02/09 17:00:15  [INFO]   : 80 / 80 additional images mirrored successfully",
+        ],
+        mock_image_count=80,
+        expect_success=True,
+        timeout_seconds=30,
+        env_vars={
+            "IBM_ENTITLEMENT_KEY": "test-entitlement-key",
+            "REGISTRY_USERNAME": "testuser",
+            "REGISTRY_PASSWORD": "testpass",
+            "HOME": str(tmpdir),
+        },
+        config_exists_locally=True,
+        argv=[
+            "--catalog",
+            "v9-260129-amd64",
+            "--release",
+            "9.2.x",
+            "--mode",
+            "m2m",
+            "--dir",
+            str(tmpdir),
+            "--target-registry",
+            "registry.example.com/mas",
+            "--all",
+        ],
     )
 
     run_mirror_test(tmpdir, config)

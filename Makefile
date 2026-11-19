@@ -73,7 +73,7 @@ tekton/target:
 .PHONY: pytest-tekton
 pytest-tekton:
 ifeq ($(TEST),yes)
-	.venv/bin/pytest tekton/test_schema.py -v
+	.venv/bin/pytest tekton/test_schema.py tekton/test_bundles.py -v
 endif
 
 

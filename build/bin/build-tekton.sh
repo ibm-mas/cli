@@ -14,6 +14,7 @@ if [ "$DEV_MODE" != "true" ]; then
 
   TARGET_FILE=$GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
   TARGET_FILE_FVT=$GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
+  TARGET_FILE_GITOPS=$GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-gitops.yaml
   TARGET_FILE_IN_CLI=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
   TARGET_FILE_IN_PY=$GITHUB_WORKSPACE/python/src/mas/cli/templates/ibm-mas-tekton.yaml
 else
@@ -40,6 +41,7 @@ else
 
   TARGET_FILE=$DIR/../../tekton/target/ibm-mas-tekton.yaml
   TARGET_FILE_FVT=$DIR/../../tekton/target/ibm-mas-tekton-fvt.yaml
+  TARGET_FILE_GITOPS=$DIR/../../tekton/target/ibm-mas-tekton-gitops.yaml
   TARGET_FILE_IN_CLI=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yaml
   TARGET_FILE_IN_PY=$DIR/../../python/src/mas/cli/templates/ibm-mas-tekton.yaml
 fi
@@ -68,6 +70,7 @@ fi
 
 echo "" > $TARGET_FILE
 echo "" > $TARGET_FILE_FVT
+echo "" > $TARGET_FILE_GITOPS
 
 function addToFile() {
   src_file=$1
@@ -80,12 +83,23 @@ function addToFile() {
   echo "# --------------------------------------------------------------------------------" >> $dst_file
   echo "# $src_file" >> $dst_file
   echo "# --------------------------------------------------------------------------------" >> $dst_file
+
+  # Ensure the file is separated from the previous one in the combined file.  Without
+  # this, a definition that does not start with a document separator would be merged
+  # into the previous definition, silently discarding one of the two resources.
+  if ! head -1 "$src_file" | grep -q '^---'; then
+    echo "---" >> $dst_file
+  fi
+
   cat $src_file >> $dst_file
 }
 
 for FILE in $TASK_FILES; do
   FILE_NAME=$(basename $FILE)
   case "$FILE_NAME" in
+    gitops-*)
+      addToFile $FILE $TARGET_FILE_GITOPS
+      ;;
     *fvt-*|*ivt-*|aiservice-fvt*|aiservice-launchfvt*)
       addToFile $FILE $TARGET_FILE_FVT
       ;;
@@ -98,6 +112,9 @@ done
 for FILE in $PIPELINE_FILES; do
   FILE_NAME=$(basename $FILE)
   case "$FILE_NAME" in
+    gitops-*|deprovision-aiservice-deps*)
+      addToFile $FILE $TARGET_FILE_GITOPS
+      ;;
     *fvt-*|*ivt-*|aiservice-fvt*)
       addToFile $FILE $TARGET_FILE_FVT
       ;;

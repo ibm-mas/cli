@@ -12,6 +12,17 @@
 import re
 from typing import Dict, Callable
 
+# Prompts offered by the wizards' optional command-script conveniences
+# (clipboard copy / save-as-script for the generated non-interactive command).
+# Tests don't register these, so they are answered "n" by default rather than
+# failing the run; a test can still register its own pattern for them, which
+# takes precedence.  These matches are not counted in verify_all_prompts_matched.
+OPTIONAL_PROMPT_DEFAULTS: Dict[str, Callable[[str], str]] = {
+    r".*Copy this command to your clipboard.*": lambda message: "n",
+    r".*Save this command as a script file.*": lambda message: "n",
+    r".*Script file name.*": lambda message: "",
+}
+
 
 class PromptTracker:
     """
@@ -69,6 +80,12 @@ class PromptTracker:
         for pattern, (handler, _) in self.prompt_handlers.items():
             if re.match(pattern, message):
                 self.match_counts[pattern] += 1
+                return handler(message)
+
+        # Fall back to the optional prompts the wizard may ask as a convenience
+        # (answered with a default, not counted towards match verification)
+        for pattern, handler in OPTIONAL_PROMPT_DEFAULTS.items():
+            if re.match(pattern, message):
                 return handler(message)
 
         # No pattern matched - fail the test with debug info

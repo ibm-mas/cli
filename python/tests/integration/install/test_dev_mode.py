@@ -313,7 +313,6 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         ".*Manage server timezone.*": lambda msg: "GMT",  # Use GMT timezone
         ".*Base language.*": lambda msg: "EN",  # Use English as base language
         ".*Secondary language.*": lambda msg: "",  # No secondary language
-        ".*Enable integration with Cognos Analytics.*": lambda msg: "n",
         ".*Enable integration with Watson Studio Local.*": lambda msg: "n",
         ".*Select components to enable.*": lambda msg: "n",
         ".*Include customization archive.*": lambda msg: "n",
@@ -322,6 +321,7 @@ def test_install_master_dev_mode_with_path_routing(tmpdir):
         ".*Install Visual Inspection.*": lambda msg: "n",
         ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
         ".*Install AI Service.*": lambda msg: "n",
+        ".*Install Maximo Cluster Performance Insights.*": lambda msg: "n",
         # 23. Grafana configuration (appears when advanced options are enabled)
         ".*Install Grafana.*": lambda msg: "y",
         # 24. MongoDB configuration

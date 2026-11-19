@@ -3,7 +3,7 @@ function mirror_redhat_help() {
   reset_colors
   cat << EOM
 Usage:
-  mas mirror-images [options]
+  mas mirror-redhat-images [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 

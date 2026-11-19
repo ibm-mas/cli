@@ -352,7 +352,6 @@ class TestInteractiveLetsEncryptIntegration:
             ".*Manage server timezone.*": lambda msg: "GMT",
             ".*Base language.*": lambda msg: "EN",
             ".*Secondary language.*": lambda msg: "",
-            ".*Enable integration with Cognos Analytics.*": lambda msg: "n",
             ".*Enable integration with Watson Studio Local.*": lambda msg: "n",
             ".*Select components to enable.*": lambda msg: "n",
             ".*Include customization archive.*": lambda msg: "n",
@@ -361,6 +360,7 @@ class TestInteractiveLetsEncryptIntegration:
             ".*Install Visual Inspection.*": lambda msg: "n",
             ".*Install.*Real Estate and Facilities.*": lambda msg: "n",
             ".*Install AI Service.*": lambda msg: "n",
+            ".*Install Maximo Cluster Performance Insights.*": lambda msg: "n",
             ".*Do you want to configure AiCfg.*": lambda msg: "n",
             ".*Install Grafana.*": lambda msg: "y",
             # MongoDB

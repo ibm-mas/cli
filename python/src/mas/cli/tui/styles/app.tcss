@@ -1,0 +1,494 @@
+/* ==========================================================================
+   MAS CLI TUI — application stylesheet
+   All widget styles are consolidated here so no Python file contains
+   inline CSS strings.  App-level rules (TextualShell) have higher
+   specificity than widget DEFAULT_CSS and reliably override Textual's
+   built-in Header/Footer colours.
+   ========================================================================== */
+
+/* ---------- Header / Footer overrides ------------------------------------- */
+
+/* Chrome tint (phase 3.3): $surface rather than $background — one subtle
+   step lighter, so the header/footer read as a frame around the content
+   instead of disappearing into it.  Uses a theme variable, so the tint
+   follows whatever theme the app runs (see tui/theme.py). */
+Header, HeaderIcon, HeaderClockSpace, HeaderClock {
+    background: $surface;
+}
+
+/* Prevent the header from expanding when clicked. */
+Header.-tall {
+    height: 1;
+}
+
+Footer, FooterKey {
+    background: $surface;
+}
+
+/* ---------- TextualShell layout ------------------------------------------- */
+
+TextualShell {
+    layout: vertical;
+}
+
+#main-horizontal {
+    height: 1fr;
+}
+
+/* Fixed width rather than a percentage: predictable at any terminal size
+   (25% is 20 chars at 80 cols — headings wrap — and 50 chars at 200 cols).
+   Border tone: neutral $panel-lighten-2, matching every other border in
+   the app — borders structure the layout, they don't advertise the brand
+   colour (a primary-derived blue reads as a loud stripe next to the
+   Carbon greys). */
+#sidebar {
+    width: 34;
+    height: 100%;
+    border-right: solid $panel-lighten-2;
+    padding: 1;
+}
+
+#step-content {
+    width: 1fr;
+    height: 100%;
+}
+
+/* Responsive: below 100 columns (the Screen.-narrow class is applied by
+   TextualShell.HORIZONTAL_BREAKPOINTS) the sidebar is hidden so the
+   content area keeps a usable width. */
+Screen.-narrow #sidebar {
+    display: none;
+}
+
+/* ---------- Sidebar ListView ---------------------------------------------- */
+/* The sidebar list carries the shared .step-checklist class (see the shared
+   step checklist block below) — it speaks the same visual language as the
+   StepChecklist widget's in-content lists. */
+
+/* ---------- Shared step checklist (StepChecklist widget + sidebar list) ---- */
+
+/* Strip all built-in ListView highlighting: state is communicated by the
+   step-* classes and monochrome glyphs, not by selection / hover / focus
+   backgrounds.  Shared by the StepChecklist widget (dep / launch screens)
+   and the sidebar's #step-list. */
+.step-checklist,
+.step-checklist:focus,
+.step-checklist:focus-within {
+    background: $background;
+}
+
+.step-checklist > ListItem,
+.step-checklist > ListItem:hover,
+.step-checklist > ListItem.--highlight,
+.step-checklist:focus > ListItem.--highlight,
+.step-checklist:focus-within > ListItem.--highlight {
+    background: $background;
+    height: auto;
+}
+
+.step-checklist > ListItem > Label {
+    width: 100%;
+    text-wrap: wrap;
+}
+
+/* Checklists shown inside the scrollable content area are bordered boxes
+   (the sidebar list is not). */
+.step-checklist--boxed {
+    height: auto;
+    border: solid $panel-lighten-2;
+    margin-top: 1;
+}
+
+/* ---------- Sidebar step states ------------------------------------------- */
+
+.step-active {
+    color: $accent;
+    text-style: bold;
+}
+
+.step-completed {
+    color: $success;
+}
+
+.step-skipped {
+    color: $text-muted;
+}
+
+/* ---------- Shared field / description styles ----------------------------- */
+
+/* Text hierarchy: step headings are the only bold full-contrast text;
+   descriptions are muted; field labels keep normal contrast so input
+   values (full contrast) stand out against them. */
+.step-heading {
+    text-style: bold;
+    color: $text;
+    margin-bottom: 1;
+}
+
+.field-label {
+    margin-top: 1;
+}
+
+.description-para {
+    color: $text-muted;
+    margin-bottom: 1;
+    width: 100%;
+    text-wrap: wrap;
+}
+
+/* ---------- Shared screen layout (phase 3.1) ------------------------------- */
+
+/* Scrollable content area inside a step panel.  Every screen's scrollable
+   content carries this class so the gutter is identical between steps —
+   it previously varied (0, 1 or 1 2 depending on the screen), which read
+   as the content jumping sideways when moving between steps. */
+.content-scroll {
+    height: 1fr;
+    padding: 1 2;
+}
+
+/* Fixed-height action bar pinned below the scrollable content.  The height
+   is fixed (border-top 1 + status row 1 + gap 1 + buttons 3 = 6) so the
+   content / action-bar boundary sits on the same row on every screen, and
+   nothing revealed mid-flow can shift the layout: the status row keeps
+   its height whether it holds guidance text, an error, or nothing, and
+   buttons hidden with display:none appear without moving anything.
+   Vertical padding is deliberately 0 — the border-top already separates
+   the bar from the content, and the buttons belong flush to the panel's
+   bottom edge. */
+.action-bar {
+    height: 6;
+    padding: 0 2;
+    border-top: solid $panel-lighten-2;
+}
+
+/* Reserved status row: one line of muted guidance, or the error styling
+   via .action-status--error.  Long messages are truncated with an
+   ellipsis rather than wrapped so the row can never grow. */
+.action-status {
+    height: 1;
+    margin-bottom: 1;
+    width: 100%;
+    color: $text-muted;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+.action-status--error {
+    color: $error;
+    text-style: bold;
+}
+
+/* Status rows that host a leading busy spinner (the connect screen): the
+   geometry stays on the row, the text treatment applies to its Label. */
+.action-status > Label {
+    width: 1fr;
+    color: $text-muted;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+.action-status > .action-status--error {
+    color: $error;
+    text-style: bold;
+}
+
+.action-buttons {
+    height: 3;
+}
+
+/* Consistent horizontal rhythm between the bar's buttons — Textual
+   buttons carry no default margin, so several buttons in a row render
+   flush against each other (most visible on the review screen's
+   four-button row).  A 2-cell gap between neighbours; no trailing
+   margin on the last button so the row's right edge stays flush, and
+   the first button aligns with the status text above it. */
+.action-buttons > Button {
+    margin-right: 2;
+}
+
+.action-buttons > Button:last-child {
+    margin-right: 0;
+}
+
+/* Busy spinner leading the ActionBar's status row while a worker runs
+   (ActionBar(busy=True), currently the connect screen).  Visibility is
+   managed in Python by the widget's show_busy / hide_busy helpers; the
+   geometry lives here. */
+#action-busy-spinner {
+    width: 3;
+    height: 1;
+    margin-right: 1;
+}
+
+/* ---------- ActionOverlay ------------------------------------------------- */
+
+ActionOverlay {
+    align: center middle;
+}
+
+#action-dialog {
+    width: 70%;
+    max-width: 100;
+    height: auto;
+    max-height: 80%;
+    background: $surface;
+    border: round $panel-lighten-2;
+    padding: 1 2;
+}
+
+#action-log {
+    height: 10;
+    border: solid $panel-lighten-2;
+}
+
+#btn-dismiss {
+    display: none;
+    margin-top: 1;
+}
+
+/* ---------- ConnectStepScreen --------------------------------------------- */
+/* Root is a Vertical: a .content-scroll area (heading + ContentSwitcher)
+   with the shared ActionBar below (busy status row + Yes/No/Connect buttons —
+   which buttons are visible follows the active sub-screen). */
+
+#connect-switcher {
+    height: 1fr;
+}
+
+#connect-reuse, #connect-new {
+    height: 100%;
+    padding: 0;
+}
+
+.connect-heading {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+.connect-url {
+    color: $accent;
+    margin-bottom: 1;
+    width: 100%;
+    text-wrap: wrap;
+}
+
+.connect-field-label {
+    margin-top: 1;
+}
+
+/* ---------- AutoRunScreen ------------------------------------------------- */
+
+AutoRunScreen {
+    height: 100%;
+}
+
+/* #dep-content carries .content-scroll (padding 1 2 + height 1fr); the step
+   list is a StepChecklist (.step-checklist rules) and the footer an
+   ActionBar (.action-bar rules). */
+
+#btn-next-dep {
+    display: none;
+}
+
+#btn-next-dep.dep-ready {
+    display: block;
+}
+
+#btn-quit-dep {
+    display: none;
+}
+
+#btn-quit-dep.dep-failed {
+    display: block;
+}
+
+/* ---------- LaunchScreen -------------------------------------------------- */
+
+LaunchScreen {
+    height: 100%;
+}
+
+/* #launch-content carries .content-scroll; the step list is a StepChecklist
+   (.step-checklist rules) and the footer an ActionBar (.action-bar rules). */
+
+#pipeline-url {
+    margin-top: 1;
+    width: 100%;
+    text-wrap: wrap;
+    color: $accent;
+}
+
+/* ---------- Shared step-error state --------------------------------------- */
+
+.step-error {
+    color: $error;
+    text-style: bold;
+}
+
+/* ---------- ReviewScreen -------------------------------------------------- */
+
+ReviewScreen {
+    height: 100%;
+}
+
+/* #review-content carries .content-scroll; the footer is an ActionBar
+   (.action-bar rules). */
+
+#review-content Markdown {
+    margin-top: 0;
+    /* The Markdown widget's own 0 2 padding is stripped so the review text
+       sits at the same gutter as every other screen's content (the
+       .content-scroll padding already provides the 1 2). */
+    padding: 0;
+}
+
+/* MarkdownH2 inherits margin: 2 0 1 0 from MarkdownHeader — strip the
+   top margin on the first heading so there is no blank space above it. */
+#review-content MarkdownH2:first-of-type {
+    margin-top: 0;
+}
+
+/* ---------- Non-interactive command panel --------------------------------- */
+
+/* Bordered panel showing the equivalent non-interactive command — on the
+   review screen (below the summary) and the launch screen (below the
+   pipeline URL).  Mirrors the .confirm-section / .step-context panel
+   treatment. */
+.command-panel {
+    height: auto;
+    margin-top: 1;
+    margin-bottom: 1;
+    padding: 1;
+    border: round $panel-lighten-2;
+}
+
+.command-panel-caption {
+    color: $text-muted;
+    margin-bottom: 1;
+    text-wrap: wrap;
+}
+
+/* The command itself: shell text with continuation lines — wrapped rather
+   than clipped so narrow terminals still show the whole command. */
+.command-text {
+    text-wrap: wrap;
+    color: $accent;
+}
+
+/* ---------- StepScreen ---------------------------------------------------- */
+
+StepScreen {
+    height: 100%;
+}
+
+/* Read-only context panel shown between the description and the fields
+   (e.g. the installed catalog on the update choose-catalog step).  Mirrors
+   the .confirm-section panel style. */
+.step-context {
+    height: auto;
+    margin-top: 1;
+    margin-bottom: 1;
+    padding: 1;
+    border: round $panel-lighten-2;
+}
+
+.context-row {
+    height: auto;
+}
+
+.context-label {
+    width: 30;
+    color: $text-muted;
+}
+
+.context-value {
+    width: 1fr;
+    text-wrap: wrap;
+    color: $accent;
+}
+
+/* ---------- ConfirmUpgradesScreen ---------------------------------------- */
+
+ConfirmUpgradesScreen {
+    height: 100%;
+}
+
+.confirm-section {
+    margin-top: 1;
+    margin-bottom: 1;
+    padding: 1;
+    border: round $panel-lighten-2;
+}
+
+.confirm-section-heading {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+.confirm-section-para {
+    margin-bottom: 1;
+    width: 100%;
+    text-wrap: wrap;
+}
+
+.confirm-checkbox {
+    margin-top: 1;
+}
+
+/* ---------- ParamsOverlay ------------------------------------------------- */
+
+ParamsOverlay {
+    align: center middle;
+}
+
+#params-dialog {
+    width: 70%;
+    max-width: 100;
+    height: 80%;
+    background: $surface;
+    border: round $panel-lighten-2;
+    padding: 1 2;
+}
+
+#params-heading {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#params-table {
+    height: 1fr;
+}
+
+#btn-params-close {
+    margin-top: 1;
+}
+
+/* ---------- TerminalTooSmallScreen ---------------------------------------- */
+
+TerminalTooSmallScreen {
+    align: center middle;
+}
+
+#size-notice-dialog {
+    width: 44;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+    background: $surface;
+    border: round $warning;
+    padding: 1 2;
+    overflow: hidden;
+}
+
+.size-notice-heading {
+    text-style: bold;
+    color: $warning;
+    margin-bottom: 1;
+}
+
+.size-notice-para {
+    width: 100%;
+    text-wrap: wrap;
+    color: $text-muted;
+}
