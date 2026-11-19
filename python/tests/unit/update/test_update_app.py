@@ -283,14 +283,18 @@ class TestDetectRHOAIv2:
     def test_v2_installed_and_v3_catalog_triggers_upgrade(self):
         app = self._app_with_installed_csv("stable-3.x", "rhods-operator.2.25.0")
 
-        assert app.detectRHOAIv2() is True
+        result = app.detectRHOAIv2()
+        assert isinstance(result, DetectResult)
+        assert result.ok is True
         assert app.rhoaiV2Detected is True
         assert app.getParam("odh_to_rhoai_migration") == "true"
 
     def test_v2_installed_and_v2_catalog_does_nothing(self):
         app = self._app_with_installed_csv("stable", "rhods-operator.2.25.0")
 
-        assert app.detectRHOAIv2() is False
+        result = app.detectRHOAIv2()
+        assert isinstance(result, DetectResult)
+        assert result.ok is True
         assert app.rhoaiV2Detected is False
         assert app.getParam("odh_to_rhoai_migration") == ""
         app._dynClient.resources.get.assert_not_called()
@@ -298,7 +302,10 @@ class TestDetectRHOAIv2:
     def test_v3_installed_and_v3_catalog_does_nothing(self):
         app = self._app_with_installed_csv("stable-3.x", "rhods-operator.3.0.0")
 
-        assert app.detectRHOAIv2() is False
+        result = app.detectRHOAIv2()
+        assert isinstance(result, DetectResult)
+        assert result.ok is True
+        assert app.rhoaiV2Detected is False
         assert app.getParam("odh_to_rhoai_migration") == ""
 
 

@@ -766,10 +766,17 @@ class UpdateApp(BaseApp, updateArgBuilderMixin, AdditionalConfigsMixin):
         role removes v2 and installs v3 (the same pipeline task is used as for
         the ODH to RHOAI migration).
 
+        This only applies when the target catalog uses RHOAI v3 (channel stable-3.x),
+        catalogs before November 2026 stay on RHOAI v2 so there is nothing to upgrade.
+
         Returns:
             DetectResult: Message describes whether a RHOAI v2 to v3 upgrade is needed.
         """
         self.rhoaiV2Detected = False
+        if "-3." not in self.getParam("rhoai_channel"):
+            logger.debug(f"RHOAI channel '{self.getParam('rhoai_channel')}' is not a v3 channel, skipping RHOAI v2 upgrade check")
+            return DetectResult(ok=True, message="RHOAI v2 upgrade check skipped (target is not RHOAI v3)")
+
         try:
             subscriptionAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
             subscriptions = subscriptionAPI.get(namespace="redhat-ods-operator", name="rhods-operator")
