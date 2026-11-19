@@ -27,6 +27,7 @@ The other values can be left at their defaults.  Finally, click **Generate** and
 You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/installation_overview/index).  The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
 - [AWS](provision-aws.md)
+- [AWS ROSA](provision-rosa.md)
 - [IBM Cloud](provision-roks.md)
 - [IBM DevIT FYRE (Internal)](provision-fyre.md)
 
