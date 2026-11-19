@@ -1,0 +1,144 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:grafana5
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline:grafana5
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:grafana5
+rules:
+  # Creation of RBAC
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+      - clusterrolebindings
+      - roles
+      - rolebindings
+    verbs:
+      - get
+      - create
+      - patch
+
+  # We need all the same permissions that the grafana-operator ClusterRole needs, to be able to create that ClusterRole
+  # See: ibm/mas_devops/roles/grafana/templates/grafana/v5/grafana-rbac.yml.j2
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+      - update
+      - patch
+  - apiGroups:
+      - integreatly.org
+    resources:
+      - grafanadashboards
+      - grafanadatasources
+      - grafanadatasources/status
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+      - deletecollection
+      - watch
+  - apiGroups:
+      - grafana.integreatly.org
+    resources:
+      - grafanadashboards
+      - grafanadatasources
+      - grafanadatasources/status
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+      - update
+      - delete
+      - deletecollection
+      - watch
+
+  # We need all the same permissions that the prometheus-role ClusterRole needs, to be able to create that ClusterRole
+  # See: ibm/mas_devops/roles/grafana/templates/grafana/v5/grafana-prometheus-serviceaccount.yml.j2
+  - verbs:
+      - get
+      - create
+    apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - prometheuses/api
+      - prometheus/api
+      - prometheuses
+      - prometheus
+  - verbs:
+      - get
+    apiGroups:
+      - ''
+    resources:
+      - nodes/metrics
+  - verbs:
+      - get
+    nonResourceURLs:
+      - /metrics
+  - verbs:
+      - create
+    apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+  - verbs:
+      - create
+    apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+  - verbs:
+      - get
+    apiGroups:
+      - ''
+    resources:
+      - namespaces
+  - verbs:
+      - get
+      - list
+      - watch
+    apiGroups:
+      - ''
+    resources:
+      - services
+      - endpoints
+      - pods
+  - verbs:
+      - get
+    apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - alertmanagers
+  - verbs:
+      - use
+    apiGroups:
+      - security.openshift.io
+    resources:
+      - securitycontextconstraints
+    resourceNames:
+      - nonroot-v2
+  - verbs:
+      - create
+    nonResourceURLs:
+      - /api/v2/alerts
