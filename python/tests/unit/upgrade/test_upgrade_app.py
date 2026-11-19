@@ -1,0 +1,568 @@
+# *****************************************************************************
+# Copyright (c) 2026 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# *****************************************************************************
+
+"""
+Unit tests for UpgradeApp.
+
+Covers the TUI execution path: fetchInstalledInstanceIds (the connect
+step's post_connect hook), prepareUpgrade (the instance-selection step
+validator), and the launchUpgrade stage helpers.
+"""
+
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from mas.cli.upgrade.app import UpgradeApp
+
+pytestmark = pytest.mark.upgrade
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _make_app(**attrs) -> UpgradeApp:
+    """Build a minimal UpgradeApp instance without touching the CLI arg parser.
+
+    Args:
+        **attrs: Instance attributes to override after construction.
+
+    Returns:
+        UpgradeApp: App with a mocked dynamic client and TUI-friendly
+            defaults (the state serveTuiMode constructs).
+    """
+    app = UpgradeApp()
+    app.tuiMode = True
+    app._dynClient = MagicMock()
+    app.lookupTargetArchitecture = MagicMock()
+    for key, value in attrs.items():
+        setattr(app, key, value)
+    return app
+
+
+# ---------------------------------------------------------------------------
+# fetchInstalledInstanceIds
+# ---------------------------------------------------------------------------
+
+
+def test_fetch_installed_instance_ids_caches_sorted_list():
+    """Test that fetchInstalledInstanceIds stores sorted IDs on the instance.
+
+    GIVEN a connected dynamicClient returning two MAS Suite CRs
+    WHEN fetchInstalledInstanceIds is called
+    THEN _installedInstanceIds is set to a sorted list of instance ID strings.
+    """
+    app = _make_app()
+
+    suites = [
+        {"metadata": {"labels": {"mas.ibm.com/instanceId": "prod"}}},
+        {"metadata": {"labels": {"mas.ibm.com/instanceId": "dev"}}},
+    ]
+    with patch("mas.cli.upgrade.app.listMasInstances", return_value=suites):
+        app.fetchInstalledInstanceIds()
+
+    assert app._installedInstanceIds == ["dev", "prod"]
+
+
+def test_fetch_installed_instance_ids_raises_when_none_found():
+    """Test that fetchInstalledInstanceIds raises RuntimeError when no MAS instances exist.
+
+    GIVEN a connected dynamicClient returning an empty list
+    WHEN fetchInstalledInstanceIds is called
+    THEN RuntimeError is raised with a message about no instances found, so
+         the error surfaces on the connect screen (via post_connect) rather
+         than leaving the instance-selection step empty.
+    """
+    app = _make_app()
+
+    with patch("mas.cli.upgrade.app.listMasInstances", return_value=[]):
+        with pytest.raises(RuntimeError, match="No MAS instances were found"):
+            app.fetchInstalledInstanceIds()
+
+
+# ---------------------------------------------------------------------------
+# prepareUpgrade
+# ---------------------------------------------------------------------------
+
+
+def _patch_cluster(**kwargs):
+    """Patch the cluster-query functions prepareUpgrade depends on.
+
+    Defaults describe a healthy 9.1.x instance with Manage installed and a
+    resolvable pipeline storage class; individual tests override returns
+    via kwargs.
+    """
+    defaults = {
+        "getMasChannel": "9.1.x",
+        "getAppsSubscriptionChannel": [{"appId": "manage", "channel": "9.1.x"}],
+        "verifyAppInstance": True,
+        "getWorkspaceId": None,
+        "evaluatePreinstallRBACAccess": False,
+        "lookupPipelineStorageClass": ("ocs-storagecluster-cephfs", "ReadWriteMany"),
+    }
+    defaults.update(kwargs)
+    patches = [patch(f"mas.cli.upgrade.app.{name}", return_value=value) for name, value in defaults.items()]
+    return patches
+
+
+def _run_patches(patches):
+    """Enter every patch and return the started mock patchers."""
+    started = [p.start() for p in patches]
+    return started
+
+
+def test_prepare_upgrade_happy_path_derives_next_channel():
+    """Test that prepareUpgrade derives the next channel and storage state.
+
+    GIVEN a 9.1.x instance with all apps on 9.1.x and the license accepted
+    WHEN prepareUpgrade runs as the instance-selection validator
+    THEN nextChannel is 9.2.x (from upgrade_path), currentChannel and
+         effectiveCurrentChannel are 9.1.x, masInstanceId is set, and the
+         pipeline storage class is read from the existing config-pvc.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster())
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.currentChannel == "9.1.x"
+    assert app.nextChannel == "9.2.x"
+    assert app.effectiveCurrentChannel == "9.1.x"
+    assert app.masInstanceId == "inst1"
+    assert app.pipelineStorageClass == "ocs-storagecluster-cephfs"
+    assert app.pipelineStorageAccessMode == "ReadWriteMany"
+    assert app.noConfirm is True
+
+
+def test_prepare_upgrade_oldest_app_channel_drives_target():
+    """Test that a behind app holds the upgrade target back one hop.
+
+    GIVEN a Core on 9.2.x but Manage still on 9.1.x
+    WHEN prepareUpgrade runs
+    THEN effectiveCurrentChannel is 9.1.x and nextChannel is 9.2.x (not
+         9.3.x-feature), so partial upgrade resumption targets the right hop.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(getMasChannel="9.2.x", getAppsSubscriptionChannel=[{"appId": "manage", "channel": "9.1.x"}]))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.effectiveCurrentChannel == "9.1.x"
+    assert app.nextChannel == "9.2.x"
+
+
+def test_prepare_upgrade_already_fully_upgraded_raises():
+    """Test that a fully upgraded instance raises instead of advancing.
+
+    GIVEN an instance on 9.3.x-feature with all apps on the same channel
+    WHEN prepareUpgrade runs
+    THEN RuntimeError is raised with a "No action required" message, shown
+         inline on the instance-selection step.
+    """
+    app = _make_app()
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(getMasChannel="9.3.x-feature", getAppsSubscriptionChannel=[{"appId": "manage", "channel": "9.3.x-feature"}]))
+    try:
+        with pytest.raises(RuntimeError, match="No action required"):
+            app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+
+def test_prepare_upgrade_incompatible_apps_raise():
+    """Test that apps incompatible with the target channel raise.
+
+    GIVEN a 9.1.x instance with Assist installed (withdrawn in MAS 9.2)
+    WHEN prepareUpgrade runs
+    THEN RuntimeError is raised listing the compatibility issue, so the
+         upgrade is blocked before the review screen.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(getAppsSubscriptionChannel=[{"appId": "assist", "channel": "9.1.x"}]))
+    try:
+        with pytest.raises(RuntimeError, match="Cannot upgrade to 9.2.x"):
+            app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+
+def test_prepare_upgrade_app_on_wrong_channel_raises():
+    """Test that an app on an incompatible channel for the target raises.
+
+    GIVEN a 9.0.x instance with Manage still on 8.7.x (not compatible with
+        the 9.1.x target derived from the oldest channel)
+    WHEN prepareUpgrade runs
+    THEN RuntimeError is raised naming the app and the channels it must be on.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(getMasChannel="9.0.x", getAppsSubscriptionChannel=[{"appId": "manage", "channel": "8.7.x"}]))
+    try:
+        with pytest.raises(RuntimeError, match="manage"):
+            app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+
+def test_prepare_upgrade_license_not_accepted_raises():
+    """Test that an unaccepted license blocks the upgrade with CLI guidance.
+
+    GIVEN a 9.1.x instance and licenseAccepted False (the TUI default)
+    WHEN prepareUpgrade runs
+    THEN RuntimeError is raised telling the user to re-run with the classic
+         CLI and --accept-license (the TUI has no license step yet).
+    """
+    app = _make_app()
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster())
+    try:
+        with pytest.raises(RuntimeError, match="accept the license terms"):
+            app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+
+def test_prepare_upgrade_unknown_channel_proceeds_with_placeholders():
+    """Test that an undetectable channel proceeds with Unknown placeholders.
+
+    GIVEN a cluster where getMasChannel returns None (e.g. upgrade queued
+        after install)
+    WHEN prepareUpgrade runs
+    THEN currentChannel and nextChannel are "Unknown" and no RuntimeError is
+         raised (the license and compatibility gates are skipped).
+    """
+    app = _make_app()
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(getMasChannel=None))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.currentChannel == "Unknown"
+    assert app.nextChannel == "Unknown"
+
+
+def test_prepare_upgrade_manage_foundation_directs_to_cli():
+    """Test that a Manage Foundation upgrade directs the user to the classic CLI.
+
+    GIVEN a 9.0.x instance without Manage installed (9.0.x to 9.1.x needs
+        Manage Foundation)
+    WHEN prepareUpgrade runs
+    THEN RuntimeError is raised directing the user to the classic CLI,
+         because the entitlement / storage / Db2 prompts have no TUI yet.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(getMasChannel="9.0.x", verifyAppInstance=False))
+    try:
+        with pytest.raises(RuntimeError, match="Manage Foundation"):
+            app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+
+def test_prepare_upgrade_detects_rbac_mode_for_9_2_target():
+    """Test that a 9.2.x target defaults to cluster mode and evaluates RBAC.
+
+    GIVEN a 9.1.x instance being upgraded to 9.2.x
+    WHEN prepareUpgrade runs
+    THEN detectedMode is "cluster" and evaluatePreinstallRBACAccess is
+         called with that mode, its result stored for launchUpgrade.
+    """
+    app = _make_app(licenseAccepted=True)
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(evaluatePreinstallRBACAccess=True))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.detectedMode == "cluster"
+    assert app.applyPreInstallMASRBAC is True
+
+
+# ---------------------------------------------------------------------------
+# launchUpgrade stage helpers
+# ---------------------------------------------------------------------------
+
+
+def test_validate_openshift_pipelines_success():
+    """Test _validateOpenShiftPipelines returns success when operator installs.
+
+    GIVEN an UpgradeApp instance
+    WHEN _validateOpenShiftPipelines is called and the operator installs
+    THEN it returns (True, success_message).
+    """
+    app = _make_app()
+
+    with patch("mas.cli.upgrade.app.installOpenShiftPipelines", return_value=True):
+        success, detail = app._validateOpenShiftPipelines()
+
+    assert success is True
+    assert "installed and ready" in detail.lower()
+
+
+def test_validate_openshift_pipelines_failure():
+    """Test _validateOpenShiftPipelines returns failure when operator fails.
+
+    GIVEN an UpgradeApp instance
+    WHEN _validateOpenShiftPipelines is called and installation fails
+    THEN it returns (False, failure_message).
+    """
+    app = _make_app()
+
+    with patch("mas.cli.upgrade.app.installOpenShiftPipelines", return_value=False):
+        success, detail = app._validateOpenShiftPipelines()
+
+    assert success is False
+    assert "failed" in detail.lower()
+
+
+def test_prepare_upgrade_namespace_passes_storage_class_and_secrets():
+    """Test _prepareUpgradeNamespace prepares the instance pipelines namespace.
+
+    GIVEN an UpgradeApp with the pipeline storage class resolved and params set
+    WHEN _prepareUpgradeNamespace is called
+    THEN the namespace is created, preparePipelinesNamespace receives the
+         instance ID and storage class, and prepareUpgradeSecrets receives
+         the entitlement / artifactory params.
+    """
+    app = _make_app(pipelineStorageClass="ocs-sc", pipelineStorageAccessMode="ReadWriteMany")
+    app.params["ibm_entitlement_key"] = "ent-key"
+
+    with (
+        patch("mas.cli.upgrade.app.createNamespace") as mock_create,
+        patch("mas.cli.upgrade.app.preparePipelinesNamespace") as mock_prepare,
+        patch("mas.cli.upgrade.app.prepareUpgradeSecrets") as mock_secrets,
+    ):
+        success, detail = app._prepareUpgradeNamespace("mas-inst1-pipelines", "inst1")
+
+    mock_create.assert_called_once_with(app._dynClient, "mas-inst1-pipelines")
+    mock_prepare.assert_called_once_with(
+        dynClient=app._dynClient,
+        instanceId="inst1",
+        storageClass="ocs-sc",
+        accessMode="ReadWriteMany",
+    )
+    mock_secrets.assert_called_once_with(
+        dynClient=app._dynClient,
+        namespace="mas-inst1-pipelines",
+        ibm_entitlement_key="ent-key",
+        artifactory_token="",
+        artifactory_username="",
+    )
+    assert success is True
+    assert detail == "mas-inst1-pipelines"
+
+
+def test_install_tekton_definitions_updates_definitions():
+    """Test _installTektonDefinitions updates Tekton definitions.
+
+    GIVEN an UpgradeApp with version and tektonDefsPath set
+    WHEN _installTektonDefinitions is called
+    THEN Tekton definitions are updated and the version is returned.
+    """
+    app = _make_app()
+    app.version = "1.2.3"
+    app.tektonDefsPath = "/path/to/defs"
+
+    with patch("mas.cli.upgrade.app.updateTektonDefinitions") as mock_update:
+        success, detail = app._installTektonDefinitions("mas-inst1-pipelines")
+
+    mock_update.assert_called_once_with(app._dynClient, "mas-inst1-pipelines", "/path/to/defs")
+    assert success is True
+    assert detail == "v1.2.3"
+
+
+def test_submit_upgrade_pipeline_run_passes_effective_channel():
+    """Test _submitUpgradePipelineRun passes the effective current channel.
+
+    GIVEN an app in the post-prepareUpgrade state (9.1.x to 9.2.x)
+    WHEN _submitUpgradePipelineRun is called
+    THEN launchUpgradePipeline is called with the instance ID, skip flag and
+         masChannel=9.1.x, and the pipeline URL is returned as the detail.
+    """
+    app = _make_app(
+        masInstanceId="inst1",
+        currentChannel="9.1.x",
+        nextChannel="9.2.x",
+        effectiveCurrentChannel="9.1.x",
+    )
+
+    with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch:
+        success, detail = app._submitUpgradePipelineRun()
+
+    mock_launch.assert_called_once_with(app._dynClient, "inst1", False, masChannel="9.1.x", params=app.params)
+    assert success is True
+    assert detail == "https://example.com/pipelinerun"
+
+
+def test_submit_upgrade_pipeline_run_retry_passes_previous_channel():
+    """Test the retry scenario passes the previous channel to the pipeline.
+
+    GIVEN an app whose next channel equals its current channel (core already
+        on 9.0.x, apps still behind)
+    WHEN _submitUpgradePipelineRun is called
+    THEN masChannel is the channel that precedes the current one (the first
+         upgrade_path entry mapping to it, as in the classic launch logic),
+         so Ansible upgrades the remaining apps to the current channel.
+    """
+    app = _make_app(
+        masInstanceId="inst1",
+        currentChannel="9.0.x",
+        nextChannel="9.0.x",
+        effectiveCurrentChannel="8.11.x",
+    )
+
+    with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch:
+        app._submitUpgradePipelineRun()
+
+    assert mock_launch.call_args.kwargs["masChannel"] == "8.11.x"
+
+
+def test_submit_upgrade_pipeline_run_failure():
+    """Test _submitUpgradePipelineRun returns failure when the launch fails.
+
+    GIVEN an app in the post-prepareUpgrade state
+    WHEN launchUpgradePipeline returns None
+    THEN it returns (False, failure_message).
+    """
+    app = _make_app(masInstanceId="inst1", currentChannel="9.1.x", nextChannel="9.2.x", effectiveCurrentChannel="9.1.x")
+
+    with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value=None):
+        success, detail = app._submitUpgradePipelineRun()
+
+    assert success is False
+    assert "failed" in detail.lower()
+
+
+# ---------------------------------------------------------------------------
+# launchUpgrade orchestration
+# ---------------------------------------------------------------------------
+
+
+def test_launch_upgrade_reports_stages_and_submits_pipeline():
+    """Test launchUpgrade drives every stage through the progress callbacks.
+
+    GIVEN an app in the post-prepareUpgrade state with RBAC not required,
+        with the cluster functions mocked
+    WHEN launchUpgrade runs with TUI progress callbacks
+    THEN every stage is started and reported successful in order, and the
+         PipelineRun is submitted for the selected instance.
+    """
+    app = _make_app(
+        masInstanceId="inst1",
+        currentChannel="9.1.x",
+        nextChannel="9.2.x",
+        effectiveCurrentChannel="9.1.x",
+        pipelineStorageClass="ocs-sc",
+        pipelineStorageAccessMode="ReadWriteMany",
+    )
+    app.params["mas_instance_id"] = "inst1"
+    app.createTektonFileWithDigest = MagicMock()
+
+    events = []
+
+    with (
+        patch("mas.cli.upgrade.app.installOpenShiftPipelines", return_value=True),
+        patch("mas.cli.upgrade.app.createNamespace"),
+        patch("mas.cli.upgrade.app.preparePipelinesNamespace"),
+        patch("mas.cli.upgrade.app.prepareUpgradeSecrets"),
+        patch("mas.cli.upgrade.app.updateTektonDefinitions"),
+        patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun") as mock_launch,
+    ):
+        app.launchUpgrade(
+            progressCallback=lambda label, ok, detail: events.append(("done", label, ok, detail)),
+            startCallback=lambda label: events.append(("start", label)),
+        )
+
+    started = [e[1] for e in events if e[0] == "start"]
+    assert started == ["Validate OpenShift Pipelines", "Prepare pipelines namespace", "Install Tekton definitions", "Submit PipelineRun"]
+
+    done = {e[1]: e for e in events if e[0] == "done"}
+    assert all(e[2] is True for e in done.values())
+    assert done["Submit PipelineRun"][3] == "https://example.com/pipelinerun"
+
+    mock_launch.assert_called_once_with(app._dynClient, "inst1", False, masChannel="9.1.x", params=app.params)
+
+
+def test_launch_upgrade_applies_rbac_when_required():
+    """Test launchUpgrade applies pre-install RBAC between pipelines and namespace stages.
+
+    GIVEN an app whose prepareUpgrade detected RBAC is required (9.2.x
+        target, cluster mode)
+    WHEN launchUpgrade runs
+    THEN applyPreInstallMASRBAC is called with the target version and mode,
+         reported as a stage between OpenShift Pipelines validation and
+         namespace preparation.
+    """
+    app = _make_app(
+        masInstanceId="inst1",
+        currentChannel="9.1.x",
+        nextChannel="9.2.x",
+        effectiveCurrentChannel="9.1.x",
+        applyPreInstallMASRBAC=True,
+        detectedMode="cluster",
+    )
+    app.params["mas_instance_id"] = "inst1"
+    app.createTektonFileWithDigest = MagicMock()
+
+    events = []
+
+    with (
+        patch("mas.cli.upgrade.app.installOpenShiftPipelines", return_value=True),
+        patch("mas.cli.upgrade.app.getInstalledApps", return_value=["manage"]) as mock_apps,
+        patch("mas.cli.upgrade.app.applyPreInstallMASRBAC") as mock_apply,
+        patch("mas.cli.upgrade.app.createNamespace"),
+        patch("mas.cli.upgrade.app.preparePipelinesNamespace"),
+        patch("mas.cli.upgrade.app.prepareUpgradeSecrets"),
+        patch("mas.cli.upgrade.app.updateTektonDefinitions"),
+        patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://example.com/pipelinerun"),
+    ):
+        app.launchUpgrade(
+            progressCallback=lambda label, ok, detail: events.append(("done", label, ok, detail)),
+            startCallback=lambda label: events.append(("start", label)),
+        )
+
+    mock_apply.assert_called_once()
+    assert mock_apply.call_args.kwargs["masVersion"] == "9.2"
+    assert mock_apply.call_args.kwargs["adminMode"] == "cluster"
+    assert mock_apply.call_args.kwargs["selectedApps"] == ["manage"]
+    mock_apps.assert_called_once()
+
+    started = [e[1] for e in events if e[0] == "start"]
+    assert started.index("Apply pre-install MAS RBAC") == 1
