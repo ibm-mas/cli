@@ -8,6 +8,8 @@
 #
 # *****************************************************************************
 
+"""Shared helpers reused across MAS CLI commands and execution modes."""
+
 from .commandBuilder import (
     CommandArg,
     boolValue,
