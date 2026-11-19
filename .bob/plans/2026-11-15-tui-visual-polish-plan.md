@@ -45,6 +45,21 @@
 >   `$panel-lighten-2` and not the brand primary), so reverting the theme
 >   keeps the neutral borders — they read fine under the default Textual
 >   theme too.  Full suites green (108 passed).
+> - Second follow-up (same day): two more tone/rhythm fixes.
+>   **Scrollbars:** Textual's scrollbar variables derive from `primary`,
+>   so every scroll thumb rendered the same saturated navy.  `MAS_THEME`
+>   now sets the scrollbar family in its `variables` dict — neutral grey
+>   thumb at rest (matching the `$panel-lighten-2` border tone),
+>   brightening through hover to drag, with a subtle track one step above
+>   the background instead of Textual's black.  Part of the theme module,
+>   so it reverts with it.  **Button spacing:** Textual buttons carry no
+>   default margin, so multi-button action bars (most visibly the review
+>   screen's four-button row) rendered flush; `.action-buttons > Button`
+>   now carries `margin-right: 2` (reset on `:last-child` so the row's
+>   right edge stays flush and the first button aligns with the status
+>   text).  Tests: scrollbar neutrality in `test_tui_theme.py`, uniform
+>   2-cell button gaps in `test_screen_layout.py` (review screen with all
+>   four buttons visible).  Full suites green (110 passed).
 
 > **Implementation notes (phase 3.3, landed November 2026):**
 >

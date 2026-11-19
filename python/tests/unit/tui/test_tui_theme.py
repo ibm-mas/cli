@@ -162,3 +162,37 @@ def test_mas_theme_is_dark():
     from mas.cli.tui.theme import MAS_THEME
 
     assert MAS_THEME.dark is True
+
+
+def test_mas_theme_scrollbars_are_neutral():
+    """Test that the theme's scrollbar colours are neutral greys.
+
+    GIVEN a TextualShell running under the custom MAS theme
+    WHEN the scrollbar CSS variables resolve
+    THEN the thumb colours match the theme's neutral palette (Textual's
+        defaults derive them from the primary colour, painting every
+        scroll thumb the saturated navy that dominated the grey theme)
+        and are distinct from the brand primary.
+    """
+    from textual.color import Color
+
+    from mas.cli.tui.shell import TextualShell
+    from mas.cli.tui.theme import MAS_THEME
+
+    definition = [WorkflowStep(id="test-step", heading="Test Step")]
+
+    async def run():
+        shell = TextualShell(_make_app(), definition)
+        async with shell.run_test() as pilot:
+            await pilot.pause()
+            return shell.get_css_variables()
+
+    variables = asyncio.run(run())
+    primary = Color.parse(MAS_THEME.primary)
+    for name in ("scrollbar", "scrollbar-hover", "scrollbar-active"):
+        assert name in MAS_THEME.variables
+        # The variable reaches the app's CSS (the theme merge worked) and
+        # matches the palette defined in tui/theme.py.
+        assert _color_close(Color.parse(variables[name]), Color.parse(MAS_THEME.variables[name]))
+        # Neutral, not primary-derived navy.
+        assert Color.parse(variables[name]) != primary

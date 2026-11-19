@@ -141,6 +141,44 @@ def test_content_scroll_padding_is_uniform():
         assert result["content_x"] == 2, f"{name}: content gutter position"
 
 
+def test_action_buttons_have_consistent_spacing():
+    """Test that the action bar's buttons keep a consistent gap.
+
+    GIVEN the review screen with all four action buttons visible (a
+        command builder is supplied so Copy Command and Save Script show)
+    WHEN the screen is shown
+    THEN consecutive visible buttons are separated by the same 2-cell
+        gap — Textual buttons carry no default margin, so without the
+        shared rule they render flush against each other — and every
+        button sits on the same row at the same height.
+    """
+    screen = ReviewScreen(
+        _stub_app(),
+        WorkflowStep(id="review", heading="Review", summary=[WorkflowSummaryItem(label="A", param="a")]),
+        0,
+        command_builder=lambda app: "mas update --example",
+        script_filename_builder=lambda app: "mas-update.sh",
+    )
+    result = {}
+
+    async def drive(pilot, app):
+        buttons = sorted(
+            (b for b in app.query(".action-buttons > Button") if b.display),
+            key=lambda b: b.region.x,
+        )
+        result["count"] = len(buttons)
+        result["gaps"] = [buttons[i + 1].region.x - (buttons[i].region.x + buttons[i].region.width) for i in range(len(buttons) - 1)]
+        result["rows"] = {b.region.y for b in buttons}
+        result["heights"] = {b.region.height for b in buttons}
+
+    run_screen_pilot(screen, drive)
+
+    assert result["count"] == 4, "all four review buttons visible"
+    assert result["gaps"] == [2, 2, 2], "uniform 2-cell gap between buttons"
+    assert len(result["rows"]) == 1, "buttons share one row"
+    assert len(result["heights"]) == 1, "buttons share one height"
+
+
 def test_step_validator_error_uses_reserved_status_row():
     """Test that a validator error fills the reserved status row without shifting the layout.
 

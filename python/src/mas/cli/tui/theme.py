@@ -51,4 +51,19 @@ MAS_THEME = Theme(
     warning="#F1C21B",  # Yellow 30
     error="#FF8389",  # Red 40
     dark=True,
+    # Scrollbars: Textual's defaults derive from the primary colour, which
+    # paints every scroll thumb a saturated navy that dominates the grey
+    # palette.  Neutral greys instead — the thumb at rest matches the
+    # border tone ($panel-lighten-2), brightens on hover and while being
+    # dragged, and the track sits one step above the background rather
+    # than Textual's black.
+    variables={
+        "scrollbar": "#474746",
+        "scrollbar-hover": "#5A5A5A",
+        "scrollbar-active": "#6E6E6E",
+        "scrollbar-background": "#1B1B1B",
+        "scrollbar-background-hover": "#1B1B1B",
+        "scrollbar-background-active": "#1B1B1B",
+        "scrollbar-corner-color": "#1B1B1B",
+    },
 )

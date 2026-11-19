@@ -197,6 +197,20 @@ Screen.-narrow #sidebar {
     height: 3;
 }
 
+/* Consistent horizontal rhythm between the bar's buttons — Textual
+   buttons carry no default margin, so several buttons in a row render
+   flush against each other (most visible on the review screen's
+   four-button row).  A 2-cell gap between neighbours; no trailing
+   margin on the last button so the row's right edge stays flush, and
+   the first button aligns with the status text above it. */
+.action-buttons > Button {
+    margin-right: 2;
+}
+
+.action-buttons > Button:last-child {
+    margin-right: 0;
+}
+
 /* Busy spinner leading the ActionBar's status row while a worker runs
    (ActionBar(busy=True), currently the connect screen).  Visibility is
    managed in Python by the widget's show_busy / hide_busy helpers; the
