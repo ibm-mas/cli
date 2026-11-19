@@ -44,7 +44,9 @@ class LaunchScreen(Vertical):
 
     Auto-starts when start_dynamic_loaders() is called (i.e. when the step
     becomes active, after the user clicks Confirm on the review step).
-    Calls launchUpdate(progressCallback, startCallback) on the app instance.
+    Calls the app's launch method (``launchUpdate`` by default, overridable
+    via the ``launch_method`` constructor argument) with the progress and
+    start callbacks.
 
     All pipeline stages are shown upfront in a sidebar-style step-list.
     Before each stage starts, ``startCallback`` marks it active.  After it
@@ -61,6 +63,11 @@ class LaunchScreen(Vertical):
     submission (with a Copy Command button) — mirroring the CLI's re-print
     at end of run so the command is not lost now the review screen is gone.
 
+    The pipeline is submitted by calling the method named ``launch_method``
+    on the app instance (``launchUpdate`` by default; the upgrade workflow
+    passes ``launchUpgrade``).  Both share the
+    ``launch(progressCallback, startCallback)`` contract described below.
+
     Attributes:
         _mas_app: MAS CLI app instance.
         _step: The WorkflowStep being rendered.
@@ -70,19 +77,31 @@ class LaunchScreen(Vertical):
         _command_builder: Optional ``(mas_app) -> str`` callable rendering the
             equivalent non-interactive command.
         _command: The rendered command once the reference is revealed.
+        _launch_method: Name of the app method that submits the pipeline.
     """
 
-    def __init__(self, mas_app: Any, step: WorkflowStep, step_index: int, command_builder: Optional[Callable] = None) -> None:
+    def __init__(
+        self,
+        mas_app: Any,
+        step: WorkflowStep,
+        step_index: int,
+        command_builder: Optional[Callable] = None,
+        launch_method: str = "launchUpdate",
+    ) -> None:
         """Initialise the launch screen.
 
         Args:
-            mas_app: MAS CLI app instance with a launchUpdate(progressCallback, startCallback) method.
+            mas_app: MAS CLI app instance with a
+                ``launch_method(progressCallback, startCallback)`` method.
             step (WorkflowStep): The launch WorkflowStep.
             step_index (int): Zero-based index in the workflow definition.
             command_builder: Optional callable ``(mas_app) -> str`` rendering the
                 equivalent non-interactive command; when supplied it is shown
                 (with a copy button) after the pipeline is submitted.
                 Defaults to None.
+            launch_method: Name of the app method that submits the pipeline
+                (defaults to "launchUpdate"; the upgrade workflow passes
+                "launchUpgrade").  Defaults to "launchUpdate".
         """
         super().__init__(id=f"step-panel-{step.id}")
         self._mas_app = mas_app
@@ -92,6 +111,7 @@ class LaunchScreen(Vertical):
         self._pipeline_url: Optional[str] = None
         self._command_builder = command_builder
         self._command: str = ""
+        self._launch_method = launch_method
 
     def compose(self) -> ComposeResult:
         """Build the screen: heading, description, step-list, then footer with action buttons.
@@ -195,15 +215,17 @@ class LaunchScreen(Vertical):
     def _run_launch(self) -> None:
         """Submit the pipeline in a worker thread.
 
-        Calls launchUpdate(progressCallback, startCallback) on the app.
-        ``startCallback`` marks each stage active before the work runs.
-        ``progressCallback`` marks it completed (or error) after, updating its text.
-        On success, reveals the Done button (and the non-interactive command
-        reference, when a command builder was supplied).  On exception,
-        reveals Dismiss.
+        Calls ``launch_method(progressCallback, startCallback)`` on the app
+        (``launchUpdate`` by default, ``launchUpgrade`` for the upgrade
+        workflow).  ``startCallback`` marks each stage active before the work
+        runs.  ``progressCallback`` marks it completed (or error) after,
+        updating its text.  On success, reveals the Done button (and the
+        non-interactive command reference, when a command builder was
+        supplied).  On exception, reveals Dismiss.
         """
         try:
-            self._mas_app.launchUpdate(
+            launch = getattr(self._mas_app, self._launch_method)
+            launch(
                 progressCallback=lambda label, ok, detail: self.app.call_from_thread(self._checklist().mark_done, label, ok, detail),
                 startCallback=lambda label: self.app.call_from_thread(self._checklist().mark_active, label),
             )
