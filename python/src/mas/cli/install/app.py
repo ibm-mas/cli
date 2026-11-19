@@ -1351,9 +1351,9 @@ class InstallApp(
         if self.installOptimizer:
             self.configAppChannel("optimizer")
 
-        if self.getParam("mas_use_service_mesh") == "true":
-            # TODO: Remove this warning and restriction once Service Mesh is fully compatible/supported with Maximo Visual Inspection (MVI)
-            self.printDescription(["", "<Yellow>Visual Inspection cannot be installed when Service Mesh is enabled.</Yellow>", ""])
+        if self.getParam("mas_manual_route_mgmt") == "true":
+            # TODO: Remove this warning and restriction once manual route management is fully compatible/supported with Maximo Visual Inspection (MVI)
+            self.printDescription(["", "<Yellow>Visual Inspection cannot be installed when manual route management is enabled.</Yellow>", ""])
             self.installInspection = False
         else:
             self.installInspection = self.yesOrNo("Install Visual Inspection")
@@ -2693,10 +2693,10 @@ class InstallApp(
         if self.getParam("mas_use_service_mesh") == "true":
             self.setParam("mas_manual_route_mgmt", "true")
 
-        # Service Mesh is incompatible with Maximo Visual Inspection (MVI)
-        # TODO: Remove this restriction once Service Mesh is fully compatible/supported with Maximo Visual Inspection (MVI)
-        if self.getParam("mas_use_service_mesh") == "true" and self.installInspection:
-            self.fatalError("Service Mesh cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
+        # Manual route management (which Service Mesh always enables) is incompatible with Maximo Visual Inspection (MVI)
+        # TODO: Remove this restriction once manual route management is fully compatible/supported with Maximo Visual Inspection (MVI)
+        if self.getParam("mas_manual_route_mgmt") == "true" and self.installInspection:
+            self.fatalError("Manual route management (--manual-routes / --servicemesh) cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
 
         if self.getParam("mas_manual_route_mgmt") == "true" and not isVersionEqualOrAfter("9.2.0", self.getParam("mas_channel")):
             self.fatalError(f"--manual-routes is only supported for MAS 9.2+ (selected channel: {self.getParam('mas_channel')})")

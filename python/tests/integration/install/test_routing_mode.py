@@ -1343,13 +1343,13 @@ class TestServiceMeshManualRoutes:
         app.yesOrNo.assert_not_called()
 
 
-class TestServiceMeshMVIConflict:
-    """Test the Service Mesh and Maximo Visual Inspection (MVI) mutual exclusion and validation."""
+class TestManualRoutesMVIConflict:
+    """Test the manual route management (including Service Mesh) and Maximo Visual Inspection (MVI) mutual exclusion and validation."""
 
-    def test_interactive_service_mesh_enabled_skips_mvi_prompt(self):
+    def test_interactive_manual_routes_enabled_skips_mvi_prompt(self):
         app = create_mock_app()
         app.setParam("mas_channel", "9.2.0")
-        app.setParam("mas_use_service_mesh", "true")
+        app.setParam("mas_manual_route_mgmt", "true")
         app.installIoT = False
         app.installMonitor = False
         app.installManage = False
@@ -1370,18 +1370,18 @@ class TestServiceMeshMVIConflict:
 
         app.configApps()
 
-        # With service mesh enabled, it should print a description and not prompt for Visual Inspection
+        # With manual routes enabled, it should print a description and not prompt for Visual Inspection
         assert app.installInspection is False
-        app.printDescription.assert_any_call(["", "<Yellow>Visual Inspection cannot be installed when Service Mesh is enabled.</Yellow>", ""])
+        app.printDescription.assert_any_call(["", "<Yellow>Visual Inspection cannot be installed when manual route management is enabled.</Yellow>", ""])
 
         # Verify yesOrNo was NOT called with Visual Inspection
         for call in app.yesOrNo.call_args_list:
             assert "Visual Inspection" not in call[0][0]
 
-    def test_interactive_service_mesh_disabled_prompts_mvi(self):
+    def test_interactive_manual_routes_disabled_prompts_mvi(self):
         app = create_mock_app()
         app.setParam("mas_channel", "9.2.0")
-        app.setParam("mas_use_service_mesh", "false")
+        app.setParam("mas_manual_route_mgmt", "false")
         app.installIoT = False
         app.installMonitor = False
         app.installManage = False
@@ -1413,20 +1413,22 @@ class TestServiceMeshMVIConflict:
     def test_validation_raises_fatal_error_when_both_active(self):
         app = create_mock_app()
         app.setParam("mas_channel", "9.2.0")
-        app.setParam("mas_use_service_mesh", "true")
+        app.setParam("mas_manual_route_mgmt", "true")
         app.installInspection = True
         app.fatalError = MagicMock(side_effect=SystemExit(1))
 
         # Replicate validation logic
         def run_validation(app):
-            # Service Mesh is incompatible with Maximo Visual Inspection (MVI)
-            if app.getParam("mas_use_service_mesh") == "true" and app.installInspection:
-                app.fatalError("Service Mesh cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
+            # Manual route management is incompatible with Maximo Visual Inspection (MVI)
+            if app.getParam("mas_manual_route_mgmt") == "true" and app.installInspection:
+                app.fatalError("Manual route management (--manual-routes / --servicemesh) cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
 
         with pytest.raises(SystemExit):
             run_validation(app)
 
-        app.fatalError.assert_called_once_with("Service Mesh cannot be enabled when Maximo Visual Inspection (MVI) is installed.")
+        app.fatalError.assert_called_once_with(
+            "Manual route management (--manual-routes / --servicemesh) cannot be enabled when Maximo Visual Inspection (MVI) is installed."
+        )
 
 
 if __name__ == "__main__":
