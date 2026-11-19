@@ -1200,6 +1200,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
             # Apply pre-install RBAC if user has permissions
             if self.applyPreInstallMASRBAC and detectedMode:
                 self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
+                rbacRootDir = self.getPreinstallRBACRootDir()
                 with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
                     applyPreInstallMASRBAC(
                         dynClient=self.dynamicClient,
@@ -1207,6 +1208,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
                         masInstanceId=instanceId,
                         adminMode=detectedMode,
                         selectedApps=self.selectedAppsForRBAC,
+                        rbacRootDir=rbacRootDir,
                     )
                     h.stop_and_persist(
                         symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for target version {self.nextChannel} (mode: {detectedMode})"

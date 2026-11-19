@@ -22,7 +22,7 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.12/site-packages/ansibl
 
 # 3. Install Python packages
 # 4. Install Ansible collections
-# 5. Install Pre-Install RBAC files
+# 5. Copy the Pre-Install RBAC files that are bundled in the mas-cli package into /opt/app-root/rbac
 # 6. Disable ibmcloud cli's new version check
 # 7. Set file permissions to be developer (hack) friendly (must run after ibmcloud config so ~/.bluemix is covered)
 COPY install /tmp/install
@@ -38,7 +38,7 @@ RUN --mount=type=secret,id=ARTIFACTORY_TOKEN \
     ls /tmp/install && \
     bash /tmp/install/install-python-packages.sh && \
     bash /tmp/install/install-ansible-collections.sh && \
-    bash /tmp/install/pre-install-rbac.sh && \
+    cp -r /opt/app-root/lib/python3.12/site-packages/mas/cli/rbac/preinstall/. /opt/app-root/rbac/ && \
     ibmcloud config --check-version=false && \
     bash /tmp/install/permissions-updates.sh && \
     ln -s /opt/app-root/lib/python3.12/site-packages /mascli/site-packages && \
