@@ -305,7 +305,6 @@ class TestDetectRHOAIv2:
 # launchUpdate stage helpers
 # ---------------------------------------------------------------------------
 
-
 def test_validate_openshift_pipelines_success():
     """Test _validateOpenShiftPipelines returns success when operator installs.
 
