@@ -229,24 +229,57 @@ def test_prepare_upgrade_app_on_wrong_channel_raises():
             p.stop()
 
 
-def test_prepare_upgrade_license_not_accepted_raises():
-    """Test that an unaccepted license blocks the upgrade with CLI guidance.
+def test_prepare_upgrade_license_pending_does_not_block():
+    """Test that an unaccepted license does not block the instance-selection validator.
 
     GIVEN a 9.1.x instance and licenseAccepted False (the TUI default)
     WHEN prepareUpgrade runs
-    THEN RuntimeError is raised telling the user to re-run with the classic
-         CLI and --accept-license (the TUI has no license step yet).
+    THEN it completes all remaining checks (RBAC mode detection and the
+         pipeline storage class resolution run) and
+         licenseAcceptancePending() is True, so the conditional
+         license-acceptance step is shown after instance-selection instead
+         of the validator dead-ending the workflow.
+    """
+    app = _make_app()
+    app.params["mas_instance_id"] = "inst1"
+
+    patchers = _run_patches(_patch_cluster(evaluatePreinstallRBACAccess=True))
+    try:
+        app.prepareUpgrade()
+    finally:
+        for p in patchers:
+            p.stop()
+
+    assert app.licenseAcceptancePending() is True
+    # The checks after the license point in the classic flow still ran
+    assert app.detectedMode == "cluster"
+    assert app.applyPreInstallMASRBAC is True
+    assert app.pipelineStorageClass == "ocs-storagecluster-cephfs"
+
+
+def test_license_acceptance_pending_cleared_by_acceptance():
+    """Test that licenseAcceptancePending reflects the acceptance state.
+
+    GIVEN an app in the post-prepareUpgrade state for a licensed target
+        channel (9.2.x)
+    WHEN the license is accepted (as the license-acceptance step does)
+    THEN licenseAcceptancePending() returns False, so the step is skipped on
+         re-evaluation and going back to instance-selection does not show it
+         again.
     """
     app = _make_app()
     app.params["mas_instance_id"] = "inst1"
 
     patchers = _run_patches(_patch_cluster())
     try:
-        with pytest.raises(RuntimeError, match="accept the license terms"):
-            app.prepareUpgrade()
+        app.prepareUpgrade()
     finally:
         for p in patchers:
             p.stop()
+
+    assert app.licenseAcceptancePending() is True
+    app.licenseAccepted = True
+    assert app.licenseAcceptancePending() is False
 
 
 def test_prepare_upgrade_unknown_channel_proceeds_with_placeholders():

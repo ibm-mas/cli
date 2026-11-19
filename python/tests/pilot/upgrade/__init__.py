@@ -7,4 +7,4 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
-"""Pilot tests for upgrade-command screens (instance selection, review)."""
+"""Pilot tests for upgrade-command screens (instance selection, license acceptance, review)."""

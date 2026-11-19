@@ -95,12 +95,14 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
 
         Called as the ``validator`` on the TUI instance-selection step.  Reads
         ``mas_instance_id`` from ``self.params``, then runs the channel
-        detection, compatibility validation, license acceptance, Monitor
-        install order, Civil Kafka validation, routing-mode pre-flight check,
-        RBAC evaluation, and pipeline storage class resolution that the
-        classic ``upgrade()`` method performs — raising ``RuntimeError`` on
-        failure so the TUI displays the error inline and the step does not
-        advance.
+        detection, compatibility validation, Monitor install order, Civil
+        Kafka validation, routing-mode pre-flight check, RBAC evaluation,
+        and pipeline storage class resolution that the classic ``upgrade()``
+        method performs — raising ``RuntimeError`` on failure so the TUI
+        displays the error inline and the step does not advance.  License
+        acceptance is deliberately not enforced here: the conditional
+        license-acceptance step collects it once the target channel is
+        known (see ``licenseAcceptancePending``).
 
         On success, populates ``self.currentChannel``, ``self.nextChannel``,
         ``self.effectiveCurrentChannel``, ``self.detectedMode``,
@@ -111,8 +113,10 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         Raises:
             RuntimeError: If the instance is already fully upgraded, the
                 upgrade path is invalid, apps are incompatible with the
-                target channel, the license has not been accepted, or the
-                upgrade requires prompts the TUI does not support.
+                target channel, or the upgrade requires prompts the TUI
+                does not support.  License acceptance is not enforced here —
+                the conditional license-acceptance step collects it after
+                this validator has run (see ``licenseAcceptancePending``).
         """
         instanceId = self.params.get("mas_instance_id", "")
         self.masInstanceId = instanceId
@@ -208,16 +212,10 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # checks are all no-ops for an undetectable target).
         knownChannel = self.nextChannel not in ("", "Unknown")
 
-        # License check — the TUI has no license acceptance step (yet), so a
-        # required license blocks the upgrade with guidance to the classic
-        # CLI, which has the --accept-license flag.
-        if not self.licenseAccepted and not self.devMode:
-            if self.nextChannel in self.licenses:
-                raise RuntimeError(
-                    f"You must accept the license terms to upgrade to {self.nextChannel}:\n{self.licenses[self.nextChannel]}\n\n"
-                    f"Re-run with the non-interactive CLI, accepting the license:\n"
-                    f"  mas upgrade --mas-instance-id {instanceId} --accept-license --no-confirm"
-                )
+        # License acceptance is NOT enforced here: the workflow's conditional
+        # license-acceptance step collects it (see licenseAcceptancePending)
+        # after this validator has run, so the remaining checks below always
+        # execute and the review screen has the full upgrade state.
 
         # The only scenario where Manage Foundation needs to be installed during an upgrade is
         # from 9.0.x to 9.1.x (if Manage was not already installed in 9.0.x).  That path needs
@@ -270,6 +268,22 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # existing config-pvc created at install time) so the review screen
         # summary and the generated non-interactive command include it
         self.configPipelineStorageClass(instanceId)
+
+    def licenseAcceptancePending(self) -> bool:
+        """Return True when the target release's license still needs accepting.
+
+        Drives the ``condition`` of the TUI license-acceptance step: the step
+        is only shown when ``prepareUpgrade`` has resolved a target channel
+        carrying a license that has not been accepted yet (the TUI equivalent
+        of the classic wizard's license yes/no prompt, and of
+        ``--accept-license`` on the non-interactive path).  Re-evaluated by
+        the shell whenever a step completes, so it always reflects the
+        currently selected instance's target channel.
+
+        Returns:
+            bool: True when the license-acceptance step must be shown.
+        """
+        return not self.licenseAccepted and not self.devMode and self.nextChannel in self.licenses
 
     def fetchInstalledInstanceIds(self) -> None:
         """Fetch and cache the MAS instance IDs from the connected cluster.

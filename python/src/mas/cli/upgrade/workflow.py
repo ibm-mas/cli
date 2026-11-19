@@ -16,7 +16,7 @@ shell renders when the user runs ``mas-cli upgrade`` without arguments.
 from typing import Any
 
 from mas.cli.tui.models import WorkflowDefinition, WorkflowField, WorkflowStep, WorkflowSummaryItem
-from mas.cli.tui.screens import LaunchScreen, ReviewScreen
+from mas.cli.tui.screens import LaunchScreen, LicenseAcceptanceScreen, ReviewScreen
 from mas.cli.common.workflow import connectClusterStep
 
 
@@ -95,20 +95,24 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
     Constructs the ordered list of steps shown in the TUI when the user
     invokes ``mas-cli upgrade`` without arguments.
 
-    The four steps are:
+    The five steps are:
 
     1. **connect-cluster** — Collect OCP credentials and connect, then fetch
        the list of installed MAS instance IDs via ``post_connect``.  If no
        instances are found the error is shown on the connect screen.
     2. **instance-selection** — Select which MAS instance to upgrade.  On
        Next, ``prepareUpgrade`` runs as the validator: it detects the current
-       and next channels, validates app compatibility, checks license
-       acceptance, evaluates RBAC and resolves the pipeline storage class —
-       the same logic as the non-interactive path.  Errors are shown inline.
-    3. **review** — Review all settings before proceeding, including the
+       and next channels, validates app compatibility, evaluates RBAC and
+       resolves the pipeline storage class — the same logic as the
+       non-interactive path.  Errors are shown inline.
+    3. **license-acceptance** — Conditional step shown only when the target
+       channel resolved by ``prepareUpgrade`` carries a license that has not
+       been accepted yet (``licenseAcceptancePending``): the TUI equivalent
+       of the classic wizard's license prompt and of ``--accept-license``.
+    4. **review** — Review all settings before proceeding, including the
        equivalent non-interactive ``mas upgrade`` command (with copy /
        save-as-script).  The Confirm button advances to the launch step.
-    4. **launch** — Submits the Tekton upgrade pipeline, then re-displays
+    5. **launch** — Submits the Tekton upgrade pipeline, then re-displays
        the non-interactive command for reference.  The Done button exits
        the app.
 
@@ -138,6 +142,23 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
             ),
         ],
         validator=appInstance.prepareUpgrade,
+    )
+
+    # Only shown when prepareUpgrade resolved a target channel carrying a
+    # license that has not been accepted yet.  The condition closes over the
+    # app instance so it reads the validator's state (nextChannel /
+    # licenseAccepted) rather than the params dict; the shell re-evaluates it
+    # after the instance-selection step completes, so the panel composes (and
+    # the license text resolves) with the selected instance's target channel.
+    licenseAcceptanceStep = WorkflowStep(
+        id="license-acceptance",
+        heading="License Terms",
+        heading_level="h1",
+        description=[
+            "To continue with the upgrade, you must accept the license terms for the target release.",
+        ],
+        screen_class=LicenseAcceptanceScreen,
+        condition=lambda p: appInstance.licenseAcceptancePending(),
     )
 
     reviewStep = WorkflowStep(
@@ -176,6 +197,7 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
     return [
         connectStep,
         instanceSelectionStep,
+        licenseAcceptanceStep,
         reviewStep,
         launchStep,
     ]

@@ -42,10 +42,10 @@ def test_build_upgrade_workflow_step_ids():
 
     GIVEN an app instance mock
     WHEN buildUpgradeWorkflow(app) is called
-    THEN the step IDs are 'connect-cluster', 'instance-selection', 'review',
-         'launch' in that order.
+    THEN the step IDs are 'connect-cluster', 'instance-selection',
+         'license-acceptance', 'review', 'launch' in that order.
     """
-    expected_ids = ["connect-cluster", "instance-selection", "review", "launch"]
+    expected_ids = ["connect-cluster", "instance-selection", "license-acceptance", "review", "launch"]
     definition = buildUpgradeWorkflow(_make_app())
     step_ids = [step.id for step in definition]
     assert step_ids == expected_ids, f"Expected step ids {expected_ids}, got {step_ids}"
@@ -133,6 +133,76 @@ def test_all_conditions_accept_params_dict():
                 step.condition({})
             except TypeError as e:
                 raise AssertionError(f"Step '{step.id}' condition raised TypeError with empty dict: {e}") from e
+
+
+def test_license_acceptance_step_uses_license_screen_class():
+    """Test that the 'license-acceptance' step uses LicenseAcceptanceScreen.
+
+    GIVEN an app instance mock
+    WHEN buildUpgradeWorkflow(app) is called
+    THEN the 'license-acceptance' step screen_class is LicenseAcceptanceScreen
+         and sits between instance-selection and review.
+    """
+    from mas.cli.tui.screens import LicenseAcceptanceScreen
+
+    definition = buildUpgradeWorkflow(_make_app())
+    ids = [step.id for step in definition]
+    step = next(s for s in definition if s.id == "license-acceptance")
+    assert step.screen_class is LicenseAcceptanceScreen, f"Expected LicenseAcceptanceScreen, got {step.screen_class}"
+    assert ids.index("instance-selection") < ids.index("license-acceptance") < ids.index("review")
+
+
+def test_license_acceptance_step_condition_reads_app_state():
+    """Test the license-acceptance step condition calls licenseAcceptancePending.
+
+    GIVEN an app instance mock whose licenseAcceptancePending returns True,
+        then False
+    WHEN the step condition is evaluated with a params dict
+    THEN it returns True (the step is shown) and then False (skipped), and
+         the app method was called — so the step is shown only when the
+         instance-selection validator resolved a target channel whose
+         license has not been accepted yet.
+    """
+    app = _make_app()
+    app.licenseAcceptancePending.return_value = True
+    definition = buildUpgradeWorkflow(app)
+    step = next(s for s in definition if s.id == "license-acceptance")
+    assert step.condition is not None
+    assert step.condition({}) is True
+    app.licenseAcceptancePending.assert_called()
+
+    app.licenseAcceptancePending.reset_mock()
+    app.licenseAcceptancePending.return_value = False
+    assert step.condition({}) is False
+
+
+def test_license_acceptance_step_condition_with_real_scenario_apps():
+    """Test the license step condition against real app states.
+
+    GIVEN real UpgradeApp scenario apps: one with an unaccepted licensed
+        target channel (9.2.x), one with the license already accepted, and
+        one with no resolved target channel yet
+    WHEN the license-acceptance step condition is evaluated
+    THEN it is True only for the first — the step appears right after
+         instance-selection when the license must be accepted, and is
+         skipped otherwise.
+    """
+    from scenarios.upgrade import upgrade_scenario
+
+    app = upgrade_scenario("upgrade-9-1-to-9-2")
+    definition = buildUpgradeWorkflow(app)
+    step = next(s for s in definition if s.id == "license-acceptance")
+
+    # nextChannel 9.2.x carries a license and licenseAccepted is False
+    assert step.condition({}) is True
+
+    app.licenseAccepted = True
+    assert step.condition({}) is False
+
+    unresolved = upgrade_scenario("single-instance")
+    unresolved_definition = buildUpgradeWorkflow(unresolved)
+    unresolved_step = next(s for s in unresolved_definition if s.id == "license-acceptance")
+    assert unresolved_step.condition({}) is False
 
 
 def test_review_step_uses_review_screen_class():

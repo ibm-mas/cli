@@ -17,6 +17,7 @@ Each module in this package provides one focused screen class:
 - :mod:`connect` — OCP cluster connection step (reuse or new credentials).
 - :mod:`auto_run` — auto-run with progress: runs work, streams results, reveals Next.
 - :mod:`launch` — launch screen: submits the pipeline, streams progress, reveals Done.
+- :mod:`license_acceptance` — conditional step collecting license acceptance.
 - :mod:`params_overlay` — debug modal showing current pipeline params.
 - :mod:`review` — review screen with Confirm / Quit.
 - :mod:`size_notice` — blocking notice shown when the terminal is too small.
@@ -28,6 +29,7 @@ from mas.cli.tui.screens.auto_run import AutoRunScreen
 from mas.cli.tui.screens.confirm_upgrades import ConfirmUpgradesScreen
 from mas.cli.tui.screens.connect import ConnectStepScreen
 from mas.cli.tui.screens.launch import LaunchScreen
+from mas.cli.tui.screens.license_acceptance import LicenseAcceptanceScreen
 from mas.cli.tui.screens.params_overlay import ParamsOverlay
 from mas.cli.tui.screens.review import ReviewScreen
 from mas.cli.tui.screens.size_notice import TerminalTooSmallScreen
@@ -39,6 +41,7 @@ __all__ = [
     "ConfirmUpgradesScreen",
     "ConnectStepScreen",
     "LaunchScreen",
+    "LicenseAcceptanceScreen",
     "ParamsOverlay",
     "ReviewScreen",
     "StepScreen",
