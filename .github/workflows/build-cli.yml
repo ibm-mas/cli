@@ -110,6 +110,12 @@ jobs:
           name: ibm-mas-tekton.yaml
           path: ${{ github.workspace }}/python/src/mas/cli/templates/
 
+      # Bundle the pre-install RBAC manifests so that "mas-cli pre-install" works under uvx, where
+      # the /opt/app-root/rbac directory populated in the container image does not exist
+      - name: Bundle pre-install RBAC manifests
+        id: bundle-rbac
+        run: $GITHUB_WORKSPACE/build/bin/bundle-preinstall-rbac.sh
+
       - name: Install
         id: install
         run: |

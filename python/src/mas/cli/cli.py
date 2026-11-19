@@ -34,6 +34,7 @@ from mas.devops.ocp import connect, isSNO, getNodes
 from mas.devops.utils import validateIBMEntitlementKey
 
 from .displayMixins import PrintMixin, PromptMixin
+from .rbac_utils import getPreinstallRBACRootDir
 
 # Configure the logger
 logger = logging.getLogger(__name__)
@@ -375,6 +376,18 @@ class BaseApp(PrintMixin, PromptMixin):
             return self.compatibilityMatrix[coreChannel][appId]
         else:
             return []
+
+    @logMethodCall
+    def getPreinstallRBACRootDir(self) -> str:
+        """Locate the pre-install RBAC manifests, exiting with a fatal error if they cannot be found.
+
+        Returns:
+            str: The RBAC root directory to pass as rbacRootDir
+        """
+        try:
+            return getPreinstallRBACRootDir()
+        except FileNotFoundError as e:
+            self.fatalError(str(e))
 
     @logMethodCall
     def fatalError(self, message: str, exception: Exception | None = None) -> NoReturn:

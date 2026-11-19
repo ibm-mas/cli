@@ -393,6 +393,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
 
             # Apply pre-install RBAC if user has permissions
             if self.applyPreInstallMASRBAC and self.instancesNeedingRBAC:
+                rbacRootDir = self.getPreinstallRBACRootDir()
                 print()
                 print_formatted_text(HTML(f"<Yellow>Applying RBAC for {len(self.instancesNeedingRBAC)} instance(s) transitioning to GA...</Yellow>"))
                 print()
@@ -411,6 +412,7 @@ class UpdateApp(BaseApp, AdditionalConfigsMixin):
                             masInstanceId=instanceId,
                             adminMode=adminMode,
                             selectedApps=selectedApps,
+                            rbacRootDir=rbacRootDir,
                         )
                         h.stop_and_persist(symbol=self.successIcon, text=f"Pre-install RBAC applied for {instanceId} ({targetVersion}, mode: {adminMode})")
 
