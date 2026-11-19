@@ -490,6 +490,143 @@ def test_prepare_manage_foundation_invalid_entitlement_key_warns_only():
     assert app.getParam("should_install_manage_foundation") == "true"
 
 
+# ---------------------------------------------------------------------------
+# lookupEntitlementKey / entitlement resolution
+# ---------------------------------------------------------------------------
+
+
+def _make_dockerconfig_secret(password: str = "the-key", registry: str = "cp.icr.io/cp") -> MagicMock:
+    """Return a secrets API mock serving an ibm-entitlement secret.
+
+    Args:
+        password (str): The entitlement key stored in the dockerconfigjson.
+        registry (str): The registry the credentials are stored under.
+
+    Returns:
+        MagicMock: A secrets API whose get() returns the secret as a dict.
+    """
+    import base64
+    import json as jsonlib
+
+    dockerconfig = {"auths": {registry: {"username": "cp", "password": password}}}
+    encoded = base64.b64encode(jsonlib.dumps(dockerconfig).encode()).decode()
+    secretsAPI = MagicMock()
+    secretsAPI.get.return_value = {"data": {".dockerconfigjson": encoded}}
+    return secretsAPI
+
+
+def test_lookup_entitlement_key_reads_cluster_secret():
+    """Test that lookupEntitlementKey reads the key from ibm-entitlement.
+
+    GIVEN a cluster whose mas-inst1-core namespace has an ibm-entitlement
+        secret with cp.icr.io/cp credentials (as the installation writes)
+    WHEN lookupEntitlementKey is called
+    THEN the cp.icr.io/cp password is returned, so the user is never asked
+         to re-enter a key the installation already stored.
+    """
+    app = _make_app()
+    secretsAPI = _make_dockerconfig_secret()
+    app._dynClient.resources.get.return_value = secretsAPI
+
+    assert app.lookupEntitlementKey("inst1") == "the-key"
+    app._dynClient.resources.get.assert_called_once_with(api_version="v1", kind="Secret")
+    secretsAPI.get.assert_called_once_with(name="ibm-entitlement", namespace="mas-inst1-core")
+
+
+def test_lookup_entitlement_key_accepts_bare_registry_spelling():
+    """Test that a cp.icr.io (without /cp) entry is also accepted.
+
+    GIVEN an ibm-entitlement secret whose credentials are stored under the
+        bare cp.icr.io registry spelling
+    WHEN lookupEntitlementKey is called
+    THEN the password is returned.
+    """
+    app = _make_app()
+    app._dynClient.resources.get.return_value = _make_dockerconfig_secret(registry="cp.icr.io")
+
+    assert app.lookupEntitlementKey("inst1") == "the-key"
+
+
+def test_lookup_entitlement_key_returns_none_when_secret_missing():
+    """Test that a missing ibm-entitlement secret returns None.
+
+    GIVEN a cluster with no ibm-entitlement secret in the instance's core
+        namespace
+    WHEN lookupEntitlementKey is called
+    THEN None is returned (no raise) — the caller decides whether to ask
+         for the key instead.
+    """
+    from kubernetes.dynamic.exceptions import ResourceNotFoundError
+
+    app = _make_app()
+    app._dynClient.resources.get.return_value = MagicMock(get=MagicMock(side_effect=ResourceNotFoundError("not found")))
+
+    assert app.lookupEntitlementKey("inst1") is None
+
+
+def test_lookup_entitlement_key_returns_none_without_cp_credentials():
+    """Test that an ibm-entitlement secret without cp.icr.io entries yields None.
+
+    GIVEN an ibm-entitlement secret whose dockerconfigjson only carries
+        Artifactory credentials
+    WHEN lookupEntitlementKey is called
+    THEN None is returned.
+    """
+    app = _make_app()
+    app._dynClient.resources.get.return_value = _make_dockerconfig_secret(registry="docker-na-public.artifactory.swg-devops.com/wiotp-docker-local")
+
+    assert app.lookupEntitlementKey("inst1") is None
+
+
+def test_prepare_manage_foundation_reads_entitlement_from_cluster():
+    """Test that a blank entitlement field falls back to the cluster secret.
+
+    GIVEN an app in the post-prepareUpgrade state for a Manage Foundation
+        upgrade with no entitlement key entered, whose cluster has an
+        ibm-entitlement secret
+    WHEN prepareManageFoundation runs
+    THEN the key from the cluster secret is stored in the params (ready for
+         the launch secrets step) and the configuration completes.
+    """
+    app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
+    app.params["mas_instance_id"] = "inst1"
+    app.params["storage_class_rwo"] = "rwo-sc"
+    app.params["storage_class_rwx"] = "rwx-sc"
+    app.validateEntitlementKey = MagicMock(return_value=True)
+
+    with (
+        patch("mas.cli.upgrade.app.getWorkspaceId", return_value="workspace1"),
+        patch("mas.cli.upgrade.app.getStorageClass", return_value=object()),
+        patch("mas.cli.upgrade.app.getDefaultStorageClasses"),
+        patch.object(UpgradeApp, "lookupEntitlementKey", return_value="cluster-key"),
+    ):
+        app.prepareManageFoundation()
+
+    assert app.getParam("ibm_entitlement_key") == "cluster-key"
+    assert app.getParam("should_install_manage_foundation") == "true"
+
+
+def test_prepare_manage_foundation_entitlement_not_resolvable_raises():
+    """Test that a missing entitlement key everywhere blocks with guidance.
+
+    GIVEN an app with no entitlement key entered and no ibm-entitlement
+        secret on the cluster
+    WHEN prepareManageFoundation runs
+    THEN RuntimeError is raised telling the user to enter the key on the
+         step, shown inline so the input can be corrected.
+    """
+    app = _make_app(currentChannel="9.0.x", nextChannel="9.1.x", isManageFoundation=True)
+    app.params["mas_instance_id"] = "inst1"
+
+    with patch.object(UpgradeApp, "lookupEntitlementKey", return_value=None):
+        with pytest.raises(RuntimeError, match="IBM entitlement key"):
+            app.prepareManageFoundation()
+
+    # The step is still pending — the failed validation did not configure
+    # the Manage Foundation installation
+    assert app.manageFoundationPending() is True
+
+
 def test_prepare_upgrade_detects_rbac_mode_for_9_2_target():
     """Test that a 9.2.x target defaults to cluster mode and evaluates RBAC.
 

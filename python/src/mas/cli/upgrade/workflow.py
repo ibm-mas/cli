@@ -125,9 +125,11 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
        of the classic wizard's license prompt and of ``--accept-license``.
     4. **manage-foundation** — Conditional step shown only when the upgrade
        needs to install Manage Foundation (9.0.x to 9.1.x without Manage,
-       ``manageFoundationPending``): collects the IBM entitlement key and
-       the Db2 storage classes (blank = auto-detect), then runs the same
-       configuration as the classic wizard's Manage Foundation block.
+       ``manageFoundationPending``): collects the Db2 storage classes
+       (blank = auto-detect) and runs the same configuration as the classic
+       wizard's Manage Foundation block — the IBM entitlement key is read
+       back from the cluster's ``ibm-entitlement`` secret, with the field
+       as a fallback when it cannot be found there.
     5. **review** — Review all settings before proceeding, including the
        equivalent non-interactive ``mas upgrade`` command (with copy /
        save-as-script).  The Confirm button advances to the launch step.
@@ -193,10 +195,11 @@ def buildUpgradeWorkflow(appInstance: Any) -> WorkflowDefinition:
         heading_level="h1",
         description=[
             "Upgrading to MAS 9.1.x will install Manage Foundation: the User, Security groups, Application configurator and Mobile configurator capabilities.",
-            "Provide the IBM entitlement key used to pull the Manage images, and the storage classes for the Manage Foundation Db2 instances. Leave the storage classes blank to use the storage classes auto-detected from the cluster.",
+            "Provide the storage classes for the Manage Foundation Db2 instances — leave them blank to use the storage classes auto-detected from the cluster.",
+            "The IBM entitlement key is read from the cluster's ibm-entitlement secret; only enter a key if it could not be found there.",
         ],
         fields=[
-            WorkflowField(id="ibm_entitlement_key", label="IBM Entitlement Key", type="password", required=True, sensitive=True),
+            WorkflowField(id="ibm_entitlement_key", label="IBM Entitlement Key", type="password", required=False, sensitive=True),
             WorkflowField(id="storage_class_rwo", label="ReadWriteOnce (RWO) Storage Class", type="string", required=False),
             WorkflowField(id="storage_class_rwx", label="ReadWriteMany (RWX) Storage Class", type="string", required=False),
         ],

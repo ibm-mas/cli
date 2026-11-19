@@ -12,9 +12,9 @@
 Mounts the real manage-foundation WorkflowStep (from buildUpgradeWorkflow)
 in a StepScreen against a scenario app whose upgrade needs to install
 Manage Foundation, verifying that the entitlement key and storage class
-fields render, that Next is blocked while the required entitlement key is
-empty, and that a failing prepareManageFoundation validator surfaces its
-error in the reserved status row without advancing the step.
+fields render, that the optional fields do not block advancement, and that
+a failing prepareManageFoundation validator surfaces its error in the
+reserved status row without advancing the step.
 """
 
 import pytest
@@ -72,31 +72,26 @@ def test_manage_foundation_renders_entitlement_and_storage_fields():
     assert result["rwx"] is not None
 
 
-def test_next_blocked_while_entitlement_key_empty():
-    """Test that Next is blocked while the required entitlement key is empty.
+def test_blank_fields_do_not_block_required_validation():
+    """Test that every manage-foundation field is optional at field level.
 
-    GIVEN a scenario app whose upgrade needs Manage Foundation, with the
-        storage classes filled but the entitlement key left empty
-    WHEN Next is clicked
-    THEN nothing is posted and the params are not written — the required
-        field validation blocks advancement before the validator runs.
+    GIVEN a scenario app whose upgrade needs Manage Foundation
+    WHEN Next is clicked with all fields left blank (the entitlement key is
+        read from the cluster and the storage classes auto-detected by the
+        validator, not by field validation)
+    THEN the validator runs and the step completes — required-field
+        validation does not block on the empty inputs.
     """
-    screen, mas_app = _make_screen()
-
-    result = {}
+    screen, mas_app = _make_screen(prepareManageFoundation=lambda: None)
 
     async def drive(pilot, app):
-        app.query_one("#field-storage_class_rwo", Input).value = "rwo-sc"
-        app.query_one("#field-storage_class_rwx", Input).value = "rwx-sc"
-        await pilot.pause()
         await click_button(pilot, "#btn-next-manage-foundation")
-        await pilot.pause()
-        result["posted"] = list(app.posted)
+        await wait_for(lambda: app.posted == [("step_completed", 3)])
 
     run_screen_pilot(screen, drive)
 
-    assert result["posted"] == []
-    assert "should_install_manage_foundation" not in mas_app.params
+    # Blank inputs are written as empty strings; the validator resolves them
+    assert mas_app.params.get("ibm_entitlement_key") == ""
 
 
 def test_validator_failure_shown_in_status_row():

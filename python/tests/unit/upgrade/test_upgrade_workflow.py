@@ -212,8 +212,9 @@ def test_manage_foundation_step_has_validator_and_fields():
     GIVEN an app instance mock
     WHEN buildUpgradeWorkflow(app) is called
     THEN the 'manage-foundation' step has prepareManageFoundation as its
-         validator, a required password field for the entitlement key, and
-         optional storage class fields (blank = auto-detect).
+         validator, an optional password field for the entitlement key
+         (blank = read the key back from the cluster's ibm-entitlement
+         secret), and optional storage class fields (blank = auto-detect).
     """
     app = _make_app()
     definition = buildUpgradeWorkflow(app)
@@ -222,7 +223,7 @@ def test_manage_foundation_step_has_validator_and_fields():
     assert step.validator is app.prepareManageFoundation
     fields = {field.id: field for field in step.fields}
     assert fields["ibm_entitlement_key"].type == "password"
-    assert fields["ibm_entitlement_key"].required is True
+    assert fields["ibm_entitlement_key"].required is False
     assert fields["ibm_entitlement_key"].sensitive is True
     assert fields["storage_class_rwo"].required is False
     assert fields["storage_class_rwx"].required is False

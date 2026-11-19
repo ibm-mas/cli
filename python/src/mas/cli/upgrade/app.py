@@ -9,6 +9,8 @@
 #
 # *****************************************************************************
 
+import base64
+import json
 import sys
 import logging
 import logging.handlers
@@ -17,6 +19,8 @@ from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
 from halo import Halo
+
+from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from ..common.commandBuilder import offerCommandScript
@@ -314,24 +318,63 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         """
         return self.isManageFoundation and self.getParam("should_install_manage_foundation") != "true"
 
+    def lookupEntitlementKey(self, instanceId: str) -> Optional[str]:
+        """Read the IBM entitlement key from the cluster's ibm-entitlement secret.
+
+        The MAS installation writes a ``kubernetes.io/dockerconfigjson``
+        Secret named ``ibm-entitlement`` into every ``mas-<instanceId>-*``
+        namespace (and the SLS namespace) — the ``cp.icr.io/cp`` entry's
+        password is the entitlement key (see the ansible-devops
+        ``entitlement_key_rotation`` role, which manages the same secret).
+        Reading it back means the user is never asked to re-enter a key the
+        installation already stored.
+
+        Args:
+            instanceId (str): The MAS instance ID (secret is read from
+                ``mas-<instanceId>-core``).
+
+        Returns:
+            Optional[str]: The entitlement key, or None when the secret is
+            missing or carries no cp.icr.io credentials.
+        """
+        try:
+            secretsAPI = self.dynamicClient.resources.get(api_version="v1", kind="Secret")
+            secret = secretsAPI.get(name="ibm-entitlement", namespace=f"mas-{instanceId}-core")
+            dockerConfigJson = json.loads(base64.b64decode(secret["data"][".dockerconfigjson"]))
+            auths = dockerConfigJson.get("auths", {})
+            # The install template writes the entitlement under cp.icr.io/cp;
+            # accept the bare registry spelling too, in case the secret was
+            # created by other tooling
+            for registry in ("cp.icr.io/cp", "cp.icr.io"):
+                password = auths.get(registry, {}).get("password")
+                if password:
+                    return password
+        except (NotFoundError, ResourceNotFoundError, KeyError, ValueError, TypeError):
+            logger.debug(f"Unable to read the ibm-entitlement secret from the mas-{instanceId}-core namespace")
+        return None
+
     def prepareManageFoundation(self) -> None:
         """Validate the Manage Foundation inputs and configure its installation.
 
         Called as the ``validator`` on the TUI manage-foundation step, after
-        the entitlement key and (optionally) the storage classes have been
-        written to ``self.params``.  Performs the same configuration as the
-        classic wizard's Manage Foundation block: sets the install flags and
-        pipeline params, resolves the Db2 storage classes (validating any
-        provided values against the cluster, auto-detecting the rest), and
-        runs the silent-mode Db2 configuration.
+        the (optional) entitlement key and storage classes have been written
+        to ``self.params``.  Performs the same configuration as the classic
+        wizard's Manage Foundation block: resolves the entitlement key
+        (entered on the step, or read back from the cluster's
+        ``ibm-entitlement`` secret), sets the install flags and pipeline
+        params, resolves the Db2 storage classes (validating any provided
+        values against the cluster, auto-detecting the rest), and runs the
+        silent-mode Db2 configuration.
 
         The entitlement key is validated against the IBM Container Registry
         on a warn-only basis (matching the classic ``--no-confirm``
         behaviour) so that air-gapped environments are not blocked.
 
         Raises:
-            RuntimeError: When a provided storage class does not exist on
-                the cluster, or no storage classes can be resolved.
+            RuntimeError: When no entitlement key can be resolved (neither
+                entered nor found on the cluster), a provided storage class
+                does not exist on the cluster, or no storage classes can be
+                resolved.
         """
         instanceId = self.params.get("mas_instance_id", "")
 
@@ -340,12 +383,24 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # --no-confirm behaviour).
         self.noConfirm = True
 
+        # The entitlement key: use the one entered on this step, or read it
+        # back from the cluster's ibm-entitlement secret (written during the
+        # original installation) — the key does not normally need re-entering.
+        entitlementKey = self.getParam("ibm_entitlement_key")
+        if not entitlementKey:
+            entitlementKey = self.lookupEntitlementKey(instanceId)
+            if not entitlementKey:
+                raise RuntimeError(
+                    f"Unable to read the IBM entitlement key from the cluster (no 'ibm-entitlement' secret with cp.icr.io "
+                    f"credentials found in the mas-{instanceId}-core namespace).  Enter the IBM entitlement key on this step."
+                )
+            self.setParam("ibm_entitlement_key", entitlementKey)
+
         # Validate the entitlement key against the registry.  Warn-only: an
         # invalid key surfaces again at pipeline launch, and blocking here
         # would make the TUI unusable where the registry is unreachable
         # (air-gapped clusters).
-        entitlementKey = self.getParam("ibm_entitlement_key")
-        if entitlementKey and not self.validateEntitlementKey(entitlementKey):
+        if not self.validateEntitlementKey(entitlementKey):
             logger.warning(
                 "IBM entitlement key validation against the IBM Container Registry failed - continuing, but the upgrade pipeline will fail if the key is invalid"
             )
