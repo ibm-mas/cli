@@ -1,0 +1,287 @@
+#!/usr/bin/env bash
+
+function gitops_invoke_aap_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-invoke-aap [options]
+Launches an AWX/AAP job template, streams its output and waits for it to finish.
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+
+Job:
+  -j, --job ${COLOR_YELLOW}AAP_JOB${TEXT_RESET}                        Job template name or numeric ID (required)
+  -e, --extra-vars ${COLOR_YELLOW}AAP_EXTRA_VARS${TEXT_RESET}          Extra vars passed to the job as a JSON object (default: {})
+  --check ${COLOR_YELLOW}AAP_CHECK_ONLY${TEXT_RESET}                   Only check the connection, the credentials and the job template, do not launch the job
+
+AAP Configuration (environment variables only):
+  AAP_URL                  AAP base URL, e.g. https://aap.example.com (required)
+  AAP_TOKEN                OAuth2/personal access token, or AAP_USERNAME and AAP_PASSWORD
+  AAP_INSECURE             Set to 'true' to skip TLS verification (default: false)
+  AAP_POLL_INTERVAL        Seconds between job status checks (default: 30)
+  AAP_TIMEOUT              Max seconds to wait for the job, the job is cancelled when exceeded (default: 3600)
+  AAP_API_PREFIX           API path prefix (default: auto-detect)
+  AAP_MAX_RETRIES          Retries per HTTP request on transient errors (default: 5)
+  AAP_RETRY_DELAY          Initial retry back-off in seconds, doubles each retry (default: 5)
+  AAP_JOB_RETRIES          Times to relaunch the job after it fails (default: 0)
+
+The job is cancelled in AAP when this command receives SIGTERM or SIGINT (for example when the pipelinerun is cancelled).
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_invoke_aap_noninteractive() {
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -j|--job)
+        export AAP_JOB=$1 && shift
+        ;;
+      -e|--extra-vars)
+        export AAP_EXTRA_VARS=$1 && shift
+        ;;
+      --check)
+        export AAP_CHECK_ONLY=true
+        ;;
+      -h|--help)
+        gitops_invoke_aap_help
+        ;;
+      *)
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_invoke_aap_help "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+    esac
+  done
+}
+
+# ============================================================================
+# AAP HTTP helper
+# ============================================================================
+# Usage: gitops_invoke_aap_request METHOD PATH [JSON_BODY]
+# Reads AAP_CURL_OPTS (array) and AAP_BASE from the caller (bash dynamic scoping).
+# Prints the response body on stdout. Retries transient failures (curl errors,
+# HTTP 429 and 5xx) with exponential back-off. Returns 1 on any other failure.
+function gitops_invoke_aap_request() {
+  local METHOD="$1" REQ_PATH="$2" BODY="${3:-}"
+  local MAX_RETRIES="${AAP_MAX_RETRIES:-5}"
+  local DELAY="${AAP_RETRY_DELAY:-5}"
+  local TRY=0 HTTP_CODE CURL_RC TMP
+  local ARGS=("${AAP_CURL_OPTS[@]}" -X "$METHOD")
+  [[ -n "$BODY" ]] && ARGS+=(-d "$BODY")
+
+  TMP=$(mktemp) || return 1
+  while true; do
+    HTTP_CODE=$(curl "${ARGS[@]}" -o "$TMP" -w '%{http_code}' "${AAP_BASE}${REQ_PATH}" 2>/dev/null)
+    CURL_RC=$?
+    if [[ $CURL_RC -eq 0 && "$HTTP_CODE" =~ ^2[0-9][0-9]$ ]]; then
+      cat "$TMP"
+      rm -f "$TMP"
+      return 0
+    fi
+    # Anything other than a connection failure, 429 or 5xx is not worth retrying
+    if [[ $CURL_RC -eq 0 && "$HTTP_CODE" != "429" && ! "$HTTP_CODE" =~ ^5[0-9][0-9]$ ]]; then
+      echo "AAP request ${METHOD} ${REQ_PATH} failed with HTTP ${HTTP_CODE}: $(cat "$TMP")" >&2
+      rm -f "$TMP"
+      return 1
+    fi
+    if (( TRY >= MAX_RETRIES )); then
+      echo "AAP request ${METHOD} ${REQ_PATH} failed after ${MAX_RETRIES} retries (curl exit ${CURL_RC}, HTTP ${HTTP_CODE})" >&2
+      rm -f "$TMP"
+      return 1
+    fi
+    TRY=$((TRY + 1))
+    echo "AAP request ${METHOD} ${REQ_PATH} failed (curl exit ${CURL_RC}, HTTP ${HTTP_CODE}), retry ${TRY}/${MAX_RETRIES} in ${DELAY}s ..." >&2
+    sleep "$DELAY"
+    DELAY=$((DELAY * 2))
+    (( DELAY > 60 )) && DELAY=60
+  done
+}
+
+# ============================================================================
+# Launch an AWX/AAP job template and wait for it to finish
+# ============================================================================
+# Exits 0 when the job is successful, 1 otherwise.
+function gitops_invoke_aap() {
+  echo
+  echo_h2 "Invoking AAP job"
+
+  [[ -z "$AAP_URL" ]] && gitops_invoke_aap_help "AAP_URL is not set"
+  [[ -z "$AAP_JOB" ]] && gitops_invoke_aap_help "AAP_JOB is not set"
+  if [[ -z "$AAP_TOKEN" && ( -z "$AAP_USERNAME" || -z "$AAP_PASSWORD" ) ]]; then
+    gitops_invoke_aap_help "Either AAP_TOKEN or both AAP_USERNAME and AAP_PASSWORD must be set"
+  fi
+  command -v curl >/dev/null || gitops_invoke_aap_help "curl is required"
+  command -v jq >/dev/null || gitops_invoke_aap_help "jq is required"
+
+  local EXTRA_VARS_JSON="${AAP_EXTRA_VARS:-}"
+  [[ -z "$EXTRA_VARS_JSON" ]] && EXTRA_VARS_JSON='{}'
+  if ! echo "$EXTRA_VARS_JSON" | jq -e 'type == "object"' >/dev/null 2>&1; then
+    gitops_invoke_aap_help "AAP_EXTRA_VARS must be a JSON object"
+  fi
+
+  local POLL_INTERVAL="${AAP_POLL_INTERVAL:-30}"
+  local TIMEOUT="${AAP_TIMEOUT:-3600}"
+  local JOB_RETRIES="${AAP_JOB_RETRIES:-0}"
+  local RETRY_DELAY="${AAP_RETRY_DELAY:-5}"
+  local MAX_ATTEMPTS=$((JOB_RETRIES + 1))
+
+  # Display the settings (AAP_TOKEN and AAP_PASSWORD are never printed, nor are the extra vars)
+  echo "AAP environment variables:"
+  echo "  AAP_URL            = ${AAP_URL}"
+  echo "  AAP_JOB            = ${AAP_JOB}"
+  echo "  AAP_USERNAME       = ${AAP_USERNAME:-}"
+  echo "  AAP_INSECURE       = ${AAP_INSECURE:-}"
+  echo "  AAP_POLL_INTERVAL  = ${POLL_INTERVAL}"
+  echo "  AAP_TIMEOUT        = ${TIMEOUT}"
+  echo "  AAP_API_PREFIX     = ${AAP_API_PREFIX:-}"
+  echo "  AAP_MAX_RETRIES    = ${AAP_MAX_RETRIES:-}"
+  echo "  AAP_RETRY_DELAY    = ${RETRY_DELAY}"
+  echo "  AAP_JOB_RETRIES    = ${JOB_RETRIES}"
+  echo "  AAP_CHECK_ONLY     = ${AAP_CHECK_ONLY:-false}"
+  echo "  Extra vars         = $(echo "$EXTRA_VARS_JSON" | jq -r 'keys | join(",")')"
+  echo
+
+  # AAP_CURL_OPTS and AAP_BASE are read by gitops_invoke_aap_request (bash dynamic scoping)
+  local AAP_CURL_OPTS=(-sS --connect-timeout 10 --max-time 120 -H "Content-Type: application/json")
+  [[ "${AAP_INSECURE:-false}" == "true" ]] && AAP_CURL_OPTS+=(--insecure)
+  if [[ -n "$AAP_TOKEN" ]]; then
+    AAP_CURL_OPTS+=(-H "Authorization: Bearer ${AAP_TOKEN}")
+  else
+    AAP_CURL_OPTS+=(-u "${AAP_USERNAME}:${AAP_PASSWORD}")
+  fi
+
+  # AAP 2.5+ serves the controller API under /api/controller/v2, older AAP/AWX under /api/v2
+  local API_PREFIX="${AAP_API_PREFIX:-}"
+  if [[ -z "$API_PREFIX" ]]; then
+    local PING_CODE
+    PING_CODE=$(curl "${AAP_CURL_OPTS[@]}" -o /dev/null -w '%{http_code}' "${AAP_URL%/}/api/controller/v2/ping/" 2>/dev/null) || true
+    if [[ "$PING_CODE" == "404" ]]; then
+      API_PREFIX="/api/v2"
+    else
+      API_PREFIX="/api/controller/v2"
+    fi
+  fi
+  local AAP_BASE="${AAP_URL%/}${API_PREFIX}"
+
+  # Resolve the job template ID (AAP_JOB may be a name or an ID)
+  local JOB_TEMPLATE_ID RESPONSE
+  if [[ "$AAP_JOB" =~ ^[0-9]+$ ]]; then
+    JOB_TEMPLATE_ID="$AAP_JOB"
+  else
+    local ENCODED_NAME MATCHES
+    ENCODED_NAME=$(jq -rn --arg n "$AAP_JOB" '$n|@uri')
+    RESPONSE=$(gitops_invoke_aap_request GET "/job_templates/?name=${ENCODED_NAME}") || exit 1
+    MATCHES=$(echo "$RESPONSE" | jq -r '.count // 0')
+    if [[ "$MATCHES" != "1" ]]; then
+      echo_warning "Expected exactly 1 AAP job template named '${AAP_JOB}', found ${MATCHES}"
+      exit 1
+    fi
+    JOB_TEMPLATE_ID=$(echo "$RESPONSE" | jq -r '.results[0].id')
+  fi
+  echo "AAP job template ID: ${JOB_TEMPLATE_ID}"
+
+  if [[ "${AAP_CHECK_ONLY:-false}" == "true" ]]; then
+    # Reading the job template needs a valid credential, so this also verifies the token
+    gitops_invoke_aap_request GET "/job_templates/${JOB_TEMPLATE_ID}/" >/dev/null || exit 1
+    echo "AAP_CHECK_ONLY is true: ${AAP_BASE} is reachable and job template ${JOB_TEMPLATE_ID} can be read, the job is not launched"
+    exit 0
+  fi
+
+  local LAUNCH_BODY
+  LAUNCH_BODY=$(echo "$EXTRA_VARS_JSON" | jq -c '{extra_vars: .}')
+
+  # Cancel the running AAP job when this process is stopped (for example when the pipelinerun is cancelled),
+  # so that no job is left running unattended
+  local JOB_ID=""
+  gitops_invoke_aap_cancel_on_signal() {
+    echo_warning "Signal received, cancelling AAP job ${JOB_ID:-<not launched>}"
+    [[ -n "$JOB_ID" ]] && gitops_invoke_aap_request POST "/jobs/${JOB_ID}/cancel/" >/dev/null || true
+    exit 143
+  }
+  trap gitops_invoke_aap_cancel_on_signal TERM INT
+
+  local ATTEMPT=0 JOB_STATUS ELAPSED NEXT_LINE CHUNK
+  while (( ATTEMPT < MAX_ATTEMPTS )); do
+    ATTEMPT=$((ATTEMPT + 1))
+    echo "Launching AAP job template ${JOB_TEMPLATE_ID} (attempt ${ATTEMPT}/${MAX_ATTEMPTS}) ..."
+
+    # A rejected launch (e.g. HTTP 400 for a missing variable) is not retried by relaunching
+    RESPONSE=$(gitops_invoke_aap_request POST "/job_templates/${JOB_TEMPLATE_ID}/launch/" "${LAUNCH_BODY}") || exit 1
+    JOB_ID=$(echo "$RESPONSE" | jq -r '.job // .id // empty' 2>/dev/null)
+    if [[ -z "$JOB_ID" ]]; then
+      echo_warning "AAP launch response did not contain a job ID: ${RESPONSE}"
+      exit 1
+    fi
+    echo "AAP job launched: ID ${JOB_ID} (${AAP_URL%/}/#/jobs/playbook/${JOB_ID})"
+
+    # Poll until the job reaches a terminal state, printing new output as it appears
+    ELAPSED=0
+    NEXT_LINE=0
+    JOB_STATUS=""
+    while true; do
+      if RESPONSE=$(gitops_invoke_aap_request GET "/jobs/${JOB_ID}/"); then
+        JOB_STATUS=$(echo "$RESPONSE" | jq -r '.status // empty')
+      else
+        JOB_STATUS="error"
+        echo_warning "Unable to read status of AAP job ${JOB_ID} after retries"
+      fi
+
+      # Best effort: a failure to read the output must not fail the wait.
+      # format=txt ignores start_line, so the json format is used: it returns only the lines after
+      # start_line and the line number to continue from (range.end)
+      if RESPONSE=$(gitops_invoke_aap_request GET "/jobs/${JOB_ID}/stdout/?format=json&start_line=${NEXT_LINE}" 2>/dev/null); then
+        CHUNK=$(echo "$RESPONSE" | jq -r '.content // empty' 2>/dev/null | sed $'s/\x1b\\[[0-9;]*m//g')
+        [[ -n "$CHUNK" ]] && printf '%s\n' "$CHUNK"
+        CHUNK=$(echo "$RESPONSE" | jq -r '.range.end // empty' 2>/dev/null)
+        [[ "$CHUNK" =~ ^[0-9]+$ ]] && NEXT_LINE=$CHUNK
+      fi
+
+      case "$JOB_STATUS" in
+        successful|failed|error|canceled)
+          break
+          ;;
+      esac
+      if (( ELAPSED >= TIMEOUT )); then
+        echo_warning "Timed out after ${TIMEOUT}s waiting for AAP job ${JOB_ID}, cancelling it"
+        gitops_invoke_aap_request POST "/jobs/${JOB_ID}/cancel/" >/dev/null || true
+        JOB_STATUS="timeout"
+        break
+      fi
+      # sleep in the background and wait, so that a signal is handled straight away
+      sleep "$POLL_INTERVAL" &
+      wait $!
+      ELAPSED=$((ELAPSED + POLL_INTERVAL))
+    done
+
+    if [[ "$JOB_STATUS" == "successful" ]]; then
+      echo "AAP job ${JOB_ID} completed successfully"
+      trap - TERM INT
+      exit 0
+    fi
+
+    echo_warning "AAP job ${JOB_ID} finished with status: ${JOB_STATUS}"
+    JOB_ID=""
+    if (( ATTEMPT < MAX_ATTEMPTS )); then
+      echo "Retrying in ${RETRY_DELAY}s ..."
+      sleep "$RETRY_DELAY"
+    fi
+  done
+
+  echo_warning "AAP job template ${JOB_TEMPLATE_ID} did not succeed after ${MAX_ATTEMPTS} attempt(s)"
+  exit 1
+}
+
+# ============================================================================
+# Command wrapper - makes the function callable as a separate command
+# ============================================================================
+function gitops_invoke_aap_cmd() {
+  shift  # Remove command name
+  gitops_invoke_aap_noninteractive "$@"
+  gitops_invoke_aap
+}
