@@ -38,6 +38,7 @@ scenario - so any drift between the builder and the parser fails here.
 """
 
 import shlex
+from unittest.mock import MagicMock
 
 from mas.cli.displayMixins import SENSITIVE_PARAMS
 from mas.cli.install.app import InstallApp
@@ -407,3 +408,43 @@ def test_spec_flags_resolve_in_parser():
     flags = parserFlagMap(installArgParser)
     for arg in INSTALL_COMMAND_ARGS:
         assert arg.dest in flags, f"dest '{arg.dest}' has no flag in installArgParser"
+
+
+def _run_interactive_grafana_prompt(answer):
+    """Run configGrafana as the interactive wizard does, answering the
+    "Install Grafana" prompt with the given value."""
+    app = make_app()
+    app.architecture = "amd64"
+    app.isInteractiveMode = True
+    app.showAdvancedOptions = False
+    app._dynClient = MagicMock()
+    app.yesOrNo = MagicMock(return_value=answer)
+    app.configGrafana()
+    return app
+
+
+def test_round_trip_interactive_grafana_declined():
+    """GIVEN the user answers No to "Install Grafana" in the interactive wizard
+    WHEN the generated command is parsed
+    THEN it carries --skip-grafana-install, so a non-interactive run of it
+        does not install Grafana either
+    """
+    app = _run_interactive_grafana_prompt(False)
+    assert app.getParam("grafana_action") == "none"
+
+    args, _, _, _ = parse_generated_command(app.buildCommand())
+
+    assert args.skip_grafana_install is True
+
+
+def test_round_trip_interactive_grafana_accepted():
+    """GIVEN the user answers Yes to "Install Grafana" in the interactive wizard
+    WHEN the generated command is parsed
+    THEN it does not carry --skip-grafana-install
+    """
+    app = _run_interactive_grafana_prompt(True)
+    assert app.getParam("grafana_action") == "install"
+
+    args, _, _, _ = parse_generated_command(app.buildCommand())
+
+    assert args.skip_grafana_install is False
