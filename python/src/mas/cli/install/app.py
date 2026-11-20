@@ -445,6 +445,8 @@ class InstallApp(
         else:
             if self.isInteractiveMode and not self.yesOrNo("Install Grafana"):
                 self.setParam("grafana_action", "none")
+                # Carry the choice into the generated non-interactive command
+                self.skipGrafanaInstall = True
             else:
                 try:
                     # Check if dynamicClient is available and resources.get() returns a valid API
