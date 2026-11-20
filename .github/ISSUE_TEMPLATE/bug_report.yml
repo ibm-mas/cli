@@ -29,7 +29,7 @@ body:
         - uninstall
         - must-gather
         - configure-airgap
-        - mirror-images
+        - mirror
         - mirror-redhat-images
         - other
     validations:

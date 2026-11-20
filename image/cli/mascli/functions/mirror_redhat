@@ -267,7 +267,7 @@ function mirror_redhat_interactive() {
 }
 
 function mirror_redhat() {
-  # Take the first parameter off (it will be mirror-images)
+  # Take the first parameter off (it will be mirror-redhat-images)
   shift
   if [[ $# -gt 0 ]]; then
     mirror_redhat_noninteractive "$@"
