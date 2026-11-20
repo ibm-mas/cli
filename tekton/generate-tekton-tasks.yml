@@ -231,6 +231,7 @@
         - gitops-license
         - gitops-license-generator
         - gitops-mas-fvt-preparer
+        - gitops-mas-fvt-preparer-aap
         - gitops-mas-initiator
         - gitops-mas-provisioner
         - gitops-mongo

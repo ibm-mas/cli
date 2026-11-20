@@ -95,6 +95,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_kafka
 . $CLI_DIR/functions/gitops_deprovision_suite_license_service
 . $CLI_DIR/functions/gitops_mas_fvt_preparer
+. $CLI_DIR/functions/gitops_invoke_aap
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
 . $CLI_DIR/functions/gitops_deprovision_db2u
@@ -670,6 +671,14 @@ case $1 in
     echo
     reset_colors
     gitops_mas_fvt_preparer "$@"
+    ;;
+
+  gitops-invoke-aap)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Invoke AWX/AAP Job (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_invoke_aap_cmd "$@"
     ;;
 
   gitops-deprovision-db2u-database)
