@@ -18,6 +18,9 @@ spec:
     # 2. Backup/Restore Configuration
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/backup.yml.j2') | indent(4) }}
+    - name: mas_manual_route_mgmt
+      type: string
+      default: ""
 
   tasks:
     # Content
