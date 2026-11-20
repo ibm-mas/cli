@@ -141,5 +141,30 @@ You can specify multiple applications as a comma-separated list (e.g., `core,man
 - MAS channel 9.2.x or later
 - Access to the target OpenShift cluster
 
+### Running with uvx
+`mas pre-install` is available in both the container image and the standalone CLI:
+
+```bash
+uvx mas-cli pre-install \
+  --mas-instance-id prod1 \
+  --mas-channel 9.2.x \
+  --admin-mode cluster \
+  --no-confirm
+```
+
+The RBAC manifests are applied from the [ibm-mas/pre-install](https://github.com/ibm-mas/pre-install) repository. They are located in the following order:
+
+1. The directory named by the `MAS_PREINSTALL_RBAC_DIR` environment variable, if set. The directory must contain `maximo-operator-catalog/operators` and/or `openshift-platform/operators`. If it is set but is not a directory the command fails rather than falling back.
+2. `/opt/app-root/rbac`, which is populated when the container image is built.
+3. The copy bundled inside the `mas-cli` package, which is what `uvx` and `uv tool install` use.
+
+The bundled copy is fixed at the time the `mas-cli` release was built.  Use `MAS_PREINSTALL_RBAC_DIR` to apply newer or customised manifests.
+
+To find out which `ibm-mas/pre-install` commit a release ships, read `SOURCE.json` from the installed package. The location of the directory that was used is also written to `mas.log` each time the command runs.
+
+```bash
+uvx --from mas-cli python -c "import json, mas.cli.rbac_utils as r, os; print(open(os.path.join(r.PACKAGED_PREINSTALL_RBAC_DIR, 'SOURCE.json')).read())"
+```
+
 !!! warning "Administrator Permissions Required"
     The `mas pre-install` command requires cluster administrator permissions. If you do not have these permissions, the command will fail with an error message.

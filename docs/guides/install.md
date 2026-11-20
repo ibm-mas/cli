@@ -251,13 +251,15 @@ The interactive install will guide you through a series of questioned designed t
       <p>MAS requires both a `ReadWriteMany` and a `ReadWriteOnce` capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:</p>
       <ul>
         <li>IBMCloud Storage (ibmc-block-gold & ibmc-file-gold-gid)</li>
+        <li>IBMCloud VPC Storage (ibmc-vpc-block-10iops-tier & ibmc-vpc-file-1000-iops)</li>
         <li>OpenShift Container Storage (ocs-storagecluster-ceph-rbd & ocs-storagecluster-cephfs)</li>
         <li>External OpenShift Container Storage (ocs-external-storagecluster-ceph-rbd & ocs-external-storagecluster-cephfs)</li>
+        <li>Longhorn (longhorn)</li>
         <li>NFS Client (nfs-client)</li>
         <li>Azure Managed Storage (managed-premium & azurefiles-premium)</li>
-        <li>AWS Storage (gp3-cs & efs)</li>
+        <li>AWS Storage (gp3-csi & efs)</li>
       </ul>
-      <p>The names in brackets represent the `ReadWriteOnce` and `ReadWriteMany` class that will be used, in the case of NFS the same storage class will be used for both `ReadWriteOnce` and `ReadWriteMany` volumes.  Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes if you wish.</p>
+      <p>The names in brackets represent the `ReadWriteOnce` and `ReadWriteMany` class that will be used, in the case of Longhorn and NFS the same storage class will be used for both `ReadWriteOnce` and `ReadWriteMany` volumes.  A storage provider is only auto-detected when both of its storage classes exist in the cluster: if only one of the paired classes is available (for example `gp3-csi` without `efs` on an AWS cluster), no provider is detected and you will be prompted to select both storage classes yourself.  Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes if you wish.</p>
       <p>When selecting your own storage classes you will be presented with a list of those available and must select both a `ReadWriteMany` and a `ReadWriteOnce` storage class.  Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documentation from the storage class provider to determine whether your storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Provide a License File and Entitlement Key">

@@ -106,6 +106,14 @@ def main() -> None:
             app.printBanner()
             raise SystemExit(app.update(argv[2:]))
         if function == "upgrade":
+            if not any(arg.startswith("-") for arg in argv[2:]):
+                # Bare invocation — launch the Textual TUI workflow. Any
+                # command-line flags fall through to the classic CLI path so
+                # that nothing the TUI does not yet support is silently ignored.
+                from mas.cli.tui.shell import serveTuiMode
+
+                serveTuiMode("upgrade", argv[2:])
+                return
             from mas.cli.upgrade.app import UpgradeApp
 
             app = UpgradeApp()

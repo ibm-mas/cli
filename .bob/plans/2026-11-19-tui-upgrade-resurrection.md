@@ -1,6 +1,6 @@
 # TUI Upgrade Resurrection Plan
 
-**Status:** not started · **Target branch:** `textual-upgrade` (to be created from `origin/master` after PR #2715 merges) · **Source branch:** `origin/textual` · **Date:** November 2026
+**Status:** complete (branch `textual-upgrade`, commit `e9cd7a4ac2`) · **Target branch:** `textual-upgrade` (created from `origin/master` after PR #2715 merged) · **Source branch:** `origin/textual` · **Date:** November 2026
 
 > Goal: resurrect the `mas upgrade` Textual TUI work stranded on the old
 > `textual` branch, port it onto the polished TUI framework that landed
