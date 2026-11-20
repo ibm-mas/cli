@@ -1034,7 +1034,13 @@ class InstallApp(
                 self.setParam("mas_manual_route_mgmt", "true")
             else:
                 self.printH1("Configure Routes Manually")
-                self.printDescription(["Disable automatic route creation."])
+                self.printDescription(
+                    [
+                        "Disable automatic route creation.",
+                        "",
+                        "<Yellow>Note: Maximo Visual Inspection (MVI) currently doesn't support manual route management, so it will not be available if this is enabled.</Yellow>",
+                    ]
+                )
                 self.yesOrNo("Disable Route Creation", "mas_manual_route_mgmt")
         else:
             self.setParam("mas_use_service_mesh", "false")
