@@ -173,7 +173,7 @@ The registry uses self-signed certificates. Retrieve the CA certificate for clie
 
 ```bash
 # Extract CA certificate
-oc get secret -n airgap-registry registry-tls -o jsonpath='{.data.ca\.crt}' | base64 -d > registry-ca.crt
+oc get secret -n airgap-registry airgap-registry-certificate -o jsonpath='{.data.ca\.crt}' | base64 -d > registry-ca.crt
 ```
 
 ### Testing Registry Access
