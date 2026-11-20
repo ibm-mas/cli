@@ -7,6 +7,12 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
+    # RHOAI subscription channel
+    - name: rhoai_channel
+      type: string
+      description: Subscription channel for RHOAI (empty to use the aiservice_rhoai role default)
+      default: ""
+
   steps:
     - name: rhoai-migration
       image: "quay.io/ibmmas/cli:latest"
@@ -17,3 +23,7 @@ spec:
       workingDir: /workspace/configs
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
+
+        # RHOAI subscription channel
+        - name: RHOAI_CHANNEL
+          value: $(params.rhoai_channel)

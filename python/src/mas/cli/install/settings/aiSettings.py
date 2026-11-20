@@ -8,10 +8,43 @@
 #
 # *****************************************************************************
 
+import logging
 from os import path
 from typing import TYPE_CHECKING, Dict, List, Any
 from prompt_toolkit import print_formatted_text
 from mas.cli.cli import logMethodCall
+
+logger = logging.getLogger(__name__)
+
+# Red Hat OpenShift AI subscription channel to use for each aiservice_platform value in the catalog.
+# Catalogs that predate the aiservice_platform key (before the November 2026 catalog) install RHOAI v2.
+RHOAI_V2_CHANNEL = "stable"
+RHOAI_CHANNEL_BY_PLATFORM = {
+    "rhoai-v3": "stable-3.x",
+}
+
+
+def getRhoaiChannelForCatalog(catalog: Dict[str, Any] | None) -> str | None:
+    """
+    Return the RHOAI subscription channel for the given catalog based on its aiservice_platform:
+      - aiservice_platform: rhoai-v3  -> stable-3.x
+      - no aiservice_platform (catalogs before November 2026) -> stable (RHOAI v2)
+
+    Returns None if there is no catalog or the platform is not recognised, in which case the
+    aiservice_rhoai role default channel applies.
+    """
+    if catalog is None:
+        return None
+
+    platform = catalog.get("aiservice_platform")
+    if platform is None:
+        return RHOAI_V2_CHANNEL
+    if platform in RHOAI_CHANNEL_BY_PLATFORM:
+        return RHOAI_CHANNEL_BY_PLATFORM[platform]
+
+    logger.warning(f"Unknown aiservice_platform '{platform}' in catalog, using the aiservice_rhoai role default channel")
+    return None
+
 
 if TYPE_CHECKING:
     # Type hints for methods and attributes provided by other mixins
@@ -24,6 +57,7 @@ class AiSettingsMixin:
     if TYPE_CHECKING:
         # Attributes from BaseApp and other mixins
         params: Dict[str, str]
+        chosenCatalog: Dict[str, Any] | None
         devMode: bool
         showAdvancedOptions: bool
         localConfigDir: str | None
@@ -65,6 +99,21 @@ class AiSettingsMixin:
         def selectLocalConfigDir(self) -> None: ...
 
         def generateAiCfg(self, instanceId: str, scope: str, destination: str, workspaceId: str = "") -> None: ...
+
+    def setRhoaiChannelFromCatalog(self) -> None:
+        """
+        Set the RHOAI subscription channel based on the aiservice_platform defined in the chosen catalog.
+        A channel explicitly provided by the user (--rhoai-channel) is never overridden.
+        """
+        if self.getParam("rhoai_channel") != "":
+            return
+
+        channel = getRhoaiChannelForCatalog(self.chosenCatalog)
+        if channel is None:
+            return
+
+        logger.debug(f"Using RHOAI channel '{channel}' for the chosen catalog")
+        self.setParam("rhoai_channel", channel)
 
     def configAi(self) -> None:
         """Configure AiCfg for MAS installation"""

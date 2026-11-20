@@ -245,6 +245,71 @@ class TestDetectCP4DVersionCheck:
 
 
 # ---------------------------------------------------------------------------
+# RHOAI channel follows the target catalog
+# ---------------------------------------------------------------------------
+
+
+class TestRhoaiChannelForCatalog:
+    """The RHOAI channel/major version used by mas update is determined by the target catalog."""
+
+    def test_rhoai_v3_catalog_uses_stable_3x(self):
+        from mas.cli.install.settings.aiSettings import getRhoaiChannelForCatalog
+
+        assert getRhoaiChannelForCatalog({"aiservice_platform": "rhoai-v3"}) == "stable-3.x"
+
+    def test_catalog_without_platform_uses_stable_for_rhoai_v2(self):
+        from mas.cli.install.settings.aiSettings import getRhoaiChannelForCatalog
+
+        assert getRhoaiChannelForCatalog({"aiservice_version": {"9.1.x": "9.1.0"}}) == "stable"
+
+    def test_unknown_platform_or_no_catalog_returns_none(self):
+        from mas.cli.install.settings.aiSettings import getRhoaiChannelForCatalog
+
+        assert getRhoaiChannelForCatalog({"aiservice_platform": "other"}) is None
+        assert getRhoaiChannelForCatalog(None) is None
+
+
+class TestDetectRHOAIv2:
+    """RHOAI v2 -> v3 upgrade is only evaluated when the target catalog uses RHOAI v3."""
+
+    def _app_with_installed_csv(self, channel: str, installed_csv: str) -> UpdateApp:
+        app = _make_app()
+        app.params = {"rhoai_channel": channel} if channel else {}
+        subscription = MagicMock()
+        subscription.to_dict.return_value = {"status": {"installedCSV": installed_csv}}
+        app._dynClient.resources.get.return_value.get.return_value = subscription
+        return app
+
+    def test_v2_installed_and_v3_catalog_triggers_upgrade(self):
+        app = self._app_with_installed_csv("stable-3.x", "rhods-operator.2.25.0")
+
+        result = app.detectRHOAIv2()
+        assert isinstance(result, DetectResult)
+        assert result.ok is True
+        assert app.rhoaiV2Detected is True
+        assert app.getParam("odh_to_rhoai_migration") == "true"
+
+    def test_v2_installed_and_v2_catalog_does_nothing(self):
+        app = self._app_with_installed_csv("stable", "rhods-operator.2.25.0")
+
+        result = app.detectRHOAIv2()
+        assert isinstance(result, DetectResult)
+        assert result.ok is True
+        assert app.rhoaiV2Detected is False
+        assert app.getParam("odh_to_rhoai_migration") == ""
+        app._dynClient.resources.get.assert_not_called()
+
+    def test_v3_installed_and_v3_catalog_does_nothing(self):
+        app = self._app_with_installed_csv("stable-3.x", "rhods-operator.3.0.0")
+
+        result = app.detectRHOAIv2()
+        assert isinstance(result, DetectResult)
+        assert result.ok is True
+        assert app.rhoaiV2Detected is False
+        assert app.getParam("odh_to_rhoai_migration") == ""
+
+
+# ---------------------------------------------------------------------------
 # launchUpdate stage helpers
 # ---------------------------------------------------------------------------
 
