@@ -26,13 +26,9 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.12/site-packages/ansibl
 # 6. Disable ibmcloud cli's new version check
 # 7. Set file permissions to be developer (hack) friendly (must run after ibmcloud config so ~/.bluemix is covered)
 COPY install /tmp/install
-RUN --mount=type=secret,id=ARTIFACTORY_TOKEN \
-    --mount=type=secret,id=ARTIFACTORY_GENERIC_RELEASE_URL \
-    --mount=type=secret,id=GITHUB_REF_NAME \
+RUN --mount=type=secret,id=GITHUB_REF_NAME \
     --mount=type=secret,id=GITHUB_REF_TYPE \
     umask 0002 && \
-    export ARTIFACTORY_TOKEN=$(cat /run/secrets/ARTIFACTORY_TOKEN 2>/dev/null || echo "") && \
-    export ARTIFACTORY_GENERIC_RELEASE_URL=$(cat /run/secrets/ARTIFACTORY_GENERIC_RELEASE_URL 2>/dev/null || echo "") && \
     export GITHUB_REF_NAME=$(cat /run/secrets/GITHUB_REF_NAME 2>/dev/null || echo "") && \
     export GITHUB_REF_TYPE=$(cat /run/secrets/GITHUB_REF_TYPE 2>/dev/null || echo "") && \
     ls /tmp/install && \

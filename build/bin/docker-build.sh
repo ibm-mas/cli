@@ -79,8 +79,6 @@ docker buildx use builder-$TARGET_PLATFORM
 # Create temporary secret files for Podman compatibility
 # These will be cleaned up automatically after the build
 SECRET_DIR=$(mktemp -d)
-echo "${ARTIFACTORY_TOKEN:-}" > "$SECRET_DIR/ARTIFACTORY_TOKEN"
-echo "${ARTIFACTORY_GENERIC_RELEASE_URL:-}" > "$SECRET_DIR/ARTIFACTORY_GENERIC_RELEASE_URL"
 echo "${GITHUB_REF_NAME:-}" > "$SECRET_DIR/GITHUB_REF_NAME"
 echo "${GITHUB_REF_TYPE:-}" > "$SECRET_DIR/GITHUB_REF_TYPE"
 
@@ -92,8 +90,6 @@ docker buildx build --progress plain \
   --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
   --build-arg VCS_REF=$GITHUB_SHA \
   --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
-  --secret id=ARTIFACTORY_TOKEN,src="$SECRET_DIR/ARTIFACTORY_TOKEN" \
-  --secret id=ARTIFACTORY_GENERIC_RELEASE_URL,src="$SECRET_DIR/ARTIFACTORY_GENERIC_RELEASE_URL" \
   --secret id=GITHUB_REF_NAME,src="$SECRET_DIR/GITHUB_REF_NAME" \
   --secret id=GITHUB_REF_TYPE,src="$SECRET_DIR/GITHUB_REF_TYPE" \
   -t $LOCAL_TAG $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH || exit 1
@@ -120,9 +116,7 @@ if [[ "$TARGET_PLATFORM" == "amd64" ]]; then
     fi
     sudo oscap xccdf generate fix --fix-type bash --output $OSCAP_DIR/$image_name-remediation.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_stig $OSCAP_DIR/$image_name-results.xml
 
-    # Upload the results to Artifactory
-    artifactory_upload $OSCAP_DIR/$image_name-report.html $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/$image_name/$DOCKER_TAG/$image_name-report.html
-    artifactory_upload $OSCAP_DIR/$image_name-results.xml $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/$image_name/$DOCKER_TAG/$image_name-results.xml
+    # The reports in $OSCAP_DIR are uploaded as GitHub Actions artifacts by the workflow
   fi
 else
   echo "OSCAP tooling can only process amd64 container images"
