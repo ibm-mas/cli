@@ -18,8 +18,6 @@ from typing import Callable, Optional
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
-from halo import Halo
-
 from kubernetes.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
@@ -83,6 +81,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         # Channel state populated by prepareUpgrade() on the TUI path (and
         # inline in upgrade() on the CLI path)
         self.nextChannel: str = ""
+        self.hasExplicitNextChannel: bool = False
         self.currentChannel: str = ""
         self.effectiveCurrentChannel: str = ""
         # RBAC state populated by prepareUpgrade() / upgrade() and consumed
@@ -152,6 +151,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
 
             if self.nextChannel != "":
                 # --next-channel was explicitly provided by the user
+                self.hasExplicitNextChannel = True
                 if self.nextChannel == currentChannel:
                     # Retry scenario: MAS core already on target channel, but some apps may still be behind
                     pass
@@ -500,19 +500,33 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         Returns:
             tuple[bool, str]: (success, detail_message — the pipeline run URL on success)
         """
-        if self.currentChannel not in ("", "Unknown") and self.nextChannel == self.currentChannel:
-            # Retry scenario: core already on target, apps need upgrading.
-            # Find the previous channel: which channel has upgrade_path[X] = currentChannel?
-            previousChannel = None
-            for prevCh, nextCh in self.upgrade_path.items():
-                if nextCh == self.currentChannel:
-                    previousChannel = prevCh
-                    break
-            masChannelParam = previousChannel if previousChannel else self.currentChannel
+        if self.hasExplicitNextChannel and self.currentChannel != "Unknown":
+            if self.nextChannel == self.currentChannel:
+                # Retry scenario: core already on target, apps need upgrading
+                # Find previous channel: which channel has upgrade_path[X] = currentChannel?
+                previousChannel = None
+                for prevCh, nextCh in self.upgrade_path.items():
+                    if nextCh == self.currentChannel:
+                        previousChannel = prevCh
+                        break
+                # Pass previous channel so ansible upgrades apps from previous to current
+                masChannelParam = previousChannel if previousChannel else self.currentChannel
+            else:
+                # Regular upgrade with explicit --next-channel
+                masChannelParam = self.currentChannel
         else:
+            # No --next-channel provided: pass the effectiveCurrentChannel computed
+            # earlier so Ansible targets the correct hop based on all component
+            # channels, not just Core's channel.
             masChannelParam = self.effectiveCurrentChannel
 
-        pipelineURL = launchUpgradePipeline(self.dynamicClient, self.masInstanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
+        pipelineURL = launchUpgradePipeline(
+            self.dynamicClient,
+            self.masInstanceId or self.params.get("mas_instance_id", ""),
+            self.skipPreCheck,
+            masChannel=masChannelParam,
+            params=self.params,
+        )
         if pipelineURL:
             return True, pipelineURL
         return False, "Failed — see log file for details"
@@ -559,12 +573,14 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
             label = "Apply pre-install MAS RBAC"
             reporter.start(label)
             self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
+            rbacRootDir = self.getPreinstallRBACRootDir()
             applyPreInstallMASRBAC(
                 dynClient=self.dynamicClient,
                 masVersion=".".join(self.nextChannel.split(".")[:2]),
                 masInstanceId=instanceId,
                 adminMode=self.detectedMode,
                 selectedApps=self.selectedAppsForRBAC,
+                rbacRootDir=rbacRootDir,
             )
             reporter.success(label, f"Pre-install MAS RBAC applied for target version {self.nextChannel} (mode: {self.detectedMode})")
 
@@ -906,6 +922,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         self.skipPreCheck = args.skip_pre_check
         self.licenseAccepted = args.accept_license
         self.nextChannel = args.next_channel
+        self.hasExplicitNextChannel = bool(args.next_channel)
         self.devMode = args.dev_mode
         self.applyPreInstallMASRBAC = False
         self.selectedAppsForRBAC = []
@@ -963,6 +980,7 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
             )
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
+        self.currentChannel = currentChannel or "Unknown"
         if currentChannel is not None:
             if self.devMode:
                 # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
@@ -1179,94 +1197,16 @@ class UpgradeApp(BaseApp, upgradeArgBuilderMixin, UpgradeSettingsMixin):
         print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Class .......... {self.pipelineStorageClass}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Pipeline Storage Access Mode .... {self.pipelineStorageAccessMode}</LightSlateGrey>"))
 
+        continueWithUpgrade = False
         if not self.noConfirm:
             print()
             continueWithUpgrade = self.yesOrNo("Proceed with these settings")
 
         if self.noConfirm or continueWithUpgrade:
-            self.createTektonFileWithDigest()
-
             self.printH1("Launch Upgrade")
-            pipelinesNamespace = f"mas-{instanceId}-pipelines"
-
-            with Halo(text="Validating OpenShift Pipelines installation", spinner=self.spinner) as h:
-                successfullyInstalledPipelines = installOpenShiftPipelines(self.dynamicClient)
-                if successfullyInstalledPipelines:
-                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
-                else:
-                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
-                    self.fatalError("Installation failed")
-
-            # Apply pre-install RBAC if user has permissions
-            if self.applyPreInstallMASRBAC and detectedMode:
-                self.selectedAppsForRBAC = getInstalledApps(self.dynamicClient, instanceId)
-                rbacRootDir = self.getPreinstallRBACRootDir()
-                with Halo(text="Applying pre-install MAS RBAC for target version", spinner=self.spinner) as h:
-                    applyPreInstallMASRBAC(
-                        dynClient=self.dynamicClient,
-                        masVersion=".".join(self.nextChannel.split(".")[:2]),
-                        masInstanceId=instanceId,
-                        adminMode=detectedMode,
-                        selectedApps=self.selectedAppsForRBAC,
-                        rbacRootDir=rbacRootDir,
-                    )
-                    h.stop_and_persist(
-                        symbol=self.successIcon, text=f"Pre-install MAS RBAC applied for target version {self.nextChannel} (mode: {detectedMode})"
-                    )
-
-            with Halo(text=f"Preparing namespace ({pipelinesNamespace})", spinner=self.spinner) as h:
-                createNamespace(self.dynamicClient, pipelinesNamespace)
-                preparePipelinesNamespace(
-                    dynClient=self.dynamicClient,
-                    instanceId=instanceId,
-                    storageClass=self.pipelineStorageClass,
-                    accessMode=self.pipelineStorageAccessMode,
-                )
-                prepareUpgradeSecrets(
-                    dynClient=self.dynamicClient,
-                    namespace=pipelinesNamespace,
-                    ibm_entitlement_key=self.getParam("ibm_entitlement_key"),
-                    artifactory_token=self.getParam("artifactory_token"),
-                    artifactory_username=self.getParam("artifactory_username"),
-                )
-                h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
-
-            with Halo(text=f"Installing latest Tekton definitions (v{self.version})", spinner=self.spinner) as h:
-                updateTektonDefinitions(self.dynamicClient, pipelinesNamespace, self.tektonDefsPath)
-                h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
-
-            with Halo(text="Submitting PipelineRun for {instanceId} upgrade", spinner=self.spinner) as h:
-                # Determine masChannel parameter based on scenario:
-                # - Regular upgrade: pass currentChannel so ansible looks up the next channel
-                # - Retry scenario: pass previous channel so ansible upgrades apps to current channel
-                # - No --next-channel: pass empty string to let ansible auto-determine
-                if args.next_channel != "" and currentChannel != "Unknown":
-                    if self.nextChannel == currentChannel:
-                        # Retry scenario: core already on target, apps need upgrading
-                        # Find previous channel: which channel has upgrade_path[X] = currentChannel?
-                        previousChannel = None
-                        for prevCh, nextCh in self.upgrade_path.items():
-                            if nextCh == currentChannel:
-                                previousChannel = prevCh
-                                break
-                        # Pass previous channel so ansible upgrades apps from previous to current
-                        masChannelParam = previousChannel if previousChannel else currentChannel
-                    else:
-                        # Regular upgrade with explicit --next-channel
-                        masChannelParam = currentChannel
-                else:
-                    # No --next-channel provided: pass the effectiveCurrentChannel computed
-                    # earlier so Ansible targets the correct hop based on all component
-                    # channels, not just Core's channel.
-                    masChannelParam = self.effectiveCurrentChannel if hasattr(self, "effectiveCurrentChannel") else ""
-
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=masChannelParam, params=self.params)
-                if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
-                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
-                else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {instanceId} upgrade, see log file for details")
-                    print()
+            self.detectedMode = detectedMode
+            self.launchUpgrade()
+            print()
 
             # Re-print the command so it is not lost in the scrollback above the
             # pipeline launch output

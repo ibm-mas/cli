@@ -70,12 +70,12 @@ class TestUpgradeChannelLogic:
         Test regular upgrade: current=8.11.x, next=9.0.x
         Should pass masChannel="8.11.x" to ansible
         """
-        with patch("mas.devops.mas.getMasChannel", return_value="8.11.x"):
-            with patch("mas.devops.mas.getAppsSubscriptionChannel", return_value=[]):
-                with patch("mas.devops.tekton.launchUpgradePipeline") as mock_launch:
-                    with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
-                        with patch("mas.devops.tekton.updateTektonDefinitions"):
-                            with patch("mas.devops.ocp.createNamespace"):
+        with patch("mas.cli.upgrade.app.getMasChannel", return_value="8.11.x"):
+            with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://pipeline") as mock_launch:
+                    with patch("mas.cli.upgrade.app.installOpenShiftPipelines", return_value=True):
+                        with patch("mas.cli.upgrade.app.updateTektonDefinitions"):
+                            with patch("mas.cli.upgrade.app.createNamespace"):
                                 # Mock args
                                 mock_args = Mock()
                                 mock_args.mas_instance_id = "test-inst"
@@ -99,12 +99,12 @@ class TestUpgradeChannelLogic:
         Test retry scenario: current=9.1.x, next=9.1.x (core upgraded, apps stuck on 9.0.x)
         Should pass masChannel="9.0.x" (previous channel) to ansible
         """
-        with patch("mas.devops.mas.getMasChannel", return_value="9.1.x"):
-            with patch("mas.devops.mas.getAppsSubscriptionChannel", return_value=[]):
-                with patch("mas.devops.tekton.launchUpgradePipeline") as mock_launch:
-                    with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
-                        with patch("mas.devops.tekton.updateTektonDefinitions"):
-                            with patch("mas.devops.ocp.createNamespace"):
+        with patch("mas.cli.upgrade.app.getMasChannel", return_value="9.1.x"):
+            with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://pipeline") as mock_launch:
+                    with patch("mas.cli.upgrade.app.installOpenShiftPipelines", return_value=True):
+                        with patch("mas.cli.upgrade.app.updateTektonDefinitions"):
+                            with patch("mas.cli.upgrade.app.createNamespace"):
                                 # Mock args
                                 mock_args = Mock()
                                 mock_args.mas_instance_id = "test-inst"
@@ -130,12 +130,12 @@ class TestUpgradeChannelLogic:
         Test auto-determine: no --next-channel provided
         Should pass masChannel="" to let ansible auto-determine
         """
-        with patch("mas.devops.mas.getMasChannel", return_value="8.11.x"):
-            with patch("mas.devops.mas.getAppsSubscriptionChannel", return_value=[]):
-                with patch("mas.devops.tekton.launchUpgradePipeline") as mock_launch:
-                    with patch("mas.devops.tekton.installOpenShiftPipelines", return_value=True):
-                        with patch("mas.devops.tekton.updateTektonDefinitions"):
-                            with patch("mas.devops.ocp.createNamespace"):
+        with patch("mas.cli.upgrade.app.getMasChannel", return_value="8.11.x"):
+            with patch("mas.cli.upgrade.app.getAppsSubscriptionChannel", return_value=[]):
+                with patch("mas.cli.upgrade.app.launchUpgradePipeline", return_value="https://pipeline") as mock_launch:
+                    with patch("mas.cli.upgrade.app.installOpenShiftPipelines", return_value=True):
+                        with patch("mas.cli.upgrade.app.updateTektonDefinitions"):
+                            with patch("mas.cli.upgrade.app.createNamespace"):
                                 # Mock args
                                 mock_args = Mock()
                                 mock_args.mas_instance_id = "test-inst"
