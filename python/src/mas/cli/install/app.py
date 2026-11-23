@@ -2254,52 +2254,7 @@ class InstallApp(
 
                 # Special handling for ibm_entitlement_key: validate it
                 if key == "ibm_entitlement_key":
-                    isValid = self.validateEntitlementKey(value)
-                    if isValid is None:
-                        # SSL error — network could not reach cp.icr.io, key may still be valid
-                        if self.noConfirm:
-                            self.printWarning(
-                                "SSL certificate verification failed — could not reach cp.icr.io to validate the entitlement key. "
-                                "This is likely caused by a corporate proxy or firewall using a self-signed certificate. "
-                                "Your entitlement key may still be valid. Continuing due to --no-confirm flag."
-                            )
-                        else:
-                            self.printWarning("SSL certificate verification failed — could not reach cp.icr.io")
-                            print()
-                            self.printDescription(
-                                [
-                                    "This is likely caused by a corporate proxy or firewall using a self-signed certificate.",
-                                    "This does NOT necessarily mean your entitlement key is wrong.",
-                                    "Your key may be perfectly valid — the CLI simply could not connect to verify it.",
-                                    "",
-                                    "What would you like to do?",
-                                    "  1. Continue anyway (skip validation) — recommended if your key is correct",
-                                    "  2. Quit (exit the application)",
-                                ]
-                            )
-                            choice = self.promptForInt("Select an option", min=1, max=2)
-                            if choice == 2:
-                                logger.info("User chose to quit due to SSL error during entitlement key validation")
-                                exit(1)
-                    elif isValid is False:
-                        # Authentication failed — the key itself is wrong
-                        if self.noConfirm:
-                            self.printWarning("IBM entitlement key validation failed, but continuing due to --no-confirm flag")
-                        else:
-                            self.printWarning("IBM entitlement key validation failed")
-                            print()
-                            self.printDescription(
-                                [
-                                    "What would you like to do?",
-                                    "  1. Continue anyway (skip validation)",
-                                    "  2. Quit (exit the application)",
-                                ]
-                            )
-                            choice = self.promptForInt("Select an option", min=1, max=2)
-                            if choice == 2:
-                                logger.info("User chose to quit due to invalid entitlement key")
-                                exit(1)
-                            # If choice == 1, continue with the invalid key
+                    self.validateEntitlementKeyNonInteractive(value)
 
                 self.setParam(key, value)
 
